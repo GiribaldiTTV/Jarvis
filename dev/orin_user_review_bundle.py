@@ -258,6 +258,7 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "returnedDensityAndButtonPlacementRepaired",
     "returnedTitleSubtitleWrapRepaired",
     "acceptedReferenceComparisonProven",
+    "exhaustiveMainRuntimeVisualGrammarComparisonProven",
     "resizeEdgeHitZoneProven",
     "defaultScrollIntentProven",
     "runtimeCopyIsProductFacing",

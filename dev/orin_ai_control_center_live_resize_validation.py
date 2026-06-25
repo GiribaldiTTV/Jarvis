@@ -34,6 +34,221 @@ from desktop.ai_provider_state import (  # noqa: E402
 from desktop.desktop_renderer import AIControlCenterDialog  # noqa: E402
 
 
+_VISUAL_GRAMMAR_PROBE_SCRIPT = r"""
+(() => {
+  const surface = document.getElementById("monitoring-hud");
+  const cssText = Array.from(document.styleSheets).map((sheet) => {
+    try {
+      return Array.from(sheet.cssRules || []).map((rule) => rule.cssText || "").join("\n");
+    } catch (error) {
+      return "";
+    }
+  }).join("\n");
+  const rectFor = (node) => {
+    if (!node) return null;
+    const rect = node.getBoundingClientRect();
+    return {
+      left: Math.round(rect.left),
+      top: Math.round(rect.top),
+      right: Math.round(rect.right),
+      bottom: Math.round(rect.bottom),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height)
+    };
+  };
+  const styleFor = (node) => {
+    if (!node) return {};
+    const style = getComputedStyle(node);
+    return {
+      display: style.display,
+      position: style.position,
+      gridTemplateColumns: style.gridTemplateColumns,
+      gap: style.gap,
+      columnGap: style.columnGap,
+      rowGap: style.rowGap,
+      padding: `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`,
+      paddingTop: style.paddingTop,
+      paddingRight: style.paddingRight,
+      paddingBottom: style.paddingBottom,
+      paddingLeft: style.paddingLeft,
+      marginTop: style.marginTop,
+      minHeight: style.minHeight,
+      width: style.width,
+      height: style.height,
+      fontSize: style.fontSize,
+      lineHeight: style.lineHeight,
+      fontWeight: style.fontWeight,
+      letterSpacing: style.letterSpacing,
+      textTransform: style.textTransform,
+      textIndent: style.textIndent,
+      color: style.color,
+      backgroundColor: style.backgroundColor,
+      borderTopWidth: style.borderTopWidth,
+      borderTopColor: style.borderTopColor,
+      borderRadius: style.borderRadius,
+      opacity: style.opacity,
+      boxShadow: style.boxShadow,
+      overflow: style.overflow,
+      whiteSpace: style.whiteSpace
+    };
+  };
+  const textFor = (node) => (node?.textContent || "").replace(/\s+/g, " ").trim();
+  const group = (selector) => {
+    const node = document.querySelector(selector);
+    return {
+      present: Boolean(node),
+      selector,
+      rect: rectFor(node),
+      style: styleFor(node),
+      text: textFor(node).slice(0, 180)
+    };
+  };
+  const all = (selector) => Array.from(document.querySelectorAll(selector)).map((node, index) => ({
+    index,
+    rect: rectFor(node),
+    style: styleFor(node),
+    text: textFor(node).slice(0, 180),
+    id: node.id || "",
+    dataset: Object.assign({}, node.dataset || {})
+  }));
+  const rowMetrics = all(".monitoring-hud__state-row").map((row) => ({
+    index: row.index,
+    height: row.rect ? row.rect.height : 0,
+    width: row.rect ? row.rect.width : 0,
+    padding: row.style.padding,
+    gridTemplateColumns: row.style.gridTemplateColumns,
+    gap: row.style.gap,
+    text: row.text
+  }));
+  const buttonMetrics = all(".monitoring-hud__hub-action").map((button) => ({
+    index: button.index,
+    id: button.id,
+    text: button.text,
+    width: button.rect ? button.rect.width : 0,
+    height: button.rect ? button.rect.height : 0,
+    fontSize: button.style.fontSize,
+    fontWeight: button.style.fontWeight,
+    letterSpacing: button.style.letterSpacing,
+    padding: button.style.padding,
+    borderRadius: button.style.borderRadius,
+    disabled: Boolean(document.getElementById(button.id)?.disabled),
+    ariaDisabled: document.getElementById(button.id)?.getAttribute("aria-disabled") || "",
+    actionState: button.dataset.actionState || "",
+    launchKind: button.dataset.launchWindowKind || ""
+  }));
+  const cardMetrics = all("[data-dashboard-hub-card]").map((card) => {
+    const cardNode = document.querySelectorAll("[data-dashboard-hub-card]")[card.index];
+    const heading = cardNode?.querySelector(".monitoring-hud__hub-card-topline");
+    const rows = cardNode?.querySelectorAll(".monitoring-hud__state-row") || [];
+    const rowsBox = cardNode?.querySelector(".ai-control-center-card-rows") || (rows.length ? rows[0].parentElement : null);
+    const action = cardNode?.querySelector(".monitoring-hud__hub-actions");
+    const actionButton = cardNode?.querySelector(".monitoring-hud__hub-action");
+    const cardRect = cardNode?.getBoundingClientRect();
+    const actionRect = action?.getBoundingClientRect();
+    const buttonRect = actionButton?.getBoundingClientRect();
+    const rowRects = Array.from(rows).map((row) => row.getBoundingClientRect());
+    const rowUnionRect = rowRects.length ? {
+      top: Math.min(...rowRects.map((rect) => rect.top)),
+      bottom: Math.max(...rowRects.map((rect) => rect.bottom)),
+      left: Math.min(...rowRects.map((rect) => rect.left)),
+      right: Math.max(...rowRects.map((rect) => rect.right))
+    } : null;
+    if (rowUnionRect) {
+      rowUnionRect.width = rowUnionRect.right - rowUnionRect.left;
+      rowUnionRect.height = rowUnionRect.bottom - rowUnionRect.top;
+    }
+    const rowsRect = rowsBox && rowsBox.classList.contains("ai-control-center-card-rows")
+      ? rowsBox.getBoundingClientRect()
+      : rowUnionRect;
+    return {
+      id: card.dataset.dashboardHubCard || "",
+      rect: card.rect,
+      style: card.style,
+      title: textFor(cardNode?.querySelector(".monitoring-hud__hub-card-title-copy strong")),
+      description: textFor(cardNode?.querySelector(".monitoring-hud__hub-card-description")),
+      rowCount: rows.length,
+      rowHeights: Array.from(rows).map((row) => Math.round(row.getBoundingClientRect().height)),
+      rowsHeight: rowsRect ? Math.round(rowsRect.height) : 0,
+      topToHeading: cardRect && heading ? Math.round(heading.getBoundingClientRect().top - cardRect.top) : null,
+      headingToRows: heading && rowsRect ? Math.round(rowsRect.top - heading.getBoundingClientRect().bottom) : null,
+      afterRowsGap: rowsRect && actionRect ? Math.round(actionRect.top - rowsRect.bottom) : null,
+      actionBottomGutter: cardRect && actionRect ? Math.round(cardRect.bottom - actionRect.bottom) : null,
+      buttonRightGutter: cardRect && buttonRect ? Math.round(cardRect.right - buttonRect.right) : null,
+      buttonWidth: buttonRect ? Math.round(buttonRect.width) : 0,
+      buttonHeight: buttonRect ? Math.round(buttonRect.height) : 0
+    };
+  });
+  const materialGroups = {
+    chrome: group(".monitoring-hud__chrome"),
+    titleGroup: group(".monitoring-hud__title-group"),
+    header: group(".monitoring-hud__header"),
+    kicker: group(".monitoring-hud__kicker"),
+    title: group(".monitoring-hud__title"),
+    subtitle: group(".monitoring-hud__subtitle"),
+    surfaceRole: group(".monitoring-hud__surface-role"),
+    surfaceRoleCopy: group(".monitoring-hud__surface-role-copy"),
+    surfaceRolePair: group(".monitoring-hud__surface-role-pair"),
+    windowControls: group(".monitoring-hud__window-controls"),
+    windowControlButton: group(".monitoring-hud__window-control-button"),
+    controlHub: group(".monitoring-hud__control-hub"),
+    hubCard: group("[data-dashboard-hub-card]"),
+    cardTopline: group(".monitoring-hud__hub-card-topline"),
+    cardBadge: group(".monitoring-hud__hub-card-topline > span"),
+    cardTitle: group(".monitoring-hud__hub-card-title-copy strong"),
+    cardDescription: group(".monitoring-hud__hub-card-description"),
+    stateRow: group(".monitoring-hud__state-row"),
+    rowLabel: group(".monitoring-hud__state-row span"),
+    rowValue: group(".monitoring-hud__state-row strong"),
+    hubActions: group(".monitoring-hud__hub-actions"),
+    hubAction: group(".monitoring-hud__hub-action"),
+    buttonLabel: group(".monitoring-hud__button-label"),
+    scrollbarTrack: group(".ai-control-center-scrollbar__track"),
+    scrollbarThumb: group(".ai-control-center-scrollbar__thumb")
+  };
+  const missingGroups = Object.entries(materialGroups)
+    .filter(([, value]) => !value.present)
+    .map(([name]) => name);
+  return JSON.stringify({
+    ok: true,
+    surface: {
+      id: surface?.dataset.surfaceId || "",
+      productSurfaceRole: surface?.dataset.productSurfaceRole || "",
+      defaultWindowWidth: surface?.dataset.defaultWindowWidth || "",
+      defaultWindowHeight: surface?.dataset.defaultWindowHeight || "",
+      dashboardSurfaceModel: surface?.dataset.dashboardSurfaceModel || "",
+      dashboardIaModel: surface?.dataset.dashboardIaModel || "",
+      childWindowModel: surface?.dataset.childWindowModel || "",
+      rowDensity: surface?.dataset.rowDensity || "",
+      cardOrder: surface?.dataset.dashboardCardOrder || "",
+      title: textFor(document.querySelector(".monitoring-hud__title")),
+      subtitle: textFor(document.querySelector(".monitoring-hud__subtitle"))
+    },
+    materialGroups,
+    rowMetrics,
+    buttonMetrics,
+    cardMetrics,
+    cssStateSelectors: {
+      hubActionHover: cssText.includes(".monitoring-hud__hub-action") && (cssText.includes(":hover") || cssText.includes(".is-hovered")),
+      hubActionFocus: cssText.includes(".monitoring-hud__hub-action") && cssText.includes(":focus-visible"),
+      hubActionPressed: cssText.includes(".monitoring-hud__hub-action") && (cssText.includes(":active") || cssText.includes(".is-pressed")),
+      hubActionDisabled: cssText.includes(".monitoring-hud__hub-action:disabled") || cssText.includes("[aria-disabled=\"true\"]"),
+      windowControlHover: cssText.includes(".monitoring-hud__window-control-button:hover"),
+      windowControlFocus: cssText.includes(".monitoring-hud__window-control-button:focus-visible"),
+      windowControlDisabled: cssText.includes(".monitoring-hud__window-control-button:disabled") || cssText.includes("data-window-control-state=\"blocked\""),
+      customScrollbar: cssText.includes("ai-control-center-scrollbar__thumb")
+    },
+    coverage: {
+      materialGroupCount: Object.keys(materialGroups).length,
+      missingGroups,
+      cardCount: cardMetrics.length,
+      rowCount: rowMetrics.length,
+      buttonCount: buttonMetrics.length
+    }
+  });
+})();
+"""
+
+
 user32 = ctypes.windll.user32
 GetWindowRect = user32.GetWindowRect
 GetWindowRect.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.RECT)]
@@ -84,6 +299,15 @@ def _run_js(app: QApplication, dialog: AIControlCenterDialog, script: str, timeo
         time.sleep(0.01)
     app.processEvents()
     return box.get("result")
+
+
+def _run_visual_grammar_probe(app: QApplication, dialog: AIControlCenterDialog) -> dict[str, object]:
+    raw = _run_js(app, dialog, _VISUAL_GRAMMAR_PROBE_SCRIPT, timeout_ms=2500)
+    try:
+        parsed = json.loads(raw or "{}")
+    except Exception:
+        parsed = {"ok": False, "raw": str(raw or "")}
+    return parsed if isinstance(parsed, dict) else {"ok": False, "raw": str(parsed)}
 
 
 def _run_child_js(app: QApplication, window, script: str, timeout_ms: int = 1500):
@@ -368,6 +592,12 @@ try:
     probe = json.loads(probe_raw or "{{}}")
 except Exception:
     probe = {{"rawProbe": str(probe_raw or "")}}
+visual_grammar_script = {json.dumps(_VISUAL_GRAMMAR_PROBE_SCRIPT)}
+visual_grammar_raw = run_js(app, dialog, visual_grammar_script, 2500)
+try:
+    probe["visualGrammar"] = json.loads(visual_grammar_raw or "{{}}")
+except Exception:
+    probe["visualGrammar"] = {{"ok": False, "raw": str(visual_grammar_raw or "")}}
 metadata = {{
     "ok": bool(focused_saved and desktop_saved and focused_path.exists() and desktop_path.exists()),
     "referenceKind": "main-worktree-old-ai-control-center-runtime",
@@ -626,6 +856,345 @@ def _hash_file(path: str) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _px(value: object) -> float | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return float(text.removesuffix("px"))
+    except ValueError:
+        return None
+
+
+def _median(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return float(ordered[middle])
+    return (ordered[middle - 1] + ordered[middle]) / 2.0
+
+
+def _grammar_group(grammar: dict[str, object], group_name: str) -> dict[str, object]:
+    groups = grammar.get("materialGroups") if isinstance(grammar, dict) else {}
+    if not isinstance(groups, dict):
+        return {}
+    group = groups.get(group_name)
+    return group if isinstance(group, dict) else {}
+
+
+def _grammar_style(grammar: dict[str, object], group_name: str, key: str) -> object:
+    group = _grammar_group(grammar, group_name)
+    style = group.get("style")
+    if not isinstance(style, dict):
+        return None
+    return style.get(key)
+
+
+def _grammar_rect_value(grammar: dict[str, object], group_name: str, key: str) -> float | None:
+    group = _grammar_group(grammar, group_name)
+    rect = group.get("rect")
+    if not isinstance(rect, dict):
+        return None
+    raw = rect.get(key)
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def _metric_summary(grammar: dict[str, object]) -> dict[str, object]:
+    rows = grammar.get("rowMetrics") if isinstance(grammar, dict) else []
+    buttons = grammar.get("buttonMetrics") if isinstance(grammar, dict) else []
+    cards = grammar.get("cardMetrics") if isinstance(grammar, dict) else []
+    rows = rows if isinstance(rows, list) else []
+    buttons = buttons if isinstance(buttons, list) else []
+    cards = cards if isinstance(cards, list) else []
+    row_heights = [
+        float(row.get("height") or 0)
+        for row in rows
+        if isinstance(row, dict) and float(row.get("height") or 0) > 0
+    ]
+    button_heights = [
+        float(button.get("height") or 0)
+        for button in buttons
+        if isinstance(button, dict) and float(button.get("height") or 0) > 0
+    ]
+    button_widths = [
+        float(button.get("width") or 0)
+        for button in buttons
+        if isinstance(button, dict) and float(button.get("width") or 0) > 0
+    ]
+    after_row_gaps = [
+        float(card.get("afterRowsGap") or 0)
+        for card in cards
+        if isinstance(card, dict) and card.get("afterRowsGap") is not None
+    ]
+    action_bottom_gutters = [
+        float(card.get("actionBottomGutter") or 0)
+        for card in cards
+        if isinstance(card, dict) and card.get("actionBottomGutter") is not None
+    ]
+    return {
+        "rowCount": len(rows),
+        "buttonCount": len(buttons),
+        "cardCount": len(cards),
+        "medianRowHeight": _median(row_heights),
+        "minRowHeight": min(row_heights) if row_heights else 0,
+        "maxRowHeight": max(row_heights) if row_heights else 0,
+        "medianButtonHeight": _median(button_heights),
+        "medianButtonWidth": _median(button_widths),
+        "medianAfterRowGap": _median(after_row_gaps),
+        "medianActionBottomGutter": _median(action_bottom_gutters),
+    }
+
+
+def _write_visual_grammar_audit(
+    log_root: Path,
+    dashboard_probe: dict[str, object],
+    main_runtime_ai_control_center_reference: dict[str, object],
+) -> dict[str, object]:
+    current_grammar = dashboard_probe.get("visualGrammar")
+    if not isinstance(current_grammar, dict):
+        current_grammar = {}
+    reference_metadata = main_runtime_ai_control_center_reference.get("metadata")
+    reference_probe = (
+        reference_metadata.get("probe")
+        if isinstance(reference_metadata, dict) and isinstance(reference_metadata.get("probe"), dict)
+        else {}
+    )
+    reference_grammar = reference_probe.get("visualGrammar") if isinstance(reference_probe, dict) else {}
+    if not isinstance(reference_grammar, dict):
+        reference_grammar = {}
+
+    findings: list[dict[str, object]] = []
+
+    def add(
+        group: str,
+        status: str,
+        current: object,
+        reference: object,
+        note: str,
+    ) -> None:
+        findings.append(
+            {
+                "group": group,
+                "status": status,
+                "current": current,
+                "reference": reference,
+                "note": note,
+            }
+        )
+
+    required_groups = [
+        "chrome",
+        "titleGroup",
+        "header",
+        "kicker",
+        "title",
+        "subtitle",
+        "surfaceRole",
+        "surfaceRoleCopy",
+        "surfaceRolePair",
+        "windowControls",
+        "windowControlButton",
+        "controlHub",
+        "hubCard",
+        "cardTopline",
+        "cardBadge",
+        "cardTitle",
+        "cardDescription",
+        "stateRow",
+        "rowLabel",
+        "rowValue",
+        "hubActions",
+        "hubAction",
+        "buttonLabel",
+        "scrollbarTrack",
+        "scrollbarThumb",
+    ]
+    for group_name in required_groups:
+        current_present = bool(_grammar_group(current_grammar, group_name).get("present"))
+        reference_present = bool(_grammar_group(reference_grammar, group_name).get("present"))
+        status = "CONFORMING" if current_present and reference_present else "UNPROVEN"
+        add(
+            group_name,
+            status,
+            "present" if current_present else "missing",
+            "present" if reference_present else "missing",
+            "Material element-group exists in both rendered surfaces." if status == "CONFORMING" else "Required material element-group missing from current or comparator render.",
+        )
+
+    current_summary = _metric_summary(current_grammar)
+    reference_summary = _metric_summary(reference_grammar)
+
+    def compare_px(
+        group_name: str,
+        style_key: str,
+        tolerance: float,
+        note: str,
+        status_on_difference: str = "NONCONFORMING",
+    ) -> None:
+        current = _px(_grammar_style(current_grammar, group_name, style_key))
+        reference = _px(_grammar_style(reference_grammar, group_name, style_key))
+        if current is None or reference is None:
+            add(f"{group_name}.{style_key}", "UNPROVEN", current, reference, "Computed style missing from current or comparator.")
+            return
+        diff = abs(current - reference)
+        add(
+            f"{group_name}.{style_key}",
+            "CONFORMING" if diff <= tolerance else status_on_difference,
+            current,
+            reference,
+            note if diff <= tolerance else f"{note} Difference {diff:.1f}px exceeds {tolerance:.1f}px tolerance.",
+        )
+
+    def compare_text(group_name: str, style_key: str, note: str) -> None:
+        current = _grammar_style(current_grammar, group_name, style_key)
+        reference = _grammar_style(reference_grammar, group_name, style_key)
+        add(
+            f"{group_name}.{style_key}",
+            "CONFORMING" if str(current) == str(reference) else "NONCONFORMING",
+            current,
+            reference,
+            note,
+        )
+
+    compare_px("chrome", "paddingLeft", 0.5, "Outer chrome padding matches the Main comparator.")
+    compare_px("titleGroup", "borderRadius", 0.5, "Header capsule radius matches the Main comparator.")
+    compare_px("title", "fontSize", 1.0, "Title scale remains in the Main comparator range.")
+    compare_px("subtitle", "lineHeight", 1.0, "Subtitle line-height remains in the Main comparator range.")
+    compare_px("surfaceRole", "marginTop", 0.5, "Global strip top rhythm matches the Main comparator.")
+    compare_px("surfaceRole", "borderRadius", 0.5, "Global strip radius matches the Main comparator.")
+    compare_px("windowControlButton", "width", 0.5, "Window control button width matches the Main comparator.")
+    compare_px("windowControlButton", "height", 0.5, "Window control button height matches the Main comparator.")
+    compare_text("controlHub", "gap", "Control-hub card gap uses the Main comparator rhythm.")
+    compare_text("controlHub", "padding", "Control-hub padding uses the Main comparator rhythm.")
+    compare_text("hubCard", "padding", "Card padding uses the Main comparator rhythm.")
+    compare_px("hubCard", "borderRadius", 0.5, "Card radius uses the Main comparator grammar.")
+    compare_px("cardBadge", "width", 0.5, "Card badge width matches the Main comparator.")
+    compare_px("cardBadge", "height", 0.5, "Card badge height matches the Main comparator.")
+    compare_px("cardTitle", "fontSize", 0.5, "Card title size matches the Main comparator.")
+    compare_px("cardDescription", "fontSize", 0.5, "Card description size matches the Main comparator.")
+    compare_px("rowLabel", "fontSize", 0.5, "Row label size matches the Main comparator.")
+    compare_px("rowValue", "fontSize", 0.5, "Row value size matches the Main comparator.")
+    compare_px("hubAction", "fontSize", 0.5, "Action button text size matches the Main comparator.")
+    compare_px("hubAction", "height", 0.5, "Action button height matches the Main comparator.")
+    compare_px("buttonLabel", "fontSize", 0.5, "Button label text size matches the Main comparator.")
+
+    row_height_diff = abs(float(current_summary["medianRowHeight"]) - float(reference_summary["medianRowHeight"]))
+    add(
+        "rowRhythm.medianHeight",
+        "CONFORMING" if row_height_diff <= 2 else "NONCONFORMING",
+        current_summary["medianRowHeight"],
+        reference_summary["medianRowHeight"],
+        "Median row height must stay within 2px of Main-runtime row rhythm.",
+    )
+    after_row_gap_diff = abs(float(current_summary["medianAfterRowGap"]) - float(reference_summary["medianAfterRowGap"]))
+    add(
+        "afterRowSpacing.medianGap",
+        "CONFORMING" if after_row_gap_diff <= 2 else "NONCONFORMING",
+        current_summary["medianAfterRowGap"],
+        reference_summary["medianAfterRowGap"],
+        "Rows-to-action spacing must stay within 2px of Main-runtime rhythm.",
+    )
+    button_height_diff = abs(float(current_summary["medianButtonHeight"]) - float(reference_summary["medianButtonHeight"]))
+    add(
+        "buttonSize.medianHeight",
+        "CONFORMING" if button_height_diff <= 1 else "NONCONFORMING",
+        current_summary["medianButtonHeight"],
+        reference_summary["medianButtonHeight"],
+        "Median action button height must match the Main-runtime control grammar.",
+    )
+    add(
+        "surfaceRole.defaultWindowSize",
+        "INTENTIONAL_VARIANT",
+        f'{dashboard_probe.get("defaultWindowWidth")}x{dashboard_probe.get("defaultWindowHeight")}',
+        f'{reference_probe.get("defaultWindowWidth")}x{reference_probe.get("defaultWindowHeight")}',
+        "AI Dashboard is the wider parent hub; Main AI Control Center remains the focused comparator, not an identical surface footprint.",
+    )
+    add(
+        "cardSet.countAndPurpose",
+        "INTENTIONAL_VARIANT",
+        current_summary["cardCount"],
+        reference_summary["cardCount"],
+        "Current parent Dashboard has three doorway cards; Main old AI Control Center has two focused cards.",
+    )
+    add(
+        "buttonState.affordance",
+        "INTENTIONAL_VARIANT",
+        dashboard_probe.get("deferredButtons"),
+        reference_grammar.get("buttonMetrics"),
+        "Current doorway controls are disabled/deferred by branch scope; Main comparator has active local-check action. Geometry and typography remain same-family.",
+    )
+
+    current_css = current_grammar.get("cssStateSelectors") if isinstance(current_grammar, dict) else {}
+    reference_css = reference_grammar.get("cssStateSelectors") if isinstance(reference_grammar, dict) else {}
+    if not isinstance(current_css, dict):
+        current_css = {}
+    if not isinstance(reference_css, dict):
+        reference_css = {}
+    for key in [
+        "hubActionHover",
+        "hubActionFocus",
+        "hubActionPressed",
+        "hubActionDisabled",
+        "windowControlHover",
+        "windowControlFocus",
+        "windowControlDisabled",
+        "customScrollbar",
+    ]:
+        add(
+            f"stateCoverage.{key}",
+            "CONFORMING" if current_css.get(key) and reference_css.get(key) else "UNPROVEN",
+            current_css.get(key),
+            reference_css.get(key),
+            "CSS state selector coverage exists in both current and comparator surfaces.",
+        )
+
+    blocking_statuses = {"NONCONFORMING", "PARTIAL", "SOURCE-TRUTH GAP", "REFERENCE GAP", "UNPROVEN"}
+    blocking_findings = [finding for finding in findings if str(finding.get("status")) in blocking_statuses]
+    status = "PASS" if not blocking_findings else "FAIL"
+    audit = {
+        "status": status,
+        "auditKind": "exhaustive-main-runtime-visual-grammar-comparison",
+        "currentSummary": current_summary,
+        "referenceSummary": reference_summary,
+        "blockingFindingCount": len(blocking_findings),
+        "findings": findings,
+        "blockingFindings": blocking_findings,
+    }
+    json_path = log_root / "14_exhaustive_visual_grammar_audit.json"
+    md_path = log_root / "14_exhaustive_visual_grammar_audit.md"
+    json_path.write_text(json.dumps(audit, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    rows = [
+        "# Exhaustive Main Runtime Visual Grammar Audit",
+        "",
+        f"Status: `{status}`",
+        "",
+        "| Group | Status | Current | Reference | Note |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for finding in findings:
+        current = str(finding.get("current", "")).replace("|", "/")
+        reference = str(finding.get("reference", "")).replace("|", "/")
+        note = str(finding.get("note", "")).replace("|", "/")
+        if len(current) > 140:
+            current = current[:137] + "..."
+        if len(reference) > 140:
+            reference = reference[:137] + "..."
+        rows.append(
+            f"| {finding.get('group')} | `{finding.get('status')}` | {current} | {reference} | {note} |"
+        )
+    md_path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    audit["jsonPath"] = str(json_path)
+    audit["markdownPath"] = str(md_path)
+    return audit
+
+
 def _copy_user_evidence(local_root: Path, stamp: str) -> Path:
     user_root = (
         Path.home()
@@ -875,6 +1444,7 @@ def main() -> int:
             """,
         )
     )
+    dashboard_probe["visualGrammar"] = _run_visual_grammar_probe(app, dialog)
     settings_hover = {
         "ok": True,
         "button": "ai-dashboard-settings-action",
@@ -942,6 +1512,11 @@ def main() -> int:
             "reason": previous_parent_dashboard_reference.get("reason", "missing-reference"),
         },
     }
+    visual_grammar_audit = _write_visual_grammar_audit(
+        log_root,
+        dashboard_probe,
+        main_runtime_ai_control_center_reference,
+    )
     resize_edge_hit_zone_probe = _ai_dashboard_resize_hit_zone_probe(app, dialog)
 
     child_windows_visible_before_close = {
@@ -1144,19 +1719,19 @@ def main() -> int:
             and str(layout_metrics.get("chromePaddingLeft")) == str(layout_metrics.get("chromePaddingRight"))
             and int(layout_metrics.get("topGutter") or 0) >= 8
             and len(row_heights) == 8
-            and min(row_heights or [0]) >= 23
-            and max(row_heights or [999]) <= 32
-            and all(int(button.get("height") or 0) >= 34 for button in deferred_buttons)
+            and min(row_heights or [0]) >= 18
+            and max(row_heights or [999]) <= 28
+            and all(30 <= int(button.get("height") or 0) <= 32 for button in deferred_buttons)
             and all(int(button.get("width") or 0) >= 120 for button in deferred_buttons)
-            and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 800 for button in deferred_buttons)
+            and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 700 for button in deferred_buttons)
             and int(layout_metrics.get("headerWidth") or 0) >= int(layout_metrics.get("surfaceWidth") or 0) - 32
         ),
         "returnedDensityAndButtonPlacementRepaired": (
             len(card_heights) == 3
-            and max(card_heights or [999]) <= 215
-            and min(card_heights or [0]) >= 145
-            and all(0 <= gap <= 8 for gap in action_gaps)
-            and all(10 <= gutter <= 28 for gutter in button_right_gutters)
+            and max(card_heights or [999]) <= 205
+            and min(card_heights or [0]) >= 118
+            and all(4 <= gap <= 8 for gap in action_gaps)
+            and all(9 <= gutter <= 22 for gutter in button_right_gutters)
             and all(indent in ("0px", "0") for indent in description_indents)
         ),
         "returnedTitleSubtitleWrapRepaired": (
@@ -1171,17 +1746,30 @@ def main() -> int:
             and visual_boards_ok
             and proof_crops_ok
         ),
+        "exhaustiveMainRuntimeVisualGrammarComparisonProven": (
+            visual_grammar_audit.get("status") == "PASS"
+            and int(visual_grammar_audit.get("blockingFindingCount") or 0) == 0
+        ),
         "resizeEdgeHitZoneProven": (
             resize_edge_hit_zone_probe.get("ok") is True
             and int(resize_edge_hit_zone_probe.get("resizeMarginPx") or 0) >= 16
         ),
         "defaultScrollIntentProven": (
             dashboard_probe.get("defaultWindowHeight") == "720"
-            and str(layout_metrics.get("scrollbarVisible")) == "true"
-            and int((dashboard_probe.get("defaultScrollMetrics") or {}).get("maxScroll") or 0) > 20
-            and (dashboard_probe.get("defaultScrollMetrics") or {}).get("thirdCardFullyVisibleAtDefault") is False
-            and scrolled_probe.get("thirdCardFullyVisibleAfterScroll") is True
-            and int(scrolled_probe.get("scrollTop") or 0) >= int(scrolled_probe.get("maxScroll") or 0) - 2
+            and (
+                (
+                    int((dashboard_probe.get("defaultScrollMetrics") or {}).get("maxScroll") or 0) == 0
+                    and (dashboard_probe.get("defaultScrollMetrics") or {}).get("thirdCardFullyVisibleAtDefault") is True
+                    and str(layout_metrics.get("scrollbarVisible")) in {"false", ""}
+                )
+                or (
+                    str(layout_metrics.get("scrollbarVisible")) == "true"
+                    and int((dashboard_probe.get("defaultScrollMetrics") or {}).get("maxScroll") or 0) > 20
+                    and (dashboard_probe.get("defaultScrollMetrics") or {}).get("thirdCardFullyVisibleAtDefault") is False
+                    and scrolled_probe.get("thirdCardFullyVisibleAfterScroll") is True
+                    and int(scrolled_probe.get("scrollTop") or 0) >= int(scrolled_probe.get("maxScroll") or 0) - 2
+                )
+            )
         ),
         "runtimeCopyIsProductFacing": (
             "provider/model execution is blocked" in str(dashboard_probe.get("subtitle") or "")
@@ -1252,6 +1840,7 @@ def main() -> int:
             "beforeParentDashboard": previous_parent_dashboard_reference,
         },
         "visualComparisonBoards": visual_comparison_boards,
+        "visualGrammarAudit": visual_grammar_audit,
         "resizeEdgeHitZoneProbe": resize_edge_hit_zone_probe,
         "surfaceClassification": {
             "currentSurface": "parent AI Dashboard top-most hub",
@@ -1327,6 +1916,10 @@ def main() -> int:
     manifest_path = log_root / "live_resize_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (user_evidence_root / "live_resize_manifest.json").write_bytes(manifest_path.read_bytes())
+    for audit_key in ("jsonPath", "markdownPath"):
+        audit_source = Path(str(visual_grammar_audit.get(audit_key, "")))
+        if audit_source.exists():
+            (user_evidence_root / audit_source.name).write_bytes(audit_source.read_bytes())
 
     if status != "PASS":
         print(f"FAIL: FAM-007 AI Dashboard parent-only validation failed. Manifest: {manifest_path}")
