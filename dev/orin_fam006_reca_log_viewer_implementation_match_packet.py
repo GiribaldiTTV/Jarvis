@@ -28,6 +28,9 @@ PACKET_ROOT = USER_ROOT / "FAM-006"
 BRANCH = "feature/fam-006-dashboard-recording-start-stop-local-file"
 ACCEPTED_SELECTION_ZIP = USER_ROOT / "FAM-006-20260624-234432.zip"
 ACCEPTED_SELECTION_SHA256 = "122767EB20EA0AF51D04211C612774A3EA4EA5DF0518FB3DF2590208D856BCBE"
+ACCEPTED_SELECTION_PACKET_RELATIVE = (
+    Path("Review Aids") / "Accepted Candidate Selection" / ACCEPTED_SELECTION_ZIP.name
+)
 PRIMARY_REVIEW = "REC_A_LOG_VIEWER_IMPLEMENTATION_MATCH_REVIEW.md"
 PACKET_STATUS = "fam006-reca-log-viewer-implementation-match-review"
 SCREENSHOT_ROOT = (
@@ -113,6 +116,10 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest().upper()
 
 
+def _sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest().upper()
+
+
 def _run_git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=WORKTREE, text=True, stderr=subprocess.STDOUT).strip()
 
@@ -158,6 +165,7 @@ def _purge_packet() -> None:
         except Exception:
             pass
     _remove_stale_same_status_zips()
+    _remove_stale_same_label_upload_zips()
 
 
 def _zip_has_packet_status(path: Path, status: str) -> bool:
@@ -190,6 +198,46 @@ def _remove_stale_same_status_zips(keep: Path | None = None) -> None:
         if keep_resolved and path.resolve() == keep_resolved:
             continue
         path.unlink()
+
+
+def _same_label_upload_zips() -> list[Path]:
+    return sorted(path for path in USER_ROOT.glob("FAM-006-*.zip") if path.is_file())
+
+
+def _remove_stale_same_label_upload_zips(keep: Path | None = None) -> None:
+    keep_resolved = keep.resolve() if keep else None
+    for path in _same_label_upload_zips():
+        if keep_resolved and path.resolve() == keep_resolved:
+            continue
+        path.unlink()
+
+
+def _accepted_selection_payload() -> tuple[bytes, str] | None:
+    if ACCEPTED_SELECTION_ZIP.exists():
+        payload = ACCEPTED_SELECTION_ZIP.read_bytes()
+        if _sha256_bytes(payload) == ACCEPTED_SELECTION_SHA256:
+            return payload, str(ACCEPTED_SELECTION_ZIP)
+
+    embedded = PACKET_ROOT / ACCEPTED_SELECTION_PACKET_RELATIVE
+    if embedded.exists():
+        payload = embedded.read_bytes()
+        if _sha256_bytes(payload) == ACCEPTED_SELECTION_SHA256:
+            return payload, str(embedded)
+
+    if LATEST_POINTER.exists():
+        try:
+            latest = json.loads(_read(LATEST_POINTER))
+            latest_zip = Path(str(latest.get("zipPath") or latest.get("zip") or ""))
+            if latest_zip.exists():
+                with zipfile.ZipFile(latest_zip) as archive:
+                    entry = ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix()
+                    payload = archive.read(entry)
+                if _sha256_bytes(payload) == ACCEPTED_SELECTION_SHA256:
+                    return payload, f"{latest_zip}!/{ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix()}"
+        except (KeyError, OSError, zipfile.BadZipFile):
+            pass
+
+    return None
 
 
 def _copy_file(source: Path, target: Path) -> None:
@@ -409,6 +457,7 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
     if zip_path.exists():
         zip_path.unlink()
     _remove_stale_same_status_zips()
+    _remove_stale_same_label_upload_zips()
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(PACKET_ROOT.rglob("*")):
             if path.is_file():
@@ -420,7 +469,7 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
         "packetRoot": str(PACKET_ROOT),
         "zipPath": str(zip_path),
         "zipSha256": _sha256(zip_path),
-        "acceptedSelectionZip": str(ACCEPTED_SELECTION_ZIP),
+        "acceptedSelectionZip": ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix(),
         "acceptedSelectionSha256": ACCEPTED_SELECTION_SHA256,
         "generatedAt": stamp,
         "nonSelfMutatingShaProof": True,
@@ -428,6 +477,7 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
     _write_json(EXTERNAL_BRANCH_ROOT / "reca_log_viewer_implementation_match_post_zip_manifest.json", proof)
     _write_json(LATEST_POINTER, proof)
     _remove_stale_same_status_zips(keep=zip_path)
+    _remove_stale_same_label_upload_zips(keep=zip_path)
     return proof
 
 
@@ -436,9 +486,11 @@ def generate() -> int:
     if identity["branch"] != BRANCH:
         print(json.dumps({"status": "BLOCKED", "reason": "wrong branch", "identity": identity}, indent=2))
         return 2
-    if not ACCEPTED_SELECTION_ZIP.exists() or _sha256(ACCEPTED_SELECTION_ZIP) != ACCEPTED_SELECTION_SHA256:
+    accepted_selection = _accepted_selection_payload()
+    if accepted_selection is None:
         print(json.dumps({"status": "BLOCKED", "reason": "accepted selection packet missing or SHA mismatch"}, indent=2))
         return 2
+    accepted_selection_payload, accepted_selection_source = accepted_selection
 
     stamp = time.strftime("%Y%m%d-%H%M%S")
     proof_root = _latest_proof_root()
@@ -449,7 +501,9 @@ def generate() -> int:
     _purge_packet()
     _copy_source_context()
     evidence_root = _copy_proof_root(proof_root)
-    _copy_file(ACCEPTED_SELECTION_ZIP, PACKET_ROOT / "Review Aids" / "Accepted Candidate Selection" / ACCEPTED_SELECTION_ZIP.name)
+    accepted_selection_target = PACKET_ROOT / ACCEPTED_SELECTION_PACKET_RELATIVE
+    accepted_selection_target.parent.mkdir(parents=True, exist_ok=True)
+    accepted_selection_target.write_bytes(accepted_selection_payload)
     aids = PACKET_ROOT / "Review Aids"
     validations = aids / "Validation Outputs"
     review_dir = PACKET_ROOT / "USER Review"
@@ -501,7 +555,8 @@ This packet is for USER review of runtime implementation-match only. It proves t
 
 ## Accepted Candidate Selection
 
-- Accepted packet: `{ACCEPTED_SELECTION_ZIP}`
+- Accepted packet evidence inside this packet: `{ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix()}`
+- Accepted packet source used for this generation: `{accepted_selection_source}`
 - Accepted packet SHA256: `{ACCEPTED_SELECTION_SHA256}`
 - Selection: `REC-A Recording Studio` plus renamed `Log Viewer` direction.
 
@@ -622,6 +677,12 @@ def validate() -> int:
         failures.append(
             "multiple current implementation-match ZIPs found: "
             + ", ".join(str(path) for path in same_status_zips)
+        )
+    same_label_zips = _same_label_upload_zips()
+    if len(same_label_zips) > 1:
+        failures.append(
+            "multiple top-level FAM-006 timestamped upload ZIPs found: "
+            + ", ".join(str(path) for path in same_label_zips)
         )
     print(json.dumps({"status": "PASS" if not failures else "FAIL", "failures": failures}, indent=2))
     return 0 if not failures else 1
