@@ -45,7 +45,7 @@ No Repo Live-State Tracking: active rows stay in C:\Nexus Governance State or US
 Next Legal Phase: RAR2 Adoption Ledger repair.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| --- |
 | TBD |
 
 | Element Class | Implementation Authority | Accepted Reference Set | Invariant Traits | Feature-Specific Traits | Target Surface | Primitive/Template/Reference-Derived/Exception | Evidence | Gap / Issue |

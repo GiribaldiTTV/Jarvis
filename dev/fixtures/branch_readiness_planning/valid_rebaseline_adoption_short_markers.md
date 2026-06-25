@@ -1,7 +1,7 @@
-# Valid Rebaseline Adoption No USER Review Required Fixture
+# Valid Rebaseline Adoption Short Markers Fixture
 
-RAR Stage: Resolved after RAR4 disposition and validation closeout.
-Trigger Reason: origin/main merged UIREF and Product Experience standards that were evaluated against the branch.
+RAR Stage: RAR3
+Trigger Reason: origin/main merged UIREF and Product Experience standards that required USER review proof.
 Source-Truth Files Loaded: Docs/Main.md, Docs/phase_governance.md, Docs/branch_plans/README.md, Docs/nexus_vision.md, Docs/family_visions/FAM-002_desktop_interface.md, Docs/ui_reference_catalog/index.md, and active external branch plan.
 Incoming Standard / Change Summary: UIREF-001 through UIREF-006 and the NDAI Product Experience Contract required accepted-reference comparison and element-group visual proof.
 Merged Standard Source: origin/main governance merge containing RAR, UIREF, and Product Experience Contract updates.
@@ -29,20 +29,20 @@ Visual Element / Element-Group Inspection Ledger: all rows are Not Applicable Wi
 Vision-To-Proof Matrix: no product vision claim is changed, so no runtime observation row is required.
 Scope Coverage Manifest: all current branch files are governance/helper fixture surfaces, not product UI or runtime surfaces.
 Owned-Surface Nonconformance Ledger: no current or historical owned-surface nonconformance is named for this resolved fixture.
-Current Branch Repair Candidates: none after source-truth and fixture validation closeout.
-Previous / Historical Branch Issue Candidates: none recorded for this resolved no-impact fixture.
-Current Violation Findings: none after reconciliation and validation.
-Issue-Candidate Table: no issue candidate is applicable because previous candidates are none.
-Issue Candidate Disposition: no issue candidate is applicable because previous candidates are none.
-Repair / Waiver / Defer / Route Decision Table: No USER review required because no issue candidate route is open after resolved closeout.
-Adoption Disposition: Resolved With Evidence after RAR comparison and validation closeout.
-Repair / Waiver / Blocker: unblocked after repair; no active repair, waiver, review gate, or route remains open.
+Current Branch Repair Candidates: none
+Previous / Historical Branch Issue Candidates: none
+Current Violation Findings: none
+Issue-Candidate Table: none
+Issue Candidate Disposition: none
+Repair / Waiver / Defer / Route Decision Table: none
+Adoption Disposition: RAR3 USER review packet is present for an active review gate with no issue candidate route.
+Repair / Waiver / Blocker: none
 Validation Summary: branch-readiness fixture validation and branch governance validation passed.
-USER Packet Path: not required because no USER decision is needed after resolved no-impact RAR closeout.
-USER Packet ZIP Path: not required because no USER decision packet is needed after resolved no-impact RAR closeout.
-Exact Next USER Decision: No USER review required for this resolved fixture.
+USER Packet Path: C:\Nexus USER\FAM-006
+USER Packet ZIP Path: C:\Nexus USER\FAM-006-20260620-120000.zip.
+Exact Next USER Decision: none
 No Repo Live-State Tracking: active RAR rows stay external when present; this resolved fixture leaves repo docs as durable rules only.
-Next Legal Phase: normal phase progression after resolved RAR closeout.
+Next Legal Phase: RAR3 USER Review Gate.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -58,4 +58,4 @@ Next Legal Phase: normal phase progression after resolved RAR closeout.
 
 | RAR USER Decision | Meaning | What It Authorizes | What It Does Not Authorize |
 | --- | --- | --- | --- |
-| None | No USER decision needed after resolved no-impact closeout | Nothing new | Runtime mutation, sibling mutation, PR, merge, release, or issue creation |
+| None | No issue-candidate decision needed | Nothing new | Runtime mutation, sibling mutation, PR, merge, release, or issue creation |

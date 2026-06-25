@@ -299,6 +299,9 @@ VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE = (
 VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_no_user_review_required.md"
 )
+VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_short_markers.md"
+)
 VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_direct_negated_green.md"
 )
@@ -1873,11 +1876,34 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Exact Next USER Decision:",
         "No Repo Live-State Tracking:",
     )
+    short_value_allowed_markers = {
+        "RAR Stage:",
+        "Current Branch Repair Candidates:",
+        "Previous / Historical Branch Issue Candidates:",
+        "Current Violation Findings:",
+        "Issue-Candidate Table:",
+        "Issue Candidate Disposition:",
+        "Repair / Waiver / Defer / Route Decision Table:",
+        "Repair / Waiver / Blocker:",
+        "Exact Next USER Decision:",
+    }
+
+    def is_allowed_short_marker_value(marker: str, value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        if marker == "RAR Stage:" and re.fullmatch(r"rar[0-4]", normalized_value):
+            return True
+        return marker in short_value_allowed_markers and normalized_value in {
+            "none",
+            "n/a",
+            "not applicable",
+        }
+
     for marker in required_markers:
         value = governance._extract_marker_value(text, marker)
         require(bool(value), f"Rebaseline Adoption Review Missing: {marker}")
         require(
-            governance._planning_word_count(value) >= 3,
+            governance._planning_word_count(value) >= 3
+            or is_allowed_short_marker_value(marker, value),
             f"Rebaseline Adoption Review Missing: {marker} is too shallow",
         )
 
@@ -1920,7 +1946,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     require(issue_candidate_header in text, "Owned Surface Issue Candidate Missing")
     require(rar_decision_header in text, "RAR USER Packet Missing")
 
-    def table_rows_after_header(header: str) -> list[list[str]]:
+    def table_rows_after_header(header: str, expected_columns: int) -> list[list[str]]:
         lines = text.splitlines()
         try:
             header_index = next(
@@ -1937,6 +1963,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 continue
             cells = governance._markdown_table_cells(line)
             if governance._is_markdown_table_separator(cells):
+                if len(cells) != expected_columns:
+                    rows.append(cells)
                 seen_separator = True
                 continue
             if not seen_separator:
@@ -2008,13 +2036,13 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 return True
         return False
 
-    raw_code_trace_rows = table_rows_after_header(code_trace_header)
-    raw_accepted_reference_rows = table_rows_after_header(accepted_reference_header)
-    raw_rar_decision_rows = table_rows_after_header(rar_decision_header)
+    raw_code_trace_rows = table_rows_after_header(code_trace_header, 11)
+    raw_accepted_reference_rows = table_rows_after_header(accepted_reference_header, 9)
+    raw_rar_decision_rows = table_rows_after_header(rar_decision_header, 4)
     code_trace_rows = substantive_rows(raw_code_trace_rows, 11)
     accepted_reference_rows = substantive_rows(raw_accepted_reference_rows, 9)
     rar_decision_rows = substantive_rows(raw_rar_decision_rows, 4)
-    issue_candidate_rows = table_rows_after_header(issue_candidate_header)
+    issue_candidate_rows = table_rows_after_header(issue_candidate_header, 8)
     require(
         bool(code_trace_rows)
         and not has_malformed_substantive_table_row(raw_code_trace_rows, 11),
@@ -2505,7 +2533,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         negated_spans: list[tuple[int, int]] = []
         ordered_phrases = sorted(phrases, key=len, reverse=True)
         for phrase in ordered_phrases:
-            for match in re.finditer(re.escape(phrase), value):
+            token_pattern = re.compile(
+                rf"(?<![a-z0-9_-]){re.escape(phrase)}(?![a-z0-9_-])"
+            )
+            for match in token_pattern.finditer(value):
                 if any(
                     match.start() >= start and match.end() <= end
                     for start, end in negated_spans
@@ -6700,6 +6731,15 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid no-USER-review-required RAR fixture unexpectedly failed: "
             + "; ".join(valid_no_user_review_required_failures[:5])
+        )
+
+    valid_short_markers_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_short_markers_failures:
+        failures.append(
+            "Valid short-marker RAR fixture unexpectedly failed: "
+            + "; ".join(valid_short_markers_failures[:5])
         )
 
     valid_direct_negated_green_failures = _validate_rebaseline_adoption_review_text(
