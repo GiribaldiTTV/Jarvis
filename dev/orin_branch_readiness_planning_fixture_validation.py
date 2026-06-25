@@ -2550,16 +2550,23 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     def has_dot_or_traversal_segment(path: str) -> bool:
         return any(part in {".", ".."} for part in path.split("\\"))
 
-    def has_invalid_path_suffix(next_char: str, after_next: str) -> bool:
-        whitespace_or_end = {"", " ", "\t", "\r", "\n"}
-        terminal_chars = whitespace_or_end | {",", ";", ":", ")", "]", "."}
-        if next_char in whitespace_or_end:
+    def has_invalid_path_suffix(suffix: str) -> bool:
+        if not suffix or suffix[0].isspace():
             return False
-        if next_char == "`":
-            return after_next not in terminal_chars
-        if next_char in {",", ";", ":", ")", "]", "."}:
-            return after_next not in terminal_chars
-        return True
+        if suffix[0] == "`":
+            suffix = suffix[1:]
+            if not suffix or suffix[0].isspace():
+                return False
+        terminal_punctuation = {",", ";", ":", ")", "]", "."}
+        terminal_index = 0
+        while (
+            terminal_index < len(suffix)
+            and suffix[terminal_index] in terminal_punctuation
+        ):
+            terminal_index += 1
+        if terminal_index == 0:
+            return True
+        return terminal_index < len(suffix) and not suffix[terminal_index].isspace()
 
     def normalized_user_packet_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
@@ -2574,9 +2581,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if any(match.start() >= start and match.end() <= end for start, end in spans):
                 continue
             spans.append(match.span())
-            next_char = normalized_value[match.end() : match.end() + 1]
-            after_next = normalized_value[match.end() + 1 : match.end() + 2]
-            if has_invalid_path_suffix(next_char, after_next):
+            if has_invalid_path_suffix(normalized_value[match.end() :]):
                 invalid_path_seen = True
                 continue
             raw_path = match.group(0)
@@ -2611,9 +2616,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 ):
                     continue
                 spans.append(match.span())
-                next_char = normalized_value[match.end() : match.end() + 1]
-                after_next = normalized_value[match.end() + 1 : match.end() + 2]
-                if has_invalid_path_suffix(next_char, after_next):
+                if has_invalid_path_suffix(normalized_value[match.end() :]):
                     invalid_suffix_seen = True
                     continue
                 raw_path = match.group(0)
@@ -8225,7 +8228,9 @@ line item, not a seam or separate branch.
         r"C:\Nexus USER\FAM-006;extra",
         r"C:\Nexus USER\FAM-006,extra",
         r"C:\Nexus USER\FAM-006)extra",
+        r"C:\Nexus USER\FAM-006).md",
         r"C:\Nexus USER\FAM-006]extra",
+        r"C:\Nexus USER\FAM-006].zip",
         r"C:\Nexus USER\FAM-006:extra",
     )
     for generated_packet_path in generated_invalid_packet_path_suffixes:
@@ -8412,7 +8417,9 @@ line item, not a seam or separate branch.
         r"C:\Nexus USER\FAM-006-20260620-120000.zip;extra",
         r"C:\Nexus USER\FAM-006-20260620-120000.zip,extra",
         r"C:\Nexus USER\FAM-006-20260620-120000.zip)extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip).tmp",
         r"C:\Nexus USER\FAM-006-20260620-120000.zip]extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip].md",
         r"C:\Nexus USER\FAM-006-20260620-120000.zip:extra",
     )
     for generated_zip_path in generated_invalid_zip_suffixes:
