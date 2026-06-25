@@ -89,7 +89,6 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         (
             "normal phase",
             "phase progression",
-            "pr readiness",
             "workstream",
             "blocked",
             "not blocked",
@@ -220,6 +219,20 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "covered family",
             "matrix",
             "churn gate",
+        ),
+    ),
+    FamilyRule(
+        "pr-readiness-review-risk-parser",
+        (
+            "pr readiness packet",
+            "pr-readiness packet",
+            "pr readiness field",
+            "pr-readiness field",
+            "review-risk coverage",
+            "review risk coverage",
+            "stage 1 packet",
+            "stage 2 packet",
+            "pr readiness",
         ),
     ),
 )
@@ -394,6 +407,19 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-code-to-visual-reference-parser" not in _classify_comment(visual_comment):
         failures.append(
             "Comment-family classifier did not classify code-to-visual comparison drift"
+        )
+    pr_readiness_comment = (
+        "A PR Readiness packet is missing review-risk coverage for another "
+        "PR-readiness field."
+    )
+    pr_readiness_families = _classify_comment(pr_readiness_comment)
+    if "pr-readiness-review-risk-parser" not in pr_readiness_families:
+        failures.append(
+            "Comment-family classifier did not classify generic PR Readiness review-risk drift"
+        )
+    if "rar-phase-advancement-parser" in pr_readiness_families:
+        failures.append(
+            "Comment-family classifier overmatched generic PR Readiness drift as RAR phase advancement"
         )
     return failures
 

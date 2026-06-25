@@ -3753,6 +3753,7 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         "rar-path-suffix-parser",
         "rar-short-marker-parser",
         "repo-live-state-boundary-parser",
+        "pr-readiness-review-risk-parser",
         "pr2-comment-family-classifier",
         "pr2-thread-pagination-and-approval-latch",
     }

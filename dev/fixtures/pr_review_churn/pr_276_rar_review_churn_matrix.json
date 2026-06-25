@@ -16,7 +16,8 @@
       "rar-table-row-parser",
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
-      "repo-live-state-boundary-parser"
+      "repo-live-state-boundary-parser",
+      "pr-readiness-review-risk-parser"
     ],
     "dev/orin_pr_review_churn_validation.py": [
       "pr2-comment-family-classifier",
@@ -29,7 +30,8 @@
       "rar-table-row-parser",
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
-      "repo-live-state-boundary-parser"
+      "repo-live-state-boundary-parser",
+      "pr-readiness-review-risk-parser"
     ]
   },
   "families": [
@@ -367,6 +369,37 @@
         "No Repo Live-State Tracking marker",
         "External operational state pointer",
         "Repo doc active ledger wording"
+      ]
+    },
+    {
+      "family_id": "pr-readiness-review-risk-parser",
+      "title": "PR Readiness review-risk and packet-field coverage",
+      "representative_comment_patterns": [
+        "PR Readiness packet missing review-risk coverage",
+        "Generic PR-readiness field drift misclassified as RAR phase advancement",
+        "Stage 1 or Stage 2 proof gaps hidden under RAR parser coverage"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/pr_watcher_mode_contract.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "generic PR Readiness review-risk comment maps to PR readiness family",
+        "generic PR Readiness comment does not map to RAR phase advancement",
+        "Stage 1 packet review-risk gap requires explicit family coverage"
+      ],
+      "sibling_variant_replay": [
+        "PR Readiness Stage 1 packet gap",
+        "PR Readiness Stage 2 field gap",
+        "review-risk coverage missing outside RAR parser scope"
       ]
     },
     {
