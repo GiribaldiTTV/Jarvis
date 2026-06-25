@@ -2463,10 +2463,14 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "user judgment required",
             "user judgment is required",
             "user judgment needed",
+            "needs user judgment",
+            "need user judgment",
             "requires user judgment",
             "user judgment before",
             "user visual judgment",
+            "needs user visual judgment",
             "user adjudication required",
+            "needs user adjudication",
             "user approval",
             "approval required",
             "user waiver",
@@ -7910,6 +7914,10 @@ line item, not a seam or separate branch.
         (
             "Exact Next USER Decision:",
             "USER judgment required before route selection.",
+        ),
+        (
+            "Exact Next USER Decision:",
+            "route selection needs USER judgment.",
         ),
         (
             "Repair / Waiver / Blocker:",
