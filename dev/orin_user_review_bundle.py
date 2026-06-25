@@ -252,29 +252,22 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ),
 )
 REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
-    "settingsCogIconOnlyNoVisibleFutureCopy",
-    "categoryLaunchersOpenRealWindows",
-    "childWindowsUseNativeNexusChrome",
-    "childWindowsMoveResizeFocus",
+    "dashboardHubParentOnly",
+    "doorwayButtonsDeferredNoFakeActions",
+    "parentVisualMetrics",
+    "runtimeCopyIsProductFacing",
     "fullDesktopProofNotDuplicated",
-    "explicitLauncherLabels",
-    "readinessReportFirstVisibleCopyIsUserReadable",
-    "readinessChildScrollbarIsNDAINative",
-    "readinessWorkRunsInsideChildWindow",
+    "settingsRouteHiddenForOptionG",
+    "noInlineWorkspaceActions",
+    "childLifecycleBehavior",
+    "dashboardResizeStillWorks",
     "providerExecutionStillBlocked",
 )
 IMAGE_PROOF_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
     "dashboard_initial",
-    "settings_tooltip_visible",
-    "control-center_opened",
-    "control-center_moved_resized",
-    "readiness-diagnostics_opened",
-    "readiness-diagnostics_moved_resized",
-    "readiness_after_actions",
-    "readiness_persists_after_dashboard_close",
-    "capabilities-maintenance_opened",
-    "capabilities-maintenance_moved_resized",
+    "dashboard_scrolled_bottom",
+    "dashboard_resized",
 }
 FAM007_LIVE_PROOF_MANIFEST_NAME = "live_resize_manifest.json"
 FAM007_UDL_IMAGE_PROOF_IDS = ("F7-UDL-006", "F7-UDL-007", "F7-UDL-016")
