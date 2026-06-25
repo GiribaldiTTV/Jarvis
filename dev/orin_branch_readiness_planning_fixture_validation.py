@@ -414,6 +414,9 @@ INVALID_REBASELINE_ADOPTION_PACKET_PATH_TRAVERSAL_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_explanatory_user_root.md"
 )
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_SUFFIX_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_suffix.md"
+)
 INVALID_REBASELINE_ADOPTION_MISSING_NEXT_LEGAL_PHASE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_next_legal_phase.md"
 )
@@ -2517,6 +2520,14 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     def has_dot_or_traversal_segment(path: str) -> bool:
         return any(part in {".", ".."} for part in path.split("\\"))
 
+    def has_invalid_path_suffix(next_char: str, after_next: str) -> bool:
+        terminal_chars = {"", " ", "\t", "\r", "\n", ",", ";", ":", ")", "]"}
+        if next_char == ".":
+            return after_next not in {"", " ", "\t", "\r", "\n"}
+        if next_char == "`":
+            return after_next not in terminal_chars
+        return next_char not in terminal_chars
+
     def normalized_user_packet_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
         spans: list[tuple[int, int]] = []
@@ -2532,7 +2543,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             spans.append(match.span())
             next_char = normalized_value[match.end() : match.end() + 1]
             after_next = normalized_value[match.end() + 1 : match.end() + 2]
-            if next_char == "." and after_next not in {"", " ", "\t", "\r", "\n"}:
+            if has_invalid_path_suffix(next_char, after_next):
                 invalid_path_seen = True
                 continue
             raw_path = match.group(0)
@@ -7915,6 +7926,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject off-root USER packet folder with later root mention"
+        )
+
+    packet_path_suffix_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_SUFFIX_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_suffix_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject suffixed USER packet folder token"
         )
 
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
