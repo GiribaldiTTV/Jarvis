@@ -2345,7 +2345,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 prefix = normalized_value[max(0, match.start() - 48) : match.start()]
                 suffix = normalized_value[match.end() : match.end() + 24]
                 if re.search(
-                    r"(?:^|[\s;:,.(\[])(?:no|not|without)\s+$",
+                    r"(?:^|[\s;:,.(\[])(?:no|not|without)\s+(?:further\s+|active\s+|current\s+|separate\s+)?(?:user\s+)?$",
                     prefix,
                 ):
                     continue
@@ -2416,11 +2416,60 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             return False
         return user_review_action_requires_packet(row[8])
 
+    user_review_packet_phrases = (
+        "rar3",
+        "rar3 user review gate",
+        "user review gate remains active",
+        "user review pending",
+        "pending user review",
+        "pending user",
+        "user reviews",
+        "user should review",
+        "user review required",
+        "user review is required",
+        "user review is still required",
+        "requires user review",
+        "required user review",
+        "must review",
+        "user must review",
+        "user decision",
+        "user decision needed",
+        "user decision required",
+        "requires user decision",
+        "user judgment required",
+        "user judgment is required",
+        "user judgment needed",
+        "needs user judgment",
+        "need user judgment",
+        "requires user judgment",
+        "user judgment before",
+        "user visual judgment",
+        "needs user visual judgment",
+        "user adjudication required",
+        "needs user adjudication",
+        "user approval",
+        "approval required",
+        "user waiver",
+        "waiver required",
+        "waiver decision",
+        "before waiver",
+        "review issue candidate",
+        "reviews rar issue candidates",
+    )
+
+    def rar_decision_row_requires_user_packet(row: list[str]) -> bool:
+        return contains_non_negated_rar_phrase(
+            " ".join(row),
+            user_review_packet_phrases,
+        )
+
     unresolved_row_user_review_required = any(
         code_trace_row_requires_user_packet(row) for row in code_trace_rows
     ) or any(
         accepted_reference_row_requires_user_packet(row)
         for row in accepted_reference_rows
+    ) or any(
+        rar_decision_row_requires_user_packet(row) for row in rar_decision_rows
     )
     active_rar_values = governance._normalized_planning_value(
         " ".join(
@@ -2440,46 +2489,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
     pending_user_review_required = contains_non_negated_rar_phrase(
         active_rar_values,
-        (
-            "rar3",
-            "rar3 user review gate",
-            "user review gate remains active",
-            "user review pending",
-            "pending user review",
-            "pending user",
-            "user reviews",
-            "user should review",
-            "user review required",
-            "user review is required",
-            "user review is still required",
-            "requires user review",
-            "required user review",
-            "must review",
-            "user must review",
-            "user decision",
-            "user decision needed",
-            "user decision required",
-            "requires user decision",
-            "user judgment required",
-            "user judgment is required",
-            "user judgment needed",
-            "needs user judgment",
-            "need user judgment",
-            "requires user judgment",
-            "user judgment before",
-            "user visual judgment",
-            "needs user visual judgment",
-            "user adjudication required",
-            "needs user adjudication",
-            "user approval",
-            "approval required",
-            "user waiver",
-            "waiver required",
-            "waiver decision",
-            "before waiver",
-            "review issue candidate",
-            "reviews rar issue candidates",
-        ),
+        user_review_packet_phrases,
     ) or unresolved_row_user_review_required
 
     normalized_product_experience_comparison = governance._normalized_planning_value(
@@ -7168,6 +7178,25 @@ line item, not a seam or separate branch.
             + "; ".join(valid_no_user_review_required_failures[:5])
         )
 
+    generated_no_user_approval_required_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "No USER decision needed after resolved no-impact closeout",
+            "No USER approval required after resolved no-impact closeout",
+        )
+    )
+    generated_no_user_approval_required_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_no_user_approval_required_text
+        )
+    )
+    if generated_no_user_approval_required_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected no USER approval required wording: "
+            + "; ".join(generated_no_user_approval_required_failures[:5])
+        )
+
     valid_post_phrase_no_user_decision_failures = (
         _validate_rebaseline_adoption_review_text(
             VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE.read_text(
@@ -7896,6 +7925,33 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject required USER decision without packet proof"
+        )
+
+    generated_rar_decision_no_packet_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+        .replace("RAR Stage: RAR3", "RAR Stage: RAR2")
+        .replace(
+            r"USER Packet Path: C:\Nexus USER\FAM-006",
+            "USER Packet Path: not required",
+        )
+        .replace(
+            r"USER Packet ZIP Path: C:\Nexus USER\FAM-006-20260620-120000.zip.",
+            "USER Packet ZIP Path: not required",
+        )
+        .replace(
+            "| None | No issue-candidate decision needed | Nothing new | Runtime mutation, sibling mutation, PR, merge, release, or issue creation |",
+            "| Review issue candidate | USER must review the issue candidate before route selection | Reviewability only | Runtime mutation, sibling mutation, PR, merge, release, or issue creation |",
+        )
+    )
+    generated_rar_decision_no_packet_failures = (
+        _validate_rebaseline_adoption_review_text(generated_rar_decision_no_packet_text)
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_rar_decision_no_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject USER review wording "
+            "inside the RAR decision table without deterministic USER packet proof"
         )
 
     generated_user_judgment_base_text = (
