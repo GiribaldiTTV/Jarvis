@@ -4499,6 +4499,7 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Reconciliation Recommendation:",
     "Reconciliation Mutation Status:",
     "Origin Main Reconciliation Packet Required",
+    "Review-Risk / Adversarial Coverage:",
     "Optional Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
