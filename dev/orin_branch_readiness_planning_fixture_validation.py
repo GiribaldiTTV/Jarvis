@@ -299,6 +299,9 @@ VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE = (
 VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_no_user_review_required.md"
 )
+VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_post_phrase_no_user_decision.md"
+)
 VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_short_markers.md"
 )
@@ -397,6 +400,9 @@ INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_historical_none_prose.md"
+)
+INVALID_REBASELINE_ADOPTION_STANDALONE_ISSUE_ID_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_standalone_issue_id.md"
 )
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_untabled.md"
@@ -2137,6 +2143,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                     continue
                 if re.match(r"^\s+needed\b", suffix):
                     continue
+                if re.match(
+                    r"^\s+(?:is|are|was|were|remains?|remain)?\s*not\s+(?:required|needed|approved|active|open)\b",
+                    suffix,
+                ):
+                    continue
                 return True
         return False
 
@@ -2414,6 +2425,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         concrete_issue_candidate_pattern = (
             r"\bissue candidate\s+(?!is\b|are\b)[a-z0-9][a-z0-9_-]*"
         )
+        standalone_issue_candidate_id_pattern = r"\bf\d+-hist-\d+\b"
         no_candidate_wording = normalized_value.startswith(
             (
                 "none recorded",
@@ -2433,9 +2445,16 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             normalized_value,
         ):
             return False
+        if no_candidate_wording and re.search(
+            standalone_issue_candidate_id_pattern,
+            normalized_value,
+        ):
+            return False
         if no_candidate_wording:
             return True
         if re.search(concrete_issue_candidate_pattern, normalized_value):
+            return False
+        if re.search(standalone_issue_candidate_id_pattern, normalized_value):
             return False
         return False
 
@@ -6798,6 +6817,19 @@ line item, not a seam or separate branch.
             + "; ".join(valid_no_user_review_required_failures[:5])
         )
 
+    valid_post_phrase_no_user_decision_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_post_phrase_no_user_decision_failures:
+        failures.append(
+            "Valid post-phrase no-USER-decision RAR fixture unexpectedly failed: "
+            + "; ".join(valid_post_phrase_no_user_decision_failures[:5])
+        )
+
     valid_short_markers_failures = _validate_rebaseline_adoption_review_text(
         VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
     )
@@ -7111,6 +7143,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject historical issue candidate hidden by none prose"
+        )
+
+    standalone_issue_id_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_STANDALONE_ISSUE_ID_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        standalone_issue_id_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject standalone historical issue-candidate ID"
         )
 
     current_issue_candidate_untabled_rar_failures = (
