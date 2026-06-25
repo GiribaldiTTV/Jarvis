@@ -187,7 +187,7 @@ def validate() -> list[str]:
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
             "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
             "compact pointer",
-            "monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer Studio",
+            "monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer",
             "external/Git/GitHub/helper live truth",
             "canonical detail owners, not this compact backlog registry",
         ):
@@ -200,7 +200,7 @@ def validate() -> list[str]:
         for needle in (
             "monitoring/HUD and active-overlay recording planning/proof history",
             "Recording Studio",
-            "Log Viewer Studio",
+            "Log Viewer",
             "user-visible proof remain routed through the owning phase and live-truth checks",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
             "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
@@ -1341,7 +1341,7 @@ def validate() -> list[str]:
         'data-recording-folder-path-available="pre-session-root"',
         'data-native-window-contract="dashboard-quick-access-start-stop"',
         'data-native-window-contract="recording-studio-focused-control-status"',
-        'data-log-viewer-studio-state="ready"',
+        'data-log-viewer-state="ready"',
         'data-recording-execution-state="ready"',
         'data-recording-file-writing-state="ready"',
         '<span>Target overlay profile</span>',
@@ -1353,7 +1353,7 @@ def validate() -> list[str]:
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
         "monitoringHudToggleRecording",
         "monitoringHudRequestRecordingControlWindow",
-        "monitoringHudRequestLogViewerStudioWindow",
+        "monitoringHudRequestLogViewerWindow",
         "monitoringHudRequestOpenRecordingFolder",
         "setMonitoringHudRecordingFolderOpenResult",
         "runMonitoringHudRecordingTargetPreviewProof",
@@ -1370,7 +1370,7 @@ def validate() -> list[str]:
         "hud-overlay-overlay-focused",
         "Start Recording",
         "Recording Studio",
-        "Log Viewer Studio",
+        "Log Viewer",
         "recording-studio-focused-control-status",
         "native-and-export-folder-shell",
         "create-or-open-before-session",
@@ -1395,7 +1395,7 @@ def validate() -> list[str]:
 
     for needle in (
         "class MonitoringHudLogViewerStudioWindow",
-        'self.setWindowTitle("Nexus Log Viewer Studio")',
+        'self.setWindowTitle("Nexus Log Viewer")',
         "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
         'slice="SLC-054"',
         '"surface": "log_viewer_studio_shell"',
@@ -1406,7 +1406,7 @@ def validate() -> list[str]:
         "recording_output_dir",
         "recording_export_dir",
     ):
-        _require_contains(renderer, needle, "SLC-054 minimal Log Viewer Studio shell", failures)
+        _require_contains(renderer, needle, "SLC-054 minimal Log Viewer shell", failures)
 
     for needle in (
         "RECORDING_OUTPUT_CONTRACT_ID",
@@ -1457,8 +1457,8 @@ def validate() -> list[str]:
         "recording execution",
         "file writing",
         "Recording Studio",
-        "Log Viewer Studio",
-        "minimal Log Viewer Studio shell",
+        "Log Viewer",
+        "minimal Log Viewer shell",
         "Native Log Loader implementation",
     ):
         _require_contains(workstream_readiness, needle, "SLC-055 validation/live proof readiness", failures)
@@ -1622,7 +1622,7 @@ def validate() -> list[str]:
         "monitoring-hud-studio-viewer-state",
         "detached-child-window-header-no-title-card",
         "titleCardState",
-        "category-line-plus-strong-title-no-title-card",
+        "title-first-description-beneath-no-title-card",
         "background: transparent",
         "overflow: visible",
         "text-overflow: clip",
@@ -1630,7 +1630,7 @@ def validate() -> list[str]:
         'data-button-layout="content-fit"',
         "Start Recording",
         "Stop Recording",
-        "OPEN LOG VIEWER STUDIO",
+        "OPEN LOG VIEWER",
         'data-resize-contract="not-resizable-position-memory-only"',
         'data-fixed-controller-height="184"',
         'data-row-primitive="ai-control-center-state-row"',
@@ -1711,12 +1711,12 @@ def validate() -> list[str]:
 
     for needle in (
         "profile-specific log consistency",
-        "normal USER-path activation for Recording Studio and Log Viewer Studio",
+        "normal USER-path activation for Recording Studio and Log Viewer",
         "ultra-lightweight detached Recording controller",
         "compact current-branch shell",
         "standalone window layout that is not a Dashboard card clone",
         "Recording Studio visual proof only after the normal visible activation path is",
-        "Log Viewer Studio visual-system inheritance",
+        "Log Viewer visual-system inheritance",
         "user-visible native/export folder labels and paths",
     ):
         _require_contains(
@@ -1749,7 +1749,7 @@ def validate() -> list[str]:
         "log_viewer_studio_visible_button_opens_native_window",
         "Live Validation LV1 UTS export blocked: required visible desktop shortcut / human-client proof is missing or failed",
         "Vision-To-Proof Matrix For This Handoff",
-        "Log Viewer Studio native/export path rows must be readable and contained",
+        "Log Viewer native/export path rows must be readable and contained",
     ):
         _require_contains(
             live_validation,
@@ -1854,7 +1854,7 @@ def validate() -> list[str]:
         '"titleGroupVisualPolicy": "detached-child-window-header-no-title-card"',
         "ai-control-center-symbol-window-control-pill",
         "hub-action-content-fit-equal-gutter-32px-pill",
-        '"recordingStudioVisibleActionModel": "visually-primary-single-stateful-start-stop-button-plus-secondary-log-viewer-route"',
+        '"recordingStudioVisibleActionModel": "runtime-current-single-toggle-candidate-selection-pending"',
         '"recordingToggleControlProof": _monitoring_hud_studio_dom_control_proof("recording-toggle")',
         '"logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer")',
         '"resizeBehavior": self.RESIZE_BEHAVIOR',
@@ -3033,7 +3033,7 @@ def validate() -> list[str]:
         "skipped User Test Summary export: UTS is Live Validation Stage 1 only",
         "Overlay/display release acceptance is deferred and non-gating",
         "Current Phase: Live Validation Stage 1 User Test Summary handoff",
-        "This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer Studio native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.",
+        "This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.",
         "FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance",
         "FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile",
         "FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log",
@@ -3044,7 +3044,7 @@ def validate() -> list[str]:
         "switching the Active Overlay Profile must update the Recording card target overlay profile",
         "Stop Recording stops the session and produces a saved/readback-complete native NDAI log.",
         "Normal product flow must not auto-create Excel/CSV output",
-        "Log Viewer Studio stays available for native/export folder access",
+        "Log Viewer stays available for native/export folder access",
         "The Recording card should still mirror the active Overlay Profile after restart.",
         "The scrollbar gutter must not make the cards look offset",
         "Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.",
@@ -3088,7 +3088,7 @@ def validate() -> list[str]:
         "default-hover-focus-pressed-disabled-keyboard-accessible",
         "controls-focusable-accessible-names-tooltips",
         "folder-open-blocked-status-visible",
-        "Log Viewer Studio folder action status",
+        "Log Viewer folder action status",
     ):
         _require_contains(renderer, needle, "monitoring HUD renderer live interaction proof", failures)
 

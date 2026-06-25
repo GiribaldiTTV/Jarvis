@@ -63,7 +63,7 @@
     const mode = payload.surface === "log-viewer" ? "log-viewer" : "recording";
     surface.dataset.studioSurface = mode;
     surface.dataset.surfaceId = mode === "log-viewer"
-      ? "fam006-log-viewer-studio"
+      ? "fam006-log-viewer"
       : "fam006-recording-studio";
     surface.dataset.productSurfaceRole = mode === "log-viewer"
       ? "compact-current-branch-log-access-shell"
@@ -79,14 +79,14 @@
     surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "184";
     surface.dataset.titleTreatment = "detached-child-window-header-no-title-card";
     surface.dataset.titleCardState = "absent";
-    surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title-no-title-card";
+    surface.dataset.childWindowTitleGrammar = "title-first-description-beneath-no-title-card";
     surface.setAttribute(
       "aria-label",
       mode === "log-viewer"
-        ? "Nexus Desktop AI Log Viewer Studio"
+        ? "Nexus Desktop AI Log Viewer"
         : "Nexus Desktop AI Recording Studio",
     );
-    setText("monitoring-hud-studio-kicker", payload.kicker || (mode === "log-viewer" ? "RECORDING LOGS" : "ACTIVE OVERLAY RECORDING"));
+    setText("monitoring-hud-studio-kicker", payload.kicker || (mode === "log-viewer" ? "NATIVE AND EXPORTED LOG ACCESS" : "ACTIVE OVERLAY RECORDING"));
     setText("monitoring-hud-studio-title", payload.title || "");
     setText("monitoring-hud-studio-subtitle", payload.subtitle || "");
     setText("monitoring-hud-studio-role-label-a", payload.roleLabelA || "Surface");

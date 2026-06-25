@@ -189,11 +189,12 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   font-weight: 740;
   letter-spacing: 0.07em;
   line-height: 1.1;
+  margin-top: 3px;
   text-transform: uppercase;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title {
-  margin-top: 1px;
+  margin-top: 0;
   color: rgba(234, 253, 255, 0.95);
   font-size: 16px;
   font-weight: 800;

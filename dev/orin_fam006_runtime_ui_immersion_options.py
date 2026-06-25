@@ -1,8 +1,9 @@
-"""FAM-006 runtime UI immersion / studio redesign options packet.
+"""FAM-006 dual Recording candidate / Log Viewer rename packet.
 
 This helper is intentionally branch-local. It produces reviewable rendered
-design options for Recording Studio and Log Viewer Studio without changing the
-runtime implementation or claiming H1, Live Validation, UTS, or PR readiness.
+candidate-selection evidence for Recording Studio A/C and the shared Log Viewer
+direction without choosing the final Recording winner or claiming H1, Live
+Validation, UTS, or PR readiness.
 """
 
 from __future__ import annotations
@@ -38,8 +39,8 @@ SCREENSHOT_ROOT = (
     Path("C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI")
     / "fam_006_runtime_ui_immersion_options"
 )
-PRIMARY_REVIEW = "RUNTIME_UI_IMMERSION_STUDIO_REDESIGN_OPTIONS_REVIEW.md"
-PACKET_STATUS = "fam006-runtime-ui-immersion-studio-redesign-options"
+PRIMARY_REVIEW = "DUAL_RECORDING_CANDIDATE_LOG_VIEWER_RENAME_REVIEW.md"
+PACKET_STATUS = "fam006-dual-recording-candidate-log-viewer-rename"
 BRANCH = "feature/fam-006-dashboard-recording-start-stop-local-file"
 
 SOURCE_CONTEXT = {
@@ -99,15 +100,15 @@ REFERENCE_MEDIA = [
 REQUIRED_MEDIA = {
     "reference_board.png",
     "code_grammar_comparison_board.png",
-    "recording_option_a_segmented_controls.png",
-    "recording_option_b_transport_strip.png",
-    "recording_option_c_split_route_action.png",
-    "log_viewer_option_a_ultra_compact_doorway.png",
-    "log_viewer_option_b_contained_status_group.png",
-    "log_viewer_option_c_wide_short_action_layout.png",
-    "side_by_side_comparison_board.png",
+    "recording_candidate_a_focused.png",
+    "recording_candidate_c_focused.png",
+    "log_viewer_log_a_focused.png",
+    "recording_candidates_board.png",
+    "log_viewer_candidate_board.png",
+    "candidate_selection_comparison_board.png",
     "full_desktop_context_options.png",
     "annotated_spacing_callouts.png",
+    "rename_to_log_viewer_proof_board.png",
 }
 
 REQUIRED_REVIEW_AIDS = {
@@ -115,7 +116,8 @@ REQUIRED_REVIEW_AIDS = {
     "Review Aids/Code Grammar Audit/code_level_visual_grammar_audit.md",
     "Review Aids/USER Defect Design Ledger/user_defect_design_ledger.json",
     "Review Aids/Recording Studio Options/recording_studio_options.json",
-    "Review Aids/Log Viewer Studio Options/log_viewer_studio_options.json",
+    "Review Aids/Recording Candidate Deltas/recording_candidate_deltas.md",
+    "Review Aids/Log Viewer Candidate/log_viewer_candidate.json",
     "Review Aids/Resize Behavior/resize_behavior_decision.json",
     "Review Aids/Convergence/branch_local_comparator_convergence_note.md",
     "Review Aids/Helper Validator Hardening/helper_validator_hardening_status.json",
@@ -358,7 +360,7 @@ def _code_grammar_audit() -> dict[str, Any]:
                 "property": prop,
                 "aiControlCenterValue": ai_value,
                 "recordingStudioCurrentValue": studio_value,
-                "logViewerStudioCurrentValue": studio_value,
+                "logViewerCurrentValue": studio_value,
                 "mismatchStatus": status,
                 "repairRecommendation": recommendation,
                 "referenceSource": ai_selector,
@@ -372,7 +374,8 @@ def _code_grammar_audit() -> dict[str, Any]:
         "hudDashboardSource": "nexus_visual/monitoring_hud.css",
         "studioCurrentSource": "nexus_visual/nexus_window_primitives.css and monitoring_hud_studio.html",
         "branchLocalComparatorOnly": True,
-        "runtimeImplementationMutated": False,
+        "runtimeVisibleRenameApplied": True,
+        "finalRecordingWinnerImplemented": False,
         "notGlobalLaw": True,
         "studioHtmlContractMarkers": {
             "titleCardState": "data-title-card-state=\"absent\"" in studio_html,
@@ -382,8 +385,8 @@ def _code_grammar_audit() -> dict[str, Any]:
         "childWindowTitleReference": {
             "referenceSurfaces": ["Overlay Profile Settings", "Manage Monitors"],
             "source": "nexus_visual/monitoring_hud.html .monitoring-hud__child-window-header",
-            "currentUserSteering": "Unique studio options must put the actual surface title on top, with supporting description/subtitle beneath it.",
-            "disposition": "Title-first option hierarchy is recorded as the current FAM-006 review target; attached child windows remain useful references for compact title treatment and close/control placement.",
+            "currentUserSteering": "Unique studio candidates must put the actual surface title on top, with supporting description beneath it.",
+            "disposition": "Title-first hierarchy is recorded as the current FAM-006 review target; attached child windows remain useful references for compact title treatment and close/control placement.",
         },
         "rows": rows,
     }
@@ -394,11 +397,11 @@ def _defect_ledger() -> dict[str, Any]:
         ("FAM006-RUIO-001", "Child windows do not feel like same product family", "Verified by USER report and current packet repair posture."),
         ("FAM006-RUIO-002", "Surface color/shimmer/glow diverges from comparator", "Inferred from current primitive being separate and USER full-desktop review."),
         ("FAM006-RUIO-003", "Approximation used instead of actual code/token comparison", "Verified by repeated false-green class; this packet performs selector audit."),
-        ("FAM006-RUIO-004", "Child title hierarchy inconsistent", "Verified: current primitive hides subtitle; options restore title-first hierarchy with description beneath per USER steering."),
+        ("FAM006-RUIO-004", "Child title hierarchy inconsistent", "Verified: current primitive hid subtitle; this packet restores title-first hierarchy with description beneath per USER steering."),
         ("FAM006-RUIO-005", "Rows begin too close to chrome/title", "Verified: current studio control hub margin-top is 3px vs AI 12px."),
         ("FAM006-RUIO-006", "Row spacing and bottom dead-space need redesign", "Verified by USER report and branch-plan known-bad receipts."),
-        ("FAM006-RUIO-007", "Start/Pause/Stop is a design option, not current implementation authority", "Verified by prompt boundary."),
-        ("FAM006-RUIO-008", "Log Viewer must stay doorway shell without fake rows/paths", "Verified by selected-direction receipt and prompt boundary."),
+        ("FAM006-RUIO-007", "Start/Pause/Stop is admitted for Recording candidates A/C, not final winner authority", "Verified by prompt boundary."),
+        ("FAM006-RUIO-008", "Log Viewer rename must stay doorway shell without fake rows/paths", "Verified by USER direction and prompt boundary."),
         ("FAM006-RUIO-009", "Resize behavior needs class decision", "Verified by current data resize taxonomy and USER report."),
         ("FAM006-RUIO-010", "Full-desktop proof must catch focused-crop false green", "Verified by UDL/false-green receipts."),
     ]
@@ -424,38 +427,26 @@ def _recording_options() -> list[OptionSpec]:
     return [
         OptionSpec(
             "REC-A",
-            "Segmented transport",
+            "Segmented dual-row controller",
             "ACTIVE OVERLAY RECORDING",
             "Recording Studio",
             "segmented",
             438,
             168,
             (("TARGET", "Default Overlay Profile / 2 active monitors"), ("STATE", "Ready for local recording")),
-            ("START", "PAUSE", "STOP", "OPEN LOG VIEWER STUDIO"),
+            ("START", "PAUSE", "STOP", "OPEN LOG VIEWER"),
             "Best when USER wants explicit transport controls inside the smallest readable footprint.",
         ),
         OptionSpec(
-            "REC-B",
-            "Thin transport strip",
-            "ACTIVE OVERLAY RECORDING",
-            "Recording Studio",
-            "transport",
-            448,
-            158,
-            (("TARGET", "Default Overlay Profile"), ("MONITORS", "2 active monitors")),
-            ("START", "PAUSE", "STOP", "LOGS"),
-            "Best compact controller candidate if OPEN LOG VIEWER STUDIO can be visually abbreviated after USER accepts semantics.",
-        ),
-        OptionSpec(
             "REC-C",
-            "Split route action",
+            "Split transport plus route",
             "ACTIVE OVERLAY RECORDING",
             "Recording Studio",
             "split",
             462,
             176,
             (("TARGET", "Default Overlay Profile"), ("STATE", "Ready / 2 active monitors")),
-            ("START", "PAUSE", "STOP", "OPEN LOG VIEWER STUDIO"),
+            ("START", "PAUSE", "STOP", "OPEN LOG VIEWER"),
             "Best when USER wants recording transport grouped separately from the Log Viewer route without growing height too much.",
         ),
     ]
@@ -467,37 +458,13 @@ def _log_options() -> list[OptionSpec]:
             "LOG-A",
             "Ultra compact doorway",
             "NATIVE AND EXPORTED LOG ACCESS",
-            "Log Viewer Studio",
+            "Log Viewer",
             "doorway",
             430,
             138,
             (("VIEWER", "Deferred"),),
             ("OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"),
             "Best if current branch only needs a doorway shell with minimal visual weight.",
-        ),
-        OptionSpec(
-            "LOG-B",
-            "Contained status group",
-            "NATIVE AND EXPORTED LOG ACCESS",
-            "Log Viewer Studio",
-            "status",
-            448,
-            160,
-            (("VIEWER", "Deferred"), ("SCOPE", "Folders only")),
-            ("OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"),
-            "Best if USER wants a small status confirmation without paths, graph, previous-log selection, or proof copy.",
-        ),
-        OptionSpec(
-            "LOG-C",
-            "Wider short action row",
-            "NATIVE AND EXPORTED LOG ACCESS",
-            "Log Viewer Studio",
-            "wide",
-            500,
-            134,
-            (("VIEWER", "Deferred"),),
-            ("OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"),
-            "Best if the two folder actions need more readable labels while staying short.",
         ),
     ]
 
@@ -619,9 +586,9 @@ def _render_window(spec: OptionSpec, target: Path, annotate: bool = False) -> No
             x += button_w + 8
     elif spec.surface == "Recording Studio":
         first_w = _button_width("START / PAUSE / STOP")
-        second_w = _button_width("OPEN LOG VIEWER STUDIO")
+        second_w = _button_width("OPEN LOG VIEWER")
         _draw_button(draw, (18, action_y, 18 + first_w, action_y + BUTTON_H), "START / PAUSE / STOP", True)
-        _draw_button(draw, (30 + first_w, action_y, 30 + first_w + second_w, action_y + BUTTON_H), "OPEN LOG VIEWER STUDIO", False)
+        _draw_button(draw, (30 + first_w, action_y, 30 + first_w + second_w, action_y + BUTTON_H), "OPEN LOG VIEWER", False)
     else:
         gap = 10
         first_w = _button_width(spec.buttons[0])
@@ -664,26 +631,23 @@ def _render_media(media_dir: Path, audit: dict[str, Any]) -> dict[str, str]:
     log_options = _log_options()
     files: dict[str, str] = {}
     names = [
-        "recording_option_a_segmented_controls.png",
-        "recording_option_b_transport_strip.png",
-        "recording_option_c_split_route_action.png",
+        "recording_candidate_a_focused.png",
+        "recording_candidate_c_focused.png",
     ]
     for spec, name in zip(recording, names):
-        _render_window(spec, media_dir / name, annotate=name.endswith("split_route_action.png"))
+        _render_window(spec, media_dir / name, annotate=name.endswith("candidate_c_focused.png"))
         files[name] = str(media_dir / name)
     names = [
-        "log_viewer_option_a_ultra_compact_doorway.png",
-        "log_viewer_option_b_contained_status_group.png",
-        "log_viewer_option_c_wide_short_action_layout.png",
+        "log_viewer_log_a_focused.png",
     ]
     for spec, name in zip(log_options, names):
-        _render_window(spec, media_dir / name, annotate=name.endswith("wide_short_action_layout.png"))
+        _render_window(spec, media_dir / name, annotate=True)
         files[name] = str(media_dir / name)
 
-    _make_board(media_dir, recording, media_dir / "recording_options_board.png", "Recording Studio rendered options")
-    _make_board(media_dir, log_options, media_dir / "log_viewer_options_board.png", "Log Viewer Studio rendered options")
-    files["recording_options_board.png"] = str(media_dir / "recording_options_board.png")
-    files["log_viewer_options_board.png"] = str(media_dir / "log_viewer_options_board.png")
+    _make_board(media_dir, recording, media_dir / "recording_candidates_board.png", "Recording Studio runtime candidates")
+    _make_board(media_dir, log_options, media_dir / "log_viewer_candidate_board.png", "Log Viewer LOG-A runtime candidate")
+    files["recording_candidates_board.png"] = str(media_dir / "recording_candidates_board.png")
+    files["log_viewer_candidate_board.png"] = str(media_dir / "log_viewer_candidate_board.png")
 
     ref_board = Image.new("RGB", (1160, 720), (1, 5, 11))
     draw = ImageDraw.Draw(ref_board)
@@ -734,14 +698,14 @@ def _render_media(media_dir: Path, audit: dict[str, Any]) -> dict[str, str]:
         ref_img = Image.open(ref).convert("RGB")
         ref_img.thumbnail((620, 390))
         side.paste(ref_img, (28, 64))
-    rec = Image.open(media_dir / "recording_options_board.png").convert("RGB")
+    rec = Image.open(media_dir / "recording_candidates_board.png").convert("RGB")
     rec.thumbnail((380, 760))
     side.paste(rec, (680, 64))
-    log = Image.open(media_dir / "log_viewer_options_board.png").convert("RGB")
+    log = Image.open(media_dir / "log_viewer_candidate_board.png").convert("RGB")
     log.thumbnail((380, 760))
     side.paste(log, (1080, 64))
-    side.save(media_dir / "side_by_side_comparison_board.png")
-    files["side_by_side_comparison_board.png"] = str(media_dir / "side_by_side_comparison_board.png")
+    side.save(media_dir / "candidate_selection_comparison_board.png")
+    files["candidate_selection_comparison_board.png"] = str(media_dir / "candidate_selection_comparison_board.png")
 
     context = Image.new("RGB", (1400, 820), (0, 3, 8))
     draw = ImageDraw.Draw(context)
@@ -750,8 +714,8 @@ def _render_media(media_dir: Path, audit: dict[str, Any]) -> dict[str, str]:
     draw.text((642, 86), "NEXUS DESKTOP AI", font=FONT_KICKER, fill=(139, 233, 255))
     draw.text((642, 106), "HUD Dashboard context", font=_font("bold", 30), fill=(234, 253, 255))
     draw.text((642, 150), "Recording card doorway remains parent context; studios are standalone-capable child windows.", font=FONT_BODY, fill=(174, 226, 240))
-    rec_img = Image.open(media_dir / "recording_option_a_segmented_controls.png").convert("RGB")
-    log_img = Image.open(media_dir / "log_viewer_option_a_ultra_compact_doorway.png").convert("RGB")
+    rec_img = Image.open(media_dir / "recording_candidate_a_focused.png").convert("RGB")
+    log_img = Image.open(media_dir / "log_viewer_log_a_focused.png").convert("RGB")
     context.paste(rec_img, (42, 128))
     context.paste(log_img, (42, 340))
     draw.text((42, 80), "Full-desktop/context render, not runtime proof", font=_font("bold", 18), fill=(234, 253, 255))
@@ -760,18 +724,30 @@ def _render_media(media_dir: Path, audit: dict[str, Any]) -> dict[str, str]:
 
     annotated = Image.new("RGB", (1000, 580), (1, 5, 11))
     draw = ImageDraw.Draw(annotated)
-    rec_c = Image.open(media_dir / "recording_option_c_split_route_action.png").convert("RGB")
-    log_c = Image.open(media_dir / "log_viewer_option_c_wide_short_action_layout.png").convert("RGB")
+    rec_c = Image.open(media_dir / "recording_candidate_c_focused.png").convert("RGB")
+    log_c = Image.open(media_dir / "log_viewer_log_a_focused.png").convert("RGB")
     annotated.paste(rec_c, (36, 72))
     annotated.paste(log_c, (36, 300))
     draw.text((36, 26), "ANNOTATED TITLE / BUTTON / ROW GUTTER CALLOUTS", font=_font("bold", 20), fill=(234, 253, 255))
-    for y0, label in ((72, "Recording Studio"), (300, "Log Viewer Studio")):
+    for y0, label in ((72, "Recording Studio"), (300, "Log Viewer")):
         draw.line((34, y0 + 58, 520, y0 + 58), fill=(255, 214, 113), width=2)
         draw.text((548, y0 + 49), f"{label}: title first, description below, then row gutter", font=FONT_BODY, fill=(255, 214, 113))
         draw.line((34, y0 + 126, 520, y0 + 126), fill=(126, 248, 218), width=2)
         draw.text((548, y0 + 117), "Buttons use 31px height, 11px text, 14px left/right buffer", font=FONT_BODY, fill=(126, 248, 218))
     annotated.save(media_dir / "annotated_spacing_callouts.png")
     files["annotated_spacing_callouts.png"] = str(media_dir / "annotated_spacing_callouts.png")
+
+    rename = Image.new("RGB", (900, 360), (1, 5, 11))
+    draw = ImageDraw.Draw(rename)
+    draw.text((24, 24), "RENAME-TO-LOG-VIEWER PROOF", font=_font("bold", 20), fill=(234, 253, 255))
+    draw.text((24, 62), "Runtime-visible destination name: LOG VIEWER", font=FONT_BODY, fill=(174, 226, 240))
+    draw.text((24, 88), "Recording route action: OPEN LOG VIEWER", font=FONT_BODY, fill=(174, 226, 240))
+    draw.text((24, 114), "Shared LOG-A candidate title: LOG VIEWER", font=FONT_BODY, fill=(174, 226, 240))
+    draw.text((24, 140), "Historical Source Truth Context may contain prior name only as evidence.", font=FONT_BODY, fill=(255, 214, 113))
+    log_img = Image.open(media_dir / "log_viewer_log_a_focused.png").convert("RGB")
+    rename.paste(log_img, (24, 190))
+    rename.save(media_dir / "rename_to_log_viewer_proof_board.png")
+    files["rename_to_log_viewer_proof_board.png"] = str(media_dir / "rename_to_log_viewer_proof_board.png")
 
     return files
 
@@ -861,16 +837,21 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
     )
 
     recording_json = {
-        "schema": "fam006-recording-studio-redesign-options-v1",
-        "status": "REVIEW_OPTIONS_ONLY",
-        "runtimeImplementationMutated": False,
-        "requiredControlsExplored": ["START", "PAUSE", "STOP", "OPEN LOG VIEWER STUDIO"],
+        "schema": "fam006-recording-studio-dual-candidate-selection-v1",
+        "status": "REVIEW_CANDIDATES_ONLY",
+        "runtimeVisibleRenameApplied": True,
+        "finalRecordingWinnerImplemented": False,
+        "requiredControlsExplored": ["START", "PAUSE", "STOP", "OPEN LOG VIEWER"],
         "options": [spec.__dict__ for spec in _recording_options()],
+        "excludedOptions": ["REC-B"],
     }
     log_json = {
-        "schema": "fam006-log-viewer-studio-redesign-options-v1",
-        "status": "REVIEW_OPTIONS_ONLY",
-        "runtimeImplementationMutated": False,
+        "schema": "fam006-log-viewer-renamed-log-a-candidate-v1",
+        "status": "REVIEW_CANDIDATE_ONLY",
+        "runtimeVisibleRenameApplied": True,
+        "finalRecordingWinnerImplemented": False,
+        "currentSurfaceName": "Log Viewer",
+        "priorSurfaceName": "Log Viewer Studio",
         "forbiddenPatternsExcluded": [
             "fake data rows",
             "local path display by default",
@@ -883,7 +864,7 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
     _write_json(aids / "Recording Studio Options/recording_studio_options.json", recording_json)
     _write_md(
         aids / "Recording Studio Options/recording_studio_options.md",
-        "# Recording Studio Options\n\n"
+        "# Recording Studio Candidates\n\n"
         + _markdown_table(
             ["Option", "Layout", "Footprint", "Controls", "Rationale"],
             [
@@ -898,10 +879,19 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
             ],
         ),
     )
-    _write_json(aids / "Log Viewer Studio Options/log_viewer_studio_options.json", log_json)
     _write_md(
-        aids / "Log Viewer Studio Options/log_viewer_studio_options.md",
-        "# Log Viewer Studio Options\n\n"
+        aids / "Recording Candidate Deltas/recording_candidate_deltas.md",
+        "# Recording Candidate A / C Deltas\n\n"
+        "| Delta | REC-A | REC-C |\n"
+        "| --- | --- | --- |\n"
+        "| Control grouping | Three discrete START / PAUSE / STOP buttons plus separate OPEN LOG VIEWER route | One compact START / PAUSE / STOP transport pill plus separate OPEN LOG VIEWER route |\n"
+        "| Space tradeoff | Clearer individual controls; tighter horizontal fit pressure | Slightly wider but cleaner separation between transport and route action |\n"
+        "| USER decision | Pick if explicit button separation matters most | Pick if grouped recording transport with a cleaner route action matters most |\n",
+    )
+    _write_json(aids / "Log Viewer Candidate/log_viewer_candidate.json", log_json)
+    _write_md(
+        aids / "Log Viewer Candidate/log_viewer_candidate.md",
+        "# Log Viewer Candidate\n\n"
         + _markdown_table(
             ["Option", "Layout", "Footprint", "Actions", "Rationale"],
             [
@@ -925,10 +915,10 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
             "reason": "Recording Studio is an ultra-lightweight detached recording controller; resizing is not needed for current branch purpose.",
             "proofRequiredIfImplemented": "no resize affordance, movable window, same-session placement proof, later persisted-position proof when global reset setting exists",
         },
-        "logViewerStudio": {
+        "logViewer": {
             "recommendedCurrentScope": "fixed-size doorway shell until full viewer/log graph scope is selected",
             "edgeCursorExpected": False,
-            "reason": "Current branch Log Viewer Studio is a folder-access doorway shell with no graph/viewer workspace; resize can be deferred until full viewer need is admitted.",
+            "reason": "Current branch Log Viewer is a folder-access doorway shell with no graph/viewer workspace; resize can be deferred until full viewer need is admitted.",
             "proofRequiredIfResizableLater": "edge-resize proof, no attached-child corner grip, before/during/after media, content reflow proof",
         },
     }
@@ -936,7 +926,7 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
     _write_md(
         aids / "Resize Behavior/resize_behavior_decision.md",
         "# Resize Behavior Decision\n\n"
-        "Recording Studio should remain fixed-size in current scope. Log Viewer Studio should also remain fixed-size while it is only a deferred doorway shell. If later full viewer or graph scope is selected, Log Viewer can become edge-resizable with fresh proof.\n",
+        "Recording Studio should remain fixed-size in current scope. Log Viewer should also remain fixed-size while it is only a deferred doorway shell. If later full viewer or graph scope is selected, Log Viewer can become edge-resizable with fresh proof.\n",
     )
 
     _write_md(
@@ -950,10 +940,11 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
         "status": "BRANCH_LOCAL_HELPER_ADDED",
         "helper": "dev/orin_fam006_runtime_ui_immersion_options.py",
         "falseAcceptGateIntegration": "packet class recognized by dev/orin_fam006_false_accept_regression_gate.py",
-        "runtimeImplementationMutated": False,
+        "runtimeVisibleRenameApplied": True,
+        "finalRecordingWinnerImplemented": False,
         "hardWarnsOrFails": [
             "missing code-level selector/token audit",
-            "missing rendered Recording Studio or Log Viewer Studio options",
+            "missing rendered Recording Studio or Log Viewer candidates",
             "missing title/subtitle hierarchy section",
             "fake Log Viewer data rows or local paths by default",
             "missing resize behavior decision",
@@ -965,8 +956,8 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
     udl = {
         "schema": "fam006-runtime-ui-immersion-udl-status-v1",
         "status": "NO_NEW_KNOWN_BAD_ADMITTED_BY_THIS_PACKET",
-        "currentKnownBadRelevantToThisPacket": "FAM-006-20260624-170523.zip remains known-bad for implementation-match/B2 placement proof; this packet is a design-options review only.",
-        "falseAcceptBoundary": "This packet must not be accepted as runtime implementation match, H1, LV, UTS, PR Readiness, or global Governance proof.",
+        "currentKnownBadRelevantToThisPacket": "FAM-006-20260624-170523.zip remains known-bad for implementation-match/B2 placement proof; this packet is candidate-selection review only.",
+        "falseAcceptBoundary": "This packet must not be accepted as final Recording winner selection, runtime implementation match, H1, LV, UTS, PR Readiness, or global Governance proof.",
     }
     _write_json(aids / "UDL False Green/udl_false_green_status.json", udl)
 
@@ -977,7 +968,8 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
         "identity": _identity(),
         "mediaFiles": sorted(path.name for path in media_dir.glob("*.png")),
         "codeSources": {key: str(path) for key, path in CODE_SOURCES.items()},
-        "runtimeImplementationMutated": False,
+        "runtimeVisibleRenameApplied": True,
+        "finalRecordingWinnerImplemented": False,
         "sourceTruthContextFiles": sorted(SOURCE_CONTEXT),
     }
     _write_json(aids / "packet_manifest.json", manifest)
@@ -986,22 +978,22 @@ def _write_packet(media_root: Path, packet_time: str) -> dict[str, Any]:
 
     _write_md(
         PACKET_ROOT / "START_HERE.md",
-        f"""# FAM-006 Runtime UI Immersion / Studio Redesign Options Packet
+        f"""# FAM-006 Dual Recording Candidate / Log Viewer Rename Packet
 
 Packet Status: `{PACKET_STATUS}`
 
 Start with `USER Review/{PRIMARY_REVIEW}`.
 
-This packet is design/options review evidence only. It does not approve runtime implementation, H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, issue mutation, FAM-007 mutation, Governance mutation, or neutral-main mutation.
+This packet is candidate-selection review evidence only. It applies the visible Log Viewer rename, but it does not choose the final Recording winner or approve the selected Recording runtime implementation, H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, issue mutation, FAM-007 mutation, Governance mutation, or neutral-main mutation.
 """,
     )
-    primary = f"""# FAM-006 Runtime UI Immersion / Studio Redesign Options Review
+    primary = f"""# FAM-006 Dual Recording Candidate / Log Viewer Rename Review
 
 Packet Status: `{PACKET_STATUS}`
 
 ## Decision Boundary
 
-This packet compares the current Recording Studio and Log Viewer Studio implementation against the current AI Control Center / HUD Dashboard code-level grammar and produces rendered redesign options. It does not implement those options.
+This packet compares the current Recording Studio and renamed Log Viewer surface against the current AI Control Center / HUD Dashboard code-level grammar and produces runtime-accurate candidate renders. The visible Log Viewer rename is applied; the final Recording winner remains unselected.
 
 ## Comparator Status
 
@@ -1013,33 +1005,30 @@ The audit is in `Review Aids/Code Grammar Audit/code_level_visual_grammar_audit.
 
 ## Title / Button / Row Comparator Rules
 
-The current review target uses title-first unique studio hierarchy: `RECORDING STUDIO` and `LOG VIEWER STUDIO` sit on the top line, with a short supporting description beneath. Overlay Profile Settings and Manage Monitors remain the child-window compact-header reference, but USER steering requires these unique studio options to put the actual window title first.
+The current review target uses title-first unique studio hierarchy: `RECORDING STUDIO` and `LOG VIEWER` sit on the top line, with a short supporting description beneath. Overlay Profile Settings and Manage Monitors remain the child-window compact-header reference, but USER steering requires these unique studio candidates to put the actual window title first.
 
-Buttons in the rendered options use the AI Control Center / HUD content-fit button contract: 31px height, 11px label text, and equal 14px left/right label buffer. Rows use the AI/HUD state-row color, size, and underglow family as the comparator.
+Buttons in the rendered candidates use the AI Control Center / HUD content-fit button contract: 31px height, 11px label text, matching top/bottom buffer, and equal 14px left/right label buffer. Rows use the AI/HUD state-row color, size, font, and underglow family as the comparator.
 
-## Recording Studio Options
+## Recording Studio Candidates
 
-- `REC-A`: compact segmented START / PAUSE / STOP plus OPEN LOG VIEWER STUDIO.
-- `REC-B`: small transport strip with compact LOGS route.
+- `REC-A`: compact segmented START / PAUSE / STOP plus OPEN LOG VIEWER.
 - `REC-C`: split route action with grouped recording transport and separate Log Viewer route.
 
 Rendered media is under `Review Aids/Rendered Media`.
 
-## Log Viewer Studio Options
+## Log Viewer Candidate
 
 - `LOG-A`: ultra-compact doorway shell.
-- `LOG-B`: subtle contained status group.
-- `LOG-C`: wider but shorter action layout.
 
-All Log Viewer options keep `VIEWER - Deferred`, bottom OPEN NATIVE LOGS / OPEN EXPORTED LOGS actions, no fake data rows, no local path display by default, no graph/export customization, no previous-log selection, and no helper/proof copy inside product UI.
+The Log Viewer candidate keeps `VIEWER - Deferred`, bottom OPEN NATIVE LOGS / OPEN EXPORTED LOGS actions, no fake data rows, no local path display by default, no graph/export customization, no previous-log selection, and no helper/proof copy inside product UI.
 
 ## Recommended Path
 
-Recommended review route: USER selects one Recording Studio option and one Log Viewer Studio option, or revises them. After USER selection, the next legal phase is a separate bounded FAM-006 runtime implementation-match repair against the selected option(s), followed by renewed H1 and exact USER desktop launcher Live Validation only after implementation proof is green.
+Recommended review route: USER selects REC-A or REC-C for Recording Studio, accepts or revises the shared LOG-A-based Log Viewer direction, or holds/rejects the candidate direction. After USER selection, the next legal phase is a separate bounded FAM-006 runtime implementation-match repair against the selected direction, followed by renewed H1 and exact USER desktop launcher Live Validation only after implementation proof is green.
 
 ## Exact USER Decision Summary
 
-Please choose one Recording Studio option and one Log Viewer Studio option, revise them, hold, or reject the design direction. This does not accept implementation or advance to H1/LV/UTS.
+Please choose REC-A or REC-C for Recording Studio and accept, revise, hold, or reject the shared Log Viewer direction. This does not accept implementation or advance to H1/LV/UTS.
 """
     _write_md(review_dir / PRIMARY_REVIEW, primary)
     write_packet_artifacts(PACKET_ROOT)
@@ -1059,7 +1048,7 @@ def validate_packet(root: Path = PACKET_ROOT) -> list[str]:
         failures.append("START_HERE.md missing")
     review_files = sorted((root / "USER Review").glob("*.md")) if (root / "USER Review").exists() else []
     if [path.name for path in review_files] != [PRIMARY_REVIEW]:
-        failures.append("USER Review must contain exactly the primary runtime UI immersion review file")
+        failures.append("USER Review must contain exactly the primary dual Recording candidate / Log Viewer rename review file")
     primary = root / "USER Review" / PRIMARY_REVIEW
     if primary.exists() and PACKET_STATUS not in _read(primary):
         failures.append("primary review file missing packet status")
@@ -1083,7 +1072,7 @@ def validate_packet(root: Path = PACKET_ROOT) -> list[str]:
             failures.append(f"text hygiene null byte: {path.relative_to(root)}")
         if "lorem ipsum" in text.casefold() or "todo" in text.casefold():
             failures.append(f"placeholder text found: {path.relative_to(root)}")
-    log_json = root / "Review Aids/Log Viewer Studio Options/log_viewer_studio_options.json"
+    log_json = root / "Review Aids/Log Viewer Candidate/log_viewer_candidate.json"
     if log_json.exists():
         data = json.loads(_read(log_json))
         forbidden = " ".join(data.get("forbiddenPatternsExcluded", []))
@@ -1094,11 +1083,14 @@ def validate_packet(root: Path = PACKET_ROOT) -> list[str]:
     if rec_json.exists():
         data = json.loads(_read(rec_json))
         controls = set(data.get("requiredControlsExplored", []))
-        for control in ("START", "PAUSE", "STOP", "OPEN LOG VIEWER STUDIO"):
+        for control in ("START", "PAUSE", "STOP", "OPEN LOG VIEWER"):
             if control not in controls:
                 failures.append(f"recording option missing required control exploration: {control}")
-        if len(data.get("options", [])) < 3:
-            failures.append("recording options fewer than 3")
+        option_ids = {row.get("option_id") for row in data.get("options", [])}
+        if option_ids != {"REC-A", "REC-C"}:
+            failures.append("recording candidates must be exactly REC-A and REC-C")
+        if "REC-B" not in set(data.get("excludedOptions", [])):
+            failures.append("recording candidates must explicitly exclude REC-B")
     return failures
 
 

@@ -7008,7 +7008,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
-            "childWindowTitleGrammar": "category-line-plus-strong-title-no-title-card",
+            "childWindowTitleGrammar": "title-first-description-beneath-no-title-card",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
             "primaryVisualComparator": "FAM-006 unique child feature-studio grammar",
@@ -7042,7 +7042,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "dashboardLifecycleDependency": "independent-while-runtime-active",
             "logViewerRoute": "recording-studio-open-log-viewer-action",
             "recordingToggleRoute": "recording-studio-toggle-action",
-            "recordingStudioVisibleActionModel": "visually-primary-single-stateful-start-stop-button-plus-secondary-log-viewer-route",
+            "recordingStudioVisibleActionModel": "runtime-current-single-toggle-candidate-selection-pending",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
             "featureStudioPrimitive": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
@@ -7106,7 +7106,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         self._last_folder_kind = ""
         super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudLogViewerStudioWindow")
-        self.setWindowTitle("Nexus Log Viewer Studio")
+        self.setWindowTitle("Nexus Log Viewer")
         self.resize(self.WIDTH, self.HEIGHT)
         self._restore_saved_geometry()
         self._geometry_persistence_ready = True
@@ -7131,8 +7131,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     def _log_viewer_studio_state_payload(self) -> dict[str, object]:
         return {
             "surface": "log-viewer",
-            "kicker": "RECORDING LOGS",
-            "title": "LOG VIEWER STUDIO",
+            "kicker": "NATIVE AND EXPORTED LOG ACCESS",
+            "title": "LOG VIEWER",
             "subtitle": "",
             "roleLabelA": "Surface",
             "roleValueA": "Logs",
@@ -7239,7 +7239,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
-            "childWindowTitleGrammar": "category-line-plus-strong-title-no-title-card",
+            "childWindowTitleGrammar": "title-first-description-beneath-no-title-card",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
             "primaryVisualComparator": "FAM-006 unique child feature-studio grammar",
@@ -7268,7 +7268,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "pathRowsVisualState": "hidden-from-default-body-supporting-tooltip-only",
             "folderActionStatusText": self._folder_status_text,
             "folderActionStatusState": self._folder_status_state,
-            "folderActionStatusAccessibleName": "Log Viewer Studio folder action status",
+            "folderActionStatusAccessibleName": "Log Viewer folder action status",
             "openNativeControlProof": _monitoring_hud_studio_dom_control_proof("open-native"),
             "openExportControlProof": _monitoring_hud_studio_dom_control_proof("open-export"),
             "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
@@ -8726,7 +8726,7 @@ class DesktopRuntimeWindow(QWidget):
         script = f"""
         (function() {{
             const active = document.activeElement && document.activeElement.closest
-                ? document.activeElement.closest('[data-control="close-dashboard"],[data-control="open-recording-studio"],[data-control="open-log-viewer-studio"],[data-control="toggle-recording"]')
+                ? document.activeElement.closest('[data-control="close-dashboard"],[data-control="open-recording-studio"],[data-control="open-log-viewer"],[data-control="toggle-recording"]')
                 : null;
             if (!active) {{
                 return JSON.stringify({{ eligible: false, key: {json.dumps(key_name)} }});
@@ -8735,8 +8735,8 @@ class DesktopRuntimeWindow(QWidget):
             let activated = false;
             if (control === "open-recording-studio" && typeof monitoringHudRequestRecordingControlWindow === "function") {{
                 activated = monitoringHudRequestRecordingControlWindow() !== false;
-            }} else if (control === "open-log-viewer-studio" && typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
-                activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+            }} else if (control === "open-log-viewer" && typeof monitoringHudRequestLogViewerWindow === "function") {{
+                activated = monitoringHudRequestLogViewerWindow() !== false;
             }} else if (control === "toggle-recording" && typeof monitoringHudToggleRecording === "function") {{
                 activated = monitoringHudToggleRecording() !== false;
             }} else if (control === "close-dashboard") {{
@@ -8770,8 +8770,8 @@ class DesktopRuntimeWindow(QWidget):
             else:
                 if '"control":"open-recording-studio"' in payload or '"control": "open-recording-studio"' in payload:
                     self._monitoring_hud_keyboard_force_visible_control = "open-recording-studio"
-                elif '"control":"open-log-viewer-studio"' in payload or '"control": "open-log-viewer-studio"' in payload:
-                    self._monitoring_hud_keyboard_force_visible_control = "open-log-viewer-studio"
+                elif '"control":"open-log-viewer"' in payload or '"control": "open-log-viewer"' in payload:
+                    self._monitoring_hud_keyboard_force_visible_control = "open-log-viewer"
                 QTimer.singleShot(120, self._sync_monitoring_hud_control_state_from_page)
                 QTimer.singleShot(360, self._sync_monitoring_hud_control_state_from_page)
                 QTimer.singleShot(720, self._sync_monitoring_hud_control_state_from_page)
@@ -8801,7 +8801,7 @@ class DesktopRuntimeWindow(QWidget):
             const y = {int(point.y())};
             const rawTarget = document.elementFromPoint ? document.elementFromPoint(x, y) : null;
             const target = rawTarget && rawTarget.closest
-                ? rawTarget.closest('[data-control="open-recording-studio"],[data-control="open-log-viewer-studio"],[data-control="toggle-recording"]')
+                ? rawTarget.closest('[data-control="open-recording-studio"],[data-control="open-log-viewer"],[data-control="toggle-recording"]')
                 : null;
             if (!target) {{
                 return JSON.stringify({{ eligible: false, x, y }});
@@ -8809,7 +8809,7 @@ class DesktopRuntimeWindow(QWidget):
             const control = String(target.dataset.control || "");
             const before = {{
                 recordingControlWindowRequested: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested),
-                logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
+                logViewerRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerRequested),
                 recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
             }};
             const releasePointerActivatedAt = Number(target.dataset.reliablePointerActivatedAt || 0);
@@ -8834,8 +8834,8 @@ class DesktopRuntimeWindow(QWidget):
                     const nativeRequestMissing = Boolean(
                         (control === "open-recording-studio"
                             && !(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested))
-                        || (control === "open-log-viewer-studio"
-                            && !(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested))
+                        || (control === "open-log-viewer"
+                            && !(monitoringHudControlState && monitoringHudControlState.logViewerRequested))
                     );
                     if (nativeRequestMissing) {{
                         alreadyHandled = false;
@@ -8845,18 +8845,18 @@ class DesktopRuntimeWindow(QWidget):
                         if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                             activated = monitoringHudRequestRecordingControlWindow() !== false;
                         }}
-                    }} else if (nativeRequestMissing && control === "open-log-viewer-studio") {{
-                        if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
-                            activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                    }} else if (nativeRequestMissing && control === "open-log-viewer") {{
+                        if (typeof monitoringHudRequestLogViewerWindow === "function") {{
+                            activated = monitoringHudRequestLogViewerWindow() !== false;
                         }}
                     }}
                 }} else if (control === "open-recording-studio") {{
                     if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                         activated = monitoringHudRequestRecordingControlWindow() !== false;
                     }}
-                }} else if (control === "open-log-viewer-studio") {{
-                    if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
-                        activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                }} else if (control === "open-log-viewer") {{
+                    if (typeof monitoringHudRequestLogViewerWindow === "function") {{
+                        activated = monitoringHudRequestLogViewerWindow() !== false;
                     }}
                 }} else if (control === "toggle-recording") {{
                     if (typeof monitoringHudToggleRecording === "function") {{
@@ -8932,7 +8932,7 @@ class DesktopRuntimeWindow(QWidget):
             const pressY = {int(press_local.y())};
             const releaseX = {int(release_local.x())};
             const releaseY = {int(release_local.y())};
-            const selector = '[data-control="open-recording-studio"],[data-control="open-log-viewer-studio"],[data-control="toggle-recording"]';
+            const selector = '[data-control="open-recording-studio"],[data-control="open-log-viewer"],[data-control="toggle-recording"]';
             const pressRaw = document.elementFromPoint ? document.elementFromPoint(pressX, pressY) : null;
             const releaseRaw = document.elementFromPoint ? document.elementFromPoint(releaseX, releaseY) : null;
             const pressTarget = pressRaw && pressRaw.closest ? pressRaw.closest(selector) : null;
@@ -8952,7 +8952,7 @@ class DesktopRuntimeWindow(QWidget):
             const control = String(releaseTarget.dataset.control || "");
             const before = {{
                 recordingControlWindowRequested: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested),
-                logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
+                logViewerRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerRequested),
                 recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
             }};
             let activated = false;
@@ -8970,8 +8970,8 @@ class DesktopRuntimeWindow(QWidget):
                 const nativeRequestMissing = Boolean(
                     (control === "open-recording-studio"
                         && !(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested))
-                    || (control === "open-log-viewer-studio"
-                        && !(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested))
+                    || (control === "open-log-viewer"
+                        && !(monitoringHudControlState && monitoringHudControlState.logViewerRequested))
                 );
                 if (nativeRequestMissing) {{
                     skippedRecentReliable = false;
@@ -8981,18 +8981,18 @@ class DesktopRuntimeWindow(QWidget):
                     if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                         activated = monitoringHudRequestRecordingControlWindow() !== false;
                     }}
-                }} else if (nativeRequestMissing && control === "open-log-viewer-studio") {{
-                    if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
-                        activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                }} else if (nativeRequestMissing && control === "open-log-viewer") {{
+                    if (typeof monitoringHudRequestLogViewerWindow === "function") {{
+                        activated = monitoringHudRequestLogViewerWindow() !== false;
                     }}
                 }}
             }} else if (control === "open-recording-studio") {{
                 if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                     activated = monitoringHudRequestRecordingControlWindow() !== false;
                 }}
-            }} else if (control === "open-log-viewer-studio") {{
-                if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
-                    activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+            }} else if (control === "open-log-viewer") {{
+                if (typeof monitoringHudRequestLogViewerWindow === "function") {{
+                    activated = monitoringHudRequestLogViewerWindow() !== false;
                 }}
             }} else if (control === "toggle-recording") {{
                 if (typeof monitoringHudToggleRecording === "function") {{
@@ -9044,7 +9044,7 @@ class DesktopRuntimeWindow(QWidget):
                 before,
                 after: {{
                     recordingControlWindowRequested: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested),
-                    logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
+                    logViewerRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerRequested),
                     recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
                 }}
             }});
@@ -9566,7 +9566,7 @@ class DesktopRuntimeWindow(QWidget):
         if self._monitoring_hud_log_viewer_studio_window is None:
             return
         state = getattr(self, "_monitoring_hud_live_page_state", {}) or {}
-        summary = state.get("logViewerStudioSummary") if isinstance(state, dict) else {}
+        summary = state.get("logViewerSummary") if isinstance(state, dict) else {}
         if not isinstance(summary, dict):
             summary = {}
         request_id = f"recording-studio-route-{int(time.time() * 1000)}"
@@ -13658,7 +13658,7 @@ class DesktopRuntimeWindow(QWidget):
                         launcherEnabled: Boolean(launcher && !launcher.disabled),
                         openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
                         launcherTextStart: Boolean(launcher && String(launcher.textContent || "").trim() === "Start Recording"),
-                        openFolderText: Boolean(openFolder && String(openFolder.textContent || "").trim() === "Log Viewer Studio"),
+                        openFolderText: Boolean(openFolder && String(openFolder.textContent || "").trim() === "Log Viewer"),
                         cardReady: Boolean(card && card.dataset.recordingExecutionState === "ready"),
                         cardFileReady: Boolean(card && card.dataset.recordingFileWritingState === "ready"),
                         folderAction: Boolean(openFolder && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"),
@@ -13836,7 +13836,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
-                and proof.get("recordingStudioVisibleActionModel") == "visually-primary-single-stateful-start-stop-button-plus-secondary-log-viewer-route"
+                and proof.get("recordingStudioVisibleActionModel") == "runtime-current-single-toggle-candidate-selection-pending"
                 and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
@@ -14030,19 +14030,19 @@ class DesktopRuntimeWindow(QWidget):
         def step_recording_open_folder_click():
             os_click_and_assert_state(
                 "#monitoring-hud-recording-open-folder",
-                "real OS click opens Dashboard Recording Log Viewer Studio",
+                "real OS click opens Dashboard Recording Log Viewer",
                 """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
-                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
-                    const summary = monitoringHudControlState ? monitoringHudControlState.logViewerStudioSummary || {} : {};
+                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerRequestId || "") : "";
+                    const summary = monitoringHudControlState ? monitoringHudControlState.logViewerSummary || {} : {};
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
                             && !openFolder.disabled
-                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
-                            && monitoringHudControlState.logViewerStudioRequested === true
-                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && String(openFolder.textContent || "").trim() === "Log Viewer"
+                            && monitoringHudControlState.logViewerRequested === true
+                            && monitoringHudControlState.logViewerState === "native-window-requested"
                             && requestId
                             && summary
                             && summary.nativeFolderState === "create-or-open-before-session"
@@ -14066,7 +14066,7 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_recording_open_folder_result_assert():
             assert_state(
-                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
+                "Dashboard Recording Log Viewer crosses backend native-window bridge",
                 """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
@@ -14074,17 +14074,17 @@ class DesktopRuntimeWindow(QWidget):
                         ok: Boolean(
                             openFolder
                             && !openFolder.disabled
-                            && monitoringHudControlState.logViewerStudioRequested === true
-                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
-                            && monitoringHudControlState.logViewerStudioSummary
-                            && monitoringHudControlState.logViewerStudioSummary.fullLogViewerState === "future-gated"
-                            && monitoringHudControlState.logViewerStudioSummary.previousLogSelectionState === "future-gated"
-                            && monitoringHudControlState.logViewerStudioSummary.exportCustomizationState === "future-gated"
+                            && monitoringHudControlState.logViewerRequested === true
+                            && monitoringHudControlState.logViewerState === "native-window-requested"
+                            && monitoringHudControlState.logViewerSummary
+                            && monitoringHudControlState.logViewerSummary.fullLogViewerState === "future-gated"
+                            && monitoringHudControlState.logViewerSummary.previousLogSelectionState === "future-gated"
+                            && monitoringHudControlState.logViewerSummary.exportCustomizationState === "future-gated"
                         ),
-                        logViewerStudioState: monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioState || "") : "",
-                        fullLogViewerState: monitoringHudControlState && monitoringHudControlState.logViewerStudioSummary ? String(monitoringHudControlState.logViewerStudioSummary.fullLogViewerState || "") : "",
-                        previousLogSelectionState: monitoringHudControlState && monitoringHudControlState.logViewerStudioSummary ? String(monitoringHudControlState.logViewerStudioSummary.previousLogSelectionState || "") : "",
-                        exportCustomizationState: monitoringHudControlState && monitoringHudControlState.logViewerStudioSummary ? String(monitoringHudControlState.logViewerStudioSummary.exportCustomizationState || "") : "",
+                        logViewerState: monitoringHudControlState ? String(monitoringHudControlState.logViewerState || "") : "",
+                        fullLogViewerState: monitoringHudControlState && monitoringHudControlState.logViewerSummary ? String(monitoringHudControlState.logViewerSummary.fullLogViewerState || "") : "",
+                        previousLogSelectionState: monitoringHudControlState && monitoringHudControlState.logViewerSummary ? String(monitoringHudControlState.logViewerSummary.previousLogSelectionState || "") : "",
+                        exportCustomizationState: monitoringHudControlState && monitoringHudControlState.logViewerSummary ? String(monitoringHudControlState.logViewerSummary.exportCustomizationState || "") : "",
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -14141,9 +14141,9 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("exportCustomizationState") == "future-gated"
                 and proof.get("nativeLogLoaderState") == "future-gated"
             )
-            add_step("Log Viewer Studio native window screenshot-capture readiness", native_window_passed, proof)
+            add_step("Log Viewer native window screenshot-capture readiness", native_window_passed, proof)
             if not native_window_passed:
-                finish("FAIL", "Log Viewer Studio native window capture-readiness failed before focused screenshot")
+                finish("FAIL", "Log Viewer native window capture-readiness failed before focused screenshot")
                 return
             capture_native_window("02_log_viewer_studio_native_window_shell_state", widget)
             capture("02_recording_card_log_viewer_studio_opened_state")
@@ -14266,15 +14266,15 @@ class DesktopRuntimeWindow(QWidget):
             state_script = """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
-                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerRequestId || "") : "";
                     const previousRequestId = __PREVIOUS_LOG_VIEWER_REQUEST_ID__;
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
                             && !openFolder.disabled
-                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
-                            && monitoringHudControlState.logViewerStudioRequested === true
-                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && String(openFolder.textContent || "").trim() === "Log Viewer"
+                            && monitoringHudControlState.logViewerRequested === true
+                            && monitoringHudControlState.logViewerState === "native-window-requested"
                             && requestId
                             && requestId !== previousRequestId
                         ),
@@ -14341,15 +14341,15 @@ class DesktopRuntimeWindow(QWidget):
             state_script = """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
-                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerRequestId || "") : "";
                     const previousRequestId = __PREVIOUS_LOG_VIEWER_REQUEST_ID__;
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
                             && !openFolder.disabled
-                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
-                            && monitoringHudControlState.logViewerStudioRequested === true
-                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && String(openFolder.textContent || "").trim() === "Log Viewer"
+                            && monitoringHudControlState.logViewerRequested === true
+                            && monitoringHudControlState.logViewerState === "native-window-requested"
                             && requestId
                             && requestId !== previousRequestId
                         ),
@@ -15150,11 +15150,11 @@ class DesktopRuntimeWindow(QWidget):
             focus_dashboard_for_sequence()
             os_click_and_assert_state(
                 "#monitoring-hud-recording-open-folder",
-                "RAR3D real OS click opens Log Viewer Studio for ordered proof",
+                "RAR3D real OS click opens Log Viewer for ordered proof",
                 """
                 (function() {
                     return JSON.stringify({
-                        ok: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested === true),
+                        ok: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerRequested === true),
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -15174,7 +15174,7 @@ class DesktopRuntimeWindow(QWidget):
                     ("close", getattr(widget, "_close", None) if widget else None),
                 ],
             )
-            add_step("RAR3D Log Viewer Studio min/close ordered visual states", bool(controls_proof.get("ok")), controls_proof)
+            add_step("RAR3D Log Viewer min/close ordered visual states", bool(controls_proof.get("ok")), controls_proof)
             folder_proof = rar3d_capture_widget_control_states(
                 row_id="RAR2B-FAM006-019",
                 surface="log_viewer_studio_folder_buttons",
@@ -15184,13 +15184,13 @@ class DesktopRuntimeWindow(QWidget):
                     ("open_exported_logs", getattr(widget, "_open_export", None) if widget else None),
                 ],
             )
-            add_step("RAR3D Log Viewer Studio folder button ordered visual states", bool(folder_proof.get("ok")), folder_proof)
+            add_step("RAR3D Log Viewer folder button ordered visual states", bool(folder_proof.get("ok")), folder_proof)
             geometry_proof = rar3d_capture_widget_geometry(
                 row_id="RAR2B-FAM006-021",
                 surface="log_viewer_studio",
                 widget=widget,
             )
-            add_step("RAR3D Log Viewer Studio literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
+            add_step("RAR3D Log Viewer literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
             QTimer.singleShot(delay(), step_rar3d_finish)
 
         def step_rar3e_begin():
@@ -15351,7 +15351,7 @@ class DesktopRuntimeWindow(QWidget):
             log_viewer_visible = wait_for_native_window_visible(
                 lambda: self._monitoring_hud_log_viewer_studio_window
             )
-            proof["logViewerStudioVisible"] = log_viewer_visible
+            proof["logViewerVisible"] = log_viewer_visible
             proof["nativeWindowScreenshot"] = capture_native_window(
                 "rar3e_RAR2B-FAM006-010_recording_card_log_viewer_button_keyboard_native_window",
                 self._monitoring_hud_log_viewer_studio_window,
@@ -15425,10 +15425,10 @@ class DesktopRuntimeWindow(QWidget):
                     False,
                     {
                         "rowId": "RAR2B-FAM006-019",
-                        "reason": "Log Viewer Studio was not visible before native folder activation proof",
+                        "reason": "Log Viewer was not visible before native folder activation proof",
                     },
                 )
-                finish("FAIL", "RAR3E Log Viewer Studio missing for folder activation proof")
+                finish("FAIL", "RAR3E Log Viewer missing for folder activation proof")
                 return
             native_proof = rar3e_click_widget_button(
                 row_id="RAR2B-FAM006-019",
@@ -15470,7 +15470,7 @@ class DesktopRuntimeWindow(QWidget):
                 widget=log_widget,
                 drag_surface=getattr(log_widget, "_drag_surface", None) if log_widget else None,
             )
-            add_step("RAR3E Log Viewer Studio real title-bar drag geometry proof", bool(log_drag.get("ok")), log_drag)
+            add_step("RAR3E Log Viewer real title-bar drag geometry proof", bool(log_drag.get("ok")), log_drag)
             QTimer.singleShot(delay(), step_rar3e_safe_failure_classification)
 
         def step_rar3e_safe_failure_classification():
@@ -20370,7 +20370,7 @@ class DesktopRuntimeWindow(QWidget):
                                         && !launcher.disabled
                                         && !openFolder.disabled
                                         && String(launcher.textContent || "").trim() === "Start Recording"
-                                        && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
+                                        && String(openFolder.textContent || "").trim() === "Log Viewer"
                                         && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"
                                         && openFolder.dataset.recordingFolderPathAvailable === "pre-session-root"
                                         && card.dataset.recordingExecutionState !== "blocked"
@@ -22145,9 +22145,9 @@ class DesktopRuntimeWindow(QWidget):
                 w=proof.get("w"),
                 h=proof.get("h"),
             )
-        log_viewer_summary = state.get("logViewerStudioSummary")
-        log_viewer_requested = bool(state.get("logViewerStudioRequested"))
-        log_viewer_request_id = str(state.get("logViewerStudioRequestId") or "")
+        log_viewer_summary = state.get("logViewerSummary")
+        log_viewer_requested = bool(state.get("logViewerRequested"))
+        log_viewer_request_id = str(state.get("logViewerRequestId") or "")
         log_viewer_signature = (
             log_viewer_requested,
             log_viewer_request_id,
@@ -22155,7 +22155,7 @@ class DesktopRuntimeWindow(QWidget):
         )
         log_viewer_keyboard_restore = bool(
             getattr(self, "_monitoring_hud_keyboard_force_visible_control", "")
-            == "open-log-viewer-studio"
+            == "open-log-viewer"
         )
         if (
             log_viewer_requested

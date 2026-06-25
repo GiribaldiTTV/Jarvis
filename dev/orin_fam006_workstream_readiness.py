@@ -49,8 +49,8 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         {
             "slice": "SLC-054",
             "status": "complete",
-            "proof": "durable local file writing output contract writes native NDAI log output and proves readback; minimal Log Viewer Studio shell opens native/export folders before an active-session recording exists",
-            "futureGate": "full Log Viewer Studio, previous-log selection, export customization, Native Log Loader, export/share, and provider/model work remain future-gated",
+            "proof": "durable local file writing output contract writes native NDAI log output and proves readback; minimal Log Viewer shell opens native/export folders before an active-session recording exists",
+            "futureGate": "full Log Viewer, previous-log selection, export customization, Native Log Loader, export/share, and provider/model work remain future-gated",
         },
         {
             "slice": "SLC-055",
@@ -85,7 +85,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         "hardeningH1Expectations": [
             "compare SLC-051 through SLC-055 against accepted BP1/BP2/BP3",
             "stress null active profile, stale profile, high-volume membership, compact/default UI, output contract, and Start/Stop states",
-            "verify file writing stays in the runtime-owned local output root, Log Viewer Studio opens native/export roots pre-session, and tray/export customization/provider/model/FAM-007 scope does not slip into Workstream",
+            "verify file writing stays in the runtime-owned local output root, Log Viewer opens native/export roots pre-session, and tray/export customization/provider/model/FAM-007 scope does not slip into Workstream",
         ],
         "liveValidationLV1State": "pending-after-h1",
         "liveValidationLV1Expectations": [
@@ -95,14 +95,14 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         ],
         "utsState": "pending-after-lv1",
         "utsExpectations": [
-            "USER-facing summary covers Dashboard Quick Access Start/Stop, Recording card target/status, Recording Studio, minimal Log Viewer Studio shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
+            "USER-facing summary covers Dashboard Quick Access Start/Stop, Recording card target/status, Recording Studio, minimal Log Viewer shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
             "no UTS is exported until Live Validation authority is active or waived",
         ],
         "futureGatedBoundaries": [
             "tray controls",
             "keybinds",
             "export/share customization",
-            "full Log Viewer Studio",
+            "full Log Viewer",
             "previous-log selection",
             "provider/model work",
             "Native Log Loader implementation",

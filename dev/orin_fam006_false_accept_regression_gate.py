@@ -368,14 +368,14 @@ REQUIRED_SCOPE_TEXT = {
         "Default Overlay Profile",
         "STATE",
         "Ready - 2 active monitors",
-        "OPEN LOG VIEWER STUDIO",
+        "OPEN LOG VIEWER",
     ],
     "recording-primary-action": ["START RECORDING"],
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "STATE", "Ready - 2 active monitors"],
-    "recording-log-route": ["OPEN LOG VIEWER STUDIO"],
+    "recording-log-route": ["OPEN LOG VIEWER"],
     "log-viewer-window-chrome": [
-        "RECORDING LOGS",
-        "LOG VIEWER STUDIO",
+        "NATIVE AND EXPORTED LOG ACCESS",
+        "LOG VIEWER",
         "VIEWER",
         "Deferred",
         "OPEN NATIVE LOGS",
@@ -390,8 +390,8 @@ REQUIRED_SCOPE_TEXT = {
         "OPEN EXPORTED LOGS",
     ],
     "log-viewer-resize-before": [
-        "RECORDING LOGS",
-        "LOG VIEWER STUDIO",
+        "NATIVE AND EXPORTED LOG ACCESS",
+        "LOG VIEWER",
         "VIEWER",
         "Deferred",
         "OPEN NATIVE LOGS",
@@ -399,8 +399,8 @@ REQUIRED_SCOPE_TEXT = {
         "Exported logs folder could not be opened.",
     ],
     "log-viewer-resize-during": [
-        "RECORDING LOGS",
-        "LOG VIEWER STUDIO",
+        "NATIVE AND EXPORTED LOG ACCESS",
+        "LOG VIEWER",
         "VIEWER",
         "Deferred",
         "OPEN NATIVE LOGS",
@@ -408,8 +408,8 @@ REQUIRED_SCOPE_TEXT = {
         "Exported logs folder could not be opened.",
     ],
     "log-viewer-resize-after": [
-        "RECORDING LOGS",
-        "LOG VIEWER STUDIO",
+        "NATIVE AND EXPORTED LOG ACCESS",
+        "LOG VIEWER",
         "VIEWER",
         "Deferred",
         "OPEN NATIVE LOGS",
@@ -1109,7 +1109,7 @@ def _validate_b2_placement_proof(
         if moved_before.get("recordingRect") != moved_after.get("recordingRect"):
             failures.append("B2 same-session Recording Studio moved geometry did not restore")
         if moved_before.get("logViewerRect") != moved_after.get("logViewerRect"):
-            failures.append("B2 same-session Log Viewer Studio moved geometry did not restore")
+            failures.append("B2 same-session Log Viewer moved geometry did not restore")
     return failures
 
 
@@ -1154,13 +1154,20 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
         option_failures = validate_runtime_ui_immersion_options_packet(root)
         failures.extend(f"runtime UI immersion options packet: {failure}" for failure in option_failures)
         option_media = sorted((root / "Review Aids" / "Rendered Media").glob("*.png"))
+        manifest_path = root / "Review Aids" / "packet_manifest.json"
+        packet_class = "runtime-ui-immersion-studio-redesign-options"
+        try:
+            manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            packet_class = str(manifest_payload.get("packetStatus") or packet_class)
+        except Exception:
+            pass
         return PacketInspection(
             label=label,
             path=str(root),
             accepted=not failures,
             failures=failures,
             artifactSummary={
-                "packetClass": "runtime-ui-immersion-studio-redesign-options",
+                "packetClass": packet_class,
                 "renderedMediaCount": len(option_media),
                 "runtimeImplementationProofRequired": "separate USER-selected implementation-match repair; not claimed by this packet",
                 "liveValidationClaimed": False,

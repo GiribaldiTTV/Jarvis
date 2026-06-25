@@ -578,7 +578,7 @@ function monitoringHudBuildRecordingStudioTargetSummary(target, executionState, 
   };
 }
 
-function monitoringHudBuildLogViewerStudioSummary(outputResult) {
+function monitoringHudBuildLogViewerSummary(outputResult) {
   const safeResult = outputResult && typeof outputResult === "object" ? outputResult : {};
   return {
     nativeLogPath: String(safeResult.nativeLogPath || ""),
@@ -659,7 +659,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingTargetPreview.dataset.recordingFileWritingState = fileWritingState;
     monitoringHudRecordingTargetPreview.dataset.recordingControlWindowState = "recording-card-status-summary";
     monitoringHudRecordingTargetPreview.dataset.recordingControlWindowContract = "recording-studio-focused-control-status";
-    monitoringHudRecordingTargetPreview.dataset.logViewerStudioState = "ready";
+    monitoringHudRecordingTargetPreview.dataset.logViewerState = "ready";
     monitoringHudRecordingTargetPreview.dataset.trayRecordingControlState = "not-created";
   }
   if (monitoringHudRecordingCardSummary) {
@@ -710,9 +710,9 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingOpenFolder.dataset.recordingFolderAction = "native-and-export-folder-shell";
     monitoringHudRecordingOpenFolder.dataset.recordingFolderPathAvailable = outputFolderPath ? "saved-export-path" : "pre-session-root";
     monitoringHudRecordingOpenFolder.dataset.recordingFileWritingState = fileWritingState === "blocked" ? "pre-session-ready" : fileWritingState;
-    monitoringHudRecordingOpenFolder.dataset.logViewerStudioState = "ready";
+    monitoringHudRecordingOpenFolder.dataset.logViewerState = "ready";
     monitoringHudRecordingOpenFolder.dataset.recordingCardVisualSystem = "dashboard-hub-card-sampled";
-    monitoringHudRecordingOpenFolder.textContent = "Log Viewer Studio";
+    monitoringHudRecordingOpenFolder.textContent = "Log Viewer";
   }
   if (monitoringHudControlState.recordingControlWindowRequested) {
     monitoringHudControlState.recordingControlWindowTargetSummary = monitoringHudBuildRecordingStudioTargetSummary(
@@ -722,8 +722,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
       sessionState
     );
   }
-  if (monitoringHudControlState.logViewerStudioRequested) {
-    monitoringHudControlState.logViewerStudioSummary = monitoringHudBuildLogViewerStudioSummary(outputResult);
+  if (monitoringHudControlState.logViewerRequested) {
+    monitoringHudControlState.logViewerSummary = monitoringHudBuildLogViewerSummary(outputResult);
   }
   return {
     activeProfileName,
@@ -759,13 +759,13 @@ function monitoringHudRequestRecordingControlWindow() {
   return true;
 }
 
-function monitoringHudRequestLogViewerStudioWindow() {
-  const sequence = Number(monitoringHudControlState.logViewerStudioRequestSequence || 0) + 1;
-  monitoringHudControlState.logViewerStudioRequestSequence = sequence;
-  monitoringHudControlState.logViewerStudioRequested = true;
-  monitoringHudControlState.logViewerStudioRequestId = `recording-log-viewer-${sequence}-${Date.now()}`;
-  monitoringHudControlState.logViewerStudioState = "native-window-requested";
-  monitoringHudControlState.logViewerStudioSummary = monitoringHudBuildLogViewerStudioSummary(
+function monitoringHudRequestLogViewerWindow() {
+  const sequence = Number(monitoringHudControlState.logViewerRequestSequence || 0) + 1;
+  monitoringHudControlState.logViewerRequestSequence = sequence;
+  monitoringHudControlState.logViewerRequested = true;
+  monitoringHudControlState.logViewerRequestId = `recording-log-viewer-${sequence}-${Date.now()}`;
+  monitoringHudControlState.logViewerState = "native-window-requested";
+  monitoringHudControlState.logViewerSummary = monitoringHudBuildLogViewerSummary(
     monitoringHudControlState.recordingOutputResult || {}
   );
   monitoringHudRenderControls();
@@ -1544,11 +1544,11 @@ let monitoringHudControlState = {
   recordingFolderOpenRequestSequence: 0,
   recordingFolderOpenResult: null,
   recordingFolderOpenStatus: "no-output-yet",
-  logViewerStudioRequested: false,
-  logViewerStudioRequestId: "",
-  logViewerStudioRequestSequence: 0,
-  logViewerStudioState: "ready",
-  logViewerStudioSummary: null,
+  logViewerRequested: false,
+  logViewerRequestId: "",
+  logViewerRequestSequence: 0,
+  logViewerState: "ready",
+  logViewerSummary: null,
   changedAt: Date.now()
 };
 monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
@@ -4571,7 +4571,7 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.hudOverlayRecordingBoundary = "hud-overlay-overlay-focused";
   monitoringHud.dataset.recordingControlWindowState = "recording-studio-ready";
   monitoringHud.dataset.recordingControlWindowContract = "recording-studio-focused-control-status";
-  monitoringHud.dataset.logViewerStudioState = "ready";
+  monitoringHud.dataset.logViewerState = "ready";
   monitoringHud.dataset.activeMonitorTransparency = "slc-052-dashboard-visible-count-and-names";
   monitoringHudRenderActiveOverlayRecordingTargetPreview();
   monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningNotificationsMuted
@@ -4851,7 +4851,7 @@ function monitoringHudWireControls() {
     monitoringHudWireReliableControl(monitoringHudRecordingStudioOpen, "recording-control:open-recording-studio", monitoringHudRequestRecordingControlWindow, { activateOnPointerDown: true });
   }
   if (monitoringHudRecordingOpenFolder) {
-    monitoringHudWireReliableControl(monitoringHudRecordingOpenFolder, "recording-control:open-log-viewer-studio", monitoringHudRequestLogViewerStudioWindow, { activateOnPointerDown: true });
+    monitoringHudWireReliableControl(monitoringHudRecordingOpenFolder, "recording-control:open-log-viewer", monitoringHudRequestLogViewerWindow, { activateOnPointerDown: true });
   }
   if (monitoringHudCreateMonitorConfirm) {
     monitoringHudWireReliableControl(monitoringHudCreateMonitorConfirm, "create-window:confirm", monitoringHudCreateMonitorGroupFromWindow);
@@ -5690,18 +5690,18 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && monitoringHudControlState.recordingControlWindowTargetSummary
       && monitoringHudControlState.recordingControlWindowTargetSummary.startStopState === "start-enabled"
     );
-    proof.logViewerStudioLaunchReady = Boolean(monitoringHudRecordingOpenFolder)
+    proof.logViewerLaunchReady = Boolean(monitoringHudRecordingOpenFolder)
       && monitoringHudRecordingOpenFolder.disabled === false
-      && monitoringHudRecordingOpenFolder.dataset.logViewerStudioState === "ready"
+      && monitoringHudRecordingOpenFolder.dataset.logViewerState === "ready"
       && monitoringHudRecordingOpenFolder.dataset.recordingFolderAction === "native-and-export-folder-shell";
-    const logViewerRequestResult = monitoringHudRequestLogViewerStudioWindow();
-    proof.logViewerStudioNativeWindowRequested = Boolean(
+    const logViewerRequestResult = monitoringHudRequestLogViewerWindow();
+    proof.logViewerNativeWindowRequested = Boolean(
       logViewerRequestResult
-      && monitoringHudControlState.logViewerStudioRequested === true
-      && monitoringHudControlState.logViewerStudioState === "native-window-requested"
-      && monitoringHudControlState.logViewerStudioSummary
-      && monitoringHudControlState.logViewerStudioSummary.nativeFolderState === "create-or-open-before-session"
-      && monitoringHudControlState.logViewerStudioSummary.exportFolderState === "create-or-open-before-session"
+      && monitoringHudControlState.logViewerRequested === true
+      && monitoringHudControlState.logViewerState === "native-window-requested"
+      && monitoringHudControlState.logViewerSummary
+      && monitoringHudControlState.logViewerSummary.nativeFolderState === "create-or-open-before-session"
+      && monitoringHudControlState.logViewerSummary.exportFolderState === "create-or-open-before-session"
     );
     proof.recordingExecutionReady = Boolean(monitoringHudRecordingTargetPreview)
       && monitoringHudRecordingTargetPreview.dataset.recordingExecutionState === "ready"
@@ -5761,8 +5761,8 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && proof.recordingCardRemainsSummarySurface
       && proof.recordingStudioLaunchReady
       && proof.recordingStudioNativeWindowRequested
-      && proof.logViewerStudioLaunchReady
-      && proof.logViewerStudioNativeWindowRequested
+      && proof.logViewerLaunchReady
+      && proof.logViewerNativeWindowRequested
       && proof.recordingExecutionReady
       && proof.fileWritingReady
       && proof.trayControlsAbsent

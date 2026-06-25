@@ -20,8 +20,8 @@ from orin_fam006_unified_defect_ledger import validate_udl_state
 ROOT = Path(__file__).resolve().parents[1]
 USER_ROOT = Path("C:/Nexus USER")
 PACKET_ROOT = USER_ROOT / "FAM-006"
-RUNTIME_UI_OPTIONS_PRIMARY = "RUNTIME_UI_IMMERSION_STUDIO_REDESIGN_OPTIONS_REVIEW.md"
-RUNTIME_UI_OPTIONS_STATUS = "fam006-runtime-ui-immersion-studio-redesign-options"
+RUNTIME_UI_OPTIONS_PRIMARY = "DUAL_RECORDING_CANDIDATE_LOG_VIEWER_RENAME_REVIEW.md"
+RUNTIME_UI_OPTIONS_STATUS = "fam006-dual-recording-candidate-log-viewer-rename"
 PROOF_ROOT = Path("C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI")
 
 AI_CONTROL_CENTER_COMPARATOR = (
@@ -193,17 +193,17 @@ REQUIRED_CROP_TYPES = {
     "log-viewer-resize-after": "RESIZE_STATE_CROP",
 }
 REQUIRED_SCOPE_TEXT = {
-    "recording-window-chrome": ["ACTIVE OVERLAY RECORDING", "RECORDING STUDIO", "START RECORDING", "Ready - 2 active monitors", "TARGET", "Default Overlay Profile", "OPEN LOG VIEWER STUDIO"],
+    "recording-window-chrome": ["ACTIVE OVERLAY RECORDING", "RECORDING STUDIO", "START RECORDING", "Ready - 2 active monitors", "TARGET", "Default Overlay Profile", "OPEN LOG VIEWER"],
     "recording-primary-action": ["START RECORDING"],
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "Ready - 2 active monitors"],
-    "recording-log-route": ["OPEN LOG VIEWER STUDIO"],
-    "log-viewer-window-chrome": ["RECORDING LOGS", "LOG VIEWER STUDIO", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+    "recording-log-route": ["OPEN LOG VIEWER"],
+    "log-viewer-window-chrome": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
     "native-log-destination-action": ["OPEN NATIVE LOGS"],
     "exported-log-destination-action": ["OPEN EXPORTED LOGS"],
-    "log-viewer-action-status": ["RECORDING LOGS", "LOG VIEWER STUDIO", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
-    "log-viewer-resize-before": ["RECORDING LOGS", "LOG VIEWER STUDIO", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS", "Exported logs folder could not be opened."],
-    "log-viewer-resize-during": ["RECORDING LOGS", "LOG VIEWER STUDIO", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS", "Exported logs folder could not be opened."],
-    "log-viewer-resize-after": ["RECORDING LOGS", "LOG VIEWER STUDIO", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS", "Exported logs folder could not be opened."],
+    "log-viewer-action-status": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+    "log-viewer-resize-before": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS", "Exported logs folder could not be opened."],
+    "log-viewer-resize-during": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS", "Exported logs folder could not be opened."],
+    "log-viewer-resize-after": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS", "Exported logs folder could not be opened."],
 }
 
 
@@ -250,21 +250,21 @@ PACKET_EVIDENCE_BY_GROUP = {
     ("Recording Studio", "target summary card"): "recording-target-truth",
     ("Recording Studio", "secondary Log Viewer route control"): "recording-log-route",
     ("Recording Studio", "copy/text clarity"): "recording-target-truth",
-    ("Log Viewer Studio", "outer frame"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "chrome"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "title/header"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "category label"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "window-control cluster"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "minimize control"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "close control"): "log-viewer-window-chrome",
-    ("Log Viewer Studio", "edge resize affordance"): "log-viewer-resize-after",
-    ("Log Viewer Studio", "Native logs destination card"): "native-log-destination-action",
-    ("Log Viewer Studio", "Exported logs destination card"): "exported-log-destination-action",
-    ("Log Viewer Studio", "folder status strip"): "log-viewer-action-status",
-    ("Log Viewer Studio", "embedded Native Logs open control"): "native-log-destination-action",
-    ("Log Viewer Studio", "embedded Exported Logs open control"): "exported-log-destination-action",
-    ("Log Viewer Studio", "path text containment"): "native-log-destination-action",
-    ("Log Viewer Studio", "copy/text clarity"): "log-viewer-action-status",
+    ("Log Viewer", "outer frame"): "log-viewer-window-chrome",
+    ("Log Viewer", "chrome"): "log-viewer-window-chrome",
+    ("Log Viewer", "title/header"): "log-viewer-window-chrome",
+    ("Log Viewer", "category label"): "log-viewer-window-chrome",
+    ("Log Viewer", "window-control cluster"): "log-viewer-window-chrome",
+    ("Log Viewer", "minimize control"): "log-viewer-window-chrome",
+    ("Log Viewer", "close control"): "log-viewer-window-chrome",
+    ("Log Viewer", "edge resize affordance"): "log-viewer-resize-after",
+    ("Log Viewer", "Native logs destination card"): "native-log-destination-action",
+    ("Log Viewer", "Exported logs destination card"): "exported-log-destination-action",
+    ("Log Viewer", "folder status strip"): "log-viewer-action-status",
+    ("Log Viewer", "embedded Native Logs open control"): "native-log-destination-action",
+    ("Log Viewer", "embedded Exported Logs open control"): "exported-log-destination-action",
+    ("Log Viewer", "path text containment"): "native-log-destination-action",
+    ("Log Viewer", "copy/text clarity"): "log-viewer-action-status",
     ("Native/export folder shell", "native folder path"): "native-log-destination-action",
     ("Native/export folder shell", "exported folder path"): "exported-log-destination-action",
     ("Native/export folder shell", "pre-session folder availability"): "log-viewer-action-status",
@@ -434,7 +434,7 @@ def _surface_specs() -> list[dict[str, object]]:
                 "active monitor row",
                 "status copy",
                 "Recording Studio route control",
-                "Log Viewer Studio route control",
+                "Log Viewer route control",
                 "button hover/focus/pressed/disabled states",
                 "empty/error/blocked states",
             ],
@@ -489,7 +489,7 @@ def _surface_specs() -> list[dict[str, object]]:
             ],
         },
         {
-            "surface": "Log Viewer Studio",
+            "surface": "Log Viewer",
             "window_class": "unique child / standalone-capable feature-studio",
             "fam006_screenshot": SCREENSHOTS["log_default"],
             "code_path": "nexus_visual/monitoring_hud_studio.html; nexus_visual/monitoring_hud_studio.js; nexus_visual/nexus_window_primitives.css; desktop/desktop_renderer.py",
@@ -568,7 +568,7 @@ def _surface_specs() -> list[dict[str, object]]:
             "window_class": "log access shell",
             "fam006_screenshot": SCREENSHOTS["log_viewer_shell"],
             "code_path": "desktop/desktop_renderer.py; desktop/recording_output_contract.py; nexus_visual/monitoring_hud_studio.html",
-            "backend": "recording_output_dir / recording_export_dir -> Log Viewer Studio folder payload -> folder action status",
+            "backend": "recording_output_dir / recording_export_dir -> Log Viewer folder payload -> folder action status",
             "decision": "current-branch repair",
             "disposition": "LOG_ACCESS_SHELL_CONFORMING",
             "groups": [
@@ -765,7 +765,7 @@ def build_rows() -> list[VisualLedgerRow]:
             packet_key = PACKET_EVIDENCE_BY_GROUP.get((surface, str(group)), "")
             if not packet_key and surface == "Recording Studio":
                 packet_key = "recording-full-window"
-            if not packet_key and surface == "Log Viewer Studio":
+            if not packet_key and surface == "Log Viewer":
                 packet_key = "log-viewer-full-window"
             primary_packet_path = packet_row_map.get(packet_key, "") if packet_key else ""
             comparator_key = _comparator_key_for(str(group))
@@ -879,7 +879,7 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "fam006-unique-child-studio-shell-v5",
         "unique-child-purpose-stack-v6",
         "detached-child-window-header-no-title-card",
-        "category-line-plus-strong-title-no-title-card",
+        "title-first-description-beneath-no-title-card",
         "action-first-controller-with-ai-control-center-state-rows-no-report-panels",
         "doorway-shell-viewer-deferred-row-plus-bottom-folder-actions-no-technical-path-table",
         "boxedTablePanelRejected",
@@ -1445,11 +1445,11 @@ def main() -> int:
             failures.extend(f"UDL gate: {failure}" for failure in udl_gate.get("failures", []))
         proof = {
             "status": "PASS" if not failures else "FAIL",
-            "packetClass": "runtime-ui-immersion-studio-redesign-options",
-            "disposition": "NOT_APPLICABLE_DESIGN_OPTIONS_PACKET",
+            "packetClass": "dual-recording-candidate-log-viewer-rename",
+            "disposition": "NOT_APPLICABLE_CANDIDATE_SELECTION_PACKET",
             "reason": (
                 "The exhaustive visual conformance ledger enforces implementation-proof crop/row maps. "
-                "The current packet is rendered design-options review evidence and does not claim runtime implementation, H1, LV, UTS, or PR readiness."
+                "The current packet is rendered candidate-selection review evidence and does not claim final Recording winner selection, runtime implementation, H1, LV, UTS, or PR readiness."
             ),
             "rowCount": 0,
             "helperRunPacketHygieneSnapshot": {
@@ -1463,8 +1463,8 @@ def main() -> int:
             args.write.mkdir(parents=True, exist_ok=True)
             (args.write / "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md").write_text(
                 "# FAM-006 Stop-The-Line Exhaustive Visual Conformance Ledger\n\n"
-                "Status: NOT_APPLICABLE_DESIGN_OPTIONS_PACKET.\n\n"
-                "This packet is review-only rendered design options. Implementation-proof visual conformance remains required after USER selects a design and approves bounded runtime implementation-match repair.\n",
+                "Status: NOT_APPLICABLE_CANDIDATE_SELECTION_PACKET.\n\n"
+                "This packet is review-only rendered candidate-selection evidence. Implementation-proof visual conformance remains required after USER selects a candidate and approves bounded runtime implementation-match repair.\n",
                 encoding="utf-8",
             )
             (args.write / "exhaustive_visual_conformance_ledger.json").write_text(

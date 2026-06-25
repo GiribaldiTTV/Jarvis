@@ -532,7 +532,7 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
         [pscustomobject]@{
             issueId = "C"
             folder = "C_Log_Viewer_Focus_Open_Regression"
-            expected = "Opening/closing/minimizing Log Viewer Studio should not make every later start/stop steal focus unless source truth requires it."
+            expected = "Opening/closing/minimizing Log Viewer should not make every later start/stop steal focus unless source truth requires it."
             observed = "Current return-flow proof must include C1 closed, C2 minimized, and C3 open-unfocused Start/Stop sequences with real OS Quick Access clicks and native focus/window state evidence."
             confidence = "Runtime return-flow proof when all C1/C2/C3 interaction-manifest steps pass with pre/post screenshots."
             patterns = @(
@@ -549,7 +549,7 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
         [pscustomobject]@{
             issueId = "D"
             folder = "D_Log_Viewer_Recording_Studio_Ownership"
-            expected = "Recording Studio and Log Viewer Studio ownership boundaries should match accepted source truth; USER now says native log tracking belongs in Recording Studio and Log Viewer should stay shell/export oriented."
+            expected = "Recording Studio and Log Viewer ownership boundaries should match accepted source truth; USER now says native log tracking belongs in Recording Studio and Log Viewer should stay shell/export oriented."
             observed = "Screenshots capture Recording Studio ready and saved-native-log tracking states plus Log Viewer shell-only boundaries for ownership comparison."
             confidence = "Runtime proof when the saved-native-log tracking and shell-only screenshots are present."
             patterns = @("02_recording_studio_native_window_ready_state", "02_recording_studio_native_log_saved_tracking_state", "02_log_viewer_studio_native_window_shell_state")
@@ -1079,7 +1079,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             status = "REQUIRES_CODEX_PHOTO_VIDEO_ADJUDICATION"
             proofAuthority = "photo-video-comparison-not-runtime-self-attestation"
             referenceSurfaces = @("HUD Dashboard", "Overlay Profile Settings", "Manage Monitors")
-            targetSurfaces = @("Recording Studio", "Log Viewer Studio")
+            targetSurfaces = @("Recording Studio", "Log Viewer")
             requiredReferenceLabels = @(
                 "02_recording_card_target_status_visual_contract",
                 "02_overlay_profile_normal_path_created_draft_recording_mirror",
@@ -1279,11 +1279,11 @@ function Get-ReturnedUtsDeterminismGates() {
         [pscustomobject]@{
             id = "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE"
             issueId = "FAM006-RUTS-003"
-            title = "Log Viewer Studio FAM-006 feature-studio primitive adoption"
+            title = "Log Viewer FAM-006 feature-studio primitive adoption"
             status = "PASS"
-            requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 primitive grammar instead of passing from screenshot existence, generic shell presence, Dashboard-card-clone markers, or FAM-006 self-comparison. Native/export path rows must be visible, contained, non-wrapping, and intentionally middle-elided when full paths are too long. REC/LOG-style title badges are not accepted for the studio window header grammar."
-            stopLossReason = "Closed only when Log Viewer Studio proves FAM-006 compact log access shell composition, AI-Control-Center shared primitive geometry/state behavior, native/export folder rows, title-badge-free text header, and contained native/export folder rows, or direct code-to-visual proof that the same rendered DOM/CSS primitive path is consumed."
-            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio standalone chrome, rows, buttons, typography, density, window shape, state language, title/header treatment, and path-row readability against AI Control Center / UIREF references."
+            requiredProof = "Focused Log Viewer screenshots must be adjudicated against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 primitive grammar instead of passing from screenshot existence, generic shell presence, Dashboard-card-clone markers, or FAM-006 self-comparison. Native/export path rows must be visible, contained, non-wrapping, and intentionally middle-elided when full paths are too long. REC/LOG-style title badges are not accepted for the studio window header grammar."
+            stopLossReason = "Closed only when Log Viewer proves FAM-006 compact log access shell composition, AI-Control-Center shared primitive geometry/state behavior, native/export folder rows, title-badge-free text header, and contained native/export folder rows, or direct code-to-visual proof that the same rendered DOM/CSS primitive path is consumed."
+            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer standalone chrome, rows, buttons, typography, density, window shape, state language, title/header treatment, and path-row readability against AI Control Center / UIREF references."
         }
         [pscustomobject]@{
             id = "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE"
@@ -1419,7 +1419,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckSettingsPanel = Format-ShortcutPrecheckLine @("dashboard_settings_opens_with_real_mouse", "dashboard_settings_double_click_does_not_maximize", "dashboard_settings_done_closes_with_real_mouse") "LV1 cannot claim unrestricted green handoff for Dashboard Settings unless the real mouse Dashboard IA-card path opens and closes the panel without native maximize drift or USER waiver."
     $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard window-level Close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
     $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
-    $precheckRecordingWindowLaunchers = Format-ShortcutPrecheckLine @("recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window") "LV1 cannot claim the FAM-006 Recording Studio or Log Viewer Studio launch path is green unless visible Dashboard buttons open their standalone native windows from the real shortcut/tray path."
+    $precheckRecordingWindowLaunchers = Format-ShortcutPrecheckLine @("recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window") "LV1 cannot claim the FAM-006 Recording Studio or Log Viewer launch path is green unless visible Dashboard buttons open their standalone native windows from the real shortcut/tray path."
     $precheckHumanClientRun = Format-ShortcutPrecheckLine @("visible_desktop_shortcut_double_clicked", "launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff for FAM-006 Recording/HUD affected surfaces without real-human client precheck coverage or USER waiver."
     $precheckNcpAdvisory = Format-ShortcutPrecheckLine @("ncp_tray_icon_left_click_opens", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "NCP tray/authoring coverage is advisory for this FAM-006 Recording UTS unless current branch diff/source truth marks NCP as an affected surface."
     $requiredPrecheckLines = @(
@@ -1450,7 +1450,7 @@ Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer Studio native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
+- This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
 - Confirmed items from previous returned UTS passes are treated as closed unless they visibly regress during this pass.
 - For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
 - If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
@@ -1460,29 +1460,29 @@ Codex Precheck Summary
 - Red shortcut/worktree validation: PASS through the governed FAM-006 desktop shortcut.
 - Human-client proof: PASS at $precheckManifestPath.
 - Visible desktop shortcut proof: $precheckStep1
-- Recording Studio / Log Viewer Studio button proof: $precheckRecordingWindowLaunchers
+- Recording Studio / Log Viewer button proof: $precheckRecordingWindowLaunchers
 - NCP tray/authoring advisory, not active Recording UTS blocker: $precheckNcpAdvisory
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, Recording Studio opened/focused states, native-log saved/readback, Log Viewer Studio pre-session/requested/opened states, target/status mirror, and standalone-window visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, Recording Studio opened/focused states, native-log saved/readback, Log Viewer pre-session/requested/opened states, target/status mirror, and standalone-window visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Vision-To-Proof Matrix For This Handoff
-- Project Vision / FAM-002 window standard -> Recording Studio and Log Viewer Studio must look like polished Nexus standalone windows, not generic utility dialogs. Evidence: focused native-window screenshots and short video.
-- Feature-studio primitive adoption -> Recording Studio and Log Viewer Studio composition must match their FAM-006 compact controller/log-shell purpose while same-class shared/global element groups consume accepted AI Control Center/UIREF geometry, state, typography, button, row, and compact control primitives. FAM-006/HUD windows provide compact-studio context, not self-acceptance.
+- Project Vision / FAM-002 window standard -> Recording Studio and Log Viewer must look like polished Nexus standalone windows, not generic utility dialogs. Evidence: focused native-window screenshots and short video.
+- Feature-studio primitive adoption -> Recording Studio and Log Viewer composition must match their FAM-006 compact controller/log-shell purpose while same-class shared/global element groups consume accepted AI Control Center/UIREF geometry, state, typography, button, row, and compact control primitives. FAM-006/HUD windows provide compact-studio context, not self-acceptance.
 - FAM-006 Family Vision -> new FAM-006 windows may specialize composition for Recording and Log Viewer purpose, but shared primitives such as frame, header, controls, buttons, rows, typography, color, glow, opacity, density, and state behavior must consume accepted shared primitives or direct rendered-primitive paths where same-class, while composition follows Recording controller / Log Viewer shell purpose rather than AI Control Center main-window cloning. REC/LOG-style title badges are not accepted in the standalone studio header grammar for this repair.
-- FAM-006 Recording Feature Vision -> Dashboard card, Recording Studio, Log Viewer Studio shell, native/export boundaries, and active Overlay Profile target mirror must remain branch-specific and future-gated where planned. Evidence: Recording card states, native-log readback, Log Viewer folder shell screenshots, and manifest proof.
+- FAM-006 Recording Feature Vision -> Dashboard card, Recording Studio, Log Viewer shell, native/export boundaries, and active Overlay Profile target mirror must remain branch-specific and future-gated where planned. Evidence: Recording card states, native-log readback, Log Viewer folder shell screenshots, and manifest proof.
 - Live Validation proof rule -> proof must be visible in photo/video or elevated to USER. Evidence: desktop-shortcut human-client manifest, focused screenshots, and this UTS.
-- Current repair focus -> Log Viewer Studio native/export path rows must be readable and contained: no clipped wrapping, no branch/worktree leakage, full path available through tooltip/proof, and visible display intentionally middle-elided when needed.
-- Studio Visual Primitive Comparator Matrix -> compare Recording Studio and Log Viewer Studio first against the FAM-006 feature-studio purpose contract, then against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 for same-class shared primitives for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, hover/focus/disabled states, and proof that button focus does not masquerade as hover after click. Compare HUD Dashboard, Overlay Profile Settings, and Manage Monitors only as secondary context, not as self-acceptance baselines. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
+- Current repair focus -> Log Viewer native/export path rows must be readable and contained: no clipped wrapping, no branch/worktree leakage, full path available through tooltip/proof, and visible display intentionally middle-elided when needed.
+- Studio Visual Primitive Comparator Matrix -> compare Recording Studio and Log Viewer first against the FAM-006 feature-studio purpose contract, then against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 for same-class shared primitives for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, hover/focus/disabled states, and proof that button focus does not masquerade as hover after click. Compare HUD Dashboard, Overlay Profile Settings, and Manage Monitors only as secondary context, not as self-acceptance baselines. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, Recording Studio visible-button activation, Recording Studio FAM-006 feature-studio primitive adoption, native NDAI log save/readback, Log Viewer Studio native/export folder shell behavior, Log Viewer Studio FAM-006 feature-studio primitive adoption, issue #258 Overlay Profile persistence, Recording card Dashboard-card visual-system inheritance, and active Overlay Profile target mirroring.
+- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, Recording Studio visible-button activation, Recording Studio FAM-006 feature-studio primitive adoption, native NDAI log save/readback, Log Viewer native/export folder shell behavior, Log Viewer FAM-006 feature-studio primitive adoption, issue #258 Overlay Profile persistence, Recording card Dashboard-card visual-system inheritance, and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
@@ -1495,7 +1495,7 @@ Expected: The Recording card target overlay profile follows the active Overlay P
 USER Result / Notes:
 
 FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log
-Expected: The Dashboard Quick Access Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing Recording card should show a simple target/status and save/readback result while Recording Studio owns focused control/status and Log Viewer Studio stays available for native/export folder access. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
+Expected: The Dashboard Quick Access Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing Recording card should show a simple target/status and save/readback result while Recording Studio owns focused control/status and Log Viewer stays available for native/export folder access. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
 USER Result / Notes:
 
 FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart
@@ -1510,8 +1510,8 @@ FAM006-LV1-REC-006 - Recording Studio Unique Child Controller Visual Contract
 Expected: Clicking the visible Recording Studio button on the Dashboard Recording card opens a real unique child / standalone-capable Recording Studio window. The window does not need Dashboard cards, but its composition must be an ultra-lightweight detached recording controller while same-class shared element groups consume AI-Control-Center/UIREF shared-rendered or direct rendered primitives: compact dark Nexus frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, contained target/status text, no resize affordance, and polished non-generic window shape.
 USER Result / Notes:
 
-FAM006-LV1-REC-007 - Log Viewer Studio Unique Child Log Access Shell Visual Contract
-Expected: Clicking Log Viewer Studio opens a real unique child / standalone-capable shell window for native/export log folder access. The shell does not need Dashboard cards, but its composition must be a compact current-branch log access shell while same-class shared element groups consume AI-Control-Center/UIREF shared-rendered or direct rendered primitives: compact dark Nexus frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, top-level edge resize behavior, no attached-child corner grip, and polished non-generic window shape. Native/export path rows must be visually contained and readable: no clipped wrapping, no branch/worktree leakage, full path retained as tooltip/proof, and middle-elided display where the full path is too long for the compact window.
+FAM006-LV1-REC-007 - Log Viewer Unique Child Log Access Shell Visual Contract
+Expected: Clicking Log Viewer opens a real unique child / standalone-capable shell window for native/export log folder access. The shell does not need Dashboard cards, but its composition must be a compact current-branch log access shell while same-class shared element groups consume AI-Control-Center/UIREF shared-rendered or direct rendered primitives: compact dark Nexus frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, top-level edge resize behavior, no attached-child corner grip, and polished non-generic window shape. Native/export path rows must be visually contained and readable: no clipped wrapping, no branch/worktree leakage, full path retained as tooltip/proof, and middle-elided display where the full path is too long for the compact window.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
@@ -2005,19 +2005,19 @@ try {
                 "real OS click stops Dashboard Recording and requests local output",
                 "Dashboard Recording stop writes local output and readback proof",
                 "Recording Studio compact native/current-log tracking updates after save",
-                "real OS click opens Dashboard Recording Log Viewer Studio",
-                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
-                "Log Viewer Studio native window screenshot-capture readiness",
+                "real OS click opens Dashboard Recording Log Viewer",
+                "Dashboard Recording Log Viewer crosses backend native-window bridge",
+                "Log Viewer native window screenshot-capture readiness",
                 "RAR3D real OS hover HUD Dashboard close control",
                 "RAR3D real OS hover Quick Access Start/Stop",
                 "RAR3D real OS click opens Recording Studio for ordered proof",
                 "RAR3D Recording Studio min/close ordered visual states",
                 "RAR3D Recording Studio Start/Stop ordered visual states",
                 "RAR3D Recording Studio literal geometry persistence sequence",
-                "RAR3D real OS click opens Log Viewer Studio for ordered proof",
-                "RAR3D Log Viewer Studio min/close ordered visual states",
-                "RAR3D Log Viewer Studio folder button ordered visual states",
-                "RAR3D Log Viewer Studio literal geometry persistence sequence",
+                "RAR3D real OS click opens Log Viewer for ordered proof",
+                "RAR3D Log Viewer min/close ordered visual states",
+                "RAR3D Log Viewer folder button ordered visual states",
+                "RAR3D Log Viewer literal geometry persistence sequence",
                 "RAR3E HUD Dashboard real drag close reopen geometry proof",
                 "RAR3E HUD Dashboard close pressed/clicked proof",
                 "RAR3E HUD Dashboard close keyboard activation proof",
@@ -2035,7 +2035,7 @@ try {
                 "RAR3E Log Viewer Open Native folder activation proof",
                 "RAR3E Log Viewer Open Export folder activation proof",
                 "RAR3E Recording Studio real title-bar drag geometry proof",
-                "RAR3E Log Viewer Studio real title-bar drag geometry proof",
+                "RAR3E Log Viewer real title-bar drag geometry proof",
                 "RAR3E safe failure-state controlled-setup classification"
             )
         }
@@ -2048,19 +2048,19 @@ try {
                 "real OS click stops Dashboard Recording and requests local output",
                 "Dashboard Recording stop writes local output and readback proof",
                 "Recording Studio compact native/current-log tracking updates after save",
-                "real OS click opens Dashboard Recording Log Viewer Studio",
-                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
-                "Log Viewer Studio native window screenshot-capture readiness",
+                "real OS click opens Dashboard Recording Log Viewer",
+                "Dashboard Recording Log Viewer crosses backend native-window bridge",
+                "Log Viewer native window screenshot-capture readiness",
                 "RAR3D real OS hover HUD Dashboard close control",
                 "RAR3D real OS hover Quick Access Start/Stop",
                 "RAR3D real OS click opens Recording Studio for ordered proof",
                 "RAR3D Recording Studio min/close ordered visual states",
                 "RAR3D Recording Studio Start/Stop ordered visual states",
                 "RAR3D Recording Studio literal geometry persistence sequence",
-                "RAR3D real OS click opens Log Viewer Studio for ordered proof",
-                "RAR3D Log Viewer Studio min/close ordered visual states",
-                "RAR3D Log Viewer Studio folder button ordered visual states",
-                "RAR3D Log Viewer Studio literal geometry persistence sequence",
+                "RAR3D real OS click opens Log Viewer for ordered proof",
+                "RAR3D Log Viewer min/close ordered visual states",
+                "RAR3D Log Viewer folder button ordered visual states",
+                "RAR3D Log Viewer literal geometry persistence sequence",
                 "RAR3D safe failure-state disposition summary"
             )
         }
@@ -2073,9 +2073,9 @@ try {
                 "real OS click stops Dashboard Recording and requests local output",
                 "Dashboard Recording stop writes local output and readback proof",
                 "Recording Studio compact native/current-log tracking updates after save",
-                "real OS click opens Dashboard Recording Log Viewer Studio",
-                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
-                "Log Viewer Studio native window screenshot-capture readiness",
+                "real OS click opens Dashboard Recording Log Viewer",
+                "Dashboard Recording Log Viewer crosses backend native-window bridge",
+                "Log Viewer native window screenshot-capture readiness",
                 "C1 Log Viewer closed before repeated Start/Stop",
                 "C1 real OS click starts recording after Log Viewer close",
                 "C1 real OS click stops recording after Log Viewer close",
