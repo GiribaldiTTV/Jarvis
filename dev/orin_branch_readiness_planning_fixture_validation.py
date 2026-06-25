@@ -2456,7 +2456,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
         if not unresolved_evidence:
             return False
-        return user_review_action_requires_packet(row[10])
+        return user_review_action_requires_packet(" ".join((row[9], row[10])))
 
     def accepted_reference_row_requires_user_packet(row: list[str]) -> bool:
         if len(row) <= 8:
@@ -7479,6 +7479,26 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Generated RAR adversarial matrix did not require a USER packet when unresolved comparison cells requested USER waiver despite CONFORMING status"
+        )
+
+    generated_status_green_gap_user_packet_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py | FAM-006 desktop renderer | screenshot | UIREF-002 | Mismatch | Unproven | CONFORMING | USER visual judgment required for unresolved comparison | Continue |",
+        )
+    )
+    generated_status_green_gap_user_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_status_green_gap_user_packet_text
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_status_green_gap_user_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not require a USER packet when unresolved comparison cells placed USER judgment in Defect / Gap"
         )
 
     generated_resolved_accepted_reference_gap_text = (

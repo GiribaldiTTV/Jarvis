@@ -158,7 +158,8 @@
         "USER review or judgment required while packet path remains not required",
         "USER Packet Path and ZIP labels mismatch",
         "Stable or off-root packet/ZIP accepted",
-        "CONFORMING status hides unresolved comparison cells that still require USER waiver"
+        "CONFORMING status hides unresolved comparison cells that still require USER waiver",
+        "USER judgment wording in Defect / Gap cell does not require a USER packet"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -184,14 +185,16 @@
         "RAR USER Decision table row",
         "Next Legal Phase USER review wording",
         "folder/ZIP label mismatch",
-        "unresolved visual/behavior comparison with USER waiver action and USER Packet Path not required"
+        "unresolved visual/behavior comparison with USER waiver action and USER Packet Path not required",
+        "unresolved visual/behavior comparison with USER judgment in Defect / Gap and USER Packet Path not required"
       ],
       "sibling_variant_replay": [
         "RAR2 packet-gated USER review",
         "RAR3 packet-gated USER review",
         "Non-RAR3 route-selection judgment",
         "Timestamped ZIP label match",
-        "CONFORMING status cannot suppress USER packet requirement when comparison/action cells require USER judgment"
+        "CONFORMING status cannot suppress USER packet requirement when comparison/action cells require USER judgment",
+        "USER packet requirement scans unresolved row defect/gap and next-action cells"
       ]
     },
     {
