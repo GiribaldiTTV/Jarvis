@@ -46,6 +46,7 @@ REOPENED_IDS = (
     "F3-LV1-UI-038",
 )
 LOOP_BREAKER_ID = "F3-LV1-PROOF-003"
+PACKET_IMAGE_INTEGRITY_ID = "F3-LV1-PROOF-004"
 PRIOR_FALSE_PACKETS = (
     "FAM-003-20260624-123610.zip",
     "FAM-003-20260624-140049.zip",
@@ -116,6 +117,31 @@ def _row(rows: list[tuple[str, bool, str]], name: str, ok: bool, detail: str) ->
     rows.append((name, ok, detail))
 
 
+def _has_binary_safe_v22_pending(text: str) -> bool:
+    return bool(
+        re.search(
+            r"USER-operated visual retest pending for the fresh (?:binary-safe )?v22 layout-system repair packet",
+            text,
+        )
+    )
+
+
+def _has_folder_zip_parity(text: str) -> bool:
+    return bool(
+        re.search(r"(?:folder-ZIP|Folder\s*/\s*ZIP) parity\s*\d+\s*/\s*\d+", text, re.IGNORECASE)
+    )
+
+
+def _has_v22_proof_stamp(text: str) -> bool:
+    return bool(
+        re.search(
+            r"fam003_settings_repair_visual_validation[\\/]+20260625-\d{6}",
+            text,
+            re.IGNORECASE,
+        )
+    )
+
+
 def main() -> int:
     rows: list[tuple[str, bool, str]] = []
     ledger_text = _read(RECURRENCE_LEDGER)
@@ -126,7 +152,7 @@ def main() -> int:
     uts_text = _read(UTS_PATH)
     packet_generated_mode = (
         repaired_mode
-        and "USER-operated visual retest pending for the fresh v22 layout-system repair packet" in active_state_text
+        and _has_binary_safe_v22_pending(active_state_text)
         and re.search(r"FAM-003-\d{8}-\d{6}\.zip", active_state_text)
         and "Result: USER RETEST PENDING" in uts_text
     )
@@ -214,9 +240,9 @@ def main() -> int:
             )
             post_packet_ok = (
                 "same_defect_recurrence_ledger_20260624.md" in text
-                and "USER-operated visual retest pending for the fresh v22 layout-system repair packet" in text
+                and _has_binary_safe_v22_pending(text)
                 and re.search(r"FAM-003-\d{8}-\d{6}\.zip", text)
-                and re.search(r"folder-ZIP parity \d+ / \d+", text)
+                and _has_folder_zip_parity(text)
             )
             ok = pre_packet_ok or post_packet_ok
             label = "active state records repaired/post-packet gate"
@@ -233,7 +259,7 @@ def main() -> int:
         pre_packet_uts_ok = (
             "Result: REPAIRED - RETEST PACKET PENDING" in uts_text
             and "No USER LV1 visual retest action is requested until a fresh packet is generated" in uts_text
-            and "20260625-112601" in uts_text
+            and _has_v22_proof_stamp(uts_text)
         )
         post_packet_uts_ok = (
             "Result: USER RETEST PENDING" in uts_text
@@ -241,7 +267,7 @@ def main() -> int:
             and "PASS:" in uts_text
             and "FAIL:" in uts_text
             and "WAIVED:" in uts_text
-            and "20260625-112601" in uts_text
+            and _has_v22_proof_stamp(uts_text)
         )
         uts_ok = pre_packet_uts_ok or post_packet_uts_ok
         uts_label = "UTS handoff waits for or routes fresh retest packet"
@@ -254,6 +280,15 @@ def main() -> int:
         and LOOP_BREAKER_ID in bundle_text
     )
     _row(rows, "packet validator enforces recurrence gate", bundle_ok, "dev/orin_user_review_bundle.py")
+
+    if PACKET_IMAGE_INTEGRITY_ID in udl_text or PACKET_IMAGE_INTEGRITY_ID in active_state_text:
+        proof4_status = _latest_udl_status(udl_text, PACKET_IMAGE_INTEGRITY_ID)
+        _row(
+            rows,
+            "active UDL latest packet image-integrity row is closed with proof",
+            proof4_status == "CLOSED_WITH_PROOF",
+            f"{PACKET_IMAGE_INTEGRITY_ID}={proof4_status or '<missing>'}",
+        )
 
     failed = [row for row in rows if not row[1]]
     for name, ok, detail in rows:

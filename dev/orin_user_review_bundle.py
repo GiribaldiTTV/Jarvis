@@ -12,10 +12,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
+import json
 import os
 import re
 import shutil
 import stat
+import struct
 import subprocess
 import zipfile
 from collections import Counter
@@ -1049,6 +1052,9 @@ FAM003_RECURRING_DEFECT_IDS = (
     "F3-LV1-UI-038",
 )
 FAM003_LOOP_BREAKER_DEFECT_ID = "F3-LV1-PROOF-003"
+FAM003_PACKET_IMAGE_INTEGRITY_DEFECT_ID = "F3-LV1-PROOF-004"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+PNG_SIGNATURE_HEX = "89 50 4E 47 0D 0A 1A 0A"
 
 
 def _fam003_recurrence_ledger_failures(recurrence_text: str) -> list[str]:
@@ -1152,8 +1158,227 @@ def _fam003_latest_defect_statuses(udl_text: str) -> dict[str, str]:
     return statuses
 
 
+def _posix_entry_path(base_dir: Path, entry: str) -> Path:
+    return base_dir.joinpath(*PurePosixPath(entry).parts)
+
+
+def _png_image_decode(data: bytes) -> tuple[bool, str, int, int]:
+    if data[:8] != PNG_SIGNATURE:
+        return False, f"invalid PNG signature {data[:8].hex(' ').upper()}", 0, 0
+    if len(data) < 24 or data[12:16] != b"IHDR":
+        return False, "PNG IHDR chunk is missing or truncated", 0, 0
+
+    try:
+        from PIL import Image
+
+        with Image.open(io.BytesIO(data)) as image:
+            width, height = image.size
+            image.verify()
+        if width <= 0 or height <= 0:
+            return False, f"Pillow decoded zero-size PNG {width}x{height}", width, height
+        return True, "Pillow", width, height
+    except ImportError:
+        pass
+    except Exception as exc:
+        pillow_error = f"Pillow decode failed: {exc}"
+    else:
+        pillow_error = ""
+
+    try:
+        from PySide6.QtGui import QImage
+
+        image = QImage.fromData(data, "PNG")
+        if image.isNull():
+            return False, "QImage decode failed: null PNG image", 0, 0
+        width, height = image.width(), image.height()
+        if width <= 0 or height <= 0:
+            return False, f"QImage decoded zero-size PNG {width}x{height}", width, height
+        return True, "QImage", width, height
+    except ImportError:
+        pass
+    except Exception as exc:
+        qimage_error = f"QImage decode failed: {exc}"
+    else:
+        qimage_error = ""
+
+    if "pillow_error" in locals():
+        return False, pillow_error, 0, 0
+    if "qimage_error" in locals():
+        return False, qimage_error, 0, 0
+    width, height = struct.unpack(">II", data[16:24])
+    return False, f"no normal image decoder available; IHDR-only size {width}x{height}", width, height
+
+
+def _fam003_manifest_png_entries(
+    manifest_text: str,
+    *,
+    settings_prefix: str,
+    known_settings_entries: set[str],
+) -> tuple[set[str], list[str]]:
+    if not manifest_text.strip():
+        return set(), []
+
+    try:
+        manifest = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        return set(), [f"settings visual manifest is not valid JSON: {exc}"]
+
+    png_values: list[str] = []
+    artifacts = manifest.get("artifacts") if isinstance(manifest, Mapping) else None
+    if isinstance(artifacts, list):
+        for artifact in artifacts:
+            if isinstance(artifact, Mapping):
+                path_value = artifact.get("path")
+                if isinstance(path_value, str) and path_value.casefold().endswith(".png"):
+                    png_values.append(path_value)
+
+    manage_guard = (
+        manifest.get("manageMonitorsDirtyGuardReference")
+        if isinstance(manifest, Mapping)
+        else None
+    )
+    if isinstance(manage_guard, Mapping):
+        for key in ("image", "sideBySide"):
+            path_value = manage_guard.get(key)
+            if isinstance(path_value, str) and path_value.casefold().endswith(".png"):
+                png_values.append(path_value)
+
+    entries: set[str] = set()
+    failures: list[str] = []
+    for raw_value in png_values:
+        normalized = raw_value.replace("\\", "/")
+        match = re.search(
+            r"fam003_settings_repair_visual_validation/\d{8}-\d{6}/(.+?\.png)$",
+            normalized,
+            re.IGNORECASE,
+        )
+        if match:
+            entries.add(settings_prefix + match.group(1))
+            continue
+
+        basename = PurePosixPath(normalized).name
+        matches = sorted(
+            entry for entry in known_settings_entries if PurePosixPath(entry).name == basename
+        )
+        if len(matches) == 1:
+            entries.add(matches[0])
+        else:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: manifest PNG reference "
+                f"{raw_value!r} cannot be mapped to exactly one packet artifact"
+            )
+    return entries, failures
+
+
+def _fam003_receipt_has_pass_row(receipt_text: str, artifact_tail: str) -> bool:
+    escaped = re.escape(artifact_tail)
+    pattern = re.compile(
+        rf"^\|\s*`?(?:{escaped}|.*?/{escaped})`?\s*\|[^\n]*\bPASS\b",
+        re.MULTILINE,
+    )
+    return bool(pattern.search(receipt_text))
+
+
+def _fam003_packet_image_integrity_failures(
+    packet_dir: Path,
+    *,
+    export_zip: Path,
+    settings_prefix: str,
+    normalized_entries: set[str],
+    required_image_artifacts: tuple[str, ...],
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    failures: list[str] = []
+    settings_png_entries = {
+        entry
+        for entry in normalized_entries
+        if entry.startswith(settings_prefix) and entry.casefold().endswith(".png")
+    }
+    required_image_entries = {settings_prefix + artifact for artifact in required_image_artifacts}
+    manifest_text = packet_files.get(settings_prefix + "fam003_settings_visual_fail_repair_manifest.json", "")
+    manifest_entries, manifest_failures = _fam003_manifest_png_entries(
+        manifest_text,
+        settings_prefix=settings_prefix,
+        known_settings_entries=settings_png_entries | required_image_entries,
+    )
+    failures.extend(manifest_failures)
+
+    image_entries = sorted(settings_png_entries | required_image_entries | manifest_entries)
+    receipt_entry = settings_prefix + "IMAGE_INTEGRITY_RECEIPT.md"
+    receipt_text = packet_files.get(receipt_entry, "")
+    if not receipt_text.strip():
+        failures.append(
+            "FAM-003 LV1 packet image integrity failed: IMAGE_INTEGRITY_RECEIPT.md is missing"
+        )
+
+    try:
+        with zipfile.ZipFile(export_zip, "r") as archive:
+            zip_entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
+            zip_bytes = {
+                entry: archive.read(entry)
+                for entry in image_entries
+                if entry in zip_entries
+            }
+    except zipfile.BadZipFile as exc:
+        return [f"FAM-003 LV1 packet image integrity failed: ZIP unreadable: {exc}"]
+
+    for entry in image_entries:
+        artifact_tail = entry.removeprefix(settings_prefix)
+        folder_path = _posix_entry_path(packet_dir, entry)
+        if entry not in normalized_entries or not folder_path.is_file():
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: missing folder PNG artifact "
+                f"{entry}"
+            )
+            continue
+        folder_data = folder_path.read_bytes()
+        ok, decoder, width, height = _png_image_decode(folder_data)
+        if not ok:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: folder PNG invalid "
+                f"{entry}: {decoder}"
+            )
+        elif width <= 0 or height <= 0:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: folder PNG has zero dimensions "
+                f"{entry}: {width}x{height}"
+            )
+
+        if entry not in zip_bytes:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: ZIP PNG artifact missing "
+                f"{entry}"
+            )
+            continue
+        zip_data = zip_bytes[entry]
+        zip_ok, zip_decoder, zip_width, zip_height = _png_image_decode(zip_data)
+        if not zip_ok:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: ZIP PNG invalid "
+                f"{entry}: {zip_decoder}"
+            )
+        elif zip_width <= 0 or zip_height <= 0:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: ZIP PNG has zero dimensions "
+                f"{entry}: {zip_width}x{zip_height}"
+            )
+
+        if folder_data != zip_data:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: folder/ZIP PNG bytes differ "
+                f"{entry}"
+            )
+        if receipt_text and not _fam003_receipt_has_pass_row(receipt_text, artifact_tail):
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: image integrity receipt "
+                f"lacks PASS row for {artifact_tail}"
+            )
+    return failures
+
+
 def _fam003_lv1_visual_retest_semantic_failures(
     packet_files: Mapping[str, str],
+    packet_dir: Path,
     folder_entries: set[str],
     export_zip: Path,
 ) -> list[str]:
@@ -1172,6 +1397,7 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "03_window_control_focus_pressed_state.png",
         "03a_window_moved_by_chrome.png",
         "03b_window_resized.png",
+        "03d_window_wide_size.png",
         "03c_window_minimum_size.png",
         "04_left_settings_organizer.png",
         "04d_left_pane_minimum_no_horizontal_scroll.png",
@@ -1198,9 +1424,13 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md",
         "FAIL_CAPABLE_DEFECT_LEDGER.md",
         "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md",
+        "IMAGE_INTEGRITY_RECEIPT.md",
         "MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md",
         "fam003_settings_visual_fail_repair_manifest.json",
         "resident_access_settings.json",
+    )
+    required_image_artifacts = tuple(
+        artifact for artifact in required_settings_artifacts if artifact.casefold().endswith(".png")
     )
     settings_files = sorted(
         entry for entry in normalized_entries if entry.startswith(settings_prefix)
@@ -1216,6 +1446,16 @@ def _fam003_lv1_visual_retest_semantic_failures(
                 "FAM-003 LV1 packet semantic proof failed: missing settings proof artifact "
                 f"{expected_entry}"
             )
+    failures.extend(
+        _fam003_packet_image_integrity_failures(
+            packet_dir,
+            export_zip=export_zip,
+            settings_prefix=settings_prefix,
+            normalized_entries=normalized_entries,
+            required_image_artifacts=required_image_artifacts,
+            packet_files=packet_files,
+        )
+    )
 
     review_text = packet_files.get("USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md", "")
     if "The packet includes focused screenshots" in review_text and not settings_files:
@@ -1402,6 +1642,8 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-038",
             "F3-LV1-PROOF-001",
             "F3-LV1-PROOF-002",
+            FAM003_LOOP_BREAKER_DEFECT_ID,
+            FAM003_PACKET_IMAGE_INTEGRITY_DEFECT_ID,
         )
         for defect_id in required_udl_ids:
             if defect_id not in udl_text:
@@ -1576,6 +1818,7 @@ def validate_local_user_packet(
     failures.extend(
         _fam003_lv1_visual_retest_semantic_failures(
             packet_files,
+            packet_dir,
             folder_entries,
             export_zip,
         )
@@ -1617,7 +1860,7 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
         lines.append("Failures:")
         lines.extend(f"- {failure}" for failure in result.failures)
     else:
-        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP file-list plus content-hash parity are validated.")
+        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, folder/ZIP file-list plus content-hash parity, and FAM-003 LV1 PNG image-integrity gates where applicable are validated.")
     return "\n".join(lines)
 
 
