@@ -39,7 +39,7 @@ Adoption Disposition: Not all adoption checks are green because issue-candidate 
 Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER reviews issue candidates or waives them; normal phase progression remains blocked.
 Validation Summary: branch-readiness fixture validation, branch governance validation, packet validation, and focused visual proof review are required evidence layers.
 USER Packet Path: C:\Nexus USER\FAM-006 contains the deterministic RAR review packet for USER inspection.
-USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-20260620-120000.zip.
+USER Packet ZIP Path: timestamped upload packet at `C:\Nexus USER\FAM-006-20260620-120000.zip`.
 Next Legal Phase: RAR3 USER Review Gate remains active until USER reviews issue candidates or waives them.
 Exact Next USER Decision: USER reviews RAR issue candidates; normal phase progression is not authorized; this does not authorize PR creation, merge, or release.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State, USER packets, helper output, Codex digest, or evidence roots; repo docs keep durable rules only.

@@ -2396,6 +2396,21 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 if next_char == "." and after_next not in {"", " ", "\t", "\r", "\n"}:
                     invalid_suffix_seen = True
                     continue
+                if next_char == "`" and after_next not in {
+                    "",
+                    " ",
+                    "\t",
+                    "\r",
+                    "\n",
+                    ",",
+                    ";",
+                    ":",
+                    ")",
+                    "]",
+                    ".",
+                }:
+                    invalid_suffix_seen = True
+                    continue
                 if next_char and next_char not in {
                     " ",
                     "\t",
@@ -2407,6 +2422,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                     ")",
                     "]",
                     ".",
+                    "`",
                 }:
                     invalid_suffix_seen = True
                     continue
