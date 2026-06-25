@@ -383,8 +383,14 @@ INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_CHILD_FOLDER_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_child_folder.md"
 )
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_TRAVERSAL_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_traversal.md"
+)
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_explanatory_user_root.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_NEXT_LEGAL_PHASE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_next_legal_phase.md"
 )
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
@@ -452,6 +458,9 @@ INVALID_REBASELINE_ADOPTION_ZIP_SUFFIX_PATH_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_traversal_path.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_ROOT_TRAVERSAL_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_root_traversal.md"
 )
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
@@ -1894,6 +1903,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Validation Summary:",
         "USER Packet Path:",
         "USER Packet ZIP Path:",
+        "Next Legal Phase:",
         "Exact Next USER Decision:",
         "No Repo Live-State Tracking:",
     )
@@ -2308,6 +2318,9 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             stack.append(part)
         return stack[0] + "\\" + "\\".join(stack[1:])
 
+    def has_dot_or_traversal_segment(path: str) -> bool:
+        return any(part in {".", ".."} for part in path.split("\\"))
+
     def normalized_user_packet_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
         spans: list[tuple[int, int]] = []
@@ -2325,7 +2338,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if next_char == ".":
                 invalid_path_seen = True
                 continue
-            canonical_path = canonical_windows_path(match.group(0))
+            raw_path = match.group(0)
+            if has_dot_or_traversal_segment(raw_path):
+                invalid_path_seen = True
+                continue
+            canonical_path = canonical_windows_path(raw_path)
             if canonical_path is None or canonical_path.casefold().endswith(".zip"):
                 invalid_path_seen = True
                 continue
@@ -2372,7 +2389,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 }:
                     invalid_suffix_seen = True
                     continue
-                canonical_path = canonical_windows_path(match.group(0))
+                raw_path = match.group(0)
+                if has_dot_or_traversal_segment(raw_path):
+                    invalid_suffix_seen = True
+                    continue
+                canonical_path = canonical_windows_path(raw_path)
                 if canonical_path is None:
                     invalid_suffix_seen = True
                     continue
@@ -6892,6 +6913,18 @@ line item, not a seam or separate branch.
             "Invalid marker-only RAR fixture did not reject shallow adoption markers"
         )
 
+    missing_next_legal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_NEXT_LEGAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET not in "\n".join(
+        missing_next_legal_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing Next Legal Phase marker"
+        )
+
     unanchored_stage_resolved_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_RESOLVED_FIXTURE.read_text(
             encoding="utf-8"
@@ -7362,6 +7395,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject USER packet path pointing at a child folder"
         )
 
+    packet_path_traversal_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_TRAVERSAL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_traversal_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject traversal USER packet folder path"
+        )
+
     packet_path_explanatory_user_root_failures = (
         _validate_rebaseline_adoption_review_text(
             INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE.read_text(
@@ -7472,6 +7517,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject traversal USER packet ZIP path"
+        )
+
+    zip_root_traversal_path_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_ROOT_TRAVERSAL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_root_traversal_path_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject root-normalizing traversal USER packet ZIP path"
         )
 
     normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(

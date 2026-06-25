@@ -1,22 +1,22 @@
-# Valid Rebaseline Adoption Active Negated Disclaimers Fixture
+# Invalid Rebaseline Adoption Missing Next Legal Phase Fixture
 
-RAR Stage: RAR3 USER Review Gate remains active for issue-candidate review.
-Trigger Reason: origin/main merged UIREF standards affecting existing owned UI surfaces.
-Source-Truth Files Loaded: Docs/Main.md, Docs/phase_governance.md, Docs/branch_plans/README.md, Docs/nexus_vision.md, Docs/family_visions/FAM-002_desktop_interface.md, and Docs/ui_reference_catalog/index.md.
-Incoming Standard / Change Summary: merged standards require deterministic USER packet evidence and non-green active gate wording.
-Merged Standard Source: origin/main governance merge containing RAR and UIREF updates.
-Rebaseline / Re-entry Event: FAM-006 branch rebaseline after governance merge.
-Current Branch Implementation Inventory: current branch touched Recording Studio controls and records historical HUD evidence.
-Owned Surface Inventory: HUD Dashboard, Recording Studio, and Log Viewer Studio surfaces.
-Affected File Inventory: desktop/desktop_renderer.py and FAM-006 validation helper surfaces.
-Affected Surface Inventory: Recording Studio window controls, Log Viewer Studio controls, HUD Dashboard close control, buttons, rows, and scrollbars.
-Affected Branch Artifacts: active external branch plan, refreshed UTS evidence, screenshots, and current USER packet.
-Affected Product Surfaces: FAM-006 HUD and studio windows that USER sees.
-Implemented / Touched UI-UX Surfaces: Recording Studio controls, Log Viewer Studio controls, folder action buttons, and status text.
+RAR Stage: RAR3 USER Review Gate - issue candidates pending USER review before normal phase continuation.
+Trigger Reason: origin/main merged UIREF and Product Experience standards that affect existing FAM-owned visible surfaces.
+Source-Truth Files Loaded: Docs/Main.md, Docs/phase_governance.md, Docs/branch_plans/README.md, Docs/nexus_vision.md, Docs/family_visions/FAM-002_desktop_interface.md, Docs/ui_reference_catalog/index.md, and active external branch plan.
+Incoming Standard / Change Summary: UIREF-001 through UIREF-006 and the NDAI Product Experience Contract now require accepted-reference comparison and element-group visual proof.
+Merged Standard Source: origin/main governance merge containing RAR, UIREF, and Product Experience Contract updates.
+Rebaseline / Re-entry Event: FAM-006 branch rebaseline after governance merge and before renewed Live Validation handoff.
+Current Branch Implementation Inventory: current branch touched Recording Studio and Log Viewer Studio controls, plus historical HUD Dashboard owned surface evidence.
+Owned Surface Inventory: HUD Dashboard, Recording Studio, Log Viewer Studio, and related recording/log control surfaces.
+Affected File Inventory: desktop/desktop_renderer.py and FAM-006 validation helper surfaces are affected branch-local files; historical HUD files are issue-candidate context only.
+Affected Surface Inventory: Recording Studio window controls, Log Viewer Studio window controls, HUD Dashboard large close control, studio buttons, status rows, and scrollable content regions.
+Affected Branch Artifacts: active external branch plan, refreshed UTS evidence, live-validation screenshots, and current USER packet.
+Affected Product Surfaces: FAM-006 HUD and studio windows that USER sees during recording and log inspection.
+Implemented / Touched UI-UX Surfaces: Recording Studio close/minimize controls, Log Viewer Studio close/minimize controls, folder action buttons, and status text.
 Implemented / Touched Runtime-Backend Surfaces: recording state display, folder-open status display, and local log path truth mapping.
 Affected Proof Claims: current branch claims compact studio controls are repaired; historical HUD green claims remain unproven under UIREF.
-Merged Standard Comparison Result: current studio controls require reference-derived parity proof; historical HUD close treatment becomes an issue candidate.
-Frontend / Backend Contract Findings: studio status rows map to local recording and folder state.
+Merged Standard Comparison Result: current studio controls require reference-derived parity proof; historical HUD close treatment becomes an issue candidate rather than current repair scope.
+Frontend / Backend Contract Findings: studio status rows map to local recording and folder state; historical HUD close control requires future owner review.
 Reference / Template / Primitive Classification: Reference-Derived Implementation because no approved shared primitive or implementation template is promoted.
 Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, FAM-002 presentation grammar, and AI Control Center reference seed define invariant control shape, glow, placement, and state behavior.
 Accepted Reference / Template / Primitive Comparator Matrix: table below compares window-control and button classes against accepted reference grammar.
@@ -35,13 +35,12 @@ Current Violation Findings: no current branch nonconformance is claimed green; h
 Issue-Candidate Table: Issue Candidate F6-HIST-001 is pending USER review; GitHub issue mutation approved? No.
 Issue Candidate Disposition: Issue Candidate F6-HIST-001 remains pending USER review and GitHub issue mutation is not approved.
 Repair / Waiver / Defer / Route Decision Table: USER review pending for Issue Candidate F6-HIST-001; approving the issue candidate authorizes issue creation only if USER separately approves that GitHub action.
-Adoption Disposition: Not all adoption checks are green because issue-candidate review remains pending.
+Adoption Disposition: Issue Candidate Packet USER-Reviewed is required before normal phase progression.
 Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER reviews issue candidates or waives them.
 Validation Summary: branch-readiness fixture validation, branch governance validation, packet validation, and focused visual proof review are required evidence layers.
 USER Packet Path: C:\Nexus USER\FAM-006 contains the deterministic RAR review packet for USER inspection.
 USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-20260620-120000.zip.
-Next Legal Phase: RAR3 USER Review Gate remains active until USER reviews issue candidates or waives them.
-Exact Next USER Decision: USER reviews RAR issue candidates; this does not authorize PR creation, merge, or release.
+Exact Next USER Decision: USER reviews RAR issue candidates and decides repair, waive, defer, route, or approve GitHub issue creation later.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State, USER packets, helper output, Codex digest, or evidence roots; repo docs keep durable rules only.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
