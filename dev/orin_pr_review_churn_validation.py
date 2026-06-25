@@ -456,6 +456,18 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Approval-latch guardrail rejected a PR review summary after the latest review request"
         )
+    if _green_proof_after_latest_signal(
+        "2026-06-25T19:30:01Z", "2026-06-25T19:30:02Z"
+    ):
+        failures.append(
+            "Approval-latch guardrail accepted green proof before the latest Connector signal"
+        )
+    if not _green_proof_after_latest_signal(
+        "2026-06-25T19:30:03Z", "2026-06-25T19:30:02Z"
+    ):
+        failures.append(
+            "Approval-latch guardrail rejected green proof after the latest Connector signal"
+        )
     return failures
 
 
@@ -542,6 +554,43 @@ def _green_proof_after_latest_request(
     return _is_at_or_after(timestamp, latest_request.get("created_at") or "")
 
 
+def _green_proof_after_latest_signal(timestamp: str, latest_signal_floor: str) -> bool:
+    if not latest_signal_floor:
+        return bool(timestamp)
+    return _is_at_or_after(timestamp, latest_signal_floor)
+
+
+def _latest_connector_signal_floor(
+    issue_comments: list[dict[str, Any]],
+    review_summaries: list[dict[str, Any]],
+    review_comments: list[dict[str, Any]],
+    latest_request: dict[str, Any] | None,
+) -> str:
+    floor = latest_request.get("created_at") or "" if latest_request else ""
+    for item in issue_comments:
+        author = (item.get("user") or {}).get("login", "")
+        created_at = item.get("created_at") or ""
+        if _is_connector_login(author) and _green_proof_after_latest_signal(
+            created_at, floor
+        ):
+            floor = max(floor, created_at)
+    for item in review_summaries:
+        author = (item.get("user") or {}).get("login", "")
+        submitted_at = item.get("submitted_at") or ""
+        if _is_connector_login(author) and _green_proof_after_latest_signal(
+            submitted_at, floor
+        ):
+            floor = max(floor, submitted_at)
+    for item in review_comments:
+        author = (item.get("user") or {}).get("login", "")
+        created_at = item.get("created_at") or ""
+        if _is_connector_login(author) and _green_proof_after_latest_signal(
+            created_at, floor
+        ):
+            floor = max(floor, created_at)
+    return floor
+
+
 def _latest_review_request_after_head(
     owner: str, name: str, number: int, head_oid: str
 ) -> dict[str, Any] | None:
@@ -608,10 +657,16 @@ query($owner:String!,$name:String!,$number:Int!,$cursor:String){
 
 
 def _extract_latest_green(
-    owner: str, name: str, number: int, head_oid: str
+    owner: str,
+    name: str,
+    number: int,
+    head_oid: str,
+    review_comments: list[dict[str, Any]] | None = None,
 ) -> tuple[bool, str]:
     issue_comments = _rest_paginated(f"repos/{owner}/{name}/issues/{number}/comments")
     review_summaries = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/reviews")
+    if review_comments is None:
+        review_comments = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/comments")
     green_patterns = (
         "didn't find any major issues",
         "didn\u2019t find any major issues",
@@ -625,6 +680,9 @@ def _extract_latest_green(
     latest_request_created = ""
     if latest_request:
         latest_request_created = latest_request.get("created_at") or ""
+    latest_signal_floor = _latest_connector_signal_floor(
+        issue_comments, review_summaries, review_comments, latest_request
+    )
     for item in issue_comments:
         author = (item.get("user") or {}).get("login", "")
         body = item.get("body") or ""
@@ -632,6 +690,7 @@ def _extract_latest_green(
         if (
             latest_request is not None
             and _is_at_or_after(created_at, latest_request_created)
+            and _green_proof_after_latest_signal(created_at, latest_signal_floor)
             and _is_connector_login(author)
             and any(pattern in body.casefold() for pattern in green_patterns)
         ):
@@ -653,6 +712,9 @@ def _extract_latest_green(
                     reaction.get("content") == "+1"
                     and _is_connector_login(reaction_author)
                     and _is_at_or_after(reaction_created, latest_request_created)
+                    and _green_proof_after_latest_signal(
+                        reaction_created, latest_signal_floor
+                    )
                 ):
                     return (
                         True,
@@ -671,7 +733,9 @@ def _extract_latest_green(
             pattern in body.casefold() for pattern in green_patterns
         )
         if is_green_summary and commit_id == head_oid:
-            if not _green_proof_after_latest_request(submitted_at, latest_request):
+            if not _green_proof_after_latest_request(
+                submitted_at, latest_request
+            ) or not _green_proof_after_latest_signal(submitted_at, latest_signal_floor):
                 continue
             candidates.append(
                 (
@@ -807,7 +871,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     green_bound, green_detail = _extract_latest_green(
-        owner, name, args.pr, pull_request["headRefOid"]
+        owner, name, args.pr, pull_request["headRefOid"], review_comments
     )
     if args.require_current_green and not green_bound:
         failures.append("Current-head Codex Connector green approval latch is missing")

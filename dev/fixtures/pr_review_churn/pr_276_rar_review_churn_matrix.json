@@ -448,7 +448,8 @@
         "Codex Connector thumbs-up approval latch ignored",
         "Stale approval accepted because commit timestamp predates an older review request",
         "Timeline lookup omitted the current-head commit on long PRs",
-        "Current-head PR review summary accepted even though it predates the latest review request"
+        "Current-head PR review summary accepted even though it predates the latest review request",
+        "Current-head green proof accepted even though a later Connector review comment was posted"
       ],
       "source_truth": [
         "Docs/pr_watcher_mode_contract.md",
@@ -476,6 +477,8 @@
         "paginated PR timeline lookup for current-head commit and later review request",
         "current-head PR review summary rejected when submitted before the latest review request",
         "current-head PR review summary accepted only when submitted after the latest review request",
+        "current-head green proof rejected when a later Connector review/comment signal exists",
+        "thumbs-up approval latch rejected when it predates a later Connector review/comment signal",
         "long review thread with more than 50 connector comments"
       ],
       "sibling_variant_replay": [
@@ -487,7 +490,8 @@
         "thumbs-up approval latch rejected when only an older head request was approved",
         "current-head review request binding uses PR timeline order, not commit author or committer time",
         "current-head review request binding paginates beyond the latest 100 timeline items",
-        "same-head green PR review summaries must postdate the latest current-head review request"
+        "same-head green PR review summaries must postdate the latest current-head review request",
+        "same-head green proof must postdate the latest Connector review/comment signal after request"
       ]
     }
   ]
