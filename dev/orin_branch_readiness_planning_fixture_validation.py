@@ -9,6 +9,7 @@ planning.
 
 from __future__ import annotations
 
+import json
 import inspect
 import re
 import tempfile
@@ -25,6 +26,13 @@ import orin_worktree_rebaseline_audit as rebaseline
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "dev" / "fixtures" / "branch_readiness_planning"
+PR_REVIEW_CHURN_MATRIX_FIXTURE = (
+    ROOT
+    / "dev"
+    / "fixtures"
+    / "pr_review_churn"
+    / "pr_276_rar_review_churn_matrix.json"
+)
 SHALLOW_FIXTURE = FIXTURE_DIR / "shallow_live_validation_product_plan.md"
 CONCRETE_FIXTURE = FIXTURE_DIR / "concrete_live_validation_product_plan.md"
 VALID_BRANCH_RUNTIME_PLAN_FIXTURE = (
@@ -275,6 +283,283 @@ VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
 INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_deferred_carryforward_missing_applicability.md"
 )
+VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_review.md"
+)
+VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_resolved_normal_phase.md"
+)
+VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_issue_candidate_reviewed.md"
+)
+VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_CLOSED_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_issue_candidate_reviewed_closed.md"
+)
+VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_active_negated_disclaimers.md"
+)
+VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_no_issue_candidate_wording.md"
+)
+VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_no_issue_candidate_gap.md"
+)
+VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_no_user_review_required.md"
+)
+VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_post_phrase_no_user_decision.md"
+)
+VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_short_markers.md"
+)
+VALID_REBASELINE_ADOPTION_NEGATED_READY_FOR_PHASE_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_negated_ready_for_phase.md"
+)
+VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_direct_negated_green.md"
+)
+VALID_REBASELINE_ADOPTION_RESOLVED_NEGATED_BLOCKER_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_resolved_negated_blocker.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_MARKER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace_marker.md"
+)
+INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
+)
+INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_RESOLVED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unanchored_stage_resolved.md"
+)
+INVALID_REBASELINE_ADOPTION_NEGATED_RESOLVED_STAGE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_negated_resolved_stage.md"
+)
+INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_NO_IMPACT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unanchored_stage_no_impact.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_PRODUCT_EXPERIENCE_COMPARISON_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_product_experience_comparison.md"
+)
+INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_empty_code_trace.md"
+)
+INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_noop_active_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_PROOF_SURFACE_NOOP_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_proof_surface_noop_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_PARTIAL_NOOP_ACTIVE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_partial_noop_active_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_empty_accepted_reference.md"
+)
+INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_malformed_table_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_TABLE_PREFACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_table_preface.md"
+)
+INVALID_REBASELINE_ADOPTION_HEADER_ONLY_RAR_DECISION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_header_only_rar_decision.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_TABLE_SEPARATOR_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_table_separator.md"
+)
+INVALID_REBASELINE_ADOPTION_OVERWIDE_TABLE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_overwide_table_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_sparse_table_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_HYPHENATED_NONCONFORMANCE_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_unresolved_hyphenated_nonconformance_green.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_separate_negation.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_CONJUNCTION_NEGATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_conjunction_negation.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_NO_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_no_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_green.md"
+)
+INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_green.md"
+)
+INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_required_user_review_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_review_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_USER_DECISION_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_user_decision_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_wrong_root.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_zip.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_CHILD_FOLDER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_child_folder.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_TRAVERSAL_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_traversal.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_explanatory_user_root.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_SUFFIX_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_suffix.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_NEXT_LEGAL_PHASE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_next_legal_phase.md"
+)
+INVALID_REBASELINE_ADOPTION_REPO_LIVE_STATE_TRACKING_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_repo_live_state_tracking.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_PREFIXED_NO_CANDIDATE_PROSE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_prefixed_no_candidate_prose.md"
+)
+INVALID_REBASELINE_ADOPTION_HYPHENATED_NO_CANDIDATE_PROSE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_hyphenated_no_candidate_prose.md"
+)
+INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_placeholder_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_PARTIAL_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_partial_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_historical_none_prose.md"
+)
+INVALID_REBASELINE_ADOPTION_STANDALONE_ISSUE_ID_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_standalone_issue_id.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_untabled.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_MARKER_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_current_marker_issue_candidate_untabled.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_EMBEDDED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_embedded_status.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_hyphenated_status.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_POSITIVE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_positive_status.md"
+)
+INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_not_yet_user_reviewed_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_LINKED_CLOSED_CLAIM_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_linked_closed_claim.md"
+)
+INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_accepted_reference_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_pending_review_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_active_review_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_BARE_RAR3_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_bare_rar3_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_row_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_GAP_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_accepted_reference_gap_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_contradictory_no_decision_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_outside_user_root.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_CHILD_FOLDER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_child_folder.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_SPACED_OFFROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_spaced_offroot.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_EXPLANATORY_USER_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_explanatory_user_root.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_SUFFIX_PATH_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_suffix_path.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_traversal_path.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_ROOT_TRAVERSAL_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_root_traversal.md"
+)
+INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
+)
+INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_ACTIVE_STAGE_NORMAL_PHASE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_active_stage_normal_phase.md"
+)
+INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_concrete_phase_while_active.md"
+)
+INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_mixed_disclaimer_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_COMMA_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_comma_mixed_disclaimer_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_move_into_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_GO_TO_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_go_to_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_BARE_PHASE_NEXT_STEP_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_bare_phase_next_step.md"
+)
+INVALID_REBASELINE_ADOPTION_NOT_BLOCKED_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_not_blocked_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
+)
+INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_disposition.md"
+)
+INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_negated_issue_disposition.md"
+)
+INVALID_REBASELINE_ADOPTION_REQUIRED_REVIEW_NOT_COMPLETE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_required_review_not_complete.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -358,6 +643,18 @@ EXPECTED_BRANCH_PLANNING_GATE_BYPASS_FAILURE_SNIPPET = (
     "Packet Validation Treated As USER Acceptance"
 )
 EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
+EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET = "Rebaseline Adoption Review Missing"
+EXPECTED_RAR_STAGE_FAILURE_SNIPPET = (
+    "Rebaseline Adoption Review Missing: RAR Stage must name RAR0-RAR4"
+)
+EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET = "Code-To-Visual Trace Missing"
+EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET = (
+    "Product Experience Contract Nonconformance Unresolved"
+)
+EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Missing"
+EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By RAR"
+EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
+EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -1635,6 +1932,1400 @@ def _validate_br2_deferred_carryforward_matrix_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+
+    required_markers = (
+        "RAR Stage:",
+        "Trigger Reason:",
+        "Source-Truth Files Loaded:",
+        "Incoming Standard / Change Summary:",
+        "Merged Standard Source:",
+        "Rebaseline / Re-entry Event:",
+        "Current Branch Implementation Inventory:",
+        "Owned Surface Inventory:",
+        "Affected File Inventory:",
+        "Affected Surface Inventory:",
+        "Code-To-Visual Trace Matrix:",
+        "Affected Branch Artifacts:",
+        "Affected Product Surfaces:",
+        "Implemented / Touched UI-UX Surfaces:",
+        "Implemented / Touched Runtime-Backend Surfaces:",
+        "Affected Proof Claims:",
+        "Merged Standard Comparison Result:",
+        "Frontend / Backend Contract Findings:",
+        "Reference / Template / Primitive Classification:",
+        "Accepted Reference Set / Comparative Synthesis:",
+        "Accepted Reference / Template / Primitive Comparator Matrix:",
+        "UI Reference / Template / Shared Primitive Dependency:",
+        "NDAI Product Experience Contract Comparison:",
+        "UI Element Inventory:",
+        "Backend / State Ownership Trace:",
+        "Screenshot / Video / Contact-Sheet Evidence:",
+        "Visual Element / Element-Group Inspection Ledger:",
+        "Vision-To-Proof Matrix:",
+        "Scope Coverage Manifest:",
+        "Owned-Surface Nonconformance Ledger:",
+        "Current Branch Repair Candidates:",
+        "Previous / Historical Branch Issue Candidates:",
+        "Current Violation Findings:",
+        "Issue-Candidate Table:",
+        "Issue Candidate Disposition:",  # Required even when no issue candidate exists.
+        "Repair / Waiver / Defer / Route Decision Table:",
+        "Adoption Disposition:",
+        "Repair / Waiver / Blocker:",
+        "Validation Summary:",
+        "USER Packet Path:",
+        "USER Packet ZIP Path:",
+        "Next Legal Phase:",
+        "Exact Next USER Decision:",
+        "No Repo Live-State Tracking:",
+    )
+    short_value_allowed_markers = {
+        "RAR Stage:",
+        "Current Branch Repair Candidates:",
+        "Previous / Historical Branch Issue Candidates:",
+        "Current Violation Findings:",
+        "Issue-Candidate Table:",
+        "Issue Candidate Disposition:",
+        "Repair / Waiver / Defer / Route Decision Table:",
+        "Repair / Waiver / Blocker:",
+        "Exact Next USER Decision:",
+    }
+
+    def is_allowed_short_marker_value(marker: str, value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        if marker == "RAR Stage:" and re.fullmatch(r"rar[0-4]", normalized_value):
+            return True
+        return marker in short_value_allowed_markers and normalized_value in {
+            "none",
+            "n/a",
+            "not applicable",
+        }
+
+    for marker in required_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(bool(value), f"Rebaseline Adoption Review Missing: {marker}")
+        require(
+            governance._planning_word_count(value) >= 3
+            or is_allowed_short_marker_value(marker, value),
+            f"Rebaseline Adoption Review Missing: {marker} is too shallow",
+        )
+
+    rar_stage = governance._extract_marker_value(text, "RAR Stage:")
+    normalized_rar_stage = governance._normalized_planning_value(rar_stage).strip(
+        " .;:"
+    )
+    active_rar_stage = re.match(r"^rar[0-4]\b", normalized_rar_stage) is not None
+    negated_resolved_rar_stage = (
+        re.match(
+            r"^resolved\b[\s?:,;/-]*(?:no|not|false|pending|unresolved|blocked)\b",
+            normalized_rar_stage,
+        )
+        is not None
+        or re.match(
+            r"^no applicable impact\b[\s?:,;/-]*(?:no|not|false|pending|unresolved|blocked)\b",
+            normalized_rar_stage,
+        )
+        is not None
+    )
+    resolved_rar_stage = (
+        not negated_resolved_rar_stage
+        and (
+            re.match(r"^resolved\b", normalized_rar_stage) is not None
+            or re.match(r"^no applicable impact\b", normalized_rar_stage) is not None
+        )
+    )
+    require(
+        active_rar_stage or resolved_rar_stage,
+        "Rebaseline Adoption Review Missing: RAR Stage must name RAR0-RAR4 or a resolved disposition",
+    )
+
+    code_trace_header = (
+        "| Surface | Element Group | Source File / Code Region | Backend / State Owner | "
+        "Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | "
+        "Status | Defect / Gap | Next Legal Action |"
+    )
+    accepted_reference_header = (
+        "| Element Class | Implementation Authority | Accepted Reference Set | "
+        "Invariant Traits | Feature-Specific Traits | Target Surface | "
+        "Primitive/Template/Reference-Derived/Exception | Evidence | Gap / Issue |"
+    )
+    issue_candidate_header = (
+        "| Issue Candidate | Owner FAM | Surface | Element Group | Defect Class | "
+        "Evidence | Proposed Carrier | GitHub Issue Mutation Approved? |"
+    )
+    rar_decision_header = (
+        "| RAR USER Decision | Meaning | What It Authorizes | What It Does Not Authorize |"
+    )
+    require(code_trace_header in text, "Code-To-Visual Trace Missing")
+    require(
+        accepted_reference_header in text,
+        "Accepted Reference Comparator Missing",
+    )
+    require(issue_candidate_header in text, "Owned Surface Issue Candidate Missing")
+    require(rar_decision_header in text, "RAR USER Packet Missing")
+
+    def table_rows_after_header(header: str, expected_columns: int) -> list[list[str]]:
+        lines = text.splitlines()
+        try:
+            header_index = next(
+                index for index, line in enumerate(lines) if line.strip() == header
+            )
+        except StopIteration:
+            return []
+        rows: list[list[str]] = []
+        seen_separator = False
+        for offset, line in enumerate(lines[header_index + 1 :], start=header_index + 1):
+            if not line.strip().startswith("|"):
+                if rows or seen_separator:
+                    break
+                if line.strip():
+                    return [[line.strip()]]
+                continue
+            cells = governance._markdown_table_cells(line)
+            if governance._is_markdown_table_separator(cells):
+                if len(cells) != expected_columns:
+                    rows.append(cells)
+                seen_separator = True
+                continue
+            if not seen_separator:
+                if offset + 1 < len(lines):
+                    next_cells = governance._markdown_table_cells(lines[offset + 1])
+                    if governance._is_markdown_table_separator(next_cells):
+                        break
+                continue
+            if seen_separator and offset + 1 < len(lines):
+                next_cells = governance._markdown_table_cells(lines[offset + 1])
+                if governance._is_markdown_table_separator(next_cells):
+                    break
+            rows.append(cells)
+        return rows
+
+    def is_placeholder_table_cell(value: str) -> bool:
+        normalized = governance._normalized_planning_value(value).strip(" .;:")
+        return normalized in {"", "tbd", "todo", "placeholder"} or normalized.startswith(
+            ("tbd ", "todo ", "placeholder ")
+        )
+
+    def is_noop_evidence_cell(value: str) -> bool:
+        normalized = governance._normalized_planning_value(value).strip(" .;:")
+        return normalized in {
+            "",
+            "none",
+            "n/a",
+            "no",
+            "not applicable",
+            "not applicable with reason",
+            "validation summary",
+        } or normalized.startswith(("not applicable ", "none "))
+
+    def is_noop_evidence_row(row: list[str]) -> bool:
+        return all(is_noop_evidence_cell(cell) for cell in row)
+
+    def code_trace_row_is_substantive(row: list[str]) -> bool:
+        if len(row) != 11:
+            return False
+        required_columns = (0, 1, 2, 3, 4, 5, 6, 7, 8, 10)
+        return all(not is_noop_evidence_cell(row[index]) for index in required_columns)
+
+    def accepted_reference_row_is_substantive(row: list[str]) -> bool:
+        if len(row) != 9:
+            return False
+        required_columns = (0, 1, 2, 3, 5, 6, 7)
+        return all(not is_noop_evidence_cell(row[index]) for index in required_columns)
+
+    def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
+        real_rows: list[list[str]] = []
+        for row in rows:
+            if len(row) != expected_columns:
+                continue
+            if any(is_placeholder_table_cell(cell) for cell in row[:expected_columns]):
+                continue
+            real_rows.append(row)
+        return real_rows
+
+    def has_malformed_substantive_table_row(
+        rows: list[list[str]], expected_columns: int
+    ) -> bool:
+        return any(
+            len(row) != expected_columns
+            or any(is_placeholder_table_cell(cell) for cell in row[:expected_columns])
+            for row in rows
+        )
+
+    def has_real_issue_candidate_row(rows: list[list[str]]) -> bool:
+        for row in rows:
+            if len(row) != 8:
+                continue
+            candidate = governance._normalized_planning_value(row[0])
+            owner = governance._normalized_planning_value(row[1])
+            surface = governance._normalized_planning_value(row[2])
+            element_group = governance._normalized_planning_value(row[3])
+            defect_class = governance._normalized_planning_value(row[4])
+            evidence = governance._normalized_planning_value(row[5])
+            proposed_carrier = governance._normalized_planning_value(row[6])
+            github_issue_approved = governance._normalized_planning_value(row[7])
+            false_candidate = (
+                not candidate
+                or candidate in {"none", "n/a", "not applicable"}
+                or "no issue candidate" in candidate
+                or "missing candidate" in candidate
+            )
+            if (
+                not false_candidate
+                and not any(
+                    is_placeholder_table_cell(cell)
+                    for cell in (
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                        row[6],
+                        row[7],
+                    )
+                )
+                and owner not in {"", "none", "n/a", "not applicable"}
+                and surface not in {"", "none", "n/a", "not applicable"}
+                and element_group not in {"", "none", "n/a", "not applicable"}
+                and defect_class not in {"", "none", "n/a", "not applicable"}
+                and evidence not in {"", "none", "n/a", "not applicable"}
+                and proposed_carrier not in {"", "none", "n/a", "not applicable"}
+                and github_issue_approved in {"yes", "no"}
+            ):
+                return True
+        return False
+
+    raw_code_trace_rows = table_rows_after_header(code_trace_header, 11)
+    raw_accepted_reference_rows = table_rows_after_header(accepted_reference_header, 9)
+    raw_rar_decision_rows = table_rows_after_header(rar_decision_header, 4)
+    code_trace_rows = substantive_rows(raw_code_trace_rows, 11)
+    accepted_reference_rows = substantive_rows(raw_accepted_reference_rows, 9)
+    rar_decision_rows = substantive_rows(raw_rar_decision_rows, 4)
+    issue_candidate_rows = table_rows_after_header(issue_candidate_header, 8)
+    require(
+        bool(code_trace_rows)
+        and not has_malformed_substantive_table_row(raw_code_trace_rows, 11),
+        "Code-To-Visual Trace Missing",
+    )
+    require(
+        bool(accepted_reference_rows)
+        and not has_malformed_substantive_table_row(raw_accepted_reference_rows, 9),
+        "Accepted Reference Comparator Missing",
+    )
+    require(
+        bool(rar_decision_rows)
+        and not has_malformed_substantive_table_row(raw_rar_decision_rows, 4),
+        "RAR USER Packet Missing",
+    )
+
+    def marker_claims_material_surface(value: str) -> bool:
+        normalized = governance._normalized_planning_value(value).strip(" .;:")
+        if normalized in {
+            "",
+            "none",
+            "n/a",
+            "not applicable",
+            "not applicable with reason",
+        }:
+            return False
+        if "none with reason" in normalized:
+            return False
+        no_material_surface_patterns = (
+            r"\bno\s+(?:(?:owned|affected|implemented|touched|changed|visible|material|product|ui|ui[-\s]?ux|runtime|runtime[-\s]?backend)\s+){0,4}(?:surface|surfaces|ui|runtime|product|visible|mutation)s?\s+(?:(?:is|are|was|were)\s+)?(?:changed|affected|implemented|touched|present|identified|owned|in\s+scope)\b",
+            r"\bno\s+(?:changed|affected|implemented|touched|owned|visible|material)\s+(?:surface|surfaces|ui|runtime|product|visible|mutation)s?\b",
+            r"\b(?:no|not\s+applicable)\s+(?:owned\s+|affected\s+|implemented\s+|touched\s+|changed\s+|visible\s+|material\s+)?(?:surface|surfaces)\s+(?:for|in)\s+this\s+(?:branch|review|fixture|packet)\b",
+        )
+        if any(re.search(pattern, normalized) for pattern in no_material_surface_patterns):
+            return False
+        return True
+
+    review_claims_material_surfaces = any(
+        marker_claims_material_surface(governance._extract_marker_value(text, marker))
+        for marker in (
+            "Owned Surface Inventory:",
+            "Affected Surface Inventory:",
+            "Affected Product Surfaces:",
+            "Implemented / Touched UI-UX Surfaces:",
+            "Implemented / Touched Runtime-Backend Surfaces:",
+        )
+    )
+    trace_proof_required_for_material_surfaces = (
+        (active_rar_stage or resolved_rar_stage) and review_claims_material_surfaces
+    )
+    if trace_proof_required_for_material_surfaces:
+        require(
+            all(
+                not is_noop_evidence_row(row)
+                and code_trace_row_is_substantive(row)
+                for row in code_trace_rows
+            ),
+            "Code-To-Visual Trace Missing",
+        )
+        require(
+            all(
+                not is_noop_evidence_row(row)
+                and accepted_reference_row_is_substantive(row)
+                for row in accepted_reference_rows
+            ),
+            "Accepted Reference Comparator Missing",
+        )
+
+    issue_candidate_disposition = governance._extract_marker_value(
+        text, "Issue Candidate Disposition:"
+    )
+    decision_table = governance._extract_marker_value(
+        text, "Repair / Waiver / Defer / Route Decision Table:"
+    )
+    unresolved_statuses = (
+        "nonconforming",
+        "unproven",
+        "partial",
+        "exception needed",
+        "source-truth gap",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+        "issue candidate",
+    )
+    unresolved_comparison_statuses = (
+        "mismatch",
+        "unproven",
+        "partial",
+        "nonconforming",
+        "exception needed",
+        "source-truth gap",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+    )
+
+    def normalize_rar_status_cell(value: str) -> str:
+        normalized_cell = governance._normalized_planning_value(value)
+        normalized_cell = normalized_cell.replace("issue-candidate", "issue candidate")
+        normalized_cell = normalized_cell.replace("non-conforming", "nonconforming")
+        normalized_cell = re.sub(
+            r"\b(current|unresolved|active|pending)-(?=issue candidate\b)",
+            r"\1 ",
+            normalized_cell,
+        )
+        normalized_cell = re.sub(
+            r"\b(current|unresolved|active|pending)\s*[/_]\s*(?=issue candidate\b)",
+            r"\1 ",
+            normalized_cell,
+        )
+        return normalized_cell.strip(" .;:")
+
+    def cell_negates_issue_candidate_status(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
+        return bool(
+            normalized_cell in {"none", "n/a", "not applicable", "not applicable with reason"}
+            or re.search(
+                r"\b(?:no|not|without)\s+(?:current\s+|unresolved\s+|active\s+|pending\s+)?issue candidates?\b",
+                normalized_cell,
+            )
+            or re.search(
+                r"\bissue candidates?\s+(?:is\s+|are\s+)?not\s+(?:applicable|needed|required|present|open|active)\b",
+                normalized_cell,
+            )
+        )
+
+    def cell_negates_unresolved_status(value: str, status: str) -> bool:
+        if status == "issue candidate":
+            return cell_negates_issue_candidate_status(value)
+        normalized_cell = normalize_rar_status_cell(value)
+        if normalized_cell in {"none", "n/a", "not applicable", "not applicable with reason"}:
+            return True
+        normalized_status = governance._normalized_planning_value(status).strip(" .;:")
+        status_pattern = re.escape(normalized_status).replace(r"\ ", r"\s+")
+        plural_suffix = r"s?" if normalized_status.endswith("gap") else ""
+        return bool(
+            re.search(
+                rf"\b(?:no|not|without)\s+(?:current\s+|unresolved\s+|active\s+|pending\s+|open\s+)?{status_pattern}{plural_suffix}\b",
+                normalized_cell,
+            )
+            or re.search(
+                rf"\bno\b(?:(?!\b(?:but|however|yet)\b|[.;]).){{0,120}}\b{status_pattern}{plural_suffix}\b",
+                normalized_cell,
+            )
+            or re.search(
+                rf"\b{status_pattern}{plural_suffix}\s+(?:is\s+|are\s+|was\s+|were\s+)?not\s+(?:applicable|needed|required|present|open|active)\b",
+                normalized_cell,
+            )
+        )
+
+    def contains_non_negated_rar_phrase(value: str, phrases: tuple[str, ...]) -> bool:
+        if not value:
+            return False
+        normalized_value = governance._normalized_planning_value(value)
+        for phrase in phrases:
+            normalized_phrase = governance._normalized_planning_value(phrase)
+            for match in re.finditer(re.escape(normalized_phrase), normalized_value):
+                prefix = normalized_value[max(0, match.start() - 48) : match.start()]
+                suffix = normalized_value[match.end() : match.end() + 24]
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:no|not|without)\s+(?:further\s+|active\s+|current\s+|separate\s+)?(?:user\s+)?$",
+                    prefix,
+                ):
+                    continue
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:no|not)\s+(?:further\s+|active\s+|current\s+)?$",
+                    prefix,
+                ):
+                    continue
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:does|do|did|will|would|should|must)?\s*not\s+(?:require|need)\s+(?:a\s+|an\s+|the\s+|any\s+)?(?:further\s+|active\s+|current\s+|separate\s+)?(?:user\s+)?$",
+                    prefix,
+                ):
+                    continue
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:is|are|was|were|remains?|remain)\s+not\s+$",
+                    prefix,
+                ):
+                    continue
+                if re.match(r"^\s+needed\b", suffix):
+                    continue
+                if re.match(
+                    r"^\s+(?:is|are|was|were|remains?|remain)?\s*not\s+(?:required|needed|approved|active|open)\b",
+                    suffix,
+                ):
+                    continue
+                return True
+        return False
+
+    def cell_has_unresolved_status(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
+        return any(
+            normalized_cell == status
+            or normalized_cell.startswith(f"{status} ")
+            or f" {status} " in f" {normalized_cell} "
+            for status in unresolved_statuses
+            if not cell_negates_unresolved_status(value, status)
+        )
+
+    def cell_has_unresolved_comparison(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
+        if normalized_cell in {"none", "n/a", "not applicable", "not applicable with reason"}:
+            return False
+        return any(
+            normalized_cell == status
+            or normalized_cell.startswith(f"{status} ")
+            or f" {status} " in f" {normalized_cell} "
+            for status in unresolved_comparison_statuses
+            if not cell_negates_unresolved_status(value, status)
+        )
+
+    def cell_has_issue_candidate_status(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
+        if cell_negates_issue_candidate_status(value):
+            return False
+        return (
+            normalized_cell == "issue candidate"
+            or normalized_cell.startswith("issue candidate ")
+            or f" issue candidate " in f" {normalized_cell} "
+        )
+
+    def user_review_action_requires_packet(value: str) -> bool:
+        normalized_action = governance._normalized_planning_value(value)
+        return any(
+            token in normalized_action
+            for token in (
+                "user",
+                "review",
+                "decision",
+                "waiver",
+                "issue candidate",
+                "issue-candidate",
+                "github issue",
+                "route",
+                "defer",
+            )
+        )
+
+    def code_trace_row_requires_user_packet(row: list[str]) -> bool:
+        if len(row) <= 10:
+            return False
+        unresolved_evidence = (
+            cell_has_unresolved_status(row[8])
+            or cell_has_unresolved_comparison(row[6])
+            or cell_has_unresolved_comparison(row[7])
+            or cell_has_unresolved_comparison(row[9])
+        )
+        if not unresolved_evidence:
+            return False
+        return user_review_action_requires_packet(" ".join((row[9], row[10])))
+
+    def accepted_reference_row_requires_user_packet(row: list[str]) -> bool:
+        if len(row) <= 8:
+            return False
+        unresolved_evidence = (
+            cell_has_unresolved_status(row[8])
+            or cell_has_unresolved_comparison(row[8])
+        )
+        if not unresolved_evidence:
+            return False
+        return user_review_action_requires_packet(row[8])
+
+    user_review_packet_phrases = (
+        "rar3",
+        "rar3 user review gate",
+        "user review gate remains active",
+        "user review pending",
+        "pending user review",
+        "pending user",
+        "user reviews",
+        "user should review",
+        "user review required",
+        "user review is required",
+        "user review is still required",
+        "requires user review",
+        "required user review",
+        "must review",
+        "user must review",
+        "user decision",
+        "user decision needed",
+        "user decision required",
+        "requires user decision",
+        "user judgment required",
+        "user judgment is required",
+        "user judgment needed",
+        "needs user judgment",
+        "need user judgment",
+        "requires user judgment",
+        "user judgment before",
+        "user visual judgment",
+        "needs user visual judgment",
+        "user adjudication required",
+        "needs user adjudication",
+        "user approval",
+        "approval required",
+        "user waiver",
+        "waiver required",
+        "waiver decision",
+        "before waiver",
+        "review issue candidate",
+        "reviews rar issue candidates",
+    )
+
+    def rar_decision_row_requires_user_packet(row: list[str]) -> bool:
+        return contains_non_negated_rar_phrase(
+            " ".join(row),
+            user_review_packet_phrases,
+        )
+
+    unresolved_row_user_review_required = any(
+        code_trace_row_requires_user_packet(row) for row in code_trace_rows
+    ) or any(
+        accepted_reference_row_requires_user_packet(row)
+        for row in accepted_reference_rows
+    ) or any(
+        rar_decision_row_requires_user_packet(row) for row in rar_decision_rows
+    )
+    active_rar_values = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "RAR Stage:",
+                "Merged Standard Comparison Result:",
+                "Current Violation Findings:",
+                "Issue Candidate Disposition:",
+                "Repair / Waiver / Defer / Route Decision Table:",
+                "Adoption Disposition:",
+                "Repair / Waiver / Blocker:",
+                "Validation Summary:",
+                "Exact Next USER Decision:",
+                "Next Legal Phase:",
+            )
+        )
+    )
+    pending_user_review_required = contains_non_negated_rar_phrase(
+        active_rar_values,
+        user_review_packet_phrases,
+    ) or unresolved_row_user_review_required
+
+    normalized_product_experience_comparison = governance._normalized_planning_value(
+        governance._extract_marker_value(
+            text, "NDAI Product Experience Contract Comparison:"
+        )
+    )
+    for quality in (
+        "deterministic",
+        "intuitive",
+        "immersive",
+        "predictable",
+        "reliable",
+        "consistent",
+    ):
+        require(
+            quality in normalized_product_experience_comparison,
+            "NDAI Product Experience Contract Comparison Missing",
+        )
+
+    for forbidden in (
+        "validator green is sufficient",
+        "helper pass is sufficient",
+        "screenshot exists therefore accepted",
+        "template consumed without approved source",
+        "shared primitive consumed without approved source",
+    ):
+        require(
+            forbidden not in normalized,
+            "Circular Validation Evidence",
+        )
+
+    user_packet_path = governance._extract_marker_value(text, "USER Packet Path:")
+    user_packet_zip = governance._extract_marker_value(text, "USER Packet ZIP Path:")
+    user_packet_path_not_required = "not required" in user_packet_path.casefold()
+    user_packet_zip_not_required = "not required" in user_packet_zip.casefold()
+
+    def canonical_windows_path(path: str) -> str | None:
+        parts = [part for part in path.split("\\") if part]
+        if not parts or re.fullmatch(r"[A-Za-z]:", parts[0]) is None:
+            return None
+        stack = [parts[0]]
+        for part in parts[1:]:
+            if part == ".":
+                continue
+            if part == "..":
+                if len(stack) == 1:
+                    return None
+                stack.pop()
+                continue
+            stack.append(part)
+        return stack[0] + "\\" + "\\".join(stack[1:])
+
+    def has_dot_or_traversal_segment(path: str) -> bool:
+        return any(part in {".", ".."} for part in path.split("\\"))
+
+    def has_invalid_path_suffix(suffix: str) -> bool:
+        if not suffix or suffix[0].isspace():
+            return False
+        if suffix[0] == "`":
+            suffix = suffix[1:]
+            if not suffix or suffix[0].isspace():
+                return False
+        terminal_punctuation = {",", ";", ":", ")", "]", "."}
+        terminal_index = 0
+        while (
+            terminal_index < len(suffix)
+            and suffix[terminal_index] in terminal_punctuation
+        ):
+            terminal_index += 1
+        if terminal_index == 0:
+            return True
+        return terminal_index < len(suffix) and not suffix[terminal_index].isspace()
+
+    def normalized_user_packet_paths(value: str) -> tuple[list[str], bool]:
+        normalized_value = value.replace("/", "\\")
+        spans: list[tuple[int, int]] = []
+        paths: list[str] = []
+        invalid_path_seen = False
+        packet_path_pattern = re.compile(
+            r"\b[A-Za-z]:\\(?:Nexus USER\\[A-Za-z0-9_-]+(?:\\[^\s|,;:)\]]+)*|[^\s|,;:)\]]+)",
+            re.IGNORECASE,
+        )
+        for match in packet_path_pattern.finditer(normalized_value):
+            if any(match.start() >= start and match.end() <= end for start, end in spans):
+                continue
+            spans.append(match.span())
+            if has_invalid_path_suffix(normalized_value[match.end() :]):
+                invalid_path_seen = True
+                continue
+            raw_path = match.group(0)
+            if has_dot_or_traversal_segment(raw_path):
+                invalid_path_seen = True
+                continue
+            canonical_path = canonical_windows_path(raw_path)
+            if canonical_path is None or canonical_path.casefold().endswith(".zip"):
+                invalid_path_seen = True
+                continue
+            paths.append(canonical_path)
+        return paths, invalid_path_seen
+
+    def normalized_windows_zip_paths(value: str) -> tuple[list[str], bool]:
+        normalized_value = value.replace("/", "\\")
+        spans: list[tuple[int, int]] = []
+        paths: list[str] = []
+        invalid_suffix_seen = False
+        zip_path_patterns = (
+            re.compile(
+                r"\b[A-Za-z]:\\Nexus USER\\[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip",
+                re.IGNORECASE,
+            ),
+            re.compile(r"\b[A-Za-z]:\\[^|,;:)\]\r\n]+?\.zip", re.IGNORECASE),
+        )
+
+        for pattern in zip_path_patterns:
+            for match in pattern.finditer(normalized_value):
+                if any(
+                    max(match.start(), start) < min(match.end(), end)
+                    for start, end in spans
+                ):
+                    continue
+                spans.append(match.span())
+                if has_invalid_path_suffix(normalized_value[match.end() :]):
+                    invalid_suffix_seen = True
+                    continue
+                raw_path = match.group(0)
+                if has_dot_or_traversal_segment(raw_path):
+                    invalid_suffix_seen = True
+                    continue
+                canonical_path = canonical_windows_path(raw_path)
+                if canonical_path is None:
+                    invalid_suffix_seen = True
+                    continue
+                paths.append(canonical_path)
+        return paths, invalid_suffix_seen
+
+    user_packet_zip_paths, user_packet_zip_invalid_suffix_seen = (
+        normalized_windows_zip_paths(user_packet_zip)
+    )
+    user_packet_paths, user_packet_path_invalid_seen = normalized_user_packet_paths(
+        user_packet_path
+    )
+    user_packet_path_is_rooted = (
+        not user_packet_path_invalid_seen
+        and len(user_packet_paths) == 1
+        and re.fullmatch(
+            r"c:\\nexus user\\[a-z0-9_-]+",
+            user_packet_paths[0].casefold(),
+        )
+        is not None
+    )
+    deterministic_user_zip_paths = [
+        path
+        for path in user_packet_zip_paths
+        if re.fullmatch(
+            r"c:\\nexus user\\[a-z0-9_-]+-\d{8}-\d{6}\.zip",
+            path.casefold(),
+        )
+        is not None
+    ]
+    user_packet_zip_is_deterministic = (
+        not user_packet_zip_invalid_suffix_seen
+        and len(user_packet_zip_paths) == 1
+        and len(deterministic_user_zip_paths) == 1
+    )
+    user_packet_folder_label = (
+        user_packet_paths[0].split("\\")[-1].casefold()
+        if user_packet_path_is_rooted
+        else ""
+    )
+    user_packet_zip_label = ""
+    if user_packet_zip_is_deterministic:
+        zip_name = deterministic_user_zip_paths[0].split("\\")[-1]
+        zip_label_match = re.fullmatch(
+            r"([A-Za-z0-9_-]+)-\d{8}-\d{6}\.zip",
+            zip_name,
+            re.IGNORECASE,
+        )
+        user_packet_zip_label = (
+            zip_label_match.group(1).casefold() if zip_label_match else ""
+        )
+    user_packet_label_matches = (
+        not (user_packet_path_is_rooted and user_packet_zip_is_deterministic)
+        or user_packet_folder_label == user_packet_zip_label
+    )
+    require(
+        user_packet_path_is_rooted
+        or (user_packet_path_not_required and not pending_user_review_required),
+        "RAR USER Packet Missing",
+    )
+    require(
+        user_packet_zip_is_deterministic
+        or (user_packet_zip_not_required and not pending_user_review_required),
+        "RAR USER Packet Missing",
+    )
+    require(user_packet_label_matches, "RAR USER Packet Missing")
+
+    no_live_state = governance._extract_marker_value(text, "No Repo Live-State Tracking:")
+    normalized_no_live_state = governance._normalized_planning_value(no_live_state)
+    repo_live_state_patterns = (
+        r"\b(?:active|live|current)\b[^.;]{0,100}\b(?:track(?:s|ed|ing)?|stor(?:es|ed|ing)?|record(?:s|ed|ing)?|writ(?:es|ten|ing)?|ledger)\b[^.;]{0,100}\b(?:repo|repository|docs?/)",
+        r"\b(?:repo|repository)\s+(?:doc|docs|file|files|source truth|record|records)\b[^.;]{0,100}\b(?:track(?:s|ed|ing)?|stor(?:es|ed|ing)?|record(?:s|ed|ing)?|contain(?:s|ed|ing)?|ledger)\b[^.;]{0,100}\b(?:active|live|current|rar)\b",
+        r"\bdocs/[^\s,;:]+[^.;]{0,100}\b(?:track(?:s|ed|ing)?|stor(?:es|ed|ing)?|record(?:s|ed|ing)?|contain(?:s|ed|ing)?|ledger)\b[^.;]{0,100}\b(?:active|live|current|rar)\b",
+    )
+    repo_live_state_leak = any(
+        re.search(pattern, normalized_no_live_state)
+        for pattern in repo_live_state_patterns
+    )
+    require(
+        not repo_live_state_leak
+        and (
+            "c:\\nexus governance state" in no_live_state.casefold()
+            or "external" in no_live_state.casefold()
+        ),
+        "RAR Live Adoption Ledger In Repo",
+    )
+
+    previous_candidates = governance._extract_marker_value(
+        text, "Previous / Historical Branch Issue Candidates:"
+    )
+
+    def no_issue_candidates_declared(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        if not normalized_value:
+            return False
+        if normalized_value in {
+            "none",
+            "n/a",
+            "not applicable",
+            "none recorded",
+            "none recorded for this fixture",
+            "none with reason",
+        }:
+            return True
+        normalized_value = normalized_value.replace("issue-candidate", "issue candidate")
+        concrete_issue_candidate_pattern = (
+            r"\bissue candidate\s+(?!is\b|are\b)[a-z0-9][a-z0-9_-]*"
+        )
+        standalone_issue_candidate_id_pattern = r"\bf\d+-hist-\d+\b"
+        no_candidate_wording = normalized_value.startswith(
+            (
+                "none recorded",
+                "none with reason",
+                "no previous issue candidate",
+                "no previous issue candidates",
+                "no historical issue candidate",
+                "no historical issue candidates",
+                "no previous / historical issue candidate",
+                "no previous / historical issue candidates",
+                "no issue candidate is applicable",
+                "no issue candidates are applicable",
+            )
+        )
+        if no_candidate_wording and re.search(
+            concrete_issue_candidate_pattern,
+            normalized_value,
+        ):
+            return False
+        if no_candidate_wording and re.search(
+            standalone_issue_candidate_id_pattern,
+            normalized_value,
+        ):
+            return False
+        if no_candidate_wording:
+            return True
+        if re.search(concrete_issue_candidate_pattern, normalized_value):
+            return False
+        if re.search(standalone_issue_candidate_id_pattern, normalized_value):
+            return False
+        return False
+
+    previous_candidates_absent = no_issue_candidates_declared(previous_candidates)
+    if not previous_candidates_absent:
+        require(
+            has_real_issue_candidate_row(issue_candidate_rows),
+            "Owned Surface Issue Candidate Missing",
+        )
+
+    adoption_disposition = governance._extract_marker_value(
+        text, "Adoption Disposition:"
+    )
+    code_trace_has_issue_candidate = any(
+        len(row) > 8 and cell_has_issue_candidate_status(row[8])
+        for row in code_trace_rows
+    )
+    accepted_reference_has_issue_candidate = any(
+        len(row) > 8 and cell_has_issue_candidate_status(row[8])
+        for row in accepted_reference_rows
+    )
+    current_issue_candidate_values = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "Current Branch Repair Candidates:",
+                "Current Violation Findings:",
+            )
+        )
+    )
+    current_markers_have_issue_candidate = contains_non_negated_rar_phrase(
+        current_issue_candidate_values,
+        (
+            "issue candidate",
+            "issue-candidate",
+        ),
+    )
+    if (
+        code_trace_has_issue_candidate
+        or accepted_reference_has_issue_candidate
+        or current_markers_have_issue_candidate
+    ):
+        require(
+            has_real_issue_candidate_row(issue_candidate_rows),
+            "Owned Surface Issue Candidate Missing",
+        )
+
+    normalized_issue_candidate_disposition = governance._normalized_planning_value(
+        issue_candidate_disposition
+    )
+    normalized_decision_table = governance._normalized_planning_value(decision_table)
+    pending_issue_candidate_review = any(
+        phrase in normalized_decision_table or phrase in normalized_issue_candidate_disposition
+        for phrase in (
+            "user review pending",
+            "pending user review",
+            "pending user",
+            "user reviews",
+            "user should review",
+            "review issue candidate",
+        )
+    )
+    completed_issue_candidate_disposition = any(
+        phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
+        for phrase in (
+            "issue candidate packet user-reviewed",
+            "issue candidate packet user reviewed",
+            "user-reviewed",
+            "user reviewed",
+            "user waiver recorded",
+            "repair completed and revalidated",
+            "route back to earlier gate",
+        )
+    )
+    incomplete_issue_candidate_disposition = any(
+        phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
+        for phrase in (
+            "not fully user reviewed",
+            "not fully user-reviewed",
+            "not completely user reviewed",
+            "not completely user-reviewed",
+            "partially user reviewed",
+            "partially user-reviewed",
+            "incomplete user reviewed",
+            "incomplete user-reviewed",
+            "user review incomplete",
+            "user-reviewed incomplete",
+            "user reviewed incomplete",
+        )
+    )
+    negated_issue_candidate_disposition = any(
+        phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
+        for phrase in (
+            "not user reviewed",
+            "not user-reviewed",
+            "not yet user reviewed",
+            "not yet user-reviewed",
+            "no user review",
+            "without user review",
+            "not waived",
+            "not repaired",
+            "not routed",
+            "not yet waived",
+            "not yet repaired",
+            "not yet routed",
+            "not yet blocked",
+            "not blocked yet",
+            "without active user decision",
+            "is required before",
+            "required before",
+            "has not happened",
+            "not happened",
+        )
+    ) or incomplete_issue_candidate_disposition
+    completed_issue_candidate_disposition = (
+        completed_issue_candidate_disposition
+        and not incomplete_issue_candidate_disposition
+    )
+    issue_candidate_disposition_text = (
+        f"{normalized_issue_candidate_disposition} {normalized_decision_table}"
+    )
+    non_negated_blocked_disposition = (
+        re.search(
+            r"(?<![a-z0-9_-])blocked(?![a-z0-9_-])",
+            issue_candidate_disposition_text,
+        )
+        is not None
+        and re.search(
+            r"\b(?:not|no\s+longer)\s+blocked\b|\bnot\s+yet\s+blocked\b|\bnot\s+blocked\s+yet\b",
+            issue_candidate_disposition_text,
+        )
+        is None
+    )
+    issue_candidate_disposition_completed = (
+        (
+            completed_issue_candidate_disposition
+            or (non_negated_blocked_disposition and not pending_issue_candidate_review)
+        )
+        and not negated_issue_candidate_disposition
+    )
+
+    def code_trace_row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) != 11:
+            return False
+        status_cell = row[8]
+        issue_candidate_dispositioned = (
+            cell_has_issue_candidate_status(status_cell)
+            and issue_candidate_disposition_completed
+        )
+        status_unresolved = cell_has_unresolved_status(status_cell)
+        comparison_unresolved = (
+            cell_has_unresolved_comparison(row[6])
+            or cell_has_unresolved_comparison(row[7])
+            or cell_has_unresolved_comparison(row[9])
+        )
+        return (status_unresolved or comparison_unresolved) and not issue_candidate_dispositioned
+
+    def accepted_reference_row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) != 9:
+            return False
+        gap_issue_cell = row[8]
+        issue_candidate_dispositioned = (
+            cell_has_issue_candidate_status(gap_issue_cell)
+            and issue_candidate_disposition_completed
+        )
+        status_unresolved = cell_has_unresolved_status(gap_issue_cell)
+        comparison_unresolved = cell_has_unresolved_comparison(gap_issue_cell)
+        return (status_unresolved or comparison_unresolved) and not issue_candidate_dispositioned
+
+    def row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) <= 8:
+            return False
+        if len(row) == 11:
+            return code_trace_row_has_unresolved_rar_evidence(row)
+        if len(row) == 9:
+            return accepted_reference_row_has_unresolved_rar_evidence(row)
+        return False
+
+    code_trace_unresolved_present = any(
+        row_has_unresolved_rar_evidence(row)
+        for row in code_trace_rows
+    )
+    accepted_reference_unresolved_present = any(
+        row_has_unresolved_rar_evidence(row)
+        for row in accepted_reference_rows
+    )
+    unresolved_present = (
+        code_trace_unresolved_present or accepted_reference_unresolved_present
+    )
+    normalized_adoption_disposition = governance._normalized_planning_value(
+        adoption_disposition
+    )
+    green_claim_phrases = (
+        "adoption green with evidence",
+        "green with evidence",
+        "resolved with evidence",
+        "all rar checks are green",
+        "all rebaseline adoption checks are green",
+        "all adoption checks are green",
+        "rar checks are green",
+        "adoption checks are green",
+        "rar green",
+        "adoption green",
+        "rar closed",
+        "adoption closed",
+        "rar is closed",
+        "adoption is closed",
+        "rar was closed",
+        "adoption was closed",
+    )
+    def contains_non_negated_phrase(value: str, phrases: tuple[str, ...]) -> bool:
+        negated_spans: list[tuple[int, int]] = []
+        ordered_phrases = sorted(phrases, key=len, reverse=True)
+        for phrase in ordered_phrases:
+            token_pattern = re.compile(
+                rf"(?<![a-z0-9_-]){re.escape(phrase)}(?![a-z0-9_-])"
+            )
+            for match in token_pattern.finditer(value):
+                if any(
+                    match.start() >= start and match.end() <= end
+                    for start, end in negated_spans
+                ):
+                    continue
+                prefix = value[max(0, match.start() - 24) : match.start()]
+                if re.search(
+                    r"(?:^|[\s;:,(\[])(?:not|no)\s+(?:all\s+)?$",
+                    prefix,
+                ):
+                    negated_spans.append(match.span())
+                    continue
+                if re.search(r"(?:^|[\s;:,(\[])(?:cannot|can't)\s+(?:be\s+)?$", prefix):
+                    negated_spans.append(match.span())
+                    continue
+                if re.search(r"(?:^|[\s;:,(\[])without\s+$", prefix):
+                    negated_spans.append(match.span())
+                    continue
+                return True
+        return False
+
+    green_claim_scope = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "Merged Standard Comparison Result:",
+                "Current Violation Findings:",
+                "Issue Candidate Disposition:",
+                "Repair / Waiver / Defer / Route Decision Table:",
+                "Adoption Disposition:",
+                "Repair / Waiver / Blocker:",
+                "Validation Summary:",
+                "Exact Next USER Decision:",
+            )
+        )
+    )
+    claims_green = contains_non_negated_phrase(
+        green_claim_scope, green_claim_phrases
+    )
+    require(
+        not (unresolved_present and claims_green),
+        "Product Experience Contract Nonconformance Unresolved",
+    )
+    require(
+        not (unresolved_present and resolved_rar_stage),
+        "Product Experience Contract Nonconformance Unresolved",
+    )
+
+    issue_candidate_disposition_required = (
+        has_real_issue_candidate_row(issue_candidate_rows)
+        or not previous_candidates_absent
+        or code_trace_has_issue_candidate
+        or accepted_reference_has_issue_candidate
+        or current_markers_have_issue_candidate
+    )
+    if issue_candidate_disposition_required:
+        require(
+            not negated_issue_candidate_disposition
+            and (pending_issue_candidate_review or completed_issue_candidate_disposition),
+            "Issue Candidate Disposition Missing",
+        )
+
+    normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
+    phase_advancement_scope = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "Merged Standard Comparison Result:",
+                "Current Violation Findings:",
+                "Issue Candidate Disposition:",
+                "Repair / Waiver / Defer / Route Decision Table:",
+                "Adoption Disposition:",
+                "Repair / Waiver / Blocker:",
+                "Validation Summary:",
+                "Exact Next USER Decision:",
+            )
+        )
+    )
+    active_rar_tokens = (
+        "rar user review gate remains active",
+        "remains active",
+        "pending user",
+        "user review pending",
+        "issue candidate pending",
+        "repair remains required",
+        "repair required",
+        "waiver required",
+        "blocker active",
+        "blocked",
+        "required before normal phase progression",
+    )
+    active_rar_context = active_rar_stage or contains_non_negated_phrase(
+        active_rar_values,
+        active_rar_tokens,
+    )
+    normalized_next_phase = governance._normalized_planning_value(normal_phase)
+    phase_advancement_marker_values = " ".join(
+        (
+            active_rar_values,
+            phase_advancement_scope,
+        )
+    )
+    next_phase_values = normalized_next_phase
+    advancement_tokens = (
+        "branch readiness",
+        "br1",
+        "br2",
+        "bp1",
+        "bp2",
+        "bp3",
+        "workstream",
+        "hardening",
+        "live validation",
+        "lv1",
+        "uts",
+        "pr readiness",
+        "release readiness",
+        "pr creation",
+        "merge",
+        "release",
+    )
+    phase_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in advancement_tokens
+    )
+
+    negation_tokens = (
+        "does not authorize",
+        "do not authorize",
+        "not authorize",
+        "does not approve",
+        "do not approve",
+        "not approve",
+        "does not permit",
+        "do not permit",
+        "not permit",
+        "not authorized",
+        "not approved",
+        "without authorizing",
+        "blocked",
+        "remains blocked",
+        "stays blocked",
+        "held",
+        "remains held",
+        "does not advance",
+        "do not advance",
+        "not advance",
+        "does not proceed",
+        "do not proceed",
+        "not proceed",
+        "not ready for",
+        "not yet ready for",
+        "not green for",
+        "not yet green for",
+        "cannot proceed",
+        "must not proceed",
+    )
+    phase_disclaimer_tokens = tuple(
+        token for token in negation_tokens if token not in {"blocked", "held"}
+    )
+    phase_blocker_tokens = (
+        "blocked",
+        "remains blocked",
+        "stays blocked",
+        "held",
+        "remains held",
+        "stays held",
+        "paused",
+        "remains paused",
+        "deferred",
+        "remains deferred",
+    )
+    phase_action_token_pattern = (
+        r"proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|"
+        r"resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|"
+        r"go(?:es|ing)?|start(?:s|ed|ing)?|begin(?:s|ning|gan)?|green|ready"
+    )
+    phase_disclaimer_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in phase_disclaimer_tokens
+    )
+    phase_blocker_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in phase_blocker_tokens
+    )
+    phase_clause_boundary_pattern = r"\b(?:but|however|yet|although|though|while)\b"
+    negated_phase_list_pattern = re.compile(
+        rf"\b(?:{phase_disclaimer_token_pattern})\b"
+        rf"(?:(?!\b(?:{phase_action_token_pattern})\b|[.;]|{phase_clause_boundary_pattern}).){{0,180}}"
+        rf"\b(?:{phase_token_pattern})\b"
+        rf"(?:\s*,\s*(?:or\s+|and\s+)?\b(?:{phase_token_pattern})\b)*"
+    )
+    phase_claim_clause_pattern = rf"[,.;]|\b(?:and|but|however|yet|although|though|while)\b"
+
+    def phase_clause_explicitly_blocks_or_holds(clause: str) -> bool:
+        if not any(token in clause for token in advancement_tokens):
+            return False
+        if not re.search(rf"\b(?:{phase_blocker_token_pattern})\b", clause):
+            return False
+        if re.search(
+            rf"\b(?:not|no\s+longer)\s+blocked\b|\bno\s+blockers?\b",
+            clause,
+        ) and re.search(rf"\b(?:{phase_action_token_pattern})\b", clause):
+            return False
+        return True
+
+    def strip_negated_phase_disclaimers(value: str) -> str:
+        value = negated_phase_list_pattern.sub(" ", value)
+        clauses = re.split(phase_claim_clause_pattern, value)
+        kept: list[str] = []
+        for clause in clauses:
+            if any(token in clause for token in advancement_tokens) and any(
+                token in clause for token in phase_disclaimer_tokens
+            ):
+                continue
+            if phase_clause_explicitly_blocks_or_holds(clause):
+                continue
+            kept.append(clause)
+        return " ".join(kept)
+
+    phase_advancement_marker_values = strip_negated_phase_disclaimers(
+        phase_advancement_marker_values
+    )
+    next_phase_values = strip_negated_phase_disclaimers(next_phase_values)
+    phase_advancement_next_step_scope = strip_negated_phase_disclaimers(
+        governance._normalized_planning_value(
+            " ".join(
+                governance._extract_marker_value(text, marker)
+                for marker in (
+                    "Repair / Waiver / Defer / Route Decision Table:",
+                    "Adoption Disposition:",
+                    "Repair / Waiver / Blocker:",
+                    "Exact Next USER Decision:",
+                )
+            )
+        )
+    )
+    phase_advancement_action_pattern = re.compile(
+        rf"(?:"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?\s+(?:to|into)|continue(?:s|d|ing)?\s+(?:to|into)|go(?:es|ing)?\s+(?:to|into)|start(?:s|ed|ing)?(?:\s+(?:to|into))?|begin(?:s|ning|gan)?(?:\s+(?:to|into))?|green\s+for|ready\s+for)\b"
+        rf"[\w\s/-]{{0,120}}\b(?:{phase_token_pattern})\b"
+        rf"|"
+        rf"\b(?:{phase_token_pattern})\b[\w\s/-]{{0,120}}"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|go(?:es|ing)?|start(?:s|ed|ing)?|begin(?:s|ning|gan)?|green|ready)\b"
+        rf")"
+    )
+    concrete_next_phase_requested = any(
+        token in next_phase_values
+        for token in advancement_tokens
+    )
+    concrete_marker_advancement_requested = (
+        phase_advancement_action_pattern.search(phase_advancement_marker_values)
+        is not None
+    )
+    concrete_marker_bare_phase_requested = (
+        re.search(rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b", phase_advancement_next_step_scope)
+        is not None
+    )
+    concrete_advancement_requested = concrete_next_phase_requested or (
+        concrete_marker_advancement_requested or concrete_marker_bare_phase_requested
+    )
+
+    def normal_phase_progression_claimed(value: str) -> bool:
+        clauses = re.split(phase_claim_clause_pattern, value)
+        for clause in clauses:
+            cleaned_clause = clause
+            for blocker_phrase in (
+                "required before normal phase progression",
+                "before normal phase progression",
+            ):
+                cleaned_clause = cleaned_clause.replace(blocker_phrase, "")
+            for match in re.finditer(r"\bnormal phase progression\b", cleaned_clause):
+                local_context = cleaned_clause[
+                    max(0, match.start() - 80) : match.end() + 80
+                ]
+                if any(token in local_context for token in negation_tokens):
+                    continue
+                return True
+        return False
+
+    generic_advancement_requested = normal_phase_progression_claimed(
+        " ".join(
+            (
+                phase_advancement_marker_values,
+                next_phase_values,
+            )
+        )
+    )
+    advancement_requested = (
+        generic_advancement_requested
+        or concrete_advancement_requested
+    )
+    require(
+        not (advancement_requested and active_rar_context),
+        "Normal Phase Progression Blocked By RAR",
+    )
+    return failures
+
+
 def _validate_family_feature_vision_scaffolding_source_truth() -> list[str]:
     failures: list[str] = []
     ffv_dir = ROOT / "Docs" / "family_feature_visions"
@@ -2055,6 +3746,140 @@ def _validate_merge_stable_projection_helpers() -> list[str]:
             "from adjacent merge-status blocks"
         ),
     )
+    return failures
+
+
+def _validate_pr_review_churn_matrix_fixture() -> list[str]:
+    failures, require = _collect_failures()
+    relative_matrix = PR_REVIEW_CHURN_MATRIX_FIXTURE.relative_to(ROOT)
+    require(
+        PR_REVIEW_CHURN_MATRIX_FIXTURE.exists(),
+        f"{relative_matrix}: PR review churn matrix fixture is missing",
+    )
+    if not PR_REVIEW_CHURN_MATRIX_FIXTURE.exists():
+        return failures
+
+    try:
+        matrix = json.loads(PR_REVIEW_CHURN_MATRIX_FIXTURE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{relative_matrix}: invalid JSON: {exc}"]
+
+    require(
+        matrix.get("schema") == "nexus-pr-review-churn-matrix-v1",
+        f"{relative_matrix}: unexpected schema",
+    )
+    families = matrix.get("families")
+    require(
+        isinstance(families, list) and bool(families),
+        f"{relative_matrix}: families must be a non-empty list",
+    )
+    if not isinstance(families, list):
+        return failures
+
+    required_families = {
+        "rar-status-green-parser",
+        "rar-phase-advancement-parser",
+        "rar-issue-candidate-disposition-parser",
+        "rar-user-packet-proof-parser",
+        "rar-code-to-visual-reference-parser",
+        "rar-table-row-parser",
+        "rar-path-suffix-parser",
+        "rar-short-marker-parser",
+        "repo-live-state-boundary-parser",
+        "pr-readiness-review-risk-parser",
+        "pr2-comment-family-classifier",
+        "pr2-thread-pagination-and-approval-latch",
+    }
+    observed_families = {
+        family.get("family_id") for family in families if isinstance(family, dict)
+    }
+    require(
+        required_families.issubset(observed_families),
+        (
+            f"{relative_matrix}: missing required PR review churn families "
+            f"{sorted(required_families - observed_families)}"
+        ),
+    )
+    require(
+        len(observed_families) == len(families),
+        f"{relative_matrix}: duplicate or missing family_id values",
+    )
+
+    required_list_fields = (
+        "representative_comment_patterns",
+        "source_truth",
+        "implementation",
+        "fixture_coverage",
+        "generated_mutation_coverage",
+        "sibling_variant_replay",
+    )
+    for family in families:
+        if not isinstance(family, dict):
+            failures.append(f"{relative_matrix}: family entry must be an object")
+            continue
+        family_id = family.get("family_id", "<missing-family-id>")
+        for field in required_list_fields:
+            value = family.get(field)
+            require(
+                isinstance(value, list) and bool(value),
+                f"{relative_matrix}: {family_id} {field} must be a non-empty list",
+            )
+            if not isinstance(value, list):
+                continue
+            require(
+                all(isinstance(item, str) and item.strip() for item in value),
+                f"{relative_matrix}: {family_id} {field} contains a blank value",
+            )
+        for field in ("source_truth", "implementation", "fixture_coverage"):
+            for item in family.get(field, []):
+                if not isinstance(item, str) or not item.strip():
+                    continue
+                item_path = ROOT / item.replace("\\", "/")
+                require(
+                    item_path.exists(),
+                    f"{relative_matrix}: {family_id} references missing {field} path {item}",
+                )
+
+    changed_file_coverage = matrix.get("changed_file_coverage")
+    require(
+        isinstance(changed_file_coverage, dict) and bool(changed_file_coverage),
+        f"{relative_matrix}: changed_file_coverage must be a non-empty object",
+    )
+    if isinstance(changed_file_coverage, dict):
+        for path, family_ids in changed_file_coverage.items():
+            require(
+                isinstance(path, str) and path.startswith("dev/") and path.endswith(".py"),
+                f"{relative_matrix}: changed-file coverage key must be a dev Python helper path",
+            )
+            require(
+                (ROOT / str(path)).exists(),
+                f"{relative_matrix}: changed-file coverage path is missing: {path}",
+            )
+            require(
+                isinstance(family_ids, list) and bool(family_ids),
+                f"{relative_matrix}: {path} must map to one or more review families",
+            )
+            if not isinstance(family_ids, list):
+                continue
+            for family_id in family_ids:
+                require(
+                    family_id in observed_families,
+                    f"{relative_matrix}: {path} references unknown review family {family_id}",
+                )
+                matching_family = next(
+                    (
+                        family
+                        for family in families
+                        if isinstance(family, dict)
+                        and family.get("family_id") == family_id
+                    ),
+                    {},
+                )
+                require(
+                    path in matching_family.get("implementation", []),
+                    f"{relative_matrix}: {path} must also appear in implementation coverage for {family_id}",
+                )
+
     return failures
 
 
@@ -5584,6 +7409,1692 @@ line item, not a seam or separate branch.
             "missing applicability/dependency/grouping proof"
         )
 
+    valid_rar_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_rar_failures:
+        failures.append(
+            "Valid RAR adoption review fixture unexpectedly failed: "
+            + "; ".join(valid_rar_failures[:5])
+        )
+
+    valid_resolved_rar_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_resolved_rar_failures:
+        failures.append(
+            "Valid resolved RAR normal-phase fixture unexpectedly failed: "
+            + "; ".join(valid_resolved_rar_failures[:5])
+        )
+
+    generated_resolved_unresolved_row_text = (
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Adoption Disposition: Resolved With Evidence after RAR comparison and validation closeout.",
+            "Adoption Disposition: RAR comparison completed after validation closeout.",
+        )
+        .replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close control | FAM-006 desktop renderer | focused screenshot packet missing | UIREF-002 | Mismatch | Unproven | NONCONFORMING | unresolved visual mismatch remains | Repair before closeout |",
+            1,
+        )
+    )
+    generated_resolved_unresolved_row_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_resolved_unresolved_row_text
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_unresolved_row_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with unresolved product-experience row"
+        )
+
+    generated_resolved_visual_mismatch_text = (
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py | FAM-006 desktop renderer | screenshot | UIREF-002 | Mismatch | Unproven | CONFORMING | comparison columns remain unresolved | Continue |",
+        )
+    )
+    generated_resolved_visual_mismatch_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_resolved_visual_mismatch_text
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_visual_mismatch_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with unresolved visual/behavior comparison cells"
+        )
+
+    generated_status_green_visual_user_packet_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py | FAM-006 desktop renderer | screenshot | UIREF-002 | Mismatch | Unproven | CONFORMING | comparison columns remain unresolved | USER waiver required before closeout |",
+        )
+    )
+    generated_status_green_visual_user_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_status_green_visual_user_packet_text
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_status_green_visual_user_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not require a USER packet when unresolved comparison cells requested USER waiver despite CONFORMING status"
+        )
+
+    generated_status_green_gap_user_packet_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py | FAM-006 desktop renderer | screenshot | UIREF-002 | Mismatch | Unproven | CONFORMING | USER visual judgment required for unresolved comparison | Continue |",
+        )
+    )
+    generated_status_green_gap_user_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_status_green_gap_user_packet_text
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_status_green_gap_user_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not require a USER packet when unresolved comparison cells placed USER judgment in Defect / Gap"
+        )
+
+    generated_resolved_accepted_reference_gap_text = (
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | Not Applicable With Reason | Not Applicable With Reason | None | None | None | Not Applicable With Reason | validation summary | None |",
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | visual mismatch remains unresolved |",
+        )
+    )
+    generated_resolved_accepted_reference_gap_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_resolved_accepted_reference_gap_text
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_accepted_reference_gap_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with unresolved accepted-reference gap cell"
+        )
+
+    generated_status_green_reference_user_packet_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | Not Applicable With Reason | Not Applicable With Reason | None | None | None | Not Applicable With Reason | validation summary | No issue candidate applicable |",
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | visual mismatch requires USER waiver before closeout |",
+        )
+    )
+    generated_status_green_reference_user_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_status_green_reference_user_packet_text
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_status_green_reference_user_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not require a USER packet when accepted-reference gap cells requested USER waiver"
+        )
+
+    valid_reviewed_issue_candidate_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_reviewed_issue_candidate_rar_failures:
+        failures.append(
+            "Valid reviewed issue-candidate RAR fixture unexpectedly failed: "
+            + "; ".join(valid_reviewed_issue_candidate_rar_failures[:5])
+        )
+
+    valid_reviewed_issue_candidate_closed_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_CLOSED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_reviewed_issue_candidate_closed_failures:
+        failures.append(
+            "Valid reviewed issue-candidate RAR fixture with adoption-closed wording unexpectedly failed: "
+            + "; ".join(valid_reviewed_issue_candidate_closed_failures[:5])
+        )
+
+    generated_reviewed_issue_candidate_not_blocked_text = (
+        VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_CLOSED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Issue Candidate Disposition: Issue Candidate Packet USER-Reviewed for F6-HIST-001, while GitHub issue mutation remains unapproved.",
+            "Issue Candidate Disposition: Issue Candidate Packet USER-Reviewed for F6-HIST-001 and not blocked for normal phase progression, while GitHub issue mutation remains unapproved.",
+        )
+    )
+    generated_reviewed_issue_candidate_not_blocked_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_reviewed_issue_candidate_not_blocked_text
+        )
+    )
+    if generated_reviewed_issue_candidate_not_blocked_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected USER-reviewed not-blocked issue-candidate closeout wording: "
+            + "; ".join(generated_reviewed_issue_candidate_not_blocked_failures[:5])
+        )
+
+    valid_active_negated_disclaimers_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_active_negated_disclaimers_rar_failures:
+        failures.append(
+            "Valid active RAR fixture with negated disclaimers failed: "
+            + "; ".join(valid_active_negated_disclaimers_rar_failures[:5])
+        )
+
+    valid_no_issue_candidate_wording_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_no_issue_candidate_wording_failures:
+        failures.append(
+            "Valid no-issue-candidate wording RAR fixture unexpectedly failed: "
+            + "; ".join(valid_no_issue_candidate_wording_failures[:5])
+        )
+
+    valid_no_issue_candidate_gap_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_no_issue_candidate_gap_failures:
+        failures.append(
+            "Valid no-issue-candidate accepted-reference gap RAR fixture unexpectedly failed: "
+            + "; ".join(valid_no_issue_candidate_gap_failures[:5])
+        )
+
+    valid_no_user_review_required_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_no_user_review_required_failures:
+        failures.append(
+            "Valid no-USER-review-required RAR fixture unexpectedly failed: "
+            + "; ".join(valid_no_user_review_required_failures[:5])
+        )
+
+    generated_no_user_approval_required_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "No USER decision needed after resolved no-impact closeout",
+            "No USER approval required after resolved no-impact closeout",
+        )
+    )
+    generated_no_user_approval_required_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_no_user_approval_required_text
+        )
+    )
+    if generated_no_user_approval_required_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected no USER approval required wording: "
+            + "; ".join(generated_no_user_approval_required_failures[:5])
+        )
+
+    generated_no_user_decision_required_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Exact Next USER Decision: No USER review required for this resolved fixture.",
+            "Exact Next USER Decision: Resolved closeout does not require USER decision.",
+        )
+    )
+    generated_no_user_decision_required_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_no_user_decision_required_text
+        )
+    )
+    if generated_no_user_decision_required_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected no USER decision required wording: "
+            + "; ".join(generated_no_user_decision_required_failures[:5])
+        )
+
+    valid_post_phrase_no_user_decision_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_post_phrase_no_user_decision_failures:
+        failures.append(
+            "Valid post-phrase no-USER-decision RAR fixture unexpectedly failed: "
+            + "; ".join(valid_post_phrase_no_user_decision_failures[:5])
+        )
+
+    valid_short_markers_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_short_markers_failures:
+        failures.append(
+            "Valid short-marker RAR fixture unexpectedly failed: "
+            + "; ".join(valid_short_markers_failures[:5])
+        )
+
+    valid_negated_ready_for_phase_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NEGATED_READY_FOR_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_negated_ready_for_phase_failures:
+        failures.append(
+            "Valid negated-ready-for-phase RAR fixture unexpectedly failed: "
+            + "; ".join(valid_negated_ready_for_phase_failures[:5])
+        )
+
+    generated_negated_ready_for_phase_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+        .replace(
+            "Exact Next USER Decision: none",
+            "Exact Next USER Decision: not ready for PR Readiness; USER must keep RAR3 active until review closes.",
+        )
+    )
+    generated_negated_ready_for_phase_failures = (
+        _validate_rebaseline_adoption_review_text(generated_negated_ready_for_phase_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in "\n".join(
+        generated_negated_ready_for_phase_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected negated ready-for phase wording"
+        )
+
+    generated_blocked_phase_disclaimer_text = (
+        VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: USER reviews RAR issue candidates; normal phase progression is not authorized; this does not authorize PR creation, merge, or release.",
+            "Exact Next USER Decision: USER keeps Workstream blocked until RAR3 closes; PR creation remains blocked pending separate approval.",
+        )
+    )
+    generated_blocked_phase_disclaimer_failures = (
+        _validate_rebaseline_adoption_review_text(generated_blocked_phase_disclaimer_text)
+    )
+    if generated_blocked_phase_disclaimer_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected blocked/held phase disclaimer wording: "
+            + "; ".join(generated_blocked_phase_disclaimer_failures[:5])
+        )
+
+    valid_direct_negated_green_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_direct_negated_green_failures:
+        failures.append(
+            "Valid direct-negated green RAR fixture unexpectedly failed: "
+            + "; ".join(valid_direct_negated_green_failures[:5])
+        )
+
+    valid_resolved_negated_blocker_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_RESOLVED_NEGATED_BLOCKER_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_resolved_negated_blocker_failures:
+        failures.append(
+            "Valid resolved RAR fixture with negated blocker wording failed: "
+            + "; ".join(valid_resolved_negated_blocker_failures[:5])
+        )
+
+    missing_code_trace_marker_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_MARKER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if "Rebaseline Adoption Review Missing: Code-To-Visual Trace Matrix:" not in "\n".join(
+        missing_code_trace_marker_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing Code-To-Visual Trace Matrix marker"
+        )
+
+    marker_only_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET not in "\n".join(
+        marker_only_rar_failures
+    ):
+        failures.append(
+            "Invalid marker-only RAR fixture did not reject shallow adoption markers"
+        )
+
+    missing_next_legal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_NEXT_LEGAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET not in "\n".join(
+        missing_next_legal_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing Next Legal Phase marker"
+        )
+
+    missing_product_experience_comparison_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_MISSING_PRODUCT_EXPERIENCE_COMPARISON_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if "NDAI Product Experience Contract Comparison Missing" not in "\n".join(
+        missing_product_experience_comparison_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject Product Experience quality terms missing from comparison marker"
+        )
+
+    repo_live_state_tracking_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_REPO_LIVE_STATE_TRACKING_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if "RAR Live Adoption Ledger In Repo" not in "\n".join(
+        repo_live_state_tracking_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject repo live-state tracking despite external-state mention"
+        )
+
+    unanchored_stage_resolved_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_RESOLVED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_STAGE_FAILURE_SNIPPET not in "\n".join(
+        unanchored_stage_resolved_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unanchored resolved stage wording"
+        )
+
+    negated_resolved_stage_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NEGATED_RESOLVED_STAGE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_STAGE_FAILURE_SNIPPET not in "\n".join(
+        negated_resolved_stage_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject negated resolved stage wording"
+        )
+
+    unanchored_stage_no_impact_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_NO_IMPACT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_STAGE_FAILURE_SNIPPET not in "\n".join(
+        unanchored_stage_no_impact_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unanchored no-impact stage wording"
+        )
+
+    missing_code_trace_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        missing_code_trace_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing code-to-visual trace"
+        )
+
+    empty_code_trace_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        empty_code_trace_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject header-only code-to-visual trace"
+        )
+
+    noop_active_rows_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        noop_active_rows_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject no-op active evidence rows"
+        )
+
+    missing_proof_surface_noop_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_PROOF_SURFACE_NOOP_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        missing_proof_surface_noop_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject no-op rows when active surfaces are phrased as missing proof"
+        )
+
+    generated_missing_proof_surface_text = (
+        INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE.read_text(encoding="utf-8")
+        .replace(
+            "Owned Surface Inventory: HUD Dashboard, Recording Studio, and Log Viewer Studio surfaces.",
+            "Owned Surface Inventory: no verified proof yet for Recording Studio surface; Log Viewer Studio surface remains named for review.",
+        )
+        .replace(
+            "Affected Surface Inventory: Recording Studio window controls, Log Viewer Studio controls, HUD Dashboard close control, buttons, rows, and scrollbars.",
+            "Affected Surface Inventory: no focused proof yet for Recording Studio surface and Log Viewer Studio surface.",
+        )
+    )
+    generated_missing_proof_surface_failures = _validate_rebaseline_adoption_review_text(
+        generated_missing_proof_surface_text
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        generated_missing_proof_surface_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject missing-proof surface wording with no-op rows"
+        )
+
+    generated_resolved_surface_noop_text = (
+        INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE.read_text(encoding="utf-8")
+        .replace(
+            "RAR Stage: RAR3 USER Review Gate remains active for affected surface review.",
+            "RAR Stage: Resolved after RAR4 disposition and validation closeout.",
+        )
+        .replace(
+            "Next Legal Phase: RAR3 USER Review Gate remains active until USER reviews issue candidates or waives them.",
+            "Next Legal Phase: normal phase progression after resolved RAR closeout.",
+        )
+    )
+    generated_resolved_surface_noop_failures = _validate_rebaseline_adoption_review_text(
+        generated_resolved_surface_noop_text
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_surface_noop_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with named surfaces and no-op trace rows"
+        )
+
+    partial_noop_active_rows_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PARTIAL_NOOP_ACTIVE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        partial_noop_active_rows_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject partial no-op active evidence rows"
+        )
+
+    empty_accepted_reference_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if "Accepted Reference Comparator Missing" not in "\n".join(
+        empty_accepted_reference_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject header-only accepted-reference comparator"
+        )
+
+    malformed_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    malformed_table_failures_joined = "\n".join(malformed_table_rows_rar_failures)
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in malformed_table_failures_joined:
+        failures.append("Invalid RAR fixture did not reject malformed code-trace row")
+    if "Accepted Reference Comparator Missing" not in malformed_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject malformed accepted-reference row"
+        )
+
+    table_preface_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_TABLE_PREFACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        table_preface_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject non-table text before table separator"
+        )
+
+    header_only_rar_decision_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_HEADER_ONLY_RAR_DECISION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        header_only_rar_decision_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject header-only USER decision table"
+        )
+
+    missing_table_separator_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_TABLE_SEPARATOR_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    missing_table_separator_failures_joined = "\n".join(
+        missing_table_separator_rar_failures
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in missing_table_separator_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject code-trace rows without a markdown separator"
+        )
+    if "Accepted Reference Comparator Missing" not in missing_table_separator_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject accepted-reference rows without a markdown separator"
+        )
+
+    overwide_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_OVERWIDE_TABLE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    overwide_table_failures_joined = "\n".join(overwide_table_rows_rar_failures)
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in overwide_table_failures_joined:
+        failures.append("Invalid RAR fixture did not reject overwide code-trace row")
+    if "Accepted Reference Comparator Missing" not in overwide_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject overwide accepted-reference row"
+        )
+
+    sparse_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    sparse_table_failures_joined = "\n".join(sparse_table_rows_rar_failures)
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in sparse_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject sparse code-trace row"
+        )
+    if "Accepted Reference Comparator Missing" not in sparse_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject sparse accepted-reference row"
+        )
+
+    unresolved_green_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_green_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved nonconformance claimed green"
+        )
+
+    unresolved_hyphenated_nonconformance_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_UNRESOLVED_HYPHENATED_NONCONFORMANCE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_hyphenated_nonconformance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject hyphenated non-conforming status claimed green"
+        )
+
+    unresolved_green_separate_negation_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_green_separate_negation_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved green claim with separate negation"
+        )
+
+    unresolved_green_conjunction_negation_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_CONJUNCTION_NEGATION_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_green_conjunction_negation_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved green claim after unrelated negation"
+        )
+
+    unresolved_no_issue_candidate_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_NO_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_no_issue_candidate_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved status with no issue-candidate wording"
+        )
+
+    validation_summary_green_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        validation_summary_green_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved green claim outside Adoption Disposition"
+        )
+
+    issue_candidate_green_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        issue_candidate_green_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject issue candidate row claimed green"
+        )
+
+    missing_issue_candidate_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        missing_issue_candidate_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing historical issue candidate disposition"
+        )
+
+    prefixed_no_candidate_prose_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PREFIXED_NO_CANDIDATE_PROSE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        prefixed_no_candidate_prose_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject prefixed no-candidate prose naming a candidate"
+        )
+
+    hyphenated_no_candidate_prose_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_HYPHENATED_NO_CANDIDATE_PROSE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        hyphenated_no_candidate_prose_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject hyphenated no-candidate prose naming a candidate"
+        )
+
+    placeholder_issue_candidate_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        placeholder_issue_candidate_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject placeholder issue-candidate row"
+        )
+
+    partial_issue_candidate_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PARTIAL_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        partial_issue_candidate_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject partial issue-candidate row"
+        )
+
+    historical_none_prose_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        historical_none_prose_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject historical issue candidate hidden by none prose"
+        )
+
+    standalone_issue_id_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_STANDALONE_ISSUE_ID_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        standalone_issue_id_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject standalone historical issue-candidate ID"
+        )
+
+    current_issue_candidate_untabled_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_untabled_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject untabled current issue candidate"
+        )
+
+    current_marker_issue_candidate_untabled_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_MARKER_ISSUE_CANDIDATE_UNTABLED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_marker_issue_candidate_untabled_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject current-marker issue candidate without issue-candidate row"
+        )
+
+    current_issue_candidate_embedded_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_EMBEDDED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_embedded_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject embedded current issue-candidate status"
+        )
+
+    current_issue_candidate_hyphenated_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_hyphenated_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject hyphenated current issue-candidate status"
+        )
+
+    current_issue_candidate_positive_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_POSITIVE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_positive_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject positive current issue-candidate status"
+        )
+
+    generated_issue_candidate_base_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+    )
+    generated_issue_candidate_base_row = (
+        "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | "
+        "Not Applicable With Reason | Not Applicable With Reason | "
+        "Not Applicable With Reason | CONFORMING | None | Continue |"
+    )
+    for generated_issue_candidate_status in (
+        "ISSUE CANDIDATE",
+        "ISSUE-CANDIDATE",
+        "CURRENT ISSUE CANDIDATE",
+        "CURRENT-ISSUE-CANDIDATE",
+        "CURRENT / ISSUE CANDIDATE",
+        "CURRENT/ISSUE-CANDIDATE",
+        "UNRESOLVED ISSUE CANDIDATE",
+        "PENDING ISSUE-CANDIDATE",
+    ):
+        generated_issue_candidate_text = generated_issue_candidate_base_text.replace(
+            generated_issue_candidate_base_row,
+            "| HUD Dashboard | Close control | desktop/desktop_renderer.py | "
+            "FAM-006 | screenshot | UIREF-002 | Mismatch | Mismatch | "
+            f"{generated_issue_candidate_status} | Large CLOSE pill needs issue routing | "
+            "Prepare issue candidate |",
+        )
+        generated_issue_candidate_failures = _validate_rebaseline_adoption_review_text(
+            generated_issue_candidate_text
+        )
+        generated_issue_candidate_failure_text = "\n".join(
+            generated_issue_candidate_failures
+        )
+        if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in (
+            generated_issue_candidate_failure_text
+        ) or EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in (
+            generated_issue_candidate_failure_text
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject issue-candidate "
+                f"status spelling: {generated_issue_candidate_status}"
+            )
+
+    not_yet_user_reviewed_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        not_yet_user_reviewed_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject not-yet-user-reviewed issue candidate disposition"
+        )
+
+    generated_not_fully_user_reviewed_text = (
+        INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Issue Candidate Disposition: Issue Candidate F6-HIST-001 is not yet user reviewed.",
+            "Issue Candidate Disposition: Issue Candidate Packet is not fully USER-Reviewed for F6-HIST-001.",
+        )
+        .replace(
+            "Repair / Waiver / Defer / Route Decision Table: issue candidate F6-HIST-001 is not yet blocked, waived, repaired, or routed.",
+            "Repair / Waiver / Defer / Route Decision Table: issue candidate F6-HIST-001 is not fully USER-Reviewed, waived, repaired, or routed.",
+        )
+    )
+    generated_not_fully_user_reviewed_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_not_fully_user_reviewed_text
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        generated_not_fully_user_reviewed_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject not-fully-USER-reviewed issue candidate disposition"
+        )
+
+    linked_closed_claim_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_LINKED_CLOSED_CLAIM_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        linked_closed_claim_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject linked closed claim with unresolved row"
+        )
+
+    accepted_reference_issue_candidate_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        accepted_reference_issue_candidate_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject accepted-reference issue-candidate status"
+        )
+
+    pending_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET in "\n".join(
+        pending_review_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid pending-review no-packet RAR fixture failed for the wrong reason"
+        )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        pending_review_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for pending review"
+        )
+
+    active_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        active_review_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for active review gate"
+        )
+
+    required_user_review_no_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        required_user_review_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject required USER review without packet proof"
+        )
+
+    validation_summary_review_no_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_REVIEW_NO_PACKET_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        validation_summary_review_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject validation-summary review requirement without USER packet"
+        )
+
+    user_decision_no_packet_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_USER_DECISION_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        user_decision_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject required USER decision without packet proof"
+        )
+
+    generated_rar_decision_no_packet_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+        .replace("RAR Stage: RAR3", "RAR Stage: RAR2")
+        .replace(
+            r"USER Packet Path: C:\Nexus USER\FAM-006",
+            "USER Packet Path: not required",
+        )
+        .replace(
+            r"USER Packet ZIP Path: C:\Nexus USER\FAM-006-20260620-120000.zip.",
+            "USER Packet ZIP Path: not required",
+        )
+        .replace(
+            "| None | No issue-candidate decision needed | Nothing new | Runtime mutation, sibling mutation, PR, merge, release, or issue creation |",
+            "| Review issue candidate | USER must review the issue candidate before route selection | Reviewability only | Runtime mutation, sibling mutation, PR, merge, release, or issue creation |",
+        )
+    )
+    generated_rar_decision_no_packet_failures = (
+        _validate_rebaseline_adoption_review_text(generated_rar_decision_no_packet_text)
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_rar_decision_no_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject USER review wording "
+            "inside the RAR decision table without deterministic USER packet proof"
+        )
+
+    generated_user_judgment_base_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+        .replace("RAR Stage: RAR3", "RAR Stage: RAR2")
+        .replace(
+            r"USER Packet Path: C:\Nexus USER\FAM-006",
+            "USER Packet Path: not required",
+        )
+        .replace(
+            r"USER Packet ZIP Path: C:\Nexus USER\FAM-006-20260620-120000.zip.",
+            "USER Packet ZIP Path: not required",
+        )
+    )
+    for generated_user_judgment_marker, generated_user_judgment_value in (
+        (
+            "Exact Next USER Decision:",
+            "USER judgment required before route selection.",
+        ),
+        (
+            "Exact Next USER Decision:",
+            "route selection needs USER judgment.",
+        ),
+        (
+            "Next Legal Phase:",
+            "USER review required before route selection.",
+        ),
+        (
+            "Repair / Waiver / Blocker:",
+            "Requires USER judgment before route selection.",
+        ),
+        (
+            "Validation Summary:",
+            "USER adjudication required before normal phase progression.",
+        ),
+        (
+            "Current Violation Findings:",
+            "USER visual judgment required before route selection.",
+        ),
+    ):
+        generated_user_judgment_text = re.sub(
+            rf"^{re.escape(generated_user_judgment_marker)}.*$",
+            lambda _match: (
+                f"{generated_user_judgment_marker} {generated_user_judgment_value}"
+            ),
+            generated_user_judgment_base_text,
+            flags=re.MULTILINE,
+        )
+        generated_user_judgment_failures = _validate_rebaseline_adoption_review_text(
+            generated_user_judgment_text
+        )
+        if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+            generated_user_judgment_failures
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject USER judgment "
+                "wording without deterministic USER packet proof: "
+                f"{generated_user_judgment_marker} {generated_user_judgment_value}"
+            )
+
+    packet_path_wrong_root_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_wrong_root_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet folder outside C:\\Nexus USER"
+        )
+
+    packet_path_zip_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_zip_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet folder marker pointing at ZIP"
+        )
+
+    packet_path_child_folder_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_CHILD_FOLDER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_child_folder_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet path pointing at a child folder"
+        )
+
+    packet_path_traversal_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_TRAVERSAL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_traversal_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject traversal USER packet folder path"
+        )
+
+    packet_path_explanatory_user_root_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_explanatory_user_root_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject off-root USER packet folder with later root mention"
+        )
+
+    packet_path_suffix_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_SUFFIX_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_suffix_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject suffixed USER packet folder token"
+        )
+
+    generated_rar_short_marker_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+    )
+
+    def generated_rar_marker_text(marker: str, value: str) -> str:
+        return re.sub(
+            rf"^{re.escape(marker)}.*$",
+            lambda _match: f"{marker} {value}",
+            generated_rar_short_marker_text,
+            flags=re.MULTILINE,
+        )
+
+    generated_invalid_packet_path_suffixes = (
+        r"C:\Nexus USER\FAM-006`extra",
+        r"C:\Nexus USER\FAM-006.zip",
+        r"C:\Nexus USER\FAM-006.md",
+        r"C:\Nexus USER\FAM-006;extra",
+        r"C:\Nexus USER\FAM-006,extra",
+        r"C:\Nexus USER\FAM-006)extra",
+        r"C:\Nexus USER\FAM-006).md",
+        r"C:\Nexus USER\FAM-006]extra",
+        r"C:\Nexus USER\FAM-006].zip",
+        r"C:\Nexus USER\FAM-006:extra",
+    )
+    for generated_packet_path in generated_invalid_packet_path_suffixes:
+        generated_packet_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet Path:", generated_packet_path)
+        )
+        if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+            generated_packet_path_failures
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject suffixed "
+                f"USER packet folder token: {generated_packet_path}"
+            )
+
+    generated_valid_packet_path_wrappers = (
+        r"C:\Nexus USER\FAM-006.",
+        r"C:\Nexus USER\FAM-006,",
+        r"C:\Nexus USER\FAM-006).",
+        r"`C:\Nexus USER\FAM-006`.",
+    )
+    for generated_packet_path in generated_valid_packet_path_wrappers:
+        generated_packet_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet Path:", generated_packet_path)
+        )
+        if generated_packet_path_failures:
+            failures.append(
+                "Generated RAR adversarial matrix falsely rejected terminal "
+                f"USER packet folder punctuation: {generated_packet_path}: "
+                + "; ".join(generated_packet_path_failures[:5])
+            )
+
+    generated_mismatched_packet_zip_label_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text(
+                "USER Packet ZIP Path:",
+                r"C:\Nexus USER\FAM-007-20260620-120000.zip",
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_mismatched_packet_zip_label_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject mismatched USER packet "
+            "folder and ZIP worktree labels"
+        )
+
+    bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_BARE_RAR3_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        bare_rar3_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for bare RAR3 stage"
+        )
+
+    unresolved_row_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        unresolved_row_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved USER-facing row without packet"
+        )
+
+    accepted_reference_gap_no_packet_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_GAP_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        accepted_reference_gap_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject accepted-reference USER-review gap without packet"
+        )
+
+    generated_accepted_reference_gap_text = (
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close region | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Mismatch | Unproven | NONCONFORMING | USER visual judgment required for close-control treatment | USER visual judgment decides repair or waiver |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close region | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Match | Match | CONFORMING | None | Continue after accepted-reference review |",
+        )
+        .replace(
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | visual judgment packet missing |",
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | REFERENCE GAP - USER review / waiver required before route |",
+        )
+    )
+    generated_accepted_reference_gap_failures = _validate_rebaseline_adoption_review_text(
+        generated_accepted_reference_gap_text
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_accepted_reference_gap_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject accepted-reference USER-review gap without packet"
+        )
+
+    contradictory_no_decision_no_packet_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        contradictory_no_decision_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for contradictory active review gate"
+        )
+
+    zip_outside_user_root_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_outside_user_root_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet ZIP outside C:\\Nexus USER"
+        )
+
+    zip_child_folder_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_CHILD_FOLDER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_child_folder_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet ZIP inside packet folder"
+        )
+
+    zip_spaced_offroot_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_SPACED_OFFROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_spaced_offroot_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject spaced off-root USER packet ZIP"
+        )
+
+    zip_explanatory_user_root_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_EXPLANATORY_USER_ROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_explanatory_user_root_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject off-root ZIP path with earlier USER-root mention"
+        )
+
+    zip_suffix_path_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_SUFFIX_PATH_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_suffix_path_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject suffixed non-ZIP USER packet path"
+        )
+
+    generated_invalid_zip_suffixes = (
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip.tmp",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip`extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip;extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip,extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip)extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip).tmp",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip]extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip].md",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip:extra",
+    )
+    for generated_zip_path in generated_invalid_zip_suffixes:
+        generated_zip_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet ZIP Path:", generated_zip_path)
+        )
+        if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+            generated_zip_path_failures
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject suffixed "
+                f"USER packet ZIP token: {generated_zip_path}"
+            )
+
+    generated_valid_zip_wrappers = (
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip.",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip,",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip).",
+        r"`C:\Nexus USER\FAM-006-20260620-120000.zip`.",
+    )
+    for generated_zip_path in generated_valid_zip_wrappers:
+        generated_zip_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet ZIP Path:", generated_zip_path)
+        )
+        if generated_zip_path_failures:
+            failures.append(
+                "Generated RAR adversarial matrix falsely rejected terminal "
+                f"USER packet ZIP punctuation: {generated_zip_path}: "
+                + "; ".join(generated_zip_path_failures[:5])
+            )
+
+    zip_traversal_path_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_traversal_path_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject traversal USER packet ZIP path"
+        )
+
+    zip_root_traversal_path_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_ROOT_TRAVERSAL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_root_traversal_path_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject root-normalizing traversal USER packet ZIP path"
+        )
+
+    normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        normal_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject normal phase progression while RAR remains active"
+        )
+
+    validation_summary_phase_advance_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_PHASE_ADVANCE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        validation_summary_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject validation-summary phase advancement while RAR remains active"
+        )
+
+    active_stage_normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ACTIVE_STAGE_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        active_stage_normal_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject normal phase progression for active RAR stage"
+        )
+
+    concrete_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        concrete_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject concrete phase progression while RAR remains active"
+        )
+
+    mixed_disclaimer_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        mixed_disclaimer_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
+        )
+
+    generated_although_phase_advance_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: this does not authorize merge although PR Readiness may proceed.",
+        )
+    )
+    generated_although_phase_advance_failures = (
+        _validate_rebaseline_adoption_review_text(generated_although_phase_advance_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        generated_although_phase_advance_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject although/though/while mixed disclaimer phase advancement"
+        )
+
+    comma_mixed_disclaimer_phase_advance_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_COMMA_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        comma_mixed_disclaimer_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject comma-mixed disclaimer plus affirmative phase advancement"
+        )
+
+    move_into_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        move_into_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject move-into phase advancement while RAR remains active"
+        )
+
+    go_to_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_GO_TO_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        go_to_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject go-to phase advancement while RAR remains active"
+        )
+
+    bare_phase_next_step_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_BARE_PHASE_NEXT_STEP_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        bare_phase_next_step_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject bare phase next-step wording while RAR remains active"
+        )
+
+    not_blocked_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NOT_BLOCKED_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        not_blocked_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject not-blocked phase advancement while RAR remains active"
+        )
+
+    generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        generic_phase_claim_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject generic normal phase progression claim while RAR remains active"
+        )
+
+    issue_disposition_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        issue_disposition_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing mixed-case issue-candidate disposition"
+        )
+
+    negated_issue_disposition_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        negated_issue_disposition_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject negated issue-candidate disposition"
+        )
+
+    required_review_not_complete_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_REQUIRED_REVIEW_NOT_COMPLETE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        required_review_not_complete_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject required-but-incomplete USER review disposition"
+        )
+
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
     failures.extend(_validate_current_worktree_family_feature_vision_files())
     failures.extend(_validate_current_worktree_ffv_dependency_records())
@@ -5591,6 +9102,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_merge_stable_projection_helpers())
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
+    failures.extend(_validate_pr_review_churn_matrix_fixture())
 
     failures.extend(_validate_user_review_bundle_identity_guard())
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
