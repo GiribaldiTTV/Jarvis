@@ -200,7 +200,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "titleCardState",
                     "category-line-plus-strong-title-no-title-card",
                     "hub-action-content-fit-equal-gutter-32px-pill",
-                    "action-first-folder-actions-with-ai-control-center-state-rows-no-technical-path-table",
+                    "doorway-shell-viewer-deferred-row-plus-bottom-folder-actions-no-technical-path-table",
                     "compact folder-action shell with AI Control Center / HUD Dashboard state-row underglow",
                     "action-first-folder-access-shell-v6",
                     "data-row-primitive=\"ai-control-center-state-row\"",

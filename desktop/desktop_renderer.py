@@ -7021,9 +7021,9 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 430
-    HEIGHT = 184
+    HEIGHT = 164
     MINIMUM_WIDTH = 430
-    MINIMUM_HEIGHT = 184
+    MINIMUM_HEIGHT = 164
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
@@ -7073,12 +7073,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "roleValueB": self._folder_status_state.replace("-", " ").title(),
             "roleLabelC": "Boundary",
             "roleValueC": "Folder Access",
-            "nativeFolder": "Recordings folder",
-            "exportFolder": "Exported Logs folder",
-            "nativeFolderTooltip": os.path.normpath(str(self._native_full_path)),
-            "exportFolderTooltip": os.path.normpath(str(self._export_full_path)),
-            "nativeFolderState": self._destination_state_text("native"),
-            "exportFolderState": self._destination_state_text("export"),
+            "viewerState": "Deferred",
+            "viewerStateTooltip": "Full in-app log viewing remains future-gated; this branch exposes folder actions only.",
             "folderStatus": self._folder_status_text,
             "logBoundary": (
                 "This branch provides folder access only. Previous-log selection, in-app viewing, "
@@ -7170,7 +7166,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
-            "stateRowDensityPolicy": "action-first-folder-actions-with-ai-control-center-state-rows-no-technical-path-table",
+            "stateRowDensityPolicy": "doorway-shell-viewer-deferred-row-plus-bottom-folder-actions-no-technical-path-table",
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
@@ -7235,7 +7231,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "boxedTablePanelRejected": True,
             "tableRowTruthLayoutRejected": True,
             "technicalPathViewerRejected": True,
-            "visibleAnatomy": "doorway-folder-action-shell-with-native-export-product-labels",
+            "viewerDeferredRow": "VIEWER - Deferred",
+            "visibleAnatomy": "doorway-shell-with-viewer-deferred-row-and-bottom-native-export-actions",
             "futureScopeVisualLeakageAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
             "edgeResizeProofRequired": True,
@@ -14045,10 +14042,12 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v4"
-                and proof.get("stateRowDensityPolicy") == "action-first-folder-actions-with-ai-control-center-state-rows-no-technical-path-table"
+                and proof.get("stateRowDensityPolicy") == "doorway-shell-viewer-deferred-row-plus-bottom-folder-actions-no-technical-path-table"
                 and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
                 and proof.get("boxedTablePanelRejected") is True
                 and proof.get("technicalPathViewerRejected") is True
+                and proof.get("viewerDeferredRow") == "VIEWER - Deferred"
+                and proof.get("visibleAnatomy") == "doorway-shell-with-viewer-deferred-row-and-bottom-native-export-actions"
                 and proof.get("futureScopeVisualLeakageAbsent") is True
                 and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("edgeResizeProofRequired") is True

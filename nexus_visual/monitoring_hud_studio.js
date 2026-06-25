@@ -76,7 +76,7 @@
     surface.dataset.resizeContract = mode === "log-viewer"
       ? "edge-resizable-log-access-shell"
       : "not-resizable-position-memory-only";
-    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "330";
+    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "184";
     surface.dataset.titleTreatment = "detached-child-window-header-no-title-card";
     surface.dataset.titleCardState = "absent";
     surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title-no-title-card";
@@ -123,12 +123,8 @@
       }
     }
     setActionState("monitoring-hud-studio-recording-toggle-action", isRecording || state.startEnabled === true);
-    setText("monitoring-hud-studio-native-folder", state.nativeFolder || "");
-    setText("monitoring-hud-studio-export-folder", state.exportFolder || "");
-    setTitle("monitoring-hud-studio-native-folder", state.nativeFolderTooltip || state.nativeFolder || "");
-    setTitle("monitoring-hud-studio-export-folder", state.exportFolderTooltip || state.exportFolder || "");
-    setText("monitoring-hud-studio-native-folder-state", state.nativeFolderState || "Available now");
-    setText("monitoring-hud-studio-export-folder-state", state.exportFolderState || "Empty until exported");
+    setText("monitoring-hud-studio-viewer-state", state.viewerState || "Deferred");
+    setTitle("monitoring-hud-studio-viewer-state", state.viewerStateTooltip || "Full in-app log viewing remains future-gated.");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");
     const folderStatus = state.folderStatus || "Choose a log destination to open.";
     setText("monitoring-hud-studio-folder-status", folderStatus);

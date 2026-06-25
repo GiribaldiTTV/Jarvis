@@ -1619,7 +1619,7 @@ def validate() -> list[str]:
         'data-element-group="recording-target-truth"',
         'data-element-group="log-folder-actions"',
         'class="monitoring-hud__state-row monitoring-hud__studio-truth-row"',
-        "monitoring-hud__log-action-card",
+        "monitoring-hud-studio-viewer-state",
         "detached-child-window-header-no-title-card",
         "titleCardState",
         "category-line-plus-strong-title-no-title-card",
@@ -1638,8 +1638,8 @@ def validate() -> list[str]:
         "edge-resize-native-top-level",
         "Open Native Logs",
         "Open Exported Logs",
-        "Recordings folder",
-        "Exported Logs folder",
+        "VIEWER",
+        "Deferred",
         "hub-action-content-fit-equal-gutter-32px-pill",
     ):
         _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
@@ -1850,7 +1850,7 @@ def validate() -> list[str]:
         '"windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster"',
         '"actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v4"',
         '"stateRowDensityPolicy": "action-first-controller-with-ai-control-center-state-rows-no-report-panels"',
-        '"stateRowDensityPolicy": "action-first-folder-actions-with-ai-control-center-state-rows-no-technical-path-table"',
+        '"stateRowDensityPolicy": "doorway-shell-viewer-deferred-row-plus-bottom-folder-actions-no-technical-path-table"',
         '"titleGroupVisualPolicy": "detached-child-window-header-no-title-card"',
         "ai-control-center-symbol-window-control-pill",
         "hub-action-content-fit-equal-gutter-32px-pill",
@@ -1865,7 +1865,8 @@ def validate() -> list[str]:
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',
         '"pathRowsVisualState": "hidden-from-default-body-supporting-tooltip-only"',
         '"nativeLogPathDisplayMode": "supporting-tooltip-only"',
-        '"visibleAnatomy": "doorway-folder-action-shell-with-native-export-product-labels"',
+        '"viewerDeferredRow": "VIEWER - Deferred"',
+        '"visibleAnatomy": "doorway-shell-with-viewer-deferred-row-and-bottom-native-export-actions"',
         '"internalPathLeakageAbsent": not any(term in combined_roots for term in leakage_terms)',
         "Native NDAI logs",
     ):
