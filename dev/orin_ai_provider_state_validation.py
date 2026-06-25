@@ -9155,7 +9155,7 @@ def validate() -> list[str]:
         "AI Status &amp; Trust",
         "AI Readiness &amp; Diagnostics",
         "Capabilities &amp; Maintenance",
-        "Surface Deferred",
+        "Not Available Yet",
         'id="ai-dashboard-settings-tooltip"',
         "ai-dashboard-settings-tooltip",
         "Global AI Strip",

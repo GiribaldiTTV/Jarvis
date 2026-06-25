@@ -365,6 +365,7 @@ def main() -> int:
               const header = document.querySelector(".monitoring-hud__title-group");
               const hub = document.getElementById("ai-control-center-card-hub");
               const firstCard = document.querySelector("[data-dashboard-hub-card]");
+              const thirdCard = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
               const chromeStyle = chrome ? getComputedStyle(chrome) : null;
               const hubStyle = hub ? getComputedStyle(hub) : null;
               const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row) => {
@@ -412,6 +413,18 @@ def main() -> int:
                   scrollbarVisible: surface?.dataset.customScrollbarVisible || "false",
                   rowMetrics
                 },
+                defaultScrollMetrics: (() => {
+                  const hubRect = hub?.getBoundingClientRect();
+                  const thirdRect = thirdCard?.getBoundingClientRect();
+                  return {
+                    clientHeight: hub ? Math.round(hub.clientHeight) : 0,
+                    scrollHeight: hub ? Math.round(hub.scrollHeight) : 0,
+                    maxScroll: hub ? Math.round(Math.max(0, hub.scrollHeight - hub.clientHeight)) : 0,
+                    scrollTop: hub ? Math.round(hub.scrollTop) : 0,
+                    thirdCardFullyVisibleAtDefault: Boolean(hubRect && thirdRect && thirdRect.top >= hubRect.top && thirdRect.bottom <= hubRect.bottom),
+                    thirdCardPartiallyVisibleAtDefault: Boolean(hubRect && thirdRect && thirdRect.bottom > hubRect.top && thirdRect.top < hubRect.bottom)
+                  };
+                })(),
                 rowGroups: Object.fromEntries([...document.querySelectorAll("[data-dashboard-hub-card]")].map((card) => [
                   card.dataset.dashboardHubCard || "",
                   [...card.querySelectorAll(".monitoring-hud__state-row")].map((row) => ({
@@ -515,6 +528,26 @@ def main() -> int:
         """,
     )
     _pump(app, 250)
+    scrolled_probe = json.loads(
+        _run_js(
+            app,
+            dialog,
+            """
+            (() => {
+              const hub = document.getElementById("ai-control-center-card-hub");
+              const thirdCard = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
+              const hubRect = hub?.getBoundingClientRect();
+              const thirdRect = thirdCard?.getBoundingClientRect();
+              return JSON.stringify({
+                scrollTop: hub ? Math.round(hub.scrollTop) : 0,
+                maxScroll: hub ? Math.round(Math.max(0, hub.scrollHeight - hub.clientHeight)) : 0,
+                thirdCardFullyVisibleAfterScroll: Boolean(hubRect && thirdRect && thirdRect.top >= hubRect.top && thirdRect.bottom <= hubRect.bottom),
+                thirdCardPartiallyVisibleAfterScroll: Boolean(hubRect && thirdRect && thirdRect.bottom > hubRect.top && thirdRect.top < hubRect.bottom)
+              });
+            })();
+            """,
+        )
+    )
     screenshots["dashboard_scrolled_bottom"] = _capture_window(
         app,
         dialog,
@@ -620,7 +653,7 @@ def main() -> int:
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
         "doorwayButtonsDeferredNoFakeActions": (
-            actual_deferred_labels == ["Surface Deferred", "Surface Deferred", "Surface Deferred"]
+            actual_deferred_labels == ["Not Available Yet", "Not Available Yet", "Not Available Yet"]
             and len(dashboard_probe.get("launchers") or []) == 0
             and len(deferred_buttons) == 3
             and all(button.get("disabled") is True for button in deferred_buttons)
@@ -640,6 +673,14 @@ def main() -> int:
             and all(int(button.get("width") or 0) >= 120 for button in deferred_buttons)
             and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 800 for button in deferred_buttons)
             and int(layout_metrics.get("headerWidth") or 0) >= int(layout_metrics.get("surfaceWidth") or 0) - 32
+        ),
+        "defaultScrollIntentProven": (
+            dashboard_probe.get("defaultWindowHeight") == "720"
+            and str(layout_metrics.get("scrollbarVisible")) == "true"
+            and int((dashboard_probe.get("defaultScrollMetrics") or {}).get("maxScroll") or 0) > 20
+            and (dashboard_probe.get("defaultScrollMetrics") or {}).get("thirdCardFullyVisibleAtDefault") is False
+            and scrolled_probe.get("thirdCardFullyVisibleAfterScroll") is True
+            and int(scrolled_probe.get("scrollTop") or 0) >= int(scrolled_probe.get("maxScroll") or 0) - 2
         ),
         "runtimeCopyIsProductFacing": (
             "provider/model execution is blocked" in str(dashboard_probe.get("subtitle") or "")
@@ -707,6 +748,7 @@ def main() -> int:
         "deferredLaunchProbe": deferred_launch_probe,
         "settingsHover": settings_hover,
         "settingsTooltipProbe": settings_tooltip_probe,
+        "defaultScrollIntentProbe": scrolled_probe,
         "childChromeProbe": child_chrome_probe,
         "childControlBehavior": child_control_behavior,
         "fullDesktopHashes": opened_desktop_hashes,
@@ -714,7 +756,7 @@ def main() -> int:
         "childWindowClassificationLedger": {
             "control-center": {
                 "sourceCategoryCard": "AI Status & Trust",
-                "launcherLabel": "Surface Deferred",
+                "launcherLabel": "Not Available Yet",
                 "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": False,
@@ -725,7 +767,7 @@ def main() -> int:
             },
             "readiness-diagnostics": {
                 "sourceCategoryCard": "AI Readiness & Diagnostics",
-                "launcherLabel": "Surface Deferred",
+                "launcherLabel": "Not Available Yet",
                 "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": False,
@@ -736,7 +778,7 @@ def main() -> int:
             },
             "capabilities-maintenance": {
                 "sourceCategoryCard": "Capabilities & Maintenance",
-                "launcherLabel": "Surface Deferred",
+                "launcherLabel": "Not Available Yet",
                 "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": False,

@@ -255,6 +255,7 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "dashboardHubParentOnly",
     "doorwayButtonsDeferredNoFakeActions",
     "parentVisualMetrics",
+    "defaultScrollIntentProven",
     "runtimeCopyIsProductFacing",
     "fullDesktopProofNotDuplicated",
     "settingsRouteHiddenForOptionG",
