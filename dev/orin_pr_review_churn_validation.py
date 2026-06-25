@@ -445,6 +445,17 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Approval-latch guardrail must use paginated PR timeline order for current-head review requests"
         )
+    synthetic_request = {"created_at": "2026-06-25T19:30:00Z"}
+    if _green_proof_after_latest_request("2026-06-25T19:29:59Z", synthetic_request):
+        failures.append(
+            "Approval-latch guardrail accepted a PR review summary before the latest review request"
+        )
+    if not _green_proof_after_latest_request(
+        "2026-06-25T19:30:01Z", synthetic_request
+    ):
+        failures.append(
+            "Approval-latch guardrail rejected a PR review summary after the latest review request"
+        )
     return failures
 
 
@@ -521,6 +532,14 @@ def _comment_reactions(owner: str, name: str, comment_id: int) -> list[dict[str,
 
 def _is_at_or_after(timestamp: str, baseline: str) -> bool:
     return bool(timestamp and baseline and timestamp >= baseline)
+
+
+def _green_proof_after_latest_request(
+    timestamp: str, latest_request: dict[str, Any] | None
+) -> bool:
+    if latest_request is None:
+        return True
+    return _is_at_or_after(timestamp, latest_request.get("created_at") or "")
 
 
 def _latest_review_request_after_head(
@@ -647,22 +666,30 @@ def _extract_latest_green(
         author = (item.get("user") or {}).get("login", "")
         body = item.get("body") or ""
         commit_id = item.get("commit_id") or ""
-        if _is_connector_login(author) and any(
+        submitted_at = item.get("submitted_at") or ""
+        is_green_summary = _is_connector_login(author) and any(
             pattern in body.casefold() for pattern in green_patterns
-        ) and commit_id == head_oid:
+        )
+        if is_green_summary and commit_id == head_oid:
+            if not _green_proof_after_latest_request(submitted_at, latest_request):
+                continue
             candidates.append(
                 (
-                    item.get("submitted_at") or "",
-                    body + f"\nReviewed commit: {commit_id}",
+                    submitted_at,
+                    body
+                    + f"\nReviewed commit: {commit_id}"
+                    + (
+                        "\nSubmitted after latest current-head review request."
+                        if latest_request is not None
+                        else ""
+                    ),
                     item.get("html_url") or "",
                 )
             )
-        elif _is_connector_login(author) and any(
-            pattern in body.casefold() for pattern in green_patterns
-        ):
+        elif is_green_summary:
             candidates.append(
                 (
-                    item.get("submitted_at") or "",
+                    submitted_at,
                     body + f"\nReviewed commit: {commit_id}",
                     item.get("html_url") or "",
                 )
