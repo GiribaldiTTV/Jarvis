@@ -2484,6 +2484,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 "Repair / Waiver / Blocker:",
                 "Validation Summary:",
                 "Exact Next USER Decision:",
+                "Next Legal Phase:",
             )
         )
     )
@@ -7974,6 +7975,10 @@ line item, not a seam or separate branch.
         (
             "Exact Next USER Decision:",
             "route selection needs USER judgment.",
+        ),
+        (
+            "Next Legal Phase:",
+            "USER review required before route selection.",
         ),
         (
             "Repair / Waiver / Blocker:",
