@@ -8951,7 +8951,7 @@ def validate() -> list[str]:
         "DEFAULT_SCREEN_MARGIN_Y = 80",
         "MINIMUM_WIDTH = 570",
         "MINIMUM_HEIGHT = 610",
-        "RESIZE_MARGIN = 14",
+        "RESIZE_MARGIN = 16",
         "DRAG_HEADER_HEIGHT = 190",
         "WINDOW_CONTROL_ZONE_TOP = 14",
         "WINDOW_CONTROL_ZONE_RIGHT = 15",
@@ -9144,9 +9144,9 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-card-description",
         "font-size: 10px",
         "font-size: 11px",
-        "text-indent: 42px",
-        "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
-        "padding: 5px 0 4px",
+        "text-indent: 0;",
+        "grid-template-columns: minmax(116px, 0.22fr) minmax(0, 1fr)",
+        "padding: 3px 0",
         "scrollbar-width: none",
         "border-radius: 999px",
         "::-webkit-scrollbar-button",
@@ -9281,6 +9281,17 @@ def validate() -> list[str]:
         '"dashboardHubParentOnly"',
         '"doorwayButtonsDeferredNoFakeActions"',
         '"parentVisualMetrics"',
+        '"returnedDensityAndButtonPlacementRepaired"',
+        '"returnedTitleSubtitleWrapRepaired"',
+        '"acceptedReferenceComparisonProven"',
+        '"resizeEdgeHitZoneProven"',
+        '"proofCrops"',
+        '"visualComparisonBoards"',
+        '"resizeEdgeHitZoneProbe"',
+        "_capture_main_runtime_ai_control_center_reference",
+        "main-worktree-old-ai-control-center-runtime",
+        "currentVsMainRuntimeOldAiControlCenter",
+        "MAIN GREEN - Nexus Desktop AI Launcher.lnk",
         '"runtimeCopyIsProductFacing"',
         '"settingsTooltipProbe"',
         '"deferredLaunchProbe"',
@@ -9288,6 +9299,18 @@ def validate() -> list[str]:
         _require(
             needle in live_resize_helper,
             f"AI Dashboard live parent-only helper is missing proof-hardening check {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "20260624-162154-child-window",
+        "20260615-081438",
+        "currentVsPr269Density",
+        "pr269AiControlCenterDensitySeed",
+    ):
+        _require(
+            forbidden not in live_resize_helper,
+            f"AI Dashboard live parent-only helper must not use branch-era AI Control Center proof as accepted comparator: {forbidden!r}",
             failures,
         )
 
