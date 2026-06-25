@@ -329,6 +329,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_malformed_table_rows.md"
 )
+INVALID_REBASELINE_ADOPTION_TABLE_PREFACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_table_preface.md"
+)
 INVALID_REBASELINE_ADOPTION_HEADER_ONLY_RAR_DECISION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_header_only_rar_decision.md"
 )
@@ -437,6 +440,9 @@ INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
+)
+INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_phase_advance.md"
 )
 INVALID_REBASELINE_ADOPTION_ACTIVE_STAGE_NORMAL_PHASE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_active_stage_normal_phase.md"
@@ -1960,6 +1966,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if not line.strip().startswith("|"):
                 if rows or seen_separator:
                     break
+                if line.strip():
+                    return [[line.strip()]]
                 continue
             cells = governance._markdown_table_cells(line)
             if governance._is_markdown_table_separator(cells):
@@ -2605,6 +2613,21 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
+    phase_advancement_scope = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "Merged Standard Comparison Result:",
+                "Current Violation Findings:",
+                "Issue Candidate Disposition:",
+                "Repair / Waiver / Defer / Route Decision Table:",
+                "Adoption Disposition:",
+                "Repair / Waiver / Blocker:",
+                "Validation Summary:",
+                "Exact Next USER Decision:",
+            )
+        )
+    )
     active_rar_tokens = (
         "rar user review gate remains active",
         "remains active",
@@ -2623,34 +2646,35 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         active_rar_tokens,
     )
     normalized_next_phase = governance._normalized_planning_value(normal_phase)
-    phase_advancement_values = " ".join(
+    phase_advancement_marker_values = " ".join(
         (
             active_rar_values,
-            normalized_next_phase,
+            phase_advancement_scope,
         )
+    )
+    next_phase_values = normalized_next_phase
+    advancement_tokens = (
+        "branch readiness",
+        "br1",
+        "br2",
+        "bp1",
+        "bp2",
+        "bp3",
+        "workstream",
+        "hardening",
+        "live validation",
+        "lv1",
+        "uts",
+        "pr readiness",
+        "release readiness",
+        "pr creation",
+        "merge",
+        "release",
     )
 
     def strip_negated_phase_disclaimers(value: str) -> str:
         clauses = re.split(r"[.;]", value)
         kept: list[str] = []
-        advancement_tokens = (
-            "branch readiness",
-            "br1",
-            "br2",
-            "bp1",
-            "bp2",
-            "bp3",
-            "workstream",
-            "hardening",
-            "live validation",
-            "lv1",
-            "uts",
-            "pr readiness",
-            "release readiness",
-            "pr creation",
-            "merge",
-            "release",
-        )
         negation_tokens = (
             "does not authorize",
             "do not authorize",
@@ -2664,6 +2688,19 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "not authorized",
             "not approved",
             "without authorizing",
+            "blocked",
+            "remains blocked",
+            "stays blocked",
+            "held",
+            "remains held",
+            "does not advance",
+            "do not advance",
+            "not advance",
+            "does not proceed",
+            "do not proceed",
+            "not proceed",
+            "cannot proceed",
+            "must not proceed",
         )
         for clause in clauses:
             if any(token in clause for token in advancement_tokens) and any(
@@ -2673,31 +2710,40 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             kept.append(clause)
         return " ".join(kept)
 
-    phase_advancement_values = strip_negated_phase_disclaimers(
-        phase_advancement_values
+    phase_advancement_marker_values = strip_negated_phase_disclaimers(
+        phase_advancement_marker_values
     )
-    concrete_advancement_requested = any(
-        token in phase_advancement_values
-        for token in (
-            "branch readiness",
-            "br1",
-            "br2",
-            "bp1",
-            "bp2",
-            "bp3",
-            "workstream",
-            "hardening",
-            "live validation",
-            "lv1",
-            "uts",
-            "pr readiness",
-            "release readiness",
-            "pr creation",
-            "merge",
-            "release",
+    next_phase_values = strip_negated_phase_disclaimers(next_phase_values)
+
+    phase_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in advancement_tokens
+    )
+    phase_advancement_action_pattern = re.compile(
+        rf"(?:"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?\s+to|continue(?:s|d|ing)?\s+to|green\s+for|ready\s+for)\b"
+        rf"[\w\s/-]{{0,120}}\b(?:{phase_token_pattern})\b"
+        rf"|"
+        rf"\b(?:{phase_token_pattern})\b[\w\s/-]{{0,120}}"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|green|ready)\b"
+        rf")"
+    )
+    concrete_next_phase_requested = any(
+        token in next_phase_values
+        for token in advancement_tokens
+    )
+    concrete_marker_advancement_requested = (
+        phase_advancement_action_pattern.search(phase_advancement_marker_values)
+        is not None
+    )
+    concrete_advancement_requested = concrete_next_phase_requested or (
+        concrete_marker_advancement_requested
+    )
+    generic_advancement_values = " ".join(
+        (
+            phase_advancement_marker_values,
+            next_phase_values,
         )
     )
-    generic_advancement_values = phase_advancement_values
     for blocker_phrase in (
         "required before normal phase progression",
         "before normal phase progression",
@@ -2705,8 +2751,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         generic_advancement_values = generic_advancement_values.replace(
             blocker_phrase, ""
         )
+    generic_advancement_requested = "normal phase progression" in (
+        generic_advancement_values
+    )
     advancement_requested = (
-        "normal phase progression" in generic_advancement_values
+        generic_advancement_requested
         or concrete_advancement_requested
     )
     require(
@@ -6857,6 +6906,16 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject malformed accepted-reference row"
         )
 
+    table_preface_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_TABLE_PREFACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        table_preface_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject non-table text before table separator"
+        )
+
     header_only_rar_decision_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_HEADER_ONLY_RAR_DECISION_FIXTURE.read_text(
             encoding="utf-8"
@@ -7318,6 +7377,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject normal phase progression while RAR remains active"
+        )
+
+    validation_summary_phase_advance_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_PHASE_ADVANCE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        validation_summary_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject validation-summary phase advancement while RAR remains active"
         )
 
     active_stage_normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
