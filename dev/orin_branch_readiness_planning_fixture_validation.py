@@ -284,6 +284,9 @@ VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE = (
 VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_issue_candidate_reviewed.md"
 )
+VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_CLOSED_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_issue_candidate_reviewed_closed.md"
+)
 VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_active_negated_disclaimers.md"
 )
@@ -376,6 +379,9 @@ INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_PREFIXED_NO_CANDIDATE_PROSE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_prefixed_no_candidate_prose.md"
+)
+INVALID_REBASELINE_ADOPTION_HYPHENATED_NO_CANDIDATE_PROSE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_hyphenated_no_candidate_prose.md"
 )
 INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_placeholder_issue_candidate.md"
@@ -2362,6 +2368,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "none with reason",
         }:
             return True
+        normalized_value = normalized_value.replace("issue-candidate", "issue candidate")
         concrete_issue_candidate_pattern = (
             r"\bissue candidate\s+(?!is\b|are\b)[a-z0-9][a-z0-9_-]*"
         )
@@ -2414,12 +2421,64 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "Owned Surface Issue Candidate Missing",
         )
 
+    normalized_issue_candidate_disposition = governance._normalized_planning_value(
+        issue_candidate_disposition
+    )
+    normalized_decision_table = governance._normalized_planning_value(decision_table)
+    pending_issue_candidate_review = any(
+        phrase in normalized_decision_table or phrase in normalized_issue_candidate_disposition
+        for phrase in (
+            "user review pending",
+            "pending user review",
+            "pending user",
+            "user reviews",
+            "user should review",
+            "review issue candidate",
+        )
+    )
+    completed_issue_candidate_disposition = any(
+        phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
+        for phrase in (
+            "issue candidate packet user-reviewed",
+            "issue candidate packet user reviewed",
+            "user-reviewed",
+            "user reviewed",
+            "user waiver recorded",
+            "repair completed and revalidated",
+            "route back to earlier gate",
+            "blocked",
+        )
+    )
+    negated_issue_candidate_disposition = any(
+        phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
+        for phrase in (
+            "not user reviewed",
+            "not user-reviewed",
+            "no user review",
+            "without user review",
+            "not waived",
+            "not repaired",
+            "not routed",
+            "not blocked",
+            "without active user decision",
+            "is required before",
+            "required before",
+            "has not happened",
+            "not happened",
+        )
+    )
+    issue_candidate_disposition_completed = (
+        completed_issue_candidate_disposition and not negated_issue_candidate_disposition
+    )
+
     code_trace_unresolved_present = any(
         len(row) > 8 and cell_has_unresolved_status(row[8])
+        and not (cell_has_issue_candidate_status(row[8]) and issue_candidate_disposition_completed)
         for row in code_trace_rows
     )
     accepted_reference_unresolved_present = any(
         len(row) > 8 and cell_has_unresolved_status(row[8])
+        and not (cell_has_issue_candidate_status(row[8]) and issue_candidate_disposition_completed)
         for row in accepted_reference_rows
     )
     unresolved_present = (
@@ -2498,57 +2557,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         or accepted_reference_has_issue_candidate
     )
     if issue_candidate_disposition_required:
-        normalized_issue_candidate_disposition = (
-            governance._normalized_planning_value(issue_candidate_disposition)
-        )
-        normalized_decision_table = governance._normalized_planning_value(
-            decision_table
-        )
-        pending_issue_candidate_review = any(
-            phrase in normalized_decision_table
-            or phrase in normalized_issue_candidate_disposition
-            for phrase in (
-                "user review pending",
-                "pending user review",
-                "pending user",
-                "user reviews",
-                "user should review",
-                "review issue candidate",
-            )
-        )
-        completed_issue_candidate_disposition = any(
-            phrase in normalized_issue_candidate_disposition
-            or phrase in normalized_decision_table
-            for phrase in (
-                "issue candidate packet user-reviewed",
-                "issue candidate packet user reviewed",
-                "user-reviewed",
-                "user reviewed",
-                "user waiver recorded",
-                "repair completed and revalidated",
-                "route back to earlier gate",
-                "blocked",
-            )
-        )
-        negated_issue_candidate_disposition = any(
-            phrase in normalized_issue_candidate_disposition
-            or phrase in normalized_decision_table
-            for phrase in (
-                "not user reviewed",
-                "not user-reviewed",
-                "no user review",
-                "without user review",
-                "not waived",
-                "not repaired",
-                "not routed",
-                "not blocked",
-                "without active user decision",
-                "is required before",
-                "required before",
-                "has not happened",
-                "not happened",
-            )
-        )
         require(
             not negated_issue_candidate_disposition
             and (pending_issue_candidate_review or completed_issue_candidate_disposition),
@@ -6635,6 +6643,19 @@ line item, not a seam or separate branch.
             + "; ".join(valid_reviewed_issue_candidate_rar_failures[:5])
         )
 
+    valid_reviewed_issue_candidate_closed_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_CLOSED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_reviewed_issue_candidate_closed_failures:
+        failures.append(
+            "Valid reviewed issue-candidate RAR fixture with adoption-closed wording unexpectedly failed: "
+            + "; ".join(valid_reviewed_issue_candidate_closed_failures[:5])
+        )
+
     valid_active_negated_disclaimers_rar_failures = (
         _validate_rebaseline_adoption_review_text(
             VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE.read_text(
@@ -6939,6 +6960,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject prefixed no-candidate prose naming a candidate"
+        )
+
+    hyphenated_no_candidate_prose_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_HYPHENATED_NO_CANDIDATE_PROSE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        hyphenated_no_candidate_prose_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject hyphenated no-candidate prose naming a candidate"
         )
 
     placeholder_issue_candidate_rar_failures = _validate_rebaseline_adoption_review_text(
