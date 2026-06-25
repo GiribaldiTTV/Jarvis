@@ -350,6 +350,10 @@ INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
 )
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_HYPHENATED_NONCONFORMANCE_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_unresolved_hyphenated_nonconformance_green.md"
+)
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_separate_negation.md"
 )
@@ -2137,6 +2141,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     def normalize_rar_status_cell(value: str) -> str:
         normalized_cell = governance._normalized_planning_value(value)
         normalized_cell = normalized_cell.replace("issue-candidate", "issue candidate")
+        normalized_cell = normalized_cell.replace("non-conforming", "nonconforming")
         normalized_cell = re.sub(
             r"\b(current|unresolved|active|pending)-(?=issue candidate\b)",
             r"\1 ",
@@ -7111,6 +7116,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject unresolved nonconformance claimed green"
+        )
+
+    unresolved_hyphenated_nonconformance_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_UNRESOLVED_HYPHENATED_NONCONFORMANCE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_hyphenated_nonconformance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject hyphenated non-conforming status claimed green"
         )
 
     unresolved_green_separate_negation_failures = (
