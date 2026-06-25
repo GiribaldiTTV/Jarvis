@@ -398,6 +398,9 @@ INVALID_REBASELINE_ADOPTION_HYPHENATED_NO_CANDIDATE_PROSE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_placeholder_issue_candidate.md"
 )
+INVALID_REBASELINE_ADOPTION_PARTIAL_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_partial_issue_candidate.md"
+)
 INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_historical_none_prose.md"
 )
@@ -437,6 +440,9 @@ INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_outside_user_root.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_SPACED_OFFROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_spaced_offroot.md"
 )
 INVALID_REBASELINE_ADOPTION_ZIP_EXPLANATORY_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_explanatory_user_root.md"
@@ -2027,11 +2033,13 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if len(row) != 8:
                 continue
             candidate = governance._normalized_planning_value(row[0])
+            owner = governance._normalized_planning_value(row[1])
             surface = governance._normalized_planning_value(row[2])
             element_group = governance._normalized_planning_value(row[3])
             defect_class = governance._normalized_planning_value(row[4])
             evidence = governance._normalized_planning_value(row[5])
             proposed_carrier = governance._normalized_planning_value(row[6])
+            github_issue_approved = governance._normalized_planning_value(row[7])
             false_candidate = (
                 not candidate
                 or candidate in {"none", "n/a", "not applicable"}
@@ -2042,13 +2050,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 not false_candidate
                 and not any(
                     is_placeholder_table_cell(cell)
-                    for cell in (row[0], row[2], row[3], row[4], row[5], row[6])
+                    for cell in (
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                        row[6],
+                        row[7],
+                    )
                 )
+                and owner not in {"", "none", "n/a", "not applicable"}
                 and surface not in {"", "none", "n/a", "not applicable"}
                 and element_group not in {"", "none", "n/a", "not applicable"}
                 and defect_class not in {"", "none", "n/a", "not applicable"}
                 and evidence not in {"", "none", "n/a", "not applicable"}
                 and proposed_carrier not in {"", "none", "n/a", "not applicable"}
+                and github_issue_approved in {"yes", "no"}
             ):
                 return True
         return False
@@ -2323,7 +2342,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 r"\b[A-Za-z]:\\Nexus USER\\[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip",
                 re.IGNORECASE,
             ),
-            re.compile(r"\b[A-Za-z]:\\[^\s|,;:)\]]+?\.zip", re.IGNORECASE),
+            re.compile(r"\b[A-Za-z]:\\[^|,;:)\]\r\n]+?\.zip", re.IGNORECASE),
         )
 
         for pattern in zip_path_patterns:
@@ -7133,6 +7152,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject placeholder issue-candidate row"
         )
 
+    partial_issue_candidate_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PARTIAL_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        partial_issue_candidate_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject partial issue-candidate row"
+        )
+
     historical_none_prose_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE.read_text(
             encoding="utf-8"
@@ -7393,6 +7424,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject USER packet ZIP outside C:\\Nexus USER"
+        )
+
+    zip_spaced_offroot_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_SPACED_OFFROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_spaced_offroot_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject spaced off-root USER packet ZIP"
         )
 
     zip_explanatory_user_root_failures = _validate_rebaseline_adoption_review_text(
