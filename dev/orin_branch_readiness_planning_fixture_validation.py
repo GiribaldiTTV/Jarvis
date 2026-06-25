@@ -335,6 +335,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_noop_active_rows.md"
 )
+INVALID_REBASELINE_ADOPTION_PARTIAL_NOOP_ACTIVE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_partial_noop_active_rows.md"
+)
 INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_empty_accepted_reference.md"
 )
@@ -2091,13 +2094,23 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "no",
             "not applicable",
             "not applicable with reason",
-            "conforming",
-            "continue",
             "validation summary",
         } or normalized.startswith(("not applicable ", "none "))
 
     def is_noop_evidence_row(row: list[str]) -> bool:
         return all(is_noop_evidence_cell(cell) for cell in row)
+
+    def code_trace_row_is_substantive(row: list[str]) -> bool:
+        if len(row) != 11:
+            return False
+        required_columns = (0, 1, 2, 3, 4, 5, 6, 7, 8, 10)
+        return all(not is_noop_evidence_cell(row[index]) for index in required_columns)
+
+    def accepted_reference_row_is_substantive(row: list[str]) -> bool:
+        if len(row) != 9:
+            return False
+        required_columns = (0, 1, 2, 3, 5, 6, 7)
+        return all(not is_noop_evidence_cell(row[index]) for index in required_columns)
 
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
         real_rows: list[list[str]] = []
@@ -2216,11 +2229,19 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
     if active_review_claims_material_surfaces:
         require(
-            any(not is_noop_evidence_row(row) for row in code_trace_rows),
+            all(
+                not is_noop_evidence_row(row)
+                and code_trace_row_is_substantive(row)
+                for row in code_trace_rows
+            ),
             "Code-To-Visual Trace Missing",
         )
         require(
-            any(not is_noop_evidence_row(row) for row in accepted_reference_rows),
+            all(
+                not is_noop_evidence_row(row)
+                and accepted_reference_row_is_substantive(row)
+                for row in accepted_reference_rows
+            ),
             "Accepted Reference Comparator Missing",
         )
 
@@ -7277,6 +7298,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject no-op active evidence rows"
+        )
+
+    partial_noop_active_rows_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PARTIAL_NOOP_ACTIVE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        partial_noop_active_rows_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject partial no-op active evidence rows"
         )
 
     empty_accepted_reference_rar_failures = _validate_rebaseline_adoption_review_text(
