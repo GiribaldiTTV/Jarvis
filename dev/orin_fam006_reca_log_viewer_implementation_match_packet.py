@@ -103,6 +103,8 @@ REQUIRED_ROW_KEYS = {
     "b2-fresh-window-new-session-full-desktop",
     "b2-placement-proof-json",
     "b2-placement-proof-markdown",
+    "runtime-visual-conformance-metrics-json",
+    "runtime-visual-conformance-metrics-markdown",
     "contact-sheet",
     "comparator-ai-control-center-outer-frame",
     "comparator-ai-control-center-chrome-header",
@@ -344,6 +346,7 @@ def _load_proof_summary(proof_root: Path) -> dict[str, Any]:
     route = read_json("open_log_viewer_route_proof.json")
     crop = read_json("crop_completeness_ledger.json")
     manifest = read_json("visual_capture_manifest.json")
+    runtime_metrics = read_json("runtime_visual_conformance_metrics.json")
     return {
         "proofRoot": str(proof_root),
         "rowMapKeyCount": len(row_map) if isinstance(row_map, dict) else 0,
@@ -351,6 +354,13 @@ def _load_proof_summary(proof_root: Path) -> dict[str, Any]:
         "b2PlacementStatus": b2.get("status"),
         "openLogViewerRouteStatus": route.get("status"),
         "cropCompletenessStatus": crop.get("status"),
+        "runtimeVisualConformanceStatus": runtime_metrics.get("status"),
+        "logViewerBottomSlackPx": (runtime_metrics.get("logViewer") or {}).get("bottomSlackPx")
+        if isinstance(runtime_metrics.get("logViewer"), dict)
+        else None,
+        "logViewerDefaultHeightPx": ((runtime_metrics.get("logViewer") or {}).get("imageSize") or {}).get("height")
+        if isinstance((runtime_metrics.get("logViewer") or {}).get("imageSize"), dict)
+        else None,
         "visualManifestProofClass": manifest.get("proofClass"),
         "fullDesktopCombined": row_map.get("full-desktop-combined") if isinstance(row_map, dict) else "",
         "routeProofScreenshot": row_map.get("open-log-viewer-route-proof-full-desktop") if isinstance(row_map, dict) else "",
@@ -403,13 +413,13 @@ def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
         ("PAUSE control", "PAUSE present and independently proven", "MATCH"),
         ("STOP control", "STOP present and independently proven", "MATCH"),
         ("OPEN LOG VIEWER route action", "Routes to Log Viewer via runtime handler", proof_summary.get("openLogViewerRouteStatus") or "REPAIR_REQUIRED"),
-        ("Recording footprint/dead-space", "Compact controller proof plus crop ledger", proof_summary.get("cropCompletenessStatus") or "REPAIR_REQUIRED"),
+        ("Recording footprint/dead-space", "Compact controller proof plus crop ledger and runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Recording control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
         ("Log Viewer rename", "LOG VIEWER visible surface", "MATCH"),
         ("VIEWER - Deferred", "Deferred doorway state visible", "MATCH"),
         ("OPEN NATIVE LOGS", "Bottom native folder action visible", "MATCH"),
         ("OPEN EXPORTED LOGS", "Bottom exported folder action visible", "MATCH"),
-        ("Log Viewer footprint/dead-space", "Compact doorway shell proof plus crop ledger", proof_summary.get("cropCompletenessStatus") or "REPAIR_REQUIRED"),
+        ("Log Viewer footprint/dead-space", "Compact doorway shell proof plus runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Log Viewer control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
         ("B2 placement behavior", "Parent-neighbor and moved-restore proof", proof_summary.get("b2PlacementStatus") or "REPAIR_REQUIRED"),
         ("Rejected-pattern avoidance", "No generic LOGS route, no fake data rows, no default path display, no full viewer behavior", "MATCH"),

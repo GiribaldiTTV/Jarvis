@@ -76,6 +76,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-142638.zip",
     "FAM-006-20260624-145849.zip",
     "FAM-006-20260624-170523.zip",
+    "FAM-006-20260625-122909.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -90,6 +91,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-142638.zip": "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D",
     "FAM-006-20260624-145849.zip": "3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A",
     "FAM-006-20260624-170523.zip": "055D4E57944DE5536081CCB942E65D4A8602778FA694FFCD307505689C4209FC",
+    "FAM-006-20260625-122909.zip": "0201D2CCAEA66010F87058BE3C9C0D1C9A78AFA077F6A19FFC701F4248B1C716",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -723,6 +725,34 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-024; repair scope changed: yes, runtime placement, proof helper, false-ACCEPT gate, known-bad expectations, and incident ledger were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-025",
+            origin="USER/ChatGPT",
+            title="Packet ZIP hygiene repair overclaimed runtime visual conformance",
+            exact_user_wording="FAM-006-20260625-122909.zip is still REPAIR because the prior run fixed stale packet/ZIP hygiene but did not repair the actual runtime visual defects: Log Viewer still had excessive default height/dead space, primitive row/button/chrome matching was unproven, and the window-control gutter contract was not enforced.",
+            expected="Implementation-match repair must change the runtime code, generated visual proof, and packet gates together. A packet may not pass from folder/ZIP hygiene alone when rendered Recording Studio or Log Viewer screenshots still violate compact footprint, bottom-dead-space, row grammar, button primitive, or window-control primitive requirements.",
+            actual="The 122909 packet had clean upload/packet hygiene, but the as-found runtime proof generated during this repair showed Log Viewer at 430x240 with 133px bottom slack and Recording Studio at 432x184 with 50px bottom slack. The runtime bound helper forced compact studio windows through a 240px minimum, while validators did not require runtime visual conformance metrics.",
+            evidence="Known-bad packet FAM-006-20260625-122909.zip SHA 0201D2CCAEA66010F87058BE3C9C0D1C9A78AFA077F6A19FFC701F4248B1C716; as-found proof root 20260625_131320_feature_studio_visual_fail_repair/runtime_visual_conformance_metrics.json; repaired proof root 20260625_131942_feature_studio_visual_fail_repair/runtime_visual_conformance_metrics.json.",
+            surfaces="Recording Studio runtime geometry; Log Viewer runtime geometry; nexus_window_primitives.css; feature-studio proof helper; implementation-match packet helper; visual conformance ledger; H1 and surface validators.",
+            root_cause="The repair path treated artifact collision/hygiene as the active defect and failed to keep rendered runtime metrics as the acceptance bar. A shared window-bounding helper still imposed a 240px minimum height on unique studio windows, making compact Log Viewer impossible despite class constants, and no gate compared actual screenshot height/final-action bottom slack before packet acceptance.",
+            validator_gap="No hard failure for runtime proof metrics missing or failing, Log Viewer default height above compact doorway-shell allowance, Recording Studio bottom slack above compact controller allowance, stale geometry keys, stale fixed-controller-height DOM metadata, or child-window bound helper clamping unique studios to 240px.",
+            repair_target="Admit 122909 as known-bad, parameterize the runtime bound helper by each studio window minimum, set Recording Studio to 432x150 and Log Viewer to 430x124, write runtime_visual_conformance_metrics.json/MD, and require those metrics through the implementation-match packet and visual conformance gates.",
+            acceptance="FAM-006 implementation-match gates fail unless runtime visual conformance metrics are packet-contained and PASS for Recording and Log Viewer default height, bottom slack, button height/padding/font weight, row padding/grid, and window-control top/right placement.",
+            proof="desktop/desktop_renderer.py uses per-studio compact minimums and updated geometry keys; dev/orin_fam006_feature_studio_visual_proof.py writes PASS runtime visual metrics; dev/orin_fam006_reca_log_viewer_implementation_match_packet.py and dev/orin_fam006_visual_conformance_ledger.py require packet-contained runtime metrics.",
+            status="CLOSED_WITH_PROOF",
+            closure="122909 is admitted as known-bad; repaired runtime proof shows Recording Studio 432x150 with 16px bottom slack and Log Viewer 430x124 with 17px bottom slack, with matching 31px/14px/720 button primitive, row padding/grid, and 14px/15px window-control placement.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-025: inspected adjacent surfaces/files `desktop/desktop_renderer.py`, "
+                "`nexus_visual/nexus_window_primitives.css`, `nexus_visual/monitoring_hud_studio.html`, `nexus_visual/monitoring_hud_studio.js`, "
+                "`dev/orin_fam006_feature_studio_visual_proof.py`, `dev/orin_fam006_reca_log_viewer_implementation_match_packet.py`, "
+                "`dev/orin_fam006_visual_conformance_ledger.py`, `dev/orin_fam006_hardening_h1.py`, `dev/orin_monitoring_hud_surface_validation.py`, "
+                "`dev/orin_fam006_unified_defect_ledger.py`, active USER packet layout, and external known-bad corpus; adjacent behavior inspected: "
+                "Recording/Log Viewer default screenshot height, final action bottom slack, stale 184/132/164 geometry keys, DOM fixed-controller-height metadata, "
+                "shared bound-window minimum behavior, button primitive height/padding/font-weight, state-row padding/grid/underglow, window-control top/right placement, "
+                "packet-contained runtime metrics, and known-bad 122909 replay; additional adjacent defects found: none beyond the runtime visual conformance recurrence and linked FAM006-UDL-018 through FAM006-UDL-024; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-025; repair scope changed: yes, runtime geometry, proof helper, packet helper, visual ledger, H1/surface validators, known-bad expectations, and incident ledger were hardened."
+            ),
+        ),
     ]
 
 
@@ -1052,6 +1082,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require B2 placement proof JSON, default/same-session/fresh-session full-desktop rows, parent/child non-overlap, near-parent checks where applicable, same-session geometry equality, and 170523 known-bad corpus replay.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-024", "FAM006-UDL-023", "FAM006-UDL-022"],
+        ),
+        _incident(
+            "FAM006-FGI-020",
+            packet="FAM-006-20260625-122909.zip",
+            sha256="0201D2CCAEA66010F87058BE3C9C0D1C9A78AFA077F6A19FFC701F4248B1C716",
+            head="dc751ed1d503465e2b2ea9c73f7c3be1a46d4d11",
+            codex_claim="FAM-006 implementation-match packet ZIP hygiene was repaired and the new packet was ready for USER review.",
+            rejection="USER rejected the result because the actual runtime visual defects remained: Log Viewer still had excessive dead space, runtime primitive matching was not enforced, and visual conformance had not been proven by rendered metrics.",
+            validator_failed="FAM-006 implementation-match packet helper before runtime_visual_conformance_metrics.json, screenshot height/final-action bottom-slack gates, stale geometry-key rejection, and compact per-studio bound-window enforcement.",
+            artifact="FAM-006-20260625-122909.zip plus as-found proof root 20260625_131320_feature_studio_visual_fail_repair/runtime_visual_conformance_metrics.json.",
+            ledger_row="FAM006-UDL-025",
+            comparator="The packet proved artifact hygiene but not the runtime UI acceptance bar. The as-found rendered Log Viewer screenshot was 430x240 with 133px bottom slack even though source constants claimed a compact shell.",
+            prevention="Require packet-contained runtime visual conformance metrics, compact studio geometry constants and keys, per-studio window-bound minimums, and hard failure when Recording/Log Viewer bottom slack exceeds the compact allowance.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-025", "FAM006-UDL-024", "FAM006-UDL-023"],
         ),
     ]
     for row in rows:

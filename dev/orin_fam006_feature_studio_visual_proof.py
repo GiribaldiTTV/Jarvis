@@ -112,6 +112,9 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
 (() => {
   const targets = {
     chrome: ".monitoring-hud__chrome",
+    windowControls: ".monitoring-hud__window-controls",
+    titleGroup: ".monitoring-hud__title-group",
+    studioTruthRow: ".monitoring-hud__studio-truth-row",
     recordingStartAction: "[data-control='recording-studio-start']",
     recordingPauseAction: "[data-control='recording-studio-pause']",
     recordingStopAction: "[data-control='recording-studio-stop']",
@@ -129,6 +132,7 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
       return;
     }
     const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
     out[key] = {
       selector,
       rect: {
@@ -136,6 +140,29 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
         top: Math.round(rect.top),
         right: Math.round(rect.right),
         bottom: Math.round(rect.bottom),
+      },
+      computedStyle: {
+        height: style.height,
+        minHeight: style.minHeight,
+        paddingTop: style.paddingTop,
+        paddingRight: style.paddingRight,
+        paddingBottom: style.paddingBottom,
+        paddingLeft: style.paddingLeft,
+        fontSize: style.fontSize,
+        fontWeight: style.fontWeight,
+        color: style.color,
+        backgroundImage: style.backgroundImage,
+        borderTopColor: style.borderTopColor,
+        borderRightColor: style.borderRightColor,
+        borderBottomColor: style.borderBottomColor,
+        borderLeftColor: style.borderLeftColor,
+        borderTopWidth: style.borderTopWidth,
+        borderRadius: style.borderRadius,
+        boxShadow: style.boxShadow,
+        gridTemplateColumns: style.gridTemplateColumns,
+        columnGap: style.columnGap,
+        top: style.top,
+        right: style.right,
       },
       text: String(element.innerText || element.textContent || "")
         .replace(/\s+/g, " ")
@@ -153,6 +180,115 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
             return {}
         return parsed if isinstance(parsed, dict) else {}
     return value if isinstance(value, dict) else {}
+
+
+def _dom_rect(bounds: dict[str, object], key: str) -> dict[str, int]:
+    item = bounds.get(key)
+    if not isinstance(item, dict):
+        return {}
+    rect = item.get("rect")
+    if not isinstance(rect, dict):
+        return {}
+    return {
+        "left": int(rect.get("left", 0)),
+        "top": int(rect.get("top", 0)),
+        "right": int(rect.get("right", 0)),
+        "bottom": int(rect.get("bottom", 0)),
+    }
+
+
+def _dom_style(bounds: dict[str, object], key: str) -> dict[str, str]:
+    item = bounds.get(key)
+    if not isinstance(item, dict):
+        return {}
+    style = item.get("computedStyle")
+    return style if isinstance(style, dict) else {}
+
+
+def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object]) -> dict[str, object]:
+    def metrics_for(label: str, action_keys: list[str], *, max_height: int, max_bottom_slack: int) -> dict[str, object]:
+        image_path = Path(str(manifest[label]))
+        width, height = _image_size(image_path)
+        bounds = manifest.get(f"{label}_dom_bounds")
+        bounds = bounds if isinstance(bounds, dict) else {}
+        action_bottoms = [
+            _dom_rect(bounds, key).get("bottom", 0)
+            for key in action_keys
+            if _dom_rect(bounds, key)
+        ]
+        final_action_bottom = max(action_bottoms) if action_bottoms else 0
+        bottom_slack = height - final_action_bottom if final_action_bottom else height
+        return {
+            "screenshot": _rel(root, image_path),
+            "imageSize": {"width": width, "height": height},
+            "finalActionBottomPx": final_action_bottom,
+            "bottomSlackPx": bottom_slack,
+            "maxAllowedHeightPx": max_height,
+            "maxAllowedBottomSlackPx": max_bottom_slack,
+            "heightVerdict": "PASS" if height <= max_height else "REPAIR",
+            "bottomSlackVerdict": "PASS" if bottom_slack <= max_bottom_slack else "REPAIR",
+            "windowControlsComputedStyle": _dom_style(bounds, "windowControls"),
+            "truthRowComputedStyle": _dom_style(bounds, "studioTruthRow"),
+            "primaryButtonComputedStyle": _dom_style(bounds, action_keys[0]) if action_keys else {},
+        }
+
+    recording = metrics_for(
+        "recording_default",
+        ["recordingStartAction", "recordingPauseAction", "recordingStopAction", "recordingLogRoute"],
+        max_height=150,
+        max_bottom_slack=18,
+    )
+    log_viewer = metrics_for(
+        "log_viewer_default",
+        ["logViewerNativeAction", "logViewerExportAction"],
+        max_height=142,
+        max_bottom_slack=18,
+    )
+    checks = [
+        recording["heightVerdict"] == "PASS",
+        recording["bottomSlackVerdict"] == "PASS",
+        log_viewer["heightVerdict"] == "PASS",
+        log_viewer["bottomSlackVerdict"] == "PASS",
+        log_viewer["primaryButtonComputedStyle"].get("height") == "31px",
+        log_viewer["primaryButtonComputedStyle"].get("paddingLeft") == "14px",
+        log_viewer["primaryButtonComputedStyle"].get("paddingRight") == "14px",
+        str(log_viewer["primaryButtonComputedStyle"].get("fontWeight")) in {"720", "700"},
+        log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
+        log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
+        log_viewer["windowControlsComputedStyle"].get("top") == "14px",
+        log_viewer["windowControlsComputedStyle"].get("right") == "15px",
+    ]
+    payload = {
+        "schema": "fam006-runtime-visual-conformance-metrics-v1",
+        "status": "PASS" if all(checks) else "REPAIR",
+        "recording": recording,
+        "logViewer": log_viewer,
+        "primitiveMatchChecks": {
+            "contentFitButtonHeight": log_viewer["primaryButtonComputedStyle"].get("height"),
+            "contentFitButtonPaddingLeft": log_viewer["primaryButtonComputedStyle"].get("paddingLeft"),
+            "contentFitButtonPaddingRight": log_viewer["primaryButtonComputedStyle"].get("paddingRight"),
+            "contentFitButtonFontSize": log_viewer["primaryButtonComputedStyle"].get("fontSize"),
+            "contentFitButtonFontWeight": log_viewer["primaryButtonComputedStyle"].get("fontWeight"),
+            "stateRowPaddingTop": log_viewer["truthRowComputedStyle"].get("paddingTop"),
+            "stateRowPaddingBottom": log_viewer["truthRowComputedStyle"].get("paddingBottom"),
+            "windowControlTop": log_viewer["windowControlsComputedStyle"].get("top"),
+            "windowControlRight": log_viewer["windowControlsComputedStyle"].get("right"),
+        },
+    }
+    (root / "runtime_visual_conformance_metrics.json").write_text(
+        json.dumps(payload, indent=2),
+        encoding="utf-8",
+    )
+    (root / "RUNTIME_VISUAL_CONFORMANCE_METRICS.md").write_text(
+        "# Runtime Visual Conformance Metrics\n\n"
+        f"Status: `{payload['status']}`\n\n"
+        "| Surface | Image size | Final action bottom | Bottom slack | Height verdict | Slack verdict |\n"
+        "| --- | --- | --- | --- | --- | --- |\n"
+        f"| Recording Studio | {recording['imageSize']['width']}x{recording['imageSize']['height']} | {recording['finalActionBottomPx']} | {recording['bottomSlackPx']} | {recording['heightVerdict']} | {recording['bottomSlackVerdict']} |\n"
+        f"| Log Viewer | {log_viewer['imageSize']['width']}x{log_viewer['imageSize']['height']} | {log_viewer['finalActionBottomPx']} | {log_viewer['bottomSlackPx']} | {log_viewer['heightVerdict']} | {log_viewer['bottomSlackVerdict']} |\n",
+        encoding="utf-8",
+    )
+    return payload
 
 
 def _wait_for_dom_bounds(widget, *, label: str, timeout_ms: int = 6000) -> dict[str, object]:
@@ -572,6 +708,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         included_adjacent: list[str] | None = None,
         excluded_text: list[str] | None = None,
         excluded_reason: str = "",
+        excluded_dom_keys: list[str] | None = None,
         adjacent_allowed: bool = False,
         adjacent_reason: str = "",
         min_width: int = 220,
@@ -601,7 +738,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             raw_visible_text = _texts_for_rect(
                 bounds=bounds,
                 crop_rect=crop,
-                excluded_keys=set() if dom_key == "chrome" else {"chrome"},
+                excluded_keys=(set(excluded_dom_keys or []) if dom_key == "chrome" else {"chrome", *set(excluded_dom_keys or [])}),
             )
         visible_text = _scope_visible_text(
             expected_text=expected,
@@ -719,8 +856,19 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="recordingTargetTruth",
                 filename="recording_target_truth.png",
                 semantic="Recording Studio target truth row",
+                crop_type="STATE_CROP",
+                relationship="TARGET and STATE rows directly below the compact Studio title/control chrome",
+                included_adjacent=["titleGroup", "windowControls"],
                 expected=["TARGET", "Default Overlay Profile", "STATE", "Ready - 2 active monitors"],
                 forbidden_adjacent=["OPEN LOG VIEWER", "Waiting for first recording."],
+                excluded_text=[
+                    "RECORDING STUDIO",
+                    "ACTIVE OVERLAY RECORDING",
+                    "RECORDING STUDIO ACTIVE OVERLAY RECORDING",
+                ],
+                excluded_reason="Compact relationship crop may include nearby title/control geometry because the TARGET row sits immediately below the title group.",
+                adjacent_allowed=True,
+                adjacent_reason="Compact Studio target/state proof allows adjacent title/control geometry while still forbidding action-row contamination.",
                 min_width=340,
                 min_height=58,
                 margin=8,
@@ -771,8 +919,20 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerViewerState",
                 filename="log_viewer_deferred_state.png",
                 semantic="Log Viewer selected doorway viewer-deferred state row",
+                crop_type="STATE_CROP",
+                relationship="VIEWER - Deferred row directly below compact Log Viewer title/control chrome",
+                included_adjacent=["titleGroup", "windowControls"],
                 expected=["VIEWER", "Deferred"],
                 forbidden_adjacent=["NATIVE", "Recordings folder", "EXPORT", "Exported Logs folder", "Available now", "Empty until exported"],
+                excluded_text=[
+                    "LOG VIEWER",
+                    "NATIVE AND EXPORTED LOG ACCESS",
+                    "LOG VIEWER NATIVE AND EXPORTED LOG ACCESS",
+                ],
+                excluded_reason="Compact doorway-state proof may include nearby title/control geometry because the VIEWER row sits immediately below the title group.",
+                excluded_dom_keys=["logViewerActionStatus"],
+                adjacent_allowed=True,
+                adjacent_reason="Compact Log Viewer state proof allows adjacent title/control geometry while still forbidding folder-action contamination.",
                 min_width=300,
                 min_height=20,
                 margin=8,
@@ -1133,6 +1293,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "b2-fresh-window-new-session-full-desktop": _rel(root, str(manifest["full_desktop_b2_fresh_window_new_session_substitute"])),
         "b2-placement-proof-json": "b2_placement_proof.json",
         "b2-placement-proof-markdown": "B2_PLACEMENT_PROOF.md",
+        "runtime-visual-conformance-metrics-json": "runtime_visual_conformance_metrics.json",
+        "runtime-visual-conformance-metrics-markdown": "RUNTIME_VISUAL_CONFORMANCE_METRICS.md",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
         "comparator-ai-control-center-source-window-controls": _rel(root, derivatives["comparatorAiControlCenterSourceWindowControls"]),
         "comparator-ai-control-center-source-button-status": _rel(root, derivatives["comparatorAiControlCenterSourceButtonStatus"]),
@@ -2812,6 +2974,7 @@ def main() -> int:
             encoding="utf-8",
         )
         derivatives = _write_evidence_derivatives(root, manifest)
+        runtime_metrics = _runtime_visual_conformance_metrics(root, manifest)
         b2_proof = _write_b2_placement_proof(root, manifest, b2_rows, moved_before_close, moved_after_reopen)
         (root / "visual_capture_manifest.json").write_text(
             json.dumps(
@@ -2831,6 +2994,7 @@ def main() -> int:
                     "derivatives": derivatives,
                     "b2PlacementProof": b2_proof,
                     "openLogViewerRouteProof": route_proof,
+                    "runtimeVisualConformanceMetrics": runtime_metrics,
                     "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
                     "cropCompletenessLedger": derivatives["cropCompletenessLedger"],
                     "resizeProof": {

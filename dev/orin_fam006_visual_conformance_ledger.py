@@ -128,7 +128,7 @@ DEFAULT_CROP_RULE = {
 }
 
 REQUIRED_CROP_COMPLETENESS = {
-    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 160},
+    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 150},
     "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
@@ -138,13 +138,14 @@ REQUIRED_CROP_COMPLETENESS = {
         "minWidth": 180,
         "minHeight": 34,
     },
-    "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 160},
+    "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 120},
+    "log-viewer-deferred-state": {**DEFAULT_CROP_RULE, "minWidth": 300, "minHeight": 20},
     "native-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 160, "minHeight": 28},
     "exported-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 180, "minHeight": 28},
     "log-viewer-action-status": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 110},
-    "log-viewer-resize-before": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 160},
-    "log-viewer-resize-during": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 160},
-    "log-viewer-resize-after": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 160},
+    "log-viewer-resize-before": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 120},
+    "log-viewer-resize-during": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 120},
+    "log-viewer-resize-after": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 120},
 }
 
 REQUIRED_CROP_CONTENT_FIELDS = {
@@ -186,9 +187,10 @@ REQUIRED_CROP_TYPES = {
     "recording-start-action": "ELEMENT_CROP",
     "recording-pause-action": "ELEMENT_CROP",
     "recording-stop-action": "ELEMENT_CROP",
-    "recording-target-truth": "ELEMENT_CROP",
+    "recording-target-truth": "STATE_CROP",
     "recording-log-route": "ELEMENT_CROP",
     "log-viewer-window-chrome": "FULL_WINDOW_CROP",
+    "log-viewer-deferred-state": "STATE_CROP",
     "native-log-destination-action": "ELEMENT_CROP",
     "exported-log-destination-action": "ELEMENT_CROP",
     "log-viewer-action-status": "STATE_CROP",
@@ -204,6 +206,7 @@ REQUIRED_SCOPE_TEXT = {
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "Ready - 2 active monitors"],
     "recording-log-route": ["OPEN LOG VIEWER"],
     "log-viewer-window-chrome": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+    "log-viewer-deferred-state": ["VIEWER", "Deferred"],
     "native-log-destination-action": ["OPEN NATIVE LOGS"],
     "exported-log-destination-action": ["OPEN EXPORTED LOGS"],
     "log-viewer-action-status": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
@@ -313,6 +316,7 @@ CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "recording-log-route",
     "log-viewer-full-window",
     "log-viewer-window-chrome",
+    "log-viewer-deferred-state",
     "native-log-destination-action",
     "exported-log-destination-action",
     "log-viewer-action-status",
@@ -320,6 +324,8 @@ CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "log-viewer-resize-during",
     "log-viewer-resize-after",
     "full-desktop-combined",
+    "runtime-visual-conformance-metrics-json",
+    "runtime-visual-conformance-metrics-markdown",
     "contact-sheet",
     "comparator-ai-control-center-outer-frame",
     "comparator-ai-control-center-chrome-header",
@@ -907,10 +913,22 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         'data-row-primitive="ai-control-center-state-row"',
         "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
         "hub-action-content-fit-equal-gutter-32px-pill",
+        "HEIGHT = 150",
+        "MINIMUM_HEIGHT = 150",
+        "recording_studio_feature_studio_v5",
+        "HEIGHT = 124",
+        "MINIMUM_HEIGHT = 124",
+        "log_viewer_studio_feature_studio_v6",
+        "right: 15px",
+        "height: 31px",
+        "padding-inline: 14px",
+        "font-weight: 720",
+        "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
+        "padding: 4px 0 2px",
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
         "WM_NCHITTEST+manual-fallback-geometry-resize",
-        'data-fixed-controller-height="184"',
+        'data-fixed-controller-height="150"',
     )
     for marker in required_source_markers:
         if marker not in source_text:
@@ -921,8 +939,18 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "unique-child-purpose-stack-v5",
         'data-fixed-controller-height="330"',
         'data-fixed-controller-height="210"',
+        'data-fixed-controller-height="184"',
+        "HEIGHT = 184",
+        "MINIMUM_HEIGHT = 184",
+        "recording_studio_feature_studio_v4",
         "HEIGHT = 210",
         "HEIGHT = 352",
+        "HEIGHT = 164",
+        "MINIMUM_HEIGHT = 164",
+        "log_viewer_studio_feature_studio_v4",
+        "HEIGHT = 132",
+        "MINIMUM_HEIGHT = 132",
+        "log_viewer_studio_feature_studio_v5",
         "WIDTH = 480",
         "WIDTH = 560",
         "action-first-recording-controller-v6",
@@ -970,6 +998,24 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
         return failures
     if len(manifests) != 1:
         failures.append(f"expected exactly one packet visual_capture_manifest.json, found {len(manifests)}")
+    runtime_metric_files = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/runtime_visual_conformance_metrics.json"))
+    if len(runtime_metric_files) != 1:
+        failures.append(f"expected exactly one packet runtime_visual_conformance_metrics.json, found {len(runtime_metric_files)}")
+    else:
+        try:
+            metrics = json.loads(runtime_metric_files[0].read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            failures.append(f"runtime_visual_conformance_metrics.json is invalid JSON: {exc}")
+            metrics = {}
+        if metrics.get("status") != "PASS":
+            failures.append("runtime_visual_conformance_metrics.json status is not PASS")
+        log_viewer = metrics.get("logViewer") if isinstance(metrics, dict) else {}
+        if isinstance(log_viewer, dict):
+            if int(log_viewer.get("bottomSlackPx", 999)) > int(log_viewer.get("maxAllowedBottomSlackPx", 18)):
+                failures.append("Log Viewer bottom slack exceeds compact doorway-shell allowance")
+            image_size = log_viewer.get("imageSize")
+            if isinstance(image_size, dict) and int(image_size.get("height", 999)) > int(log_viewer.get("maxAllowedHeightPx", 142)):
+                failures.append("Log Viewer default proof height exceeds compact doorway-shell allowance")
     if len(red_teams) != 1:
         failures.append(f"expected exactly one packet internal_visual_red_team_ledger.json, found {len(red_teams)}")
     if len(root_causes) != 1:

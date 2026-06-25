@@ -118,6 +118,7 @@ REQUIRED_EVIDENCE_KEYS = {
     "recording-log-route",
     "log-viewer-full-window",
     "log-viewer-window-chrome",
+    "log-viewer-deferred-state",
     "native-log-destination-action",
     "exported-log-destination-action",
     "log-viewer-action-status",
@@ -176,7 +177,7 @@ DEFAULT_CROP_RULE = {
 }
 
 REQUIRED_CROP_COMPLETENESS = {
-    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 160},
+    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 150},
     "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
@@ -186,13 +187,14 @@ REQUIRED_CROP_COMPLETENESS = {
         "minWidth": 180,
         "minHeight": 34,
     },
-    "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 160},
+    "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 120},
+    "log-viewer-deferred-state": {**DEFAULT_CROP_RULE, "minWidth": 300, "minHeight": 20},
     "native-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 160, "minHeight": 28},
     "exported-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 180, "minHeight": 28},
     "log-viewer-action-status": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 110},
-    "log-viewer-resize-before": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 160},
-    "log-viewer-resize-during": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 160},
-    "log-viewer-resize-after": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 160},
+    "log-viewer-resize-before": {**DEFAULT_CROP_RULE, "minWidth": 425, "minHeight": 120},
+    "log-viewer-resize-during": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 120},
+    "log-viewer-resize-after": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 120},
 }
 
 FORBIDDEN_GREEN_WORDS = (
@@ -355,9 +357,10 @@ REQUIRED_CROP_TYPES = {
     "recording-start-action": "ELEMENT_CROP",
     "recording-pause-action": "ELEMENT_CROP",
     "recording-stop-action": "ELEMENT_CROP",
-    "recording-target-truth": "ELEMENT_CROP",
+    "recording-target-truth": "STATE_CROP",
     "recording-log-route": "ELEMENT_CROP",
     "log-viewer-window-chrome": "FULL_WINDOW_CROP",
+    "log-viewer-deferred-state": "STATE_CROP",
     "native-log-destination-action": "ELEMENT_CROP",
     "exported-log-destination-action": "ELEMENT_CROP",
     "log-viewer-action-status": "STATE_CROP",
@@ -391,6 +394,7 @@ REQUIRED_SCOPE_TEXT = {
         "OPEN NATIVE LOGS",
         "OPEN EXPORTED LOGS",
     ],
+    "log-viewer-deferred-state": ["VIEWER", "Deferred"],
     "native-log-destination-action": ["OPEN NATIVE LOGS"],
     "exported-log-destination-action": ["OPEN EXPORTED LOGS"],
     "log-viewer-action-status": [
