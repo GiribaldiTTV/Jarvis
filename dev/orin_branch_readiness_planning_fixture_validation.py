@@ -2460,6 +2460,13 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "user decision needed",
             "user decision required",
             "requires user decision",
+            "user judgment required",
+            "user judgment is required",
+            "user judgment needed",
+            "requires user judgment",
+            "user judgment before",
+            "user visual judgment",
+            "user adjudication required",
             "user approval",
             "approval required",
             "user waiver",
@@ -7886,6 +7893,56 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid RAR fixture did not reject required USER decision without packet proof"
         )
+
+    generated_user_judgment_base_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+        .replace("RAR Stage: RAR3", "RAR Stage: RAR2")
+        .replace(
+            r"USER Packet Path: C:\Nexus USER\FAM-006",
+            "USER Packet Path: not required",
+        )
+        .replace(
+            r"USER Packet ZIP Path: C:\Nexus USER\FAM-006-20260620-120000.zip.",
+            "USER Packet ZIP Path: not required",
+        )
+    )
+    for generated_user_judgment_marker, generated_user_judgment_value in (
+        (
+            "Exact Next USER Decision:",
+            "USER judgment required before route selection.",
+        ),
+        (
+            "Repair / Waiver / Blocker:",
+            "Requires USER judgment before route selection.",
+        ),
+        (
+            "Validation Summary:",
+            "USER adjudication required before normal phase progression.",
+        ),
+        (
+            "Current Violation Findings:",
+            "USER visual judgment required before route selection.",
+        ),
+    ):
+        generated_user_judgment_text = re.sub(
+            rf"^{re.escape(generated_user_judgment_marker)}.*$",
+            lambda _match: (
+                f"{generated_user_judgment_marker} {generated_user_judgment_value}"
+            ),
+            generated_user_judgment_base_text,
+            flags=re.MULTILINE,
+        )
+        generated_user_judgment_failures = _validate_rebaseline_adoption_review_text(
+            generated_user_judgment_text
+        )
+        if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+            generated_user_judgment_failures
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject USER judgment "
+                "wording without deterministic USER packet proof: "
+                f"{generated_user_judgment_marker} {generated_user_judgment_value}"
+            )
 
     packet_path_wrong_root_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE.read_text(
