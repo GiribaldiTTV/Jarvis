@@ -1,7 +1,7 @@
 # Helper Status: Workstream-scoped
-# Owner Workstream: FAM-007 AI Dashboard child/domain window repair
-# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific; this helper proves FAM-007 AI Dashboard category launchers open real child/domain windows.
-# Consolidation Target: future reusable Nexus product-window child-window lifecycle validator
+# Owner Workstream: FAM-007 AI Dashboard parent-only Workstream-exit repair
+# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific; this helper proves FAM-007 parent-dashboard visual/function acceptance after detached child windows were deferred.
+# Consolidation Target: future reusable Nexus product-window visual and functional acceptance validator
 # Promotion Decision Point: before PR Readiness fold-down
 
 from __future__ import annotations
@@ -284,7 +284,7 @@ def _copy_user_evidence(local_root: Path, stamp: str) -> Path:
         / "Screenshots"
         / "Nexus Desktop AI"
         / "FAM-007-H4"
-        / f"{stamp}-child-window"
+        / f"{stamp}-parent-dashboard"
     )
     if user_root.exists():
         shutil.rmtree(user_root)
@@ -305,7 +305,7 @@ def main() -> int:
     app = QApplication.instance() or QApplication(sys.argv)
     screen = QApplication.primaryScreen()
     if screen is None:
-        raise RuntimeError("No primary screen available for child-window validation")
+        raise RuntimeError("No primary screen available for parent-dashboard validation")
 
     events: list[str] = []
     provider_state = build_provider_setup_completion_foundation_state(
@@ -344,24 +344,74 @@ def main() -> int:
                 target: button.dataset.launchTarget || "",
                 kind: button.dataset.launchWindowKind || ""
               }));
+              const deferredButtons = Array.from(document.querySelectorAll("[data-action-state='deferred']")).map((button) => {
+                const rect = button.getBoundingClientRect();
+                const style = getComputedStyle(button);
+                return {
+                  id: button.id || "",
+                  text: button.textContent.trim(),
+                  disabled: Boolean(button.disabled),
+                  ariaDisabled: button.getAttribute("aria-disabled") || "",
+                  launchTarget: button.dataset.launchTarget || "",
+                  launchKind: button.dataset.launchWindowKind || "",
+                  width: Math.round(rect.width),
+                  height: Math.round(rect.height),
+                  fontSize: style.fontSize,
+                  fontWeight: style.fontWeight
+                };
+              });
+              const surfaceRect = surface?.getBoundingClientRect();
+              const chrome = document.querySelector(".monitoring-hud__chrome");
+              const header = document.querySelector(".monitoring-hud__title-group");
+              const hub = document.getElementById("ai-control-center-card-hub");
+              const firstCard = document.querySelector("[data-dashboard-hub-card]");
+              const chromeStyle = chrome ? getComputedStyle(chrome) : null;
+              const hubStyle = hub ? getComputedStyle(hub) : null;
+              const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row) => {
+                const rect = row.getBoundingClientRect();
+                const style = getComputedStyle(row);
+                return {
+                  height: Math.round(rect.height),
+                  paddingTop: style.paddingTop,
+                  paddingBottom: style.paddingBottom
+                };
+              });
               return JSON.stringify({
                 title: document.querySelector(".monitoring-hud__title")?.textContent.trim() || "",
+                subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.trim() || "",
                 dashboardIaModel: surface?.dataset.dashboardIaModel || "",
                 dashboardSurfaceModel: surface?.dataset.dashboardSurfaceModel || "",
                 childWindowModel: surface?.dataset.childWindowModel || "",
                 sameWindowFocusedSectionPolicy: surface?.dataset.sameWindowFocusedSectionPolicy || "",
+                defaultWindowWidth: surface?.dataset.defaultWindowWidth || "",
+                defaultWindowHeight: surface?.dataset.defaultWindowHeight || "",
                 cardOrder: surface?.dataset.dashboardCardOrder || "",
                 cardNames,
                 launchers,
+                deferredButtons,
+                designProcessCopyPresent: /Refined|Option\\s+[A-Z]|target/i.test(document.body.innerText || ""),
+                detachedWindowOpenCopyPresent: /Open Control Center|Open Diagnostics|Open Capabilities/.test(document.body.innerText || ""),
                 cardTitles: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-title-copy strong")].map((node) => node.textContent.trim()),
                 cardDescriptions: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-description")].map((node) => node.textContent.trim()),
                 stripText: document.querySelector("[data-dashboard-role='global-ai-strip']")?.textContent.replace(/\\s+/g, " ").trim() || "",
                 launcherActionRows: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-actions")].map((row) => ({
                   contract: row.dataset.actionRowContract || "",
-                  buttonCount: row.querySelectorAll("[data-category-launcher]").length,
+                  buttonCount: row.querySelectorAll("[data-action-state='deferred']").length,
                   followsRows: Boolean(row.previousElementSibling?.classList.contains("ai-control-center-card-rows")),
                   insideRows: Boolean(row.closest(".ai-control-center-card-rows"))
                 })),
+                layoutMetrics: {
+                  surfaceWidth: surfaceRect ? Math.round(surfaceRect.width) : 0,
+                  chromePaddingLeft: chromeStyle ? chromeStyle.paddingLeft : "",
+                  chromePaddingRight: chromeStyle ? chromeStyle.paddingRight : "",
+                  headerWidth: header ? Math.round(header.getBoundingClientRect().width) : 0,
+                  hubPaddingTop: hubStyle ? hubStyle.paddingTop : "",
+                  hubPaddingLeft: hubStyle ? hubStyle.paddingLeft : "",
+                  hubPaddingRight: hubStyle ? hubStyle.paddingRight : "",
+                  topGutter: firstCard && hub ? Math.round(firstCard.getBoundingClientRect().top - hub.getBoundingClientRect().top) : 0,
+                  scrollbarVisible: surface?.dataset.customScrollbarVisible || "false",
+                  rowMetrics
+                },
                 rowGroups: Object.fromEntries([...document.querySelectorAll("[data-dashboard-hub-card]")].map((card) => [
                   card.dataset.dashboardHubCard || "",
                   [...card.querySelectorAll(".monitoring-hud__state-row")].map((row) => ({
@@ -430,188 +480,73 @@ def main() -> int:
         )
     )
 
-    control_click, control_window, _ = _open_from_dashboard(
-        app,
-        dialog,
-        "ai-control-center-open-control-surface-action",
-        "control-center",
-    )
-    readiness_click, readiness_window, _ = _open_from_dashboard(
-        app,
-        dialog,
-        "ai-control-center-open-readiness-surface-action",
-        "readiness-diagnostics",
-    )
-    maintenance_click, maintenance_window, _ = _open_from_dashboard(
-        app,
-        dialog,
-        "ai-control-center-open-maintenance-surface-action",
-        "capabilities-maintenance",
-    )
-
-    child_windows = {
-        "control-center": control_window,
-        "readiness-diagnostics": readiness_window,
-        "capabilities-maintenance": maintenance_window,
-    }
     child_windows_visible_before_close = {
-        domain_id: bool(window and window.isVisible())
-        for domain_id, window in child_windows.items()
+        "control-center": False,
+        "readiness-diagnostics": False,
+        "capabilities-maintenance": False,
     }
     child_chrome_probe = {}
     child_geometry_behavior = {}
-    for domain_id, window in child_windows.items():
-        if window is not None:
-            child_chrome_probe[domain_id] = json.loads(
-                _run_child_js(
-                    app,
-                    window,
-                    """
-                    (() => {
-                      const root = document.querySelector("[data-ai-dashboard-child-window]");
-                      const chrome = document.querySelector(".ai-domain-window__chrome");
-                      const chromeStyle = chrome ? getComputedStyle(chrome) : null;
-                      const bodyStyle = getComputedStyle(document.body);
-                      return JSON.stringify({
-                        title: document.querySelector(".ai-domain-window__title")?.textContent.trim() || "",
-                        nativeChrome: root?.dataset.ndaiNativeChrome || "",
-                        osChrome: root?.dataset.genericOsChrome || "",
-                        shellConformance: root?.dataset.shellConformance || "",
-                        moveBehavior: root?.dataset.windowMove || "",
-                        resizeBehavior: root?.dataset.windowResize || "",
-                        controls: root?.dataset.windowControlCluster || "",
-                        minimizePresent: Boolean(document.querySelector('[data-domain-command="window-minimize"]')),
-                        closePresent: Boolean(document.querySelector('[data-domain-command="window-close"]')),
-                        cardTitles: [...document.querySelectorAll(".ai-domain-window__card-title")].map((node) => node.textContent.trim()),
-                        cardDescriptions: [...document.querySelectorAll(".ai-domain-window__card-description")].map((node) => node.textContent.trim()),
-                        rowGroupCount: document.querySelectorAll(".ai-domain-window__rows").length,
-                        rowCount: document.querySelectorAll(".ai-domain-window__row").length,
-                        actionRowCount: document.querySelectorAll(".ai-domain-window__actions").length,
-                        actionRowContracts: [...document.querySelectorAll(".ai-domain-window__actions")].map((node) => node.dataset.actionRowContract || ""),
-                        actionButtons: [...document.querySelectorAll(".ai-domain-window__button")].map((button) => button.textContent.trim()),
-                        actionInsideRows: Boolean(document.querySelector(".ai-domain-window__rows .ai-domain-window__actions")),
-                        cardHasHeading: Boolean(document.querySelector(".ai-domain-window__card-heading")),
-                        chromeBorderRadius: chromeStyle ? chromeStyle.borderRadius : "",
-                        chromeBackground: chromeStyle ? chromeStyle.backgroundImage + " " + chromeStyle.backgroundColor : "",
-                        bodyBackground: bodyStyle.backgroundColor,
-                        frameFlags: "frameless-custom-product-window"
-                      });
-                    })();
-                    """,
-                )
-            )
-            screenshots[f"{domain_id}_opened"] = _capture_window(
-                app,
-                window,
-                log_root,
-                f"02_{domain_id}_opened",
-            )
-            move_proof = _drag_child_window(app, window)
-            resize_proof = _resize_child_window(app, window)
-            child_geometry_behavior[domain_id] = {
-                "move": move_proof,
-                "resize": resize_proof,
-                "currentRect": _rect(int(window.winId())),
-            }
-            screenshots[f"{domain_id}_moved_resized"] = _capture_window(
-                app,
-                window,
-                log_root,
-                f"02_{domain_id}_moved_resized",
-            )
-
     readiness_result = {}
-    if readiness_window is not None:
-        readiness_action_clicks = []
-        readiness_action_clicks.append(_click_web_button(app, readiness_window, "run-local-check"))
-        _pump(app, 220)
-        _run_child_js(app, readiness_window, 'document.getElementById("run-local-check")?.click(); true;')
-        _pump(app, 220)
-        readiness_action_clicks.append(_click_web_button(app, readiness_window, "generate-report"))
-        _pump(app, 360)
-        _run_child_js(app, readiness_window, 'document.getElementById("generate-report")?.click(); true;')
-        _pump(app, 360)
-        readiness_action_clicks.append(_click_web_button(app, readiness_window, "copy-report"))
-        _pump(app, 300)
-        _run_child_js(app, readiness_window, 'document.getElementById("copy-report")?.click(); true;')
-        _pump(app, 240)
-        readiness_result = json.loads(
-            _run_child_js(
-                app,
-                readiness_window,
-                """
-                (() => {
-                  const run = document.getElementById("run-local-check");
-                  const generate = document.getElementById("generate-report");
-                  const copy = document.getElementById("copy-report");
-                  return JSON.stringify({
-                    workspace: document.querySelector("[data-domain-workspace]")?.dataset.domainWorkspace || "",
-                    scrollbarStyle: document.querySelector("[data-ai-dashboard-child-window]")?.dataset.scrollbarStyle || "",
-                    localResult: document.getElementById("local-result")?.textContent.trim() || "",
-                    reportState: document.getElementById("report-state")?.textContent.trim() || "",
-                    reportBodyVisible: !Boolean(document.getElementById("report-body")?.hidden),
-                    visibleReportReady: document.getElementById("report-ready")?.textContent.trim() || "",
-                    visibleReportBoundary: document.getElementById("report-boundary")?.textContent.trim() || "",
-                    visibleRawProofTokens: /providerVisibleData=|sentToProvider=|canAcceptPrompts=|promptSendPosture=|networkEgressState=|memoryIndexingState=/.test(
-                      [
-                        document.getElementById("report-ready")?.textContent || "",
-                        document.getElementById("report-missing")?.textContent || "",
-                        document.getElementById("report-blocked")?.textContent || "",
-                        document.getElementById("report-evidence")?.textContent || "",
-                        document.getElementById("report-next")?.textContent || "",
-                        document.getElementById("report-boundary")?.textContent || ""
-                      ].join(" ")
-                    ),
-                    copyDisabled: Boolean(copy && copy.disabled),
-                    providerVisibleData: document.getElementById("provider-visible-data")?.textContent.trim() || "",
-                    runButtonPresent: Boolean(run),
-                    generateButtonPresent: Boolean(generate),
-                    copyButtonPresent: Boolean(copy)
-                  });
-                })();
-                """,
-            )
-        )
-        readiness_result["actionClicks"] = readiness_action_clicks
-        screenshots["readiness_after_actions"] = _capture_window(
-            app,
-            readiness_window,
-            log_root,
-            "03_readiness_after_actions",
-        )
-
     singleton_focus = {}
-    if readiness_window is not None:
-        first_hwnd = int(readiness_window.winId())
-        _open_from_dashboard(app, dialog, "ai-control-center-open-readiness-surface-action", "readiness-diagnostics")
-        second_window = dialog._domain_windows.get("readiness-diagnostics")
-        singleton_focus = {
-            "sameInstance": second_window is readiness_window,
-            "sameHwnd": int(second_window.winId()) == first_hwnd if second_window is not None else False,
-            "visible": bool(second_window and second_window.isVisible()),
-        }
-
     child_control_behavior = {}
-    if control_window is not None:
-        minimize_click = _click_web_button(app, control_window, "missing-control")
-        minimize_present_click = {}
-        # Use JS-dispatched real control command after visual control presence is proven; QWebEngine pseudo-icon hitbox is compact.
-        _run_child_js(app, control_window, "document.querySelector('[data-domain-command=\"window-minimize\"]')?.click(); true;")
-        _pump(app, 300)
-        minimized = bool(control_window.isMinimized())
-        control_window.showNormal()
-        _pump(app, 180)
-        child_control_behavior["control-center"] = {
-            "minimizeCommandWorks": minimized,
-            "closeCommandDeferredToLifecycle": True,
-            "invalidClickGuard": minimize_click.get("ok") is False,
-            "presentClick": minimize_present_click,
-        }
+    deferred_launch_probe = {
+        "domainWindowCount": len(dialog._domain_windows),
+        "domainWindowKeys": sorted(dialog._domain_windows.keys()),
+        "acceptedScope": "parent-dashboard-only",
+        "detachedChildWindowDisposition": "deferred-not-accepted-current-gate",
+    }
 
     dashboard_rect_before_resize = _rect(int(dialog.winId()))
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          if (hub) {
+            hub.scrollTop = hub.scrollHeight;
+            if (window.nexusAiControlCenterSyncScrollbar) {
+              window.nexusAiControlCenterSyncScrollbar();
+            }
+          }
+          return "true";
+        })();
+        """,
+    )
+    _pump(app, 250)
+    screenshots["dashboard_scrolled_bottom"] = _capture_window(
+        app,
+        dialog,
+        log_root,
+        "02_dashboard_scrolled_bottom",
+    )
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          if (hub) {
+            hub.scrollTop = 0;
+            if (window.nexusAiControlCenterSyncScrollbar) {
+              window.nexusAiControlCenterSyncScrollbar();
+            }
+          }
+          return "true";
+        })();
+        """,
+    )
+    _pump(app, 180)
     dialog.resize(dialog.width() + 42, dialog.height() + 28)
     _pump(app, 300)
     dashboard_rect_after_resize = _rect(int(dialog.winId()))
+    screenshots["dashboard_resized"] = _capture_window(
+        app,
+        dialog,
+        log_root,
+        "03_dashboard_resized",
+    )
     dashboard_resize_proof = {
         "before": dashboard_rect_before_resize,
         "after": dashboard_rect_after_resize,
@@ -622,37 +557,14 @@ def main() -> int:
     dialog.close()
     _pump(app, 500)
     lifecycle_after_dashboard_close = {
-        "controlVisible": bool(control_window and control_window.isVisible()),
-        "maintenanceVisible": bool(maintenance_window and maintenance_window.isVisible()),
-        "readinessVisible": bool(readiness_window and readiness_window.isVisible()),
+        "controlVisible": False,
+        "maintenanceVisible": False,
+        "readinessVisible": False,
     }
-    if readiness_window is not None and readiness_window.isVisible():
-        screenshots["readiness_persists_after_dashboard_close"] = _capture_window(
-            app,
-            readiness_window,
-            log_root,
-            "04_readiness_persists_after_dashboard_close",
-        )
-        readiness_window.close()
-        _pump(app, 180)
 
-    opened_desktop_paths = [
-        screenshots.get("control-center_opened", {}).get("fullDesktop", ""),
-        screenshots.get("readiness-diagnostics_opened", {}).get("fullDesktop", ""),
-        screenshots.get("capabilities-maintenance_opened", {}).get("fullDesktop", ""),
-    ]
-    opened_desktop_hashes = {
-        Path(path).name: _hash_file(path)
-        for path in opened_desktop_paths
-        if path and Path(path).exists()
-    }
-    duplicate_full_desktop_proof = len(set(opened_desktop_hashes.values())) != len(opened_desktop_hashes)
-    expected_launcher_labels = [
-        "Open Control Center",
-        "Open Diagnostics",
-        "Open Capabilities",
-    ]
-    actual_launcher_labels = [launcher.get("text") for launcher in dashboard_probe.get("launchers") or []]
+    opened_desktop_hashes = {}
+    duplicate_full_desktop_proof = False
+    actual_deferred_labels = [button.get("text") for button in dashboard_probe.get("deferredButtons") or []]
     expected_option_g_rows = {
         "control-center": [
             {"label": "AI", "value": "ORIN not implemented; no real AI executing"},
@@ -670,12 +582,18 @@ def main() -> int:
         ],
     }
 
+    layout_metrics = dashboard_probe.get("layoutMetrics") or {}
+    row_heights = [
+        int(row.get("height") or 0)
+        for row in layout_metrics.get("rowMetrics") or []
+    ]
+    deferred_buttons = dashboard_probe.get("deferredButtons") or []
     checks = {
-        "dashboardHubCompactOnly": (
+        "dashboardHubParentOnly": (
             dashboard_probe.get("title") == "AI Dashboard"
-            and dashboard_probe.get("dashboardIaModel") == "ai-dashboard-global-strip-category-cards-launch-real-child-domain-windows"
+            and dashboard_probe.get("dashboardIaModel") == "ai-dashboard-parent-only-global-strip-category-cards-detached-child-windows-deferred"
             and dashboard_probe.get("dashboardSurfaceModel") == "hub-only-cards-are-doorways"
-            and dashboard_probe.get("childWindowModel") == "dashboard-launchers-open-exclusive-or-external-unique-windows"
+            and dashboard_probe.get("childWindowModel") == "detached-child-windows-deferred-not-accepted-current-gate"
             and dashboard_probe.get("sameWindowFocusedSectionPolicy") == "blocked-as-dashboard-workspace-substitute"
             and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
             and dashboard_probe.get("cardTitles") == [
@@ -701,9 +619,33 @@ def main() -> int:
             and dashboard_probe.get("focusedSurfaceCount") == 0
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
-        "explicitLauncherLabels": (
-            actual_launcher_labels == expected_launcher_labels
-            and all(click.get("realClick", {}).get("ok") is True for click in [control_click, readiness_click, maintenance_click])
+        "doorwayButtonsDeferredNoFakeActions": (
+            actual_deferred_labels == ["Surface Deferred", "Surface Deferred", "Surface Deferred"]
+            and len(dashboard_probe.get("launchers") or []) == 0
+            and len(deferred_buttons) == 3
+            and all(button.get("disabled") is True for button in deferred_buttons)
+            and all(button.get("ariaDisabled") == "true" for button in deferred_buttons)
+            and all(button.get("launchTarget") == "deferred" for button in deferred_buttons)
+            and all(button.get("launchKind") == "deferred-detached-child" for button in deferred_buttons)
+            and deferred_launch_probe.get("domainWindowCount") == 0
+        ),
+        "parentVisualMetrics": (
+            dashboard_probe.get("defaultWindowWidth") == "840"
+            and dashboard_probe.get("defaultWindowHeight") == "720"
+            and str(layout_metrics.get("chromePaddingLeft")) == str(layout_metrics.get("chromePaddingRight"))
+            and int(layout_metrics.get("topGutter") or 0) >= 8
+            and len(row_heights) == 8
+            and min(row_heights or [0]) >= 29
+            and all(int(button.get("height") or 0) >= 34 for button in deferred_buttons)
+            and all(int(button.get("width") or 0) >= 120 for button in deferred_buttons)
+            and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 800 for button in deferred_buttons)
+            and int(layout_metrics.get("headerWidth") or 0) >= int(layout_metrics.get("surfaceWidth") or 0) - 32
+        ),
+        "runtimeCopyIsProductFacing": (
+            "provider/model execution is blocked" in str(dashboard_probe.get("subtitle") or "")
+            and "no prompt, file, memory, telemetry, or provider data leaves this machine" in str(dashboard_probe.get("subtitle") or "")
+            and dashboard_probe.get("designProcessCopyPresent") is False
+            and dashboard_probe.get("detachedWindowOpenCopyPresent") is False
         ),
         "noInlineWorkspaceActions": (
             dashboard_probe.get("localCheckInline") is False
@@ -730,93 +672,9 @@ def main() -> int:
             and settings_tooltip_probe.get("label") == "Settings"
             and settings_tooltip_probe.get("titleCount") == 0
         ),
-        "categoryLaunchersOpenRealWindows": (
-            len(dashboard_probe.get("launchers") or []) == 3
-            and control_window is not None
-            and readiness_window is not None
-            and maintenance_window is not None
-            and child_windows_visible_before_close.get("control-center") is True
-            and child_windows_visible_before_close.get("readiness-diagnostics") is True
-            and child_windows_visible_before_close.get("capabilities-maintenance") is True
-        ),
-        "childWindowsUseNativeNexusChrome": (
-            all(
-                probe.get("nativeChrome") == "true"
-                and probe.get("osChrome") == "rejected"
-                and probe.get("shellConformance") == "ndai-webview-rounded-window-shell"
-                and probe.get("moveBehavior") == "header-drag"
-                and probe.get("resizeBehavior") == "edge-corner-resize"
-                and probe.get("controls") == "compact-minimize-close"
-                and probe.get("cardHasHeading") is True
-                and probe.get("rowGroupCount", 0) >= 1
-                and probe.get("minimizePresent") is True
-                and probe.get("closePresent") is True
-                and "24px" in str(probe.get("chromeBorderRadius"))
-                and probe.get("bodyBackground") in ("rgba(0, 0, 0, 0)", "transparent")
-                for probe in child_chrome_probe.values()
-            )
-            and control_window is not None
-            and bool(control_window.property("ndaiNativeChrome")) is True
-            and control_window.property("ndaiShellConformance") == "ndai-webview-rounded-window-shell"
-            and bool(control_window.windowFlags() & Qt.FramelessWindowHint)
-        ),
-        "childWindowElementGroupsUseSeparateActionRows": (
-            child_chrome_probe.get("control-center", {}).get("cardTitles") == ["AI Control Boundary"]
-            and child_chrome_probe.get("control-center", {}).get("actionRowCount") == 0
-            and child_chrome_probe.get("readiness-diagnostics", {}).get("cardTitles") == ["Local Readiness"]
-            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionRowCount") == 1
-            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionRowContracts") == ["separate-from-state-rows"]
-            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionButtons") == [
-                "Run Local Check",
-                "Generate Report",
-                "Copy Report",
-            ]
-            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionInsideRows") is False
-            and child_chrome_probe.get("capabilities-maintenance", {}).get("cardTitles") == ["Capability Boundary"]
-            and child_chrome_probe.get("capabilities-maintenance", {}).get("actionRowCount") == 0
-        ),
-        "childWindowsMoveResizeFocus": (
-            len(child_geometry_behavior) == 3
-            and all(item.get("move", {}).get("moved") is True for item in child_geometry_behavior.values())
-            and all(item.get("resize", {}).get("resized") is True for item in child_geometry_behavior.values())
-        ),
         "fullDesktopProofNotDuplicated": (
-            len(opened_desktop_hashes) == 3
+            len(opened_desktop_hashes) == 0
             and duplicate_full_desktop_proof is False
-        ),
-        "classificationLedgerMatchesPrompt": (
-            control_window is not None
-            and control_window.definition["classification"] == "exclusive-child"
-            and readiness_window is not None
-            and readiness_window.definition["classification"] == "external-unique"
-            and maintenance_window is not None
-            and maintenance_window.definition["classification"] == "exclusive-child"
-        ),
-        "readinessWorkRunsInsideChildWindow": (
-            readiness_result.get("workspace") == "readiness-diagnostics"
-            and readiness_result.get("runButtonPresent") is True
-            and readiness_result.get("generateButtonPresent") is True
-            and readiness_result.get("copyButtonPresent") is True
-            and all(click.get("ok") is True for click in readiness_result.get("actionClicks", []))
-            and readiness_result.get("localResult") == "No provider configured"
-            and readiness_result.get("reportState") == "Copied locally"
-            and readiness_result.get("reportBodyVisible") is True
-        ),
-        "readinessReportFirstVisibleCopyIsUserReadable": (
-            readiness_result.get("visibleRawProofTokens") is False
-            and "Provider-visible data is none" in str(readiness_result.get("visibleReportReady") or "")
-            and "Copy report includes raw local proof details" in str(readiness_result.get("visibleReportBoundary") or "")
-        ),
-        "readinessChildScrollbarIsNDAINative": (
-            readiness_result.get("scrollbarStyle") == "ndai-rounded-domain-scrollbar"
-        ),
-        "childWindowControlsWork": (
-            child_control_behavior.get("control-center", {}).get("minimizeCommandWorks") is True
-        ),
-        "singletonFocusBehavior": (
-            singleton_focus.get("sameInstance") is True
-            and singleton_focus.get("sameHwnd") is True
-            and singleton_focus.get("visible") is True
         ),
         "dashboardResizeStillWorks": (
             dashboard_resize_proof["widthDelta"] >= 30
@@ -825,7 +683,7 @@ def main() -> int:
         "childLifecycleBehavior": (
             lifecycle_after_dashboard_close["controlVisible"] is False
             and lifecycle_after_dashboard_close["maintenanceVisible"] is False
-            and lifecycle_after_dashboard_close["readinessVisible"] is True
+            and lifecycle_after_dashboard_close["readinessVisible"] is False
         ),
         "providerExecutionStillBlocked": (
             all("PROVIDER" not in event or "provider_visible_data=none" in event.lower() or "provider/model" not in event.lower() for event in events)
@@ -842,15 +700,11 @@ def main() -> int:
         "status": status,
         "stamp": stamp,
         "helper": "dev/orin_ai_control_center_live_resize_validation.py",
-        "proofClass": "live AI Dashboard child/domain window lifecycle proof",
+        "proofClass": "live AI Dashboard parent-only visual and functional proof",
         "worktree": str(REPO_ROOT),
         "window": "AI Dashboard",
         "dashboardProbe": dashboard_probe,
-        "launcherClicks": {
-            "control": control_click,
-            "readiness": readiness_click,
-            "maintenance": maintenance_click,
-        },
+        "deferredLaunchProbe": deferred_launch_probe,
         "settingsHover": settings_hover,
         "settingsTooltipProbe": settings_tooltip_probe,
         "childChromeProbe": child_chrome_probe,
@@ -860,36 +714,36 @@ def main() -> int:
         "childWindowClassificationLedger": {
             "control-center": {
                 "sourceCategoryCard": "AI Status & Trust",
-                "launcherLabel": "Open Control Center",
-                "classification": "exclusive-child",
+                "launcherLabel": "Surface Deferred",
+                "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
-                "singleton": True,
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
-                "shellConformance": child_chrome_probe.get("control-center", {}).get("shellConformance", ""),
-                "focusBehavior": "bring-to-front-if-open",
+                "singleton": False,
+                "moveBehavior": "not-in-accepted-scope",
+                "resizeBehavior": "not-in-accepted-scope",
+                "shellConformance": "deferred-not-accepted-current-gate",
+                "focusBehavior": "not-in-accepted-scope",
             },
             "readiness-diagnostics": {
                 "sourceCategoryCard": "AI Readiness & Diagnostics",
-                "launcherLabel": "Open Diagnostics",
-                "classification": "external-unique",
-                "remainsOpenIfDashboardCloses": True,
-                "singleton": True,
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
-                "shellConformance": child_chrome_probe.get("readiness-diagnostics", {}).get("shellConformance", ""),
-                "focusBehavior": "bring-to-front-if-open",
+                "launcherLabel": "Surface Deferred",
+                "classification": "deferred-detached-child",
+                "remainsOpenIfDashboardCloses": False,
+                "singleton": False,
+                "moveBehavior": "not-in-accepted-scope",
+                "resizeBehavior": "not-in-accepted-scope",
+                "shellConformance": "deferred-not-accepted-current-gate",
+                "focusBehavior": "not-in-accepted-scope",
             },
             "capabilities-maintenance": {
                 "sourceCategoryCard": "Capabilities & Maintenance",
-                "launcherLabel": "Open Capabilities",
-                "classification": "exclusive-child",
+                "launcherLabel": "Surface Deferred",
+                "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
-                "singleton": True,
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
-                "shellConformance": child_chrome_probe.get("capabilities-maintenance", {}).get("shellConformance", ""),
-                "focusBehavior": "bring-to-front-if-open",
+                "singleton": False,
+                "moveBehavior": "not-in-accepted-scope",
+                "resizeBehavior": "not-in-accepted-scope",
+                "shellConformance": "deferred-not-accepted-current-gate",
+                "focusBehavior": "not-in-accepted-scope",
             },
         },
         "readinessResult": readiness_result,
@@ -916,9 +770,9 @@ def main() -> int:
     (user_evidence_root / "live_resize_manifest.json").write_bytes(manifest_path.read_bytes())
 
     if status != "PASS":
-        print(f"FAIL: FAM-007 AI Dashboard child-window validation failed. Manifest: {manifest_path}")
+        print(f"FAIL: FAM-007 AI Dashboard parent-only validation failed. Manifest: {manifest_path}")
         return 1
-    print(f"PASS: FAM-007 AI Dashboard child-window validation passed. Manifest: {manifest_path}")
+    print(f"PASS: FAM-007 AI Dashboard parent-only validation passed. Manifest: {manifest_path}")
     print(f"USER_EVIDENCE_ROOT: {user_evidence_root}")
     return 0
 

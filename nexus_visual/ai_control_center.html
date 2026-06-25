@@ -10,12 +10,12 @@
   <link rel="stylesheet" href="monitoring_hud.css" />
   <style>
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
-      padding: 18px 20px 20px;
+      padding: 14px 14px 14px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
       position: relative;
-      min-height: 128px;
+      min-height: 130px;
       padding: 18px 26px 14px;
       border-radius: 24px;
       background:
@@ -314,10 +314,10 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub {
-      margin-top: 16px;
+      margin-top: 12px;
       gap: 8px;
-      padding: 0 18px 8px 0;
-      scroll-padding: 0 18px 8px 0;
+      padding: 10px 14px 12px;
+      scroll-padding: 10px 14px 12px;
       scrollbar-gutter: auto;
       scrollbar-width: none;
       scrollbar-color: transparent transparent;
@@ -355,7 +355,7 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card {
       gap: 6px;
-      padding: 14px 22px 12px;
+      padding: 14px 22px 13px;
       border-radius: 20px;
     }
 
@@ -432,8 +432,8 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row {
       grid-template-columns: minmax(130px, 0.28fr) minmax(0, 1fr);
-      min-height: 24px;
-      padding: 3px 0;
+      min-height: 30px;
+      padding: 5px 0 4px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row span {
@@ -479,18 +479,18 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      min-height: 32px;
-      margin-top: 0;
-      padding-top: 4px;
+      min-height: 38px;
+      margin-top: 2px;
+      padding-top: 6px;
       z-index: 3;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-action--content-fit {
-      height: 32px;
-      min-height: 32px;
-      padding: 0 14px;
+      height: 36px;
+      min-height: 36px;
+      padding: 0 18px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 850;
     }
 
@@ -582,8 +582,8 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
       grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr);
       gap: 6px;
-      min-height: 0;
-      padding: 4px 0 2px;
+      min-height: 30px;
+      padding: 5px 0 4px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span {
@@ -655,6 +655,19 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit {
       max-width: min(100%, 286px);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--deferred,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--deferred:disabled {
+      opacity: 0.88;
+      cursor: default;
+      border-color: rgba(122, 232, 255, 0.32);
+      background: linear-gradient(145deg, rgba(8, 35, 52, 0.72), rgba(3, 18, 31, 0.76));
+      color: rgba(216, 244, 250, 0.92);
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+        0 0 11px rgba(86, 236, 255, 0.14);
+      transform: none;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-scrollbar {
@@ -734,8 +747,8 @@
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
     data-single-action-button-model="content-fit-fixed-height-ellipsis"
     data-default-window-width="840"
-    data-default-window-height="900"
-    data-default-window-max-height="900"
+    data-default-window-height="720"
+    data-default-window-max-height="760"
     data-window-restore-policy="disabled-until-fam003-reset-control"
     data-window-memory-policy="restart-memory-disabled"
     data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"
@@ -752,11 +765,11 @@
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
     data-dashboard-card-order="status-trust-readiness-diagnostics-capabilities-maintenance"
-    data-dashboard-ia-model="ai-dashboard-global-strip-category-cards-launch-real-child-domain-windows"
+    data-dashboard-ia-model="ai-dashboard-parent-only-global-strip-category-cards-detached-child-windows-deferred"
     data-dashboard-surface-model="hub-only-cards-are-doorways"
     data-dashboard-inline-work-policy="no-local-check-no-report-no-diagnostics-inline"
-    data-category-card-launcher-contract="cards-contain-launchers-real-child-domain-windows-house-work"
-    data-child-window-model="dashboard-launchers-open-exclusive-or-external-unique-windows"
+    data-category-card-launcher-contract="cards-show-deferred-doorway-controls-no-detached-window-launch"
+    data-child-window-model="detached-child-windows-deferred-not-accepted-current-gate"
     data-same-window-focused-section-policy="blocked-as-dashboard-workspace-substitute"
     data-dashboard-visible-name="AI Dashboard"
     data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"
@@ -817,7 +830,7 @@
           <div>
             <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
             <div class="monitoring-hud__title">AI Dashboard</div>
-            <div class="monitoring-hud__subtitle">Refined D/E target: compact AI truth, grouped doorways, and polished row grammar.</div>
+            <div class="monitoring-hud__subtitle">AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine.</div>
           </div>
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
@@ -863,7 +876,7 @@
         class="monitoring-hud__control-hub"
         id="ai-control-center-card-hub"
         data-dashboard-content="control-hub-cards"
-        data-child-window-model="hub-actions-open-real-child-domain-windows"
+        data-child-window-model="detached-child-windows-deferred-not-accepted-current-gate"
         aria-label="AI Dashboard domain cards"
       >
         <div
@@ -876,9 +889,9 @@
             data-dashboard-hub-card="control-center"
             data-category-card="control-center"
             data-slice="SLC-R1"
-            data-category-doorway-state="exclusive-child-window"
-            data-target-window-classification="exclusive-child"
-            data-target-window="control-center"
+            data-category-doorway-state="detached-child-window-deferred"
+            data-target-window-classification="deferred-detached-child"
+            data-target-window="future-control-center"
             data-card-does-not-contain="persona-selectors-provider-internals-developer-owner-details"
           >
             <div class="monitoring-hud__hub-card-topline">
@@ -906,15 +919,18 @@
               <button
                 type="button"
                 id="ai-control-center-open-control-surface-action"
-                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-                data-control="open-control-center-child-window"
-                data-category-launcher="control-center"
-                data-launch-target="control-center-child-window"
-                data-launch-window-kind="exclusive-child"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__hub-action--deferred"
+                data-control="control-center-child-window-deferred"
+                data-category-doorway="control-center"
+                data-action-state="deferred"
+                data-launch-target="deferred"
+                data-launch-window-kind="deferred-detached-child"
                 data-action-size="content-fit-fixed-height"
-                aria-label="Open Control Center"
+                aria-label="Control Center surface deferred"
+                aria-disabled="true"
+                disabled
               >
-                <span class="monitoring-hud__button-label">Open Control Center</span>
+                <span class="monitoring-hud__button-label">Surface Deferred</span>
               </button>
             </div>
           </article>
@@ -924,9 +940,9 @@
             data-dashboard-hub-card="readiness-diagnostics"
             data-category-card="readiness-diagnostics"
             data-slice="SLC-R2"
-            data-category-doorway-state="external-unique-window"
-            data-target-window-classification="external-unique"
-            data-target-window="readiness-diagnostics"
+            data-category-doorway-state="detached-child-window-deferred"
+            data-target-window-classification="deferred-detached-child"
+            data-target-window="future-readiness-diagnostics"
             data-card-does-not-contain="local-check-report-copy-results-diagnostics-body"
           >
               <div class="monitoring-hud__hub-card-topline">
@@ -954,15 +970,18 @@
                 <button
                   type="button"
                   id="ai-control-center-open-readiness-surface-action"
-                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-                  data-control="open-readiness-diagnostics-child-window"
-                  data-category-launcher="readiness-diagnostics"
-                  data-launch-target="readiness-diagnostics-child-window"
-                  data-launch-window-kind="external-unique"
+                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__hub-action--deferred"
+                  data-control="readiness-diagnostics-child-window-deferred"
+                  data-category-doorway="readiness-diagnostics"
+                  data-action-state="deferred"
+                  data-launch-target="deferred"
+                  data-launch-window-kind="deferred-detached-child"
                   data-action-size="content-fit-fixed-height"
-                  aria-label="Open Diagnostics"
+                  aria-label="Diagnostics surface deferred"
+                  aria-disabled="true"
+                  disabled
                 >
-                  <span class="monitoring-hud__button-label">Open Diagnostics</span>
+                  <span class="monitoring-hud__button-label">Surface Deferred</span>
                 </button>
               </div>
             </article>
@@ -973,9 +992,9 @@
             data-category-card="capabilities-maintenance"
             data-slice="SLC-R4"
             data-maintenance-updates-state="placement-only"
-            data-category-doorway-state="exclusive-child-window"
-            data-target-window-classification="exclusive-child"
-            data-target-window="capabilities-maintenance"
+            data-category-doorway-state="detached-child-window-deferred"
+            data-target-window-classification="deferred-detached-child"
+            data-target-window="future-capabilities-maintenance"
             data-card-does-not-contain="download-install-update-fetch-execution"
           >
             <div class="monitoring-hud__hub-card-topline">
@@ -999,15 +1018,18 @@
               <button
                 type="button"
                 id="ai-control-center-open-maintenance-surface-action"
-                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-                data-control="open-maintenance-lifecycle-child-window"
-                data-category-launcher="capabilities-maintenance"
-                data-launch-target="capabilities-maintenance-child-window"
-                data-launch-window-kind="exclusive-child"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__hub-action--deferred"
+                data-control="capabilities-maintenance-child-window-deferred"
+                data-category-doorway="capabilities-maintenance"
+                data-action-state="deferred"
+                data-launch-target="deferred"
+                data-launch-window-kind="deferred-detached-child"
                 data-action-size="content-fit-fixed-height"
-                aria-label="Open Capabilities"
+                aria-label="Capabilities surface deferred"
+                aria-disabled="true"
+                disabled
               >
-                <span class="monitoring-hud__button-label">Open Capabilities</span>
+                <span class="monitoring-hud__button-label">Surface Deferred</span>
               </button>
             </div>
           </article>

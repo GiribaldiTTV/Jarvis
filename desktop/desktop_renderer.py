@@ -6678,8 +6678,8 @@ class AIControlCenterDialog(QDialog):
     WINDOW_GEOMETRY_MEMORY_ENV = "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
     DEFAULT_WIDTH = 840
-    DEFAULT_HEIGHT = 900
-    DEFAULT_MAX_HEIGHT = 900
+    DEFAULT_HEIGHT = 720
+    DEFAULT_MAX_HEIGHT = 760
     DEFAULT_SCREEN_MARGIN_X = 96
     DEFAULT_SCREEN_MARGIN_Y = 80
     MINIMUM_WIDTH = 570
@@ -6741,10 +6741,10 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
         self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-specimen")
         self.setProperty("aiControlCenterNativeMirrorDisposition", "removed-webview-owned-specimen")
-        self.setProperty("aiDashboardChildWindowModel", "category-launchers-open-real-child-domain-windows")
-        self.setProperty("aiDashboardReadinessWindowClassification", "external-unique")
-        self.setProperty("aiDashboardControlWindowClassification", "exclusive-child")
-        self.setProperty("aiDashboardMaintenanceWindowClassification", "exclusive-child")
+        self.setProperty("aiDashboardChildWindowModel", "detached-child-windows-deferred-not-accepted-current-gate")
+        self.setProperty("aiDashboardReadinessWindowClassification", "deferred-detached-child")
+        self.setProperty("aiDashboardControlWindowClassification", "deferred-detached-child")
+        self.setProperty("aiDashboardMaintenanceWindowClassification", "deferred-detached-child")
         self._page_ready = False
         self._pending_provider_payload = {}
         self._domain_windows: dict[str, AIDashboardDomainWindow] = {}
@@ -6845,14 +6845,16 @@ class AIControlCenterDialog(QDialog):
         if command == "close":
             self.close()
             return
-        if command == "open-readiness-diagnostics-child-window":
-            self._show_ai_dashboard_domain_window("readiness-diagnostics")
-            return
-        if command == "open-control-center-child-window":
-            self._show_ai_dashboard_domain_window("control-center")
-            return
-        if command == "open-maintenance-lifecycle-child-window":
-            self._show_ai_dashboard_domain_window("capabilities-maintenance")
+        if command in {
+            "open-readiness-diagnostics-child-window",
+            "open-control-center-child-window",
+            "open-maintenance-lifecycle-child-window",
+        }:
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_DASHBOARD_DETACHED_CHILD_WINDOW_DEFERRED"
+                    f"|command={command}|accepted_scope=false|window_opened=false"
+                )
             return
         if command == "run-local-check":
             self.run_local_assist_check(sync_web=False)

@@ -181,6 +181,15 @@
     element.addEventListener("click", activate);
     element.addEventListener("pointerup", activate);
   };
+  const applyDeferredDoorwayState = () => {
+    document.querySelectorAll("[data-action-state='deferred']").forEach((button) => {
+      button.disabled = true;
+      button.setAttribute("aria-disabled", "true");
+      button.dataset.launchTarget = "deferred";
+      button.dataset.launchWindowKind = "deferred-detached-child";
+      button.removeAttribute("title");
+    });
+  };
   const stripNativeTooltips = () => {
     const surface = byId("monitoring-hud");
     if (!surface) {
@@ -498,18 +507,10 @@
   };
 
   hydrateWindowControlStatesFromMarkup();
+  applyDeferredDoorwayState();
   stripNativeTooltips();
   observeNativeTooltipDrift();
   attachWindowControlHandlers();
-  attachActivationHandler(byId("ai-control-center-open-control-surface-action"), () => {
-    emitCommand("open-control-center-child-window");
-  });
-  attachActivationHandler(byId("ai-control-center-open-readiness-surface-action"), () => {
-    emitCommand("open-readiness-diagnostics-child-window");
-  });
-  attachActivationHandler(byId("ai-control-center-open-maintenance-surface-action"), () => {
-    emitCommand("open-maintenance-lifecycle-child-window");
-  });
   attachActivationHandler(byId("ai-control-center-local-check-action"), () => {
     window.nexusAiControlCenterRunLocalCheck();
     emitCommand("run-local-check");
@@ -557,7 +558,10 @@
     scrollbarDrag = null;
   });
   window.addEventListener("resize", syncCustomScrollbar);
-  window.addEventListener("load", () => requestAnimationFrame(syncCustomScrollbar));
+  window.addEventListener("load", () => {
+    applyDeferredDoorwayState();
+    requestAnimationFrame(syncCustomScrollbar);
+  });
   syncWindowControlState("normal");
   requestAnimationFrame(syncCustomScrollbar);
 })();
