@@ -832,7 +832,7 @@ class DialogChromeBar(QFrame):
         self.setProperty("windowControlCluster", "compact-minimize-maximize-close" if clustered_controls else "compact-close")
         header_anatomy = "compact-dialog-bar"
         if settings_header:
-            header_anatomy = "ndai-global-settings-grouped-single-row-chrome-v21"
+            header_anatomy = "ndai-global-settings-centered-settings-chrome-v22"
         elif hero_header:
             header_anatomy = "ai-control-center-compact-reference-derived" if compact_hero else "ai-control-center-reference-derived"
         self.setProperty("headerAnatomy", header_anatomy)
@@ -841,24 +841,26 @@ class DialogChromeBar(QFrame):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         if settings_header:
-            layout = QHBoxLayout(self)
+            layout = QGridLayout(self)
             layout.setContentsMargins(16, 5, 12, 5)
-            layout.setSpacing(8)
+            layout.setHorizontalSpacing(8)
+            layout.setVerticalSpacing(0)
+            layout.setColumnStretch(0, 1)
+            layout.setColumnStretch(1, 0)
+            layout.setColumnStretch(2, 1)
 
             self.kicker_label = QLabel(kicker, self)
             self.kicker_label.setObjectName(f"{object_prefix}ChromeKicker")
             self.kicker_label.setProperty("chromeRole", "kicker")
-            self.kicker_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.kicker_label.setAlignment(Qt.AlignCenter)
             self.kicker_label.setVisible(False)
 
-            grouped_title = f"{kicker} / {title}" if kicker else title
-            self.title_label = QLabel(grouped_title, self)
+            self.title_label = QLabel(title, self)
             self.title_label.setObjectName(f"{object_prefix}ChromeTitle")
             self.title_label.setProperty("chromeRole", "title")
-            self.title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.title_label.setAlignment(Qt.AlignCenter)
             self.title_label.setVisible(bool(show_title))
-            layout.addWidget(self.title_label, 0, Qt.AlignLeft | Qt.AlignVCenter)
-            layout.addStretch(1)
+            layout.addWidget(self.title_label, 0, 1, Qt.AlignCenter)
 
             self.subtitle_label = QLabel("", self)
             self.subtitle_label.setVisible(False)
@@ -937,7 +939,7 @@ class DialogChromeBar(QFrame):
         self.control_cluster.setObjectName(f"{object_prefix}WindowControls")
         self.control_cluster.setProperty("chromeRole", "window-controls")
         if settings_header:
-            self.control_cluster.setProperty("controlClusterDensity", "settings-compact-v21")
+            self.control_cluster.setProperty("controlClusterDensity", "settings-compact-v22")
         self.control_cluster.setAttribute(Qt.WA_StyledBackground, True)
         control_layout = QHBoxLayout(self.control_cluster)
         control_layout.setContentsMargins(2, 2, 2, 2)
@@ -980,7 +982,7 @@ class DialogChromeBar(QFrame):
         self.close_button.clicked.connect(self._dialog.reject)
         control_layout.addWidget(self.close_button, 0, Qt.AlignVCenter)
         if settings_header:
-            layout.addWidget(self.control_cluster, 0, Qt.AlignRight | Qt.AlignVCenter)
+            layout.addWidget(self.control_cluster, 0, 2, Qt.AlignRight | Qt.AlignVCenter)
         else:
             layout.addWidget(self.control_cluster, 0, Qt.AlignTop if hero_header else Qt.AlignVCenter)
         self.setFixedHeight(46 if settings_header else ((92 if compact_hero else 148) if hero_header else (36 if clustered_controls else 28)))
@@ -1137,18 +1139,21 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setObjectName("residentAccessSettingsDialog")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
         self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-FAM-002")
-        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v21")
-        self.setProperty("referenceDerivedHeader", "ndai-global-settings-grouped-single-row-chrome-v21")
-        self.setProperty("settingsVisualRepair", "lv1-global-settings-standard-window-architecture-repair-v21")
+        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v22")
+        self.setProperty("referenceDerivedHeader", "ndai-global-settings-centered-settings-chrome-v22")
+        self.setProperty("settingsVisualRepair", "lv1-global-settings-title-layout-watermark-deferral-repair-v22")
         self.setProperty("dirtyGuardReference", "manage-monitors-modal-save-discard-cancel")
         self.setProperty("uiExposureContract", "real-enabled-meaningful-visible-ui-v1")
         self.setProperty("sharedPrimitiveClaim", "none-promoted-reference-derived-only")
-        self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v21")
+        self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-native-edge-corner-hit-test-14px-no-visible-grip-splitter-minimum-640x318-v21")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-native-edge-corner-hit-test-14px-no-visible-grip-splitter-minimum-640x318-maximum-760x384-v22")
         self.setProperty("visibleResizeGrip", "removed")
+        self.setProperty("deferredWatermarkConcept", "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22")
+        self.setProperty("runtimeWatermarkVisible", "false")
         self.setMinimumSize(640, 318)
+        self.setMaximumSize(760, 384)
         self.resize(700, 344)
         self._apply_native_settings_palette()
 
@@ -1166,7 +1171,7 @@ class ResidentAccessSettingsDialog(QDialog):
         shell_layout.setSpacing(0)
 
         self.chrome_bar = DialogChromeBar(
-            "Global Settings",
+            "Settings",
             self,
             object_prefix="residentAccessSettings",
             parent=self.shell,
@@ -1174,7 +1179,6 @@ class ResidentAccessSettingsDialog(QDialog):
             show_minimize=True,
             clustered_controls=True,
             settings_header=True,
-            kicker="NEXUS DESKTOP AI",
             role_pairs=(),
         )
         self.chrome_bar.setFixedHeight(46)
@@ -1329,7 +1333,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.settings_page_frame.setMinimumWidth(486)
         self.settings_page_frame.setMaximumWidth(540)
         self.settings_page_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        content_layout.addWidget(self.settings_page_frame, 0, Qt.AlignTop | Qt.AlignLeft)
+        content_layout.addWidget(self.settings_page_frame, 0, Qt.AlignTop | Qt.AlignHCenter)
         content_layout.addStretch(1)
 
         self.section_heading = QLabel("Quick Access", self.settings_page_frame)
@@ -2424,6 +2428,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
     def _resize_for_slot_count(self, slot_count: int):
         self.setMinimumSize(640, 318)
+        self.setMaximumSize(760, 384)
         if slot_count > 3 and self.height() < 344:
             self.resize(max(self.width(), 700), 344)
         if hasattr(self, "quick_slot_container"):

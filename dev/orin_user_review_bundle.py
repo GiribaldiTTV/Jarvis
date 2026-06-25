@@ -1045,6 +1045,8 @@ FAM003_RECURRING_DEFECT_IDS = (
     "F3-LV1-UI-034",
     "F3-LV1-UI-035",
     "F3-LV1-UI-036",
+    "F3-LV1-UI-037",
+    "F3-LV1-UI-038",
 )
 FAM003_LOOP_BREAKER_DEFECT_ID = "F3-LV1-PROOF-003"
 
@@ -1128,6 +1130,26 @@ def _fam003_visual_udl_schema_failures(visual_udl_text: str) -> list[str]:
                 if not fields.get(closure_field):
                     failures.append(f"{defect_id} missing closure field {closure_field}")
     return failures
+
+
+def _fam003_latest_defect_statuses(udl_text: str) -> dict[str, str]:
+    """Return the latest recorded status per FAM-003 packet/visual defect row."""
+
+    statuses: dict[str, str] = {}
+    section_pattern = re.compile(
+        r"^##\s+((?:UDL-\d{3})|(?:F3-LV1-(?:UI|PROOF)-\d{3}))\b(?P<body>.*?)(?="
+        r"^##\s+(?:UDL-\d{3}|F3-LV1-(?:UI|PROOF)-\d{3})\b|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    for match in section_pattern.finditer(udl_text):
+        status_match = re.search(
+            r"^Status:\s*`?([^`\n]+)`?",
+            match.group("body"),
+            re.MULTILINE,
+        )
+        if status_match:
+            statuses[match.group(1)] = status_match.group(1).strip()
+    return statuses
 
 
 def _fam003_lv1_visual_retest_semantic_failures(
@@ -1341,7 +1363,7 @@ def _fam003_lv1_visual_retest_semantic_failures(
         )
     else:
         udl_text = "\n".join(packet_files.get(entry, "") for entry in udl_entries)
-        for defect_id in (
+        required_udl_ids = (
             "UDL-001",
             "UDL-002",
             "UDL-003",
@@ -1376,23 +1398,26 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-034",
             "F3-LV1-UI-035",
             "F3-LV1-UI-036",
+            "F3-LV1-UI-037",
+            "F3-LV1-UI-038",
             "F3-LV1-PROOF-001",
             "F3-LV1-PROOF-002",
-        ):
+        )
+        for defect_id in required_udl_ids:
             if defect_id not in udl_text:
                 failures.append(
                     f"FAM-003 LV1 packet semantic proof failed: {defect_id} is missing from the UDL"
                 )
-        open_status_pattern = re.compile(
-            r"Status:\s*`?(OPEN|REPRODUCED|IN_REPAIR|FIXED_PENDING_PROOF|PROOF_FAILED|"
-            r"REOPENED|BLOCKED_SOURCE_TRUTH|OUT_OF_SCOPE_USER_APPROVAL_REQUIRED|AMBIGUOUS|UNPROVEN)`?",
-            re.IGNORECASE,
+        latest_statuses = _fam003_latest_defect_statuses(udl_text)
+        non_closed_statuses = sorted(
+            f"{defect_id}={latest_statuses.get(defect_id, '<missing>')}"
+            for defect_id in required_udl_ids
+            if latest_statuses.get(defect_id) != "CLOSED_WITH_PROOF"
         )
-        open_statuses = sorted({match.group(0) for match in open_status_pattern.finditer(udl_text)})
-        if open_statuses:
+        if non_closed_statuses:
             failures.append(
-                "FAM-003 LV1 packet semantic proof failed: current-owned UDL rows are not closed "
-                f"{open_statuses}"
+                "FAM-003 LV1 packet semantic proof failed: latest current-owned UDL rows are not closed "
+                f"{non_closed_statuses}"
             )
 
     visual_udl_entries = [
