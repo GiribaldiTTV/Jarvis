@@ -305,6 +305,9 @@ VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE = (
 VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_short_markers.md"
 )
+VALID_REBASELINE_ADOPTION_NEGATED_READY_FOR_PHASE_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_negated_ready_for_phase.md"
+)
 VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_direct_negated_green.md"
 )
@@ -3017,6 +3020,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "does not proceed",
         "do not proceed",
         "not proceed",
+        "not ready for",
+        "not yet ready for",
+        "not green for",
+        "not yet green for",
         "cannot proceed",
         "must not proceed",
     )
@@ -7177,6 +7184,34 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid short-marker RAR fixture unexpectedly failed: "
             + "; ".join(valid_short_markers_failures[:5])
+        )
+
+    valid_negated_ready_for_phase_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NEGATED_READY_FOR_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_negated_ready_for_phase_failures:
+        failures.append(
+            "Valid negated-ready-for-phase RAR fixture unexpectedly failed: "
+            + "; ".join(valid_negated_ready_for_phase_failures[:5])
+        )
+
+    generated_negated_ready_for_phase_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+        .replace(
+            "Exact Next USER Decision: none",
+            "Exact Next USER Decision: not ready for PR Readiness; USER must keep RAR3 active until review closes.",
+        )
+    )
+    generated_negated_ready_for_phase_failures = (
+        _validate_rebaseline_adoption_review_text(generated_negated_ready_for_phase_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in "\n".join(
+        generated_negated_ready_for_phase_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected negated ready-for phase wording"
         )
 
     valid_direct_negated_green_failures = _validate_rebaseline_adoption_review_text(
