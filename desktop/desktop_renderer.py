@@ -1018,13 +1018,13 @@ class NexusSettingsSplitterHandle(QSplitterHandle):
         painter.setRenderHint(QPainter.Antialiasing, True)
         rect = self.rect()
         center_x = rect.width() / 2
-        painter.setPen(QPen(QColor(122, 232, 255, 22), 1))
-        painter.drawLine(int(center_x), 12, int(center_x), max(12, rect.height() - 12))
+        painter.setPen(QPen(QColor(122, 232, 255, 54), 1.25))
+        painter.drawLine(int(center_x), 10, int(center_x), max(10, rect.height() - 10))
         painter.setPen(Qt.NoPen)
-        painter.setBrush(QColor(153, 246, 228, 72))
+        painter.setBrush(QColor(153, 246, 228, 118))
         mid_y = rect.height() / 2
-        for offset in (-6, 0, 6):
-            painter.drawRoundedRect(QRectF(center_x - 0.9, mid_y + offset - 0.9, 1.8, 1.8), 0.9, 0.9)
+        for offset in (-7, 0, 7):
+            painter.drawRoundedRect(QRectF(center_x - 1.15, mid_y + offset - 1.15, 2.3, 2.3), 1.15, 1.15)
 
 
 class NexusSettingsSplitter(QSplitter):
@@ -1118,7 +1118,8 @@ class NexusGlyphButton(QPushButton):
 
 
 class ResidentAccessSettingsDialog(QDialog):
-    RESIZE_MARGIN = 16
+    RESIZE_MARGIN = 8
+    RESIZE_CORNER_MARGIN = 12
     MINIMUM_SIZE = (560, 286)
     MAXIMUM_SIZE = (1100, 720)
 
@@ -1165,7 +1166,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-16px-no-visible-grip-splitter-minimum-560x286-maximum-1100x720-v24")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-minimum-560x286-maximum-1100x720-v25")
         self.setProperty("visibleResizeGrip", "removed")
         self.setProperty("deferredWatermarkConcept", "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22")
         self.setProperty("runtimeWatermarkVisible", "false")
@@ -1214,7 +1215,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.settings_splitter = NexusSettingsSplitter(Qt.Horizontal, body)
         self.settings_splitter.setObjectName("residentAccessSettingsSplitter")
         self.settings_splitter.setChildrenCollapsible(False)
-        self.settings_splitter.setHandleWidth(5)
+        self.settings_splitter.setHandleWidth(7)
+        self.settings_splitter.setProperty("settingsSplitterAffordance", "defined-teal-rail-7px-v25")
         self.settings_splitter.setAccessibleName("Resize Global Settings navigation pane")
         body_layout.addWidget(self.settings_splitter, 1)
 
@@ -1350,7 +1352,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.settings_page_frame.setMinimumWidth(420)
         self.settings_page_frame.setMaximumWidth(540)
         self.settings_page_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        content_layout.addWidget(self.settings_page_frame, 0, Qt.AlignTop | Qt.AlignHCenter)
+        content_layout.addWidget(self.settings_page_frame, 0, Qt.AlignTop)
         content_layout.addStretch(1)
 
         self.section_heading = QLabel("Quick Access", self.settings_page_frame)
@@ -1427,6 +1429,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_slot_container = QFrame(self.settings_page_frame)
         self.quick_slot_container.setObjectName("residentAccessQuickSlotContainer")
         self.quick_slot_container.setAttribute(Qt.WA_StyledBackground, True)
+        self.quick_slot_container.setMaximumWidth(430)
         self.quick_slot_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         quick_slot_layout = QVBoxLayout(self.quick_slot_container)
         quick_slot_layout.setContentsMargins(9, 7, 9, 7)
@@ -1487,6 +1490,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.footer_frame = QFrame(self.settings_page_frame)
         self.footer_frame.setObjectName("residentAccessSettingsFooter")
         self.footer_frame.setAttribute(Qt.WA_StyledBackground, True)
+        self.footer_frame.setMaximumWidth(430)
         self.footer_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         footer = QHBoxLayout(self.footer_frame)
         footer.setContentsMargins(0, 3, 0, 0)
@@ -1657,14 +1661,14 @@ class ResidentAccessSettingsDialog(QDialog):
             " border: none;"
             "}"
             "#residentAccessSettingsSplitter::handle {"
-            " background: rgba(122, 232, 255, 0.01);"
-            " border-left: 1px solid rgba(122, 232, 255, 0.035);"
-            " border-right: 1px solid rgba(122, 232, 255, 0.02);"
+            " background: rgba(122, 232, 255, 0.025);"
+            " border-left: 1px solid rgba(122, 232, 255, 0.11);"
+            " border-right: 1px solid rgba(153, 246, 228, 0.07);"
             " border-radius: 3px;"
             "}"
             "#residentAccessSettingsSplitter::handle:hover {"
-            " background: rgba(122, 232, 255, 0.055);"
-            " border-color: rgba(153, 246, 228, 0.12);"
+            " background: rgba(122, 232, 255, 0.09);"
+            " border-color: rgba(153, 246, 228, 0.25);"
             "}"
             "#residentAccessSettingsNavShell {"
             " background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(2, 14, 26, 0.66), stop:1 rgba(1, 8, 17, 0.34));"
@@ -2384,8 +2388,8 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(slot_label)
             combo = QComboBox(row)
             combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
-            combo.setMinimumWidth(248)
-            combo.setMaximumWidth(320)
+            combo.setMinimumWidth(280)
+            combo.setMaximumWidth(520)
             combo.setMaxVisibleItems(4)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
@@ -2631,9 +2635,11 @@ class ResidentAccessSettingsDialog(QDialog):
 
     def _settings_resize_edges_for_local_pos(self, local: QPoint):
         margin = self.RESIZE_MARGIN
-        corner_margin = margin * 2
+        corner_margin = self.RESIZE_CORNER_MARGIN
         width = self.width()
         height = self.height()
+        if not QRect(0, 0, width, height).contains(local):
+            return Qt.Edges()
         edges = Qt.Edges()
         if local.x() <= corner_margin and local.y() <= corner_margin:
             edges |= Qt.LeftEdge | Qt.TopEdge

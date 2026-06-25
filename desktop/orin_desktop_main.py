@@ -1040,7 +1040,7 @@ def main():
             arrow_cursor = int(load_cursor(None, 32512) or 0)
             before = dialog.geometry()
             foreground_after_focus = focus_dialog_window()
-            start_global = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(10, 10))
+            start_global = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(8, 8))
             end_global = start_global + QPoint(170, 120)
             cursor_before_drag, cursor_visible = settle_cursor_at_point(start_global)
             cursor_edges = getattr(dialog, "_settings_resize_edges_for_screen_point")(start_global)
@@ -1143,7 +1143,7 @@ def main():
                 and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
                 and not resize_evidence["resizeActiveAfterRelease"]
                 and resize_evidence["windowResizeBehavior"]
-                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-16px-no-visible-grip-splitter-minimum-560x286-maximum-1100x720-v24"
+                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-minimum-560x286-maximum-1100x720-v25"
             )
             record_step(
                 "settings_window_user_drag_resize",
