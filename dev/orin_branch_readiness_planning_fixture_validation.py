@@ -2446,12 +2446,26 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     def code_trace_row_requires_user_packet(row: list[str]) -> bool:
-        if len(row) <= 10 or not cell_has_unresolved_status(row[8]):
+        if len(row) <= 10:
+            return False
+        unresolved_evidence = (
+            cell_has_unresolved_status(row[8])
+            or cell_has_unresolved_comparison(row[6])
+            or cell_has_unresolved_comparison(row[7])
+            or cell_has_unresolved_comparison(row[9])
+        )
+        if not unresolved_evidence:
             return False
         return user_review_action_requires_packet(row[10])
 
     def accepted_reference_row_requires_user_packet(row: list[str]) -> bool:
-        if len(row) <= 8 or not cell_has_unresolved_status(row[8]):
+        if len(row) <= 8:
+            return False
+        unresolved_evidence = (
+            cell_has_unresolved_status(row[8])
+            or cell_has_unresolved_comparison(row[8])
+        )
+        if not unresolved_evidence:
             return False
         return user_review_action_requires_packet(row[8])
 
@@ -7447,6 +7461,26 @@ line item, not a seam or separate branch.
             "Generated RAR adversarial matrix did not reject resolved RAR with unresolved visual/behavior comparison cells"
         )
 
+    generated_status_green_visual_user_packet_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py | FAM-006 desktop renderer | screenshot | UIREF-002 | Mismatch | Unproven | CONFORMING | comparison columns remain unresolved | USER waiver required before closeout |",
+        )
+    )
+    generated_status_green_visual_user_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_status_green_visual_user_packet_text
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_status_green_visual_user_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not require a USER packet when unresolved comparison cells requested USER waiver despite CONFORMING status"
+        )
+
     generated_resolved_accepted_reference_gap_text = (
         VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
             encoding="utf-8"
@@ -7465,6 +7499,26 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Generated RAR adversarial matrix did not reject resolved RAR with unresolved accepted-reference gap cell"
+        )
+
+    generated_status_green_reference_user_packet_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | Not Applicable With Reason | Not Applicable With Reason | None | None | None | Not Applicable With Reason | validation summary | No issue candidate applicable |",
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | visual mismatch requires USER waiver before closeout |",
+        )
+    )
+    generated_status_green_reference_user_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_status_green_reference_user_packet_text
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_status_green_reference_user_packet_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not require a USER packet when accepted-reference gap cells requested USER waiver"
         )
 
     valid_reviewed_issue_candidate_rar_failures = (
