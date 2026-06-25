@@ -477,6 +477,9 @@ INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_mixed_disclaimer_phase_advance.md"
 )
+INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_move_into_phase_advance.md"
+)
 INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
 )
@@ -2788,7 +2791,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
     phase_advancement_action_pattern = re.compile(
         rf"(?:"
-        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?\s+to|continue(?:s|d|ing)?\s+to|green\s+for|ready\s+for)\b"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?\s+(?:to|into)|continue(?:s|d|ing)?\s+(?:to|into)|green\s+for|ready\s+for)\b"
         rf"[\w\s/-]{{0,120}}\b(?:{phase_token_pattern})\b"
         rf"|"
         rf"\b(?:{phase_token_pattern})\b[\w\s/-]{{0,120}}"
@@ -7594,6 +7597,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
+        )
+
+    move_into_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        move_into_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject move-into phase advancement while RAR remains active"
         )
 
     generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
