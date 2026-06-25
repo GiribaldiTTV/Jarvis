@@ -2368,7 +2368,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 continue
             spans.append(match.span())
             next_char = normalized_value[match.end() : match.end() + 1]
-            if next_char == ".":
+            after_next = normalized_value[match.end() + 1 : match.end() + 2]
+            if next_char == "." and after_next not in {"", " ", "\t", "\r", "\n"}:
                 invalid_path_seen = True
                 continue
             raw_path = match.group(0)
