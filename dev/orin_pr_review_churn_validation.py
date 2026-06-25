@@ -197,17 +197,34 @@ def _graphql(query: str, variables: dict[str, Any]) -> dict[str, Any]:
     return data["data"]
 
 
-def _rest_paginated(path: str) -> list[dict[str, Any]]:
-    raw = _run(["gh", "api", "--paginate", "--slurp", path])
+def _rest_paginated_pages(path: str) -> tuple[list[dict[str, Any]], int]:
+    raw = _run(
+        [
+            "gh",
+            "api",
+            "--paginate",
+            "--slurp",
+            "-H",
+            "Accept: application/vnd.github+json",
+            path,
+        ]
+    )
     pages = json.loads(raw)
     items: list[dict[str, Any]] = []
     for page in pages:
         if isinstance(page, list):
             items.extend(page)
+    return items, len(pages)
+
+
+def _rest_paginated(path: str) -> list[dict[str, Any]]:
+    items, _ = _rest_paginated_pages(path)
     return items
 
 
-def _fetch_review_threads(owner: str, name: str, number: int) -> tuple[dict[str, Any], list[dict[str, Any]], int]:
+def _fetch_review_threads(
+    owner: str, name: str, number: int
+) -> tuple[dict[str, Any], list[dict[str, Any]], int]:
     query = """
 query($owner:String!,$name:String!,$number:Int!,$cursor:String){
   repository(owner:$owner,name:$name){
@@ -223,18 +240,6 @@ query($owner:String!,$name:String!,$number:Int!,$cursor:String){
           id
           isResolved
           isOutdated
-          comments(first:50){
-            nodes{
-              id
-              author{login}
-              body
-              path
-              line
-              originalLine
-              createdAt
-              pullRequestReview{commit{oid}}
-            }
-          }
         }
       }
     }
@@ -292,19 +297,28 @@ def _classify_comment(body: str) -> list[str]:
     return families or ["unknown"]
 
 
-def _connector_thread_comments(threads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _connector_review_comments(review_comments: list[dict[str, Any]]) -> list[dict[str, Any]]:
     comments: list[dict[str, Any]] = []
-    for thread in threads:
-        for comment in thread.get("comments", {}).get("nodes", []):
-            author = (comment.get("author") or {}).get("login", "")
-            if not _is_connector_login(author):
-                continue
-            item = dict(comment)
-            item["threadId"] = thread["id"]
-            item["isResolved"] = bool(thread.get("isResolved"))
-            item["isOutdated"] = bool(thread.get("isOutdated"))
-            item["families"] = _classify_comment(comment.get("body", ""))
-            comments.append(item)
+    for comment in review_comments:
+        author = (comment.get("user") or {}).get("login", "")
+        if not _is_connector_login(author):
+            continue
+        body = comment.get("body") or ""
+        item = {
+            "id": str(comment.get("id") or ""),
+            "threadId": str(comment.get("in_reply_to_id") or comment.get("id") or ""),
+            "author": {"login": author},
+            "body": body,
+            "path": comment.get("path") or "",
+            "line": comment.get("line") or comment.get("original_line"),
+            "originalLine": comment.get("original_line"),
+            "createdAt": comment.get("created_at") or "",
+            "url": comment.get("html_url") or "",
+            "isResolved": False,
+            "isOutdated": False,
+            "families": _classify_comment(body),
+        }
+        comments.append(item)
     return comments
 
 
@@ -348,13 +362,30 @@ def _is_helper_validator_parser(path: str) -> bool:
     return any(pattern in name for pattern in HELPER_FILE_PATTERNS)
 
 
+def _comment_reactions(owner: str, name: str, comment_id: int) -> list[dict[str, Any]]:
+    return _rest_paginated(
+        f"repos/{owner}/{name}/issues/comments/{comment_id}/reactions"
+    )
+
+
+def _head_commit_timestamp(owner: str, name: str, head_oid: str) -> str:
+    data = json.loads(_run(["gh", "api", f"repos/{owner}/{name}/commits/{head_oid}"]))
+    commit = data.get("commit") or {}
+    committer = commit.get("committer") or {}
+    author = commit.get("author") or {}
+    return committer.get("date") or author.get("date") or ""
+
+
+def _is_at_or_after(timestamp: str, baseline: str) -> bool:
+    return bool(timestamp and baseline and timestamp >= baseline)
+
+
 def _extract_latest_green(
     owner: str, name: str, number: int, head_oid: str
 ) -> tuple[bool, str]:
-    issue_comments = _rest_paginated(
-        f"repos/{owner}/{name}/issues/{number}/comments"
-    )
+    issue_comments = _rest_paginated(f"repos/{owner}/{name}/issues/{number}/comments")
     review_summaries = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/reviews")
+    head_timestamp = _head_commit_timestamp(owner, name, head_oid)
     green_patterns = (
         "didn't find any major issues",
         "didn\u2019t find any major issues",
@@ -364,21 +395,77 @@ def _extract_latest_green(
         "looks good",
     )
     candidates: list[tuple[str, str, str]] = []
+    latest_request: dict[str, Any] | None = None
     for item in issue_comments:
         author = (item.get("user") or {}).get("login", "")
         body = item.get("body") or ""
-        if _is_connector_login(author) and any(
-            pattern in body.casefold() for pattern in green_patterns
+        if "@codex" in body.casefold() and "review" in body.casefold():
+            latest_request = item
+    latest_request_created = ""
+    latest_request_current = False
+    if latest_request:
+        latest_request_created = latest_request.get("created_at") or ""
+        latest_request_current = _is_at_or_after(latest_request_created, head_timestamp)
+    for item in issue_comments:
+        author = (item.get("user") or {}).get("login", "")
+        body = item.get("body") or ""
+        created_at = item.get("created_at") or ""
+        if (
+            latest_request_current
+            and _is_at_or_after(created_at, latest_request_created)
+            and _is_connector_login(author)
+            and any(pattern in body.casefold() for pattern in green_patterns)
         ):
-            candidates.append((item.get("created_at") or "", body, item.get("html_url") or ""))
+            candidates.append(
+                (
+                    created_at,
+                    body + f"\nTimeline bound to current head: {head_oid}",
+                    item.get("html_url") or "",
+                )
+            )
+    if latest_request:
+        request_id = latest_request.get("id")
+        if latest_request_current and isinstance(request_id, int):
+            for reaction in _comment_reactions(owner, name, request_id):
+                reaction_author = (reaction.get("user") or {}).get("login", "")
+                reaction_created = reaction.get("created_at") or ""
+                if (
+                    reaction.get("content") == "+1"
+                    and _is_connector_login(reaction_author)
+                    and _is_at_or_after(reaction_created, latest_request_created)
+                ):
+                    return (
+                        True,
+                        (
+                            f"{latest_request.get('created_at') or ''} "
+                            f"{latest_request.get('html_url') or ''} "
+                            "(Codex Connector thumbs-up reaction on latest review request)"
+                        ).strip(),
+                    )
     for item in review_summaries:
         author = (item.get("user") or {}).get("login", "")
         body = item.get("body") or ""
         commit_id = item.get("commit_id") or ""
         if _is_connector_login(author) and any(
             pattern in body.casefold() for pattern in green_patterns
+        ) and commit_id == head_oid:
+            candidates.append(
+                (
+                    item.get("submitted_at") or "",
+                    body + f"\nReviewed commit: {commit_id}",
+                    item.get("html_url") or "",
+                )
+            )
+        elif _is_connector_login(author) and any(
+            pattern in body.casefold() for pattern in green_patterns
         ):
-            candidates.append((item.get("submitted_at") or "", body + f"\nReviewed commit: {commit_id}", item.get("html_url") or ""))
+            candidates.append(
+                (
+                    item.get("submitted_at") or "",
+                    body + f"\nReviewed commit: {commit_id}",
+                    item.get("html_url") or "",
+                )
+            )
     if not candidates:
         return False, "No Codex Connector green comment/review found."
     candidates.sort(key=lambda item: item[0])
@@ -462,8 +549,11 @@ def _validate_matrix(
 def build_report(args: argparse.Namespace) -> tuple[int, str]:
     owner, name = _split_repo(args.repo)
     pull_request, threads, page_count = _fetch_review_threads(owner, name, args.pr)
+    review_comments, review_comment_page_count = _rest_paginated_pages(
+        f"repos/{owner}/{name}/pulls/{args.pr}/comments"
+    )
     matrix = _load_matrix(Path(args.matrix))
-    comments = _connector_thread_comments(threads)
+    comments = _connector_review_comments(review_comments)
     thread_counts = _thread_counts(threads)
     changed_files = _changed_files(args.base)
     changed_helper_files = [
@@ -500,6 +590,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         f"Head SHA: {pull_request['headRefOid']}",
         f"Mergeability: {pull_request.get('mergeable')} / {pull_request.get('mergeStateStatus')}",
         f"Review-thread pages inspected: {page_count}",
+        f"Review-comment pages inspected: {review_comment_page_count}",
         (
             "Review-thread counts: "
             f"total={thread_counts['total']}, "

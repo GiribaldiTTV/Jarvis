@@ -300,8 +300,11 @@
       "title": "PR2 review-thread pagination, current-head approval latch, and merge-ready proof coverage",
       "representative_comment_patterns": [
         "Only first review-thread page inspected",
+        "Nested review-thread comments are not fully paginated",
+        "Pull review comments pagination omitted",
         "Resolved/outdated/current unresolved counts missing",
-        "Merge-ready claimed without current-head Codex Connector approval latch"
+        "Merge-ready claimed without current-head Codex Connector approval latch",
+        "Codex Connector thumbs-up approval latch ignored"
       ],
       "source_truth": [
         "Docs/pr_watcher_mode_contract.md",
@@ -318,14 +321,21 @@
       ],
       "generated_mutation_coverage": [
         "reviewThreads pagination count mismatch",
+        "pull review comments pagination count mismatch",
         "unresolved current thread present",
         "unresolved outdated-only thread report",
-        "missing current-head green latch under --require-current-green"
+        "missing current-head green latch under --require-current-green",
+        "Codex Connector thumbs-up reaction on latest review request",
+        "stale Codex Connector thumbs-up reaction before current head",
+        "long review thread with more than 50 connector comments"
       ],
       "sibling_variant_replay": [
         "pre-request mode reports latch but does not require it",
         "merge-ready mode requires current-head latch",
-        "all review thread pages must be fetched before PASS"
+        "all review thread pages must be fetched before PASS",
+        "all pull review-comment pages must be fetched before PASS",
+        "thumbs-up approval latch accepted when bound to the latest review request on the current head",
+        "thumbs-up approval latch rejected when only an older head request was approved"
       ]
     }
   ]
