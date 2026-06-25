@@ -487,6 +487,10 @@ INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_mixed_disclaimer_phase_advance.md"
 )
+INVALID_REBASELINE_ADOPTION_COMMA_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_comma_mixed_disclaimer_phase_advance.md"
+)
 INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_move_into_phase_advance.md"
 )
@@ -2770,36 +2774,38 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "release",
     )
 
+    negation_tokens = (
+        "does not authorize",
+        "do not authorize",
+        "not authorize",
+        "does not approve",
+        "do not approve",
+        "not approve",
+        "does not permit",
+        "do not permit",
+        "not permit",
+        "not authorized",
+        "not approved",
+        "without authorizing",
+        "blocked",
+        "remains blocked",
+        "stays blocked",
+        "held",
+        "remains held",
+        "does not advance",
+        "do not advance",
+        "not advance",
+        "does not proceed",
+        "do not proceed",
+        "not proceed",
+        "cannot proceed",
+        "must not proceed",
+    )
+    phase_claim_clause_pattern = r"[,.;]|\b(?:and|but|however|yet)\b"
+
     def strip_negated_phase_disclaimers(value: str) -> str:
-        clauses = re.split(r"[.;]|\b(?:and|but|however|yet)\b", value)
+        clauses = re.split(phase_claim_clause_pattern, value)
         kept: list[str] = []
-        negation_tokens = (
-            "does not authorize",
-            "do not authorize",
-            "not authorize",
-            "does not approve",
-            "do not approve",
-            "not approve",
-            "does not permit",
-            "do not permit",
-            "not permit",
-            "not authorized",
-            "not approved",
-            "without authorizing",
-            "blocked",
-            "remains blocked",
-            "stays blocked",
-            "held",
-            "remains held",
-            "does not advance",
-            "do not advance",
-            "not advance",
-            "does not proceed",
-            "do not proceed",
-            "not proceed",
-            "cannot proceed",
-            "must not proceed",
-        )
         for clause in clauses:
             if any(token in clause for token in advancement_tokens) and any(
                 token in clause for token in negation_tokens
@@ -2836,21 +2842,32 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     concrete_advancement_requested = concrete_next_phase_requested or (
         concrete_marker_advancement_requested
     )
-    generic_advancement_values = " ".join(
-        (
-            phase_advancement_marker_values,
-            next_phase_values,
+
+    def normal_phase_progression_claimed(value: str) -> bool:
+        clauses = re.split(phase_claim_clause_pattern, value)
+        for clause in clauses:
+            cleaned_clause = clause
+            for blocker_phrase in (
+                "required before normal phase progression",
+                "before normal phase progression",
+            ):
+                cleaned_clause = cleaned_clause.replace(blocker_phrase, "")
+            for match in re.finditer(r"\bnormal phase progression\b", cleaned_clause):
+                local_context = cleaned_clause[
+                    max(0, match.start() - 80) : match.end() + 80
+                ]
+                if any(token in local_context for token in negation_tokens):
+                    continue
+                return True
+        return False
+
+    generic_advancement_requested = normal_phase_progression_claimed(
+        " ".join(
+            (
+                phase_advancement_marker_values,
+                next_phase_values,
+            )
         )
-    )
-    for blocker_phrase in (
-        "required before normal phase progression",
-        "before normal phase progression",
-    ):
-        generic_advancement_values = generic_advancement_values.replace(
-            blocker_phrase, ""
-        )
-    generic_advancement_requested = "normal phase progression" in (
-        generic_advancement_values
     )
     advancement_requested = (
         generic_advancement_requested
@@ -7662,6 +7679,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
+        )
+
+    comma_mixed_disclaimer_phase_advance_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_COMMA_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        comma_mixed_disclaimer_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject comma-mixed disclaimer plus affirmative phase advancement"
         )
 
     move_into_phase_advance_failures = _validate_rebaseline_adoption_review_text(

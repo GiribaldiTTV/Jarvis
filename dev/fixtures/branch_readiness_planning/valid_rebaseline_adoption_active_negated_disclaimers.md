@@ -36,12 +36,12 @@ Issue-Candidate Table: Issue Candidate F6-HIST-001 is pending USER review; GitHu
 Issue Candidate Disposition: Issue Candidate F6-HIST-001 remains pending USER review and GitHub issue mutation is not approved.
 Repair / Waiver / Defer / Route Decision Table: USER review pending for Issue Candidate F6-HIST-001; approving the issue candidate authorizes issue creation only if USER separately approves that GitHub action.
 Adoption Disposition: Not all adoption checks are green because issue-candidate review remains pending.
-Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER reviews issue candidates or waives them.
+Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER reviews issue candidates or waives them; normal phase progression remains blocked.
 Validation Summary: branch-readiness fixture validation, branch governance validation, packet validation, and focused visual proof review are required evidence layers.
 USER Packet Path: C:\Nexus USER\FAM-006 contains the deterministic RAR review packet for USER inspection.
 USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-20260620-120000.zip.
 Next Legal Phase: RAR3 USER Review Gate remains active until USER reviews issue candidates or waives them.
-Exact Next USER Decision: USER reviews RAR issue candidates; this does not authorize PR creation, merge, or release.
+Exact Next USER Decision: USER reviews RAR issue candidates; normal phase progression is not authorized; this does not authorize PR creation, merge, or release.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State, USER packets, helper output, Codex digest, or evidence roots; repo docs keep durable rules only.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
