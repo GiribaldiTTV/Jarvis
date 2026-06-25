@@ -392,6 +392,9 @@ INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MISSING_NEXT_LEGAL_PHASE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_next_legal_phase.md"
 )
+INVALID_REBASELINE_ADOPTION_REPO_LIVE_STATE_TRACKING_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_repo_live_state_tracking.md"
+)
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
 )
@@ -2444,9 +2447,22 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
 
     no_live_state = governance._extract_marker_value(text, "No Repo Live-State Tracking:")
+    normalized_no_live_state = governance._normalized_planning_value(no_live_state)
+    repo_live_state_patterns = (
+        r"\b(?:active|live|current)\b[^.;]{0,100}\b(?:track(?:s|ed|ing)?|stor(?:es|ed|ing)?|record(?:s|ed|ing)?|writ(?:es|ten|ing)?|ledger)\b[^.;]{0,100}\b(?:repo|repository|docs?/)",
+        r"\b(?:repo|repository)\s+(?:doc|docs|file|files|source truth|record|records)\b[^.;]{0,100}\b(?:track(?:s|ed|ing)?|stor(?:es|ed|ing)?|record(?:s|ed|ing)?|contain(?:s|ed|ing)?|ledger)\b[^.;]{0,100}\b(?:active|live|current|rar)\b",
+        r"\bdocs/[^\s,;:]+[^.;]{0,100}\b(?:track(?:s|ed|ing)?|stor(?:es|ed|ing)?|record(?:s|ed|ing)?|contain(?:s|ed|ing)?|ledger)\b[^.;]{0,100}\b(?:active|live|current|rar)\b",
+    )
+    repo_live_state_leak = any(
+        re.search(pattern, normalized_no_live_state)
+        for pattern in repo_live_state_patterns
+    )
     require(
-        "c:\\nexus governance state" in no_live_state.casefold()
-        or "external" in no_live_state.casefold(),
+        not repo_live_state_leak
+        and (
+            "c:\\nexus governance state" in no_live_state.casefold()
+            or "external" in no_live_state.casefold()
+        ),
         "RAR Live Adoption Ledger In Repo",
     )
 
@@ -6929,6 +6945,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing Next Legal Phase marker"
+        )
+
+    repo_live_state_tracking_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_REPO_LIVE_STATE_TRACKING_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if "RAR Live Adoption Ledger In Repo" not in "\n".join(
+        repo_live_state_tracking_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject repo live-state tracking despite external-state mention"
         )
 
     unanchored_stage_resolved_failures = _validate_rebaseline_adoption_review_text(
