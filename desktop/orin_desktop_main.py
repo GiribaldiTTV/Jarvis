@@ -922,7 +922,7 @@ def main():
 
         def write_manifest(status, failure=""):
             payload = {
-                "schema": "fam003-settings-live-resize-precheck-v1",
+                "schema": "fam003-settings-live-resize-precheck-v2",
                 "status": status,
                 "failure": failure,
                 "startedAt": started_at,
@@ -930,7 +930,7 @@ def main():
                 "surface": "FAM-003 Global Settings",
                 "shortcutPath": real_client_tray_precheck_shortcut_path(),
                 "normalLauncherProof": True,
-                "proofMethod": "normal desktop shortcut launch plus SetCursorPos held Win32 left-button drag",
+                "proofMethod": "normal desktop shortcut launch plus Windows resize cursor hover proof plus SetCursorPos held Win32 left-button drag",
                 "formalUtsTouched": False,
                 "steps": steps,
             }
@@ -965,12 +965,90 @@ def main():
             move = 0x0001
             left_down = 0x0002
             left_up = 0x0004
+
+            class CursorInfo(ctypes.Structure):
+                _fields_ = [
+                    ("cbSize", ctypes.wintypes.DWORD),
+                    ("flags", ctypes.wintypes.DWORD),
+                    ("hCursor", ctypes.wintypes.HCURSOR),
+                    ("ptScreenPos", ctypes.wintypes.POINT),
+                ]
+
+            get_cursor_info = user32.GetCursorInfo
+            get_cursor_info.argtypes = [ctypes.POINTER(CursorInfo)]
+            get_cursor_info.restype = ctypes.c_bool
+            load_cursor = user32.LoadCursorW
+            load_cursor.restype = ctypes.wintypes.HCURSOR
+            bring_window_to_top = user32.BringWindowToTop
+            bring_window_to_top.argtypes = [ctypes.wintypes.HWND]
+            bring_window_to_top.restype = ctypes.c_bool
+            set_foreground_window = user32.SetForegroundWindow
+            set_foreground_window.argtypes = [ctypes.wintypes.HWND]
+            set_foreground_window.restype = ctypes.c_bool
+            set_active_window = user32.SetActiveWindow
+            set_active_window.argtypes = [ctypes.wintypes.HWND]
+            set_active_window.restype = ctypes.wintypes.HWND
+            get_foreground_window = user32.GetForegroundWindow
+            get_foreground_window.restype = ctypes.wintypes.HWND
+
+            def current_cursor_handle():
+                info = CursorInfo()
+                info.cbSize = ctypes.sizeof(CursorInfo)
+                if not get_cursor_info(ctypes.byref(info)):
+                    return 0, False
+                return int(info.hCursor or 0), bool(int(info.flags) & 0x00000001)
+
+            def focus_dialog_window():
+                hwnd = ctypes.wintypes.HWND(int(dialog.winId()))
+                try:
+                    bring_window_to_top(hwnd)
+                    set_active_window(hwnd)
+                    set_foreground_window(hwnd)
+                except Exception:
+                    pass
+                QApplication.processEvents()
+                return int(get_foreground_window() or 0)
+
+            def settle_cursor_at_point(point):
+                set_cursor_pos(int(point.x() - 2), int(point.y() - 2))
+                QApplication.processEvents()
+                time.sleep(0.045)
+                set_cursor_pos(int(point.x()), int(point.y()))
+                mouse_event(move, 1, 0, 0, 0)
+                QApplication.processEvents()
+                time.sleep(0.035)
+                set_cursor_pos(int(point.x()), int(point.y()))
+                for _ in range(18):
+                    QApplication.processEvents()
+                    time.sleep(0.010)
+                try:
+                    getattr(dialog, "_poll_settings_resize_hover_cursor")()
+                except Exception:
+                    pass
+                first = current_cursor_handle()
+                for _ in range(9):
+                    QApplication.processEvents()
+                    time.sleep(0.010)
+                try:
+                    getattr(dialog, "_poll_settings_resize_hover_cursor")()
+                except Exception:
+                    pass
+                second = current_cursor_handle()
+                return second if second[0] else first
+
+            expected_cursor = int(load_cursor(None, 32642) or 0)
+            arrow_cursor = int(load_cursor(None, 32512) or 0)
             before = dialog.geometry()
-            start_global = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(18, 18))
+            foreground_after_focus = focus_dialog_window()
+            start_global = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(10, 10))
             end_global = start_global + QPoint(170, 120)
-            set_cursor_pos(int(start_global.x()), int(start_global.y()))
-            mouse_event(move, 0, 0, 0, 0)
-            pump(120)
+            cursor_before_drag, cursor_visible = settle_cursor_at_point(start_global)
+            cursor_edges = getattr(dialog, "_settings_resize_edges_for_screen_point")(start_global)
+            cursor_edges_under = getattr(dialog, "_settings_resize_edges_under_cursor")()[1]
+            cursor_key = getattr(dialog, "_settings_resize_cursor_key", None)
+            point_belongs = getattr(dialog, "_settings_point_belongs_to_window")(start_global)
+            cursor_matches_resize = cursor_visible and expected_cursor and cursor_before_drag == expected_cursor
+            cursor_changed_from_arrow = cursor_visible and arrow_cursor and cursor_before_drag != arrow_cursor
             mouse_event(left_down, 0, 0, 0, 0)
             try:
                 for step in range(1, 38):
@@ -1009,6 +1087,22 @@ def main():
                     "width": dialog.minimumWidth(),
                     "height": dialog.minimumHeight(),
                 },
+                "cursorBeforeDrag": {
+                    "handle": cursor_before_drag,
+                    "expectedResizeCursor": expected_cursor,
+                    "arrowCursor": arrow_cursor,
+                    "visible": cursor_visible,
+                    "matchesResizeCursor": cursor_matches_resize,
+                    "changedFromArrow": cursor_changed_from_arrow,
+                    "edgesForScreen": str(cursor_edges),
+                    "edgesUnderCursor": str(cursor_edges_under),
+                    "cursorKey": str(cursor_key),
+                    "foregroundAfterFocus": foreground_after_focus,
+                    "dialogWindowHandle": int(dialog.winId()),
+                    "settingsHoverPollTickedForValidation": True,
+                    "pointBelongsToWindow": bool(point_belongs),
+                    "startPointInsideResizeRail": bool(getattr(cursor_edges, "value", cursor_edges)),
+                },
                 "resizeActiveAfterRelease": bool(getattr(dialog, "_settings_resize_active", False)),
                 "windowResizeBehavior": str(dialog.property("windowResizeBehavior") or ""),
             }
@@ -1046,9 +1140,10 @@ def main():
             resize_ok = (
                 resize_evidence["widthDelta"] >= 120
                 and resize_evidence["heightDelta"] >= 80
+                and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
                 and not resize_evidence["resizeActiveAfterRelease"]
                 and resize_evidence["windowResizeBehavior"]
-                == "frameless-top-level-native-edge-corner-hit-test-app-owned-fallback-14px-no-visible-grip-splitter-minimum-640x318-maximum-1100x720-v23"
+                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-16px-no-visible-grip-splitter-minimum-560x286-maximum-1100x720-v24"
             )
             record_step(
                 "settings_window_user_drag_resize",
@@ -1056,6 +1151,7 @@ def main():
                 resize_ok,
                 (
                     f"delta={resize_evidence['widthDelta']}x{resize_evidence['heightDelta']}; "
+                    f"cursorMatchesResize={resize_evidence['cursorBeforeDrag']['matchesResizeCursor']}; "
                     f"behavior={resize_evidence['windowResizeBehavior']}"
                 ),
                 resize_evidence,
