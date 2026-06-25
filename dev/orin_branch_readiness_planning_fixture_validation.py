@@ -2845,11 +2845,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "not waived",
             "not repaired",
             "not routed",
-            "not blocked",
             "not yet waived",
             "not yet repaired",
             "not yet routed",
             "not yet blocked",
+            "not blocked yet",
             "without active user decision",
             "is required before",
             "required before",
@@ -2857,17 +2857,25 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "not happened",
         )
     )
+    issue_candidate_disposition_text = (
+        f"{normalized_issue_candidate_disposition} {normalized_decision_table}"
+    )
+    non_negated_blocked_disposition = (
+        re.search(
+            r"(?<![a-z0-9_-])blocked(?![a-z0-9_-])",
+            issue_candidate_disposition_text,
+        )
+        is not None
+        and re.search(
+            r"\b(?:not|no\s+longer)\s+blocked\b|\bnot\s+yet\s+blocked\b|\bnot\s+blocked\s+yet\b",
+            issue_candidate_disposition_text,
+        )
+        is None
+    )
     issue_candidate_disposition_completed = (
         (
             completed_issue_candidate_disposition
-            or (
-                re.search(
-                    r"(?<![a-z0-9_-])blocked(?![a-z0-9_-])",
-                    f"{normalized_issue_candidate_disposition} {normalized_decision_table}",
-                )
-                is not None
-                and not pending_issue_candidate_review
-            )
+            or (non_negated_blocked_disposition and not pending_issue_candidate_review)
         )
         and not negated_issue_candidate_disposition
     )
@@ -3092,13 +3100,14 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     phase_blocker_token_pattern = "|".join(
         re.escape(token).replace(r"\ ", r"\s+") for token in phase_blocker_tokens
     )
+    phase_clause_boundary_pattern = r"\b(?:but|however|yet|although|though|while)\b"
     negated_phase_list_pattern = re.compile(
         rf"\b(?:{phase_disclaimer_token_pattern})\b"
-        rf"(?:(?!\b(?:{phase_action_token_pattern})\b|[.;]|\b(?:but|however|yet)\b).){{0,180}}"
+        rf"(?:(?!\b(?:{phase_action_token_pattern})\b|[.;]|{phase_clause_boundary_pattern}).){{0,180}}"
         rf"\b(?:{phase_token_pattern})\b"
         rf"(?:\s*,\s*(?:or\s+|and\s+)?\b(?:{phase_token_pattern})\b)*"
     )
-    phase_claim_clause_pattern = r"[,.;]|\b(?:and|but|however|yet)\b"
+    phase_claim_clause_pattern = rf"[,.;]|\b(?:and|but|however|yet|although|though|while)\b"
 
     def phase_clause_explicitly_blocks_or_holds(clause: str) -> bool:
         if not any(token in clause for token in advancement_tokens):
@@ -7186,6 +7195,26 @@ line item, not a seam or separate branch.
             + "; ".join(valid_reviewed_issue_candidate_closed_failures[:5])
         )
 
+    generated_reviewed_issue_candidate_not_blocked_text = (
+        VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_CLOSED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Issue Candidate Disposition: Issue Candidate Packet USER-Reviewed for F6-HIST-001, while GitHub issue mutation remains unapproved.",
+            "Issue Candidate Disposition: Issue Candidate Packet USER-Reviewed for F6-HIST-001 and not blocked for normal phase progression, while GitHub issue mutation remains unapproved.",
+        )
+    )
+    generated_reviewed_issue_candidate_not_blocked_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_reviewed_issue_candidate_not_blocked_text
+        )
+    )
+    if generated_reviewed_issue_candidate_not_blocked_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected USER-reviewed not-blocked issue-candidate closeout wording: "
+            + "; ".join(generated_reviewed_issue_candidate_not_blocked_failures[:5])
+        )
+
     valid_active_negated_disclaimers_rar_failures = (
         _validate_rebaseline_adoption_review_text(
             VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE.read_text(
@@ -8499,6 +8528,25 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
+        )
+
+    generated_although_phase_advance_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: this does not authorize merge although PR Readiness may proceed.",
+        )
+    )
+    generated_although_phase_advance_failures = (
+        _validate_rebaseline_adoption_review_text(generated_although_phase_advance_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        generated_although_phase_advance_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject although/though/while mixed disclaimer phase advancement"
         )
 
     comma_mixed_disclaimer_phase_advance_failures = (
