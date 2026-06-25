@@ -595,6 +595,8 @@ def _load_proof_summary(proof_root: Path) -> dict[str, Any]:
     crop = read_json("crop_completeness_ledger.json")
     manifest = read_json("visual_capture_manifest.json")
     runtime_metrics = read_json("runtime_visual_conformance_metrics.json")
+    recording_metrics = runtime_metrics.get("recording") if isinstance(runtime_metrics.get("recording"), dict) else {}
+    log_viewer_metrics = runtime_metrics.get("logViewer") if isinstance(runtime_metrics.get("logViewer"), dict) else {}
     return {
         "proofRoot": str(proof_root),
         "rowMapKeyCount": len(row_map) if isinstance(row_map, dict) else 0,
@@ -603,11 +605,19 @@ def _load_proof_summary(proof_root: Path) -> dict[str, Any]:
         "openLogViewerRouteStatus": route.get("status"),
         "cropCompletenessStatus": crop.get("status"),
         "runtimeVisualConformanceStatus": runtime_metrics.get("status"),
-        "logViewerBottomSlackPx": (runtime_metrics.get("logViewer") or {}).get("bottomSlackPx")
-        if isinstance(runtime_metrics.get("logViewer"), dict)
+        "recordingButtonPrimitiveStatus": recording_metrics.get("buttonPrimitiveVerdict"),
+        "logViewerButtonPrimitiveStatus": log_viewer_metrics.get("buttonPrimitiveVerdict"),
+        "recordingControlPillGutterStatus": recording_metrics.get("controlPillGutterVerdict"),
+        "logViewerControlPillGutterStatus": log_viewer_metrics.get("controlPillGutterVerdict"),
+        "recordingControlPillBottomGutterPx": (recording_metrics.get("controlPillGutterMeasurements") or {}).get("bottomGutterPx")
+        if isinstance(recording_metrics.get("controlPillGutterMeasurements"), dict)
         else None,
-        "logViewerDefaultHeightPx": ((runtime_metrics.get("logViewer") or {}).get("imageSize") or {}).get("height")
-        if isinstance((runtime_metrics.get("logViewer") or {}).get("imageSize"), dict)
+        "logViewerControlPillBottomGutterPx": (log_viewer_metrics.get("controlPillGutterMeasurements") or {}).get("bottomGutterPx")
+        if isinstance(log_viewer_metrics.get("controlPillGutterMeasurements"), dict)
+        else None,
+        "logViewerBottomSlackPx": log_viewer_metrics.get("bottomSlackPx"),
+        "logViewerDefaultHeightPx": (log_viewer_metrics.get("imageSize") or {}).get("height")
+        if isinstance(log_viewer_metrics.get("imageSize"), dict)
         else None,
         "visualManifestProofClass": manifest.get("proofClass"),
         "fullDesktopCombined": row_map.get("full-desktop-combined") if isinstance(row_map, dict) else "",
@@ -663,12 +673,16 @@ def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
         ("OPEN LOG VIEWER route action", "Routes to Log Viewer via runtime handler", proof_summary.get("openLogViewerRouteStatus") or "REPAIR_REQUIRED"),
         ("Recording footprint/dead-space", "Compact controller proof plus crop ledger and runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Recording control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
+        ("Recording action button primitive", "Every Recording Studio action consumes the AI Control Center content-fit primitive", proof_summary.get("recordingButtonPrimitiveStatus") or "REPAIR_REQUIRED"),
+        ("Recording control pill bottom gutter", "Bottom gutter below the compact control pill equals the top gutter", proof_summary.get("recordingControlPillGutterStatus") or "REPAIR_REQUIRED"),
         ("Log Viewer rename", "LOG VIEWER visible surface", "MATCH"),
         ("VIEWER - Deferred", "Deferred doorway state visible", "MATCH"),
         ("OPEN NATIVE LOGS", "Bottom native folder action visible", "MATCH"),
         ("OPEN EXPORTED LOGS", "Bottom exported folder action visible", "MATCH"),
         ("Log Viewer footprint/dead-space", "Compact doorway shell proof plus runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Log Viewer control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
+        ("Log Viewer action button primitive", "Every Log Viewer action consumes the AI Control Center content-fit primitive", proof_summary.get("logViewerButtonPrimitiveStatus") or "REPAIR_REQUIRED"),
+        ("Log Viewer control pill bottom gutter", "Bottom gutter below the compact control pill equals the top gutter", proof_summary.get("logViewerControlPillGutterStatus") or "REPAIR_REQUIRED"),
         ("B2 placement behavior", "Parent-neighbor and moved-restore proof", proof_summary.get("b2PlacementStatus") or "REPAIR_REQUIRED"),
         ("Rejected-pattern avoidance", "No generic LOGS route, no fake data rows, no default path display, no full viewer behavior", "MATCH"),
     ]

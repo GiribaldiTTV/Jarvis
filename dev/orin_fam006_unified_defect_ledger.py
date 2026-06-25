@@ -77,6 +77,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-145849.zip",
     "FAM-006-20260624-170523.zip",
     "FAM-006-20260625-122909.zip",
+    "FAM-006-20260625-150949.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -92,6 +93,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-145849.zip": "3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A",
     "FAM-006-20260624-170523.zip": "055D4E57944DE5536081CCB942E65D4A8602778FA694FFCD307505689C4209FC",
     "FAM-006-20260625-122909.zip": "0201D2CCAEA66010F87058BE3C9C0D1C9A78AFA077F6A19FFC701F4248B1C716",
+    "FAM-006-20260625-150949.zip": "344C95C776D5916276E9B746D510DC9AA2FD9038B2F7F262AB2517B9F09EA212",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -753,6 +755,38 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-025; repair scope changed: yes, runtime geometry, proof helper, packet helper, visual ledger, H1/surface validators, known-bad expectations, and incident ledger were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-026",
+            origin="USER/ChatGPT",
+            title="Implementation-match packet overclaimed button primitive and control-pill gutter conformance",
+            exact_user_wording="FAM-006-20260625-150949.zip is REPAIR because Recording Studio and Log Viewer buttons do not appear identical to the accepted AI Control Center / HUD Dashboard content-fit button primitive, and the top/right control-pill gutter is consistent while the bottom gutter below the pill is not.",
+            expected="Recording Studio and Log Viewer action buttons must consume the same AI Control Center content-fit button primitive: 31px height, 14px left/right gutters, 0px top/bottom padding, 11px label text, accepted font weight, content-fit width cap, and matching hover/focus/pressed/disabled grammar. Each Studio window-control pill must keep top gutter 14px, right gutter 15px, and bottom gutter equal to top gutter unless source truth grants an explicit exception.",
+            actual="The 150949 packet validated only a sampled primary Log Viewer button and top/right control placement. It did not prove every Recording Studio and Log Viewer action button used the same primitive, and it did not measure the bottom gutter between the compact control pill and first content row.",
+            evidence="Known-bad packet FAM-006-20260625-150949.zip SHA 344C95C776D5916276E9B746D510DC9AA2FD9038B2F7F262AB2517B9F09EA212; USER/ChatGPT REPAIR verdict on button primitive + control-pill gutter runtime repair.",
+            surfaces="Recording Studio buttons; Log Viewer buttons; Recording Studio window-control pill; Log Viewer window-control pill; nexus_window_primitives.css; feature-studio proof helper; implementation-match packet helper; visual conformance ledger.",
+            root_cause="The prior proof path compared broad visual crops and a single primary button metric instead of proving all same-class button instances. It also treated window-control top/right CSS values as sufficient chrome proof while omitting the bottom-gutter relationship to the first content row.",
+            validator_gap="No hard failure for custom Studio min-width overrides on content-fit buttons, no all-button primitive comparison, no bottom-gutter metric, no target-vs-actual rows for button primitive or bottom gutter, and no known-bad replay for 150949.",
+            repair_target="Admit 150949 as known-bad, remove custom button width floors, reserve equal top/bottom gutter under the control pill, write all-button primitive measurements and control-pill gutter measurements to runtime_visual_conformance_metrics.json, and require those metrics in packet and visual ledger validation.",
+            acceptance="FAM-006 implementation-match gates fail unless every Recording Studio and Log Viewer action button passes AI Control Center content-fit primitive measurements and each Studio control pill bottom gutter equals the top gutter.",
+            proof="dev/orin_fam006_feature_studio_visual_proof.py writes all-button primitive measurements and control-pill gutter measurements; dev/orin_fam006_visual_conformance_ledger.py rejects any button or gutter REPAIR row; dev/orin_fam006_reca_log_viewer_implementation_match_packet.py exposes the results in target-vs-actual; dev/orin_fam006_false_accept_regression_gate.py replays 150949 as known-bad.",
+            status="CLOSED_WITH_PROOF",
+            closure=(
+                "Runtime proof 20260625_155404_feature_studio_visual_fail_repair shows Recording Studio and Log Viewer "
+                "buttonPrimitiveVerdict PASS, controlPillGutterVerdict PASS, all action buttons at 31px height / 14px "
+                "left-right padding / 11px text, and matching 15px top/bottom visual gutter under each control pill."
+            ),
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-026: inspected adjacent surfaces/files `nexus_visual/nexus_window_primitives.css`, "
+                "`nexus_visual/monitoring_hud_studio.html`, `dev/orin_fam006_feature_studio_visual_proof.py`, "
+                "`dev/orin_fam006_reca_log_viewer_implementation_match_packet.py`, `dev/orin_fam006_visual_conformance_ledger.py`, "
+                "`dev/orin_fam006_false_accept_regression_gate.py`, and `dev/orin_fam006_unified_defect_ledger.py`; adjacent behavior inspected: "
+                "Recording START/PAUSE/STOP/OPEN LOG VIEWER buttons, Log Viewer OPEN NATIVE/OPEN EXPORTED buttons, content-fit height/padding/font/text cap, "
+                "window-control top/right/bottom gutter, target-vs-actual checklist rows, known-bad corpus replay, and packet-contained runtime metrics; "
+                "additional adjacent defects found: none beyond the button primitive / control-pill bottom-gutter false-green class; linked UDL IDs added/reopened: "
+                "FAM006-UDL-025 and FAM006-UDL-026; repair scope changed: yes, shared Studio CSS primitive, proof helper, packet helper, visual ledger, false-ACCEPT gate, "
+                "known-bad expectations, validator checks, and incident ledger were hardened."
+            ),
+        ),
     ]
 
 
@@ -1097,6 +1131,22 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require packet-contained runtime visual conformance metrics, compact studio geometry constants and keys, per-studio window-bound minimums, and hard failure when Recording/Log Viewer bottom slack exceeds the compact allowance.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-025", "FAM006-UDL-024", "FAM006-UDL-023"],
+        ),
+        _incident(
+            "FAM006-FGI-021",
+            packet="FAM-006-20260625-150949.zip",
+            sha256="344C95C776D5916276E9B746D510DC9AA2FD9038B2F7F262AB2517B9F09EA212",
+            head="44feb6d988bc7de0c5632aea956550d2a2c809d1",
+            codex_claim="FAM-006 implementation-match packet was ready for USER review after final clean proof repair.",
+            rejection="USER rejected the result because Recording Studio and Log Viewer button primitives still did not appear identical to the AI Control Center / HUD Dashboard button primitive and the control-pill bottom gutter did not match the top gutter.",
+            validator_failed="FAM-006 implementation-match proof before all-button primitive measurement, bottom-gutter measurement, target-vs-actual rows for these defects, and 150949 known-bad replay.",
+            artifact="FAM-006-20260625-150949.zip plus runtime_visual_conformance_metrics.json before all-button and control-pill bottom-gutter checks.",
+            ledger_row="FAM006-UDL-026",
+            comparator="The packet sampled visual/button proof but did not prove every same-class Studio button against the AI Control Center content-fit primitive and did not measure the control pill's bottom gutter.",
+            prevention="Require all Recording/Log Viewer action buttons to pass content-fit primitive measurements and require control-pill bottom gutter to equal top gutter before implementation-match can report MATCH.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-026", "FAM006-UDL-025"],
+            status="CLOSED_WITH_PROOF",
         ),
     ]
     for row in rows:

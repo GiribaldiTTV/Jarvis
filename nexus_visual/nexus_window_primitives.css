@@ -150,7 +150,7 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group {
   display: block;
-  min-height: 30px;
+  min-height: 45px;
   padding: 0 84px 1px 7px;
   border: 0;
   border-radius: 0;
@@ -354,7 +354,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 12px;
   margin-top: 0;
 }
 
@@ -365,11 +365,13 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit {
   flex: 0 0 auto;
   width: auto;
-  max-width: none;
+  max-width: min(100%, 187px);
   min-width: 0;
   height: 31px;
   min-height: 31px;
+  padding-block: 0;
   padding-inline: 14px;
+  font-size: 11px;
   overflow: visible;
   white-space: nowrap;
 }
@@ -377,22 +379,23 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit {
   height: 31px;
   min-height: 31px;
+  padding-block: 0;
   padding-inline: 14px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-transport-action {
   width: auto;
-  min-width: 68px;
   height: 31px;
   min-height: 31px;
+  padding-block: 0;
   padding-inline: 14px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-route-action {
   height: 31px;
   min-height: 31px;
-  min-width: 152px;
   margin-left: 8px;
+  padding-block: 0;
   padding-inline: 14px;
   opacity: 1;
   text-transform: uppercase;
@@ -401,6 +404,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-destination-action {
   height: 31px;
   min-height: 31px;
+  padding-block: 0;
   padding-inline: 14px;
 }
 
@@ -414,14 +418,6 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   font-size: 11px;
   font-weight: 720;
   line-height: 1;
-}
-
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-native"] {
-  min-width: 190px;
-}
-
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-export"] {
-  min-width: 190px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="log-viewer"] .monitoring-hud__log-access-stack {

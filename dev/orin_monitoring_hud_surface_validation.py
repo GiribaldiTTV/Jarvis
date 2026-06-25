@@ -1641,7 +1641,7 @@ def validate() -> list[str]:
         "STOP",
         "OPEN LOG VIEWER",
         'data-resize-contract="not-resizable-position-memory-only"',
-        'data-fixed-controller-height="150"',
+        'data-fixed-controller-height="158"',
         'data-row-primitive="ai-control-center-state-row"',
         "edge-resizable-log-access-shell",
         "edge-resize-native-top-level",
@@ -1706,11 +1706,11 @@ def validate() -> list[str]:
     for needle in (
         "monitoringHudStudioNativeDragHandle",
         "DRAG_HEADER_HEIGHT = 64",
-        "HEIGHT = 150",
-        "MINIMUM_HEIGHT = 150",
+        "HEIGHT = 158",
+        "MINIMUM_HEIGHT = 158",
         "recording_studio_feature_studio_v5",
-        "HEIGHT = 124",
-        "MINIMUM_HEIGHT = 124",
+        "HEIGHT = 132",
+        "MINIMUM_HEIGHT = 132",
         "log_viewer_studio_feature_studio_v6",
         "WM_NCHITTEST+manual-fallback-geometry-resize",
         "hub-action-content-fit-equal-gutter-32px-pill",
@@ -1721,8 +1721,6 @@ def validate() -> list[str]:
         '_monitoring_hud_studio_badge("REC"',
         '_monitoring_hud_studio_badge("LOG"',
         'header.addWidget(_monitoring_hud_studio_badge',
-        "HEIGHT = 132",
-        "MINIMUM_HEIGHT = 132",
         "log_viewer_studio_feature_studio_v5",
     ):
         _require(

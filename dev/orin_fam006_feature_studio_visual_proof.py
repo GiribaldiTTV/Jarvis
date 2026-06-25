@@ -133,6 +133,8 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
     }
     const rect = element.getBoundingClientRect();
     const style = getComputedStyle(element);
+    const label = element.querySelector(".monitoring-hud__button-label") || element;
+    const labelStyle = getComputedStyle(label);
     out[key] = {
       selector,
       rect: {
@@ -142,7 +144,10 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
         bottom: Math.round(rect.bottom),
       },
       computedStyle: {
+        width: style.width,
         height: style.height,
+        minWidth: style.minWidth,
+        maxWidth: style.maxWidth,
         minHeight: style.minHeight,
         paddingTop: style.paddingTop,
         paddingRight: style.paddingRight,
@@ -150,6 +155,10 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
         paddingLeft: style.paddingLeft,
         fontSize: style.fontSize,
         fontWeight: style.fontWeight,
+        fontFamily: style.fontFamily,
+        lineHeight: style.lineHeight,
+        letterSpacing: style.letterSpacing,
+        textTransform: style.textTransform,
         color: style.color,
         backgroundImage: style.backgroundImage,
         borderTopColor: style.borderTopColor,
@@ -157,12 +166,26 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
         borderBottomColor: style.borderBottomColor,
         borderLeftColor: style.borderLeftColor,
         borderTopWidth: style.borderTopWidth,
+        borderRightWidth: style.borderRightWidth,
+        borderBottomWidth: style.borderBottomWidth,
+        borderLeftWidth: style.borderLeftWidth,
         borderRadius: style.borderRadius,
         boxShadow: style.boxShadow,
         gridTemplateColumns: style.gridTemplateColumns,
         columnGap: style.columnGap,
         top: style.top,
         right: style.right,
+      },
+      labelComputedStyle: {
+        width: labelStyle.width,
+        height: labelStyle.height,
+        fontSize: labelStyle.fontSize,
+        fontWeight: labelStyle.fontWeight,
+        fontFamily: labelStyle.fontFamily,
+        lineHeight: labelStyle.lineHeight,
+        letterSpacing: labelStyle.letterSpacing,
+        textTransform: labelStyle.textTransform,
+        color: labelStyle.color,
       },
       text: String(element.innerText || element.textContent || "")
         .replace(/\s+/g, " ")
@@ -205,12 +228,119 @@ def _dom_style(bounds: dict[str, object], key: str) -> dict[str, str]:
     return style if isinstance(style, dict) else {}
 
 
+def _dom_label_style(bounds: dict[str, object], key: str) -> dict[str, str]:
+    item = bounds.get(key)
+    if not isinstance(item, dict):
+        return {}
+    style = item.get("labelComputedStyle")
+    return style if isinstance(style, dict) else {}
+
+
 def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object]) -> dict[str, object]:
+    expected_button = {
+        "height": "31px",
+        "minHeight": "31px",
+        "paddingTop": "0px",
+        "paddingRight": "14px",
+        "paddingBottom": "0px",
+        "paddingLeft": "14px",
+        "fontSize": "11px",
+        "fontWeight": {"700", "720"},
+        "labelFontSize": "11px",
+        "labelFontWeight": {"700", "720"},
+        "labelLineHeight": "11px",
+        "maxWidthNot": {"none", "initial", "unset"},
+    }
+
+    def button_metrics(bounds: dict[str, object], key: str) -> dict[str, object]:
+        rect = _dom_rect(bounds, key)
+        style = _dom_style(bounds, key)
+        label_style = _dom_label_style(bounds, key)
+        failures: list[str] = []
+        if not rect:
+            failures.append("missing DOM rect")
+        else:
+            height = int(rect.get("bottom", 0)) - int(rect.get("top", 0))
+            if height != 31:
+                failures.append(f"rect height {height}px != 31px")
+        for field in ("height", "minHeight", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "fontSize"):
+            if style.get(field) != expected_button[field]:
+                failures.append(f"{field} {style.get(field)!r} != {expected_button[field]!r}")
+        if str(style.get("fontWeight")) not in expected_button["fontWeight"]:
+            failures.append(f"fontWeight {style.get('fontWeight')!r} not in {sorted(expected_button['fontWeight'])}")
+        max_width = str(style.get("maxWidth", "")).strip()
+        if not max_width or max_width in expected_button["maxWidthNot"]:
+            failures.append(f"maxWidth {max_width!r} does not preserve content-fit cap")
+        if label_style.get("fontSize") != expected_button["labelFontSize"]:
+            failures.append(f"label fontSize {label_style.get('fontSize')!r} != {expected_button['labelFontSize']!r}")
+        if str(label_style.get("fontWeight")) not in expected_button["labelFontWeight"]:
+            failures.append(
+                f"label fontWeight {label_style.get('fontWeight')!r} not in {sorted(expected_button['labelFontWeight'])}"
+            )
+        if label_style.get("lineHeight") != expected_button["labelLineHeight"]:
+            failures.append(f"label lineHeight {label_style.get('lineHeight')!r} != {expected_button['labelLineHeight']!r}")
+        return {
+            "key": key,
+            "text": str((bounds.get(key) or {}).get("text", "")) if isinstance(bounds.get(key), dict) else "",
+            "rect": rect,
+            "computedStyle": style,
+            "labelComputedStyle": label_style,
+            "expectedPrimitive": "AI Control Center monitoring-hud__hub-action--content-fit: 31px height, 14px left/right gutter, 11px label, content-fit cap",
+            "failures": failures,
+            "status": "PASS" if not failures else "REPAIR",
+        }
+
+    def control_gutter_metrics(bounds: dict[str, object]) -> dict[str, object]:
+        chrome = _dom_rect(bounds, "chrome")
+        controls = _dom_rect(bounds, "windowControls")
+        content_tops: list[int] = []
+        for key in ("studioTruthRow", "recordingTargetTruth", "logViewerViewerState", "recordingStartAction", "logViewerNativeAction"):
+            rect = _dom_rect(bounds, key)
+            if not rect:
+                continue
+            top = int(rect.get("top", 0))
+            bottom = int(rect.get("bottom", 0))
+            left = int(rect.get("left", 0))
+            right = int(rect.get("right", 0))
+            if bottom > top and right > left:
+                content_tops.append(top)
+        failures: list[str] = []
+        first_content_top = min(content_tops) if content_tops else 0
+        if not chrome:
+            failures.append("missing chrome DOM rect")
+        if not controls:
+            failures.append("missing window control DOM rect")
+        if not first_content_top:
+            failures.append("missing first content row/action DOM rect")
+        top_gutter = int(controls.get("top", 0)) - int(chrome.get("top", 0)) if chrome and controls else -1
+        right_gutter = int(chrome.get("right", 0)) - int(controls.get("right", 0)) if chrome and controls else -1
+        bottom_gutter = int(first_content_top) - int(controls.get("bottom", 0)) if controls and first_content_top else -1
+        style = _dom_style(bounds, "windowControls")
+        if style.get("top") != "14px":
+            failures.append(f"window control CSS top {style.get('top')!r} != AI Control Center '14px'")
+        if style.get("right") != "15px":
+            failures.append(f"window control CSS right {style.get('right')!r} != AI Control Center '15px'")
+        if bottom_gutter != top_gutter:
+            failures.append(f"bottom gutter {bottom_gutter}px != top gutter {top_gutter}px")
+        return {
+            "chromeRect": chrome,
+            "windowControlsRect": controls,
+            "firstContentTopPx": first_content_top,
+            "topGutterPx": top_gutter,
+            "rightGutterPx": right_gutter,
+            "bottomGutterPx": bottom_gutter,
+            "expected": "top gutter 14px, right gutter 15px, bottom gutter equal to top gutter unless source truth grants an exception",
+            "failures": failures,
+            "status": "PASS" if not failures else "REPAIR",
+        }
+
     def metrics_for(label: str, action_keys: list[str], *, max_height: int, max_bottom_slack: int) -> dict[str, object]:
         image_path = Path(str(manifest[label]))
         width, height = _image_size(image_path)
         bounds = manifest.get(f"{label}_dom_bounds")
         bounds = bounds if isinstance(bounds, dict) else {}
+        buttons = [button_metrics(bounds, key) for key in action_keys]
+        control_gutter = control_gutter_metrics(bounds)
         action_bottoms = [
             _dom_rect(bounds, key).get("bottom", 0)
             for key in action_keys
@@ -230,12 +360,16 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "windowControlsComputedStyle": _dom_style(bounds, "windowControls"),
             "truthRowComputedStyle": _dom_style(bounds, "studioTruthRow"),
             "primaryButtonComputedStyle": _dom_style(bounds, action_keys[0]) if action_keys else {},
+            "buttonPrimitiveMeasurements": buttons,
+            "buttonPrimitiveVerdict": "PASS" if all(button["status"] == "PASS" for button in buttons) else "REPAIR",
+            "controlPillGutterMeasurements": control_gutter,
+            "controlPillGutterVerdict": control_gutter["status"],
         }
 
     recording = metrics_for(
         "recording_default",
         ["recordingStartAction", "recordingPauseAction", "recordingStopAction", "recordingLogRoute"],
-        max_height=150,
+        max_height=160,
         max_bottom_slack=18,
     )
     log_viewer = metrics_for(
@@ -249,10 +383,10 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         recording["bottomSlackVerdict"] == "PASS",
         log_viewer["heightVerdict"] == "PASS",
         log_viewer["bottomSlackVerdict"] == "PASS",
-        log_viewer["primaryButtonComputedStyle"].get("height") == "31px",
-        log_viewer["primaryButtonComputedStyle"].get("paddingLeft") == "14px",
-        log_viewer["primaryButtonComputedStyle"].get("paddingRight") == "14px",
-        str(log_viewer["primaryButtonComputedStyle"].get("fontWeight")) in {"720", "700"},
+        recording["buttonPrimitiveVerdict"] == "PASS",
+        log_viewer["buttonPrimitiveVerdict"] == "PASS",
+        recording["controlPillGutterVerdict"] == "PASS",
+        log_viewer["controlPillGutterVerdict"] == "PASS",
         log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
         log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
         log_viewer["windowControlsComputedStyle"].get("top") == "14px",
@@ -273,6 +407,10 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "stateRowPaddingBottom": log_viewer["truthRowComputedStyle"].get("paddingBottom"),
             "windowControlTop": log_viewer["windowControlsComputedStyle"].get("top"),
             "windowControlRight": log_viewer["windowControlsComputedStyle"].get("right"),
+            "recordingButtonPrimitiveVerdict": recording["buttonPrimitiveVerdict"],
+            "logViewerButtonPrimitiveVerdict": log_viewer["buttonPrimitiveVerdict"],
+            "recordingControlPillBottomGutterPx": recording["controlPillGutterMeasurements"].get("bottomGutterPx"),
+            "logViewerControlPillBottomGutterPx": log_viewer["controlPillGutterMeasurements"].get("bottomGutterPx"),
         },
     }
     (root / "runtime_visual_conformance_metrics.json").write_text(
@@ -285,7 +423,11 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "| Surface | Image size | Final action bottom | Bottom slack | Height verdict | Slack verdict |\n"
         "| --- | --- | --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['imageSize']['width']}x{recording['imageSize']['height']} | {recording['finalActionBottomPx']} | {recording['bottomSlackPx']} | {recording['heightVerdict']} | {recording['bottomSlackVerdict']} |\n"
-        f"| Log Viewer | {log_viewer['imageSize']['width']}x{log_viewer['imageSize']['height']} | {log_viewer['finalActionBottomPx']} | {log_viewer['bottomSlackPx']} | {log_viewer['heightVerdict']} | {log_viewer['bottomSlackVerdict']} |\n",
+        f"| Log Viewer | {log_viewer['imageSize']['width']}x{log_viewer['imageSize']['height']} | {log_viewer['finalActionBottomPx']} | {log_viewer['bottomSlackPx']} | {log_viewer['heightVerdict']} | {log_viewer['bottomSlackVerdict']} |\n"
+        "\n| Surface | Button primitive | Top gutter | Right gutter | Bottom gutter | Control pill gutter |\n"
+        "| --- | --- | --- | --- | --- | --- |\n"
+        f"| Recording Studio | {recording['buttonPrimitiveVerdict']} | {recording['controlPillGutterMeasurements']['topGutterPx']} | {recording['controlPillGutterMeasurements']['rightGutterPx']} | {recording['controlPillGutterMeasurements']['bottomGutterPx']} | {recording['controlPillGutterVerdict']} |\n"
+        f"| Log Viewer | {log_viewer['buttonPrimitiveVerdict']} | {log_viewer['controlPillGutterMeasurements']['topGutterPx']} | {log_viewer['controlPillGutterMeasurements']['rightGutterPx']} | {log_viewer['controlPillGutterMeasurements']['bottomGutterPx']} | {log_viewer['controlPillGutterVerdict']} |\n",
         encoding="utf-8",
     )
     return payload

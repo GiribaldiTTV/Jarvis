@@ -6852,9 +6852,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 432
-    HEIGHT = 150
+    HEIGHT = 158
     MINIMUM_WIDTH = 432
-    MINIMUM_HEIGHT = 150
+    MINIMUM_HEIGHT = 158
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -7120,9 +7120,9 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 430
-    HEIGHT = 124
+    HEIGHT = 132
     MINIMUM_WIDTH = 430
-    MINIMUM_HEIGHT = 124
+    MINIMUM_HEIGHT = 132
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"

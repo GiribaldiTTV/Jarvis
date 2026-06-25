@@ -913,11 +913,11 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         'data-row-primitive="ai-control-center-state-row"',
         "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
         "hub-action-content-fit-equal-gutter-32px-pill",
-        "HEIGHT = 150",
-        "MINIMUM_HEIGHT = 150",
+        "HEIGHT = 158",
+        "MINIMUM_HEIGHT = 158",
         "recording_studio_feature_studio_v5",
-        "HEIGHT = 124",
-        "MINIMUM_HEIGHT = 124",
+        "HEIGHT = 132",
+        "MINIMUM_HEIGHT = 132",
         "log_viewer_studio_feature_studio_v6",
         "right: 15px",
         "height: 31px",
@@ -928,7 +928,7 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
         "WM_NCHITTEST+manual-fallback-geometry-resize",
-        'data-fixed-controller-height="150"',
+        'data-fixed-controller-height="158"',
     )
     for marker in required_source_markers:
         if marker not in source_text:
@@ -948,8 +948,6 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "HEIGHT = 164",
         "MINIMUM_HEIGHT = 164",
         "log_viewer_studio_feature_studio_v4",
-        "HEIGHT = 132",
-        "MINIMUM_HEIGHT = 132",
         "log_viewer_studio_feature_studio_v5",
         "WIDTH = 480",
         "WIDTH = 560",
@@ -1009,6 +1007,39 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
             metrics = {}
         if metrics.get("status") != "PASS":
             failures.append("runtime_visual_conformance_metrics.json status is not PASS")
+        for surface_key, surface_label in (
+            ("recording", "Recording Studio"),
+            ("logViewer", "Log Viewer"),
+        ):
+            surface = metrics.get(surface_key) if isinstance(metrics, dict) else {}
+            if not isinstance(surface, dict):
+                failures.append(f"runtime_visual_conformance_metrics.json missing {surface_label} metrics")
+                continue
+            if surface.get("buttonPrimitiveVerdict") != "PASS":
+                failures.append(f"{surface_label} button primitive verdict is not PASS")
+            buttons = surface.get("buttonPrimitiveMeasurements")
+            if not isinstance(buttons, list) or not buttons:
+                failures.append(f"{surface_label} button primitive measurements are missing")
+            else:
+                for button in buttons:
+                    if not isinstance(button, dict):
+                        failures.append(f"{surface_label} button primitive row is not an object")
+                        continue
+                    if button.get("status") != "PASS":
+                        failures.append(
+                            f"{surface_label} button primitive mismatch for {button.get('key')}: "
+                            f"{button.get('failures')}"
+                        )
+            if surface.get("controlPillGutterVerdict") != "PASS":
+                failures.append(f"{surface_label} control pill gutter verdict is not PASS")
+            gutter = surface.get("controlPillGutterMeasurements")
+            if not isinstance(gutter, dict):
+                failures.append(f"{surface_label} control pill gutter measurements are missing")
+            elif gutter.get("bottomGutterPx") != gutter.get("topGutterPx"):
+                failures.append(
+                    f"{surface_label} control pill bottom gutter {gutter.get('bottomGutterPx')}px "
+                    f"does not match top gutter {gutter.get('topGutterPx')}px"
+                )
         log_viewer = metrics.get("logViewer") if isinstance(metrics, dict) else {}
         if isinstance(log_viewer, dict):
             if int(log_viewer.get("bottomSlackPx", 999)) > int(log_viewer.get("maxAllowedBottomSlackPx", 18)):

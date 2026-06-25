@@ -35,6 +35,10 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260625-150949.zip",
+    USER_ROOT / "FAM-006-20260625-150949.zip",
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260625-122909.zip",
+    USER_ROOT / "FAM-006-20260625-122909.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260624-145849.zip",
     USER_ROOT / "FAM-006-20260624-145849.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260624-142638.zip",
@@ -1197,11 +1201,13 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
 
     row_map_path = _find_one(root, "Review Aids/Evidence/**/row_to_evidence_map.json")
     manifest_path = _find_one(root, "Review Aids/Evidence/**/visual_capture_manifest.json")
+    runtime_metrics_path = _find_one(root, "Review Aids/Evidence/**/runtime_visual_conformance_metrics.json")
     red_team_path = _find_one(root, "Review Aids/Evidence/**/internal_visual_red_team_ledger.json")
     root_cause_path = _find_one(root, "Review Aids/Evidence/**/adjudication_failure_root_cause_ledger.json")
     visual_ledger_path = _find_one(root, "Review Aids/exhaustive_visual_conformance_ledger.json")
     embedded_udl_path = _find_one(root, "Review Aids/Unified Defect Ledger/unified_defect_ledger.json")
     embedded_incident_path = _find_one(root, "Review Aids/Unified Defect Ledger/false_green_incident_ledger.json")
+    failures.extend(_validate_runtime_visual_metrics(runtime_metrics_path))
     if embedded_udl_path is not None or embedded_incident_path is not None:
         if embedded_udl_path is None:
             failures.append("packet has incident ledger but missing unified_defect_ledger.json")
@@ -1536,6 +1542,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
         "evidenceRoot": str(evidence_root),
         "rowMap": str(row_map_path) if row_map_path else "",
         "visualManifest": str(manifest_path) if manifest_path else "",
+        "runtimeVisualMetrics": str(runtime_metrics_path) if runtime_metrics_path else "",
         "redTeam": str(red_team_path) if red_team_path else "",
         "rootCause": str(root_cause_path) if root_cause_path else "",
         "visualLedger": str(visual_ledger_path) if visual_ledger_path else "",
@@ -1609,6 +1616,51 @@ def _inspect_reconstructed_known_bad_record(path: Path) -> PacketInspection:
             "linkedDefectIds": data.get("linkedDefectIds", []) if isinstance(data, dict) else [],
         },
     )
+
+
+def _validate_runtime_visual_metrics(metrics_path: Path | None) -> list[str]:
+    failures: list[str] = []
+    if metrics_path is None:
+        return ["missing runtime_visual_conformance_metrics.json"]
+    data, error = _read_json(metrics_path)
+    if error or not isinstance(data, dict):
+        return [f"invalid runtime_visual_conformance_metrics.json: {error}"]
+    if data.get("status") != "PASS":
+        failures.append("runtime_visual_conformance_metrics.json status is not PASS")
+    for surface_key, surface_label in (
+        ("recording", "Recording Studio"),
+        ("logViewer", "Log Viewer"),
+    ):
+        surface = data.get(surface_key)
+        if not isinstance(surface, dict):
+            failures.append(f"runtime_visual_conformance_metrics.json missing {surface_label} metrics")
+            continue
+        if surface.get("buttonPrimitiveVerdict") != "PASS":
+            failures.append(f"{surface_label} button primitive verdict is not PASS")
+        buttons = surface.get("buttonPrimitiveMeasurements")
+        if not isinstance(buttons, list) or not buttons:
+            failures.append(f"{surface_label} button primitive measurements are missing")
+        else:
+            for button in buttons:
+                if not isinstance(button, dict):
+                    failures.append(f"{surface_label} button primitive row is not an object")
+                    continue
+                if button.get("status") != "PASS":
+                    failures.append(
+                        f"{surface_label} button primitive mismatch for {button.get('key')}: "
+                        f"{button.get('failures')}"
+                    )
+        if surface.get("controlPillGutterVerdict") != "PASS":
+            failures.append(f"{surface_label} control pill gutter verdict is not PASS")
+        gutter = surface.get("controlPillGutterMeasurements")
+        if not isinstance(gutter, dict):
+            failures.append(f"{surface_label} control pill gutter measurements are missing")
+        elif gutter.get("bottomGutterPx") != gutter.get("topGutterPx"):
+            failures.append(
+                f"{surface_label} control pill bottom gutter {gutter.get('bottomGutterPx')}px "
+                f"does not match top gutter {gutter.get('topGutterPx')}px"
+            )
+    return failures
 
 
 def _known_bad_results(paths: list[Path]) -> tuple[list[PacketInspection], list[str]]:
