@@ -2474,7 +2474,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "user waiver recorded",
             "repair completed and revalidated",
             "route back to earlier gate",
-            "blocked",
         )
     )
     negated_issue_candidate_disposition = any(
@@ -2496,7 +2495,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
     )
     issue_candidate_disposition_completed = (
-        completed_issue_candidate_disposition and not negated_issue_candidate_disposition
+        (
+            completed_issue_candidate_disposition
+            or (
+                re.search(
+                    r"(?<![a-z0-9_-])blocked(?![a-z0-9_-])",
+                    f"{normalized_issue_candidate_disposition} {normalized_decision_table}",
+                )
+                is not None
+                and not pending_issue_candidate_review
+            )
+        )
+        and not negated_issue_candidate_disposition
     )
 
     code_trace_unresolved_present = any(
