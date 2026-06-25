@@ -450,6 +450,9 @@ INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_outside_user_root.md"
 )
+INVALID_REBASELINE_ADOPTION_ZIP_CHILD_FOLDER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_child_folder.md"
+)
 INVALID_REBASELINE_ADOPTION_ZIP_SPACED_OFFROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_spaced_offroot.md"
 )
@@ -2427,8 +2430,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     deterministic_user_zip_paths = [
         path
         for path in user_packet_zip_paths
-        if path.casefold().startswith("c:\\nexus user\\")
-        and re.search(r"\\[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip$", path) is not None
+        if re.fullmatch(
+            r"c:\\nexus user\\[a-z0-9_-]+-\d{8}-\d{6}\.zip",
+            path.casefold(),
+        )
+        is not None
     ]
     user_packet_zip_is_deterministic = (
         not user_packet_zip_invalid_suffix_seen
@@ -7503,6 +7509,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject USER packet ZIP outside C:\\Nexus USER"
+        )
+
+    zip_child_folder_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_CHILD_FOLDER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_child_folder_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet ZIP inside packet folder"
         )
 
     zip_spaced_offroot_failures = _validate_rebaseline_adoption_review_text(
