@@ -8995,6 +8995,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_resize_proof_overlay.setProperty("cssResizeProofAlphaMarker", "--monitoring-hud-live-resize-proof-alpha")
         self._monitoring_hud_resize_proof_overlay.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self._monitoring_hud_resize_proof_overlay.hide()
+        self._monitoring_hud_resize_rails: dict[str, QFrame] = {}
         self._monitoring_hud_show_guard_active = False
         self._monitoring_hud_show_guard_generation = 0
         self._monitoring_hud_show_guard_release_delay_ms = 620
@@ -9087,6 +9088,9 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.load(QUrl.fromLocalFile(self.visual_html_path))
 
         root.addWidget(self.webview)
+        if self.surface_role == "hud":
+            self._create_monitoring_hud_resize_rails()
+            self._sync_monitoring_hud_resize_rails()
 
     def eventFilter(self, watched, event):
         if self._handle_monitoring_hud_native_panel_drag_event(event):
@@ -9110,6 +9114,7 @@ class DesktopRuntimeWindow(QWidget):
         super().resizeEvent(event)
         if self.surface_role == "hud":
             self._apply_monitoring_hud_rounded_window_mask(source="resize")
+            self._sync_monitoring_hud_resize_rails()
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
@@ -10819,9 +10824,16 @@ class DesktopRuntimeWindow(QWidget):
         # Keep the fallback resize rail close to the visible chrome so cursor feedback
         # and actual drag behavior agree with standard Windows resize expectations.
         margin = self._monitoring_hud_resize_hit_zone_px()
-        if not rect.adjusted(-2, -2, 2, 2).contains(point):
+        local = self.mapFromGlobal(point)
+        local_rect = QRect(0, 0, rect.width(), rect.height())
+        if not local_rect.adjusted(-2, -2, 2, 2).contains(local):
             return Qt.Edges()
-        if not self._monitoring_hud_screen_point_inside_rounded_window_mask(point):
+        clamped_local = QPoint(
+            self._monitoring_hud_bound_native(local.x(), 0, max(0, rect.width() - 1)),
+            self._monitoring_hud_bound_native(local.y(), 0, max(0, rect.height() - 1)),
+        )
+        clamped_screen_point = self.mapToGlobal(clamped_local)
+        if not self._monitoring_hud_screen_point_inside_rounded_window_mask(clamped_screen_point):
             return Qt.Edges()
         radius = min(
             int(self._monitoring_hud_window_corner_radius_px),
@@ -10829,7 +10841,7 @@ class DesktopRuntimeWindow(QWidget):
             max(1, rect.height() // 2),
         )
         corner_edges = self._monitoring_hud_rounded_corner_diagonal_resize_edges_for_point(
-            point,
+            clamped_screen_point,
             rect,
             radius,
             margin,
@@ -10837,13 +10849,13 @@ class DesktopRuntimeWindow(QWidget):
         if corner_edges:
             return corner_edges
         edges = Qt.Edges()
-        if abs(point.x() - rect.left()) <= margin:
+        if local.x() <= margin:
             edges |= Qt.LeftEdge
-        if abs(point.x() - rect.right()) <= margin:
+        if local.x() >= max(0, rect.width() - 1 - margin):
             edges |= Qt.RightEdge
-        if abs(point.y() - rect.top()) <= margin:
+        if local.y() <= margin:
             edges |= Qt.TopEdge
-        if abs(point.y() - rect.bottom()) <= margin:
+        if local.y() >= max(0, rect.height() - 1 - margin):
             edges |= Qt.BottomEdge
         return edges
 
@@ -10914,8 +10926,10 @@ class DesktopRuntimeWindow(QWidget):
         local_y = int(point.y() - rect.y())
         width = int(rect.width())
         height = int(rect.height())
-        if local_x < 0 or local_y < 0 or local_x >= width or local_y >= height:
+        if local_x < -2 or local_y < -2 or local_x > width + 1 or local_y > height + 1:
             return False
+        local_x = self._monitoring_hud_bound_native(local_x, 0, max(0, width - 1))
+        local_y = self._monitoring_hud_bound_native(local_y, 0, max(0, height - 1))
         radius = min(
             int(self._monitoring_hud_window_corner_radius_px),
             max(1, width // 2),
@@ -10994,6 +11008,105 @@ class DesktopRuntimeWindow(QWidget):
             self._set_monitoring_hud_resize_cursor(edges)
             return
         self._reset_monitoring_hud_resize_cursor()
+
+    def _create_monitoring_hud_resize_rails(self):
+        if self.surface_role != "hud" or self._monitoring_hud_resize_rails:
+            return
+        rail_edges = {
+            "top": Qt.TopEdge,
+            "bottom": Qt.BottomEdge,
+            "left": Qt.LeftEdge,
+            "right": Qt.RightEdge,
+            "top_left": Qt.TopEdge | Qt.LeftEdge,
+            "top_right": Qt.TopEdge | Qt.RightEdge,
+            "bottom_left": Qt.BottomEdge | Qt.LeftEdge,
+            "bottom_right": Qt.BottomEdge | Qt.RightEdge,
+        }
+        for name, edges in rail_edges.items():
+            rail = QFrame(self)
+            rail.setObjectName(f"monitoringHudResizeRail_{name}")
+            rail.setWindowTitle(f"HUD Dashboard resize rail {name.replace('_', ' ')}")
+            rail.setAccessibleName(f"HUD Dashboard resize rail {name.replace('_', ' ')}")
+            rail.setAccessibleDescription("Nexus-owned native resize rail for the HUD Dashboard window edge.")
+            rail.setProperty("monitoringHudResizeRail", name)
+            rail.setProperty("monitoringHudResizeEdges", str(edges))
+            rail.setMouseTracking(True)
+            rail.setCursor(QCursor(self._monitoring_hud_resize_cursor_for_edges(edges)))
+            rail.setStyleSheet("background: transparent; border: 0;")
+            rail.installEventFilter(self)
+            for attribute_name in (
+                "WA_NativeWindow",
+                "WA_AlwaysStackOnTop",
+                "WA_NoSystemBackground",
+                "WA_TranslucentBackground",
+            ):
+                attribute = getattr(Qt, attribute_name, None)
+                if attribute is None:
+                    continue
+                try:
+                    rail.setAttribute(attribute, True)
+                except Exception:
+                    pass
+            try:
+                rail.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+            except Exception:
+                pass
+            rail.show()
+            rail.raise_()
+            try:
+                rail.winId()
+            except Exception:
+                pass
+            self._monitoring_hud_resize_rails[name] = rail
+        self._emit_runtime_signal(
+            "MONITORING_HUD_NATIVE_RESIZE_RAILS_READY",
+            package="PKG-006",
+            slice="SLC-026",
+            seam="LV1",
+            rail_count=len(self._monitoring_hud_resize_rails),
+            rail_model="native-transparent-child-edge-rails-above-webview",
+            resize_hit_zone_px=self._monitoring_hud_resize_hit_zone_px(),
+        )
+
+    def _sync_monitoring_hud_resize_rails(self):
+        if self.surface_role != "hud" or not self._monitoring_hud_resize_rails:
+            return
+        rail_edges = {
+            "top": Qt.TopEdge,
+            "bottom": Qt.BottomEdge,
+            "left": Qt.LeftEdge,
+            "right": Qt.RightEdge,
+            "top_left": Qt.TopEdge | Qt.LeftEdge,
+            "top_right": Qt.TopEdge | Qt.RightEdge,
+            "bottom_left": Qt.BottomEdge | Qt.LeftEdge,
+            "bottom_right": Qt.BottomEdge | Qt.RightEdge,
+        }
+        margin = max(14, self._monitoring_hud_resize_hit_zone_px())
+        width = max(1, self.width())
+        height = max(1, self.height())
+        corner = min(max(margin * 2, 28), width, height)
+        geometries = {
+            "top": QRect(corner, 0, max(1, width - (corner * 2)), margin),
+            "bottom": QRect(corner, max(0, height - margin), max(1, width - (corner * 2)), margin),
+            "left": QRect(0, corner, margin, max(1, height - (corner * 2))),
+            "right": QRect(max(0, width - margin), corner, margin, max(1, height - (corner * 2))),
+            "top_left": QRect(0, 0, corner, corner),
+            "top_right": QRect(max(0, width - corner), 0, corner, corner),
+            "bottom_left": QRect(0, max(0, height - corner), corner, corner),
+            "bottom_right": QRect(max(0, width - corner), max(0, height - corner), corner, corner),
+        }
+        for name, rail in self._monitoring_hud_resize_rails.items():
+            rect = geometries.get(name)
+            if rect is None:
+                continue
+            rail.setGeometry(rect)
+            cursor = self._monitoring_hud_resize_cursor_for_edges(rail_edges.get(name, Qt.Edges()))
+            if cursor is None:
+                rail.unsetCursor()
+            else:
+                rail.setCursor(QCursor(cursor))
+            rail.show()
+            rail.raise_()
 
     def _monitoring_hud_native_resize_hit_test_for_edges(self, edges) -> int:
         left, right, top, bottom = self._monitoring_hud_resize_edge_key(edges)
@@ -21164,6 +21277,15 @@ class DesktopRuntimeWindow(QWidget):
                             return True, 0
                         if self._handle_monitoring_hud_dashboard_close_native_control(screen_point):
                             return True, 0
+                    screen_point, edges = self._monitoring_hud_resize_edges_under_cursor()
+                    if (
+                        edges
+                        and not screen_point.isNull()
+                        and not self._monitoring_hud_dashboard_control_rect_contains(screen_point)
+                    ):
+                        self._set_monitoring_hud_resize_cursor(edges)
+                        self._start_monitoring_hud_fallback_window_resize(edges, screen_point)
+                        return True, 0
                 if message_id == WM_NCLBUTTONDOWN:
                     edges = self._monitoring_hud_native_resize_edges_for_hit_test(int(msg.wParam))
                     screen_point = self._monitoring_hud_cursor_screen_point()

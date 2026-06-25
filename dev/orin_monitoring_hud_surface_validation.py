@@ -170,8 +170,8 @@ def validate() -> list[str]:
             "Overlay Profile",
             "Recording Profile",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "runtime recording implementation remains future-gated",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
+            "runtime recording follow-through route through the family vision",
             "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
@@ -181,9 +181,9 @@ def validate() -> list[str]:
                 failures,
             )
         for needle in (
-            "durable planning and release receipts preserved; future recording runtime remains USER-gated",
+            "recording runtime, Recording Studio, Log Viewer Studio, and user-visible proof remain routed through the owning phase and live-truth checks when work is active",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
             "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
         ):
             _require_contains(
@@ -2131,7 +2131,7 @@ def validate() -> list[str]:
         "MONITORING_HUD_DASHBOARD_ROUNDED_WINDOW_MASK_READY",
         "Close-CommandOverlayBeforeDashboardResize",
         "Invoke-TrayIconActivation",
-        "Close Command Overlay",
+        "Command Overlay",
         "ncp_tray_icon_left_click_opens",
         "ncp_tray_menu_state_changes_to_close",
         "ncp_tray_icon_left_click_closes",
@@ -2207,7 +2207,7 @@ def validate() -> list[str]:
         "monitoring_hud_feature_enabled_at_startup",
         "monitoring_hud_dashboard_visible_at_startup",
         "command_overlay_state",
-        "Close Command Overlay",
+        "Command Overlay",
         "command_overlay_action",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
