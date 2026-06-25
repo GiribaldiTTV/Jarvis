@@ -364,6 +364,21 @@ def _audit_packet_git_status_evidence() -> dict[str, Any]:
         audit["reason"] = "Packet under review is missing; no packet-contained Git proof can be audited."
         return audit
 
+    carried_audit = _zip_read_json(zip_path, GIT_STATUS_AUDIT_RELATIVE.as_posix())
+    if (
+        isinstance(carried_audit, dict)
+        and carried_audit.get("underReviewExpectedSha256") == PACKET_UNDER_REVIEW_SHA256
+        and str(carried_audit.get("underReviewPacket", "")).endswith(PACKET_UNDER_REVIEW_ZIP.name)
+    ):
+        carried_audit = dict(carried_audit)
+        carried_audit["carriedForwardAt"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        carried_audit["carriedForwardFromPacket"] = str(zip_path)
+        carried_audit["carriedForwardReason"] = (
+            "The packet under review was already purged after audit; preserve the original "
+            "PRE_COMMIT_DIRTY audit instead of replacing it with a later repaired-packet audit."
+        )
+        return carried_audit
+
     actual_sha = _sha256(zip_path)
     audit["underReviewActualSha256"] = actual_sha
     audit["underReviewShaMatchesExpected"] = actual_sha == PACKET_UNDER_REVIEW_SHA256
