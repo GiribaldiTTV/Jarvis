@@ -2366,6 +2366,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 ):
                     continue
                 if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:does|do|did|will|would|should|must)?\s*not\s+(?:require|need)\s+(?:a\s+|an\s+|the\s+|any\s+)?(?:further\s+|active\s+|current\s+|separate\s+)?(?:user\s+)?$",
+                    prefix,
+                ):
+                    continue
+                if re.search(
                     r"(?:^|[\s;:,.(\[])(?:is|are|was|were|remains?|remain)\s+not\s+$",
                     prefix,
                 ):
@@ -2844,6 +2849,22 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "route back to earlier gate",
         )
     )
+    incomplete_issue_candidate_disposition = any(
+        phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
+        for phrase in (
+            "not fully user reviewed",
+            "not fully user-reviewed",
+            "not completely user reviewed",
+            "not completely user-reviewed",
+            "partially user reviewed",
+            "partially user-reviewed",
+            "incomplete user reviewed",
+            "incomplete user-reviewed",
+            "user review incomplete",
+            "user-reviewed incomplete",
+            "user reviewed incomplete",
+        )
+    )
     negated_issue_candidate_disposition = any(
         phrase in normalized_issue_candidate_disposition or phrase in normalized_decision_table
         for phrase in (
@@ -2867,6 +2888,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "has not happened",
             "not happened",
         )
+    ) or incomplete_issue_candidate_disposition
+    completed_issue_candidate_disposition = (
+        completed_issue_candidate_disposition
+        and not incomplete_issue_candidate_disposition
     )
     issue_candidate_disposition_text = (
         f"{normalized_issue_candidate_disposition} {normalized_decision_table}"
@@ -7451,6 +7476,25 @@ line item, not a seam or separate branch.
             + "; ".join(generated_no_user_approval_required_failures[:5])
         )
 
+    generated_no_user_decision_required_text = (
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Exact Next USER Decision: No USER review required for this resolved fixture.",
+            "Exact Next USER Decision: Resolved closeout does not require USER decision.",
+        )
+    )
+    generated_no_user_decision_required_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_no_user_decision_required_text
+        )
+    )
+    if generated_no_user_decision_required_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected no USER decision required wording: "
+            + "; ".join(generated_no_user_decision_required_failures[:5])
+        )
+
     valid_post_phrase_no_user_decision_failures = (
         _validate_rebaseline_adoption_review_text(
             VALID_REBASELINE_ADOPTION_POST_PHRASE_NO_USER_DECISION_FIXTURE.read_text(
@@ -8122,6 +8166,31 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject not-yet-user-reviewed issue candidate disposition"
+        )
+
+    generated_not_fully_user_reviewed_text = (
+        INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Issue Candidate Disposition: Issue Candidate F6-HIST-001 is not yet user reviewed.",
+            "Issue Candidate Disposition: Issue Candidate Packet is not fully USER-Reviewed for F6-HIST-001.",
+        )
+        .replace(
+            "Repair / Waiver / Defer / Route Decision Table: issue candidate F6-HIST-001 is not yet blocked, waived, repaired, or routed.",
+            "Repair / Waiver / Defer / Route Decision Table: issue candidate F6-HIST-001 is not fully USER-Reviewed, waived, repaired, or routed.",
+        )
+    )
+    generated_not_fully_user_reviewed_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_not_fully_user_reviewed_text
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        generated_not_fully_user_reviewed_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject not-fully-USER-reviewed issue candidate disposition"
         )
 
     linked_closed_claim_failures = _validate_rebaseline_adoption_review_text(

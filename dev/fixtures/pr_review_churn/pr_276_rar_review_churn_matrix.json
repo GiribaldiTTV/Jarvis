@@ -133,13 +133,15 @@
         "CURRENT/ISSUE-CANDIDATE compound status",
         "No issue candidate row placeholder",
         "USER-reviewed closeout wording",
+        "not fully USER-Reviewed incomplete disposition wording",
         "GitHub issue mutation approval remains false"
       ],
       "sibling_variant_replay": [
         "Historical issue candidate",
         "Current branch issue candidate",
         "Reviewed but not issue-created candidate",
-        "Candidate table marker without row"
+        "Candidate table marker without row",
+        "Incomplete USER-reviewed qualifier before closeout"
       ]
     },
     {
@@ -170,6 +172,7 @@
       "generated_mutation_coverage": [
         "USER judgment phrase family",
         "inverse needs USER judgment wording",
+        "does not require USER decision wording",
         "RAR USER Decision table row",
         "Next Legal Phase USER review wording",
         "folder/ZIP label mismatch"
