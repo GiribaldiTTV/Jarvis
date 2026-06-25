@@ -513,6 +513,9 @@ INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_GO_TO_PHASE_ADVANCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_go_to_phase_advance.md"
 )
+INVALID_REBASELINE_ADOPTION_BARE_PHASE_NEXT_STEP_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_bare_phase_next_step.md"
+)
 INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
 )
@@ -2860,6 +2863,9 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "merge",
         "release",
     )
+    phase_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in advancement_tokens
+    )
 
     negation_tokens = (
         "does not authorize",
@@ -2888,9 +2894,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "cannot proceed",
         "must not proceed",
     )
+    phase_action_token_pattern = (
+        r"proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|"
+        r"resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|"
+        r"go(?:es|ing)?|start(?:s|ed|ing)?|begin(?:s|ning|gan)?|green|ready"
+    )
+    negation_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in negation_tokens
+    )
+    negated_phase_list_pattern = re.compile(
+        rf"\b(?:{negation_token_pattern})\b"
+        rf"(?:(?!\b(?:{phase_action_token_pattern})\b|[.;]|\b(?:but|however|yet)\b).){{0,180}}"
+        rf"\b(?:{phase_token_pattern})\b"
+        rf"(?:\s*,\s*(?:or\s+|and\s+)?\b(?:{phase_token_pattern})\b)*"
+    )
     phase_claim_clause_pattern = r"[,.;]|\b(?:and|but|however|yet)\b"
 
     def strip_negated_phase_disclaimers(value: str) -> str:
+        value = negated_phase_list_pattern.sub(" ", value)
         clauses = re.split(phase_claim_clause_pattern, value)
         kept: list[str] = []
         for clause in clauses:
@@ -2905,9 +2926,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         phase_advancement_marker_values
     )
     next_phase_values = strip_negated_phase_disclaimers(next_phase_values)
-
-    phase_token_pattern = "|".join(
-        re.escape(token).replace(r"\ ", r"\s+") for token in advancement_tokens
+    phase_advancement_next_step_scope = strip_negated_phase_disclaimers(
+        governance._normalized_planning_value(
+            " ".join(
+                governance._extract_marker_value(text, marker)
+                for marker in (
+                    "Repair / Waiver / Defer / Route Decision Table:",
+                    "Adoption Disposition:",
+                    "Repair / Waiver / Blocker:",
+                    "Exact Next USER Decision:",
+                )
+            )
+        )
     )
     phase_advancement_action_pattern = re.compile(
         rf"(?:"
@@ -2926,8 +2956,12 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         phase_advancement_action_pattern.search(phase_advancement_marker_values)
         is not None
     )
+    concrete_marker_bare_phase_requested = (
+        re.search(rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b", phase_advancement_next_step_scope)
+        is not None
+    )
     concrete_advancement_requested = concrete_next_phase_requested or (
-        concrete_marker_advancement_requested
+        concrete_marker_advancement_requested or concrete_marker_bare_phase_requested
     )
 
     def normal_phase_progression_claimed(value: str) -> bool:
@@ -7868,6 +7902,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject go-to phase advancement while RAR remains active"
+        )
+
+    bare_phase_next_step_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_BARE_PHASE_NEXT_STEP_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        bare_phase_next_step_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject bare phase next-step wording while RAR remains active"
         )
 
     generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
