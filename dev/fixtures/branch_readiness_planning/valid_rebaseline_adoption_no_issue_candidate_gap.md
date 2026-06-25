@@ -50,7 +50,7 @@ Next Legal Phase: normal phase progression after resolved RAR closeout.
 
 | Element Class | Implementation Authority | Accepted Reference Set | Invariant Traits | Feature-Specific Traits | Target Surface | Primitive/Template/Reference-Derived/Exception | Evidence | Gap / Issue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| None | Not Applicable With Reason | Not Applicable With Reason | None | None | None | Not Applicable With Reason | validation summary | No issue candidate applicable |
+| None | Not Applicable With Reason | Not Applicable With Reason | None | None | None | Not Applicable With Reason | validation summary | No reference gap or template gap applicable |
 
 | Issue Candidate | Owner FAM | Surface | Element Group | Defect Class | Evidence | Proposed Carrier | GitHub Issue Mutation Approved? |
 | --- | --- | --- | --- | --- | --- | --- | --- |

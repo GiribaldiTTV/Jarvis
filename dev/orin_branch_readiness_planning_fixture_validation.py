@@ -2267,6 +2267,30 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             )
         )
 
+    def cell_negates_unresolved_status(value: str, status: str) -> bool:
+        if status == "issue candidate":
+            return cell_negates_issue_candidate_status(value)
+        normalized_cell = normalize_rar_status_cell(value)
+        if normalized_cell in {"none", "n/a", "not applicable", "not applicable with reason"}:
+            return True
+        normalized_status = governance._normalized_planning_value(status).strip(" .;:")
+        status_pattern = re.escape(normalized_status).replace(r"\ ", r"\s+")
+        plural_suffix = r"s?" if normalized_status.endswith("gap") else ""
+        return bool(
+            re.search(
+                rf"\b(?:no|not|without)\s+(?:current\s+|unresolved\s+|active\s+|pending\s+|open\s+)?{status_pattern}{plural_suffix}\b",
+                normalized_cell,
+            )
+            or re.search(
+                rf"\bno\b(?:(?!\b(?:but|however|yet)\b|[.;]).){{0,120}}\b{status_pattern}{plural_suffix}\b",
+                normalized_cell,
+            )
+            or re.search(
+                rf"\b{status_pattern}{plural_suffix}\s+(?:is\s+|are\s+|was\s+|were\s+)?not\s+(?:applicable|needed|required|present|open|active)\b",
+                normalized_cell,
+            )
+        )
+
     def contains_non_negated_rar_phrase(value: str, phrases: tuple[str, ...]) -> bool:
         if not value:
             return False
@@ -2303,13 +2327,12 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def cell_has_unresolved_status(value: str) -> bool:
         normalized_cell = normalize_rar_status_cell(value)
-        issue_candidate_negated = cell_negates_issue_candidate_status(value)
         return any(
             normalized_cell == status
             or normalized_cell.startswith(f"{status} ")
             or f" {status} " in f" {normalized_cell} "
             for status in unresolved_statuses
-            if not (status == "issue candidate" and issue_candidate_negated)
+            if not cell_negates_unresolved_status(value, status)
         )
 
     def cell_has_issue_candidate_status(value: str) -> bool:
