@@ -2653,6 +2653,26 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         and len(user_packet_zip_paths) == 1
         and len(deterministic_user_zip_paths) == 1
     )
+    user_packet_folder_label = (
+        user_packet_paths[0].split("\\")[-1].casefold()
+        if user_packet_path_is_rooted
+        else ""
+    )
+    user_packet_zip_label = ""
+    if user_packet_zip_is_deterministic:
+        zip_name = deterministic_user_zip_paths[0].split("\\")[-1]
+        zip_label_match = re.fullmatch(
+            r"([A-Za-z0-9_-]+)-\d{8}-\d{6}\.zip",
+            zip_name,
+            re.IGNORECASE,
+        )
+        user_packet_zip_label = (
+            zip_label_match.group(1).casefold() if zip_label_match else ""
+        )
+    user_packet_label_matches = (
+        not (user_packet_path_is_rooted and user_packet_zip_is_deterministic)
+        or user_packet_folder_label == user_packet_zip_label
+    )
     require(
         user_packet_path_is_rooted
         or (user_packet_path_not_required and not pending_user_review_required),
@@ -2663,6 +2683,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         or (user_packet_zip_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
+    require(user_packet_label_matches, "RAR USER Packet Missing")
 
     no_live_state = governance._extract_marker_value(text, "No Repo Live-State Tracking:")
     normalized_no_live_state = governance._normalized_planning_value(no_live_state)
@@ -8135,6 +8156,22 @@ line item, not a seam or separate branch.
                 f"USER packet folder punctuation: {generated_packet_path}: "
                 + "; ".join(generated_packet_path_failures[:5])
             )
+
+    generated_mismatched_packet_zip_label_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text(
+                "USER Packet ZIP Path:",
+                r"C:\Nexus USER\FAM-007-20260620-120000.zip",
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_mismatched_packet_zip_label_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject mismatched USER packet "
+            "folder and ZIP worktree labels"
+        )
 
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_BARE_RAR3_NO_PACKET_FIXTURE.read_text(
