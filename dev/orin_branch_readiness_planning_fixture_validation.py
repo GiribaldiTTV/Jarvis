@@ -332,6 +332,9 @@ INVALID_REBASELINE_ADOPTION_MISSING_PRODUCT_EXPERIENCE_COMPARISON_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_empty_code_trace.md"
 )
+INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_noop_active_rows.md"
+)
 INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_empty_accepted_reference.md"
 )
@@ -515,6 +518,9 @@ INVALID_REBASELINE_ADOPTION_GO_TO_PHASE_ADVANCE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_BARE_PHASE_NEXT_STEP_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_bare_phase_next_step.md"
+)
+INVALID_REBASELINE_ADOPTION_NOT_BLOCKED_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_not_blocked_phase_advance.md"
 )
 INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
@@ -2076,6 +2082,23 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             ("tbd ", "todo ", "placeholder ")
         )
 
+    def is_noop_evidence_cell(value: str) -> bool:
+        normalized = governance._normalized_planning_value(value).strip(" .;:")
+        return normalized in {
+            "",
+            "none",
+            "n/a",
+            "no",
+            "not applicable",
+            "not applicable with reason",
+            "conforming",
+            "continue",
+            "validation summary",
+        } or normalized.startswith(("not applicable ", "none "))
+
+    def is_noop_evidence_row(row: list[str]) -> bool:
+        return all(is_noop_evidence_cell(cell) for cell in row)
+
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
         real_rows: list[list[str]] = []
         for row in rows:
@@ -2161,6 +2184,46 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         and not has_malformed_substantive_table_row(raw_rar_decision_rows, 4),
         "RAR USER Packet Missing",
     )
+
+    def marker_claims_material_surface(value: str) -> bool:
+        normalized = governance._normalized_planning_value(value).strip(" .;:")
+        if normalized in {
+            "",
+            "none",
+            "n/a",
+            "not applicable",
+            "not applicable with reason",
+        }:
+            return False
+        if re.search(
+            r"\bno\b.{0,80}\b(?:surface|surfaces|ui|runtime|product|visible|changed|affected|touched|mutation)\b",
+            normalized,
+        ):
+            return False
+        if "none with reason" in normalized:
+            return False
+        return True
+
+    active_review_claims_material_surfaces = active_rar_stage and any(
+        marker_claims_material_surface(governance._extract_marker_value(text, marker))
+        for marker in (
+            "Owned Surface Inventory:",
+            "Affected Surface Inventory:",
+            "Affected Product Surfaces:",
+            "Implemented / Touched UI-UX Surfaces:",
+            "Implemented / Touched Runtime-Backend Surfaces:",
+        )
+    )
+    if active_review_claims_material_surfaces:
+        require(
+            any(not is_noop_evidence_row(row) for row in code_trace_rows),
+            "Code-To-Visual Trace Missing",
+        )
+        require(
+            any(not is_noop_evidence_row(row) for row in accepted_reference_rows),
+            "Accepted Reference Comparator Missing",
+        )
+
     issue_candidate_disposition = governance._extract_marker_value(
         text, "Issue Candidate Disposition:"
     )
@@ -2894,16 +2957,19 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "cannot proceed",
         "must not proceed",
     )
+    phase_disclaimer_tokens = tuple(
+        token for token in negation_tokens if token not in {"blocked", "held"}
+    )
     phase_action_token_pattern = (
         r"proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|"
         r"resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|"
         r"go(?:es|ing)?|start(?:s|ed|ing)?|begin(?:s|ning|gan)?|green|ready"
     )
-    negation_token_pattern = "|".join(
-        re.escape(token).replace(r"\ ", r"\s+") for token in negation_tokens
+    phase_disclaimer_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in phase_disclaimer_tokens
     )
     negated_phase_list_pattern = re.compile(
-        rf"\b(?:{negation_token_pattern})\b"
+        rf"\b(?:{phase_disclaimer_token_pattern})\b"
         rf"(?:(?!\b(?:{phase_action_token_pattern})\b|[.;]|\b(?:but|however|yet)\b).){{0,180}}"
         rf"\b(?:{phase_token_pattern})\b"
         rf"(?:\s*,\s*(?:or\s+|and\s+)?\b(?:{phase_token_pattern})\b)*"
@@ -2916,7 +2982,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         kept: list[str] = []
         for clause in clauses:
             if any(token in clause for token in advancement_tokens) and any(
-                token in clause for token in negation_tokens
+                token in clause for token in phase_disclaimer_tokens
             ):
                 continue
             kept.append(clause)
@@ -7180,6 +7246,16 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject header-only code-to-visual trace"
         )
 
+    noop_active_rows_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        noop_active_rows_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject no-op active evidence rows"
+        )
+
     empty_accepted_reference_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE.read_text(
             encoding="utf-8"
@@ -7914,6 +7990,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject bare phase next-step wording while RAR remains active"
+        )
+
+    not_blocked_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NOT_BLOCKED_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        not_blocked_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject not-blocked phase advancement while RAR remains active"
         )
 
     generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
