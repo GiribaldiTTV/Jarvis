@@ -425,6 +425,21 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Comment-family classifier overmatched generic PR Readiness drift as RAR phase advancement"
         )
+    helper_source = Path(__file__).read_text(encoding="utf-8")
+    helper_lines = helper_source.splitlines()
+    stale_timestamp_binding = any(
+        line.strip().startswith("def _head_commit_timestamp(")
+        or re.match(r"^\s*head_timestamp\s*=", line) is not None
+        for line in helper_lines
+    )
+    if stale_timestamp_binding:
+        failures.append(
+            "Approval-latch guardrail found stale timestamp binding helper"
+        )
+    if "PullRequestCommit" not in helper_source or "IssueComment" not in helper_source:
+        failures.append(
+            "Approval-latch guardrail must use PR timeline order for current-head review requests"
+        )
     return failures
 
 
@@ -499,16 +514,53 @@ def _comment_reactions(owner: str, name: str, comment_id: int) -> list[dict[str,
     )
 
 
-def _head_commit_timestamp(owner: str, name: str, head_oid: str) -> str:
-    data = json.loads(_run(["gh", "api", f"repos/{owner}/{name}/commits/{head_oid}"]))
-    commit = data.get("commit") or {}
-    committer = commit.get("committer") or {}
-    author = commit.get("author") or {}
-    return committer.get("date") or author.get("date") or ""
-
-
 def _is_at_or_after(timestamp: str, baseline: str) -> bool:
     return bool(timestamp and baseline and timestamp >= baseline)
+
+
+def _latest_review_request_after_head(
+    owner: str, name: str, number: int, head_oid: str
+) -> dict[str, Any] | None:
+    query = """
+query($owner:String!,$name:String!,$number:Int!){
+  repository(owner:$owner,name:$name){
+    pullRequest(number:$number){
+      timelineItems(last:100, itemTypes:[PULL_REQUEST_COMMIT,ISSUE_COMMENT]){
+        nodes{
+          __typename
+          ... on PullRequestCommit { commit { oid } }
+          ... on IssueComment { databaseId author{login} body createdAt url }
+        }
+      }
+    }
+  }
+}
+"""
+    data = _graphql(query, {"owner": owner, "name": name, "number": number})
+    nodes = data["repository"]["pullRequest"]["timelineItems"]["nodes"]
+    head_index = -1
+    for index, node in enumerate(nodes):
+        if (
+            node.get("__typename") == "PullRequestCommit"
+            and (node.get("commit") or {}).get("oid") == head_oid
+        ):
+            head_index = index
+    if head_index < 0:
+        return None
+
+    latest_request: dict[str, Any] | None = None
+    for index, node in enumerate(nodes):
+        if index <= head_index or node.get("__typename") != "IssueComment":
+            continue
+        body = node.get("body") or ""
+        if "@codex" in body.casefold() and "review" in body.casefold():
+            latest_request = {
+                "id": node.get("databaseId"),
+                "created_at": node.get("createdAt") or "",
+                "html_url": node.get("url") or "",
+                "body": body,
+            }
+    return latest_request
 
 
 def _extract_latest_green(
@@ -516,7 +568,6 @@ def _extract_latest_green(
 ) -> tuple[bool, str]:
     issue_comments = _rest_paginated(f"repos/{owner}/{name}/issues/{number}/comments")
     review_summaries = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/reviews")
-    head_timestamp = _head_commit_timestamp(owner, name, head_oid)
     green_patterns = (
         "didn't find any major issues",
         "didn\u2019t find any major issues",
@@ -526,23 +577,16 @@ def _extract_latest_green(
         "looks good",
     )
     candidates: list[tuple[str, str, str]] = []
-    latest_request: dict[str, Any] | None = None
-    for item in issue_comments:
-        author = (item.get("user") or {}).get("login", "")
-        body = item.get("body") or ""
-        if "@codex" in body.casefold() and "review" in body.casefold():
-            latest_request = item
+    latest_request = _latest_review_request_after_head(owner, name, number, head_oid)
     latest_request_created = ""
-    latest_request_current = False
     if latest_request:
         latest_request_created = latest_request.get("created_at") or ""
-        latest_request_current = _is_at_or_after(latest_request_created, head_timestamp)
     for item in issue_comments:
         author = (item.get("user") or {}).get("login", "")
         body = item.get("body") or ""
         created_at = item.get("created_at") or ""
         if (
-            latest_request_current
+            latest_request is not None
             and _is_at_or_after(created_at, latest_request_created)
             and _is_connector_login(author)
             and any(pattern in body.casefold() for pattern in green_patterns)
@@ -550,13 +594,14 @@ def _extract_latest_green(
             candidates.append(
                 (
                     created_at,
-                    body + f"\nTimeline bound to current head: {head_oid}",
+                    body
+                    + f"\nTimeline order: current head {head_oid} appeared before latest review request.",
                     item.get("html_url") or "",
                 )
             )
     if latest_request:
         request_id = latest_request.get("id")
-        if latest_request_current and isinstance(request_id, int):
+        if isinstance(request_id, int):
             for reaction in _comment_reactions(owner, name, request_id):
                 reaction_author = (reaction.get("user") or {}).get("login", "")
                 reaction_created = reaction.get("created_at") or ""
@@ -570,7 +615,7 @@ def _extract_latest_green(
                         (
                             f"{latest_request.get('created_at') or ''} "
                             f"{latest_request.get('html_url') or ''} "
-                            "(Codex Connector thumbs-up reaction on latest review request)"
+                            "(Codex Connector thumbs-up reaction on latest current-head review request)"
                         ).strip(),
                     )
     for item in review_summaries:
