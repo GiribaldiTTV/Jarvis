@@ -259,11 +259,14 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "returnedTitleSubtitleWrapRepaired",
     "acceptedReferenceComparisonProven",
     "exhaustiveMainRuntimeVisualGrammarComparisonProven",
+    "deterministicStatusRowsAndTitlePill",
     "resizeEdgeHitZoneProven",
+    "dashboardHorizontalResizeMinimumWorks",
     "defaultScrollIntentProven",
     "runtimeCopyIsProductFacing",
     "fullDesktopProofNotDuplicated",
-    "settingsRouteHiddenForOptionG",
+    "settingsCogFutureGatedVisualOnly",
+    "settingsCogVisualAcceptanceOptionsProven",
     "noInlineWorkspaceActions",
     "childLifecycleBehavior",
     "dashboardResizeStillWorks",
@@ -273,6 +276,7 @@ IMAGE_PROOF_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
     "dashboard_initial",
     "dashboard_scrolled_bottom",
+    "dashboard_horizontal_shrink",
     "dashboard_resized",
 }
 FAM007_LIVE_PROOF_MANIFEST_NAME = "live_resize_manifest.json"

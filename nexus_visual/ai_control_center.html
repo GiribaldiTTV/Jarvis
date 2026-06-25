@@ -40,13 +40,13 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__subtitle {
       margin-top: 6px;
-      max-width: 690px;
+      max-width: 600px;
       line-height: 1.28;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role {
       width: fit-content;
-      max-width: 100%;
+      max-width: calc(100% - 47px);
       box-sizing: border-box;
       margin-top: 12px;
       padding: 9px 11px;
@@ -89,7 +89,13 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-title-tools {
-      display: none;
+      position: absolute;
+      right: 16px;
+      bottom: 10px;
+      z-index: 68;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog {
@@ -106,6 +112,7 @@
       background: linear-gradient(145deg, rgba(7, 42, 62, 0.72), rgba(3, 18, 32, 0.76));
       color: rgba(235, 252, 255, 0.96);
       cursor: default;
+      opacity: 0.92;
       box-shadow:
         0 0 0 1px rgba(230, 251, 255, 0.05) inset,
         0 0 12px rgba(86, 236, 255, 0.12);
@@ -146,7 +153,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-tooltip {
       position: absolute;
       right: 38px;
-      top: 3px;
+      top: 2px;
       z-index: 70;
       opacity: 0;
       pointer-events: none;
@@ -432,7 +439,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row {
-      grid-template-columns: minmax(142px, 0.22fr) minmax(0, 1fr);
+      grid-template-columns: minmax(104px, 0.22fr) minmax(0, 1fr);
       min-height: 0;
       padding: 4px 0 2px;
     }
@@ -582,7 +589,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
-      grid-template-columns: minmax(142px, 0.22fr) minmax(0, 1fr);
+      grid-template-columns: minmax(104px, 0.22fr) minmax(0, 1fr);
       gap: 6px;
       min-height: 0;
       padding: 4px 0 2px;
@@ -748,9 +755,9 @@
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
     data-single-action-button-model="content-fit-fixed-height-ellipsis"
-    data-default-window-width="840"
-    data-default-window-height="720"
-    data-default-window-max-height="760"
+    data-default-window-width="720"
+    data-default-window-height="640"
+    data-default-window-max-height="680"
     data-window-restore-policy="disabled-until-fam003-reset-control"
     data-window-memory-policy="restart-memory-disabled"
     data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"
@@ -837,10 +844,10 @@
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
           <div class="monitoring-hud__surface-role-copy">
-            <span class="monitoring-hud__surface-role-pair" aria-label="AI ORIN">
-              <span class="monitoring-hud__surface-role-label">AI</span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="AI Persona none">
+              <span class="monitoring-hud__surface-role-label">AI Persona</span>
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
-              <strong>ORIN</strong>
+              <strong>None</strong>
             </span>
             <span class="monitoring-hud__surface-role-pair" aria-label="Status not implemented">
               <span class="monitoring-hud__surface-role-label">Status</span>
@@ -852,24 +859,26 @@
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
               <strong>Blocked</strong>
             </span>
-            <span class="monitoring-hud__surface-role-pair" aria-label="Data none">
-              <span class="monitoring-hud__surface-role-label">Data</span>
-              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
-              <strong>None</strong>
-            </span>
           </div>
         </div>
-        <div class="ai-dashboard-title-tools" data-dashboard-utility-row="settings-route">
+        <div
+          class="ai-dashboard-title-tools"
+          data-dashboard-utility-row="settings-route"
+          data-settings-visual-acceptance="candidate-a-visible-title-strip-trailing"
+          data-settings-behavior="future-gated-no-window-open"
+        >
           <button
             type="button"
             id="ai-dashboard-settings-action"
             class="ai-dashboard-settings-cog"
             data-control="open-ai-dashboard-settings"
             data-settings-route="fam003-global-settings-ai"
-            data-settings-state="future-gated"
+            data-settings-state="future-gated-visual-only"
+            data-settings-window-opened="false"
             aria-label="Settings"
             aria-disabled="true"
             data-hover-label="Settings"
+            data-tooltip-state="custom-tooltip"
           ></button>
           <span class="ai-dashboard-settings-tooltip" id="ai-dashboard-settings-tooltip" role="tooltip">Settings</span>
         </div>
@@ -899,22 +908,22 @@
             <div class="monitoring-hud__hub-card-topline">
               <span>01</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>AI Status &amp; Trust</strong>
+                <strong>AI Persona</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Truth-first orientation before any AI action.</p>
+              <p class="monitoring-hud__hub-card-description">Persona state before any AI action.</p>
             </div>
-            <div class="ai-control-center-card-rows" aria-label="AI status and trust rows">
+            <div class="ai-control-center-card-rows" aria-label="AI persona status and trust rows">
               <div class="monitoring-hud__state-row">
-                <span>AI</span>
-                <strong>ORIN not implemented; no real AI executing</strong>
+                <span>AI Persona</span>
+                <strong>None; ORIN persona not implemented</strong>
               </div>
               <div class="monitoring-hud__state-row">
                 <span>Provider</span>
-                <strong>Blocked; no provider/model path active</strong>
+                <strong>Blocked; no model path active</strong>
               </div>
               <div class="monitoring-hud__state-row">
-                <span>Visible data</span>
-                <strong>None leaves this machine</strong>
+                <span>Privacy</span>
+                <strong>Protected; no provider or third-party tracking</strong>
               </div>
             </div>
             <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
@@ -950,21 +959,21 @@
               <div class="monitoring-hud__hub-card-topline">
                 <span>02</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>AI Readiness &amp; Diagnostics</strong>
+                  <strong>AI Readiness</strong>
                 </div>
-                <p class="monitoring-hud__hub-card-description">Local checks and readiness report doorway.</p>
+                <p class="monitoring-hud__hub-card-description">Local checks and diagnostics doorway.</p>
               </div>
               <div class="ai-control-center-card-rows" aria-label="AI readiness and diagnostics rows">
                 <div class="monitoring-hud__state-row">
-                  <span>Local check</span>
+                  <span>Check</span>
                   <strong>Waiting for USER action</strong>
                 </div>
                 <div class="monitoring-hud__state-row">
-                  <span>Readiness report</span>
+                  <span>Report</span>
                   <strong>Local decision aid behind diagnostics</strong>
                 </div>
                 <div class="monitoring-hud__state-row">
-                  <span>Prompt/data</span>
+                  <span>Prompt</span>
                   <strong>Not accepted, sent, stored, or indexed</strong>
                 </div>
               </div>
@@ -1002,17 +1011,17 @@
             <div class="monitoring-hud__hub-card-topline">
               <span>03</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>Capabilities &amp; Maintenance</strong>
+                <strong>Capabilities</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Capability state without install or update execution.</p>
+              <p class="monitoring-hud__hub-card-description">Packs and updates stay blocked.</p>
             </div>
             <div class="ai-control-center-card-rows" aria-label="Capabilities and maintenance rows">
               <div class="monitoring-hud__state-row">
-                <span>Capability packs</span>
-                <strong>Install intent blocked; downloads disabled</strong>
+                <span>Packs</span>
+                <strong>Install blocked; downloads disabled</strong>
               </div>
               <div class="monitoring-hud__state-row">
-                <span>Downloads/updates</span>
+                <span>Updates</span>
                 <strong>Future-gated; no install execution</strong>
               </div>
             </div>

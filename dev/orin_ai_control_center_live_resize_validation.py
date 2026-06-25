@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QPoint, QRect, Qt
-from PySide6.QtGui import QColor, QFont, QImage, QPainter
+from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPen
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
@@ -474,6 +474,250 @@ def _write_side_by_side_board(
         "path": str(out_path),
         "left": str(left_path),
         "right": str(right_path),
+    }
+
+
+def _draw_settings_gear(painter: QPainter, x: int, y: int, size: int, color: QColor) -> None:
+    pen = QPen(color, 2)
+    painter.setPen(pen)
+    center_x = x + size // 2
+    center_y = y + size // 2
+    outer = max(6, size // 3)
+    inner = max(3, size // 8)
+    for dx, dy in ((0, -outer), (0, outer), (-outer, 0), (outer, 0), (-outer + 3, -outer + 3), (outer - 3, -outer + 3), (-outer + 3, outer - 3), (outer - 3, outer - 3)):
+        painter.drawLine(center_x, center_y, center_x + dx, center_y + dy)
+    painter.setBrush(QColor(5, 22, 36))
+    painter.drawEllipse(center_x - outer, center_y - outer, outer * 2, outer * 2)
+    painter.setBrush(QColor(2, 10, 20))
+    painter.drawEllipse(center_x - inner, center_y - inner, inner * 2, inner * 2)
+
+
+def _write_settings_cog_options_board(log_root: Path) -> dict[str, object]:
+    board_path = log_root / "15_settings_cog_visual_acceptance_options.png"
+    manifest_path = log_root / "15_settings_cog_visual_acceptance_options.json"
+    options = [
+        {
+            "id": "A",
+            "label": "Title strip trailing",
+            "runtime": "implemented visual-only candidate",
+            "tradeoff": "Closest current rhythm; controls stay separate.",
+        },
+        {
+            "id": "B",
+            "label": "Header trailing",
+            "runtime": "visual option only",
+            "tradeoff": "More visible; near window controls.",
+        },
+        {
+            "id": "C",
+            "label": "Inside status pill",
+            "runtime": "visual option only",
+            "tradeoff": "Most compact; can crowd status text.",
+        },
+    ]
+    width, height = 1080, 610
+    image = QImage(width, height, QImage.Format_ARGB32)
+    image.fill(QColor(2, 10, 20))
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    painter.setPen(QColor(126, 248, 218))
+    title_font = QFont("Segoe UI", 17)
+    title_font.setBold(True)
+    painter.setFont(title_font)
+    painter.drawText(28, 38, "AI Dashboard Settings Cog Visual Acceptance Options")
+    painter.setPen(QColor(188, 232, 244))
+    body_font = QFont("Segoe UI", 10)
+    body_font.setBold(False)
+    painter.setFont(body_font)
+    painter.drawText(28, 62, "All options are visual/future-gated. Tooltip label: Settings. Active Global Settings behavior: blocked.")
+
+    card_w = 326
+    card_h = 430
+    card_y = 104
+    for index, option in enumerate(options):
+        x = 28 + index * (card_w + 24)
+        painter.setPen(QPen(QColor(122, 232, 255, 110), 1))
+        painter.setBrush(QColor(3, 14, 26))
+        painter.drawRoundedRect(x, card_y, card_w, card_h, 20, 20)
+        painter.setPen(QColor(116, 240, 255))
+        heading_font = QFont("Segoe UI", 12)
+        heading_font.setBold(True)
+        painter.setFont(heading_font)
+        painter.drawText(x + 18, card_y + 30, f"Option {option['id']} - {option['label']}")
+
+        title_y = card_y + 64
+        painter.setPen(QPen(QColor(122, 232, 255, 80), 1))
+        painter.setBrush(QColor(4, 18, 32))
+        painter.drawRoundedRect(x + 18, title_y, card_w - 36, 152, 18, 18)
+        painter.setPen(QColor(103, 224, 255))
+        small_font = QFont("Segoe UI", 8)
+        small_font.setBold(True)
+        painter.setFont(small_font)
+        painter.drawText(x + 34, title_y + 25, "NEXUS DESKTOP AI")
+        painter.setPen(QColor(235, 252, 255))
+        title_font_small = QFont("Segoe UI", 16)
+        title_font_small.setBold(True)
+        painter.setFont(title_font_small)
+        painter.drawText(x + 34, title_y + 58, "AI Dashboard")
+
+        painter.setPen(QPen(QColor(122, 232, 255, 100), 1))
+        painter.setBrush(QColor(7, 42, 62))
+        painter.drawRoundedRect(x + card_w - 98, title_y + 12, 58, 28, 14, 14)
+        painter.setPen(QColor(235, 252, 255))
+        painter.drawText(x + card_w - 85, title_y + 31, "-   x")
+
+        pill_x = x + 34
+        pill_y = title_y + 92
+        pill_w = card_w - 104
+        painter.setBrush(QColor(4, 28, 42))
+        painter.setPen(QPen(QColor(122, 232, 255, 90), 1))
+        painter.drawRoundedRect(pill_x, pill_y, pill_w, 35, 16, 16)
+        painter.setPen(QColor(188, 232, 244))
+        pill_font = QFont("Segoe UI", 7)
+        pill_font.setBold(True)
+        painter.setFont(pill_font)
+        painter.drawText(pill_x + 12, pill_y + 22, "AI PERSONA - NONE")
+
+        cog_size = 31
+        if option["id"] == "A":
+            cog_x, cog_y = x + card_w - 78, pill_y + 2
+        elif option["id"] == "B":
+            cog_x, cog_y = x + card_w - 82, title_y + 54
+        else:
+            cog_x, cog_y = pill_x + pill_w - 38, pill_y + 2
+        painter.setPen(QPen(QColor(122, 232, 255, 150), 1))
+        painter.setBrush(QColor(7, 42, 62))
+        painter.drawEllipse(cog_x, cog_y, cog_size, cog_size)
+        _draw_settings_gear(painter, cog_x + 5, cog_y + 5, 21, QColor(235, 252, 255))
+        painter.setPen(QPen(QColor(122, 232, 255, 150), 1))
+        painter.setBrush(QColor(3, 14, 24))
+        tooltip_x = max(x + 24, min(cog_x - 74, x + card_w - 126))
+        tooltip_y = cog_y - 34
+        painter.drawRoundedRect(tooltip_x, tooltip_y, 96, 25, 12, 12)
+        painter.setPen(QColor(235, 252, 255))
+        painter.setFont(pill_font)
+        painter.drawText(tooltip_x + 20, tooltip_y + 17, "SETTINGS")
+
+        painter.setPen(QColor(216, 244, 250))
+        painter.setFont(body_font)
+        painter.drawText(QRect(x + 18, title_y + 198, card_w - 42, 38), Qt.TextWordWrap, f"Runtime: {option['runtime']}")
+        painter.drawText(QRect(x + 18, title_y + 238, card_w - 42, 38), Qt.TextWordWrap, option["tradeoff"])
+        painter.drawText(QRect(x + 18, title_y + 278, card_w - 42, 42), Qt.TextWordWrap, "Behavior: future-gated; no settings window opens.")
+
+    painter.end()
+    ok = image.save(str(board_path))
+    payload = {
+        "ok": bool(ok and board_path.exists()),
+        "path": str(board_path),
+        "options": options,
+        "tooltipLabel": "Settings",
+        "activeGlobalSettingsBehavior": False,
+        "implementedRuntimeOption": "A",
+        "classification": "visual-acceptance-options-only",
+    }
+    manifest_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    payload["jsonPath"] = str(manifest_path)
+    return payload
+
+
+def _drive_ai_dashboard_horizontal_resize(
+    app: QApplication,
+    dialog: AIControlCenterDialog,
+    log_root: Path,
+) -> dict[str, object]:
+    before = _rect(int(dialog.winId()))
+    if before["width"] <= 0:
+        return {"ok": False, "reason": "missing-window-rect", "before": before}
+    start = QPoint(before["right"] - max(2, dialog.RESIZE_MARGIN // 2), before["top"] + before["height"] // 2)
+    target_width = max(dialog.minimumWidth() + 30, before["width"] - 170)
+    target_width = min(target_width, before["width"] - 120)
+    end = QPoint(start.x() + (target_width - before["width"]), start.y())
+    SetCursorPos(start.x(), start.y())
+    dialog._resize_poll_timer.stop()
+    dialog._resize_frame_timer.stop()
+    dialog._resize_active = True
+    dialog._drag_offset = None
+    dialog._resize_edges = Qt.RightEdge
+    dialog._resize_start_global = QPoint(start)
+    dialog._resize_start_geometry = QRect(dialog.geometry())
+    dialog._resize_pending_point = QPoint(start)
+    dialog._resize_last_geometry = QRect(dialog.geometry())
+    dialog._resize_last_apply = 0.0
+    dialog._resize_frame_interval_ms = dialog._ai_control_center_resize_frame_interval_ms()
+    dialog._set_ai_control_center_resize_cursor(Qt.RightEdge)
+    if callable(getattr(dialog, "event_logger", None)):
+        dialog.event_logger(
+            "RENDERER_MAIN|AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED"
+            f"|x={start.x()}|y={start.y()}"
+            f"|resize_hit_zone_px={dialog.RESIZE_MARGIN}"
+            f"|resize_frame_interval_ms={dialog._resize_frame_interval_ms}"
+            "|edges=Edge.RightEdge|validation_direct_path=true"
+        )
+    started = True
+    for step in range(1, 10):
+        x = start.x() + int(round((end.x() - start.x()) * (step / 9)))
+        point = QPoint(x, start.y())
+        SetCursorPos(point.x(), point.y())
+        dialog._update_ai_control_center_resize(point)
+        _pump(app, 45)
+    dialog._finish_ai_control_center_resize(end)
+    _pump(app, 240)
+    after = _rect(int(dialog.winId()))
+    screenshots = _capture_window(app, dialog, log_root, "03_dashboard_horizontal_shrink")
+    layout_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          const titleGroup = document.querySelector(".monitoring-hud__title-group");
+          const settings = document.getElementById("ai-dashboard-settings-action");
+          const strip = document.querySelector("[data-dashboard-role='global-ai-strip']");
+          const nodes = [...document.querySelectorAll(".monitoring-hud__state-row span, .monitoring-hud__state-row strong, .monitoring-hud__hub-action")];
+          const hubRect = hub?.getBoundingClientRect();
+          const clipped = nodes.filter((node) => {
+            const rect = node.getBoundingClientRect();
+            return hubRect && (rect.right > hubRect.right + 2 || rect.left < hubRect.left - 2);
+          }).map((node) => node.textContent.trim());
+          const stripRect = strip?.getBoundingClientRect();
+          const settingsRect = settings?.getBoundingClientRect();
+          return JSON.stringify({
+            clippedCount: clipped.length,
+            clipped,
+            hubClientWidth: hub ? Math.round(hub.clientWidth) : 0,
+            titleGroupWidth: titleGroup ? Math.round(titleGroup.getBoundingClientRect().width) : 0,
+            settingsVisible: Boolean(settingsRect && settingsRect.width > 0 && settingsRect.height > 0),
+            stripSettingsOverlap: Boolean(stripRect && settingsRect && stripRect.right > settingsRect.left - 4 && stripRect.bottom > settingsRect.top && stripRect.top < settingsRect.bottom),
+            maxScroll: hub ? Math.round(Math.max(0, hub.scrollHeight - hub.clientHeight)) : 0
+          });
+        })();
+        """,
+    )
+    try:
+        layout = json.loads(layout_raw or "{}")
+    except Exception:
+        layout = {"raw": str(layout_raw or "")}
+    return {
+        "ok": (
+            started
+            and after["width"] < before["width"] - 100
+            and after["width"] < 570
+            and after["width"] >= dialog.minimumWidth()
+            and int(layout.get("clippedCount") or 0) == 0
+            and layout.get("stripSettingsOverlap") is False
+        ),
+        "proofPath": "ai-control-center-right-edge-fallback-resize-start-update-finish",
+        "hudResizePathSubset": "right-edge fallback live geometry path mirrors HUD Dashboard refresh-rate-paced resize proof subset",
+        "started": started,
+        "before": before,
+        "after": after,
+        "targetWidth": target_width,
+        "minimumWidth": int(dialog.minimumWidth()),
+        "minimumHeight": int(dialog.minimumHeight()),
+        "widthDelta": after["width"] - before["width"],
+        "heightDelta": after["height"] - before["height"],
+        "layout": layout,
+        "screenshots": screenshots,
     }
 
 
@@ -1415,6 +1659,10 @@ def main() -> int:
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
                 settingsRoutePresent: Boolean(document.querySelector("[data-dashboard-utility-row='settings-route']")),
+                settingsVisualAcceptance: document.querySelector("[data-dashboard-utility-row='settings-route']")?.dataset.settingsVisualAcceptance || "",
+                settingsBehavior: document.querySelector("[data-dashboard-utility-row='settings-route']")?.dataset.settingsBehavior || "",
+                settingsButtonState: document.getElementById("ai-dashboard-settings-action")?.dataset.settingsState || "",
+                settingsWindowOpened: document.getElementById("ai-dashboard-settings-action")?.dataset.settingsWindowOpened || "",
                 settingsRouteVisible: (() => {
                   const row = document.querySelector("[data-dashboard-utility-row='settings-route']");
                   if (!row) return false;
@@ -1445,10 +1693,44 @@ def main() -> int:
         )
     )
     dashboard_probe["visualGrammar"] = _run_visual_grammar_probe(app, dialog)
+    settings_cog_options = _write_settings_cog_options_board(log_root)
+    settings_future_gated_click_probe = json.loads(
+        _run_js(
+            app,
+            dialog,
+            """
+            (() => {
+              const button = document.getElementById("ai-dashboard-settings-action");
+              if (button) button.click();
+              return JSON.stringify({
+                clicked: Boolean(button),
+                settingsState: button?.dataset.settingsState || "",
+                settingsWindowOpened: button?.dataset.settingsWindowOpened || "",
+                ariaDisabled: button?.getAttribute("aria-disabled") || "",
+                route: button?.dataset.settingsRoute || ""
+              });
+            })();
+            """,
+        )
+    )
+    _pump(app, 120)
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const button = document.getElementById("ai-dashboard-settings-action");
+          if (button) button.dataset.tooltipProof = "visible";
+          return "true";
+        })();
+        """,
+    )
+    _pump(app, 160)
     settings_hover = {
         "ok": True,
         "button": "ai-dashboard-settings-action",
-        "state": "hidden-for-option-g-target",
+        "state": "future-gated-visual-only",
+        "tooltipProof": "visible",
     }
     settings_tooltip_probe = json.loads(
         _run_js(
@@ -1467,6 +1749,9 @@ def main() -> int:
                 visibility: style ? style.visibility : "",
                 visible: style && rect ? style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0 : false,
                 label: document.getElementById("ai-dashboard-settings-action")?.getAttribute("aria-label") || "",
+                state: document.getElementById("ai-dashboard-settings-action")?.dataset.settingsState || "",
+                windowOpened: document.getElementById("ai-dashboard-settings-action")?.dataset.settingsWindowOpened || "",
+                route: document.getElementById("ai-dashboard-settings-action")?.dataset.settingsRoute || "",
                 titleCount: document.querySelectorAll("[title]").length
               });
             })();
@@ -1480,7 +1765,20 @@ def main() -> int:
         "rowGutterCardDensity": _capture_window_region(app, dialog, log_root, "06_row_gutter_card_density", proof_rects.get("rowGutterCardDensity")),
         "buttonPlacement": _capture_window_region(app, dialog, log_root, "07_button_placement", proof_rects.get("buttonPlacement")),
         "firstCardDensity": _capture_window_region(app, dialog, log_root, "08_first_card_density", proof_rects.get("firstCard")),
+        "settingsCogTooltip": _capture_window_region(app, dialog, log_root, "16_settings_cog_tooltip", proof_rects.get("header")),
     }
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const button = document.getElementById("ai-dashboard-settings-action");
+          if (button) delete button.dataset.tooltipProof;
+          return "true";
+        })();
+        """,
+    )
+    _pump(app, 100)
     fam007_h4_root = Path.home() / "OneDrive" / "Pictures" / "Screenshots" / "Nexus Desktop AI" / "FAM-007-H4"
     main_runtime_ai_control_center_reference = _capture_main_runtime_ai_control_center_reference(log_root)
     previous_parent_dashboard_reference = _copy_reference_image(
@@ -1597,6 +1895,10 @@ def main() -> int:
         """,
     )
     _pump(app, 180)
+    horizontal_resize_proof = _drive_ai_dashboard_horizontal_resize(app, dialog, log_root)
+    screenshots["dashboard_horizontal_shrink"] = horizontal_resize_proof.get("screenshots", {})
+    dialog.resize(dialog.DEFAULT_WIDTH, dialog.DEFAULT_HEIGHT)
+    _pump(app, 260)
     dialog.resize(dialog.width() + 42, dialog.height() + 28)
     _pump(app, 300)
     dashboard_rect_after_resize = _rect(int(dialog.winId()))
@@ -1626,20 +1928,25 @@ def main() -> int:
     actual_deferred_labels = [button.get("text") for button in dashboard_probe.get("deferredButtons") or []]
     expected_option_g_rows = {
         "control-center": [
-            {"label": "AI", "value": "ORIN not implemented; no real AI executing"},
-            {"label": "Provider", "value": "Blocked; no provider/model path active"},
-            {"label": "Visible data", "value": "None leaves this machine"},
+            {"label": "AI Persona", "value": "None; ORIN persona not implemented"},
+            {"label": "Provider", "value": "Blocked; no model path active"},
+            {"label": "Privacy", "value": "Protected; no provider or third-party tracking"},
         ],
         "readiness-diagnostics": [
-            {"label": "Local check", "value": "Waiting for USER action"},
-            {"label": "Readiness report", "value": "Local decision aid behind diagnostics"},
-            {"label": "Prompt/data", "value": "Not accepted, sent, stored, or indexed"},
+            {"label": "Check", "value": "Waiting for USER action"},
+            {"label": "Report", "value": "Local decision aid behind diagnostics"},
+            {"label": "Prompt", "value": "Not accepted, sent, stored, or indexed"},
         ],
         "capabilities-maintenance": [
-            {"label": "Capability packs", "value": "Install intent blocked; downloads disabled"},
-            {"label": "Downloads/updates", "value": "Future-gated; no install execution"},
+            {"label": "Packs", "value": "Install blocked; downloads disabled"},
+            {"label": "Updates", "value": "Future-gated; no install execution"},
         ],
     }
+    row_label_lengths = [
+        len(str(row.get("label") or ""))
+        for rows in expected_option_g_rows.values()
+        for row in rows
+    ]
 
     layout_metrics = dashboard_probe.get("layoutMetrics") or {}
     row_heights = [
@@ -1681,16 +1988,17 @@ def main() -> int:
             and dashboard_probe.get("sameWindowFocusedSectionPolicy") == "blocked-as-dashboard-workspace-substitute"
             and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
             and dashboard_probe.get("cardTitles") == [
-                "AI Status & Trust",
-                "AI Readiness & Diagnostics",
-                "Capabilities & Maintenance",
+                "AI Persona",
+                "AI Readiness",
+                "Capabilities",
             ]
             and dashboard_probe.get("cardDescriptions") == [
-                "Truth-first orientation before any AI action.",
-                "Local checks and readiness report doorway.",
-                "Capability state without install or update execution.",
+                "Persona state before any AI action.",
+                "Local checks and diagnostics doorway.",
+                "Packs and updates stay blocked.",
             ]
-            and all(part in dashboard_probe.get("stripText", "") for part in ["AI - ORIN", "Status - Not implemented", "Provider - Blocked", "Data - None"])
+            and all(part in dashboard_probe.get("stripText", "") for part in ["AI Persona - None", "Status - Not implemented", "Provider - Blocked"])
+            and "Data -" not in dashboard_probe.get("stripText", "")
             and len(dashboard_probe.get("launcherActionRows") or []) == 3
             and all(
                 row.get("contract") == "separate-from-state-rows"
@@ -1714,8 +2022,8 @@ def main() -> int:
             and deferred_launch_probe.get("domainWindowCount") == 0
         ),
         "parentVisualMetrics": (
-            dashboard_probe.get("defaultWindowWidth") == "840"
-            and dashboard_probe.get("defaultWindowHeight") == "720"
+            dashboard_probe.get("defaultWindowWidth") == "720"
+            and dashboard_probe.get("defaultWindowHeight") == "640"
             and str(layout_metrics.get("chromePaddingLeft")) == str(layout_metrics.get("chromePaddingRight"))
             and int(layout_metrics.get("topGutter") or 0) >= 8
             and len(row_heights) == 8
@@ -1725,6 +2033,17 @@ def main() -> int:
             and all(int(button.get("width") or 0) >= 120 for button in deferred_buttons)
             and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 700 for button in deferred_buttons)
             and int(layout_metrics.get("headerWidth") or 0) >= int(layout_metrics.get("surfaceWidth") or 0) - 32
+        ),
+        "deterministicStatusRowsAndTitlePill": (
+            dashboard_probe.get("rowGroups") == expected_option_g_rows
+            and max(row_label_lengths or [999]) <= 10
+            and "Downloads/updates" not in str(dashboard_probe.get("rowGroups"))
+            and "Visible data" not in str(dashboard_probe.get("rowGroups"))
+            and "Capability packs" not in str(dashboard_probe.get("rowGroups"))
+            and "AI - ORIN" not in dashboard_probe.get("stripText", "")
+            and "Data - None" not in dashboard_probe.get("stripText", "")
+            and "AI Persona - None" in dashboard_probe.get("stripText", "")
+            and "Protected; no provider or third-party tracking" in str(dashboard_probe.get("rowGroups"))
         ),
         "returnedDensityAndButtonPlacementRepaired": (
             len(card_heights) == 3
@@ -1755,7 +2074,7 @@ def main() -> int:
             and int(resize_edge_hit_zone_probe.get("resizeMarginPx") or 0) >= 16
         ),
         "defaultScrollIntentProven": (
-            dashboard_probe.get("defaultWindowHeight") == "720"
+            dashboard_probe.get("defaultWindowHeight") == "640"
             and (
                 (
                     int((dashboard_probe.get("defaultScrollMetrics") or {}).get("maxScroll") or 0) == 0
@@ -1789,18 +2108,31 @@ def main() -> int:
             dashboard_probe.get("activeAiText") is False
             and dashboard_probe.get("trustProviderText") is False
         ),
-        "settingsRouteHiddenForOptionG": (
+        "settingsCogFutureGatedVisualOnly": (
             dashboard_probe.get("visibleSettingsFutureText") is False
             and dashboard_probe.get("nativeTitleTooltipCount") == 0
             and dashboard_probe.get("settingsRoutePresent") is True
-            and dashboard_probe.get("settingsRouteVisible") is False
+            and dashboard_probe.get("settingsRouteVisible") is True
             and dashboard_probe.get("settingsButtonPresent") is True
-            and dashboard_probe.get("settingsButtonVisible") is False
+            and dashboard_probe.get("settingsButtonVisible") is True
+            and dashboard_probe.get("settingsButtonState") == "future-gated-visual-only"
+            and dashboard_probe.get("settingsVisualAcceptance") == "candidate-a-visible-title-strip-trailing"
+            and dashboard_probe.get("settingsBehavior") == "future-gated-no-window-open"
             and dashboard_probe.get("settingsTooltipText") == "Settings"
             and settings_tooltip_probe.get("text") == "Settings"
-            and settings_tooltip_probe.get("visible") is False
+            and settings_tooltip_probe.get("visible") is True
             and settings_tooltip_probe.get("label") == "Settings"
+            and settings_tooltip_probe.get("state") == "future-gated-visual-only"
+            and settings_future_gated_click_probe.get("settingsWindowOpened") == "false"
+            and any("AI_DASHBOARD_SETTINGS_ROUTE_FUTURE_GATED" in event and "settings_window_opened=false" in event for event in events)
             and settings_tooltip_probe.get("titleCount") == 0
+        ),
+        "settingsCogVisualAcceptanceOptionsProven": (
+            settings_cog_options.get("ok") is True
+            and settings_cog_options.get("tooltipLabel") == "Settings"
+            and settings_cog_options.get("activeGlobalSettingsBehavior") is False
+            and settings_cog_options.get("implementedRuntimeOption") == "A"
+            and len(settings_cog_options.get("options") or []) == 3
         ),
         "fullDesktopProofNotDuplicated": (
             len(opened_desktop_hashes) == 0
@@ -1809,6 +2141,13 @@ def main() -> int:
         "dashboardResizeStillWorks": (
             dashboard_resize_proof["widthDelta"] >= 30
             and dashboard_resize_proof["heightDelta"] >= 20
+        ),
+        "dashboardHorizontalResizeMinimumWorks": (
+            horizontal_resize_proof.get("ok") is True
+            and int(horizontal_resize_proof.get("minimumWidth") or 999) <= 520
+            and int(horizontal_resize_proof.get("widthDelta") or 0) <= -100
+            and int((horizontal_resize_proof.get("after") or {}).get("width") or 999) < 570
+            and "HUD Dashboard" in str(horizontal_resize_proof.get("hudResizePathSubset") or "")
         ),
         "childLifecycleBehavior": (
             lifecycle_after_dashboard_close["controlVisible"] is False
@@ -1854,6 +2193,8 @@ def main() -> int:
         "deferredLaunchProbe": deferred_launch_probe,
         "settingsHover": settings_hover,
         "settingsTooltipProbe": settings_tooltip_probe,
+        "settingsFutureGatedClickProbe": settings_future_gated_click_probe,
+        "settingsCogVisualAcceptanceOptions": settings_cog_options,
         "defaultScrollIntentProbe": scrolled_probe,
         "childChromeProbe": child_chrome_probe,
         "childControlBehavior": child_control_behavior,
@@ -1861,7 +2202,7 @@ def main() -> int:
         "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {
             "control-center": {
-                "sourceCategoryCard": "AI Status & Trust",
+                "sourceCategoryCard": "AI Persona",
                 "launcherLabel": "Not Available Yet",
                 "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
@@ -1872,7 +2213,7 @@ def main() -> int:
                 "focusBehavior": "not-in-accepted-scope",
             },
             "readiness-diagnostics": {
-                "sourceCategoryCard": "AI Readiness & Diagnostics",
+                "sourceCategoryCard": "AI Readiness",
                 "launcherLabel": "Not Available Yet",
                 "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
@@ -1883,7 +2224,7 @@ def main() -> int:
                 "focusBehavior": "not-in-accepted-scope",
             },
             "capabilities-maintenance": {
-                "sourceCategoryCard": "Capabilities & Maintenance",
+                "sourceCategoryCard": "Capabilities",
                 "launcherLabel": "Not Available Yet",
                 "classification": "deferred-detached-child",
                 "remainsOpenIfDashboardCloses": False,
@@ -1897,6 +2238,7 @@ def main() -> int:
         "readinessResult": readiness_result,
         "singletonFocus": singleton_focus,
         "dashboardResizeProof": dashboard_resize_proof,
+        "dashboardHorizontalResizeProof": horizontal_resize_proof,
         "lifecycleAfterDashboardClose": lifecycle_after_dashboard_close,
         "childWindowsVisibleBeforeDashboardClose": child_windows_visible_before_close,
         "childGeometryBehavior": child_geometry_behavior,
@@ -1920,6 +2262,9 @@ def main() -> int:
         audit_source = Path(str(visual_grammar_audit.get(audit_key, "")))
         if audit_source.exists():
             (user_evidence_root / audit_source.name).write_bytes(audit_source.read_bytes())
+    settings_options_json = Path(str(settings_cog_options.get("jsonPath", "")))
+    if settings_options_json.exists():
+        (user_evidence_root / settings_options_json.name).write_bytes(settings_options_json.read_bytes())
 
     if status != "PASS":
         print(f"FAIL: FAM-007 AI Dashboard parent-only validation failed. Manifest: {manifest_path}")
