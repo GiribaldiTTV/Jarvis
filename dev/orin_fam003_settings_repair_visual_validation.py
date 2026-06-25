@@ -9,10 +9,13 @@ final visual acceptance.
 from __future__ import annotations
 
 import datetime as dt
+import ctypes
+import ctypes.wintypes
 import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 
@@ -1002,11 +1005,11 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "spacing": "14px invisible resize rail on all edges/corners",
         "hitbox": "14px edge rail with 28px corner priority",
         "icon_label": "no visible icon; navigation splitter keeps Resize Global Settings navigation pane accessible name",
-        "states": "default, medium resized, maximum-width/height clamp, minimum-size, narrow/wide left pane",
+        "states": "default, medium resized, live-style user drag, minimum-size, narrow/wide left pane",
         "a11y": "Resize Global Settings navigation pane",
         "comparator": "UIREF-001 top-level resizable window expectation",
-        "proof": "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png",
-        "checks": "window resize/minimum-size proof;wide layout clamps to meaningful maximum;left pane minimum width has no horizontal overflow;left pane wide resize stays deterministic",
+        "proof": "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png",
+        "checks": "window resize/minimum-size proof;live-style user drag resize proof;wide layout preserves centered content inside user-resizable envelope;left pane minimum width has no horizontal overflow;left pane wide resize stays deterministic",
     },
 )
 
@@ -1338,7 +1341,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 same-defect v22 title/layout repair with the accepted Manage Monitors modal dirty-guard alignment, centered Settings-only title row, deferred watermark record with no runtime fake exposure, capped meaningful resize envelope, 14px native edge/corner resize without a visible bottom-right grip, no horizontal rail overflow, child-page indentation, compact row grouping, useful settings copy, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every recurrence row closes with proof.",
+        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 same-defect v23 title/layout/resize repair with the accepted Manage Monitors modal dirty-guard alignment, centered Settings-only title row, deferred watermark record with no runtime fake exposure, a user-resizable Settings envelope, app-owned fallback resize from the 14px edge/corner rail without a visible bottom-right grip, no horizontal rail overflow, child-page indentation, compact row grouping, useful settings copy, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every recurrence row closes with proof.",
         "",
         "## Results",
         "",
@@ -1353,6 +1356,62 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
 
 def _md_cell(value: object) -> str:
     return str(value).replace("|", "\\|").replace("\n", " ")
+
+
+def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
+    if os.name != "nt":
+        return False, "Win32 cursor drag proof requires Windows."
+    from PySide6.QtCore import QPoint
+
+    user32 = ctypes.windll.user32
+    set_cursor_pos = user32.SetCursorPos
+    set_cursor_pos.argtypes = [ctypes.c_int, ctypes.c_int]
+    set_cursor_pos.restype = ctypes.c_bool
+    mouse_event = user32.mouse_event
+    mouse_event.argtypes = [
+        ctypes.wintypes.DWORD,
+        ctypes.c_long,
+        ctypes.c_long,
+        ctypes.wintypes.DWORD,
+        ctypes.c_ulong,
+    ]
+    mouse_event.restype = None
+    move = 0x0001
+    left_down = 0x0002
+    left_up = 0x0004
+    before = dialog.geometry()
+    start_global = dialog.mapToGlobal(start_local)
+    end_global = start_global + delta
+    set_cursor_pos(int(start_global.x()), int(start_global.y()))
+    mouse_event(move, 0, 0, 0, 0)
+    for _ in range(8):
+        app.processEvents()
+        time.sleep(0.01)
+    mouse_event(left_down, 0, 0, 0, 0)
+    try:
+        for step in range(1, 38):
+            x = int(start_global.x() + (end_global.x() - start_global.x()) * step / 37)
+            y = int(start_global.y() + (end_global.y() - start_global.y()) * step / 37)
+            set_cursor_pos(x, y)
+            mouse_event(move, 0, 0, 0, 0)
+            app.processEvents()
+            time.sleep(0.008)
+    finally:
+        mouse_event(left_up, 0, 0, 0, 0)
+    for _ in range(16):
+        app.processEvents()
+        time.sleep(0.01)
+    after = dialog.geometry()
+    width_delta = after.width() - before.width()
+    height_delta = after.height() - before.height()
+    ok = width_delta >= 120 and height_delta >= 80 and not dialog._settings_resize_active
+    detail = (
+        f"before={before.getRect()}; after={after.getRect()}; "
+        f"delta={width_delta}x{height_delta}; start={start_global.x()},{start_global.y()}; "
+        f"end={end_global.x()},{end_global.y()}; max={dialog.maximumWidth()}x{dialog.maximumHeight()}; "
+        f"active={dialog._settings_resize_active}; method=SetCursorPos plus held Win32 left mouse button"
+    )
+    return ok, detail
 
 
 def _element_group_result(row: dict[str, str], check_status: dict[str, bool], check_detail: dict[str, str]) -> tuple[str, str]:
@@ -1385,7 +1444,8 @@ def _write_fail_capable_defect_ledger(
         "deferred watermark recorded without runtime exposure",
         "window chrome drag/move proof",
         "window resize/minimum-size proof",
-        "wide layout clamps to meaningful maximum",
+        "live-style user drag resize proof",
+        "wide layout preserves centered content inside user-resizable envelope",
         "left navigation settings organizer",
         "left rail slim row metrics",
         "left navigation active child proof",
@@ -1431,7 +1491,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v22 centered Settings title, deferred watermark record, capped layout, and move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v23 centered Settings title, deferred watermark record, user-resizable layout, and live-style move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -1902,8 +1962,8 @@ def main() -> int:
             and min_ok
             and 730 <= resized_width <= 750
             and 360 <= resized_height <= 376
-            and wide_width <= 760
-            and wide_height <= 384
+            and 940 <= wide_width <= 980
+            and 410 <= wide_height <= 440
             and wide_width >= resized_width
             and wide_height >= resized_height
             and 640 <= min_width <= 660
@@ -1911,24 +1971,65 @@ def main() -> int:
             and not hasattr(dialog, "resize_grip")
             and not dialog.findChildren(QFrame, "residentAccessSettingsResizeGrip")
             and dialog.RESIZE_MARGIN == 14
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-corner-hit-test-14px-no-visible-grip-splitter-minimum-640x318-maximum-760x384-v22",
+            and dialog.minimumWidth() == 640
+            and dialog.minimumHeight() == 318
+            and dialog.maximumWidth() == 1100
+            and dialog.maximumHeight() == 720
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-corner-hit-test-app-owned-fallback-14px-no-visible-grip-splitter-minimum-640x318-maximum-1100x720-v23",
             f"resized={resized_width}x{resized_height}; wide={wide_width}x{wide_height}; min={min_width}x{min_height}; grip_attr={hasattr(dialog, 'resize_grip')}; grip_widgets={len(dialog.findChildren(QFrame, 'residentAccessSettingsResizeGrip'))}; margin={dialog.RESIZE_MARGIN}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
     rows.append(
         (
-            "wide layout clamps to meaningful maximum",
+            "wide layout preserves centered content inside user-resizable envelope",
             wide_ok
-            and dialog.maximumWidth() == 760
-            and dialog.maximumHeight() == 384
-            and wide_width == 760
-            and wide_height == 384
+            and dialog.maximumWidth() == 1100
+            and dialog.maximumHeight() == 720
+            and wide_width >= 940
+            and wide_height >= 410
             and wide_page_width <= 560
             and wide_page_content_center_delta <= 4
             and 10 <= wide_footer_right_gap <= 14,
             f"wide={wide_width}x{wide_height}; max={dialog.maximumWidth()}x{dialog.maximumHeight()}; content={wide_content_shell.width()} at x={wide_content_origin.x()}; page={wide_page_width}x{wide_page_height} at x={wide_page_origin.x()}; content_center_delta={wide_page_content_center_delta:.1f}; footer_width={wide_footer_width}; footer_right_gap={wide_footer_right_gap}",
         )
     )
+    drag_probe = ResidentAccessSettingsDialog()
+    drag_probe.move(160, 120)
+    drag_probe.show()
+    drag_probe.raise_()
+    drag_probe.activateWindow()
+    for _ in range(18):
+        app.processEvents()
+        time.sleep(0.01)
+    live_drag_ok, live_drag_detail = _drive_win32_user_resize_drag(
+        app,
+        drag_probe,
+        drag_probe.rect().bottomRight() - QPoint(18, 18),
+        QPoint(170, 120),
+    )
+    live_drag_path = log_dir / "03e_live_user_drag_resized.png"
+    live_drag_capture_ok, live_drag_width, live_drag_height = _capture(
+        drag_probe,
+        live_drag_path,
+        artifacts,
+        surface="full Global Settings shell",
+        state="live-style user drag resized from reachable bottom-right corner rail",
+    )
+    rows.append(
+        (
+            "live-style user drag resize proof",
+            live_drag_ok
+            and live_drag_capture_ok
+            and live_drag_width >= 820
+            and live_drag_height >= 430
+            and hasattr(drag_probe, "_start_settings_resize")
+            and hasattr(drag_probe, "_finish_settings_resize")
+            and drag_probe.property("windowResizeBehavior")
+            == "frameless-top-level-native-edge-corner-hit-test-app-owned-fallback-14px-no-visible-grip-splitter-minimum-640x318-maximum-1100x720-v23",
+            f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
+        )
+    )
+    drag_probe.close()
     dialog.setGeometry(original_geometry)
     app.processEvents()
 
@@ -2186,7 +2287,7 @@ def main() -> int:
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-corner-hit-test-14px-no-visible-grip-splitter-minimum-640x318-maximum-760x384-v22"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-corner-hit-test-app-owned-fallback-14px-no-visible-grip-splitter-minimum-640x318-maximum-1100x720-v23"
             and dialog.property("visibleResizeGrip") == "removed"
             and dialog.property("deferredWatermarkConcept") == "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22"
             and dialog.property("runtimeWatermarkVisible") == "false"

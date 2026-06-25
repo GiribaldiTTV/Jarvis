@@ -1119,6 +1119,8 @@ class NexusGlyphButton(QPushButton):
 
 class ResidentAccessSettingsDialog(QDialog):
     RESIZE_MARGIN = 14
+    MINIMUM_SIZE = (640, 318)
+    MAXIMUM_SIZE = (1100, 720)
 
     def __init__(self, parent=None, runtime=None, focus: str = "quick_access"):
         super().__init__(parent)
@@ -1131,10 +1133,22 @@ class ResidentAccessSettingsDialog(QDialog):
         self._slot_combos: list[QComboBox] = []
         self._nav_buttons: dict[str, QPushButton] = {}
         self._tray_children_expanded = True
+        self._settings_resize_active = False
+        self._settings_resize_edges = Qt.Edges()
+        self._settings_resize_start_global = QPoint()
+        self._settings_resize_start_geometry = QRect()
+        self._settings_resize_pending_point = QPoint()
+        self._settings_resize_last_geometry = QRect()
+        self._settings_resize_cursor_key = None
+        self._settings_resize_override_cursor_active = False
+        self._settings_resize_poll_timer = QTimer(self)
+        self._settings_resize_poll_timer.setInterval(8)
+        self._settings_resize_poll_timer.timeout.connect(self._poll_settings_resize)
         self.setModal(False)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setMouseTracking(True)
         self.setWindowTitle("Global Settings")
         self.setObjectName("residentAccessSettingsDialog")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
@@ -1148,12 +1162,12 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-native-edge-corner-hit-test-14px-no-visible-grip-splitter-minimum-640x318-maximum-760x384-v22")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-native-edge-corner-hit-test-app-owned-fallback-14px-no-visible-grip-splitter-minimum-640x318-maximum-1100x720-v23")
         self.setProperty("visibleResizeGrip", "removed")
         self.setProperty("deferredWatermarkConcept", "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22")
         self.setProperty("runtimeWatermarkVisible", "false")
-        self.setMinimumSize(640, 318)
-        self.setMaximumSize(760, 384)
+        self.setMinimumSize(*self.MINIMUM_SIZE)
+        self.setMaximumSize(*self.MAXIMUM_SIZE)
         self.resize(700, 344)
         self._apply_native_settings_palette()
 
@@ -2183,6 +2197,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self._rebuild_quick_slot_rows()
         self.set_focus(self._focus)
+        self._install_settings_resize_event_filters()
 
     def _apply_native_settings_palette(self):
         base_font = QFont("Segoe UI")
@@ -2203,6 +2218,17 @@ class ResidentAccessSettingsDialog(QDialog):
         palette.setColor(QPalette.Highlight, QColor("#0f766e"))
         palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
         self.setPalette(palette)
+
+    def _install_settings_resize_event_filters(self) -> None:
+        for widget in [self, *self.findChildren(QWidget)]:
+            try:
+                if widget.property("settingsResizeEventFilterInstalled") == "true":
+                    continue
+                widget.installEventFilter(self)
+                widget.setMouseTracking(True)
+                widget.setProperty("settingsResizeEventFilterInstalled", "true")
+            except Exception:
+                pass
 
     def _emit_runtime_signal(self, signal_name: str, **fields):
         emitter = getattr(self.runtime, "_emit_runtime_signal", None)
@@ -2425,10 +2451,11 @@ class ResidentAccessSettingsDialog(QDialog):
             self.quick_slot_rows_layout.addWidget(row)
         self.add_slot_button.setEnabled(len(selected_ids) < self._available_quick_slot_limit())
         self._resize_for_slot_count(len(selected_ids))
+        self._install_settings_resize_event_filters()
 
     def _resize_for_slot_count(self, slot_count: int):
-        self.setMinimumSize(640, 318)
-        self.setMaximumSize(760, 384)
+        self.setMinimumSize(*self.MINIMUM_SIZE)
+        self.setMaximumSize(*self.MAXIMUM_SIZE)
         if slot_count > 3 and self.height() < 344:
             self.resize(max(self.width(), 700), 344)
         if hasattr(self, "quick_slot_container"):
@@ -2632,6 +2659,9 @@ class ResidentAccessSettingsDialog(QDialog):
             return Qt.SizeVerCursor
         return None
 
+    def _settings_resize_cursor(self, edges):
+        return self._settings_resize_cursor_for_edges(edges) or Qt.ArrowCursor
+
     def _settings_windows_resize_cursor_id_for_edges(self, edges):
         if not edges:
             return IDC_ARROW
@@ -2655,6 +2685,61 @@ class ResidentAccessSettingsDialog(QDialog):
                 SetCursor(cursor_handle)
         except Exception:
             pass
+
+    def _set_settings_override_resize_cursor(self, cursor) -> None:
+        try:
+            if cursor is None:
+                if self._settings_resize_override_cursor_active:
+                    QApplication.restoreOverrideCursor()
+                    self._settings_resize_override_cursor_active = False
+                return
+            qt_cursor = QCursor(cursor)
+            if self._settings_resize_override_cursor_active:
+                QApplication.changeOverrideCursor(qt_cursor)
+            else:
+                QApplication.setOverrideCursor(qt_cursor)
+                self._settings_resize_override_cursor_active = True
+        except Exception:
+            self._settings_resize_override_cursor_active = False
+
+    def _set_settings_resize_cursor(self, edges) -> None:
+        key = self._settings_resize_edge_key(edges) if edges else None
+        if key == self._settings_resize_cursor_key:
+            if os.name == "nt":
+                self._set_settings_override_resize_cursor(
+                    self._settings_resize_cursor_for_edges(edges) if key is not None else None
+                )
+                self._apply_settings_windows_resize_cursor(edges if key is not None else Qt.Edges())
+            return
+        self._settings_resize_cursor_key = key
+        cursor = self._settings_resize_cursor_for_edges(edges) if edges else None
+        targets = [self]
+        for attr_name in ("shell", "chrome_bar", "settings_body", "settings_splitter"):
+            target = getattr(self, attr_name, None)
+            if target is not None:
+                targets.append(target)
+        if os.name == "nt":
+            for target in targets:
+                try:
+                    target.unsetCursor()
+                except Exception:
+                    pass
+            self._set_settings_override_resize_cursor(cursor)
+            self._apply_settings_windows_resize_cursor(edges if edges else Qt.Edges())
+            return
+        for target in targets:
+            try:
+                if cursor is None:
+                    target.unsetCursor()
+                else:
+                    target.setCursor(QCursor(cursor))
+            except Exception:
+                pass
+        self._set_settings_override_resize_cursor(cursor)
+        self._apply_settings_windows_resize_cursor(edges if edges else Qt.Edges())
+
+    def _reset_settings_resize_cursor(self) -> None:
+        self._set_settings_resize_cursor(Qt.Edges())
 
     def _settings_resize_hit_test_for_edges(self, edges) -> int:
         left = bool(edges & Qt.LeftEdge)
@@ -2691,6 +2776,195 @@ class ResidentAccessSettingsDialog(QDialog):
             HTBOTTOMRIGHT: Qt.BottomEdge | Qt.RightEdge,
         }
         return edge_map.get(int(hit_test), Qt.Edges())
+
+    def _settings_cursor_screen_point(self) -> QPoint:
+        if os.name == "nt":
+            try:
+                point = ctypes.wintypes.POINT()
+                if GetCursorPos(ctypes.byref(point)):
+                    return QPoint(int(point.x), int(point.y))
+            except Exception:
+                pass
+        try:
+            return QCursor.pos()
+        except Exception:
+            return QPoint()
+
+    def _settings_left_mouse_button_down(self) -> bool:
+        try:
+            return bool(GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+        except Exception:
+            return False
+
+    def _settings_resize_edges_for_screen_point(self, screen_point: QPoint):
+        if screen_point.isNull():
+            return Qt.Edges()
+        local = self.mapFromGlobal(screen_point)
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return Qt.Edges()
+        if self._settings_control_cluster_rect().contains(local):
+            return Qt.Edges()
+        return self._settings_resize_edges_for_local_pos(local)
+
+    def _settings_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
+        if not self.isVisible():
+            return QPoint(), Qt.Edges()
+        screen_point = self._settings_cursor_screen_point()
+        if screen_point.isNull():
+            return QPoint(), Qt.Edges()
+        return screen_point, self._settings_resize_edges_for_screen_point(screen_point)
+
+    def _settings_screen_point_from_mouse_event(self, watched, event) -> QPoint:
+        try:
+            local = event.position().toPoint()
+        except Exception:
+            try:
+                local = event.pos()
+            except Exception:
+                local = QPoint()
+        if local.isNull():
+            return self._settings_cursor_screen_point()
+        try:
+            return watched.mapToGlobal(local)
+        except Exception:
+            return self._settings_cursor_screen_point()
+
+    def _settings_available_desktop_geometry(self) -> QRect:
+        screens = QApplication.screens()
+        if not screens:
+            return QRect(0, 0, 1920, 1080)
+        available = QRect(screens[0].availableGeometry())
+        for screen in screens[1:]:
+            available = available.united(screen.availableGeometry())
+        return available
+
+    def _bound_settings_geometry_to_available_desktop(self, rect: QRect) -> QRect:
+        available = self._settings_available_desktop_geometry()
+        bounded = QRect(rect)
+        bounded.setWidth(max(self.minimumWidth(), min(bounded.width(), self.maximumWidth())))
+        bounded.setHeight(max(self.minimumHeight(), min(bounded.height(), self.maximumHeight())))
+        if bounded.left() < available.left():
+            bounded.moveLeft(available.left())
+        if bounded.top() < available.top():
+            bounded.moveTop(available.top())
+        if bounded.right() > available.right():
+            bounded.moveRight(available.right())
+        if bounded.bottom() > available.bottom():
+            bounded.moveBottom(available.bottom())
+        return bounded
+
+    def _start_settings_resize(self, edges, screen_point: QPoint) -> bool:
+        if not edges:
+            return False
+        if screen_point.isNull():
+            screen_point = self._settings_cursor_screen_point()
+        if screen_point.isNull():
+            return False
+        self._settings_resize_active = True
+        self._settings_resize_edges = edges
+        self._settings_resize_start_global = QPoint(screen_point)
+        self._settings_resize_start_geometry = QRect(self.geometry())
+        self._settings_resize_pending_point = QPoint(screen_point)
+        self._settings_resize_last_geometry = QRect(self.geometry())
+        try:
+            SetCapture(ctypes.wintypes.HWND(int(self.winId())))
+        except Exception:
+            pass
+        self._set_settings_resize_cursor(edges)
+        self._settings_resize_poll_timer.start()
+        self._update_settings_resize(screen_point)
+        return True
+
+    def _poll_settings_resize(self) -> None:
+        if not self._settings_resize_active:
+            self._settings_resize_poll_timer.stop()
+            return
+        screen_point = self._settings_cursor_screen_point()
+        if not screen_point.isNull():
+            self._update_settings_resize(screen_point)
+        if self._settings_left_mouse_button_down():
+            return
+        self._finish_settings_resize(screen_point)
+
+    def _update_settings_resize(self, screen_point: QPoint) -> None:
+        if not self._settings_resize_active or screen_point.isNull():
+            return
+        self._settings_resize_pending_point = QPoint(screen_point)
+        next_rect = self._settings_resize_rect_from_global_delta(screen_point)
+        if next_rect == self._settings_resize_last_geometry:
+            return
+        self.setGeometry(next_rect)
+        self._settings_resize_last_geometry = QRect(next_rect)
+        self._position_close_guard_overlay()
+
+    def _settings_resize_rect_from_global_delta(self, screen_point: QPoint) -> QRect:
+        base = self._settings_resize_start_geometry
+        if base.isNull() or not base.isValid():
+            base = QRect(self.geometry())
+        delta = screen_point - self._settings_resize_start_global
+        left_edge, right_edge, top_edge, bottom_edge = self._settings_resize_edge_key(self._settings_resize_edges)
+        x = base.x()
+        y = base.y()
+        width = base.width()
+        height = base.height()
+        if left_edge:
+            x = base.x() + delta.x()
+            width = base.width() - delta.x()
+        elif right_edge:
+            width = base.width() + delta.x()
+        if top_edge:
+            y = base.y() + delta.y()
+            height = base.height() - delta.y()
+        elif bottom_edge:
+            height = base.height() + delta.y()
+        min_width = self.minimumWidth()
+        min_height = self.minimumHeight()
+        max_width = self.maximumWidth()
+        max_height = self.maximumHeight()
+        if width < min_width:
+            if left_edge:
+                x = base.right() - min_width + 1
+            width = min_width
+        if height < min_height:
+            if top_edge:
+                y = base.bottom() - min_height + 1
+            height = min_height
+        if width > max_width:
+            if left_edge:
+                x = base.right() - max_width + 1
+            width = max_width
+        if height > max_height:
+            if top_edge:
+                y = base.bottom() - max_height + 1
+            height = max_height
+        return self._bound_settings_geometry_to_available_desktop(QRect(x, y, width, height))
+
+    def _finish_settings_resize(self, screen_point: QPoint = None) -> None:
+        if not self._settings_resize_active:
+            self._reset_settings_resize_cursor()
+            return
+        self._settings_resize_poll_timer.stop()
+        if screen_point is None or screen_point.isNull():
+            screen_point = self._settings_cursor_screen_point()
+        if screen_point.isNull():
+            screen_point = QPoint(self._settings_resize_start_global)
+        if not screen_point.isNull():
+            next_rect = self._settings_resize_rect_from_global_delta(screen_point)
+            if next_rect != self._settings_resize_last_geometry:
+                self.setGeometry(next_rect)
+                self._settings_resize_last_geometry = QRect(next_rect)
+        self._settings_resize_active = False
+        self._settings_resize_edges = Qt.Edges()
+        self._settings_resize_start_global = QPoint()
+        self._settings_resize_start_geometry = QRect()
+        self._settings_resize_pending_point = QPoint()
+        self._settings_resize_last_geometry = QRect()
+        try:
+            ReleaseCapture()
+        except Exception:
+            pass
+        self._reset_settings_resize_cursor()
+        self._position_close_guard_overlay()
 
     def _settings_control_cluster_rect(self) -> QRect:
         if not hasattr(self.chrome_bar, "control_cluster"):
@@ -2731,17 +3005,126 @@ class ResidentAccessSettingsDialog(QDialog):
                     hit_test = self._settings_native_hit_test(QPoint(x, y))
                     if hit_test:
                         return True, hit_test
-                if message_id == WM_SETCURSOR:
+                if message_id == WM_SETCURSOR and not self._settings_resize_active:
                     hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
                     edges = self._settings_resize_edges_for_hit_test(hit_test)
                     if edges:
-                        self._apply_settings_windows_resize_cursor(edges)
+                        self._set_settings_resize_cursor(edges)
                         return True, 1
+                    self._reset_settings_resize_cursor()
+                if message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._settings_resize_active:
+                    if message_id == WM_NCMOUSEMOVE:
+                        edges = self._settings_resize_edges_for_hit_test(int(msg.wParam))
+                        if edges:
+                            self._set_settings_resize_cursor(edges)
+                            return True, 0
+                    _, edges = self._settings_resize_edges_under_cursor()
+                    if edges:
+                        self._set_settings_resize_cursor(edges)
+                    elif message_id == WM_MOUSEMOVE:
+                        self._reset_settings_resize_cursor()
+                if message_id == WM_LBUTTONDOWN:
+                    screen_point, edges = self._settings_resize_edges_under_cursor()
+                    if edges and self._start_settings_resize(edges, screen_point):
+                        return True, 0
+                if message_id == WM_NCLBUTTONDOWN:
+                    edges = self._settings_resize_edges_for_hit_test(int(msg.wParam))
+                    screen_point = self._settings_cursor_screen_point()
+                    if edges and self._start_settings_resize(edges, screen_point):
+                        return True, 0
+                if self._settings_resize_active and message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE):
+                    screen_point = self._settings_cursor_screen_point()
+                    if not screen_point.isNull():
+                        self._update_settings_resize(screen_point)
+                    return True, 0
+                if self._settings_resize_active and message_id in (
+                    WM_LBUTTONUP,
+                    WM_NCLBUTTONUP,
+                    WM_CAPTURECHANGED,
+                    WM_CANCELMODE,
+                ):
+                    self._finish_settings_resize(self._settings_cursor_screen_point())
+                    return True, 0
                 if message_id == WM_NCLBUTTONDBLCLK:
                     screen_point = QCursor.pos()
                     if self._settings_native_hit_test(screen_point) == HTCAPTION:
                         return True, 0
         return super().nativeEvent(eventType, message)
+
+    def eventFilter(self, watched, event):
+        event_type = event.type()
+        if event_type == QEvent.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
+            screen_point = self._settings_screen_point_from_mouse_event(watched, event)
+            edges = self._settings_resize_edges_for_screen_point(screen_point)
+            if edges and self._start_settings_resize(edges, screen_point):
+                event.accept()
+                return True
+        if event_type == QEvent.MouseMove:
+            if self._settings_resize_active:
+                screen_point = self._settings_cursor_screen_point()
+                if screen_point.isNull():
+                    screen_point = self._settings_screen_point_from_mouse_event(watched, event)
+                self._update_settings_resize(screen_point)
+                event.accept()
+                return True
+            screen_point = self._settings_screen_point_from_mouse_event(watched, event)
+            edges = self._settings_resize_edges_for_screen_point(screen_point)
+            if edges:
+                self._set_settings_resize_cursor(edges)
+            else:
+                self._reset_settings_resize_cursor()
+        if event_type == QEvent.MouseButtonRelease and self._settings_resize_active:
+            self._finish_settings_resize(self._settings_cursor_screen_point())
+            event.accept()
+            return True
+        if event_type in (QEvent.Leave, QEvent.HoverLeave) and not self._settings_resize_active:
+            self._reset_settings_resize_cursor()
+        return super().eventFilter(watched, event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            screen_point, edges = self._settings_resize_edges_under_cursor()
+            if edges and self._start_settings_resize(edges, screen_point):
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._settings_resize_active:
+            screen_point = self._settings_cursor_screen_point()
+            if screen_point.isNull():
+                try:
+                    screen_point = event.globalPosition().toPoint()
+                except Exception:
+                    screen_point = QPoint()
+            self._update_settings_resize(screen_point)
+            event.accept()
+            return
+        try:
+            local = event.position().toPoint()
+        except Exception:
+            local = QPoint()
+        if not local.isNull():
+            edges = self._settings_resize_edges_for_local_pos(local)
+            if self._settings_control_cluster_rect().contains(local):
+                edges = Qt.Edges()
+            if edges:
+                self._set_settings_resize_cursor(edges)
+            else:
+                self._reset_settings_resize_cursor()
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if self._settings_resize_active and event.button() == Qt.MouseButton.LeftButton:
+            self._finish_settings_resize(self._settings_cursor_screen_point())
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def leaveEvent(self, event):
+        if not self._settings_resize_active:
+            self._reset_settings_resize_cursor()
+        super().leaveEvent(event)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

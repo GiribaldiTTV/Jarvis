@@ -1,6 +1,7 @@
 import os
 import sys
 import ctypes
+import ctypes.wintypes
 import datetime
 import json
 import threading
@@ -13,7 +14,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from PySide6.QtGui import QCursor
-from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot
+from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot, QPoint
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from desktop.core_visualization_renderer import CoreVisualizationWindow
@@ -44,6 +45,8 @@ SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
 REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"
 REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"
+FAM003_SETTINGS_LIVE_RESIZE_MANIFEST_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_MANIFEST"
+FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_EXIT"
 DESKTOP_VALIDATION_SHORTCUT_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
@@ -460,6 +463,15 @@ def real_client_tray_precheck_shortcut_path():
         os.environ.get(DESKTOP_VALIDATION_SHORTCUT_ENV)
         or r"C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk"
     )
+
+
+def fam003_settings_live_resize_manifest_path():
+    return (os.environ.get(FAM003_SETTINGS_LIVE_RESIZE_MANIFEST_ENV) or "").strip()
+
+
+def fam003_settings_live_resize_exits_after_run():
+    value = (os.environ.get(FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV) or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
 
 
 def startup_abort_requested():
@@ -879,6 +891,189 @@ def main():
             if real_client_tray_precheck_exits_after_run():
                 QTimer.singleShot(500, do_shutdown)
 
+    fam003_settings_live_resize_started = False
+
+    def run_fam003_settings_live_resize_precheck():
+        nonlocal fam003_settings_live_resize_started
+        manifest_path = fam003_settings_live_resize_manifest_path()
+        if not manifest_path or fam003_settings_live_resize_started or shutdown_started:
+            return
+        fam003_settings_live_resize_started = True
+        runtime_milestone("RENDERER_MAIN|FAM003_SETTINGS_LIVE_RESIZE_PRECHECK_STARTED")
+        started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        steps = []
+
+        def pump(duration_ms=250):
+            deadline = time.time() + (max(0, duration_ms) / 1000.0)
+            while time.time() < deadline:
+                QApplication.processEvents()
+                time.sleep(0.025)
+
+        def record_step(step_id, title, ok, detail, evidence=None):
+            steps.append(
+                {
+                    "id": step_id,
+                    "title": title,
+                    "codexPrecheck": "PASS" if ok else "FAIL",
+                    "detail": detail,
+                    "evidence": evidence or {},
+                }
+            )
+
+        def write_manifest(status, failure=""):
+            payload = {
+                "schema": "fam003-settings-live-resize-precheck-v1",
+                "status": status,
+                "failure": failure,
+                "startedAt": started_at,
+                "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "surface": "FAM-003 Global Settings",
+                "shortcutPath": real_client_tray_precheck_shortcut_path(),
+                "normalLauncherProof": True,
+                "proofMethod": "normal desktop shortcut launch plus SetCursorPos held Win32 left-button drag",
+                "formalUtsTouched": False,
+                "steps": steps,
+            }
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(manifest_path)), exist_ok=True)
+                with open(manifest_path, "w", encoding="utf-8") as handle:
+                    json.dump(payload, handle, indent=2, sort_keys=True)
+                runtime_milestone(
+                    "RENDERER_MAIN|FAM003_SETTINGS_LIVE_RESIZE_PRECHECK_MANIFEST_WRITTEN"
+                    f"|status={status}|path={manifest_path}"
+                )
+            except Exception as exc:
+                runtime_milestone(
+                    "RENDERER_MAIN|FAM003_SETTINGS_LIVE_RESIZE_PRECHECK_MANIFEST_FAILED"
+                    f"|reason={type(exc).__name__}"
+                )
+
+        def drive_resize_drag(dialog):
+            user32 = ctypes.windll.user32
+            set_cursor_pos = user32.SetCursorPos
+            set_cursor_pos.argtypes = [ctypes.c_int, ctypes.c_int]
+            set_cursor_pos.restype = ctypes.c_bool
+            mouse_event = user32.mouse_event
+            mouse_event.argtypes = [
+                ctypes.wintypes.DWORD,
+                ctypes.c_long,
+                ctypes.c_long,
+                ctypes.wintypes.DWORD,
+                ctypes.c_ulong,
+            ]
+            mouse_event.restype = None
+            move = 0x0001
+            left_down = 0x0002
+            left_up = 0x0004
+            before = dialog.geometry()
+            start_global = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(18, 18))
+            end_global = start_global + QPoint(170, 120)
+            set_cursor_pos(int(start_global.x()), int(start_global.y()))
+            mouse_event(move, 0, 0, 0, 0)
+            pump(120)
+            mouse_event(left_down, 0, 0, 0, 0)
+            try:
+                for step in range(1, 38):
+                    x = int(start_global.x() + (end_global.x() - start_global.x()) * step / 37)
+                    y = int(start_global.y() + (end_global.y() - start_global.y()) * step / 37)
+                    set_cursor_pos(x, y)
+                    mouse_event(move, 0, 0, 0, 0)
+                    QApplication.processEvents()
+                    time.sleep(0.008)
+            finally:
+                mouse_event(left_up, 0, 0, 0, 0)
+            pump(220)
+            after = dialog.geometry()
+            return {
+                "before": {
+                    "x": before.x(),
+                    "y": before.y(),
+                    "width": before.width(),
+                    "height": before.height(),
+                },
+                "after": {
+                    "x": after.x(),
+                    "y": after.y(),
+                    "width": after.width(),
+                    "height": after.height(),
+                },
+                "widthDelta": after.width() - before.width(),
+                "heightDelta": after.height() - before.height(),
+                "start": {"x": start_global.x(), "y": start_global.y()},
+                "end": {"x": end_global.x(), "y": end_global.y()},
+                "maximum": {
+                    "width": dialog.maximumWidth(),
+                    "height": dialog.maximumHeight(),
+                },
+                "minimum": {
+                    "width": dialog.minimumWidth(),
+                    "height": dialog.minimumHeight(),
+                },
+                "resizeActiveAfterRelease": bool(getattr(dialog, "_settings_resize_active", False)),
+                "windowResizeBehavior": str(dialog.property("windowResizeBehavior") or ""),
+            }
+
+        try:
+            opener = getattr(window, "open_resident_access_settings", None)
+            if not callable(opener):
+                record_step(
+                    "settings_open_route_available",
+                    "Runtime exposes the FAM-003 Global Settings open route",
+                    False,
+                    "open_resident_access_settings is unavailable",
+                )
+                write_manifest("FAIL", "open_resident_access_settings unavailable")
+                return
+            opener(source="fam003_settings_live_resize_precheck", focus="quick_access")
+            pump(700)
+            dialog = getattr(window, "_resident_access_settings_dialog", None)
+            open_ok = dialog is not None and dialog.isVisible()
+            record_step(
+                "settings_window_opened",
+                "Global Settings opens through the resident access runtime route",
+                open_ok,
+                f"dialog_present={dialog is not None}; visible={bool(dialog and dialog.isVisible())}",
+            )
+            if not open_ok:
+                write_manifest("FAIL", "Global Settings did not open")
+                return
+            dialog.move(160, 120)
+            dialog.resize(700, 344)
+            dialog.raise_()
+            dialog.activateWindow()
+            pump(260)
+            resize_evidence = drive_resize_drag(dialog)
+            resize_ok = (
+                resize_evidence["widthDelta"] >= 120
+                and resize_evidence["heightDelta"] >= 80
+                and not resize_evidence["resizeActiveAfterRelease"]
+                and resize_evidence["windowResizeBehavior"]
+                == "frameless-top-level-native-edge-corner-hit-test-app-owned-fallback-14px-no-visible-grip-splitter-minimum-640x318-maximum-1100x720-v23"
+            )
+            record_step(
+                "settings_window_user_drag_resize",
+                "Global Settings resizes through a real held left-button drag on the reachable resize rail",
+                resize_ok,
+                (
+                    f"delta={resize_evidence['widthDelta']}x{resize_evidence['heightDelta']}; "
+                    f"behavior={resize_evidence['windowResizeBehavior']}"
+                ),
+                resize_evidence,
+            )
+            status = "PASS" if all(step["codexPrecheck"] == "PASS" for step in steps) else "FAIL"
+            write_manifest(status)
+        except Exception as exc:
+            record_step(
+                "settings_live_resize_exception",
+                "FAM-003 Settings live resize precheck exception",
+                False,
+                f"{type(exc).__name__}: {exc}",
+            )
+            write_manifest("FAIL", f"{type(exc).__name__}: {exc}")
+        finally:
+            if fam003_settings_live_resize_exits_after_run():
+                QTimer.singleShot(500, do_shutdown)
+
     def settle_passive_default_handoff():
         if exit_if_startup_abort_requested(hotkeys, tray_entry):
             app.quit()
@@ -907,6 +1102,8 @@ def main():
         settle_passive_default_handoff()
         if real_client_tray_precheck_manifest_path():
             QTimer.singleShot(800, run_real_client_tray_precheck)
+        if fam003_settings_live_resize_manifest_path():
+            QTimer.singleShot(950, run_fam003_settings_live_resize_precheck)
 
     window_show_requested = False
 
