@@ -6830,9 +6830,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 392
+    WIDTH = 432
     HEIGHT = 184
-    MINIMUM_WIDTH = 392
+    MINIMUM_WIDTH = 432
     MINIMUM_HEIGHT = 184
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
@@ -6874,7 +6874,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         )
 
     def _request_recording_action(self, action: str) -> None:
-        normalized_action = action if action in {"start", "stop"} else "toggle"
+        normalized_action = action if action in {"start", "pause", "stop"} else "toggle"
         if callable(self.recording_action_handler):
             self.recording_action_handler(normalized_action)
         if callable(self.event_logger):
@@ -6884,7 +6884,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             )
 
     def _handle_surface_command(self, command: str) -> None:
-        if command in {"start", "stop"}:
+        if command in {"start", "pause", "stop"}:
             self._request_recording_action(command)
         elif command == "open-log-viewer" and callable(self.log_viewer_handler):
             self.log_viewer_handler()
@@ -6917,6 +6917,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             state_label = "STATE"
             status_text = f"Recording - {count} active monitor{'s' if count != 1 else ''}"
             detail_text = ""
+        elif self._recording_session_state == "paused":
+            state_label = "STATE"
+            status_text = f"Paused - {count} active monitor{'s' if count != 1 else ''}"
+            detail_text = ""
         elif self._recording_session_state == "saved-complete":
             state_label = "STATE"
             status_text = f"Saved - {count} active monitor{'s' if count != 1 else ''}"
@@ -6947,7 +6951,9 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "recordingDetail": detail_text,
             "recordingBoundary": "Controls the current Recording target from the active Overlay Profile.",
             "startEnabled": self._start_stop_state == "start-enabled",
-            "stopEnabled": self._start_stop_state == "recording-stop-enabled",
+            "pausedResumeEnabled": self._start_stop_state == "paused-stop-enabled",
+            "pauseEnabled": self._start_stop_state == "recording-stop-enabled",
+            "stopEnabled": self._start_stop_state in {"recording-stop-enabled", "paused-stop-enabled"},
         }
 
     def update_product_state(
@@ -7041,8 +7047,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "standaloneWindowLayout": "ultra-lightweight-detached-recording-controller",
             "dashboardLifecycleDependency": "independent-while-runtime-active",
             "logViewerRoute": "recording-studio-open-log-viewer-action",
-            "recordingToggleRoute": "recording-studio-toggle-action",
-            "recordingStudioVisibleActionModel": "runtime-current-single-toggle-candidate-selection-pending",
+            "recordingStartRoute": "recording-studio-start-action",
+            "recordingPauseRoute": "recording-studio-pause-action",
+            "recordingStopRoute": "recording-studio-stop-action",
+            "recordingStudioVisibleActionModel": "selected-REC-A-explicit-start-pause-stop-plus-open-log-viewer",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
             "featureStudioPrimitive": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
@@ -7069,8 +7077,12 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "startEnabled": self._start_stop_state == "start-enabled",
-            "stopEnabled": self._start_stop_state == "recording-stop-enabled",
-            "recordingToggleControlProof": _monitoring_hud_studio_dom_control_proof("recording-toggle"),
+            "pausedResumeEnabled": self._start_stop_state == "paused-stop-enabled",
+            "pauseEnabled": self._start_stop_state == "recording-stop-enabled",
+            "stopEnabled": self._start_stop_state in {"recording-stop-enabled", "paused-stop-enabled"},
+            "recordingStartControlProof": _monitoring_hud_studio_dom_control_proof("recording-start"),
+            "recordingPauseControlProof": _monitoring_hud_studio_dom_control_proof("recording-pause"),
+            "recordingStopControlProof": _monitoring_hud_studio_dom_control_proof("recording-stop"),
             "logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer"),
             "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
             "accessibilityKeyboardProofState": "controls-focusable-accessible-names-tooltips",
@@ -7221,7 +7233,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         combined_roots = f"{native_root} {export_root}".casefold()
         return {
             "owner": "MonitoringHudLogViewerStudioWindow",
-            "surface": "log_viewer_studio_shell",
+            "surface": "log_viewer_shell",
             "standaloneTopLevel": self.parent() is None,
             "windowFlag": "normal_window",
             "taskbarRestorable": True,
@@ -9556,6 +9568,8 @@ class DesktopRuntimeWindow(QWidget):
     def _dispatch_monitoring_hud_recording_studio_action(self, action: str) -> None:
         if action == "start":
             script = "if (typeof monitoringHudStartRecording === 'function') { monitoringHudStartRecording(); }"
+        elif action == "pause":
+            script = "if (typeof monitoringHudPauseRecording === 'function') { monitoringHudPauseRecording(); }"
         elif action == "stop":
             script = "if (typeof monitoringHudStopRecording === 'function') { monitoringHudStopRecording(); }"
         else:
@@ -13836,8 +13850,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
-                and proof.get("recordingStudioVisibleActionModel") == "runtime-current-single-toggle-candidate-selection-pending"
-                and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
+                and proof.get("recordingStudioVisibleActionModel") == "selected-REC-A-explicit-start-pause-stop-plus-open-log-viewer"
+                and proof.get("recordingStartControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
+                and proof.get("recordingPauseControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
+                and proof.get("recordingStopControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("resizeBehavior") == "not-resizable-position-memory-only"
@@ -14099,7 +14115,7 @@ class DesktopRuntimeWindow(QWidget):
             native_window_passed = bool(
                 proof
                 and proof.get("visible") is True
-                and proof.get("surface") == "log_viewer_studio_shell"
+                and proof.get("surface") == "log_viewer_shell"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
                 and proof.get("minimizeControlLocation") == "top-right-header"
@@ -15436,7 +15452,7 @@ class DesktopRuntimeWindow(QWidget):
                 widget=widget,
                 button=getattr(widget, "_open_native", None) if widget else None,
                 control_name="open_native_logs",
-                action_label="Open Native Logs",
+                action_label="OPEN NATIVE LOGS",
             )
             add_step("RAR3E Log Viewer Open Native folder activation proof", bool(native_proof.get("ok")), native_proof)
             QTimer.singleShot(delay(900), step_rar3e_log_viewer_export_activation)
@@ -15449,7 +15465,7 @@ class DesktopRuntimeWindow(QWidget):
                 widget=widget,
                 button=getattr(widget, "_open_export", None) if widget else None,
                 control_name="open_exported_logs",
-                action_label="Open Exported Logs",
+                action_label="OPEN EXPORTED LOGS",
             )
             add_step("RAR3E Log Viewer Open Export folder activation proof", bool(export_proof.get("ok")), export_proof)
             QTimer.singleShot(delay(900), step_rar3e_real_drag_geometry)

@@ -112,7 +112,9 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
 (() => {
   const targets = {
     chrome: ".monitoring-hud__chrome",
-    recordingPrimaryAction: "[data-control='recording-studio-toggle']",
+    recordingStartAction: "[data-control='recording-studio-start']",
+    recordingPauseAction: "[data-control='recording-studio-pause']",
+    recordingStopAction: "[data-control='recording-studio-stop']",
     recordingTargetTruth: "[data-element-group='recording-target-truth']",
     recordingLogRoute: "[data-control='recording-studio-open-log-viewer']",
     logViewerViewerState: "[data-folder-kind='viewer']",
@@ -650,29 +652,61 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 expected=[
                     "ACTIVE OVERLAY RECORDING",
                     "RECORDING STUDIO",
-                    "START RECORDING",
+                    "START",
+                    "PAUSE",
+                    "STOP",
                     "Ready - 2 active monitors",
                     "TARGET",
                     "Default Overlay Profile",
                     "STATE",
-                    "OPEN LOG VIEWER STUDIO",
+                    "OPEN LOG VIEWER",
                 ],
                 min_width=460,
                 min_height=90,
                 margin=0,
             ),
             spec_from_dom(
-                name="recordingPrimaryActionCrop",
-                key="recording-primary-action",
+                name="recordingStartActionCrop",
+                key="recording-start-action",
                 source=recording,
                 source_key="recording-full-window",
                 source_label="recording_default",
-                dom_key="recordingPrimaryAction",
-                filename="recording_primary_action.png",
-                semantic="Recording Studio primary Start/Stop controller action",
-                expected=["START RECORDING"],
-                forbidden_adjacent=["TARGET", "OPEN LOG VIEWER STUDIO"],
-                min_width=120,
+                dom_key="recordingStartAction",
+                filename="recording_start_action.png",
+                semantic="Recording Studio selected REC-A Start action",
+                expected=["START"],
+                forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
+                min_width=62,
+                min_height=30,
+                margin=8,
+            ),
+            spec_from_dom(
+                name="recordingPauseActionCrop",
+                key="recording-pause-action",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="recordingPauseAction",
+                filename="recording_pause_action.png",
+                semantic="Recording Studio selected REC-A Pause action",
+                expected=["PAUSE"],
+                forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
+                min_width=62,
+                min_height=30,
+                margin=8,
+            ),
+            spec_from_dom(
+                name="recordingStopActionCrop",
+                key="recording-stop-action",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="recordingStopAction",
+                filename="recording_stop_action.png",
+                semantic="Recording Studio selected REC-A Stop action",
+                expected=["STOP"],
+                forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
+                min_width=62,
                 min_height=30,
                 margin=8,
             ),
@@ -686,7 +720,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 filename="recording_target_truth.png",
                 semantic="Recording Studio target truth row",
                 expected=["TARGET", "Default Overlay Profile", "STATE", "Ready - 2 active monitors"],
-                forbidden_adjacent=["Start Recording", "OPEN LOG VIEWER STUDIO", "Log", "Waiting for first recording."],
+                forbidden_adjacent=["OPEN LOG VIEWER", "Waiting for first recording."],
                 min_width=340,
                 min_height=58,
                 margin=8,
@@ -699,10 +733,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingLogRoute",
                 filename="recording_log_viewer_route.png",
-                semantic="Recording Studio Log Viewer Studio route action",
-                expected=["OPEN LOG VIEWER STUDIO"],
+                semantic="Recording Studio Log Viewer route action",
+                expected=["OPEN LOG VIEWER"],
                 forbidden_adjacent=["Waiting for first recording.", "Recordings folder", "Exported Logs folder"],
-                min_width=178,
+                min_width=180,
                 min_height=30,
                 margin=8,
             ),
@@ -714,11 +748,11 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_default",
                 dom_key="chrome",
                 filename="log_viewer_window_chrome.png",
-                semantic="Log Viewer Studio full chrome/window shell",
+                semantic="Log Viewer full chrome/window shell",
                 crop_type="FULL_WINDOW_CROP",
                 expected=[
-                    "RECORDING LOGS",
-                    "LOG VIEWER STUDIO",
+                    "NATIVE AND EXPORTED LOG ACCESS",
+                    "LOG VIEWER",
                     "VIEWER",
                     "Deferred",
                     "OPEN NATIVE LOGS",
@@ -736,7 +770,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_default",
                 dom_key="logViewerViewerState",
                 filename="log_viewer_deferred_state.png",
-                semantic="Log Viewer Studio selected doorway viewer-deferred state row",
+                semantic="Log Viewer selected doorway viewer-deferred state row",
                 expected=["VIEWER", "Deferred"],
                 forbidden_adjacent=["NATIVE", "Recordings folder", "EXPORT", "Exported Logs folder", "Available now", "Empty until exported"],
                 min_width=300,
@@ -751,7 +785,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_default",
                 dom_key="logViewerNativeAction",
                 filename="log_viewer_native_action.png",
-                semantic="Log Viewer Studio bottom native logs doorway action",
+                semantic="Log Viewer bottom native logs doorway action",
                 expected=["OPEN NATIVE LOGS"],
                 forbidden_adjacent=["Recordings folder", "Exported Logs folder", "OPEN EXPORTED LOGS"],
                 min_width=160,
@@ -766,7 +800,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_default",
                 dom_key="logViewerExportAction",
                 filename="log_viewer_export_action.png",
-                semantic="Log Viewer Studio bottom exported logs doorway action",
+                semantic="Log Viewer bottom exported logs doorway action",
                 expected=["OPEN EXPORTED LOGS"],
                 forbidden_adjacent=["Recordings folder", "Exported Logs folder", "OPEN NATIVE LOGS"],
                 min_width=180,
@@ -781,13 +815,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_default",
                 dom_key="chrome",
                 filename="log_viewer_action_status.png",
-                semantic="Log Viewer Studio viewer-deferred doorway relationship stack",
+                semantic="Log Viewer viewer-deferred doorway relationship stack",
                 crop_type="STATE_CROP",
                 relationship="VIEWER - Deferred row plus bottom native/export folder actions",
                 included_adjacent=["logViewerViewerState", "logViewerNativeAction", "logViewerExportAction"],
                 expected=[
-                    "RECORDING LOGS",
-                    "LOG VIEWER STUDIO",
+                    "NATIVE AND EXPORTED LOG ACCESS",
+                    "LOG VIEWER",
                     "VIEWER",
                     "Deferred",
                     "OPEN NATIVE LOGS",
@@ -804,13 +838,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_edge_resize_before_drag",
                 dom_key="chrome",
                 filename="log_viewer_resize_before.png",
-                semantic="Log Viewer Studio before-resize doorway stack",
+                semantic="Log Viewer before-resize doorway stack",
                 crop_type="RESIZE_STATE_CROP",
                 relationship="before-resize VIEWER - Deferred row plus bottom folder actions",
                 included_adjacent=["logViewerViewerState", "logViewerNativeAction", "logViewerExportAction"],
                 expected=[
-                    "RECORDING LOGS",
-                    "LOG VIEWER STUDIO",
+                    "NATIVE AND EXPORTED LOG ACCESS",
+                    "LOG VIEWER",
                     "VIEWER",
                     "Deferred",
                     "OPEN NATIVE LOGS",
@@ -828,13 +862,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_edge_resize_during_drag",
                 dom_key="chrome",
                 filename="log_viewer_resize_during.png",
-                semantic="Log Viewer Studio during-resize doorway stack",
+                semantic="Log Viewer during-resize doorway stack",
                 crop_type="RESIZE_STATE_CROP",
                 relationship="during-resize VIEWER - Deferred row plus bottom folder actions",
                 included_adjacent=["logViewerViewerState", "logViewerNativeAction", "logViewerExportAction"],
                 expected=[
-                    "RECORDING LOGS",
-                    "LOG VIEWER STUDIO",
+                    "NATIVE AND EXPORTED LOG ACCESS",
+                    "LOG VIEWER",
                     "VIEWER",
                     "Deferred",
                     "OPEN NATIVE LOGS",
@@ -852,13 +886,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="log_viewer_edge_resize_width_proof",
                 dom_key="chrome",
                 filename="log_viewer_resize_after.png",
-                semantic="Log Viewer Studio after-resize doorway stack",
+                semantic="Log Viewer after-resize doorway stack",
                 crop_type="RESIZE_STATE_CROP",
                 relationship="after-resize VIEWER - Deferred row plus bottom folder actions",
                 included_adjacent=["logViewerViewerState", "logViewerNativeAction", "logViewerExportAction"],
                 expected=[
-                    "RECORDING LOGS",
-                    "LOG VIEWER STUDIO",
+                    "NATIVE AND EXPORTED LOG ACCESS",
+                    "LOG VIEWER",
                     "VIEWER",
                     "Deferred",
                     "OPEN NATIVE LOGS",
@@ -891,7 +925,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("AI Control Center close/control comparator", AI_CONTROL_CENTER_ROOT / "04_window_control_close_hover_focused_window.png"),
         ("AI Control Center button comparator", AI_CONTROL_CENTER_ROOT / "05_run_local_check_hover_no_tooltip_focused_window.png"),
         ("Recording chrome", Path(derivatives["recordingChromeCrop"])),
-        ("Recording primary action", Path(derivatives["recordingPrimaryActionCrop"])),
+        ("Recording START action", Path(derivatives["recordingStartActionCrop"])),
+        ("Recording PAUSE action", Path(derivatives["recordingPauseActionCrop"])),
+        ("Recording STOP action", Path(derivatives["recordingStopActionCrop"])),
         ("Recording target truth", Path(derivatives["recordingTargetTruthCrop"])),
         ("Recording Log Viewer route", Path(derivatives["recordingLogRouteCrop"])),
         ("Log Viewer chrome", Path(derivatives["logViewerChromeCrop"])),
@@ -1040,7 +1076,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("Comparator panel rhythm", Path(derivatives["comparatorAiControlCenterPanelRhythm"])),
         ("Comparator status/action", Path(derivatives["comparatorAiControlCenterStatusAction"])),
         ("Recording chrome", Path(derivatives["recordingChromeCrop"])),
-        ("Recording primary action", Path(derivatives["recordingPrimaryActionCrop"])),
+        ("Recording START action", Path(derivatives["recordingStartActionCrop"])),
+        ("Recording PAUSE action", Path(derivatives["recordingPauseActionCrop"])),
+        ("Recording STOP action", Path(derivatives["recordingStopActionCrop"])),
         ("Recording target truth", Path(derivatives["recordingTargetTruthCrop"])),
         ("Recording Log Viewer route", Path(derivatives["recordingLogRouteCrop"])),
         ("Log Viewer chrome", Path(derivatives["logViewerChromeCrop"])),
@@ -1058,8 +1096,12 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "recording-full-window": _rel(root, str(manifest["recording_default"])),
         "recording-window-chrome": _rel(root, derivatives["recordingChromeCrop"]),
         "recording-window-chrome-overlay": _rel(root, derivatives["recordingChromeCropOverlay"]),
-        "recording-primary-action": _rel(root, derivatives["recordingPrimaryActionCrop"]),
-        "recording-primary-action-overlay": _rel(root, derivatives["recordingPrimaryActionCropOverlay"]),
+        "recording-start-action": _rel(root, derivatives["recordingStartActionCrop"]),
+        "recording-start-action-overlay": _rel(root, derivatives["recordingStartActionCropOverlay"]),
+        "recording-pause-action": _rel(root, derivatives["recordingPauseActionCrop"]),
+        "recording-pause-action-overlay": _rel(root, derivatives["recordingPauseActionCropOverlay"]),
+        "recording-stop-action": _rel(root, derivatives["recordingStopActionCrop"]),
+        "recording-stop-action-overlay": _rel(root, derivatives["recordingStopActionCropOverlay"]),
         "recording-target-truth": _rel(root, derivatives["recordingTargetTruthCrop"]),
         "recording-target-truth-overlay": _rel(root, derivatives["recordingTargetTruthCropOverlay"]),
         "recording-log-route": _rel(root, derivatives["recordingLogRouteCrop"]),
@@ -1082,6 +1124,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "log-viewer-resize-after": _rel(root, derivatives["logViewerResizeAfterCrop"]),
         "log-viewer-resize-after-overlay": _rel(root, derivatives["logViewerResizeAfterCropOverlay"]),
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
+        "open-log-viewer-route-proof-json": "open_log_viewer_route_proof.json",
+        "open-log-viewer-route-proof-full-desktop": _rel(root, str(manifest["recording_open_log_viewer_route_activated"]))
+        if "recording_open_log_viewer_route_activated" in manifest
+        else "",
         "b2-default-parent-neighbor-full-desktop": _rel(root, str(manifest["full_desktop_b2_default_parent_neighbor"])),
         "b2-same-session-moved-restore-full-desktop": _rel(root, str(manifest["full_desktop_b2_same_session_moved_restore"])),
         "b2-fresh-window-new-session-full-desktop": _rel(root, str(manifest["full_desktop_b2_fresh_window_new_session_substitute"])),
@@ -1286,25 +1332,25 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "surface": "Recording Studio",
             "elementGroup": "state label/value",
             "sourceTruthRequirement": "F6-FF01 Recording Studio must avoid report/status-panel feel and duplicated state grammar.",
-            "screenshotEvidenceFile": row_map["recording-primary-action"],
+            "screenshotEvidenceFile": row_map["recording-start-action"],
             "negativeQuestion": "Does the Studio repeat the same state word as both label and value?",
             "defectLookedFor": "READY / READY or RECORDING / RECORDING visual grammar.",
-            "observedFinding": "Current payload uses stable label `Now` and a single changing value.",
+            "observedFinding": "Current payload uses fixed TARGET and STATE rows with a single changing value per row.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "The visible label cannot mirror Ready/Recording because renderer payload always emits `Now` for the label.",
+            "whyDefectAbsentIfPass": "The visible labels are TARGET and STATE, while Ready/Recording/Paused/Saved appear only as state values.",
             "exactRepairIfRequired": "",
         },
         {
             "rowId": "RT-REC-002",
             "surface": "Recording Studio",
-            "elementGroup": "primary Start/Stop action",
-            "sourceTruthRequirement": "Recording Studio is an ultra-lightweight detached controller with Start/Stop as the clear purpose.",
-            "screenshotEvidenceFile": row_map["recording-primary-action"],
-            "negativeQuestion": "Is Start/Stop visually contested by equal-weight status/report fragments?",
-            "defectLookedFor": "Primary action not dominant.",
-            "observedFinding": "Start/Stop fills the action rail width and is visually larger than secondary Log Viewer routing.",
+            "elementGroup": "REC-A transport controls",
+            "sourceTruthRequirement": "USER selected REC-A: explicit START / PAUSE / STOP controls plus a separate OPEN LOG VIEWER route.",
+            "screenshotEvidenceFile": row_map["recording-start-action"],
+            "negativeQuestion": "Are START / PAUSE / STOP missing, merged into one toggle, or visually confused with the Log Viewer route?",
+            "defectLookedFor": "Old single-toggle Start/Stop model or equal semantic mixing with Log Viewer route.",
+            "observedFinding": "START, PAUSE, and STOP are separate transport controls; OPEN LOG VIEWER remains a separate route action.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "Secondary Log Viewer route is below target/log context and uses smaller secondary-action styling.",
+            "whyDefectAbsentIfPass": "Each transport control has its own DOM control, crop proof, and state enablement path.",
             "exactRepairIfRequired": "",
         },
         {
@@ -1315,7 +1361,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "screenshotEvidenceFile": row_map["recording-target-truth"],
             "negativeQuestion": "Does target/log content read as a technical report table?",
             "defectLookedFor": "Boxed table/status report panel feel.",
-            "observedFinding": "Target and log are compact secondary truth lines below the action rail, without bordered report rows.",
+            "observedFinding": "TARGET and STATE are compact truth rows above the transport/action row, without bordered report panels.",
             "finalDisposition": "PERFECT_PASS",
             "whyDefectAbsentIfPass": "Stale Target Source / Recording State / Native Log table markers are absent from source.",
             "exactRepairIfRequired": "",
@@ -1328,55 +1374,55 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "screenshotEvidenceFile": row_map["recording-full-window"],
             "negativeQuestion": "Does the copy expose implementation/debug language?",
             "defectLookedFor": "Implementation-driven status text.",
-            "observedFinding": "Copy uses selected overlay, log waiting/saved language, and a secondary Log Viewer route.",
+            "observedFinding": "Copy is limited to target/state truth plus selected REC-A controls and an OPEN LOG VIEWER route.",
             "finalDisposition": "PERFECT_PASS",
             "whyDefectAbsentIfPass": "No row exposes validation, helper, worktree, proof, or debug wording.",
             "exactRepairIfRequired": "",
         },
         {
             "rowId": "RT-LOG-001",
-            "surface": "Log Viewer Studio",
+            "surface": "Log Viewer",
             "elementGroup": "native destination",
-            "sourceTruthRequirement": "Log Viewer Studio is a compact log access shell, not a technical path table.",
+            "sourceTruthRequirement": "Log Viewer is a compact doorway shell, not a technical path table.",
             "screenshotEvidenceFile": row_map["native-log-destination-action"],
-            "negativeQuestion": "Does Native look like a path/status table row rather than an action destination?",
-            "defectLookedFor": "Technical folder table feel.",
-            "observedFinding": "Native card leads with the open action and product destination; path text is muted secondary context.",
+            "negativeQuestion": "Does Native look like a path/status table row rather than a doorway action?",
+            "defectLookedFor": "Technical folder table feel or visible local-path display by default.",
+            "observedFinding": "Native is exposed only as the OPEN NATIVE LOGS action; no path row is visible by default.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "Path content is elided and secondary; the visible action remains the control.",
+            "whyDefectAbsentIfPass": "The default product surface contains the action label and deferred viewer row, not a native path table.",
             "exactRepairIfRequired": "",
         },
         {
             "rowId": "RT-LOG-002",
-            "surface": "Log Viewer Studio",
+            "surface": "Log Viewer",
             "elementGroup": "export destination",
             "sourceTruthRequirement": "Exported logs are USER-requested artifacts and must not imply automatic export.",
             "screenshotEvidenceFile": row_map["exported-log-destination-action"],
             "negativeQuestion": "Does Export imply automatic export output exists?",
             "defectLookedFor": "Export destination ready language that overclaims product flow.",
-            "observedFinding": "Export copy reads Empty until exported.",
+            "observedFinding": "Export is exposed only as the OPEN EXPORTED LOGS action; no fake exported-log data row is visible.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "The visible copy contains no governance/internal USER wording and does not imply an automatic export exists.",
+            "whyDefectAbsentIfPass": "The default product surface contains no export-ready copy, no local path display, and no previous-log/export customization UI.",
             "exactRepairIfRequired": "",
         },
         {
             "rowId": "RT-LOG-003",
-            "surface": "Log Viewer Studio",
+            "surface": "Log Viewer",
             "elementGroup": "folder status",
             "sourceTruthRequirement": "Status must not contradict destination card state.",
             "screenshotEvidenceFile": row_map["log-viewer-action-status"],
             "negativeQuestion": "Can the footer say blocked/opened while both cards still claim ready?",
             "defectLookedFor": "Status contradiction.",
-            "observedFinding": "Renderer tracks last folder kind and changes the matching card to Opened or Could not open.",
+            "observedFinding": "Renderer exposes a concise folder action status only after a folder action is attempted.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "Status state is tied to the affected destination instead of global ready text.",
+            "whyDefectAbsentIfPass": "Default state hides the status line; action result state is scoped to the folder action.",
             "exactRepairIfRequired": "",
         },
         {
             "rowId": "RT-LOG-004",
-            "surface": "Log Viewer Studio",
+            "surface": "Log Viewer",
             "elementGroup": "resize",
-            "sourceTruthRequirement": "Current Log Viewer Studio shell is resizable and must prove edge resize without attached-child corner grip.",
+            "sourceTruthRequirement": "Current Log Viewer shell is resizable and must prove edge resize without attached-child corner grip.",
             "screenshotEvidenceFile": row_map["log-viewer-resize-after"],
             "negativeQuestion": "Is resize claimed without runtime edge interaction evidence?",
             "defectLookedFor": "Claimed resize with setGeometry-only or no width delta.",
@@ -1401,14 +1447,14 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         {
             "rowId": "RT-CROP-001",
             "surface": "Packet Proof",
-            "elementGroup": "Recording primary action crop",
+            "elementGroup": "Recording START action crop",
             "sourceTruthRequirement": "Focused crops must include the complete target element, all visible text, and enough surrounding context to judge clipping.",
-            "screenshotEvidenceFile": row_map["recording-primary-action"],
-            "negativeQuestion": "Does recording_primary_action.png cut off the support text under the primary action?",
-            "defectLookedFor": "Lower support text clipped by the crop boundary.",
-            "observedFinding": "The current crop includes the full primary action region, support text, rounded border/glow, and surrounding padding.",
+            "screenshotEvidenceFile": row_map["recording-start-action"],
+            "negativeQuestion": "Does recording_start_action.png cut off the START transport control?",
+            "defectLookedFor": "START control clipped by the crop boundary.",
+            "observedFinding": "The current crop includes the full START control, rounded border/glow, and surrounding padding.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "The crop box was expanded and the manifest records completeTargetElement/includesAllText/notClipped for this key.",
+            "whyDefectAbsentIfPass": "The crop box uses DOM bounds for the complete START control and records completeTargetElement/includesAllText/notClipped for this key.",
             "exactRepairIfRequired": "",
         },
         {
@@ -1968,7 +2014,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "RT-LOG-003": ("log-viewer-card-footer-contradiction", "Fail if a destination card says ready while the matching footer says the folder could not be opened."),
         "RT-LOG-004": ("log-viewer-resize-boundary", "Fail if resize proof lacks runtime edge interaction, width delta, or exact desktop launcher LV boundary."),
         "RT-PROOF-001": ("focused-crop-completeness", "Fail if any row crop is clipped, tiny, unreadable, or not tied to the row being judged."),
-        "RT-CROP-001": ("recording-primary-action-crop-completeness", "Fail if recording_primary_action.png clips the lower support text or lacks complete-element manifest proof."),
+        "RT-CROP-001": ("recording-start-action-crop-completeness", "Fail if recording_start_action.png clips the START transport control or lacks complete-element manifest proof."),
         "RT-CROP-002": ("recording-log-route-crop-completeness", "Fail if recording_log_viewer_route.png clips the lower surface edge or omits border/glow context."),
         "RT-CROP-003": ("log-viewer-footer-status-crop-completeness", "Fail if log_viewer_action_status.png clips the footer/status line."),
         "RT-CROP-004": ("full-window-vs-focused-crop-mapping", "Fail if a focused crop cannot be reconciled to the full-window evidence for the same surface."),
@@ -2141,7 +2187,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "FAM006-FA-035": ("Codex stopped at overlay-file existence and did not ask whether the overlay falsified the row metadata.", "Overlay/crop-ledger review", "The false-ACCEPT gate compares crop rectangles against rendered sibling DOM rectangles and rejects overlay/ledger contradictions.", "Current known-bad FAM-006-20260622-202600.zip is rejected for recording-target-truth and recording-log-route overlay/crop contradictions."),
         "FAM006-FA-036": ("The crop contract did not force a choice between clean element proof and relationship/context proof.", "Crop proof classification", "Each crop now declares ELEMENT_CROP or RELATIONSHIP_CROP; element crops fail when sibling geometry enters the crop.", "Current known-bad FAM-006-20260622-202600.zip is rejected because polluted element crops are no longer legal green proof."),
         "FAM006-FA-037": ("Adjacent-text audit missed visible adjacent geometry because it relied on text lists instead of rendered sibling bounds.", "Adjacent contamination audit", "The crop ledger records adjacentPartialGeometryFoundInCrop and the gates compare it against DOM sibling intersections.", "Current known-bad FAM-006-20260622-202600.zip is rejected when geometry appears while adjacent lists are empty."),
-        "FAM006-FA-038": ("The expected text check only asked whether listed text appeared; it did not require every visible full-window text string to be listed.", "Full-window crop text audit", "Full-window crops are now typed FULL_WINDOW_CROP and validators require the complete visible text inventory for Recording Studio and Log Viewer Studio.", "Current known-bad FAM-006-20260623-050502.zip is rejected for missing full-window expected text."),
+        "FAM006-FA-038": ("The expected text check only asked whether listed text appeared; it did not require every visible full-window text string to be listed.", "Full-window crop text audit", "Full-window crops are now typed FULL_WINDOW_CROP and validators require the complete visible text inventory for Recording Studio and Log Viewer.", "Current known-bad FAM-006-20260623-050502.zip is rejected for missing full-window expected text."),
         "FAM006-FA-039": ("The destination-card crop contract allowed visible folder-label text to go unlisted.", "Destination-card crop text audit", "Native and exported destination crops now require Recordings folder and Exported Logs folder in expectedTextInsideCrop.", "Current known-bad FAM-006-20260623-050502.zip is rejected for destination-card expected-text omissions."),
         "FAM006-FA-040": ("The crop type vocabulary was too narrow, so state, resize, and relationship-stack proof could masquerade as simple element proof.", "Crop scope/type audit", "Crops now declare FULL_WINDOW_CROP, ELEMENT_CROP, STATE_CROP, or RESIZE_STATE_CROP according to the proof need.", "Current known-bad FAM-006-20260623-050502.zip is rejected for crop-scope/type mismatch."),
         "FAM006-FA-041": ("Resize/error-state proof did not have a required blocked/error text inventory.", "Resize-state text audit", "Resize-state crops now require visible blocked/error strings when the state shows failed exported-log opening.", "Current known-bad FAM-006-20260623-050502.zip is rejected for omitted blocked/error expected text."),
@@ -2324,7 +2370,7 @@ def _create_parent_proof_surface() -> QWidget:
     title = QLabel("HUD Dashboard", parent)
     title.setObjectName("proofTitle")
     body = QLabel(
-        "B2 placement proof parent surface. Recording Studio and Log Viewer Studio must open visible, usable, and near this parent.",
+        "B2 placement proof parent surface. Recording Studio and Log Viewer must open visible, usable, and near this parent.",
         parent,
     )
     body.setObjectName("proofBody")
@@ -2460,8 +2506,31 @@ def main() -> int:
     parent_surface = _create_parent_proof_surface()
     parent_surface.show()
     _pin_proof_window_on_top(parent_surface)
-    recording = MonitoringHudRecordingStudioWindow(screen)
+    route_proof_events: list[dict[str, object]] = []
+
+    def open_log_viewer_from_recording_proof() -> None:
+        route_event: dict[str, object] = {
+            "command": "open-log-viewer",
+            "handler": "Recording Studio proof log_viewer_handler",
+            "logViewerVisibleBeforeHandler": bool(log_viewer.isVisible()),
+        }
+        log_viewer.update_product_state(
+            request_id="route-proof-open-log-viewer",
+            native_log_path="C:/Users/anden/AppData/Local/Nexus Desktop AI/Recordings",
+            export_dir="C:/Users/anden/AppData/Local/Nexus Desktop AI/Exported Logs",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        QApplication.processEvents()
+        route_event["logViewerVisibleAfterHandler"] = bool(log_viewer.isVisible())
+        route_event["logViewerSurfaceTitle"] = str(log_viewer.windowTitle())
+        route_proof_events.append(route_event)
+
     log_viewer = MonitoringHudLogViewerStudioWindow(screen)
+    recording = MonitoringHudRecordingStudioWindow(
+        screen,
+        log_viewer_handler=open_log_viewer_from_recording_proof,
+    )
     _enable_proof_topmost(recording)
     _enable_proof_topmost(log_viewer)
 
@@ -2505,6 +2574,15 @@ def main() -> int:
                 "default-parent-neighbor",
             )
         )
+        log_viewer.close()
+        QApplication.processEvents()
+        QTest.qWait(200)
+        recording.webview.page().runJavaScript(
+            "document.querySelector('[data-control=\"recording-studio-open-log-viewer\"]').click();"
+        )
+        QTest.qWait(650)
+        QApplication.processEvents()
+        _capture_desktop(root, "recording_open_log_viewer_route_activated", manifest)
         recording.move(parent_surface.geometry().right() + 90, parent_surface.geometry().top() + 22)
         log_viewer.move(parent_surface.geometry().right() + 90, parent_surface.geometry().top() + recording.height() + 54)
         QApplication.processEvents()
@@ -2635,7 +2713,7 @@ def main() -> int:
     def run_active() -> None:
         _capture(recording, root, "recording_active_stop_state", manifest)
         recording.webview.page().runJavaScript(
-            "document.querySelector('[data-control=\"recording-studio-toggle\"]').classList.add('is-hovered');"
+            "document.querySelector('[data-control=\"recording-studio-start\"]').classList.add('is-hovered');"
         )
         log_viewer.webview.page().runJavaScript(
             "document.querySelector('[data-control=\"log-viewer-open-native\"]').classList.add('is-hovered');"
@@ -2646,7 +2724,7 @@ def main() -> int:
         _capture(recording, root, "recording_hover_focus", manifest)
         _capture(log_viewer, root, "log_viewer_hover_focus", manifest)
         recording.webview.page().runJavaScript(
-            "const el=document.querySelector('[data-control=\"recording-studio-toggle\"]');"
+            "const el=document.querySelector('[data-control=\"recording-studio-start\"]');"
             "el.classList.remove('is-hovered');el.classList.add('is-pressed');"
         )
         log_viewer.webview.page().runJavaScript(
@@ -2712,6 +2790,27 @@ def main() -> int:
                 ),
                 encoding="utf-8",
             )
+        route_proof = {
+            "status": "MATCH"
+            if route_proof_events
+            and bool(route_proof_events[-1].get("logViewerVisibleAfterHandler"))
+            and Path(str(manifest.get("recording_open_log_viewer_route_activated", ""))).exists()
+            else "REPAIR_REQUIRED",
+            "selectedDirection": "REC-A",
+            "control": "OPEN LOG VIEWER",
+            "command": "open-log-viewer",
+            "runtimePath": "monitoring_hud_studio.js click -> NEXUS_MONITORING_HUD_STUDIO_COMMAND:open-log-viewer -> MonitoringHudRecordingStudioWindow.log_viewer_handler -> MonitoringHudLogViewerStudioWindow.update_product_state",
+            "doesNotDirectlyOpenNativeLogs": True,
+            "doesNotDirectlyOpenExportedLogs": True,
+            "routeEvents": route_proof_events,
+            "screenshot": _rel(root, manifest["recording_open_log_viewer_route_activated"])
+            if "recording_open_log_viewer_route_activated" in manifest
+            else "",
+        }
+        (root / "open_log_viewer_route_proof.json").write_text(
+            json.dumps(route_proof, indent=2),
+            encoding="utf-8",
+        )
         derivatives = _write_evidence_derivatives(root, manifest)
         b2_proof = _write_b2_placement_proof(root, manifest, b2_rows, moved_before_close, moved_after_reopen)
         (root / "visual_capture_manifest.json").write_text(
@@ -2731,6 +2830,7 @@ def main() -> int:
                     },
                     "derivatives": derivatives,
                     "b2PlacementProof": b2_proof,
+                    "openLogViewerRouteProof": route_proof,
                     "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
                     "cropCompletenessLedger": derivatives["cropCompletenessLedger"],
                     "resizeProof": {

@@ -111,7 +111,9 @@ REQUIRED_ROOT_CAUSE_FIELDS = {
 REQUIRED_EVIDENCE_KEYS = {
     "recording-full-window",
     "recording-window-chrome",
-    "recording-primary-action",
+    "recording-start-action",
+    "recording-pause-action",
+    "recording-stop-action",
     "recording-target-truth",
     "recording-log-route",
     "log-viewer-full-window",
@@ -175,7 +177,9 @@ DEFAULT_CROP_RULE = {
 
 REQUIRED_CROP_COMPLETENESS = {
     "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 160},
-    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 150, "minHeight": 34},
+    "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
+    "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
+    "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 350, "minHeight": 58},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
@@ -217,7 +221,7 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "local-absolute-primary-proof",
     "broad-row-evidence-map",
     "visual-ledger-overcredit",
-    "recording-primary-action-crop-completeness",
+    "recording-start-action-crop-completeness",
     "recording-log-route-crop-completeness",
     "log-viewer-footer-status-crop-completeness",
     "full-window-vs-focused-crop-mapping",
@@ -348,7 +352,9 @@ VALID_CROP_TYPES = {
 }
 REQUIRED_CROP_TYPES = {
     "recording-window-chrome": "FULL_WINDOW_CROP",
-    "recording-primary-action": "ELEMENT_CROP",
+    "recording-start-action": "ELEMENT_CROP",
+    "recording-pause-action": "ELEMENT_CROP",
+    "recording-stop-action": "ELEMENT_CROP",
     "recording-target-truth": "ELEMENT_CROP",
     "recording-log-route": "ELEMENT_CROP",
     "log-viewer-window-chrome": "FULL_WINDOW_CROP",
@@ -363,14 +369,18 @@ REQUIRED_SCOPE_TEXT = {
     "recording-window-chrome": [
         "ACTIVE OVERLAY RECORDING",
         "RECORDING STUDIO",
-        "START RECORDING",
+        "START",
+        "PAUSE",
+        "STOP",
         "TARGET",
         "Default Overlay Profile",
         "STATE",
         "Ready - 2 active monitors",
         "OPEN LOG VIEWER",
     ],
-    "recording-primary-action": ["START RECORDING"],
+    "recording-start-action": ["START"],
+    "recording-pause-action": ["PAUSE"],
+    "recording-stop-action": ["STOP"],
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "STATE", "Ready - 2 active monitors"],
     "recording-log-route": ["OPEN LOG VIEWER"],
     "log-viewer-window-chrome": [
@@ -419,7 +429,9 @@ REQUIRED_SCOPE_TEXT = {
 }
 CROP_DOM_KEYS = {
     "recording-window-chrome": "chrome",
-    "recording-primary-action": "recordingPrimaryAction",
+    "recording-start-action": "recordingStartAction",
+    "recording-pause-action": "recordingPauseAction",
+    "recording-stop-action": "recordingStopAction",
     "recording-target-truth": "recordingTargetTruth",
     "recording-log-route": "recordingLogRoute",
     "log-viewer-window-chrome": "chrome",

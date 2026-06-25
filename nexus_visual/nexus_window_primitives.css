@@ -357,8 +357,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 8px;
   margin-top: 0;
 }
 
@@ -381,15 +381,15 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit {
   height: 32px;
   min-height: 32px;
-  padding-inline: 20px;
+  padding-inline: 14px;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit[data-control="recording-studio-toggle"] {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-transport-action {
   width: auto;
-  min-width: 160px;
+  min-width: 68px;
   height: 32px;
   min-height: 32px;
-  padding-inline: 20px;
+  padding-inline: 14px;
   border-color: rgba(116, 255, 223, 0.42);
   background:
     linear-gradient(180deg, rgba(13, 66, 83, 0.62), rgba(6, 30, 48, 0.74)),
@@ -399,11 +399,12 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
     0 0 18px rgba(80, 231, 232, 0.16);
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-secondary-action {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-route-action {
   height: 32px;
   min-height: 32px;
-  min-width: 186px;
-  padding-inline: 18px;
+  min-width: 152px;
+  margin-left: 10px;
+  padding-inline: 14px;
   opacity: 1;
   text-transform: uppercase;
 }

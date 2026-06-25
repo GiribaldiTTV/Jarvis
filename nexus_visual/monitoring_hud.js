@@ -453,6 +453,14 @@ function monitoringHudSetRecordingError(message) {
 }
 
 function monitoringHudStartRecording() {
+  if (monitoringHudRecordingState() === "paused") {
+    monitoringHudControlState.recordingSessionState = "recording";
+    monitoringHudControlState.recordingSessionMessage = "Recording resumed.";
+    monitoringHudControlState.recordingResumedAt = monitoringHudRecordingNowIso();
+    monitoringHudRenderControls();
+    monitoringHudMarkChanged();
+    return true;
+  }
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   const target = monitoringHudControlState.activeOverlayRecordingTarget
     || monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
@@ -479,8 +487,24 @@ function monitoringHudStartRecording() {
   return true;
 }
 
-function monitoringHudStopRecording() {
+function monitoringHudPauseRecording() {
   if (monitoringHudRecordingState() !== "recording") {
+    return false;
+  }
+  const target = monitoringHudControlState.recordingSnapshotTarget || monitoringHudControlState.activeOverlayRecordingTarget || {};
+  const pausedAt = monitoringHudRecordingNowIso();
+  const rows = monitoringHudBuildRecordingRowsFromTarget(target, monitoringHudControlState.recordingStartedAt, pausedAt);
+  monitoringHudControlState.recordingPausedAt = pausedAt;
+  monitoringHudControlState.recordingSamples = (Array.isArray(monitoringHudControlState.recordingSamples) ? monitoringHudControlState.recordingSamples : []).concat(rows);
+  monitoringHudControlState.recordingSessionState = "paused";
+  monitoringHudControlState.recordingSessionMessage = "Recording paused. Stop saves the current session; Start resumes.";
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+  return true;
+}
+
+function monitoringHudStopRecording() {
+  if (!["recording", "paused"].includes(monitoringHudRecordingState())) {
     return monitoringHudStartRecording();
   }
   const target = monitoringHudControlState.recordingSnapshotTarget || monitoringHudControlState.activeOverlayRecordingTarget || {};
@@ -550,7 +574,9 @@ function monitoringHudBuildRecordingStudioTargetSummary(target, executionState, 
   const currentSessionState = String(sessionState || monitoringHudRecordingState());
   const startStopState = currentSessionState === "recording"
     ? "recording-stop-enabled"
-    : currentSessionState === "saving"
+    : currentSessionState === "paused"
+      ? "paused-stop-enabled"
+      : currentSessionState === "saving"
       ? "saving-disabled"
       : monitoringHudRecordingTargetReady(safeTarget)
         ? "start-enabled"
@@ -629,7 +655,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   const outputResult = monitoringHudControlState.recordingOutputResult || {};
   const executionState = sessionState === "recording" ? "recording" : sessionState === "saved-complete" ? "saved-complete" : targetReady ? "ready" : "disabled-error";
   const fileWritingState = sessionState === "saved-complete" ? "saved-complete" : sessionState === "saving" ? "saving" : targetReady ? "ready" : "blocked";
-  const buttonEnabled = sessionState === "recording" || (targetReady && sessionState !== "saving");
+  const buttonEnabled = ["recording", "paused"].includes(sessionState) || (targetReady && sessionState !== "saving");
   const outputFolderPath = monitoringHudRecordingExportFolderPath(outputResult);
   const folderButtonEnabled = true;
   if (monitoringHudRecordingCard) {
@@ -686,6 +712,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingControlLauncher.dataset.recordingFileWritingState = fileWritingState;
     monitoringHudRecordingControlLauncher.textContent = sessionState === "recording"
       ? "Stop Recording"
+      : sessionState === "paused"
+        ? "Resume Recording"
       : sessionState === "saving"
         ? "Saving Recording"
         : "Start Recording";
@@ -750,7 +778,7 @@ function monitoringHudRequestRecordingControlWindow() {
   monitoringHudControlState.recordingControlWindowState = "native-window-requested";
   monitoringHudControlState.recordingControlWindowTargetSummary = monitoringHudBuildRecordingStudioTargetSummary(
     target,
-    monitoringHudRecordingState() === "recording" ? "recording" : "ready",
+    monitoringHudRecordingState() === "recording" ? "recording" : monitoringHudRecordingState() === "paused" ? "paused" : "ready",
     monitoringHudRecordingState() === "saved-complete" ? "saved-complete" : "ready",
     monitoringHudRecordingState()
   );

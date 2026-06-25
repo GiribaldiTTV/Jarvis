@@ -119,9 +119,13 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "ultra-lightweight-detached-recording-controller",
                     "dashboardLifecycleDependency",
                     "recording-studio-open-log-viewer-action",
-                    "recording-studio-toggle-action",
-                    "runtime-current-single-toggle-candidate-selection-pending",
-                    "monitoring-hud-studio-recording-toggle-action",
+                    "recording-studio-start-action",
+                    "recording-studio-pause-action",
+                    "recording-studio-stop-action",
+                    "selected-REC-A-explicit-start-pause-stop-plus-open-log-viewer",
+                    "monitoring-hud-studio-start-action",
+                    "monitoring-hud-studio-pause-action",
+                    "monitoring-hud-studio-stop-action",
                     "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
                     "detached-child-window-header-no-title-card",
                     "titleCardState",
@@ -162,7 +166,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                 renderer + hud_js + studio_html + studio_css,
                 (
                     "Log Viewer",
-                    "log_viewer_studio_shell",
+                    "log_viewer_shell",
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
                     "recording_output_dir",
                     "recording_export_dir",
@@ -296,8 +300,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
     stale_recording_studio_model_absent = not any(
         marker in studio_html + studio_css
         for marker in (
-            "monitoring-hud-studio-start-action",
-            "monitoring-hud-studio-stop-action",
+            "monitoring-hud-studio-recording-toggle-action",
+            'data-control="recording-studio-toggle"',
+            "runtime-current-single-toggle-candidate-selection-pending",
             "grid-template-columns: repeat(3, minmax(0, 1fr))",
             "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
             'class="monitoring-hud__controller-target"',

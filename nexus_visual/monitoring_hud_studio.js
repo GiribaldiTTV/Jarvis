@@ -35,14 +35,13 @@
     target.addEventListener("click", () => emitCommand(command));
   };
 
-  const bindRecordingToggle = () => {
-    const target = byId("monitoring-hud-studio-recording-toggle-action");
+  const bindRecordingCommand = (id, command) => {
+    const target = byId(id);
     if (!target) {
       return;
     }
     target.addEventListener("click", () => {
-      const command = target.dataset.recordingCommand === "stop" ? "stop" : "start";
-      emitCommand(command);
+      emitCommand(target.dataset.recordingCommand || command);
     });
   };
 
@@ -108,21 +107,22 @@
     setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Selected overlay ready.");
     setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
-    const toggle = byId("monitoring-hud-studio-recording-toggle-action");
-    const isRecording = state.stopEnabled === true;
-    if (toggle) {
-      const label = isRecording ? "Stop Recording" : "Start Recording";
-      toggle.dataset.recordingCommand = isRecording ? "stop" : "start";
-      toggle.dataset.recordingState = isRecording ? "recording-active" : "recording-ready";
-      toggle.setAttribute("aria-label", label);
-      const labelTarget = toggle.querySelector(".monitoring-hud__button-label");
-      if (labelTarget) {
-        labelTarget.textContent = label;
-      } else {
-        toggle.textContent = label;
-      }
+    const start = byId("monitoring-hud-studio-start-action");
+    const pause = byId("monitoring-hud-studio-pause-action");
+    const stop = byId("monitoring-hud-studio-stop-action");
+    if (start) {
+      start.dataset.recordingState = state.pausedResumeEnabled === true ? "recording-paused-resume" : "recording-ready";
+      start.setAttribute("aria-label", state.pausedResumeEnabled === true ? "Resume Recording" : "Start Recording");
     }
-    setActionState("monitoring-hud-studio-recording-toggle-action", isRecording || state.startEnabled === true);
+    if (pause) {
+      pause.dataset.recordingState = state.pauseEnabled === true ? "recording-active-pause" : "recording-pause-disabled";
+    }
+    if (stop) {
+      stop.dataset.recordingState = state.stopEnabled === true ? "recording-stop-enabled" : "recording-stop-disabled";
+    }
+    setActionState("monitoring-hud-studio-start-action", state.startEnabled === true || state.pausedResumeEnabled === true);
+    setActionState("monitoring-hud-studio-pause-action", state.pauseEnabled === true);
+    setActionState("monitoring-hud-studio-stop-action", state.stopEnabled === true);
     setText("monitoring-hud-studio-viewer-state", state.viewerState || "Deferred");
     setTitle("monitoring-hud-studio-viewer-state", state.viewerStateTooltip || "Full in-app log viewing remains future-gated.");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");
@@ -164,7 +164,9 @@
 
   bindCommand("monitoring-hud-studio-minimize-action", "minimize");
   bindCommand("monitoring-hud-studio-close-action", "close");
-  bindRecordingToggle();
+  bindRecordingCommand("monitoring-hud-studio-start-action", "start");
+  bindRecordingCommand("monitoring-hud-studio-pause-action", "pause");
+  bindRecordingCommand("monitoring-hud-studio-stop-action", "stop");
   bindCommand("monitoring-hud-studio-open-log-viewer-action", "open-log-viewer");
   bindCommand("monitoring-hud-studio-open-native-action", "open-native");
   bindCommand("monitoring-hud-studio-open-export-action", "open-export");

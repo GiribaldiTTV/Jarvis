@@ -129,7 +129,9 @@ DEFAULT_CROP_RULE = {
 
 REQUIRED_CROP_COMPLETENESS = {
     "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 160},
-    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 150, "minHeight": 34},
+    "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
+    "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
+    "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 350, "minHeight": 58},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
@@ -181,7 +183,9 @@ VALID_CROP_TYPES = {
 }
 REQUIRED_CROP_TYPES = {
     "recording-window-chrome": "FULL_WINDOW_CROP",
-    "recording-primary-action": "ELEMENT_CROP",
+    "recording-start-action": "ELEMENT_CROP",
+    "recording-pause-action": "ELEMENT_CROP",
+    "recording-stop-action": "ELEMENT_CROP",
     "recording-target-truth": "ELEMENT_CROP",
     "recording-log-route": "ELEMENT_CROP",
     "log-viewer-window-chrome": "FULL_WINDOW_CROP",
@@ -193,8 +197,10 @@ REQUIRED_CROP_TYPES = {
     "log-viewer-resize-after": "RESIZE_STATE_CROP",
 }
 REQUIRED_SCOPE_TEXT = {
-    "recording-window-chrome": ["ACTIVE OVERLAY RECORDING", "RECORDING STUDIO", "START RECORDING", "Ready - 2 active monitors", "TARGET", "Default Overlay Profile", "OPEN LOG VIEWER"],
-    "recording-primary-action": ["START RECORDING"],
+    "recording-window-chrome": ["ACTIVE OVERLAY RECORDING", "RECORDING STUDIO", "START", "PAUSE", "STOP", "Ready - 2 active monitors", "TARGET", "Default Overlay Profile", "OPEN LOG VIEWER"],
+    "recording-start-action": ["START"],
+    "recording-pause-action": ["PAUSE"],
+    "recording-stop-action": ["STOP"],
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "Ready - 2 active monitors"],
     "recording-log-route": ["OPEN LOG VIEWER"],
     "log-viewer-window-chrome": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
@@ -245,8 +251,10 @@ PACKET_EVIDENCE_BY_GROUP = {
     ("Recording Studio", "window-control cluster"): "recording-window-chrome",
     ("Recording Studio", "minimize control"): "recording-window-chrome",
     ("Recording Studio", "close control"): "recording-window-chrome",
-    ("Recording Studio", "controller hero"): "recording-primary-action",
-    ("Recording Studio", "visually primary Start/Stop control"): "recording-primary-action",
+    ("Recording Studio", "controller hero"): "recording-start-action",
+    ("Recording Studio", "START control"): "recording-start-action",
+    ("Recording Studio", "PAUSE control"): "recording-pause-action",
+    ("Recording Studio", "STOP control"): "recording-stop-action",
     ("Recording Studio", "target summary card"): "recording-target-truth",
     ("Recording Studio", "secondary Log Viewer route control"): "recording-log-route",
     ("Recording Studio", "copy/text clarity"): "recording-target-truth",
@@ -258,12 +266,11 @@ PACKET_EVIDENCE_BY_GROUP = {
     ("Log Viewer", "minimize control"): "log-viewer-window-chrome",
     ("Log Viewer", "close control"): "log-viewer-window-chrome",
     ("Log Viewer", "edge resize affordance"): "log-viewer-resize-after",
-    ("Log Viewer", "Native logs destination card"): "native-log-destination-action",
-    ("Log Viewer", "Exported logs destination card"): "exported-log-destination-action",
+    ("Log Viewer", "Native logs doorway action"): "native-log-destination-action",
+    ("Log Viewer", "Exported logs doorway action"): "exported-log-destination-action",
     ("Log Viewer", "folder status strip"): "log-viewer-action-status",
     ("Log Viewer", "embedded Native Logs open control"): "native-log-destination-action",
     ("Log Viewer", "embedded Exported Logs open control"): "exported-log-destination-action",
-    ("Log Viewer", "path text containment"): "native-log-destination-action",
     ("Log Viewer", "copy/text clarity"): "log-viewer-action-status",
     ("Native/export folder shell", "native folder path"): "native-log-destination-action",
     ("Native/export folder shell", "exported folder path"): "exported-log-destination-action",
@@ -283,22 +290,25 @@ COMPARATOR_EVIDENCE_BY_GROUP = {
     "minimize control": "comparator-ai-control-center-window-control-cluster",
     "close control": "comparator-ai-control-center-window-control-cluster",
     "controller hero": "comparator-ai-control-center-status-action-grammar",
-    "visually primary Start/Stop control": "comparator-ai-control-center-button-grammar",
+    "START control": "comparator-ai-control-center-button-grammar",
+    "PAUSE control": "comparator-ai-control-center-button-grammar",
+    "STOP control": "comparator-ai-control-center-button-grammar",
     "secondary Log Viewer route control": "comparator-ai-control-center-button-grammar",
-    "Native logs destination card": "comparator-ai-control-center-panel-rhythm",
-    "Exported logs destination card": "comparator-ai-control-center-panel-rhythm",
+    "Native logs doorway action": "comparator-ai-control-center-button-grammar",
+    "Exported logs doorway action": "comparator-ai-control-center-button-grammar",
     "folder status strip": "comparator-ai-control-center-status-action-grammar",
     "embedded Native Logs open control": "comparator-ai-control-center-button-grammar",
     "embedded Exported Logs open control": "comparator-ai-control-center-button-grammar",
     "edge resize affordance": "comparator-ai-control-center-outer-frame",
-    "path text containment": "comparator-ai-control-center-panel-rhythm",
     "copy/text clarity": "comparator-ai-control-center-status-action-grammar",
 }
 
 CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "recording-full-window",
     "recording-window-chrome",
-    "recording-primary-action",
+    "recording-start-action",
+    "recording-pause-action",
+    "recording-stop-action",
     "recording-target-truth",
     "recording-log-route",
     "log-viewer-full-window",
@@ -477,7 +487,9 @@ def _surface_specs() -> list[dict[str, object]]:
                 "spacing/density",
                 "typography scale/weight",
                 "controller hero",
-                "visually primary Start/Stop control",
+                "START control",
+                "PAUSE control",
+                "STOP control",
                 "secondary Log Viewer route control",
                 "target summary card",
                 "hover/focus/pressed/disabled states",
@@ -509,15 +521,14 @@ def _surface_specs() -> list[dict[str, object]]:
                 "border/radius/glow",
                 "spacing/density",
                 "typography scale/weight",
-                "Native logs destination card",
-                "Exported logs destination card",
+                "Native logs doorway action",
+                "Exported logs doorway action",
                 "folder status strip",
                 "embedded Native Logs open control",
                 "embedded Exported Logs open control",
                 "hover/focus/pressed/disabled states",
                 "keyboard/focus behavior",
                 "empty/error/blocked states",
-                "path text containment",
                 "copy/text clarity",
             ],
         },
@@ -605,13 +616,13 @@ def _screenshot_for(surface: str, group: str, fallback: Path) -> Path:
         return SCREENSHOTS["recording_pressed"]
     if "recording studio" in text and any(token in text for token in ("disabled", "blocked", "error", "empty")):
         return SCREENSHOTS["recording_disabled"]
-    if "recording studio" in text and "start/stop" in text:
+    if "recording studio" in text and any(token in text for token in ("start control", "pause control", "stop control")):
         return SCREENSHOTS["recording_active"]
-    if "log viewer studio" in text and "resize" in text:
+    if "log viewer" in text and "resize" in text:
         return SCREENSHOTS["log_resize"]
-    if "log viewer studio" in text and any(token in text for token in ("hover", "focus")):
+    if "log viewer" in text and any(token in text for token in ("hover", "focus")):
         return SCREENSHOTS["log_hover_focus"]
-    if "log viewer studio" in text and any(token in text for token in ("disabled", "blocked", "error", "empty")):
+    if "log viewer" in text and any(token in text for token in ("disabled", "blocked", "error", "empty")):
         return SCREENSHOTS["log_disabled"]
     if "quick access" in text and "active" in text:
         return SCREENSHOTS["quick_access_active"]
@@ -626,7 +637,7 @@ def _expectation_for(surface: str, group: str, window_class: str) -> str:
         return f"{surface} {group} must use the UIREF-002 compact control grammar that applies to {window_class}."
     if "button" in text or "control" in text or "route" in text:
         return f"{surface} {group} must expose a readable, clickable, stateful user control with UIREF-003 state proof."
-    if "destination card" in text or "summary card" in text:
+    if "doorway action" in text or "summary card" in text:
         return f"{surface} {group} must avoid debug-table rows and present product-facing destination or summary content with contained text."
     if "row" in text or "path" in text:
         return f"{surface} {group} must not dominate as a dense table/form row; path content must remain secondary and contained."
@@ -645,17 +656,17 @@ def _visual_difference_for(surface: str, group: str, disposition: str) -> str:
         return f"{surface} {group}: historical FAM-006 evidence remains outside this Studio repair; no green conformance is claimed for this element group."
     if disposition == "NOT_APPLICABLE_WITH_REASON":
         return f"{surface} {group}: not applicable to this active Option C Studio repair because the surface is future/deferred in current source truth."
-    if "recording studio" in text and ("start/stop" in text or "log viewer route" in text):
-        return f"{surface} {group}: row-specific proof shows one dominant stateful Start/Stop control plus a secondary Log Viewer route; separate/stretched equal-peer control model is rejected."
+    if "recording studio" in text and ("start control" in text or "pause control" in text or "stop control" in text or "log viewer route" in text):
+        return f"{surface} {group}: row-specific proof shows selected REC-A START / PAUSE / STOP transport controls plus a separate Log Viewer route; single-toggle and generic LOGS models are rejected."
     if "recording studio" in text and ("target" in text or "status" in text or "controller hero" in text or "summary card" in text):
         return f"{surface} {group}: row-specific proof must show an action-first controller and compact target/log truth chips; report panels, debug labels, boxed tables, and dense Target/Status rows are rejected."
-    if "log viewer studio" in text and ("native logs" in text or "exported logs" in text or "path" in text or "destination card" in text):
-        return f"{surface} {group}: row-specific proof must show folder actions first with muted secondary paths; technical path-table presentation and full log browser/export customization remain rejected."
-    if "log viewer studio" in text and ("open native" in text or "open exported" in text):
+    if "log viewer" in text and ("native logs" in text or "exported logs" in text or "path" in text or "doorway action" in text):
+        return f"{surface} {group}: row-specific proof must show doorway actions with no local path display by default; technical path-table presentation and full log browser/export customization remain rejected."
+    if "log viewer" in text and ("open native" in text or "open exported" in text):
         return f"{surface} {group}: repaired to content-fit folder action buttons; row requires folder-action proof before LV acceptance."
-    if "log viewer studio" in text and "resize" in text:
+    if "log viewer" in text and "resize" in text:
         return f"{surface} {group}: repaired to edge-resize detached-studio behavior; attached-child corner grip and maximize route remain rejected."
-    if "recording studio" in text or "log viewer studio" in text:
+    if "recording studio" in text or "log viewer" in text:
         return f"{surface} {group}: repaired to v5 no-title-card detached feature-studio grammar with concrete proof path for this element group."
     if "dashboard recording card" in text:
         return f"{surface} {group}: current branch evidence is classified against Dashboard card grammar; Studio repair does not silently close unrelated card conformance gaps."
