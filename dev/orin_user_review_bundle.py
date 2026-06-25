@@ -1110,6 +1110,17 @@ def validate_local_user_packet(
                 f"for entries={content_mismatches}"
             )
 
+    embedded_zip_entries = sorted(
+        entry
+        for entry in folder_entries | zip_entries
+        if PurePosixPath(entry).suffix.lower() == ".zip"
+    )
+    if embedded_zip_entries:
+        failures.append(
+            "Local USER packet must not embed ZIP artifacts; reference prior packets by "
+            f"digest/receipt instead: entries={embedded_zip_entries}"
+        )
+
     layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, folder_entries)
     failures.extend(layout_failures)
 

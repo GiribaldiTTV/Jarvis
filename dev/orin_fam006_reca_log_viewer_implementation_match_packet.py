@@ -28,8 +28,11 @@ PACKET_ROOT = USER_ROOT / "FAM-006"
 BRANCH = "feature/fam-006-dashboard-recording-start-stop-local-file"
 ACCEPTED_SELECTION_ZIP = USER_ROOT / "FAM-006-20260624-234432.zip"
 ACCEPTED_SELECTION_SHA256 = "122767EB20EA0AF51D04211C612774A3EA4EA5DF0518FB3DF2590208D856BCBE"
-ACCEPTED_SELECTION_PACKET_RELATIVE = (
-    Path("Review Aids") / "Accepted Candidate Selection" / ACCEPTED_SELECTION_ZIP.name
+ACCEPTED_SELECTION_RECEIPT_RELATIVE = (
+    Path("Review Aids") / "Accepted Candidate Selection" / "accepted_candidate_selection_receipt.json"
+)
+ACCEPTED_SELECTION_RECEIPT_MD_RELATIVE = (
+    Path("Review Aids") / "Accepted Candidate Selection" / "ACCEPTED_CANDIDATE_SELECTION_RECEIPT.md"
 )
 PRIMARY_REVIEW = "REC_A_LOG_VIEWER_IMPLEMENTATION_MATCH_REVIEW.md"
 PACKET_STATUS = "fam006-reca-log-viewer-implementation-match-review"
@@ -41,6 +44,12 @@ EXTERNAL_BRANCH_ROOT = Path(
     "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
 )
 LATEST_POINTER = USER_ROOT / "FAM-006_latest_implementation_match_packet.json"
+STALE_TOP_LEVEL_PACKET_SIDECAR_GLOBS = (
+    "FAM-006_false_accept_final_*.json",
+    "FAM-006_false_accept_final_*.txt",
+    "FAM-006_packet_validation_*.txt",
+    "FAM-006_purge_confirmation_implementation_match.txt",
+)
 
 SOURCE_CONTEXT = {
     "Docs_Main.md": WORKTREE / "Docs/Main.md",
@@ -212,32 +221,103 @@ def _remove_stale_same_label_upload_zips(keep: Path | None = None) -> None:
         path.unlink()
 
 
-def _accepted_selection_payload() -> tuple[bytes, str] | None:
-    if ACCEPTED_SELECTION_ZIP.exists():
-        payload = ACCEPTED_SELECTION_ZIP.read_bytes()
-        if _sha256_bytes(payload) == ACCEPTED_SELECTION_SHA256:
-            return payload, str(ACCEPTED_SELECTION_ZIP)
+def _remove_stale_top_level_packet_sidecars() -> None:
+    for pattern in STALE_TOP_LEVEL_PACKET_SIDECAR_GLOBS:
+        for path in USER_ROOT.glob(pattern):
+            if path.is_file() and path.resolve() != LATEST_POINTER.resolve():
+                path.unlink()
 
-    embedded = PACKET_ROOT / ACCEPTED_SELECTION_PACKET_RELATIVE
+
+def _accepted_selection_evidence() -> dict[str, Any]:
+    mismatches: list[dict[str, str]] = []
+
+    if ACCEPTED_SELECTION_ZIP.exists():
+        sha256 = _sha256(ACCEPTED_SELECTION_ZIP)
+        if sha256 == ACCEPTED_SELECTION_SHA256:
+            return {
+                "status": "VERIFIED_FROM_EXISTING_ZIP",
+                "source": str(ACCEPTED_SELECTION_ZIP),
+                "sha256": sha256,
+                "embeddedInCurrentPacket": False,
+            }
+        mismatches.append({"source": str(ACCEPTED_SELECTION_ZIP), "sha256": sha256})
+
+    legacy_embedded = PACKET_ROOT / "Review Aids" / "Accepted Candidate Selection" / ACCEPTED_SELECTION_ZIP.name
+    if legacy_embedded.exists():
+        sha256 = _sha256(legacy_embedded)
+        if sha256 == ACCEPTED_SELECTION_SHA256:
+            return {
+                "status": "VERIFIED_FROM_LEGACY_EMBEDDED_ZIP",
+                "source": str(legacy_embedded),
+                "sha256": sha256,
+                "embeddedInCurrentPacket": True,
+                "repairDisposition": "Do not re-embed; current packet carries receipt-only evidence.",
+            }
+        mismatches.append({"source": str(legacy_embedded), "sha256": sha256})
+
+    embedded = PACKET_ROOT / ACCEPTED_SELECTION_RECEIPT_RELATIVE
     if embedded.exists():
-        payload = embedded.read_bytes()
-        if _sha256_bytes(payload) == ACCEPTED_SELECTION_SHA256:
-            return payload, str(embedded)
+        try:
+            receipt = json.loads(_read(embedded))
+        except json.JSONDecodeError:
+            receipt = {}
+        sha256 = str(receipt.get("sha256") or receipt.get("expectedSha256") or "")
+        if sha256 == ACCEPTED_SELECTION_SHA256:
+            return {
+                "status": "VERIFIED_FROM_EXISTING_RECEIPT",
+                "source": str(embedded),
+                "sha256": sha256,
+                "embeddedInCurrentPacket": False,
+            }
 
     if LATEST_POINTER.exists():
         try:
             latest = json.loads(_read(LATEST_POINTER))
+            receipt = latest.get("acceptedSelectionReceipt")
+            sha256 = str(latest.get("acceptedSelectionSha256") or "")
+            if receipt and sha256 == ACCEPTED_SELECTION_SHA256:
+                return {
+                    "status": "VERIFIED_FROM_LATEST_POINTER_RECEIPT",
+                    "source": f"{LATEST_POINTER}::{receipt}",
+                    "sha256": sha256,
+                    "embeddedInCurrentPacket": False,
+                }
             latest_zip = Path(str(latest.get("zipPath") or latest.get("zip") or ""))
             if latest_zip.exists():
                 with zipfile.ZipFile(latest_zip) as archive:
-                    entry = ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix()
-                    payload = archive.read(entry)
-                if _sha256_bytes(payload) == ACCEPTED_SELECTION_SHA256:
-                    return payload, f"{latest_zip}!/{ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix()}"
+                    entry = (Path("Review Aids") / "Accepted Candidate Selection" / ACCEPTED_SELECTION_ZIP.name).as_posix()
+                    try:
+                        payload = archive.read(entry)
+                    except KeyError:
+                        payload = b""
+                if payload:
+                    sha256 = _sha256_bytes(payload)
+                    if sha256 == ACCEPTED_SELECTION_SHA256:
+                        return {
+                            "status": "VERIFIED_FROM_LEGACY_PACKET_ZIP_ENTRY",
+                            "source": f"{latest_zip}!/{entry}",
+                            "sha256": sha256,
+                            "embeddedInCurrentPacket": True,
+                            "repairDisposition": "Do not re-embed; current packet carries receipt-only evidence.",
+                        }
+                    mismatches.append({"source": f"{latest_zip}!/{entry}", "sha256": sha256})
         except (KeyError, OSError, zipfile.BadZipFile):
             pass
 
-    return None
+    if mismatches:
+        return {
+            "status": "HASH_MISMATCH",
+            "expectedSha256": ACCEPTED_SELECTION_SHA256,
+            "mismatches": mismatches,
+        }
+
+    return {
+        "status": "RECEIPT_ONLY",
+        "source": "external branch plan/state accepted candidate receipt",
+        "sha256": ACCEPTED_SELECTION_SHA256,
+        "embeddedInCurrentPacket": False,
+        "repairDisposition": "No prior packet ZIP is embedded; USER packet carries digest/receipt only.",
+    }
 
 
 def _copy_file(source: Path, target: Path) -> None:
@@ -425,6 +505,17 @@ def _validate_packet_shape() -> list[str]:
     for rel in required:
         if not (PACKET_ROOT / rel).is_file():
             failures.append(f"missing required packet artifact: {rel}")
+    nested_zips = sorted(
+        path.relative_to(PACKET_ROOT).as_posix()
+        for path in PACKET_ROOT.rglob("*.zip")
+        if path.is_file()
+    )
+    if nested_zips:
+        failures.append(
+            "nested ZIP artifacts are not allowed inside the FAM-006 USER packet; "
+            "prior packets must be referenced by digest/receipt instead: "
+            + ", ".join(nested_zips)
+        )
     current_claim_texts = []
     for path in PACKET_ROOT.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in {".md", ".json", ".txt"}:
@@ -458,6 +549,7 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
         zip_path.unlink()
     _remove_stale_same_status_zips()
     _remove_stale_same_label_upload_zips()
+    _remove_stale_top_level_packet_sidecars()
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(PACKET_ROOT.rglob("*")):
             if path.is_file():
@@ -469,8 +561,10 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
         "packetRoot": str(PACKET_ROOT),
         "zipPath": str(zip_path),
         "zipSha256": _sha256(zip_path),
-        "acceptedSelectionZip": ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix(),
+        "acceptedSelectionReceipt": ACCEPTED_SELECTION_RECEIPT_RELATIVE.as_posix(),
         "acceptedSelectionSha256": ACCEPTED_SELECTION_SHA256,
+        "acceptedSelectionZipEmbedded": False,
+        "nestedZipArtifactsForbidden": True,
         "generatedAt": stamp,
         "nonSelfMutatingShaProof": True,
     }
@@ -486,11 +580,19 @@ def generate() -> int:
     if identity["branch"] != BRANCH:
         print(json.dumps({"status": "BLOCKED", "reason": "wrong branch", "identity": identity}, indent=2))
         return 2
-    accepted_selection = _accepted_selection_payload()
-    if accepted_selection is None:
-        print(json.dumps({"status": "BLOCKED", "reason": "accepted selection packet missing or SHA mismatch"}, indent=2))
+    accepted_selection = _accepted_selection_evidence()
+    if accepted_selection["status"] == "HASH_MISMATCH":
+        print(
+            json.dumps(
+                {
+                    "status": "BLOCKED",
+                    "reason": "accepted selection packet SHA mismatch",
+                    "acceptedSelectionEvidence": accepted_selection,
+                },
+                indent=2,
+            )
+        )
         return 2
-    accepted_selection_payload, accepted_selection_source = accepted_selection
 
     stamp = time.strftime("%Y%m%d-%H%M%S")
     proof_root = _latest_proof_root()
@@ -501,13 +603,21 @@ def generate() -> int:
     _purge_packet()
     _copy_source_context()
     evidence_root = _copy_proof_root(proof_root)
-    accepted_selection_target = PACKET_ROOT / ACCEPTED_SELECTION_PACKET_RELATIVE
-    accepted_selection_target.parent.mkdir(parents=True, exist_ok=True)
-    accepted_selection_target.write_bytes(accepted_selection_payload)
     aids = PACKET_ROOT / "Review Aids"
     validations = aids / "Validation Outputs"
     review_dir = PACKET_ROOT / "USER Review"
     review_dir.mkdir(parents=True, exist_ok=True)
+
+    _write_json(PACKET_ROOT / ACCEPTED_SELECTION_RECEIPT_RELATIVE, accepted_selection)
+    _write_md(
+        PACKET_ROOT / ACCEPTED_SELECTION_RECEIPT_MD_RELATIVE,
+        "# Accepted Candidate Selection Receipt\n\n"
+        "- Selection: `REC-A Recording Studio` plus renamed `Log Viewer` direction.\n"
+        "- Accepted selection digest is preserved in the adjacent machine-readable receipt.\n"
+        f"- Evidence status during generation: `{accepted_selection['status']}`\n"
+        f"- Evidence source during generation: `{accepted_selection.get('source', 'not available')}`\n"
+        "- Packet hygiene disposition: prior packet ZIPs are not embedded in the current USER packet; this receipt preserves the trace without creating multiple packet artifacts.\n",
+    )
 
     _write_json(aids / "Implementation Match" / "runtime_proof_summary.json", proof_summary)
     _write_json(aids / "Implementation Match" / "implementation_match_defect_ledger.json", defect_ledger)
@@ -555,9 +665,10 @@ This packet is for USER review of runtime implementation-match only. It proves t
 
 ## Accepted Candidate Selection
 
-- Accepted packet evidence inside this packet: `{ACCEPTED_SELECTION_PACKET_RELATIVE.as_posix()}`
-- Accepted packet source used for this generation: `{accepted_selection_source}`
-- Accepted packet SHA256: `{ACCEPTED_SELECTION_SHA256}`
+- Accepted selection receipt inside this packet: `{ACCEPTED_SELECTION_RECEIPT_MD_RELATIVE.as_posix()}`
+- Accepted packet ZIP embedded in this packet: `No`
+- Accepted packet source used for this generation: `{accepted_selection.get('source', 'external branch plan/state accepted candidate receipt')}`
+- Accepted selection digest is preserved in the machine-readable receipt and post-ZIP manifest.
 - Selection: `REC-A Recording Studio` plus renamed `Log Viewer` direction.
 
 ## Runtime Proof

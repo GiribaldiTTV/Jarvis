@@ -2959,6 +2959,18 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             failures.append("Local USER packet validation did not reject stable-name Governance.zip")
         stable_zip.unlink()
 
+        embedded_zip = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "NESTED_PACKET.zip"
+        embedded_zip.write_bytes(export_zip.read_bytes())
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        embedded_zip_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("must not embed ZIP artifacts" in failure for failure in embedded_zip_result.failures):
+            failures.append("Local USER packet validation did not reject embedded packet ZIP artifacts")
+        embedded_zip.unlink()
+
         extra_primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "SECOND_REVIEW.md"
         extra_primary.write_text("# Second Review\n\nInvalid extra primary file.\n", encoding="utf-8")
         _zip_local_user_packet_fixture(packet_dir, export_zip)
