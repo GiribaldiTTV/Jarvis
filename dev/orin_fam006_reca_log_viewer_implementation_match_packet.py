@@ -53,6 +53,26 @@ STALE_TOP_LEVEL_PACKET_SIDECAR_GLOBS = (
     "FAM-006_packet_validation_*.txt",
     "FAM-006_purge_confirmation_implementation_match.txt",
 )
+FINAL_CLEAN_PROOF_RELATIVE = Path("Review Aids") / "Final Clean Proof" / "final_clean_proof.json"
+FINAL_CLEAN_PROOF_MD_RELATIVE = Path("Review Aids") / "Final Clean Proof" / "FINAL_CLEAN_PROOF.md"
+GIT_STATUS_AUDIT_RELATIVE = Path("Review Aids") / "Final Clean Proof" / "git_status_evidence_audit.json"
+GIT_STATUS_AUDIT_MD_RELATIVE = Path("Review Aids") / "Final Clean Proof" / "GIT_STATUS_EVIDENCE_AUDIT.md"
+FINAL_CLEAN_COMMAND_DIR_RELATIVE = Path("Review Aids") / "Final Clean Proof" / "Commands"
+FINAL_CLEAN_REQUIRED_LABELS = {
+    "git_status_short_branch",
+    "git_rev_parse_head",
+    "git_branch_current",
+    "git_upstream",
+    "git_rev_parse_origin_main",
+    "git_merge_base_head_origin_main",
+    "git_ahead_behind_origin_main",
+    "git_ahead_behind_upstream",
+    "git_diff_check",
+    "git_diff_check_origin_main_head",
+    "git_diff_cached_check",
+}
+PACKET_UNDER_REVIEW_ZIP = USER_ROOT / "FAM-006-20260625-142752.zip"
+PACKET_UNDER_REVIEW_SHA256 = "D57D310BFBE1113AA3F880351176BF5ADEB66DDDFAE0BD3AF2BBF0A926894040"
 
 SOURCE_CONTEXT = {
     "Docs_Main.md": WORKTREE / "Docs/Main.md",
@@ -136,6 +156,51 @@ def _sha256_bytes(payload: bytes) -> str:
 
 def _run_git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=WORKTREE, text=True, stderr=subprocess.STDOUT).strip()
+
+
+def _normalize_count(value: str) -> str:
+    return " ".join(str(value).strip().split())
+
+
+def _status_stdout_is_dirty(stdout: str) -> bool:
+    lines = [line for line in stdout.splitlines() if line.strip()]
+    if not lines:
+        return True
+    return any(not line.startswith("##") for line in lines)
+
+
+def _status_stdout_has_upstream_delta(stdout: str) -> bool:
+    first = next((line for line in stdout.splitlines() if line.startswith("##")), "")
+    return "[ahead" in first or "[behind" in first or "[diverged" in first
+
+
+def _classify_git_status_record(record: dict[str, Any] | None) -> dict[str, Any]:
+    if not record:
+        return {
+            "classification": "STALE_OR_UNKNOWN",
+            "reason": "No git status record was present.",
+        }
+    stdout = str(record.get("stdout", ""))
+    exit_code = record.get("exitCode")
+    if exit_code != 0:
+        return {
+            "classification": "STALE_OR_UNKNOWN",
+            "reason": f"git status record exited {exit_code}; cleanliness cannot be trusted.",
+        }
+    if _status_stdout_is_dirty(stdout):
+        return {
+            "classification": "PRE_COMMIT_DIRTY",
+            "reason": "git status shows tracked/untracked changes inside the packet evidence.",
+        }
+    if _status_stdout_has_upstream_delta(stdout):
+        return {
+            "classification": "POST_COMMIT_PRE_PUSH",
+            "reason": "git status is clean but still reports upstream ahead/behind state.",
+        }
+    return {
+        "classification": "POST_PUSH_CLEAN",
+        "reason": "git status is clean and reports no upstream delta in the branch header.",
+    }
 
 
 def _identity() -> dict[str, Any]:
@@ -247,6 +312,155 @@ def _remove_stale_top_level_packet_sidecars() -> None:
         for path in USER_ROOT.glob(pattern):
             if path.is_file() and path.resolve() != LATEST_POINTER.resolve():
                 path.unlink()
+
+
+def _zip_read_text(path: Path, entry: str) -> str | None:
+    try:
+        with zipfile.ZipFile(path) as archive:
+            if entry not in archive.namelist():
+                return None
+            return archive.read(entry).decode("utf-8", errors="replace")
+    except (OSError, zipfile.BadZipFile):
+        return None
+
+
+def _zip_read_json(path: Path, entry: str) -> Any | None:
+    text = _zip_read_text(path, entry)
+    if text is None:
+        return None
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return None
+
+
+def _packet_under_review_path_from_pointer() -> Path | None:
+    if not LATEST_POINTER.exists():
+        return PACKET_UNDER_REVIEW_ZIP if PACKET_UNDER_REVIEW_ZIP.exists() else None
+    try:
+        latest = json.loads(_read(LATEST_POINTER))
+    except json.JSONDecodeError:
+        return PACKET_UNDER_REVIEW_ZIP if PACKET_UNDER_REVIEW_ZIP.exists() else None
+    pointed = Path(str(latest.get("zipPath") or latest.get("zip") or ""))
+    if pointed.exists():
+        return pointed
+    return PACKET_UNDER_REVIEW_ZIP if PACKET_UNDER_REVIEW_ZIP.exists() else None
+
+
+def _audit_packet_git_status_evidence() -> dict[str, Any]:
+    zip_path = _packet_under_review_path_from_pointer()
+    audit: dict[str, Any] = {
+        "schema": "fam006-implementation-match-git-status-evidence-audit-v1",
+        "packetStatus": PACKET_STATUS,
+        "auditTimestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "underReviewPacket": str(zip_path) if zip_path else None,
+        "underReviewExpectedSha256": PACKET_UNDER_REVIEW_SHA256,
+        "records": [],
+        "overallClassification": "STALE_OR_UNKNOWN",
+        "repairRequired": True,
+    }
+    if not zip_path or not zip_path.exists():
+        audit["overallClassification"] = "STALE_OR_UNKNOWN"
+        audit["reason"] = "Packet under review is missing; no packet-contained Git proof can be audited."
+        return audit
+
+    actual_sha = _sha256(zip_path)
+    audit["underReviewActualSha256"] = actual_sha
+    audit["underReviewShaMatchesExpected"] = actual_sha == PACKET_UNDER_REVIEW_SHA256
+
+    labels = [
+        "git_status_short_branch",
+        "git_rev_parse_head",
+        "git_rev_parse_origin_main",
+        "git_merge_base_head_origin_main",
+        "git_ahead_behind_origin_main",
+        "git_ahead_behind_upstream",
+        "git_diff_check",
+        "git_diff_check_origin_main_head",
+        "git_diff_cached_check",
+    ]
+    for label in labels:
+        entry = f"Review Aids/Validation Outputs/{label}.json"
+        record = _zip_read_json(zip_path, entry)
+        if record is None:
+            audit["records"].append(
+                {
+                    "label": label,
+                    "entry": entry,
+                    "classification": "STALE_OR_UNKNOWN",
+                    "reason": "Evidence record missing from packet validation outputs.",
+                }
+            )
+            continue
+        if label == "git_status_short_branch":
+            classification = _classify_git_status_record(record)
+        else:
+            classification = {
+                "classification": "STALE_OR_UNKNOWN",
+                "reason": "Validation-output record exists but is not a final clean proof record.",
+            }
+        audit["records"].append(
+            {
+                "label": label,
+                "entry": entry,
+                "classification": classification["classification"],
+                "reason": classification["reason"],
+                "timestamp": record.get("timestamp"),
+                "exitCode": record.get("exitCode"),
+                "stdout": record.get("stdout", ""),
+                "stderr": record.get("stderr", ""),
+            }
+        )
+
+    final_clean = _zip_read_json(zip_path, FINAL_CLEAN_PROOF_RELATIVE.as_posix())
+    audit["finalCleanProofPresent"] = final_clean is not None
+    if final_clean is not None:
+        audit["finalCleanProofStatus"] = final_clean.get("overallStatus")
+        audit["finalCleanProofClass"] = final_clean.get("proofClass")
+
+    dirty_records = [
+        record for record in audit["records"] if record.get("classification") == "PRE_COMMIT_DIRTY"
+    ]
+    if dirty_records and not final_clean:
+        audit["overallClassification"] = "PRE_COMMIT_DIRTY"
+        audit["reason"] = "Packet contains dirty pre-commit git status proof and no later final clean proof."
+        return audit
+    if dirty_records:
+        audit["overallClassification"] = "PRE_COMMIT_DIRTY"
+        audit["reason"] = "Packet contains dirty pre-commit git status proof."
+        return audit
+    if final_clean and final_clean.get("overallStatus") == "PASS":
+        audit["overallClassification"] = str(final_clean.get("proofClass") or "POST_PUSH_CLEAN")
+        audit["repairRequired"] = False
+        audit["reason"] = "Packet contains a passing final clean proof."
+        return audit
+
+    audit["overallClassification"] = "STALE_OR_UNKNOWN"
+    audit["reason"] = "Packet does not contain packet-contained final clean proof."
+    return audit
+
+
+def _write_git_status_audit(audit: dict[str, Any]) -> None:
+    _write_json(PACKET_ROOT / GIT_STATUS_AUDIT_RELATIVE, audit)
+    rows = [
+        [
+            str(record.get("label", "")),
+            str(record.get("classification", "")),
+            str(record.get("reason", "")),
+        ]
+        for record in audit.get("records", [])
+    ]
+    _write_md(
+        PACKET_ROOT / GIT_STATUS_AUDIT_MD_RELATIVE,
+        "# Git Status Evidence Audit\n\n"
+        f"- Packet under review: `{audit.get('underReviewPacket')}`\n"
+        f"- Expected SHA256: `{audit.get('underReviewExpectedSha256')}`\n"
+        f"- Actual SHA256: `{audit.get('underReviewActualSha256', 'missing')}`\n"
+        f"- Overall classification: `{audit.get('overallClassification')}`\n"
+        f"- Repair required: `{audit.get('repairRequired')}`\n"
+        f"- Reason: {audit.get('reason', 'not recorded')}\n\n"
+        + _markdown_table(["Evidence record", "Classification", "Reason"], rows),
+    )
 
 
 def _accepted_selection_evidence() -> dict[str, Any]:
@@ -481,6 +695,16 @@ def _write_md(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def _write_command_record(output_dir: Path, record: dict[str, Any]) -> None:
+    _write_json(output_dir / f"{record['label']}.json", record)
+    (output_dir / f"{record['label']}.stdout.txt").write_text(
+        str(record.get("stdout", "")), encoding="utf-8", errors="replace"
+    )
+    (output_dir / f"{record['label']}.stderr.txt").write_text(
+        str(record.get("stderr", "")), encoding="utf-8", errors="replace"
+    )
+
+
 def _run_command(label: str, command: list[str], output_dir: Path) -> dict[str, Any]:
     started = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     completed = subprocess.run(command, cwd=WORKTREE, text=True, capture_output=True)
@@ -492,11 +716,140 @@ def _run_command(label: str, command: list[str], output_dir: Path) -> dict[str, 
         "exitCode": completed.returncode,
         "stdout": completed.stdout,
         "stderr": completed.stderr,
+        "result": "PASS" if completed.returncode == 0 else "FAIL",
     }
-    _write_json(output_dir / f"{label}.json", record)
-    (output_dir / f"{label}.stdout.txt").write_text(completed.stdout, encoding="utf-8", errors="replace")
-    (output_dir / f"{label}.stderr.txt").write_text(completed.stderr, encoding="utf-8", errors="replace")
+    _write_command_record(output_dir, record)
     return record
+
+
+def _not_applicable_command(label: str, command: list[str], output_dir: Path, reason: str) -> dict[str, Any]:
+    record = {
+        "label": label,
+        "command": command,
+        "cwd": str(WORKTREE),
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "exitCode": None,
+        "stdout": "",
+        "stderr": "",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "notApplicableReason": reason,
+    }
+    _write_command_record(output_dir, record)
+    return record
+
+
+def _staged_changes_exist() -> bool:
+    completed = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],
+        cwd=WORKTREE,
+        text=True,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        return True
+    return bool(completed.stdout.strip())
+
+
+def _write_final_clean_proof() -> dict[str, Any]:
+    proof_dir = PACKET_ROOT / "Review Aids" / "Final Clean Proof"
+    command_dir = PACKET_ROOT / FINAL_CLEAN_COMMAND_DIR_RELATIVE
+    commands: list[tuple[str, list[str]]] = [
+        ("git_status_short_branch", ["git", "status", "--short", "--branch"]),
+        ("git_rev_parse_head", ["git", "rev-parse", "HEAD"]),
+        ("git_branch_current", ["git", "rev-parse", "--abbrev-ref", "HEAD"]),
+        ("git_upstream", ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"]),
+        ("git_rev_parse_origin_main", ["git", "rev-parse", "origin/main"]),
+        ("git_merge_base_head_origin_main", ["git", "merge-base", "HEAD", "origin/main"]),
+        ("git_ahead_behind_origin_main", ["git", "rev-list", "--left-right", "--count", "origin/main...HEAD"]),
+        ("git_ahead_behind_upstream", ["git", "rev-list", "--left-right", "--count", "@{upstream}...HEAD"]),
+        ("git_diff_check", ["git", "diff", "--check"]),
+        ("git_diff_check_origin_main_head", ["git", "diff", "--check", "origin/main...HEAD"]),
+    ]
+    records = [_run_command(label, command, command_dir) for label, command in commands]
+    if _staged_changes_exist():
+        records.append(_run_command("git_diff_cached_check", ["git", "diff", "--cached", "--check"], command_dir))
+    else:
+        records.append(
+            _not_applicable_command(
+                "git_diff_cached_check",
+                ["git", "diff", "--cached", "--check"],
+                command_dir,
+                "No staged changes existed when final clean proof was captured.",
+            )
+        )
+
+    by_label = {record["label"]: record for record in records}
+    git_status = by_label.get("git_status_short_branch", {})
+    dirty = _status_stdout_is_dirty(str(git_status.get("stdout", "")))
+    failed_commands = [
+        record["label"]
+        for record in records
+        if record.get("result") != "PASS" and record.get("result") != "NOT_APPLICABLE_WITH_REASON"
+    ]
+    upstream_counts = _normalize_count(str(by_label.get("git_ahead_behind_upstream", {}).get("stdout", "")))
+    branch = str(by_label.get("git_branch_current", {}).get("stdout", "")).strip()
+    proof_class = "POST_PUSH_CLEAN"
+    overall_status = "PASS"
+    failures: list[str] = []
+    if dirty:
+        failures.append("git status --short --branch reported dirty worktree content")
+    if upstream_counts != "0 0":
+        failures.append(f"upstream ahead/behind was {upstream_counts!r}, expected '0 0'")
+        proof_class = "POST_COMMIT_PRE_PUSH"
+    if branch != BRANCH:
+        failures.append(f"branch was {branch!r}, expected {BRANCH!r}")
+    if failed_commands:
+        failures.append("final clean proof command failures: " + ", ".join(failed_commands))
+    if failures:
+        overall_status = "FAIL"
+        if dirty:
+            proof_class = "PRE_COMMIT_DIRTY"
+
+    proof = {
+        "schema": "fam006-final-clean-proof-v1",
+        "packetStatus": PACKET_STATUS,
+        "capturedAt": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "proofClass": proof_class,
+        "overallStatus": overall_status,
+        "statement": (
+            "Final clean proof was captured after packet validation commands and before ZIP creation. "
+            "A PASS requires a clean worktree and upstream ahead/behind 0/0; it is therefore packet-contained "
+            "post-commit/post-push clean proof for this generated packet."
+            if overall_status == "PASS"
+            else "Final clean proof failed and cannot support packet reviewability."
+        ),
+        "worktreePath": str(WORKTREE),
+        "branch": branch,
+        "upstreamAheadBehind": upstream_counts,
+        "dirtyStatusDetected": dirty,
+        "failures": failures,
+        "commands": records,
+    }
+    _write_json(PACKET_ROOT / FINAL_CLEAN_PROOF_RELATIVE, proof)
+    _write_md(
+        PACKET_ROOT / FINAL_CLEAN_PROOF_MD_RELATIVE,
+        "# Final Clean Proof\n\n"
+        f"- Overall status: `{overall_status}`\n"
+        f"- Proof class: `{proof_class}`\n"
+        f"- Captured at: `{proof['capturedAt']}`\n"
+        f"- Branch: `{branch}`\n"
+        f"- Upstream ahead/behind: `{upstream_counts}`\n"
+        f"- Dirty status detected: `{dirty}`\n"
+        f"- Statement: {proof['statement']}\n\n"
+        + _markdown_table(
+            ["Command", "Result", "Exit", "Output file"],
+            [
+                [
+                    record["label"],
+                    str(record.get("result")),
+                    str(record.get("exitCode")),
+                    f"{FINAL_CLEAN_COMMAND_DIR_RELATIVE.as_posix()}/{record['label']}.json",
+                ]
+                for record in records
+            ],
+        ),
+    )
+    return proof
 
 
 def _copy_proof_root(proof_root: Path) -> Path:
@@ -583,6 +936,99 @@ def _validate_target_actual_consistency(failures: list[str]) -> None:
                 )
 
 
+def _validate_command_metadata(
+    record: dict[str, Any],
+    failures: list[str],
+    *,
+    allow_not_applicable: bool = False,
+) -> None:
+    label = str(record.get("label", "<missing label>"))
+    required_fields = ["label", "command", "cwd", "timestamp", "exitCode", "stdout", "stderr", "result"]
+    missing = [field for field in required_fields if field not in record]
+    if missing:
+        failures.append(f"{label}: final clean proof command metadata missing fields: {', '.join(missing)}")
+        return
+    if record.get("cwd") != str(WORKTREE):
+        failures.append(f"{label}: cwd mismatch: {record.get('cwd')!r}")
+    if not isinstance(record.get("command"), list) or not record.get("command"):
+        failures.append(f"{label}: command must be a non-empty list")
+    result = record.get("result")
+    if result == "NOT_APPLICABLE_WITH_REASON":
+        if not allow_not_applicable:
+            failures.append(f"{label}: NOT_APPLICABLE_WITH_REASON is not allowed for this command")
+        if not record.get("notApplicableReason"):
+            failures.append(f"{label}: NOT_APPLICABLE_WITH_REASON requires notApplicableReason")
+        return
+    if record.get("exitCode") != 0:
+        failures.append(f"{label}: final clean proof command exited {record.get('exitCode')}")
+    if result != "PASS":
+        failures.append(f"{label}: final clean proof command result must be PASS, found {result!r}")
+
+
+def _validate_final_clean_proof(failures: list[str]) -> None:
+    proof_path = PACKET_ROOT / FINAL_CLEAN_PROOF_RELATIVE
+    if not proof_path.is_file():
+        failures.append(f"missing required packet artifact: {FINAL_CLEAN_PROOF_RELATIVE.as_posix()}")
+        return
+    try:
+        proof = json.loads(_read(proof_path))
+    except json.JSONDecodeError as exc:
+        failures.append(f"{FINAL_CLEAN_PROOF_RELATIVE.as_posix()} is invalid JSON: {exc}")
+        return
+
+    if proof.get("overallStatus") != "PASS":
+        failures.append(
+            f"final clean proof overallStatus must be PASS, found {proof.get('overallStatus')!r}: "
+            + "; ".join(str(item) for item in proof.get("failures", []))
+        )
+    if proof.get("proofClass") != "POST_PUSH_CLEAN":
+        failures.append(f"final clean proof proofClass must be POST_PUSH_CLEAN, found {proof.get('proofClass')!r}")
+    if proof.get("dirtyStatusDetected") is not False:
+        failures.append("final clean proof reports dirtyStatusDetected")
+    if _normalize_count(str(proof.get("upstreamAheadBehind", ""))) != "0 0":
+        failures.append(f"final clean proof upstreamAheadBehind must be 0 0, found {proof.get('upstreamAheadBehind')!r}")
+
+    commands = proof.get("commands")
+    if not isinstance(commands, list):
+        failures.append("final clean proof commands must be a list")
+        return
+    by_label = {str(record.get("label", "")): record for record in commands if isinstance(record, dict)}
+    missing = sorted(FINAL_CLEAN_REQUIRED_LABELS - set(by_label))
+    if missing:
+        failures.append("final clean proof missing commands: " + ", ".join(missing))
+    for label in sorted(FINAL_CLEAN_REQUIRED_LABELS & set(by_label)):
+        _validate_command_metadata(
+            by_label[label],
+            failures,
+            allow_not_applicable=label == "git_diff_cached_check",
+        )
+
+    status_record = by_label.get("git_status_short_branch")
+    if status_record and _status_stdout_is_dirty(str(status_record.get("stdout", ""))):
+        failures.append("final clean proof git_status_short_branch stdout is dirty")
+    upstream_record = by_label.get("git_ahead_behind_upstream")
+    if upstream_record and _normalize_count(str(upstream_record.get("stdout", ""))) != "0 0":
+        failures.append(
+            "final clean proof git_ahead_behind_upstream stdout is not 0 0: "
+            f"{upstream_record.get('stdout')!r}"
+        )
+
+    validation_git_path = PACKET_ROOT / "Review Aids" / "Validation Outputs" / "git_status_short_branch.json"
+    if validation_git_path.is_file():
+        try:
+            validation_record = json.loads(_read(validation_git_path))
+        except json.JSONDecodeError:
+            failures.append("validation git_status_short_branch.json is invalid JSON")
+            return
+        if _status_stdout_is_dirty(str(validation_record.get("stdout", ""))):
+            validation_timestamp = str(validation_record.get("timestamp", ""))
+            final_timestamp = str(proof.get("capturedAt", ""))
+            if not final_timestamp or final_timestamp <= validation_timestamp:
+                failures.append(
+                    "packet contains dirty validation git status without a later final clean proof timestamp"
+                )
+
+
 def _validate_packet_shape() -> list[str]:
     failures: list[str] = []
     if not (PACKET_ROOT / "START_HERE.md").is_file():
@@ -611,11 +1057,16 @@ def _validate_packet_shape() -> list[str]:
         "Review Aids/Unified Defect Ledger/unified_defect_ledger.json",
         "Review Aids/exhaustive_visual_conformance_ledger.json",
         "Review Aids/Validation Outputs/validation_output_index.json",
+        GIT_STATUS_AUDIT_RELATIVE.as_posix(),
+        GIT_STATUS_AUDIT_MD_RELATIVE.as_posix(),
+        FINAL_CLEAN_PROOF_RELATIVE.as_posix(),
+        FINAL_CLEAN_PROOF_MD_RELATIVE.as_posix(),
     ]
     for rel in required:
         if not (PACKET_ROOT / rel).is_file():
             failures.append(f"missing required packet artifact: {rel}")
     _validate_target_actual_consistency(failures)
+    _validate_final_clean_proof(failures)
     nested_zips = sorted(
         path.relative_to(PACKET_ROOT).as_posix()
         for path in PACKET_ROOT.rglob("*.zip")
@@ -665,6 +1116,13 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
         for path in sorted(PACKET_ROOT.rglob("*")):
             if path.is_file():
                 archive.write(path, path.relative_to(PACKET_ROOT).as_posix())
+    final_clean_proof = {}
+    final_clean_path = PACKET_ROOT / FINAL_CLEAN_PROOF_RELATIVE
+    if final_clean_path.is_file():
+        try:
+            final_clean_proof = json.loads(_read(final_clean_path))
+        except json.JSONDecodeError:
+            final_clean_proof = {}
     proof = {
         "External State Schema": "external-state-v1",
         "schema": "fam006-reca-log-viewer-implementation-match-post-zip-manifest-v1",
@@ -678,6 +1136,9 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
         "nestedZipArtifactsForbidden": True,
         "generatedAt": stamp,
         "nonSelfMutatingShaProof": True,
+        "finalCleanProofPath": FINAL_CLEAN_PROOF_RELATIVE.as_posix(),
+        "finalCleanProofStatus": final_clean_proof.get("overallStatus"),
+        "finalCleanProofClass": final_clean_proof.get("proofClass"),
     }
     _write_json(EXTERNAL_BRANCH_ROOT / "reca_log_viewer_implementation_match_post_zip_manifest.json", proof)
     _write_json(LATEST_POINTER, proof)
@@ -705,6 +1166,7 @@ def generate() -> int:
         )
         return 2
 
+    git_status_audit = _audit_packet_git_status_evidence()
     stamp = time.strftime("%Y%m%d-%H%M%S")
     proof_root = _latest_proof_root()
     proof_summary = _load_proof_summary(proof_root)
@@ -718,6 +1180,7 @@ def generate() -> int:
     validations = aids / "Validation Outputs"
     review_dir = PACKET_ROOT / "USER Review"
     review_dir.mkdir(parents=True, exist_ok=True)
+    _write_git_status_audit(git_status_audit)
 
     _write_json(PACKET_ROOT / ACCEPTED_SELECTION_RECEIPT_RELATIVE, accepted_selection)
     _write_md(
@@ -763,6 +1226,8 @@ Packet Status: `{PACKET_STATUS}`
 Start with `USER Review/{PRIMARY_REVIEW}`.
 
 This packet proves current runtime implementation-match for the USER-selected REC-A Recording Studio direction, renamed Log Viewer direction, and B2 placement proof. It is not H1 acceptance, renewed exact USER desktop launcher Live Validation, UTS acceptance, PR Readiness, PR creation, merge, release, issue mutation, branch cleanup, sibling worktree mutation, Governance mutation, or neutral-main mutation.
+
+Final clean proof is included at `{FINAL_CLEAN_PROOF_MD_RELATIVE.as_posix()}`. The superseded packet Git status audit is included at `{GIT_STATUS_AUDIT_MD_RELATIVE.as_posix()}`.
 """,
     )
 
@@ -793,6 +1258,12 @@ This packet is for USER review of runtime implementation-match only. It proves t
 ## Target vs Actual
 
 Review `Review Aids/Implementation Match/target_vs_actual_checklist.md`.
+
+## Final Clean Proof
+
+- Superseded packet Git status audit: `{GIT_STATUS_AUDIT_MD_RELATIVE.as_posix()}`
+- Final clean proof: `{FINAL_CLEAN_PROOF_MD_RELATIVE.as_posix()}`
+- Final proof status must be `PASS` and proof class must be `POST_PUSH_CLEAN` before this packet can be treated as reviewable.
 
 ## Next Legal Phase
 
@@ -863,6 +1334,7 @@ Accept, revise, hold, or reject this REC-A + Log Viewer runtime implementation-m
         ],
     }
     _write_json(validations / "validation_output_index.json", index)
+    final_clean_proof = _write_final_clean_proof()
 
     packet_failures = _validate_packet_shape()
     _write_json(validations / "packet_self_validation.json", {"status": "PASS" if not packet_failures else "FAIL", "failures": packet_failures})
@@ -887,6 +1359,8 @@ Accept, revise, hold, or reject this REC-A + Log Viewer runtime implementation-m
         "zip": zip_proof,
         "proofRoot": str(proof_root),
         "validationRecordCount": len(validation_records),
+        "finalCleanProofStatus": final_clean_proof.get("overallStatus"),
+        "finalCleanProofClass": final_clean_proof.get("proofClass"),
     }
     print(json.dumps(result, indent=2))
     return 0
