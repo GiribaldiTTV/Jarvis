@@ -2939,8 +2939,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         and not negated_issue_candidate_disposition
     )
 
-    def row_has_unresolved_rar_evidence(row: list[str]) -> bool:
-        if len(row) <= 8:
+    def code_trace_row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) != 11:
             return False
         status_cell = row[8]
         issue_candidate_dispositioned = (
@@ -2949,13 +2949,32 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
         status_unresolved = cell_has_unresolved_status(status_cell)
         comparison_unresolved = (
-            len(row) > 7
-            and (
-                cell_has_unresolved_comparison(row[6])
-                or cell_has_unresolved_comparison(row[7])
-            )
+            cell_has_unresolved_comparison(row[6])
+            or cell_has_unresolved_comparison(row[7])
+            or cell_has_unresolved_comparison(row[9])
         )
         return (status_unresolved or comparison_unresolved) and not issue_candidate_dispositioned
+
+    def accepted_reference_row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) != 9:
+            return False
+        gap_issue_cell = row[8]
+        issue_candidate_dispositioned = (
+            cell_has_issue_candidate_status(gap_issue_cell)
+            and issue_candidate_disposition_completed
+        )
+        status_unresolved = cell_has_unresolved_status(gap_issue_cell)
+        comparison_unresolved = cell_has_unresolved_comparison(gap_issue_cell)
+        return (status_unresolved or comparison_unresolved) and not issue_candidate_dispositioned
+
+    def row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) <= 8:
+            return False
+        if len(row) == 11:
+            return code_trace_row_has_unresolved_rar_evidence(row)
+        if len(row) == 9:
+            return accepted_reference_row_has_unresolved_rar_evidence(row)
+        return False
 
     code_trace_unresolved_present = any(
         row_has_unresolved_rar_evidence(row)
@@ -7426,6 +7445,26 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Generated RAR adversarial matrix did not reject resolved RAR with unresolved visual/behavior comparison cells"
+        )
+
+    generated_resolved_accepted_reference_gap_text = (
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | Not Applicable With Reason | Not Applicable With Reason | None | None | None | Not Applicable With Reason | validation summary | None |",
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | visual mismatch remains unresolved |",
+        )
+    )
+    generated_resolved_accepted_reference_gap_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_resolved_accepted_reference_gap_text
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_accepted_reference_gap_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with unresolved accepted-reference gap cell"
         )
 
     valid_reviewed_issue_candidate_rar_failures = (
