@@ -323,6 +323,9 @@ INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_NO_IMPACT_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace.md"
 )
+INVALID_REBASELINE_ADOPTION_MISSING_PRODUCT_EXPERIENCE_COMPARISON_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_product_experience_comparison.md"
+)
 INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_empty_code_trace.md"
 )
@@ -422,6 +425,10 @@ INVALID_REBASELINE_ADOPTION_STANDALONE_ISSUE_ID_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_untabled.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_MARKER_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_current_marker_issue_candidate_untabled.md"
 )
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_EMBEDDED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_embedded_status.md"
@@ -2293,6 +2300,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         ),
     ) or unresolved_row_user_review_required
 
+    normalized_product_experience_comparison = governance._normalized_planning_value(
+        governance._extract_marker_value(
+            text, "NDAI Product Experience Contract Comparison:"
+        )
+    )
     for quality in (
         "deterministic",
         "intuitive",
@@ -2302,7 +2314,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "consistent",
     ):
         require(
-            quality in normalized,
+            quality in normalized_product_experience_comparison,
             "NDAI Product Experience Contract Comparison Missing",
         )
 
@@ -2569,7 +2581,27 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         len(row) > 8 and cell_has_issue_candidate_status(row[8])
         for row in accepted_reference_rows
     )
-    if code_trace_has_issue_candidate or accepted_reference_has_issue_candidate:
+    current_issue_candidate_values = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "Current Branch Repair Candidates:",
+                "Current Violation Findings:",
+            )
+        )
+    )
+    current_markers_have_issue_candidate = contains_non_negated_rar_phrase(
+        current_issue_candidate_values,
+        (
+            "issue candidate",
+            "issue-candidate",
+        ),
+    )
+    if (
+        code_trace_has_issue_candidate
+        or accepted_reference_has_issue_candidate
+        or current_markers_have_issue_candidate
+    ):
         require(
             has_real_issue_candidate_row(issue_candidate_rows),
             "Owned Surface Issue Candidate Missing",
@@ -2722,6 +2754,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         or not previous_candidates_absent
         or code_trace_has_issue_candidate
         or accepted_reference_has_issue_candidate
+        or current_markers_have_issue_candidate
     )
     if issue_candidate_disposition_required:
         require(
@@ -6991,6 +7024,20 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject missing Next Legal Phase marker"
         )
 
+    missing_product_experience_comparison_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_MISSING_PRODUCT_EXPERIENCE_COMPARISON_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if "NDAI Product Experience Contract Comparison Missing" not in "\n".join(
+        missing_product_experience_comparison_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject Product Experience quality terms missing from comparison marker"
+        )
+
     repo_live_state_tracking_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_REPO_LIVE_STATE_TRACKING_FIXTURE.read_text(
             encoding="utf-8"
@@ -7325,6 +7372,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject untabled current issue candidate"
+        )
+
+    current_marker_issue_candidate_untabled_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_MARKER_ISSUE_CANDIDATE_UNTABLED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_marker_issue_candidate_untabled_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject current-marker issue candidate without issue-candidate row"
         )
 
     current_issue_candidate_embedded_rar_failures = (
