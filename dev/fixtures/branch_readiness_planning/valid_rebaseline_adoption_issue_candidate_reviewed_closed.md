@@ -1,4 +1,4 @@
-﻿# Valid Rebaseline Adoption Issue Candidate Reviewed Closed Fixture
+# Valid Rebaseline Adoption Issue Candidate Reviewed Closed Fixture
 
 RAR Stage: Resolved after USER review of the issue-candidate packet and validation closeout.
 Trigger Reason: origin/main merged UIREF and Product Experience standards that affected an existing FAM-owned visible surface.
@@ -43,6 +43,8 @@ USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-2026062
 Exact Next USER Decision: no USER decision is required because the issue-candidate packet was USER-reviewed.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State, USER packets, helper output, Codex digest, or evidence roots; repo docs keep durable rules only.
 Next Legal Phase: normal phase progression after reviewed issue-candidate RAR closeout.
+
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

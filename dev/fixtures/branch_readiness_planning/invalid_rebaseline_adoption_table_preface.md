@@ -43,6 +43,8 @@ USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-2026062
 Exact Next USER Decision: USER reviews RAR issue candidates and decides repair, waive, defer, route, or approve GitHub issue creation later.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State, USER packets, helper output, Codex digest, or evidence roots; repo docs keep durable rules only.
 
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
+
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 This explanatory prose before the separator is invalid because the required table shape is broken.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

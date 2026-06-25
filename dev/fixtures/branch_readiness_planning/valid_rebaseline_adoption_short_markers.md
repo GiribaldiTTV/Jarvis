@@ -44,6 +44,8 @@ Exact Next USER Decision: none
 No Repo Live-State Tracking: active RAR rows stay external when present; this resolved fixture leaves repo docs as durable rules only.
 Next Legal Phase: RAR3 USER Review Gate.
 
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
+
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |

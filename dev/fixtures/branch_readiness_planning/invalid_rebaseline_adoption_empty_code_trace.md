@@ -44,6 +44,8 @@ Exact Next USER Decision: no USER decision until code trace is repaired.
 No Repo Live-State Tracking: active rows stay in C:\Nexus Governance State or USER packet evidence.
 Next Legal Phase: RAR2 Adoption Ledger repair.
 
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
+
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Element Class | Implementation Authority | Accepted Reference Set | Invariant Traits | Feature-Specific Traits | Target Surface | Primitive/Template/Reference-Derived/Exception | Evidence | Gap / Issue |

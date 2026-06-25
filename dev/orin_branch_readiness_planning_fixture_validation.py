@@ -314,6 +314,9 @@ VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
 VALID_REBASELINE_ADOPTION_RESOLVED_NEGATED_BLOCKER_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_resolved_negated_blocker.md"
 )
+INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_MARKER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace_marker.md"
+)
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
@@ -1933,6 +1936,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Owned Surface Inventory:",
         "Affected File Inventory:",
         "Affected Surface Inventory:",
+        "Code-To-Visual Trace Matrix:",
         "Affected Branch Artifacts:",
         "Affected Product Surfaces:",
         "Implemented / Touched UI-UX Surfaces:",
@@ -7236,6 +7240,18 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid resolved RAR fixture with negated blocker wording failed: "
             + "; ".join(valid_resolved_negated_blocker_failures[:5])
+        )
+
+    missing_code_trace_marker_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_MARKER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if "Rebaseline Adoption Review Missing: Code-To-Visual Trace Matrix:" not in "\n".join(
+        missing_code_trace_marker_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing Code-To-Visual Trace Matrix marker"
         )
 
     marker_only_rar_failures = _validate_rebaseline_adoption_review_text(

@@ -1,4 +1,4 @@
-﻿# Invalid Rebaseline Adoption Hyphenated No Candidate Prose Fixture
+# Invalid Rebaseline Adoption Hyphenated No Candidate Prose Fixture
 
 RAR Stage: RAR2 Adoption Ledger Generation before normal phase continuation.
 Trigger Reason: origin/main merged UIREF and Product Experience standards affecting existing owned UI surfaces.
@@ -42,6 +42,8 @@ USER Packet Path: C:\Nexus USER\FAM-006 contains the deterministic RAR review pa
 USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-20260620-120000.zip.
 Exact Next USER Decision: no USER decision needed in this invalid fixture.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State or USER packet evidence.
+
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

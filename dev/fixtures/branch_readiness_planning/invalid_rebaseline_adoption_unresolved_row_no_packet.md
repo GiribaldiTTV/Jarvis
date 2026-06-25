@@ -44,6 +44,8 @@ Exact Next USER Decision: visual judgment determines whether repair, waiver, or 
 No Repo Live-State Tracking: active rows stay in C:\Nexus Governance State or USER packet evidence.
 Next Legal Phase: RAR2 evidence repair.
 
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
+
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close region | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Mismatch | Unproven | NONCONFORMING | USER visual judgment required for close-control treatment | USER visual judgment decides repair or waiver |

@@ -44,6 +44,8 @@ Exact Next USER Decision: no USER decision is required for issue-candidate routi
 No Repo Live-State Tracking: active rows stay in C:\Nexus Governance State or USER packet evidence.
 Next Legal Phase: normal phase progression after resolved RAR closeout.
 
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
+
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Recording Studio | Window control cluster | desktop/desktop_renderer.py studio region | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Mismatch | Unproven | NONCONFORMING - no issue candidate applicable | current control treatment requires repair or waiver | Continue |

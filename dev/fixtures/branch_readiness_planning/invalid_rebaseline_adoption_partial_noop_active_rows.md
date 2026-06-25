@@ -44,6 +44,8 @@ Next Legal Phase: RAR3 USER Review Gate remains active until USER reviews issue 
 Exact Next USER Decision: USER reviews RAR issue candidates; normal phase progression is not authorized.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State, USER packets, helper output, Codex digest, or evidence roots; repo docs keep durable rules only.
 
+Code-To-Visual Trace Matrix: table below records the canonical surface, source-file, backend-owner, rendered-evidence, accepted-reference, visual-match, behavior-match, status, defect/gap, and next-action rows.
+
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | HUD Dashboard | N/A | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |
