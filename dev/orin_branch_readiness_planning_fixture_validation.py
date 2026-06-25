@@ -335,6 +335,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_noop_active_rows.md"
 )
+INVALID_REBASELINE_ADOPTION_MISSING_PROOF_SURFACE_NOOP_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_proof_surface_noop_rows.md"
+)
 INVALID_REBASELINE_ADOPTION_PARTIAL_NOOP_ACTIVE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_partial_noop_active_rows.md"
 )
@@ -468,6 +471,9 @@ INVALID_REBASELINE_ADOPTION_BARE_RAR3_NO_PACKET_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_row_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_GAP_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_accepted_reference_gap_no_packet.md"
 )
 INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
     FIXTURE_DIR
@@ -2208,12 +2214,14 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "not applicable with reason",
         }:
             return False
-        if re.search(
-            r"\bno\b.{0,80}\b(?:surface|surfaces|ui|runtime|product|visible|changed|affected|touched|mutation)\b",
-            normalized,
-        ):
-            return False
         if "none with reason" in normalized:
+            return False
+        no_material_surface_patterns = (
+            r"\bno\s+(?:(?:owned|affected|implemented|touched|changed|visible|material|product|ui|ui[-\s]?ux|runtime|runtime[-\s]?backend)\s+){0,4}(?:surface|surfaces|ui|runtime|product|visible|mutation)s?\s+(?:(?:is|are|was|were)\s+)?(?:changed|affected|implemented|touched|present|identified|owned|in\s+scope)\b",
+            r"\bno\s+(?:changed|affected|implemented|touched|owned|visible|material)\s+(?:surface|surfaces|ui|runtime|product|visible|mutation)s?\b",
+            r"\b(?:no|not\s+applicable)\s+(?:owned\s+|affected\s+|implemented\s+|touched\s+|changed\s+|visible\s+|material\s+)?(?:surface|surfaces)\s+(?:for|in)\s+this\s+(?:branch|review|fixture|packet)\b",
+        )
+        if any(re.search(pattern, normalized) for pattern in no_material_surface_patterns):
             return False
         return True
 
@@ -2366,12 +2374,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             or f" issue candidate " in f" {normalized_cell} "
         )
 
-    def row_requires_user_packet(row: list[str]) -> bool:
-        if len(row) <= 10 or not cell_has_unresolved_status(row[8]):
-            return False
-        next_action = governance._normalized_planning_value(row[10])
+    def user_review_action_requires_packet(value: str) -> bool:
+        normalized_action = governance._normalized_planning_value(value)
         return any(
-            token in next_action
+            token in normalized_action
             for token in (
                 "user",
                 "review",
@@ -2385,8 +2391,21 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             )
         )
 
+    def code_trace_row_requires_user_packet(row: list[str]) -> bool:
+        if len(row) <= 10 or not cell_has_unresolved_status(row[8]):
+            return False
+        return user_review_action_requires_packet(row[10])
+
+    def accepted_reference_row_requires_user_packet(row: list[str]) -> bool:
+        if len(row) <= 8 or not cell_has_unresolved_status(row[8]):
+            return False
+        return user_review_action_requires_packet(row[8])
+
     unresolved_row_user_review_required = any(
-        row_requires_user_packet(row) for row in code_trace_rows
+        code_trace_row_requires_user_packet(row) for row in code_trace_rows
+    ) or any(
+        accepted_reference_row_requires_user_packet(row)
+        for row in accepted_reference_rows
     )
     active_rar_values = governance._normalized_planning_value(
         " ".join(
@@ -7300,6 +7319,39 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject no-op active evidence rows"
         )
 
+    missing_proof_surface_noop_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_PROOF_SURFACE_NOOP_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        missing_proof_surface_noop_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject no-op rows when active surfaces are phrased as missing proof"
+        )
+
+    generated_missing_proof_surface_text = (
+        INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE.read_text(encoding="utf-8")
+        .replace(
+            "Owned Surface Inventory: HUD Dashboard, Recording Studio, and Log Viewer Studio surfaces.",
+            "Owned Surface Inventory: no verified proof yet for Recording Studio surface; Log Viewer Studio surface remains named for review.",
+        )
+        .replace(
+            "Affected Surface Inventory: Recording Studio window controls, Log Viewer Studio controls, HUD Dashboard close control, buttons, rows, and scrollbars.",
+            "Affected Surface Inventory: no focused proof yet for Recording Studio surface and Log Viewer Studio surface.",
+        )
+    )
+    generated_missing_proof_surface_failures = _validate_rebaseline_adoption_review_text(
+        generated_missing_proof_surface_text
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        generated_missing_proof_surface_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject missing-proof surface wording with no-op rows"
+        )
+
     partial_noop_active_rows_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_PARTIAL_NOOP_ACTIVE_ROWS_FIXTURE.read_text(
             encoding="utf-8"
@@ -7836,6 +7888,41 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject unresolved USER-facing row without packet"
+        )
+
+    accepted_reference_gap_no_packet_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_GAP_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        accepted_reference_gap_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject accepted-reference USER-review gap without packet"
+        )
+
+    generated_accepted_reference_gap_text = (
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close region | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Mismatch | Unproven | NONCONFORMING | USER visual judgment required for close-control treatment | USER visual judgment decides repair or waiver |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close region | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Match | Match | CONFORMING | None | Continue after accepted-reference review |",
+        )
+        .replace(
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | visual judgment packet missing |",
+            "| Window control cluster | Accepted Reference | UIREF-002 and FAM-002 | compact placement and Nexus glow | labels may differ | HUD Dashboard | Reference-Derived | screenshot | REFERENCE GAP - USER review / waiver required before route |",
+        )
+    )
+    generated_accepted_reference_gap_failures = _validate_rebaseline_adoption_review_text(
+        generated_accepted_reference_gap_text
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        generated_accepted_reference_gap_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject accepted-reference USER-review gap without packet"
         )
 
     contradictory_no_decision_no_packet_rar_failures = (

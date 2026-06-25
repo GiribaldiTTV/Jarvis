@@ -44,11 +44,29 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - fix pattern:
   require PR Readiness to clear stale canon, post-merge-state handling, next-workstream selection with runtime minimal scope and no branch created yet, `Next Runtime Candidate Selection Pending`, dirty branch / durable commit state, docs-sync / Governance Drift Audit blockers, Automation Observability Review Pending via `dev/automation_observability_report.py` over Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md`, with `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings treated as repair candidates, PR creation, explicit green merge-status proof, and PR validation before reporting `PR READY: YES` or `PR Readiness GREEN`; `PR package ready` is not green, missing PRs carry `PR Creation Pending`, unknown PR inspection carries `PR State Unknown`, mergeability or merge-state that has not explicitly reported green carries `PR Merge Status Unproven`, unresolved live PR issues carry `PR Validation Pending`, the same-PR Codex bot-review repair loop requires actionable bot comments to be fixed on the same PR, pushed, replied to, resolved, revalidation-requested with a 3-5 word PR comment, and then cleared by a later Codex Connector bot thumbs-up reaction or green approval comment before PR green, and Stage 2 final handoff cannot be green until the post-repair bot thumbs-up/approval latch is verified. Bounded PR2 uses direct PR verification by GitHub connector, `gh`, GraphQL review-thread inspection, status checks, reactions where available, mergeability, head SHA, and merge/close state. The Direct PR2 Continuation Rule blocks quiet handoff after revalidation requests or repair pushes while direct verification can continue. Recurring PR watcher automation is denied by default; watcher-based PR monitoring is exception-only after explicit USER approval for the exact PR, and then `PR Watcher Routing Unverified`, watcher delivery proof, source-of-truth shaped watcher output, and watcher teardown/retirement proof apply only to that exception path. `PR Merge Verification Pending` stays active until direct GitHub/GitHub-connector verification proves the PR is actually merged.
   Treat review-risk/adversarial coverage as a normal PR Readiness Stage 1 field rather than a special optional blocker. For helper, validator, fixture, packet, RAR, UIREF, Product Experience, PR, release, or issue-governance changes, Stage 1 must include rule-to-code-to-fixture mapping and adversarial negative/false-positive coverage for the changed parser or proof family before PR creation, so GitHub PR review is not the first place marker-only, malformed-table, path-root, casing, hyphenation, negation, contradictory-prose, or sibling fixture gaps are discovered.
+
 - validation pattern:
   run the normal branch governance validator plus the PR-readiness gate mode; the gate must fail while the worktree is dirty, while required post-merge truth is not encoded, while the next runtime workstream is undefined, unscoped, not runtime, or already branched, while `Next Runtime Candidate Selection Pending` is active, while the PR does not exist, or while PR state cannot be inspected
 - source references:
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
+
+## Pattern: PR Review Churn Means Adversarial Coverage Failed
+
+- trigger:
+  an open PR accumulates repeated actionable Codex Connector comments in the same helper, validator, parser, fixture, RAR, UIREF, Product Experience, packet, PR, release, or issue-governance family, especially when each repair closes the latest literal comment while a sibling false-green or false-red appears next
+- layer:
+  PR Readiness Stage 1, PR Readiness Stage 2, same-PR repair loops, helper/validator/fixture changes, generated USER packet checks, RAR adoption reviews, UIREF/Product Experience enforcement, and parser-heavy natural-language/Markdown validators
+- root-cause pattern:
+  Codex treats each PR comment as an isolated bug, adds an exact fixture, pushes, and re-requests review without first building a comment-family threat model; the PR bot becomes the first adversarial fuzzer and exposes defects that Stage 1 should have caught
+- fix pattern:
+  stop PR continuation on `Review Churn Root-Cause Gate Active`, build a Review-Comment Pattern Matrix from all same-family comments, identify the missing source-truth rule, parser assumption, helper/validator seam, fixture family, generated mutation/adversarial case, and sibling-risk set, then repair the durable owner and validator harness before any further review request
+- validation pattern:
+  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, and a final digest listing remaining sibling risks as cleared, waived, routed, or blocked
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
 
 ## Pattern: Packet Validation Must Not Become USER Acceptance
 
