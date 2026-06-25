@@ -2290,6 +2290,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             r"\1 ",
             normalized_cell,
         )
+        normalized_cell = re.sub(
+            r"\b(current|unresolved|active|pending)\s*[/_]\s*(?=issue candidate\b)",
+            r"\1 ",
+            normalized_cell,
+        )
         return normalized_cell.strip(" .;:")
 
     def cell_negates_issue_candidate_status(value: str) -> bool:
@@ -2521,12 +2526,15 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         return any(part in {".", ".."} for part in path.split("\\"))
 
     def has_invalid_path_suffix(next_char: str, after_next: str) -> bool:
-        terminal_chars = {"", " ", "\t", "\r", "\n", ",", ";", ":", ")", "]"}
-        if next_char == ".":
-            return after_next not in {"", " ", "\t", "\r", "\n"}
+        whitespace_or_end = {"", " ", "\t", "\r", "\n"}
+        terminal_chars = whitespace_or_end | {",", ";", ":", ")", "]", "."}
+        if next_char in whitespace_or_end:
+            return False
         if next_char == "`":
             return after_next not in terminal_chars
-        return next_char not in terminal_chars
+        if next_char in {",", ";", ":", ")", "]", "."}:
+            return after_next not in terminal_chars
+        return True
 
     def normalized_user_packet_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
@@ -2580,37 +2588,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 spans.append(match.span())
                 next_char = normalized_value[match.end() : match.end() + 1]
                 after_next = normalized_value[match.end() + 1 : match.end() + 2]
-                if next_char == "." and after_next not in {"", " ", "\t", "\r", "\n"}:
-                    invalid_suffix_seen = True
-                    continue
-                if next_char == "`" and after_next not in {
-                    "",
-                    " ",
-                    "\t",
-                    "\r",
-                    "\n",
-                    ",",
-                    ";",
-                    ":",
-                    ")",
-                    "]",
-                    ".",
-                }:
-                    invalid_suffix_seen = True
-                    continue
-                if next_char and next_char not in {
-                    " ",
-                    "\t",
-                    "\r",
-                    "\n",
-                    ",",
-                    ";",
-                    ":",
-                    ")",
-                    "]",
-                    ".",
-                    "`",
-                }:
+                if has_invalid_path_suffix(next_char, after_next):
                     invalid_suffix_seen = True
                     continue
                 raw_path = match.group(0)
@@ -7760,6 +7738,47 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject positive current issue-candidate status"
         )
 
+    generated_issue_candidate_base_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+    )
+    generated_issue_candidate_base_row = (
+        "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | "
+        "Not Applicable With Reason | Not Applicable With Reason | "
+        "Not Applicable With Reason | CONFORMING | None | Continue |"
+    )
+    for generated_issue_candidate_status in (
+        "ISSUE CANDIDATE",
+        "ISSUE-CANDIDATE",
+        "CURRENT ISSUE CANDIDATE",
+        "CURRENT-ISSUE-CANDIDATE",
+        "CURRENT / ISSUE CANDIDATE",
+        "CURRENT/ISSUE-CANDIDATE",
+        "UNRESOLVED ISSUE CANDIDATE",
+        "PENDING ISSUE-CANDIDATE",
+    ):
+        generated_issue_candidate_text = generated_issue_candidate_base_text.replace(
+            generated_issue_candidate_base_row,
+            "| HUD Dashboard | Close control | desktop/desktop_renderer.py | "
+            "FAM-006 | screenshot | UIREF-002 | Mismatch | Mismatch | "
+            f"{generated_issue_candidate_status} | Large CLOSE pill needs issue routing | "
+            "Prepare issue candidate |",
+        )
+        generated_issue_candidate_failures = _validate_rebaseline_adoption_review_text(
+            generated_issue_candidate_text
+        )
+        generated_issue_candidate_failure_text = "\n".join(
+            generated_issue_candidate_failures
+        )
+        if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in (
+            generated_issue_candidate_failure_text
+        ) or EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in (
+            generated_issue_candidate_failure_text
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject issue-candidate "
+                f"status spelling: {generated_issue_candidate_status}"
+            )
+
     not_yet_user_reviewed_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE.read_text(
             encoding="utf-8"
@@ -7940,6 +7959,57 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject suffixed USER packet folder token"
         )
 
+    generated_rar_short_marker_text = (
+        VALID_REBASELINE_ADOPTION_SHORT_MARKERS_FIXTURE.read_text(encoding="utf-8")
+    )
+
+    def generated_rar_marker_text(marker: str, value: str) -> str:
+        return re.sub(
+            rf"^{re.escape(marker)}.*$",
+            lambda _match: f"{marker} {value}",
+            generated_rar_short_marker_text,
+            flags=re.MULTILINE,
+        )
+
+    generated_invalid_packet_path_suffixes = (
+        r"C:\Nexus USER\FAM-006`extra",
+        r"C:\Nexus USER\FAM-006.zip",
+        r"C:\Nexus USER\FAM-006.md",
+        r"C:\Nexus USER\FAM-006;extra",
+        r"C:\Nexus USER\FAM-006,extra",
+        r"C:\Nexus USER\FAM-006)extra",
+        r"C:\Nexus USER\FAM-006]extra",
+        r"C:\Nexus USER\FAM-006:extra",
+    )
+    for generated_packet_path in generated_invalid_packet_path_suffixes:
+        generated_packet_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet Path:", generated_packet_path)
+        )
+        if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+            generated_packet_path_failures
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject suffixed "
+                f"USER packet folder token: {generated_packet_path}"
+            )
+
+    generated_valid_packet_path_wrappers = (
+        r"C:\Nexus USER\FAM-006.",
+        r"C:\Nexus USER\FAM-006,",
+        r"C:\Nexus USER\FAM-006).",
+        r"`C:\Nexus USER\FAM-006`.",
+    )
+    for generated_packet_path in generated_valid_packet_path_wrappers:
+        generated_packet_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet Path:", generated_packet_path)
+        )
+        if generated_packet_path_failures:
+            failures.append(
+                "Generated RAR adversarial matrix falsely rejected terminal "
+                f"USER packet folder punctuation: {generated_packet_path}: "
+                + "; ".join(generated_packet_path_failures[:5])
+            )
+
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_BARE_RAR3_NO_PACKET_FIXTURE.read_text(
             encoding="utf-8"
@@ -8072,6 +8142,44 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid RAR fixture did not reject suffixed non-ZIP USER packet path"
         )
+
+    generated_invalid_zip_suffixes = (
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip.tmp",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip`extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip;extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip,extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip)extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip]extra",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip:extra",
+    )
+    for generated_zip_path in generated_invalid_zip_suffixes:
+        generated_zip_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet ZIP Path:", generated_zip_path)
+        )
+        if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+            generated_zip_path_failures
+        ):
+            failures.append(
+                "Generated RAR adversarial matrix did not reject suffixed "
+                f"USER packet ZIP token: {generated_zip_path}"
+            )
+
+    generated_valid_zip_wrappers = (
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip.",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip,",
+        r"C:\Nexus USER\FAM-006-20260620-120000.zip).",
+        r"`C:\Nexus USER\FAM-006-20260620-120000.zip`.",
+    )
+    for generated_zip_path in generated_valid_zip_wrappers:
+        generated_zip_path_failures = _validate_rebaseline_adoption_review_text(
+            generated_rar_marker_text("USER Packet ZIP Path:", generated_zip_path)
+        )
+        if generated_zip_path_failures:
+            failures.append(
+                "Generated RAR adversarial matrix falsely rejected terminal "
+                f"USER packet ZIP punctuation: {generated_zip_path}: "
+                + "; ".join(generated_zip_path_failures[:5])
+            )
 
     zip_traversal_path_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE.read_text(
