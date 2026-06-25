@@ -11,7 +11,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -36,6 +38,7 @@ ACCEPTED_SELECTION_RECEIPT_MD_RELATIVE = (
 )
 PRIMARY_REVIEW = "REC_A_LOG_VIEWER_IMPLEMENTATION_MATCH_REVIEW.md"
 PACKET_STATUS = "fam006-reca-log-viewer-implementation-match-review"
+ACCEPTED_TARGET_ACTUAL_DISPOSITIONS = {"MATCH", "PASS"}
 SCREENSHOT_ROOT = (
     Path("C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI")
     / "fam_006_pre_live_visual_conformance"
@@ -163,9 +166,25 @@ def _latest_proof_root() -> Path:
     return max(candidates, key=lambda path: path.stat().st_mtime)
 
 
+def _make_removable(path: str) -> None:
+    os.chmod(path, stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)
+
+
+def _retry_remove_readonly(function: Any, path: str, _exc_info: Any) -> None:
+    _make_removable(path)
+    function(path)
+
+
+def _rmtree(path: Path) -> None:
+    try:
+        shutil.rmtree(path, onexc=_retry_remove_readonly)
+    except TypeError:
+        shutil.rmtree(path, onerror=_retry_remove_readonly)
+
+
 def _purge_packet() -> None:
     if PACKET_ROOT.exists():
-        shutil.rmtree(PACKET_ROOT)
+        _rmtree(PACKET_ROOT)
     PACKET_ROOT.mkdir(parents=True, exist_ok=True)
     if LATEST_POINTER.exists():
         try:
@@ -426,7 +445,10 @@ def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
     ]
     return {
         "schema": "fam006-reca-log-viewer-target-vs-actual-v1",
-        "status": "MATCH" if all(item[2] == "MATCH" for item in items) else "REPAIR_REQUIRED",
+        "status": "MATCH"
+        if all(item[2] in ACCEPTED_TARGET_ACTUAL_DISPOSITIONS for item in items)
+        else "REPAIR_REQUIRED",
+        "acceptedDispositions": sorted(ACCEPTED_TARGET_ACTUAL_DISPOSITIONS),
         "items": [
             {
                 "targetElement": name,
@@ -483,6 +505,84 @@ def _copy_proof_root(proof_root: Path) -> Path:
     return evidence_target
 
 
+def _expected_target_actual_status(checklist: dict[str, Any]) -> str:
+    items = checklist.get("items")
+    if not isinstance(items, list) or not items:
+        return "REPAIR_REQUIRED"
+    for item in items:
+        if not isinstance(item, dict):
+            return "REPAIR_REQUIRED"
+        if item.get("actualDisposition") not in ACCEPTED_TARGET_ACTUAL_DISPOSITIONS:
+            return "REPAIR_REQUIRED"
+    return "MATCH"
+
+
+def _validate_target_actual_consistency(failures: list[str]) -> None:
+    json_path = PACKET_ROOT / "Review Aids" / "Implementation Match" / "target_vs_actual_checklist.json"
+    md_path = PACKET_ROOT / "Review Aids" / "Implementation Match" / "target_vs_actual_checklist.md"
+    if not json_path.is_file() or not md_path.is_file():
+        return
+
+    try:
+        checklist = json.loads(_read(json_path))
+    except json.JSONDecodeError as exc:
+        failures.append(f"target_vs_actual_checklist.json is invalid JSON: {exc}")
+        return
+
+    items = checklist.get("items")
+    if not isinstance(items, list) or not items:
+        failures.append("target_vs_actual_checklist.json must contain a non-empty items list")
+        return
+
+    expected_status = _expected_target_actual_status(checklist)
+    actual_status = checklist.get("status")
+    if actual_status != expected_status:
+        failures.append(
+            "target_vs_actual_checklist.json status mismatch: "
+            f"expected {expected_status} from row dispositions, found {actual_status}"
+        )
+
+    accepted = set(checklist.get("acceptedDispositions") or [])
+    if accepted != ACCEPTED_TARGET_ACTUAL_DISPOSITIONS:
+        failures.append(
+            "target_vs_actual_checklist.json acceptedDispositions mismatch: "
+            f"expected {sorted(ACCEPTED_TARGET_ACTUAL_DISPOSITIONS)}, found {sorted(accepted)}"
+        )
+
+    md_text = _read(md_path)
+    for index, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            failures.append(f"target_vs_actual_checklist item {index} is not an object")
+            continue
+        target = str(item.get("targetElement", "")).strip()
+        expected = str(item.get("expected", "")).strip()
+        disposition = str(item.get("actualDisposition", "")).strip()
+        if disposition not in ACCEPTED_TARGET_ACTUAL_DISPOSITIONS:
+            failures.append(
+                f"target_vs_actual_checklist row {index} is not accepted: "
+                f"{target} -> {disposition}"
+            )
+        markdown_row = f"| {target} | {expected} | {disposition} |"
+        if markdown_row not in md_text:
+            failures.append(
+                "target_vs_actual_checklist Markdown/JSON mismatch for row "
+                f"{index}: {markdown_row}"
+            )
+
+    if expected_status == "MATCH":
+        claim_files = [
+            PACKET_ROOT / "START_HERE.md",
+            PACKET_ROOT / "USER Review" / PRIMARY_REVIEW,
+            md_path,
+        ]
+        for path in claim_files:
+            if path.is_file() and "REPAIR_REQUIRED" in _read(path):
+                failures.append(
+                    "target_vs_actual_checklist claims MATCH but current packet claim file "
+                    f"contains REPAIR_REQUIRED: {path.relative_to(PACKET_ROOT).as_posix()}"
+                )
+
+
 def _validate_packet_shape() -> list[str]:
     failures: list[str] = []
     if not (PACKET_ROOT / "START_HERE.md").is_file():
@@ -515,6 +615,7 @@ def _validate_packet_shape() -> list[str]:
     for rel in required:
         if not (PACKET_ROOT / rel).is_file():
             failures.append(f"missing required packet artifact: {rel}")
+    _validate_target_actual_consistency(failures)
     nested_zips = sorted(
         path.relative_to(PACKET_ROOT).as_posix()
         for path in PACKET_ROOT.rglob("*.zip")
