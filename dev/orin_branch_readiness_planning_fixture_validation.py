@@ -439,6 +439,12 @@ INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_POSITIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_positive_status.md"
 )
+INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_not_yet_user_reviewed_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_LINKED_CLOSED_CLAIM_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_linked_closed_claim.md"
+)
 INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_accepted_reference_issue_candidate.md"
 )
@@ -500,6 +506,9 @@ INVALID_REBASELINE_ADOPTION_COMMA_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_MOVE_INTO_PHASE_ADVANCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_move_into_phase_advance.md"
+)
+INVALID_REBASELINE_ADOPTION_GO_TO_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_go_to_phase_advance.md"
 )
 INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
@@ -2640,12 +2649,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         for phrase in (
             "not user reviewed",
             "not user-reviewed",
+            "not yet user reviewed",
+            "not yet user-reviewed",
             "no user review",
             "without user review",
             "not waived",
             "not repaired",
             "not routed",
             "not blocked",
+            "not yet waived",
+            "not yet repaired",
+            "not yet routed",
+            "not yet blocked",
             "without active user decision",
             "is required before",
             "required before",
@@ -2697,6 +2712,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "adoption green",
         "rar closed",
         "adoption closed",
+        "rar is closed",
+        "adoption is closed",
+        "rar was closed",
+        "adoption was closed",
     )
     def contains_non_negated_phrase(value: str, phrases: tuple[str, ...]) -> bool:
         negated_spans: list[tuple[int, int]] = []
@@ -2874,11 +2893,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
     phase_advancement_action_pattern = re.compile(
         rf"(?:"
-        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?\s+(?:to|into)|continue(?:s|d|ing)?\s+(?:to|into)|green\s+for|ready\s+for)\b"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?\s+(?:to|into)|continue(?:s|d|ing)?\s+(?:to|into)|go(?:es|ing)?\s+(?:to|into)|start(?:s|ed|ing)?(?:\s+(?:to|into))?|begin(?:s|ning|gan)?(?:\s+(?:to|into))?|green\s+for|ready\s+for)\b"
         rf"[\w\s/-]{{0,120}}\b(?:{phase_token_pattern})\b"
         rf"|"
         rf"\b(?:{phase_token_pattern})\b[\w\s/-]{{0,120}}"
-        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|green|ready)\b"
+        rf"\b(?:proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|go(?:es|ing)?|start(?:s|ed|ing)?|begin(?:s|ning|gan)?|green|ready)\b"
         rf")"
     )
     concrete_next_phase_requested = any(
@@ -7431,6 +7450,30 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject positive current issue-candidate status"
         )
 
+    not_yet_user_reviewed_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NOT_YET_USER_REVIEWED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        not_yet_user_reviewed_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject not-yet-user-reviewed issue candidate disposition"
+        )
+
+    linked_closed_claim_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_LINKED_CLOSED_CLAIM_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        linked_closed_claim_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject linked closed claim with unresolved row"
+        )
+
     accepted_reference_issue_candidate_failures = (
         _validate_rebaseline_adoption_review_text(
             INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE.read_text(
@@ -7783,6 +7826,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject move-into phase advancement while RAR remains active"
+        )
+
+    go_to_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_GO_TO_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        go_to_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject go-to phase advancement while RAR remains active"
         )
 
     generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
