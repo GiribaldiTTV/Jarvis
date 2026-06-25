@@ -5830,6 +5830,17 @@ def _monitoring_hud_bound_window_rect(rect: QRect, screen) -> QRect:
     return QRect(left, top, width, height)
 
 
+def _monitoring_hud_qrect_to_dict(rect: QRect | None) -> dict[str, int] | None:
+    if rect is None or not rect.isValid() or rect.isNull():
+        return None
+    return {
+        "x": int(rect.x()),
+        "y": int(rect.y()),
+        "w": int(rect.width()),
+        "h": int(rect.height()),
+    }
+
+
 def _monitoring_hud_restore_window_geometry(widget: QWidget, key: str, fallback: QRect) -> bool:
     settings = _monitoring_hud_window_settings()
     prefix = f"{key}/geometry/"
@@ -6428,6 +6439,7 @@ class MonitoringHudStudioWebWindow(QWidget):
     WINDOW_CONTROL_ZONE_RIGHT = 15
     WINDOW_CONTROL_ZONE_WIDTH = 60
     WINDOW_CONTROL_ZONE_HEIGHT = 30
+    PARENT_NEIGHBOR_SLOT = "generic"
 
     def __init__(self, screen, event_logger=None):
         super().__init__(None)
@@ -6442,6 +6454,10 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._native_resize_interaction_state = "not-started"
         self._geometry_persistence_ready = False
         self._geometry_restored_from_saved = False
+        self._session_user_geometry: QRect | None = None
+        self._session_geometry_restored = False
+        self._parent_neighbor_geometry: QRect | None = None
+        self._placement_source = "initial-safe-default"
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setWindowModality(Qt.NonModal)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
@@ -6720,20 +6736,63 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._drag_handle.raise_()
 
     def _restore_saved_geometry(self) -> None:
-        self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
-            self,
-            self._geometry_persistence_key,
-            self._initial_geometry(),
-        )
+        fallback = self._initial_geometry()
+        if isinstance(self._parent_neighbor_geometry, QRect) and self._parent_neighbor_geometry.isValid():
+            fallback = self._parent_neighbor_geometry
+        if isinstance(self._session_user_geometry, QRect) and self._session_user_geometry.isValid():
+            geometry = _monitoring_hud_bound_window_rect(self._session_user_geometry, getattr(self, "screen_ref", None))
+            self.setGeometry(geometry)
+            self._geometry_restored_from_saved = False
+            self._session_geometry_restored = True
+            self._placement_source = "same-session-user-moved-position"
+        else:
+            self.setGeometry(_monitoring_hud_bound_window_rect(fallback, getattr(self, "screen_ref", None)))
+            self._geometry_restored_from_saved = False
+            self._session_geometry_restored = False
+            self._placement_source = (
+                "parent-neighbor-default"
+                if isinstance(self._parent_neighbor_geometry, QRect) and self._parent_neighbor_geometry.isValid()
+                else "initial-safe-default"
+            )
         if not self.STUDIO_RESIZABLE:
             restored_position = self.geometry().topLeft()
             self.setFixedSize(self.WIDTH, self.HEIGHT)
             self.move(restored_position)
 
+    def _parent_neighbor_default_geometry(self, parent_geometry: QRect, *, stack_index: int = 0) -> QRect:
+        available = _monitoring_hud_available_rect(getattr(self, "screen_ref", None))
+        gap = 18
+        vertical_gap = 12
+        width = int(self.width() or self.WIDTH)
+        height = int(self.height() or self.HEIGHT)
+        preferred_x = parent_geometry.right() + 1 + gap
+        if preferred_x + width - 1 > available.right():
+            preferred_x = parent_geometry.left() - gap - width
+        if preferred_x < available.left():
+            preferred_x = min(
+                max(parent_geometry.left() + gap, available.left()),
+                max(available.left(), available.right() - width + 1),
+            )
+        preferred_y = parent_geometry.top() + (height + vertical_gap) * max(0, stack_index)
+        if preferred_y + height - 1 > available.bottom():
+            preferred_y = max(available.top(), parent_geometry.bottom() - height + 1)
+        return _monitoring_hud_bound_window_rect(QRect(preferred_x, preferred_y, width, height), getattr(self, "screen_ref", None))
+
+    def set_parent_neighbor_geometry(self, parent_geometry: QRect | None, *, stack_index: int = 0) -> None:
+        if parent_geometry is None or not parent_geometry.isValid() or parent_geometry.isNull():
+            self._parent_neighbor_geometry = None
+            return
+        self._parent_neighbor_geometry = self._parent_neighbor_default_geometry(parent_geometry, stack_index=stack_index)
+
     def _save_current_geometry(self) -> None:
         if not getattr(self, "_geometry_persistence_ready", False):
             return
-        _monitoring_hud_save_window_geometry(self, self._geometry_persistence_key)
+        if self.isMinimized():
+            return
+        rect = self.geometry()
+        if not rect.isValid() or rect.isNull():
+            return
+        self._session_user_geometry = QRect(rect)
 
     def moveEvent(self, event):
         super().moveEvent(event)
@@ -6778,6 +6837,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
+    PARENT_NEIGHBOR_SLOT = "recording"
 
     def __init__(self, screen, event_logger=None, recording_action_handler=None, log_viewer_handler=None):
         self.recording_action_handler = recording_action_handler
@@ -6906,6 +6966,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         row_count: int = 0,
         current_log_state: str = "no-current-log",
         activate_window: bool = True,
+        parent_geometry: QRect | None = None,
     ) -> None:
         self._request_id = max(self._request_id, int(request_id or 0))
         self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
@@ -6919,6 +6980,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         self._target_count = max(0, int(target_count or 0))
         self._target_names = target_names
         self._target_state = target_state
+        self.set_parent_neighbor_geometry(parent_geometry, stack_index=0)
         self._pending_studio_state = self._recording_studio_state_payload()
         self._sync_studio_state_to_web()
         self._show_or_raise(activate_window)
@@ -6998,7 +7060,11 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "cardInCardHierarchyAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
             "windowPlacementMemoryState": "enabled",
-            "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
+            "windowPlacementPolicy": "B2-same-session-user-moved-position-or-parent-neighbor-default",
+            "placementSource": self._placement_source,
+            "parentNeighborDefaultGeometry": _monitoring_hud_qrect_to_dict(self._parent_neighbor_geometry),
+            "sessionUserGeometryPresent": isinstance(self._session_user_geometry, QRect),
+            "sessionGeometryRestored": self._session_geometry_restored,
             "resizeBehavior": self.RESIZE_BEHAVIOR,
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
@@ -7027,6 +7093,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
+    PARENT_NEIGHBOR_SLOT = "log-viewer"
 
     def __init__(self, screen, event_logger=None):
         self._request_id = ""
@@ -7131,6 +7198,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         validation_export_path: str = "",
         export_dir: str = "",
         activate_window: bool = True,
+        parent_geometry: QRect | None = None,
     ) -> None:
         self._request_id = request_id or self._request_id
         self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
@@ -7138,6 +7206,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         export_root = recording_export_dir()
         self._native_full_path = native_log_path.strip() or str(native_root)
         self._export_full_path = export_dir.strip() or validation_export_path.strip() or str(export_root)
+        self.set_parent_neighbor_geometry(parent_geometry, stack_index=1)
         self._pending_studio_state = self._log_viewer_studio_state_payload()
         self._sync_studio_state_to_web()
         self._show_or_raise(activate_window)
@@ -7237,7 +7306,11 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "attachedChildCornerResizeGripAbsent": True,
             "edgeResizeProofRequired": True,
             "windowPlacementMemoryState": "enabled",
-            "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
+            "windowPlacementPolicy": "B2-same-session-user-moved-position-or-parent-neighbor-default",
+            "placementSource": self._placement_source,
+            "parentNeighborDefaultGeometry": _monitoring_hud_qrect_to_dict(self._parent_neighbor_geometry),
+            "sessionUserGeometryPresent": isinstance(self._session_user_geometry, QRect),
+            "sessionGeometryRestored": self._session_geometry_restored,
             "resizeBehavior": self.RESIZE_BEHAVIOR,
             "nativeEdgeResizeHitTest": "WM_NCHITTEST+manual-fallback-geometry-resize",
             "nativeResizeInteractionState": self._native_resize_interaction_state,
@@ -9503,6 +9576,7 @@ class DesktopRuntimeWindow(QWidget):
             validation_export_path=str(summary.get("validationExportPath") or ""),
             export_dir=str(summary.get("exportDir") or ""),
             activate_window=True,
+            parent_geometry=self.geometry(),
         )
         proof = self._monitoring_hud_log_viewer_studio_window.proof_state()
         self._emit_runtime_signal(
@@ -22043,6 +22117,7 @@ class DesktopRuntimeWindow(QWidget):
                 row_count=int(summary.get("rowCount") or 0),
                 current_log_state=str(summary.get("currentLogState") or "no-current-log"),
                 activate_window=recording_control_activate,
+                parent_geometry=self.geometry(),
             )
             if recording_control_keyboard_restore:
                 self._monitoring_hud_keyboard_force_visible_control = ""
@@ -22103,6 +22178,7 @@ class DesktopRuntimeWindow(QWidget):
                 validation_export_path=str(summary.get("validationExportPath") or ""),
                 export_dir=str(summary.get("exportDir") or ""),
                 activate_window=log_viewer_activate,
+                parent_geometry=self.geometry(),
             )
             if log_viewer_keyboard_restore:
                 self._monitoring_hud_keyboard_force_visible_control = ""

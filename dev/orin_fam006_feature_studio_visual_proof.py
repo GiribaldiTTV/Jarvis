@@ -15,10 +15,10 @@ import hashlib
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-from PySide6.QtCore import QEventLoop, QPoint, Qt, QTimer
+from PySide6.QtCore import QEventLoop, QPoint, QRect, Qt, QTimer
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -1082,6 +1082,11 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "log-viewer-resize-after": _rel(root, derivatives["logViewerResizeAfterCrop"]),
         "log-viewer-resize-after-overlay": _rel(root, derivatives["logViewerResizeAfterCropOverlay"]),
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
+        "b2-default-parent-neighbor-full-desktop": _rel(root, str(manifest["full_desktop_b2_default_parent_neighbor"])),
+        "b2-same-session-moved-restore-full-desktop": _rel(root, str(manifest["full_desktop_b2_same_session_moved_restore"])),
+        "b2-fresh-window-new-session-full-desktop": _rel(root, str(manifest["full_desktop_b2_fresh_window_new_session_substitute"])),
+        "b2-placement-proof-json": "b2_placement_proof.json",
+        "b2-placement-proof-markdown": "B2_PLACEMENT_PROOF.md",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
         "comparator-ai-control-center-source-window-controls": _rel(root, derivatives["comparatorAiControlCenterSourceWindowControls"]),
         "comparator-ai-control-center-source-button-status": _rel(root, derivatives["comparatorAiControlCenterSourceButtonStatus"]),
@@ -2244,6 +2249,207 @@ def _capture_desktop(root: Path, label: str, manifest: dict[str, object]) -> Non
     manifest[label] = str(path)
 
 
+def _widget_rect_dict(widget: QWidget) -> dict[str, int]:
+    geometry = widget.geometry()
+    return {
+        "x": int(geometry.x()),
+        "y": int(geometry.y()),
+        "w": int(geometry.width()),
+        "h": int(geometry.height()),
+        "right": int(geometry.right()),
+        "bottom": int(geometry.bottom()),
+    }
+
+
+def _rects_overlap(a: dict[str, int], b: dict[str, int]) -> bool:
+    return not (
+        a["right"] < b["x"]
+        or b["right"] < a["x"]
+        or a["bottom"] < b["y"]
+        or b["bottom"] < a["y"]
+    )
+
+
+def _visible_on_screen(rect: dict[str, int]) -> bool:
+    point = QPoint(rect["x"] + rect["w"] // 2, rect["y"] + rect["h"] // 2)
+    return any(screen.availableGeometry().contains(point) for screen in QApplication.screens())
+
+
+def _near_parent(parent_rect: dict[str, int], child_rect: dict[str, int]) -> bool:
+    horizontal_gap = min(
+        abs(child_rect["x"] - parent_rect["right"]),
+        abs(parent_rect["x"] - child_rect["right"]),
+    )
+    vertical_overlap = not (child_rect["bottom"] < parent_rect["y"] or parent_rect["bottom"] < child_rect["y"])
+    return horizontal_gap <= 32 and vertical_overlap
+
+
+def _create_parent_proof_surface() -> QWidget:
+    parent = QWidget()
+    parent.setWindowFlags(parent.windowFlags() | Qt.WindowStaysOnTopHint)
+    parent.setWindowTitle("FAM-006 HUD Dashboard Parent Proof Surface")
+    parent.setGeometry(70, 70, 520, 520)
+    parent.setStyleSheet(
+        """
+        QWidget {
+            background: #061521;
+            border: 1px solid rgba(88, 206, 226, 0.56);
+            border-radius: 18px;
+            color: #d9edf6;
+            font-family: "Segoe UI";
+        }
+        QLabel#proofKicker {
+            color: #78d7ec;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 3px;
+        }
+        QLabel#proofTitle {
+            color: #eef8ff;
+            font-size: 28px;
+            font-weight: 850;
+        }
+        QLabel#proofBody {
+            color: #9fb9c7;
+            font-size: 12px;
+            font-weight: 650;
+        }
+        """
+    )
+    layout = QVBoxLayout(parent)
+    layout.setContentsMargins(24, 24, 24, 24)
+    layout.setSpacing(8)
+    kicker = QLabel("NEXUS DESKTOP AI", parent)
+    kicker.setObjectName("proofKicker")
+    title = QLabel("HUD Dashboard", parent)
+    title.setObjectName("proofTitle")
+    body = QLabel(
+        "B2 placement proof parent surface. Recording Studio and Log Viewer Studio must open visible, usable, and near this parent.",
+        parent,
+    )
+    body.setObjectName("proofBody")
+    body.setWordWrap(True)
+    layout.addWidget(kicker)
+    layout.addWidget(title)
+    layout.addWidget(body)
+    layout.addStretch(1)
+    return parent
+
+
+def _pin_proof_window_on_top(widget: QWidget) -> None:
+    widget.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+    widget.show()
+    widget.raise_()
+    widget.activateWindow()
+
+
+def _enable_proof_topmost(widget: QWidget) -> None:
+    widget.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+
+
+def _placement_ledger_row(parent: QWidget, recording: QWidget, log_viewer: QWidget, screenshot: str, scenario: str) -> dict[str, object]:
+    parent_rect = _widget_rect_dict(parent)
+    recording_rect = _widget_rect_dict(recording)
+    log_rect = _widget_rect_dict(log_viewer)
+    return {
+        "scenario": scenario,
+        "screenshot": screenshot,
+        "parentRect": parent_rect,
+        "recordingRect": recording_rect,
+        "logViewerRect": log_rect,
+        "parentVisible": parent.isVisible() and _visible_on_screen(parent_rect),
+        "recordingVisibleUsable": recording.isVisible() and not recording.isMinimized() and _visible_on_screen(recording_rect),
+        "logViewerVisibleUsable": log_viewer.isVisible() and not log_viewer.isMinimized() and _visible_on_screen(log_rect),
+        "recordingNearParent": _near_parent(parent_rect, recording_rect),
+        "logViewerNearParent": _near_parent(parent_rect, log_rect),
+        "childrenDoNotOverlapEachOther": not _rects_overlap(recording_rect, log_rect),
+        "childrenDoNotOverlapParent": not _rects_overlap(parent_rect, recording_rect) and not _rects_overlap(parent_rect, log_rect),
+    }
+
+
+def _write_b2_placement_proof(root: Path, manifest: dict[str, object], rows: list[dict[str, object]], moved_before: dict[str, object], moved_after: dict[str, object]) -> dict[str, object]:
+    default_row = next((row for row in rows if row["scenario"] == "default-parent-neighbor"), {})
+    moved_row = next((row for row in rows if row["scenario"] == "same-session-moved-reopen"), {})
+    fresh_row = next((row for row in rows if row["scenario"] == "fresh-window-new-session-substitute"), {})
+    same_session_restored = (
+        moved_before.get("recordingRect") == moved_after.get("recordingRect")
+        and moved_before.get("logViewerRect") == moved_after.get("logViewerRect")
+    )
+    default_parent_neighbor = all(
+        bool(default_row.get(key))
+        for key in (
+            "parentVisible",
+            "recordingVisibleUsable",
+            "logViewerVisibleUsable",
+            "recordingNearParent",
+            "logViewerNearParent",
+            "childrenDoNotOverlapEachOther",
+            "childrenDoNotOverlapParent",
+        )
+    )
+    fresh_parent_neighbor = all(
+        bool(fresh_row.get(key))
+        for key in (
+            "parentVisible",
+            "recordingVisibleUsable",
+            "logViewerVisibleUsable",
+            "recordingNearParent",
+            "logViewerNearParent",
+            "childrenDoNotOverlapEachOther",
+            "childrenDoNotOverlapParent",
+        )
+    )
+    proof = {
+        "status": "MATCH" if default_parent_neighbor and fresh_parent_neighbor and same_session_restored else "REPAIR_REQUIRED",
+        "selectedDirection": "B2",
+        "contract": "parent-neighbor default/new-session placement plus same-session user-moved position restore",
+        "defaultParentNeighbor": default_parent_neighbor,
+        "freshWindowNewSessionSubstituteParentNeighbor": fresh_parent_neighbor,
+        "sameSessionMovedPositionRestored": same_session_restored,
+        "movedBeforeClose": moved_before,
+        "movedAfterReopen": moved_after,
+        "rows": rows,
+    }
+    def row_result(row: dict[str, object]) -> str:
+        common = all(
+            bool(row.get(key))
+            for key in (
+                "parentVisible",
+                "recordingVisibleUsable",
+                "logViewerVisibleUsable",
+                "childrenDoNotOverlapEachOther",
+                "childrenDoNotOverlapParent",
+            )
+        )
+        if str(row.get("scenario", "")).startswith("same-session-moved"):
+            return "MATCH" if common and same_session_restored else "REPAIR_REQUIRED"
+        return "MATCH" if common and bool(row.get("recordingNearParent")) and bool(row.get("logViewerNearParent")) else "REPAIR_REQUIRED"
+
+    (root / "b2_placement_proof.json").write_text(json.dumps(proof, indent=2), encoding="utf-8")
+    (root / "B2_PLACEMENT_PROOF.md").write_text(
+        "# B2 Placement Proof\n\n"
+        "| Scenario | Screenshot | Parent visible | Recording visible usable | Log Viewer visible usable | Recording near parent | Log Viewer near parent | Non-overlap | Result |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        + "\n".join(
+            "| {scenario} | `{screenshot}` | {parent} | {recording} | {log} | {rec_near} | {log_near} | {non_overlap} | {result} |".format(
+                scenario=row["scenario"],
+                screenshot=row["screenshot"],
+                parent=row["parentVisible"],
+                recording=row["recordingVisibleUsable"],
+                log=row["logViewerVisibleUsable"],
+                rec_near=row["recordingNearParent"],
+                log_near=row["logViewerNearParent"],
+                non_overlap=row["childrenDoNotOverlapEachOther"] and row["childrenDoNotOverlapParent"],
+                result=row_result(row),
+            )
+            for row in rows
+        )
+        + f"\n\nSame-session moved-position restore: `{same_session_restored}`.\n\nOverall B2 status: `{proof['status']}`.\n",
+        encoding="utf-8",
+    )
+    return proof
+
+
 def main() -> int:
     leaf = time.strftime("%Y%m%d_%H%M%S") + "_feature_studio_visual_fail_repair"
     root = PROOF_ROOT / leaf
@@ -2251,8 +2457,13 @@ def main() -> int:
 
     app = QApplication.instance() or QApplication([])
     screen = QGuiApplication.primaryScreen()
+    parent_surface = _create_parent_proof_surface()
+    parent_surface.show()
+    _pin_proof_window_on_top(parent_surface)
     recording = MonitoringHudRecordingStudioWindow(screen)
     log_viewer = MonitoringHudLogViewerStudioWindow(screen)
+    _enable_proof_topmost(recording)
+    _enable_proof_topmost(log_viewer)
 
     recording.update_product_state(
         request_id=1,
@@ -2262,27 +2473,151 @@ def main() -> int:
         target_state="ready",
         recording_session_state="ready",
         start_stop_state="start-enabled",
-        activate_window=False,
+        activate_window=True,
+        parent_geometry=parent_surface.geometry(),
     )
     log_viewer.update_product_state(
         request_id="proof-1",
         native_log_path="C:/Users/anden/AppData/Local/Nexus Desktop AI/Recordings",
         export_dir="C:/Users/anden/AppData/Local/Nexus Desktop AI/Exported Logs",
-        activate_window=False,
+        activate_window=True,
+        parent_geometry=parent_surface.geometry(),
     )
-
-    recording.resize(recording.WIDTH, recording.HEIGHT)
-    log_viewer.resize(log_viewer.WIDTH, log_viewer.HEIGHT)
-    recording.move(40, 70)
-    log_viewer.move(40, 370)
-    recording.show()
-    log_viewer.show()
+    _pin_proof_window_on_top(parent_surface)
+    _pin_proof_window_on_top(recording)
+    _pin_proof_window_on_top(log_viewer)
 
     manifest: dict[str, object] = {}
+    b2_rows: list[dict[str, object]] = []
+    moved_before_close: dict[str, object] = {}
+    moved_after_reopen: dict[str, object] = {}
 
     def run_default() -> None:
         _capture(recording, root, "recording_default", manifest)
         _capture(log_viewer, root, "log_viewer_default", manifest)
+        _capture_desktop(root, "full_desktop_b2_default_parent_neighbor", manifest)
+        b2_rows.append(
+            _placement_ledger_row(
+                parent_surface,
+                recording,
+                log_viewer,
+                _rel(root, manifest["full_desktop_b2_default_parent_neighbor"]),
+                "default-parent-neighbor",
+            )
+        )
+        recording.move(parent_surface.geometry().right() + 90, parent_surface.geometry().top() + 22)
+        log_viewer.move(parent_surface.geometry().right() + 90, parent_surface.geometry().top() + recording.height() + 54)
+        QApplication.processEvents()
+        nonlocal_moved = _placement_ledger_row(
+            parent_surface,
+            recording,
+            log_viewer,
+            "",
+            "same-session-moved-before-close",
+        )
+        moved_before_close.update(nonlocal_moved)
+        recording.close()
+        log_viewer.close()
+        recording.update_product_state(
+            request_id=11,
+            active_profile_name="Default Overlay Profile",
+            target_count=2,
+            target_names="CPU Group, GPU Group",
+            target_state="ready",
+            recording_session_state="ready",
+            start_stop_state="start-enabled",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        log_viewer.update_product_state(
+            request_id="proof-11",
+            native_log_path="C:/Users/anden/AppData/Local/Nexus Desktop AI/Recordings",
+            export_dir="C:/Users/anden/AppData/Local/Nexus Desktop AI/Exported Logs",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        _pin_proof_window_on_top(parent_surface)
+        _pin_proof_window_on_top(recording)
+        _pin_proof_window_on_top(log_viewer)
+        QTest.qWait(450)
+        QApplication.processEvents()
+        _capture_desktop(root, "full_desktop_b2_same_session_moved_restore", manifest)
+        moved_after_reopen.update(
+            _placement_ledger_row(
+                parent_surface,
+                recording,
+                log_viewer,
+                _rel(root, manifest["full_desktop_b2_same_session_moved_restore"]),
+                "same-session-moved-after-reopen",
+            )
+        )
+        b2_rows.append(moved_after_reopen)
+        recording.close()
+        log_viewer.close()
+        fresh_recording = MonitoringHudRecordingStudioWindow(screen)
+        fresh_log_viewer = MonitoringHudLogViewerStudioWindow(screen)
+        _enable_proof_topmost(fresh_recording)
+        _enable_proof_topmost(fresh_log_viewer)
+        fresh_recording.update_product_state(
+            request_id=21,
+            active_profile_name="Default Overlay Profile",
+            target_count=2,
+            target_names="CPU Group, GPU Group",
+            target_state="ready",
+            recording_session_state="ready",
+            start_stop_state="start-enabled",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        fresh_log_viewer.update_product_state(
+            request_id="proof-21",
+            native_log_path="C:/Users/anden/AppData/Local/Nexus Desktop AI/Recordings",
+            export_dir="C:/Users/anden/AppData/Local/Nexus Desktop AI/Exported Logs",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        _pin_proof_window_on_top(parent_surface)
+        _pin_proof_window_on_top(fresh_recording)
+        _pin_proof_window_on_top(fresh_log_viewer)
+        QTest.qWait(450)
+        QApplication.processEvents()
+        _capture_desktop(root, "full_desktop_b2_fresh_window_new_session_substitute", manifest)
+        b2_rows.append(
+            _placement_ledger_row(
+                parent_surface,
+                fresh_recording,
+                fresh_log_viewer,
+                _rel(root, manifest["full_desktop_b2_fresh_window_new_session_substitute"]),
+                "fresh-window-new-session-substitute",
+            )
+        )
+        fresh_recording.close()
+        fresh_log_viewer.close()
+        recording._session_user_geometry = None
+        log_viewer._session_user_geometry = None
+        recording.update_product_state(
+            request_id=31,
+            active_profile_name="Default Overlay Profile",
+            target_count=2,
+            target_names="CPU Group, GPU Group",
+            target_state="ready",
+            recording_session_state="ready",
+            start_stop_state="start-enabled",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        log_viewer.update_product_state(
+            request_id="proof-31",
+            native_log_path="C:/Users/anden/AppData/Local/Nexus Desktop AI/Recordings",
+            export_dir="C:/Users/anden/AppData/Local/Nexus Desktop AI/Exported Logs",
+            activate_window=True,
+            parent_geometry=parent_surface.geometry(),
+        )
+        _pin_proof_window_on_top(parent_surface)
+        _pin_proof_window_on_top(recording)
+        _pin_proof_window_on_top(log_viewer)
+        QTest.qWait(450)
+        QApplication.processEvents()
         _capture_desktop(root, "full_desktop_recording_and_log_viewer_after_repair", manifest)
         recording.update_product_state(
             request_id=2,
@@ -2293,6 +2628,7 @@ def main() -> int:
             recording_session_state="recording",
             start_stop_state="recording-stop-enabled",
             activate_window=False,
+            parent_geometry=parent_surface.geometry(),
         )
         QTimer.singleShot(500, run_active)
 
@@ -2377,6 +2713,7 @@ def main() -> int:
                 encoding="utf-8",
             )
         derivatives = _write_evidence_derivatives(root, manifest)
+        b2_proof = _write_b2_placement_proof(root, manifest, b2_rows, moved_before_close, moved_after_reopen)
         (root / "visual_capture_manifest.json").write_text(
             json.dumps(
                 {
@@ -2393,6 +2730,7 @@ def main() -> int:
                         if key.endswith("_dom_bounds")
                     },
                     "derivatives": derivatives,
+                    "b2PlacementProof": b2_proof,
                     "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
                     "cropCompletenessLedger": derivatives["cropCompletenessLedger"],
                     "resizeProof": {
@@ -2414,6 +2752,7 @@ def main() -> int:
         )
         recording.close()
         log_viewer.close()
+        parent_surface.close()
         app.quit()
 
     QTimer.singleShot(1200, run_default)

@@ -119,6 +119,11 @@ REQUIRED_EVIDENCE_KEYS = {
     "log-viewer-resize-during",
     "log-viewer-resize-after",
     "full-desktop-combined",
+    "b2-default-parent-neighbor-full-desktop",
+    "b2-same-session-moved-restore-full-desktop",
+    "b2-fresh-window-new-session-full-desktop",
+    "b2-placement-proof-json",
+    "b2-placement-proof-markdown",
     "contact-sheet",
     "comparator-ai-control-center-outer-frame",
     "comparator-ai-control-center-chrome-header",
@@ -1025,6 +1030,84 @@ def _validate_comparator_crop_ledger(
     return failures
 
 
+def _validate_b2_placement_proof(
+    row_map: dict[str, Any],
+    evidence_root: Path,
+) -> list[str]:
+    failures: list[str] = []
+    proof_rel = str(row_map.get("b2-placement-proof-json", "") or "").strip()
+    if not proof_rel:
+        return ["B2 placement proof JSON is missing from row_to_evidence_map"]
+    if Path(proof_rel).is_absolute():
+        return ["B2 placement proof JSON path is absolute/local-only"]
+    proof_path = evidence_root / proof_rel
+    data, error = _read_json(proof_path)
+    if error or not isinstance(data, dict):
+        return [f"invalid B2 placement proof JSON: {error}"]
+    if data.get("selectedDirection") != "B2":
+        failures.append("B2 placement proof selectedDirection is not B2")
+    if data.get("status") != "MATCH":
+        failures.append("B2 placement proof status is not MATCH")
+    for field in (
+        "defaultParentNeighbor",
+        "freshWindowNewSessionSubstituteParentNeighbor",
+        "sameSessionMovedPositionRestored",
+    ):
+        if data.get(field) is not True:
+            failures.append(f"B2 placement proof missing true {field}")
+    rows = data.get("rows", [])
+    if not isinstance(rows, list) or len(rows) < 3:
+        failures.append("B2 placement proof must include default, same-session, and fresh/new-session rows")
+        rows = []
+    rows_by_scenario = {
+        str(row.get("scenario", "")): row
+        for row in rows
+        if isinstance(row, dict)
+    }
+    for scenario, key, require_near_parent in (
+        ("default-parent-neighbor", "b2-default-parent-neighbor-full-desktop", True),
+        ("same-session-moved-after-reopen", "b2-same-session-moved-restore-full-desktop", False),
+        ("fresh-window-new-session-substitute", "b2-fresh-window-new-session-full-desktop", True),
+    ):
+        row = rows_by_scenario.get(scenario)
+        if not row:
+            failures.append(f"B2 placement proof missing scenario row {scenario}")
+            continue
+        screenshot_rel = str(row.get("screenshot", "") or "").strip()
+        mapped_rel = str(row_map.get(key, "") or "").strip()
+        if not mapped_rel:
+            failures.append(f"row_to_evidence_map missing {key}")
+        elif Path(mapped_rel).is_absolute():
+            failures.append(f"row_to_evidence_map key {key} uses local absolute path")
+        elif not (evidence_root / mapped_rel).exists():
+            failures.append(f"row_to_evidence_map key {key} target missing: {mapped_rel}")
+        if screenshot_rel and mapped_rel and screenshot_rel != mapped_rel:
+            failures.append(f"B2 scenario {scenario} screenshot does not match row map key {key}")
+        for boolean_field in (
+            "parentVisible",
+            "recordingVisibleUsable",
+            "logViewerVisibleUsable",
+            "childrenDoNotOverlapEachOther",
+            "childrenDoNotOverlapParent",
+        ):
+            if row.get(boolean_field) is not True:
+                failures.append(f"B2 scenario {scenario} missing true {boolean_field}")
+        if require_near_parent:
+            for boolean_field in ("recordingNearParent", "logViewerNearParent"):
+                if row.get(boolean_field) is not True:
+                    failures.append(f"B2 scenario {scenario} missing true {boolean_field}")
+    moved_before = data.get("movedBeforeClose", {})
+    moved_after = data.get("movedAfterReopen", {})
+    if not isinstance(moved_before, dict) or not isinstance(moved_after, dict):
+        failures.append("B2 placement proof missing moved before/after objects")
+    else:
+        if moved_before.get("recordingRect") != moved_after.get("recordingRect"):
+            failures.append("B2 same-session Recording Studio moved geometry did not restore")
+        if moved_before.get("logViewerRect") != moved_after.get("logViewerRect"):
+            failures.append("B2 same-session Log Viewer Studio moved geometry did not restore")
+    return failures
+
+
 def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
     failures.extend(_validate_source_truth_context(root))
@@ -1243,6 +1326,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
         failures.extend(_validate_crop_completeness(row_map, manifest_data, row_map_path.parent))
         failures.extend(_validate_crop_ledger(root, row_map, manifest_data, row_map_path.parent))
         failures.extend(_validate_comparator_crop_ledger(root, row_map, row_map_path.parent))
+        failures.extend(_validate_b2_placement_proof(row_map, row_map_path.parent))
 
     if red_team_path is None:
         failures.append("missing internal_visual_red_team_ledger.json")

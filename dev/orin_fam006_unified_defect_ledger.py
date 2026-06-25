@@ -75,6 +75,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-135010.zip",
     "FAM-006-20260624-142638.zip",
     "FAM-006-20260624-145849.zip",
+    "FAM-006-20260624-170523.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -88,6 +89,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-135010.zip": "46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D",
     "FAM-006-20260624-142638.zip": "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D",
     "FAM-006-20260624-145849.zip": "3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A",
+    "FAM-006-20260624-170523.zip": "055D4E57944DE5536081CCB942E65D4A8602778FA694FFCD307505689C4209FC",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -696,6 +698,31 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-023; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-024",
+            origin="USER/ChatGPT",
+            title="Implementation-match packet overclaimed B2 placement from incomplete full-desktop proof",
+            exact_user_wording="FAM-006-20260624-170523.zip was rejected because the focused studio screenshots were mostly acceptable but the full-desktop proof contradicted B2 placement MATCH: the child windows were not clearly parent-neighbor placed, visible, unobscured, usable, same-session moved-position restored, and fresh/new-session reset near the parent.",
+            expected="B2 selected-direction implementation proof must include packet-contained full-desktop evidence where the HUD Dashboard parent surface remains visible, Recording Studio and Log Viewer Studio are visible/usable and do not obscure or overlap the parent, default/fresh-session placement opens near the parent, and same-session user-moved positions restore without treating a reviewable screenshot as acceptance.",
+            actual="The 170523 packet marked B2 placement as MATCH from a single broad full-desktop image and a checklist row. The proof helper also positioned proof windows directly instead of exercising runtime parent-neighbor placement semantics, and the runtime still used durable saved geometry behavior that could contradict the selected B2 reset/parent-neighbor contract.",
+            evidence="Known-bad packet FAM-006-20260624-170523.zip SHA 055D4E57944DE5536081CCB942E65D4A8602778FA694FFCD307505689C4209FC; prior TARGET_VS_ACTUAL_CHECKLIST.md B2 row; USER/ChatGPT REPAIR verdict on B2 placement / full-desktop proof repair.",
+            surfaces="Recording Studio runtime placement; Log Viewer Studio runtime placement; full-desktop visual proof; TARGET_VS_ACTUAL_CHECKLIST.md; row_to_evidence_map.json; false-ACCEPT regression gate.",
+            root_cause="The runtime and proof path conflated durable saved geometry / manually pinned helper coordinates with the selected B2 contract. The validator accepted a checklist assertion without a structured B2 placement ledger tying screenshot rows to parent visibility, child usability, non-overlap, near-parent placement, same-session moved restore, and fresh-session reset.",
+            validator_gap="No hard failure for missing B2 placement proof JSON, no required full-desktop scenario rows, no near-parent/non-overlap checks, no same-session moved restore comparison, and no fresh/new-session substitute reset proof.",
+            repair_target="Admit 170523 as known-bad, change studio runtime placement to B2 same-session memory plus parent-neighbor default, generate B2 default/same-session/fresh-session full-desktop proof rows, and require b2_placement_proof.json through the false-ACCEPT regression gate.",
+            acceptance="FAM-006 gates fail when B2 placement MATCH lacks structured default parent-neighbor, same-session moved restore, fresh/new-session substitute, parent-visible, child-visible/usable, non-overlap, and packet-contained full-desktop evidence.",
+            proof="desktop/desktop_renderer.py uses session-only studio geometry and parent-neighbor defaults; dev/orin_fam006_feature_studio_visual_proof.py writes b2_placement_proof.json plus three full-desktop scenario screenshots; dev/orin_fam006_false_accept_regression_gate.py rejects packets missing those B2 proof rows.",
+            status="CLOSED_WITH_PROOF",
+            closure="170523 is admitted as known-bad; the repaired runtime/proof/validator path requires B2 placement proof rows for default parent-neighbor placement, same-session moved-position restore, and fresh/new-session parent-neighbor reset before implementation-match packets can pass.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-024: inspected adjacent surfaces/files `desktop/desktop_renderer.py`, "
+                "`dev/orin_fam006_feature_studio_visual_proof.py`, `dev/orin_fam006_false_accept_regression_gate.py`, "
+                "`dev/orin_fam006_unified_defect_ledger.py`, active USER packet layout, B2 selected-direction external receipt, and prior target-vs-actual checklist; adjacent behavior inspected: "
+                "Recording Studio placement source, Log Viewer Studio placement source, durable geometry versus session-only geometry, parent-neighbor default placement, same-session moved restore, fresh/new-session substitute placement, full-desktop screenshot containment, row-map proof keys, validator B2 proof enforcement, and packet-contained validation evidence; "
+                "additional adjacent defects found: none beyond the B2 placement/full-desktop proof false-green class and already linked FAM006-UDL-018 through FAM006-UDL-023; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-024; repair scope changed: yes, runtime placement, proof helper, false-ACCEPT gate, known-bad expectations, and incident ledger were hardened."
+            ),
+        ),
     ]
 
 
@@ -1010,6 +1037,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require 145849 known-bad replay, selected_render_contract.json bottomDeadSpacePx/shellHeightPx/windowChrome fields, window_control_pill_comparison_board.png, and bottom_dead_space_comparison_board.png.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-023", "FAM006-UDL-022", "FAM006-UDL-021"],
+        ),
+        _incident(
+            "FAM006-FGI-019",
+            packet="FAM-006-20260624-170523.zip",
+            sha256="055D4E57944DE5536081CCB942E65D4A8602778FA694FFCD307505689C4209FC",
+            head="fb99b5bc0be8de8d88c25eddd2af3b4c9d83e6eb",
+            codex_claim="FAM-006 implementation-match packet was ACCEPT / reviewable with B2 placement marked MATCH after focused Recording Studio and Log Viewer Studio screenshots improved.",
+            rejection="USER/ChatGPT rejected the packet because the full-desktop evidence did not prove the B2 placement contract: parent-neighbor default, same-session moved restore, fresh/new-session reset, parent visibility, child visibility/usability, and non-overlap were not all evidenced.",
+            validator_failed="FAM-006 false-ACCEPT regression gate before B2 placement proof JSON, required full-desktop scenario rows, geometry comparison, and row-map evidence keys.",
+            artifact="Review Aids/TARGET_VS_ACTUAL_CHECKLIST.md B2 row, Review Aids/Evidence/.../full_desktop_recording_and_log_viewer_after_repair.png, and missing b2_placement_proof.json inside FAM-006-20260624-170523.zip.",
+            ledger_row="FAM006-UDL-024",
+            comparator="The packet compared focused windows but did not prove their parent/child placement relationship or runtime placement behavior in full-desktop context.",
+            prevention="Require B2 placement proof JSON, default/same-session/fresh-session full-desktop rows, parent/child non-overlap, near-parent checks where applicable, same-session geometry equality, and 170523 known-bad corpus replay.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-024", "FAM006-UDL-023", "FAM006-UDL-022"],
         ),
     ]
     for row in rows:
