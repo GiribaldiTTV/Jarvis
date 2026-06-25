@@ -474,6 +474,9 @@ INVALID_REBASELINE_ADOPTION_ACTIVE_STAGE_NORMAL_PHASE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_concrete_phase_while_active.md"
 )
+INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_mixed_disclaimer_phase_advance.md"
+)
 INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
 )
@@ -2738,7 +2741,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
 
     def strip_negated_phase_disclaimers(value: str) -> str:
-        clauses = re.split(r"[.;]", value)
+        clauses = re.split(r"[.;]|\b(?:and|but|however|yet)\b", value)
         kept: list[str] = []
         negation_tokens = (
             "does not authorize",
@@ -7579,6 +7582,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject concrete phase progression while RAR remains active"
+        )
+
+    mixed_disclaimer_phase_advance_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        mixed_disclaimer_phase_advance_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
         )
 
     generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
