@@ -14,9 +14,12 @@
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
       "rar-table-row-parser",
-      "rar-path-suffix-parser"
+      "rar-path-suffix-parser",
+      "rar-short-marker-parser",
+      "repo-live-state-boundary-parser"
     ],
     "dev/orin_pr_review_churn_validation.py": [
+      "pr2-comment-family-classifier",
       "pr2-thread-pagination-and-approval-latch",
       "rar-status-green-parser",
       "rar-phase-advancement-parser",
@@ -24,7 +27,9 @@
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
       "rar-table-row-parser",
-      "rar-path-suffix-parser"
+      "rar-path-suffix-parser",
+      "rar-short-marker-parser",
+      "repo-live-state-boundary-parser"
     ]
   },
   "families": [
@@ -298,6 +303,100 @@
         "C:\\Nexus USER\\FAM-006-YYYYMMDD-HHMMSS.zip).tmp",
         "C:\\Nexus USER\\FAM-006.",
         "`C:\\Nexus USER\\FAM-006`"
+      ]
+    },
+    {
+      "family_id": "rar-short-marker-parser",
+      "title": "RAR canonical short marker and shallow-text parser coverage",
+      "representative_comment_patterns": [
+        "Canonical short RAR marker values rejected as too shallow",
+        "Bare RAR3 wording blocked before RAR-stage parser can accept it",
+        "No-candidate marker values such as none rejected by blanket word-count checks"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_short_markers.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_bare_rar3_no_packet.md"
+      ],
+      "generated_mutation_coverage": [
+        "RAR Stage: RAR3 accepted only when packet proof exists",
+        "bare RAR3 without packet proof remains blocked",
+        "none/no-candidate values are not rejected solely for short length"
+      ],
+      "sibling_variant_replay": [
+        "RAR Stage marker",
+        "Next Legal Phase marker",
+        "Issue-Candidate Table none marker"
+      ]
+    },
+    {
+      "family_id": "repo-live-state-boundary-parser",
+      "title": "RAR repo/live-state boundary and external-state leakage coverage",
+      "representative_comment_patterns": [
+        "Repo live-state tracking accepted because external state was also mentioned",
+        "RAR Live Adoption Ledger In Repo leakage",
+        "Repo docs used as active operational ledger despite external-state boundary"
+      ],
+      "source_truth": [
+        "Docs/Main.md",
+        "Docs/governance_efficiency_operating_model.md",
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_repo_live_state_tracking.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_review.md"
+      ],
+      "generated_mutation_coverage": [
+        "repo live-state ledger text with external-state mention",
+        "external-state owner reference without repo live ledger",
+        "active RAR rows stay external while repo docs remain durable rules"
+      ],
+      "sibling_variant_replay": [
+        "No Repo Live-State Tracking marker",
+        "External operational state pointer",
+        "Repo doc active ledger wording"
+      ]
+    },
+    {
+      "family_id": "pr2-comment-family-classifier",
+      "title": "PR2 comment-family classifier precision and unknown-family guardrail",
+      "representative_comment_patterns": [
+        "Common words like status, case, row, or visual overmatched into covered families",
+        "Unrelated review comments should remain unknown until source-truth and fixture coverage exists",
+        "New meta-classifier comments require their own covered family"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/pr_watcher_mode_contract.md"
+      ],
+      "implementation": [
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "unrelated status/case/row wording returns unknown",
+        "comment-family matching meta-comment maps to classifier family",
+        "code-to-visual comparison drift maps to RAR code-to-visual family"
+      ],
+      "sibling_variant_replay": [
+        "status row text without RAR or PR-review context",
+        "new unknown family must block until matrix coverage is added",
+        "classifier comments are not hidden under broad RAR parser keywords"
       ]
     },
     {

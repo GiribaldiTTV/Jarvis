@@ -28,6 +28,30 @@ DEFAULT_MATRIX = (
     / "pr_276_rar_review_churn_matrix.json"
 )
 CONNECTOR_LOGINS = {"chatgpt-codex-connector", "codex"}
+CLASSIFIER_CONTEXT_KEYWORDS = (
+    "rar",
+    "rebaseline",
+    "adoption",
+    "review churn",
+    "churn gate",
+    "review-comment",
+    "review comment",
+    "codex connector",
+    "pr readiness",
+    "uiref",
+    "code-to-visual",
+)
+GENERIC_CLASSIFIER_KEYWORDS = {
+    "status",
+    "case",
+    "row",
+    "table",
+    "blocked",
+    "resolved",
+    "unresolved",
+    "visual",
+    "green",
+}
 HELPER_FILE_PATTERNS = (
     "validation",
     "validator",
@@ -115,6 +139,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "noop",
             "no-op",
             "named material surface",
+            "visual match",
+            "behavior match",
             "visual",
         ),
     ),
@@ -146,6 +172,29 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         ),
     ),
     FamilyRule(
+        "rar-short-marker-parser",
+        (
+            "canonical short",
+            "short marker",
+            "short values",
+            "bare rar3",
+            "rar stage",
+            "too shallow",
+        ),
+    ),
+    FamilyRule(
+        "repo-live-state-boundary-parser",
+        (
+            "repo live-state",
+            "live-state tracking",
+            "live adoption ledger in repo",
+            "repo live state",
+            "repo doc",
+            "external mirror",
+            "c:\\nexus governance state",
+        ),
+    ),
+    FamilyRule(
         "pr2-thread-pagination-and-approval-latch",
         (
             "review thread",
@@ -157,6 +206,20 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "approval latch",
             "all pages",
             "pagination",
+        ),
+    ),
+    FamilyRule(
+        "pr2-comment-family-classifier",
+        (
+            "comment-family",
+            "comment family",
+            "family matching",
+            "substring matcher",
+            "unknown observed families",
+            "unknown",
+            "covered family",
+            "matrix",
+            "churn gate",
         ),
     ),
 )
@@ -289,12 +352,50 @@ def _is_connector_login(login: str) -> bool:
 
 def _classify_comment(body: str) -> list[str]:
     normalized = _normalize(body)
-    families = [
-        rule.family_id
-        for rule in FAMILY_RULES
-        if any(keyword in normalized for keyword in rule.keywords)
-    ]
+    has_classifier_context = any(
+        keyword in normalized for keyword in CLASSIFIER_CONTEXT_KEYWORDS
+    )
+    families: list[str] = []
+    for rule in FAMILY_RULES:
+        matched_keywords = [
+            keyword for keyword in rule.keywords if keyword in normalized
+        ]
+        if not matched_keywords:
+            continue
+        strong_keywords = [
+            keyword
+            for keyword in matched_keywords
+            if keyword not in GENERIC_CLASSIFIER_KEYWORDS
+        ]
+        if strong_keywords or (has_classifier_context and len(matched_keywords) >= 2):
+            families.append(rule.family_id)
     return families or ["unknown"]
+
+
+def _classifier_guardrail_failures() -> list[str]:
+    failures: list[str] = []
+    unrelated = "A database migration status row has mixed case after cleanup."
+    if _classify_comment(unrelated) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated status/case/row wording"
+        )
+    classifier_comment = (
+        "Tighten comment-family matching so an unrelated comment containing status "
+        "or row does not pass as a covered family in the churn gate matrix."
+    )
+    if "pr2-comment-family-classifier" not in _classify_comment(classifier_comment):
+        failures.append(
+            "Comment-family classifier did not classify the classifier guardrail family"
+        )
+    visual_comment = (
+        "A Code-To-Visual row records Visual Match as Mismatch and Behavior Match "
+        "as Unproven while status says CONFORMING."
+    )
+    if "rar-code-to-visual-reference-parser" not in _classify_comment(visual_comment):
+        failures.append(
+            "Comment-family classifier did not classify code-to-visual comparison drift"
+        )
+    return failures
 
 
 def _connector_review_comments(review_comments: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -576,6 +677,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         )
     if "unknown" in observed_families:
         failures.append("At least one connector review comment was not classified")
+    failures.extend(_classifier_guardrail_failures())
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     green_bound, green_detail = _extract_latest_green(
         owner, name, args.pr, pull_request["headRefOid"]
