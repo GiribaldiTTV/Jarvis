@@ -2968,6 +2968,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         not (unresolved_present and claims_green),
         "Product Experience Contract Nonconformance Unresolved",
     )
+    require(
+        not (unresolved_present and resolved_rar_stage),
+        "Product Experience Contract Nonconformance Unresolved",
+    )
 
     issue_candidate_disposition_required = (
         has_real_issue_candidate_row(issue_candidate_rows)
@@ -7170,6 +7174,32 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid resolved RAR normal-phase fixture unexpectedly failed: "
             + "; ".join(valid_resolved_rar_failures[:5])
+        )
+
+    generated_resolved_unresolved_row_text = (
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Adoption Disposition: Resolved With Evidence after RAR comparison and validation closeout.",
+            "Adoption Disposition: RAR comparison completed after validation closeout.",
+        )
+        .replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py HUD close control | FAM-006 desktop renderer | focused screenshot packet missing | UIREF-002 | Mismatch | Unproven | NONCONFORMING | unresolved visual mismatch remains | Repair before closeout |",
+            1,
+        )
+    )
+    generated_resolved_unresolved_row_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_resolved_unresolved_row_text
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_unresolved_row_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with unresolved product-experience row"
         )
 
     valid_reviewed_issue_candidate_rar_failures = (
