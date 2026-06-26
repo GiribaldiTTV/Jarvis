@@ -9193,6 +9193,18 @@ def validate() -> list[str]:
             failures,
         )
 
+    for selector in (
+        'body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row span',
+        'body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span',
+    ):
+        marker = f"{selector} {{"
+        block = ai_control_html.split(marker, 1)[1].split("}", 1)[0] if marker in ai_control_html else ""
+        _require(
+            "font-size: 11px" in block and "font-size: 10px" not in block,
+            f"AI Control Center row title selector must match status text size at 11px: {selector}",
+            failures,
+        )
+
     for forbidden in (
         "width: 210px",
         'data-dashboard-ia-model="top-level-orin-status-then-diagnostics-readiness-trust-group"',
@@ -9306,6 +9318,9 @@ def validate() -> list[str]:
         '"deterministicStatusRowsAndTitlePill"',
         '"titleStatusPillGroupWrapProven"',
         '"deterministicTitleColumnSizingProven"',
+        '"rowTitleStatusTextSizeParityProven"',
+        '"labelValueFontSizeParity"',
+        '"rowTypography.labelValueFontSizeParity"',
         '"resizeEdgeHitZoneProven"',
         '"dashboardHorizontalResizeMinimumWorks"',
         '"settingsCogRemovedAndDeferred"',

@@ -262,6 +262,7 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "deterministicStatusRowsAndTitlePill",
     "titleStatusPillGroupWrapProven",
     "deterministicTitleColumnSizingProven",
+    "rowTitleStatusTextSizeParityProven",
     "resizeEdgeHitZoneProven",
     "dashboardHorizontalResizeMinimumWorks",
     "defaultScrollIntentProven",

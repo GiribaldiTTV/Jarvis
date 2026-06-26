@@ -632,6 +632,8 @@ def _drive_ai_dashboard_horizontal_resize(
                 key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
                 label: label?.textContent.trim() || "",
                 value: value?.textContent.trim() || "",
+                labelFontSize: labelStyle?.fontSize || "",
+                valueFontSize: value ? getComputedStyle(value).fontSize : "",
                 gridTemplateColumns: style.gridTemplateColumns,
                 titleColumnWidth: Math.round(titleColumnWidth),
                 labelWidth: labelRect.width,
@@ -651,6 +653,7 @@ def _drive_ai_dashboard_horizontal_resize(
               contentSized: rowMetrics.every((row) => row.labelWraps || Math.abs(row.titleColumnContentExcessPx) <= 2),
               noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
               noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
+              labelValueFontSizeParity: rowMetrics.every((row) => row.labelFontSize === row.valueFontSize),
               maxTitleColumnExcessPx: maxExcess,
               rowMetrics
             };
@@ -1312,8 +1315,27 @@ def _write_visual_grammar_audit(
     compare_px("cardBadge", "height", 0.5, "Card badge height matches the Main comparator.")
     compare_px("cardTitle", "fontSize", 0.5, "Card title size matches the Main comparator.")
     compare_px("cardDescription", "fontSize", 0.5, "Card description size matches the Main comparator.")
-    compare_px("rowLabel", "fontSize", 0.5, "Row label size matches the Main comparator.")
+    compare_px(
+        "rowLabel",
+        "fontSize",
+        0.5,
+        "Row label size follows the USER row title/status text-size parity rule; Main comparator label size is retained as reference context.",
+        status_on_difference="INTENTIONAL_VARIANT",
+    )
     compare_px("rowValue", "fontSize", 0.5, "Row value size matches the Main comparator.")
+    current_row_label_font = _px(_grammar_style(current_grammar, "rowLabel", "fontSize"))
+    current_row_value_font = _px(_grammar_style(current_grammar, "rowValue", "fontSize"))
+    add(
+        "rowTypography.labelValueFontSizeParity",
+        "CONFORMING"
+        if current_row_label_font is not None
+        and current_row_value_font is not None
+        and abs(current_row_label_font - current_row_value_font) <= 0.1
+        else "NONCONFORMING",
+        current_row_label_font,
+        current_row_value_font,
+        "Current row title and status/value text sizes must be identical per USER visual-grammar direction.",
+    )
     compare_px("hubAction", "fontSize", 0.5, "Action button text size matches the Main comparator.")
     compare_px("hubAction", "height", 0.5, "Action button height matches the Main comparator.")
     compare_px("buttonLabel", "fontSize", 0.5, "Button label text size matches the Main comparator.")
@@ -1596,6 +1618,8 @@ def main() -> int:
                     key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
                     label: label?.textContent.trim() || "",
                     value: value?.textContent.trim() || "",
+                    labelFontSize: labelStyle?.fontSize || "",
+                    valueFontSize: value ? getComputedStyle(value).fontSize : "",
                     gridTemplateColumns: style.gridTemplateColumns,
                     titleColumnWidth: Math.round(titleColumnWidth),
                     labelWidth: labelRect.width,
@@ -1615,6 +1639,7 @@ def main() -> int:
                   contentSized: rowMetrics.every((row) => row.labelWraps || Math.abs(row.titleColumnContentExcessPx) <= 2),
                   noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
                   noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
+                  labelValueFontSizeParity: rowMetrics.every((row) => row.labelFontSize === row.valueFontSize),
                   maxTitleColumnExcessPx: maxExcess,
                   rowMetrics
                 };
@@ -2120,13 +2145,21 @@ def main() -> int:
             and row_title_sizing_probe.get("contentSized") is True
             and row_title_sizing_probe.get("noLabelClipping") is True
             and row_title_sizing_probe.get("noValueClipping") is True
+            and row_title_sizing_probe.get("labelValueFontSizeParity") is True
             and int(row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
             and horizontal_row_title_sizing_probe.get("rowCount") == 8
             and horizontal_row_title_sizing_probe.get("contentSized") is True
             and horizontal_row_title_sizing_probe.get("noLabelClipping") is True
             and horizontal_row_title_sizing_probe.get("noValueClipping") is True
+            and horizontal_row_title_sizing_probe.get("labelValueFontSizeParity") is True
             and int(horizontal_row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
             and title_columns_stable_across_resize is True
+        ),
+        "rowTitleStatusTextSizeParityProven": (
+            row_title_sizing_probe.get("rowCount") == 8
+            and row_title_sizing_probe.get("labelValueFontSizeParity") is True
+            and horizontal_row_title_sizing_probe.get("rowCount") == 8
+            and horizontal_row_title_sizing_probe.get("labelValueFontSizeParity") is True
         ),
         "returnedDensityAndButtonPlacementRepaired": (
             len(card_heights) == 3
