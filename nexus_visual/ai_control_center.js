@@ -315,16 +315,12 @@
       const rect = label.getBoundingClientRect();
       return Math.max(maxWidth, Math.ceil(rect.width || label.scrollWidth || 0));
     }, 0);
-    if (maxLabelWidth <= 0) {
-      hub.dataset.rowLabelColumnSource = "pending-measure";
-      return;
-    }
-    hub.style.setProperty("--ai-dashboard-row-label-width", `${maxLabelWidth}px`);
+    hub.style.setProperty("--ai-dashboard-row-label-width", "max-content");
     hub.style.setProperty("--ai-dashboard-row-gutter", "8px");
-    hub.dataset.rowLabelColumnSource = "measured-label-content";
-    hub.dataset.rowLabelColumnWidth = String(maxLabelWidth);
+    hub.dataset.rowLabelColumnSource = "per-row-label-content";
+    hub.dataset.rowLabelColumnWidth = maxLabelWidth > 0 ? String(maxLabelWidth) : "max-content";
     hub.dataset.rowValueGutter = "8";
-    surface.dataset.rowTitleSizing = "content-derived-label-column-fixed-gutter";
+    surface.dataset.rowTitleSizing = "row-owned-label-content-fixed-gutter";
   };
   window.nexusAiControlCenterSyncRowLabelColumnSizing = syncRowLabelColumnSizing;
 

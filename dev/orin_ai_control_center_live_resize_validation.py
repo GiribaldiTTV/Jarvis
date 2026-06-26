@@ -589,7 +589,6 @@ def _drive_ai_dashboard_horizontal_resize(
           const rowTitleSizingProbe = (() => {
             const hub = document.getElementById("ai-control-center-card-hub");
             const hubStyle = hub ? getComputedStyle(hub) : null;
-            const derivedLabelColumnWidth = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-label-width"));
             const derivedGutter = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-gutter"));
             const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row, index) => {
               const rowRect = rectFor(row);
@@ -602,7 +601,8 @@ def _drive_ai_dashboard_horizontal_resize(
               const titleColumnWidth = firstGridColumnWidth(style.gridTemplateColumns);
               const labelWraps = labelRect.height > lineHeightNumber(labelStyle, labelRect) * 1.35;
               const valueColumnOffset = Math.round(valueRect.left - rowRect.left);
-              const expectedValueColumnOffset = Math.round(derivedLabelColumnWidth + derivedGutter);
+              const expectedValueColumnOffset = Math.round(titleColumnWidth + derivedGutter);
+              const visibleLabelToValueGutterPx = Math.round(valueRect.left - labelRect.right);
               return {
                 index,
                 key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
@@ -613,15 +613,16 @@ def _drive_ai_dashboard_horizontal_resize(
                 gridTemplateColumns: style.gridTemplateColumns,
                 titleColumnWidth: Math.round(titleColumnWidth),
                 labelWidth: labelRect.width,
-                derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
                 rowGutterPx: Math.round(derivedGutter),
+                visibleLabelToValueGutterPx,
                 valueColumnOffset,
                 expectedValueColumnOffset,
                 valueLeft: valueRect.left,
                 rowRight: rowRect.right,
                 labelWraps,
-                titleColumnContentExcessPx: Math.round(derivedLabelColumnWidth - Math.max(...[...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row span")].map((node) => rectFor(node).width))),
-                valueStartsAtDerivedColumn: Math.abs(valueColumnOffset - expectedValueColumnOffset) <= 2,
+                titleColumnContentExcessPx: Math.round(titleColumnWidth - labelRect.width),
+                valueStartsAfterOwnLabelContent: Math.abs(valueColumnOffset - expectedValueColumnOffset) <= 2,
+                visibleGutterMatchesFixedGutter: Math.abs(visibleLabelToValueGutterPx - derivedGutter) <= 2,
                 labelWithinRow: labelRect.left >= rowRect.left - 2 && labelRect.right <= rowRect.right + 2,
                 valueWithinRow: valueRect.left >= rowRect.left - 2 && valueRect.right <= rowRect.right + 2
               };
@@ -629,19 +630,19 @@ def _drive_ai_dashboard_horizontal_resize(
             const labelWidths = rowMetrics.map((row) => row.labelWidth);
             const maxLabelWidth = labelWidths.length ? Math.max(...labelWidths) : 0;
             const maxExcess = rowMetrics.length
-              ? Math.abs(Math.round(derivedLabelColumnWidth - maxLabelWidth))
+              ? Math.max(...rowMetrics.map((row) => Math.abs(row.titleColumnContentExcessPx)))
               : 999;
             return {
               rowCount: rowMetrics.length,
               labelColumnSource: hub?.dataset.rowLabelColumnSource || "",
-              derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
               measuredMaxLabelWidth: Math.round(maxLabelWidth),
               rowGutterPx: Math.round(derivedGutter),
-              contentSized: rowMetrics.every((row) => !row.labelWraps && row.valueStartsAtDerivedColumn) && maxExcess <= 2,
+              contentSized: rowMetrics.every((row) => !row.labelWraps && row.valueStartsAfterOwnLabelContent && row.visibleGutterMatchesFixedGutter) && maxExcess <= 2,
               noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
               noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
               labelValueFontSizeParity: rowMetrics.every((row) => row.labelFontSize === row.valueFontSize),
-              valueColumnDerivedFromLabelContent: rowMetrics.every((row) => row.valueStartsAtDerivedColumn),
+              valueColumnDerivedFromLabelContent: rowMetrics.every((row) => row.valueStartsAfterOwnLabelContent),
+              visibleRowGutterRestored: rowMetrics.every((row) => row.visibleGutterMatchesFixedGutter),
               maxTitleColumnExcessPx: maxExcess,
               rowMetrics
             };
@@ -1696,7 +1697,6 @@ def main() -> int:
               const rowTitleSizingProbe = (() => {
                 const hub = document.getElementById("ai-control-center-card-hub");
                 const hubStyle = hub ? getComputedStyle(hub) : null;
-                const derivedLabelColumnWidth = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-label-width"));
                 const derivedGutter = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-gutter"));
                 const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row, index) => {
                   const rowRect = rectFor(row);
@@ -1709,7 +1709,8 @@ def main() -> int:
                   const titleColumnWidth = firstGridColumnWidth(style.gridTemplateColumns);
                   const labelWraps = labelRect.height > lineHeightNumber(labelStyle, labelRect) * 1.35;
                   const valueColumnOffset = Math.round(valueRect.left - rowRect.left);
-                  const expectedValueColumnOffset = Math.round(derivedLabelColumnWidth + derivedGutter);
+                  const expectedValueColumnOffset = Math.round(titleColumnWidth + derivedGutter);
+                  const visibleLabelToValueGutterPx = Math.round(valueRect.left - labelRect.right);
                   return {
                     index,
                     key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
@@ -1720,15 +1721,16 @@ def main() -> int:
                     gridTemplateColumns: style.gridTemplateColumns,
                     titleColumnWidth: Math.round(titleColumnWidth),
                     labelWidth: labelRect.width,
-                    derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
                     rowGutterPx: Math.round(derivedGutter),
+                    visibleLabelToValueGutterPx,
                     valueColumnOffset,
                     expectedValueColumnOffset,
                     valueLeft: valueRect.left,
                     rowRight: rowRect.right,
                     labelWraps,
-                    titleColumnContentExcessPx: Math.round(derivedLabelColumnWidth - Math.max(...[...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row span")].map((node) => rectFor(node).width))),
-                    valueStartsAtDerivedColumn: Math.abs(valueColumnOffset - expectedValueColumnOffset) <= 2,
+                    titleColumnContentExcessPx: Math.round(titleColumnWidth - labelRect.width),
+                    valueStartsAfterOwnLabelContent: Math.abs(valueColumnOffset - expectedValueColumnOffset) <= 2,
+                    visibleGutterMatchesFixedGutter: Math.abs(visibleLabelToValueGutterPx - derivedGutter) <= 2,
                     labelWithinRow: labelRect.left >= rowRect.left - 2 && labelRect.right <= rowRect.right + 2,
                     valueWithinRow: valueRect.left >= rowRect.left - 2 && valueRect.right <= rowRect.right + 2
                   };
@@ -1736,19 +1738,19 @@ def main() -> int:
                 const labelWidths = rowMetrics.map((row) => row.labelWidth);
                 const maxLabelWidth = labelWidths.length ? Math.max(...labelWidths) : 0;
                 const maxExcess = rowMetrics.length
-                  ? Math.abs(Math.round(derivedLabelColumnWidth - maxLabelWidth))
+                  ? Math.max(...rowMetrics.map((row) => Math.abs(row.titleColumnContentExcessPx)))
                   : 999;
                 return {
                   rowCount: rowMetrics.length,
                   labelColumnSource: hub?.dataset.rowLabelColumnSource || "",
-                  derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
                   measuredMaxLabelWidth: Math.round(maxLabelWidth),
                   rowGutterPx: Math.round(derivedGutter),
-                  contentSized: rowMetrics.every((row) => !row.labelWraps && row.valueStartsAtDerivedColumn) && maxExcess <= 2,
+                  contentSized: rowMetrics.every((row) => !row.labelWraps && row.valueStartsAfterOwnLabelContent && row.visibleGutterMatchesFixedGutter) && maxExcess <= 2,
                   noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
                   noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
                   labelValueFontSizeParity: rowMetrics.every((row) => row.labelFontSize === row.valueFontSize),
-                  valueColumnDerivedFromLabelContent: rowMetrics.every((row) => row.valueStartsAtDerivedColumn),
+                  valueColumnDerivedFromLabelContent: rowMetrics.every((row) => row.valueStartsAfterOwnLabelContent),
+                  visibleRowGutterRestored: rowMetrics.every((row) => row.visibleGutterMatchesFixedGutter),
                   maxTitleColumnExcessPx: maxExcess,
                   rowMetrics
                 };
@@ -2319,26 +2321,36 @@ def main() -> int:
             )
         ),
         "deterministicTitleColumnSizingProven": (
-            dashboard_probe.get("rowTitleSizingMetadata") == "content-derived-label-column-fixed-gutter"
+            dashboard_probe.get("rowTitleSizingMetadata") == "row-owned-label-content-fixed-gutter"
             and row_title_sizing_probe.get("rowCount") == 8
-            and row_title_sizing_probe.get("labelColumnSource") == "measured-label-content"
+            and row_title_sizing_probe.get("labelColumnSource") == "per-row-label-content"
             and int(row_title_sizing_probe.get("rowGutterPx") or 0) == 8
             and row_title_sizing_probe.get("contentSized") is True
             and row_title_sizing_probe.get("valueColumnDerivedFromLabelContent") is True
+            and row_title_sizing_probe.get("visibleRowGutterRestored") is True
             and row_title_sizing_probe.get("noLabelClipping") is True
             and row_title_sizing_probe.get("noValueClipping") is True
             and row_title_sizing_probe.get("labelValueFontSizeParity") is True
             and int(row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
             and horizontal_row_title_sizing_probe.get("rowCount") == 8
-            and horizontal_row_title_sizing_probe.get("labelColumnSource") == "measured-label-content"
+            and horizontal_row_title_sizing_probe.get("labelColumnSource") == "per-row-label-content"
             and int(horizontal_row_title_sizing_probe.get("rowGutterPx") or 0) == 8
             and horizontal_row_title_sizing_probe.get("contentSized") is True
             and horizontal_row_title_sizing_probe.get("valueColumnDerivedFromLabelContent") is True
+            and horizontal_row_title_sizing_probe.get("visibleRowGutterRestored") is True
             and horizontal_row_title_sizing_probe.get("noLabelClipping") is True
             and horizontal_row_title_sizing_probe.get("noValueClipping") is True
             and horizontal_row_title_sizing_probe.get("labelValueFontSizeParity") is True
             and int(horizontal_row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
             and title_columns_stable_across_resize is True
+        ),
+        "visibleRowGutterRestored": (
+            row_title_sizing_probe.get("rowCount") == 8
+            and row_title_sizing_probe.get("visibleRowGutterRestored") is True
+            and horizontal_row_title_sizing_probe.get("rowCount") == 8
+            and horizontal_row_title_sizing_probe.get("visibleRowGutterRestored") is True
+            and int(row_title_sizing_probe.get("rowGutterPx") or 0) == 8
+            and int(horizontal_row_title_sizing_probe.get("rowGutterPx") or 0) == 8
         ),
         "rowTitleStatusTextSizeParityProven": (
             row_title_sizing_probe.get("rowCount") == 8
