@@ -9,15 +9,15 @@
     "root_cause_receipts": [
       {
         "pr": 278,
-        "connector_comments": 49,
+        "connector_comments": 53,
         "observed_family_counts": {
-          "pr2-comment-family-classifier": 2,
+          "pr2-comment-family-classifier": 4,
           "pr2-thread-pagination-and-approval-latch": 2,
           "rar-issue-candidate-disposition-parser": 31,
-          "rar-issue-candidate-durability-parser": 16,
-          "rar-path-suffix-parser": 13,
+          "rar-issue-candidate-durability-parser": 20,
+          "rar-path-suffix-parser": 14,
           "rar-phase-advancement-parser": 2,
-          "rar-status-green-parser": 15,
+          "rar-status-green-parser": 16,
           "rar-table-row-parser": 12,
           "rar-user-packet-proof-parser": 24
         },
@@ -197,7 +197,8 @@
         "Incidental prose candidate ID mention accepted as carry-forward",
         "Same Candidate ID reused with different owning FAM / surface / element group / defect lineage",
         "Renamed or regrouped candidate accepted without predecessor/successor lineage",
-        "Review Aids or Source Truth Context candidate treated as durable active decision proof"
+        "Review Aids or Source Truth Context candidate treated as durable active decision proof",
+        "No current USER decision wording falsely negates affirmative independent verification, waiver reason/scope, or carrier acceptance receipt proof"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -224,7 +225,9 @@
         "same candidate ID with different surface / element group / defect lineage fails",
         "renamed candidate without predecessor/successor lineage fails",
         "renamed candidate with explicit predecessor/successor lineage passes",
-        "Review Aids-only and Source Truth Context-only candidate tables fail active decision proof"
+        "Review Aids-only and Source Truth Context-only candidate tables fail active decision proof",
+        "no-decision affirmative proof wording passes for repaired, waived, and routed dispositions",
+        "no-decision wording with not independently verified proof fails"
       ],
       "sibling_variant_replay": [
         "primary USER Review table",
@@ -503,6 +506,8 @@
         "Common words like status, case, row, or visual overmatched into covered families",
         "Unrelated review comments should remain unknown until source-truth and fixture coverage exists",
         "New meta-classifier comments require their own covered family"
+        ,
+        "Review-churn budget comments for same-family-only and total-only receipts remain covered"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -520,6 +525,9 @@
         "standalone unknown wording returns unknown",
         "comment-family matching meta-comment maps to classifier family",
         "code-to-visual comparison drift maps to RAR code-to-visual family"
+        ,
+        "same-family-only churn receipt comment maps to PR2 classifier/churn family",
+        "total-only churn receipt comment maps to PR2 classifier/churn family"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",

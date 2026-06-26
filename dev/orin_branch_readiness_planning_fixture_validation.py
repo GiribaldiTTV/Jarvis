@@ -34,6 +34,31 @@ PR_REVIEW_CHURN_MATRIX_FIXTURE = (
     / "pr_review_churn"
     / "pr_276_rar_review_churn_matrix.json"
 )
+
+
+def _pr_review_churn_receipt_exceeds_budget(
+    connector_comments: object,
+    total_budget: object,
+    family_counts: object,
+    same_family_budget: object,
+) -> bool:
+    """A root-cause receipt is required when total OR same-family churn exceeds budget."""
+    over_total = (
+        isinstance(connector_comments, int)
+        and isinstance(total_budget, int)
+        and connector_comments > total_budget
+    )
+    over_family = (
+        isinstance(family_counts, dict)
+        and isinstance(same_family_budget, int)
+        and any(
+            isinstance(count, int) and count > same_family_budget
+            for count in family_counts.values()
+        )
+    )
+    return over_total or over_family
+
+
 SHALLOW_FIXTURE = FIXTURE_DIR / "shallow_live_validation_product_plan.md"
 CONCRETE_FIXTURE = FIXTURE_DIR / "concrete_live_validation_product_plan.md"
 VALID_BRANCH_RUNTIME_PLAN_FIXTURE = (
@@ -3837,12 +3862,15 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                     f"{relative_matrix}: root-cause receipt pr must be a positive integer",
                 )
                 require(
-                    isinstance(connector_comments, int)
-                    and isinstance(total_budget, int)
-                    and connector_comments > total_budget,
+                    _pr_review_churn_receipt_exceeds_budget(
+                        connector_comments,
+                        total_budget,
+                        receipt.get("observed_family_counts"),
+                        same_family_budget,
+                    ),
                     (
-                        f"{relative_matrix}: root-cause receipt connector_comments "
-                        "must exceed the configured total budget"
+                        f"{relative_matrix}: root-cause receipt must exceed the "
+                        "configured total or same-family budget"
                     ),
                 )
                 require(
@@ -3860,17 +3888,6 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                         "observed_family_counts"
                     ),
                 )
-                if isinstance(family_counts, dict) and isinstance(same_family_budget, int):
-                    require(
-                        any(
-                            isinstance(count, int) and count > same_family_budget
-                            for count in family_counts.values()
-                        ),
-                        (
-                            f"{relative_matrix}: root-cause receipt must prove at least "
-                            "one same-family count exceeded budget"
-                        ),
-                    )
                 for field in (
                     "root_cause",
                     "prevention_summary",
@@ -3916,6 +3933,37 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                                 f"not found in {receipt_file}"
                             ),
                         )
+        if isinstance(total_budget, int) and isinstance(same_family_budget, int):
+            require(
+                _pr_review_churn_receipt_exceeds_budget(
+                    total_budget + 1,
+                    total_budget,
+                    {
+                        "generated-total-only-family-a": same_family_budget,
+                        "generated-total-only-family-b": same_family_budget,
+                    },
+                    same_family_budget,
+                ),
+                f"{relative_matrix}: generated total-only churn receipt variant must be legal",
+            )
+            require(
+                _pr_review_churn_receipt_exceeds_budget(
+                    total_budget,
+                    total_budget,
+                    {"generated-same-family-only": same_family_budget + 1},
+                    same_family_budget,
+                ),
+                f"{relative_matrix}: generated same-family-only churn receipt variant must be legal",
+            )
+            require(
+                not _pr_review_churn_receipt_exceeds_budget(
+                    total_budget,
+                    total_budget,
+                    {"generated-within-budget": same_family_budget},
+                    same_family_budget,
+                ),
+                f"{relative_matrix}: generated within-budget churn receipt variant must stay illegal",
+            )
     families = matrix.get("families")
     require(
         isinstance(families, list) and bool(families),
@@ -5436,6 +5484,45 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             + "; ".join(documented_label_failures[:5])
         )
 
+    no_decision_affirmative_proof_failures = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-034",
+                disposition="REPAIRED_VERIFIED",
+                blocking="NO",
+                carrier="FAM-006 external RAR ledger.",
+                decision=(
+                    "No current USER decision is needed because independent "
+                    "verification revalidated the repair."
+                ),
+            ),
+            row(
+                "FAM006-RAR-035",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="FAM-006 external RAR ledger.",
+                decision=(
+                    "No current USER decision is needed because USER waived this "
+                    "with reason current branch excludes the surface and scope HUD "
+                    "Dashboard current branch only."
+                ),
+            ),
+            row(
+                "FAM006-RAR-036",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="Routed to FAM-006 legal carrier.",
+                decision="No current USER decision because carrier acceptance receipt recorded.",
+            ),
+        ),
+        source="generated no-decision affirmative proof wording",
+    )
+    if no_decision_affirmative_proof_failures:
+        failures.append(
+            "Generated RAR fixture falsely rejected affirmative no-decision proof wording: "
+            + "; ".join(no_decision_affirmative_proof_failures[:5])
+        )
+
     duplicate_disposition_conflict = rar_issue_durability.validate_text(
         table(
             row("FAM006-RAR-033"),
@@ -6937,6 +7024,25 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated RAR fixture did not reject repaired disposition with negated verification"
+        )
+
+    no_decision_negated_verification = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-090",
+                disposition="REPAIRED_VERIFIED",
+                blocking="NO",
+                carrier="Owner FAM-006; reason repair claimed; carrier FAM-006 RAR repair; trigger regression only",
+                decision="No current USER decision is needed because the repair is not independently verified.",
+            )
+        ),
+        source="generated no-decision repaired disposition negated verification",
+    )
+    if "repaired disposition requires independent verification evidence" not in "\n".join(
+        no_decision_negated_verification
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject no-decision wording with negated verification"
         )
 
     closed_issue_negated_verification = rar_issue_durability.validate_text(

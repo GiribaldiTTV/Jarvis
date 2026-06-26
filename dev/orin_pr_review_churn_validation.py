@@ -140,6 +140,14 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "active packet",
             "predecessor/successor lineage",
             "candidate lineage",
+            "no current user decision",
+            "no-decision",
+            "proof negation",
+            "receipt negation",
+            "carrier acceptance",
+            "acceptance receipt",
+            "independent verification",
+            "reason and scope",
         ),
     ),
     FamilyRule(
@@ -265,6 +273,13 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "covered family",
             "matrix",
             "churn gate",
+            "review-churn budget",
+            "review churn budget",
+            "same-family budget",
+            "same family budget",
+            "total budget",
+            "root-cause receipt",
+            "root cause receipt",
         ),
     ),
     FamilyRule(
@@ -448,6 +463,24 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Comment-family classifier did not classify the classifier guardrail family"
         )
+    same_family_budget_comment = (
+        "Allow same-family-only churn receipts when the same-family budget is exceeded "
+        "even if the total budget is still within limit."
+    )
+    if "pr2-comment-family-classifier" not in _classify_comment(
+        same_family_budget_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify same-family budget receipt drift"
+        )
+    total_budget_comment = (
+        "Allow total-only churn receipts when the total budget is exceeded even if no "
+        "single family exceeds the same-family budget."
+    )
+    if "pr2-comment-family-classifier" not in _classify_comment(total_budget_comment):
+        failures.append(
+            "Comment-family classifier did not classify total budget receipt drift"
+        )
     standalone_unknown = "An unrelated validator message contains the word unknown."
     if _classify_comment(standalone_unknown) != ["unknown"]:
         failures.append(
@@ -486,6 +519,27 @@ def _classifier_guardrail_failures() -> list[str]:
     ):
         failures.append(
             "Comment-family classifier did not classify active-packet disappearance blocker wording"
+        )
+    no_decision_proof_comment = (
+        "Because validate_text concatenates Proposed Carrier with Exact USER Decision, "
+        "No current USER decision is needed because independent verification revalidated "
+        "the repair can false-red when broad proof negation sees the leading No."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        no_decision_proof_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify no-decision proof negation drift"
+        )
+    no_decision_receipt_comment = (
+        "Scope receipt negation away from no-decision wording because carrier "
+        "acceptance receipt recorded is valid routed-disposition proof."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        no_decision_receipt_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify no-decision receipt negation drift"
         )
     helper_output_comment = (
         "Reject helper-output decision tables as primary. START_HERE routes "

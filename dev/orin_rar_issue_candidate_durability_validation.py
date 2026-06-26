@@ -402,10 +402,10 @@ def _candidate_id_present(candidate_id: str, text: str) -> bool:
 
 
 def _has_negated_receipt_or_approval(text: str) -> bool:
-    normalized = _normalize_text(text)
+    normalized = _strip_no_decision_negation_prefix(_normalize_text(text))
     negated_receipt_patterns = (
         r"\b(no|not|without|missing|absent|pending|awaiting|waiting|waits?|lacks?|lack)\b[^.;|\n]{0,80}\b(receipt|acceptance|accepted|approval|approved)\b",
-        r"\b(receipt|acceptance|accepted|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|planned|future|later|requested later|will be requested|to be requested|not accepted|not approved|not yet|not recorded|unproven|unaccepted|unapproved)\b",
+        r"\b(receipt|acceptance|accepted|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|planned|future|later|requested later|will be requested|to be requested|not accepted|not approved|not yet|not recorded|not been recorded|has not been recorded|have not been recorded|unproven|unaccepted|unapproved)\b",
         r"\bnot accepted\b",
         r"\bnot approved\b",
         r"\bno receipt\b",
@@ -427,10 +427,10 @@ def _has_positive_carrier_receipt(text: str) -> bool:
 
 
 def _has_negated_user_approval_receipt(text: str) -> bool:
-    normalized = _normalize_text(text)
+    normalized = _strip_no_decision_negation_prefix(_normalize_text(text))
     negated_approval_patterns = (
         r"\b(no|not|without|missing|absent|lacks?|lack)\b[^.;|\n]{0,80}\b(user approval|approval receipt|approval|approved)\b",
-        r"\b(user approval|approval receipt|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|planned|future|later|requested later|will be requested|to be requested|not approved|not yet|not recorded|unproven|unapproved)\b",
+        r"\b(user approval|approval receipt|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|planned|future|later|requested later|will be requested|to be requested|not approved|not yet|not recorded|not been recorded|has not been recorded|have not been recorded|unproven|unapproved)\b",
         r"\bnot approved\b",
         r"\bapproval planned\b",
         r"\bapproval will be requested\b",
@@ -454,7 +454,7 @@ def _has_positive_user_approval_receipt(text: str) -> bool:
 
 
 def _has_negated_proof_term(text: str, target_pattern: str) -> bool:
-    normalized = _normalize_text(text)
+    normalized = _strip_no_decision_negation_prefix(_normalize_text(text))
     negation_pattern = r"no|not|without|missing|absent|lacks?|lack|unproven|unverified|unassigned"
     trailing_negation_pattern = (
         r"missing|absent|pending|awaiting|waiting|planned|future|later|"
@@ -465,6 +465,20 @@ def _has_negated_proof_term(text: str, target_pattern: str) -> bool:
         rf"\b({target_pattern})\b[^.;|\n]{{0,80}}\b({trailing_negation_pattern})\b",
     )
     return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+
+def _strip_no_decision_negation_prefix(text: str) -> str:
+    """Keep no-decision wording from negating the proof that follows it."""
+    return re.sub(
+        (
+            r"\b(no|not|without)\b[^.;|\n]{0,60}\b"
+            r"(current|further|additional|new)?\s*user decision\b"
+            r"[^.;|\n]{0,90}\b(because|since|as|due to)\b"
+        ),
+        "because",
+        text,
+        flags=re.IGNORECASE,
+    )
 
 
 def _has_affirmative_proof_term(text: str, target_pattern: str) -> bool:
