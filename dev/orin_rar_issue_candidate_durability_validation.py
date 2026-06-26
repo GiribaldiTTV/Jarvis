@@ -784,6 +784,9 @@ def validate_packet_folder(
         external_text = external_ledger.read_text(encoding="utf-8")
         expanded_external_rows = parse_issue_candidate_decision_surface(external_text, source=str(external_ledger))
         external_rows = parse_external_candidate_rows(external_text, source=str(external_ledger))
+        for row in external_rows:
+            if not row.candidate_id:
+                failures.append(f"{external_ledger}: malformed external RAR issue candidate row")
         if expanded_external_rows:
             external_failures = validate_text(
                 external_text, source=str(external_ledger), github_snapshot=github_snapshot
