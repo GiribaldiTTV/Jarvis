@@ -437,6 +437,28 @@ def _has_positive_user_approval_receipt(text: str) -> bool:
     return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in approval_receipt_patterns)
 
 
+def _has_negated_proof_term(text: str, target_pattern: str) -> bool:
+    normalized = _normalize_text(text)
+    negation_pattern = r"no|not|without|missing|absent|lacks?|lack|unproven|unverified|unassigned"
+    trailing_negation_pattern = (
+        r"missing|absent|pending|awaiting|waiting|planned|future|later|"
+        r"not recorded|not approved|not assigned|not verified|unproven|unverified|unassigned"
+    )
+    patterns = (
+        rf"\b({negation_pattern})\b[^.;|\n]{{0,80}}\b({target_pattern})\b",
+        rf"\b({target_pattern})\b[^.;|\n]{{0,80}}\b({trailing_negation_pattern})\b",
+    )
+    return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+
+def _has_affirmative_proof_term(text: str, target_pattern: str) -> bool:
+    normalized = _normalize_text(text)
+    has_term = bool(
+        re.search(rf"\b({target_pattern})\b", normalized, flags=re.IGNORECASE)
+    )
+    return has_term and not _has_negated_proof_term(text, target_pattern)
+
+
 def _directional_lineage_present(candidate_id: str, current_id: str, line: str) -> bool:
     if _line_negates_lineage(line):
         return False
@@ -647,21 +669,22 @@ def validate_text(
             )
 
         carrier_decision_text = f"{row.proposed_carrier} {row.exact_user_decision}"
-        carrier_decision_normalized = _normalize_text(carrier_decision_text)
         if not _looks_like_date_or_receipt(row.last_verified):
             failures.append(f"{source}: {row_label}: Last Verified requires dated or receipt-based freshness evidence")
 
         failures.extend(_validate_github_mapping(row, row_label, github_snapshot, source))
 
         if disposition in {"USER_REJECTED_WITH_REASON", "USER_WAIVED_WITH_REASON"}:
-            if not re.search(r"\b(reason|because)\b", carrier_decision_normalized):
+            if not _has_affirmative_proof_term(carrier_decision_text, r"reason|because"):
                 failures.append(f"{source}: {row_label}: USER rejection/waiver requires reason")
-            if disposition == "USER_WAIVED_WITH_REASON" and "scope" not in carrier_decision_normalized:
+            if disposition == "USER_WAIVED_WITH_REASON" and not _has_affirmative_proof_term(
+                carrier_decision_text, "scope"
+            ):
                 failures.append(f"{source}: {row_label}: USER waiver requires scope")
 
         if disposition == "DEFERRED_WITH_OWNER":
             for expected in ("owner", "reason", "trigger"):
-                if expected not in carrier_decision_normalized:
+                if not _has_affirmative_proof_term(carrier_decision_text, expected):
                     failures.append(
                         f"{source}: {row_label}: deferred disposition requires durable owner, reason, and next review trigger"
                     )
@@ -679,13 +702,17 @@ def validate_text(
                 failures.append(f"{source}: {row_label}: approved issue creation requires USER approval receipt")
 
         if disposition == "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED":
-            if not re.search(r"\b(independent|verified|revalidated|reconciled)\b", _normalize_text(carrier_decision_text)):
+            if not _has_affirmative_proof_term(
+                carrier_decision_text, r"independent|verified|revalidated|reconciled"
+            ):
                 failures.append(
                     f"{source}: {row_label}: closed GitHub issue mapping requires independent repair/reconciliation evidence"
                 )
 
         if disposition == "REPAIRED_VERIFIED":
-            if not re.search(r"\b(independent|verified|revalidated)\b", _normalize_text(carrier_decision_text)):
+            if not _has_affirmative_proof_term(
+                carrier_decision_text, r"independent|verified|revalidated"
+            ):
                 failures.append(f"{source}: {row_label}: repaired disposition requires independent verification evidence")
 
         if disposition in {"UNKNOWN_GITHUB_STATE", "STALE_GITHUB_STATE"}:
@@ -693,10 +720,10 @@ def validate_text(
                 failures.append(f"{source}: {row_label}: unknown/stale GitHub state cannot close candidate")
 
         if disposition in CURRENT_PACKET_DISPOSITIONS and blocking == "NO":
-            has_owner = "owner" in carrier_decision_normalized
-            has_reason = "reason" in carrier_decision_normalized
-            has_route = "carrier" in carrier_decision_normalized or "route" in carrier_decision_normalized
-            has_trigger = "trigger" in carrier_decision_normalized
+            has_owner = _has_affirmative_proof_term(carrier_decision_text, "owner")
+            has_reason = _has_affirmative_proof_term(carrier_decision_text, "reason")
+            has_route = _has_affirmative_proof_term(carrier_decision_text, r"carrier|route")
+            has_trigger = _has_affirmative_proof_term(carrier_decision_text, "trigger")
             if not (has_owner and has_reason and has_route and has_trigger):
                 failures.append(
                     f"{source}: {row_label}: non-blocking active carry-forward requires owner, carrier/route, reason, and trigger"

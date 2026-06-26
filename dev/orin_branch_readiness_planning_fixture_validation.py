@@ -6516,6 +6516,27 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     if "USER rejection/waiver requires reason" not in "\n".join(rejection_without_reason):
         failures.append("Generated RAR fixture did not reject USER rejection without reason")
 
+    waiver_with_negated_reason_scope = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-085",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="Owner FAM-006; no reason was recorded; no scope was approved.",
+                decision="USER waiver record is incomplete and cannot close this candidate.",
+            )
+        ),
+        source="generated waiver negated reason and scope",
+    )
+    waiver_with_negated_failures = "\n".join(waiver_with_negated_reason_scope)
+    if (
+        "USER rejection/waiver requires reason" not in waiver_with_negated_failures
+        or "USER waiver requires scope" not in waiver_with_negated_failures
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject USER waiver with negated reason/scope language"
+        )
+
     terminal_blocking_failure = rar_issue_durability.validate_text(
         table(
             row(
@@ -6583,6 +6604,42 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     )
     if "routed disposition requires carrier acceptance/receipt" not in "\n".join(routed_awaiting_receipt):
         failures.append("Generated RAR fixture did not reject routed disposition awaiting receipt")
+
+    deferred_negated_owner = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-086",
+                disposition="DEFERRED_WITH_OWNER",
+                blocking="NO",
+                carrier="No owner assigned; reason backlog; trigger next review.",
+                decision="Candidate remains deferred, but durable ownership has not been recorded.",
+            )
+        ),
+        source="generated deferred disposition negated owner",
+    )
+    if "deferred disposition requires durable owner" not in "\n".join(
+        deferred_negated_owner
+    ):
+        failures.append("Generated RAR fixture did not reject deferred disposition with negated owner")
+
+    active_carry_forward_negated_owner = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-087",
+                disposition="ACTIVE_PENDING_USER_DECISION",
+                blocking="NO",
+                carrier="No owner assigned; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review.",
+                decision="USER still needs a decision, but this record has no durable owner.",
+            )
+        ),
+        source="generated active carry-forward negated owner",
+    )
+    if "non-blocking active carry-forward requires" not in "\n".join(
+        active_carry_forward_negated_owner
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject non-blocking active carry-forward with negated owner"
+        )
 
     placeholder_required_fields = rar_issue_durability.validate_text(
         table(
@@ -6709,6 +6766,46 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         github_creation_future_approval
     ):
         failures.append("Generated RAR fixture did not reject future approval wording for GitHub issue creation")
+
+    repaired_negated_verification = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-088",
+                disposition="REPAIRED_VERIFIED",
+                blocking="NO",
+                carrier="Owner FAM-006; reason repair claimed; carrier FAM-006 RAR repair; trigger regression only",
+                decision="The repair is not independently verified.",
+            )
+        ),
+        source="generated repaired disposition negated verification",
+    )
+    if "repaired disposition requires independent verification evidence" not in "\n".join(
+        repaired_negated_verification
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject repaired disposition with negated verification"
+        )
+
+    closed_issue_negated_verification = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-089",
+                disposition="MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason issue closed; carrier GitHub issue #275; trigger regression only",
+                decision="The closed issue reconciliation is not independently verified.",
+            )
+        ),
+        source="generated closed issue mapping negated verification",
+        github_snapshot=snapshot("CLOSED"),
+    )
+    if "closed GitHub issue mapping requires independent repair/reconciliation evidence" not in "\n".join(
+        closed_issue_negated_verification
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject closed issue mapping with negated verification"
+        )
 
     nonblocking_missing_fields = rar_issue_durability.validate_text(
         table(
