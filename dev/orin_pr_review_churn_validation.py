@@ -124,6 +124,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "candidate disappearance",
             "renamed-candidate disappearance",
             "regrouped/renamed-candidate",
+            "external rar candidate",
             "predecessor/successor lineage",
             "candidate lineage",
         ),
@@ -143,6 +144,14 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "user adjudication",
             "user review required",
             "route selection",
+            "helper-output",
+            "helper output",
+            "chat-digest",
+            "chat digest",
+            "primary user decision",
+            "primary decision surface",
+            "decision surface",
+            "active gate",
         ),
     ),
     FamilyRule(
@@ -439,6 +448,16 @@ def _classifier_guardrail_failures() -> list[str]:
     ):
         failures.append(
             "Comment-family classifier did not classify RAR issue-candidate durability lineage drift"
+        )
+    helper_output_comment = (
+        "Reject helper-output decision tables as primary. START_HERE routes "
+        "to helper output or chat digest, so the packet has no real primary "
+        "USER Review decision surface and the active gate can pass."
+    )
+    helper_output_families = _classify_comment(helper_output_comment)
+    if "rar-user-packet-proof-parser" not in helper_output_families:
+        failures.append(
+            "Comment-family classifier did not classify helper-output/chat-digest primary packet drift"
         )
     unrelated_lineage = "A migration lineage match failed for a database seed."
     if _classify_comment(unrelated_lineage) != ["unknown"]:
