@@ -5408,6 +5408,33 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject Review Aids-only decision table with the primary basename"
             )
 
+        routed_review_aid_packet = temp_root / "routed-review-aid-only" / "FAM-006"
+        routed_review_aid = routed_review_aid_packet / "Review Aids"
+        routed_review_context = routed_review_aid_packet / "Source Truth Context"
+        routed_review_aid.mkdir(parents=True)
+        routed_review_context.mkdir(parents=True)
+        (routed_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: Review Aids/RAR_ISSUE_CANDIDATE_REVIEW_AID.md\n",
+            encoding="utf-8",
+        )
+        (routed_review_aid / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-040")),
+            encoding="utf-8",
+        )
+        (routed_review_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-CONTEXT-04")),
+            encoding="utf-8",
+        )
+        routed_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            routed_review_aid_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            routed_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject START_HERE-routed Review Aids issue-candidate table"
+            )
+
         copied_context_only_packet = temp_root / "copied-context-only" / "FAM-006"
         copied_context = copied_context_only_packet / "Source Truth Context"
         copied_context.mkdir(parents=True)

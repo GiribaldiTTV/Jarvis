@@ -544,6 +544,8 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
         relative = path.relative_to(packet_folder)
         if _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
             continue
+        if _path_has_part(relative, REVIEW_AIDS_FOLDER):
+            continue
         path_text = relative.as_posix()
         name_text = path.name
         path_is_explicit = path_text in start_text
