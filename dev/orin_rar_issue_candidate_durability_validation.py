@@ -126,6 +126,10 @@ def _normalize_text(value: str) -> str:
     return re.sub(r"\s+", " ", value.strip()).casefold()
 
 
+def _mentions_issue_candidate(value: str) -> bool:
+    return bool(re.search(r"\bissue[-\s]+candidate\b", value, flags=re.IGNORECASE))
+
+
 def _normalize_token(value: str) -> str:
     token = re.sub(r"[^A-Za-z0-9]+", "_", value.strip().upper())
     token = re.sub(r"_+", "_", token).strip("_")
@@ -410,7 +414,7 @@ def validate_text(
             f"{source}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
         )
 
-    if "issue candidate" in _normalize_text(text) and not rows:
+    if _mentions_issue_candidate(text) and not rows:
         failures.append(f"{source}: Issue Candidate Decision Surface Missing")
         return failures
 
@@ -668,6 +672,8 @@ def validate_packet_folder(
             failures.append(
                 f"{packet_folder}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
             )
+        elif _mentions_issue_candidate(packet_text):
+            failures.append(f"{packet_folder}: Issue Candidate Decision Surface Missing")
 
     if external_ledger:
         external_text = external_ledger.read_text(encoding="utf-8")

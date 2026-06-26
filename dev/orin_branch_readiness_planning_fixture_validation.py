@@ -5456,6 +5456,28 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject nested Source Truth Context/USER Review issue-candidate table as primary"
             )
 
+        mention_only_packet = packet_with_sections(
+            temp_root / "mention-only-primary",
+            primary_text=None,
+        )
+        (
+            mention_only_packet
+            / "USER Review"
+            / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md"
+        ).write_text(
+            "# RAR Issue Candidate Decision Surface\n\nIssue Candidate: FAM006-RAR-048 still needs USER disposition.",
+            encoding="utf-8",
+        )
+        mention_only_packet_failures = rar_issue_durability.validate_packet_folder(
+            mention_only_packet
+        )
+        if "Issue Candidate Decision Surface Missing" not in "\n".join(
+            mention_only_packet_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject primary issue-candidate mention without decision table"
+            )
+
         routed_review_aid_packet = temp_root / "routed-review-aid-only" / "FAM-006"
         routed_review_aid = routed_review_aid_packet / "Review Aids"
         routed_review_context = routed_review_aid_packet / "Source Truth Context"
@@ -5738,6 +5760,17 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         failures.append(
             "Generated RAR historical packeted-only fixture was falsely rejected: "
             + "; ".join(historical_packeted_only_failures[:5])
+        )
+
+    hyphenated_issue_candidate_missing_surface = rar_issue_durability.validate_text(
+        "# RAR issue-candidate summary\n\nIssue-Candidate Table: FAM006-RAR-030 pending USER decision.",
+        source="generated hyphenated issue-candidate missing table",
+    )
+    if "Issue Candidate Decision Surface Missing" not in "\n".join(
+        hyphenated_issue_candidate_missing_surface
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject hyphenated issue-candidate mention without decision table"
         )
 
     waiver_without_reason = rar_issue_durability.validate_text(
