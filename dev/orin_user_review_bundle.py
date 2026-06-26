@@ -1427,11 +1427,11 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "16_defect_closure_contact_sheet.png",
         "17_red_team_review_sheet.png",
         "18_manage_monitors_dirty_guard_side_by_side.png",
-        "19_stress_size_620x466.png",
-        "19_stress_size_660x466.png",
-        "19_stress_size_748x466.png",
-        "19_stress_size_820x500.png",
-        "19_stress_size_820x590.png",
+        "19_stress_size_668x500.png",
+        "19_stress_size_700x500.png",
+        "19_stress_size_780x500.png",
+        "19_stress_size_840x530.png",
+        "19_stress_size_840x610.png",
         "22_row_count_1_of_4.png",
         "22_row_count_2_of_4.png",
         "22_row_count_3_of_4.png",
@@ -1466,6 +1466,11 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "19_stress_size_700x360.png",
         "19_stress_size_640x340.png",
         "19_stress_size_560x318.png",
+        "19_stress_size_620x466.png",
+        "19_stress_size_660x466.png",
+        "19_stress_size_748x466.png",
+        "19_stress_size_820x500.png",
+        "19_stress_size_820x590.png",
     )
     required_image_artifacts = tuple(
         artifact for artifact in required_settings_artifacts if artifact.casefold().endswith(".png")

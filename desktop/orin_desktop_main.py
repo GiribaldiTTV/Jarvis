@@ -636,6 +636,25 @@ def main():
                 f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_IGNORED|source={safe_source}|reason=already_active"
             )
             return
+        settings_guard = getattr(window, "request_resident_access_settings_shutdown_guard", None)
+        if callable(settings_guard):
+            try:
+                if settings_guard(
+                    source=f"shutdown_confirmation_{safe_source}",
+                    resume_callback=lambda: request_shutdown_confirmation(source=safe_source),
+                ):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        f"|source={safe_source}"
+                    )
+                    return
+            except TypeError:
+                if settings_guard(source=f"shutdown_confirmation_{safe_source}"):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        f"|source={safe_source}"
+                    )
+                    return
 
         shutdown_confirmation_active = True
         try:
@@ -1159,7 +1178,7 @@ def main():
                 and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
                 and not resize_evidence["resizeActiveAfterRelease"]
                 and resize_evidence["windowResizeBehavior"]
-                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-620x360-dynamic-content-minimum-maximum-820x590-close-intercept-v30"
+                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32"
             )
             record_step(
                 "settings_window_user_drag_resize",
@@ -1171,6 +1190,66 @@ def main():
                     f"behavior={resize_evidence['windowResizeBehavior']}"
                 ),
                 resize_evidence,
+            )
+            dirty_dialog = dialog
+            if dirty_dialog is not None and getattr(dirty_dialog, "_slot_combos", None):
+                combo = dirty_dialog._slot_combos[0]
+                if combo.count() > 1:
+                    combo.setCurrentIndex((combo.currentIndex() + 1) % combo.count())
+                    pump(160)
+            dirty_before_shutdown = bool(
+                dirty_dialog is not None
+                and dirty_dialog.isVisible()
+                and getattr(dirty_dialog, "_has_unsaved_changes")()
+            )
+            do_shutdown()
+            pump(260)
+            dirty_shutdown_blocked = bool(
+                dirty_dialog is not None
+                and dirty_dialog.isVisible()
+                and not shutdown_started
+                and getattr(dirty_dialog, "_close_guard_active", False)
+                and dirty_dialog.close_guard_overlay.isVisible()
+                and dirty_dialog.property("dirtyCloseInterceptSource") == "client_shutdown"
+            )
+            record_step(
+                "settings_dirty_client_shutdown_guard",
+                "Dirty Global Settings blocks the actual client shutdown route before any app close",
+                dirty_before_shutdown and dirty_shutdown_blocked,
+                (
+                    f"dirtyBefore={dirty_before_shutdown}; shutdownStarted={shutdown_started}; "
+                    f"dialogVisible={bool(dirty_dialog and dirty_dialog.isVisible())}; "
+                    f"guard={bool(dirty_dialog and getattr(dirty_dialog, '_close_guard_active', False))}; "
+                    f"source={dirty_dialog.property('dirtyCloseInterceptSource') if dirty_dialog else None!r}"
+                ),
+                {
+                    "dirtyBeforeShutdown": dirty_before_shutdown,
+                    "shutdownStarted": shutdown_started,
+                    "dialogVisible": bool(dirty_dialog and dirty_dialog.isVisible()),
+                    "guardActive": bool(dirty_dialog and getattr(dirty_dialog, "_close_guard_active", False)),
+                    "interceptSource": str(dirty_dialog.property("dirtyCloseInterceptSource") if dirty_dialog else ""),
+                },
+            )
+            if dirty_dialog is not None and dirty_dialog.isVisible() and getattr(dirty_dialog, "_close_guard_active", False):
+                dirty_dialog.guard_cancel_button.click()
+                pump(180)
+            cancel_kept_alive = bool(
+                dirty_dialog is not None
+                and dirty_dialog.isVisible()
+                and not shutdown_started
+                and getattr(dirty_dialog, "_has_unsaved_changes")()
+                and not getattr(dirty_dialog, "_close_guard_active", False)
+                and dirty_dialog.property("dirtyCloseResolution") == "cancel-preserved-dirty-window-open"
+            )
+            record_step(
+                "settings_dirty_client_shutdown_cancel",
+                "Cancel keeps the dirty Settings window and client alive after shutdown guard",
+                cancel_kept_alive,
+                (
+                    f"shutdownStarted={shutdown_started}; dialogVisible={bool(dirty_dialog and dirty_dialog.isVisible())}; "
+                    f"dirty={bool(dirty_dialog and getattr(dirty_dialog, '_has_unsaved_changes')())}; "
+                    f"resolution={dirty_dialog.property('dirtyCloseResolution') if dirty_dialog else None!r}"
+                ),
             )
             status = "PASS" if all(step["codexPrecheck"] == "PASS" for step in steps) else "FAIL"
             write_manifest(status)
