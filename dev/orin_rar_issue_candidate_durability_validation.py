@@ -309,20 +309,33 @@ def _candidate_lineage_key(row: CandidateRow) -> tuple[str, ...]:
     )
 
 
-def _explicit_lineage_present(candidate_id: str, text: str) -> bool:
-    escaped = re.escape(candidate_id)
-    return bool(
-        re.search(
-            rf"\b(predecessor|successor|lineage|renamed from|renamed to)\b[^\n|]*\b{escaped}\b|\b{escaped}\b[^\n|]*\b(predecessor|successor|lineage|renamed from|renamed to)\b",
-            text,
-            flags=re.IGNORECASE,
-        )
-    )
-
-
 def _candidate_id_present(candidate_id: str, text: str) -> bool:
     escaped = re.escape(candidate_id)
     return bool(re.search(rf"(?<![A-Za-z0-9]){escaped}(?![A-Za-z0-9])", text))
+
+
+def _explicit_lineage_present(
+    candidate_id: str,
+    text: str,
+    current_candidate_ids: Iterable[str] | None = None,
+) -> bool:
+    if not candidate_id:
+        return False
+    lineage_word = re.compile(
+        r"\b(predecessor|successor|lineage|renamed from|renamed to|renamed|replaces|replaced by)\b",
+        flags=re.IGNORECASE,
+    )
+    current_ids = {current_id for current_id in current_candidate_ids or () if current_id}
+    for line in text.splitlines():
+        if not lineage_word.search(line):
+            continue
+        if not _candidate_id_present(candidate_id, line):
+            continue
+        if not current_ids:
+            return True
+        if any(current_id != candidate_id and _candidate_id_present(current_id, line) for current_id in current_ids):
+            return True
+    return False
 
 
 def _is_historical_packeted_only_line(line: str) -> bool:
@@ -684,9 +697,14 @@ def validate_packet_folder(
         primary_rows_by_id.setdefault(row.candidate_id, []).append(row)
     supporting_context_rows = _issue_candidate_rows_from_paths([*supporting_paths, *context_paths])
     for row in supporting_context_rows:
+        if not row.candidate_id:
+            failures.append(f"{packet_folder}: malformed supporting/context RAR issue candidate row")
+            continue
         if not row.requires_current_packet:
             continue
-        if row.candidate_id in primary_row_ids or _explicit_lineage_present(row.candidate_id, primary_text):
+        if row.candidate_id in primary_row_ids or _explicit_lineage_present(
+            row.candidate_id, primary_text, primary_row_ids
+        ):
             continue
         failures.append(
             f"{packet_folder}: supporting/context RAR issue candidate {row.candidate_id} missing from active USER-facing packet files"
@@ -722,7 +740,7 @@ def validate_packet_folder(
                 for external_row in current_row_matches
                 for primary_row in primary_row_matches
             )
-            if not lineage_matches and not _explicit_lineage_present(candidate_id, primary_text):
+            if not lineage_matches and not _explicit_lineage_present(candidate_id, primary_text, primary_row_ids):
                 failures.append(
                     f"{packet_folder}: external RAR issue candidate {candidate_id} missing from active USER-facing packet files"
                 )

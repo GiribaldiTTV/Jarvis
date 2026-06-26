@@ -5690,6 +5690,29 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 + "; ".join(primary_failures[:5])
             )
 
+        malformed_review_aid_packet = packet_with_sections(
+            temp_root / "malformed-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-057")),
+            review_aid_text="\n".join(
+                (
+                    "Issue Candidate Decision Surface:",
+                    "",
+                    rar_issue_durability.DECISION_SURFACE_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-058 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges | Evidence with unescaped | pipe | ACTIVE_PENDING_USER_DECISION | YES | Owner FAM-006; reason current RAR gap; carrier FAM-006 RAR repair; trigger next RAR review | NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | USER must review repair, waiver, route, deferral, or approved GitHub issue creation. |",
+                )
+            ),
+        )
+        malformed_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            malformed_review_aid_packet
+        )
+        if "malformed supporting/context RAR issue candidate row" not in "\n".join(
+            malformed_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject malformed supporting Review Aids issue-candidate rows"
+            )
+
         packeted_only_review_aid_packet = packet_with_sections(
             temp_root / "packeted-only-review-aid-with-primary",
             primary_text=table(row("FAM006-RAR-049")),
@@ -5801,6 +5824,25 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         ):
             failures.append(
                 "Generated RAR packet/ledger fixture allowed incidental text mention to satisfy active candidate carry-forward"
+            )
+
+        incidental_lineage_ledger = temp_root / "incidental_lineage_ledger.md"
+        incidental_lineage_ledger.write_text(table(row("FAM006-RAR-059")), encoding="utf-8")
+        incidental_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "incidental-lineage",
+                primary_text=(
+                    "Lineage note: predecessor FAM006-RAR-059 remains under review.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=incidental_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-059 missing" not in "\n".join(
+            incidental_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed incidental lineage prose without a current successor row"
             )
 
         same_id_different_lineage_ledger = temp_root / "same_id_different_lineage_ledger.md"
