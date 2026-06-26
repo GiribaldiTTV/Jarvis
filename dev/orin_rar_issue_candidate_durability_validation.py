@@ -74,6 +74,23 @@ HISTORICAL_PACKETED_ONLY_CONTEXT = (
     "formerly",
     "former",
 )
+PACKETED_ONLY_CLOSURE_PATTERNS = (
+    "advance",
+    "can continue",
+    "cleared",
+    "closed",
+    "green",
+    "may continue",
+    "no blocker",
+    "normal phase",
+    "normal progression",
+    "not blocked",
+    "phase progression",
+    "proceed",
+    "progression",
+    "ready",
+    "resolved",
+)
 PRIMARY_REVIEW_FOLDER = "user review"
 REVIEW_AIDS_FOLDER = "review aids"
 SOURCE_TRUTH_CONTEXT_FOLDER = "source truth context"
@@ -345,6 +362,8 @@ def _explicit_lineage_present(
 def _is_historical_packeted_only_line(line: str) -> bool:
     normalized = _normalize_text(line)
     if not any(pattern in normalized for pattern in PACKETED_ONLY_PATTERNS):
+        return False
+    if any(pattern in normalized for pattern in PACKETED_ONLY_CLOSURE_PATTERNS):
         return False
     return any(word in normalized for word in HISTORICAL_PACKETED_ONLY_CONTEXT)
 

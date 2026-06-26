@@ -5871,6 +5871,26 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject active not-durable packeted-only closure wording"
             )
 
+        historical_worded_packeted_only_closure_packet = packet_with_sections(
+            temp_root / "historical-worded-packeted-only-closure-with-primary",
+            primary_text=table(row("FAM006-RAR-065")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The issue candidate was previously packeted only, so normal progression may continue."
+            ),
+        )
+        historical_worded_packeted_only_closure_failures = (
+            rar_issue_durability.validate_packet_folder(
+                historical_worded_packeted_only_closure_packet
+            )
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            historical_worded_packeted_only_closure_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject historical-worded packeted-only progression closure"
+            )
+
         routed_packet = temp_root / "routed-primary" / "FAM-006"
         routed_review = routed_packet / "Review Aids"
         routed_decisions = routed_packet / "Issue Decisions"
