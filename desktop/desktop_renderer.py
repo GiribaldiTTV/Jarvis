@@ -6686,7 +6686,7 @@ class AIControlCenterDialog(QDialog):
     MINIMUM_HEIGHT = 520
     RESIZE_MARGIN = 16
     DRAG_HEADER_HEIGHT = 190
-    WINDOW_CONTROL_ZONE_TOP = 14
+    WINDOW_CONTROL_ZONE_TOP = 15
     WINDOW_CONTROL_ZONE_RIGHT = 15
     WINDOW_CONTROL_ZONE_WIDTH = 60
     WINDOW_CONTROL_ZONE_HEIGHT = 30
@@ -7202,6 +7202,7 @@ class AIControlCenterDialog(QDialog):
             return False
         if os.name != "nt":
             return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
+        adjusted_geometry = self.geometry().adjusted(-2, -2, 2, 2)
         try:
             probe = ctypes.wintypes.POINT(int(point.x()), int(point.y()))
             hwnd = int(WindowFromPoint(probe))
@@ -7211,8 +7212,8 @@ class AIControlCenterDialog(QDialog):
                     return True
                 hwnd = int(GetParentW(ctypes.wintypes.HWND(hwnd)))
         except Exception:
-            return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
-        return False
+            return adjusted_geometry.contains(point)
+        return adjusted_geometry.contains(point)
 
     def _ai_control_center_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
         if not self.isVisible():

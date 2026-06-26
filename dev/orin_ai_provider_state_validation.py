@@ -8992,7 +8992,7 @@ def validate() -> list[str]:
         "MINIMUM_HEIGHT = 520",
         "RESIZE_MARGIN = 16",
         "DRAG_HEADER_HEIGHT = 190",
-        "WINDOW_CONTROL_ZONE_TOP = 14",
+        "WINDOW_CONTROL_ZONE_TOP = 15",
         "WINDOW_CONTROL_ZONE_RIGHT = 15",
         "WINDOW_CONTROL_ZONE_WIDTH = 60",
         "WINDOW_CONTROL_ZONE_HEIGHT = 30",
