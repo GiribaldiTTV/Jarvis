@@ -1049,15 +1049,16 @@ class NexusSettingsSplitterHandle(QSplitterHandle):
         rect = self.rect()
         center_x = rect.width() / 2
         state = str(self.property("splitterVisualState") or "normal")
-        line_alpha = {"normal": 34, "hover": 64, "active": 92}.get(state, 34)
-        dot_alpha = {"normal": 70, "hover": 112, "active": 144}.get(state, 70)
+        line_alpha = {"normal": 16, "hover": 58, "active": 92}.get(state, 16)
+        dot_alpha = {"normal": 0, "hover": 96, "active": 144}.get(state, 0)
         painter.setPen(QPen(QColor(122, 232, 255, line_alpha), 1.0))
         painter.drawLine(int(center_x), 10, int(center_x), max(10, rect.height() - 10))
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QColor(153, 246, 228, dot_alpha))
-        mid_y = rect.height() / 2
-        for offset in (-7, 0, 7):
-            painter.drawRoundedRect(QRectF(center_x - 1.0, mid_y + offset - 1.0, 2.0, 2.0), 1.0, 1.0)
+        if dot_alpha:
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor(153, 246, 228, dot_alpha))
+            mid_y = rect.height() / 2
+            for offset in (-7, 0, 7):
+                painter.drawRoundedRect(QRectF(center_x - 1.0, mid_y + offset - 1.0, 2.0, 2.0), 1.0, 1.0)
 
 
 class NexusSettingsSplitter(QSplitter):
@@ -1154,7 +1155,7 @@ class ResidentAccessSettingsDialog(QDialog):
     RESIZE_MARGIN = 8
     RESIZE_CORNER_MARGIN = 12
     BASE_MINIMUM_SIZE = (590, 338)
-    MAXIMUM_SIZE = (860, 560)
+    MAXIMUM_SIZE = (780, 560)
     DEFAULT_SIZE = (720, 386)
     QUICK_SLOT_ROW_HEIGHT = 34
     QUICK_SLOT_ROW_SPACING = 6
@@ -1208,8 +1209,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-860x560-v27")
-        self.setProperty("quickAccessLayoutPolicy", "content-driven-card-window-grow-disable-before-break-v27")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-v28")
+        self.setProperty("quickAccessLayoutPolicy", "content-driven-card-window-grow-disable-before-break-v28")
+        self.setProperty("settingsRailPolishPolicy", "slim-parent-child-active-signal-v28")
         self.setProperty("dirtyCloseInterceptState", "idle")
         self.setProperty("visibleResizeGrip", "removed")
         self.setProperty("deferredWatermarkConcept", "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22")
@@ -1260,7 +1262,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.settings_splitter.setObjectName("residentAccessSettingsSplitter")
         self.settings_splitter.setChildrenCollapsible(False)
         self.settings_splitter.setHandleWidth(9)
-        self.settings_splitter.setProperty("settingsSplitterAffordance", "subtle-1px-visible-affordance-9px-hit-zone-v27")
+        self.settings_splitter.setProperty("settingsSplitterAffordance", "quiet-default-hover-dots-9px-hit-zone-v28")
         self.settings_splitter.setAccessibleName("Resize Global Settings navigation pane")
         body_layout.addWidget(self.settings_splitter, 1)
 
@@ -1705,9 +1707,9 @@ class ResidentAccessSettingsDialog(QDialog):
             " border: none;"
             "}"
             "#residentAccessSettingsSplitter::handle {"
-            " background: rgba(122, 232, 255, 0.018);"
-            " border-left: 1px solid rgba(122, 232, 255, 0.07);"
-            " border-right: 1px solid rgba(153, 246, 228, 0.04);"
+            " background: rgba(122, 232, 255, 0.008);"
+            " border-left: 1px solid rgba(122, 232, 255, 0.035);"
+            " border-right: 1px solid rgba(153, 246, 228, 0.018);"
             " border-radius: 3px;"
             "}"
             "#residentAccessSettingsSplitter::handle:hover {"
@@ -1715,9 +1717,9 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-color: rgba(153, 246, 228, 0.18);"
             "}"
             "#residentAccessSettingsNavShell {"
-            " background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(2, 14, 26, 0.66), stop:1 rgba(1, 8, 17, 0.34));"
-            " border: 1px solid rgba(122, 232, 255, 0.13);"
-            " border-right: 1px solid rgba(153, 246, 228, 0.22);"
+            " background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(3, 18, 32, 0.78), stop:0.58 rgba(2, 12, 24, 0.62), stop:1 rgba(1, 8, 17, 0.42));"
+            " border: 1px solid rgba(122, 232, 255, 0.16);"
+            " border-right: 1px solid rgba(153, 246, 228, 0.26);"
             " border-radius: 11px;"
             "}"
             "#residentAccessSettingsNavScrollArea {"
@@ -1783,14 +1785,14 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-radius: 6px;"
             "}"
             "#residentAccessSettingsCategoryItem[navState=\"selected\"] {"
-            " background: rgba(8, 49, 68, 0.50);"
-            " border: 1px solid rgba(122, 232, 255, 0.18);"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(11, 74, 94, 0.62), stop:1 rgba(5, 25, 41, 0.32));"
+            " border: 1px solid rgba(122, 232, 255, 0.22);"
             " border-left-color: rgba(153, 246, 228, 0.78);"
             "}"
             "#residentAccessSettingsCategoryItem[navState=\"contains-selected\"] {"
-            " background: rgba(5, 25, 41, 0.34);"
-            " border: 1px solid rgba(122, 232, 255, 0.10);"
-            " border-left-color: rgba(122, 232, 255, 0.54);"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 39, 56, 0.44), stop:1 rgba(3, 18, 32, 0.18));"
+            " border: 1px solid rgba(122, 232, 255, 0.12);"
+            " border-left-color: rgba(122, 232, 255, 0.62);"
             "}"
             "#residentAccessSettingsCategoryItem[navState=\"available\"]:hover {"
             " background: rgba(7, 26, 42, 0.42);"
@@ -1814,7 +1816,7 @@ class ResidentAccessSettingsDialog(QDialog):
             " border: none;"
             "}"
             "#residentAccessSettingsNavIndicator {"
-            " background: rgba(153, 246, 228, 0.48);"
+            " background: rgba(153, 246, 228, 0.70);"
             " border-radius: 2px;"
             "}"
             "#residentAccessSettingsNavPrimaryIcon {"
@@ -1890,9 +1892,9 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-radius: 6px;"
             "}"
             "#residentAccessSettingsNavItem[navState=\"selected\"] {"
-            " background: rgba(7, 39, 56, 0.52);"
-            " border: 1px solid rgba(122, 232, 255, 0.16);"
-            " border-left-color: rgba(153, 246, 228, 0.66);"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(7, 47, 66, 0.58), stop:1 rgba(2, 19, 32, 0.20));"
+            " border: 1px solid rgba(122, 232, 255, 0.19);"
+            " border-left-color: rgba(153, 246, 228, 0.76);"
             "}"
             "#residentAccessSettingsNavItem:hover {"
             " background: rgba(8, 31, 48, 0.46);"
@@ -2734,6 +2736,9 @@ class ResidentAccessSettingsDialog(QDialog):
             change_text = "Unsaved changes"
         else:
             change_text = ""
+        slot_count_text = f"{route_count} of {available_slot_limit}"
+        if change_text.strip() == slot_count_text:
+            change_text = "Unsaved changes" if dirty else ""
         self.change_summary.setText(change_text)
         if self._close_guard_active and dirty:
             self.change_summary.setAccessibleName("Unsaved changes. Save, Discard, or Cancel before closing.")

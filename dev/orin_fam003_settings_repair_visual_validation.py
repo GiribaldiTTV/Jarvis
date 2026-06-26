@@ -14,6 +14,7 @@ import ctypes.wintypes
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -97,6 +98,11 @@ ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-044",
     "F3-LV1-UI-045",
     "F3-LV1-UI-046",
+    "F3-LV1-UI-047",
+    "F3-LV1-UI-048",
+    "F3-LV1-UI-049",
+    "F3-LV1-UI-050",
+    "F3-LV1-UI-051",
     "F3-LV1-FUNC-001",
     "F3-LV1-PROOF-001",
     "F3-LV1-PROOF-002",
@@ -1347,7 +1353,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 same-defect v27 dynamic-row-count scale/layout/resize repair with the accepted Manage Monitors modal dirty-guard alignment, centered Settings-only title row, deferred watermark record with no runtime fake exposure, a tighter user-resizable Settings envelope, app-owned fallback resize from the 8px edge / 12px corner hover-polled rail without a visible bottom-right grip, Windows cursor-before-drag proof, no horizontal rail overflow, splitter-attached active settings content, child-page indentation, window-control-pillar scale matching, 1/2/3/4 row Quick Access matrix proof, bottom-row unclipped Quick Access rows, stress-tested left-rail/category overflow, mixed content pane controls, useful settings copy, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every recurrence row closes with proof.",
+        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 same-defect v28 wide-state, slot-count, splitter, left-rail, dynamic-row-count scale/layout/resize repair with the accepted Manage Monitors modal dirty-guard alignment, centered Settings-only title row, deferred watermark record with no runtime fake exposure, a tighter user-resizable Settings envelope, app-owned fallback resize from the 8px edge / 12px corner hover-polled rail without a visible bottom-right grip, Windows cursor-before-drag proof, no horizontal rail overflow, splitter-attached active settings content, child-page indentation, window-control-pillar scale matching, 1/2/3/4 row Quick Access matrix proof, bottom-row unclipped Quick Access rows, stress-tested left-rail/category overflow, mixed content pane controls, useful settings copy, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every recurrence row closes with proof.",
         "",
         "## Results",
         "",
@@ -1465,7 +1471,8 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
     height_delta = after.height() - before.height()
     fallback_used = False
     fallback_started = False
-    if (width_delta < 120 or height_delta < 80) and cursor_edges_match:
+    min_width_delta = min(60, max(1, dialog.maximumWidth() - before.width()))
+    if (width_delta < min_width_delta or height_delta < 80) and cursor_edges_match:
         fallback_used = True
         fallback_started = dialog._start_settings_resize(cursor_edges, start_global)
         if fallback_started:
@@ -1479,8 +1486,9 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
             after = dialog.geometry()
             width_delta = after.width() - before.width()
             height_delta = after.height() - before.height()
+    width_reaches_legal_bound = after.width() == dialog.maximumWidth() and width_delta >= min_width_delta
     ok = (
-        width_delta >= 120
+        (width_delta >= min_width_delta or width_reaches_legal_bound)
         and height_delta >= 80
         and cursor_resize_signal
         and not dialog._settings_resize_active
@@ -1495,6 +1503,7 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
         f"edges_for_screen={cursor_edges}; edges_under_cursor={cursor_edges_under}; "
         f"cursor_edges_match={cursor_edges_match}; cursor_resize_signal={cursor_resize_signal}; "
         f"cursor_key={cursor_key}; point_belongs={point_belongs}; "
+        f"min_width_delta={min_width_delta}; width_reaches_legal_bound={width_reaches_legal_bound}; "
         f"fallback_used={fallback_used}; fallback_started={fallback_started}; "
         f"active={dialog._settings_resize_active}; method=SetCursorPos hover proof, held Win32 left mouse button, and app-owned fallback resize loop when native mouse messages do not begin"
     )
@@ -1538,8 +1547,11 @@ def _write_fail_capable_defect_ledger(
         "window-control scale matched by active settings controls",
         "bottom quick-access row is unclipped after scale match",
         "wide layout keeps active settings page attached to splitter",
+        "live max proof is separated from synthetic stress proof",
+        "live max has no unexplained right-side dead space",
         "left navigation settings organizer",
         "left rail slim row metrics",
+        "left rail active icon and hierarchy polish",
         "left navigation active child proof",
         "left navigation collapsed proof",
         "left navigation expanded proof",
@@ -1556,6 +1568,7 @@ def _write_fail_capable_defect_ledger(
         "readable compact quick-slot controls",
         "quick-slot row grouping has no excessive gutter",
         "slot count is placed beside Add Slot",
+        "slot count appears once in active surface",
         "route selector is compact and bounded",
         "clean state has no redundant saved label",
         "dropdown/list state is not white/native-light",
@@ -1578,6 +1591,7 @@ def _write_fail_capable_defect_ledger(
         "glyph/control close-up proof",
         "left pane resize affordance close-up proof",
         "left pane splitter normal/hover/active states proof",
+        "splitter normal state is quiet until hover or drag",
         "defect closure contact sheet written",
         "red-team review sheet written",
         "defect closure proof ledger written",
@@ -1588,7 +1602,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v27 centered Settings title, deferred watermark record, dynamic row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v28 centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy, dynamic row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -1788,6 +1802,12 @@ def _write_artifact_ledger(
 def main() -> int:
     stamp = os.environ.get("FAM003_SETTINGS_VISUAL_PROOF_STAMP") or dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = LOG_ROOT / stamp
+    if log_dir.exists():
+        log_root_resolved = LOG_ROOT.resolve()
+        log_dir_resolved = log_dir.resolve()
+        if log_root_resolved not in log_dir_resolved.parents:
+            raise RuntimeError(f"Refusing to clear proof directory outside {LOG_ROOT}: {log_dir}")
+        shutil.rmtree(log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
     _configure_qt_environment(log_dir)
     Path(os.environ["NEXUS_RESIDENT_ACCESS_SETTINGS_PATH"]).write_text(
@@ -1855,7 +1875,7 @@ def main() -> int:
         stress_dialog = ResidentAccessSettingsDialog()
         stress_dialog.setProperty("validationOnlyStressMatrix", "true")
         stress_dialog.set_focus("quick_access")
-        stress_dialog.resize(920, 520)
+        stress_dialog.resize(780, 520)
         stress_dialog.show()
         stress_dialog.raise_()
         stress_dialog.activateWindow()
@@ -1905,7 +1925,7 @@ def main() -> int:
             synthetic_child.append(child_row)
 
         stress_dialog.nav_content.setMinimumHeight(max(stress_dialog.nav_content.minimumHeight(), 736))
-        stress_dialog.settings_splitter.setSizes([132, 760])
+        stress_dialog.settings_splitter.setSizes([132, 620])
         stress_dialog.section_scope.setText("VALIDATION STRESS / MIXED CONTENT")
         stress_dialog.section_scope.setVisible(True)
         stress_dialog.section_heading.setText("Stress Matrix")
@@ -2031,7 +2051,7 @@ def main() -> int:
         stress_dialog.settings_page_frame.layout().addWidget(stress_container)
         app.processEvents()
 
-        stress_sizes = [(590, 338), (640, 360), (720, 406), (780, 460), (860, 560)]
+        stress_sizes = [(590, 338), (640, 360), (720, 406), (780, 460), (780, 560)]
         size_results: list[str] = []
         attached_ok = True
         for width_target, height_target in stress_sizes:
@@ -2063,7 +2083,7 @@ def main() -> int:
                 and captured_width == expected_width
                 and captured_height == expected_height
                 and 0 <= page_left_gap <= 8
-                and page_right_gap >= 0
+                and 0 <= page_right_gap <= 36
             )
             attached_ok = attached_ok and size_ok
             size_results.append(
@@ -2316,7 +2336,7 @@ def main() -> int:
         surface="full Global Settings shell",
         state="medium resized with native edge/corner resize rail",
     )
-    dialog.resize(860, 500)
+    dialog.resize(780, 500)
     app.processEvents()
     wide_path = log_dir / "03d_window_wide_size.png"
     wide_ok, wide_width, wide_height = _capture(
@@ -2360,7 +2380,7 @@ def main() -> int:
             and min_ok
             and 750 <= resized_width <= 770
             and 420 <= resized_height <= 440
-            and 850 <= wide_width <= 870
+            and 770 <= wide_width <= 790
             and 490 <= wide_height <= 510
             and wide_width >= resized_width
             and wide_height >= resized_height
@@ -2372,9 +2392,9 @@ def main() -> int:
             and getattr(dialog, "RESIZE_CORNER_MARGIN", None) == 12
             and dialog.minimumWidth() == 590
             and 390 <= dialog.minimumHeight() <= 410
-            and dialog.maximumWidth() == 860
+            and dialog.maximumWidth() == 780
             and dialog.maximumHeight() == 560
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-860x560-v27",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-v28",
             f"resized={resized_width}x{resized_height}; wide={wide_width}x{wide_height}; min={min_width}x{min_height}; grip_attr={hasattr(dialog, 'resize_grip')}; grip_widgets={len(dialog.findChildren(QFrame, 'residentAccessSettingsResizeGrip'))}; margin={dialog.RESIZE_MARGIN}; corner_margin={getattr(dialog, 'RESIZE_CORNER_MARGIN', None)}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -2382,15 +2402,35 @@ def main() -> int:
         (
             "wide layout keeps active settings page attached to splitter",
             wide_ok
-            and dialog.maximumWidth() == 860
+            and dialog.maximumWidth() == 780
             and dialog.maximumHeight() == 560
-            and wide_width >= 850
+            and 770 <= wide_width <= 790
             and wide_height >= 490
             and 560 <= wide_page_width <= 610
             and 0 <= wide_page_left_gap <= 8
-            and wide_page_right_gap >= 60
+            and 0 <= wide_page_right_gap <= 36
             and 0 <= wide_footer_right_gap <= 12,
             f"wide={wide_width}x{wide_height}; max={dialog.maximumWidth()}x{dialog.maximumHeight()}; content={wide_content_shell.width()} at x={wide_content_origin.x()}; page={wide_page_width}x{wide_page_height} at x={wide_page_origin.x()}; quick_panel={wide_quick_width} at x={wide_quick_origin.x()}; page_left_gap={wide_page_left_gap}; page_right_gap={wide_page_right_gap}; footer_width={wide_footer_width}; footer_to_panel_right_gap={wide_footer_right_gap}",
+        )
+    )
+    rows.append(
+        (
+            "live max proof is separated from synthetic stress proof",
+            dialog.maximumWidth() == 780
+            and dialog.maximumHeight() == 560
+            and not (log_dir / "19_stress_size_1100x720.png").exists()
+            and not (log_dir / "19_stress_size_920x520.png").exists(),
+            f"live_max={dialog.maximumWidth()}x{dialog.maximumHeight()}; stale_1100={(log_dir / '19_stress_size_1100x720.png').exists()}; stale_920={(log_dir / '19_stress_size_920x520.png').exists()}",
+        )
+    )
+    rows.append(
+        (
+            "live max has no unexplained right-side dead space",
+            wide_ok
+            and 0 <= wide_page_right_gap <= 36
+            and 0 <= wide_footer_right_gap <= 12
+            and wide_content_shell.width() <= 630,
+            f"content_width={wide_content_shell.width()}; page_width={wide_page_width}; page_right_gap={wide_page_right_gap}; footer_to_panel_right_gap={wide_footer_right_gap}",
         )
     )
     drag_probe = ResidentAccessSettingsDialog()
@@ -2420,12 +2460,12 @@ def main() -> int:
             "live-style user drag resize proof",
             live_drag_ok
             and live_drag_capture_ok
-            and live_drag_width >= 820
+            and live_drag_width >= 760
             and live_drag_height >= 430
             and hasattr(drag_probe, "_start_settings_resize")
             and hasattr(drag_probe, "_finish_settings_resize")
             and drag_probe.property("windowResizeBehavior")
-            == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-860x560-v27",
+            == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-v28",
             f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
         )
     )
@@ -2487,6 +2527,21 @@ def main() -> int:
             and dialog.tray_nav_item.property("settingsNavDensity") == "slim-parent-row"
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row",
             f"tray_row={tray_nav_height}; quick_row={quick_nav_height}; indicator={dialog.tray_nav_indicator.width()}x{dialog.tray_nav_indicator.height()}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; nav_width={dialog.nav_shell.width()}",
+        )
+    )
+    rows.append(
+        (
+            "left rail active icon and hierarchy polish",
+            nav_ok
+            and dialog.property("settingsRailPolishPolicy") == "slim-parent-child-active-signal-v28"
+            and dialog.tray_nav_item.property("navState") == "contains-selected"
+            and dialog.quick_access_nav_item.property("navState") == "selected"
+            and dialog.tray_nav_icon.width() <= 11
+            and dialog.quick_access_nav_icon.width() <= 11
+            and dialog.quick_access_nav_item.x() > dialog.tray_nav_item.x()
+            and dialog.quick_access_nav_button.maximumWidth() <= 68
+            and dialog.tray_nav_button.maximumWidth() <= 42,
+            f"policy={dialog.property('settingsRailPolishPolicy')!r}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; parent_x={dialog.tray_nav_item.x()}; child_x={dialog.quick_access_nav_item.x()}",
         )
     )
 
@@ -2687,8 +2742,9 @@ def main() -> int:
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-860x560-v27"
-            and dialog.property("quickAccessLayoutPolicy") == "content-driven-card-window-grow-disable-before-break-v27"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-v28"
+            and dialog.property("quickAccessLayoutPolicy") == "content-driven-card-window-grow-disable-before-break-v28"
+            and dialog.property("settingsRailPolishPolicy") == "slim-parent-child-active-signal-v28"
             and dialog.property("visibleResizeGrip") == "removed"
             and dialog.property("deferredWatermarkConcept") == "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22"
             and dialog.property("runtimeWatermarkVisible") == "false"
@@ -2966,6 +3022,18 @@ def main() -> int:
                 f"slot_count={dialog.slot_count_badge.text()!r}; badge_pos={slot_badge_pos.x()},{slot_badge_pos.y()}; add_pos={add_button_pos.x()},{add_button_pos.y()}; heading_pos={heading_pos.x()},{heading_pos.y()}",
             )
         )
+        visible_count_labels = [
+            (label.objectName(), label.text().strip())
+            for label in dialog.findChildren(QLabel)
+            if label.isVisible() and re.fullmatch(r"\d+\s+of\s+\d+", label.text().strip())
+        ]
+        rows.append(
+            (
+                "slot count appears once in active surface",
+                visible_count_labels == [(dialog.slot_count_badge.objectName(), f"{len(dialog._slot_combos)} of {active_slot_limit}")],
+                f"visible_count_labels={visible_count_labels}",
+            )
+        )
 
         candidate_route_ids = [route.route_id for route in quick_slot_candidate_routes()]
 
@@ -2981,7 +3049,7 @@ def main() -> int:
             if len(candidate_route_ids) < count:
                 row_count_matrix.append((count, False, "not enough candidate routes"))
                 continue
-            dialog._replace_quick_slots(tuple(candidate_route_ids[:count]), notice=f"{count} of {active_slot_limit}")
+            dialog._replace_quick_slots(tuple(candidate_route_ids[:count]), notice="Unsaved changes")
             app.processEvents()
             row_count_path = log_dir / f"22_row_count_{count}_of_{active_slot_limit}.png"
             row_count_image_ok, row_count_w, row_count_h = _capture(
@@ -3003,6 +3071,11 @@ def main() -> int:
             ).y()
             matrix_footer_top = dialog.footer_frame.mapTo(dialog, QPoint(0, 0)).y()
             expected_add_enabled = count < active_slot_limit
+            matrix_count_labels = [
+                (label.objectName(), label.text().strip())
+                for label in dialog.findChildren(QLabel)
+                if label.isVisible() and re.fullmatch(r"\d+\s+of\s+\d+", label.text().strip())
+            ]
             matrix_ok = (
                 row_count_image_ok
                 and len(matrix_rows) == count
@@ -3013,7 +3086,8 @@ def main() -> int:
                 and matrix_container_bottom <= matrix_footer_top
                 and dialog.add_slot_button.isEnabled() == expected_add_enabled
                 and dialog.quick_slot_container.property("quickAccessRowPolicy")
-                == "content-driven-card-window-grow-disable-before-break-v27"
+                == "content-driven-card-window-grow-disable-before-break-v28"
+                and matrix_count_labels == [(dialog.slot_count_badge.objectName(), f"{count} of {active_slot_limit}")]
             )
             detail = (
                 f"{row_count_path} ({row_count_w}x{row_count_h}); rows={len(matrix_rows)}; "
@@ -3021,7 +3095,7 @@ def main() -> int:
                 f"last_row_bottom={matrix_last_bottom}; container_bottom={matrix_container_bottom}; "
                 f"footer_top={matrix_footer_top}; add_enabled={dialog.add_slot_button.isEnabled()}; "
                 f"expected_add_enabled={expected_add_enabled}; min={dialog.minimumWidth()}x{dialog.minimumHeight()}; "
-                f"size={dialog.width()}x{dialog.height()}; policy={dialog.quick_slot_container.property('quickAccessRowPolicy')!r}"
+                f"size={dialog.width()}x{dialog.height()}; policy={dialog.quick_slot_container.property('quickAccessRowPolicy')!r}; count_labels={matrix_count_labels}"
             )
             row_count_matrix.append((count, matrix_ok, detail))
             rows.append((f"row-count {count} quick access layout proof", matrix_ok, detail))
@@ -3553,7 +3627,7 @@ def main() -> int:
             and splitter_closeup_path.exists()
             and dialog.settings_splitter.handleWidth() == 9
             and dialog.settings_splitter.property("settingsSplitterAffordance")
-            == "subtle-1px-visible-affordance-9px-hit-zone-v27"
+            == "quiet-default-hover-dots-9px-hit-zone-v28"
             and splitter_handle.accessibleName() == "Resize Global Settings navigation pane",
             f"{splitter_closeup_path} ({splitter_closeup_w}x{splitter_closeup_h}); handle_width={dialog.settings_splitter.handleWidth()}; handle_object={splitter_handle.objectName()!r}; handle_a11y={splitter_handle.accessibleName()!r}; affordance={dialog.settings_splitter.property('settingsSplitterAffordance')!r}; rect={handle_rect.getRect()}",
         )
@@ -3583,6 +3657,16 @@ def main() -> int:
             "left pane splitter normal/hover/active states proof",
             splitter_state_ok,
             "; ".join(splitter_state_results),
+        )
+    )
+    rows.append(
+        (
+            "splitter normal state is quiet until hover or drag",
+            splitter_state_ok
+            and dialog.settings_splitter.handleWidth() == 9
+            and dialog.settings_splitter.property("settingsSplitterAffordance")
+            == "quiet-default-hover-dots-9px-hit-zone-v28",
+            f"handle_width={dialog.settings_splitter.handleWidth()}; affordance={dialog.settings_splitter.property('settingsSplitterAffordance')!r}; states={splitter_state_results}",
         )
     )
     rows.extend(_run_settings_stress_matrix())
@@ -3686,14 +3770,14 @@ def main() -> int:
             ("Rejected v16 - sectioned title row", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-132602" / "02_top_level_chrome_control_cluster.png"),
             ("Accepted reference - broad NDAI comparator", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
-            ("Repaired v27 - dynamic settings shell", default_path),
-            ("Repaired v27 - centered Settings title", chrome_path),
-            ("Repaired v27 - glyph controls", glyph_path),
-            ("Repaired v27 - splitter affordance", splitter_closeup_path),
-            ("Repaired v27 - 4 row layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
-            ("Repaired v27 - dropdown", log_dir / "07_dropdown_list_state.png"),
-            ("Repaired v27 - close guard", log_dir / "08_close_guard.png"),
-            ("Repaired v27 - four-row close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
+            ("Repaired v28 - dynamic settings shell", default_path),
+            ("Repaired v28 - centered Settings title", chrome_path),
+            ("Repaired v28 - glyph controls", glyph_path),
+            ("Repaired v28 - quiet splitter affordance", splitter_closeup_path),
+            ("Repaired v28 - 4 row layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
+            ("Repaired v28 - dropdown", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired v28 - close guard", log_dir / "08_close_guard.png"),
+            ("Repaired v28 - four-row close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
         ],
         file_name="16_defect_closure_contact_sheet.png",
         title="FAM-003 False-Retest Defect Closure Contact Sheet",
@@ -3761,7 +3845,7 @@ def main() -> int:
     closure_rows = [
         ("F3-LV1-UI-001", "USER / ChatGPT", "20260624-123116/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 12_reference_conformance_contact_sheet.png", "settings-specific single-row title row plus broad NDAI comparator", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-015", "USER", "20260624-123116/04_left_settings_organizer.png", "15_left_pane_resize_affordance_closeup.png; 15_normal_splitter_resize_affordance.png; 15_hover_splitter_resize_affordance.png; 15_active_splitter_resize_affordance.png", "subtle 1px visible left-pane resize affordance inside a 9px hit zone", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-016", "USER", "corner-grip-only v15/v20 proof and stale minimum-size floors", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "dynamic 590x338 base minimum, row-count minimum growth, 860x560 max, 8px edge / 12px corner hover-polled resize with Windows cursor-before-drag proof and no visible bottom-right grip", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-016", "USER", "corner-grip-only v15/v20 proof and stale minimum-size floors", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "dynamic 590x338 base minimum, row-count minimum growth, 780x560 max, 8px edge / 12px corner hover-polled resize with Windows cursor-before-drag proof and no visible bottom-right grip", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-017", "USER", "20260624-123116/01_default_global_settings_shell.png", "01_default_global_settings_shell.png; 05_row_action_default_disabled_state.png; 20_stress_left_rail_28_categories.png; 21_stress_content_mixed_controls.png; 22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "720x406 deterministic shell with control-pill scale matched row grouping, unclipped Quick Access rows, and useful settings copy", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-018", "USER", "v15 ^ / v / x text buttons", "14_glyph_control_closeup.png", "UIREF-003 polished control state grammar", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-019", "USER", "plain utility caption title", "02_top_level_chrome_control_cluster.png", "settings-specific seamless single-row title grammar", "CLOSED_WITH_PROOF"),
@@ -3776,18 +3860,23 @@ def main() -> int:
         ("F3-LV1-UI-028", "USER / ChatGPT", "clean-state Saved label was redundant", "01_default_global_settings_shell.png; 11_post_save_clean_state.png", "quiet clean/post-save state; dirty/guard copy remains meaningful", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-029", "USER", "v18 footer/status close guard did not match accepted Manage Monitors modal dirty guard", "08_close_guard.png; 13a_accepted_manage_monitors_dirty_guard_reference.png; 18_manage_monitors_dirty_guard_side_by_side.png; MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md", "accepted HUD Dashboard / Manage Monitors modal Save / Discard / Cancel dirty guard", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-030", "USER / ChatGPT", "v20/v21 repair risked global shrink/zoom-out instead of real settings-window composition", "01_default_global_settings_shell.png; 04_left_settings_organizer.png; 14_glyph_control_closeup.png", "readable compact controls, real row sizes, and no global scale-down repair", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-031", "USER / ChatGPT", "v24 default/wide proof still allowed the active work surface to feel stranded in a larger shell", "01_default_global_settings_shell.png; 03b_window_resized.png; 03d_window_wide_size.png", "720x406 default, 760x430 medium, and 860x500 wide shell with the active page attached to the splitter instead of centered in empty space", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-031", "USER / ChatGPT", "v24/default proof still allowed the active work surface to feel stranded in a larger shell", "01_default_global_settings_shell.png; 03b_window_resized.png; 03d_window_wide_size.png", "720x406 default, 760x430 medium, and 780x500 max/wide shell with the active page attached to the splitter and no unexplained right-side field", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-032", "USER / ChatGPT", "v21 grouped NEXUS DESKTOP AI / Global Settings title row still failed composition expectations", "02_top_level_chrome_control_cluster.png", "centered Settings-only title row, no visible title-card, no stacked title, no visible NDAI title-row branding", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-033", "USER / ChatGPT", "v21/v24 wide state still risked footer/action detachment from active settings content", "01_default_global_settings_shell.png; 03d_window_wide_size.png; DEFECT_CLOSURE_PROOF_LEDGER.md", "footer remains within the active settings page at default, medium, and splitter-attached wide sizes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-034", "USER / ChatGPT", "Global Settings standard-window path needed renewed proof after title/layout repair", "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md; 02_top_level_chrome_control_cluster.png", "PySide DialogChromeBar remains legal reference-derived settings window; no WebView/shared-primitive migration claim", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-035", "USER / ChatGPT", "bottom-right resize grip must remain removed", "01_default_global_settings_shell.png; 03d_window_wide_size.png; 03c_window_minimum_size.png", "no resize_grip attribute, no residentAccessSettingsResizeGrip widget, no QSizeGrip for this surface", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-036", "USER / ChatGPT", "resize parity required after max-size repair", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "8px edge and 12px corner hit zones, hover-polled Windows cursor handoff, dynamic row-count minimum clamp, 860x560 max clamp, no visible grip", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-036", "USER / ChatGPT", "resize parity required after max-size repair", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "8px edge and 12px corner hit zones, hover-polled Windows cursor handoff, dynamic row-count minimum clamp, 780x560 max clamp, no visible grip", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-037", "USER / ChatGPT", "v21 visible title row still included NEXUS DESKTOP AI branding", "02_top_level_chrome_control_cluster.png", "visible title row contains only centered Settings; hidden kicker is empty and no visible NDAI branding appears in the title row", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-038", "USER / ChatGPT", "future centered Global Settings watermark concept was requested but must not be faked into runtime UI", "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md; fam003_settings_visual_fail_repair_manifest.json", "branch-local deferred watermark property recorded; runtimeWatermarkVisible=false and no visible watermark widget/text exists", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-043", "USER / ChatGPT", "current packet proof showed 3rd/4th Quick Access rows clipping, squashing, or colliding with the footer", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png; 10_max_slots_unclipped.png", "1/2/3/4 row matrix with equal 34px row heights, content-driven card/window growth, and footer separation", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-044", "USER / ChatGPT", "content scale looked globally zoomed down relative to the accepted window-control pill", "01_default_global_settings_shell.png; 14_glyph_control_closeup.png; 22_row_count_3_of_4.png", "window-control scale used as anchor while row height, dropdown, action glyphs, footer buttons, and content spacing scale up without enlarging the rail icons into cards", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-045", "USER / ChatGPT", "footer/list collision risk increased as slot count changed", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "last row remains below card bottom padding and card bottom remains above footer for every active slot count", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-046", "USER / ChatGPT", "layout behaved like a fixed visual envelope instead of content-driven sizing", "fam003_settings_visual_fail_repair_manifest.json; 22_row_count_4_of_4.png; 03c_window_minimum_size.png", "quickAccessLayoutPolicy content-driven-card-window-grow-disable-before-break-v27 with row-count minimum height and Add Slot disabled at slot limit", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-046", "USER / ChatGPT", "layout behaved like a fixed visual envelope instead of content-driven sizing", "fam003_settings_visual_fail_repair_manifest.json; 22_row_count_4_of_4.png; 03c_window_minimum_size.png", "quickAccessLayoutPolicy content-driven-card-window-grow-disable-before-break-v28 with row-count minimum height and Add Slot disabled at slot limit", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-047", "USER / ChatGPT", "185455 packet showed duplicate slot-count text in the Add Slot row and lower/footer area", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "visible count labels are machine-counted and each row state has exactly one N of 4 label beside Add Slot", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-048", "USER / ChatGPT", "185455 packet mixed claimed 860x560 live max with stale 1100x720 stress proof", "03d_window_wide_size.png; fam003_settings_visual_fail_repair_manifest.json; LV1_RETEST_PACKET_FILE_DIGEST.md", "live max is 780x560; synthetic stress proof is separated and stale 1100x720/920x520 artifacts are rejected from LV1 packet proof", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-049", "USER / ChatGPT", "wide/stress state still showed unexplained dead space and left-clustered content", "03d_window_wide_size.png; 19_stress_size_780x560.png", "max/wide shell is clamped to meaningful content width and validator fails unexplained right-side dead space", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-050", "USER / ChatGPT", "splitter normal-state affordance remained too mechanical/visible", "15_normal_splitter_resize_affordance.png; 15_hover_splitter_resize_affordance.png; 15_active_splitter_resize_affordance.png", "default splitter is a quiet line with hover/active dots while the 9px hit zone remains available", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-051", "USER / ChatGPT", "left rail active/icon/hierarchy polish remained under-authored", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png", "rail keeps slim rows while parent/child selection uses polished active signal, small icons, and deterministic hierarchy", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-002", "USER / ChatGPT / Codex", "Codex repeatedly returned repaired/retest-candidate packets after unresolved seed defects remained visible", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png; 18_manage_monitors_dirty_guard_side_by_side.png", "row-specific root-cause prevention plus fail-capable validator requirements for every reopened current-owned defect", "CLOSED_WITH_PROOF"),

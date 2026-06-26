@@ -1050,6 +1050,15 @@ FAM003_RECURRING_DEFECT_IDS = (
     "F3-LV1-UI-036",
     "F3-LV1-UI-037",
     "F3-LV1-UI-038",
+    "F3-LV1-UI-043",
+    "F3-LV1-UI-044",
+    "F3-LV1-UI-045",
+    "F3-LV1-UI-046",
+    "F3-LV1-UI-047",
+    "F3-LV1-UI-048",
+    "F3-LV1-UI-049",
+    "F3-LV1-UI-050",
+    "F3-LV1-UI-051",
 )
 FAM003_LOOP_BREAKER_DEFECT_ID = "F3-LV1-PROOF-003"
 FAM003_PACKET_IMAGE_INTEGRITY_DEFECT_ID = "F3-LV1-PROOF-004"
@@ -1418,6 +1427,11 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "16_defect_closure_contact_sheet.png",
         "17_red_team_review_sheet.png",
         "18_manage_monitors_dirty_guard_side_by_side.png",
+        "19_stress_size_590x338.png",
+        "19_stress_size_640x360.png",
+        "19_stress_size_720x406.png",
+        "19_stress_size_780x460.png",
+        "19_stress_size_780x560.png",
         "22_row_count_1_of_4.png",
         "22_row_count_2_of_4.png",
         "22_row_count_3_of_4.png",
@@ -1438,6 +1452,14 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "fam003_settings_visual_fail_repair_manifest.json",
         "resident_access_settings.json",
     )
+    forbidden_settings_artifacts = (
+        "19_stress_size_1100x720.png",
+        "19_stress_size_920x520.png",
+        "19_stress_size_860x560.png",
+        "19_stress_size_700x360.png",
+        "19_stress_size_640x340.png",
+        "19_stress_size_560x318.png",
+    )
     required_image_artifacts = tuple(
         artifact for artifact in required_settings_artifacts if artifact.casefold().endswith(".png")
     )
@@ -1454,6 +1476,13 @@ def _fam003_lv1_visual_retest_semantic_failures(
             failures.append(
                 "FAM-003 LV1 packet semantic proof failed: missing settings proof artifact "
                 f"{expected_entry}"
+            )
+    for artifact in forbidden_settings_artifacts:
+        forbidden_entry = settings_prefix + artifact
+        if forbidden_entry in normalized_entries:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: stale or mislabeled live/stress proof artifact present "
+                f"{forbidden_entry}"
             )
     failures.extend(
         _fam003_packet_image_integrity_failures(
@@ -1653,6 +1682,11 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-044",
             "F3-LV1-UI-045",
             "F3-LV1-UI-046",
+            "F3-LV1-UI-047",
+            "F3-LV1-UI-048",
+            "F3-LV1-UI-049",
+            "F3-LV1-UI-050",
+            "F3-LV1-UI-051",
             "F3-LV1-FUNC-001",
             "F3-LV1-PROOF-001",
             "F3-LV1-PROOF-002",
