@@ -182,9 +182,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__kicker {
   color: rgba(139, 233, 255, 0.86);
-  font-size: 10.5px;
-  font-weight: 740;
-  letter-spacing: 0.07em;
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
   line-height: 1.1;
   margin-top: 3px;
   text-transform: uppercase;
@@ -193,9 +193,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title {
   margin-top: 0;
   color: rgba(234, 253, 255, 0.95);
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.035em;
+  font-size: 17px;
+  font-weight: 720;
+  letter-spacing: 0.04em;
   line-height: 1.08;
   text-transform: uppercase;
 }
@@ -206,7 +206,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel {
   display: grid;
-  gap: 5px;
+  gap: 6px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -215,7 +215,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__feature-studio-panel {
-  gap: 5px;
+  gap: 6px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="log-viewer"] .monitoring-hud__feature-studio-panel {
@@ -225,7 +225,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-stack,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-stack {
   display: grid;
-  gap: 5px;
+  gap: 6px;
   border: 0;
 }
 
@@ -249,7 +249,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-strip {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0;
+  gap: 6px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -469,7 +469,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-target-strip {
   display: grid;
-  gap: 0;
+  gap: 6px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -479,22 +479,29 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row {
-  --monitoring-hud-studio-row-label-column: minmax(142px, 0.39fr);
+  --monitoring-hud-studio-row-label-token-width: 6ch;
+  --monitoring-hud-studio-row-label-accent-space: 11px;
+  --monitoring-hud-studio-row-value-gutter: 6px;
+  --monitoring-hud-studio-row-label-column: calc(
+    var(--monitoring-hud-studio-row-label-token-width) +
+    var(--monitoring-hud-studio-row-label-accent-space)
+  );
   min-height: 0;
   padding: 4px 0 2px;
   grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr);
-  gap: 6px;
+  gap: var(--monitoring-hud-studio-row-value-gutter);
   background: var(--monitoring-hud-divider-glow);
   background-repeat: no-repeat;
   background-size: 100% var(--monitoring-hud-divider-glow-size);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row span {
-  font-size: 11px;
+  font-size: 10px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row strong {
   font-size: 11px;
+  font-weight: 720;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel[hidden] {

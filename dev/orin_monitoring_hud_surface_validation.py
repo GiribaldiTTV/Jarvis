@@ -32,6 +32,22 @@ def _require_contains(text: str, needle: str, label: str, failures: list[str]) -
     _require(needle in text, f"{label} is missing {needle!r}", failures)
 
 
+def _require_css_block_properties(
+    css: str,
+    selector: str,
+    properties: tuple[str, ...],
+    label: str,
+    failures: list[str],
+) -> None:
+    match = re.search(rf"{re.escape(selector)}\s*\{{(?P<body>.*?)\}}", css, flags=re.DOTALL)
+    if not match:
+        failures.append(f"{label} is missing selector {selector!r}")
+        return
+    block = match.group("body")
+    for prop in properties:
+        _require(prop in block, f"{label} selector {selector!r} is missing {prop!r}", failures)
+
+
 def _html_section(text: str) -> str:
     match = re.search(
         r'<section\s+id="monitoring-hud".*?</section>',
@@ -187,7 +203,7 @@ def validate() -> list[str]:
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
             "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
             "compact pointer",
-            "monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer",
+            "monitoring/HUD, active-overlay recording, Recording Suite, Log Viewer",
             "external/Git/GitHub/helper live truth",
             "canonical detail owners, not this compact backlog registry",
         ):
@@ -199,7 +215,7 @@ def validate() -> list[str]:
             )
         for needle in (
             "monitoring/HUD and active-overlay recording planning/proof history",
-            "Recording Studio",
+            "Recording Suite",
             "Log Viewer",
             "user-visible proof remain routed through the owning phase and live-truth checks",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
@@ -1369,7 +1385,7 @@ def validate() -> list[str]:
         "quick-access-start-stop",
         "hud-overlay-overlay-focused",
         "Start Recording",
-        "Recording Studio",
+        "Recording Suite",
         "Log Viewer",
         "recording-studio-focused-control-status",
         "native-and-export-folder-shell",
@@ -1380,7 +1396,7 @@ def validate() -> list[str]:
 
     for needle in (
         "class MonitoringHudRecordingStudioWindow",
-        'self.setWindowTitle("Nexus Recording Studio")',
+        'self.setWindowTitle("Nexus Recording Suite")',
         "MONITORING_HUD_RECORDING_STUDIO_READY",
         'slice="SLC-053"',
         '"surface": "recording_studio_window"',
@@ -1391,7 +1407,7 @@ def validate() -> list[str]:
         "recording_action_handler",
         "_dispatch_monitoring_hud_recording_studio_action",
     ):
-        _require_contains(renderer, needle, "SLC-053 native Recording Studio window", failures)
+        _require_contains(renderer, needle, "SLC-053 native Recording Suite window", failures)
 
     for needle in (
         "class MonitoringHudLogViewerStudioWindow",
@@ -1456,7 +1472,7 @@ def validate() -> list[str]:
         "no UTS is exported until Live Validation authority is active or waived",
         "recording execution",
         "file writing",
-        "Recording Studio",
+        "Recording Suite",
         "Log Viewer",
         "minimal Log Viewer shell",
         "Native Log Loader implementation",
@@ -1620,9 +1636,12 @@ def validate() -> list[str]:
         "height: 31px",
         "padding-inline: 14px",
         "font-weight: 720",
-        "--monitoring-hud-studio-row-label-column: minmax(142px, 0.39fr)",
+        "--monitoring-hud-studio-row-label-token-width: 6ch",
+        "--monitoring-hud-studio-row-label-accent-space: 11px",
+        "--monitoring-hud-studio-row-value-gutter: 6px",
+        "--monitoring-hud-studio-row-label-column: calc(",
         "grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr)",
-        "gap: 6px",
+        "gap: var(--monitoring-hud-studio-row-value-gutter)",
         "padding: 4px 0 2px",
         "right: 15px",
         'data-element-group="recording-actions"',
@@ -1706,12 +1725,58 @@ def validate() -> list[str]:
         "qsizegrip-bottom-right-enabled",
         "feature-studio-summary",
         "Folder Action",
-    ):
+        ):
         _require(
             forbidden not in studio_html + "\n" + studio_js,
-            f"FAM-006 Recording Studio returned-UTS repair must reject stale UI primitive/content: {forbidden}",
+            f"FAM-006 Recording Suite returned-UTS repair must reject stale UI primitive/content: {forbidden}",
             failures,
         )
+
+    studio_selector_root = (
+        'body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"]'
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__title",
+        ("font-size: 17px", "font-weight: 720", "letter-spacing: 0.04em"),
+        "FAM-006 Studio title must use the accepted compact child-window title scale",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__kicker",
+        ("font-size: 11px", "font-weight: 720", "letter-spacing: 0.08em"),
+        "FAM-006 Studio descriptor must use the accepted compact child-window descriptor scale",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__controller-meta-strip",
+        ("gap: 6px", "padding: 0"),
+        "FAM-006 Recording Suite row stack must use AI Control Center row rhythm",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__log-target-strip",
+        ("gap: 6px", "padding: 0"),
+        "FAM-006 Log Viewer row stack must use AI Control Center row rhythm",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__studio-truth-row span",
+        ("font-size: 10px",),
+        "FAM-006 Studio row label must be one pixel smaller than the status/value text",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__studio-truth-row strong",
+        ("font-size: 11px", "font-weight: 720"),
+        "FAM-006 Studio row status/value column must match the accepted row weight",
+        failures,
+    )
 
     for needle in (
         "monitoringHudStudioNativeDragHandle",
@@ -1741,11 +1806,11 @@ def validate() -> list[str]:
 
     for needle in (
         "profile-specific log consistency",
-        "normal USER-path activation for Recording Studio and Log Viewer",
+        "normal USER-path activation for Recording Suite and Log Viewer",
         "ultra-lightweight detached Recording controller",
         "compact current-branch shell",
         "standalone window layout that is not a Dashboard card clone",
-        "Recording Studio visual proof only after the normal visible activation path is",
+        "Recording Suite visual proof only after the normal visible activation path is",
         "Log Viewer visual-system inheritance",
         "user-visible native/export folder labels and paths",
     ):
@@ -1829,7 +1894,7 @@ def validate() -> list[str]:
         _require_contains(
             js,
             needle,
-            "FAM-006 returned-UTS product repair Recording Studio visible-button proof",
+            "FAM-006 returned-UTS product repair Recording Suite visible-button proof",
             failures,
         )
 

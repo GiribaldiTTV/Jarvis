@@ -7130,7 +7130,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         self._geometry_persistence_key = "recording_studio_feature_studio_v5"
         super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudRecordingStudioWindow")
-        self.setWindowTitle("Nexus Recording Studio")
+        self.setWindowTitle("Nexus Recording Suite")
         self.resize(self.WIDTH, self.HEIGHT)
         self._restore_saved_geometry()
         self._geometry_persistence_ready = True
@@ -7222,7 +7222,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         return {
             "surface": "recording",
             "kicker": "ACTIVE OVERLAY RECORDING",
-            "title": "RECORDING STUDIO",
+            "title": "RECORDING SUITE",
             "subtitle": "",
             "roleLabelA": "Surface",
             "roleValueA": "Recording",
@@ -14070,7 +14070,7 @@ class DesktopRuntimeWindow(QWidget):
         def step_recording_studio_click():
             os_click_and_assert_state(
                 "#monitoring-hud-recording-studio-open",
-                "real OS click opens Dashboard Recording Studio",
+                "real OS click opens Dashboard Recording Suite",
                 """
                 (function() {
                     const studio = document.getElementById("monitoring-hud-recording-studio-open");
@@ -14079,7 +14079,7 @@ class DesktopRuntimeWindow(QWidget):
                         ok: Boolean(
                             studio
                             && !studio.disabled
-                            && String(studio.textContent || "").trim() === "Recording Studio"
+                            && String(studio.textContent || "").trim() === "Recording Suite"
                             && studio.dataset.recordingStudioUserPath === "always-openable-target-state-visible"
                             && monitoringHudControlState.recordingControlWindowRequested === true
                             && monitoringHudControlState.recordingControlWindowState === "native-window-requested"
@@ -14163,9 +14163,9 @@ class DesktopRuntimeWindow(QWidget):
                 QApplication.processEvents()
                 QTimer.singleShot(delay(500), step_recording_studio_native_window_assert)
                 return
-            add_step("Recording Studio native window screenshot-capture readiness", passed, proof)
+            add_step("Recording Suite native window screenshot-capture readiness", passed, proof)
             if not passed:
-                finish("FAIL", "Recording Studio native window capture-readiness failed before focused screenshot")
+                finish("FAIL", "Recording Suite native window capture-readiness failed before focused screenshot")
                 return
             capture_native_window("02_recording_studio_native_window_ready_state", widget)
             QTimer.singleShot(delay(), step_recording_start_click)
@@ -14331,9 +14331,9 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("nativeLogPathDisplayMode") in {"single-line-contained", "middle-elided-contained"}
                 and proof.get("activationMode") == "passive-state-refresh"
             )
-            add_step("Recording Studio compact native/current-log tracking updates after save", passed, proof)
+            add_step("Recording Suite compact native/current-log tracking updates after save", passed, proof)
             if not passed:
-                finish("FAIL", "Recording Studio native/current-log tracking proof failed")
+                finish("FAIL", "Recording Suite native/current-log tracking proof failed")
                 return
             capture_native_window("02_recording_studio_native_log_saved_tracking_state", widget)
             QTimer.singleShot(delay(), step_recording_open_folder_click)
@@ -14733,7 +14733,7 @@ class DesktopRuntimeWindow(QWidget):
                 and snapshot.get("logViewerVisible") is False
                 and snapshot.get("logViewerActive") is False
             )
-            add_step("Independent Recording Studio and Log Viewer windows are closed before Overlay Profile proof", passed, snapshot)
+            add_step("Independent Recording Suite and Log Viewer windows are closed before Overlay Profile proof", passed, snapshot)
             capture("02_native_proof_windows_closed_before_overlay_profile_selector")
             if not passed:
                 finish("FAIL", "Independent native proof windows contaminated Overlay Profile proof lane")
@@ -14940,7 +14940,7 @@ class DesktopRuntimeWindow(QWidget):
                 "Recording Option C focused lane completed current-branch feature proof only",
                 True,
                 {
-                    "scope": "Dashboard Recording Card, Recording Studio, Log Viewer shell, native output/readback, Log Viewer lifecycle combinations, and active Overlay Profile target mirror",
+                    "scope": "Dashboard Recording Card, Recording Suite, Log Viewer shell, native output/readback, Log Viewer lifecycle combinations, and active Overlay Profile target mirror",
                     "excludedHistoricalHudProof": "Overlay Profile create/edit/save/restart workflow stays out of the default Recording Option C LV lane unless a dedicated dependency-persistence lane is invoked.",
                     "sourceTruthBasis": "FAM-006 Recording FFV: Live Validation should validate new or affected elements; previously accepted elements need retesting only when the branch changes them or their dependencies.",
                     "realOsInputProof": True,
@@ -15437,7 +15437,7 @@ class DesktopRuntimeWindow(QWidget):
             capture("rar3d_RAR2B-FAM006-007_quick_access_focus")
             os_click_and_assert_state(
                 "#monitoring-hud-recording-studio-open",
-                "RAR3D real OS click opens Recording Studio for ordered proof",
+                "RAR3D real OS click opens Recording Suite for ordered proof",
                 """
                 (function() {
                     return JSON.stringify({
@@ -15461,7 +15461,7 @@ class DesktopRuntimeWindow(QWidget):
                     ("close", getattr(widget, "_close", None) if widget else None),
                 ],
             )
-            add_step("RAR3D Recording Studio min/close ordered visual states", bool(controls_proof.get("ok")), controls_proof)
+            add_step("RAR3D Recording Suite min/close ordered visual states", bool(controls_proof.get("ok")), controls_proof)
             action_proof = rar3d_capture_widget_control_states(
                 row_id="RAR2B-FAM006-014",
                 surface="recording_studio_start_stop",
@@ -15471,13 +15471,13 @@ class DesktopRuntimeWindow(QWidget):
                     ("stop", getattr(widget, "_stop", None) if widget else None),
                 ],
             )
-            add_step("RAR3D Recording Studio Start/Stop ordered visual states", bool(action_proof.get("ok")), action_proof)
+            add_step("RAR3D Recording Suite Start/Stop ordered visual states", bool(action_proof.get("ok")), action_proof)
             geometry_proof = rar3d_capture_widget_geometry(
                 row_id="RAR2B-FAM006-016",
                 surface="recording_studio",
                 widget=widget,
             )
-            add_step("RAR3D Recording Studio literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
+            add_step("RAR3D Recording Suite literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
             QTimer.singleShot(delay(), step_rar3d_open_log_viewer)
 
         def step_rar3d_open_log_viewer():
@@ -15697,11 +15697,11 @@ class DesktopRuntimeWindow(QWidget):
             widget = self._monitoring_hud_recording_studio_window
             if widget is None or not widget.isVisible():
                 add_step(
-                    "RAR3E Recording Studio direct Start activation proof",
+                    "RAR3E Recording Suite direct Start activation proof",
                     False,
-                    {"rowId": "RAR2B-FAM006-014", "reason": "Recording Studio not visible for direct activation proof"},
+                    {"rowId": "RAR2B-FAM006-014", "reason": "Recording Suite not visible for direct activation proof"},
                 )
-                finish("FAIL", "RAR3E Recording Studio direct activation window missing")
+                finish("FAIL", "RAR3E Recording Suite direct activation window missing")
                 return
             start_proof = rar3e_click_widget_button(
                 row_id="RAR2B-FAM006-014",
@@ -15711,7 +15711,7 @@ class DesktopRuntimeWindow(QWidget):
                 control_name="recording_studio_start",
                 action_label="direct Studio Start",
             )
-            add_step("RAR3E Recording Studio direct Start activation proof", bool(start_proof.get("ok")), start_proof)
+            add_step("RAR3E Recording Suite direct Start activation proof", bool(start_proof.get("ok")), start_proof)
             QTimer.singleShot(delay(900), step_rar3e_recording_studio_direct_stop)
 
         def step_rar3e_recording_studio_direct_stop():
@@ -15724,7 +15724,7 @@ class DesktopRuntimeWindow(QWidget):
                 control_name="recording_studio_stop",
                 action_label="direct Studio Stop",
             )
-            add_step("RAR3E Recording Studio direct Stop/saved activation proof", bool(stop_proof.get("ok")), stop_proof)
+            add_step("RAR3E Recording Suite direct Stop/saved activation proof", bool(stop_proof.get("ok")), stop_proof)
             QTimer.singleShot(delay(1300), step_rar3e_recording_studio_keyboard_activation)
 
         def step_rar3e_recording_studio_keyboard_activation():
@@ -15736,7 +15736,7 @@ class DesktopRuntimeWindow(QWidget):
                 button=getattr(widget, "_start", None) if widget else None,
                 control_name="recording_studio_start",
             )
-            add_step("RAR3E Recording Studio keyboard Start activation proof", bool(start_key.get("ok")), start_key)
+            add_step("RAR3E Recording Suite keyboard Start activation proof", bool(start_key.get("ok")), start_key)
             QTimer.singleShot(delay(900), step_rar3e_recording_studio_keyboard_stop)
 
         def step_rar3e_recording_studio_keyboard_stop():
@@ -15748,7 +15748,7 @@ class DesktopRuntimeWindow(QWidget):
                 button=getattr(widget, "_stop", None) if widget else None,
                 control_name="recording_studio_stop",
             )
-            add_step("RAR3E Recording Studio keyboard Stop/saved activation proof", bool(stop_key.get("ok")), stop_key)
+            add_step("RAR3E Recording Suite keyboard Stop/saved activation proof", bool(stop_key.get("ok")), stop_key)
             QTimer.singleShot(delay(1300), step_rar3e_log_viewer_folder_activation)
 
         def step_rar3e_log_viewer_folder_activation():
@@ -15797,7 +15797,7 @@ class DesktopRuntimeWindow(QWidget):
                 widget=recording_widget,
                 drag_surface=getattr(recording_widget, "_drag_surface", None) if recording_widget else None,
             )
-            add_step("RAR3E Recording Studio real title-bar drag geometry proof", bool(recording_drag.get("ok")), recording_drag)
+            add_step("RAR3E Recording Suite real title-bar drag geometry proof", bool(recording_drag.get("ok")), recording_drag)
             log_drag = rar3e_real_drag_widget_geometry(
                 row_id="RAR2B-FAM006-021",
                 surface="log_viewer_studio",

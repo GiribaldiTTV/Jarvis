@@ -1,7 +1,7 @@
 """Generate the FAM-006 REC-A + Log Viewer implementation-match packet.
 
 This branch-local helper packages actual runtime proof for the USER-selected
-REC-A Recording Studio direction, renamed Log Viewer direction, and B2
+REC-A Recording Suite direction, renamed Log Viewer direction, and B2
 placement behavior. It does not claim H1, Live Validation, UTS, PR readiness,
 merge, release, or cleanup acceptance.
 """
@@ -639,11 +639,11 @@ def _load_proof_summary(proof_root: Path) -> dict[str, Any]:
 
 def _implementation_defect_ledger(proof_summary: dict[str, Any]) -> dict[str, Any]:
     rows = [
-        ("FAM006-IMPL-001", "Recording Studio selected direction", "REC-A must be the runtime implementation base.", "MATCH"),
-        ("FAM006-IMPL-002", "START control", "Recording Studio exposes deterministic START control.", "MATCH"),
-        ("FAM006-IMPL-003", "PAUSE control", "Recording Studio exposes deterministic PAUSE control.", "MATCH"),
-        ("FAM006-IMPL-004", "STOP control", "Recording Studio exposes deterministic STOP control.", "MATCH"),
-        ("FAM006-IMPL-005", "OPEN LOG VIEWER route", "Recording Studio routes to Log Viewer rather than native/export folder actions.", "MATCH"),
+        ("FAM006-IMPL-001", "Recording Suite selected direction", "REC-A must be the runtime implementation base.", "MATCH"),
+        ("FAM006-IMPL-002", "START control", "Recording Suite exposes deterministic START control.", "MATCH"),
+        ("FAM006-IMPL-003", "PAUSE control", "Recording Suite exposes deterministic PAUSE control.", "MATCH"),
+        ("FAM006-IMPL-004", "STOP control", "Recording Suite exposes deterministic STOP control.", "MATCH"),
+        ("FAM006-IMPL-005", "OPEN LOG VIEWER route", "Recording Suite routes to Log Viewer rather than native/export folder actions.", "MATCH"),
         ("FAM006-IMPL-006", "Log Viewer rename", "Runtime visible surface is Log Viewer, not Log Viewer Studio.", "MATCH"),
         ("FAM006-IMPL-007", "Log Viewer doorway scope", "Viewer is deferred and exposes native/export folder actions only.", "MATCH"),
         ("FAM006-IMPL-008", "B2 placement", "Default/fresh parent-neighbor and same-session moved restore are proven.", "MATCH"),
@@ -701,7 +701,7 @@ def _implementation_defect_ledger(proof_summary: dict[str, Any]) -> dict[str, An
 
 def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
     items = [
-        ("Recording title/hierarchy", "RECORDING STUDIO with Active Overlay Recording support", "MATCH"),
+        ("Recording title/hierarchy", "RECORDING SUITE with Active Overlay Recording support", "MATCH"),
         ("Recording target row", "TARGET - Default Overlay Profile", "MATCH"),
         ("Recording state row", "STATE - Ready - 2 active monitors", "MATCH"),
         ("START / PAUSE / STOP segmented transport pill", "START, PAUSE, and STOP are one left-aligned segmented pill, not three unrelated buttons", proof_summary.get("recordingActionLayoutStatus") or "REPAIR_REQUIRED"),
@@ -711,7 +711,7 @@ def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
         ("OPEN LOG VIEWER route action", "Routes to Log Viewer via runtime handler, remains outside the transport pill, and is right-aligned in the action row", "MATCH" if proof_summary.get("openLogViewerRouteStatus") == "MATCH" and proof_summary.get("recordingActionLayoutStatus") == "PASS" else "REPAIR_REQUIRED"),
         ("Recording footprint/dead-space", "Compact controller proof plus crop ledger and runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Recording control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
-        ("Recording action button primitive", "Every Recording Studio action consumes the AI Control Center content-fit primitive", proof_summary.get("recordingButtonPrimitiveStatus") or "REPAIR_REQUIRED"),
+        ("Recording action button primitive", "Every Recording Suite action consumes the AI Control Center content-fit primitive", proof_summary.get("recordingButtonPrimitiveStatus") or "REPAIR_REQUIRED"),
         ("Recording control pill bottom gutter", "Bottom gutter below the compact control pill equals the top gutter", proof_summary.get("recordingControlPillGutterStatus") or "REPAIR_REQUIRED"),
         ("Log Viewer rename", "LOG VIEWER visible surface", "MATCH"),
         ("VIEWER - Deferred", "Deferred doorway state visible", "MATCH"),
@@ -1254,7 +1254,7 @@ def generate() -> int:
     _write_md(
         PACKET_ROOT / ACCEPTED_SELECTION_RECEIPT_MD_RELATIVE,
         "# Accepted Candidate Selection Receipt\n\n"
-        "- Selection: `REC-A Recording Studio` plus renamed `Log Viewer` direction.\n"
+        "- Selection: `REC-A Recording Suite` plus renamed `Log Viewer` direction.\n"
         "- Accepted selection digest is preserved in the adjacent machine-readable receipt.\n"
         f"- Evidence status during generation: `{accepted_selection['status']}`\n"
         f"- Evidence source during generation: `{accepted_selection.get('source', 'not available')}`\n"
@@ -1293,7 +1293,7 @@ Packet Status: `{PACKET_STATUS}`
 
 Start with `USER Review/{PRIMARY_REVIEW}`.
 
-This packet proves current runtime implementation-match for the USER-selected REC-A Recording Studio direction, renamed Log Viewer direction, and B2 placement proof. It is not H1 acceptance, renewed exact USER desktop launcher Live Validation, UTS acceptance, PR Readiness, PR creation, merge, release, issue mutation, branch cleanup, sibling worktree mutation, Governance mutation, or neutral-main mutation.
+This packet proves current runtime implementation-match for the USER-selected REC-A Recording Suite direction, renamed Log Viewer direction, and B2 placement proof. It is not H1 acceptance, renewed exact USER desktop launcher Live Validation, UTS acceptance, PR Readiness, PR creation, merge, release, issue mutation, branch cleanup, sibling worktree mutation, Governance mutation, or neutral-main mutation.
 
 Final clean proof is included at `{FINAL_CLEAN_PROOF_MD_RELATIVE.as_posix()}`. The superseded packet Git status audit is included at `{GIT_STATUS_AUDIT_MD_RELATIVE.as_posix()}`.
 """,
@@ -1305,7 +1305,7 @@ Packet Status: `{PACKET_STATUS}`
 
 ## Decision Boundary
 
-This packet is for USER review of runtime implementation-match only. It proves the selected REC-A Recording Studio direction, renamed Log Viewer direction, and B2 placement behavior with actual runtime proof media. It does not accept H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, issue mutation, or cleanup.
+This packet is for USER review of runtime implementation-match only. It proves the selected REC-A Recording Suite direction, renamed Log Viewer direction, and B2 placement behavior with actual runtime proof media. It does not accept H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, issue mutation, or cleanup.
 
 ## Accepted Candidate Selection
 
@@ -1313,12 +1313,12 @@ This packet is for USER review of runtime implementation-match only. It proves t
 - Accepted packet ZIP embedded in this packet: `No`
 - Accepted packet source used for this generation: `{accepted_selection.get('source', 'external branch plan/state accepted candidate receipt')}`
 - Accepted selection digest is preserved in the machine-readable receipt and post-ZIP manifest.
-- Selection: `REC-A Recording Studio` plus renamed `Log Viewer` direction.
+- Selection: `REC-A Recording Suite` plus renamed `Log Viewer` direction.
 
 ## Runtime Proof
 
 - Evidence root copied into this packet: `Review Aids/Evidence/{evidence_root.name}`
-- Recording Studio: START / PAUSE / STOP are row-mapped individually and as one segmented transport pill; TARGET, STATE, and OPEN LOG VIEWER are row-mapped separately.
+- Recording Suite: START / PAUSE / STOP are row-mapped individually and as one segmented transport pill; TARGET, STATE, and OPEN LOG VIEWER are row-mapped separately.
 - Recording action layout proof: `{proof_summary.get("recordingActionLayoutStatus")}`; transport left delta `{proof_summary.get("recordingTransportPillLeftAlignedPx")}` px; OPEN LOG VIEWER right delta `{proof_summary.get("openLogViewerRightAlignedPx")}` px.
 - Log Viewer action layout proof: `{proof_summary.get("logViewerActionLayoutStatus")}`; OPEN EXPORTED LOGS right delta `{proof_summary.get("logViewerExportedLogsRightAlignedPx")}` px.
 - OPEN LOG VIEWER route proof: `{proof_summary.get("openLogViewerRouteStatus")}`

@@ -421,6 +421,11 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             label_style = item.get("rowLabelComputedStyle")
             value_style = item.get("rowValueComputedStyle")
             value_left = int(value_rect.get("left", 0)) if isinstance(value_rect, dict) else None
+            label_width = (
+                int(label_rect.get("right", 0)) - int(label_rect.get("left", 0))
+                if isinstance(label_rect, dict)
+                else None
+            )
             row_failures: list[str] = []
             if label_text != expected_label:
                 row_failures.append(f"label {label_text!r} != {expected_label!r}")
@@ -432,14 +437,24 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                 row_failures.append(f"label/value gap {gap}px outside AI Control Center 6px +/-1px range")
             if not isinstance(label_rect, dict) or not isinstance(value_rect, dict):
                 row_failures.append("label/value rect missing")
+            if not isinstance(label_width, int):
+                row_failures.append("label column width missing")
+            elif label_width < 56 or label_width > 68:
+                row_failures.append(f"label column width {label_width}px outside content-derived compact range 56-68px")
+            if not isinstance(value_left, int):
+                row_failures.append("value/status column left missing")
             if not isinstance(label_style, dict):
                 row_failures.append("label computed style missing")
-            elif label_style.get("fontSize") != "11px":
-                row_failures.append(f"label fontSize {label_style.get('fontSize')!r} != '11px'")
+            elif label_style.get("fontSize") != "10px":
+                row_failures.append(f"label fontSize {label_style.get('fontSize')!r} != '10px'")
+            if isinstance(label_style, dict) and str(label_style.get("fontWeight")) != "720":
+                row_failures.append(f"label fontWeight {label_style.get('fontWeight')!r} != '720'")
             if not isinstance(value_style, dict):
                 row_failures.append("value computed style missing")
             elif value_style.get("fontSize") != "11px":
                 row_failures.append(f"value fontSize {value_style.get('fontSize')!r} != '11px'")
+            if isinstance(value_style, dict) and str(value_style.get("fontWeight")) != "720":
+                row_failures.append(f"value fontWeight {value_style.get('fontWeight')!r} != '720'")
             rows.append(
                 {
                     "rowKey": key,
@@ -448,13 +463,16 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                     "valueText": value_text,
                     "labelRect": label_rect,
                     "valueRect": value_rect,
+                    "labelColumnWidthPx": label_width,
                     "labelComputedStyle": label_style,
                     "valueComputedStyle": value_style,
                     "valueLeftPx": value_left,
                     "labelValueGapPx": gap,
                     "expectedGapPx": "6 +/- 1",
-                    "expectedLabelFontSize": "11px",
+                    "expectedLabelColumnWidthPx": "56-68",
+                    "expectedLabelFontSize": "10px",
                     "expectedValueFontSize": "11px",
+                    "expectedFontWeight": "720",
                     "failures": row_failures,
                     "status": "PASS" if not row_failures else "REPAIR",
                 }
@@ -469,8 +487,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         if len(value_lefts) > 1 and value_column_delta is not None and value_column_delta > 1:
             failures.append(f"value/status column start delta {value_column_delta}px exceeds 1px")
         return {
-            "surface": "Recording Studio" if surface_key == "recording" else "Log Viewer",
-            "expected": "studio state rows use AI Control Center row rhythm: minmax(142px, 0.39fr) label column, 6px label/value gap, and USER-directed 11px label/value text",
+            "surface": "Recording Suite" if surface_key == "recording" else "Log Viewer",
+            "expected": "studio state rows use compact child-window row rhythm: content-derived max label token column plus 6px value gutter, USER-directed 10px label / 11px value text, and 720 font weight",
             "rows": rows,
             "valueColumnDeltaPx": value_column_delta,
             "valueColumnAlignmentExpectedPx": "0-1",
@@ -534,7 +552,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             if pause and stop and int(pause.get("left", 0)) >= int(stop.get("left", 0)):
                 failures.append("PAUSE segment is not before STOP in the transport pill")
             return {
-                "surface": "Recording Studio",
+                "surface": "Recording Suite",
                 "expectedActionGrammar": "START/PAUSE/STOP are one segmented transport pill left-aligned; OPEN LOG VIEWER remains separate and right-aligned.",
                 "actionStripRect": strip,
                 "transportPillRect": pill,
@@ -725,20 +743,20 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         f"Status: `{payload['status']}`\n\n"
         "| Surface | Image size | Final action bottom | Bottom slack | Height verdict | Slack verdict |\n"
         "| --- | --- | --- | --- | --- | --- |\n"
-        f"| Recording Studio | {recording['imageSize']['width']}x{recording['imageSize']['height']} | {recording['finalActionBottomPx']} | {recording['bottomSlackPx']} | {recording['heightVerdict']} | {recording['bottomSlackVerdict']} |\n"
+        f"| Recording Suite | {recording['imageSize']['width']}x{recording['imageSize']['height']} | {recording['finalActionBottomPx']} | {recording['bottomSlackPx']} | {recording['heightVerdict']} | {recording['bottomSlackVerdict']} |\n"
         f"| Log Viewer | {log_viewer['imageSize']['width']}x{log_viewer['imageSize']['height']} | {log_viewer['finalActionBottomPx']} | {log_viewer['bottomSlackPx']} | {log_viewer['heightVerdict']} | {log_viewer['bottomSlackVerdict']} |\n"
         "\n| Surface | Button primitive | Top gutter | Right gutter | Bottom gutter | Control pill gutter |\n"
         "| --- | --- | --- | --- | --- | --- |\n"
-        f"| Recording Studio | {recording['buttonPrimitiveVerdict']} | {recording['controlPillGutterMeasurements']['topGutterPx']} | {recording['controlPillGutterMeasurements']['rightGutterPx']} | {recording['controlPillGutterMeasurements']['bottomGutterPx']} | {recording['controlPillGutterVerdict']} |\n"
+        f"| Recording Suite | {recording['buttonPrimitiveVerdict']} | {recording['controlPillGutterMeasurements']['topGutterPx']} | {recording['controlPillGutterMeasurements']['rightGutterPx']} | {recording['controlPillGutterMeasurements']['bottomGutterPx']} | {recording['controlPillGutterVerdict']} |\n"
         f"| Log Viewer | {log_viewer['buttonPrimitiveVerdict']} | {log_viewer['controlPillGutterMeasurements']['topGutterPx']} | {log_viewer['controlPillGutterMeasurements']['rightGutterPx']} | {log_viewer['controlPillGutterMeasurements']['bottomGutterPx']} | {log_viewer['controlPillGutterVerdict']} |\n"
         + "\n| Surface | Title/status gap | Expected range | Verdict |\n"
         "| --- | --- | --- | --- |\n"
-        f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {recording['titleToStatusVerdict']} |\n"
+        f"| Recording Suite | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {recording['titleToStatusVerdict']} |\n"
         f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {log_viewer['titleToStatusVerdict']} |\n"
         + "\n| Surface | Row label/value gap | Label/value font | Value column left | Expected range | Verdict |\n"
         "| --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            f"| Recording Studio `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | 6px +/-1; value-column delta 0-1px | {row['status']} |"
+            f"| Recording Suite `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | 6px +/-1; value-column delta 0-1px | {row['status']} |"
             for row in recording["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"
@@ -749,7 +767,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         + "\n"
         + "\n| Surface | Action layout | Required grammar | Alignment deltas |\n"
         "| --- | --- | --- | --- |\n"
-        f"| Recording Studio | {recording['actionLayoutVerdict']} | Segmented transport pill left; OPEN LOG VIEWER separate/right | transport left {recording['actionLayoutMeasurements'].get('transportPillLeftAlignedPx')}px; route right {recording['actionLayoutMeasurements'].get('openLogViewerRightAlignedPx')}px |\n"
+        f"| Recording Suite | {recording['actionLayoutVerdict']} | Segmented transport pill left; OPEN LOG VIEWER separate/right | transport left {recording['actionLayoutMeasurements'].get('transportPillLeftAlignedPx')}px; route right {recording['actionLayoutMeasurements'].get('openLogViewerRightAlignedPx')}px |\n"
         f"| Log Viewer | {log_viewer['actionLayoutVerdict']} | Native/export actions right-aligned | exported right {log_viewer['actionLayoutMeasurements'].get('exportedLogsRightAlignedPx')}px |\n",
         encoding="utf-8",
     )
@@ -1249,11 +1267,11 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="chrome",
                 filename="recording_window_chrome.png",
-                semantic="Recording Studio full chrome/window shell",
+                semantic="Recording Suite full chrome/window shell",
                 crop_type="FULL_WINDOW_CROP",
                 expected=[
                     "ACTIVE OVERLAY RECORDING",
-                    "RECORDING STUDIO",
+                    "RECORDING SUITE",
                     "START",
                     "PAUSE",
                     "STOP",
@@ -1275,7 +1293,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingStartAction",
                 filename="recording_start_action.png",
-                semantic="Recording Studio selected REC-A Start action",
+                semantic="Recording Suite selected REC-A Start action",
                 expected=["START"],
                 forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
                 adjacent_allowed=True,
@@ -1292,7 +1310,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingPauseAction",
                 filename="recording_pause_action.png",
-                semantic="Recording Studio selected REC-A Pause action",
+                semantic="Recording Suite selected REC-A Pause action",
                 expected=["PAUSE"],
                 forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
                 adjacent_allowed=True,
@@ -1309,7 +1327,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingStopAction",
                 filename="recording_stop_action.png",
-                semantic="Recording Studio selected REC-A Stop action",
+                semantic="Recording Suite selected REC-A Stop action",
                 expected=["STOP"],
                 forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
                 adjacent_allowed=True,
@@ -1326,7 +1344,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingTransportPill",
                 filename="recording_transport_pill.png",
-                semantic="Recording Studio segmented transport pill containing START, PAUSE, and STOP",
+                semantic="Recording Suite segmented transport pill containing START, PAUSE, and STOP",
                 crop_type="RELATIONSHIP_CROP",
                 relationship="START, PAUSE, and STOP are one segmented transport pill left-aligned in the action row.",
                 included_adjacent=["recordingStartAction", "recordingPauseAction", "recordingStopAction"],
@@ -1347,16 +1365,16 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingTargetTruth",
                 filename="recording_target_truth.png",
-                semantic="Recording Studio target truth row",
+                semantic="Recording Suite target truth row",
                 crop_type="STATE_CROP",
                 relationship="TARGET and STATE rows directly below the compact Studio title/control chrome",
                 included_adjacent=["titleGroup", "windowControls"],
                 expected=["TARGET", "Default Overlay Profile", "STATE", "Ready - 2 active monitors"],
                 forbidden_adjacent=["OPEN LOG VIEWER", "Waiting for first recording."],
                 excluded_text=[
-                    "RECORDING STUDIO",
+                    "RECORDING SUITE",
                     "ACTIVE OVERLAY RECORDING",
-                    "RECORDING STUDIO ACTIVE OVERLAY RECORDING",
+                    "RECORDING SUITE ACTIVE OVERLAY RECORDING",
                 ],
                 excluded_reason="Compact relationship crop may include nearby title/control geometry because the TARGET row sits immediately below the title group.",
                 adjacent_allowed=True,
@@ -1373,7 +1391,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 source_label="recording_default",
                 dom_key="recordingLogRoute",
                 filename="recording_log_viewer_route.png",
-                semantic="Recording Studio Log Viewer route action",
+                semantic="Recording Suite Log Viewer route action",
                 expected=["OPEN LOG VIEWER"],
                 forbidden_adjacent=["Waiting for first recording.", "Recordings folder", "Exported Logs folder"],
                 min_width=180,
@@ -1987,9 +2005,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     red_rows = [
         {
             "rowId": "RT-REC-001",
-            "surface": "Recording Studio",
+            "surface": "Recording Suite",
             "elementGroup": "state label/value",
-            "sourceTruthRequirement": "F6-FF01 Recording Studio must avoid report/status-panel feel and duplicated state grammar.",
+            "sourceTruthRequirement": "F6-FF01 Recording Suite must avoid report/status-panel feel and duplicated state grammar.",
             "screenshotEvidenceFile": row_map["recording-start-action"],
             "negativeQuestion": "Does the Studio repeat the same state word as both label and value?",
             "defectLookedFor": "READY / READY or RECORDING / RECORDING visual grammar.",
@@ -2000,7 +2018,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         },
         {
             "rowId": "RT-REC-002",
-            "surface": "Recording Studio",
+            "surface": "Recording Suite",
             "elementGroup": "REC-A transport controls",
             "sourceTruthRequirement": "USER selected REC-A: explicit START / PAUSE / STOP controls plus a separate OPEN LOG VIEWER route.",
             "screenshotEvidenceFile": row_map["recording-start-action"],
@@ -2013,7 +2031,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         },
         {
             "rowId": "RT-REC-005",
-            "surface": "Recording Studio",
+            "surface": "Recording Suite",
             "elementGroup": "transport/action relationship",
             "sourceTruthRequirement": "USER-selected REC-A action row must present START / PAUSE / STOP as one left-aligned segmented transport pill and keep OPEN LOG VIEWER separate/right-aligned.",
             "screenshotEvidenceFile": row_map["recording-transport-pill"],
@@ -2026,7 +2044,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         },
         {
             "rowId": "RT-REC-003",
-            "surface": "Recording Studio",
+            "surface": "Recording Suite",
             "elementGroup": "target/log truth",
             "sourceTruthRequirement": "Recording truth must be product-facing and not a debug table.",
             "screenshotEvidenceFile": row_map["recording-target-truth"],
@@ -2039,7 +2057,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         },
         {
             "rowId": "RT-REC-004",
-            "surface": "Recording Studio",
+            "surface": "Recording Suite",
             "elementGroup": "copy",
             "sourceTruthRequirement": "Copy must be user-facing and scoped to current branch behavior.",
             "screenshotEvidenceFile": row_map["recording-full-window"],
@@ -2679,7 +2697,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "RT-REC-001": ("recording-state-duplication", "Fail if label/value repeat the same Ready, Recording, Saved, or Blocked word."),
         "RT-REC-002": ("recording-action-hierarchy", "Fail if START / PAUSE / STOP are missing, merged into a single toggle, or visually confused with the Log Viewer route."),
         "RT-REC-003": ("recording-status-panel-feel", "Fail if target/log truth appears as bordered report rows or debug/status panels."),
-        "RT-REC-004": ("recording-product-copy", "Fail if Recording Studio copy exposes validation, helper, proof, worktree, or debug terms."),
+        "RT-REC-004": ("recording-product-copy", "Fail if Recording Suite copy exposes validation, helper, proof, worktree, or debug terms."),
         "RT-REC-005": ("recording-transport-pill-action-layout", "Fail if START / PAUSE / STOP are not one left-aligned segmented transport pill or OPEN LOG VIEWER is not separate/right-aligned."),
         "RT-LOG-001": ("log-viewer-action-card-polish", "Fail if native destination reads as a path/status table instead of an action card."),
         "RT-LOG-002": ("log-viewer-user-export-copy", "Fail if visible UI copy contains USER exports or other governance/internal terms."),
@@ -2859,7 +2877,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "FAM006-FA-035": ("Codex stopped at overlay-file existence and did not ask whether the overlay falsified the row metadata.", "Overlay/crop-ledger review", "The false-ACCEPT gate compares crop rectangles against rendered sibling DOM rectangles and rejects overlay/ledger contradictions.", "Current known-bad FAM-006-20260622-202600.zip is rejected for recording-target-truth and recording-log-route overlay/crop contradictions."),
         "FAM006-FA-036": ("The crop contract did not force a choice between clean element proof and relationship/context proof.", "Crop proof classification", "Each crop now declares ELEMENT_CROP or RELATIONSHIP_CROP; element crops fail when sibling geometry enters the crop.", "Current known-bad FAM-006-20260622-202600.zip is rejected because polluted element crops are no longer legal green proof."),
         "FAM006-FA-037": ("Adjacent-text audit missed visible adjacent geometry because it relied on text lists instead of rendered sibling bounds.", "Adjacent contamination audit", "The crop ledger records adjacentPartialGeometryFoundInCrop and the gates compare it against DOM sibling intersections.", "Current known-bad FAM-006-20260622-202600.zip is rejected when geometry appears while adjacent lists are empty."),
-        "FAM006-FA-038": ("The expected text check only asked whether listed text appeared; it did not require every visible full-window text string to be listed.", "Full-window crop text audit", "Full-window crops are now typed FULL_WINDOW_CROP and validators require the complete visible text inventory for Recording Studio and Log Viewer.", "Current known-bad FAM-006-20260623-050502.zip is rejected for missing full-window expected text."),
+        "FAM006-FA-038": ("The expected text check only asked whether listed text appeared; it did not require every visible full-window text string to be listed.", "Full-window crop text audit", "Full-window crops are now typed FULL_WINDOW_CROP and validators require the complete visible text inventory for Recording Suite and Log Viewer.", "Current known-bad FAM-006-20260623-050502.zip is rejected for missing full-window expected text."),
         "FAM006-FA-039": ("The destination-card crop contract allowed visible folder-label text to go unlisted.", "Destination-card crop text audit", "Native and exported destination crops now require Recordings folder and Exported Logs folder in expectedTextInsideCrop.", "Current known-bad FAM-006-20260623-050502.zip is rejected for destination-card expected-text omissions."),
         "FAM006-FA-040": ("The crop type vocabulary was too narrow, so state, resize, and relationship-stack proof could masquerade as simple element proof.", "Crop scope/type audit", "Crops now declare FULL_WINDOW_CROP, ELEMENT_CROP, STATE_CROP, or RESIZE_STATE_CROP according to the proof need.", "Current known-bad FAM-006-20260623-050502.zip is rejected for crop-scope/type mismatch."),
         "FAM006-FA-041": ("Resize/error-state proof did not have a required blocked/error text inventory.", "Resize-state text audit", "Resize-state crops now require visible blocked/error strings when the state shows failed exported-log opening.", "Current known-bad FAM-006-20260623-050502.zip is rejected for omitted blocked/error expected text."),
@@ -3050,7 +3068,7 @@ def _create_parent_proof_surface() -> QWidget:
     title = QLabel("HUD Dashboard", parent)
     title.setObjectName("proofTitle")
     body = QLabel(
-        "B2 placement proof parent surface. Recording Studio and Log Viewer must open visible, usable, and near this parent.",
+        "B2 placement proof parent surface. Recording Suite and Log Viewer must open visible, usable, and near this parent.",
         parent,
     )
     body.setObjectName("proofBody")
@@ -3193,7 +3211,7 @@ def main() -> int:
     def open_log_viewer_from_recording_proof() -> None:
         route_event: dict[str, object] = {
             "command": "open-log-viewer",
-            "handler": "Recording Studio proof log_viewer_handler",
+            "handler": "Recording Suite proof log_viewer_handler",
             "logViewerVisibleBeforeHandler": bool(log_viewer.isVisible()),
         }
         log_viewer.update_product_state(

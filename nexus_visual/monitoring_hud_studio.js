@@ -83,7 +83,7 @@
       "aria-label",
       mode === "log-viewer"
         ? "Nexus Desktop AI Log Viewer"
-        : "Nexus Desktop AI Recording Studio",
+        : "Nexus Desktop AI Recording Suite",
     );
     setText("monitoring-hud-studio-kicker", payload.kicker || (mode === "log-viewer" ? "NATIVE AND EXPORTED LOG ACCESS" : "ACTIVE OVERLAY RECORDING"));
     setText("monitoring-hud-studio-title", payload.title || "");

@@ -4,17 +4,17 @@ Family Feature Vision ID: `F6-FF01`
 Parent FAM: `FAM-006`
 Feature Category: `Recording`
 Category-Level Purpose: `Durable Recording feature-category direction for capturing trusted local Monitoring/HUD output through Overlay Profile targets, native NDAI logs, USER-requested exports, and compact user-facing control surfaces.`
-USER-Facing Surfaces: `Dashboard Recording Card; Dashboard quick access when admitted; Recording Studio; Log Viewer shell and later viewer; native log folder; exported-log folder; tray/keybind/settings surfaces when later admitted.`
+USER-Facing Surfaces: `Dashboard Recording Card; Dashboard quick access when admitted; Recording Suite; Log Viewer shell and later viewer; native log folder; exported-log folder; tray/keybind/settings surfaces when later admitted.`
 Experience Flow: `USER selects or creates an Overlay Profile, sees Recording target/readiness on the Dashboard, starts/stops through an admitted control surface, receives native NDAI output, and later reviews or exports logs through admitted Log Viewer flows.`
-Included Capabilities: `Target/status display; Overlay Profile target mirroring; Start/Stop when admitted; native NDAI output/readback; exported-log access when admitted; Recording Studio planning; Log Viewer planning; tray/keybind/settings planning; Overlay Profile persistence dependency review.`
+Included Capabilities: `Target/status display; Overlay Profile target mirroring; Start/Stop when admitted; native NDAI output/readback; exported-log access when admitted; Recording Suite planning; Log Viewer planning; tray/keybind/settings planning; Overlay Profile persistence dependency review.`
 Explicit Non-Goals: `Runtime implementation by this file; Workstream approval; PR/merge/release/issue closeout; provider/model work; FAM-007 mutation; Governance worktree mutation; neutral-main mutation; full Native Log Loader implementation; automatic third-party-readable export; separate Recording Profile system.`
-Durable Feature Element Inventory: `F6-FF01-E01 - Dashboard Recording Card target/status surface and visual inheritance proof; F6-FF01-E02 - Recording Studio focused control/status surface and window proof; F6-FF01-E03 - Log Viewer native/export shell and future viewer boundary; F6-FF01-E04 - native NDAI log artifact model and readback proof; F6-FF01-E05 - USER-requested export artifact model and readability proof; F6-FF01-E06 - tray/keybind/settings future-control boundaries; F6-FF01-E07 - Overlay Profile persistence dependency for recording target reliability.`
-Deferred Feature Carryforward: `deferred item rows preserve title, dependency trigger, grouping recommendation, proof expectation, and durable disposition for Recording Studio, Log Viewer, exported logs, tray controls, keybinds, settings, warning dismissal, Overlay Profile persistence dependency, Dashboard quick access, and Native Log Loader relationship.`
-Design Options: `Option F planning solidification before implementation-shape selection; Option C/C-lite Dashboard Recording Card plus Recording Studio plus minimal Log Viewer shell; Start/Stop ownership options; Studio minimize behavior options; direct log-folder button versus Log Viewer access; native-only versus native-plus-explicit-export artifact options.`
+Durable Feature Element Inventory: `F6-FF01-E01 - Dashboard Recording Card target/status surface and visual inheritance proof; F6-FF01-E02 - Recording Suite focused control/status surface and window proof; F6-FF01-E03 - Log Viewer native/export shell and future viewer boundary; F6-FF01-E04 - native NDAI log artifact model and readback proof; F6-FF01-E05 - USER-requested export artifact model and readability proof; F6-FF01-E06 - tray/keybind/settings future-control boundaries; F6-FF01-E07 - Overlay Profile persistence dependency for recording target reliability.`
+Deferred Feature Carryforward: `deferred item rows preserve title, dependency trigger, grouping recommendation, proof expectation, and durable disposition for Recording Suite, Log Viewer, exported logs, tray controls, keybinds, settings, warning dismissal, Overlay Profile persistence dependency, Dashboard quick access, and Native Log Loader relationship.`
+Design Options: `Option F planning solidification before implementation-shape selection; Option C/C-lite Dashboard Recording Card plus Recording Suite plus minimal Log Viewer shell; Start/Stop ownership options; Studio minimize behavior options; direct log-folder button versus Log Viewer access; native-only versus native-plus-explicit-export artifact options.`
 Proof Expectations: `BP1 must produce a real Recording branch vision; BP2 must translate accepted vision into a concrete engineering plan; BP3 must prove Workstream readiness; Hardening and Live Validation must provide photo/video or ordered-frame proof for admitted controls, windows, actions/effects, visual-system inheritance, native/export boundaries, UTS coverage, rollback, and USER-elevated manual validation where visual proof is impossible. Before formal Live Validation or UTS handoff, Recording UI must pass a Pre-LV Visual Purpose Conformance Gate that proves the window looks like its accepted purpose and vision contract requires; Live Validation then proves it functions.`
-Pre-Live Visual Gate: `Before any formal Live Validation pass or UTS handoff for Recording Studio, Log Viewer, Dashboard Recording Card, or other admitted Recording UI, Codex must inspect recorded photo/video evidence against the window's accepted purpose and vision contract, inventory every visible element group, compare shared primitives to the admitted reference surfaces, record PASS/REPAIR/BLOCKED/WAIVED_WITH_REASON for each group, and only then run functional interaction proof. Live Validation proves the already-inspected UI and then proves behavior; it must not be the first place obvious visual drift is discovered.`
+Pre-Live Visual Gate: `Before any formal Live Validation pass or UTS handoff for Recording Suite, Log Viewer, Dashboard Recording Card, or other admitted Recording UI, Codex must inspect recorded photo/video evidence against the window's accepted purpose and vision contract, inventory every visible element group, compare shared primitives to the admitted reference surfaces, record PASS/REPAIR/BLOCKED/WAIVED_WITH_REASON for each group, and only then run functional interaction proof. Live Validation proves the already-inspected UI and then proves behavior; it must not be the first place obvious visual drift is discovered.`
 Branch Readiness Consumption Notes: `BR1/BR2 should load this file as feature-category context, present branch-lane options against it, surface applicable deferred carryforward dynamically, and reject issue-shaped or single-slice drift unless USER explicitly selects that path.`
-BP1 Context Notes: `BP1 should decompose Recording by Dashboard access, Recording card, Recording Studio, Log Viewer, tray, keybind, native log model, export model, settings, and Overlay Profile dependency, then return USER-editable options, recommendations, risks, proof expectations, and exact decisions.`
+BP1 Context Notes: `BP1 should decompose Recording by Dashboard access, Recording card, Recording Suite, Log Viewer, tray, keybind, native log model, export model, settings, and Overlay Profile dependency, then return USER-editable options, recommendations, risks, proof expectations, and exact decisions.`
 Fold-Down History: `Created from USER-approved FAM-006 Recording planning/admission evidence and later updated during FAM-006 current-main reconciliation to satisfy the formal Family Feature Vision marker contract.`
 Active-State Wording Scan: `PASS - durable feature-category vision only; not a branch route, selected-next, PR, worktree, or release-window ledger.`
 
@@ -25,7 +25,7 @@ FAM-006 Monitoring and HUD. It sits below the broad FAM-006 family vision and
 above any branch-specific Branch Vision Contract Snapshot.
 
 It exists so Branch Readiness and BP1 can start from a real Recording feature
-vision instead of rediscovering Recording Studio, Log Viewer, tray,
+vision instead of rediscovering Recording Suite, Log Viewer, tray,
 keybind, native-log, export, and settings questions after implementation has
 already begun.
 
@@ -59,7 +59,7 @@ element states are proven as `PASS`, explicitly `WAIVED_WITH_REASON`, or
 `Not Applicable With Reason` against the accepted vision chain and reference
 surfaces.
 
-Full-desktop and full-window context proof is controlling when Recording Studio
+Full-desktop and full-window context proof is controlling when Recording Suite
 or Log Viewer acceptance depends on scale, footprint, placement,
 parent/child relationship, dead space, or desktop composition. Focused crops are
 required for element inspection, but they cannot green-light a material visual
@@ -101,11 +101,11 @@ corrected Log Viewer selection is a LOG-A-derived doorway shell with `VIEWER -
 Deferred`, bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no
 helper/proof commentary inside the product surface, no fake native/export
 information rows, no local path display by default, no native-log reading from
-Recording Studio, no direct exported-log opening from Recording Studio, and no
+Recording Suite, no direct exported-log opening from Recording Suite, and no
 full-viewer workspace implication. C2 inline/right-aligned row-action layout is
 rejected as selected direction because it implies row-level Log Viewer
 data/functionality before the current branch implements a real viewer data
-surface. Selected Recording Studio and Log Viewer doorway evidence must also
+surface. Selected Recording Suite and Log Viewer doorway evidence must also
 prove accepted compact window-control/chrome grammar against AI Control Center /
 HUD Dashboard references; a large labeled window-control pill, mismatched
 minimize/close cluster, or missing chrome comparison keeps the selected packet in
@@ -156,9 +156,9 @@ It should not:
 - duplicate the HUD Overlay card
 - become the long-form recording configuration or log-review surface
 
-### Recording Studio
+### Recording Suite
 
-Recording Studio is the ultra-lightweight detached Recording controller when a
+Recording Suite is the ultra-lightweight detached Recording controller when a
 branch admits it. The current Option C carrier admits a bounded compact
 standalone-capable controller that owns Start/Stop, recording truth, target
 truth, native-log status, and a route to Log Viewer without requiring the
@@ -181,18 +181,18 @@ Expected direction:
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
-- detached child-window title grammar: Recording Studio is independent and
+- detached child-window title grammar: Recording Suite is independent and
   taskbar/minimize-capable, but its title/header treatment follows the FAM-006
   child-window header pattern of category line plus strong title; it must not
   render a separate rounded title card or main-window hero/title card
 - shared rendered primitive inheritance for same-class window chrome, title/header,
   action buttons, row/divider panels, state text, hover/focus/pressed/disabled
   states, and compact body background. If a promoted global primitive does not
-  exist but an accepted rendered Nexus surface does, Recording Studio must reuse
+  exist but an accepted rendered Nexus surface does, Recording Suite must reuse
   that rendered CSS/DOM primitive path or stop for side-by-side USER visual
   adjudication; reference-derived approximation is not a closeout-grade substitute.
 - bounded shared primitive carry-in for the active returned-UTS repair:
-  Recording Studio and Log Viewer may consume
+  Recording Suite and Log Viewer may consume
   `nexus_visual/nexus_window_primitives.css` as a FAM-006-carried
   `nexus-window-primitives-v1` implementation candidate for UIREF-001,
   UIREF-002, UIREF-003, and compact feature-studio body primitives. This is not
@@ -210,8 +210,8 @@ Expected direction:
 - close and minimize affordances
 - moveable window behavior with safe position memory across launches where
   feasible
-- no active resize affordance in the current compact Recording Studio contract;
-  Recording Studio should keep its compact controller size while preserving the
+- no active resize affordance in the current compact Recording Suite contract;
+  Recording Suite should keep its compact controller size while preserving the
   USER-moved position
 - deterministic default placement must be proven or optioned before runtime
   implementation closes. Branch-local proposed doctrine is: feature-studio
@@ -304,7 +304,7 @@ Future tray direction:
 
 - dedicated recording-state visibility when Recording capability is enabled
 - left-click Start/Stop only if USER accepts that behavior
-- right-click options for Recording Studio, Log Viewer, Start/Stop, and
+- right-click options for Recording Suite, Log Viewer, Start/Stop, and
   related admitted actions
 - tray-state clarity that does not hide recording from the USER
 
@@ -314,7 +314,7 @@ Tray behavior is not implementation-authorized by this vision file.
 
 Recording should eventually support a USER-customizable keybind for Start/Stop.
 
-Future settings should decide whether keybind-start opens Recording Studio. The
+Future settings should decide whether keybind-start opens Recording Suite. The
 default may open Studio unless USER accepts a setting that suppresses it.
 
 Keybind behavior is not implementation-authorized by this vision file.
@@ -327,7 +327,7 @@ Potential settings:
 
 - what happens when recording starts
 - what happens when recording stops
-- whether keybind-start opens Recording Studio
+- whether keybind-start opens Recording Suite
 - whether stop opens Log Viewer
 - warning dismissal preferences
 - export defaults
@@ -372,7 +372,7 @@ roots, but they must not become normal product flow.
    visual system.
 2. Recording target follows the Dashboard/HUD Overlay Profile selection.
 3. USER can see whether Recording is ready, unavailable, recording, or saved.
-4. A branch may admit quick Dashboard Start/Stop, Recording Studio Start/Stop,
+4. A branch may admit quick Dashboard Start/Stop, Recording Suite Start/Stop,
    or both, but BP1 must make the ownership and behavior explicit.
 5. Stopping a recording produces native NDAI output.
 6. USER can later use Log Viewer to review native logs or export selected
@@ -389,7 +389,7 @@ Recording feature planning may include:
 - native NDAI log output
 - native output readback proof
 - exported-log folder access when admitted
-- Recording Studio planning
+- Recording Suite planning
 - Log Viewer planning
 - tray recording visibility planning
 - keybind planning
@@ -468,7 +468,7 @@ When USER selects Option F, BP1 must:
 
 Current USER leaning after planning solidification is a refined Option C /
 C-lite: keep the Dashboard Recording card as compact quick-access/status
-surface, treat Recording Studio as likely current-branch relevant when BP2/BP3
+surface, treat Recording Suite as likely current-branch relevant when BP2/BP3
 can prove it stays bounded, and admit only a minimal Log Viewer
 launch/folder shell when it directly supports Recording native/export log
 access. Full Log Viewer, previous-log selection, export customization,
@@ -485,7 +485,7 @@ implementation-shape candidate for BP2 planning.
 For BP2, Option C means:
 
 - Dashboard Recording Card remains the compact quick-access/status surface.
-- Recording Studio may be planned as the focused recording control/status
+- Recording Suite may be planned as the focused recording control/status
   surface when BP2/BP3 can prove it remains bounded.
 - Minimal Log Viewer launch/folder shell may be planned only where it
   directly supports Recording native/export log access.
@@ -505,10 +505,10 @@ PR authority, release authority, or a live branch-state ledger.
 Options BP1 should present:
 
 - Dashboard quick access only
-- Recording Studio primary control with Dashboard quick access
-- Recording Studio only
+- Recording Suite primary control with Dashboard quick access
+- Recording Suite only
 
-Recommendation: Recording Studio should own the full Start/Stop control surface,
+Recommendation: Recording Suite should own the full Start/Stop control surface,
 while Dashboard quick access may provide a compact shortcut if the branch can
 prove it stays clear and visually consistent.
 
@@ -516,7 +516,7 @@ Current branch repair direction accepted for the FAM-006 expected-red repair
 package: move active Start/Stop out of the Dashboard Recording Card body and
 into a compact Dashboard Quick Access section when implementation approval is
 granted. Keep the Recording card as status, summary, target, and launch
-visibility. Keep Recording Studio as the focused/full recording control and
+visibility. Keep Recording Suite as the focused/full recording control and
 status surface. Future settings may allow USER to enable or disable Quick
 Access Start/Stop, but settings implementation remains future-gated.
 
@@ -555,7 +555,7 @@ Recommendation: native NDAI log plus explicit export path. Automatic readable
 export should be rejected unless USER later accepts that product flow.
 
 Current branch repair direction accepted for the FAM-006 expected-red repair
-package: Recording Studio may carry compact current/native-log tracking when it
+package: Recording Suite may carry compact current/native-log tracking when it
 is needed to make recording status trustworthy. Log Viewer remains a
 minimal native/export folder access shell for this branch. Full previous-log
 selection, in-app log viewing, export customization, Native Log Loader
@@ -586,16 +586,16 @@ Branches consuming this feature vision should prove:
   equal left/right inline gutters, with text inserted into the primitive rather
   than per-window stretched grid columns
 - purpose-specific geometry affordances are part of visual conformance:
-  Recording Studio is moveable with remembered position but not resizable in the
+  Recording Suite is moveable with remembered position but not resizable in the
   current compact-controller contract; the renamed Log Viewer is moveable and
   follows the current selected doorway-shell resize disposition until later
   source truth admits a loaded-log graph or separate loaded-log viewer window
 - unique child / standalone-capable feature-studio resize taxonomy: Recording
   Studio and Log Viewer are not exclusive attached Dashboard children;
-  Recording Studio must expose no resize affordance in the current compact
+  Recording Suite must expose no resize affordance in the current compact
   controller contract. A bottom-right attached-child corner grip is stale for
   these unique child feature-studio windows and must fail visual proof.
-- Recording Studio candidate-selection proof may present explicit START /
+- Recording Suite candidate-selection proof may present explicit START /
   PAUSE / STOP controls plus a separate OPEN LOG VIEWER route when USER admits
   that candidate scope. REC-B or generic LOGS grammar is stale for the current
   candidate-selection packet unless USER separately revives it.
@@ -613,7 +613,7 @@ Branches consuming this feature vision should prove:
   monitor membership: Live Validation must prove selected profile identity,
   selected monitor set, recording target snapshot, generated native log
   contents, and consistency between the snapshot and log contents
-- normal USER-path activation for Recording Studio and Log Viewer remains
+- normal USER-path activation for Recording Suite and Log Viewer remains
   mandatory for formal Live Validation: helper foreground, native direct-launch,
   seeded/sandbox, or callback proof is supporting evidence only and cannot clear
   the formal visible manual button path
@@ -621,14 +621,14 @@ Branches consuming this feature vision should prove:
   runtime Live Validation. It must be labeled as pre-Live/sandbox evidence,
   inspect the actual rendered element groups against the vision contract, and
   must not substitute for formal Live Validation through the normal runtime path.
-- Recording Studio visual proof only after the normal visible activation path is
+- Recording Suite visual proof only after the normal visible activation path is
   proven for formal Live Validation; if activation is blocked, Studio UI visual
   validation is blocked or unproven rather than passed from helper-launched
   screenshots
 - Log Viewer visual-system inheritance against Project Vision, this
   family vision, and this feature vision; generic/plain UI cannot pass from
   screenshot existence or window-shell markers alone
-- Recording Studio and Log Viewer shared element groups must prove shared
+- Recording Suite and Log Viewer shared element groups must prove shared
   rendered primitive adoption, not merely reference-derived similarity. The
   focused proof set must include a side-by-side visual adjudication basis against
   the accepted reference surface or a direct rendered-primitive code path showing
@@ -660,7 +660,7 @@ by surface:
 
 - Dashboard Recording access
 - Recording card
-- Recording Studio
+- Recording Suite
 - Log Viewer
 - tray visibility/control
 - keybind Start/Stop
@@ -703,16 +703,16 @@ validation/proof expectations that would apply if USER selects that option.
 
 | Deferred Item | Originating FAM | Originating Feature Vision | Origin Planning Event | Originating Gate | Feature Surface | Description | Dependency Trigger | Future Grouping Recommendation | Owner / Worktree | Validation / Proof Expectation | Durable Disposition | Fold-Down Receipt |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Recording Studio full control surface | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Studio | Compact non-child Studio for Start/Stop, target, status, close/minimize warning, and screen-space-efficient control. | Branch admits full recording control surface beyond Dashboard card summary. | Group with Dashboard Quick Access when the same package owns Start/Stop behavior. | FAM-006 / FAM-006 worktree lane | Focused Studio screenshots, Start/Stop proof, close/minimize behavior proof, UTS. | Current-Branch Repair Direction | Folded from planning packet, external reform candidate, and 2026-06-09 expected-red repair finalization into this feature vision. |
+| Recording Suite full control surface | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Suite | Compact non-child Studio for Start/Stop, target, status, close/minimize warning, and screen-space-efficient control. | Branch admits full recording control surface beyond Dashboard card summary. | Group with Dashboard Quick Access when the same package owns Start/Stop behavior. | FAM-006 / FAM-006 worktree lane | Focused Studio screenshots, Start/Stop proof, close/minimize behavior proof, UTS. | Current-Branch Repair Direction | Folded from planning packet, external reform candidate, and 2026-06-09 expected-red repair finalization into this feature vision. |
 | Log Viewer | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Log Viewer | Non-child surface for native log access, exported-log access, previous-log selection, in-app viewing, and export entry. | Branch admits log review or export workflow. | Group with native/export log model; avoid burying it inside Dashboard card only. | FAM-006 / FAM-006 worktree lane | Focused Log Viewer screenshots, native/export folder proof, export/readability proof when export is admitted, UTS. | Minimal Shell Current / Full Viewer Future-Gated | Folded from planning packet, external reform candidate, and 2026-06-09 expected-red repair finalization into this feature vision. |
 | Native NDAI log model | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Native logs | Recording saves first as NDAI-native product artifact for readback and future in-app review. | Branch writes or reads recording output. | Group with any Recording implementation that saves files. | FAM-006 / FAM-006 worktree lane | Native save/readback helper proof, no automatic readable export, UTS. | Folded Into Branch Vision | Existing branch evidence and USER feedback folded into durable feature direction. |
 | Exported log model | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Exports | Readable CSV/Excel/JSON or other files are USER-requested exports, not default product saves. | Branch admits export/share or third-party-readable output. | Group with Log Viewer export workflow. | FAM-006 / FAM-006 worktree lane | Export file readability proof in target software class, output-folder proof, UTS. | Future Package Candidate | Preserved as future-gated direction until export branch admission. |
-| Tray recording visibility and control | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Tray | Dedicated recording visibility and optional Start/Stop / Studio / Log Viewer controls through tray. | Branch admits recording transparency or minimized Studio behavior. | Group with Recording Studio minimize behavior when the same package owns transparency. | FAM-006 / FAM-006 worktree lane | Real tray interaction proof, visible state proof, screenshot/video proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
-| Keybind Start/Stop | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Keybind | USER-customizable Start/Stop keybind and setting for whether keybind-start opens Studio. | Branch admits keyboard recording control. | Group with settings and Recording Studio behavior. | FAM-006 / FAM-006 worktree lane | Keybind registration proof, conflict handling, setting proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
+| Tray recording visibility and control | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Tray | Dedicated recording visibility and optional Start/Stop / Studio / Log Viewer controls through tray. | Branch admits recording transparency or minimized Studio behavior. | Group with Recording Suite minimize behavior when the same package owns transparency. | FAM-006 / FAM-006 worktree lane | Real tray interaction proof, visible state proof, screenshot/video proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
+| Keybind Start/Stop | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Keybind | USER-customizable Start/Stop keybind and setting for whether keybind-start opens Studio. | Branch admits keyboard recording control. | Group with settings and Recording Suite behavior. | FAM-006 / FAM-006 worktree lane | Keybind registration proof, conflict handling, setting proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
 | Recording settings | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Settings | Compact categorized settings for start/stop behavior, Studio opening, Log Viewer opening, warnings, export defaults, and log locations. | Branch admits configurable recording behavior. | Group with the behavior being configured; do not create settings-only drift. | FAM-006 / FAM-006 worktree lane | Settings UI proof, persistence proof, reset/rollback proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
-| Warning dismissal behavior | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Studio warning | Local dismissal for close-while-recording warning, separate from global settings. | Branch admits close-while-recording warning. | Group with Recording Studio close behavior. | FAM-006 / FAM-006 worktree lane | Warning modal proof, dismissal persistence proof, recording continues/stops behavior proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
+| Warning dismissal behavior | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Suite warning | Local dismissal for close-while-recording warning, separate from global settings. | Branch admits close-while-recording warning. | Group with Recording Suite close behavior. | FAM-006 / FAM-006 worktree lane | Warning modal proof, dismissal persistence proof, recording continues/stops behavior proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
 | Overlay Profile persistence dependency | FAM-006 | Recording | GitHub issue #258 and FAM-006 recording branch planning | BP2/BP3 amended planning evidence | Overlay Profiles | Recording target reliability depends on saved Overlay Profiles remaining present after restart. | Branch depends on saved Overlay Profile targets across sessions. | Group with Recording target reliability only when implementation touches profile persistence. | FAM-006 / FAM-006 worktree lane | Create/save/restart/reselect proof, recording target mirror proof, UTS. | Implemented Receipt | Issue #258 remains open until USER disposition, but branch evidence records implemented persistence proof. |
-| Dashboard quick-access recording affordance | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Dashboard | Small obvious Dashboard Start/Stop affordance, possibly icon-led. | Branch admits Dashboard-level quick control. | Group with Recording Studio when quick access and full control share state. | FAM-006 / FAM-006 worktree lane | Focused Dashboard Quick Access screenshots, click/state proof, visual-system proof, UTS. | Current-Branch Repair Direction | Folded from USER planning feedback and 2026-06-09 expected-red repair finalization into this feature vision. |
+| Dashboard quick-access recording affordance | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Dashboard | Small obvious Dashboard Start/Stop affordance, possibly icon-led. | Branch admits Dashboard-level quick control. | Group with Recording Suite when quick access and full control share state. | FAM-006 / FAM-006 worktree lane | Focused Dashboard Quick Access screenshots, click/state proof, visual-system proof, UTS. | Current-Branch Repair Direction | Folded from USER planning feedback and 2026-06-09 expected-red repair finalization into this feature vision. |
 | Native Log Loader relationship | FAM-006 | Recording | FAM-006 family vision and recording planning review | Family vision / planning evidence | Log viewing | Native Log Loader remains separate graph/log viewer unless later planning folds it into Log Viewer. | Branch admits graph/log viewer capability. | Keep separate unless Source-Truth Placement Preflight proves same owner is needed. | FAM-006 / FAM-006 worktree lane | Viewer/readback proof if admitted; otherwise explicit future-gated proof. | Deferred Until Dependency | Preserved as a future dependency boundary. |
 
 ## Fold-Down History

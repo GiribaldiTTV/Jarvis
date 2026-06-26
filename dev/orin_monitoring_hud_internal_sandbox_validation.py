@@ -198,7 +198,7 @@ def _validate_static_surface(failures: list[str]) -> None:
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
             "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
             "compact pointer",
-            "monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer",
+            "monitoring/HUD, active-overlay recording, Recording Suite, Log Viewer",
             "external/Git/GitHub/helper live truth",
             "canonical detail owners, not this compact backlog registry",
         ):
@@ -210,7 +210,7 @@ def _validate_static_surface(failures: list[str]) -> None:
             )
         for needle in (
             "monitoring/HUD and active-overlay recording planning/proof history",
-            "Recording Studio",
+            "Recording Suite",
             "Log Viewer",
             "user-visible proof remain routed through the owning phase and live-truth checks",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",

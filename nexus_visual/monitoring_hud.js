@@ -730,7 +730,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingStudioOpen.dataset.recordingExecutionState = executionState;
     monitoringHudRecordingStudioOpen.dataset.recordingFileWritingState = fileWritingState;
     monitoringHudRecordingStudioOpen.dataset.recordingCardVisualSystem = "dashboard-hub-card-sampled";
-    monitoringHudRecordingStudioOpen.textContent = "Recording Studio";
+    monitoringHudRecordingStudioOpen.textContent = "Recording Suite";
   }
   if (monitoringHudRecordingOpenFolder) {
     monitoringHudRecordingOpenFolder.disabled = !folderButtonEnabled;

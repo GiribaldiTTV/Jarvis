@@ -201,7 +201,7 @@ REQUIRED_CROP_TYPES = {
     "log-viewer-resize-after": "RESIZE_STATE_CROP",
 }
 REQUIRED_SCOPE_TEXT = {
-    "recording-window-chrome": ["ACTIVE OVERLAY RECORDING", "RECORDING STUDIO", "START", "PAUSE", "STOP", "Ready - 2 active monitors", "TARGET", "Default Overlay Profile", "OPEN LOG VIEWER"],
+    "recording-window-chrome": ["ACTIVE OVERLAY RECORDING", "RECORDING SUITE", "START", "PAUSE", "STOP", "Ready - 2 active monitors", "TARGET", "Default Overlay Profile", "OPEN LOG VIEWER"],
     "recording-start-action": ["START"],
     "recording-pause-action": ["PAUSE"],
     "recording-stop-action": ["STOP"],
@@ -250,21 +250,21 @@ class VisualLedgerRow:
 
 
 PACKET_EVIDENCE_BY_GROUP = {
-    ("Recording Studio", "outer frame"): "recording-window-chrome",
-    ("Recording Studio", "chrome"): "recording-window-chrome",
-    ("Recording Studio", "title/header"): "recording-window-chrome",
-    ("Recording Studio", "category label"): "recording-window-chrome",
-    ("Recording Studio", "window-control cluster"): "recording-window-chrome",
-    ("Recording Studio", "minimize control"): "recording-window-chrome",
-    ("Recording Studio", "close control"): "recording-window-chrome",
-    ("Recording Studio", "controller hero"): "recording-start-action",
-    ("Recording Studio", "START control"): "recording-start-action",
-    ("Recording Studio", "PAUSE control"): "recording-pause-action",
-    ("Recording Studio", "STOP control"): "recording-stop-action",
-    ("Recording Studio", "segmented transport pill"): "recording-transport-pill",
-    ("Recording Studio", "target summary card"): "recording-target-truth",
-    ("Recording Studio", "secondary Log Viewer route control"): "recording-log-route",
-    ("Recording Studio", "copy/text clarity"): "recording-target-truth",
+    ("Recording Suite", "outer frame"): "recording-window-chrome",
+    ("Recording Suite", "chrome"): "recording-window-chrome",
+    ("Recording Suite", "title/header"): "recording-window-chrome",
+    ("Recording Suite", "category label"): "recording-window-chrome",
+    ("Recording Suite", "window-control cluster"): "recording-window-chrome",
+    ("Recording Suite", "minimize control"): "recording-window-chrome",
+    ("Recording Suite", "close control"): "recording-window-chrome",
+    ("Recording Suite", "controller hero"): "recording-start-action",
+    ("Recording Suite", "START control"): "recording-start-action",
+    ("Recording Suite", "PAUSE control"): "recording-pause-action",
+    ("Recording Suite", "STOP control"): "recording-stop-action",
+    ("Recording Suite", "segmented transport pill"): "recording-transport-pill",
+    ("Recording Suite", "target summary card"): "recording-target-truth",
+    ("Recording Suite", "secondary Log Viewer route control"): "recording-log-route",
+    ("Recording Suite", "copy/text clarity"): "recording-target-truth",
     ("Log Viewer", "outer frame"): "log-viewer-window-chrome",
     ("Log Viewer", "chrome"): "log-viewer-window-chrome",
     ("Log Viewer", "title/header"): "log-viewer-window-chrome",
@@ -454,7 +454,7 @@ def _surface_specs() -> list[dict[str, object]]:
                 "target row",
                 "active monitor row",
                 "status copy",
-                "Recording Studio route control",
+                "Recording Suite route control",
                 "Log Viewer route control",
                 "button hover/focus/pressed/disabled states",
                 "empty/error/blocked states",
@@ -478,7 +478,7 @@ def _surface_specs() -> list[dict[str, object]]:
             ],
         },
         {
-            "surface": "Recording Studio",
+            "surface": "Recording Suite",
             "window_class": "unique child / standalone-capable feature-studio",
             "fam006_screenshot": SCREENSHOTS["recording_default"],
             "code_path": "nexus_visual/monitoring_hud_studio.html; nexus_visual/monitoring_hud_studio.js; nexus_visual/nexus_window_primitives.css; desktop/desktop_renderer.py",
@@ -621,13 +621,13 @@ def _surface_specs() -> list[dict[str, object]]:
 
 def _screenshot_for(surface: str, group: str, fallback: Path) -> Path:
     text = f"{surface} {group}".casefold()
-    if "recording studio" in text and any(token in text for token in ("hover", "focus")):
+    if "recording suite" in text and any(token in text for token in ("hover", "focus")):
         return SCREENSHOTS["recording_hover_focus"]
-    if "recording studio" in text and "pressed" in text:
+    if "recording suite" in text and "pressed" in text:
         return SCREENSHOTS["recording_pressed"]
-    if "recording studio" in text and any(token in text for token in ("disabled", "blocked", "error", "empty")):
+    if "recording suite" in text and any(token in text for token in ("disabled", "blocked", "error", "empty")):
         return SCREENSHOTS["recording_disabled"]
-    if "recording studio" in text and any(token in text for token in ("start control", "pause control", "stop control")):
+    if "recording suite" in text and any(token in text for token in ("start control", "pause control", "stop control")):
         return SCREENSHOTS["recording_active"]
     if "log viewer" in text and "resize" in text:
         return SCREENSHOTS["log_resize"]
@@ -667,9 +667,9 @@ def _visual_difference_for(surface: str, group: str, disposition: str) -> str:
         return f"{surface} {group}: historical FAM-006 evidence remains outside this Studio repair; no green conformance is claimed for this element group."
     if disposition == "NOT_APPLICABLE_WITH_REASON":
         return f"{surface} {group}: not applicable to this active Option C Studio repair because the surface is future/deferred in current source truth."
-    if "recording studio" in text and ("start control" in text or "pause control" in text or "stop control" in text or "log viewer route" in text):
+    if "recording suite" in text and ("start control" in text or "pause control" in text or "stop control" in text or "log viewer route" in text):
         return f"{surface} {group}: row-specific proof shows selected REC-A START / PAUSE / STOP transport controls plus a separate Log Viewer route; single-toggle and generic LOGS models are rejected."
-    if "recording studio" in text and ("target" in text or "status" in text or "controller hero" in text or "summary card" in text):
+    if "recording suite" in text and ("target" in text or "status" in text or "controller hero" in text or "summary card" in text):
         return f"{surface} {group}: row-specific proof must show an action-first controller and compact target/log truth chips; report panels, debug labels, boxed tables, and dense Target/Status rows are rejected."
     if "log viewer" in text and ("native logs" in text or "exported logs" in text or "path" in text or "doorway action" in text):
         return f"{surface} {group}: row-specific proof must show doorway actions with no local path display by default; technical path-table presentation and full log browser/export customization remain rejected."
@@ -677,7 +677,7 @@ def _visual_difference_for(surface: str, group: str, disposition: str) -> str:
         return f"{surface} {group}: repaired to content-fit folder action buttons; row requires folder-action proof before LV acceptance."
     if "log viewer" in text and "resize" in text:
         return f"{surface} {group}: repaired to edge-resize detached-studio behavior; attached-child corner grip and maximize route remain rejected."
-    if "recording studio" in text or "log viewer" in text:
+    if "recording suite" in text or "log viewer" in text:
         return f"{surface} {group}: repaired to v5 no-title-card detached feature-studio grammar with concrete proof path for this element group."
     if "dashboard recording card" in text:
         return f"{surface} {group}: current branch evidence is classified against Dashboard card grammar; Studio repair does not silently close unrelated card conformance gaps."
@@ -785,7 +785,7 @@ def build_rows() -> list[VisualLedgerRow]:
             )
             disposition = DISPOSITION_MAP.get(str(spec["disposition"]), str(spec["disposition"]))
             packet_key = PACKET_EVIDENCE_BY_GROUP.get((surface, str(group)), "")
-            if not packet_key and surface == "Recording Studio":
+            if not packet_key and surface == "Recording Suite":
                 packet_key = "recording-full-window"
             if not packet_key and surface == "Log Viewer":
                 packet_key = "log-viewer-full-window"
@@ -928,7 +928,13 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "height: 31px",
         "padding-inline: 14px",
         "font-weight: 720",
-        "--monitoring-hud-studio-row-label-column: minmax(142px, 0.39fr)",
+        "font-size: 17px",
+        "font-size: 11px",
+        "font-size: 10px",
+        "--monitoring-hud-studio-row-label-token-width: 6ch",
+        "--monitoring-hud-studio-row-label-accent-space: 11px",
+        "--monitoring-hud-studio-row-value-gutter: 6px",
+        "--monitoring-hud-studio-row-label-column: calc(",
         "grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr)",
         "gap: 6px",
         "padding: 4px 0 2px",
@@ -1015,7 +1021,7 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
         if metrics.get("status") != "PASS":
             failures.append("runtime_visual_conformance_metrics.json status is not PASS")
         for surface_key, surface_label in (
-            ("recording", "Recording Studio"),
+            ("recording", "Recording Suite"),
             ("logViewer", "Log Viewer"),
         ):
             surface = metrics.get(surface_key) if isinstance(metrics, dict) else {}
@@ -1046,11 +1052,11 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                 failures.append(f"{surface_label} action layout measurements are missing")
             elif surface_key == "recording":
                 if int(action_layout.get("transportPillLeftAlignedPx") if action_layout.get("transportPillLeftAlignedPx") is not None else 999) > 1:
-                    failures.append("Recording Studio transport pill is not left-aligned to the action row")
+                    failures.append("Recording Suite transport pill is not left-aligned to the action row")
                 if int(action_layout.get("openLogViewerRightAlignedPx") if action_layout.get("openLogViewerRightAlignedPx") is not None else 999) > 1:
-                    failures.append("Recording Studio OPEN LOG VIEWER is not right-aligned to the action row")
+                    failures.append("Recording Suite OPEN LOG VIEWER is not right-aligned to the action row")
                 if int(action_layout.get("openLogViewerSeparatedFromTransportPx") or -1) < 12:
-                    failures.append("Recording Studio OPEN LOG VIEWER is not separated from the transport pill")
+                    failures.append("Recording Suite OPEN LOG VIEWER is not separated from the transport pill")
             elif int(action_layout.get("exportedLogsRightAlignedPx") if action_layout.get("exportedLogsRightAlignedPx") is not None else 999) > 1:
                 failures.append("Log Viewer exported logs action is not right-aligned to the action row")
             gutter = surface.get("controlPillGutterMeasurements")

@@ -43,7 +43,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         {
             "slice": "SLC-053",
             "status": "complete",
-            "proof": "Dashboard quick-access Start/Stop is active and the standalone/native Recording Studio opens as the focused control/status surface",
+            "proof": "Dashboard quick-access Start/Stop is active and the standalone/native Recording Suite opens as the focused control/status surface",
             "futureGate": "tray controls, keybinds, export/share customization, and provider/model work remain future-gated",
         },
         {
@@ -95,7 +95,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         ],
         "utsState": "pending-after-lv1",
         "utsExpectations": [
-            "USER-facing summary covers Dashboard Quick Access Start/Stop, Recording card target/status, Recording Studio, minimal Log Viewer shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
+            "USER-facing summary covers Dashboard Quick Access Start/Stop, Recording card target/status, Recording Suite, minimal Log Viewer shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
             "no UTS is exported until Live Validation authority is active or waived",
         ],
         "futureGatedBoundaries": [
