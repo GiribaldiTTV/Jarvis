@@ -185,7 +185,13 @@ def _normalize_token(value: str) -> str:
 
 
 def _is_empty(value: str) -> bool:
-    return _normalize_text(value) in EMPTY_VALUES
+    base = re.sub(r"\s+", " ", value.strip()).casefold()
+    separator_normalized = re.sub(r"[-_/]+", " ", base)
+    token_normalized = _normalize_token(value).replace("_", " ").casefold()
+    return any(
+        variant in EMPTY_VALUES
+        for variant in {base, separator_normalized, token_normalized}
+    )
 
 
 def _line_cells(line: str) -> list[str]:
@@ -346,11 +352,14 @@ def _has_negated_receipt_or_approval(text: str) -> bool:
     normalized = _normalize_text(text)
     negated_receipt_patterns = (
         r"\b(no|not|without|missing|absent|pending|awaiting|waiting|waits?|lacks?|lack)\b[^.;|\n]{0,80}\b(receipt|acceptance|accepted|approval|approved)\b",
-        r"\b(receipt|acceptance|accepted|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|not accepted|not approved|not yet|not recorded|unproven|unaccepted|unapproved)\b",
+        r"\b(receipt|acceptance|accepted|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|planned|future|later|requested later|will be requested|to be requested|not accepted|not approved|not yet|not recorded|unproven|unaccepted|unapproved)\b",
         r"\bnot accepted\b",
         r"\bnot approved\b",
         r"\bno receipt\b",
         r"\bno acceptance\b",
+        r"\bapproval planned\b",
+        r"\bapproval will be requested\b",
+        r"\buser approval will be requested\b",
         r"\bwithout receipt\b",
         r"\breceipt yet\b",
     )
@@ -364,11 +373,31 @@ def _has_positive_carrier_receipt(text: str) -> bool:
     return bool(re.search(r"\b(receipt|acceptance|accepted)\b", normalized, flags=re.IGNORECASE))
 
 
+def _has_negated_user_approval_receipt(text: str) -> bool:
+    normalized = _normalize_text(text)
+    negated_approval_patterns = (
+        r"\b(no|not|without|missing|absent|lacks?|lack)\b[^.;|\n]{0,80}\b(user approval|approval receipt|approval|approved)\b",
+        r"\b(user approval|approval receipt|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|planned|future|later|requested later|will be requested|to be requested|not approved|not yet|not recorded|unproven|unapproved)\b",
+        r"\bnot approved\b",
+        r"\bapproval planned\b",
+        r"\bapproval will be requested\b",
+        r"\buser approval will be requested\b",
+    )
+    return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in negated_approval_patterns)
+
+
 def _has_positive_user_approval_receipt(text: str) -> bool:
     normalized = _normalize_text(text)
-    if _has_negated_receipt_or_approval(text):
+    if _has_negated_user_approval_receipt(text):
         return False
-    return bool(re.search(r"\b(receipt|approval|approved)\b", normalized, flags=re.IGNORECASE))
+    approval_receipt_patterns = (
+        r"\buser\b[^.;|\n]{0,40}\bapproved\b",
+        r"\bapproved by user\b",
+        r"\buser approval\b[^.;|\n]{0,80}\b(recorded|granted|received|confirmed|complete|completed)\b",
+        r"\bapproval\b[^.;|\n]{0,80}\b(receipt|recorded|granted|received|confirmed|complete|completed)\b",
+        r"\bapproval receipt\b",
+    )
+    return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in approval_receipt_patterns)
 
 
 def _directional_lineage_present(candidate_id: str, current_id: str, line: str) -> bool:

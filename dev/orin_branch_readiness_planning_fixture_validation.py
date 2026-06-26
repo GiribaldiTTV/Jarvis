@@ -6464,6 +6464,43 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     if "routed disposition requires carrier acceptance/receipt" not in "\n".join(routed_awaiting_receipt):
         failures.append("Generated RAR fixture did not reject routed disposition awaiting receipt")
 
+    placeholder_required_fields = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-075 | UNKNOWN | TBD | Window control cluster | UNKNOWN | "
+            "RAR contact sheet row HUD-CTRL-075 | ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated placeholder required fields",
+    )
+    placeholder_required_failures = "\n".join(placeholder_required_fields)
+    if (
+        "Owning FAM missing" not in placeholder_required_failures
+        or "Surface missing" not in placeholder_required_failures
+        or "Defect missing" not in placeholder_required_failures
+    ):
+        failures.append("Generated RAR fixture did not reject placeholder required fields")
+
+    github_creation_approved_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-076",
+                disposition="GITHUB_CREATION_APPROVED_PENDING",
+                blocking="YES",
+                github_issue="PENDING",
+                carrier="USER approved GitHub issue creation; approval receipt recorded in RAR3 packet 20260620.",
+                decision="Issue mutation remains pending execution until the approved GitHub action is performed.",
+            )
+        ),
+        source="generated GitHub creation pending with completed approval receipt",
+    )
+    if github_creation_approved_receipt:
+        failures.append(
+            "Generated RAR fixture falsely rejected GitHub issue creation with completed USER approval receipt: "
+            + "; ".join(github_creation_approved_receipt[:5])
+        )
+
     github_creation_not_approved = rar_issue_durability.validate_text(
         table(
             row(
@@ -6481,6 +6518,24 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         github_creation_not_approved
     ):
         failures.append("Generated RAR fixture did not reject GitHub issue creation pending without positive approval")
+
+    github_creation_future_approval = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-077",
+                disposition="GITHUB_CREATION_APPROVED_PENDING",
+                blocking="YES",
+                github_issue="PENDING",
+                carrier="Approval planned after USER review; USER approval will be requested later.",
+                decision="GitHub issue mutation is expected later but not approved now.",
+            )
+        ),
+        source="generated GitHub creation pending with future approval wording",
+    )
+    if "approved issue creation requires USER approval receipt" not in "\n".join(
+        github_creation_future_approval
+    ):
+        failures.append("Generated RAR fixture did not reject future approval wording for GitHub issue creation")
 
     nonblocking_missing_fields = rar_issue_durability.validate_text(
         table(
