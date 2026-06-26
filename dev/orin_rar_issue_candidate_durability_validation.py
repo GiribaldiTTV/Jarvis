@@ -335,6 +335,21 @@ def _candidate_id_present(candidate_id: str, text: str) -> bool:
     return bool(re.search(rf"(?<![A-Za-z0-9_-]){escaped}(?![A-Za-z0-9_-])", text))
 
 
+def _has_positive_carrier_receipt(text: str) -> bool:
+    normalized = _normalize_text(text)
+    negated_receipt_patterns = (
+        r"\b(no|not|without|missing|absent|pending|lacks?|lack)\b[^.;|\n]{0,80}\b(receipt|acceptance|accepted)\b",
+        r"\b(receipt|acceptance|accepted)\b[^.;|\n]{0,80}\b(missing|absent|pending|not accepted|not yet|not recorded|unproven|unaccepted)\b",
+        r"\bnot accepted\b",
+        r"\bno receipt\b",
+        r"\bwithout receipt\b",
+        r"\breceipt yet\b",
+    )
+    if any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in negated_receipt_patterns):
+        return False
+    return bool(re.search(r"\b(receipt|acceptance|accepted)\b", normalized, flags=re.IGNORECASE))
+
+
 def _directional_lineage_present(candidate_id: str, current_id: str, line: str) -> bool:
     old = re.escape(candidate_id)
     new = re.escape(current_id)
@@ -343,7 +358,7 @@ def _directional_lineage_present(candidate_id: str, current_id: str, line: str) 
     patterns = (
         rf"\bsuccessor\b[^\n|]*{new_token}[^\n|]*(\breplaces\b|\bpredecessor\b|\bfrom\b)[^\n|]*{old_token}",
         rf"{new_token}[^\n|]*\breplaces\b[^\n|]*{old_token}",
-        rf"\bpredecessor\b[^\n|]*{old_token}[^\n|]*(\bsuccessor\b|\breplaced by\b|\brenamed to\b|\bto\b)[^\n|]*{new_token}",
+        rf"\bpredecessor\b[^\n|]*{old_token}[^\n|]*(\bsuccessor\b|\breplaced by\b|\brenamed to\b|\bcarried by\b|\bmapped to\b|\brouted to\b)[^\n|]*{new_token}",
         rf"{old_token}[^\n|]*\breplaced by\b[^\n|]*{new_token}",
         rf"\brenamed from\b[^\n|]*{old_token}[^\n|]*(\bto\b|\bas\b)[^\n|]*{new_token}",
         rf"\brenamed to\b[^\n|]*{new_token}[^\n|]*\bfrom\b[^\n|]*{old_token}",
@@ -548,7 +563,9 @@ def validate_text(
                     )
                     break
 
-        if disposition == "ROUTED_TO_LEGAL_CARRIER" and "receipt" not in carrier_decision_normalized:
+        if disposition == "ROUTED_TO_LEGAL_CARRIER" and not _has_positive_carrier_receipt(
+            carrier_decision_text
+        ):
             failures.append(f"{source}: {row_label}: routed disposition requires carrier acceptance/receipt")
 
         if disposition == "GITHUB_CREATION_APPROVED_PENDING":

@@ -6004,6 +6004,26 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet/ledger fixture allowed ambiguous predecessor prose without a directional successor mapping"
             )
 
+        unrelated_current_lineage_ledger = temp_root / "unrelated_current_lineage_ledger.md"
+        unrelated_current_lineage_ledger.write_text(table(row("FAM006-RAR-069")), encoding="utf-8")
+        unrelated_current_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "unrelated-current-lineage",
+                primary_text=(
+                    "Lineage note: predecessor FAM006-RAR-069 remains under review while unrelated current row "
+                    "FAM006-RAR-999 is reviewed separately.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=unrelated_current_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-069 missing" not in "\n".join(
+            unrelated_current_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed unrelated current-row lineage prose without a directional successor mapping"
+            )
+
         directional_lineage_ledger = temp_root / "directional_lineage_ledger.md"
         directional_lineage_ledger.write_text(table(row("FAM006-RAR-067")), encoding="utf-8")
         directional_lineage_carried = rar_issue_durability.validate_packet_folder(
@@ -6244,6 +6264,23 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         failures.append(
             "Generated RAR fixture did not reject terminal disposition rows that still block progression"
         )
+
+    routed_negated_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-029",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="Target FAM-006 branch not accepted; no receipt yet.",
+                decision="No current USER decision because routing is proposed but carrier acceptance receipt is pending.",
+            )
+        ),
+        source="generated routed disposition negated receipt",
+    )
+    if "routed disposition requires carrier acceptance/receipt" not in "\n".join(
+        routed_negated_receipt
+    ):
+        failures.append("Generated RAR fixture did not reject routed disposition with negated receipt language")
 
     nonblocking_missing_fields = rar_issue_durability.validate_text(
         table(
