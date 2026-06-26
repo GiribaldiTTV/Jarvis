@@ -261,6 +261,7 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "exhaustiveMainRuntimeVisualGrammarComparisonProven",
     "deterministicStatusRowsAndTitlePill",
     "titleStatusPillGroupWrapProven",
+    "titleStatusPillWindowsCursorWrapProven",
     "deterministicTitleColumnSizingProven",
     "rowTitleStatusTextSizeParityProven",
     "resizeEdgeHitZoneProven",

@@ -277,6 +277,7 @@ mouse_event.restype = None
 SW_RESTORE = 9
 MOUSEEVENTF_LEFTDOWN = 0x0002
 MOUSEEVENTF_LEFTUP = 0x0004
+MOUSEEVENTF_MOVE = 0x0001
 
 
 def _timestamp() -> str:
@@ -507,6 +508,7 @@ def _drive_ai_dashboard_horizontal_resize(
     dialog: AIControlCenterDialog,
     log_root: Path,
 ) -> dict[str, object]:
+    _foreground_window(app, dialog)
     before = _rect(int(dialog.winId()))
     if before["width"] <= 0:
         return {"ok": False, "reason": "missing-window-rect", "before": before}
@@ -515,34 +517,20 @@ def _drive_ai_dashboard_horizontal_resize(
     target_width = min(target_width, before["width"] - 120)
     end = QPoint(start.x() + (target_width - before["width"]), start.y())
     SetCursorPos(start.x(), start.y())
-    dialog._resize_poll_timer.stop()
-    dialog._resize_frame_timer.stop()
-    dialog._resize_active = True
-    dialog._drag_offset = None
-    dialog._resize_edges = Qt.RightEdge
-    dialog._resize_start_global = QPoint(start)
-    dialog._resize_start_geometry = QRect(dialog.geometry())
-    dialog._resize_pending_point = QPoint(start)
-    dialog._resize_last_geometry = QRect(dialog.geometry())
-    dialog._resize_last_apply = 0.0
-    dialog._resize_frame_interval_ms = dialog._ai_control_center_resize_frame_interval_ms()
-    dialog._set_ai_control_center_resize_cursor(Qt.RightEdge)
-    if callable(getattr(dialog, "event_logger", None)):
-        dialog.event_logger(
-            "RENDERER_MAIN|AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED"
-            f"|x={start.x()}|y={start.y()}"
-            f"|resize_hit_zone_px={dialog.RESIZE_MARGIN}"
-            f"|resize_frame_interval_ms={dialog._resize_frame_interval_ms}"
-            "|edges=Edge.RightEdge|validation_direct_path=true"
-        )
-    started = True
+    _pump(app, 120)
+    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    _pump(app, 140)
+    started = bool(getattr(dialog, "_resize_active", False))
+    cursor_points = [{"x": start.x(), "y": start.y(), "phase": "mouse-down"}]
     for step in range(1, 10):
         x = start.x() + int(round((end.x() - start.x()) * (step / 9)))
         point = QPoint(x, start.y())
         SetCursorPos(point.x(), point.y())
-        dialog._update_ai_control_center_resize(point)
+        mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0)
+        cursor_points.append({"x": point.x(), "y": point.y(), "phase": f"drag-step-{step}"})
         _pump(app, 45)
-    dialog._finish_ai_control_center_resize(end)
+    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+    cursor_points.append({"x": end.x(), "y": end.y(), "phase": "mouse-up"})
     _pump(app, 240)
     after = _rect(int(dialog.winId()))
     screenshots = _capture_window(app, dialog, log_root, "03_dashboard_horizontal_shrink")
@@ -608,6 +596,7 @@ def _drive_ai_dashboard_horizontal_resize(
             });
             const expectedTexts = ["AI Persona - None", "Status - Not implemented", "Provider - Blocked"];
             return {
+              copyRect,
               pairCount: pairMetrics.length,
               lineCount: new Set(pairMetrics.map((pair) => pair.lineTop)).size,
               expectedTextsPresent: expectedTexts.every((text) => pairMetrics.some((pair) => pair.text === text)),
@@ -676,6 +665,13 @@ def _drive_ai_dashboard_horizontal_resize(
         layout = json.loads(layout_raw or "{}")
     except Exception:
         layout = {"raw": str(layout_raw or "")}
+    wrap_crop = _capture_window_region(
+        app,
+        dialog,
+        log_root,
+        "16_title_status_pill_wrapped_windows_cursor_resize",
+        (layout.get("titleStatusPillWrap") or {}).get("copyRect") if isinstance(layout, dict) else {},
+    )
     return {
         "ok": (
             started
@@ -684,10 +680,18 @@ def _drive_ai_dashboard_horizontal_resize(
             and after["width"] >= dialog.minimumWidth()
             and int(layout.get("clippedCount") or 0) == 0
             and layout.get("stripSettingsOverlap") is False
+            and int(((layout.get("titleStatusPillWrap") or {}).get("lineCount")) or 0) >= 2
+            and ((layout.get("titleStatusPillWrap") or {}).get("groupsAtomic") is True)
+            and int((layout.get("titleStatusPillWrap") or {}).get("clippedPairCount", 999)) == 0
+            and wrap_crop.get("ok") is True
         ),
-        "proofPath": "ai-control-center-right-edge-fallback-resize-start-update-finish",
-        "hudResizePathSubset": "right-edge fallback live geometry path mirrors HUD Dashboard refresh-rate-paced resize proof subset",
+        "proofPath": "ai-control-center-right-edge-windows-cursor-drag",
+        "hudResizePathSubset": "HUD Dashboard active right-edge cursor drag live resize proof subset",
+        "inputMethod": "windows-cursor-left-button-drag",
+        "codeForcedGeometry": False,
+        "runtimeResizeEventStarted": started,
         "started": started,
+        "cursorDragPoints": cursor_points,
         "before": before,
         "after": after,
         "targetWidth": target_width,
@@ -696,6 +700,7 @@ def _drive_ai_dashboard_horizontal_resize(
         "widthDelta": after["width"] - before["width"],
         "heightDelta": after["height"] - before["height"],
         "layout": layout,
+        "wrapCrop": wrap_crop,
         "screenshots": screenshots,
     }
 
@@ -2001,6 +2006,8 @@ def main() -> int:
     horizontal_title_status_pill_wrap = horizontal_layout.get("titleStatusPillWrap") or {}
     row_title_sizing_probe = dashboard_probe.get("rowTitleSizingProbe") or {}
     horizontal_row_title_sizing_probe = horizontal_layout.get("rowTitleSizingProbe") or {}
+    horizontal_wrap_crop = horizontal_resize_proof.get("wrapCrop") if isinstance(horizontal_resize_proof, dict) else {}
+    horizontal_wrap_crop = horizontal_wrap_crop if isinstance(horizontal_wrap_crop, dict) else {}
 
     def _title_column_map(probe: object) -> dict[str, int]:
         if not isinstance(probe, dict):
@@ -2139,6 +2146,21 @@ def main() -> int:
             and int(horizontal_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
             and int(horizontal_title_status_pill_wrap.get("lineCount", 0)) >= 2
         ),
+        "titleStatusPillWindowsCursorWrapProven": (
+            horizontal_resize_proof.get("proofPath") == "ai-control-center-right-edge-windows-cursor-drag"
+            and horizontal_resize_proof.get("inputMethod") == "windows-cursor-left-button-drag"
+            and horizontal_resize_proof.get("codeForcedGeometry") is False
+            and horizontal_resize_proof.get("runtimeResizeEventStarted") is True
+            and horizontal_title_status_pill_wrap.get("pairCount") == 3
+            and horizontal_title_status_pill_wrap.get("expectedTextsPresent") is True
+            and horizontal_title_status_pill_wrap.get("groupsAtomic") is True
+            and int(horizontal_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
+            and int(horizontal_title_status_pill_wrap.get("lineCount", 0)) >= 2
+            and horizontal_wrap_crop.get("ok") is True
+            and str(horizontal_wrap_crop.get("path") or "").endswith(
+                "16_title_status_pill_wrapped_windows_cursor_resize.png"
+            )
+        ),
         "deterministicTitleColumnSizingProven": (
             dashboard_probe.get("rowTitleSizingMetadata") == "content-fit-stable-title-column"
             and row_title_sizing_probe.get("rowCount") == 8
@@ -2255,6 +2277,10 @@ def main() -> int:
         ),
         "dashboardHorizontalResizeMinimumWorks": (
             horizontal_resize_proof.get("ok") is True
+            and horizontal_resize_proof.get("proofPath") == "ai-control-center-right-edge-windows-cursor-drag"
+            and horizontal_resize_proof.get("inputMethod") == "windows-cursor-left-button-drag"
+            and horizontal_resize_proof.get("codeForcedGeometry") is False
+            and horizontal_resize_proof.get("runtimeResizeEventStarted") is True
             and int(horizontal_resize_proof.get("minimumWidth") or 999) <= 520
             and int(horizontal_resize_proof.get("widthDelta") or 0) <= -100
             and int((horizontal_resize_proof.get("after") or {}).get("width") or 999) < 570
