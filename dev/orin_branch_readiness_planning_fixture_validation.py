@@ -5381,6 +5381,33 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject issue-candidate table present only in Review Aids"
             )
 
+        same_basename_review_aid_packet = temp_root / "same-basename-review-aid-only" / "FAM-006"
+        same_basename_review_aids = same_basename_review_aid_packet / "Review Aids"
+        same_basename_context = same_basename_review_aid_packet / "Source Truth Context"
+        same_basename_review_aids.mkdir(parents=True)
+        same_basename_context.mkdir(parents=True)
+        (same_basename_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (same_basename_review_aids / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-036")),
+            encoding="utf-8",
+        )
+        (same_basename_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-CONTEXT-03")),
+            encoding="utf-8",
+        )
+        same_basename_failures = rar_issue_durability.validate_packet_folder(
+            same_basename_review_aid_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            same_basename_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject Review Aids-only decision table with the primary basename"
+            )
+
         primary_packet = packet_with_sections(
             temp_root / "primary",
             primary_text=table(row("FAM006-RAR-011")),
@@ -5420,6 +5447,32 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             failures.append(
                 "Generated RAR packet fixture rejected START_HERE-routed primary issue-candidate decision file: "
                 + "; ".join(routed_primary_failures[:5])
+            )
+
+        legacy_ledger = temp_root / "legacy_ledger.md"
+        legacy_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-037 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-037 | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        legacy_carried = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "legacy-carried",
+                primary_text=table(row("FAM006-RAR-037")),
+            ),
+            external_ledger=legacy_ledger,
+        )
+        if legacy_carried:
+            failures.append(
+                "Generated RAR packet/ledger fixture rejected a recognized legacy external issue-candidate ledger carried into the primary packet: "
+                + "; ".join(legacy_carried[:5])
             )
 
         terminal_ledger = temp_root / "terminal_ledger.md"

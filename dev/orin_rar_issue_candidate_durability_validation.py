@@ -535,9 +535,14 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
             continue
         path_text = relative.as_posix()
         name_text = path.name
-        if path_text not in start_text and name_text not in start_text:
+        path_is_explicit = path_text in start_text
+        name_is_unambiguous = bool(
+            re.search(rf"(?<![/\\\w.-]){re.escape(name_text)}(?![/\\\w.-])", start_text)
+        ) and not re.search(rf"[/\\]{re.escape(name_text)}(?![/\\\w.-])", start_text)
+        if not path_is_explicit and not name_is_unambiguous:
             continue
-        route_window_pattern = rf"(primary|decision|issue[ -]candidate|user review|start here|review order).{{0,160}}({re.escape(path_text)}|{re.escape(name_text)})|({re.escape(path_text)}|{re.escape(name_text)}).{{0,160}}(primary|decision|issue[ -]candidate|user review)"
+        route_target = path_text if path_is_explicit else name_text
+        route_window_pattern = rf"(primary|decision|issue[ -]candidate|user review|start here|review order).{{0,160}}{re.escape(route_target)}|{re.escape(route_target)}.{{0,160}}(primary|decision|issue[ -]candidate|user review)"
         if not re.search(route_window_pattern, start_text, flags=re.IGNORECASE | re.DOTALL):
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
@@ -598,9 +603,15 @@ def validate_packet_folder(
 
     if external_ledger:
         external_text = external_ledger.read_text(encoding="utf-8")
+        expanded_external_rows = parse_issue_candidate_decision_surface(external_text, source=str(external_ledger))
         external_rows = parse_external_candidate_rows(external_text, source=str(external_ledger))
-        external_failures = validate_text(external_text, source=str(external_ledger), github_snapshot=github_snapshot)
-        failures.extend(external_failures)
+        if expanded_external_rows:
+            external_failures = validate_text(
+                external_text, source=str(external_ledger), github_snapshot=github_snapshot
+            )
+            failures.extend(external_failures)
+        elif "issue candidate" in _normalize_text(external_text) and not external_rows:
+            failures.append(f"{external_ledger}: Issue Candidate Decision Surface Missing")
         current_rows = [row for row in external_rows if row.requires_current_packet]
         current_ids = _candidate_ids_from_rows(current_rows)
         if current_ids and not primary_paths:
