@@ -349,6 +349,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             failures.append(f"window control CSS top {style.get('top')!r} != AI Control Center '14px'")
         if style.get("right") != "15px":
             failures.append(f"window control CSS right {style.get('right')!r} != AI Control Center '15px'")
+        if bottom_gutter != 15:
+            failures.append(f"control pill bottom exclusion gutter {bottom_gutter}px != required 15px")
         return {
             "chromeRect": chrome,
             "windowControlsRect": controls,
@@ -356,8 +358,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "topGutterPx": top_gutter,
             "rightGutterPx": right_gutter,
             "bottomGutterPx": bottom_gutter,
-            "expected": "top/right gutter preserve the AI Control Center compact window-control placement; first-content proximity is governed separately by title/status rhythm for compact feature studios",
-            "bottomGutterDisposition": "informational-after-title-proximity-gate",
+            "expected": "top/right gutter preserve the AI Control Center compact window-control placement; a hard 15px exclusion gutter below the pill blocks any title/content/action geometry from entering the pill clearance zone",
+            "bottomGutterDisposition": "hard-window-control-clearance-gate",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
         }
@@ -379,7 +381,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "firstStatusRowKey": first_row_key,
             "firstStatusRowRect": first_row,
             "titleToStatusGapPx": gap,
-            "expected": "first status/truth row begins 2-6px below the title group; larger gaps read as disproportionate floating status data",
+            "expected": "first status/truth row begins 2-6px below the structural title group; the title group itself carries the window-control pill clearance spacer",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
         }
@@ -596,7 +598,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
     recording = metrics_for(
         "recording_default",
         ["recordingStartAction", "recordingPauseAction", "recordingStopAction", "recordingLogRoute"],
-        max_height=152,
+        max_height=162,
         max_bottom_slack=18,
         surface_key="recording",
     )
@@ -625,7 +627,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
     log_viewer = metrics_for(
         "log_viewer_default",
         ["logViewerNativeAction", "logViewerExportAction"],
-        max_height=126,
+        max_height=136,
         max_bottom_slack=18,
         surface_key="logViewer",
     )
@@ -704,8 +706,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         f"| Log Viewer | {log_viewer['buttonPrimitiveVerdict']} | {log_viewer['controlPillGutterMeasurements']['topGutterPx']} | {log_viewer['controlPillGutterMeasurements']['rightGutterPx']} | {log_viewer['controlPillGutterMeasurements']['bottomGutterPx']} | {log_viewer['controlPillGutterVerdict']} |\n"
         + "\n| Surface | Title/status gap | Expected range | Verdict |\n"
         "| --- | --- | --- | --- |\n"
-        f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {recording['titleToStatusVerdict']} |\n"
-        f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {log_viewer['titleToStatusVerdict']} |\n"
+        f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {recording['titleToStatusVerdict']} |\n"
+        f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {log_viewer['titleToStatusVerdict']} |\n"
         + "\n| Surface | Row label/value gap | Value column left | Expected range | Verdict |\n"
         "| --- | --- | --- | --- | --- |\n"
         + "\n".join(

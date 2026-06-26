@@ -150,7 +150,7 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group {
   display: block;
-  min-height: 36px;
+  min-height: 46px;
   padding: 0 84px 0 7px;
   border: 0;
   border-radius: 0;
