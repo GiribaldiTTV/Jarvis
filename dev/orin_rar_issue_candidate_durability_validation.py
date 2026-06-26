@@ -137,7 +137,7 @@ def _normalize_text(value: str) -> str:
 
 
 def _mentions_issue_candidate(value: str) -> bool:
-    return bool(re.search(r"\bissue[-\s]+candidate\b", value, flags=re.IGNORECASE))
+    return bool(re.search(r"\bissue[-\s]+candidates?\b", value, flags=re.IGNORECASE))
 
 
 def _normalize_token(value: str) -> str:

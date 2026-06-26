@@ -5478,6 +5478,28 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject primary issue-candidate mention without decision table"
             )
 
+        plural_mention_only_packet = packet_with_sections(
+            temp_root / "plural-mention-only-primary",
+            primary_text=None,
+        )
+        (
+            plural_mention_only_packet
+            / "USER Review"
+            / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md"
+        ).write_text(
+            "# RAR Issue Candidate Decision Surface\n\nIssue candidates FAM006-RAR-055 and FAM006-RAR-056 still need USER disposition.",
+            encoding="utf-8",
+        )
+        plural_mention_only_packet_failures = rar_issue_durability.validate_packet_folder(
+            plural_mention_only_packet
+        )
+        if "Issue Candidate Decision Surface Missing" not in "\n".join(
+            plural_mention_only_packet_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject plural issue-candidates mention without decision table"
+            )
+
         nested_user_review_historical_packet = temp_root / "nested-user-review-historical-only" / "FAM-006"
         nested_user_review_historical = nested_user_review_historical_packet / "USER Review" / "Historical"
         nested_user_review_historical.mkdir(parents=True)
@@ -5880,6 +5902,17 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated RAR fixture did not reject hyphenated issue-candidate mention without decision table"
+        )
+
+    plural_issue_candidates_missing_surface = rar_issue_durability.validate_text(
+        "# RAR issue-candidates summary\n\nIssue-candidates FAM006-RAR-030 and FAM006-RAR-031 are pending USER decision.",
+        source="generated plural issue-candidates missing table",
+    )
+    if "Issue Candidate Decision Surface Missing" not in "\n".join(
+        plural_issue_candidates_missing_surface
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject plural issue-candidates mention without decision table"
         )
 
     waiver_without_reason = rar_issue_durability.validate_text(
