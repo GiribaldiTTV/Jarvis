@@ -509,35 +509,15 @@ def _drive_ai_dashboard_horizontal_resize(
     log_root: Path,
 ) -> dict[str, object]:
     _foreground_window(app, dialog)
-    before = _rect(int(dialog.winId()))
-    if before["width"] <= 0:
-        return {"ok": False, "reason": "missing-window-rect", "before": before}
-    start = QPoint(before["right"] - max(2, dialog.RESIZE_MARGIN // 2), before["top"] + before["height"] // 2)
-    target_width = max(dialog.minimumWidth() + 30, before["width"] - 170)
-    target_width = min(target_width, before["width"] - 120)
-    end = QPoint(start.x() + (target_width - before["width"]), start.y())
-    SetCursorPos(start.x(), start.y())
-    _pump(app, 120)
-    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-    _pump(app, 140)
-    started = bool(getattr(dialog, "_resize_active", False))
-    cursor_points = [{"x": start.x(), "y": start.y(), "phase": "mouse-down"}]
-    for step in range(1, 10):
-        x = start.x() + int(round((end.x() - start.x()) * (step / 9)))
-        point = QPoint(x, start.y())
-        SetCursorPos(point.x(), point.y())
-        mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0)
-        cursor_points.append({"x": point.x(), "y": point.y(), "phase": f"drag-step-{step}"})
-        _pump(app, 45)
-    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-    cursor_points.append({"x": end.x(), "y": end.y(), "phase": "mouse-up"})
-    _pump(app, 240)
-    after = _rect(int(dialog.winId()))
-    screenshots = _capture_window(app, dialog, log_root, "03_dashboard_horizontal_shrink")
-    layout_raw = _run_js(
-        app,
-        dialog,
-        """
+    initial = _rect(int(dialog.winId()))
+    if initial["width"] <= 0:
+        return {"ok": False, "reason": "missing-window-rect", "before": initial}
+
+    def _read_layout() -> dict[str, object]:
+        layout_raw = _run_js(
+            app,
+            dialog,
+            """
         (() => {
           const hub = document.getElementById("ai-control-center-card-hub");
           const titleGroup = document.querySelector(".monitoring-hud__title-group");
@@ -597,6 +577,7 @@ def _drive_ai_dashboard_horizontal_resize(
             const expectedTexts = ["AI Persona - None", "Status - Not implemented", "Provider - Blocked"];
             return {
               copyRect,
+              copyMaxWidth: copy ? getComputedStyle(copy).maxWidth : "",
               pairCount: pairMetrics.length,
               lineCount: new Set(pairMetrics.map((pair) => pair.lineTop)).size,
               expectedTextsPresent: expectedTexts.every((text) => pairMetrics.some((pair) => pair.text === text)),
@@ -606,6 +587,10 @@ def _drive_ai_dashboard_horizontal_resize(
             };
           })();
           const rowTitleSizingProbe = (() => {
+            const hub = document.getElementById("ai-control-center-card-hub");
+            const hubStyle = hub ? getComputedStyle(hub) : null;
+            const derivedLabelColumnWidth = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-label-width"));
+            const derivedGutter = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-gutter"));
             const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row, index) => {
               const rowRect = rectFor(row);
               const style = getComputedStyle(row);
@@ -616,6 +601,8 @@ def _drive_ai_dashboard_horizontal_resize(
               const labelStyle = label ? getComputedStyle(label) : null;
               const titleColumnWidth = firstGridColumnWidth(style.gridTemplateColumns);
               const labelWraps = labelRect.height > lineHeightNumber(labelStyle, labelRect) * 1.35;
+              const valueColumnOffset = Math.round(valueRect.left - rowRect.left);
+              const expectedValueColumnOffset = Math.round(derivedLabelColumnWidth + derivedGutter);
               return {
                 index,
                 key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
@@ -626,23 +613,35 @@ def _drive_ai_dashboard_horizontal_resize(
                 gridTemplateColumns: style.gridTemplateColumns,
                 titleColumnWidth: Math.round(titleColumnWidth),
                 labelWidth: labelRect.width,
+                derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
+                rowGutterPx: Math.round(derivedGutter),
+                valueColumnOffset,
+                expectedValueColumnOffset,
                 valueLeft: valueRect.left,
                 rowRight: rowRect.right,
                 labelWraps,
-                titleColumnContentExcessPx: Math.round(titleColumnWidth - labelRect.width),
+                titleColumnContentExcessPx: Math.round(derivedLabelColumnWidth - Math.max(...[...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row span")].map((node) => rectFor(node).width))),
+                valueStartsAtDerivedColumn: Math.abs(valueColumnOffset - expectedValueColumnOffset) <= 2,
                 labelWithinRow: labelRect.left >= rowRect.left - 2 && labelRect.right <= rowRect.right + 2,
                 valueWithinRow: valueRect.left >= rowRect.left - 2 && valueRect.right <= rowRect.right + 2
               };
             });
+            const labelWidths = rowMetrics.map((row) => row.labelWidth);
+            const maxLabelWidth = labelWidths.length ? Math.max(...labelWidths) : 0;
             const maxExcess = rowMetrics.length
-              ? Math.max(...rowMetrics.map((row) => Math.abs(row.titleColumnContentExcessPx)))
+              ? Math.abs(Math.round(derivedLabelColumnWidth - maxLabelWidth))
               : 999;
             return {
               rowCount: rowMetrics.length,
-              contentSized: rowMetrics.every((row) => row.labelWraps || Math.abs(row.titleColumnContentExcessPx) <= 2),
+              labelColumnSource: hub?.dataset.rowLabelColumnSource || "",
+              derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
+              measuredMaxLabelWidth: Math.round(maxLabelWidth),
+              rowGutterPx: Math.round(derivedGutter),
+              contentSized: rowMetrics.every((row) => !row.labelWraps && row.valueStartsAtDerivedColumn) && maxExcess <= 2,
               noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
               noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
               labelValueFontSizeParity: rowMetrics.every((row) => row.labelFontSize === row.valueFontSize),
+              valueColumnDerivedFromLabelContent: rowMetrics.every((row) => row.valueStartsAtDerivedColumn),
               maxTitleColumnExcessPx: maxExcess,
               rowMetrics
             };
@@ -660,48 +659,130 @@ def _drive_ai_dashboard_horizontal_resize(
           });
         })();
         """,
+        )
+        try:
+            return json.loads(layout_raw or "{}")
+        except Exception:
+            return {"raw": str(layout_raw or "")}
+
+    def _drag_to_width(target_width: int, screenshot_name: str, crop_name: str) -> dict[str, object]:
+        before = _rect(int(dialog.winId()))
+        if before["width"] <= 0:
+            return {"ok": False, "reason": "missing-window-rect", "before": before}
+        bounded_target_width = max(dialog.minimumWidth(), min(int(target_width), before["width"] - 20))
+        start = QPoint(before["right"] - max(2, dialog.RESIZE_MARGIN // 2), before["top"] + before["height"] // 2)
+        end = QPoint(start.x() + (bounded_target_width - before["width"]), start.y())
+        SetCursorPos(start.x(), start.y())
+        _pump(app, 120)
+        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+        _pump(app, 140)
+        started = bool(getattr(dialog, "_resize_active", False))
+        cursor_points = [{"x": start.x(), "y": start.y(), "phase": "mouse-down"}]
+        for step in range(1, 10):
+            x = start.x() + int(round((end.x() - start.x()) * (step / 9)))
+            point = QPoint(x, start.y())
+            SetCursorPos(point.x(), point.y())
+            mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0)
+            cursor_points.append({"x": point.x(), "y": point.y(), "phase": f"drag-step-{step}"})
+            _pump(app, 45)
+        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+        cursor_points.append({"x": end.x(), "y": end.y(), "phase": "mouse-up"})
+        _pump(app, 260)
+        after = _rect(int(dialog.winId()))
+        screenshots = _capture_window(app, dialog, log_root, screenshot_name)
+        layout = _read_layout()
+        wrap_crop = _capture_window_region(
+            app,
+            dialog,
+            log_root,
+            crop_name,
+            (layout.get("titleStatusPillWrap") or {}).get("copyRect") if isinstance(layout, dict) else {},
+        )
+        return {
+            "proofPath": "ai-control-center-right-edge-windows-cursor-drag",
+            "hudResizePathSubset": "HUD Dashboard active right-edge cursor drag live resize proof subset",
+            "inputMethod": "windows-cursor-left-button-drag",
+            "codeForcedGeometry": False,
+            "runtimeResizeEventStarted": started,
+            "started": started,
+            "cursorDragPoints": cursor_points,
+            "before": before,
+            "after": after,
+            "targetWidth": bounded_target_width,
+            "minimumWidth": int(dialog.minimumWidth()),
+            "minimumHeight": int(dialog.minimumHeight()),
+            "widthDelta": after["width"] - before["width"],
+            "heightDelta": after["height"] - before["height"],
+            "layout": layout,
+            "wrapCrop": wrap_crop,
+            "screenshots": screenshots,
+        }
+
+    no_early_target_width = max(dialog.minimumWidth(), min(578, initial["width"] - 120))
+    no_early = _drag_to_width(
+        no_early_target_width,
+        "03_dashboard_horizontal_shrink_no_early_wrap",
+        "15_title_status_pill_no_early_wrap_windows_cursor_resize",
     )
-    try:
-        layout = json.loads(layout_raw or "{}")
-    except Exception:
-        layout = {"raw": str(layout_raw or "")}
-    wrap_crop = _capture_window_region(
-        app,
-        dialog,
-        log_root,
+    natural = _drag_to_width(
+        int(dialog.minimumWidth()),
+        "03_dashboard_horizontal_shrink",
         "16_title_status_pill_wrapped_windows_cursor_resize",
-        (layout.get("titleStatusPillWrap") or {}).get("copyRect") if isinstance(layout, dict) else {},
     )
+    no_early_layout = no_early.get("layout") if isinstance(no_early, dict) else {}
+    no_early_layout = no_early_layout if isinstance(no_early_layout, dict) else {}
+    no_early_wrap = no_early_layout.get("titleStatusPillWrap") or {}
+    natural_layout = natural.get("layout") if isinstance(natural, dict) else {}
+    natural_layout = natural_layout if isinstance(natural_layout, dict) else {}
+    natural_wrap = natural_layout.get("titleStatusPillWrap") or {}
+    natural_after = natural.get("after") if isinstance(natural, dict) else {}
+    natural_after = natural_after if isinstance(natural_after, dict) else {}
+    no_early_after = no_early.get("after") if isinstance(no_early, dict) else {}
+    no_early_after = no_early_after if isinstance(no_early_after, dict) else {}
+    natural_crop = natural.get("wrapCrop") if isinstance(natural, dict) else {}
+    natural_crop = natural_crop if isinstance(natural_crop, dict) else {}
     return {
         "ok": (
-            started
-            and after["width"] < before["width"] - 100
-            and after["width"] < 570
-            and after["width"] >= dialog.minimumWidth()
-            and int(layout.get("clippedCount") or 0) == 0
-            and layout.get("stripSettingsOverlap") is False
-            and int(((layout.get("titleStatusPillWrap") or {}).get("lineCount")) or 0) >= 2
-            and ((layout.get("titleStatusPillWrap") or {}).get("groupsAtomic") is True)
-            and int((layout.get("titleStatusPillWrap") or {}).get("clippedPairCount", 999)) == 0
-            and wrap_crop.get("ok") is True
+            no_early.get("started") is True
+            and natural.get("started") is True
+            and 560 <= int(no_early_after.get("width") or 0) <= 590
+            and int(natural_after.get("width") or 999) <= 470
+            and int(natural_after.get("width") or 0) >= dialog.minimumWidth()
+            and int(no_early_layout.get("clippedCount") or 0) == 0
+            and int(natural_layout.get("clippedCount") or 0) == 0
+            and no_early_layout.get("stripSettingsOverlap") is False
+            and natural_layout.get("stripSettingsOverlap") is False
+            and int(no_early_wrap.get("lineCount") or 0) == 1
+            and no_early_wrap.get("groupsAtomic") is True
+            and int(no_early_wrap.get("clippedPairCount", 999)) == 0
+            and int(natural_wrap.get("lineCount") or 0) >= 2
+            and natural_wrap.get("groupsAtomic") is True
+            and int(natural_wrap.get("clippedPairCount", 999)) == 0
+            and natural_crop.get("ok") is True
         ),
         "proofPath": "ai-control-center-right-edge-windows-cursor-drag",
+        "proofPathVariant": "two-stage-no-early-wrap-then-natural-wrap",
         "hudResizePathSubset": "HUD Dashboard active right-edge cursor drag live resize proof subset",
         "inputMethod": "windows-cursor-left-button-drag",
         "codeForcedGeometry": False,
-        "runtimeResizeEventStarted": started,
-        "started": started,
-        "cursorDragPoints": cursor_points,
-        "before": before,
-        "after": after,
-        "targetWidth": target_width,
+        "runtimeResizeEventStarted": no_early.get("started") is True and natural.get("started") is True,
+        "started": no_early.get("started") is True and natural.get("started") is True,
+        "cursorDragPoints": {
+            "noEarlyWrap": no_early.get("cursorDragPoints") or [],
+            "naturalWrap": natural.get("cursorDragPoints") or [],
+        },
+        "before": initial,
+        "after": natural_after,
+        "targetWidth": int(dialog.minimumWidth()),
         "minimumWidth": int(dialog.minimumWidth()),
         "minimumHeight": int(dialog.minimumHeight()),
-        "widthDelta": after["width"] - before["width"],
-        "heightDelta": after["height"] - before["height"],
-        "layout": layout,
-        "wrapCrop": wrap_crop,
-        "screenshots": screenshots,
+        "widthDelta": int(natural_after.get("width") or 0) - initial["width"],
+        "heightDelta": int(natural_after.get("height") or 0) - initial["height"],
+        "layout": natural_layout,
+        "wrapCrop": natural_crop,
+        "screenshots": natural.get("screenshots") or {},
+        "noEarlyWrapProof": no_early,
+        "naturalWrapProof": natural,
     }
 
 
@@ -892,18 +973,20 @@ def _ai_dashboard_resize_hit_zone_probe(app: QApplication, dialog: AIControlCent
     height = int(dialog.height())
     center_x = width // 2
     center_y = height // 2
-    sample_inset = max(4, min(10, int(dialog.RESIZE_MARGIN) // 2))
-    right_x = max(0, width - 1 - sample_inset)
-    bottom_y = max(0, height - 1 - sample_inset)
+    edge_sample_inset = max(4, min(10, int(dialog.RESIZE_MARGIN) // 2))
+    corner_sample_inset = max(edge_sample_inset + 12, min(24, int(dialog.RESIZE_MARGIN) + 4))
+    right_edge_x = max(0, width - 1 - edge_sample_inset)
+    bottom_edge_y = max(0, height - 1 - edge_sample_inset)
+    bottom_corner_y = max(0, height - 1 - corner_sample_inset)
     sample_points = {
-        "left": QPoint(sample_inset, center_y),
-        "right": QPoint(right_x, center_y),
-        "top": QPoint(center_x, sample_inset),
-        "bottom": QPoint(center_x, bottom_y),
-        "topLeft": QPoint(sample_inset, sample_inset),
-        "topRight": QPoint(right_x, sample_inset),
-        "bottomLeft": QPoint(sample_inset, bottom_y),
-        "bottomRight": QPoint(right_x, bottom_y),
+        "left": QPoint(edge_sample_inset, center_y),
+        "right": QPoint(right_edge_x, center_y),
+        "top": QPoint(center_x, edge_sample_inset),
+        "bottom": QPoint(center_x, bottom_edge_y),
+        "topLeft": QPoint(corner_sample_inset, corner_sample_inset),
+        "topRight": QPoint(right_edge_x, corner_sample_inset),
+        "bottomLeft": QPoint(corner_sample_inset, bottom_corner_y),
+        "bottomRight": QPoint(right_edge_x, bottom_corner_y),
         "innerContent": QPoint(max(48, dialog.RESIZE_MARGIN + 28), max(220, dialog.RESIZE_MARGIN + 80)),
         "windowControls": dialog._ai_control_center_close_zone().center(),
     }
@@ -954,7 +1037,9 @@ def _ai_dashboard_resize_hit_zone_probe(app: QApplication, dialog: AIControlCent
     return {
         "ok": expected_ok and non_edge_ok and hover_ok,
         "resizeMarginPx": int(dialog.RESIZE_MARGIN),
-        "sampleInsetPx": sample_inset,
+        "sampleInsetPx": edge_sample_inset,
+        "edgeSampleInsetPx": edge_sample_inset,
+        "cornerSampleInsetPx": corner_sample_inset,
         "expectedResizeSamples": sorted(expected_resize_samples),
         "samples": samples,
         "expectedResizeSamplesHit": expected_ok,
@@ -1599,6 +1684,7 @@ def main() -> int:
                 });
                 const expectedTexts = ["AI Persona - None", "Status - Not implemented", "Provider - Blocked"];
                 return {
+                  copyMaxWidth: copy ? getComputedStyle(copy).maxWidth : "",
                   pairCount: pairMetrics.length,
                   lineCount: new Set(pairMetrics.map((pair) => pair.lineTop)).size,
                   expectedTextsPresent: expectedTexts.every((text) => pairMetrics.some((pair) => pair.text === text)),
@@ -1608,6 +1694,10 @@ def main() -> int:
                 };
               })();
               const rowTitleSizingProbe = (() => {
+                const hub = document.getElementById("ai-control-center-card-hub");
+                const hubStyle = hub ? getComputedStyle(hub) : null;
+                const derivedLabelColumnWidth = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-label-width"));
+                const derivedGutter = pxNumber(hubStyle?.getPropertyValue("--ai-dashboard-row-gutter"));
                 const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row, index) => {
                   const rowRect = rectFor(row);
                   const style = getComputedStyle(row);
@@ -1618,6 +1708,8 @@ def main() -> int:
                   const labelStyle = label ? getComputedStyle(label) : null;
                   const titleColumnWidth = firstGridColumnWidth(style.gridTemplateColumns);
                   const labelWraps = labelRect.height > lineHeightNumber(labelStyle, labelRect) * 1.35;
+                  const valueColumnOffset = Math.round(valueRect.left - rowRect.left);
+                  const expectedValueColumnOffset = Math.round(derivedLabelColumnWidth + derivedGutter);
                   return {
                     index,
                     key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
@@ -1628,25 +1720,65 @@ def main() -> int:
                     gridTemplateColumns: style.gridTemplateColumns,
                     titleColumnWidth: Math.round(titleColumnWidth),
                     labelWidth: labelRect.width,
+                    derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
+                    rowGutterPx: Math.round(derivedGutter),
+                    valueColumnOffset,
+                    expectedValueColumnOffset,
                     valueLeft: valueRect.left,
                     rowRight: rowRect.right,
                     labelWraps,
-                    titleColumnContentExcessPx: Math.round(titleColumnWidth - labelRect.width),
+                    titleColumnContentExcessPx: Math.round(derivedLabelColumnWidth - Math.max(...[...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row span")].map((node) => rectFor(node).width))),
+                    valueStartsAtDerivedColumn: Math.abs(valueColumnOffset - expectedValueColumnOffset) <= 2,
                     labelWithinRow: labelRect.left >= rowRect.left - 2 && labelRect.right <= rowRect.right + 2,
                     valueWithinRow: valueRect.left >= rowRect.left - 2 && valueRect.right <= rowRect.right + 2
                   };
                 });
+                const labelWidths = rowMetrics.map((row) => row.labelWidth);
+                const maxLabelWidth = labelWidths.length ? Math.max(...labelWidths) : 0;
                 const maxExcess = rowMetrics.length
-                  ? Math.max(...rowMetrics.map((row) => Math.abs(row.titleColumnContentExcessPx)))
+                  ? Math.abs(Math.round(derivedLabelColumnWidth - maxLabelWidth))
                   : 999;
                 return {
                   rowCount: rowMetrics.length,
-                  contentSized: rowMetrics.every((row) => row.labelWraps || Math.abs(row.titleColumnContentExcessPx) <= 2),
+                  labelColumnSource: hub?.dataset.rowLabelColumnSource || "",
+                  derivedLabelColumnWidth: Math.round(derivedLabelColumnWidth),
+                  measuredMaxLabelWidth: Math.round(maxLabelWidth),
+                  rowGutterPx: Math.round(derivedGutter),
+                  contentSized: rowMetrics.every((row) => !row.labelWraps && row.valueStartsAtDerivedColumn) && maxExcess <= 2,
                   noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
                   noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
                   labelValueFontSizeParity: rowMetrics.every((row) => row.labelFontSize === row.valueFontSize),
+                  valueColumnDerivedFromLabelContent: rowMetrics.every((row) => row.valueStartsAtDerivedColumn),
                   maxTitleColumnExcessPx: maxExcess,
                   rowMetrics
+                };
+              })();
+              const belowTitleTextWeightProbe = (() => {
+                const hub = document.getElementById("ai-control-center-card-hub");
+                const nodes = hub
+                  ? [...hub.querySelectorAll("span, strong, p, button, .monitoring-hud__button-label")]
+                  : [];
+                const textNodes = nodes.filter((node) => {
+                  const rect = node.getBoundingClientRect();
+                  const style = getComputedStyle(node);
+                  return node.textContent.trim()
+                    && style.display !== "none"
+                    && style.visibility !== "hidden"
+                    && Number(style.opacity || 1) > 0
+                    && rect.width > 0
+                    && rect.height > 0;
+                }).map((node) => ({
+                  text: node.textContent.replace(/\\s+/g, " ").trim(),
+                  tagName: node.tagName.toLowerCase(),
+                  className: node.className || "",
+                  fontWeight: getComputedStyle(node).fontWeight
+                }));
+                const non720 = textNodes.filter((node) => node.fontWeight !== "720");
+                return {
+                  targetWeight: "720",
+                  nodeCount: textNodes.length,
+                  all720: textNodes.length > 0 && non720.length === 0,
+                  non720
                 };
               })();
               const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row) => {
@@ -1761,6 +1893,7 @@ def main() -> int:
                 rowTitleSizingMetadata: document.getElementById("monitoring-hud")?.dataset.rowTitleSizing || "",
                 titleStatusPillWrap,
                 rowTitleSizingProbe,
+                belowTitleTextWeightProbe,
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
                 settingsRoutePresent: Boolean(document.querySelector("[data-dashboard-utility-row='settings-route']")),
                 settingsVisualAcceptance: document.querySelector("[data-dashboard-utility-row='settings-route']")?.dataset.settingsVisualAcceptance || "",
@@ -2004,10 +2137,16 @@ def main() -> int:
     horizontal_layout = horizontal_resize_proof.get("layout") if isinstance(horizontal_resize_proof, dict) else {}
     horizontal_layout = horizontal_layout if isinstance(horizontal_layout, dict) else {}
     horizontal_title_status_pill_wrap = horizontal_layout.get("titleStatusPillWrap") or {}
+    no_early_wrap_proof = horizontal_resize_proof.get("noEarlyWrapProof") if isinstance(horizontal_resize_proof, dict) else {}
+    no_early_wrap_proof = no_early_wrap_proof if isinstance(no_early_wrap_proof, dict) else {}
+    no_early_wrap_layout = no_early_wrap_proof.get("layout") if isinstance(no_early_wrap_proof, dict) else {}
+    no_early_wrap_layout = no_early_wrap_layout if isinstance(no_early_wrap_layout, dict) else {}
+    no_early_title_status_pill_wrap = no_early_wrap_layout.get("titleStatusPillWrap") or {}
     row_title_sizing_probe = dashboard_probe.get("rowTitleSizingProbe") or {}
     horizontal_row_title_sizing_probe = horizontal_layout.get("rowTitleSizingProbe") or {}
     horizontal_wrap_crop = horizontal_resize_proof.get("wrapCrop") if isinstance(horizontal_resize_proof, dict) else {}
     horizontal_wrap_crop = horizontal_wrap_crop if isinstance(horizontal_wrap_crop, dict) else {}
+    below_title_text_weight_probe = dashboard_probe.get("belowTitleTextWeightProbe") or {}
 
     def _title_column_map(probe: object) -> dict[str, int]:
         if not isinstance(probe, dict):
@@ -2140,11 +2279,29 @@ def main() -> int:
             and title_status_pill_wrap.get("groupsAtomic") is True
             and int(title_status_pill_wrap.get("clippedPairCount", 999)) == 0
             and int(title_status_pill_wrap.get("lineCount", 0)) >= 1
+            and no_early_title_status_pill_wrap.get("pairCount") == 3
+            and no_early_title_status_pill_wrap.get("expectedTextsPresent") is True
+            and no_early_title_status_pill_wrap.get("groupsAtomic") is True
+            and int(no_early_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
+            and int(no_early_title_status_pill_wrap.get("lineCount", 0)) == 1
             and horizontal_title_status_pill_wrap.get("pairCount") == 3
             and horizontal_title_status_pill_wrap.get("expectedTextsPresent") is True
             and horizontal_title_status_pill_wrap.get("groupsAtomic") is True
             and int(horizontal_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
             and int(horizontal_title_status_pill_wrap.get("lineCount", 0)) >= 2
+        ),
+        "titleStatusPillNoEarlyWrapAt580Proven": (
+            no_early_wrap_proof.get("proofPath") == "ai-control-center-right-edge-windows-cursor-drag"
+            and no_early_wrap_proof.get("inputMethod") == "windows-cursor-left-button-drag"
+            and no_early_wrap_proof.get("codeForcedGeometry") is False
+            and no_early_wrap_proof.get("runtimeResizeEventStarted") is True
+            and 560 <= int((no_early_wrap_proof.get("after") or {}).get("width") or 0) <= 590
+            and no_early_title_status_pill_wrap.get("copyMaxWidth") == "100%"
+            and no_early_title_status_pill_wrap.get("pairCount") == 3
+            and no_early_title_status_pill_wrap.get("expectedTextsPresent") is True
+            and no_early_title_status_pill_wrap.get("groupsAtomic") is True
+            and int(no_early_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
+            and int(no_early_title_status_pill_wrap.get("lineCount", 0)) == 1
         ),
         "titleStatusPillWindowsCursorWrapProven": (
             horizontal_resize_proof.get("proofPath") == "ai-control-center-right-edge-windows-cursor-drag"
@@ -2162,15 +2319,21 @@ def main() -> int:
             )
         ),
         "deterministicTitleColumnSizingProven": (
-            dashboard_probe.get("rowTitleSizingMetadata") == "content-fit-stable-title-column"
+            dashboard_probe.get("rowTitleSizingMetadata") == "content-derived-label-column-fixed-gutter"
             and row_title_sizing_probe.get("rowCount") == 8
+            and row_title_sizing_probe.get("labelColumnSource") == "measured-label-content"
+            and int(row_title_sizing_probe.get("rowGutterPx") or 0) == 8
             and row_title_sizing_probe.get("contentSized") is True
+            and row_title_sizing_probe.get("valueColumnDerivedFromLabelContent") is True
             and row_title_sizing_probe.get("noLabelClipping") is True
             and row_title_sizing_probe.get("noValueClipping") is True
             and row_title_sizing_probe.get("labelValueFontSizeParity") is True
             and int(row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
             and horizontal_row_title_sizing_probe.get("rowCount") == 8
+            and horizontal_row_title_sizing_probe.get("labelColumnSource") == "measured-label-content"
+            and int(horizontal_row_title_sizing_probe.get("rowGutterPx") or 0) == 8
             and horizontal_row_title_sizing_probe.get("contentSized") is True
+            and horizontal_row_title_sizing_probe.get("valueColumnDerivedFromLabelContent") is True
             and horizontal_row_title_sizing_probe.get("noLabelClipping") is True
             and horizontal_row_title_sizing_probe.get("noValueClipping") is True
             and horizontal_row_title_sizing_probe.get("labelValueFontSizeParity") is True
@@ -2182,6 +2345,15 @@ def main() -> int:
             and row_title_sizing_probe.get("labelValueFontSizeParity") is True
             and horizontal_row_title_sizing_probe.get("rowCount") == 8
             and horizontal_row_title_sizing_probe.get("labelValueFontSizeParity") is True
+        ),
+        "belowTitleTextWeights720Proven": (
+            dashboard_probe.get("settingsRouteMetadata") == "option-b-deferred-until-fam003-global-settings-window"
+            and dashboard_probe.get("focusedSurfaceCount") == 0
+            and dashboard_probe.get("domainSurfaceCount") == 0
+            and below_title_text_weight_probe.get("targetWeight") == "720"
+            and int(below_title_text_weight_probe.get("nodeCount") or 0) >= 20
+            and below_title_text_weight_probe.get("all720") is True
+            and not below_title_text_weight_probe.get("non720")
         ),
         "returnedDensityAndButtonPlacementRepaired": (
             len(card_heights) == 3
@@ -2281,9 +2453,9 @@ def main() -> int:
             and horizontal_resize_proof.get("inputMethod") == "windows-cursor-left-button-drag"
             and horizontal_resize_proof.get("codeForcedGeometry") is False
             and horizontal_resize_proof.get("runtimeResizeEventStarted") is True
-            and int(horizontal_resize_proof.get("minimumWidth") or 999) <= 520
+            and int(horizontal_resize_proof.get("minimumWidth") or 999) <= 430
             and int(horizontal_resize_proof.get("widthDelta") or 0) <= -100
-            and int((horizontal_resize_proof.get("after") or {}).get("width") or 999) < 570
+            and int((horizontal_resize_proof.get("after") or {}).get("width") or 999) <= 470
             and "HUD Dashboard" in str(horizontal_resize_proof.get("hudResizePathSubset") or "")
         ),
         "childLifecycleBehavior": (

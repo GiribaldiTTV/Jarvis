@@ -83,12 +83,6 @@
       white-space: nowrap;
     }
 
-    @media (max-width: 580px) {
-      body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy {
-        max-width: 270px;
-      }
-    }
-
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy .monitoring-hud__surface-role-separator {
       color: rgba(188, 232, 244, 0.76);
       font-weight: 760;
@@ -249,6 +243,8 @@
       scrollbar-gutter: auto;
       scrollbar-width: none;
       scrollbar-color: transparent transparent;
+      --ai-dashboard-row-gutter: 8px;
+      --ai-dashboard-row-label-width: max-content;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar {
@@ -310,7 +306,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__eyebrow {
       color: rgba(103, 224, 255, 0.95);
       font-size: 10px;
-      font-weight: 820;
+      font-weight: 720;
       letter-spacing: 0.10em;
       line-height: 1.2;
       text-transform: uppercase;
@@ -319,7 +315,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__title {
       color: rgba(234, 253, 255, 0.96);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 720;
       letter-spacing: 0.075em;
       line-height: 1.18;
       text-transform: uppercase;
@@ -329,7 +325,7 @@
       margin: 0;
       color: rgba(181, 218, 229, 0.86);
       font-size: 11px;
-      font-weight: 650;
+      font-weight: 720;
       line-height: 1.32;
     }
 
@@ -359,24 +355,24 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row {
-      grid-template-columns: fit-content(112px) minmax(0, 1fr);
-      column-gap: 8px;
+      grid-template-columns: var(--ai-dashboard-row-label-width, max-content) minmax(0, 1fr);
+      column-gap: var(--ai-dashboard-row-gutter, 8px);
       min-height: 0;
       padding: 4px 0 2px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row span {
       width: max-content;
-      max-width: 112px;
-      white-space: normal;
+      max-width: none;
+      white-space: nowrap;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row strong {
       min-width: 0;
       font-size: 11px;
-      font-weight: 780;
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-topline {
@@ -395,7 +391,7 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-title-copy strong {
       font-size: 15px;
-      font-weight: 780;
+      font-weight: 720;
       line-height: 1.12;
     }
 
@@ -403,7 +399,7 @@
       grid-column: 2;
       margin-top: -1px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 720;
       line-height: 1.36;
       text-indent: 0;
     }
@@ -455,7 +451,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__eyebrow {
       color: rgba(103, 224, 255, 0.95);
       font-size: 10px;
-      font-weight: 820;
+      font-weight: 720;
       letter-spacing: 0.10em;
       line-height: 1.2;
       text-transform: uppercase;
@@ -464,7 +460,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__title {
       color: rgba(234, 253, 255, 0.96);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 720;
       letter-spacing: 0.075em;
       line-height: 1.18;
       text-transform: uppercase;
@@ -474,7 +470,7 @@
       margin: 0;
       color: rgba(181, 218, 229, 0.86);
       font-size: 11px;
-      font-weight: 650;
+      font-weight: 720;
       line-height: 1.32;
     }
 
@@ -514,23 +510,25 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
-      grid-template-columns: fit-content(112px) minmax(0, 1fr);
+      grid-template-columns: var(--ai-dashboard-row-label-width, max-content) minmax(0, 1fr);
       gap: 6px;
-      column-gap: 8px;
+      column-gap: var(--ai-dashboard-row-gutter, 8px);
       min-height: 0;
       padding: 4px 0 2px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span {
       width: max-content;
-      max-width: 112px;
-      white-space: normal;
+      max-width: none;
+      white-space: nowrap;
       font-size: 11px;
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row strong {
       min-width: 0;
       font-size: 11px;
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-actions {
@@ -547,7 +545,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__status {
       color: rgba(171, 255, 226, 0.96);
       font-size: 11px;
-      font-weight: 820;
+      font-weight: 720;
       line-height: 1.32;
     }
 
@@ -575,7 +573,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section span {
       color: rgba(103, 224, 255, 0.95);
       font-size: 10px;
-      font-weight: 820;
+      font-weight: 720;
       letter-spacing: 0.07em;
       text-transform: uppercase;
     }
@@ -583,7 +581,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section strong {
       color: rgba(235, 252, 255, 0.96);
       font-size: 11px;
-      font-weight: 760;
+      font-weight: 720;
       line-height: 1.32;
     }
 
@@ -594,6 +592,14 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit {
       max-width: min(100%, 187px);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub span,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub strong,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub p,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub button,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub .monitoring-hud__button-label {
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--deferred,
@@ -714,7 +720,7 @@
     data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"
     data-global-ai-strip="compact-truth-state-no-provider-no-execution"
     data-title-status-wrap="group-preserving-atomic-flex-wrap"
-    data-row-title-sizing="content-fit-stable-title-column"
+    data-row-title-sizing="content-derived-label-column-fixed-gutter"
     data-settings-route="option-b-deferred-until-fam003-global-settings-window"
     data-maintenance-updates-placement="lifecycle-domain-doorway-no-download-install-update-execution"
     data-dashboard-provider-truth="provider-contract-first"
@@ -798,6 +804,9 @@
         class="monitoring-hud__control-hub"
         id="ai-control-center-card-hub"
         data-dashboard-content="control-hub-cards"
+        data-below-title-text-weight="720-standard"
+        data-row-label-column-source="pending-measure"
+        data-row-value-gutter="8"
         data-child-window-model="detached-child-windows-deferred-not-accepted-current-gate"
         aria-label="AI Dashboard domain cards"
       >

@@ -122,7 +122,7 @@
         body.hidden = true;
       }
       setReportCopyEnabled(false);
-      requestAnimationFrame(syncCustomScrollbar);
+      requestAnimationFrame(syncDashboardLayout);
       return false;
     }
 
@@ -140,7 +140,7 @@
       body.hidden = false;
     }
     setReportCopyEnabled(true);
-    requestAnimationFrame(syncCustomScrollbar);
+    requestAnimationFrame(syncDashboardLayout);
     return true;
   };
   const copyReadinessReport = async () => {
@@ -304,6 +304,36 @@
     syncWindowControlState(byId("monitoring-hud")?.dataset.windowState || "normal", states);
   };
 
+  const syncRowLabelColumnSizing = () => {
+    const surface = byId("monitoring-hud");
+    const hub = byId("ai-control-center-card-hub");
+    if (!surface || !hub) {
+      return;
+    }
+    const labels = [...hub.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row > span")];
+    const maxLabelWidth = labels.reduce((maxWidth, label) => {
+      const rect = label.getBoundingClientRect();
+      return Math.max(maxWidth, Math.ceil(rect.width || label.scrollWidth || 0));
+    }, 0);
+    if (maxLabelWidth <= 0) {
+      hub.dataset.rowLabelColumnSource = "pending-measure";
+      return;
+    }
+    hub.style.setProperty("--ai-dashboard-row-label-width", `${maxLabelWidth}px`);
+    hub.style.setProperty("--ai-dashboard-row-gutter", "8px");
+    hub.dataset.rowLabelColumnSource = "measured-label-content";
+    hub.dataset.rowLabelColumnWidth = String(maxLabelWidth);
+    hub.dataset.rowValueGutter = "8";
+    surface.dataset.rowTitleSizing = "content-derived-label-column-fixed-gutter";
+  };
+  window.nexusAiControlCenterSyncRowLabelColumnSizing = syncRowLabelColumnSizing;
+
+  const syncDashboardLayout = () => {
+    syncRowLabelColumnSizing();
+    syncCustomScrollbar();
+  };
+  window.nexusAiControlCenterSyncDashboardLayout = syncDashboardLayout;
+
   const syncCustomScrollbar = () => {
     const surface = byId("monitoring-hud");
     const chrome = surface?.querySelector(".monitoring-hud__chrome");
@@ -439,7 +469,7 @@
     setText("ai-control-center-report-summary", "Generate the report to inspect local readiness.");
     byId("ai-control-center-report-body")?.setAttribute("hidden", "");
     setReportCopyEnabled(false);
-    requestAnimationFrame(syncCustomScrollbar);
+    requestAnimationFrame(syncDashboardLayout);
   };
 
   window.nexusAiControlCenterRunLocalCheck = () => {
@@ -479,12 +509,29 @@
         ? (providerState.aiControlCenterBlockedActionLabel || "Prompt/provider/model action blocked")
         : "Local check blocked by boundary mismatch",
     );
-    requestAnimationFrame(syncCustomScrollbar);
+    requestAnimationFrame(syncDashboardLayout);
   };
   window.nexusAiControlCenterGenerateReadinessReport = () => (
     renderReadinessReport(providerState.localAiReadinessReport || {})
   );
   window.nexusAiControlCenterCopyReadinessReport = copyReadinessReport;
+
+  const observeDashboardLayoutDrift = () => {
+    const hub = byId("ai-control-center-card-hub");
+    if (!hub || !window.ResizeObserver) {
+      return;
+    }
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(syncDashboardLayout);
+    });
+    observer.observe(hub);
+    hub.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row > span").forEach((label) => {
+      observer.observe(label);
+    });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => requestAnimationFrame(syncDashboardLayout)).catch(() => {});
+    }
+  };
 
   const attachWindowControlHandlers = () => {
     Object.entries(windowControlDefaults).forEach(([key, config]) => {
@@ -510,6 +557,7 @@
   applyDeferredDoorwayState();
   stripNativeTooltips();
   observeNativeTooltipDrift();
+  observeDashboardLayoutDrift();
   attachWindowControlHandlers();
   attachActivationHandler(byId("ai-control-center-local-check-action"), () => {
     window.nexusAiControlCenterRunLocalCheck();
@@ -553,11 +601,11 @@
   window.addEventListener("mouseup", () => {
     scrollbarDrag = null;
   });
-  window.addEventListener("resize", syncCustomScrollbar);
+  window.addEventListener("resize", syncDashboardLayout);
   window.addEventListener("load", () => {
     applyDeferredDoorwayState();
-    requestAnimationFrame(syncCustomScrollbar);
+    requestAnimationFrame(syncDashboardLayout);
   });
   syncWindowControlState("normal");
-  requestAnimationFrame(syncCustomScrollbar);
+  requestAnimationFrame(syncDashboardLayout);
 })();
