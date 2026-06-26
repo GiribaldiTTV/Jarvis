@@ -198,7 +198,30 @@ def _line_cells(line: str) -> list[str]:
     stripped = line.strip()
     if not stripped.startswith("|") or not stripped.endswith("|"):
         return []
-    return [cell.strip() for cell in stripped.strip("|").split("|")]
+    cells: list[str] = []
+    buffer: list[str] = []
+    escaped = False
+    for char in stripped[1:-1]:
+        if escaped:
+            if char == "|":
+                buffer.append("|")
+            else:
+                buffer.append("\\")
+                buffer.append(char)
+            escaped = False
+            continue
+        if char == "\\":
+            escaped = True
+            continue
+        if char == "|":
+            cells.append("".join(buffer).strip())
+            buffer = []
+            continue
+        buffer.append(char)
+    if escaped:
+        buffer.append("\\")
+    cells.append("".join(buffer).strip())
+    return cells
 
 
 def _is_separator(cells: Iterable[str]) -> bool:

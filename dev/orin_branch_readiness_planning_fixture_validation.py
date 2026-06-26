@@ -6522,6 +6522,23 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     ):
         failures.append("Generated RAR fixture did not reject placeholder required fields")
 
+    escaped_pipe_valid = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-079 | FAM-006 | HUD Dashboard | Status row | "
+            "PASS \\| FAIL label comparison must remain one cell | "
+            "RAR contact sheet row HUD-PIPE-079 | ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated escaped-pipe valid row",
+    )
+    if escaped_pipe_valid:
+        failures.append(
+            "Generated RAR fixture rejected escaped Markdown pipe inside a valid issue-candidate cell: "
+            + "; ".join(escaped_pipe_valid[:5])
+        )
+
     github_creation_approved_receipt = rar_issue_durability.validate_text(
         table(
             row(
