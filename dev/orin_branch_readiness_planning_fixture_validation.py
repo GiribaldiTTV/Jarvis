@@ -5408,6 +5408,54 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject Review Aids-only decision table with the primary basename"
             )
 
+        nested_review_aid_primary_packet = temp_root / "nested-review-aid-user-review" / "FAM-006"
+        nested_review_aid_user_review = nested_review_aid_primary_packet / "Review Aids" / "USER Review"
+        nested_review_aid_context = nested_review_aid_primary_packet / "Source Truth Context"
+        nested_review_aid_user_review.mkdir(parents=True)
+        nested_review_aid_context.mkdir(parents=True)
+        (nested_review_aid_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_review_aid_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-046")),
+            encoding="utf-8",
+        )
+        (nested_review_aid_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n",
+            encoding="utf-8",
+        )
+        nested_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            nested_review_aid_primary_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            nested_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject nested Review Aids/USER Review issue-candidate table as primary"
+            )
+
+        nested_context_primary_packet = temp_root / "nested-context-user-review" / "FAM-006"
+        nested_context_user_review = nested_context_primary_packet / "Source Truth Context" / "USER Review"
+        nested_context_user_review.mkdir(parents=True)
+        (nested_context_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_context_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-047")),
+            encoding="utf-8",
+        )
+        nested_context_primary_failures = rar_issue_durability.validate_packet_folder(
+            nested_context_primary_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            nested_context_primary_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject nested Source Truth Context/USER Review issue-candidate table as primary"
+            )
+
         routed_review_aid_packet = temp_root / "routed-review-aid-only" / "FAM-006"
         routed_review_aid = routed_review_aid_packet / "Review Aids"
         routed_review_context = routed_review_aid_packet / "Source Truth Context"
@@ -5777,6 +5825,26 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     if "RAR GitHub Issue Mapping Stale" not in "\n".join(mapped_closed_snapshot_open):
         failures.append(
             "Generated RAR GitHub fixture did not reject mapped-closed candidate when snapshot is open"
+        )
+
+    mapped_open_prefixed_issue_number = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-027",
+                disposition="MAPPED_OPEN_GITHUB_ISSUE",
+                blocking="NO",
+                github_issue="FAM-006 GitHub issue #275",
+                carrier="Owner FAM-006; reason issue remains open; carrier GitHub issue #275; trigger issue closeout review",
+                decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+            )
+        ),
+        source="generated open mapping prefixed issue number",
+        github_snapshot=snapshot("OPEN"),
+    )
+    if mapped_open_prefixed_issue_number:
+        failures.append(
+            "Generated RAR GitHub fixture rejected a # issue number when an earlier FAM number was present: "
+            + "; ".join(mapped_open_prefixed_issue_number[:5])
         )
 
     mapped_closed_snapshot_closed = rar_issue_durability.validate_text(

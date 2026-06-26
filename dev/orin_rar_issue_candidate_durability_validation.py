@@ -223,7 +223,10 @@ def _looks_like_date_or_receipt(value: str) -> bool:
 
 
 def _issue_number(value: str) -> str | None:
-    match = re.search(r"#?(\d+)", value)
+    match = re.search(r"#(\d+)", value)
+    if match:
+        return match.group(1)
+    match = re.search(r"\b(\d+)\b", value)
     if not match:
         return None
     return match.group(1)
@@ -508,6 +511,10 @@ def _path_has_part(path: Path, part: str) -> bool:
     return any(path_part.casefold() == part for path_part in path.parts)
 
 
+def _path_first_part_is(path: Path, part: str) -> bool:
+    return bool(path.parts) and path.parts[0].casefold() == part
+
+
 def _packet_non_context_markdown_text(packet_folder: Path) -> str:
     parts: list[str] = []
     for path in sorted(packet_folder.rglob("*.md")):
@@ -522,7 +529,7 @@ def _primary_decision_surface_paths(packet_folder: Path) -> list[Path]:
     primary_paths: list[Path] = []
     for path in _packet_markdown_files(packet_folder):
         relative = path.relative_to(packet_folder)
-        if not _path_has_part(relative, PRIMARY_REVIEW_FOLDER):
+        if not _path_first_part_is(relative, PRIMARY_REVIEW_FOLDER):
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             primary_paths.append(path)
@@ -582,7 +589,7 @@ def _supporting_decision_surface_paths(packet_folder: Path) -> list[Path]:
             continue
         if path in primary_paths:
             continue
-        if _path_has_part(relative, PRIMARY_REVIEW_FOLDER):
+        if _path_first_part_is(relative, PRIMARY_REVIEW_FOLDER):
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             supporting_paths.append(path)
