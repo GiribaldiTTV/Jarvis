@@ -53,6 +53,11 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "green",
     "primary decision surface",
     "decision surface",
+    "although",
+    "though",
+    "while",
+    "blocked",
+    "not blocked",
 }
 HELPER_FILE_PATTERNS = (
     "validation",
@@ -383,7 +388,9 @@ def _load_matrix(path: Path) -> dict[str, Any]:
 
 
 def _normalize(text: str) -> str:
-    return re.sub(r"\s+", " ", text.casefold()).strip()
+    base = re.sub(r"\s+", " ", text.casefold()).strip()
+    separator_normalized = re.sub(r"[-_/]+", " ", base)
+    return f"{base} {separator_normalized}".strip()
 
 
 def _is_connector_login(login: str) -> bool:
@@ -483,6 +490,18 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-phase-advancement-parser" in pr_readiness_families:
         failures.append(
             "Comment-family classifier overmatched generic PR Readiness drift as RAR phase advancement"
+        )
+    current_head_latch_comment = (
+        "Current-head green proof accepted even though a later Connector review/comment signal exists."
+    )
+    current_head_latch_families = _classify_comment(current_head_latch_comment)
+    if "pr2-thread-pagination-and-approval-latch" not in current_head_latch_families:
+        failures.append(
+            "Comment-family classifier did not classify hyphenated current-head approval latch drift"
+        )
+    if "rar-phase-advancement-parser" in current_head_latch_families:
+        failures.append(
+            "Comment-family classifier overmatched current-head approval latch drift as RAR phase advancement"
         )
     helper_source = Path(__file__).read_text(encoding="utf-8")
     helper_lines = helper_source.splitlines()

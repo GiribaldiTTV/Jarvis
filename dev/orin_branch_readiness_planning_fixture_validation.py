@@ -5873,6 +5873,24 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject hyphenated packet-reviewed-only closure wording in Review Aids"
             )
 
+        separator_packet_reviewed_only_review_aid_packet = packet_with_sections(
+            temp_root / "separator-packet-reviewed-only-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-075")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "This issue candidate is packet_reviewed_only and normal-progression may continue."
+            ),
+        )
+        separator_packet_reviewed_only_review_aid_failures = (
+            rar_issue_durability.validate_packet_folder(separator_packet_reviewed_only_review_aid_packet)
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            separator_packet_reviewed_only_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject separator-normalized packet_reviewed_only closure wording"
+            )
+
         active_repaired_packeted_only_packet = packet_with_sections(
             temp_root / "active-repaired-packeted-only-with-primary",
             primary_text=table(row("FAM006-RAR-061")),
@@ -6344,6 +6362,56 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         routed_negated_receipt
     ):
         failures.append("Generated RAR fixture did not reject routed disposition with negated receipt language")
+
+    routed_approved_without_carrier_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-072",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="USER approved routing to FAM-006.",
+                decision="No current USER decision because routing approval exists but carrier acceptance has not been recorded.",
+            )
+        ),
+        source="generated routed disposition approved without carrier receipt",
+    )
+    if "routed disposition requires carrier acceptance/receipt" not in "\n".join(
+        routed_approved_without_carrier_receipt
+    ):
+        failures.append("Generated RAR fixture did not reject routed disposition with approval but no carrier receipt")
+
+    routed_awaiting_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-073",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="Routed to FAM-006 and awaiting carrier acceptance receipt.",
+                decision="No current USER decision because the target carrier receipt remains pending.",
+            )
+        ),
+        source="generated routed disposition awaiting receipt",
+    )
+    if "routed disposition requires carrier acceptance/receipt" not in "\n".join(routed_awaiting_receipt):
+        failures.append("Generated RAR fixture did not reject routed disposition awaiting receipt")
+
+    github_creation_not_approved = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-074",
+                disposition="GITHUB_CREATION_APPROVED_PENDING",
+                blocking="YES",
+                github_issue="PENDING",
+                carrier="Issue creation is not approved; no USER approval receipt yet.",
+                decision="No issue mutation may occur because approval is missing.",
+            )
+        ),
+        source="generated GitHub creation pending without positive approval",
+    )
+    if "approved issue creation requires USER approval receipt" not in "\n".join(
+        github_creation_not_approved
+    ):
+        failures.append("Generated RAR fixture did not reject GitHub issue creation pending without positive approval")
 
     nonblocking_missing_fields = rar_issue_durability.validate_text(
         table(

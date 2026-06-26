@@ -64,6 +64,7 @@ PACKETED_ONLY_PATTERNS = (
     "packeted-only",
     "packet only",
     "packet-only",
+    "packet reviewed only",
     "packet-reviewed only",
     "packet-reviewed-only",
     "issue candidate packet user-reviewed",
@@ -158,7 +159,9 @@ class CandidateRow:
 
 
 def _normalize_text(value: str) -> str:
-    return re.sub(r"\s+", " ", value.strip()).casefold()
+    base = re.sub(r"\s+", " ", value.strip()).casefold()
+    separator_normalized = re.sub(r"[-_/]+", " ", base)
+    return f"{base} {separator_normalized}".strip()
 
 
 def _mentions_issue_candidate(value: str) -> bool:
@@ -261,7 +264,7 @@ def _looks_like_date_or_receipt(value: str) -> bool:
         or re.search(r"\b20\d{6}\b", value)
     ):
         return True
-    return any(word in normalized for word in ("receipt", "verified from", "not created yet"))
+    return "verified from" in normalized or "not created yet" in normalized or _has_positive_user_approval_receipt(value)
 
 
 def _issue_number(value: str) -> str | None:
@@ -339,19 +342,33 @@ def _candidate_id_present(candidate_id: str, text: str) -> bool:
     return bool(re.search(rf"(?<![A-Za-z0-9_-]){escaped}(?![A-Za-z0-9_-])", text))
 
 
-def _has_positive_carrier_receipt(text: str) -> bool:
+def _has_negated_receipt_or_approval(text: str) -> bool:
     normalized = _normalize_text(text)
     negated_receipt_patterns = (
-        r"\b(no|not|without|missing|absent|pending|lacks?|lack)\b[^.;|\n]{0,80}\b(receipt|acceptance|accepted)\b",
-        r"\b(receipt|acceptance|accepted)\b[^.;|\n]{0,80}\b(missing|absent|pending|not accepted|not yet|not recorded|unproven|unaccepted)\b",
+        r"\b(no|not|without|missing|absent|pending|awaiting|waiting|waits?|lacks?|lack)\b[^.;|\n]{0,80}\b(receipt|acceptance|accepted|approval|approved)\b",
+        r"\b(receipt|acceptance|accepted|approval|approved)\b[^.;|\n]{0,80}\b(missing|absent|pending|awaiting|waiting|not accepted|not approved|not yet|not recorded|unproven|unaccepted|unapproved)\b",
         r"\bnot accepted\b",
+        r"\bnot approved\b",
         r"\bno receipt\b",
+        r"\bno acceptance\b",
         r"\bwithout receipt\b",
         r"\breceipt yet\b",
     )
-    if any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in negated_receipt_patterns):
+    return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in negated_receipt_patterns)
+
+
+def _has_positive_carrier_receipt(text: str) -> bool:
+    normalized = _normalize_text(text)
+    if _has_negated_receipt_or_approval(text):
         return False
     return bool(re.search(r"\b(receipt|acceptance|accepted)\b", normalized, flags=re.IGNORECASE))
+
+
+def _has_positive_user_approval_receipt(text: str) -> bool:
+    normalized = _normalize_text(text)
+    if _has_negated_receipt_or_approval(text):
+        return False
+    return bool(re.search(r"\b(receipt|approval|approved)\b", normalized, flags=re.IGNORECASE))
 
 
 def _directional_lineage_present(candidate_id: str, current_id: str, line: str) -> bool:
@@ -575,7 +592,7 @@ def validate_text(
         if disposition == "GITHUB_CREATION_APPROVED_PENDING":
             if _normalize_token(row.github_issue) not in {"PENDING", "APPROVED_PENDING", "NONE_PENDING"}:
                 failures.append(f"{source}: {row_label}: approved issue creation must remain visibly pending")
-            if not re.search(r"\b(approval|approved|receipt)\b", carrier_decision_normalized):
+            if not _has_positive_user_approval_receipt(carrier_decision_text):
                 failures.append(f"{source}: {row_label}: approved issue creation requires USER approval receipt")
 
         if disposition == "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED":
