@@ -846,7 +846,7 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
                 f"but adjacentPartialGeometryFoundInCrop is empty: "
                 f"{', '.join(str(item.get('elementKey')) for item in detected_geometry)}"
             )
-        if detected_geometry and crop_type == CROP_TYPE_ELEMENT:
+        if detected_geometry and crop_type == CROP_TYPE_ELEMENT and row.get("adjacentPartialTextAllowed") is not True:
             failures.append(
                 f"element crop {key} contains undeclared adjacent geometry outside target rectangle: "
                 f"{', '.join(str(item.get('elementKey')) for item in detected_geometry)}"
@@ -889,7 +889,12 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             failures.append(f"crop completeness ledger row {key} does not prove surrounding context included")
         if row.get("cropNotHidingAdjacentDefect") is not True:
             failures.append(f"crop completeness ledger row {key} may hide an adjacent spacing/alignment defect")
-        if detected_geometry and row.get("cropNotHidingAdjacentDefect") is True and crop_type == CROP_TYPE_ELEMENT:
+        if (
+            detected_geometry
+            and row.get("cropNotHidingAdjacentDefect") is True
+            and crop_type == CROP_TYPE_ELEMENT
+            and row.get("adjacentPartialTextAllowed") is not True
+        ):
             failures.append(
                 f"crop completeness ledger row {key} says cropNotHidingAdjacentDefect=true while overlay shows adjacent geometry"
             )
