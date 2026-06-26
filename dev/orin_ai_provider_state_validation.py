@@ -8865,6 +8865,7 @@ def validate() -> list[str]:
         "SetCapture",
         "ReleaseCapture",
         "GetAsyncKeyState",
+        "resize-cursor-no-forced-arrow-release",
         "AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED",
         "AI_CONTROL_CENTER_WINDOW_RESIZE_READY",
         "self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)",

@@ -144,11 +144,22 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
     const rowValue = children.find((child) => child.tagName === "STRONG") || null;
     const rowLabelRect = rowLabel ? rowLabel.getBoundingClientRect() : null;
     const rowValueRect = rowValue ? rowValue.getBoundingClientRect() : null;
+    const rowLabelStyle = rowLabel ? getComputedStyle(rowLabel) : null;
+    const rowValueStyle = rowValue ? getComputedStyle(rowValue) : null;
     const rectPayload = (targetRect) => targetRect ? {
       left: Math.round(targetRect.left),
       top: Math.round(targetRect.top),
       right: Math.round(targetRect.right),
       bottom: Math.round(targetRect.bottom),
+    } : null;
+    const textStylePayload = (targetStyle) => targetStyle ? {
+      fontSize: targetStyle.fontSize,
+      fontWeight: targetStyle.fontWeight,
+      fontFamily: targetStyle.fontFamily,
+      lineHeight: targetStyle.lineHeight,
+      letterSpacing: targetStyle.letterSpacing,
+      textTransform: targetStyle.textTransform,
+      color: targetStyle.color,
     } : null;
     out[key] = {
       selector,
@@ -208,6 +219,8 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
       },
       rowLabelRect: rectPayload(rowLabelRect),
       rowValueRect: rectPayload(rowValueRect),
+      rowLabelComputedStyle: textStylePayload(rowLabelStyle),
+      rowValueComputedStyle: textStylePayload(rowValueStyle),
       rowLabelText: rowLabel ? String(rowLabel.innerText || rowLabel.textContent || "").trim() : "",
       rowValueText: rowValue ? String(rowValue.innerText || rowValue.textContent || "").trim() : "",
       rowLabelValueGapPx: rowLabelRect && rowValueRect ? Math.round(rowValueRect.left - rowLabelRect.right) : null,
@@ -405,6 +418,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             gap = item.get("rowLabelValueGapPx")
             label_rect = item.get("rowLabelRect")
             value_rect = item.get("rowValueRect")
+            label_style = item.get("rowLabelComputedStyle")
+            value_style = item.get("rowValueComputedStyle")
             value_left = int(value_rect.get("left", 0)) if isinstance(value_rect, dict) else None
             row_failures: list[str] = []
             if label_text != expected_label:
@@ -413,10 +428,18 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                 row_failures.append("value text missing")
             if not isinstance(gap, int):
                 row_failures.append("label/value gap missing")
-            elif gap < 18 or gap > 34:
-                row_failures.append(f"label/value gap {gap}px outside deterministic fixed-column 18-34px range")
+            elif gap < 5 or gap > 7:
+                row_failures.append(f"label/value gap {gap}px outside AI Control Center 6px +/-1px range")
             if not isinstance(label_rect, dict) or not isinstance(value_rect, dict):
                 row_failures.append("label/value rect missing")
+            if not isinstance(label_style, dict):
+                row_failures.append("label computed style missing")
+            elif label_style.get("fontSize") != "11px":
+                row_failures.append(f"label fontSize {label_style.get('fontSize')!r} != '11px'")
+            if not isinstance(value_style, dict):
+                row_failures.append("value computed style missing")
+            elif value_style.get("fontSize") != "11px":
+                row_failures.append(f"value fontSize {value_style.get('fontSize')!r} != '11px'")
             rows.append(
                 {
                     "rowKey": key,
@@ -425,9 +448,13 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                     "valueText": value_text,
                     "labelRect": label_rect,
                     "valueRect": value_rect,
+                    "labelComputedStyle": label_style,
+                    "valueComputedStyle": value_style,
                     "valueLeftPx": value_left,
                     "labelValueGapPx": gap,
-                    "expectedGapPx": "18-34",
+                    "expectedGapPx": "6 +/- 1",
+                    "expectedLabelFontSize": "11px",
+                    "expectedValueFontSize": "11px",
                     "failures": row_failures,
                     "status": "PASS" if not row_failures else "REPAIR",
                 }
@@ -443,7 +470,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             failures.append(f"value/status column start delta {value_column_delta}px exceeds 1px")
         return {
             "surface": "Recording Studio" if surface_key == "recording" else "Log Viewer",
-            "expected": "compact state rows use a fixed 52px label column plus 18px gutter so value/status text starts on the same deterministic column while staying close to row labels",
+            "expected": "studio state rows use AI Control Center row rhythm: minmax(142px, 0.39fr) label column, 6px label/value gap, and USER-directed 11px label/value text",
             "rows": rows,
             "valueColumnDeltaPx": value_column_delta,
             "valueColumnAlignmentExpectedPx": "0-1",
@@ -646,7 +673,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["rowLabelValueVerdict"] == "PASS",
         recording["actionLayoutVerdict"] == "PASS",
         log_viewer["actionLayoutVerdict"] == "PASS",
-        log_viewer["truthRowComputedStyle"].get("paddingTop") == "3px",
+        log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
         log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
         log_viewer["windowControlsComputedStyle"].get("top") == "14px",
         log_viewer["windowControlsComputedStyle"].get("right") == "15px",
@@ -708,15 +735,15 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "| --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {recording['titleToStatusVerdict']} |\n"
         f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {log_viewer['titleToStatusVerdict']} |\n"
-        + "\n| Surface | Row label/value gap | Value column left | Expected range | Verdict |\n"
-        "| --- | --- | --- | --- | --- |\n"
+        + "\n| Surface | Row label/value gap | Label/value font | Value column left | Expected range | Verdict |\n"
+        "| --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            f"| Recording Studio `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['valueLeftPx']}px | 18-34px; value-column delta 0-1px | {row['status']} |"
+            f"| Recording Studio `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | 6px +/-1; value-column delta 0-1px | {row['status']} |"
             for row in recording["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"
         + "\n".join(
-            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['valueLeftPx']}px | 18-34px; single-row column | {row['status']} |"
+            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | 6px +/-1; single-row column | {row['status']} |"
             for row in log_viewer["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"

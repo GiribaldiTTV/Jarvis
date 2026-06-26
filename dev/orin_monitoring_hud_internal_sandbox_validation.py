@@ -1549,6 +1549,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "WM_NCLBUTTONDOWN",
         "GetAsyncKeyState",
         "_monitoring_hud_windows_resize_cursor_id_for_edges",
+        "resize-cursor-no-forced-arrow-release",
         "preclick-hover-cursor-aligned-14px-app-owned-resize-action",
         'overlay.setProperty("resizeProofVisibility", "invisible-test-gated-no-user-facing-artifacts")',
         "polls-real-cursor-before-click",
