@@ -573,10 +573,10 @@ def parse_issue_candidate_decision_surface(text: str, source: str = "<text>") ->
 def parse_external_candidate_rows(text: str, source: str = "<external-ledger>") -> list[CandidateRow]:
     rows = parse_issue_candidate_decision_surface(text, source=source)
     for cells in _table_rows_after_header(text, LEGACY_RAR_HEADER, 8):
-        if len(cells) == 8 and not _is_empty(cells[0]):
-            rows.append(_legacy_row_to_candidate(cells, source))
-        elif len(cells) != 8:
+        if len(cells) != 8 or _is_empty(cells[0]):
             rows.append(_candidate_from_malformed_row(source))
+        else:
+            rows.append(_legacy_row_to_candidate(cells, source))
     return rows
 
 

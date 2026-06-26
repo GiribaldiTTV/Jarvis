@@ -6127,6 +6127,34 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet/ledger fixture did not reject malformed legacy external issue-candidate rows"
             )
 
+        blank_id_legacy_ledger = temp_root / "blank_id_legacy_ledger.md"
+        blank_id_legacy_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-084 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-084 | Owner FAM-006 RAR repair | No |",
+                    "|  | FAM-006 | HUD Dashboard | Window control cluster | Blank candidate identifier should not disappear | Legacy RAR row HUD-BLANK | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        blank_id_legacy_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "blank-id-legacy-ledger",
+                primary_text=table(row("FAM006-RAR-084")),
+            ),
+            external_ledger=blank_id_legacy_ledger,
+        )
+        if "malformed external RAR issue candidate row" not in "\n".join(
+            blank_id_legacy_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed blank-ID legacy external issue-candidate rows to disappear"
+            )
+
         incidental_mention_ledger = temp_root / "incidental_mention_ledger.md"
         incidental_mention_ledger.write_text(table(row("FAM006-RAR-039")), encoding="utf-8")
         incidental_mention_failures = rar_issue_durability.validate_packet_folder(
