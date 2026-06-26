@@ -586,6 +586,13 @@ def _packet_primary_text(packet_folder: Path) -> str:
     return "\n\n".join(parts)
 
 
+def _issue_candidate_rows_from_paths(paths: Iterable[Path]) -> list[CandidateRow]:
+    rows: list[CandidateRow] = []
+    for path in paths:
+        rows.extend(parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)))
+    return rows
+
+
 def validate_packet_folder(
     packet_folder: Path,
     external_ledger: Path | None = None,
@@ -612,6 +619,15 @@ def validate_packet_folder(
     primary_text = _packet_primary_text(packet_folder)
     primary_rows = parse_issue_candidate_decision_surface(primary_text, source=str(packet_folder))
     primary_row_ids = _candidate_ids_from_rows(primary_rows)
+    supporting_context_rows = _issue_candidate_rows_from_paths([*supporting_paths, *context_paths])
+    for row in supporting_context_rows:
+        if not row.requires_current_packet:
+            continue
+        if row.candidate_id in primary_row_ids or _explicit_lineage_present(row.candidate_id, primary_text):
+            continue
+        failures.append(
+            f"{packet_folder}: supporting/context RAR issue candidate {row.candidate_id} missing from active USER-facing packet files"
+        )
     if primary_text:
         failures.extend(validate_text(primary_text, source=str(packet_folder), github_snapshot=github_snapshot))
     else:

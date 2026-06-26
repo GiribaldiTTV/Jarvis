@@ -5201,7 +5201,7 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 encoding="utf-8",
             )
         (context / "COPIED_CONTEXT.md").write_text(
-            table(row("FAM006-RAR-CONTEXT-01")),
+            "# Copied Source Truth Context\n\nNo active issue-candidate decision surface lives in copied context.",
             encoding="utf-8",
         )
         return packet
@@ -5435,6 +5435,66 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject START_HERE-routed Review Aids issue-candidate table"
             )
 
+        hidden_review_aid_packet = temp_root / "hidden-review-aid-candidate" / "FAM-006"
+        hidden_user_review = hidden_review_aid_packet / "USER Review"
+        hidden_review_aids = hidden_review_aid_packet / "Review Aids"
+        hidden_context = hidden_review_aid_packet / "Source Truth Context"
+        hidden_user_review.mkdir(parents=True)
+        hidden_review_aids.mkdir(parents=True)
+        hidden_context.mkdir(parents=True)
+        (hidden_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (hidden_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-041")),
+            encoding="utf-8",
+        )
+        (hidden_review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-042")),
+            encoding="utf-8",
+        )
+        (hidden_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n",
+            encoding="utf-8",
+        )
+        hidden_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            hidden_review_aid_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-042 missing" not in "\n".join(
+            hidden_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed active Review Aids candidate absent from primary decision surface"
+            )
+
+        hidden_context_packet = temp_root / "hidden-context-candidate" / "FAM-006"
+        hidden_context_user_review = hidden_context_packet / "USER Review"
+        hidden_context_folder = hidden_context_packet / "Source Truth Context"
+        hidden_context_user_review.mkdir(parents=True)
+        hidden_context_folder.mkdir(parents=True)
+        (hidden_context_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (hidden_context_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-043")),
+            encoding="utf-8",
+        )
+        (hidden_context_folder / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-044")),
+            encoding="utf-8",
+        )
+        hidden_context_failures = rar_issue_durability.validate_packet_folder(
+            hidden_context_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-044 missing" not in "\n".join(
+            hidden_context_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed active copied-context candidate absent from primary decision surface"
+            )
+
         copied_context_only_packet = temp_root / "copied-context-only" / "FAM-006"
         copied_context = copied_context_only_packet / "Source Truth Context"
         copied_context.mkdir(parents=True)
@@ -5483,11 +5543,11 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             encoding="utf-8",
         )
         (routed_review / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
-            table(row("FAM006-RAR-035")),
+            "# RAR Issue Candidate Review Aid\n\nSupporting narrative only; no active decision table.",
             encoding="utf-8",
         )
         (routed_context / "COPIED_CONTEXT.md").write_text(
-            table(row("FAM006-RAR-CONTEXT-02")),
+            "# Copied Source Truth Context\n\nNo active issue-candidate decision surface lives in copied context.",
             encoding="utf-8",
         )
         routed_primary_failures = rar_issue_durability.validate_packet_folder(routed_packet)
