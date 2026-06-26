@@ -6192,6 +6192,46 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 + "; ".join(directional_lineage_carried[:5])
             )
 
+        windows_routed_primary_packet = temp_root / "windows-routed-primary" / "FAM-006"
+        windows_issue_decisions = windows_routed_primary_packet / "Issue Decisions"
+        windows_issue_decisions.mkdir(parents=True)
+        (windows_routed_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Primary issue candidate decision file: Issue Decisions\\RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (windows_issue_decisions / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-078")),
+            encoding="utf-8",
+        )
+        windows_routed_primary_failures = rar_issue_durability.validate_packet_folder(
+            windows_routed_primary_packet
+        )
+        if windows_routed_primary_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected START_HERE Windows-separator routed primary issue decision file: "
+                + "; ".join(windows_routed_primary_failures[:5])
+            )
+
+        negated_lineage_ledger = temp_root / "negated_lineage_ledger.md"
+        negated_lineage_ledger.write_text(table(row("FAM006-RAR-067")), encoding="utf-8")
+        negated_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "negated-lineage",
+                primary_text=(
+                    table(row("FAM006-RAR-999"))
+                    + "\n\nLineage: successor FAM006-RAR-999 is not a replacement for predecessor FAM006-RAR-067."
+                ),
+            ),
+            external_ledger=negated_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-067 missing" not in "\n".join(
+            negated_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed negated successor/predecessor lineage to carry an external candidate"
+            )
+
         same_id_different_lineage_ledger = temp_root / "same_id_different_lineage_ledger.md"
         same_id_different_lineage_ledger.write_text(table(row("FAM006-RAR-045")), encoding="utf-8")
         same_id_different_lineage_failures = rar_issue_durability.validate_packet_folder(

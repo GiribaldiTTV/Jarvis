@@ -401,6 +401,8 @@ def _has_positive_user_approval_receipt(text: str) -> bool:
 
 
 def _directional_lineage_present(candidate_id: str, current_id: str, line: str) -> bool:
+    if _line_negates_lineage(line):
+        return False
     old = re.escape(candidate_id)
     new = re.escape(current_id)
     old_token = rf"(?<![A-Za-z0-9_-]){old}(?![A-Za-z0-9_-])"
@@ -414,6 +416,19 @@ def _directional_lineage_present(candidate_id: str, current_id: str, line: str) 
         rf"\brenamed to\b[^\n|]*{new_token}[^\n|]*\bfrom\b[^\n|]*{old_token}",
     )
     return any(re.search(pattern, line, flags=re.IGNORECASE) for pattern in patterns)
+
+
+def _line_negates_lineage(line: str) -> bool:
+    normalized = _normalize_text(line)
+    negated_lineage_patterns = (
+        r"\bnot\b[^.;|\n]{0,80}\b(replacement|successor|predecessor|lineage|rename|renamed|replace|replaces|carried|mapped|routed)\b",
+        r"\b(successor|predecessor|lineage|rename|renamed|replacement|replace|replaces|carried|mapped|routed)\b[^.;|\n]{0,80}\bnot\b",
+        r"\bdoes not replace\b",
+        r"\bno lineage\b",
+        r"\blineage rejected\b",
+        r"\blineage not accepted\b",
+    )
+    return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in negated_lineage_patterns)
 
 
 def _explicit_lineage_present(
@@ -432,6 +447,8 @@ def _explicit_lineage_present(
         if not lineage_word.search(line):
             continue
         if not _candidate_id_present(candidate_id, line):
+            continue
+        if _line_negates_lineage(line):
             continue
         if not current_ids:
             return True
@@ -723,6 +740,7 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
         return []
     excluded = excluded or set()
     start_text = start_here.read_text(encoding="utf-8")
+    start_text_path_normalized = start_text.replace("\\", "/")
     routed_paths: list[Path] = []
     for path in _packet_markdown_files(packet_folder):
         if path in excluded:
@@ -736,15 +754,16 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
             continue
         path_text = relative.as_posix()
         name_text = path.name
-        path_is_explicit = path_text in start_text
+        path_is_explicit = path_text in start_text_path_normalized
         name_is_unambiguous = bool(
             re.search(rf"(?<![/\\\w.-]){re.escape(name_text)}(?![/\\\w.-])", start_text)
         ) and not re.search(rf"[/\\]{re.escape(name_text)}(?![/\\\w.-])", start_text)
         if not path_is_explicit and not name_is_unambiguous:
             continue
         route_target = path_text if path_is_explicit else name_text
+        route_search_text = start_text_path_normalized if path_is_explicit else start_text
         route_window_pattern = rf"(primary|decision|issue[ -]candidate|user review|start here|review order).{{0,160}}{re.escape(route_target)}|{re.escape(route_target)}.{{0,160}}(primary|decision|issue[ -]candidate|user review)"
-        if not re.search(route_window_pattern, start_text, flags=re.IGNORECASE | re.DOTALL):
+        if not re.search(route_window_pattern, route_search_text, flags=re.IGNORECASE | re.DOTALL):
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             routed_paths.append(path)
