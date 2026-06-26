@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QSplitterHandle,
 )
-from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
+from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QPointF, QEvent
 from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPalette, QPixmap, QRegion, QPen
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtTest import QTest
@@ -1077,32 +1077,32 @@ class NexusCategoryIcon(QWidget):
         super().__init__(parent)
         self.icon_kind = icon_kind
         self.setFixedSize(16, 16)
+        self.setProperty("categoryIconRenderPolicy", "high-contrast-contained-12px-v38")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(QPen(QColor(196, 239, 247, 224), 1.25))
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setPen(QPen(QColor(224, 252, 255, 246), 1.35, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
         painter.setBrush(Qt.NoBrush)
-        scale = max(0.62, min(1.0, self.width() / 16))
-        painter.translate(self.width() / 2, self.height() / 2)
-        painter.scale(scale, scale)
-        painter.translate(-8, -8)
         if self.icon_kind == "tray":
-            painter.drawRoundedRect(QRectF(4.0, 4.2, 8.0, 5.8), 1.6, 1.6)
-            painter.drawLine(8, 10, 8, 12)
-            painter.drawLine(5.6, 12, 10.4, 12)
+            painter.setBrush(QColor(91, 224, 244, 36))
+            painter.drawRoundedRect(QRectF(2.4, 2.7, 7.2, 5.2), 1.25, 1.25)
+            painter.setBrush(Qt.NoBrush)
+            painter.drawLine(QPointF(6.0, 8.0), QPointF(6.0, 10.0))
+            painter.drawLine(QPointF(3.8, 10.0), QPointF(8.2, 10.0))
         else:
             path = QPainterPath()
-            path.moveTo(9.0, 2.8)
-            path.lineTo(4.6, 8.1)
-            path.lineTo(8.1, 8.1)
-            path.lineTo(6.9, 13.2)
-            path.lineTo(11.4, 7.2)
-            path.lineTo(8.2, 7.2)
+            path.moveTo(6.8, 1.5)
+            path.lineTo(2.9, 6.9)
+            path.lineTo(5.8, 6.9)
+            path.lineTo(4.9, 10.8)
+            path.lineTo(9.2, 5.4)
+            path.lineTo(6.3, 5.4)
             path.closeSubpath()
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor(196, 239, 247, 224))
+            painter.setPen(QPen(QColor(227, 255, 249, 170), 0.65, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.setBrush(QColor(184, 255, 236, 244))
             painter.drawPath(path)
 
 
@@ -1220,7 +1220,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("platformException", "none")
         self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36")
         self.setProperty("quickAccessLayoutPolicy", "content-driven-balanced-gutter-row-count-close-intercept-v32")
-        self.setProperty("settingsRailPolishPolicy", "border-safe-fixed-subpage-indent-tight-vertical-gutter-v37")
+        self.setProperty("settingsRailPolishPolicy", "border-safe-balanced-gutter-sharpened-icons-v38")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
         self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
         self.setProperty("dirtyCloseInterceptState", "idle")
@@ -1348,7 +1348,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.subpage_nav_rail.setObjectName("residentAccessSettingsSubpageRail")
         self.subpage_nav_rail.setAttribute(Qt.WA_StyledBackground, True)
         subpage_layout = QVBoxLayout(self.subpage_nav_rail)
-        subpage_layout.setContentsMargins(14, 4, 0, 0)
+        subpage_layout.setContentsMargins(14, 2, 0, 0)
         subpage_layout.setSpacing(2)
 
         self.quick_access_nav_item = QFrame(self.nav_shell)
@@ -1818,7 +1818,7 @@ class ResidentAccessSettingsDialog(QDialog):
             " min-height: 20px;"
             " padding: 0;"
             " text-align: left;"
-            " font-size: 12px;"
+            " font-size: 10px;"
             " font-weight: 850;"
             "}"
             "#residentAccessSettingsCategoryButton:hover, #residentAccessSettingsCategoryButton:focus, "
@@ -1933,7 +1933,7 @@ class ResidentAccessSettingsDialog(QDialog):
             " min-height: 20px;"
             " padding: 0;"
             " text-align: left;"
-            " font-size: 12px;"
+            " font-size: 10px;"
             " font-weight: 820;"
             "}"
             "#residentAccessSettingsNavIcon {"

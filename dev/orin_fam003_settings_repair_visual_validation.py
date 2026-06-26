@@ -1633,7 +1633,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v37 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent, tightened vertical text gutters, independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v38 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent, balanced vertical text gutters, reduced category gap, sharpened contained icons, independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -2600,17 +2600,19 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-tight-vertical-gutter-v37"
+            and dialog.property("settingsRailPolishPolicy") == "border-safe-balanced-gutter-sharpened-icons-v38"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.tray_nav_icon.width() == 12
             and dialog.quick_access_nav_icon.width() == 12
+            and dialog.tray_nav_icon.property("categoryIconRenderPolicy") == "high-contrast-contained-12px-v38"
+            and dialog.quick_access_nav_icon.property("categoryIconRenderPolicy") == "high-contrast-contained-12px-v38"
             and child_nav_origin.x() - parent_nav_origin.x() == 14
             and dialog.quick_access_nav_button.maximumWidth() == 88
             and dialog.tray_nav_button.maximumWidth() <= 58
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
             and dialog.tray_expand_button.property("quietGlyph") is True,
-            f"policy={dialog.property('settingsRailPolishPolicy')!r}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}",
+            f"policy={dialog.property('settingsRailPolishPolicy')!r}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}/{dialog.tray_nav_icon.property('categoryIconRenderPolicy')!r}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}/{dialog.quick_access_nav_icon.property('categoryIconRenderPolicy')!r}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}",
         )
     )
 
@@ -2666,11 +2668,11 @@ def main() -> int:
     rows.append(
         (
             "left rail category text vertical gutters tightened",
-            parent_inner_gutter["top"] == 5
-            and parent_inner_gutter["bottom"] == 5
-            and child_inner_gutter["top"] == 4
-            and child_inner_gutter["bottom"] == 4
-            and category_gap == 8,
+            parent_inner_gutter["top"] == 6
+            and parent_inner_gutter["bottom"] == 6
+            and child_inner_gutter["top"] == 5
+            and child_inner_gutter["bottom"] == 5
+            and category_gap == 6,
             "parent_inside={}; child_inside={}; parent_outer={}; child_outer={}; category_gap={}".format(
                 parent_inner_gutter,
                 child_inner_gutter,
@@ -2934,7 +2936,7 @@ def main() -> int:
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
             and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36"
             and dialog.property("quickAccessLayoutPolicy") == "content-driven-balanced-gutter-row-count-close-intercept-v32"
-            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-tight-vertical-gutter-v37"
+            and dialog.property("settingsRailPolishPolicy") == "border-safe-balanced-gutter-sharpened-icons-v38"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"
