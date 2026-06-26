@@ -6486,6 +6486,37 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             "Generated RAR fixture did not reject plural issue-candidates mention without decision table"
         )
 
+    no_issue_candidate_applicable = rar_issue_durability.validate_text(
+        "# RAR no-impact summary\n\nNo issue candidate is applicable for this RAR review.",
+        source="generated no issue candidate applicable",
+    )
+    if no_issue_candidate_applicable:
+        failures.append(
+            "Generated RAR fixture rejected explicit no issue candidate applicable wording: "
+            + "; ".join(no_issue_candidate_applicable[:5])
+        )
+
+    no_issue_candidates_applicable = rar_issue_durability.validate_text(
+        "# RAR no-impact summary\n\nNo issue candidates are applicable for this RAR review.",
+        source="generated no issue candidates applicable",
+    )
+    if no_issue_candidates_applicable:
+        failures.append(
+            "Generated RAR fixture rejected explicit no issue candidates applicable wording: "
+            + "; ".join(no_issue_candidates_applicable[:5])
+        )
+
+    no_candidate_with_concrete_id = rar_issue_durability.validate_text(
+        "# RAR issue-candidate summary\n\nNo issue candidates are applicable, but Issue Candidate FAM006-RAR-090 remains pending USER disposition.",
+        source="generated no-candidate wording with concrete candidate ID",
+    )
+    if "Issue Candidate Decision Surface Missing" not in "\n".join(
+        no_candidate_with_concrete_id
+    ):
+        failures.append(
+            "Generated RAR fixture let no-candidate wording hide a concrete issue candidate ID"
+        )
+
     waiver_without_reason = rar_issue_durability.validate_text(
         table(
             row(

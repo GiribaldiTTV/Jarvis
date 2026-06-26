@@ -168,6 +168,22 @@ def _mentions_issue_candidate(value: str) -> bool:
     return bool(re.search(r"\bissue[-\s]+candidates?\b", value, flags=re.IGNORECASE))
 
 
+def _has_explicit_no_issue_candidates(value: str) -> bool:
+    normalized = _normalize_text(value)
+    candidate_id_pattern = r"\b[A-Za-z][A-Za-z0-9]*[-_][A-Za-z0-9]+[-_]\d+\b"
+    if re.search(candidate_id_pattern, value):
+        return False
+    no_candidate_patterns = (
+        r"\bno issue candidate is applicable\b",
+        r"\bno issue candidates are applicable\b",
+        r"\bno issue candidate applicable\b",
+        r"\bno issue candidates applicable\b",
+        r"\bissue candidate not applicable\b",
+        r"\bissue candidates not applicable\b",
+    )
+    return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in no_candidate_patterns)
+
+
 def _normalize_token(value: str) -> str:
     token = re.sub(r"[^A-Za-z0-9]+", "_", value.strip().upper())
     token = re.sub(r"_+", "_", token).strip("_")
@@ -620,7 +636,7 @@ def validate_text(
             f"{source}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
         )
 
-    if _mentions_issue_candidate(text) and not rows:
+    if _mentions_issue_candidate(text) and not rows and not _has_explicit_no_issue_candidates(text):
         failures.append(f"{source}: Issue Candidate Decision Surface Missing")
         return failures
 
