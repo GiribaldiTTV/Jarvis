@@ -649,6 +649,11 @@ def validate_packet_folder(
         )
     if len(primary_paths) > 1:
         failures.append(f"{packet_folder}: multiple primary Issue Candidate Decision Surface files")
+    active_packeted_only = _active_packeted_only_lines(packet_text)
+    if active_packeted_only:
+        failures.append(
+            f"{packet_folder}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
+        )
     primary_text = _packet_primary_text(packet_folder)
     primary_rows = parse_issue_candidate_decision_surface(primary_text, source=str(packet_folder))
     primary_row_ids = _candidate_ids_from_rows(primary_rows)
@@ -667,12 +672,7 @@ def validate_packet_folder(
     if primary_text:
         failures.extend(validate_text(primary_text, source=str(packet_folder), github_snapshot=github_snapshot))
     else:
-        active_packeted_only = _active_packeted_only_lines(packet_text)
-        if active_packeted_only:
-            failures.append(
-                f"{packet_folder}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
-            )
-        elif _mentions_issue_candidate(packet_text):
+        if _mentions_issue_candidate(packet_text):
             failures.append(f"{packet_folder}: Issue Candidate Decision Surface Missing")
 
     if external_ledger:
@@ -704,7 +704,7 @@ def validate_packet_folder(
                 failures.append(
                     f"{packet_folder}: external RAR issue candidate {candidate_id} missing from active USER-facing packet files"
                 )
-    return failures
+    return list(dict.fromkeys(failures))
 
 
 def load_github_snapshot(path: Path) -> dict[str, GitHubIssueSnapshot]:

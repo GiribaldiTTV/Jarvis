@@ -5597,6 +5597,44 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 + "; ".join(primary_failures[:5])
             )
 
+        packeted_only_review_aid_packet = packet_with_sections(
+            temp_root / "packeted-only-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-049")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The issue candidate was packeted only, so normal progression may continue."
+            ),
+        )
+        packeted_only_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            packeted_only_review_aid_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            packeted_only_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject packeted-only closure wording in Review Aids when a primary table exists"
+            )
+
+        packeted_only_start_here_packet = packet_with_sections(
+            temp_root / "packeted-only-start-here-with-primary",
+            primary_text=table(row("FAM006-RAR-050")),
+        )
+        (packeted_only_start_here_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Primary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n\n"
+            "The RAR issue candidate packet was USER-reviewed and packeted only, so normal progression may continue.\n",
+            encoding="utf-8",
+        )
+        packeted_only_start_here_failures = rar_issue_durability.validate_packet_folder(
+            packeted_only_start_here_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            packeted_only_start_here_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject packeted-only closure wording in START_HERE when a primary table exists"
+            )
+
         routed_packet = temp_root / "routed-primary" / "FAM-006"
         routed_review = routed_packet / "Review Aids"
         routed_decisions = routed_packet / "Issue Decisions"
