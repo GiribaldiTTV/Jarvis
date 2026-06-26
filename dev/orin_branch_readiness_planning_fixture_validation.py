@@ -20,6 +20,7 @@ from pathlib import Path
 import orin_branch_governance_validation as governance
 import orin_external_state_validation as external_state
 from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT
+import orin_rar_issue_candidate_durability_validation as rar_issue_durability
 import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
 
@@ -560,6 +561,30 @@ INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_REQUIRED_REVIEW_NOT_COMPLETE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_required_review_not_complete.md"
 )
+VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE = (
+    FIXTURE_DIR / "valid_rar_issue_candidate_durability_carry_forward.md"
+)
+VALID_RAR_ISSUE_DURABILITY_USER_DISPOSITIONS_FIXTURE = (
+    FIXTURE_DIR / "valid_rar_issue_candidate_durability_user_dispositions.md"
+)
+VALID_RAR_ISSUE_DURABILITY_GITHUB_PENDING_FIXTURE = (
+    FIXTURE_DIR / "valid_rar_issue_candidate_durability_github_pending.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_PACKETED_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_packeted_only.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_DEFERRED_MISSING_OWNER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_deferred_missing_owner.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_STALE_GITHUB_CLOSED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_stale_github_closed.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_DUPLICATE_LINEAGE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_duplicate_lineage.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_REPAIRED_UNVERIFIED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_repaired_unverified.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -655,6 +680,7 @@ EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Mi
 EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By RAR"
 EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
 EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
+EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET = "RAR Issue Candidate Durability Missing"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -5118,6 +5144,75 @@ def _validate_primary_user_review_file_stage_priority() -> list[str]:
     return failures
 
 
+def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
+    failures: list[str] = []
+    valid_cases = (
+        VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_USER_DISPOSITIONS_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_GITHUB_PENDING_FIXTURE,
+    )
+    for fixture in valid_cases:
+        case_failures = rar_issue_durability.validate_text(
+            fixture.read_text(encoding="utf-8"), source=str(fixture)
+        )
+        if case_failures:
+            failures.append(
+                f"Valid RAR issue-candidate durability fixture unexpectedly failed: {fixture}: "
+                + "; ".join(case_failures[:5])
+            )
+
+    invalid_cases = (
+        (
+            INVALID_RAR_ISSUE_DURABILITY_PACKETED_ONLY_FIXTURE,
+            EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET,
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_DEFERRED_MISSING_OWNER_FIXTURE,
+            "deferred disposition requires durable owner",
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_STALE_GITHUB_CLOSED_FIXTURE,
+            "unknown/stale GitHub state cannot close candidate",
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_DUPLICATE_LINEAGE_FIXTURE,
+            "duplicate/conflicting lineage",
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_REPAIRED_UNVERIFIED_FIXTURE,
+            "repaired disposition requires independent verification evidence",
+        ),
+    )
+    for fixture, expected_snippet in invalid_cases:
+        case_failures = rar_issue_durability.validate_text(
+            fixture.read_text(encoding="utf-8"), source=str(fixture)
+        )
+        if expected_snippet not in "\n".join(case_failures):
+            failures.append(
+                f"Invalid RAR issue-candidate durability fixture did not fail on {expected_snippet!r}: {fixture}"
+            )
+
+    generated_packeted_only_reviewed_text = (
+        VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE.read_text(encoding="utf-8")
+        .replace("ACTIVE_PENDING_USER_DECISION", "Issue Candidate Packet USER-Reviewed")
+        .replace(
+            "USER must review the RAR packet and choose repair, waiver with reason, deferred owner/trigger, route, or approved GitHub issue creation before normal progression.",
+            "The candidate was packeted only, so normal progression may continue.",
+        )
+    )
+    generated_packeted_only_failures = rar_issue_durability.validate_text(
+        generated_packeted_only_reviewed_text, source="generated packeted-only RAR"
+    )
+    if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+        generated_packeted_only_failures
+    ):
+        failures.append(
+            "Generated RAR durability adversarial case did not reject packeted-only reviewed wording"
+        )
+
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -5193,6 +5288,14 @@ def validate() -> list[str]:
         INVALID_FAMILY_FEATURE_VISION_LIVE_STATE_FIXTURE,
         VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE,
         INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_USER_DISPOSITIONS_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_GITHUB_PENDING_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_PACKETED_ONLY_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_DEFERRED_MISSING_OWNER_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_STALE_GITHUB_CLOSED_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_DUPLICATE_LINEAGE_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_REPAIRED_UNVERIFIED_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -9080,6 +9183,8 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid RAR fixture did not reject required-but-incomplete USER review disposition"
         )
+
+    failures.extend(_validate_rar_issue_candidate_durability_fixtures())
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
     failures.extend(_validate_current_worktree_family_feature_vision_files())

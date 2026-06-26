@@ -183,6 +183,25 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/validation_helper_registry.md`
   - `Docs/user_test_summary_guidance.md`
 
+## Pattern: RAR Issue Candidates Become Packeted-Only And Disappear
+
+- symptom:
+  RAR finds owned-surface or previous-branch defects and prepares issue candidates, but a later packet or phase digest treats `packeted only`, `issue candidate packet USER-reviewed`, or copied-context issue tables as closure. The candidate no longer appears as a primary USER decision, has no durable owner/route/GitHub mapping, and can be lost when a newer packet narrows the current branch scope.
+- layer:
+  RAR, active external branch plans, USER packets, GitHub issue-candidate routing, Branch Planning re-entry, PR Readiness, Release Readiness, and issue-governance helper checks
+- root-cause pattern:
+  the RAR packet requirement recorded issue-candidate evidence but did not require stable candidate ID/lineage, durable disposition vocabulary, progression-blocking classification, last GitHub state verification, or active USER-packet carry-forward. Packet generation/reviewability was allowed to behave like disposition, and helper checks focused on marker presence instead of candidate continuity.
+- fix pattern:
+  require the `RAR Issue-Candidate Durability Gate`. Every active candidate must keep a stable ID or lineage fingerprint, owning FAM, surface, element group, defect, evidence pointer, current disposition, blocking status, proposed carrier, GitHub issue state when mapped, last verified source/time, and exact USER decision. Legal exits are repaired and independently verified, USER rejected with reason, USER waived with reason/scope, deferred with durable owner/reason/target/trigger, routed with carrier acceptance receipt, approved for GitHub issue creation pending mutation, mapped to open GitHub issue, or mapped to closed GitHub issue and reconciled against repair evidence. `Packeted only` is transport evidence, not closure.
+- validation pattern:
+  future helpers should fail on `RAR Issue Candidate Durability Missing`, `RAR Issue Candidate Lineage Missing`, `RAR Issue Candidate Durable Disposition Missing`, `RAR Issue Candidate Disappeared From Active Packet`, `RAR Issue Candidate Packeted Only`, `RAR GitHub Issue State Unknown`, `RAR GitHub Issue Mapping Stale`, `Issue Candidate Table Only In Copied Context`, `Deferred Issue Candidate Owner Missing`, `Duplicate Issue Candidate Lineage`, or `Repaired Issue Candidate Verification Missing` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_rar_issue_candidate_durability_validation.py`
+
 ## Pattern: PR Auto-Close Keywords Bypass Issue Approval
 
 - symptom:
