@@ -9380,6 +9380,7 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
+    review_export_zip: Path | None,
 ) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
@@ -9425,6 +9426,17 @@ def build_bundle(
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
     export_zip = _export_zip_path(review_root, label, created_at_dt)
+    if review_export_zip is not None:
+        requested_export_zip = review_export_zip.resolve()
+        if requested_export_zip.parent != review_root.resolve():
+            raise ValueError(
+                "Review export zip override must live beside the local USER hub folder: "
+                f"expected parent={review_root.resolve()} actual parent={requested_export_zip.parent}"
+            )
+        name_failures = _timestamped_export_zip_name_failures(requested_export_zip, label)
+        if name_failures:
+            raise ValueError("; ".join(name_failures))
+        export_zip = requested_export_zip
     normalized_decision = exact_user_decision.casefold()
     workstream_package_approval_packet = (
         source_branch in FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES
@@ -9826,7 +9838,10 @@ def main() -> int:
     parser.add_argument(
         "--review-export-zip",
         type=Path,
-        help="Timestamped upload ZIP to validate with --validate-local-user-packet.",
+        help=(
+            "Timestamped upload ZIP to validate with --validate-local-user-packet, or "
+            "the exact timestamped ZIP path to generate when building a review bundle."
+        ),
     )
     parser.add_argument(
         "--packet-validation-mode",
@@ -9906,6 +9921,7 @@ def main() -> int:
         exact_user_decision=args.exact_user_decision,
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
+        review_export_zip=args.review_export_zip,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
