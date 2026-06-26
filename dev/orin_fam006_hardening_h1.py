@@ -50,6 +50,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
     hud_js = _read_repo_text("nexus_visual/monitoring_hud.js")
     hud_html = _read_repo_text("nexus_visual/monitoring_hud.html")
     studio_html = _read_repo_text("nexus_visual/monitoring_hud_studio.html")
+    studio_js = _read_repo_text("nexus_visual/monitoring_hud_studio.js")
     studio_css = _read_repo_text("nexus_visual/nexus_window_primitives.css")
     renderer = _read_repo_text("desktop/desktop_renderer.py")
     main_entry = _read_repo_text("desktop/orin_desktop_main.py")
@@ -91,7 +92,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         {
             "slice": "SLC-053",
             "result": _contains_all(
-                renderer + hud_js + studio_html + studio_css,
+                renderer + hud_js + studio_html + studio_js + studio_css,
                 (
                     "Recording Suite",
                     "recording_studio_window",
@@ -141,9 +142,11 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "font-size: 11px",
                     "--monitoring-hud-studio-row-value-gutter: 8px",
                     "--monitoring-hud-studio-row-label-column: max-content",
-                    "grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr)",
-                    "gap: 0",
+                    "grid-template-columns: var(--monitoring-hud-studio-row-label-column, max-content) minmax(0, 1fr)",
+                    "gap: 6px",
                     "column-gap: var(--monitoring-hud-studio-row-value-gutter)",
+                    "syncStudioTruthRowValueColumns",
+                    "valueColumnAlignment",
                     "padding: 4px 0 2px",
                     "detached-child-window-header-no-title-card",
                     "titleCardState",

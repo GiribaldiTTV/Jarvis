@@ -1638,9 +1638,13 @@ def validate() -> list[str]:
         "font-weight: 720",
         "--monitoring-hud-studio-row-value-gutter: 8px",
         "--monitoring-hud-studio-row-label-column: max-content",
-        "grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr)",
+        "grid-template-columns: var(--monitoring-hud-studio-row-label-column, max-content) minmax(0, 1fr)",
         "column-gap: var(--monitoring-hud-studio-row-value-gutter)",
         "padding: 4px 0 2px",
+        "syncStudioTruthRowValueColumns",
+        "syncTruthRowValueColumn",
+        "valueColumnAlignment",
+        "enforced-single-row",
         "right: 14px",
         'data-element-group="recording-actions"',
         'data-action-layout="transport-pill-left-route-right"',
@@ -1750,14 +1754,14 @@ def validate() -> list[str]:
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__controller-meta-strip",
-        ("gap: 0", "padding: 0"),
+        ("gap: 6px", "padding: 0"),
         "FAM-006 Recording Suite row stack must use AI Control Center row rhythm",
         failures,
     )
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__log-target-strip",
-        ("gap: 0", "padding: 0"),
+        ("gap: 6px", "padding: 0"),
         "FAM-006 Log Viewer row stack must use AI Control Center row rhythm",
         failures,
     )

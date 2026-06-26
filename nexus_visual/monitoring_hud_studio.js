@@ -54,6 +54,45 @@
     target.setAttribute("aria-disabled", enabled ? "false" : "true");
   };
 
+  const syncTruthRowValueColumn = (selector) => {
+    const strip = document.querySelector(selector);
+    if (!strip) {
+      return;
+    }
+    const rows = Array.from(strip.querySelectorAll(".monitoring-hud__studio-truth-row"))
+      .filter((row) => !row.hidden);
+    strip.style.removeProperty("--monitoring-hud-studio-row-label-column");
+    let maxLabelWidth = 0;
+    rows.forEach((row) => {
+      const label = row.querySelector("span");
+      if (!label) {
+        return;
+      }
+      maxLabelWidth = Math.max(maxLabelWidth, label.getBoundingClientRect().width);
+    });
+    if (maxLabelWidth > 0) {
+      const labelColumnPx = Math.ceil(maxLabelWidth);
+      strip.style.setProperty("--monitoring-hud-studio-row-label-column", `${labelColumnPx}px`);
+      strip.dataset.valueColumnAlignment = rows.length > 1 ? "enforced" : "enforced-single-row";
+      strip.dataset.valueColumnLabelWidthPx = String(labelColumnPx);
+    } else {
+      strip.dataset.valueColumnAlignment = "unresolved";
+      delete strip.dataset.valueColumnLabelWidthPx;
+    }
+  };
+
+  const syncStudioTruthRowValueColumns = () => {
+    const sync = () => {
+      syncTruthRowValueColumn("[data-element-group='recording-target-truth']");
+      syncTruthRowValueColumn("[data-element-group='log-viewer-deferred-state']");
+    };
+    sync();
+    window.requestAnimationFrame(sync);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(sync).catch(() => {});
+    }
+  };
+
   const applySurface = (payload) => {
     const surface = byId("monitoring-hud");
     if (!surface) {
@@ -132,6 +171,7 @@
     if (statusContainer) {
       statusContainer.hidden = folderStatus === "Choose a log destination to open.";
     }
+    syncStudioTruthRowValueColumns();
   };
 
   window.nexusMonitoringHudStudioSetWindowState = (state, controls = {}) => {

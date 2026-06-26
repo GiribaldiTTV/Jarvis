@@ -247,9 +247,11 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-strip {
+  --monitoring-hud-studio-row-label-column: max-content;
+  --monitoring-hud-studio-row-value-gutter: 8px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0;
+  gap: 6px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -468,8 +470,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-target-strip {
+  --monitoring-hud-studio-row-label-column: max-content;
+  --monitoring-hud-studio-row-value-gutter: 8px;
   display: grid;
-  gap: 0;
+  gap: 6px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -479,11 +483,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row {
-  --monitoring-hud-studio-row-value-gutter: 8px;
-  --monitoring-hud-studio-row-label-column: max-content;
   min-height: 0;
   padding: 4px 0 2px;
-  grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr);
+  grid-template-columns: var(--monitoring-hud-studio-row-label-column, max-content) minmax(0, 1fr);
   column-gap: var(--monitoring-hud-studio-row-value-gutter);
   background: var(--monitoring-hud-divider-glow);
   background-repeat: no-repeat;

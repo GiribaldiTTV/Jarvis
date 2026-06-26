@@ -120,10 +120,12 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
     recordingStartAction: "[data-control='recording-studio-start']",
     recordingPauseAction: "[data-control='recording-studio-pause']",
     recordingStopAction: "[data-control='recording-studio-stop']",
+    recordingTruthStrip: "[data-element-group='recording-target-truth']",
     recordingTargetTruth: "[data-element-group='recording-target-truth'] .monitoring-hud__studio-truth-row:first-child",
     recordingStateTruth: "[data-element-group='recording-controller-truth']",
     recordingLogRoute: "[data-control='recording-studio-open-log-viewer']",
     logViewerActionStrip: "[data-element-group='log-folder-actions']",
+    logViewerTruthStrip: "[data-element-group='log-viewer-deferred-state']",
     logViewerViewerState: "[data-folder-kind='viewer']",
     logViewerNativeAction: "[data-control='log-viewer-open-native']",
     logViewerExportAction: "[data-control='log-viewer-open-export']",
@@ -404,6 +406,12 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         }
 
     def row_label_value_metrics(bounds: dict[str, object], surface_key: str) -> dict[str, object]:
+        def css_px(value: object) -> int | None:
+            match = re.match(r"^-?\d+(?:\.\d+)?", str(value or ""))
+            if not match:
+                return None
+            return int(round(float(match.group(0))))
+
         row_keys = (
             ("recordingTargetTruth", "TARGET"),
             ("recordingStateTruth", "STATE"),
@@ -422,9 +430,20 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             gap = item.get("rowLabelValueGapPx")
             label_rect = item.get("rowLabelRect")
             value_rect = item.get("rowValueRect")
+            row_rect = item.get("rect")
+            row_style = item.get("computedStyle")
             label_style = item.get("rowLabelComputedStyle")
             value_style = item.get("rowValueComputedStyle")
             value_left = int(value_rect.get("left", 0)) if isinstance(value_rect, dict) else None
+            row_left = int(row_rect.get("left", 0)) if isinstance(row_rect, dict) else None
+            column_gap = css_px(row_style.get("columnGap")) if isinstance(row_style, dict) else None
+            label_column_width = (
+                value_left - row_left - column_gap
+                if isinstance(value_left, int)
+                and isinstance(row_left, int)
+                and isinstance(column_gap, int)
+                else None
+            )
             label_width = (
                 int(label_rect.get("right", 0)) - int(label_rect.get("left", 0))
                 if isinstance(label_rect, dict)
@@ -437,14 +456,24 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                 row_failures.append("value text missing")
             if not isinstance(gap, int):
                 row_failures.append("label/value gap missing")
-            elif gap < 7 or gap > 9:
-                row_failures.append(f"label/value gap {gap}px outside current AI Dashboard 8px +/-1px range")
+            elif gap < 7:
+                row_failures.append(f"visible label/value gap {gap}px is below the required 8px column gutter allowance")
+            if not isinstance(column_gap, int):
+                row_failures.append("CSS column gap missing")
+            elif column_gap < 7 or column_gap > 9:
+                row_failures.append(f"CSS column gap {column_gap}px outside current AI Dashboard 8px +/-1px range")
             if not isinstance(label_rect, dict) or not isinstance(value_rect, dict):
                 row_failures.append("label/value rect missing")
             if not isinstance(label_width, int):
                 row_failures.append("label column width missing")
             elif label_width <= 0:
                 row_failures.append(f"label column width {label_width}px is not content-derived max-content")
+            if not isinstance(label_column_width, int):
+                row_failures.append("shared label column width missing")
+            elif isinstance(label_width, int) and label_column_width < label_width:
+                row_failures.append(
+                    f"shared label column width {label_column_width}px is narrower than label text {label_width}px"
+                )
             if not isinstance(value_left, int):
                 row_failures.append("value/status column left missing")
             if not isinstance(label_style, dict):
@@ -465,15 +494,19 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                     "expectedLabel": expected_label,
                     "labelText": label_text,
                     "valueText": value_text,
+                    "rowRect": row_rect,
                     "labelRect": label_rect,
                     "valueRect": value_rect,
                     "labelColumnWidthPx": label_width,
+                    "sharedLabelColumnWidthPx": label_column_width,
+                    "cssColumnGapPx": column_gap,
                     "labelComputedStyle": label_style,
                     "valueComputedStyle": value_style,
                     "valueLeftPx": value_left,
                     "labelValueGapPx": gap,
-                    "expectedGapPx": "8 +/- 1",
-                    "expectedLabelColumnWidthPx": "per-row max-content",
+                    "expectedCssColumnGapPx": "8 +/- 1",
+                    "expectedVisibleLabelValueGapPx": ">= 8; may be larger for shorter labels when value columns are aligned",
+                    "expectedLabelColumnWidthPx": "shared max label width",
                     "expectedLabelFontSize": "11px",
                     "expectedValueFontSize": "11px",
                     "expectedFontWeight": "720",
@@ -488,12 +521,28 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             if isinstance(row.get("valueLeftPx"), int)
         ]
         value_column_delta = max(value_lefts) - min(value_lefts) if value_lefts else None
+        label_column_widths = [
+            int(row["sharedLabelColumnWidthPx"])
+            for row in rows
+            if isinstance(row.get("sharedLabelColumnWidthPx"), int)
+        ]
+        shared_label_column_delta = (
+            max(label_column_widths) - min(label_column_widths)
+            if label_column_widths
+            else None
+        )
+        if len(value_lefts) > 1 and value_column_delta is not None and value_column_delta > 1:
+            failures.append(f"value/status column start delta {value_column_delta}px exceeds 1px")
+        if len(label_column_widths) > 1 and shared_label_column_delta is not None and shared_label_column_delta > 1:
+            failures.append(f"shared label column width delta {shared_label_column_delta}px exceeds 1px")
         return {
             "surface": "Recording Suite" if surface_key == "recording" else "Log Viewer",
-            "expected": "studio state rows use current FAM-007 AI Dashboard row rhythm: per-row max-content label column, 8px value gutter, 11px label/value text, and 720 font weight",
+            "expected": "studio state rows use current AI Dashboard row rhythm plus USER-required deterministic value-column alignment: shared max label column, 8px column gutter, 11px label/value text, and 720 font weight",
             "rows": rows,
             "valueColumnDeltaPx": value_column_delta,
-            "valueColumnAlignmentExpectedPx": "not enforced; FAM-007 uses per-row max-content label columns",
+            "sharedLabelColumnDeltaPx": shared_label_column_delta,
+            "valueColumnAlignmentExpectedPx": "0-1",
+            "sharedLabelColumnAlignmentExpectedPx": "0-1",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
         }
@@ -601,6 +650,30 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "status": "PASS" if not failures else "REPAIR",
         }
 
+    def row_strip_gutter_metrics(bounds: dict[str, object], surface_key: str) -> dict[str, object]:
+        key = "recordingTruthStrip" if surface_key == "recording" else "logViewerTruthStrip"
+        style = _dom_style(bounds, key)
+        rect = _dom_rect(bounds, key)
+        failures: list[str] = []
+        if not rect:
+            failures.append("row strip DOM rect missing")
+        if style.get("gap") != "6px":
+            failures.append(f"vertical row strip gap {style.get('gap')!r} != '6px'")
+        if style.get("paddingTop") != "0px" or style.get("paddingBottom") != "0px":
+            failures.append(
+                f"row strip vertical padding {style.get('paddingTop')!r}/{style.get('paddingBottom')!r} must stay 0px"
+            )
+        return {
+            "surface": "Recording Suite" if surface_key == "recording" else "Log Viewer",
+            "rowStripKey": key,
+            "rowStripRect": rect,
+            "rowStripComputedStyle": style,
+            "expectedVerticalGapPx": "6px",
+            "expectedVerticalPaddingPx": "0px",
+            "failures": failures,
+            "status": "PASS" if not failures else "REPAIR",
+        }
+
     def metrics_for(label: str, action_keys: list[str], *, max_height: int, max_bottom_slack: int, surface_key: str) -> dict[str, object]:
         image_path = Path(str(manifest[label]))
         width, height = _image_size(image_path)
@@ -610,6 +683,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         control_gutter = control_gutter_metrics(bounds, surface_key)
         title_to_status = title_to_status_metrics(bounds, surface_key)
         row_label_value = row_label_value_metrics(bounds, surface_key)
+        row_strip_gutter = row_strip_gutter_metrics(bounds, surface_key)
         action_layout = action_layout_metrics(bounds, surface_key)
         action_bottoms = [
             _dom_rect(bounds, key).get("bottom", 0)
@@ -638,6 +712,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "titleToStatusVerdict": title_to_status["status"],
             "rowLabelValueMeasurements": row_label_value,
             "rowLabelValueVerdict": row_label_value["status"],
+            "rowStripGutterMeasurements": row_strip_gutter,
+            "rowStripGutterVerdict": row_strip_gutter["status"],
             "actionLayoutMeasurements": action_layout,
             "actionLayoutVerdict": action_layout["status"],
         }
@@ -691,6 +767,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["titleToStatusVerdict"] == "PASS",
         recording["rowLabelValueVerdict"] == "PASS",
         log_viewer["rowLabelValueVerdict"] == "PASS",
+        recording["rowStripGutterVerdict"] == "PASS",
+        log_viewer["rowStripGutterVerdict"] == "PASS",
         recording["actionLayoutVerdict"] == "PASS",
         log_viewer["actionLayoutVerdict"] == "PASS",
         log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
@@ -712,6 +790,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "contentFitButtonFontWeight": log_viewer["primaryButtonComputedStyle"].get("fontWeight"),
             "stateRowPaddingTop": log_viewer["truthRowComputedStyle"].get("paddingTop"),
             "stateRowPaddingBottom": log_viewer["truthRowComputedStyle"].get("paddingBottom"),
+            "recordingRowStripVerticalGap": recording["rowStripGutterMeasurements"]["rowStripComputedStyle"].get("gap"),
+            "logViewerRowStripVerticalGap": log_viewer["rowStripGutterMeasurements"]["rowStripComputedStyle"].get("gap"),
             "recordingTitleToStatusGapPx": recording["titleToStatusMeasurements"].get("titleToStatusGapPx"),
             "logViewerTitleToStatusGapPx": log_viewer["titleToStatusMeasurements"].get("titleToStatusGapPx"),
             "recordingTitleToStatusVerdict": recording["titleToStatusVerdict"],
@@ -755,15 +835,19 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "| --- | --- | --- | --- |\n"
         f"| Recording Suite | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {recording['titleToStatusVerdict']} |\n"
         f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {log_viewer['titleToStatusVerdict']} |\n"
-        + "\n| Surface | Row label/value gap | Label/value font | Value column left | Expected range | Verdict |\n"
-        "| --- | --- | --- | --- | --- | --- |\n"
+        + "\n| Surface | Vertical row-strip gutter | Expected | Verdict |\n"
+        "| --- | --- | --- | --- |\n"
+        f"| Recording Suite | {recording['rowStripGutterMeasurements']['rowStripComputedStyle'].get('gap')} | 6px | {recording['rowStripGutterVerdict']} |\n"
+        f"| Log Viewer | {log_viewer['rowStripGutterMeasurements']['rowStripComputedStyle'].get('gap')} | 6px | {log_viewer['rowStripGutterVerdict']} |\n"
+        + "\n| Surface | Visible label/value gap | CSS column gap | Shared label column | Label/value font | Value column left | Expected range | Verdict |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            f"| Recording Suite `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | 6px +/-1; value-column delta 0-1px | {row['status']} |"
+            f"| Recording Suite `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['cssColumnGapPx']}px | {row['sharedLabelColumnWidthPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | CSS gap 8px +/-1; value-column delta 0-1px | {row['status']} |"
             for row in recording["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"
         + "\n".join(
-            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | 6px +/-1; single-row column | {row['status']} |"
+            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['cssColumnGapPx']}px | {row['sharedLabelColumnWidthPx']}px | {row['labelComputedStyle'].get('fontSize') if isinstance(row.get('labelComputedStyle'), dict) else 'missing'} / {row['valueComputedStyle'].get('fontSize') if isinstance(row.get('valueComputedStyle'), dict) else 'missing'} | {row['valueLeftPx']}px | CSS gap 8px +/-1; alignment primitive enforced for current and future rows | {row['status']} |"
             for row in log_viewer["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"
