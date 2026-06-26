@@ -15,6 +15,7 @@ import json
 import os
 import re
 import shutil
+import struct
 import sys
 import time
 from pathlib import Path
@@ -22,6 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 VISUAL_UDL_PATH = Path(
     r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
     r"\unified_visual_defect_ledger_20260623.md"
@@ -109,6 +111,7 @@ ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-055",
     "F3-LV1-UI-056",
     "F3-LV1-UI-057",
+    "F3-LV1-UI-058",
     "F3-LV1-FUNC-001",
     "F3-LV1-FUNC-002",
     "F3-LV1-PROOF-001",
@@ -476,8 +479,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "states": "default, active child, collapsed parent, narrow overflow, wide pane",
         "a11y": "Open Quick Access Settings; Resize Global Settings navigation pane",
         "comparator": "dense settings navigation grammar",
-        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png",
-        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page;left navigation active child proof;left navigation collapsed proof;left navigation expanded proof;left pane minimum width has no horizontal overflow;left pane wide resize stays deterministic;left pane vertical overflow source-truth disposition",
+        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png",
+        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page;left navigation active child proof;focused child pill border no-clipping proof;child pill focus/pressed state proof;left navigation collapsed proof;left navigation expanded proof;left pane minimum width has no horizontal overflow;left pane wide resize stays deterministic;left pane vertical overflow source-truth disposition",
     },
     {
         "id": "F3GS-008",
@@ -499,8 +502,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "states": "selected, parent contains selected child, parent-only selected after collapse",
         "a11y": "Open Quick Access Settings",
         "comparator": "settings nav row, not CTA card",
-        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png",
-        "checks": "left navigation settings organizer;left navigation active child proof;left navigation collapsed proof;left navigation expanded proof",
+        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png",
+        "checks": "left navigation settings organizer;left navigation active child proof;focused child pill border no-clipping proof;child pill focus/pressed state proof;left navigation collapsed proof;left navigation expanded proof",
     },
     {
         "id": "F3GS-009",
@@ -1576,6 +1579,8 @@ def _write_fail_capable_defect_ledger(
         "left rail slim row metrics",
         "left rail active icon and hierarchy polish",
         "left navigation active child proof",
+        "focused child pill border no-clipping proof",
+        "child pill focus/pressed state proof",
         "left navigation collapsed proof",
         "left navigation expanded proof",
         "left pane minimum width has no horizontal overflow",
@@ -1625,7 +1630,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v32 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v33 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with child-pill no-clipping proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -1820,6 +1825,39 @@ def _write_artifact_ledger(
         encoding="utf-8",
     )
     return ledger_path, manifest_path, element_ledger_path, defect_ledger_path
+
+
+def _png_header_dimensions(path: Path) -> tuple[bool, str]:
+    data = path.read_bytes()
+    if not data.startswith(PNG_SIGNATURE):
+        return False, f"invalid PNG signature: {data[:8].hex(' ').upper()}"
+    if len(data) < 24 or data[12:16] != b"IHDR":
+        return False, "missing or truncated IHDR chunk"
+    width, height = struct.unpack(">II", data[16:24])
+    if width <= 0 or height <= 0:
+        return False, f"zero-size PNG: {width}x{height}"
+    return True, f"{width}x{height}; bytes={len(data)}"
+
+
+def _write_image_integrity_receipt(log_dir: Path) -> tuple[Path, bool, str]:
+    png_paths = sorted(log_dir.rglob("*.png"))
+    receipt_path = log_dir / "IMAGE_INTEGRITY_RECEIPT.md"
+    lines = [
+        "# FAM-003 Settings Visual Proof Image Integrity Receipt",
+        "",
+        "Scope: All PNG files generated under this proof root.",
+        "",
+        "| Artifact | Result | Detail |",
+        "| --- | --- | --- |",
+    ]
+    all_ok = bool(png_paths)
+    for path in png_paths:
+        ok, detail = _png_header_dimensions(path)
+        all_ok = all_ok and ok
+        relative = path.relative_to(log_dir).as_posix()
+        lines.append(f"| `{relative}` | {'PASS' if ok else 'FAIL'} | {detail} |")
+    receipt_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return receipt_path, all_ok, f"{len(png_paths)} PNG files checked"
 
 
 def main() -> int:
@@ -2531,8 +2569,8 @@ def main() -> int:
             and not dialog.quick_access_nav_caption.isVisible()
             and 134 <= dialog.nav_shell.width() <= 162
             and dialog.quick_access_nav_item.x() > dialog.tray_nav_item.x()
-            and dialog.tray_nav_item.width() <= 124
-            and dialog.quick_access_nav_item.width() <= 120
+            and dialog.tray_nav_item.width() == 118
+            and dialog.quick_access_nav_item.width() == 104
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.property('glyphButton')!r}; icons={getattr(dialog.tray_nav_icon, 'icon_kind', '')!r}/{getattr(dialog.quick_access_nav_icon, 'icon_kind', '')!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
         )
@@ -2557,13 +2595,13 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "proportional-parent-child-active-signal-no-clipping-v32"
+            and dialog.property("settingsRailPolishPolicy") == "proportional-parent-child-active-signal-no-clipping-v33"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.tray_nav_icon.width() == 12
             and dialog.quick_access_nav_icon.width() == 12
             and dialog.quick_access_nav_item.x() > dialog.tray_nav_item.x()
-            and dialog.quick_access_nav_button.maximumWidth() <= 94
+            and dialog.quick_access_nav_button.maximumWidth() <= 80
             and dialog.tray_nav_button.maximumWidth() <= 58
             and dialog.tray_expand_button.property("quietGlyph") is True,
             f"policy={dialog.property('settingsRailPolishPolicy')!r}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; parent_x={dialog.tray_nav_item.x()}; child_x={dialog.quick_access_nav_item.x()}",
@@ -2587,6 +2625,69 @@ def main() -> int:
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.subpage_nav_rail.isVisible(),
             f"{active_child_path}; focus={dialog._focus}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
+        )
+    )
+
+    child_origin = dialog.quick_access_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
+    child_right = child_origin.x() + dialog.quick_access_nav_item.width()
+    child_right_inset = dialog.nav_shell.width() - child_right
+    subpage_margins = dialog.subpage_nav_rail.layout().contentsMargins()
+    child_focus_left = max(0, child_origin.x() - 4)
+    child_focus_top = max(0, child_origin.y() - 4)
+    child_focus_rect = QRect(
+        child_focus_left,
+        child_focus_top,
+        min(dialog.nav_shell.width() - child_focus_left, dialog.quick_access_nav_item.width() + child_right_inset + 4),
+        min(dialog.nav_shell.height() - child_focus_top, dialog.quick_access_nav_item.height() + 8),
+    )
+    child_focus_path = log_dir / "04a1_quick_access_child_pill_no_clip_focus.png"
+    child_focus_ok, child_focus_width, child_focus_height = _capture_rect(
+        dialog.nav_shell,
+        child_focus_rect,
+        child_focus_path,
+        artifacts,
+        surface="left settings organizer",
+        state="focused Quick Access child pill / right border no clipping",
+    )
+    rows.append(
+        (
+            "focused child pill border no-clipping proof",
+            child_focus_ok
+            and active_child_ok
+            and dialog.quick_access_nav_item.width() == 104
+            and dialog.quick_access_nav_button.maximumWidth() <= 80
+            and subpage_margins.left() == 10
+            and subpage_margins.right() >= 4
+            and child_origin.x() >= 16
+            and child_right_inset >= 10
+            and dialog.nav_scroll_area.horizontalScrollBar().maximum() == 0
+            and dialog.quick_access_nav_item.property("navState") == "selected",
+            f"{child_focus_path} ({child_focus_width}x{child_focus_height}); child_origin={child_origin.x()},{child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; child_right={child_right}; right_inset={child_right_inset}; subpage_margins={subpage_margins.left()},{subpage_margins.top()},{subpage_margins.right()},{subpage_margins.bottom()}; hbar_max={dialog.nav_scroll_area.horizontalScrollBar().maximum()}",
+        )
+    )
+
+    dialog.quick_access_nav_button.setFocus(Qt.FocusReason.OtherFocusReason)
+    dialog.quick_access_nav_button.setDown(True)
+    app.processEvents()
+    child_pressed_path = log_dir / "04a2_quick_access_child_pill_focus_pressed_state.png"
+    child_pressed_ok, child_pressed_width, child_pressed_height = _capture_rect(
+        dialog.nav_shell,
+        child_focus_rect,
+        child_pressed_path,
+        artifacts,
+        surface="left settings organizer",
+        state="Quick Access child pill focused and pressed",
+    )
+    dialog.quick_access_nav_button.setDown(False)
+    app.processEvents()
+    rows.append(
+        (
+            "child pill focus/pressed state proof",
+            child_pressed_ok
+            and dialog.quick_access_nav_button.hasFocus()
+            and dialog.quick_access_nav_item.property("navState") == "selected"
+            and child_right_inset >= 10,
+            f"{child_pressed_path} ({child_pressed_width}x{child_pressed_height}); has_focus={dialog.quick_access_nav_button.hasFocus()}; right_inset={child_right_inset}",
         )
     )
 
@@ -2652,8 +2753,9 @@ def main() -> int:
             and 134 <= dialog.nav_shell.width() <= 162
             and hbar_max == 0
             and dialog.nav_content.width() <= dialog.nav_scroll_area.viewport().width()
+            and child_right_inset >= 10
             and dialog.quick_access_nav_item.x() > dialog.tray_nav_item.x(),
-            f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}",
+            f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}; child_right_inset={child_right_inset}",
         )
     )
 
@@ -2674,8 +2776,9 @@ def main() -> int:
             and 134 <= dialog.nav_shell.width() <= 162
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_item.isVisible()
-            and dialog.tray_nav_item.width() <= 124
-            and dialog.quick_access_nav_item.width() <= 120,
+            and dialog.tray_nav_item.width() == 118
+            and dialog.quick_access_nav_item.width() == 104
+            and child_right_inset >= 10,
             f"{wide_path} ({wide_width}x{wide_height}); nav_width={dialog.nav_shell.width()}; parent_width={dialog.tray_nav_item.width()}; child_width={dialog.quick_access_nav_item.width()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
         )
     )
@@ -2769,7 +2872,7 @@ def main() -> int:
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
             and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32"
             and dialog.property("quickAccessLayoutPolicy") == "content-driven-balanced-gutter-row-count-close-intercept-v32"
-            and dialog.property("settingsRailPolishPolicy") == "proportional-parent-child-active-signal-no-clipping-v32"
+            and dialog.property("settingsRailPolishPolicy") == "proportional-parent-child-active-signal-no-clipping-v33"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"
@@ -3993,14 +4096,16 @@ def main() -> int:
             ("Rejected v16 - sectioned title row", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-132602" / "02_top_level_chrome_control_cluster.png"),
             ("Accepted reference - broad NDAI comparator", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
-            ("Repaired v32 - compact NDAI settings shell", default_path),
-            ("Repaired v32 - centered Settings title", chrome_path),
-            ("Repaired v32 - quiet secondary glyph controls", glyph_path),
-            ("Repaired v32 - quiet splitter affordance", splitter_closeup_path),
-            ("Repaired v32 - 4 row balanced-gutter layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
-            ("Repaired v32 - dropdown", log_dir / "07_dropdown_list_state.png"),
-            ("Repaired v32 - close guard", log_dir / "08_close_guard.png"),
-            ("Repaired v32 - keybind/client close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
+            ("Repaired v33 - compact NDAI settings shell", default_path),
+            ("Repaired v33 - centered Settings title", chrome_path),
+            ("Repaired v33 - child pill no clipping", child_focus_path),
+            ("Repaired v33 - child focus/pressed state", child_pressed_path),
+            ("Repaired v33 - quiet secondary glyph controls", glyph_path),
+            ("Repaired v33 - quiet splitter affordance", splitter_closeup_path),
+            ("Repaired v33 - 4 row balanced-gutter layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
+            ("Repaired v33 - dropdown", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired v33 - close guard", log_dir / "08_close_guard.png"),
+            ("Repaired v33 - keybind/client close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
         ],
         file_name="16_defect_closure_contact_sheet.png",
         title="FAM-003 False-Retest Defect Closure Contact Sheet",
@@ -4028,6 +4133,8 @@ def main() -> int:
             ("Red-team check - full shell", default_path),
             ("Red-team check - chrome/header/control pill", chrome_path),
             ("Red-team check - nav organizer", nav_path),
+            ("Red-team check - child border no clipping", child_focus_path),
+            ("Red-team check - child focus/pressed", child_pressed_path),
             ("Red-team check - collapsed parent", collapsed_path),
             ("Red-team check - row spacing/glyphs", glyph_path),
             ("Red-team check - splitter affordance", splitter_closeup_path),
@@ -4103,9 +4210,10 @@ def main() -> int:
         ("F3-LV1-UI-052", "USER", "v29 live review found control pill looked polished while content UI still looked weaker and too small", "01_default_global_settings_shell.png; 02_top_level_chrome_control_cluster.png; 14_glyph_control_closeup.png", "control-pill-anchored proportional content scale v32", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-053", "USER", "Menu order card had top gutter without matching bottom breathing room", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "balanced top/bottom card gutter across 1/2/3/4 rows", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-054", "USER", "left rail scale remained too small and squished", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png", "134-162px rail with proportional parent/child rows and no horizontal overflow", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-055", "USER", "Quick Access child pill appeared clipped/cut off", "04a_left_nav_active_child.png", "102x28 child pill with 13px icon and full Quick Access label", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-055", "USER", "Quick Access child pill appeared clipped/cut off", "04a_left_nav_active_child.png", "102x28 historical child pill closure proof retained as superseded context", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-056", "USER", "row controls/glyphs risked overpowering row labels", "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png", "quietGlyph secondary move/delete controls with labels remaining primary", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-057", "USER", "content/header typography and polish lacked compact NDAI richness", "01_default_global_settings_shell.png; 05_tray_parent_page.png; 12_reference_conformance_contact_sheet.png", "compact settings-tool polish through typography, panel depth, active state, and spacing without dashboard-like header cards", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-058", "USER", "The Quick Access sub-category pill in the left rail clips the right edge of its border.", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "104px child pill inside a 10px-left / 4px-right subpage rail budget with >=10px right inset and focused border proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-002", "USER", "NDAI close keybind/client shutdown could close the app even after dirty guard appeared", "DIRTY_CLOSE_INTERCEPT_MATRIX.md; desktop/orin_desktop_main.py; desktop/desktop_renderer.py", "client shutdown preflight blocks before shutdown_started and resumes only after Save or Discard; Cancel leaves app open", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
@@ -4164,6 +4272,24 @@ def main() -> int:
             "width": "composite",
             "height": "composite",
             "saved": str(bool(contact_ok and contact_sheet.exists())),
+        }
+    )
+    image_receipt_path, image_receipt_ok, image_receipt_detail = _write_image_integrity_receipt(log_dir)
+    rows.append(
+        (
+            "image integrity receipt written",
+            image_receipt_path.exists() and image_receipt_ok,
+            f"{image_receipt_path}; {image_receipt_detail}",
+        )
+    )
+    artifacts.append(
+        {
+            "path": str(image_receipt_path),
+            "surface": "packet image integrity receipt",
+            "state": "all generated PNG proof artifacts",
+            "width": "markdown",
+            "height": "markdown",
+            "saved": str(image_receipt_path.exists() and image_receipt_ok),
         }
     )
 
