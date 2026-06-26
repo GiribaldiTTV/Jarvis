@@ -111,6 +111,24 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         ),
     ),
     FamilyRule(
+        "rar-issue-candidate-durability-parser",
+        (
+            "external-ledger candidate",
+            "external ledger candidate",
+            "external rar issue candidate",
+            "carrying external candidates",
+            "carried candidates",
+            "candidate_id in primary_row_ids",
+            "primary row",
+            "primary packet",
+            "candidate disappearance",
+            "renamed-candidate disappearance",
+            "regrouped/renamed-candidate",
+            "predecessor/successor lineage",
+            "candidate lineage",
+        ),
+    ),
+    FamilyRule(
         "rar-user-packet-proof-parser",
         (
             "user packet",
@@ -411,6 +429,21 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-code-to-visual-reference-parser" not in _classify_comment(visual_comment):
         failures.append(
             "Comment-family classifier did not classify code-to-visual comparison drift"
+        )
+    durability_comment = (
+        "Require candidate lineage before carrying external candidates from the "
+        "current external-ledger candidate into the primary packet."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        durability_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify RAR issue-candidate durability lineage drift"
+        )
+    unrelated_lineage = "A migration lineage match failed for a database seed."
+    if _classify_comment(unrelated_lineage) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated lineage wording"
         )
     pr_readiness_comment = (
         "A PR Readiness packet is missing review-risk coverage for another "

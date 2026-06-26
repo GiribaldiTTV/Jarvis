@@ -7,10 +7,14 @@
     "dev/orin_branch_governance_validation.py": [
       "pr2-thread-pagination-and-approval-latch"
     ],
+    "dev/orin_rar_issue_candidate_durability_validation.py": [
+      "rar-issue-candidate-durability-parser"
+    ],
     "dev/orin_branch_readiness_planning_fixture_validation.py": [
       "rar-status-green-parser",
       "rar-phase-advancement-parser",
       "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
       "rar-table-row-parser",
@@ -25,6 +29,7 @@
       "rar-status-green-parser",
       "rar-phase-advancement-parser",
       "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
       "rar-table-row-parser",
@@ -149,6 +154,53 @@
         "Reviewed but not issue-created candidate",
         "Candidate table marker without row",
         "Incomplete USER-reviewed qualifier before closeout"
+      ]
+    },
+    {
+      "family_id": "rar-issue-candidate-durability-parser",
+      "title": "RAR issue-candidate packet, external-ledger, and lineage durability coverage",
+      "representative_comment_patterns": [
+        "Active external-ledger candidate omitted from primary packet",
+        "Incidental prose candidate ID mention accepted as carry-forward",
+        "Same Candidate ID reused with different owning FAM / surface / element group / defect lineage",
+        "Renamed or regrouped candidate accepted without predecessor/successor lineage",
+        "Review Aids or Source Truth Context candidate treated as durable active decision proof"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+      ],
+      "implementation": [
+        "dev/orin_rar_issue_candidate_durability_validation.py",
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/valid_rar_issue_candidate_durability_carry_forward.md",
+        "dev/fixtures/branch_readiness_planning/valid_rar_issue_candidate_durability_user_dispositions.md",
+        "dev/fixtures/branch_readiness_planning/valid_rar_issue_candidate_durability_github_pending.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rar_issue_candidate_packeted_only.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rar_issue_candidate_duplicate_lineage.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rar_issue_candidate_repaired_unverified.md"
+      ],
+      "generated_mutation_coverage": [
+        "active external ledger candidate omitted from primary USER decision surface",
+        "eight active external candidates carried into the primary USER decision surface",
+        "incidental prose mention of candidate ID does not satisfy carry-forward",
+        "same candidate ID with different surface / element group / defect lineage fails",
+        "renamed candidate without predecessor/successor lineage fails",
+        "renamed candidate with explicit predecessor/successor lineage passes",
+        "Review Aids-only and Source Truth Context-only candidate tables fail active decision proof"
+      ],
+      "sibling_variant_replay": [
+        "primary USER Review table",
+        "START_HERE-routed primary decision file",
+        "Review Aids supporting table",
+        "Source Truth Context copied table",
+        "legacy 8-column external ledger",
+        "expanded 12-column external ledger",
+        "mapped GitHub issue snapshot"
       ]
     },
     {
