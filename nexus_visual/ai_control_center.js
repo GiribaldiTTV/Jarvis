@@ -317,13 +317,16 @@
     }, 0);
     hub.style.setProperty(
       "--ai-dashboard-row-label-width",
-      maxLabelWidth > 0 ? `${maxLabelWidth}px` : "max-content",
+      `${maxLabelWidth}px`,
     );
     hub.style.setProperty("--ai-dashboard-row-gutter", "8px");
-    hub.dataset.rowLabelColumnSource = "max-visible-label-content";
-    hub.dataset.rowLabelColumnWidth = maxLabelWidth > 0 ? String(maxLabelWidth) : "max-content";
+    hub.style.setProperty("--ai-dashboard-row-vertical-gutter", "6px");
+    hub.dataset.rowLabelColumnSource = "measured-max-visible-label-content-px";
+    hub.dataset.rowLabelColumnWidth = String(maxLabelWidth);
+    hub.dataset.rowLabelColumnUnit = "px";
     hub.dataset.rowValueGutter = "8";
-    surface.dataset.rowTitleSizing = "max-label-content-fixed-gutter";
+    hub.dataset.rowValueColumnContract = "shared-max-label-content-plus-fixed-gutter";
+    surface.dataset.rowTitleSizing = "shared-max-label-content-fixed-gutter";
   };
   window.nexusAiControlCenterSyncRowLabelColumnSizing = syncRowLabelColumnSizing;
 
@@ -606,5 +609,6 @@
     requestAnimationFrame(syncDashboardLayout);
   });
   syncWindowControlState("normal");
+  syncDashboardLayout();
   requestAnimationFrame(syncDashboardLayout);
 })();
