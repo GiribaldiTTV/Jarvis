@@ -731,7 +731,6 @@ def _remove_stale_same_label_export_zips(review_root: Path, label: str, export_z
     safe_label = _sanitize_folder_name(label)
     timestamped_name = re.compile(rf"^{re.escape(safe_label)}-\d{{8}}-\d{{6}}\.zip$")
     candidates = [_legacy_stable_export_zip_path(review_root, label)]
-    accepted_historical_zips = _accepted_historical_same_label_export_zip_paths(label)
     candidates.extend(
         path.resolve()
         for path in review_root.glob("*.zip")
@@ -739,8 +738,6 @@ def _remove_stale_same_label_export_zips(review_root: Path, label: str, export_z
     )
     for candidate in sorted(set(candidates)):
         if candidate == export_zip:
-            continue
-        if candidate in accepted_historical_zips:
             continue
         if candidate.exists():
             if not candidate.is_file():
@@ -1716,10 +1713,7 @@ def validate_local_user_packet(
     failures.extend(name_failures)
 
     same_label_paths = _same_label_export_zip_paths(review_root, label)
-    accepted_historical_zips = _accepted_historical_same_label_export_zip_paths(label)
-    stale_siblings = sorted(
-        path for path in same_label_paths if path != export_zip and path not in accepted_historical_zips
-    )
+    stale_siblings = sorted(path for path in same_label_paths if path != export_zip)
     if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
         for stale_zip in stale_siblings:
             if stale_zip.exists():

@@ -294,6 +294,37 @@ def _fresh_live_state_with_historical_zip(head: str, historical_zip_name: str):
     return _files
 
 
+def _assert_generation_cleanup_removes_recorded_historical_zip() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-same-label-cleanup-") as temp_dir:
+        review_root = Path(temp_dir)
+        export_zip = review_root / "FAM-007-20260623-120000.zip"
+        stale_zip = review_root / "FAM-007-20260623-123429.zip"
+        external_state_dir = review_root / "external_state"
+        external_state_dir.mkdir()
+        export_zip.write_bytes(b"current packet placeholder")
+        stale_zip.write_bytes(b"historical packet placeholder")
+        (external_state_dir / "branch_state.md").write_text(
+            f"Accepted Historical Packet: `{stale_zip}`\n",
+            encoding="utf-8",
+        )
+        (external_state_dir / "branch_plan.md").write_text(
+            f"Accepted Historical Packet: `{stale_zip}`\n",
+            encoding="utf-8",
+        )
+
+        original_external_state_dir = bundle._current_branch_external_state_dir
+        bundle._current_branch_external_state_dir = lambda: external_state_dir
+        try:
+            bundle._remove_stale_same_label_export_zips(review_root, "FAM-007", export_zip)
+        finally:
+            bundle._current_branch_external_state_dir = original_external_state_dir
+
+        if stale_zip.exists():
+            raise AssertionError("generation cleanup preserved recorded accepted-historical same-label ZIP")
+        if not export_zip.exists():
+            raise AssertionError("generation cleanup removed the active export ZIP")
+
+
 def _write_live_manifest(packet: Path) -> None:
     manifest_dir = packet / "Review Aids" / "Inspectable Evidence"
     manifest_dir.mkdir(parents=True, exist_ok=True)
@@ -450,8 +481,9 @@ def main() -> int:
         external_state_files=_fresh_live_state(live_head),
     )
     historical_zip_name = "FAM-007-20260623-123429.zip"
-    _assert_success(
-        "next-gate-preserves-recorded-accepted-historical-same-label-zip",
+    _assert_failure(
+        "next-gate-recorded-accepted-historical-same-label-zip-still-fails-cleanup",
+        "Stale same-label USER packet ZIP remains",
         lambda packet, export_zip: _snapshot_context_with_historical_zip(
             packet,
             export_zip,
@@ -462,6 +494,7 @@ def main() -> int:
         external_state_files=_fresh_live_state_with_historical_zip(live_head, historical_zip_name),
         extra_zip_names=(historical_zip_name,),
     )
+    _assert_generation_cleanup_removes_recorded_historical_zip()
     _assert_failure(
         "next-gate-unrecorded-same-label-zip-still-fails",
         "Stale same-label USER packet ZIP remains",
