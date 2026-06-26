@@ -601,46 +601,77 @@ def _drive_ai_dashboard_horizontal_resize(
                 )
               : 0;
             const publishedMaxWidth = pxNumber(description?.dataset.titleDescriptionMaxWidth || "");
-            const groups = [...document.querySelectorAll(".monitoring-hud__subtitle-group")];
-            const groupMetrics = groups.map((group) => {
-              const rect = rectFor(group);
-              const style = getComputedStyle(group);
-              const lineHeight = lineHeightNumber(style, rect);
-              return {
-                text: group.textContent.replace(/\\s+/g, " ").trim(),
-                rect,
-                flexShrink: style.flexShrink,
-                whiteSpace: style.whiteSpace,
-                lineTop: rect.top,
-                lineHeight: Math.round(lineHeight),
-                atomic: style.whiteSpace === "nowrap" && rect.height <= (lineHeight * 1.45),
-                withinDescription: descriptionRect.width > 0 && rect.left >= descriptionRect.left - 2 && rect.right <= descriptionRect.right + 2
-              };
+            const expectedText = "AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine.";
+            const text = (description?.textContent || "").replace(/\\s+/g, " ").trim();
+            const rectFromDomRect = (rect) => ({
+              left: Math.round(rect.left),
+              top: Math.round(rect.top),
+              right: Math.round(rect.right),
+              bottom: Math.round(rect.bottom),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height)
             });
-            const expectedTexts = [
-              "AI is not implemented;",
-              "provider/model execution is blocked,",
-              "and no prompt, file, memory, telemetry,",
-              "or provider data leaves this machine."
-            ];
+            const textNode = description
+              ? [...description.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim())
+              : null;
+            const wordMetrics = [];
+            if (textNode) {
+              const rawText = textNode.textContent || "";
+              const wordPattern = /\\S+/g;
+              let match = null;
+              while ((match = wordPattern.exec(rawText)) !== null) {
+                const range = document.createRange();
+                range.setStart(textNode, match.index);
+                range.setEnd(textNode, match.index + match[0].length);
+                const rects = [...range.getClientRects()]
+                  .filter((rect) => rect.width > 0 && rect.height > 0)
+                  .map(rectFromDomRect);
+                range.detach();
+                const rect = rects[0] || { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+                wordMetrics.push({
+                  text: match[0],
+                  rect,
+                  rects,
+                  lineTop: rect.top,
+                  withinDescription: descriptionRect.width > 0 && rect.left >= descriptionRect.left - 2 && rect.right <= descriptionRect.right + 2
+                });
+              }
+            }
+            const groupCount = description ? description.querySelectorAll(".monitoring-hud__subtitle-group").length : 0;
+            const lineTops = [...new Set(wordMetrics.map((word) => word.lineTop).filter((top) => top > 0))];
+            const lastPhraseMetrics = wordMetrics.slice(-6);
+            const lastPhraseLineCount = new Set(lastPhraseMetrics.map((word) => word.lineTop).filter((top) => top > 0)).size;
+            const lastPhraseText = lastPhraseMetrics.map((word) => word.text).join(" ");
             return {
               containerRect: descriptionRect,
               display: descriptionStyle?.display || "",
               flexWrap: descriptionStyle?.flexWrap || "",
+              whiteSpace: descriptionStyle?.whiteSpace || "",
+              overflowWrap: descriptionStyle?.overflowWrap || "",
+              wordBreak: descriptionStyle?.wordBreak || "",
               maxWidth: descriptionStyle?.maxWidth || "",
               publishedMaxWidth: Math.round(publishedMaxWidth),
               titleGroupInnerWidth,
               columnSource: description?.dataset.titleDescriptionColumnSource || "",
               metadata: description?.dataset.titleDescriptionWrap || "",
-              groupCount: groupMetrics.length,
-              lineCount: new Set(groupMetrics.map((group) => group.lineTop)).size,
-              expectedTextsPresent: expectedTexts.every((text) => groupMetrics.some((group) => group.text === text)),
-              groupsAtomic: groupMetrics.every((group) => group.atomic),
-              clippedGroupCount: groupMetrics.filter((group) => !group.withinDescription).length,
+              text,
+              expectedTextPresent: text === expectedText,
+              groupCount,
+              lineCount: lineTops.length,
+              wordCount: wordMetrics.length,
+              noAtomicPhraseGroups: groupCount === 0,
+              wordsCanWrapIndividually: wordMetrics.length > 0 && wordMetrics.every((word) => word.rect.width <= descriptionRect.width + 2),
+              clippedWordCount: wordMetrics.filter((word) => !word.withinDescription).length,
+              lastPhraseText,
+              lastPhraseLineCount,
+              lastPhraseWrapsByWord: lastPhraseText === "or provider data leaves this machine." && lastPhraseLineCount >= 2,
               measuredWidthMatchesTitleCardInner: Math.abs(Math.round(publishedMaxWidth) - titleGroupInnerWidth) <= 2,
               fixedLegacyMaxWidthRemoved: descriptionStyle ? descriptionStyle.maxWidth !== "600px" : false,
-              containerUsesFlexWrap: descriptionStyle ? descriptionStyle.display.includes("flex") && descriptionStyle.flexWrap === "wrap" : false,
-              groupMetrics
+              containerUsesProseWordWrap: descriptionStyle
+                ? !descriptionStyle.display.includes("flex") && descriptionStyle.whiteSpace === "normal"
+                : false,
+              wordMetrics,
+              lastPhraseMetrics
             };
           })();
           const rowTitleSizingProbe = (() => {
@@ -1842,46 +1873,77 @@ def main() -> int:
                     )
                   : 0;
                 const publishedMaxWidth = pxNumber(description?.dataset.titleDescriptionMaxWidth || "");
-                const groups = [...document.querySelectorAll(".monitoring-hud__subtitle-group")];
-                const groupMetrics = groups.map((group) => {
-                  const rect = rectFor(group);
-                  const style = getComputedStyle(group);
-                  const lineHeight = lineHeightNumber(style, rect);
-                  return {
-                    text: group.textContent.replace(/\\s+/g, " ").trim(),
-                    rect,
-                    flexShrink: style.flexShrink,
-                    whiteSpace: style.whiteSpace,
-                    lineTop: rect.top,
-                    lineHeight: Math.round(lineHeight),
-                    atomic: style.whiteSpace === "nowrap" && rect.height <= (lineHeight * 1.45),
-                    withinDescription: descriptionRect.width > 0 && rect.left >= descriptionRect.left - 2 && rect.right <= descriptionRect.right + 2
-                  };
+                const expectedText = "AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine.";
+                const text = (description?.textContent || "").replace(/\\s+/g, " ").trim();
+                const rectFromDomRect = (rect) => ({
+                  left: Math.round(rect.left),
+                  top: Math.round(rect.top),
+                  right: Math.round(rect.right),
+                  bottom: Math.round(rect.bottom),
+                  width: Math.round(rect.width),
+                  height: Math.round(rect.height)
                 });
-                const expectedTexts = [
-                  "AI is not implemented;",
-                  "provider/model execution is blocked,",
-                  "and no prompt, file, memory, telemetry,",
-                  "or provider data leaves this machine."
-                ];
+                const textNode = description
+                  ? [...description.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim())
+                  : null;
+                const wordMetrics = [];
+                if (textNode) {
+                  const rawText = textNode.textContent || "";
+                  const wordPattern = /\\S+/g;
+                  let match = null;
+                  while ((match = wordPattern.exec(rawText)) !== null) {
+                    const range = document.createRange();
+                    range.setStart(textNode, match.index);
+                    range.setEnd(textNode, match.index + match[0].length);
+                    const rects = [...range.getClientRects()]
+                      .filter((rect) => rect.width > 0 && rect.height > 0)
+                      .map(rectFromDomRect);
+                    range.detach();
+                    const rect = rects[0] || { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+                    wordMetrics.push({
+                      text: match[0],
+                      rect,
+                      rects,
+                      lineTop: rect.top,
+                      withinDescription: descriptionRect.width > 0 && rect.left >= descriptionRect.left - 2 && rect.right <= descriptionRect.right + 2
+                    });
+                  }
+                }
+                const groupCount = description ? description.querySelectorAll(".monitoring-hud__subtitle-group").length : 0;
+                const lineTops = [...new Set(wordMetrics.map((word) => word.lineTop).filter((top) => top > 0))];
+                const lastPhraseMetrics = wordMetrics.slice(-6);
+                const lastPhraseLineCount = new Set(lastPhraseMetrics.map((word) => word.lineTop).filter((top) => top > 0)).size;
+                const lastPhraseText = lastPhraseMetrics.map((word) => word.text).join(" ");
                 return {
                   containerRect: descriptionRect,
                   display: descriptionStyle?.display || "",
                   flexWrap: descriptionStyle?.flexWrap || "",
+                  whiteSpace: descriptionStyle?.whiteSpace || "",
+                  overflowWrap: descriptionStyle?.overflowWrap || "",
+                  wordBreak: descriptionStyle?.wordBreak || "",
                   maxWidth: descriptionStyle?.maxWidth || "",
                   publishedMaxWidth: Math.round(publishedMaxWidth),
                   titleGroupInnerWidth,
                   columnSource: description?.dataset.titleDescriptionColumnSource || "",
                   metadata: description?.dataset.titleDescriptionWrap || "",
-                  groupCount: groupMetrics.length,
-                  lineCount: new Set(groupMetrics.map((group) => group.lineTop)).size,
-                  expectedTextsPresent: expectedTexts.every((text) => groupMetrics.some((group) => group.text === text)),
-                  groupsAtomic: groupMetrics.every((group) => group.atomic),
-                  clippedGroupCount: groupMetrics.filter((group) => !group.withinDescription).length,
+                  text,
+                  expectedTextPresent: text === expectedText,
+                  groupCount,
+                  lineCount: lineTops.length,
+                  wordCount: wordMetrics.length,
+                  noAtomicPhraseGroups: groupCount === 0,
+                  wordsCanWrapIndividually: wordMetrics.length > 0 && wordMetrics.every((word) => word.rect.width <= descriptionRect.width + 2),
+                  clippedWordCount: wordMetrics.filter((word) => !word.withinDescription).length,
+                  lastPhraseText,
+                  lastPhraseLineCount,
+                  lastPhraseWrapsByWord: lastPhraseText === "or provider data leaves this machine." && lastPhraseLineCount >= 2,
                   measuredWidthMatchesTitleCardInner: Math.abs(Math.round(publishedMaxWidth) - titleGroupInnerWidth) <= 2,
                   fixedLegacyMaxWidthRemoved: descriptionStyle ? descriptionStyle.maxWidth !== "600px" : false,
-                  containerUsesFlexWrap: descriptionStyle ? descriptionStyle.display.includes("flex") && descriptionStyle.flexWrap === "wrap" : false,
-                  groupMetrics
+                  containerUsesProseWordWrap: descriptionStyle
+                    ? !descriptionStyle.display.includes("flex") && descriptionStyle.whiteSpace === "normal"
+                    : false,
+                  wordMetrics,
+                  lastPhraseMetrics
                 };
               })();
               const rowTitleSizingProbe = (() => {
@@ -2582,27 +2644,31 @@ def main() -> int:
     def _title_description_wrap_ok(probe: object, *, min_lines: int = 1, max_lines: int | None = None) -> bool:
         if not isinstance(probe, dict):
             return False
-        if probe.get("metadata") != "group-preserving-measured-title-card-flex-wrap":
+        if probe.get("metadata") != "measured-title-card-prose-word-wrap":
             return False
         if probe.get("columnSource") != "title-card-inner-content-width-px":
             return False
-        if probe.get("groupCount") != 4:
+        if probe.get("groupCount") != 0:
             return False
-        if probe.get("expectedTextsPresent") is not True:
+        if probe.get("expectedTextPresent") is not True:
             return False
-        if probe.get("groupsAtomic") is not True:
+        if probe.get("noAtomicPhraseGroups") is not True:
             return False
-        if probe.get("containerUsesFlexWrap") is not True:
+        if probe.get("containerUsesProseWordWrap") is not True:
             return False
         if probe.get("fixedLegacyMaxWidthRemoved") is not True:
             return False
         if probe.get("measuredWidthMatchesTitleCardInner") is not True:
             return False
+        if probe.get("wordsCanWrapIndividually") is not True:
+            return False
         if _int_or(probe.get("publishedMaxWidth")) <= 0:
             return False
         if _int_or(probe.get("titleGroupInnerWidth")) <= 0:
             return False
-        if _int_or(probe.get("clippedGroupCount"), 999) != 0:
+        if _int_or(probe.get("clippedWordCount"), 999) != 0:
+            return False
+        if _int_or(probe.get("wordCount")) < 14:
             return False
         line_count = _int_or(probe.get("lineCount"))
         if line_count < min_lines:
@@ -2723,13 +2789,13 @@ def main() -> int:
                 "16_title_status_pill_wrapped_windows_cursor_resize.png"
             )
         ),
-        "titleDescriptionGroupWrapProven": (
-            dashboard_probe.get("titleDescriptionWrapMetadata") == "group-preserving-measured-title-card-flex-wrap"
+        "titleDescriptionProseWordWrapProven": (
+            dashboard_probe.get("titleDescriptionWrapMetadata") == "measured-title-card-prose-word-wrap"
             and _title_description_wrap_ok(title_description_wrap, min_lines=1, max_lines=2)
             and _title_description_wrap_ok(no_early_title_description_wrap, min_lines=1, max_lines=2)
             and _title_description_wrap_ok(horizontal_title_description_wrap, min_lines=2)
         ),
-        "titleDescriptionWindowsCursorWrapProven": (
+        "titleDescriptionWindowsCursorProseWrapProven": (
             horizontal_resize_proof.get("proofPath") == "ai-control-center-right-edge-windows-cursor-drag"
             and horizontal_resize_proof.get("inputMethod") == "windows-cursor-left-button-drag"
             and horizontal_resize_proof.get("codeForcedGeometry") is False
@@ -2737,6 +2803,7 @@ def main() -> int:
             and _title_description_wrap_ok(no_early_title_description_wrap, min_lines=1, max_lines=2)
             and _title_description_wrap_ok(horizontal_title_description_wrap, min_lines=3)
             and int(horizontal_title_description_wrap.get("lineCount") or 0) > int(no_early_title_description_wrap.get("lineCount") or 0)
+            and horizontal_title_description_wrap.get("lastPhraseWrapsByWord") is True
             and horizontal_title_description_wrap_crop.get("ok") is True
             and str(horizontal_title_description_wrap_crop.get("path") or "").endswith(
                 "16_title_status_pill_wrapped_windows_cursor_resize_title_description.png"

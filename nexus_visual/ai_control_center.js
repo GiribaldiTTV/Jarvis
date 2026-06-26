@@ -342,8 +342,8 @@
     const paddingX = Number.parseFloat(style.paddingLeft || "0") + Number.parseFloat(style.paddingRight || "0");
     const maxWidth = Math.max(0, Math.floor(rect.width - paddingX));
     titleGroup.style.setProperty("--ai-dashboard-title-description-max-width", `${maxWidth}px`);
-    surface.dataset.titleDescriptionWrap = "group-preserving-measured-title-card-flex-wrap";
-    subtitle.dataset.titleDescriptionWrap = "group-preserving-measured-title-card-flex-wrap";
+    surface.dataset.titleDescriptionWrap = "measured-title-card-prose-word-wrap";
+    subtitle.dataset.titleDescriptionWrap = "measured-title-card-prose-word-wrap";
     subtitle.dataset.titleDescriptionColumnSource = "title-card-inner-content-width-px";
     subtitle.dataset.titleDescriptionMaxWidth = String(maxWidth);
   };

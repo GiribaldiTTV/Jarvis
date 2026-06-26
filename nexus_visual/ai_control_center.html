@@ -17,7 +17,6 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
       position: relative;
-      --ai-dashboard-title-description-gap: 4px;
       --ai-dashboard-title-description-max-width: 100%;
       min-height: 0;
       padding: 12px 16px 10px;
@@ -43,20 +42,14 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__subtitle {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
+      display: block;
       width: fit-content;
       max-width: var(--ai-dashboard-title-description-max-width, 100%);
       margin-top: 6px;
-      gap: 0 var(--ai-dashboard-title-description-gap, 4px);
       line-height: 1.28;
-    }
-
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__subtitle-group {
-      flex: 0 0 auto;
-      max-width: 100%;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: normal;
+      word-break: normal;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role {
@@ -737,7 +730,7 @@
     data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"
     data-global-ai-strip="compact-truth-state-no-provider-no-execution"
     data-title-status-wrap="group-preserving-atomic-flex-wrap"
-    data-title-description-wrap="group-preserving-measured-title-card-flex-wrap"
+    data-title-description-wrap="measured-title-card-prose-word-wrap"
     data-row-title-sizing="max-label-content-fixed-gutter"
     data-settings-route="option-b-deferred-until-fam003-global-settings-window"
     data-maintenance-updates-placement="lifecycle-domain-doorway-no-download-install-update-execution"
@@ -799,13 +792,10 @@
         </div>
         <div
           class="monitoring-hud__subtitle"
-          data-title-description-wrap="group-preserving-measured-title-card-flex-wrap"
+          data-title-description-wrap="measured-title-card-prose-word-wrap"
           aria-label="AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine."
         >
-          <span class="monitoring-hud__subtitle-group">AI is not implemented;</span>
-          <span class="monitoring-hud__subtitle-group">provider/model execution is blocked,</span>
-          <span class="monitoring-hud__subtitle-group">and no prompt, file, memory, telemetry,</span>
-          <span class="monitoring-hud__subtitle-group">or provider data leaves this machine.</span>
+          AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine.
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
           <div class="monitoring-hud__surface-role-copy">
