@@ -5835,6 +5835,44 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject packeted-only closure wording in START_HERE when a primary table exists"
             )
 
+        hyphenated_packeted_only_start_here_packet = packet_with_sections(
+            temp_root / "hyphenated-packeted-only-start-here-with-primary",
+            primary_text=table(row("FAM006-RAR-070")),
+        )
+        (hyphenated_packeted_only_start_here_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Primary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n\n"
+            "The issue candidate was packeted-only, so normal progression may continue.\n",
+            encoding="utf-8",
+        )
+        hyphenated_packeted_only_start_here_failures = rar_issue_durability.validate_packet_folder(
+            hyphenated_packeted_only_start_here_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            hyphenated_packeted_only_start_here_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject hyphenated packeted-only closure wording in START_HERE"
+            )
+
+        hyphenated_packet_reviewed_only_review_aid_packet = packet_with_sections(
+            temp_root / "hyphenated-packet-reviewed-only-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-071")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "This issue candidate is packet-reviewed-only and may continue without durable disposition."
+            ),
+        )
+        hyphenated_packet_reviewed_only_review_aid_failures = (
+            rar_issue_durability.validate_packet_folder(hyphenated_packet_reviewed_only_review_aid_packet)
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            hyphenated_packet_reviewed_only_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject hyphenated packet-reviewed-only closure wording in Review Aids"
+            )
+
         active_repaired_packeted_only_packet = packet_with_sections(
             temp_root / "active-repaired-packeted-only-with-primary",
             primary_text=table(row("FAM006-RAR-061")),

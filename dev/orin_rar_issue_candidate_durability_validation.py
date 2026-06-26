@@ -61,9 +61,13 @@ LEGAL_DISPOSITIONS = ACTIVE_DISPOSITIONS | {
 }
 PACKETED_ONLY_PATTERNS = (
     "packeted only",
+    "packeted-only",
     "packet only",
+    "packet-only",
     "packet-reviewed only",
+    "packet-reviewed-only",
     "issue candidate packet user-reviewed",
+    "issue-candidate packet user-reviewed",
 )
 EMPTY_VALUES = {"", "none", "n/a", "na", "not applicable", "tbd", "todo", "unknown"}
 HISTORICAL_PACKETED_ONLY_CONTEXT = (
