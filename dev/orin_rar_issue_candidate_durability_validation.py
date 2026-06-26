@@ -129,7 +129,17 @@ def _normalize_text(value: str) -> str:
 def _normalize_token(value: str) -> str:
     token = re.sub(r"[^A-Za-z0-9]+", "_", value.strip().upper())
     token = re.sub(r"_+", "_", token).strip("_")
-    return token
+    aliases = {
+        "REPAIRED_AND_INDEPENDENTLY_VERIFIED": "REPAIRED_VERIFIED",
+        "USER_WAIVED_WITH_REASON_AND_SCOPE": "USER_WAIVED_WITH_REASON",
+        "DEFERRED_WITH_DURABLE_OWNER_REASON_TARGET_CARRIER_NEXT_REVIEW_TRIGGER": "DEFERRED_WITH_OWNER",
+        "DEFERRED_WITH_DURABLE_OWNER_REASON_TARGET_CARRIER_AND_NEXT_REVIEW_TRIGGER": "DEFERRED_WITH_OWNER",
+        "ROUTED_TO_ANOTHER_LEGAL_CARRIER_WITH_ACCEPTANCE_RECEIPT": "ROUTED_TO_LEGAL_CARRIER",
+        "APPROVED_FOR_GITHUB_ISSUE_CREATION_PENDING_MUTATION": "GITHUB_CREATION_APPROVED_PENDING",
+        "MAPPED_TO_OPEN_GITHUB_ISSUE": "MAPPED_OPEN_GITHUB_ISSUE",
+        "MAPPED_TO_CLOSED_GITHUB_ISSUE_AND_RECONCILED_AGAINST_REPAIR_EVIDENCE": "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+    }
+    return aliases.get(token, token)
 
 
 def _is_empty(value: str) -> bool:
@@ -245,6 +255,23 @@ def _snapshot_state(value: object) -> GitHubIssueSnapshot:
 
 def _candidate_ids_from_rows(rows: Iterable[CandidateRow]) -> set[str]:
     return {row.candidate_id for row in rows if row.candidate_id}
+
+
+def _candidate_row_key(row: CandidateRow) -> tuple[str, ...]:
+    return (
+        row.candidate_id,
+        row.owning_fam,
+        row.surface,
+        row.element_group,
+        row.defect,
+        row.evidence_pointer,
+        row.current_disposition,
+        row.progression_blocking,
+        row.proposed_carrier,
+        row.github_issue,
+        row.last_verified,
+        row.exact_user_decision,
+    )
 
 
 def _explicit_lineage_present(candidate_id: str, text: str) -> bool:
@@ -391,19 +418,10 @@ def validate_text(
             failures.append(f"{source}: {row_label}: stable candidate ID or lineage fingerprint missing")
 
         existing = seen.get(row.candidate_id)
-        if existing and (
-            existing.surface,
-            existing.element_group,
-            existing.defect,
-            existing.proposed_carrier,
-        ) != (
-            row.surface,
-            row.element_group,
-            row.defect,
-            row.proposed_carrier,
-        ):
+        if existing and _candidate_row_key(existing) != _candidate_row_key(row):
             failures.append(f"{source}: {row.candidate_id}: duplicate/conflicting lineage")
-        seen[row.candidate_id] = row
+        elif not existing:
+            seen[row.candidate_id] = row
 
         disposition = _normalize_token(row.current_disposition)
         if any(pattern in _normalize_text(row.current_disposition) for pattern in PACKETED_ONLY_PATTERNS):
@@ -498,14 +516,43 @@ def _primary_decision_surface_paths(packet_folder: Path) -> list[Path]:
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             primary_paths.append(path)
+    primary_paths.extend(_start_here_routed_primary_paths(packet_folder, excluded=set(primary_paths)))
     return primary_paths
+
+
+def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | None = None) -> list[Path]:
+    start_here = packet_folder / "START_HERE.md"
+    if not start_here.exists():
+        return []
+    excluded = excluded or set()
+    start_text = start_here.read_text(encoding="utf-8")
+    routed_paths: list[Path] = []
+    for path in _packet_markdown_files(packet_folder):
+        if path in excluded:
+            continue
+        relative = path.relative_to(packet_folder)
+        if _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
+            continue
+        path_text = relative.as_posix()
+        name_text = path.name
+        if path_text not in start_text and name_text not in start_text:
+            continue
+        route_window_pattern = rf"(primary|decision|issue[ -]candidate|user review|start here|review order).{{0,160}}({re.escape(path_text)}|{re.escape(name_text)})|({re.escape(path_text)}|{re.escape(name_text)}).{{0,160}}(primary|decision|issue[ -]candidate|user review)"
+        if not re.search(route_window_pattern, start_text, flags=re.IGNORECASE | re.DOTALL):
+            continue
+        if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
+            routed_paths.append(path)
+    return routed_paths
 
 
 def _supporting_decision_surface_paths(packet_folder: Path) -> list[Path]:
     supporting_paths: list[Path] = []
+    primary_paths = set(_primary_decision_surface_paths(packet_folder))
     for path in _packet_markdown_files(packet_folder):
         relative = path.relative_to(packet_folder)
         if _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
+            continue
+        if path in primary_paths:
             continue
         if _path_has_part(relative, PRIMARY_REVIEW_FOLDER):
             continue

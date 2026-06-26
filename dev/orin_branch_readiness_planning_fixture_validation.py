@@ -5280,6 +5280,58 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             "Generated RAR durability adversarial case did not reject packeted-only reviewed wording"
         )
 
+    documented_label_failures = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-030",
+                disposition="Repaired And Independently Verified",
+                blocking="NO",
+                carrier="Owner FAM-006; reason repaired in LV proof; carrier FAM-006 RAR repair; trigger regression only",
+                decision="Independent verification revalidated the repair; no current USER decision is needed.",
+            ),
+            row(
+                "FAM006-RAR-031",
+                disposition="USER Waived With Reason And Scope",
+                blocking="NO",
+                carrier="Owner FAM-006; reason USER accepted exception; scope HUD Dashboard current branch only; trigger reopened HUD work",
+                decision="USER waived this item because the current branch excludes the surface; scope HUD Dashboard current branch only.",
+            ),
+            row(
+                "FAM006-RAR-032",
+                disposition="Mapped To Open GitHub Issue",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason mapped to open issue; carrier GitHub issue #275; trigger issue closeout review",
+                decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+            ),
+        ),
+        source="generated documented disposition labels",
+        github_snapshot=snapshot("OPEN"),
+    )
+    if documented_label_failures:
+        failures.append(
+            "Generated RAR fixture rejected documented durable-disposition labels: "
+            + "; ".join(documented_label_failures[:5])
+        )
+
+    duplicate_disposition_conflict = rar_issue_durability.validate_text(
+        table(
+            row("FAM006-RAR-033"),
+            row(
+                "FAM006-RAR-033",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="Owner FAM-006; reason USER accepted exception; carrier FAM-006 RAR repair; trigger reopened HUD work; scope HUD Dashboard current branch only",
+                decision="USER waived this item because current branch excludes the surface; scope HUD Dashboard current branch only.",
+            ),
+        ),
+        source="generated duplicate disposition conflict",
+    )
+    if "duplicate/conflicting lineage" not in "\n".join(duplicate_disposition_conflict):
+        failures.append(
+            "Generated RAR fixture did not reject duplicate lineage with conflicting disposition fields"
+        )
+
     eight_active_rows = tuple(row(f"FAM006-RAR-{index:03d}") for index in range(1, 9))
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_root = Path(temp_dir)
@@ -5338,6 +5390,36 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             failures.append(
                 "Generated RAR packet fixture rejected a primary USER issue-candidate decision surface: "
                 + "; ".join(primary_failures[:5])
+            )
+
+        routed_packet = temp_root / "routed-primary" / "FAM-006"
+        routed_review = routed_packet / "Review Aids"
+        routed_decisions = routed_packet / "Issue Decisions"
+        routed_context = routed_packet / "Source Truth Context"
+        routed_review.mkdir(parents=True)
+        routed_decisions.mkdir(parents=True)
+        routed_context.mkdir(parents=True)
+        (routed_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: Issue Decisions/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (routed_decisions / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-034")),
+            encoding="utf-8",
+        )
+        (routed_review / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-035")),
+            encoding="utf-8",
+        )
+        (routed_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-CONTEXT-02")),
+            encoding="utf-8",
+        )
+        routed_primary_failures = rar_issue_durability.validate_packet_folder(routed_packet)
+        if routed_primary_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected START_HERE-routed primary issue-candidate decision file: "
+                + "; ".join(routed_primary_failures[:5])
             )
 
         terminal_ledger = temp_root / "terminal_ledger.md"
