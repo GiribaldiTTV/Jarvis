@@ -5796,6 +5796,24 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject active repaired/replaced packeted-only closure wording"
             )
 
+        active_not_durable_packeted_only_packet = packet_with_sections(
+            temp_root / "active-not-durable-packeted-only-with-primary",
+            primary_text=table(row("FAM006-RAR-062")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The issue candidate was packeted only and not durable, so normal progression may continue."
+            ),
+        )
+        active_not_durable_packeted_only_failures = rar_issue_durability.validate_packet_folder(
+            active_not_durable_packeted_only_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            active_not_durable_packeted_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject active not-durable packeted-only closure wording"
+            )
+
         routed_packet = temp_root / "routed-primary" / "FAM-006"
         routed_review = routed_packet / "Review Aids"
         routed_decisions = routed_packet / "Issue Decisions"
@@ -5963,6 +5981,40 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             failures.append(
                 "Generated RAR renamed-candidate fixture rejected explicit predecessor/successor lineage: "
                 + "; ".join(renamed_with_lineage[:5])
+            )
+
+        suffix_renamed_ledger = temp_root / "suffix_renamed_ledger.md"
+        suffix_renamed_ledger.write_text(table(row("FAM006-RAR-015")), encoding="utf-8")
+        suffix_renamed_no_predecessor = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "suffix-renamed-no-predecessor",
+                primary_text=(
+                    table(row("FAM006-RAR-015-A"))
+                    + "\n\nLineage: successor FAM006-RAR-015-A is ready for review."
+                ),
+            ),
+            external_ledger=suffix_renamed_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-015 missing" not in "\n".join(
+            suffix_renamed_no_predecessor
+        ):
+            failures.append(
+                "Generated RAR suffix-renamed fixture allowed substring lineage without exact predecessor candidate ID"
+            )
+        suffix_renamed_with_lineage = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "suffix-renamed-with-lineage",
+                primary_text=(
+                    table(row("FAM006-RAR-015-A"))
+                    + "\n\nLineage: successor FAM006-RAR-015-A replaces predecessor FAM006-RAR-015."
+                ),
+            ),
+            external_ledger=suffix_renamed_ledger,
+        )
+        if suffix_renamed_with_lineage:
+            failures.append(
+                "Generated RAR suffix-renamed fixture rejected explicit predecessor/successor lineage: "
+                + "; ".join(suffix_renamed_with_lineage[:5])
             )
 
     historical_packeted_only_text = (

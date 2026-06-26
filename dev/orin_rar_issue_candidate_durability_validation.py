@@ -72,8 +72,7 @@ HISTORICAL_PACKETED_ONLY_CONTEXT = (
     "prior",
     "historical",
     "formerly",
-    "invalid",
-    "not durable",
+    "former",
 )
 PRIMARY_REVIEW_FOLDER = "user review"
 REVIEW_AIDS_FOLDER = "review aids"
@@ -316,7 +315,7 @@ def _candidate_lineage_key(row: CandidateRow) -> tuple[str, ...]:
 
 def _candidate_id_present(candidate_id: str, text: str) -> bool:
     escaped = re.escape(candidate_id)
-    return bool(re.search(rf"(?<![A-Za-z0-9]){escaped}(?![A-Za-z0-9])", text))
+    return bool(re.search(rf"(?<![A-Za-z0-9_-]){escaped}(?![A-Za-z0-9_-])", text))
 
 
 def _explicit_lineage_present(
