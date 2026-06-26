@@ -478,9 +478,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row {
+  --monitoring-hud-studio-row-label-column: 52px;
   min-height: 0;
   padding: 3px 0 2px;
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr);
   gap: 18px;
   background: var(--monitoring-hud-divider-glow);
   background-repeat: no-repeat;

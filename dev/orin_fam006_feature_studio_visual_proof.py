@@ -403,6 +403,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             gap = item.get("rowLabelValueGapPx")
             label_rect = item.get("rowLabelRect")
             value_rect = item.get("rowValueRect")
+            value_left = int(value_rect.get("left", 0)) if isinstance(value_rect, dict) else None
             row_failures: list[str] = []
             if label_text != expected_label:
                 row_failures.append(f"label {label_text!r} != {expected_label!r}")
@@ -410,8 +411,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                 row_failures.append("value text missing")
             if not isinstance(gap, int):
                 row_failures.append("label/value gap missing")
-            elif gap < 14 or gap > 22:
-                row_failures.append(f"label/value gap {gap}px outside deterministic 14-22px range")
+            elif gap < 18 or gap > 34:
+                row_failures.append(f"label/value gap {gap}px outside deterministic fixed-column 18-34px range")
             if not isinstance(label_rect, dict) or not isinstance(value_rect, dict):
                 row_failures.append("label/value rect missing")
             rows.append(
@@ -422,17 +423,28 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                     "valueText": value_text,
                     "labelRect": label_rect,
                     "valueRect": value_rect,
+                    "valueLeftPx": value_left,
                     "labelValueGapPx": gap,
-                    "expectedGapPx": "14-22",
+                    "expectedGapPx": "18-34",
                     "failures": row_failures,
                     "status": "PASS" if not row_failures else "REPAIR",
                 }
             )
             failures.extend(f"{key}: {failure}" for failure in row_failures)
+        value_lefts = [
+            int(row["valueLeftPx"])
+            for row in rows
+            if isinstance(row.get("valueLeftPx"), int)
+        ]
+        value_column_delta = max(value_lefts) - min(value_lefts) if value_lefts else None
+        if len(value_lefts) > 1 and value_column_delta is not None and value_column_delta > 1:
+            failures.append(f"value/status column start delta {value_column_delta}px exceeds 1px")
         return {
             "surface": "Recording Studio" if surface_key == "recording" else "Log Viewer",
-            "expected": "compact state rows use a content-fit label column and a deterministic 18px target label/value gap; the value must not float in a wide legacy label column",
+            "expected": "compact state rows use a fixed 52px label column plus 18px gutter so value/status text starts on the same deterministic column while staying close to row labels",
             "rows": rows,
+            "valueColumnDeltaPx": value_column_delta,
+            "valueColumnAlignmentExpectedPx": "0-1",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
         }
@@ -659,6 +671,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "logViewerRowLabelValueVerdict": log_viewer["rowLabelValueVerdict"],
             "recordingRowLabelValueRows": recording["rowLabelValueMeasurements"].get("rows"),
             "logViewerRowLabelValueRows": log_viewer["rowLabelValueMeasurements"].get("rows"),
+            "recordingValueColumnDeltaPx": recording["rowLabelValueMeasurements"].get("valueColumnDeltaPx"),
+            "logViewerValueColumnDeltaPx": log_viewer["rowLabelValueMeasurements"].get("valueColumnDeltaPx"),
             "windowControlTop": log_viewer["windowControlsComputedStyle"].get("top"),
             "windowControlRight": log_viewer["windowControlsComputedStyle"].get("right"),
             "recordingButtonPrimitiveVerdict": recording["buttonPrimitiveVerdict"],
@@ -692,15 +706,15 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "| --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {recording['titleToStatusVerdict']} |\n"
         f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {log_viewer['titleToStatusVerdict']} |\n"
-        + "\n| Surface | Row label/value gap | Expected range | Verdict |\n"
-        "| --- | --- | --- | --- |\n"
+        + "\n| Surface | Row label/value gap | Value column left | Expected range | Verdict |\n"
+        "| --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            f"| Recording Studio `{row['expectedLabel']}` | {row['labelValueGapPx']}px | 14-22px | {row['status']} |"
+            f"| Recording Studio `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['valueLeftPx']}px | 18-34px; value-column delta 0-1px | {row['status']} |"
             for row in recording["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"
         + "\n".join(
-            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | 14-22px | {row['status']} |"
+            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | {row['valueLeftPx']}px | 18-34px; single-row column | {row['status']} |"
             for row in log_viewer["rowLabelValueMeasurements"]["rows"]
         )
         + "\n"
