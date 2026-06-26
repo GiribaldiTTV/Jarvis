@@ -1162,7 +1162,7 @@ class NexusGlyphButton(QPushButton):
 class ResidentAccessSettingsDialog(QDialog):
     RESIZE_MARGIN = 8
     RESIZE_CORNER_MARGIN = 12
-    BASE_MINIMUM_SIZE = (668, 388)
+    BASE_MINIMUM_SIZE = (684, 388)
     MAXIMUM_SIZE = (840, 610)
     DEFAULT_SIZE = (780, 458)
     QUICK_SLOT_ROW_HEIGHT = 38
@@ -1218,9 +1218,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36")
         self.setProperty("quickAccessLayoutPolicy", "content-driven-balanced-gutter-row-count-close-intercept-v32")
-        self.setProperty("settingsRailPolishPolicy", "fixed-subpage-indent-independent-child-width-v35")
+        self.setProperty("settingsRailPolishPolicy", "border-safe-fixed-subpage-indent-v36")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
         self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
         self.setProperty("dirtyCloseInterceptState", "idle")
@@ -1281,8 +1281,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.nav_shell.setObjectName("residentAccessSettingsNavShell")
         self.nav_shell.setAttribute(Qt.WA_StyledBackground, True)
         self.nav_shell.setProperty("settingsShellIdentity", "ndai-slim-global-settings")
-        self.nav_shell.setMinimumWidth(134)
-        self.nav_shell.setMaximumWidth(162)
+        self.nav_shell.setMinimumWidth(150)
+        self.nav_shell.setMaximumWidth(174)
         self.nav_shell.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.settings_splitter.addWidget(self.nav_shell)
         nav_shell_layout = QVBoxLayout(self.nav_shell)
@@ -1300,7 +1300,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self.nav_content = QWidget(self.nav_scroll_area)
         self.nav_content.setObjectName("residentAccessSettingsNavContent")
-        self.nav_content.setFixedWidth(130)
+        self.nav_content.setFixedWidth(144)
         self.nav_content.setMinimumHeight(96)
         self.nav_content.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         self.nav_scroll_area.setWidget(self.nav_content)
@@ -1348,7 +1348,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.subpage_nav_rail.setObjectName("residentAccessSettingsSubpageRail")
         self.subpage_nav_rail.setAttribute(Qt.WA_StyledBackground, True)
         subpage_layout = QVBoxLayout(self.subpage_nav_rail)
-        subpage_layout.setContentsMargins(10, 4, 0, 0)
+        subpage_layout.setContentsMargins(14, 4, 0, 0)
         subpage_layout.setSpacing(2)
 
         self.quick_access_nav_item = QFrame(self.nav_shell)
@@ -1357,7 +1357,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_access_nav_item.setProperty("settingsNavDensity", "two-level-subpage-row")
         self.quick_access_nav_item.setProperty("settingsNavIdentity", "ndai-signal-leaf")
         self.quick_access_nav_item.setAttribute(Qt.WA_StyledBackground, True)
-        self.quick_access_nav_item.setFixedSize(110, 30)
+        self.quick_access_nav_item.setFixedSize(112, 30)
         nav_item_layout = QHBoxLayout(self.quick_access_nav_item)
         nav_item_layout.setContentsMargins(5, 2, 4, 2)
         nav_item_layout.setSpacing(4)
@@ -1372,7 +1372,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_access_nav_button = QPushButton("Quick Access", self.quick_access_nav_item)
         self.quick_access_nav_button.setObjectName("residentAccessSettingsNavButton")
         self.quick_access_nav_button.setCheckable(True)
-        self.quick_access_nav_button.setMaximumWidth(85)
+        self.quick_access_nav_button.setMaximumWidth(88)
         self.quick_access_nav_button.setAccessibleName("Open Tray Quick Access Settings")
         self.quick_access_nav_button.clicked.connect(lambda: self.set_focus("quick_access"))
         self._nav_buttons["quick_access"] = self.quick_access_nav_button
@@ -1396,7 +1396,7 @@ class ResidentAccessSettingsDialog(QDialog):
         content_shell.setObjectName("residentAccessSettingsContentShell")
         content_shell.setAttribute(Qt.WA_StyledBackground, True)
         self.settings_splitter.addWidget(content_shell)
-        self.settings_splitter.setSizes([148, 600])
+        self.settings_splitter.setSizes([160, 590])
         content_layout = QVBoxLayout(content_shell)
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(6)
@@ -1910,7 +1910,14 @@ class ResidentAccessSettingsDialog(QDialog):
             "}"
             "#residentAccessSettingsNavItem:hover {"
             " background: rgba(8, 31, 48, 0.46);"
-            " border: none;"
+            " border: 1px solid rgba(122, 232, 255, 0.18);"
+            " border-left-color: rgba(153, 246, 228, 0.64);"
+            "}"
+            "#residentAccessSettingsNavItem[navState=\"selected\"]:hover, "
+            "#residentAccessSettingsNavItem[navState=\"selected\"]:focus {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(7, 47, 66, 0.64), stop:1 rgba(2, 19, 32, 0.24));"
+            " border: 1px solid rgba(122, 232, 255, 0.24);"
+            " border-left-color: rgba(153, 246, 228, 0.82);"
             "}"
             "#residentAccessSettingsNavBoundary {"
             " color: rgba(116, 150, 168, 0.86);"

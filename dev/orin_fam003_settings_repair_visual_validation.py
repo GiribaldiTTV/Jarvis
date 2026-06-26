@@ -114,6 +114,7 @@ ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-058",
     "F3-LV1-UI-059",
     "F3-LV1-UI-060",
+    "F3-LV1-UI-061",
     "F3-LV1-FUNC-001",
     "F3-LV1-FUNC-002",
     "F3-LV1-PROOF-001",
@@ -1632,7 +1633,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v35 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with fixed standardized subcategory indent plus independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v36 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent plus independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -1989,7 +1990,7 @@ def main() -> int:
             synthetic_child.append(child_row)
 
         stress_dialog.nav_content.setMinimumHeight(max(stress_dialog.nav_content.minimumHeight(), 736))
-        stress_dialog.settings_splitter.setSizes([132, 620])
+        stress_dialog.settings_splitter.setSizes([160, 620])
         stress_dialog.section_scope.setText("VALIDATION STRESS / MIXED CONTENT")
         stress_dialog.section_scope.setVisible(True)
         stress_dialog.section_heading.setText("Stress Matrix")
@@ -2115,15 +2116,15 @@ def main() -> int:
         stress_dialog.settings_page_frame.layout().addWidget(stress_container)
         app.processEvents()
 
-        stress_sizes = [(668, 500), (700, 500), (780, 500), (840, 530), (840, 610)]
+        stress_sizes = [(684, 500), (700, 500), (780, 500), (840, 530), (840, 610)]
         size_results: list[str] = []
         attached_ok = True
         for width_target, height_target in stress_sizes:
             stress_dialog.resize(width_target, height_target)
             if width_target <= 640:
-                stress_dialog.settings_splitter.setSizes([118, max(430, width_target - 136)])
+                stress_dialog.settings_splitter.setSizes([150, max(430, width_target - 168)])
             else:
-                stress_dialog.settings_splitter.setSizes([148, max(540, width_target - 166)])
+                stress_dialog.settings_splitter.setSizes([160, max(540, width_target - 178)])
             app.processEvents()
             path = log_dir / f"19_stress_size_{width_target}x{height_target}.png"
             capture_ok, captured_width, captured_height = _capture(
@@ -2252,7 +2253,7 @@ def main() -> int:
             "settings shell fills the window intentionally",
             width <= 790
             and height <= 470
-            and 134 <= dialog.nav_shell.width() <= 162
+            and 150 <= dialog.nav_shell.width() <= 174
             and getattr(dialog, "settings_splitter", None) is not None
             and dialog.settings_splitter.handleWidth() == 9
             and dialog.tray_nav_item.isVisible()
@@ -2448,17 +2449,17 @@ def main() -> int:
             and 490 <= wide_height <= 530
             and wide_width >= resized_width
             and wide_height >= resized_height
-            and 668 <= min_width <= 682
+            and 684 <= min_width <= 698
             and 450 <= min_height <= 470
             and not hasattr(dialog, "resize_grip")
             and not dialog.findChildren(QFrame, "residentAccessSettingsResizeGrip")
             and dialog.RESIZE_MARGIN == 8
             and getattr(dialog, "RESIZE_CORNER_MARGIN", None) == 12
-            and dialog.minimumWidth() == 668
+            and dialog.minimumWidth() == 684
             and 450 <= dialog.minimumHeight() <= 470
             and dialog.maximumWidth() == 840
             and dialog.maximumHeight() == 610
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36",
             f"resized={resized_width}x{resized_height}; wide={wide_width}x{wide_height}; min={min_width}x{min_height}; grip_attr={hasattr(dialog, 'resize_grip')}; grip_widgets={len(dialog.findChildren(QFrame, 'residentAccessSettingsResizeGrip'))}; margin={dialog.RESIZE_MARGIN}; corner_margin={getattr(dialog, 'RESIZE_CORNER_MARGIN', None)}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -2529,7 +2530,7 @@ def main() -> int:
             and hasattr(drag_probe, "_start_settings_resize")
             and hasattr(drag_probe, "_finish_settings_resize")
             and drag_probe.property("windowResizeBehavior")
-            == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32",
+            == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36",
             f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
         )
     )
@@ -2571,10 +2572,10 @@ def main() -> int:
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
-            and 134 <= dialog.nav_shell.width() <= 162
-            and child_nav_origin.x() - parent_nav_origin.x() == 10
+            and 150 <= dialog.nav_shell.width() <= 174
+            and child_nav_origin.x() - parent_nav_origin.x() == 14
             and dialog.tray_nav_item.width() == 118
-            and dialog.quick_access_nav_item.width() == 110
+            and dialog.quick_access_nav_item.width() == 112
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.property('glyphButton')!r}; icons={getattr(dialog.tray_nav_icon, 'icon_kind', '')!r}/{getattr(dialog.quick_access_nav_icon, 'icon_kind', '')!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}",
         )
@@ -2599,13 +2600,13 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "fixed-subpage-indent-independent-child-width-v35"
+            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-v36"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.tray_nav_icon.width() == 12
             and dialog.quick_access_nav_icon.width() == 12
-            and child_nav_origin.x() - parent_nav_origin.x() == 10
-            and dialog.quick_access_nav_button.maximumWidth() == 85
+            and child_nav_origin.x() - parent_nav_origin.x() == 14
+            and dialog.quick_access_nav_button.maximumWidth() == 88
             and dialog.tray_nav_button.maximumWidth() <= 58
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
             and dialog.tray_expand_button.property("quietGlyph") is True,
@@ -2659,14 +2660,14 @@ def main() -> int:
             "focused child pill border no-clipping proof",
             child_focus_ok
             and active_child_ok
-            and dialog.quick_access_nav_item.width() == 110
-            and dialog.quick_access_nav_button.maximumWidth() == 85
+            and dialog.quick_access_nav_item.width() == 112
+            and dialog.quick_access_nav_button.maximumWidth() == 88
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
-            and subpage_margins.left() == 10
+            and subpage_margins.left() == 14
             and subpage_margins.right() == 0
-            and child_origin.x() - parent_nav_origin.x() == 10
-            and child_origin.x() >= 17
-            and child_right_inset >= 10
+            and child_origin.x() - parent_nav_origin.x() == 14
+            and child_origin.x() >= 21
+            and child_right_inset >= 14
             and dialog.nav_scroll_area.horizontalScrollBar().maximum() == 0
             and dialog.quick_access_nav_item.property("navState") == "selected",
             f"{child_focus_path} ({child_focus_width}x{child_focus_height}); child_origin={child_origin.x()},{child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; parent_width={dialog.tray_nav_item.width()}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}; child_right={child_right}; right_inset={child_right_inset}; subpage_margins={subpage_margins.left()},{subpage_margins.top()},{subpage_margins.right()},{subpage_margins.bottom()}; hbar_max={dialog.nav_scroll_area.horizontalScrollBar().maximum()}",
@@ -2693,7 +2694,7 @@ def main() -> int:
             child_pressed_ok
             and dialog.quick_access_nav_button.hasFocus()
             and dialog.quick_access_nav_item.property("navState") == "selected"
-            and child_right_inset >= 10,
+            and child_right_inset >= 14,
             f"{child_pressed_path} ({child_pressed_width}x{child_pressed_height}); has_focus={dialog.quick_access_nav_button.hasFocus()}; right_inset={child_right_inset}",
         )
     )
@@ -2762,11 +2763,11 @@ def main() -> int:
         (
             "left pane minimum width has no horizontal overflow",
             narrow_ok
-            and 134 <= dialog.nav_shell.width() <= 162
+            and 150 <= dialog.nav_shell.width() <= 174
             and hbar_max == 0
             and dialog.nav_content.width() <= dialog.nav_scroll_area.viewport().width()
-            and narrow_child_right_inset >= 10
-            and narrow_child_origin.x() - narrow_parent_origin.x() == 10,
+            and narrow_child_right_inset >= 14
+            and narrow_child_origin.x() - narrow_parent_origin.x() == 14,
             f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}; parent_origin={narrow_parent_origin.x()},{narrow_parent_origin.y()}; child_origin={narrow_child_origin.x()},{narrow_child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; child_right_inset={narrow_child_right_inset}",
         )
     )
@@ -2789,13 +2790,13 @@ def main() -> int:
         (
             "left pane wide resize stays deterministic",
             wide_ok
-            and 134 <= dialog.nav_shell.width() <= 162
+            and 150 <= dialog.nav_shell.width() <= 174
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_item.isVisible()
             and dialog.tray_nav_item.width() == 118
-            and dialog.quick_access_nav_item.width() == 110
-            and wide_child_origin.x() - dialog.tray_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0)).x() == 10
-            and wide_child_right_inset >= 10,
+            and dialog.quick_access_nav_item.width() == 112
+            and wide_child_origin.x() - dialog.tray_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0)).x() == 14
+            and wide_child_right_inset >= 14,
             f"{wide_path} ({wide_width}x{wide_height}); nav_width={dialog.nav_shell.width()}; parent_width={dialog.tray_nav_item.width()}; child_width={dialog.quick_access_nav_item.width()}; child_origin={wide_child_origin.x()},{wide_child_origin.y()}; child_right_inset={wide_child_right_inset}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
         )
     )
@@ -2887,9 +2888,9 @@ def main() -> int:
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36"
             and dialog.property("quickAccessLayoutPolicy") == "content-driven-balanced-gutter-row-count-close-intercept-v32"
-            and dialog.property("settingsRailPolishPolicy") == "fixed-subpage-indent-independent-child-width-v35"
+            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-v36"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"
@@ -4113,16 +4114,16 @@ def main() -> int:
             ("Rejected v16 - sectioned title row", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-132602" / "02_top_level_chrome_control_cluster.png"),
             ("Accepted reference - broad NDAI comparator", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
-            ("Repaired v35 - compact NDAI settings shell", default_path),
-            ("Repaired v35 - centered Settings title", chrome_path),
-            ("Repaired v35 - fixed subcategory indent", child_focus_path),
-            ("Repaired v35 - child focus/pressed state", child_pressed_path),
-            ("Repaired v35 - quiet secondary glyph controls", glyph_path),
-            ("Repaired v35 - quiet splitter affordance", splitter_closeup_path),
-            ("Repaired v35 - 4 row balanced-gutter layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
-            ("Repaired v35 - dropdown", log_dir / "07_dropdown_list_state.png"),
-            ("Repaired v35 - close guard", log_dir / "08_close_guard.png"),
-            ("Repaired v35 - keybind/client close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
+            ("Repaired v36 - compact NDAI settings shell", default_path),
+            ("Repaired v36 - centered Settings title", chrome_path),
+            ("Repaired v36 - border-safe subcategory indent", child_focus_path),
+            ("Repaired v36 - child focus/pressed state", child_pressed_path),
+            ("Repaired v36 - quiet secondary glyph controls", glyph_path),
+            ("Repaired v36 - quiet splitter affordance", splitter_closeup_path),
+            ("Repaired v36 - 4 row balanced-gutter layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
+            ("Repaired v36 - dropdown", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired v36 - close guard", log_dir / "08_close_guard.png"),
+            ("Repaired v36 - keybind/client close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
         ],
         file_name="16_defect_closure_contact_sheet.png",
         title="FAM-003 False-Retest Defect Closure Contact Sheet",
@@ -4192,7 +4193,7 @@ def main() -> int:
     closure_rows = [
         ("F3-LV1-UI-001", "USER / ChatGPT", "20260624-123116/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 12_reference_conformance_contact_sheet.png", "settings-specific single-row title row plus broad NDAI comparator", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-015", "USER", "20260624-123116/04_left_settings_organizer.png", "15_left_pane_resize_affordance_closeup.png; 15_normal_splitter_resize_affordance.png; 15_hover_splitter_resize_affordance.png; 15_active_splitter_resize_affordance.png", "subtle 1px visible left-pane resize affordance inside a 9px hit zone", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-016", "USER", "corner-grip-only v15/v20 proof and stale minimum-size floors", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "668x388 base minimum with active-content minimum growth, 840x610 max, 8px edge / 12px corner hover-polled resize with Windows cursor-before-drag proof and no visible bottom-right grip", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-016", "USER", "corner-grip-only v15/v20 proof and stale minimum-size floors", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "684x388 base minimum with active-content minimum growth, 840x610 max, 8px edge / 12px corner hover-polled resize with Windows cursor-before-drag proof and no visible bottom-right grip", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-017", "USER", "20260624-123116/01_default_global_settings_shell.png", "01_default_global_settings_shell.png; 05_row_action_default_disabled_state.png; 20_stress_left_rail_28_categories.png; 21_stress_content_mixed_controls.png; 22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "780x460 deterministic shell with control-pill scale matched row grouping, unclipped Quick Access rows, and useful settings copy", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-018", "USER", "v15 ^ / v / x text buttons", "14_glyph_control_closeup.png", "UIREF-003 polished control state grammar", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-019", "USER", "plain utility caption title", "02_top_level_chrome_control_cluster.png", "settings-specific seamless single-row title grammar", "CLOSED_WITH_PROOF"),
@@ -4201,7 +4202,7 @@ def main() -> int:
         ("F3-LV1-UI-022", "USER", "20260624-132602/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 16_defect_closure_contact_sheet.png; 17_red_team_review_sheet.png", "Global Settings is its own settings-window class: no title card, no stacked title, no sectioned title row", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-023", "USER / ChatGPT", "v17 left rail child row was nearly peer-level", "04_left_settings_organizer.png; 04a_left_nav_active_child.png", "Tray parent with visibly subordinate Quick Access child", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-024", "USER / ChatGPT", "v17/default v20 canvases were too large or visually zoomed out", "01_default_global_settings_shell.png", "780x460 content-deterministic default shell with proportional control scale", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-025", "USER / ChatGPT", "v17/v23 minimum floors were over-restrictive", "03c_window_minimum_size.png; 04d_left_pane_minimum_no_horizontal_scroll.png", "668x388 base minimum with active-content height growth and no visible horizontal rail overflow", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-025", "USER / ChatGPT", "v17/v23 minimum floors were over-restrictive", "03c_window_minimum_size.png; 04d_left_pane_minimum_no_horizontal_scroll.png", "684x388 base minimum with active-content height growth and no visible horizontal rail overflow", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-026", "USER / ChatGPT", "nav rows stretched and overflow was treated as proof", "04_left_settings_organizer.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "bounded parent/child rail rows with no horizontal overflow", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-027", "USER / ChatGPT", "3 active of 4 header badge was verbose and detached from Add Slot", "01_default_global_settings_shell.png", "3 of 4 placed beside Add Slot", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-028", "USER / ChatGPT", "clean-state Saved label was redundant", "01_default_global_settings_shell.png; 11_post_save_clean_state.png", "quiet clean/post-save state; dirty/guard copy remains meaningful", "CLOSED_WITH_PROOF"),
@@ -4233,6 +4234,7 @@ def main() -> int:
         ("F3-LV1-UI-058", "USER", "The Quick Access sub-category pill in the left rail clips the right edge of its border.", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "104px child pill inside a 10px-left / 4px-right subpage rail budget with >=10px right inset and focused border proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-059", "USER", "fix the gutter inside the sub catagory, it looks squished. do not let the main catagory affect sub catagory button length", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "112px child pill inside a 6px-left / 0px-right subpage rail budget with independent 88px child label width, parent button max 58px, >=10px right inset, and focused/pressed proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-060", "USER", "do not let the indent of the sub catagory be affected. the indent needs to be fixed and standardized. now you can visually see that the distinguished difference in main categories and sub categories is gone.", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "fixed 10px subcategory indent with independent 110px child pill and 85px child label budget, parent button max 58px, >=10px right inset, and focused/pressed proof", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-061", "USER", "the border of the wuick acces is clipping again, and the indent needs to be more obvious. and fix the clipping", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "border-safe 150-174px left rail with fixed 14px subcategory indent, 112px child pill, 88px child label budget, parent button max 58px, >=14px right inset, stable selected/hover border, and focused/pressed proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-002", "USER", "NDAI close keybind/client shutdown could close the app even after dirty guard appeared", "DIRTY_CLOSE_INTERCEPT_MATRIX.md; desktop/orin_desktop_main.py; desktop/desktop_renderer.py", "client shutdown preflight blocks before shutdown_started and resumes only after Save or Discard; Cancel leaves app open", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
