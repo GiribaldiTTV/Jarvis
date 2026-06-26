@@ -1012,19 +1012,52 @@ class DialogChromeBar(QFrame):
 
 
 class NexusSettingsSplitterHandle(QSplitterHandle):
+    def __init__(self, orientation, parent=None):
+        super().__init__(orientation, parent)
+        self.setMouseTracking(True)
+        self.setProperty("splitterVisualState", "normal")
+
+    def _set_visual_state(self, state: str):
+        self.setProperty("splitterVisualState", state)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
+
+    def enterEvent(self, event):
+        if self.property("splitterVisualState") != "active":
+            self._set_visual_state("hover")
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if self.property("splitterVisualState") != "active":
+            self._set_visual_state("normal")
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._set_visual_state("active")
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._set_visual_state("hover" if self.rect().contains(event.position().toPoint()) else "normal")
+        super().mouseReleaseEvent(event)
+
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         rect = self.rect()
         center_x = rect.width() / 2
-        painter.setPen(QPen(QColor(122, 232, 255, 54), 1.25))
+        state = str(self.property("splitterVisualState") or "normal")
+        line_alpha = {"normal": 34, "hover": 64, "active": 92}.get(state, 34)
+        dot_alpha = {"normal": 70, "hover": 112, "active": 144}.get(state, 70)
+        painter.setPen(QPen(QColor(122, 232, 255, line_alpha), 1.0))
         painter.drawLine(int(center_x), 10, int(center_x), max(10, rect.height() - 10))
         painter.setPen(Qt.NoPen)
-        painter.setBrush(QColor(153, 246, 228, 118))
+        painter.setBrush(QColor(153, 246, 228, dot_alpha))
         mid_y = rect.height() / 2
         for offset in (-7, 0, 7):
-            painter.drawRoundedRect(QRectF(center_x - 1.15, mid_y + offset - 1.15, 2.3, 2.3), 1.15, 1.15)
+            painter.drawRoundedRect(QRectF(center_x - 1.0, mid_y + offset - 1.0, 2.0, 2.0), 1.0, 1.0)
 
 
 class NexusSettingsSplitter(QSplitter):
@@ -1120,8 +1153,13 @@ class NexusGlyphButton(QPushButton):
 class ResidentAccessSettingsDialog(QDialog):
     RESIZE_MARGIN = 8
     RESIZE_CORNER_MARGIN = 12
-    MINIMUM_SIZE = (560, 318)
-    MAXIMUM_SIZE = (1100, 720)
+    BASE_MINIMUM_SIZE = (590, 338)
+    MAXIMUM_SIZE = (860, 560)
+    DEFAULT_SIZE = (720, 386)
+    QUICK_SLOT_ROW_HEIGHT = 34
+    QUICK_SLOT_ROW_SPACING = 6
+    QUICK_SLOT_CONTAINER_CHROME_HEIGHT = 98
+    QUICK_ACCESS_WINDOW_VERTICAL_CHROME = 184
 
     def __init__(self, parent=None, runtime=None, focus: str = "quick_access"):
         super().__init__(parent)
@@ -1131,6 +1169,10 @@ class ResidentAccessSettingsDialog(QDialog):
         self._saved_settings = self._settings
         self._notice_text = ""
         self._close_guard_active = False
+        self._close_guard_pending_result = None
+        self._dirty_close_intercept_count = 0
+        self._dirty_close_last_event_ignored = False
+        self._dirty_close_last_resolution = ""
         self._slot_combos: list[QComboBox] = []
         self._nav_buttons: dict[str, QPushButton] = {}
         self._tray_children_expanded = True
@@ -1166,13 +1208,15 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-minimum-560x318-maximum-1100x720-v26")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-860x560-v27")
+        self.setProperty("quickAccessLayoutPolicy", "content-driven-card-window-grow-disable-before-break-v27")
+        self.setProperty("dirtyCloseInterceptState", "idle")
         self.setProperty("visibleResizeGrip", "removed")
         self.setProperty("deferredWatermarkConcept", "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22")
         self.setProperty("runtimeWatermarkVisible", "false")
-        self.setMinimumSize(*self.MINIMUM_SIZE)
+        self.setMinimumSize(*self.BASE_MINIMUM_SIZE)
         self.setMaximumSize(*self.MAXIMUM_SIZE)
-        self.resize(700, 360)
+        self.resize(*self.DEFAULT_SIZE)
         self._apply_native_settings_palette()
 
         root_layout = QVBoxLayout(self)
@@ -1215,8 +1259,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.settings_splitter = NexusSettingsSplitter(Qt.Horizontal, body)
         self.settings_splitter.setObjectName("residentAccessSettingsSplitter")
         self.settings_splitter.setChildrenCollapsible(False)
-        self.settings_splitter.setHandleWidth(7)
-        self.settings_splitter.setProperty("settingsSplitterAffordance", "defined-teal-rail-7px-v25")
+        self.settings_splitter.setHandleWidth(9)
+        self.settings_splitter.setProperty("settingsSplitterAffordance", "subtle-1px-visible-affordance-9px-hit-zone-v27")
         self.settings_splitter.setAccessibleName("Resize Global Settings navigation pane")
         body_layout.addWidget(self.settings_splitter, 1)
 
@@ -1349,8 +1393,8 @@ class ResidentAccessSettingsDialog(QDialog):
         page_layout = QVBoxLayout(self.settings_page_frame)
         page_layout.setContentsMargins(10, 7, 10, 7)
         page_layout.setSpacing(5)
-        self.settings_page_frame.setMinimumWidth(416)
-        self.settings_page_frame.setMaximumWidth(540)
+        self.settings_page_frame.setMinimumWidth(440)
+        self.settings_page_frame.setMaximumWidth(610)
         self.settings_page_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         content_layout.addWidget(self.settings_page_frame, 0, Qt.AlignTop)
         content_layout.addStretch(1)
@@ -1429,7 +1473,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_slot_container = QFrame(self.settings_page_frame)
         self.quick_slot_container.setObjectName("residentAccessQuickSlotContainer")
         self.quick_slot_container.setAttribute(Qt.WA_StyledBackground, True)
-        self.quick_slot_container.setMaximumWidth(450)
+        self.quick_slot_container.setMaximumWidth(560)
         self.quick_slot_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         quick_slot_layout = QVBoxLayout(self.quick_slot_container)
         quick_slot_layout.setContentsMargins(9, 7, 9, 7)
@@ -1467,7 +1511,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_slot_rows.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         self.quick_slot_rows_layout = QVBoxLayout(self.quick_slot_rows)
         self.quick_slot_rows_layout.setContentsMargins(0, 0, 0, 0)
-        self.quick_slot_rows_layout.setSpacing(5)
+        self.quick_slot_rows_layout.setSpacing(self.QUICK_SLOT_ROW_SPACING)
         quick_slot_layout.addWidget(self.quick_slot_rows)
         add_row = QHBoxLayout()
         add_row.setContentsMargins(0, 0, 0, 0)
@@ -1490,7 +1534,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.footer_frame = QFrame(self.settings_page_frame)
         self.footer_frame.setObjectName("residentAccessSettingsFooter")
         self.footer_frame.setAttribute(Qt.WA_StyledBackground, True)
-        self.footer_frame.setMaximumWidth(450)
+        self.footer_frame.setMaximumWidth(560)
         self.footer_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         footer = QHBoxLayout(self.footer_frame)
         footer.setContentsMargins(0, 3, 0, 0)
@@ -1661,14 +1705,14 @@ class ResidentAccessSettingsDialog(QDialog):
             " border: none;"
             "}"
             "#residentAccessSettingsSplitter::handle {"
-            " background: rgba(122, 232, 255, 0.025);"
-            " border-left: 1px solid rgba(122, 232, 255, 0.11);"
-            " border-right: 1px solid rgba(153, 246, 228, 0.07);"
+            " background: rgba(122, 232, 255, 0.018);"
+            " border-left: 1px solid rgba(122, 232, 255, 0.07);"
+            " border-right: 1px solid rgba(153, 246, 228, 0.04);"
             " border-radius: 3px;"
             "}"
             "#residentAccessSettingsSplitter::handle:hover {"
-            " background: rgba(122, 232, 255, 0.09);"
-            " border-color: rgba(153, 246, 228, 0.25);"
+            " background: rgba(122, 232, 255, 0.06);"
+            " border-color: rgba(153, 246, 228, 0.18);"
             "}"
             "#residentAccessSettingsNavShell {"
             " background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(2, 14, 26, 0.66), stop:1 rgba(1, 8, 17, 0.34));"
@@ -1991,12 +2035,12 @@ class ResidentAccessSettingsDialog(QDialog):
             "}"
             "#residentAccessQuickSlotTitle {"
             " color: rgba(244, 250, 255, 0.96);"
-            " font-size: 12px;"
+            " font-size: 13px;"
             " font-weight: 850;"
             "}"
             "#residentAccessQuickSlotHint {"
             " color: rgba(148, 184, 199, 0.88);"
-            " font-size: 10px;"
+            " font-size: 11px;"
             " font-weight: 700;"
             "}"
             "#residentAccessQuickSlotRows {"
@@ -2023,8 +2067,8 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: rgba(191, 212, 207, 0.96);"
             " border: 1px solid rgba(118, 226, 255, 0.14);"
             " border-radius: 6px;"
-            " padding: 0 7px;"
-            " min-height: 24px;"
+            " padding: 0 8px;"
+            " min-height: 28px;"
             " font-size: 12px;"
             " font-weight: 700;"
             "}"
@@ -2131,8 +2175,8 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-radius: 0;"
             "}"
             "#residentAccessQuickSlotActions QPushButton {"
-            " min-height: 22px;"
-            " max-height: 22px;"
+            " min-height: 26px;"
+            " max-height: 26px;"
             " padding: 0;"
             " border-radius: 6px;"
             " font-size: 11px;"
@@ -2167,7 +2211,7 @@ class ResidentAccessSettingsDialog(QDialog):
             " border: 1px solid rgba(118, 226, 255, 0.20);"
             " border-radius: 6px;"
             " padding: 0 22px 0 7px;"
-            " min-height: 24px;"
+            " min-height: 28px;"
             " font-size: 12px;"
             " font-weight: 700;"
             "}"
@@ -2198,7 +2242,7 @@ class ResidentAccessSettingsDialog(QDialog):
             " outline: none;"
             "}"
             "QComboBox QAbstractItemView::item {"
-            " min-height: 22px;"
+            " min-height: 24px;"
             " padding: 2px 6px;"
             " border-radius: 5px;"
             "}"
@@ -2359,6 +2403,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.close_guard_overlay.setVisible(guard_open)
         self.close_guard_overlay.setProperty("unsavedGuard", "open-save-discard" if guard_open else "closed")
         self.close_guard_panel.setProperty("unsavedGuard", "open-save-discard" if guard_open else "closed")
+        self.setProperty("dirtyCloseInterceptState", "blocked-before-resolution" if guard_open else "idle")
         for widget in (self.close_guard_overlay, self.close_guard_panel):
             widget.style().unpolish(widget)
             widget.style().polish(widget)
@@ -2367,22 +2412,41 @@ class ResidentAccessSettingsDialog(QDialog):
             self.close_guard_overlay.raise_()
             QTimer.singleShot(0, self.guard_save_button.setFocus)
 
+    def _open_close_guard(self, source: str, pending_result=None, event_ignored: bool = False):
+        self._close_guard_active = True
+        self._close_guard_pending_result = pending_result
+        self._dirty_close_intercept_count += 1
+        self._dirty_close_last_event_ignored = event_ignored
+        self._dirty_close_last_resolution = ""
+        self.setProperty("dirtyCloseInterceptState", "blocked-before-resolution")
+        self.setProperty("dirtyCloseInterceptSource", source)
+        self.setProperty("dirtyCloseInterceptCount", str(self._dirty_close_intercept_count))
+        self.setProperty("dirtyCloseEventIgnored", "true" if event_ignored else "not-applicable")
+        self._notice_text = "Unsaved changes"
+        self._refresh_text()
+
     def _keep_editing(self):
+        self._dirty_close_last_resolution = "cancel-preserved-dirty-window-open"
+        self.setProperty("dirtyCloseInterceptState", "cancel-preserved-dirty-window-open")
+        self.setProperty("dirtyCloseResolution", self._dirty_close_last_resolution)
+        self._close_guard_pending_result = None
         self._close_guard_active = False
         self._notice_text = "Unsaved changes"
         self._refresh_text()
 
     def _request_close(self):
         if self._has_unsaved_changes():
-            self._close_guard_active = True
-            self._notice_text = "Unsaved changes"
-            self._refresh_text()
+            self._open_close_guard("request_close", pending_result=None, event_ignored=False)
             return
         super().accept()
 
     def _discard_and_close(self):
         self._settings = self._saved_settings
         self._close_guard_active = False
+        self._dirty_close_last_resolution = "discard-dropped-draft-closed"
+        self.setProperty("dirtyCloseInterceptState", self._dirty_close_last_resolution)
+        self.setProperty("dirtyCloseResolution", self._dirty_close_last_resolution)
+        self._close_guard_pending_result = None
         super().reject()
 
     def accept(self):
@@ -2391,11 +2455,15 @@ class ResidentAccessSettingsDialog(QDialog):
     def reject(self):
         self._request_close()
 
+    def done(self, result):
+        if self._has_unsaved_changes():
+            self._open_close_guard("done", pending_result=result, event_ignored=False)
+            return
+        super().done(result)
+
     def closeEvent(self, event):
         if self._has_unsaved_changes():
-            self._close_guard_active = True
-            self._notice_text = "Unsaved changes"
-            self._refresh_text()
+            self._open_close_guard("close_event", pending_result=None, event_ignored=True)
             event.ignore()
             return
         self._settings_resize_hover_timer.stop()
@@ -2437,11 +2505,11 @@ class ResidentAccessSettingsDialog(QDialog):
             row = QFrame(self.quick_slot_rows)
             row.setObjectName("residentAccessQuickSlotRow")
             row.setAttribute(Qt.WA_StyledBackground, True)
-            row.setFixedHeight(30)
+            row.setFixedHeight(self.QUICK_SLOT_ROW_HEIGHT)
             row.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(6, 2, 6, 2)
-            row_layout.setSpacing(5)
+            row_layout.setContentsMargins(7, 3, 7, 3)
+            row_layout.setSpacing(6)
             slot_label = QLabel(f"{index + 1:02d}", row)
             slot_label.setObjectName("residentAccessQuickSlotIndex")
             slot_label.setAccessibleName(f"Quick Access Slot {index + 1} label")
@@ -2449,8 +2517,8 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(slot_label)
             combo = QComboBox(row)
             combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
-            combo.setMinimumWidth(280)
-            combo.setMaximumWidth(520)
+            combo.setMinimumWidth(300)
+            combo.setMaximumWidth(560)
             combo.setMaxVisibleItems(4)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
@@ -2477,7 +2545,7 @@ class ResidentAccessSettingsDialog(QDialog):
                     " padding: 2px;"
                     "}"
                     "QAbstractItemView::item {"
-                    " min-height: 22px;"
+                    " min-height: 24px;"
                     " padding: 2px 6px;"
                     " border-radius: 5px;"
                     "}"
@@ -2486,35 +2554,35 @@ class ResidentAccessSettingsDialog(QDialog):
                     " color: #e5f0ff;"
                     "}"
                 )
-                popup.setMaximumHeight(112)
+                popup.setMaximumHeight(124)
             combo.currentIndexChanged.connect(lambda _idx, index=index: self._update_slot(index))
             self._slot_combos.append(combo)
             row_layout.addWidget(combo, 1)
             action_cluster = QFrame(row)
             action_cluster.setObjectName("residentAccessQuickSlotActions")
             action_cluster.setAttribute(Qt.WA_StyledBackground, True)
-            action_cluster.setFixedWidth(82)
+            action_cluster.setFixedWidth(92)
             action_layout = QHBoxLayout(action_cluster)
             action_layout.setContentsMargins(0, 0, 0, 0)
             action_layout.setSpacing(4)
             reorder_group = QFrame(action_cluster)
             reorder_group.setObjectName("residentAccessQuickSlotReorderGroup")
             reorder_group.setAttribute(Qt.WA_StyledBackground, True)
-            reorder_group.setFixedSize(48, 24)
+            reorder_group.setFixedSize(56, 28)
             reorder_layout = QHBoxLayout(reorder_group)
             reorder_layout.setContentsMargins(1, 1, 1, 1)
             reorder_layout.setSpacing(0)
             up_button = NexusGlyphButton("up", reorder_group)
             up_button.setObjectName("residentAccessQuickSlotMoveUp")
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
-            up_button.setFixedSize(22, 22)
+            up_button.setFixedSize(26, 26)
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             reorder_layout.addWidget(up_button)
             down_button = NexusGlyphButton("down", reorder_group)
             down_button.setObjectName("residentAccessQuickSlotMoveDown")
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
-            down_button.setFixedSize(22, 22)
+            down_button.setFixedSize(26, 26)
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             reorder_layout.addWidget(down_button)
@@ -2523,7 +2591,7 @@ class ResidentAccessSettingsDialog(QDialog):
             delete_button.setObjectName("residentAccessQuickSlotDelete")
             delete_button.setProperty("dangerGlyph", True)
             delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
-            delete_button.setFixedSize(26, 22)
+            delete_button.setFixedSize(28, 26)
             delete_button.setEnabled(len(selected_ids) > 1)
             delete_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(delete_button)
@@ -2534,14 +2602,32 @@ class ResidentAccessSettingsDialog(QDialog):
         self._install_settings_resize_event_filters()
 
     def _resize_for_slot_count(self, slot_count: int):
-        self.setMinimumSize(*self.MINIMUM_SIZE)
         self.setMaximumSize(*self.MAXIMUM_SIZE)
-        target_window_height = 360 + max(0, min(slot_count, self._available_quick_slot_limit()) - 3) * 16
-        if slot_count > 3 and self.height() < target_window_height:
-            self.resize(max(self.width(), 700), target_window_height)
+        bounded_count = max(1, min(slot_count, self._available_quick_slot_limit()))
+        row_total = (
+            bounded_count * self.QUICK_SLOT_ROW_HEIGHT
+            + max(0, bounded_count - 1) * self.QUICK_SLOT_ROW_SPACING
+        )
+        container_height = self.QUICK_SLOT_CONTAINER_CHROME_HEIGHT + row_total
+        dynamic_min_height = min(
+            self.MAXIMUM_SIZE[1],
+            max(self.BASE_MINIMUM_SIZE[1], self.QUICK_ACCESS_WINDOW_VERTICAL_CHROME + container_height),
+        )
+        target_width = max(self.width(), self.DEFAULT_SIZE[0])
+        target_height = min(
+            self.MAXIMUM_SIZE[1],
+            max(self.DEFAULT_SIZE[1], self.QUICK_ACCESS_WINDOW_VERTICAL_CHROME + container_height + 10),
+        )
+        self.setMinimumSize(self.BASE_MINIMUM_SIZE[0], dynamic_min_height)
+        self.setMaximumSize(*self.MAXIMUM_SIZE)
         if hasattr(self, "quick_slot_container"):
-            target_height = 176 + max(0, min(slot_count, self._available_quick_slot_limit()) - 3) * 9
-            self.quick_slot_container.setFixedHeight(target_height)
+            self.quick_slot_rows.setMinimumHeight(row_total)
+            self.quick_slot_rows.setMaximumHeight(row_total)
+            self.quick_slot_container.setFixedHeight(container_height)
+            self.quick_slot_container.setProperty("quickAccessRowCount", str(bounded_count))
+            self.quick_slot_container.setProperty("quickAccessRowPolicy", self.property("quickAccessLayoutPolicy"))
+        if self.height() < target_height or self.width() < self.BASE_MINIMUM_SIZE[0]:
+            self.resize(min(self.MAXIMUM_SIZE[0], target_width), target_height)
 
     def _replace_quick_slots(self, slot_ids: Iterable[str], notice: str | None = None):
         self._settings = ResidentAccessSettings(
@@ -2606,6 +2692,10 @@ class ResidentAccessSettingsDialog(QDialog):
         self._saved_settings = self._settings
         self._close_guard_active = False
         self._notice_text = ""
+        self._dirty_close_last_resolution = "save-persisted-closed" if should_close else "save-persisted-clean"
+        self.setProperty("dirtyCloseInterceptState", self._dirty_close_last_resolution)
+        self.setProperty("dirtyCloseResolution", self._dirty_close_last_resolution)
+        self._close_guard_pending_result = None
         self._emit_runtime_signal(
             "RESIDENT_ACCESS_SETTINGS_SAVED",
             source="global_settings",

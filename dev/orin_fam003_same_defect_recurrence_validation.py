@@ -92,7 +92,7 @@ def _read(path: Path) -> str:
 def _table_statuses(text: str) -> dict[str, str]:
     statuses: dict[str, str] = {}
     pattern = re.compile(
-        r"^\|\s*`(F3-LV1-(?:UI|PROOF)-\d{3})`\s*\|\s*`([^`]+)`\s*\|",
+        r"^\|\s*`(F3-LV1-(?:UI|PROOF|FUNC)-\d{3})`\s*\|\s*`([^`]+)`\s*\|",
         re.MULTILINE,
     )
     for match in pattern.finditer(text):
@@ -102,7 +102,7 @@ def _table_statuses(text: str) -> dict[str, str]:
 
 def _latest_udl_status(text: str, defect_id: str) -> str:
     section_pattern = re.compile(
-        rf"^##\s+{re.escape(defect_id)}\b(?P<body>.*?)(?=^##\s+F3-LV1-(?:UI|PROOF)-\d{{3}}\b|\Z)",
+        rf"^##\s+{re.escape(defect_id)}\b(?P<body>.*?)(?=^##\s+F3-LV1-(?:UI|PROOF|FUNC)-\d{{3}}\b|\Z)",
         re.MULTILINE | re.DOTALL,
     )
     status = ""

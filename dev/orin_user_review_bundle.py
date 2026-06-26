@@ -1068,7 +1068,7 @@ def _fam003_recurrence_ledger_failures(recurrence_text: str) -> list[str]:
 
     table_statuses: dict[str, str] = {}
     table_pattern = re.compile(
-        r"^\|\s*`(F3-LV1-(?:UI|PROOF)-\d{3})`\s*\|\s*`([^`]+)`\s*\|",
+        r"^\|\s*`(F3-LV1-(?:UI|PROOF|FUNC)-\d{3})`\s*\|\s*`([^`]+)`\s*\|",
         re.MULTILINE,
     )
     for match in table_pattern.finditer(recurrence_text):
@@ -1143,8 +1143,8 @@ def _fam003_latest_defect_statuses(udl_text: str) -> dict[str, str]:
 
     statuses: dict[str, str] = {}
     section_pattern = re.compile(
-        r"^##\s+((?:UDL-\d{3})|(?:F3-LV1-(?:UI|PROOF)-\d{3}))\b(?P<body>.*?)(?="
-        r"^##\s+(?:UDL-\d{3}|F3-LV1-(?:UI|PROOF)-\d{3})\b|\Z)",
+        r"^##\s+((?:UDL-\d{3})|(?:F3-LV1-(?:UI|PROOF|FUNC)-\d{3}))\b(?P<body>.*?)(?="
+        r"^##\s+(?:UDL-\d{3}|F3-LV1-(?:UI|PROOF|FUNC)-\d{3})\b|\Z)",
         re.MULTILINE | re.DOTALL,
     )
     for match in section_pattern.finditer(udl_text):
@@ -1418,9 +1418,18 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "16_defect_closure_contact_sheet.png",
         "17_red_team_review_sheet.png",
         "18_manage_monitors_dirty_guard_side_by_side.png",
+        "22_row_count_1_of_4.png",
+        "22_row_count_2_of_4.png",
+        "22_row_count_3_of_4.png",
+        "22_row_count_4_of_4.png",
+        "26_four_row_dirty_state.png",
+        "27_four_row_dropdown_open.png",
+        "28_four_row_dirty_close_guard_intercept.png",
+        "29_dirty_close_cancel_preserves_window.png",
         "REFERENCE_CONFORMANCE_CONTACT_SHEET.png",
         "ARTIFACT_TO_SURFACE_LEDGER.md",
         "DEFECT_CLOSURE_PROOF_LEDGER.md",
+        "DIRTY_CLOSE_INTERCEPT_MATRIX.md",
         "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md",
         "FAIL_CAPABLE_DEFECT_LEDGER.md",
         "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md",
@@ -1640,8 +1649,14 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-036",
             "F3-LV1-UI-037",
             "F3-LV1-UI-038",
+            "F3-LV1-UI-043",
+            "F3-LV1-UI-044",
+            "F3-LV1-UI-045",
+            "F3-LV1-UI-046",
+            "F3-LV1-FUNC-001",
             "F3-LV1-PROOF-001",
             "F3-LV1-PROOF-002",
+            "F3-LV1-PROOF-005",
             FAM003_LOOP_BREAKER_DEFECT_ID,
             FAM003_PACKET_IMAGE_INTEGRITY_DEFECT_ID,
         )
