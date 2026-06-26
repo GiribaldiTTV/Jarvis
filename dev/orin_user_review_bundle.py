@@ -1710,6 +1710,7 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-057",
             "F3-LV1-UI-058",
             "F3-LV1-UI-059",
+            "F3-LV1-UI-060",
             "F3-LV1-FUNC-001",
             "F3-LV1-FUNC-002",
             "F3-LV1-PROOF-001",

@@ -113,6 +113,7 @@ ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-057",
     "F3-LV1-UI-058",
     "F3-LV1-UI-059",
+    "F3-LV1-UI-060",
     "F3-LV1-FUNC-001",
     "F3-LV1-FUNC-002",
     "F3-LV1-PROOF-001",
@@ -1631,7 +1632,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v34 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with independent child-gutter proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v35 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with fixed standardized subcategory indent plus independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -2571,9 +2572,9 @@ def main() -> int:
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
             and 134 <= dialog.nav_shell.width() <= 162
-            and child_nav_origin.x() > parent_nav_origin.x()
+            and child_nav_origin.x() - parent_nav_origin.x() == 10
             and dialog.tray_nav_item.width() == 118
-            and dialog.quick_access_nav_item.width() == 112
+            and dialog.quick_access_nav_item.width() == 110
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.property('glyphButton')!r}; icons={getattr(dialog.tray_nav_icon, 'icon_kind', '')!r}/{getattr(dialog.quick_access_nav_icon, 'icon_kind', '')!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}",
         )
@@ -2598,13 +2599,13 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "proportional-parent-child-independent-subpage-gutter-v34"
+            and dialog.property("settingsRailPolishPolicy") == "fixed-subpage-indent-independent-child-width-v35"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.tray_nav_icon.width() == 12
             and dialog.quick_access_nav_icon.width() == 12
-            and child_nav_origin.x() > parent_nav_origin.x()
-            and dialog.quick_access_nav_button.maximumWidth() == 88
+            and child_nav_origin.x() - parent_nav_origin.x() == 10
+            and dialog.quick_access_nav_button.maximumWidth() == 85
             and dialog.tray_nav_button.maximumWidth() <= 58
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
             and dialog.tray_expand_button.property("quietGlyph") is True,
@@ -2658,12 +2659,13 @@ def main() -> int:
             "focused child pill border no-clipping proof",
             child_focus_ok
             and active_child_ok
-            and dialog.quick_access_nav_item.width() == 112
-            and dialog.quick_access_nav_button.maximumWidth() == 88
+            and dialog.quick_access_nav_item.width() == 110
+            and dialog.quick_access_nav_button.maximumWidth() == 85
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
-            and subpage_margins.left() == 6
-            and subpage_margins.right() >= 0
-            and child_origin.x() >= 12
+            and subpage_margins.left() == 10
+            and subpage_margins.right() == 0
+            and child_origin.x() - parent_nav_origin.x() == 10
+            and child_origin.x() >= 17
             and child_right_inset >= 10
             and dialog.nav_scroll_area.horizontalScrollBar().maximum() == 0
             and dialog.quick_access_nav_item.property("navState") == "selected",
@@ -2764,7 +2766,7 @@ def main() -> int:
             and hbar_max == 0
             and dialog.nav_content.width() <= dialog.nav_scroll_area.viewport().width()
             and narrow_child_right_inset >= 10
-            and narrow_child_origin.x() > narrow_parent_origin.x(),
+            and narrow_child_origin.x() - narrow_parent_origin.x() == 10,
             f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}; parent_origin={narrow_parent_origin.x()},{narrow_parent_origin.y()}; child_origin={narrow_child_origin.x()},{narrow_child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; child_right_inset={narrow_child_right_inset}",
         )
     )
@@ -2791,7 +2793,8 @@ def main() -> int:
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_item.isVisible()
             and dialog.tray_nav_item.width() == 118
-            and dialog.quick_access_nav_item.width() == 112
+            and dialog.quick_access_nav_item.width() == 110
+            and wide_child_origin.x() - dialog.tray_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0)).x() == 10
             and wide_child_right_inset >= 10,
             f"{wide_path} ({wide_width}x{wide_height}); nav_width={dialog.nav_shell.width()}; parent_width={dialog.tray_nav_item.width()}; child_width={dialog.quick_access_nav_item.width()}; child_origin={wide_child_origin.x()},{wide_child_origin.y()}; child_right_inset={wide_child_right_inset}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
         )
@@ -2886,7 +2889,7 @@ def main() -> int:
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
             and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32"
             and dialog.property("quickAccessLayoutPolicy") == "content-driven-balanced-gutter-row-count-close-intercept-v32"
-            and dialog.property("settingsRailPolishPolicy") == "proportional-parent-child-independent-subpage-gutter-v34"
+            and dialog.property("settingsRailPolishPolicy") == "fixed-subpage-indent-independent-child-width-v35"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"
@@ -4110,16 +4113,16 @@ def main() -> int:
             ("Rejected v16 - sectioned title row", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-132602" / "02_top_level_chrome_control_cluster.png"),
             ("Accepted reference - broad NDAI comparator", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
-            ("Repaired v34 - compact NDAI settings shell", default_path),
-            ("Repaired v34 - centered Settings title", chrome_path),
-            ("Repaired v34 - independent child gutter", child_focus_path),
-            ("Repaired v34 - child focus/pressed state", child_pressed_path),
-            ("Repaired v34 - quiet secondary glyph controls", glyph_path),
-            ("Repaired v34 - quiet splitter affordance", splitter_closeup_path),
-            ("Repaired v34 - 4 row balanced-gutter layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
-            ("Repaired v34 - dropdown", log_dir / "07_dropdown_list_state.png"),
-            ("Repaired v34 - close guard", log_dir / "08_close_guard.png"),
-            ("Repaired v34 - keybind/client close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
+            ("Repaired v35 - compact NDAI settings shell", default_path),
+            ("Repaired v35 - centered Settings title", chrome_path),
+            ("Repaired v35 - fixed subcategory indent", child_focus_path),
+            ("Repaired v35 - child focus/pressed state", child_pressed_path),
+            ("Repaired v35 - quiet secondary glyph controls", glyph_path),
+            ("Repaired v35 - quiet splitter affordance", splitter_closeup_path),
+            ("Repaired v35 - 4 row balanced-gutter layout", log_dir / f"22_row_count_{active_slot_limit}_of_{active_slot_limit}.png"),
+            ("Repaired v35 - dropdown", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired v35 - close guard", log_dir / "08_close_guard.png"),
+            ("Repaired v35 - keybind/client close intercept", log_dir / "28_four_row_dirty_close_guard_intercept.png"),
         ],
         file_name="16_defect_closure_contact_sheet.png",
         title="FAM-003 False-Retest Defect Closure Contact Sheet",
@@ -4229,6 +4232,7 @@ def main() -> int:
         ("F3-LV1-UI-057", "USER", "content/header typography and polish lacked compact NDAI richness", "01_default_global_settings_shell.png; 05_tray_parent_page.png; 12_reference_conformance_contact_sheet.png", "compact settings-tool polish through typography, panel depth, active state, and spacing without dashboard-like header cards", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-058", "USER", "The Quick Access sub-category pill in the left rail clips the right edge of its border.", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "104px child pill inside a 10px-left / 4px-right subpage rail budget with >=10px right inset and focused border proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-059", "USER", "fix the gutter inside the sub catagory, it looks squished. do not let the main catagory affect sub catagory button length", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "112px child pill inside a 6px-left / 0px-right subpage rail budget with independent 88px child label width, parent button max 58px, >=10px right inset, and focused/pressed proof", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-060", "USER", "do not let the indent of the sub catagory be affected. the indent needs to be fixed and standardized. now you can visually see that the distinguished difference in main categories and sub categories is gone.", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "fixed 10px subcategory indent with independent 110px child pill and 85px child label budget, parent button max 58px, >=10px right inset, and focused/pressed proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-002", "USER", "NDAI close keybind/client shutdown could close the app even after dirty guard appeared", "DIRTY_CLOSE_INTERCEPT_MATRIX.md; desktop/orin_desktop_main.py; desktop/desktop_renderer.py", "client shutdown preflight blocks before shutdown_started and resumes only after Save or Discard; Cancel leaves app open", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
