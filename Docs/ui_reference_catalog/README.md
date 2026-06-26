@@ -18,6 +18,14 @@ This catalog must not own candidate evidence, active proof ledgers, current scre
 
 Promotion may include known limitations when the USER explicitly accepts or waives the missing proof for source-truth reference purposes. A promoted-with-known-limitations record is binding as reference grammar, but it does not prove every consuming branch state, implement code-level shared primitives, or clear branch-specific visual proof obligations.
 
+## General Reference Standard Relationship
+
+UIREF is the first domain implementation of the broader Nexus Reference Standard lifecycle. A Reference Standard is a USER-promoted durable comparator for a class of product behavior, UI, UX, runtime/backend behavior, proof, privacy, recovery, trust, or other repeated product/governance need. This folder remains UI-only until source truth admits another reference family. New non-UI reference families must not be created by naming inertia, branch-local evidence, or Codex recommendation alone; they require repeated evidence, a clear source-truth owner, a USER-reviewed promotion packet, adoption rules, known limitations, and a branch/RAR carrydown path.
+
+Reference Standard lifecycle: `Candidate -> USER Review -> Promoted Reference -> Consumed By Branch -> Effectiveness Reviewed -> Updated / Superseded / Deferred`.
+
+PR Readiness Stage 1 is the normal fold-down checkpoint for reference effectiveness. If an accepted reference produced repeated same-class repair cycles, unresolved exceptions, USER visual correction, or evidence that the reference failed to guide implementation, PR Readiness must record a Reference Standard Repair Candidate, supersession candidate, or deferred future carrier instead of treating the branch result as proof that the standard was sufficient.
+
 ## Reference, Template, Primitive, And Comparative Synthesis Model
 
 Nexus UI reuse has five distinct model terms. `Accepted Reference`, `Implementation Template`, and `Shared Primitive` are reusable reference or implementation authority levels. `Accepted Reference Set` and `Comparative Synthesis` are comparison/proof structures that determine how those authorities apply to a specific branch surface.

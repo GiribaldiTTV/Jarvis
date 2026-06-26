@@ -179,7 +179,7 @@ Main routes Codex to:
 - public-safe AI edition/trust-boundary planning: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - reusable family vision: `Docs/family_visions/`
 - durable family feature vision layer, when USER approves feature-vision content files: `Docs/family_feature_visions/`
-- USER-promoted durable UI reference contracts, after explicit promotion approval only: `Docs/ui_reference_catalog/`
+- USER-promoted durable UI reference contracts, after explicit promotion approval only: `Docs/ui_reference_catalog/`; UIREF is the first domain implementation of the broader Reference Standard lifecycle, while new non-UI reference families require repeated evidence, clear owner routing, USER approval, and source-truth promotion before they exist
 - branch authority law, standing Governance intake exception, and historical receipts: `Docs/branch_records/`
 - active branch vision, planning, UFD, Element-to-Phase Proof Matrix, and Branch Change Intent Ledger: `C:\Nexus Governance State\branches\<branch_slug>\`
 - workstream and family implementation history: `Docs/workstreams/`

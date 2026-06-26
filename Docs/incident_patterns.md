@@ -204,6 +204,43 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 Follow-up hardening: the executable durability gate must test packet, ledger, and GitHub snapshot parity together, not only scan one Markdown file. A candidate table in `Review Aids` or copied source-truth context is not a primary USER decision surface. Active external-ledger candidates must either appear in the primary packet decision surface or have explicit predecessor/successor lineage; terminal repaired/rejected/waived/closed-reconciled history may remain external/history-only when no current USER decision remains. GitHub issue mappings require read-only open/closed snapshot agreement and independent reconciliation for closed mappings; a parsed but unused snapshot is a false green.
   - `dev/orin_rar_issue_candidate_durability_validation.py`
 
+## Pattern: Issue Candidates Become GitHub Issue Sprawl
+
+- symptom:
+  RAR, UTS, Live Validation, or Branch Readiness identifies many atomic defects and Codex proposes one GitHub issue per tiny element, or requests issue creation without showing how candidates should be grouped.
+- layer:
+  RAR issue-candidate packets, GitHub issue creation approval, active external branch plans, USER packets, BR1/BR2 successor planning, and PR Readiness fold-down.
+- root-cause pattern:
+  atomic issue-candidate durability was required, but the USER-facing issue-creation decision did not require a consolidation step that groups related defects by owning FAM, surface, defect class, likely repair carrier, and validation path.
+- fix pattern:
+  require the `Issue Candidate Consolidation Gate` before GitHub issue creation is requested. Preserve every atomic candidate ID and lineage, but recommend the fewest coherent GitHub issues that preserve traceability. USER must be able to create, map to existing issue, defer to FAM ledger, split, merge, reject, or waive each group.
+- validation pattern:
+  future helpers should fail on `Issue Candidate Consolidation Missing`, `GitHub Issue Group Without Atomic Traceability`, `Issue Group Missing USER Choice`, or `Issue Mutation Requested Before Consolidation` when machine-checkable.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Reference Standard Vocabulary Collapses Into Ambiguity
+
+- symptom:
+  Codex treats a Vision Contract, accepted reference, screenshot, template, shared primitive, helper output, or validator green as interchangeable proof, then branches either improvise standards silently or assume a reference worked even after repeated repair cycles.
+- layer:
+  Project Vision, Family Vision, Family Feature Vision, UIREF, RAR, BP1/BP2/BP3, Workstream, Hardening, Live Validation, PR Readiness, and future non-UI standard families.
+- root-cause pattern:
+  UIREF created the first durable reference catalog, but the broader Reference Standard lifecycle and no-confusion vocabulary were not stated compactly across phase carrydown.
+- fix pattern:
+  use the Reference Standard lifecycle `Candidate -> USER Review -> Promoted Reference -> Consumed By Branch -> Effectiveness Reviewed -> Updated / Superseded / Deferred`. Keep Vision Contract as broad product law; Reference Standard as detailed comparator; Template as scaffold; Shared Primitive as reusable implementation source. RAR enforces/adopts merged standards but does not create them; BP can identify missing standards; PR Readiness Stage 1 reviews whether standards worked and records repair/supersession/defer candidates.
+- validation pattern:
+  future helpers should fail on `Reference Standard Review Missing`, `Claimed Standard Without USER Promotion`, `Reference Effectiveness Note Missing`, `Reference Standard Repair Candidate Required`, or `Template / Primitive / Reference Collapsed` when machine-checkable.
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/ui_reference_catalog/README.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: PR Auto-Close Keywords Bypass Issue Approval
 
 - symptom:

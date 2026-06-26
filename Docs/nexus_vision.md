@@ -138,6 +138,8 @@ Permitted differences must be deliberate, visible in the planning/proof chain, a
 
 Family Vision, Family Feature Vision, Branch Vision, BP2/BP3 engineering plans, Workstream implementation, Hardening, Live Validation, UTS, PR Readiness, Release Readiness, and Rebaseline Adoption & Reconciliation must compare applicable claims against this contract. When a branch cannot prove one of these qualities for an in-scope feature, surface, runtime state, or assistant interaction, it must classify the result as repaired, waived by USER, deferred with owner/trigger/proof expectation, issue-candidate, source-truth gap, reference gap, or blocker instead of reporting green by validator output, screenshots, or prose alone.
 
+The Vision Contract is the broad product law. It defines what Nexus must become and which qualities every feature must preserve. A Reference Standard is the detailed accepted comparator for a class of behavior, UI, UX, runtime, proof, privacy, recovery, or trust work. A Template is a USER-approved scaffold or starting implementation. A Shared Primitive is reusable code, component, token, helper, or module intended to produce consistent output by construction. These terms must not be collapsed: a Vision Contract is not a Reference Standard, a Reference Standard is not a Template, a Template is not a Shared Primitive, a screenshot is not a standard, validator green is not USER acceptance, and branch-local evidence becomes durable product law only after USER-approved source-truth promotion.
+
 ## Project UI Vision
 
 Nexus UI should feel comfortable, reliable, futuristic, and understandable at the same time. It should make the user feel that the system is capable and alive without becoming noisy, cryptic, or fragile.
