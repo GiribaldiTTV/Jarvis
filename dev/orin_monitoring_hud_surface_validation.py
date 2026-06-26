@@ -2988,7 +2988,7 @@ def validate() -> list[str]:
         "lv1DetailedPerElementScreenshotsRequired",
         "per-element visual inventory",
         "issueFormCoverageMatrix",
-        "02_overlay_profile_normal_path_real_os_keyboard_name_edited",
+        "02_recording_option_c_focused_lane_complete",
         "Get-HudIssueIdsForElementLabel",
         "minimum is $MinimumScreenshots",
         "lv1RealUserFacingDesktopLauncherRequired",

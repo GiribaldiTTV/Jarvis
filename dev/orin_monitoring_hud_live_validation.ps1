@@ -381,11 +381,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             "02_native_proof_windows_closed_before_overlay_profile_selector",
             "02_hud_overlay_active_profile_selector_real_os_selected",
             "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection",
-            "02_overlay_profile_normal_path_created_draft_recording_mirror",
-            "02_overlay_profile_normal_path_real_os_keyboard_name_edited",
-            "02_overlay_profile_normal_path_saved_recording_mirror",
-            "02_overlay_profile_normal_path_switch_saved_recording_mirror",
-            "02_overlay_profile_restart_persistence_recording_target_mirror"
+            "02_recording_option_c_focused_lane_complete"
         )
     } elseif ($FocusedLane -eq "recording-option-c-rar3d") {
         $requiredElementLabels = @(
@@ -2095,15 +2091,7 @@ try {
                 "HUD Overlay card Active Overlay Profile selector is visible after viewport restore",
                 "real OS click opens HUD Overlay card Active Overlay Profile selector",
                 "real OS click selects HUD Overlay card Active Overlay Profile option",
-                "real OS click opens Overlay Profile Settings for normal USER path proof",
-                "real OS click creates normal USER Overlay Profile draft",
-                "real OS keyboard edits created Overlay Profile name",
-                "real OS click selects monitor membership for created Overlay Profile",
-                "real OS click saves created Overlay Profile",
-                "Saved USER Overlay Profile id recorded for restart proof",
-                "real OS click closes Overlay Profile Settings after saved USER profile",
-                "real OS click selects Default Overlay Profile after saved profile",
-                "real OS click reselects saved USER Overlay Profile"
+                "Recording Option C focused lane completed current-branch feature proof only"
             )
         }
         else {

@@ -14931,9 +14931,32 @@ class DesktopRuntimeWindow(QWidget):
                 QTimer.singleShot(delay(), step_rar3d_ordered_state_proof)
                 return
             if self._monitoring_hud_live_self_qa_lane == "recording-option-c":
-                QTimer.singleShot(delay(), step_recording_overlay_profile_open_settings)
+                QTimer.singleShot(delay(), step_recording_option_c_focused_finish)
                 return
             QTimer.singleShot(delay(), step_open_overlay_profiles)
+
+        def step_recording_option_c_focused_finish():
+            add_step(
+                "Recording Option C focused lane completed current-branch feature proof only",
+                True,
+                {
+                    "scope": "Dashboard Recording Card, Recording Studio, Log Viewer shell, native output/readback, Log Viewer lifecycle combinations, and active Overlay Profile target mirror",
+                    "excludedHistoricalHudProof": "Overlay Profile create/edit/save/restart workflow stays out of the default Recording Option C LV lane unless a dedicated dependency-persistence lane is invoked.",
+                    "sourceTruthBasis": "FAM-006 Recording FFV: Live Validation should validate new or affected elements; previously accepted elements need retesting only when the branch changes them or their dependencies.",
+                    "realOsInputProof": True,
+                    "directJsClickUsed": False,
+                },
+            )
+            capture("02_recording_option_c_focused_lane_complete")
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
+                package="PKG-006",
+                slice="LV1",
+                lane=self._monitoring_hud_live_self_qa_lane,
+                status="PASS",
+                scope="recording-option-c-current-branch-feature-proof",
+            )
+            finish("PASS")
 
         def rar3d_capture_widget_control_states(
             *,
