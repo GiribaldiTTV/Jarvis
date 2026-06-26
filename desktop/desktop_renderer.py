@@ -6834,10 +6834,18 @@ class MonitoringHudStudioWebWindow(QWidget):
         after = QRect(self.geometry())
         self._resize_last_geometry = after
         self._resize_last_apply = time.monotonic()
-        if after != before and getattr(self, "_page_ready", False):
-            self.webview.page().runJavaScript(
-                "window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));"
-            )
+        if after != before:
+            if hasattr(self, "webview"):
+                self.webview.setGeometry(self.rect())
+                self.webview.resize(self.size())
+                self.webview.updateGeometry()
+                self.webview.update()
+            self._position_studio_drag_handle()
+            QApplication.processEvents()
+            if getattr(self, "_page_ready", False):
+                self.webview.page().runJavaScript(
+                    "window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));"
+                )
 
     def _poll_native_edge_resize(self) -> None:
         if not self._resize_edges:

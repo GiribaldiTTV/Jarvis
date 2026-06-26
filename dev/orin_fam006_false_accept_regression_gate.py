@@ -381,7 +381,7 @@ REQUIRED_CROP_TYPES = {
 REQUIRED_SCOPE_TEXT = {
     "recording-window-chrome": [
         "ACTIVE OVERLAY RECORDING",
-        "RECORDING STUDIO",
+        "RECORDING SUITE",
         "START",
         "PAUSE",
         "STOP",
@@ -1140,7 +1140,7 @@ def _validate_b2_placement_proof(
         failures.append("B2 placement proof missing moved before/after objects")
     else:
         if moved_before.get("recordingRect") != moved_after.get("recordingRect"):
-            failures.append("B2 same-session Recording Studio moved geometry did not restore")
+            failures.append("B2 same-session Recording Suite moved geometry did not restore")
         if moved_before.get("logViewerRect") != moved_after.get("logViewerRect"):
             failures.append("B2 same-session Log Viewer moved geometry did not restore")
     return failures
@@ -1641,7 +1641,7 @@ def _validate_runtime_visual_metrics(metrics_path: Path | None) -> list[str]:
     if data.get("status") != "PASS":
         failures.append("runtime_visual_conformance_metrics.json status is not PASS")
     for surface_key, surface_label in (
-        ("recording", "Recording Studio"),
+        ("recording", "Recording Suite"),
         ("logViewer", "Log Viewer"),
     ):
         surface = data.get(surface_key)
@@ -1672,11 +1672,11 @@ def _validate_runtime_visual_metrics(metrics_path: Path | None) -> list[str]:
             failures.append(f"{surface_label} action layout measurements are missing")
         elif surface_key == "recording":
             if int(action_layout.get("transportPillLeftAlignedPx") if action_layout.get("transportPillLeftAlignedPx") is not None else 999) > 1:
-                failures.append("Recording Studio transport pill is not left-aligned")
+                failures.append("Recording Suite transport pill is not left-aligned")
             if int(action_layout.get("openLogViewerRightAlignedPx") if action_layout.get("openLogViewerRightAlignedPx") is not None else 999) > 1:
-                failures.append("Recording Studio OPEN LOG VIEWER is not right-aligned")
+                failures.append("Recording Suite OPEN LOG VIEWER is not right-aligned")
             if int(action_layout.get("openLogViewerSeparatedFromTransportPx") or -1) < 12:
-                failures.append("Recording Studio OPEN LOG VIEWER is not separated from the transport pill")
+                failures.append("Recording Suite OPEN LOG VIEWER is not separated from the transport pill")
         elif int(action_layout.get("exportedLogsRightAlignedPx") if action_layout.get("exportedLogsRightAlignedPx") is not None else 999) > 1:
             failures.append("Log Viewer actions are not right-aligned")
         gutter = surface.get("controlPillGutterMeasurements")
