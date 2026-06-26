@@ -128,7 +128,7 @@ DEFAULT_CROP_RULE = {
 }
 
 REQUIRED_CROP_COMPLETENESS = {
-    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 150},
+    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 390, "minHeight": 144},
     "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
@@ -918,22 +918,22 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         'data-row-primitive="ai-control-center-state-row"',
         "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
         "hub-action-content-fit-equal-gutter-32px-pill",
-        "HEIGHT = 158",
-        "MINIMUM_HEIGHT = 158",
+        "HEIGHT = 144",
+        "MINIMUM_HEIGHT = 144",
         "recording_studio_feature_studio_v5",
-        "HEIGHT = 132",
-        "MINIMUM_HEIGHT = 132",
+        "HEIGHT = 124",
+        "MINIMUM_HEIGHT = 124",
         "log_viewer_studio_feature_studio_v6",
         "right: 15px",
         "height: 31px",
         "padding-inline: 14px",
         "font-weight: 720",
         "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
-        "padding: 4px 0 2px",
+        "padding: 3px 0 2px",
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
         "WM_NCHITTEST+manual-fallback-geometry-resize",
-        'data-fixed-controller-height="158"',
+        'data-fixed-controller-height="144"',
     )
     for marker in required_source_markers:
         if marker not in source_text:

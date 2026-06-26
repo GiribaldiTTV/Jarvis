@@ -6459,6 +6459,8 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._resize_last_apply = 0.0
         self._resize_frame_interval_ms = 16
         self._resize_started_at = 0.0
+        self._resize_cursor_key = None
+        self._resize_override_cursor_active = False
         self._native_resize_interaction_state = "not-started"
         self._geometry_persistence_ready = False
         self._geometry_restored_from_saved = False
@@ -6511,6 +6513,12 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._resize_frame_timer = QTimer(self)
         self._resize_frame_timer.setSingleShot(True)
         self._resize_frame_timer.timeout.connect(self._apply_queued_edge_resize)
+        self._resize_hover_timer = QTimer(self)
+        self._resize_hover_timer.setSingleShot(False)
+        self._resize_hover_timer.setInterval(max(8, self._studio_resize_frame_interval_ms()))
+        self._resize_hover_timer.timeout.connect(self._poll_native_edge_resize_hover_cursor)
+        if self.STUDIO_RESIZABLE:
+            self._resize_hover_timer.start()
 
     def _on_studio_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
@@ -6578,6 +6586,94 @@ class MonitoringHudStudioWebWindow(QWidget):
             return Qt.SizeVerCursor
         return Qt.ArrowCursor
 
+    def _resize_cursor_key_for_edges(self, edges: str):
+        return (
+            "l" in edges,
+            "r" in edges,
+            "t" in edges,
+            "b" in edges,
+        ) if edges else None
+
+    def _windows_resize_cursor_id_for_edges(self, edges: str) -> int:
+        if edges in {"lt", "rb"}:
+            return IDC_SIZENWSE
+        if edges in {"rt", "lb"}:
+            return IDC_SIZENESW
+        if edges in {"l", "r"}:
+            return IDC_SIZEWE
+        if edges in {"t", "b"}:
+            return IDC_SIZENS
+        return IDC_ARROW
+
+    def _apply_windows_resize_cursor(self, edges: str) -> None:
+        if os.name != "nt":
+            return
+        try:
+            cursor_handle = LoadCursorW(None, self._windows_resize_cursor_id_for_edges(edges))
+            if cursor_handle:
+                SetCursor(cursor_handle)
+        except Exception:
+            pass
+
+    def _set_override_resize_cursor(self, cursor) -> None:
+        try:
+            if cursor is None:
+                if self._resize_override_cursor_active:
+                    QApplication.restoreOverrideCursor()
+                    self._resize_override_cursor_active = False
+                return
+            qt_cursor = QCursor(cursor)
+            if self._resize_override_cursor_active:
+                QApplication.changeOverrideCursor(qt_cursor)
+            else:
+                QApplication.setOverrideCursor(qt_cursor)
+                self._resize_override_cursor_active = True
+        except Exception:
+            self._resize_override_cursor_active = False
+
+    def _set_native_edge_resize_cursor(self, edges: str) -> None:
+        key = self._resize_cursor_key_for_edges(edges)
+        if key == self._resize_cursor_key:
+            if key is not None:
+                self._set_override_resize_cursor(self._cursor_for_resize_edges(edges))
+            self._apply_windows_resize_cursor(edges)
+            return
+        self._resize_cursor_key = key
+        cursor = self._cursor_for_resize_edges(edges) if edges else None
+        targets = [self, self.webview]
+        try:
+            targets.extend(self.webview.findChildren(QWidget))
+        except Exception:
+            pass
+        if os.name == "nt":
+            for target in targets:
+                target.unsetCursor()
+            self._set_override_resize_cursor(cursor)
+            self._apply_windows_resize_cursor(edges)
+            return
+        for target in targets:
+            if cursor is None:
+                target.unsetCursor()
+            else:
+                target.setCursor(QCursor(cursor))
+        self._set_override_resize_cursor(cursor)
+        self._apply_windows_resize_cursor(edges)
+
+    def _reset_native_edge_resize_cursor(self) -> None:
+        self._set_native_edge_resize_cursor("")
+
+    def _resize_edges_for_hit_test(self, hit_test: int) -> str:
+        return {
+            HTLEFT: "l",
+            HTRIGHT: "r",
+            HTTOP: "t",
+            HTBOTTOM: "b",
+            HTTOPLEFT: "lt",
+            HTTOPRIGHT: "rt",
+            HTBOTTOMLEFT: "lb",
+            HTBOTTOMRIGHT: "rb",
+        }.get(int(hit_test), "")
+
     def _hit_test_for_resize_edges(self, edges: str) -> int:
         return {
             "l": HTLEFT,
@@ -6598,6 +6694,19 @@ class MonitoringHudStudioWebWindow(QWidget):
 
     def _resize_edges_for_global_pos(self, global_pos: QPoint) -> str:
         return self._resize_edges_for_pos(self.mapFromGlobal(global_pos))
+
+    def _resize_edges_under_cursor(self) -> tuple[QPoint, str]:
+        if not self.STUDIO_RESIZABLE or not self.isVisible():
+            return QPoint(), ""
+        point = QCursor.pos()
+        if point.isNull():
+            return QPoint(), ""
+        if not self.geometry().adjusted(-2, -2, 2, 2).contains(point):
+            return point, ""
+        local_pos = self.mapFromGlobal(point)
+        if self._studio_close_zone().contains(local_pos):
+            return point, ""
+        return point, self._resize_edges_for_pos(local_pos)
 
     def _left_mouse_button_down(self) -> bool:
         try:
@@ -6636,7 +6745,7 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._resize_frame_interval_ms = self._studio_resize_frame_interval_ms()
         self._resize_started_at = time.monotonic()
         self._native_resize_interaction_state = f"dragging-{edges}"
-        self.setCursor(self._cursor_for_resize_edges(edges))
+        self._set_native_edge_resize_cursor(edges)
         try:
             SetCapture(ctypes.wintypes.HWND(int(self.winId())))
         except Exception:
@@ -6654,7 +6763,7 @@ class MonitoringHudStudioWebWindow(QWidget):
         if self._resize_edges:
             self._native_resize_interaction_state = "completed"
         self._resize_edges = ""
-        self.unsetCursor()
+        self._reset_native_edge_resize_cursor()
         try:
             self.releaseMouse()
         except RuntimeError:
@@ -6739,6 +6848,15 @@ class MonitoringHudStudioWebWindow(QWidget):
             return
         self._finish_native_edge_resize()
 
+    def _poll_native_edge_resize_hover_cursor(self) -> None:
+        if not self.STUDIO_RESIZABLE or self._resize_edges or self._drag_offset is not None:
+            return
+        _, edges = self._resize_edges_under_cursor()
+        if edges:
+            self._set_native_edge_resize_cursor(edges)
+        else:
+            self._reset_native_edge_resize_cursor()
+
     def eventFilter(self, watched, event):
         if watched is getattr(self, "webview", None) or watched is self:
             event_type = event.type()
@@ -6747,8 +6865,6 @@ class MonitoringHudStudioWebWindow(QWidget):
                 resize_edges = self._resize_edges_for_pos(pos)
                 if resize_edges:
                     self._begin_native_edge_resize(resize_edges, event.globalPosition().toPoint())
-                    if watched is getattr(self, "webview", None):
-                        self.webview.setCursor(self._cursor_for_resize_edges(resize_edges))
                     event.accept()
                     return True
                 if pos.y() <= self.DRAG_HEADER_HEIGHT and not self._studio_close_zone().contains(pos):
@@ -6768,20 +6884,17 @@ class MonitoringHudStudioWebWindow(QWidget):
                     event.accept()
                     return True
             elif event_type == QEvent.MouseMove and self.STUDIO_RESIZABLE:
-                cursor = self._cursor_for_resize_edges(self._resize_edges_for_pos(event.position().toPoint()))
-                self.setCursor(cursor)
-                if watched is getattr(self, "webview", None):
-                    self.webview.setCursor(cursor)
+                self._set_native_edge_resize_cursor(self._resize_edges_for_pos(event.position().toPoint()))
             elif event_type == QEvent.MouseButtonRelease:
                 if self._resize_edges:
                     self._finish_native_edge_resize()
                 else:
                     self._resize_edges = ""
                 self._drag_offset = None
-                self.unsetCursor()
-                if watched is getattr(self, "webview", None):
-                    self.webview.unsetCursor()
+                self._reset_native_edge_resize_cursor()
                 self._save_current_geometry()
+            elif event_type == QEvent.Leave and self.STUDIO_RESIZABLE and not self._resize_edges:
+                self._reset_native_edge_resize_cursor()
         if watched is getattr(self, "_drag_handle", None):
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
@@ -6818,9 +6931,32 @@ class MonitoringHudStudioWebWindow(QWidget):
             if 0 <= local_pos.y() <= self.DRAG_HEADER_HEIGHT:
                 return True, HTCAPTION
             return True, HTCLIENT
+        if msg.message == WM_SETCURSOR and not self._resize_edges:
+            hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+            edges = self._resize_edges_for_hit_test(hit_test)
+            if edges:
+                self._set_native_edge_resize_cursor(edges)
+                return True, 1
+            _, edges = self._resize_edges_under_cursor()
+            if edges:
+                self._set_native_edge_resize_cursor(edges)
+                return True, 1
+            self._reset_native_edge_resize_cursor()
+        if msg.message in {WM_MOUSEMOVE, WM_NCMOUSEMOVE} and not self._resize_edges:
+            edges = ""
+            if msg.message == WM_NCMOUSEMOVE:
+                edges = self._resize_edges_for_hit_test(int(msg.wParam))
+            if not edges:
+                _, edges = self._resize_edges_under_cursor()
+            if edges:
+                self._set_native_edge_resize_cursor(edges)
+            elif msg.message == WM_MOUSEMOVE:
+                self._reset_native_edge_resize_cursor()
         if msg.message == WM_NCLBUTTONDOWN:
+            edges = self._resize_edges_for_hit_test(int(msg.wParam))
             global_pos = QCursor.pos()
-            edges = self._resize_edges_for_global_pos(global_pos)
+            if not edges:
+                edges = self._resize_edges_for_global_pos(global_pos)
             if edges:
                 self._begin_native_edge_resize(edges, global_pos)
                 return True, 0
@@ -6946,6 +7082,8 @@ class MonitoringHudStudioWebWindow(QWidget):
 
     def closeEvent(self, event):
         self._drag_offset = None
+        self._finish_native_edge_resize()
+        self._reset_native_edge_resize_cursor()
         self._save_current_geometry()
         super().closeEvent(event)
 
@@ -6964,9 +7102,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 432
-    HEIGHT = 158
+    HEIGHT = 144
     MINIMUM_WIDTH = 432
-    MINIMUM_HEIGHT = 158
+    MINIMUM_HEIGHT = 144
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -7243,9 +7381,9 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 430
-    HEIGHT = 132
+    HEIGHT = 124
     MINIMUM_WIDTH = 430
-    MINIMUM_HEIGHT = 132
+    MINIMUM_HEIGHT = 124
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"

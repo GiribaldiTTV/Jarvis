@@ -297,11 +297,16 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "status": "PASS" if not failures else "REPAIR",
         }
 
-    def control_gutter_metrics(bounds: dict[str, object]) -> dict[str, object]:
+    def control_gutter_metrics(bounds: dict[str, object], surface_key: str) -> dict[str, object]:
         chrome = _dom_rect(bounds, "chrome")
         controls = _dom_rect(bounds, "windowControls")
         content_tops: list[int] = []
-        for key in ("studioTruthRow", "recordingTargetTruth", "logViewerViewerState", "recordingStartAction", "logViewerNativeAction"):
+        first_content_keys = (
+            ("recordingTargetTruth", "recordingStartAction")
+            if surface_key == "recording"
+            else ("logViewerViewerState", "logViewerNativeAction")
+        )
+        for key in first_content_keys:
             rect = _dom_rect(bounds, key)
             if not rect:
                 continue
@@ -327,8 +332,6 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             failures.append(f"window control CSS top {style.get('top')!r} != AI Control Center '14px'")
         if style.get("right") != "15px":
             failures.append(f"window control CSS right {style.get('right')!r} != AI Control Center '15px'")
-        if bottom_gutter != top_gutter:
-            failures.append(f"bottom gutter {bottom_gutter}px != top gutter {top_gutter}px")
         return {
             "chromeRect": chrome,
             "windowControlsRect": controls,
@@ -336,7 +339,30 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "topGutterPx": top_gutter,
             "rightGutterPx": right_gutter,
             "bottomGutterPx": bottom_gutter,
-            "expected": "top gutter 14px, right gutter 15px, bottom gutter equal to top gutter unless source truth grants an exception",
+            "expected": "top/right gutter preserve the AI Control Center compact window-control placement; first-content proximity is governed separately by title/status rhythm for compact feature studios",
+            "bottomGutterDisposition": "informational-after-title-proximity-gate",
+            "failures": failures,
+            "status": "PASS" if not failures else "REPAIR",
+        }
+
+    def title_to_status_metrics(bounds: dict[str, object], surface_key: str) -> dict[str, object]:
+        title_group = _dom_rect(bounds, "titleGroup")
+        first_row_key = "recordingTargetTruth" if surface_key == "recording" else "logViewerViewerState"
+        first_row = _dom_rect(bounds, first_row_key)
+        failures: list[str] = []
+        if not title_group:
+            failures.append("missing title group DOM rect")
+        if not first_row:
+            failures.append("missing first status/truth row DOM rect")
+        gap = int(first_row.get("top", 0)) - int(title_group.get("bottom", 0)) if title_group and first_row else -1
+        if gap < 2 or gap > 6:
+            failures.append(f"title-to-status gap {gap}px is outside deterministic 2-6px compact-controller range")
+        return {
+            "titleGroupRect": title_group,
+            "firstStatusRowKey": first_row_key,
+            "firstStatusRowRect": first_row,
+            "titleToStatusGapPx": gap,
+            "expected": "first status/truth row begins 2-6px below the title group; larger gaps read as disproportionate floating status data",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
         }
@@ -450,7 +476,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         bounds = manifest.get(f"{label}_dom_bounds")
         bounds = bounds if isinstance(bounds, dict) else {}
         buttons = [button_metrics(bounds, key) for key in action_keys]
-        control_gutter = control_gutter_metrics(bounds)
+        control_gutter = control_gutter_metrics(bounds, surface_key)
+        title_to_status = title_to_status_metrics(bounds, surface_key)
         action_layout = action_layout_metrics(bounds, surface_key)
         action_bottoms = [
             _dom_rect(bounds, key).get("bottom", 0)
@@ -475,6 +502,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "buttonPrimitiveVerdict": "PASS" if all(button["status"] == "PASS" for button in buttons) else "REPAIR",
             "controlPillGutterMeasurements": control_gutter,
             "controlPillGutterVerdict": control_gutter["status"],
+            "titleToStatusMeasurements": title_to_status,
+            "titleToStatusVerdict": title_to_status["status"],
             "actionLayoutMeasurements": action_layout,
             "actionLayoutVerdict": action_layout["status"],
         }
@@ -482,7 +511,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
     recording = metrics_for(
         "recording_default",
         ["recordingStartAction", "recordingPauseAction", "recordingStopAction", "recordingLogRoute"],
-        max_height=160,
+        max_height=152,
         max_bottom_slack=18,
         surface_key="recording",
     )
@@ -511,7 +540,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
     log_viewer = metrics_for(
         "log_viewer_default",
         ["logViewerNativeAction", "logViewerExportAction"],
-        max_height=142,
+        max_height=126,
         max_bottom_slack=18,
         surface_key="logViewer",
     )
@@ -524,9 +553,11 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["buttonPrimitiveVerdict"] == "PASS",
         recording["controlPillGutterVerdict"] == "PASS",
         log_viewer["controlPillGutterVerdict"] == "PASS",
+        recording["titleToStatusVerdict"] == "PASS",
+        log_viewer["titleToStatusVerdict"] == "PASS",
         recording["actionLayoutVerdict"] == "PASS",
         log_viewer["actionLayoutVerdict"] == "PASS",
-        log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
+        log_viewer["truthRowComputedStyle"].get("paddingTop") == "3px",
         log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
         log_viewer["windowControlsComputedStyle"].get("top") == "14px",
         log_viewer["windowControlsComputedStyle"].get("right") == "15px",
@@ -545,6 +576,10 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "contentFitButtonFontWeight": log_viewer["primaryButtonComputedStyle"].get("fontWeight"),
             "stateRowPaddingTop": log_viewer["truthRowComputedStyle"].get("paddingTop"),
             "stateRowPaddingBottom": log_viewer["truthRowComputedStyle"].get("paddingBottom"),
+            "recordingTitleToStatusGapPx": recording["titleToStatusMeasurements"].get("titleToStatusGapPx"),
+            "logViewerTitleToStatusGapPx": log_viewer["titleToStatusMeasurements"].get("titleToStatusGapPx"),
+            "recordingTitleToStatusVerdict": recording["titleToStatusVerdict"],
+            "logViewerTitleToStatusVerdict": log_viewer["titleToStatusVerdict"],
             "windowControlTop": log_viewer["windowControlsComputedStyle"].get("top"),
             "windowControlRight": log_viewer["windowControlsComputedStyle"].get("right"),
             "recordingButtonPrimitiveVerdict": recording["buttonPrimitiveVerdict"],
@@ -574,6 +609,10 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "| --- | --- | --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['buttonPrimitiveVerdict']} | {recording['controlPillGutterMeasurements']['topGutterPx']} | {recording['controlPillGutterMeasurements']['rightGutterPx']} | {recording['controlPillGutterMeasurements']['bottomGutterPx']} | {recording['controlPillGutterVerdict']} |\n"
         f"| Log Viewer | {log_viewer['buttonPrimitiveVerdict']} | {log_viewer['controlPillGutterMeasurements']['topGutterPx']} | {log_viewer['controlPillGutterMeasurements']['rightGutterPx']} | {log_viewer['controlPillGutterMeasurements']['bottomGutterPx']} | {log_viewer['controlPillGutterVerdict']} |\n"
+        + "\n| Surface | Title/status gap | Expected range | Verdict |\n"
+        "| --- | --- | --- | --- |\n"
+        f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {recording['titleToStatusVerdict']} |\n"
+        f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {log_viewer['titleToStatusVerdict']} |\n"
         + "\n| Surface | Action layout | Required grammar | Alignment deltas |\n"
         "| --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['actionLayoutVerdict']} | Segmented transport pill left; OPEN LOG VIEWER separate/right | transport left {recording['actionLayoutMeasurements'].get('transportPillLeftAlignedPx')}px; route right {recording['actionLayoutMeasurements'].get('openLogViewerRightAlignedPx')}px |\n"
@@ -2806,6 +2845,14 @@ def _widget_rect_dict(widget: QWidget) -> dict[str, int]:
     }
 
 
+def _cursor_shape_name(cursor) -> str:
+    try:
+        shape = cursor.shape()
+    except Exception:
+        shape = cursor
+    return str(shape).split(".")[-1]
+
+
 def _rects_overlap(a: dict[str, int], b: dict[str, int]) -> bool:
     return not (
         a["right"] < b["x"]
@@ -3304,6 +3351,28 @@ def main() -> int:
         before_rect = _widget_rect_dict(log_viewer)
         start = QPoint(log_viewer.webview.width() - 2, log_viewer.webview.height() // 2)
         target = QPoint(log_viewer.webview.width() + 120, log_viewer.webview.height() // 2)
+        hover_global = log_viewer.webview.mapToGlobal(start)
+        QCursor.setPos(hover_global)
+        QTest.qWait(140)
+        QApplication.processEvents()
+        log_viewer._poll_native_edge_resize_hover_cursor()
+        QApplication.processEvents()
+        right_hover_edges = log_viewer._resize_edges_for_global_pos(QCursor.pos())
+        right_hover_cursor_key = getattr(log_viewer, "_resize_cursor_key", None)
+        right_hover_override = QApplication.overrideCursor()
+        resize_stress["rightEdgeHoverCursor"] = {
+            "method": "cursor hover on Log Viewer right edge before resize drag",
+            "edgePoint": {"x": start.x(), "y": start.y()},
+            "globalPoint": {"x": hover_global.x(), "y": hover_global.y()},
+            "edgeHit": right_hover_edges,
+            "resizeCursorKey": list(right_hover_cursor_key) if isinstance(right_hover_cursor_key, tuple) else right_hover_cursor_key,
+            "widgetCursorShape": _cursor_shape_name(log_viewer.cursor()),
+            "overrideCursorShape": _cursor_shape_name(right_hover_override) if right_hover_override is not None else "",
+            "expectedCursor": "SizeHorCursor",
+            "status": "PASS"
+            if right_hover_edges == "r" and right_hover_cursor_key == (False, True, False, False)
+            else "REPAIR",
+        }
         QTest.mousePress(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, start)
         QApplication.processEvents()
         QCursor.setPos(log_viewer.webview.mapToGlobal(target))
@@ -3332,6 +3401,28 @@ def main() -> int:
         start = QPoint(log_viewer.webview.width() // 2, log_viewer.webview.height() - 2)
         target = QPoint(log_viewer.webview.width() // 2, log_viewer.webview.height() + 54)
         before_rect = _widget_rect_dict(log_viewer)
+        hover_global = log_viewer.webview.mapToGlobal(start)
+        QCursor.setPos(hover_global)
+        QTest.qWait(140)
+        QApplication.processEvents()
+        log_viewer._poll_native_edge_resize_hover_cursor()
+        QApplication.processEvents()
+        bottom_hover_edges = log_viewer._resize_edges_for_global_pos(QCursor.pos())
+        bottom_hover_cursor_key = getattr(log_viewer, "_resize_cursor_key", None)
+        bottom_hover_override = QApplication.overrideCursor()
+        resize_stress["bottomEdgeHoverCursor"] = {
+            "method": "cursor hover on Log Viewer bottom edge before resize drag",
+            "edgePoint": {"x": start.x(), "y": start.y()},
+            "globalPoint": {"x": hover_global.x(), "y": hover_global.y()},
+            "edgeHit": bottom_hover_edges,
+            "resizeCursorKey": list(bottom_hover_cursor_key) if isinstance(bottom_hover_cursor_key, tuple) else bottom_hover_cursor_key,
+            "widgetCursorShape": _cursor_shape_name(log_viewer.cursor()),
+            "overrideCursorShape": _cursor_shape_name(bottom_hover_override) if bottom_hover_override is not None else "",
+            "expectedCursor": "SizeVerCursor",
+            "status": "PASS"
+            if bottom_hover_edges == "b" and bottom_hover_cursor_key == (False, False, False, True)
+            else "REPAIR",
+        }
         QTest.mousePress(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, start)
         QApplication.processEvents()
         QCursor.setPos(log_viewer.webview.mapToGlobal(target))
@@ -3413,6 +3504,8 @@ def main() -> int:
         )
         derivatives = _write_evidence_derivatives(root, manifest)
         runtime_metrics = _runtime_visual_conformance_metrics(root, manifest)
+        if runtime_metrics.get("status") != "PASS":
+            result_status["code"] = 1
         b2_proof = _write_b2_placement_proof(root, manifest, b2_rows, moved_before_close, moved_after_reopen)
         (root / "visual_capture_manifest.json").write_text(
             json.dumps(
