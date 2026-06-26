@@ -330,7 +330,27 @@
   };
   window.nexusAiControlCenterSyncRowLabelColumnSizing = syncRowLabelColumnSizing;
 
+  const syncTitleDescriptionWrap = () => {
+    const surface = byId("monitoring-hud");
+    const titleGroup = document.querySelector(".monitoring-hud__title-group");
+    const subtitle = document.querySelector(".monitoring-hud__subtitle");
+    if (!surface || !titleGroup || !subtitle) {
+      return;
+    }
+    const style = getComputedStyle(titleGroup);
+    const rect = titleGroup.getBoundingClientRect();
+    const paddingX = Number.parseFloat(style.paddingLeft || "0") + Number.parseFloat(style.paddingRight || "0");
+    const maxWidth = Math.max(0, Math.floor(rect.width - paddingX));
+    titleGroup.style.setProperty("--ai-dashboard-title-description-max-width", `${maxWidth}px`);
+    surface.dataset.titleDescriptionWrap = "group-preserving-measured-title-card-flex-wrap";
+    subtitle.dataset.titleDescriptionWrap = "group-preserving-measured-title-card-flex-wrap";
+    subtitle.dataset.titleDescriptionColumnSource = "title-card-inner-content-width-px";
+    subtitle.dataset.titleDescriptionMaxWidth = String(maxWidth);
+  };
+  window.nexusAiControlCenterSyncTitleDescriptionWrap = syncTitleDescriptionWrap;
+
   const syncDashboardLayout = () => {
+    syncTitleDescriptionWrap();
     syncRowLabelColumnSizing();
     syncCustomScrollbar();
   };
@@ -527,6 +547,14 @@
       requestAnimationFrame(syncDashboardLayout);
     });
     observer.observe(hub);
+    const titleGroup = document.querySelector(".monitoring-hud__title-group");
+    const subtitle = document.querySelector(".monitoring-hud__subtitle");
+    if (titleGroup) {
+      observer.observe(titleGroup);
+    }
+    if (subtitle) {
+      observer.observe(subtitle);
+    }
     hub.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row > span").forEach((label) => {
       observer.observe(label);
     });

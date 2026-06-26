@@ -257,6 +257,8 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "parentVisualMetrics",
     "returnedDensityAndButtonPlacementRepaired",
     "returnedTitleSubtitleWrapRepaired",
+    "titleDescriptionGroupWrapProven",
+    "titleDescriptionWindowsCursorWrapProven",
     "acceptedReferenceComparisonProven",
     "exhaustiveMainRuntimeVisualGrammarComparisonProven",
     "deterministicStatusRowsAndTitlePill",

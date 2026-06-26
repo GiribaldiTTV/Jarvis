@@ -521,6 +521,7 @@ def _drive_ai_dashboard_horizontal_resize(
         (() => {
           const hub = document.getElementById("ai-control-center-card-hub");
           const titleGroup = document.querySelector(".monitoring-hud__title-group");
+          const subtitle = document.querySelector(".monitoring-hud__subtitle");
           const settings = document.getElementById("ai-dashboard-settings-action");
           const strip = document.querySelector("[data-dashboard-role='global-ai-strip']");
           const nodes = [...document.querySelectorAll(".monitoring-hud__state-row span, .monitoring-hud__state-row strong, .monitoring-hud__hub-action")];
@@ -584,6 +585,62 @@ def _drive_ai_dashboard_horizontal_resize(
               groupsAtomic: pairMetrics.every((pair) => pair.display.includes("flex") && pair.whiteSpace === "nowrap" && pair.childrenShareLine),
               clippedPairCount: pairMetrics.filter((pair) => !pair.withinPill).length,
               pairMetrics
+            };
+          })();
+          const titleDescriptionWrap = (() => {
+            const description = subtitle;
+            const descriptionRect = rectFor(description);
+            const descriptionStyle = description ? getComputedStyle(description) : null;
+            const titleGroupRect = rectFor(titleGroup);
+            const titleGroupStyle = titleGroup ? getComputedStyle(titleGroup) : null;
+            const titleGroupInnerWidth = titleGroup
+              ? Math.round(
+                  titleGroupRect.width
+                  - pxNumber(titleGroupStyle?.paddingLeft)
+                  - pxNumber(titleGroupStyle?.paddingRight)
+                )
+              : 0;
+            const publishedMaxWidth = pxNumber(description?.dataset.titleDescriptionMaxWidth || "");
+            const groups = [...document.querySelectorAll(".monitoring-hud__subtitle-group")];
+            const groupMetrics = groups.map((group) => {
+              const rect = rectFor(group);
+              const style = getComputedStyle(group);
+              const lineHeight = lineHeightNumber(style, rect);
+              return {
+                text: group.textContent.replace(/\\s+/g, " ").trim(),
+                rect,
+                flexShrink: style.flexShrink,
+                whiteSpace: style.whiteSpace,
+                lineTop: rect.top,
+                lineHeight: Math.round(lineHeight),
+                atomic: style.whiteSpace === "nowrap" && rect.height <= (lineHeight * 1.45),
+                withinDescription: descriptionRect.width > 0 && rect.left >= descriptionRect.left - 2 && rect.right <= descriptionRect.right + 2
+              };
+            });
+            const expectedTexts = [
+              "AI is not implemented;",
+              "provider/model execution is blocked,",
+              "and no prompt, file, memory, telemetry,",
+              "or provider data leaves this machine."
+            ];
+            return {
+              containerRect: descriptionRect,
+              display: descriptionStyle?.display || "",
+              flexWrap: descriptionStyle?.flexWrap || "",
+              maxWidth: descriptionStyle?.maxWidth || "",
+              publishedMaxWidth: Math.round(publishedMaxWidth),
+              titleGroupInnerWidth,
+              columnSource: description?.dataset.titleDescriptionColumnSource || "",
+              metadata: description?.dataset.titleDescriptionWrap || "",
+              groupCount: groupMetrics.length,
+              lineCount: new Set(groupMetrics.map((group) => group.lineTop)).size,
+              expectedTextsPresent: expectedTexts.every((text) => groupMetrics.some((group) => group.text === text)),
+              groupsAtomic: groupMetrics.every((group) => group.atomic),
+              clippedGroupCount: groupMetrics.filter((group) => !group.withinDescription).length,
+              measuredWidthMatchesTitleCardInner: Math.abs(Math.round(publishedMaxWidth) - titleGroupInnerWidth) <= 2,
+              fixedLegacyMaxWidthRemoved: descriptionStyle ? descriptionStyle.maxWidth !== "600px" : false,
+              containerUsesFlexWrap: descriptionStyle ? descriptionStyle.display.includes("flex") && descriptionStyle.flexWrap === "wrap" : false,
+              groupMetrics
             };
           })();
           const rowTitleSizingProbe = (() => {
@@ -723,6 +780,7 @@ def _drive_ai_dashboard_horizontal_resize(
             stripSettingsOverlap: Boolean(stripRect && settingsRect && stripRect.right > settingsRect.left - 4 && stripRect.bottom > settingsRect.top && stripRect.top < settingsRect.bottom),
             maxScroll: hub ? Math.round(Math.max(0, hub.scrollHeight - hub.clientHeight)) : 0,
             titleStatusPillWrap,
+            titleDescriptionWrap,
             rowTitleSizingProbe
           });
         })();
@@ -766,6 +824,13 @@ def _drive_ai_dashboard_horizontal_resize(
             crop_name,
             (layout.get("titleStatusPillWrap") or {}).get("copyRect") if isinstance(layout, dict) else {},
         )
+        title_description_wrap_crop = _capture_window_region(
+            app,
+            dialog,
+            log_root,
+            f"{crop_name}_title_description",
+            (layout.get("titleDescriptionWrap") or {}).get("containerRect") if isinstance(layout, dict) else {},
+        )
         return {
             "proofPath": "ai-control-center-right-edge-windows-cursor-drag",
             "hudResizePathSubset": "HUD Dashboard active right-edge cursor drag live resize proof subset",
@@ -783,6 +848,7 @@ def _drive_ai_dashboard_horizontal_resize(
             "heightDelta": after["height"] - before["height"],
             "layout": layout,
             "wrapCrop": wrap_crop,
+            "titleDescriptionWrapCrop": title_description_wrap_crop,
             "screenshots": screenshots,
         }
 
@@ -848,6 +914,7 @@ def _drive_ai_dashboard_horizontal_resize(
         "heightDelta": int(natural_after.get("height") or 0) - initial["height"],
         "layout": natural_layout,
         "wrapCrop": natural_crop,
+        "titleDescriptionWrapCrop": natural.get("titleDescriptionWrapCrop") or {},
         "screenshots": natural.get("screenshots") or {},
         "noEarlyWrapProof": no_early,
         "naturalWrapProof": natural,
@@ -954,7 +1021,7 @@ probe_raw = run_js(
       const surface = document.getElementById("monitoring-hud");
       return JSON.stringify({{
         title: document.querySelector(".monitoring-hud__title")?.textContent.trim() || "",
-        subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.trim() || "",
+        subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.replace(/\\s+/g, " ").trim() || "",
         surfaceId: surface?.dataset.surfaceId || "",
         productSurfaceRole: surface?.dataset.productSurfaceRole || "",
         defaultWindowWidth: surface?.dataset.defaultWindowWidth || "",
@@ -1761,6 +1828,62 @@ def main() -> int:
                   pairMetrics
                 };
               })();
+              const titleDescriptionWrap = (() => {
+                const description = subtitle;
+                const descriptionRect = rectFor(description);
+                const descriptionStyle = description ? getComputedStyle(description) : null;
+                const titleGroupRectForWrap = rectFor(header);
+                const titleGroupStyleForWrap = header ? getComputedStyle(header) : null;
+                const titleGroupInnerWidth = header
+                  ? Math.round(
+                      titleGroupRectForWrap.width
+                      - pxNumber(titleGroupStyleForWrap?.paddingLeft)
+                      - pxNumber(titleGroupStyleForWrap?.paddingRight)
+                    )
+                  : 0;
+                const publishedMaxWidth = pxNumber(description?.dataset.titleDescriptionMaxWidth || "");
+                const groups = [...document.querySelectorAll(".monitoring-hud__subtitle-group")];
+                const groupMetrics = groups.map((group) => {
+                  const rect = rectFor(group);
+                  const style = getComputedStyle(group);
+                  const lineHeight = lineHeightNumber(style, rect);
+                  return {
+                    text: group.textContent.replace(/\\s+/g, " ").trim(),
+                    rect,
+                    flexShrink: style.flexShrink,
+                    whiteSpace: style.whiteSpace,
+                    lineTop: rect.top,
+                    lineHeight: Math.round(lineHeight),
+                    atomic: style.whiteSpace === "nowrap" && rect.height <= (lineHeight * 1.45),
+                    withinDescription: descriptionRect.width > 0 && rect.left >= descriptionRect.left - 2 && rect.right <= descriptionRect.right + 2
+                  };
+                });
+                const expectedTexts = [
+                  "AI is not implemented;",
+                  "provider/model execution is blocked,",
+                  "and no prompt, file, memory, telemetry,",
+                  "or provider data leaves this machine."
+                ];
+                return {
+                  containerRect: descriptionRect,
+                  display: descriptionStyle?.display || "",
+                  flexWrap: descriptionStyle?.flexWrap || "",
+                  maxWidth: descriptionStyle?.maxWidth || "",
+                  publishedMaxWidth: Math.round(publishedMaxWidth),
+                  titleGroupInnerWidth,
+                  columnSource: description?.dataset.titleDescriptionColumnSource || "",
+                  metadata: description?.dataset.titleDescriptionWrap || "",
+                  groupCount: groupMetrics.length,
+                  lineCount: new Set(groupMetrics.map((group) => group.lineTop)).size,
+                  expectedTextsPresent: expectedTexts.every((text) => groupMetrics.some((group) => group.text === text)),
+                  groupsAtomic: groupMetrics.every((group) => group.atomic),
+                  clippedGroupCount: groupMetrics.filter((group) => !group.withinDescription).length,
+                  measuredWidthMatchesTitleCardInner: Math.abs(Math.round(publishedMaxWidth) - titleGroupInnerWidth) <= 2,
+                  fixedLegacyMaxWidthRemoved: descriptionStyle ? descriptionStyle.maxWidth !== "600px" : false,
+                  containerUsesFlexWrap: descriptionStyle ? descriptionStyle.display.includes("flex") && descriptionStyle.flexWrap === "wrap" : false,
+                  groupMetrics
+                };
+              })();
               const rowTitleSizingProbe = (() => {
                 const hub = document.getElementById("ai-control-center-card-hub");
                 const hubStyle = hub ? getComputedStyle(hub) : null;
@@ -1958,7 +2081,7 @@ def main() -> int:
               const firstAction = firstCard?.querySelector(".monitoring-hud__hub-actions");
               return JSON.stringify({
                 title: document.querySelector(".monitoring-hud__title")?.textContent.trim() || "",
-                subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.trim() || "",
+                subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.replace(/\\s+/g, " ").trim() || "",
                 surfaceRole: surface?.dataset.productSurfaceRole || "",
                 aiControlCenterPlacement: surface?.dataset.aiControlCenterPlacement || "",
                 dashboardIaModel: surface?.dataset.dashboardIaModel || "",
@@ -1993,6 +2116,9 @@ def main() -> int:
                   headerPaddingRight: headerCopyStyle ? headerCopyStyle.paddingRight : "",
                   subtitleHeight: subtitle ? Math.round(subtitle.getBoundingClientRect().height) : 0,
                   subtitleLineHeight: subtitleStyle ? subtitleStyle.lineHeight : "",
+                  subtitleLineCount: titleDescriptionWrap.lineCount,
+                  subtitlePublishedMaxWidth: titleDescriptionWrap.publishedMaxWidth,
+                  subtitleTitleCardInnerWidth: titleDescriptionWrap.titleGroupInnerWidth,
                   subtitleOverlapsWindowControls: intersects(subtitleRect, windowControlRect),
                   windowControlOuterTopOffset: windowControls && chrome ? Math.round(windowControlRect.top - chromeRect.top) : 0,
                   windowControlOuterRightOffset: windowControls && chrome ? Math.round(chromeRect.right - windowControlRect.right) : 0,
@@ -2032,8 +2158,10 @@ def main() -> int:
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
                 settingsRouteMetadata: document.getElementById("monitoring-hud")?.dataset.settingsRoute || "",
                 titleStatusWrapMetadata: document.getElementById("monitoring-hud")?.dataset.titleStatusWrap || "",
+                titleDescriptionWrapMetadata: document.getElementById("monitoring-hud")?.dataset.titleDescriptionWrap || "",
                 rowTitleSizingMetadata: document.getElementById("monitoring-hud")?.dataset.rowTitleSizing || "",
                 titleStatusPillWrap,
+                titleDescriptionWrap,
                 rowTitleSizingProbe,
                 belowTitleTextWeightProbe,
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
@@ -2276,18 +2404,23 @@ def main() -> int:
         for row in rows
     ]
     title_status_pill_wrap = dashboard_probe.get("titleStatusPillWrap") or {}
+    title_description_wrap = dashboard_probe.get("titleDescriptionWrap") or {}
     horizontal_layout = horizontal_resize_proof.get("layout") if isinstance(horizontal_resize_proof, dict) else {}
     horizontal_layout = horizontal_layout if isinstance(horizontal_layout, dict) else {}
     horizontal_title_status_pill_wrap = horizontal_layout.get("titleStatusPillWrap") or {}
+    horizontal_title_description_wrap = horizontal_layout.get("titleDescriptionWrap") or {}
     no_early_wrap_proof = horizontal_resize_proof.get("noEarlyWrapProof") if isinstance(horizontal_resize_proof, dict) else {}
     no_early_wrap_proof = no_early_wrap_proof if isinstance(no_early_wrap_proof, dict) else {}
     no_early_wrap_layout = no_early_wrap_proof.get("layout") if isinstance(no_early_wrap_proof, dict) else {}
     no_early_wrap_layout = no_early_wrap_layout if isinstance(no_early_wrap_layout, dict) else {}
     no_early_title_status_pill_wrap = no_early_wrap_layout.get("titleStatusPillWrap") or {}
+    no_early_title_description_wrap = no_early_wrap_layout.get("titleDescriptionWrap") or {}
     row_title_sizing_probe = dashboard_probe.get("rowTitleSizingProbe") or {}
     horizontal_row_title_sizing_probe = horizontal_layout.get("rowTitleSizingProbe") or {}
     horizontal_wrap_crop = horizontal_resize_proof.get("wrapCrop") if isinstance(horizontal_resize_proof, dict) else {}
     horizontal_wrap_crop = horizontal_wrap_crop if isinstance(horizontal_wrap_crop, dict) else {}
+    horizontal_title_description_wrap_crop = horizontal_resize_proof.get("titleDescriptionWrapCrop") if isinstance(horizontal_resize_proof, dict) else {}
+    horizontal_title_description_wrap_crop = horizontal_title_description_wrap_crop if isinstance(horizontal_title_description_wrap_crop, dict) else {}
     below_title_text_weight_probe = dashboard_probe.get("belowTitleTextWeightProbe") or {}
 
     def _title_column_map(probe: object) -> dict[str, int]:
@@ -2446,6 +2579,38 @@ def main() -> int:
                 return False
         return True
 
+    def _title_description_wrap_ok(probe: object, *, min_lines: int = 1, max_lines: int | None = None) -> bool:
+        if not isinstance(probe, dict):
+            return False
+        if probe.get("metadata") != "group-preserving-measured-title-card-flex-wrap":
+            return False
+        if probe.get("columnSource") != "title-card-inner-content-width-px":
+            return False
+        if probe.get("groupCount") != 4:
+            return False
+        if probe.get("expectedTextsPresent") is not True:
+            return False
+        if probe.get("groupsAtomic") is not True:
+            return False
+        if probe.get("containerUsesFlexWrap") is not True:
+            return False
+        if probe.get("fixedLegacyMaxWidthRemoved") is not True:
+            return False
+        if probe.get("measuredWidthMatchesTitleCardInner") is not True:
+            return False
+        if _int_or(probe.get("publishedMaxWidth")) <= 0:
+            return False
+        if _int_or(probe.get("titleGroupInnerWidth")) <= 0:
+            return False
+        if _int_or(probe.get("clippedGroupCount"), 999) != 0:
+            return False
+        line_count = _int_or(probe.get("lineCount"))
+        if line_count < min_lines:
+            return False
+        if max_lines is not None and line_count > max_lines:
+            return False
+        return True
+
     checks = {
         "dashboardHubParentOnly": (
             dashboard_probe.get("title") == "AI Dashboard"
@@ -2558,6 +2723,25 @@ def main() -> int:
                 "16_title_status_pill_wrapped_windows_cursor_resize.png"
             )
         ),
+        "titleDescriptionGroupWrapProven": (
+            dashboard_probe.get("titleDescriptionWrapMetadata") == "group-preserving-measured-title-card-flex-wrap"
+            and _title_description_wrap_ok(title_description_wrap, min_lines=1, max_lines=2)
+            and _title_description_wrap_ok(no_early_title_description_wrap, min_lines=1, max_lines=2)
+            and _title_description_wrap_ok(horizontal_title_description_wrap, min_lines=2)
+        ),
+        "titleDescriptionWindowsCursorWrapProven": (
+            horizontal_resize_proof.get("proofPath") == "ai-control-center-right-edge-windows-cursor-drag"
+            and horizontal_resize_proof.get("inputMethod") == "windows-cursor-left-button-drag"
+            and horizontal_resize_proof.get("codeForcedGeometry") is False
+            and horizontal_resize_proof.get("runtimeResizeEventStarted") is True
+            and _title_description_wrap_ok(no_early_title_description_wrap, min_lines=1, max_lines=2)
+            and _title_description_wrap_ok(horizontal_title_description_wrap, min_lines=3)
+            and int(horizontal_title_description_wrap.get("lineCount") or 0) > int(no_early_title_description_wrap.get("lineCount") or 0)
+            and horizontal_title_description_wrap_crop.get("ok") is True
+            and str(horizontal_title_description_wrap_crop.get("path") or "").endswith(
+                "16_title_status_pill_wrapped_windows_cursor_resize_title_description.png"
+            )
+        ),
         "deterministicTitleColumnSizingProven": (
             dashboard_probe.get("rowTitleSizingMetadata") == "shared-max-label-content-fixed-gutter"
             and row_title_sizing_probe.get("rowCount") == 8
@@ -2641,6 +2825,7 @@ def main() -> int:
             str(layout_metrics.get("headerPaddingRight") or "").startswith("108")
             and int(layout_metrics.get("subtitleHeight") or 0) <= 42
             and layout_metrics.get("subtitleOverlapsWindowControls") is False
+            and _title_description_wrap_ok(title_description_wrap, min_lines=1, max_lines=2)
         ),
         "acceptedReferenceComparisonProven": (
             dashboard_probe.get("surfaceRole") == "ai-dashboard-top-most-hub"
