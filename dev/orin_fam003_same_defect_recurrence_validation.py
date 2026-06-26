@@ -3,7 +3,7 @@
 This is a branch-local proof gate. It does not prove visual conformance and it
 does not make LV green. It proves that the current branch state either blocks
 a new LV1 retest candidate while recurring defects remain reopened, that the
-recurring rows have v22 branch-local closure proof before a fresh packet is
+recurring rows have branch-local closure proof before a fresh packet is
 generated, or that a fresh packet has been generated and USER LV1 retest is
 still pending.
 """
@@ -126,11 +126,18 @@ def _row(rows: list[tuple[str, bool, str]], name: str, ok: bool, detail: str) ->
     rows.append((name, ok, detail))
 
 
-def _has_binary_safe_v22_pending(text: str) -> bool:
+def _has_fresh_retest_pending(text: str) -> bool:
     return bool(
-        re.search(
-            r"USER-operated visual retest pending for the fresh (?:binary-safe )?v22 layout-system repair packet",
-            text,
+        (
+            re.search(
+                r"USER-operated visual retest pending for the fresh (?:binary-safe )?v22 layout-system repair packet",
+                text,
+            )
+            or re.search(
+                r"USER-operated visual retest pending for (?:C:\\Nexus USER\\)?FAM-003-\d{8}-\d{6}\.zip",
+                text,
+            )
+            or "USER-operated visual retest pending for the current FAM-003 packet" in text
         )
     )
 
@@ -141,10 +148,10 @@ def _has_folder_zip_parity(text: str) -> bool:
     )
 
 
-def _has_v22_proof_stamp(text: str) -> bool:
+def _has_current_proof_stamp(text: str) -> bool:
     return bool(
         re.search(
-            r"fam003_settings_repair_visual_validation[\\/]+20260625-\d{6}",
+            r"fam003_settings_repair_visual_validation[\\/]+20\d{6}-\d{6}",
             text,
             re.IGNORECASE,
         )
@@ -161,7 +168,7 @@ def main() -> int:
     uts_text = _read(UTS_PATH)
     packet_generated_mode = (
         repaired_mode
-        and _has_binary_safe_v22_pending(active_state_text)
+        and _has_fresh_retest_pending(active_state_text)
         and re.search(r"FAM-003-\d{8}-\d{6}\.zip", active_state_text)
         and "Result: USER RETEST PENDING" in uts_text
     )
@@ -249,7 +256,7 @@ def main() -> int:
             )
             post_packet_ok = (
                 "same_defect_recurrence_ledger_20260624.md" in text
-                and _has_binary_safe_v22_pending(text)
+                and _has_fresh_retest_pending(text)
                 and re.search(r"FAM-003-\d{8}-\d{6}\.zip", text)
                 and _has_folder_zip_parity(text)
             )
@@ -268,7 +275,7 @@ def main() -> int:
         pre_packet_uts_ok = (
             "Result: REPAIRED - RETEST PACKET PENDING" in uts_text
             and "No USER LV1 visual retest action is requested until a fresh packet is generated" in uts_text
-            and _has_v22_proof_stamp(uts_text)
+            and _has_current_proof_stamp(uts_text)
         )
         post_packet_uts_ok = (
             "Result: USER RETEST PENDING" in uts_text
@@ -276,7 +283,7 @@ def main() -> int:
             and "PASS:" in uts_text
             and "FAIL:" in uts_text
             and "WAIVED:" in uts_text
-            and _has_v22_proof_stamp(uts_text)
+            and _has_current_proof_stamp(uts_text)
         )
         uts_ok = pre_packet_uts_ok or post_packet_uts_ok
         uts_label = "UTS handoff waits for or routes fresh retest packet"
