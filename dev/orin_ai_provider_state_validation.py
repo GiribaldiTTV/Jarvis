@@ -3729,6 +3729,45 @@ def validate() -> list[str]:
         "Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md"
     )
 
+    normalized_renderer = renderer.replace("\r\n", "\n")
+
+    def _require_resize_cursor_no_forced_arrow_release(function_name: str) -> None:
+        marker = f"    def {function_name}"
+        start = normalized_renderer.find(marker)
+        _require(start >= 0, f"desktop renderer is missing {function_name}", failures)
+        if start < 0:
+            return
+        next_def = normalized_renderer.find("\n    def ", start + 1)
+        body = normalized_renderer[start : next_def if next_def >= 0 else len(normalized_renderer)]
+        guard_index = body.find("if not edges:\n            return")
+        cursor_api_index = body.find("LoadCursorW")
+        _require(
+            "resize-cursor-no-forced-arrow-release" in body,
+            f"{function_name} must carry the no-forced-arrow release marker",
+            failures,
+        )
+        _require(
+            guard_index >= 0,
+            f"{function_name} must return when no resize edge is active",
+            failures,
+        )
+        _require(
+            cursor_api_index >= 0,
+            f"{function_name} must own the Windows cursor API call",
+            failures,
+        )
+        _require(
+            0 <= guard_index < cursor_api_index,
+            f"{function_name} must avoid LoadCursorW when no resize edge is active",
+            failures,
+        )
+
+    for cursor_helper in (
+        "_apply_ai_control_center_windows_resize_cursor",
+        "_apply_monitoring_hud_windows_resize_cursor",
+    ):
+        _require_resize_cursor_no_forced_arrow_release(cursor_helper)
+
     _require(snapshot.package_id == PACKAGE_ID, "snapshot must remain in PKG-007", failures)
     _require(snapshot.slice_ids == (SLC_017_ID, SLC_018_ID), "snapshot must carry SLC-017 and SLC-018", failures)
     _require(snapshot.mode == NO_PROVIDER_MODE, "default mode must be no-provider", failures)
@@ -8979,6 +9018,9 @@ def validate() -> list[str]:
         "GetAsyncKeyState",
         "AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED",
         "AI_CONTROL_CENTER_WINDOW_RESIZE_READY",
+        "resize-cursor-no-forced-arrow-release",
+        "_apply_ai_control_center_windows_resize_cursor",
+        "if not edges:",
         "self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)",
         "self.resize(self.DEFAULT_WIDTH, self.DEFAULT_HEIGHT)",
         "ai-control-center-window-geometry",
