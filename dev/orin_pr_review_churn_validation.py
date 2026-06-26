@@ -51,6 +51,8 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "unresolved",
     "visual",
     "green",
+    "primary decision surface",
+    "decision surface",
 }
 HELPER_FILE_PATTERNS = (
     "validation",
@@ -430,6 +432,11 @@ def _classifier_guardrail_failures() -> list[str]:
     if _classify_comment(standalone_unknown) != ["unknown"]:
         failures.append(
             "Comment-family classifier overmatched standalone unknown wording"
+        )
+    unrelated_decision_surface = "A settings or migration decision surface changed during backend cleanup."
+    if _classify_comment(unrelated_decision_surface) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated decision-surface wording"
         )
     visual_comment = (
         "A Code-To-Visual row records Visual Match as Mismatch and Behavior Match "
