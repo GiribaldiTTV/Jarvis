@@ -5602,6 +5602,24 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet/ledger fixture allowed incidental text mention to satisfy active candidate carry-forward"
             )
 
+        same_id_different_lineage_ledger = temp_root / "same_id_different_lineage_ledger.md"
+        same_id_different_lineage_ledger.write_text(table(row("FAM006-RAR-045")), encoding="utf-8")
+        same_id_different_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "same-id-different-lineage",
+                primary_text=table(
+                    "| FAM006-RAR-045 | FAM-006 | Log Viewer Studio | Status row | Folder status mismatch | RAR contact sheet row LOG-STATUS-045 | ACTIVE_PENDING_USER_DECISION | YES | Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+                ),
+            ),
+            external_ledger=same_id_different_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-045 missing" not in "\n".join(
+            same_id_different_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed same candidate ID with different surface/element/defect lineage"
+            )
+
         terminal_ledger = temp_root / "terminal_ledger.md"
         terminal_ledger.write_text(
             table(

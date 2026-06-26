@@ -274,6 +274,16 @@ def _candidate_row_key(row: CandidateRow) -> tuple[str, ...]:
     )
 
 
+def _candidate_lineage_key(row: CandidateRow) -> tuple[str, ...]:
+    return (
+        row.candidate_id,
+        row.owning_fam,
+        row.surface,
+        row.element_group,
+        row.defect,
+    )
+
+
 def _explicit_lineage_present(candidate_id: str, text: str) -> bool:
     escaped = re.escape(candidate_id)
     return bool(
@@ -619,6 +629,9 @@ def validate_packet_folder(
     primary_text = _packet_primary_text(packet_folder)
     primary_rows = parse_issue_candidate_decision_surface(primary_text, source=str(packet_folder))
     primary_row_ids = _candidate_ids_from_rows(primary_rows)
+    primary_rows_by_id: dict[str, list[CandidateRow]] = {}
+    for row in primary_rows:
+        primary_rows_by_id.setdefault(row.candidate_id, []).append(row)
     supporting_context_rows = _issue_candidate_rows_from_paths([*supporting_paths, *context_paths])
     for row in supporting_context_rows:
         if not row.requires_current_packet:
@@ -655,7 +668,14 @@ def validate_packet_folder(
                 f"{packet_folder}: Issue Candidate Decision Surface missing from active USER-facing packet files"
             )
         for candidate_id in sorted(current_ids):
-            if candidate_id not in primary_row_ids and not _explicit_lineage_present(candidate_id, primary_text):
+            current_row_matches = [row for row in current_rows if row.candidate_id == candidate_id]
+            primary_row_matches = primary_rows_by_id.get(candidate_id, [])
+            lineage_matches = any(
+                _candidate_lineage_key(external_row) == _candidate_lineage_key(primary_row)
+                for external_row in current_row_matches
+                for primary_row in primary_row_matches
+            )
+            if not lineage_matches and not _explicit_lineage_present(candidate_id, primary_text):
                 failures.append(
                     f"{packet_folder}: external RAR issue candidate {candidate_id} missing from active USER-facing packet files"
                 )
