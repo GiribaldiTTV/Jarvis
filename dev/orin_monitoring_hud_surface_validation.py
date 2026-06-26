@@ -1638,8 +1638,16 @@ def validate() -> list[str]:
         "font-weight: 720",
         "--monitoring-hud-studio-row-value-gutter: 8px",
         "--monitoring-hud-studio-row-label-column: max-content",
+        "--monitoring-hud-studio-row-stack-vertical-gutter: 6px",
+        "--monitoring-hud-studio-row-dropdown-edge-gutter: 1px",
         "grid-template-columns: var(--monitoring-hud-studio-row-label-column, max-content) minmax(0, 1fr)",
         "column-gap: var(--monitoring-hud-studio-row-value-gutter)",
+        "gap: var(--monitoring-hud-studio-row-stack-vertical-gutter)",
+        'data-row-stack-vertical-gutter="6"',
+        'data-row-dropdown-edge-gutter="1"',
+        'data-dropdown-layer-contract="overlay-owned-control-not-peer-row"',
+        ".monitoring-hud__studio-truth-row [data-bounded-dropdown]",
+        "margin-block: var(--monitoring-hud-studio-row-dropdown-edge-gutter)",
         "padding: 4px 0 2px",
         "syncStudioTruthRowValueColumns",
         "syncTruthRowValueColumn",
@@ -1754,14 +1762,24 @@ def validate() -> list[str]:
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__controller-meta-strip",
-        ("gap: 6px", "padding: 0"),
+        (
+            "--monitoring-hud-studio-row-stack-vertical-gutter: 6px",
+            "--monitoring-hud-studio-row-dropdown-edge-gutter: 1px",
+            "gap: var(--monitoring-hud-studio-row-stack-vertical-gutter)",
+            "padding: 0",
+        ),
         "FAM-006 Recording Suite row stack must use AI Control Center row rhythm",
         failures,
     )
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__log-target-strip",
-        ("gap: 6px", "padding: 0"),
+        (
+            "--monitoring-hud-studio-row-stack-vertical-gutter: 6px",
+            "--monitoring-hud-studio-row-dropdown-edge-gutter: 1px",
+            "gap: var(--monitoring-hud-studio-row-stack-vertical-gutter)",
+            "padding: 0",
+        ),
         "FAM-006 Log Viewer row stack must use AI Control Center row rhythm",
         failures,
     )

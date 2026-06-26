@@ -837,8 +837,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px plus 15px pill clearance | {log_viewer['titleToStatusVerdict']} |\n"
         + "\n| Surface | Vertical row-strip gutter | Expected | Verdict |\n"
         "| --- | --- | --- | --- |\n"
-        f"| Recording Suite | {recording['rowStripGutterMeasurements']['rowStripComputedStyle'].get('gap')} | 6px | {recording['rowStripGutterVerdict']} |\n"
-        f"| Log Viewer | {log_viewer['rowStripGutterMeasurements']['rowStripComputedStyle'].get('gap')} | 6px | {log_viewer['rowStripGutterVerdict']} |\n"
+        f"| Recording Suite | {recording['rowStripGutterMeasurements']['rowStripComputedStyle'].get('gap')} | 6px peer row stack; dropdown overlay edge clearance remains 1px when a future row owns a dropdown | {recording['rowStripGutterVerdict']} |\n"
+        f"| Log Viewer | {log_viewer['rowStripGutterMeasurements']['rowStripComputedStyle'].get('gap')} | 6px peer row stack; dropdown overlay edge clearance remains 1px when a future row owns a dropdown | {log_viewer['rowStripGutterVerdict']} |\n"
         + "\n| Surface | Visible label/value gap | CSS column gap | Shared label column | Label/value font | Value column left | Expected range | Verdict |\n"
         "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(

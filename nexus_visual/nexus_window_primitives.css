@@ -249,9 +249,11 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-strip {
   --monitoring-hud-studio-row-label-column: max-content;
   --monitoring-hud-studio-row-value-gutter: 8px;
+  --monitoring-hud-studio-row-stack-vertical-gutter: 6px;
+  --monitoring-hud-studio-row-dropdown-edge-gutter: 1px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
+  gap: var(--monitoring-hud-studio-row-stack-vertical-gutter);
   margin: 0;
   padding: 0;
   border: 0;
@@ -472,8 +474,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-target-strip {
   --monitoring-hud-studio-row-label-column: max-content;
   --monitoring-hud-studio-row-value-gutter: 8px;
+  --monitoring-hud-studio-row-stack-vertical-gutter: 6px;
+  --monitoring-hud-studio-row-dropdown-edge-gutter: 1px;
   display: grid;
-  gap: 6px;
+  gap: var(--monitoring-hud-studio-row-stack-vertical-gutter);
   margin: 0;
   padding: 0;
   border: 0;
@@ -490,6 +494,19 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   background: var(--monitoring-hud-divider-glow);
   background-repeat: no-repeat;
   background-size: 100% var(--monitoring-hud-divider-glow-size);
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row [data-bounded-dropdown],
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row .monitoring-hud__bounded-dropdown {
+  position: relative;
+  --monitoring-hud-studio-row-dropdown-edge-gutter: 1px;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row [data-bounded-dropdown] > .monitoring-hud__bounded-dropdown-menu,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row .monitoring-hud__bounded-dropdown > .monitoring-hud__bounded-dropdown-menu {
+  position: absolute;
+  z-index: 48;
+  margin-block: var(--monitoring-hud-studio-row-dropdown-edge-gutter);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row span {
