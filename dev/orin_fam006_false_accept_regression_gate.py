@@ -35,6 +35,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260625-155723.zip",
+    USER_ROOT / "FAM-006-20260625-155723.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260625-150949.zip",
     USER_ROOT / "FAM-006-20260625-150949.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260625-122909.zip",
@@ -118,6 +120,7 @@ REQUIRED_EVIDENCE_KEYS = {
     "recording-start-action",
     "recording-pause-action",
     "recording-stop-action",
+    "recording-transport-pill",
     "recording-target-truth",
     "recording-log-route",
     "log-viewer-full-window",
@@ -185,6 +188,7 @@ REQUIRED_CROP_COMPLETENESS = {
     "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
+    "recording-transport-pill": {**DEFAULT_CROP_RULE, "minWidth": 170, "minHeight": 30},
     "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 350, "minHeight": 58},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
@@ -223,6 +227,7 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "log-viewer-user-export-copy",
     "log-viewer-card-footer-contradiction",
     "recording-action-hierarchy",
+    "recording-transport-pill-action-layout",
     "recording-status-panel-feel",
     "local-absolute-primary-proof",
     "broad-row-evidence-map",
@@ -361,6 +366,7 @@ REQUIRED_CROP_TYPES = {
     "recording-start-action": "ELEMENT_CROP",
     "recording-pause-action": "ELEMENT_CROP",
     "recording-stop-action": "ELEMENT_CROP",
+    "recording-transport-pill": "RELATIONSHIP_CROP",
     "recording-target-truth": "STATE_CROP",
     "recording-log-route": "ELEMENT_CROP",
     "log-viewer-window-chrome": "FULL_WINDOW_CROP",
@@ -388,6 +394,7 @@ REQUIRED_SCOPE_TEXT = {
     "recording-start-action": ["START"],
     "recording-pause-action": ["PAUSE"],
     "recording-stop-action": ["STOP"],
+    "recording-transport-pill": ["START", "PAUSE", "STOP"],
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "STATE", "Ready - 2 active monitors"],
     "recording-log-route": ["OPEN LOG VIEWER"],
     "log-viewer-window-chrome": [
@@ -440,6 +447,7 @@ CROP_DOM_KEYS = {
     "recording-start-action": "recordingStartAction",
     "recording-pause-action": "recordingPauseAction",
     "recording-stop-action": "recordingStopAction",
+    "recording-transport-pill": "recordingTransportPill",
     "recording-target-truth": "recordingTargetTruth",
     "recording-log-route": "recordingLogRoute",
     "log-viewer-window-chrome": "chrome",
@@ -1652,6 +1660,20 @@ def _validate_runtime_visual_metrics(metrics_path: Path | None) -> list[str]:
                     )
         if surface.get("controlPillGutterVerdict") != "PASS":
             failures.append(f"{surface_label} control pill gutter verdict is not PASS")
+        if surface.get("actionLayoutVerdict") != "PASS":
+            failures.append(f"{surface_label} action layout verdict is not PASS")
+        action_layout = surface.get("actionLayoutMeasurements")
+        if not isinstance(action_layout, dict):
+            failures.append(f"{surface_label} action layout measurements are missing")
+        elif surface_key == "recording":
+            if int(action_layout.get("transportPillLeftAlignedPx") if action_layout.get("transportPillLeftAlignedPx") is not None else 999) > 1:
+                failures.append("Recording Studio transport pill is not left-aligned")
+            if int(action_layout.get("openLogViewerRightAlignedPx") if action_layout.get("openLogViewerRightAlignedPx") is not None else 999) > 1:
+                failures.append("Recording Studio OPEN LOG VIEWER is not right-aligned")
+            if int(action_layout.get("openLogViewerSeparatedFromTransportPx") or -1) < 12:
+                failures.append("Recording Studio OPEN LOG VIEWER is not separated from the transport pill")
+        elif int(action_layout.get("exportedLogsRightAlignedPx") if action_layout.get("exportedLogsRightAlignedPx") is not None else 999) > 1:
+            failures.append("Log Viewer actions are not right-aligned")
         gutter = surface.get("controlPillGutterMeasurements")
         if not isinstance(gutter, dict):
             failures.append(f"{surface_label} control pill gutter measurements are missing")

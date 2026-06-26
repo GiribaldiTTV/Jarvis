@@ -107,6 +107,7 @@ REQUIRED_ROW_KEYS = {
     "recording-start-action",
     "recording-pause-action",
     "recording-stop-action",
+    "recording-transport-pill",
     "recording-target-truth",
     "recording-log-route",
     "open-log-viewer-route-proof-json",
@@ -607,6 +608,17 @@ def _load_proof_summary(proof_root: Path) -> dict[str, Any]:
         "runtimeVisualConformanceStatus": runtime_metrics.get("status"),
         "recordingButtonPrimitiveStatus": recording_metrics.get("buttonPrimitiveVerdict"),
         "logViewerButtonPrimitiveStatus": log_viewer_metrics.get("buttonPrimitiveVerdict"),
+        "recordingActionLayoutStatus": recording_metrics.get("actionLayoutVerdict"),
+        "logViewerActionLayoutStatus": log_viewer_metrics.get("actionLayoutVerdict"),
+        "recordingTransportPillLeftAlignedPx": (recording_metrics.get("actionLayoutMeasurements") or {}).get("transportPillLeftAlignedPx")
+        if isinstance(recording_metrics.get("actionLayoutMeasurements"), dict)
+        else None,
+        "openLogViewerRightAlignedPx": (recording_metrics.get("actionLayoutMeasurements") or {}).get("openLogViewerRightAlignedPx")
+        if isinstance(recording_metrics.get("actionLayoutMeasurements"), dict)
+        else None,
+        "logViewerExportedLogsRightAlignedPx": (log_viewer_metrics.get("actionLayoutMeasurements") or {}).get("exportedLogsRightAlignedPx")
+        if isinstance(log_viewer_metrics.get("actionLayoutMeasurements"), dict)
+        else None,
         "recordingControlPillGutterStatus": recording_metrics.get("controlPillGutterVerdict"),
         "logViewerControlPillGutterStatus": log_viewer_metrics.get("controlPillGutterVerdict"),
         "recordingControlPillBottomGutterPx": (recording_metrics.get("controlPillGutterMeasurements") or {}).get("bottomGutterPx")
@@ -636,11 +648,32 @@ def _implementation_defect_ledger(proof_summary: dict[str, Any]) -> dict[str, An
         ("FAM006-IMPL-007", "Log Viewer doorway scope", "Viewer is deferred and exposes native/export folder actions only.", "MATCH"),
         ("FAM006-IMPL-008", "B2 placement", "Default/fresh parent-neighbor and same-session moved restore are proven.", "MATCH"),
         ("FAM006-IMPL-009", "False-green proof contract", "Packet must embed full evidence, crop map, UDL, and visual ledger.", "MATCH"),
+        (
+            "FAM006-IMPL-010",
+            "Recording transport pill / action alignment",
+            "START, PAUSE, and STOP must be one left-aligned segmented transport pill while OPEN LOG VIEWER remains separate and right-aligned.",
+            "MATCH" if proof_summary.get("recordingActionLayoutStatus") == "PASS" else "REPAIR_REQUIRED",
+        ),
+        (
+            "FAM006-IMPL-011",
+            "Log Viewer folder action alignment",
+            "OPEN NATIVE LOGS and OPEN EXPORTED LOGS must be right-aligned in the Log Viewer action row.",
+            "MATCH" if proof_summary.get("logViewerActionLayoutStatus") == "PASS" else "REPAIR_REQUIRED",
+        ),
+        (
+            "FAM006-IMPL-012",
+            "Action-layout false-green prevention",
+            "The packet must fail when button labels and individual primitive metrics pass but accepted action-layout grammar is missing.",
+            "MATCH"
+            if proof_summary.get("recordingActionLayoutStatus") == "PASS"
+            and proof_summary.get("logViewerActionLayoutStatus") == "PASS"
+            else "REPAIR_REQUIRED",
+        ),
     ]
     if proof_summary.get("missingRequiredRowKeys"):
         rows.append(
             (
-                "FAM006-IMPL-010",
+                "FAM006-IMPL-013",
                 "Required evidence key coverage",
                 "Every selected-direction evidence key must be present in row_to_evidence_map.json.",
                 "REPAIR_REQUIRED",
@@ -648,7 +681,11 @@ def _implementation_defect_ledger(proof_summary: dict[str, Any]) -> dict[str, An
         )
     return {
         "schema": "fam006-reca-log-viewer-implementation-match-defect-ledger-v1",
-        "status": "REPAIR_REQUIRED" if proof_summary.get("missingRequiredRowKeys") else "MATCH",
+        "status": "MATCH"
+        if not proof_summary.get("missingRequiredRowKeys")
+        and proof_summary.get("recordingActionLayoutStatus") == "PASS"
+        and proof_summary.get("logViewerActionLayoutStatus") == "PASS"
+        else "REPAIR_REQUIRED",
         "rows": [
             {
                 "defectId": defect_id,
@@ -667,10 +704,11 @@ def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
         ("Recording title/hierarchy", "RECORDING STUDIO with Active Overlay Recording support", "MATCH"),
         ("Recording target row", "TARGET - Default Overlay Profile", "MATCH"),
         ("Recording state row", "STATE - Ready - 2 active monitors", "MATCH"),
-        ("START control", "START present and independently proven", "MATCH"),
-        ("PAUSE control", "PAUSE present and independently proven", "MATCH"),
-        ("STOP control", "STOP present and independently proven", "MATCH"),
-        ("OPEN LOG VIEWER route action", "Routes to Log Viewer via runtime handler", proof_summary.get("openLogViewerRouteStatus") or "REPAIR_REQUIRED"),
+        ("START / PAUSE / STOP segmented transport pill", "START, PAUSE, and STOP are one left-aligned segmented pill, not three unrelated buttons", proof_summary.get("recordingActionLayoutStatus") or "REPAIR_REQUIRED"),
+        ("START control", "START present inside the segmented transport pill and independently proven", "MATCH"),
+        ("PAUSE control", "PAUSE present inside the segmented transport pill and independently proven", "MATCH"),
+        ("STOP control", "STOP present inside the segmented transport pill and independently proven", "MATCH"),
+        ("OPEN LOG VIEWER route action", "Routes to Log Viewer via runtime handler, remains outside the transport pill, and is right-aligned in the action row", "MATCH" if proof_summary.get("openLogViewerRouteStatus") == "MATCH" and proof_summary.get("recordingActionLayoutStatus") == "PASS" else "REPAIR_REQUIRED"),
         ("Recording footprint/dead-space", "Compact controller proof plus crop ledger and runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Recording control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
         ("Recording action button primitive", "Every Recording Studio action consumes the AI Control Center content-fit primitive", proof_summary.get("recordingButtonPrimitiveStatus") or "REPAIR_REQUIRED"),
@@ -682,6 +720,7 @@ def _target_actual_checklist(proof_summary: dict[str, Any]) -> dict[str, Any]:
         ("Log Viewer footprint/dead-space", "Compact doorway shell proof plus runtime visual metrics", proof_summary.get("runtimeVisualConformanceStatus") or "REPAIR_REQUIRED"),
         ("Log Viewer control pill/chrome", "Comparator-backed chrome crop", "MATCH"),
         ("Log Viewer action button primitive", "Every Log Viewer action consumes the AI Control Center content-fit primitive", proof_summary.get("logViewerButtonPrimitiveStatus") or "REPAIR_REQUIRED"),
+        ("Log Viewer right-aligned actions", "OPEN NATIVE LOGS and OPEN EXPORTED LOGS are right-aligned as the folder-action group", proof_summary.get("logViewerActionLayoutStatus") or "REPAIR_REQUIRED"),
         ("Log Viewer control pill bottom gutter", "Bottom gutter below the compact control pill equals the top gutter", proof_summary.get("logViewerControlPillGutterStatus") or "REPAIR_REQUIRED"),
         ("B2 placement behavior", "Parent-neighbor and moved-restore proof", proof_summary.get("b2PlacementStatus") or "REPAIR_REQUIRED"),
         ("Rejected-pattern avoidance", "No generic LOGS route, no fake data rows, no default path display, no full viewer behavior", "MATCH"),
@@ -1279,7 +1318,9 @@ This packet is for USER review of runtime implementation-match only. It proves t
 ## Runtime Proof
 
 - Evidence root copied into this packet: `Review Aids/Evidence/{evidence_root.name}`
-- Recording Studio: START, PAUSE, STOP, TARGET, STATE, and OPEN LOG VIEWER are each row-mapped.
+- Recording Studio: START / PAUSE / STOP are row-mapped individually and as one segmented transport pill; TARGET, STATE, and OPEN LOG VIEWER are row-mapped separately.
+- Recording action layout proof: `{proof_summary.get("recordingActionLayoutStatus")}`; transport left delta `{proof_summary.get("recordingTransportPillLeftAlignedPx")}` px; OPEN LOG VIEWER right delta `{proof_summary.get("openLogViewerRightAlignedPx")}` px.
+- Log Viewer action layout proof: `{proof_summary.get("logViewerActionLayoutStatus")}`; OPEN EXPORTED LOGS right delta `{proof_summary.get("logViewerExportedLogsRightAlignedPx")}` px.
 - OPEN LOG VIEWER route proof: `{proof_summary.get("openLogViewerRouteStatus")}`
 - B2 placement proof: `{proof_summary.get("b2PlacementStatus")}`
 - Crop completeness proof: `{proof_summary.get("cropCompletenessStatus")}`

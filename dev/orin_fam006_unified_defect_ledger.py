@@ -78,6 +78,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-170523.zip",
     "FAM-006-20260625-122909.zip",
     "FAM-006-20260625-150949.zip",
+    "FAM-006-20260625-155723.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -94,6 +95,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-170523.zip": "055D4E57944DE5536081CCB942E65D4A8602778FA694FFCD307505689C4209FC",
     "FAM-006-20260625-122909.zip": "0201D2CCAEA66010F87058BE3C9C0D1C9A78AFA077F6A19FFC701F4248B1C716",
     "FAM-006-20260625-150949.zip": "344C95C776D5916276E9B746D510DC9AA2FD9038B2F7F262AB2517B9F09EA212",
+    "FAM-006-20260625-155723.zip": "5E3001D72A40E10D045549177BDBA9E9515A269ABB037B1E6C2793904E350BBE",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -787,6 +789,33 @@ def seed_defects() -> list[dict[str, Any]]:
                 "known-bad expectations, validator checks, and incident ledger were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-027",
+            origin="USER/ChatGPT",
+            title="Implementation-match packet overclaimed action layout after button metrics passed",
+            exact_user_wording="FAM-006-20260625-155723.zip is REPAIR because START / PAUSE / STOP are still separate buttons instead of one segmented transport pill, the Recording transport pill should be left-aligned, OPEN LOG VIEWER should stay separate, and Log Viewer actions should be right-aligned.",
+            expected="Recording Studio must implement REC-A action grammar as a single left-aligned START / PAUSE / STOP segmented transport pill, with OPEN LOG VIEWER outside that pill and right-aligned in the action row. Log Viewer must right-align OPEN NATIVE LOGS and OPEN EXPORTED LOGS. Button primitive and control-pill gutter proof remains required but is not sufficient by itself.",
+            actual="The 155723 packet passed individual button primitive and control-pill gutter metrics, but runtime markup still rendered START, PAUSE, STOP, and OPEN LOG VIEWER as sibling buttons in a flex-start action strip, and Log Viewer folder actions were not proven as right-aligned.",
+            evidence="Known-bad packet FAM-006-20260625-155723.zip SHA 5E3001D72A40E10D045549177BDBA9E9515A269ABB037B1E6C2793904E350BBE; USER/ChatGPT REPAIR verdict on action alignment / recording transport pill repair.",
+            surfaces="Recording Studio action strip; Recording Studio transport controls; OPEN LOG VIEWER route action; Log Viewer folder actions; monitoring_hud_studio.html; nexus_window_primitives.css; feature-studio proof helper; implementation-match packet helper; visual conformance ledger; false-ACCEPT gate.",
+            root_cause="The prior proof path measured button instances and chrome gutters but did not model action-row relationships. Label presence plus individual primitive conformance was treated as enough, so the accepted action layout was never encoded as DOM geometry or packet evidence.",
+            validator_gap="No hard failure for separate sibling transport buttons, missing segmented transport pill wrapper, transport pill not left-aligned, OPEN LOG VIEWER merged/left with transport controls, or Log Viewer actions not right-aligned.",
+            repair_target="Admit 155723 as known-bad, implement a recording-transport-pill wrapper, left-align it, keep OPEN LOG VIEWER separate/right-aligned, right-align Log Viewer folder actions, add DOM geometry metrics and a recording-transport-pill crop, and require those metrics in packet, visual ledger, UDL, and false-ACCEPT validation.",
+            acceptance="FAM-006 implementation-match gates fail unless runtime_visual_conformance_metrics.json shows Recording actionLayoutVerdict PASS, Log Viewer actionLayoutVerdict PASS, transportPillLeftAlignedPx 0, openLogViewerRightAlignedPx 0, exportedLogsRightAlignedPx 0, and packet row_to_evidence_map includes recording-transport-pill media.",
+            proof="dev/orin_fam006_feature_studio_visual_proof.py writes action-layout measurements and recording-transport-pill media; dev/orin_fam006_reca_log_viewer_implementation_match_packet.py exposes action-layout target-vs-actual rows; dev/orin_fam006_visual_conformance_ledger.py and dev/orin_fam006_false_accept_regression_gate.py reject missing or failing action-layout metrics.",
+            status="CLOSED_WITH_PROOF",
+            closure="Action-layout repair is closed only when the regenerated packet proves the segmented transport pill and right-aligned Log Viewer actions and the false-ACCEPT gate rejects 155723 as known-bad.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-027: inspected adjacent surfaces/files `nexus_visual/monitoring_hud_studio.html`, "
+                "`nexus_visual/nexus_window_primitives.css`, `dev/orin_fam006_feature_studio_visual_proof.py`, "
+                "`dev/orin_fam006_reca_log_viewer_implementation_match_packet.py`, `dev/orin_fam006_visual_conformance_ledger.py`, "
+                "`dev/orin_fam006_false_accept_regression_gate.py`, and `dev/orin_fam006_unified_defect_ledger.py`; adjacent behavior inspected: "
+                "Recording transport grouping, START/PAUSE/STOP segment adjacency, transport-pill left edge, OPEN LOG VIEWER separation/right edge, "
+                "Log Viewer native/export action right edge, button primitive preservation, control-pill gutter preservation, row-map proof media, target-vs-actual rows, known-bad corpus replay, and packet-contained runtime metrics; "
+                "additional adjacent defects found: none beyond the action-layout false-green class and already linked FAM006-UDL-026; linked UDL IDs added/reopened: "
+                "FAM006-UDL-026 and FAM006-UDL-027; repair scope changed: yes, Studio markup/CSS, proof helper, packet helper, visual ledger validator, false-ACCEPT gate, known-bad expectations, and incident ledger were hardened."
+            ),
+        ),
     ]
 
 
@@ -1146,6 +1175,22 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require all Recording/Log Viewer action buttons to pass content-fit primitive measurements and require control-pill bottom gutter to equal top gutter before implementation-match can report MATCH.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-026", "FAM006-UDL-025"],
+            status="CLOSED_WITH_PROOF",
+        ),
+        _incident(
+            "FAM006-FGI-022",
+            packet="FAM-006-20260625-155723.zip",
+            sha256="5E3001D72A40E10D045549177BDBA9E9515A269ABB037B1E6C2793904E350BBE",
+            head="2cd6f5b043606a6925386b796dbc015a63314583",
+            codex_claim="FAM-006 implementation-match packet was ready for USER review after button primitive and control-pill gutter proof passed.",
+            rejection="USER/ChatGPT rejected the packet because the accepted action layout was still wrong: START / PAUSE / STOP were not one segmented transport pill, Recording action alignment was wrong, and Log Viewer actions were not right-aligned.",
+            validator_failed="FAM-006 implementation-match proof before action-row relationship metrics, transport-pill crop proof, action-layout target-vs-actual rows, and 155723 known-bad replay.",
+            artifact="FAM-006-20260625-155723.zip plus runtime_visual_conformance_metrics.json before actionLayoutVerdict and recording-transport-pill evidence existed.",
+            ledger_row="FAM006-UDL-027",
+            comparator="The accepted AI Control Center / HUD button primitive was measured, but same-class action-row grammar and Recording transport grouping were not proven.",
+            prevention="Require START/PAUSE/STOP segmented-pill geometry, transport-pill left alignment, OPEN LOG VIEWER separation/right alignment, Log Viewer right-aligned folder actions, and packet-contained recording-transport-pill proof before implementation-match can report MATCH.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-027", "FAM006-UDL-026"],
             status="CLOSED_WITH_PROOF",
         ),
     ]

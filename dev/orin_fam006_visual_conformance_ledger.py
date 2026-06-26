@@ -132,6 +132,7 @@ REQUIRED_CROP_COMPLETENESS = {
     "recording-start-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-pause-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
     "recording-stop-action": {**DEFAULT_CROP_RULE, "minWidth": 62, "minHeight": 30},
+    "recording-transport-pill": {**DEFAULT_CROP_RULE, "minWidth": 170, "minHeight": 30},
     "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 350, "minHeight": 58},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
@@ -187,6 +188,7 @@ REQUIRED_CROP_TYPES = {
     "recording-start-action": "ELEMENT_CROP",
     "recording-pause-action": "ELEMENT_CROP",
     "recording-stop-action": "ELEMENT_CROP",
+    "recording-transport-pill": "RELATIONSHIP_CROP",
     "recording-target-truth": "STATE_CROP",
     "recording-log-route": "ELEMENT_CROP",
     "log-viewer-window-chrome": "FULL_WINDOW_CROP",
@@ -203,6 +205,7 @@ REQUIRED_SCOPE_TEXT = {
     "recording-start-action": ["START"],
     "recording-pause-action": ["PAUSE"],
     "recording-stop-action": ["STOP"],
+    "recording-transport-pill": ["START", "PAUSE", "STOP"],
     "recording-target-truth": ["TARGET", "Default Overlay Profile", "Ready - 2 active monitors"],
     "recording-log-route": ["OPEN LOG VIEWER"],
     "log-viewer-window-chrome": ["NATIVE AND EXPORTED LOG ACCESS", "LOG VIEWER", "VIEWER", "Deferred", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
@@ -258,6 +261,7 @@ PACKET_EVIDENCE_BY_GROUP = {
     ("Recording Studio", "START control"): "recording-start-action",
     ("Recording Studio", "PAUSE control"): "recording-pause-action",
     ("Recording Studio", "STOP control"): "recording-stop-action",
+    ("Recording Studio", "segmented transport pill"): "recording-transport-pill",
     ("Recording Studio", "target summary card"): "recording-target-truth",
     ("Recording Studio", "secondary Log Viewer route control"): "recording-log-route",
     ("Recording Studio", "copy/text clarity"): "recording-target-truth",
@@ -312,6 +316,7 @@ CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "recording-start-action",
     "recording-pause-action",
     "recording-stop-action",
+    "recording-transport-pill",
     "recording-target-truth",
     "recording-log-route",
     "log-viewer-full-window",
@@ -1032,6 +1037,20 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         )
             if surface.get("controlPillGutterVerdict") != "PASS":
                 failures.append(f"{surface_label} control pill gutter verdict is not PASS")
+            if surface.get("actionLayoutVerdict") != "PASS":
+                failures.append(f"{surface_label} action layout verdict is not PASS")
+            action_layout = surface.get("actionLayoutMeasurements")
+            if not isinstance(action_layout, dict):
+                failures.append(f"{surface_label} action layout measurements are missing")
+            elif surface_key == "recording":
+                if int(action_layout.get("transportPillLeftAlignedPx") if action_layout.get("transportPillLeftAlignedPx") is not None else 999) > 1:
+                    failures.append("Recording Studio transport pill is not left-aligned to the action row")
+                if int(action_layout.get("openLogViewerRightAlignedPx") if action_layout.get("openLogViewerRightAlignedPx") is not None else 999) > 1:
+                    failures.append("Recording Studio OPEN LOG VIEWER is not right-aligned to the action row")
+                if int(action_layout.get("openLogViewerSeparatedFromTransportPx") or -1) < 12:
+                    failures.append("Recording Studio OPEN LOG VIEWER is not separated from the transport pill")
+            elif int(action_layout.get("exportedLogsRightAlignedPx") if action_layout.get("exportedLogsRightAlignedPx") is not None else 999) > 1:
+                failures.append("Log Viewer exported logs action is not right-aligned to the action row")
             gutter = surface.get("controlPillGutterMeasurements")
             if not isinstance(gutter, dict):
                 failures.append(f"{surface_label} control pill gutter measurements are missing")

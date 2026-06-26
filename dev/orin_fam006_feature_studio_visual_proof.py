@@ -115,11 +115,14 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
     windowControls: ".monitoring-hud__window-controls",
     titleGroup: ".monitoring-hud__title-group",
     studioTruthRow: ".monitoring-hud__studio-truth-row",
+    recordingActionStrip: "[data-element-group='recording-actions']",
+    recordingTransportPill: "[data-control-group='recording-transport-pill']",
     recordingStartAction: "[data-control='recording-studio-start']",
     recordingPauseAction: "[data-control='recording-studio-pause']",
     recordingStopAction: "[data-control='recording-studio-stop']",
     recordingTargetTruth: "[data-element-group='recording-target-truth']",
     recordingLogRoute: "[data-control='recording-studio-open-log-viewer']",
+    logViewerActionStrip: "[data-element-group='log-folder-actions']",
     logViewerViewerState: "[data-folder-kind='viewer']",
     logViewerNativeAction: "[data-control='log-viewer-open-native']",
     logViewerExportAction: "[data-control='log-viewer-open-export']",
@@ -171,6 +174,10 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
         borderLeftWidth: style.borderLeftWidth,
         borderRadius: style.borderRadius,
         boxShadow: style.boxShadow,
+        display: style.display,
+        justifyContent: style.justifyContent,
+        justifySelf: style.justifySelf,
+        gap: style.gap,
         gridTemplateColumns: style.gridTemplateColumns,
         columnGap: style.columnGap,
         top: style.top,
@@ -334,13 +341,117 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "status": "PASS" if not failures else "REPAIR",
         }
 
-    def metrics_for(label: str, action_keys: list[str], *, max_height: int, max_bottom_slack: int) -> dict[str, object]:
+    def _rect_width(rect: dict[str, int]) -> int:
+        return int(rect.get("right", 0)) - int(rect.get("left", 0))
+
+    def _rect_height(rect: dict[str, int]) -> int:
+        return int(rect.get("bottom", 0)) - int(rect.get("top", 0))
+
+    def _edge_delta(a: int, b: int) -> int:
+        return abs(int(a) - int(b))
+
+    def action_layout_metrics(bounds: dict[str, object], surface_key: str) -> dict[str, object]:
+        failures: list[str] = []
+        if surface_key == "recording":
+            strip = _dom_rect(bounds, "recordingActionStrip")
+            pill = _dom_rect(bounds, "recordingTransportPill")
+            start = _dom_rect(bounds, "recordingStartAction")
+            pause = _dom_rect(bounds, "recordingPauseAction")
+            stop = _dom_rect(bounds, "recordingStopAction")
+            route = _dom_rect(bounds, "recordingLogRoute")
+            for name, rect in (
+                ("recording action strip", strip),
+                ("recording transport pill", pill),
+                ("START segment", start),
+                ("PAUSE segment", pause),
+                ("STOP segment", stop),
+                ("OPEN LOG VIEWER route", route),
+            ):
+                if not rect or _rect_width(rect) <= 0 or _rect_height(rect) <= 0:
+                    failures.append(f"missing or empty DOM rect for {name}")
+            if strip and pill and _edge_delta(pill.get("left", 0), strip.get("left", 0)) > 1:
+                failures.append(
+                    f"transport pill left edge {pill.get('left')} does not align with action strip left edge {strip.get('left')}"
+                )
+            if strip and route and _edge_delta(route.get("right", 0), strip.get("right", 0)) > 1:
+                failures.append(
+                    f"OPEN LOG VIEWER right edge {route.get('right')} does not align with action strip right edge {strip.get('right')}"
+                )
+            if pill and route and int(route.get("left", 0)) <= int(pill.get("right", 0)):
+                failures.append("OPEN LOG VIEWER is not separated to the right of the transport pill")
+            if pill:
+                for name, rect in (("START", start), ("PAUSE", pause), ("STOP", stop)):
+                    if rect and (
+                        int(rect.get("left", 0)) < int(pill.get("left", 0))
+                        or int(rect.get("right", 0)) > int(pill.get("right", 0))
+                        or int(rect.get("top", 0)) < int(pill.get("top", 0))
+                        or int(rect.get("bottom", 0)) > int(pill.get("bottom", 0))
+                    ):
+                        failures.append(f"{name} segment is not contained inside the transport pill")
+            if start and pause and _edge_delta(pause.get("left", 0), start.get("right", 0)) > 1:
+                failures.append("START and PAUSE segments are not visually contiguous")
+            if pause and stop and _edge_delta(stop.get("left", 0), pause.get("right", 0)) > 1:
+                failures.append("PAUSE and STOP segments are not visually contiguous")
+            if start and pause and int(start.get("left", 0)) >= int(pause.get("left", 0)):
+                failures.append("START segment is not first in the transport pill")
+            if pause and stop and int(pause.get("left", 0)) >= int(stop.get("left", 0)):
+                failures.append("PAUSE segment is not before STOP in the transport pill")
+            return {
+                "surface": "Recording Studio",
+                "expectedActionGrammar": "START/PAUSE/STOP are one segmented transport pill left-aligned; OPEN LOG VIEWER remains separate and right-aligned.",
+                "actionStripRect": strip,
+                "transportPillRect": pill,
+                "startSegmentRect": start,
+                "pauseSegmentRect": pause,
+                "stopSegmentRect": stop,
+                "openLogViewerRect": route,
+                "actionStripComputedStyle": _dom_style(bounds, "recordingActionStrip"),
+                "transportPillComputedStyle": _dom_style(bounds, "recordingTransportPill"),
+                "transportPillLeftAlignedPx": _edge_delta(pill.get("left", 0), strip.get("left", 0)) if strip and pill else None,
+                "openLogViewerRightAlignedPx": _edge_delta(route.get("right", 0), strip.get("right", 0)) if strip and route else None,
+                "openLogViewerSeparatedFromTransportPx": int(route.get("left", 0)) - int(pill.get("right", 0)) if pill and route else None,
+                "startPauseSegmentGapPx": int(pause.get("left", 0)) - int(start.get("right", 0)) if start and pause else None,
+                "pauseStopSegmentGapPx": int(stop.get("left", 0)) - int(pause.get("right", 0)) if pause and stop else None,
+                "failures": failures,
+                "status": "PASS" if not failures else "REPAIR",
+            }
+        strip = _dom_rect(bounds, "logViewerActionStrip")
+        native = _dom_rect(bounds, "logViewerNativeAction")
+        export = _dom_rect(bounds, "logViewerExportAction")
+        for name, rect in (
+            ("Log Viewer action strip", strip),
+            ("OPEN NATIVE LOGS action", native),
+            ("OPEN EXPORTED LOGS action", export),
+        ):
+            if not rect or _rect_width(rect) <= 0 or _rect_height(rect) <= 0:
+                failures.append(f"missing or empty DOM rect for {name}")
+        if strip and export and _edge_delta(export.get("right", 0), strip.get("right", 0)) > 1:
+            failures.append(
+                f"OPEN EXPORTED LOGS right edge {export.get('right')} does not align with action strip right edge {strip.get('right')}"
+            )
+        if native and export and int(native.get("right", 0)) >= int(export.get("left", 0)):
+            failures.append("OPEN NATIVE LOGS is not left of OPEN EXPORTED LOGS with a visible gap")
+        return {
+            "surface": "Log Viewer",
+            "expectedActionGrammar": "OPEN NATIVE LOGS and OPEN EXPORTED LOGS are one right-aligned folder-action group.",
+            "actionStripRect": strip,
+            "openNativeLogsRect": native,
+            "openExportedLogsRect": export,
+            "actionStripComputedStyle": _dom_style(bounds, "logViewerActionStrip"),
+            "exportedLogsRightAlignedPx": _edge_delta(export.get("right", 0), strip.get("right", 0)) if strip and export else None,
+            "nativeExportGapPx": int(export.get("left", 0)) - int(native.get("right", 0)) if native and export else None,
+            "failures": failures,
+            "status": "PASS" if not failures else "REPAIR",
+        }
+
+    def metrics_for(label: str, action_keys: list[str], *, max_height: int, max_bottom_slack: int, surface_key: str) -> dict[str, object]:
         image_path = Path(str(manifest[label]))
         width, height = _image_size(image_path)
         bounds = manifest.get(f"{label}_dom_bounds")
         bounds = bounds if isinstance(bounds, dict) else {}
         buttons = [button_metrics(bounds, key) for key in action_keys]
         control_gutter = control_gutter_metrics(bounds)
+        action_layout = action_layout_metrics(bounds, surface_key)
         action_bottoms = [
             _dom_rect(bounds, key).get("bottom", 0)
             for key in action_keys
@@ -364,6 +475,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "buttonPrimitiveVerdict": "PASS" if all(button["status"] == "PASS" for button in buttons) else "REPAIR",
             "controlPillGutterMeasurements": control_gutter,
             "controlPillGutterVerdict": control_gutter["status"],
+            "actionLayoutMeasurements": action_layout,
+            "actionLayoutVerdict": action_layout["status"],
         }
 
     recording = metrics_for(
@@ -371,12 +484,14 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         ["recordingStartAction", "recordingPauseAction", "recordingStopAction", "recordingLogRoute"],
         max_height=160,
         max_bottom_slack=18,
+        surface_key="recording",
     )
     log_viewer = metrics_for(
         "log_viewer_default",
         ["logViewerNativeAction", "logViewerExportAction"],
         max_height=142,
         max_bottom_slack=18,
+        surface_key="logViewer",
     )
     checks = [
         recording["heightVerdict"] == "PASS",
@@ -387,6 +502,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["buttonPrimitiveVerdict"] == "PASS",
         recording["controlPillGutterVerdict"] == "PASS",
         log_viewer["controlPillGutterVerdict"] == "PASS",
+        recording["actionLayoutVerdict"] == "PASS",
+        log_viewer["actionLayoutVerdict"] == "PASS",
         log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
         log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
         log_viewer["windowControlsComputedStyle"].get("top") == "14px",
@@ -409,6 +526,11 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "windowControlRight": log_viewer["windowControlsComputedStyle"].get("right"),
             "recordingButtonPrimitiveVerdict": recording["buttonPrimitiveVerdict"],
             "logViewerButtonPrimitiveVerdict": log_viewer["buttonPrimitiveVerdict"],
+            "recordingActionLayoutVerdict": recording["actionLayoutVerdict"],
+            "logViewerActionLayoutVerdict": log_viewer["actionLayoutVerdict"],
+            "recordingTransportPillLeftAlignedPx": recording["actionLayoutMeasurements"].get("transportPillLeftAlignedPx"),
+            "openLogViewerRightAlignedPx": recording["actionLayoutMeasurements"].get("openLogViewerRightAlignedPx"),
+            "logViewerExportedLogsRightAlignedPx": log_viewer["actionLayoutMeasurements"].get("exportedLogsRightAlignedPx"),
             "recordingControlPillBottomGutterPx": recording["controlPillGutterMeasurements"].get("bottomGutterPx"),
             "logViewerControlPillBottomGutterPx": log_viewer["controlPillGutterMeasurements"].get("bottomGutterPx"),
         },
@@ -427,7 +549,11 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "\n| Surface | Button primitive | Top gutter | Right gutter | Bottom gutter | Control pill gutter |\n"
         "| --- | --- | --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['buttonPrimitiveVerdict']} | {recording['controlPillGutterMeasurements']['topGutterPx']} | {recording['controlPillGutterMeasurements']['rightGutterPx']} | {recording['controlPillGutterMeasurements']['bottomGutterPx']} | {recording['controlPillGutterVerdict']} |\n"
-        f"| Log Viewer | {log_viewer['buttonPrimitiveVerdict']} | {log_viewer['controlPillGutterMeasurements']['topGutterPx']} | {log_viewer['controlPillGutterMeasurements']['rightGutterPx']} | {log_viewer['controlPillGutterMeasurements']['bottomGutterPx']} | {log_viewer['controlPillGutterVerdict']} |\n",
+        f"| Log Viewer | {log_viewer['buttonPrimitiveVerdict']} | {log_viewer['controlPillGutterMeasurements']['topGutterPx']} | {log_viewer['controlPillGutterMeasurements']['rightGutterPx']} | {log_viewer['controlPillGutterMeasurements']['bottomGutterPx']} | {log_viewer['controlPillGutterVerdict']} |\n"
+        + "\n| Surface | Action layout | Required grammar | Alignment deltas |\n"
+        "| --- | --- | --- | --- |\n"
+        f"| Recording Studio | {recording['actionLayoutVerdict']} | Segmented transport pill left; OPEN LOG VIEWER separate/right | transport left {recording['actionLayoutMeasurements'].get('transportPillLeftAlignedPx')}px; route right {recording['actionLayoutMeasurements'].get('openLogViewerRightAlignedPx')}px |\n"
+        f"| Log Viewer | {log_viewer['actionLayoutVerdict']} | Native/export actions right-aligned | exported right {log_viewer['actionLayoutMeasurements'].get('exportedLogsRightAlignedPx')}px |\n",
         encoding="utf-8",
     )
     return payload
@@ -955,6 +1081,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 semantic="Recording Studio selected REC-A Start action",
                 expected=["START"],
                 forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
+                adjacent_allowed=True,
+                adjacent_reason="START is the first segment inside the Recording transport pill; adjacent PAUSE segment geometry is expected and the relationship crop proves the shared pill.",
                 min_width=62,
                 min_height=30,
                 margin=8,
@@ -970,6 +1098,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 semantic="Recording Studio selected REC-A Pause action",
                 expected=["PAUSE"],
                 forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
+                adjacent_allowed=True,
+                adjacent_reason="PAUSE is the middle segment inside the Recording transport pill; adjacent START/STOP segment geometry is expected and the relationship crop proves the shared pill.",
                 min_width=62,
                 min_height=30,
                 margin=8,
@@ -985,7 +1115,30 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 semantic="Recording Studio selected REC-A Stop action",
                 expected=["STOP"],
                 forbidden_adjacent=["TARGET", "OPEN LOG VIEWER"],
+                adjacent_allowed=True,
+                adjacent_reason="STOP is the final segment inside the Recording transport pill; adjacent PAUSE segment geometry is expected and the relationship crop proves the shared pill.",
                 min_width=62,
+                min_height=30,
+                margin=8,
+            ),
+            spec_from_dom(
+                name="recordingTransportPillCrop",
+                key="recording-transport-pill",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="recordingTransportPill",
+                filename="recording_transport_pill.png",
+                semantic="Recording Studio segmented transport pill containing START, PAUSE, and STOP",
+                crop_type="RELATIONSHIP_CROP",
+                relationship="START, PAUSE, and STOP are one segmented transport pill left-aligned in the action row.",
+                included_adjacent=["recordingStartAction", "recordingPauseAction", "recordingStopAction"],
+                expected=["START", "PAUSE", "STOP"],
+                forbidden_adjacent=["OPEN LOG VIEWER", "TARGET"],
+                excluded_text=["START PAUSE STOP OPEN LOG VIEWER"],
+                excluded_reason="The parent action strip aggregate text includes OPEN LOG VIEWER; the transport pill proof excludes that aggregate and relies on child segment text plus route-edge geometry to prove separation.",
+                excluded_dom_keys=["recordingActionStrip", "recordingLogRoute"],
+                min_width=170,
                 min_height=30,
                 margin=8,
             ),
@@ -1230,6 +1383,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("Recording START action", Path(derivatives["recordingStartActionCrop"])),
         ("Recording PAUSE action", Path(derivatives["recordingPauseActionCrop"])),
         ("Recording STOP action", Path(derivatives["recordingStopActionCrop"])),
+        ("Recording transport pill", Path(derivatives["recordingTransportPillCrop"])),
         ("Recording target truth", Path(derivatives["recordingTargetTruthCrop"])),
         ("Recording Log Viewer route", Path(derivatives["recordingLogRouteCrop"])),
         ("Log Viewer chrome", Path(derivatives["logViewerChromeCrop"])),
@@ -1381,6 +1535,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("Recording START action", Path(derivatives["recordingStartActionCrop"])),
         ("Recording PAUSE action", Path(derivatives["recordingPauseActionCrop"])),
         ("Recording STOP action", Path(derivatives["recordingStopActionCrop"])),
+        ("Recording transport pill", Path(derivatives["recordingTransportPillCrop"])),
         ("Recording target truth", Path(derivatives["recordingTargetTruthCrop"])),
         ("Recording Log Viewer route", Path(derivatives["recordingLogRouteCrop"])),
         ("Log Viewer chrome", Path(derivatives["logViewerChromeCrop"])),
@@ -1404,6 +1559,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "recording-pause-action-overlay": _rel(root, derivatives["recordingPauseActionCropOverlay"]),
         "recording-stop-action": _rel(root, derivatives["recordingStopActionCrop"]),
         "recording-stop-action-overlay": _rel(root, derivatives["recordingStopActionCropOverlay"]),
+        "recording-transport-pill": _rel(root, derivatives["recordingTransportPillCrop"]),
+        "recording-transport-pill-overlay": _rel(root, derivatives["recordingTransportPillCropOverlay"]),
         "recording-target-truth": _rel(root, derivatives["recordingTargetTruthCrop"]),
         "recording-target-truth-overlay": _rel(root, derivatives["recordingTargetTruthCropOverlay"]),
         "recording-log-route": _rel(root, derivatives["recordingLogRouteCrop"]),
@@ -1652,9 +1809,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "screenshotEvidenceFile": row_map["recording-start-action"],
             "negativeQuestion": "Are START / PAUSE / STOP missing, merged into one toggle, or visually confused with the Log Viewer route?",
             "defectLookedFor": "Old single-toggle Start/Stop model or equal semantic mixing with Log Viewer route.",
-            "observedFinding": "START, PAUSE, and STOP are separate transport controls; OPEN LOG VIEWER remains a separate route action.",
+            "observedFinding": "START, PAUSE, and STOP are separate controls inside one segmented transport pill; OPEN LOG VIEWER remains a separate route action.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "Each transport control has its own DOM control, crop proof, and state enablement path.",
+            "whyDefectAbsentIfPass": "Each transport segment has its own DOM control and state enablement path while remaining visually grouped inside the transport pill.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-REC-005",
+            "surface": "Recording Studio",
+            "elementGroup": "transport/action relationship",
+            "sourceTruthRequirement": "USER-selected REC-A action row must present START / PAUSE / STOP as one left-aligned segmented transport pill and keep OPEN LOG VIEWER separate/right-aligned.",
+            "screenshotEvidenceFile": row_map["recording-transport-pill"],
+            "negativeQuestion": "Are the transport controls visually separated from each other, centered/right-drifting, or merged with OPEN LOG VIEWER?",
+            "defectLookedFor": "Separate unrelated START / PAUSE / STOP buttons, transport pill not left-aligned, OPEN LOG VIEWER not right-aligned, or route action touching the transport group.",
+            "observedFinding": "Runtime geometry records a left-aligned recording transport pill, contiguous START / PAUSE / STOP segments, a separate OPEN LOG VIEWER route, and right alignment to the action row.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The crop and runtime metrics prove the control relationship rather than only proving the individual button labels exist.",
             "exactRepairIfRequired": "",
         },
         {
@@ -2310,9 +2480,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     ]
     red_team_defect_metadata = {
         "RT-REC-001": ("recording-state-duplication", "Fail if label/value repeat the same Ready, Recording, Saved, or Blocked word."),
-        "RT-REC-002": ("recording-action-hierarchy", "Fail if Start/Stop is not the widest and most visually dominant control."),
+        "RT-REC-002": ("recording-action-hierarchy", "Fail if START / PAUSE / STOP are missing, merged into a single toggle, or visually confused with the Log Viewer route."),
         "RT-REC-003": ("recording-status-panel-feel", "Fail if target/log truth appears as bordered report rows or debug/status panels."),
         "RT-REC-004": ("recording-product-copy", "Fail if Recording Studio copy exposes validation, helper, proof, worktree, or debug terms."),
+        "RT-REC-005": ("recording-transport-pill-action-layout", "Fail if START / PAUSE / STOP are not one left-aligned segmented transport pill or OPEN LOG VIEWER is not separate/right-aligned."),
         "RT-LOG-001": ("log-viewer-action-card-polish", "Fail if native destination reads as a path/status table instead of an action card."),
         "RT-LOG-002": ("log-viewer-user-export-copy", "Fail if visible UI copy contains USER exports or other governance/internal terms."),
         "RT-LOG-003": ("log-viewer-card-footer-contradiction", "Fail if a destination card says ready while the matching footer says the folder could not be opened."),
