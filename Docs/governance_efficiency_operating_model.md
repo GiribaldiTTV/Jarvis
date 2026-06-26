@@ -66,6 +66,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, detailed feature-category ledgers that belong in Family Feature Vision, or per-seam implementation checklists |
 | `Docs/family_feature_visions/` | USER-approved durable feature-category direction inside one FAM, compact FFV and element IDs, reusable surface/experience/proof direction, Deferred Feature Carryforward facts, and BP1 `Feature Vision Context` for selected feature-bearing branch routes that require this durable middle layer | backlog family identity, branch route identity, Slice/SLC identity, seam identity, selected-next truth, active branch state, current PR/release/worktree state, implementation approval, live operational ledgers, or per-seam execution checklists |
 | `Docs/ui_reference_catalog/` | USER-promoted durable UI reference contracts after explicit promotion approval, reference schema, catalog index, accepted reference applicability, known limitations, and adoption rules | candidate evidence, active proof ledgers, current screenshots/video inventories, PR state, issue state, live adoption status, helper green status, or inferred golden proof from branch work |
+| `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\` and `C:\Nexus Governance State\reference_standards\` | branch-owned Reference Standard candidate proposals, generated aggregate candidate reports, generated collision reviews, and cross-worktree visibility evidence after the current workflow admits external candidate tracking | promoted Reference Standards, source-truth catalogs, USER acceptance, live FAM adoption proof, issue mutation authority, template/shared-primitive promotion, or clean-clone validation requirements |
 | `Docs/branch_records/index.md` | durable branch-record law, standing Governance active-authority exception, historical receipt routing, and pointers to external active operational branch authority | detailed branch implementation checklists or general live active-branch operations lists |
 | `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | current phase, active branch authority, active next gate, active branch lifecycle ledger, volatile live state, live PR/open-review state, selected-next posture, worktree assignment, release-window state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
 | `Docs/branch_plans/<branch>.md` | Branch Runtime Engineering Plan shape, transition-approved plan receipts, retired/historical branch-plan evidence, and durable lookup paths | canonical live branch status, active/complete/pending lifecycle posture, permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger |
@@ -90,6 +91,8 @@ Use this table before recommending consolidation, retirement, archival, deletion
 | `Docs/family_feature_visions/index.md` | compact FFV / feature-category registry | active branch state, selected-next state, gate status, live dependency queue | durable compact registry | active external branch plan or Git/GitHub/helper truth | prove all FFV pointers and branch packets migrate before rename/delete |
 | `Docs/family_feature_visions/<id>.md` | detailed durable feature-category vision, FFV elements, deferred carryforward, proof expectations | Slice/SLC identity, branch route, seam checklist, live implementation ledger | durable feature-category contract | active external branch plan, BP2/BP3, workstream proof | replacement FFV and pointer migration proof required before rename/delete |
 | `Docs/ui_reference_catalog/` | promoted UI reference contracts and catalog schema after USER-approved promotion | candidate reference evidence, active visual proof inventories, current branch adoption status, helper/validator pass state | durable reference catalog | candidate evidence lives in USER review packets, helper output, branch proof, or external operational state until promotion | no reference may be added, renamed, removed, or treated as golden proof without promotion/retirement proof and USER decision |
+| `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\` | branch-owned proposed Reference Standard evidence while a branch is active | promoted reference canon, cross-branch aggregate truth, USER acceptance, or current phase approval by itself | external candidate evidence | active external branch plan and future reference-candidate sync helper | snapshot, lock, promotion packet, and USER approval required before any fold-down or schema migration |
+| `C:\Nexus Governance State\reference_standards\` | generated aggregate sync reports and collision review summaries from branch-owned candidates | primary hand-authored source truth, repo reference catalog, issue ledger, or required clean-clone validation input | external coordination evidence | branch candidate records plus generated helper output | report regeneration or promotion packet required before repo source-truth update |
 | `Docs/branch_records/index.md` | branch-record law, standing Governance exception, durable receipt routing | full active branch operations list | durable routing law | external active authority and Git/GitHub/helpers | governance migration plan and validation required before structural changes |
 | `Docs/branch_records/<branch>.md` | durable branch identity, approval receipts, historical traceability, compact fold-down | current non-standing active authority, live PR/review state, selected-next state, worktree assignment | durable receipt or transition owner | external branch state, Git/GitHub/helpers | exact replacement-owner proof, reference scan, and no-loss fold-down required |
 | `Docs/branch_plans/<branch>.md` | branch-plan schema, transition-approved planning receipt, retired/historical evidence | active external branch plan after fold-down, duplicate live ledger | durable receipt or transition owner | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` | retirement index, reference scan, durable receipt preservation, and USER approval required |
@@ -321,7 +324,7 @@ Rule Name: `External Operational State Store Contract`
 
 Owner: `Docs/governance_efficiency_operating_model.md`
 
-Applies To: active branch state, active branch plans, worktree assignment, release-window assembly, PR watcher state, USER review bundle manifests, rebaseline audit packets, temporary Codex handoff digests, fold-down previews, cross-worktree lessons, governance candidates, state promotion packets, worktree acknowledgements, and any other live operational tracker that exists to coordinate Codex/worktree activity rather than to define durable project truth.
+Applies To: active branch state, active branch plans, worktree assignment, release-window assembly, PR watcher state, USER review bundle manifests, rebaseline audit packets, temporary Codex handoff digests, fold-down previews, cross-worktree lessons, governance candidates, reference candidate/collision coordination, state promotion packets, worktree acknowledgements, and any other live operational tracker that exists to coordinate Codex/worktree activity rather than to define durable project truth.
 
 Required State:
 
@@ -335,6 +338,8 @@ Required State:
 Allowed Values:
 
 - External State Item Status: `Active`, `Queued`, `Promotion Pending`, `Promoted`, `Fold-Down Pending`, `Folded`, `Archived`, `Expired`, `Rejected`, `USER Decision Required`
+- Reference Candidate Status: `Proposed`, `Under Review`, `Collision Detected`, `Candidate Merged Into Another Candidate`, `Candidate Split`, `Candidate Rejected`, `Candidate Deferred With Owner`, `Candidate Promoted Pending PR`, `Promoted To Source Truth`, `Superseded`, `Not Applicable`, `Withdrawn`
+- Reference Collision Class: `Token Conflict`, `Visual Grammar Conflict`, `Geometry Conflict`, `Control-State Conflict`, `Backend Behavior Conflict`, `Proof Standard Conflict`, `Template Conflict`, `Shared Primitive Conflict`, `Naming Conflict`, `Applicability Conflict`, `Variant Conflict`, `Supersession Conflict`
 - Worktree Acknowledgement State: `Pending`, `Accepted`, `Conflict`, `Not Applicable`
 - Lock State: `Unlocked`, `Locked`, `Expired`, `Stale`, `Conflict`, `Released`, `Recovery Required`
 - Promotion Result: `Approved`, `Rejected`, `Blocked`, `Superseded`, `Folded Into Repo`, `External Only`, `USER Decision Required`
@@ -343,6 +348,9 @@ Allowed Values:
 Invalid Values:
 
 - canonical external operational state inside any Git worktree
+- promoted Reference Standards stored only in external operational state instead of repo source truth
+- external Reference Standard candidates treated as canon, USER acceptance, consuming-branch adoption proof, or implementation-template/shared-primitive authority before promotion
+- branch-local candidate proposals silently overriding an applicable promoted reference
 - repo-root `.nexus_state`, `.nexus_local_state`, or `.nexus_state_staging` treated as accepted central state
 - worktree-local staging treated as accepted central state
 - external governance candidates treated as binding repo governance
@@ -359,6 +367,10 @@ Blocking Condition:
 - `External State Owner Conflict`: two owners claim the same state partition.
 - `External State Promotion Missing`: staged or proposed state is being used as central accepted state without a promotion packet.
 - `Governance Candidate Not Promoted`: an external candidate that affects durable release truth, public safety, validator correctness, or source-truth ownership has not been promoted or dispositioned.
+- `Reference Candidate Sync Missing`: a branch proposes, consumes, supersedes, or depends on a same-class standard without checking promoted references plus admitted external same-class candidates/collisions.
+- `Reference Candidate Collision Unreviewed`: conflicting external candidates share a conflict key and the branch depends on that same-class standard without a USER-reviewable collision row.
+- `Reference Candidate Treated As Canon`: an external candidate, aggregate report, screenshot, helper output, or branch packet is treated as promoted source truth before USER-approved repo promotion merges.
+- `Promoted Reference Moved External`: a promoted Reference Standard is removed from repo source truth or made dependent on local external state.
 - `Cross-Worktree Acknowledgement Missing`: merged governance/source-truth changes that affect an active worktree have not been acknowledged.
 - `Repo Live-State Leakage`: repo docs contain live operational state that should be external or derived.
 - `Fold-Down Decision Missing`: an operational state item has reached fold-down but lacks final disposition.
@@ -379,6 +391,62 @@ USER Decision Required: required before external root creation, staging folder c
 Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is local-workflow evidence after Stage 5 and must not be required by GitHub Actions or clean-clone repo validation.
 
 Final Disposition: external operational state may remain external-only, be folded into repo source truth as a durable receipt, be archived, expire, be rejected, or require USER decision. Governance law becomes binding only after USER-approved repo source-truth update and merge.
+
+## Reference Candidate / Collision External Coordination Model
+
+Rule Name: `Reference Candidate Synchronization Model`
+
+Owner: `Docs/governance_efficiency_operating_model.md` for repo/external-state placement; `Docs/phase_governance.md` for gate/blocker behavior; `Docs/ui_reference_catalog/README.md` for promoted-reference boundary; `Docs/validation_helper_registry.md` for future helper/validator expectations.
+
+Purpose: active worktrees may discover reusable standards before they are ready for repo promotion. Those proposals need cross-worktree visibility without turning repo docs into live candidate ledgers or moving promoted Reference Standards out of repo source truth.
+
+Preferred external structure:
+
+- Branch candidate proposals: `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\...`
+- Optional generated aggregate report: `C:\Nexus Governance State\reference_standards\REFERENCE_CANDIDATE_SYNC_REPORT.md`
+- Optional generated collision report: `C:\Nexus Governance State\reference_standards\REFERENCE_COLLISION_REVIEW.md`
+
+Required candidate fields:
+
+- `Candidate ID`
+- `Candidate Type`: `Branch-local`, `Reusable Standard Candidate`, `Supersession Candidate`, or `Variant Candidate`
+- `Proposed Reference Domain`
+- `Element / Behavior Class`
+- `Trait / State`
+- `Applicability Scope`
+- `Proposed Standard / Trait / Rule`
+- `Proposed Value`, if applicable
+- `Owning Branch / FAM`
+- `Source Files / Code Regions`, if known
+- `Evidence Pointers`
+- `Accepted Reference Comparator`
+- `Conflict Key`
+- `Known Limitations`
+- `Proposed Owner`
+- `Proposed Promotion Route`
+- `Current Status`
+- `USER Decision Needed`
+- `Next Review Trigger`
+- `Last Verified Source / Time`
+
+Conflict Key: `Reference Domain + Element / Behavior Class + Trait / State + Applicability Scope`.
+
+Required candidate table:
+
+| Candidate ID | Domain | Element / Behavior Class | Trait / State | Applicability Scope | Proposed Rule / Value | Owning Branch / FAM | Evidence | Conflict Key | Existing Promoted Reference | External Candidate Conflict | Proposed Resolution | USER Decision Needed |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+Required collision table:
+
+| Collision ID | Domain | Trait / Rule | Candidate A | Candidate B | Conflict | Affected FAMs | Blocking Scope | Recommended Resolution | USER Decision Needed |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+Required promotion/supersession table:
+
+| Candidate | Promotion Type | Required Repo Updates | Clarification / Variant / Supersession / Retirement | Atomicity Risk | USER Gate |
+| --- | --- | --- | --- | --- | --- |
+
+Boundary: external candidates are coordination evidence only. They may warn an active branch, support a USER decision packet, or prepare a Governance promotion packet, but they do not become source truth, USER visual acceptance, issue mutation authority, branch scope approval, template/shared-primitive authority, or consuming-FAM adoption proof until source truth and USER approval say so.
 
 ## External State Transition Drift Gate
 

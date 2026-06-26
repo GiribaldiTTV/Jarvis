@@ -261,6 +261,25 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Parallel Branches Invent Conflicting Reference Candidates
+
+- symptom:
+  FAM or Governance worktrees independently propose same-class standards such as token values, font weights, glow/radius/border rules, geometry breakpoints, control-state behavior, backend truth mapping, proof rules, template expectations, or shared-primitive requirements, and each branch assumes its proposal can become the standard because it passed branch-local proof.
+- layer:
+  Reference Standard lifecycle, UIREF, RAR, BR1/BR2, BP1/BP2/BP3, Workstream, Hardening, Live Validation, PR Readiness, external operational state, and future non-UI reference families.
+- root-cause pattern:
+  promoted references correctly live in repo source truth, but candidate proposals lacked a shared external synchronization and collision review model. Branch-local candidate evidence could therefore look authoritative inside one worktree while sibling worktrees proposed incompatible same-class traits.
+- fix pattern:
+  keep promoted Reference Standards in repo catalogs, store branch-owned candidate proposals as external evidence, generate aggregate/collision reports from branch-owned candidates when admitted, and require `Reference Candidate Sync Review` before a branch proposes or consumes same-class standards. Conflicts use the key `Reference Domain + Element / Behavior Class + Trait / State + Applicability Scope` and must produce a USER-reviewable collision row when the branch depends on that standard.
+- validation pattern:
+  future helpers should fail on `Reference Candidate Sync Missing`, `Reference Candidate Collision Unreviewed`, `Reference Candidate Treated As Canon`, `Promoted Reference Moved External`, `Same-Class Candidate Ignored`, `External Candidate Overrides Promoted Reference`, `Candidate Conflict Key Missing`, or `Candidate Promotion Packet Missing` when machine-checkable.
+- source references:
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/ui_reference_catalog/README.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: PR Auto-Close Keywords Bypass Issue Approval
 
 - symptom:

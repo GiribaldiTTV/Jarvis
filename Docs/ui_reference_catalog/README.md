@@ -18,11 +18,15 @@ This catalog must not own candidate evidence, active proof ledgers, current scre
 
 Promotion may include known limitations when the USER explicitly accepts or waives the missing proof for source-truth reference purposes. A promoted-with-known-limitations record is binding as reference grammar, but it does not prove every consuming branch state, implement code-level shared primitives, or clear branch-specific visual proof obligations.
 
+External Reference Candidate synchronization does not change this catalog boundary. Branch-owned candidate proposals may live as evidence under `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\...`, and generated aggregate/collision reports may summarize those proposals under `C:\Nexus Governance State\reference_standards\...` after the current workflow admits that external evidence. Those external records are not promoted UIREF records, are not accepted references, are not implementation templates, are not shared primitives, and do not override this catalog. A candidate becomes catalog source truth only when a USER-approved Governance source-truth update adds or updates the relevant repo catalog record and index.
+
 ## General Reference Standard Relationship
 
 UIREF is the first domain implementation of the broader Nexus Reference Standard lifecycle. A Reference Standard is a USER-promoted durable comparator for a class of product behavior, UI, UX, runtime/backend behavior, proof, privacy, recovery, trust, or other repeated product/governance need. This folder remains UI-only until source truth admits another reference family. New non-UI reference families must not be created by naming inertia, branch-local evidence, or Codex recommendation alone; they require repeated evidence, a clear source-truth owner, a USER-reviewed promotion packet, adoption rules, known limitations, and a branch/RAR carrydown path.
 
 Reference Standard lifecycle: `Candidate -> USER Review -> Promoted Reference -> Consumed By Branch -> Effectiveness Reviewed -> Updated / Superseded / Deferred`.
+
+Candidate synchronization lifecycle: `Branch Candidate Proposal -> External Candidate Sync -> Collision Review When Needed -> USER Review / Promotion Packet -> Repo Catalog Update -> Consuming Branch Rebaseline / RAR`. External sync is a visibility step, not a promotion step.
 
 PR Readiness Stage 1 is the normal fold-down checkpoint for reference effectiveness. If an accepted reference produced repeated same-class repair cycles, unresolved exceptions, USER visual correction, or evidence that the reference failed to guide implementation, PR Readiness must record a Reference Standard Repair Candidate, supersession candidate, or deferred future carrier instead of treating the branch result as proof that the standard was sufficient.
 
@@ -106,6 +110,8 @@ Allowed reference classes:
 A reference is not promoted until a USER-approved promotion packet records the required schema fields, visual proof or USER waiver, source evidence, applicability, known limitations, and final disposition.
 
 Candidate evidence may be cited from USER review packets, branch proof, screenshots, videos, helper output, or Codex digests, but it remains evidence only until a promoted reference record exists in this catalog.
+
+Candidate evidence may also be cited from admitted external reference-candidate records or generated collision reports. The citing branch must still say whether an applicable promoted reference exists, whether the candidate conflicts with another candidate, whether the candidate is branch-local or reusable, and whether USER promotion, variant approval, supersession, rejection, or deferment is needed. A consuming branch must not call the candidate canon while waiting for that decision.
 
 ## Current Package Green Disposition
 
