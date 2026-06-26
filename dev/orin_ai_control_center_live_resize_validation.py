@@ -884,15 +884,18 @@ def _ai_dashboard_resize_hit_zone_probe(app: QApplication, dialog: AIControlCent
     height = int(dialog.height())
     center_x = width // 2
     center_y = height // 2
+    sample_inset = max(4, min(10, int(dialog.RESIZE_MARGIN) // 2))
+    right_x = max(0, width - 1 - sample_inset)
+    bottom_y = max(0, height - 1 - sample_inset)
     sample_points = {
-        "left": QPoint(1, center_y),
-        "right": QPoint(width - 2, center_y),
-        "top": QPoint(center_x, 1),
-        "bottom": QPoint(center_x, height - 2),
-        "topLeft": QPoint(1, 1),
-        "topRight": QPoint(width - 2, 1),
-        "bottomLeft": QPoint(1, height - 2),
-        "bottomRight": QPoint(width - 2, height - 2),
+        "left": QPoint(sample_inset, center_y),
+        "right": QPoint(right_x, center_y),
+        "top": QPoint(center_x, sample_inset),
+        "bottom": QPoint(center_x, bottom_y),
+        "topLeft": QPoint(sample_inset, sample_inset),
+        "topRight": QPoint(right_x, sample_inset),
+        "bottomLeft": QPoint(sample_inset, bottom_y),
+        "bottomRight": QPoint(right_x, bottom_y),
         "innerContent": QPoint(max(48, dialog.RESIZE_MARGIN + 28), max(220, dialog.RESIZE_MARGIN + 80)),
         "windowControls": dialog._ai_control_center_close_zone().center(),
     }
@@ -911,9 +914,16 @@ def _ai_dashboard_resize_hit_zone_probe(app: QApplication, dialog: AIControlCent
         edges = dialog._ai_control_center_resize_edges_for_local_pos(point)
         hit_test = int(dialog._ai_control_center_resize_hit_test_for_edges(edges))
         global_point = dialog.mapToGlobal(point)
+        expected_hover_key = list(dialog._ai_control_center_resize_edge_key(edges)) if edges else None
+        dialog._reset_ai_control_center_resize_cursor()
         SetCursorPos(int(global_point.x()), int(global_point.y()))
-        _pump(app, 60)
+        _pump(app, 120)
         dialog._poll_ai_control_center_resize_hover_cursor()
+        actual_hover_key = (
+            list(dialog._resize_cursor_key)
+            if isinstance(dialog._resize_cursor_key, tuple)
+            else dialog._resize_cursor_key
+        )
         samples[name] = {
             "localPoint": {"x": point.x(), "y": point.y()},
             "globalPoint": {"x": global_point.x(), "y": global_point.y()},
@@ -924,16 +934,19 @@ def _ai_dashboard_resize_hit_zone_probe(app: QApplication, dialog: AIControlCent
                 "bottom": bool(edges & Qt.BottomEdge),
             },
             "hitTest": hit_test,
-            "hoverCursorKey": list(dialog._resize_cursor_key) if isinstance(dialog._resize_cursor_key, tuple) else dialog._resize_cursor_key,
+            "expectedHoverKey": expected_hover_key,
+            "hoverCursorKey": actual_hover_key,
+            "hoverCursorMatchesEdges": actual_hover_key == expected_hover_key,
             "expectedResize": name in expected_resize_samples,
         }
     dialog._reset_ai_control_center_resize_cursor()
     expected_ok = all(samples[name]["hitTest"] != 0 for name in expected_resize_samples)
     non_edge_ok = samples["innerContent"]["hitTest"] == 0 and samples["windowControls"]["hitTest"] == 0
-    hover_ok = all(samples[name]["hoverCursorKey"] not in (None, [False, False, False, False]) for name in expected_resize_samples)
+    hover_ok = all(samples[name]["hoverCursorMatchesEdges"] is True for name in expected_resize_samples)
     return {
         "ok": expected_ok and non_edge_ok and hover_ok,
         "resizeMarginPx": int(dialog.RESIZE_MARGIN),
+        "sampleInsetPx": sample_inset,
         "expectedResizeSamples": sorted(expected_resize_samples),
         "samples": samples,
         "expectedResizeSamplesHit": expected_ok,
