@@ -597,6 +597,22 @@ def main():
         nonlocal shutdown_started, shutdown_force_kill_timer
         if shutdown_started:
             return
+        settings_guard = getattr(window, "request_resident_access_settings_shutdown_guard", None)
+        if callable(settings_guard):
+            try:
+                if settings_guard(source="client_shutdown", resume_callback=do_shutdown):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        "|source=client_shutdown"
+                    )
+                    return
+            except TypeError:
+                if settings_guard(source="client_shutdown"):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        "|source=client_shutdown"
+                    )
+                    return
         shutdown_started = True
         runtime_milestone("RENDERER_MAIN|SHUTDOWN_REQUESTED")
         tray_entry.close()
@@ -1143,7 +1159,7 @@ def main():
                 and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
                 and not resize_evidence["resizeActiveAfterRelease"]
                 and resize_evidence["windowResizeBehavior"]
-                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-860x560-v27"
+                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-620x360-dynamic-content-minimum-maximum-820x590-close-intercept-v30"
             )
             record_step(
                 "settings_window_user_drag_resize",
