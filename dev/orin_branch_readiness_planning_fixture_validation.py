@@ -5770,6 +5770,25 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
     if "USER rejection/waiver requires reason" not in "\n".join(rejection_without_reason):
         failures.append("Generated RAR fixture did not reject USER rejection without reason")
 
+    terminal_blocking_failure = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-028",
+                disposition="USER_REJECTED_WITH_REASON",
+                blocking="YES",
+                carrier="Owner FAM-006; reason USER rejected this repair route; trigger replacement option review",
+                decision="USER rejected this item because the proposed issue route was wrong.",
+            )
+        ),
+        source="generated terminal disposition still blocking",
+    )
+    if "terminal disposition cannot remain progression blocking" not in "\n".join(
+        terminal_blocking_failure
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject terminal disposition rows that still block progression"
+        )
+
     nonblocking_missing_fields = rar_issue_durability.validate_text(
         table(
             row(
@@ -5846,6 +5865,41 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             "Generated RAR GitHub fixture rejected a # issue number when an earlier FAM number was present: "
             + "; ".join(mapped_open_prefixed_issue_number[:5])
         )
+
+    with tempfile.TemporaryDirectory() as snapshot_temp_dir:
+        raw_github_snapshot_path = Path(snapshot_temp_dir) / "github_snapshot_updated_at.json"
+        raw_github_snapshot_path.write_text(
+            json.dumps(
+                {
+                    "275": {
+                        "state": "OPEN",
+                        "updatedAt": "2026-06-25T10:20:30Z",
+                        "source": "gh issue view 275 --json state,updatedAt",
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        raw_github_snapshot = rar_issue_durability.load_github_snapshot(raw_github_snapshot_path)
+        mapped_open_updated_at_snapshot = rar_issue_durability.validate_text(
+            table(
+                row(
+                    "FAM006-RAR-029",
+                    disposition="MAPPED_OPEN_GITHUB_ISSUE",
+                    blocking="NO",
+                    github_issue="#275",
+                    carrier="Owner FAM-006; reason issue remains open; carrier GitHub issue #275; trigger issue closeout review",
+                    decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+                )
+            ),
+            source="generated open mapping raw updatedAt snapshot",
+            github_snapshot=raw_github_snapshot,
+        )
+        if mapped_open_updated_at_snapshot:
+            failures.append(
+                "Generated RAR GitHub fixture rejected gh issue view state/updatedAt snapshot freshness: "
+                + "; ".join(mapped_open_updated_at_snapshot[:5])
+            )
 
     mapped_closed_snapshot_closed = rar_issue_durability.validate_text(
         table(

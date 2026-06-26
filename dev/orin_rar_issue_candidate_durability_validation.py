@@ -117,7 +117,7 @@ class CandidateRow:
     def requires_current_packet(self) -> bool:
         if self.disposition in CURRENT_PACKET_DISPOSITIONS:
             return True
-        if self.blocks_progression and self.disposition not in TERMINAL_DISPOSITIONS:
+        if self.blocks_progression:
             return True
         return False
 
@@ -217,7 +217,10 @@ def _legacy_row_to_candidate(cells: list[str], source: str) -> CandidateRow:
 
 def _looks_like_date_or_receipt(value: str) -> bool:
     normalized = _normalize_text(value)
-    if re.search(r"\b20\d{2}-\d{2}-\d{2}\b", value) or re.search(r"\b20\d{6}\b", value):
+    if (
+        re.search(r"\b20\d{2}-\d{2}-\d{2}(?:\b|T)", value)
+        or re.search(r"\b20\d{6}\b", value)
+    ):
         return True
     return any(word in normalized for word in ("receipt", "verified from", "not created yet"))
 
@@ -241,7 +244,12 @@ def _snapshot_state(value: object) -> GitHubIssueSnapshot:
     elif isinstance(value, Mapping):
         state = str(value.get("state", ""))
         source = str(value.get("source", "snapshot"))
-        last_verified = str(value.get("last_verified", value.get("lastVerified", "snapshot")))
+        last_verified = str(
+            value.get(
+                "last_verified",
+                value.get("lastVerified", value.get("updatedAt", value.get("updated_at", "snapshot"))),
+            )
+        )
         issue = str(value.get("issue", ""))
     else:
         state = ""
@@ -445,6 +453,10 @@ def validate_text(
         blocking = _normalize_token(row.progression_blocking)
         if blocking not in {"YES", "NO"}:
             failures.append(f"{source}: {row_label}: Progression Blocking? must be YES or NO")
+        if blocking == "YES" and disposition in TERMINAL_DISPOSITIONS:
+            failures.append(
+                f"{source}: {row_label}: terminal disposition cannot remain progression blocking"
+            )
 
         carrier_decision_text = f"{row.proposed_carrier} {row.exact_user_decision}"
         carrier_decision_normalized = _normalize_text(carrier_decision_text)
