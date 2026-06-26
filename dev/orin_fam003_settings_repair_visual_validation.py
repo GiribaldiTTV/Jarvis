@@ -1633,7 +1633,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v36 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent plus independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v37 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent, tightened vertical text gutters, independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -2586,8 +2586,8 @@ def main() -> int:
         (
             "left rail slim row metrics",
             nav_ok
-            and 30 <= tray_nav_height <= 32
-            and 28 <= quick_nav_height <= 30
+            and tray_nav_height == 28
+            and quick_nav_height == 26
             and dialog.tray_nav_indicator.width() <= 2
             and dialog.tray_nav_icon.width() == 12
             and dialog.quick_access_nav_icon.width() == 12
@@ -2600,7 +2600,7 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-v36"
+            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-tight-vertical-gutter-v37"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.tray_nav_icon.width() == 12
@@ -2638,6 +2638,48 @@ def main() -> int:
     child_right = child_origin.x() + dialog.quick_access_nav_item.width()
     child_right_inset = dialog.nav_shell.width() - child_right
     subpage_margins = dialog.subpage_nav_rail.layout().contentsMargins()
+    parent_bottom = parent_nav_origin.y() + dialog.tray_nav_item.height()
+    category_gap = child_origin.y() - parent_bottom
+
+    def _text_gutters(item, button):
+        text_rect = button.fontMetrics().boundingRect(
+            button.rect(),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            button.text(),
+        )
+        button_origin = button.mapTo(item, QPoint(0, 0))
+        text_left = button_origin.x() + text_rect.x()
+        text_top = button_origin.y() + text_rect.y()
+        text_right = text_left + text_rect.width()
+        text_bottom = text_top + text_rect.height()
+        outer = {
+            "left": text_left,
+            "right": item.width() - text_right,
+            "top": text_top,
+            "bottom": item.height() - text_bottom,
+        }
+        inside_border = {key: max(0, value - 1) for key, value in outer.items()}
+        return outer, inside_border
+
+    parent_outer_gutter, parent_inner_gutter = _text_gutters(dialog.tray_nav_item, dialog.tray_nav_button)
+    child_outer_gutter, child_inner_gutter = _text_gutters(dialog.quick_access_nav_item, dialog.quick_access_nav_button)
+    rows.append(
+        (
+            "left rail category text vertical gutters tightened",
+            parent_inner_gutter["top"] == 5
+            and parent_inner_gutter["bottom"] == 5
+            and child_inner_gutter["top"] == 4
+            and child_inner_gutter["bottom"] == 4
+            and category_gap == 8,
+            "parent_inside={}; child_inside={}; parent_outer={}; child_outer={}; category_gap={}".format(
+                parent_inner_gutter,
+                child_inner_gutter,
+                parent_outer_gutter,
+                child_outer_gutter,
+                category_gap,
+            ),
+        )
+    )
     child_focus_left = max(0, child_origin.x() - 4)
     child_focus_top = max(0, child_origin.y() - 4)
     child_focus_rect = QRect(
@@ -2661,6 +2703,8 @@ def main() -> int:
             child_focus_ok
             and active_child_ok
             and dialog.quick_access_nav_item.width() == 112
+            and dialog.quick_access_nav_item.height() == 26
+            and dialog.tray_nav_item.height() == 28
             and dialog.quick_access_nav_button.maximumWidth() == 88
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
             and subpage_margins.left() == 14
@@ -2670,7 +2714,7 @@ def main() -> int:
             and child_right_inset >= 14
             and dialog.nav_scroll_area.horizontalScrollBar().maximum() == 0
             and dialog.quick_access_nav_item.property("navState") == "selected",
-            f"{child_focus_path} ({child_focus_width}x{child_focus_height}); child_origin={child_origin.x()},{child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; parent_width={dialog.tray_nav_item.width()}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}; child_right={child_right}; right_inset={child_right_inset}; subpage_margins={subpage_margins.left()},{subpage_margins.top()},{subpage_margins.right()},{subpage_margins.bottom()}; hbar_max={dialog.nav_scroll_area.horizontalScrollBar().maximum()}",
+            f"{child_focus_path} ({child_focus_width}x{child_focus_height}); child_origin={child_origin.x()},{child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; child_height={dialog.quick_access_nav_item.height()}; parent_width={dialog.tray_nav_item.width()}; parent_height={dialog.tray_nav_item.height()}; category_gap={category_gap}; parent_inner_gutter={parent_inner_gutter}; child_inner_gutter={child_inner_gutter}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}; child_right={child_right}; right_inset={child_right_inset}; subpage_margins={subpage_margins.left()},{subpage_margins.top()},{subpage_margins.right()},{subpage_margins.bottom()}; hbar_max={dialog.nav_scroll_area.horizontalScrollBar().maximum()}",
         )
     )
 
@@ -2890,7 +2934,7 @@ def main() -> int:
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
             and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36"
             and dialog.property("quickAccessLayoutPolicy") == "content-driven-balanced-gutter-row-count-close-intercept-v32"
-            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-v36"
+            and dialog.property("settingsRailPolishPolicy") == "border-safe-fixed-subpage-indent-tight-vertical-gutter-v37"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"

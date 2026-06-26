@@ -439,7 +439,7 @@ def validate_static_wiring(failures: list[str]):
         "standardWindowArchitecture\", \"pyside-dialogchrome-native-edge-corner-hit-test-reference-derived",
         "windowResizeBehavior\", \"frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36",
         "quickAccessLayoutPolicy\", \"content-driven-balanced-gutter-row-count-close-intercept-v32",
-        "settingsRailPolishPolicy\", \"border-safe-fixed-subpage-indent-v36",
+        "settingsRailPolishPolicy\", \"border-safe-fixed-subpage-indent-tight-vertical-gutter-v37",
         "contentScalePolicy\", \"control-pill-anchored-proportional-content-scale-v32",
         "dirtyCloseRouteCoverage\", \"window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32",
         "dirtyCloseInterceptState\", \"idle",
