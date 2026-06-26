@@ -194,6 +194,16 @@ def _is_empty(value: str) -> bool:
     )
 
 
+def _is_yes(value: str) -> bool:
+    base = re.sub(r"\s+", " ", value.strip()).casefold()
+    separator_normalized = re.sub(r"[-_/]+", " ", base)
+    token_normalized = _normalize_token(value).replace("_", " ").casefold()
+    return any(
+        variant in {"yes", "y", "true", "approved"}
+        for variant in {base, separator_normalized, token_normalized}
+    )
+
+
 def _line_cells(line: str) -> list[str]:
     stripped = line.strip()
     if not stripped.startswith("|") or not stripped.endswith("|"):
@@ -276,7 +286,7 @@ def _legacy_row_to_candidate(cells: list[str], source: str) -> CandidateRow:
         current_disposition="ACTIVE_PENDING_USER_DECISION",
         progression_blocking="YES",
         proposed_carrier=cells[6],
-        github_issue="PENDING" if _normalize_text(cells[7]) == "yes" else "NONE - issue mutation not approved",
+        github_issue="PENDING" if _is_yes(cells[7]) else "NONE - issue mutation not approved",
         last_verified="Legacy RAR ledger import - current verification required",
         exact_user_decision=(
             "USER must review this legacy RAR issue candidate and choose repair, "

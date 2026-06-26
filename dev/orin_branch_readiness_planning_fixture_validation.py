@@ -6066,10 +6066,40 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             ),
             external_ledger=legacy_ledger,
         )
+        legacy_rows = rar_issue_durability.parse_external_candidate_rows(
+            legacy_ledger.read_text(encoding="utf-8"),
+            source=str(legacy_ledger),
+        )
+        if not legacy_rows or legacy_rows[0].github_issue != "NONE - issue mutation not approved":
+            failures.append(
+                "Generated RAR legacy import fixture did not preserve non-approved GitHub issue mutation state"
+            )
         if legacy_carried:
             failures.append(
                 "Generated RAR packet/ledger fixture rejected a recognized legacy external issue-candidate ledger carried into the primary packet: "
                 + "; ".join(legacy_carried[:5])
+            )
+
+        legacy_approved_ledger = temp_root / "legacy_approved_ledger.md"
+        legacy_approved_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-080 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-080 | Owner FAM-006 RAR repair | Yes |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        legacy_approved_rows = rar_issue_durability.parse_external_candidate_rows(
+            legacy_approved_ledger.read_text(encoding="utf-8"),
+            source=str(legacy_approved_ledger),
+        )
+        if not legacy_approved_rows or legacy_approved_rows[0].github_issue != "PENDING":
+            failures.append(
+                "Generated RAR legacy import fixture did not preserve approved GitHub issue mutation state as PENDING"
             )
 
         malformed_legacy_ledger = temp_root / "malformed_legacy_ledger.md"
