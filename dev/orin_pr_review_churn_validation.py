@@ -27,6 +27,8 @@ DEFAULT_MATRIX = (
     / "pr_review_churn"
     / "pr_276_rar_review_churn_matrix.json"
 )
+DEFAULT_TOTAL_COMMENT_BUDGET = 12
+DEFAULT_SAME_FAMILY_COMMENT_BUDGET = 3
 CONNECTOR_LOGINS = {"chatgpt-codex-connector", "codex"}
 CLASSIFIER_CONTEXT_KEYWORDS = (
     "rar",
@@ -951,6 +953,130 @@ def _validate_matrix(
     return failures
 
 
+def _as_int(value: Any, default: int) -> int:
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+    return default
+
+
+def _review_churn_budget_result(
+    matrix: dict[str, Any],
+    pr_number: int,
+    connector_comment_count: int,
+    family_counts: dict[str, int],
+) -> tuple[str, list[str]]:
+    budget = matrix.get("review_churn_budget")
+    if not isinstance(budget, dict):
+        return (
+            "NOT CONFIGURED",
+            ["Review churn matrix missing review_churn_budget"],
+        )
+
+    total_budget = _as_int(
+        budget.get("max_connector_comments_before_root_cause_receipt"),
+        DEFAULT_TOTAL_COMMENT_BUDGET,
+    )
+    same_family_budget = _as_int(
+        budget.get("max_same_family_comments_before_root_cause_receipt"),
+        DEFAULT_SAME_FAMILY_COMMENT_BUDGET,
+    )
+    over_total = connector_comment_count > total_budget
+    over_family = any(count > same_family_budget for count in family_counts.values())
+    if not over_total and not over_family:
+        return (
+            (
+                f"WITHIN BUDGET - connector_comments={connector_comment_count} "
+                f"<= {total_budget}; max_family_count="
+                f"{max(family_counts.values(), default=0)} <= {same_family_budget}"
+            ),
+            [],
+        )
+
+    receipts = budget.get("root_cause_receipts")
+    if not isinstance(receipts, list):
+        return (
+            (
+                f"EXCEEDED WITHOUT RECEIPTS - connector_comments={connector_comment_count}; "
+                f"max_family_count={max(family_counts.values(), default=0)}"
+            ),
+            ["Review churn budget exceeded but root_cause_receipts is missing"],
+        )
+
+    matching_receipts = [
+        receipt
+        for receipt in receipts
+        if isinstance(receipt, dict) and _as_int(receipt.get("pr"), -1) == pr_number
+    ]
+    if not matching_receipts:
+        return (
+            (
+                f"EXCEEDED WITHOUT PR RECEIPT - connector_comments={connector_comment_count}; "
+                f"max_family_count={max(family_counts.values(), default=0)}"
+            ),
+            [f"Review churn budget exceeded but PR #{pr_number} has no root-cause receipt"],
+        )
+
+    failures: list[str] = []
+    receipt = matching_receipts[-1]
+    if _as_int(receipt.get("connector_comments"), -1) != connector_comment_count:
+        failures.append(
+            "Review churn root-cause receipt connector_comments does not match live evidence"
+        )
+    observed_family_counts = receipt.get("observed_family_counts")
+    if observed_family_counts != family_counts:
+        failures.append(
+            "Review churn root-cause receipt observed_family_counts does not match live evidence"
+        )
+    if receipt.get("pr_readiness_stage_1_failure") is not True:
+        failures.append(
+            "Review churn root-cause receipt must mark pr_readiness_stage_1_failure true"
+        )
+    for field in ("root_cause", "prevention_summary", "receipt_marker", "receipt_file"):
+        value = receipt.get(field)
+        if not isinstance(value, str) or not value.strip():
+            failures.append(f"Review churn root-cause receipt missing {field}")
+    preventive_changes = receipt.get("preventive_changes")
+    if not isinstance(preventive_changes, list) or not preventive_changes:
+        failures.append("Review churn root-cause receipt missing preventive_changes")
+    elif any(not isinstance(item, str) or not item.strip() for item in preventive_changes):
+        failures.append("Review churn root-cause receipt preventive_changes contains a blank item")
+
+    receipt_file = receipt.get("receipt_file")
+    receipt_marker = receipt.get("receipt_marker")
+    if isinstance(receipt_file, str) and receipt_file.strip():
+        path = ROOT / receipt_file.replace("\\", "/")
+        if not path.exists():
+            failures.append(f"Review churn root-cause receipt file does not exist: {receipt_file}")
+        elif isinstance(receipt_marker, str) and receipt_marker.strip():
+            text = path.read_text(encoding="utf-8")
+            if receipt_marker not in text:
+                failures.append(
+                    f"Review churn root-cause receipt marker not found in {receipt_file}"
+                )
+
+    if failures:
+        return (
+            (
+                f"EXCEEDED WITH INVALID RECEIPT - connector_comments={connector_comment_count}; "
+                f"max_family_count={max(family_counts.values(), default=0)}"
+            ),
+            failures,
+        )
+
+    return (
+        (
+            f"EXCEEDED WITH ROOT-CAUSE RECEIPT - connector_comments={connector_comment_count}; "
+            f"max_family_count={max(family_counts.values(), default=0)}; "
+            f"receipt={receipt.get('receipt_file')}"
+        ),
+        [],
+    )
+
+
 def build_report(args: argparse.Namespace) -> tuple[int, str]:
     owner, name = _split_repo(args.repo)
     pull_request, threads, page_count = _fetch_review_threads(owner, name, args.pr)
@@ -983,6 +1109,13 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         failures.append("At least one connector review comment was not classified")
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
+    budget_status, budget_failures = _review_churn_budget_result(
+        matrix,
+        args.pr,
+        len(comments),
+        family_counts,
+    )
+    failures.extend(budget_failures)
     green_bound, green_detail = _extract_latest_green(
         owner, name, args.pr, pull_request["headRefOid"], review_comments
     )
@@ -1006,6 +1139,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
             f"outdated={thread_counts['outdated']}"
         ),
         f"Connector review comments collected: {len(comments)}",
+        f"Review-churn budget: {budget_status}",
         "Connector family counts:",
     ]
     for family_id, count in family_counts.items():

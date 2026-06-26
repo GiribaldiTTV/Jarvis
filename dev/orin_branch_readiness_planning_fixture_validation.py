@@ -3794,6 +3794,128 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         matrix.get("schema") == "nexus-pr-review-churn-matrix-v1",
         f"{relative_matrix}: unexpected schema",
     )
+    budget = matrix.get("review_churn_budget")
+    require(
+        isinstance(budget, dict),
+        f"{relative_matrix}: review_churn_budget must be present",
+    )
+    if isinstance(budget, dict):
+        total_budget = budget.get("max_connector_comments_before_root_cause_receipt")
+        same_family_budget = budget.get(
+            "max_same_family_comments_before_root_cause_receipt"
+        )
+        require(
+            isinstance(total_budget, int) and total_budget > 0,
+            (
+                f"{relative_matrix}: max_connector_comments_before_root_cause_receipt "
+                "must be a positive integer"
+            ),
+        )
+        require(
+            isinstance(same_family_budget, int) and same_family_budget > 0,
+            (
+                f"{relative_matrix}: max_same_family_comments_before_root_cause_receipt "
+                "must be a positive integer"
+            ),
+        )
+        receipts = budget.get("root_cause_receipts")
+        require(
+            isinstance(receipts, list) and bool(receipts),
+            f"{relative_matrix}: root_cause_receipts must be a non-empty list",
+        )
+        if isinstance(receipts, list):
+            for receipt in receipts:
+                if not isinstance(receipt, dict):
+                    failures.append(
+                        f"{relative_matrix}: root-cause receipt must be an object"
+                    )
+                    continue
+                pr_number = receipt.get("pr")
+                connector_comments = receipt.get("connector_comments")
+                require(
+                    isinstance(pr_number, int) and pr_number > 0,
+                    f"{relative_matrix}: root-cause receipt pr must be a positive integer",
+                )
+                require(
+                    isinstance(connector_comments, int)
+                    and isinstance(total_budget, int)
+                    and connector_comments > total_budget,
+                    (
+                        f"{relative_matrix}: root-cause receipt connector_comments "
+                        "must exceed the configured total budget"
+                    ),
+                )
+                require(
+                    receipt.get("pr_readiness_stage_1_failure") is True,
+                    (
+                        f"{relative_matrix}: high-churn receipt must mark "
+                        "pr_readiness_stage_1_failure true"
+                    ),
+                )
+                family_counts = receipt.get("observed_family_counts")
+                require(
+                    isinstance(family_counts, dict) and bool(family_counts),
+                    (
+                        f"{relative_matrix}: root-cause receipt must include "
+                        "observed_family_counts"
+                    ),
+                )
+                if isinstance(family_counts, dict) and isinstance(same_family_budget, int):
+                    require(
+                        any(
+                            isinstance(count, int) and count > same_family_budget
+                            for count in family_counts.values()
+                        ),
+                        (
+                            f"{relative_matrix}: root-cause receipt must prove at least "
+                            "one same-family count exceeded budget"
+                        ),
+                    )
+                for field in (
+                    "root_cause",
+                    "prevention_summary",
+                    "receipt_file",
+                    "receipt_marker",
+                ):
+                    value = receipt.get(field)
+                    require(
+                        isinstance(value, str) and bool(value.strip()),
+                        f"{relative_matrix}: root-cause receipt missing {field}",
+                    )
+                changes = receipt.get("preventive_changes")
+                require(
+                    isinstance(changes, list)
+                    and bool(changes)
+                    and all(isinstance(item, str) and item.strip() for item in changes),
+                    (
+                        f"{relative_matrix}: root-cause receipt preventive_changes "
+                        "must be a non-empty string list"
+                    ),
+                )
+                receipt_file = receipt.get("receipt_file")
+                receipt_marker = receipt.get("receipt_marker")
+                if isinstance(receipt_file, str) and receipt_file.strip():
+                    receipt_path = ROOT / receipt_file.replace("\\", "/")
+                    require(
+                        receipt_path.exists(),
+                        (
+                            f"{relative_matrix}: root-cause receipt file is missing: "
+                            f"{receipt_file}"
+                        ),
+                    )
+                    if (
+                        receipt_path.exists()
+                        and isinstance(receipt_marker, str)
+                        and receipt_marker.strip()
+                    ):
+                        require(
+                            receipt_marker
+                            in receipt_path.read_text(encoding="utf-8"),
+                            (
+                                f"{relative_matrix}: root-cause receipt marker "
+                                f"not found in {receipt_file}"
+                            ),
+                        )
     families = matrix.get("families")
     require(
         isinstance(families, list) and bool(families),
