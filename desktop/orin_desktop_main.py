@@ -1132,7 +1132,7 @@ def main():
                 write_manifest("FAIL", "Global Settings did not open")
                 return
             dialog.move(160, 120)
-            dialog.resize(700, 344)
+            dialog.resize(700, 360)
             dialog.raise_()
             dialog.activateWindow()
             pump(260)
@@ -1143,7 +1143,7 @@ def main():
                 and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
                 and not resize_evidence["resizeActiveAfterRelease"]
                 and resize_evidence["windowResizeBehavior"]
-                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-minimum-560x286-maximum-1100x720-v25"
+                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-minimum-560x318-maximum-1100x720-v26"
             )
             record_step(
                 "settings_window_user_drag_resize",
