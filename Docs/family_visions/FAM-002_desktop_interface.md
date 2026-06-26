@@ -65,6 +65,12 @@ FAM-002 supplies reusable presentation grammar for:
 
 Consuming FAM branches may specialize this grammar for their own feature surfaces, but they must name the inherited FAM-002 grammar, classify any platform-native exception, and prove visible inheritance before USER handoff. A branch that introduces a new button family, new window frame, new dialog shell, unique glow/color family, or custom layout density must record whether it is inherited, a USER-accepted new grammar, or a repair/blocker.
 
+## Future-Proof UI Composition Standard
+
+FAM-002 expects Nexus-owned UI to be composed so foreseeable same-class additions can be added without hand-tuning a new one-off visual or layout system. A row, card, control cluster, dropdown, filter, list, dialog, status panel, scrollbar, or window frame should derive its size, spacing, alignment, state treatment, and overflow behavior from the inherited grammar, accepted reference, template, shared primitive, content contract, or named constraint. For example, a value column should derive from label/content rules plus a fixed gutter or documented constraint, not from a magic pixel that only works for the current row count or current screenshot.
+
+Future-proof composition does not authorize future feature implementation. It requires the current UI to preserve extension boundaries, future-gated items, and proof expectations. If a consuming branch cannot derive a same-class UI element from an approved FAM-002 rule, UIREF record, template, or shared primitive, it must record `Reference Gap`, `Template Gap`, `Shared Primitive Gap`, `Source-Truth Gap`, or `Exception Needed` and route the gap rather than silently creating a new product grammar.
+
 ## Component Anatomy And Element-Group Acceptance
 
 FAM-002 treats reusable UI components as visible element groups with anatomy, state, and proof expectations. A component is not accepted merely because a helper marker exists or a screenshot was captured.

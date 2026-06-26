@@ -20,6 +20,8 @@ Required Element Groups: `window frame, title/header, content well, resize edges
 
 Required States: `minimum supported size, default size, medium size, wide size, maximum useful size, fullscreen or maximize when applicable, restored, monitor-change or missing-monitor recovery, display-scale/DPI variation, portrait or narrow-monitor posture, content-overflow posture, hover/focus/cursor transition for resize affordances, disabled or Not Applicable control states, and USER-reviewed exception or waiver where applicable.`
 
+Future-Proof Implementation Expectation: `A geometry or resize implementation must be derived from the accepted reference set, content/layout rules, breakpoints, gutters, constraints, tokens, or approved templates/primitives when they exist. It must show how foreseeable same-class additions such as new rows, cards, control groups, filters, status fields, dialogs, or resize states can fit without screenshot-tuned magic pixels, brittle one-state assumptions, or hidden backend-state dependencies. This expectation does not authorize future feature implementation; future items remain future-gated unless admitted by their own source truth and USER approval.`
+
 Geometry / Resize / Accessibility Expectations: `Windows must remain usable, readable, deterministic, intuitive, immersive, predictable, reliable, and consistent at every supported size. Compact windows should not grow indefinitely into useless empty space unless a purposeful wide-state treatment exists. Dashboard windows may use additional space, but they must use it meaningfully through reflow, columns, richer information density, or bounded scroll rather than leaving tiny UI floating in a large shell. Minimum size is the smallest mature usable size. Default size should fit the active content and role. Maximum useful size should prevent broken or sparse layouts unless fullscreen/maximize has a defined composition. Responsive behavior must use breakpoints, bounded content, reflow, scroll, wrap, truncate, collapse, or added real content; it must not use global browser-zoom style scaling as a substitute for layout design.`
 
 Proof Artifacts: `FAM-007 AI Control Center remains the strongest accepted compact top-level geometry seed where UIREF-001, UIREF-002, and UIREF-007 apply. FAM-006 HUD Dashboard remains comparison and adoption-target evidence for dashboard / parent-class layout. Manage Monitors, Global Settings, Recording Studio, Log Viewer Studio, AI Command Center, tray-opened surfaces, and future installer/update surfaces require their own owning-FAM proof before they can claim adoption.`
@@ -83,6 +85,41 @@ Required fields:
 - `Code-To-Visual Trace:`
 - `Screenshot / Video / Contact-Sheet Evidence:`
 - `Disposition:`
+
+## Future-Proof Implementation Review Fields
+
+When UIREF-007 applies, the owning branch should include a `Future-Proof Implementation Review:` row or companion table for each affected window/surface.
+
+Required fields:
+
+- `Current Feature:`
+- `Foreseeable Same-Class Additions:`
+- `Contract / Reference / Template / Primitive Basis:`
+- `Layout Derivation Rule:`
+- `State / Runtime Derivation Rule:`
+- `Magic Values Avoided:`
+- `Extension Boundaries:`
+- `Future-Gated Items:`
+- `Template / Shared Primitive / Reference Gap:`
+- `Source-Truth Gap:`
+- `Implementation Gap:`
+- `Proof Expectations:`
+- `Disposition:`
+
+Allowed dispositions:
+
+- `Future-Proof Complete`
+- `Future-Proof Partial`
+- `Implementation Gap`
+- `Template Gap`
+- `Shared Primitive Gap`
+- `Reference Gap`
+- `Source-Truth Gap`
+- `Future-Gated Dependency`
+- `Exception Needed`
+- `Issue Candidate`
+- `Reference Effectiveness Warning`
+- `Blocked Pending USER Decision`
 
 ## Per-FAM Dependency Planning Records
 

@@ -99,6 +99,63 @@ Project Vision includes the NDAI Product Experience Contract: deterministic, int
 
 Reference Standard carrydown uses the existing phase machine. BR1/BR2 must ask whether applicable Reference Standards already exist or whether the branch has a reference gap. BP1 identifies which Reference Standards shape the branch vision and which missing standards require USER decision. BP2 states whether the branch will consume a Shared Primitive, instantiate a Template, derive from an Accepted Reference Set, or request a USER-approved exception. BP3 verifies that Workstream has a proof plan for those choices. Workstream records reference gaps rather than inventing a new standard. Hardening and Live Validation prove adoption against the accepted reference, template, primitive, or exception. PR Readiness Stage 1 reviews whether the Reference Standard worked, whether repeated same-class repair cycles occurred, and whether a repair, supersession, or deferred reference candidate must be folded down before PR Stage 2.
 
+`Future-Proof Implementation Review:` is required when BP2/BP3, Workstream, Hardening, Live Validation, RAR, or PR Readiness evaluates a feature, UI surface, runtime state, backend-to-visual path, proof hook, or same-class reference/template/primitive adoption that could reasonably receive same-class additions later. Future-proofing means the current admitted feature is implemented so foreseeable same-class additions can be added later without brittle one-off layout, state, proof, or UI rewrites. It does not authorize speculative future feature implementation.
+
+Required Future-Proof fields:
+
+- `Current Feature:`
+- `Foreseeable Same-Class Additions:`
+- `Contract / Reference / Template / Primitive Basis:`
+- `Layout Derivation Rule:`
+- `State / Runtime Derivation Rule:`
+- `Magic Values Avoided:`
+- `Extension Boundaries:`
+- `Future-Gated Items:`
+- `Template / Shared Primitive / Reference Gap:`
+- `Source-Truth Gap:`
+- `Implementation Gap:`
+- `Proof Expectations:`
+- `Disposition:`
+
+Allowed Future-Proof dispositions are `Future-Proof Complete`, `Future-Proof Partial`, `Implementation Gap`, `Template Gap`, `Shared Primitive Gap`, `Reference Gap`, `Source-Truth Gap`, `Future-Gated Dependency`, `Exception Needed`, `Issue Candidate`, `Reference Effectiveness Warning`, and `Blocked Pending USER Decision`. `Future-Proof Partial`, `Implementation Gap`, `Template Gap`, `Shared Primitive Gap`, `Reference Gap`, `Source-Truth Gap`, `Exception Needed`, `Issue Candidate`, `Reference Effectiveness Warning`, and `Blocked Pending USER Decision` block normal progression until repaired, waived, routed, deferred, or accepted by the correct source-truth owner.
+
+| Future-Proof Rule | Owner | Required Carrydown | Enforcement Path | Status |
+| --- | --- | --- | --- | --- |
+| Current implementation derives from accepted contracts, references, templates, primitives, content rules, state models, and proof hooks where available. | Project Vision, FAM-002, applicable UIREF / reference owner, and consuming FAM branch plan. | BP2 names derivation; BP3 verifies proof plan; Workstream implements from derivation; Hardening/LV prove the result. | Manual phase review now; future helper/validator checks when machine-checkable. | Binding now. |
+| Magic values are allowed only when named, justified, source-owned, and proven across relevant states. | Consuming FAM branch plan plus applicable reference owner. | BP2/BP3 and Workstream must record why the value is stable; Hardening/LV test relevant state/size/content variants. | Manual review now; future brittle-pattern scanner expected. | Binding now. |
+| Future-proofing does not silently implement future scope. | Phase governance and branch-planning owner. | Future items stay under `Future-Gated Items` or deferred owner/trigger/proof fields. | Phase review and RAR issue-candidate routing. | Binding now. |
+| Missing template/shared primitive/reference/source truth is a gap, not local invention authority. | Reference Standard owner, UIREF catalog when UI, or future non-UI reference owner. | Branch records `Template Gap`, `Shared Primitive Gap`, `Reference Gap`, or `Source-Truth Gap` and routes the gap. | RAR, Hardening, PR Readiness Stage 1. | Binding now. |
+
+| Affected Phase | Required Future-Proof Question | Required Evidence | Blocking Condition |
+| --- | --- | --- | --- |
+| BP2 | How will the engineering plan support foreseeable same-class additions without one-off layout/state/proof rewrites? | Derivation rule, state/runtime rule, extension boundaries, future-gated items, gap disposition. | `Future-Proof Review Missing` or unresolved gap. |
+| BP3 | Does the Workstream proof plan cover extension boundaries, same-class additions, and future-gated gaps? | BP2 trace, proof expectations, validator/helper plan, USER-review path for gaps. | `Future-Proof Proof Plan Missing`. |
+| Workstream | Did implementation follow the derivation rules instead of screenshot-tuned fixes? | Code-to-visual trace, implementation notes, direct verification, gap rows when needed. | `Magic Value Unjustified`, `Future Scope Implemented By Inference`, or unresolved implementation gap. |
+| Hardening | Are brittle layouts, magic pixels, hardcoded assumptions, and backend-to-visual truth drift absent or dispositioned? | State/size/content variation review, source inspection, proof manifest. | `Brittle Implementation Unresolved`. |
+| Live Validation / UTS | Does rendered behavior prove the current and relevant same-class extension states, not only a default screenshot? | Focused screenshots/video/ordered frames, state coverage, USER manual validation or waiver when needed. | `One-State Future-Proof Proof`, `Default-Only Future-Proof Proof`, or manual validation pending. |
+| RAR | Does merged source truth reveal old/current branch output that is not future-proof? | Adoption ledger, issue-candidate table, accepted-reference comparison, code-to-visual trace. | `Future-Proof Adoption Review Missing` or unresolved nonconformance/gap. |
+| PR Readiness Stage 1 | Did repeated repair cycles show the reference/template/primitive was ineffective? | Repair-cycle count, Reference Effectiveness Warning, fold-down candidate if needed. | `Reference Effectiveness Warning Unrouted` or `Reference Standard Repair Candidate Required`. |
+
+| Gap Type | Meaning | Legal Response | USER Decision Needed? |
+| --- | --- | --- | --- |
+| `Implementation Gap` | Current admitted feature can be fixed in the current legal carrier. | Repair during approved Workstream/Hardening/RAR scope, then revalidate. | Only if repair expands scope or changes accepted behavior. |
+| `Template Gap` | A reusable template is needed but not promoted/approved. | Record gap, route to template/reference owner, or derive from accepted reference with USER review. | Yes when promotion, waiver, or local exception is needed. |
+| `Shared Primitive Gap` | Reusable implementation source is needed but not approved. | Record gap; do not claim primitive consumption; defer or request primitive work. | Yes for primitive implementation/promotion. |
+| `Reference Gap` | Comparator is missing/ambiguous/ineffective. | Route to reference owner or use accepted reference set with explicit limitation. | Yes when USER judgment or new standard promotion is needed. |
+| `Source-Truth Gap` | Durable rule owner is missing or conflicting. | Stop or route to Governance/source owner. | Yes for source-truth repair. |
+| `Future-Gated Dependency` | Same-class future work exists but is outside current admitted scope. | Keep future-gated with owner, trigger, proof expectation. | Usually no unless USER wants to expand current scope. |
+| `Issue Candidate` | Defect is real but out of current legal repair scope or historical. | Prepare issue candidate; issue mutation remains separately USER-gated. | Yes before GitHub issue creation/mutation. |
+
+| Magic / Brittle Pattern | Why It Is Bad | Required Derivation / Proof | Incident Pattern Needed? |
+| --- | --- | --- | --- |
+| Magic-pixel layout fix | Works only for one screenshot or current content. | Derive from token, gutter, content rule, breakpoint, or accepted reference; prove content/size variants. | Yes if repeated. |
+| Screenshot-tuned UI | Optimizes for one proof image instead of product behavior. | Prove default, variant, hover/focus/disabled/error/resize states as applicable. | Yes if it reaches LV/UTS. |
+| One-state-only layout proof | Cannot prove future additions or user states. | Add state matrix and focused evidence for relevant states. | Yes when accepted as green. |
+| Default-size-only window proof | Hides resize, scroll, overflow, DPI, and multi-monitor defects. | Use UIREF-007 minimum/default/medium/wide/maximum proof. | Yes when repeated. |
+| Same-class control divergence | Breaks immersion and predictability. | Compare against UIREF/FAM-002/accepted reference or record exception. | Yes if repeated. |
+| Backend-visible state without owner | UI can claim status that runtime cannot prove. | Name state owner, lifecycle, inputs/outputs, failure/recovery, proof hooks. | Yes when validator green missed it. |
+| Future feature silently implemented | Smuggles scope under future-proofing. | Keep future items under `Future-Gated Items` with owner/trigger/proof. | Yes if repeated. |
+
 BP2 owns the engineering translation of the accepted or waived BP1 contract. It must map selected vision elements to Slice/SLC/seam deliverables, affected files/surfaces, validators/helpers, proof outputs, rollback, risks, and deferred/future-gated boundaries. BP2 is not allowed to become a new product vision owner by changing UI behavior, workflow, feature scope, or deferred-item disposition without returning to BP1 or recording an explicit USER waiver.
 
 BP3 owns orchestration readiness. It must prove the Workstream package implements the accepted or waived BP1/BP2 vision chain and must identify any missing vision layer, weak FFV sufficiency, unplanned deferred item, or unsupported proof path before Workstream implementation can be requested.

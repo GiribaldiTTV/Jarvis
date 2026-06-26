@@ -241,6 +241,26 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/ui_reference_catalog/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Future-Proofing Becomes Screenshot-Tuned One-Off Repair
+
+- symptom:
+  Codex fixes the current visible defect with a magic pixel, hardcoded row count, default-size-only layout, one-state proof, or branch-local state assumption, then reports green even though the next same-class row, button, dropdown, status, resize state, backend state, or recovery path would require another rewrite.
+- layer:
+  Project Vision, FAM-002 presentation grammar, UIREF, Reference Standard carrydown, BP2/BP3, Workstream, Hardening, Live Validation, UTS, RAR, PR Readiness, and issue-candidate routing.
+- root-cause pattern:
+  Source truth required deterministic, intuitive, immersive, predictable, reliable, and consistent output, but did not force Codex to name the derivation rule, extension boundary, future-gated items, magic-value justification, template/shared-primitive/reference/source-truth gaps, or reference-effectiveness warnings before implementation and proof.
+- fix pattern:
+  require `Future-Proof Implementation Review` inside existing phases. BP2 names layout and state/runtime derivation rules; BP3 verifies proof coverage; Workstream implements from derivation rather than screenshot tuning or records a gap; Hardening inspects brittle assumptions; Live Validation proves relevant states and same-class extension behavior; RAR prepares issue candidates for old/out-of-scope non-future-proof output; PR Readiness reviews repeated same-class repairs for reference effectiveness failure. Future-proofing must never authorize speculative future feature implementation.
+- validation pattern:
+  future helpers should fail on `Future-Proof Review Missing`, `Future-Proof Proof Plan Missing`, `Magic Value Unjustified`, `Brittle Implementation Unresolved`, `Default-Only Future-Proof Proof`, `One-State Future-Proof Proof`, `Future Scope Implemented By Inference`, `Template Gap Unrouted`, `Shared Primitive Gap Unrouted`, `Reference Gap Unrouted`, `Source-Truth Gap Unrouted`, `Issue Candidate Disposition Missing`, or `Reference Effectiveness Warning Unrouted` when machine-checkable.
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: PR Auto-Close Keywords Bypass Issue Approval
 
 - symptom:
