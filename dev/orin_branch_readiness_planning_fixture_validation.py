@@ -6243,6 +6243,28 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 + "; ".join(windows_routed_primary_failures[:5])
             )
 
+        negated_routed_primary_packet = temp_root / "negated-routed-primary" / "FAM-006"
+        negated_issue_decisions = negated_routed_primary_packet / "Issue Decisions"
+        negated_issue_decisions.mkdir(parents=True)
+        (negated_routed_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Do not use Issue Decisions/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md as the primary decision file.\n",
+            encoding="utf-8",
+        )
+        (negated_issue_decisions / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-081")),
+            encoding="utf-8",
+        )
+        negated_routed_primary_failures = rar_issue_durability.validate_packet_folder(
+            negated_routed_primary_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            negated_routed_primary_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed negated START_HERE issue-candidate route as the primary decision file"
+            )
+
         negated_lineage_ledger = temp_root / "negated_lineage_ledger.md"
         negated_lineage_ledger.write_text(table(row("FAM006-RAR-067")), encoding="utf-8")
         negated_lineage_failures = rar_issue_durability.validate_packet_folder(
@@ -6567,6 +6589,42 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         failures.append(
             "Generated RAR fixture rejected escaped Markdown pipe inside a valid issue-candidate cell: "
             + "; ".join(escaped_pipe_valid[:5])
+        )
+
+    stale_verified_from_helper = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-082 | FAM-006 | HUD Dashboard | Window control cluster | "
+            "Legacy close control diverges from UIREF-002 | RAR contact sheet row HUD-CTRL-082 | "
+            "ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from helper output | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated stale helper-output freshness text",
+    )
+    if "Last Verified requires dated or receipt-based freshness evidence" not in "\n".join(
+        stale_verified_from_helper
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject undated helper-output freshness wording"
+        )
+
+    stale_verified_from_notes = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-083 | FAM-006 | HUD Dashboard | Window control cluster | "
+            "Legacy close control diverges from UIREF-002 | RAR contact sheet row HUD-CTRL-083 | "
+            "ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from old notes | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated stale notes freshness text",
+    )
+    if "Last Verified requires dated or receipt-based freshness evidence" not in "\n".join(
+        stale_verified_from_notes
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject undated old-notes freshness wording"
         )
 
     github_creation_approved_receipt = rar_issue_durability.validate_text(

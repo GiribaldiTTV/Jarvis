@@ -303,7 +303,11 @@ def _looks_like_date_or_receipt(value: str) -> bool:
         or re.search(r"\b20\d{6}\b", value)
     ):
         return True
-    return "verified from" in normalized or "not created yet" in normalized or _has_positive_user_approval_receipt(value)
+    if "not created yet" in normalized and "github issue" in normalized:
+        return True
+    if "verified from" in normalized and "receipt" in normalized:
+        return True
+    return _has_positive_user_approval_receipt(value)
 
 
 def _issue_number(value: str) -> str | None:
@@ -798,9 +802,29 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
         route_window_pattern = rf"(primary|decision|issue[ -]candidate|user review|start here|review order).{{0,160}}{re.escape(route_target)}|{re.escape(route_target)}.{{0,160}}(primary|decision|issue[ -]candidate|user review)"
         if not re.search(route_window_pattern, route_search_text, flags=re.IGNORECASE | re.DOTALL):
             continue
+        if _start_here_route_is_negated(route_search_text, route_target):
+            continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             routed_paths.append(path)
     return routed_paths
+
+
+def _start_here_route_is_negated(start_text: str, route_target: str) -> bool:
+    for match in re.finditer(re.escape(route_target), start_text, flags=re.IGNORECASE):
+        window = start_text[max(0, match.start() - 100) : match.end() + 140]
+        negated = re.search(
+            r"\b(do not|don't|never|not use|not as|not the|not a)\b",
+            window,
+            flags=re.IGNORECASE,
+        )
+        primary_context = re.search(
+            r"\b(primary|decision|issue[ -]candidate|user review)\b",
+            window,
+            flags=re.IGNORECASE,
+        )
+        if negated and primary_context:
+            return True
+    return False
 
 
 def _supporting_decision_surface_paths(packet_folder: Path) -> list[Path]:

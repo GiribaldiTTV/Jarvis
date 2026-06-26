@@ -129,9 +129,13 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "primary row",
             "primary packet",
             "candidate disappearance",
+            "candidate disappeared",
+            "disappeared from active packet",
+            "rar issue candidate disappeared",
             "renamed-candidate disappearance",
             "regrouped/renamed-candidate",
             "external rar candidate",
+            "active packet",
             "predecessor/successor lineage",
             "candidate lineage",
         ),
@@ -469,6 +473,17 @@ def _classifier_guardrail_failures() -> list[str]:
     ):
         failures.append(
             "Comment-family classifier did not classify RAR issue-candidate durability lineage drift"
+        )
+    disappeared_comment = (
+        "RAR Issue Candidate Disappeared From Active Packet after packet "
+        "regeneration; candidate disappearance must be treated as durability "
+        "parser coverage, not only a disposition wording issue."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        disappeared_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify active-packet disappearance blocker wording"
         )
     helper_output_comment = (
         "Reject helper-output decision tables as primary. START_HERE routes "
