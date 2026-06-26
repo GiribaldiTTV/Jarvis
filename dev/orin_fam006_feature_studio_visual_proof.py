@@ -437,20 +437,20 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                 row_failures.append("value text missing")
             if not isinstance(gap, int):
                 row_failures.append("label/value gap missing")
-            elif gap < 5 or gap > 7:
-                row_failures.append(f"label/value gap {gap}px outside AI Control Center 6px +/-1px range")
+            elif gap < 7 or gap > 9:
+                row_failures.append(f"label/value gap {gap}px outside current AI Dashboard 8px +/-1px range")
             if not isinstance(label_rect, dict) or not isinstance(value_rect, dict):
                 row_failures.append("label/value rect missing")
             if not isinstance(label_width, int):
                 row_failures.append("label column width missing")
-            elif label_width < 56 or label_width > 68:
-                row_failures.append(f"label column width {label_width}px outside content-derived compact range 56-68px")
+            elif label_width <= 0:
+                row_failures.append(f"label column width {label_width}px is not content-derived max-content")
             if not isinstance(value_left, int):
                 row_failures.append("value/status column left missing")
             if not isinstance(label_style, dict):
                 row_failures.append("label computed style missing")
-            elif label_style.get("fontSize") != "10px":
-                row_failures.append(f"label fontSize {label_style.get('fontSize')!r} != '10px'")
+            elif label_style.get("fontSize") != "11px":
+                row_failures.append(f"label fontSize {label_style.get('fontSize')!r} != current AI Dashboard '11px'")
             if isinstance(label_style, dict) and str(label_style.get("fontWeight")) != "720":
                 row_failures.append(f"label fontWeight {label_style.get('fontWeight')!r} != '720'")
             if not isinstance(value_style, dict):
@@ -472,9 +472,9 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
                     "valueComputedStyle": value_style,
                     "valueLeftPx": value_left,
                     "labelValueGapPx": gap,
-                    "expectedGapPx": "6 +/- 1",
-                    "expectedLabelColumnWidthPx": "56-68",
-                    "expectedLabelFontSize": "10px",
+                    "expectedGapPx": "8 +/- 1",
+                    "expectedLabelColumnWidthPx": "per-row max-content",
+                    "expectedLabelFontSize": "11px",
                     "expectedValueFontSize": "11px",
                     "expectedFontWeight": "720",
                     "failures": row_failures,
@@ -488,14 +488,12 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             if isinstance(row.get("valueLeftPx"), int)
         ]
         value_column_delta = max(value_lefts) - min(value_lefts) if value_lefts else None
-        if len(value_lefts) > 1 and value_column_delta is not None and value_column_delta > 1:
-            failures.append(f"value/status column start delta {value_column_delta}px exceeds 1px")
         return {
             "surface": "Recording Suite" if surface_key == "recording" else "Log Viewer",
-            "expected": "studio state rows use compact child-window row rhythm: content-derived max label token column plus 6px value gutter, USER-directed 10px label / 11px value text, and 720 font weight",
+            "expected": "studio state rows use current FAM-007 AI Dashboard row rhythm: per-row max-content label column, 8px value gutter, 11px label/value text, and 720 font weight",
             "rows": rows,
             "valueColumnDeltaPx": value_column_delta,
-            "valueColumnAlignmentExpectedPx": "0-1",
+            "valueColumnAlignmentExpectedPx": "not enforced; FAM-007 uses per-row max-content label columns",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
         }

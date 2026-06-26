@@ -249,7 +249,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-strip {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
+  gap: 0;
   margin: 0;
   padding: 0;
   border: 0;
@@ -469,7 +469,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-target-strip {
   display: grid;
-  gap: 6px;
+  gap: 0;
   margin: 0;
   padding: 0;
   border: 0;
@@ -479,24 +479,23 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row {
-  --monitoring-hud-studio-row-label-token-width: 6ch;
-  --monitoring-hud-studio-row-label-accent-space: 11px;
-  --monitoring-hud-studio-row-value-gutter: 6px;
-  --monitoring-hud-studio-row-label-column: calc(
-    var(--monitoring-hud-studio-row-label-token-width) +
-    var(--monitoring-hud-studio-row-label-accent-space)
-  );
+  --monitoring-hud-studio-row-value-gutter: 8px;
+  --monitoring-hud-studio-row-label-column: max-content;
   min-height: 0;
   padding: 4px 0 2px;
   grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr);
-  gap: var(--monitoring-hud-studio-row-value-gutter);
+  column-gap: var(--monitoring-hud-studio-row-value-gutter);
   background: var(--monitoring-hud-divider-glow);
   background-repeat: no-repeat;
   background-size: 100% var(--monitoring-hud-divider-glow-size);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row span {
-  font-size: 10px;
+  width: max-content;
+  max-width: none;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 720;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-truth-row strong {

@@ -1636,12 +1636,10 @@ def validate() -> list[str]:
         "height: 31px",
         "padding-inline: 14px",
         "font-weight: 720",
-        "--monitoring-hud-studio-row-label-token-width: 6ch",
-        "--monitoring-hud-studio-row-label-accent-space: 11px",
-        "--monitoring-hud-studio-row-value-gutter: 6px",
-        "--monitoring-hud-studio-row-label-column: calc(",
+        "--monitoring-hud-studio-row-value-gutter: 8px",
+        "--monitoring-hud-studio-row-label-column: max-content",
         "grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr)",
-        "gap: var(--monitoring-hud-studio-row-value-gutter)",
+        "column-gap: var(--monitoring-hud-studio-row-value-gutter)",
         "padding: 4px 0 2px",
         "right: 14px",
         'data-element-group="recording-actions"',
@@ -1752,22 +1750,22 @@ def validate() -> list[str]:
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__controller-meta-strip",
-        ("gap: 6px", "padding: 0"),
+        ("gap: 0", "padding: 0"),
         "FAM-006 Recording Suite row stack must use AI Control Center row rhythm",
         failures,
     )
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__log-target-strip",
-        ("gap: 6px", "padding: 0"),
+        ("gap: 0", "padding: 0"),
         "FAM-006 Log Viewer row stack must use AI Control Center row rhythm",
         failures,
     )
     _require_css_block_properties(
         studio_primitives,
         f"{studio_selector_root} .monitoring-hud__studio-truth-row span",
-        ("font-size: 10px",),
-        "FAM-006 Studio row label must be one pixel smaller than the status/value text",
+        ("width: max-content", "font-size: 11px", "font-weight: 720"),
+        "FAM-006 Studio row label must match current AI Dashboard row label grammar",
         failures,
     )
     _require_css_block_properties(
