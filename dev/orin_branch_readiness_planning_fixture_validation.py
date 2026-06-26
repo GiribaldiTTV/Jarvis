@@ -5786,6 +5786,52 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject issue-candidate table present only in Source Truth Context"
             )
 
+        nested_review_aid_only_packet = temp_root / "nested-review-aid-only" / "FAM-006"
+        nested_review_aid_user_review = (
+            nested_review_aid_only_packet / "Review Aids" / "USER Review"
+        )
+        nested_review_aid_user_review.mkdir(parents=True)
+        (nested_review_aid_only_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_review_aid_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-039")),
+            encoding="utf-8",
+        )
+        nested_review_aid_only_failures = rar_issue_durability.validate_packet_folder(
+            nested_review_aid_only_packet
+        )
+        if "primary USER decision surface missing" not in "\n".join(
+            nested_review_aid_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed nested Review Aids/USER Review copy as a primary decision surface"
+            )
+
+        nested_context_only_packet = temp_root / "nested-context-only" / "FAM-006"
+        nested_context_user_review = (
+            nested_context_only_packet / "Source Truth Context" / "USER Review"
+        )
+        nested_context_user_review.mkdir(parents=True)
+        (nested_context_only_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_context_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-040")),
+            encoding="utf-8",
+        )
+        nested_context_only_failures = rar_issue_durability.validate_packet_folder(
+            nested_context_only_packet
+        )
+        if "primary USER decision surface missing" not in "\n".join(
+            nested_context_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed nested Source Truth Context/USER Review copy as a primary decision surface"
+            )
+
         primary_packet = packet_with_sections(
             temp_root / "primary",
             primary_text=table(row("FAM006-RAR-011")),

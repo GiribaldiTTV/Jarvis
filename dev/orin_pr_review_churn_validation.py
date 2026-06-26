@@ -157,7 +157,14 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "chat digest",
             "primary user decision",
             "primary decision surface",
+            "primary surface",
             "decision surface",
+            "review aid",
+            "review aids",
+            "copied table",
+            "copied context",
+            "nested path",
+            "nested review",
             "active gate",
         ),
     ),
@@ -472,6 +479,19 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-user-packet-proof-parser" not in helper_output_families:
         failures.append(
             "Comment-family classifier did not classify helper-output/chat-digest primary packet drift"
+        )
+    nested_review_copy_comment = (
+        "Exclude nested review-aid/context copies from primary surfaces. "
+        "When a packet has no active USER Review decision file but a copied "
+        "table sits under a nested path like Review Aids/USER Review or "
+        "Source Truth Context/USER Review, it must not satisfy the primary "
+        "USER decision surface."
+    )
+    if "rar-user-packet-proof-parser" not in _classify_comment(
+        nested_review_copy_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify nested review-aid/context primary packet drift"
         )
     unrelated_lineage = "A migration lineage match failed for a database seed."
     if _classify_comment(unrelated_lineage) != ["unknown"]:
