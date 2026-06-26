@@ -68,13 +68,12 @@ PACKETED_ONLY_PATTERNS = (
 EMPTY_VALUES = {"", "none", "n/a", "na", "not applicable", "tbd", "todo", "unknown"}
 HISTORICAL_PACKETED_ONLY_CONTEXT = (
     "previous",
+    "previously",
     "prior",
     "historical",
     "formerly",
     "invalid",
     "not durable",
-    "repaired",
-    "replaced",
 )
 PRIMARY_REVIEW_FOLDER = "user review"
 REVIEW_AIDS_FOLDER = "review aids"

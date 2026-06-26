@@ -5778,6 +5778,24 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject packeted-only closure wording in START_HERE when a primary table exists"
             )
 
+        active_repaired_packeted_only_packet = packet_with_sections(
+            temp_root / "active-repaired-packeted-only-with-primary",
+            primary_text=table(row("FAM006-RAR-061")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The candidate is repaired and replaced because it was packeted only, so progression may continue."
+            ),
+        )
+        active_repaired_packeted_only_failures = rar_issue_durability.validate_packet_folder(
+            active_repaired_packeted_only_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            active_repaired_packeted_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject active repaired/replaced packeted-only closure wording"
+            )
+
         routed_packet = temp_root / "routed-primary" / "FAM-006"
         routed_review = routed_packet / "Review Aids"
         routed_decisions = routed_packet / "Issue Decisions"
