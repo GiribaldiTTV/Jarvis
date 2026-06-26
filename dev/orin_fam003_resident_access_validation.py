@@ -22,6 +22,49 @@ def assert_true(condition: bool, message: str, failures: list[str]):
         failures.append(message)
 
 
+def function_block(text: str, function_name: str) -> str:
+    marker = f"    def {function_name}"
+    start = text.find(marker)
+    if start == -1:
+        return ""
+    end = text.find("\n    def ", start + len(marker))
+    return text[start:] if end == -1 else text[start:end]
+
+
+def validate_no_forced_arrow_release(renderer_text: str, failures: list[str]):
+    cursor_helpers = (
+        "_apply_settings_windows_resize_cursor",
+        "_apply_ai_control_center_windows_resize_cursor",
+        "_apply_monitoring_hud_windows_resize_cursor",
+    )
+    for helper_name in cursor_helpers:
+        block = function_block(renderer_text, helper_name)
+        assert_true(block, f"{helper_name} missing", failures)
+        assert_true(
+            "resize-cursor-no-forced-arrow-release" in block,
+            f"{helper_name} must document no forced IDC_ARROW release",
+            failures,
+        )
+        guard = "if not edges:\n            return"
+        assert_true(
+            guard in block,
+            f"{helper_name} must return early when no resize edge is active",
+            failures,
+        )
+        if guard in block and "LoadCursorW" in block:
+            assert_true(
+                block.index(guard) < block.index("LoadCursorW"),
+                f"{helper_name} must skip LoadCursorW before no-edge cursor release",
+                failures,
+            )
+        if guard in block and "SetCursor" in block:
+            assert_true(
+                block.index(guard) < block.index("SetCursor"),
+                f"{helper_name} must skip SetCursor before no-edge cursor release",
+                failures,
+            )
+
+
 def validate_resident_model(failures: list[str]):
     from desktop.resident_access import (
         DEFAULT_QUICK_SLOT_COUNT,
@@ -275,6 +318,7 @@ def validate_static_wiring(failures: list[str]):
     ast.parse(tray_text, filename="desktop/tray_controller.py")
     ast.parse(renderer_text, filename="desktop/desktop_renderer.py")
     ast.parse(main_text, filename="desktop/orin_desktop_main.py")
+    validate_no_forced_arrow_release(renderer_text, failures)
     settings_dialog_start = renderer_text.index("class ResidentAccessSettingsDialog")
     settings_dialog_end = renderer_text.index("class AIControlCenterCommandPage")
     settings_dialog_text = renderer_text[settings_dialog_start:settings_dialog_end]
@@ -393,7 +437,7 @@ def validate_static_wiring(failures: list[str]):
         "referenceDerivedHeader\", \"ndai-global-settings-centered-settings-chrome-v22",
         "dirtyGuardReference\", \"manage-monitors-modal-save-discard-cancel",
         "standardWindowArchitecture\", \"pyside-dialogchrome-native-edge-corner-hit-test-reference-derived",
-        "windowResizeBehavior\", \"frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-v28",
+        "windowResizeBehavior\", \"frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-no-forced-arrow-release-v29",
         "quickAccessLayoutPolicy\", \"content-driven-card-window-grow-disable-before-break-v28",
         "settingsRailPolishPolicy\", \"slim-parent-child-active-signal-v28",
         "dirtyCloseInterceptState\", \"idle",

@@ -1209,7 +1209,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-v28")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-dynamic-row-count-minimum-590x338-maximum-780x560-no-forced-arrow-release-v29")
         self.setProperty("quickAccessLayoutPolicy", "content-driven-card-window-grow-disable-before-break-v28")
         self.setProperty("settingsRailPolishPolicy", "slim-parent-child-active-signal-v28")
         self.setProperty("dirtyCloseInterceptState", "idle")
@@ -2856,6 +2856,10 @@ class ResidentAccessSettingsDialog(QDialog):
 
     def _apply_settings_windows_resize_cursor(self, edges) -> None:
         if os.name != "nt":
+            return
+        # resize-cursor-no-forced-arrow-release: clear our override without
+        # forcing IDC_ARROW, or Windows edge hover can flicker arrow/resize.
+        if not edges:
             return
         try:
             cursor_handle = LoadCursorW(None, self._settings_windows_resize_cursor_id_for_edges(edges))
@@ -8712,6 +8716,10 @@ class AIControlCenterDialog(QDialog):
     def _apply_ai_control_center_windows_resize_cursor(self, edges) -> None:
         if os.name != "nt":
             return
+        # resize-cursor-no-forced-arrow-release: clear our override without
+        # forcing IDC_ARROW, or Windows edge hover can flicker arrow/resize.
+        if not edges:
+            return
         try:
             cursor_handle = LoadCursorW(None, self._ai_control_center_windows_resize_cursor_id_for_edges(edges))
             if cursor_handle:
@@ -11739,6 +11747,10 @@ class DesktopRuntimeWindow(QWidget):
 
     def _apply_monitoring_hud_windows_resize_cursor(self, edges):
         if os.name != "nt":
+            return
+        # resize-cursor-no-forced-arrow-release: clear our override without
+        # forcing IDC_ARROW, or Windows edge hover can flicker arrow/resize.
+        if not edges:
             return
         try:
             cursor_id = self._monitoring_hud_windows_resize_cursor_id_for_edges(edges)
