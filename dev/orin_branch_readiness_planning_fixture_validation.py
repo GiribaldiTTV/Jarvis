@@ -5544,6 +5544,33 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject START_HERE-routed nested USER Review/Historical issue-candidate table"
             )
 
+        routed_helper_output_packet = temp_root / "routed-helper-output-only" / "FAM-006"
+        routed_helper_output = routed_helper_output_packet / "Helper-Output"
+        routed_helper_context = routed_helper_output_packet / "Source Truth Context"
+        routed_helper_output.mkdir(parents=True)
+        routed_helper_context.mkdir(parents=True)
+        (routed_helper_output_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: Helper-Output/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (routed_helper_output / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-060")),
+            encoding="utf-8",
+        )
+        (routed_helper_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n",
+            encoding="utf-8",
+        )
+        routed_helper_output_failures = rar_issue_durability.validate_packet_folder(
+            routed_helper_output_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            routed_helper_output_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject START_HERE-routed helper-output issue-candidate table"
+            )
+
         hidden_nested_user_review_packet = temp_root / "hidden-nested-user-review-candidate" / "FAM-006"
         hidden_nested_primary = hidden_nested_user_review_packet / "USER Review"
         hidden_nested_historical = hidden_nested_user_review_packet / "USER Review" / "Historical"

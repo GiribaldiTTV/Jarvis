@@ -84,6 +84,12 @@ SECONDARY_REVIEW_FOLDERS = {
     SOURCE_TRUTH_CONTEXT_FOLDER,
     "archive",
     "archived",
+    "chat digest",
+    "codex digest",
+    "codex output",
+    "helper evidence",
+    "helper output",
+    "helper outputs",
     "historical",
     "history",
     "legacy",
@@ -555,7 +561,10 @@ def _path_first_part_is(path: Path, part: str) -> bool:
 
 
 def _path_has_secondary_review_part(path: Path) -> bool:
-    return any(path_part.casefold() in SECONDARY_REVIEW_FOLDERS for path_part in path.parts)
+    return any(
+        re.sub(r"[-_]+", " ", path_part.casefold()) in SECONDARY_REVIEW_FOLDERS
+        for path_part in path.parts
+    )
 
 
 def _path_is_direct_user_review_file(path: Path) -> bool:
