@@ -26,7 +26,7 @@ body.desktop-mode #monitoring-hud[data-shared-primitive-consumer="nexus-window-p
 body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002-compact-cluster-v1"] .monitoring-hud__window-controls {
   position: absolute;
   top: 14px;
-  right: 15px;
+  right: 14px;
   z-index: 35;
   display: flex;
   align-items: center;

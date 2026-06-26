@@ -359,9 +359,13 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         bottom_gutter = int(first_content_top) - int(controls.get("bottom", 0)) if controls and first_content_top else -1
         style = _dom_style(bounds, "windowControls")
         if style.get("top") != "14px":
-            failures.append(f"window control CSS top {style.get('top')!r} != AI Control Center '14px'")
-        if style.get("right") != "15px":
-            failures.append(f"window control CSS right {style.get('right')!r} != AI Control Center '15px'")
+            failures.append(f"window control CSS top {style.get('top')!r} != rendered 15px gutter offset '14px'")
+        if style.get("right") != "14px":
+            failures.append(f"window control CSS right {style.get('right')!r} != rendered 15px gutter offset '14px'")
+        if top_gutter != 15:
+            failures.append(f"control pill top gutter {top_gutter}px != required 15px")
+        if right_gutter != 15:
+            failures.append(f"control pill right gutter {right_gutter}px != required 15px")
         if bottom_gutter != 15:
             failures.append(f"control pill bottom exclusion gutter {bottom_gutter}px != required 15px")
         return {
@@ -371,7 +375,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "topGutterPx": top_gutter,
             "rightGutterPx": right_gutter,
             "bottomGutterPx": bottom_gutter,
-            "expected": "top/right gutter preserve the AI Control Center compact window-control placement; a hard 15px exclusion gutter below the pill blocks any title/content/action geometry from entering the pill clearance zone",
+            "expected": "rendered top/right/bottom gutter must be exactly 15px; CSS offsets are border-aware so 14px CSS offset renders as 15px visual gutter",
             "bottomGutterDisposition": "hard-window-control-clearance-gate",
             "failures": failures,
             "status": "PASS" if not failures else "REPAIR",
@@ -694,7 +698,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["truthRowComputedStyle"].get("paddingTop") == "4px",
         log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
         log_viewer["windowControlsComputedStyle"].get("top") == "14px",
-        log_viewer["windowControlsComputedStyle"].get("right") == "15px",
+        log_viewer["windowControlsComputedStyle"].get("right") == "14px",
         all(row["status"] == "PASS" for row in recording_transport_state_metrics.values()),
     ]
     payload = {

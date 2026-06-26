@@ -1643,7 +1643,7 @@ def validate() -> list[str]:
         "grid-template-columns: var(--monitoring-hud-studio-row-label-column) minmax(0, 1fr)",
         "gap: var(--monitoring-hud-studio-row-value-gutter)",
         "padding: 4px 0 2px",
-        "right: 15px",
+        "right: 14px",
         'data-element-group="recording-actions"',
         'data-action-layout="transport-pill-left-route-right"',
         'data-control-group="recording-transport-pill"',
