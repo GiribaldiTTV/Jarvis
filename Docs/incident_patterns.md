@@ -518,6 +518,26 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/family_visions/FAM-002_desktop_interface.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Product Window Geometry Green Claimed From One Size Or Marker Proof
+
+- symptom:
+  A Nexus-owned product window, dashboard, detached child window, settings/tool window, or studio/log surface is reported visually green because it opens, has a marker, or looks acceptable at one default size, while minimum size, wide size, fullscreen/maximize, DPI/display scale, multi-monitor, portrait/narrow monitor, scroll/wrap/truncate/collapse, resize cursor, or sparse wide-state behavior remains unproven or visibly inconsistent with accepted references.
+- layer:
+  FAM-002 presentation standards, UIREF-007 geometry/resize contract, RAR, Branch Planning proof matrices, Hardening, Live Validation, USER packets, and issue-candidate routing
+- root-cause pattern:
+  a branch treats geometry as a secondary visual detail after proving the happy-path surface, or it assumes that a screenshot, helper marker, default-size rendering, hidden bottom-right resize grip, or global zoom behavior is enough. Existing owned surfaces outside the immediate repair sample can remain nonconforming because the packet does not force a full window/surface inventory or issue-candidate disposition.
+- fix pattern:
+  require a `Window Geometry / Resize Matrix` for applicable branches; classify each surface; define minimum/default/maximum/fullscreen policy; prove resize mechanics, breakpoints/reflow, DPI, multi-monitor, content overflow, active content/footer attachment, and accepted-reference comparison; route out-of-scope owned drift to USER-reviewable issue candidates before normal progression; and keep current window coordinates/live state out of repo docs.
+- validation pattern:
+  future helpers should fail on `Window Geometry Contract Missing`, `Window Classification Missing`, `Window Min Default Max Policy Missing`, `Window Fullscreen / Maximize Policy Missing`, `Window Resize Mechanics Proof Missing`, `Resize Cursor / Grip Policy Missing`, `DPI Display Scale Proof Missing`, `Multi-Monitor Geometry Proof Missing`, `Responsive Layout Proof Missing`, `Sparse Wide-State Shell`, `Global Zoom Used As Layout Substitute`, `Detached Child Acceptance Missing`, `Embedded Child Inheritance Unproven`, `Geometry Issue Candidate Missing`, `Marker-Only Geometry Conformance`, or `Repo File-State Tracking` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/family_feature_visions/F2-FF01.md`
+  - `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

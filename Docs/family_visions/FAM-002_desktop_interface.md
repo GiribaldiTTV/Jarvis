@@ -44,6 +44,14 @@ FAM-002 owns the reusable presentation and geometry standard for Nexus-owned pro
 
 The reset route must preserve Nexus presentation grammar: clear language, predictable placement, visible recovery feedback, and no debug-looking utility popup unless a platform/native or troubleshooting exception is recorded. Consuming FAM branches own their feature window behavior and proof. FAM-003 owns the resident access / quick-actions / settings route when the reset action is a global or user-accessible Nexus command. Child panels, anchored panels, OS dialogs, temporary dev/proof tools, or non-restorable surfaces may be Not Applicable only when the branch records the reason and proof path.
 
+## Window Geometry And Resize Contract Standard
+
+FAM-002 also owns the reusable presentation law for window geometry, resize, responsive layout, and size-state composition. `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md` is the promoted source-truth contract for minimum/default/maximum/fullscreen policy, breakpoint/reflow behavior, DPI and display-scale posture, multi-monitor and portrait/narrow-monitor proof, content overflow handling, sparse wide-state prevention, and per-FAM dependency carrydown.
+
+Same-class Nexus-owned windows should feel deterministic, intuitive, immersive, predictable, reliable, and consistent across size states. A compact tool window may stay compact or define a purposeful wide-state treatment. A dashboard / parent-class window may grow, but the extra room must be meaningful through composition, reflow, richer density, or bounded scroll. A detached child window or detached child dashboard must say whether it behaves like its parent, owns independent geometry, or needs a USER-approved exception.
+
+Consuming FAM branches own their feature-specific layout, backend behavior, proof, and USER packet. They must classify affected windows, cite UIREF-007 when geometry/resize applies, compare against the accepted reference set, and record any issue candidates or exceptions before claiming product readiness. FAM-002 supplies the visual/geometry grammar; it does not directly mutate FAM-003/FAM-006/FAM-007/FAM-008 runtime UI by inference.
+
 ## Reusable Component Grammar
 
 FAM-002 supplies reusable presentation grammar for:

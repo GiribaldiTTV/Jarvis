@@ -89,6 +89,7 @@ Allowed reference classes:
 - `Card / Row / Divider`
 - `Status / Failure / Recovery Panel`
 - `Tray / Doorway Surface`
+- `Window Geometry / Resize`
 - `Proof / Review Surface`
 - `Platform-Native Exception`
 
@@ -100,13 +101,14 @@ Candidate evidence may be cited from USER review packets, branch proof, screensh
 
 ## Current Package Green Disposition
 
-The 2026-06-17 Package A-E completion pass promoted six durable records:
+The 2026-06-17 Package A-E completion pass promoted six durable records, and the 2026-06-25 Window Geometry / Resize intake promoted one additional source-truth geometry contract:
 
 - `UIREF-001` and `UIREF-002` clear Package A for top-level window and compact window-control reference grammar.
 - `UIREF-003` clears Package B for baseline control-state and selector grammar.
 - `UIREF-004` clears Package C for dialog, status, recovery, and doorway-surface grammar.
 - `UIREF-005` clears Package D as a source-truth design-rule baseline while deferring code-level token/shared-primitive implementation.
 - `UIREF-006` clears Package E as an enforcement contract while deferring helper, validator, and fixture code implementation.
+- `UIREF-007` records the Nexus Window Geometry And Resize Contract for min/default/max/fullscreen policy, breakpoint/reflow behavior, DPI/multi-monitor posture, geometry proof, and per-FAM carrydown while deferring product adoption to consuming FAM worktrees.
 
 These records do not mutate FAM worktrees, create runtime UI, create issues, implement shared primitives, or prove adoption in existing branches. Consuming branches must cite the applicable reference and still prove their own UI/UX implementation at their next legal gate.
 
@@ -114,7 +116,7 @@ Current implementation-template status: no catalog record currently promotes a r
 
 Current shared-primitive status: no catalog record currently promotes code-level Shared Primitives or design-token implementation.
 
-Current comparative-reference status: UIREF-001 through UIREF-004 provide accepted reference grammar with known limitations. AI Control Center is the strongest accepted seed where the individual UIREF record names it, but it is not automatically a complete template or primitive.
+Current comparative-reference status: UIREF-001 through UIREF-004 and UIREF-007 provide accepted reference grammar with known limitations. AI Control Center is the strongest accepted compact top-level seed where the individual UIREF record names it, but it is not automatically a complete template or primitive. FAM-006 HUD Dashboard remains comparison/adoption-target evidence for dashboard / parent-class geometry where UIREF-007 says it applies.
 
 ## Empty-Catalog Safety
 
