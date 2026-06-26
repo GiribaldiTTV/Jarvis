@@ -75,6 +75,7 @@ _VISUAL_GRAMMAR_PROBE_SCRIPT = r"""
       minHeight: style.minHeight,
       width: style.width,
       height: style.height,
+      maxWidth: style.maxWidth,
       fontSize: style.fontSize,
       lineHeight: style.lineHeight,
       fontWeight: style.fontWeight,
@@ -89,7 +90,12 @@ _VISUAL_GRAMMAR_PROBE_SCRIPT = r"""
       opacity: style.opacity,
       boxShadow: style.boxShadow,
       overflow: style.overflow,
-      whiteSpace: style.whiteSpace
+      whiteSpace: style.whiteSpace,
+      flex: style.flex,
+      flexGrow: style.flexGrow,
+      flexShrink: style.flexShrink,
+      flexBasis: style.flexBasis,
+      flexWrap: style.flexWrap
     };
   };
   const textFor = (node) => (node?.textContent || "").replace(/\s+/g, " ").trim();
@@ -557,6 +563,98 @@ def _drive_ai_dashboard_horizontal_resize(
           }).map((node) => node.textContent.trim());
           const stripRect = strip?.getBoundingClientRect();
           const settingsRect = settings?.getBoundingClientRect();
+          const rectFor = (node) => {
+            if (!node) return { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+            const rect = node.getBoundingClientRect();
+            return {
+              left: Math.round(rect.left),
+              top: Math.round(rect.top),
+              right: Math.round(rect.right),
+              bottom: Math.round(rect.bottom),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height)
+            };
+          };
+          const pxNumber = (value) => {
+            const parsed = Number.parseFloat(String(value || "0"));
+            return Number.isFinite(parsed) ? parsed : 0;
+          };
+          const firstGridColumnWidth = (template) => {
+            const match = String(template || "").match(/([\\d.]+)px/);
+            return match ? Number(match[1]) : 0;
+          };
+          const lineHeightNumber = (style, rect) => pxNumber(style?.lineHeight) || Math.max(1, rect.height);
+          const titleStatusPillWrap = (() => {
+            const copy = document.querySelector(".monitoring-hud__surface-role-copy");
+            const copyRect = rectFor(copy);
+            const pairMetrics = [...document.querySelectorAll(".monitoring-hud__surface-role-pair")].map((pair) => {
+              const rect = rectFor(pair);
+              const style = getComputedStyle(pair);
+              const childRects = [...pair.children].map((child) => rectFor(child));
+              const childTops = childRects.map((rect) => rect.top);
+              const childBottoms = childRects.map((rect) => rect.bottom);
+              const childTopSpread = childTops.length ? Math.max(...childTops) - Math.min(...childTops) : 0;
+              const childBottomSpread = childBottoms.length ? Math.max(...childBottoms) - Math.min(...childBottoms) : 0;
+              return {
+                text: pair.textContent.replace(/\\s+/g, " ").trim(),
+                rect,
+                display: style.display,
+                flexShrink: style.flexShrink,
+                whiteSpace: style.whiteSpace,
+                lineTop: rect.top,
+                childrenShareLine: childTopSpread <= 2 && childBottomSpread <= 2,
+                withinPill: copyRect.width > 0 && rect.left >= copyRect.left - 2 && rect.right <= copyRect.right + 2
+              };
+            });
+            const expectedTexts = ["AI Persona - None", "Status - Not implemented", "Provider - Blocked"];
+            return {
+              pairCount: pairMetrics.length,
+              lineCount: new Set(pairMetrics.map((pair) => pair.lineTop)).size,
+              expectedTextsPresent: expectedTexts.every((text) => pairMetrics.some((pair) => pair.text === text)),
+              groupsAtomic: pairMetrics.every((pair) => pair.display.includes("flex") && pair.whiteSpace === "nowrap" && pair.childrenShareLine),
+              clippedPairCount: pairMetrics.filter((pair) => !pair.withinPill).length,
+              pairMetrics
+            };
+          })();
+          const rowTitleSizingProbe = (() => {
+            const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row, index) => {
+              const rowRect = rectFor(row);
+              const style = getComputedStyle(row);
+              const label = row.querySelector("span");
+              const value = row.querySelector("strong");
+              const labelRect = rectFor(label);
+              const valueRect = rectFor(value);
+              const labelStyle = label ? getComputedStyle(label) : null;
+              const titleColumnWidth = firstGridColumnWidth(style.gridTemplateColumns);
+              const labelWraps = labelRect.height > lineHeightNumber(labelStyle, labelRect) * 1.35;
+              return {
+                index,
+                key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
+                label: label?.textContent.trim() || "",
+                value: value?.textContent.trim() || "",
+                gridTemplateColumns: style.gridTemplateColumns,
+                titleColumnWidth: Math.round(titleColumnWidth),
+                labelWidth: labelRect.width,
+                valueLeft: valueRect.left,
+                rowRight: rowRect.right,
+                labelWraps,
+                titleColumnContentExcessPx: Math.round(titleColumnWidth - labelRect.width),
+                labelWithinRow: labelRect.left >= rowRect.left - 2 && labelRect.right <= rowRect.right + 2,
+                valueWithinRow: valueRect.left >= rowRect.left - 2 && valueRect.right <= rowRect.right + 2
+              };
+            });
+            const maxExcess = rowMetrics.length
+              ? Math.max(...rowMetrics.map((row) => Math.abs(row.titleColumnContentExcessPx)))
+              : 999;
+            return {
+              rowCount: rowMetrics.length,
+              contentSized: rowMetrics.every((row) => row.labelWraps || Math.abs(row.titleColumnContentExcessPx) <= 2),
+              noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
+              noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
+              maxTitleColumnExcessPx: maxExcess,
+              rowMetrics
+            };
+          })();
           return JSON.stringify({
             clippedCount: clipped.length,
             clipped,
@@ -564,7 +662,9 @@ def _drive_ai_dashboard_horizontal_resize(
             titleGroupWidth: titleGroup ? Math.round(titleGroup.getBoundingClientRect().width) : 0,
             settingsVisible: Boolean(settingsRect && settingsRect.width > 0 && settingsRect.height > 0),
             stripSettingsOverlap: Boolean(stripRect && settingsRect && stripRect.right > settingsRect.left - 4 && stripRect.bottom > settingsRect.top && stripRect.top < settingsRect.bottom),
-            maxScroll: hub ? Math.round(Math.max(0, hub.scrollHeight - hub.clientHeight)) : 0
+            maxScroll: hub ? Math.round(Math.max(0, hub.scrollHeight - hub.clientHeight)) : 0,
+            titleStatusPillWrap,
+            rowTitleSizingProbe
           });
         })();
         """,
@@ -1426,6 +1526,86 @@ def main() -> int:
                 };
               };
               const intersects = (a, b) => Boolean(a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top);
+              const pxNumber = (value) => {
+                const parsed = Number.parseFloat(String(value || "0"));
+                return Number.isFinite(parsed) ? parsed : 0;
+              };
+              const firstGridColumnWidth = (template) => {
+                const match = String(template || "").match(/([\\d.]+)px/);
+                return match ? Number(match[1]) : 0;
+              };
+              const lineHeightNumber = (style, rect) => pxNumber(style?.lineHeight) || Math.max(1, rect.height);
+              const titleStatusPillWrap = (() => {
+                const copy = document.querySelector(".monitoring-hud__surface-role-copy");
+                const copyRect = rectFor(copy);
+                const pairMetrics = [...document.querySelectorAll(".monitoring-hud__surface-role-pair")].map((pair) => {
+                  const rect = rectFor(pair);
+                  const style = getComputedStyle(pair);
+                  const childRects = [...pair.children].map((child) => rectFor(child));
+                  const childTops = childRects.map((rect) => rect.top);
+                  const childBottoms = childRects.map((rect) => rect.bottom);
+                  const childTopSpread = childTops.length ? Math.max(...childTops) - Math.min(...childTops) : 0;
+                  const childBottomSpread = childBottoms.length ? Math.max(...childBottoms) - Math.min(...childBottoms) : 0;
+                  return {
+                    text: pair.textContent.replace(/\\s+/g, " ").trim(),
+                    rect,
+                    display: style.display,
+                    flexShrink: style.flexShrink,
+                    whiteSpace: style.whiteSpace,
+                    lineTop: rect.top,
+                    childrenShareLine: childTopSpread <= 2 && childBottomSpread <= 2,
+                    withinPill: copyRect.width > 0 && rect.left >= copyRect.left - 2 && rect.right <= copyRect.right + 2
+                  };
+                });
+                const expectedTexts = ["AI Persona - None", "Status - Not implemented", "Provider - Blocked"];
+                return {
+                  pairCount: pairMetrics.length,
+                  lineCount: new Set(pairMetrics.map((pair) => pair.lineTop)).size,
+                  expectedTextsPresent: expectedTexts.every((text) => pairMetrics.some((pair) => pair.text === text)),
+                  groupsAtomic: pairMetrics.every((pair) => pair.display.includes("flex") && pair.whiteSpace === "nowrap" && pair.childrenShareLine),
+                  clippedPairCount: pairMetrics.filter((pair) => !pair.withinPill).length,
+                  pairMetrics
+                };
+              })();
+              const rowTitleSizingProbe = (() => {
+                const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row, index) => {
+                  const rowRect = rectFor(row);
+                  const style = getComputedStyle(row);
+                  const label = row.querySelector("span");
+                  const value = row.querySelector("strong");
+                  const labelRect = rectFor(label);
+                  const valueRect = rectFor(value);
+                  const labelStyle = label ? getComputedStyle(label) : null;
+                  const titleColumnWidth = firstGridColumnWidth(style.gridTemplateColumns);
+                  const labelWraps = labelRect.height > lineHeightNumber(labelStyle, labelRect) * 1.35;
+                  return {
+                    index,
+                    key: `${label?.textContent.trim() || ""}|${value?.textContent.trim() || ""}`,
+                    label: label?.textContent.trim() || "",
+                    value: value?.textContent.trim() || "",
+                    gridTemplateColumns: style.gridTemplateColumns,
+                    titleColumnWidth: Math.round(titleColumnWidth),
+                    labelWidth: labelRect.width,
+                    valueLeft: valueRect.left,
+                    rowRight: rowRect.right,
+                    labelWraps,
+                    titleColumnContentExcessPx: Math.round(titleColumnWidth - labelRect.width),
+                    labelWithinRow: labelRect.left >= rowRect.left - 2 && labelRect.right <= rowRect.right + 2,
+                    valueWithinRow: valueRect.left >= rowRect.left - 2 && valueRect.right <= rowRect.right + 2
+                  };
+                });
+                const maxExcess = rowMetrics.length
+                  ? Math.max(...rowMetrics.map((row) => Math.abs(row.titleColumnContentExcessPx)))
+                  : 999;
+                return {
+                  rowCount: rowMetrics.length,
+                  contentSized: rowMetrics.every((row) => row.labelWraps || Math.abs(row.titleColumnContentExcessPx) <= 2),
+                  noLabelClipping: rowMetrics.every((row) => row.labelWithinRow),
+                  noValueClipping: rowMetrics.every((row) => row.valueWithinRow),
+                  maxTitleColumnExcessPx: maxExcess,
+                  rowMetrics
+                };
+              })();
               const rowMetrics = [...document.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row")].map((row) => {
                 const rect = row.getBoundingClientRect();
                 const style = getComputedStyle(row);
@@ -1534,6 +1714,10 @@ def main() -> int:
                 ])),
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
                 settingsRouteMetadata: document.getElementById("monitoring-hud")?.dataset.settingsRoute || "",
+                titleStatusWrapMetadata: document.getElementById("monitoring-hud")?.dataset.titleStatusWrap || "",
+                rowTitleSizingMetadata: document.getElementById("monitoring-hud")?.dataset.rowTitleSizing || "",
+                titleStatusPillWrap,
+                rowTitleSizingProbe,
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
                 settingsRoutePresent: Boolean(document.querySelector("[data-dashboard-utility-row='settings-route']")),
                 settingsVisualAcceptance: document.querySelector("[data-dashboard-utility-row='settings-route']")?.dataset.settingsVisualAcceptance || "",
@@ -1773,6 +1957,39 @@ def main() -> int:
         for rows in expected_option_g_rows.values()
         for row in rows
     ]
+    title_status_pill_wrap = dashboard_probe.get("titleStatusPillWrap") or {}
+    horizontal_layout = horizontal_resize_proof.get("layout") if isinstance(horizontal_resize_proof, dict) else {}
+    horizontal_layout = horizontal_layout if isinstance(horizontal_layout, dict) else {}
+    horizontal_title_status_pill_wrap = horizontal_layout.get("titleStatusPillWrap") or {}
+    row_title_sizing_probe = dashboard_probe.get("rowTitleSizingProbe") or {}
+    horizontal_row_title_sizing_probe = horizontal_layout.get("rowTitleSizingProbe") or {}
+
+    def _title_column_map(probe: object) -> dict[str, int]:
+        if not isinstance(probe, dict):
+            return {}
+        rows = probe.get("rowMetrics")
+        if not isinstance(rows, list):
+            return {}
+        mapped: dict[str, int] = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            key = str(row.get("key") or "")
+            if not key:
+                continue
+            mapped[key] = int(row.get("titleColumnWidth") or 0)
+        return mapped
+
+    default_title_columns = _title_column_map(row_title_sizing_probe)
+    horizontal_title_columns = _title_column_map(horizontal_row_title_sizing_probe)
+    title_columns_stable_across_resize = (
+        bool(default_title_columns)
+        and default_title_columns.keys() == horizontal_title_columns.keys()
+        and all(
+            abs(int(default_title_columns[key]) - int(horizontal_title_columns[key])) <= 1
+            for key in default_title_columns
+        )
+    )
 
     layout_metrics = dashboard_probe.get("layoutMetrics") or {}
     row_heights = [
@@ -1870,6 +2087,33 @@ def main() -> int:
             and "Data - None" not in dashboard_probe.get("stripText", "")
             and "AI Persona - None" in dashboard_probe.get("stripText", "")
             and "Protected; no provider or third-party tracking" in str(dashboard_probe.get("rowGroups"))
+        ),
+        "titleStatusPillGroupWrapProven": (
+            dashboard_probe.get("titleStatusWrapMetadata") == "group-preserving-atomic-flex-wrap"
+            and title_status_pill_wrap.get("pairCount") == 3
+            and title_status_pill_wrap.get("expectedTextsPresent") is True
+            and title_status_pill_wrap.get("groupsAtomic") is True
+            and int(title_status_pill_wrap.get("clippedPairCount", 999)) == 0
+            and int(title_status_pill_wrap.get("lineCount", 0)) >= 1
+            and horizontal_title_status_pill_wrap.get("pairCount") == 3
+            and horizontal_title_status_pill_wrap.get("expectedTextsPresent") is True
+            and horizontal_title_status_pill_wrap.get("groupsAtomic") is True
+            and int(horizontal_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
+            and int(horizontal_title_status_pill_wrap.get("lineCount", 0)) >= 2
+        ),
+        "deterministicTitleColumnSizingProven": (
+            dashboard_probe.get("rowTitleSizingMetadata") == "content-fit-stable-title-column"
+            and row_title_sizing_probe.get("rowCount") == 8
+            and row_title_sizing_probe.get("contentSized") is True
+            and row_title_sizing_probe.get("noLabelClipping") is True
+            and row_title_sizing_probe.get("noValueClipping") is True
+            and int(row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
+            and horizontal_row_title_sizing_probe.get("rowCount") == 8
+            and horizontal_row_title_sizing_probe.get("contentSized") is True
+            and horizontal_row_title_sizing_probe.get("noLabelClipping") is True
+            and horizontal_row_title_sizing_probe.get("noValueClipping") is True
+            and int(horizontal_row_title_sizing_probe.get("maxTitleColumnExcessPx", 999)) <= 2
+            and title_columns_stable_across_resize is True
         ),
         "returnedDensityAndButtonPlacementRepaired": (
             len(card_heights) == 3
