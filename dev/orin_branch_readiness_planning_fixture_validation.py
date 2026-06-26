@@ -5521,6 +5521,29 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject nested USER Review/Historical issue-candidate table as primary"
             )
 
+        direct_historical_user_review_packet = (
+            temp_root / "direct-historical-user-review-only" / "FAM-006"
+        )
+        direct_historical_user_review = direct_historical_user_review_packet / "USER Review"
+        direct_historical_user_review.mkdir(parents=True)
+        (direct_historical_user_review_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (direct_historical_user_review / "HISTORICAL_RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-076")),
+            encoding="utf-8",
+        )
+        direct_historical_user_review_failures = rar_issue_durability.validate_packet_folder(
+            direct_historical_user_review_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            direct_historical_user_review_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject direct historical USER Review issue-candidate table as primary"
+            )
+
         routed_nested_user_review_packet = temp_root / "routed-nested-user-review" / "FAM-006"
         routed_nested_user_review_historical = (
             routed_nested_user_review_packet / "USER Review" / "Historical"

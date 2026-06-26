@@ -641,11 +641,17 @@ def _path_has_secondary_review_part(path: Path) -> bool:
     )
 
 
+def _path_name_has_secondary_review_marker(path: Path) -> bool:
+    normalized_name = re.sub(r"[-_]+", " ", path.stem.casefold())
+    return any(marker in normalized_name for marker in SECONDARY_REVIEW_FOLDERS)
+
+
 def _path_is_direct_user_review_file(path: Path) -> bool:
     return (
         len(path.parts) == 2
         and _path_first_part_is(path, PRIMARY_REVIEW_FOLDER)
         and path.suffix.casefold() == ".md"
+        and not _path_name_has_secondary_review_marker(path)
     )
 
 
@@ -693,6 +699,8 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
         if path in excluded:
             continue
         relative = path.relative_to(packet_folder)
+        if _path_name_has_secondary_review_marker(relative):
+            continue
         if _path_has_secondary_review_part(relative):
             continue
         if _path_first_part_is(relative, PRIMARY_REVIEW_FOLDER) and not _path_is_direct_user_review_file(relative):
