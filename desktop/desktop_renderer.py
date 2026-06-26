@@ -6436,7 +6436,7 @@ class MonitoringHudStudioWebWindow(QWidget):
     DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
-    RESIZE_EDGE_MARGIN = 8
+    RESIZE_EDGE_MARGIN = 14
     WINDOW_CONTROL_ZONE_TOP = 14
     WINDOW_CONTROL_ZONE_RIGHT = 15
     WINDOW_CONTROL_ZONE_WIDTH = 60
@@ -6454,6 +6454,11 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._resize_edges = ""
         self._resize_origin = QPoint()
         self._resize_geometry = QRect()
+        self._resize_pending_point = QPoint()
+        self._resize_last_geometry = QRect()
+        self._resize_last_apply = 0.0
+        self._resize_frame_interval_ms = 16
+        self._resize_started_at = 0.0
         self._native_resize_interaction_state = "not-started"
         self._geometry_persistence_ready = False
         self._geometry_restored_from_saved = False
@@ -6499,6 +6504,13 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._drag_handle.installEventFilter(self)
         self._drag_handle.raise_()
         self._position_studio_drag_handle()
+        self._resize_poll_timer = QTimer(self)
+        self._resize_poll_timer.setSingleShot(False)
+        self._resize_poll_timer.setInterval(self._studio_resize_frame_interval_ms())
+        self._resize_poll_timer.timeout.connect(self._poll_native_edge_resize)
+        self._resize_frame_timer = QTimer(self)
+        self._resize_frame_timer.setSingleShot(True)
+        self._resize_frame_timer.timeout.connect(self._apply_queued_edge_resize)
 
     def _on_studio_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
@@ -6587,15 +6599,56 @@ class MonitoringHudStudioWebWindow(QWidget):
     def _resize_edges_for_global_pos(self, global_pos: QPoint) -> str:
         return self._resize_edges_for_pos(self.mapFromGlobal(global_pos))
 
+    def _left_mouse_button_down(self) -> bool:
+        try:
+            return bool(GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+        except Exception:
+            return False
+
+    def _studio_resize_frame_interval_ms(self) -> int:
+        refresh_rate = 60.0
+        for screen in (self.screen(), getattr(self, "screen_ref", None), QApplication.primaryScreen()):
+            if screen is None:
+                continue
+            try:
+                measured = float(screen.refreshRate() or 0.0)
+            except Exception:
+                measured = 0.0
+            if measured >= 30.0:
+                refresh_rate = measured
+                break
+        return max(8, min(33, int(round(1000.0 / refresh_rate))))
+
     def _begin_native_edge_resize(self, edges: str, global_pos: QPoint) -> None:
         if not edges:
             return
+        if global_pos.isNull():
+            global_pos = QCursor.pos()
+        if global_pos.isNull():
+            return
         self._resize_edges = edges
+        self._drag_offset = None
         self._resize_origin = QPoint(global_pos)
         self._resize_geometry = QRect(self.geometry())
+        self._resize_pending_point = QPoint(global_pos)
+        self._resize_last_geometry = QRect(self.geometry())
+        self._resize_last_apply = 0.0
+        self._resize_frame_interval_ms = self._studio_resize_frame_interval_ms()
+        self._resize_started_at = time.monotonic()
         self._native_resize_interaction_state = f"dragging-{edges}"
         self.setCursor(self._cursor_for_resize_edges(edges))
-        self.grabMouse(self._cursor_for_resize_edges(edges))
+        try:
+            SetCapture(ctypes.wintypes.HWND(int(self.winId())))
+        except Exception:
+            pass
+        try:
+            self.grabMouse(self._cursor_for_resize_edges(edges))
+        except RuntimeError:
+            pass
+        self._resize_poll_timer.stop()
+        self._resize_poll_timer.setInterval(self._resize_frame_interval_ms)
+        self._resize_poll_timer.start()
+        self._poll_native_edge_resize()
 
     def _finish_native_edge_resize(self) -> None:
         if self._resize_edges:
@@ -6606,6 +6659,16 @@ class MonitoringHudStudioWebWindow(QWidget):
             self.releaseMouse()
         except RuntimeError:
             pass
+        try:
+            ReleaseCapture()
+        except Exception:
+            pass
+        self._resize_poll_timer.stop()
+        self._resize_frame_timer.stop()
+        self._resize_pending_point = QPoint()
+        self._resize_last_geometry = QRect()
+        self._resize_last_apply = 0.0
+        self._resize_started_at = 0.0
         self._save_current_geometry()
 
     def _apply_edge_resize(self, global_pos: QPoint) -> None:
@@ -6626,6 +6689,55 @@ class MonitoringHudStudioWebWindow(QWidget):
         if "b" in self._resize_edges:
             rect.setBottom(max(rect.top() + min_height - 1, rect.bottom() + delta.y()))
         self.setGeometry(rect)
+
+    def _update_native_edge_resize(self, global_pos: QPoint) -> None:
+        if not self._resize_edges:
+            return
+        if global_pos.isNull():
+            global_pos = QCursor.pos()
+        if global_pos.isNull():
+            return
+        self._resize_pending_point = QPoint(global_pos)
+        interval_s = max(0.004, self._resize_frame_interval_ms / 1000.0)
+        now = time.monotonic()
+        elapsed = now - self._resize_last_apply
+        if self._resize_last_apply <= 0.0 or elapsed >= interval_s:
+            self._apply_queued_edge_resize()
+            return
+        if not self._resize_frame_timer.isActive():
+            remaining_ms = max(1, int(round((interval_s - elapsed) * 1000.0)))
+            self._resize_frame_timer.start(remaining_ms)
+
+    def _apply_queued_edge_resize(self) -> None:
+        if not self._resize_edges:
+            return
+        point = QPoint(self._resize_pending_point)
+        if point.isNull():
+            point = QCursor.pos()
+        if point.isNull():
+            return
+        before = QRect(self.geometry())
+        self._apply_edge_resize(point)
+        after = QRect(self.geometry())
+        self._resize_last_geometry = after
+        self._resize_last_apply = time.monotonic()
+        if after != before and getattr(self, "_page_ready", False):
+            self.webview.page().runJavaScript(
+                "window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));"
+            )
+
+    def _poll_native_edge_resize(self) -> None:
+        if not self._resize_edges:
+            self._resize_poll_timer.stop()
+            return
+        point = QCursor.pos()
+        if not point.isNull():
+            self._update_native_edge_resize(point)
+        if self._left_mouse_button_down():
+            return
+        if time.monotonic() - float(self._resize_started_at or 0.0) < 0.25:
+            return
+        self._finish_native_edge_resize()
 
     def eventFilter(self, watched, event):
         if watched is getattr(self, "webview", None) or watched is self:
@@ -6648,7 +6760,7 @@ class MonitoringHudStudioWebWindow(QWidget):
                 and event.buttons() & Qt.LeftButton
             ):
                 if self._resize_edges:
-                    self._apply_edge_resize(event.globalPosition().toPoint())
+                    self._update_native_edge_resize(event.globalPosition().toPoint())
                     event.accept()
                     return True
                 if self._drag_offset is not None:
@@ -6713,7 +6825,7 @@ class MonitoringHudStudioWebWindow(QWidget):
                 self._begin_native_edge_resize(edges, global_pos)
                 return True, 0
         if msg.message in {WM_MOUSEMOVE, WM_NCMOUSEMOVE} and self._resize_edges:
-            self._apply_edge_resize(QCursor.pos())
+            self._update_native_edge_resize(QCursor.pos())
             return True, 0
         if msg.message in {WM_LBUTTONUP, WM_NCLBUTTONUP, WM_CANCELMODE, WM_CAPTURECHANGED} and self._resize_edges:
             self._finish_native_edge_resize()
@@ -6930,7 +7042,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         session_label = {
             "saved-complete": "saved",
             "recording": "recording",
+            "saving": "saving",
+            "paused": "paused",
             "ready": "ready",
+            "disabled-error": "blocked",
         }.get(self._recording_session_state, self._recording_session_state.replace("-", " "))
         profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
@@ -6946,14 +7061,22 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             state_label = "STATE"
             status_text = f"Saved - {count} active monitor{'s' if count != 1 else ''}"
             detail_text = ""
+        elif self._recording_session_state == "saving":
+            state_label = "STATE"
+            status_text = f"Saving - {count} active monitor{'s' if count != 1 else ''}"
+            detail_text = ""
+        elif self._recording_session_state == "disabled-error":
+            state_label = "STATE"
+            status_text = "Recording blocked"
+            detail_text = ""
         elif self._start_stop_state == "start-enabled":
             state_label = "STATE"
             status_text = f"Ready - {count} active monitor{'s' if count != 1 else ''}"
             detail_text = ""
         else:
             state_label = "STATE"
-            status_text = "Choose a target"
-            detail_text = "Select an active Overlay Profile before recording."
+            status_text = "Select active profile"
+            detail_text = ""
         return {
             "surface": "recording",
             "kicker": "ACTIVE OVERLAY RECORDING",

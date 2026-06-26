@@ -16,7 +16,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 from PySide6.QtCore import QEventLoop, QPoint, QRect, Qt, QTimer
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QCursor, QGuiApplication
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 
@@ -486,6 +486,28 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         max_bottom_slack=18,
         surface_key="recording",
     )
+    recording_transport_state_labels = [
+        "recording_default",
+        "recording_active_stop_state",
+        "recording_saving_after_stop",
+        "recording_saved_complete_after_stop",
+        "recording_disabled_blocked",
+    ]
+    recording_transport_state_metrics = {}
+    for label in recording_transport_state_labels:
+        bounds = manifest.get(f"{label}_dom_bounds")
+        bounds = bounds if isinstance(bounds, dict) else {}
+        layout = action_layout_metrics(bounds, "recording")
+        pill_item = bounds.get("recordingTransportPill")
+        pill_text = str(pill_item.get("text", "")) if isinstance(pill_item, dict) else ""
+        text_ok = all(token in pill_text.split() for token in ("START", "PAUSE", "STOP"))
+        recording_transport_state_metrics[label] = {
+            "screenshot": _rel(root, Path(str(manifest.get(label, "")))) if manifest.get(label) else "",
+            "transportPillText": pill_text,
+            "actionLayoutMeasurements": layout,
+            "transportPillTextVerdict": "PASS" if text_ok else "REPAIR",
+            "status": "PASS" if layout["status"] == "PASS" and text_ok else "REPAIR",
+        }
     log_viewer = metrics_for(
         "log_viewer_default",
         ["logViewerNativeAction", "logViewerExportAction"],
@@ -508,6 +530,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["truthRowComputedStyle"].get("paddingBottom") == "2px",
         log_viewer["windowControlsComputedStyle"].get("top") == "14px",
         log_viewer["windowControlsComputedStyle"].get("right") == "15px",
+        all(row["status"] == "PASS" for row in recording_transport_state_metrics.values()),
     ]
     payload = {
         "schema": "fam006-runtime-visual-conformance-metrics-v1",
@@ -534,6 +557,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "recordingControlPillBottomGutterPx": recording["controlPillGutterMeasurements"].get("bottomGutterPx"),
             "logViewerControlPillBottomGutterPx": log_viewer["controlPillGutterMeasurements"].get("bottomGutterPx"),
         },
+        "recordingTransportStateStress": recording_transport_state_metrics,
     }
     (root / "runtime_visual_conformance_metrics.json").write_text(
         json.dumps(payload, indent=2),
@@ -2982,6 +3006,8 @@ def main() -> int:
     parent_surface.show()
     _pin_proof_window_on_top(parent_surface)
     route_proof_events: list[dict[str, object]] = []
+    resize_stress: dict[str, object] = {}
+    result_status = {"code": 0}
 
     def open_log_viewer_from_recording_proof() -> None:
         route_event: dict[str, object] = {
@@ -3211,8 +3237,47 @@ def main() -> int:
     def run_pressed() -> None:
         _capture(recording, root, "recording_pressed", manifest)
         _capture(log_viewer, root, "log_viewer_pressed", manifest)
+        recording.webview.page().runJavaScript(
+            "document.querySelectorAll('[data-control^=\"recording-studio\"]').forEach(el => el.classList.remove('is-hovered','is-pressed'));"
+        )
+        log_viewer.webview.page().runJavaScript(
+            "document.querySelectorAll('[data-control^=\"log-viewer\"]').forEach(el => el.classList.remove('is-hovered','is-pressed'));"
+        )
         recording.update_product_state(
             request_id=3,
+            active_profile_name="Default Overlay Profile",
+            target_count=2,
+            target_names="CPU Group, GPU Group",
+            target_state="ready",
+            recording_session_state="saving",
+            start_stop_state="saving-disabled",
+            activate_window=False,
+            parent_geometry=parent_surface.geometry(),
+        )
+        QTimer.singleShot(500, run_saving_after_stop)
+
+    def run_saving_after_stop() -> None:
+        _capture(recording, root, "recording_saving_after_stop", manifest)
+        recording.update_product_state(
+            request_id=4,
+            active_profile_name="Default Overlay Profile",
+            target_count=2,
+            target_names="CPU Group, GPU Group",
+            target_state="ready",
+            recording_session_state="saved-complete",
+            start_stop_state="start-enabled",
+            row_count=2,
+            native_log_path="C:/Users/anden/AppData/Local/Nexus Desktop AI/Recordings/recording-stop-stress.ndailog",
+            current_log_state="native-log-saved",
+            activate_window=False,
+            parent_geometry=parent_surface.geometry(),
+        )
+        QTimer.singleShot(500, run_saved_complete_after_stop)
+
+    def run_saved_complete_after_stop() -> None:
+        _capture(recording, root, "recording_saved_complete_after_stop", manifest)
+        recording.update_product_state(
+            request_id=5,
             active_profile_name="",
             target_count=0,
             target_names="",
@@ -3236,30 +3301,90 @@ def main() -> int:
 
     def run_resize_before() -> None:
         _capture(log_viewer, root, "log_viewer_edge_resize_before_drag", manifest)
+        before_rect = _widget_rect_dict(log_viewer)
         start = QPoint(log_viewer.webview.width() - 2, log_viewer.webview.height() // 2)
+        target = QPoint(log_viewer.webview.width() + 120, log_viewer.webview.height() // 2)
         QTest.mousePress(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, start)
         QApplication.processEvents()
-        QTest.mouseMove(log_viewer.webview, QPoint(log_viewer.webview.width() + 120, log_viewer.webview.height() // 2), delay=120)
+        QCursor.setPos(log_viewer.webview.mapToGlobal(target))
+        QTest.qWait(160)
         QApplication.processEvents()
         _capture(log_viewer, root, "log_viewer_edge_resize_during_drag", manifest)
-        QTest.mouseRelease(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, QPoint(log_viewer.webview.width() + 120, log_viewer.webview.height() // 2), delay=120)
+        during_rect = _widget_rect_dict(log_viewer)
+        QTest.mouseRelease(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, target, delay=120)
         QApplication.processEvents()
+        after_rect = _widget_rect_dict(log_viewer)
+        resize_stress["rightEdgeGrow"] = {
+            "method": "QTest mouse press/release with cursor-position drag on right edge",
+            "startPoint": {"x": start.x(), "y": start.y()},
+            "targetPoint": {"x": target.x(), "y": target.y()},
+            "before": before_rect,
+            "during": during_rect,
+            "after": after_rect,
+            "widthDeltaPx": int(after_rect["w"]) - int(before_rect["w"]),
+            "heightDeltaPx": int(after_rect["h"]) - int(before_rect["h"]),
+            "status": "PASS" if int(after_rect["w"]) > int(before_rect["w"]) else "REPAIR",
+        }
+        QTimer.singleShot(500, run_resized_width)
+
+    def run_resized_width() -> None:
+        _capture(log_viewer, root, "log_viewer_edge_resize_width_proof", manifest)
+        start = QPoint(log_viewer.webview.width() // 2, log_viewer.webview.height() - 2)
+        target = QPoint(log_viewer.webview.width() // 2, log_viewer.webview.height() + 54)
+        before_rect = _widget_rect_dict(log_viewer)
+        QTest.mousePress(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, start)
+        QApplication.processEvents()
+        QCursor.setPos(log_viewer.webview.mapToGlobal(target))
+        QTest.qWait(160)
+        QApplication.processEvents()
+        _capture(log_viewer, root, "log_viewer_edge_resize_bottom_during_drag", manifest)
+        during_rect = _widget_rect_dict(log_viewer)
+        QTest.mouseRelease(log_viewer.webview, Qt.LeftButton, Qt.NoModifier, target, delay=120)
+        QApplication.processEvents()
+        after_rect = _widget_rect_dict(log_viewer)
+        resize_stress["bottomEdgeGrow"] = {
+            "method": "QTest mouse press/release with cursor-position drag on bottom edge",
+            "startPoint": {"x": start.x(), "y": start.y()},
+            "targetPoint": {"x": target.x(), "y": target.y()},
+            "before": before_rect,
+            "during": during_rect,
+            "after": after_rect,
+            "widthDeltaPx": int(after_rect["w"]) - int(before_rect["w"]),
+            "heightDeltaPx": int(after_rect["h"]) - int(before_rect["h"]),
+            "status": "PASS" if int(after_rect["h"]) > int(before_rect["h"]) else "REPAIR",
+        }
         QTimer.singleShot(500, run_resized)
 
     def run_resized() -> None:
-        _capture(log_viewer, root, "log_viewer_edge_resize_width_proof", manifest)
+        _capture(log_viewer, root, "log_viewer_edge_resize_height_proof", manifest)
         before = Path(manifest["log_viewer_edge_resize_before_drag"])
         after = Path(manifest["log_viewer_edge_resize_width_proof"])
         before_width = _load_image(before).width
         after_width = _load_image(after).width
-        if after_width <= before_width:
+        final_height = _load_image(Path(manifest["log_viewer_edge_resize_height_proof"])).height
+        width_ok = after_width > before_width
+        height_ok = final_height > _load_image(after).height
+        resize_stress["summary"] = {
+            "status": "PASS" if width_ok and height_ok and all(
+                isinstance(row, dict) and row.get("status") == "PASS"
+                for key, row in resize_stress.items()
+                if key != "summary"
+            ) else "REPAIR",
+            "beforeWidth": before_width,
+            "afterWidth": after_width,
+            "afterHeight": _load_image(after).height,
+            "finalHeight": final_height,
+            "widthIncreased": width_ok,
+            "heightIncreased": height_ok,
+        }
+        if resize_stress["summary"]["status"] != "PASS":
+            result_status["code"] = 1
             (root / "resize_proof_failure.json").write_text(
                 json.dumps(
                     {
                         "result": "FAIL",
-                        "reason": "ordered edge drag did not increase rendered Log Viewer width",
-                        "beforeWidth": before_width,
-                        "afterWidth": after_width,
+                        "reason": "ordered edge drag stress did not reliably increase Log Viewer width and height",
+                        "resizeStress": resize_stress,
                     },
                     indent=2,
                 ),
@@ -3311,16 +3436,19 @@ def main() -> int:
                     "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
                     "cropCompletenessLedger": derivatives["cropCompletenessLedger"],
                     "resizeProof": {
-                        "method": "runtime-widget-edge-drag-with-top-level-resize-handler",
+                        "method": "runtime-widget-edge-drag-stress-with-top-level-resize-handler",
                         "runtimeTruth": "pre-live-runtime-widget-edge-interaction-proof; exact-desktop-launcher-live-validation-still-required-before-uts",
                         "before": _rel(root, manifest["log_viewer_edge_resize_before_drag"]),
                         "during": _rel(root, manifest["log_viewer_edge_resize_during_drag"]),
                         "after": _rel(root, manifest["log_viewer_edge_resize_width_proof"]),
+                        "bottomDuring": _rel(root, manifest["log_viewer_edge_resize_bottom_during_drag"]),
+                        "heightAfter": _rel(root, manifest["log_viewer_edge_resize_height_proof"]),
                         "directGeometrySetUsed": False,
                         "qtestEdgeInputUsed": True,
                         "beforeWidth": before_width,
                         "afterWidth": after_width,
                         "widthIncreased": after_width > before_width,
+                        "resizeStress": resize_stress,
                     },
                 },
                 indent=2,
@@ -3335,7 +3463,7 @@ def main() -> int:
     QTimer.singleShot(1200, run_default)
     app.exec()
     print(root)
-    return 0
+    return int(result_status["code"])
 
 
 if __name__ == "__main__":

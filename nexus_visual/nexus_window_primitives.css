@@ -281,6 +281,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   display: none;
 }
 
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-truth-row em {
+  display: none !important;
+}
+
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip strong,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card strong {
   color: rgba(238, 247, 250, 0.94);
