@@ -5408,6 +5408,27 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject Review Aids-only decision table with the primary basename"
             )
 
+        copied_context_only_packet = temp_root / "copied-context-only" / "FAM-006"
+        copied_context = copied_context_only_packet / "Source Truth Context"
+        copied_context.mkdir(parents=True)
+        (copied_context_only_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (copied_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-038")),
+            encoding="utf-8",
+        )
+        copied_context_only_failures = rar_issue_durability.validate_packet_folder(
+            copied_context_only_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            copied_context_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject issue-candidate table present only in Source Truth Context"
+            )
+
         primary_packet = packet_with_sections(
             temp_root / "primary",
             primary_text=table(row("FAM006-RAR-011")),
@@ -5473,6 +5494,25 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
             failures.append(
                 "Generated RAR packet/ledger fixture rejected a recognized legacy external issue-candidate ledger carried into the primary packet: "
                 + "; ".join(legacy_carried[:5])
+            )
+
+        incidental_mention_ledger = temp_root / "incidental_mention_ledger.md"
+        incidental_mention_ledger.write_text(table(row("FAM006-RAR-039")), encoding="utf-8")
+        incidental_mention_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "incidental-mention",
+                primary_text=(
+                    "Narrative note mentions FAM006-RAR-039, but the active decision row below is different.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=incidental_mention_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-039 missing" not in "\n".join(
+            incidental_mention_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed incidental text mention to satisfy active candidate carry-forward"
             )
 
         terminal_ledger = temp_root / "terminal_ledger.md"

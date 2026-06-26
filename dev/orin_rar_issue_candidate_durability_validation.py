@@ -520,6 +520,17 @@ def _primary_decision_surface_paths(packet_folder: Path) -> list[Path]:
     return primary_paths
 
 
+def _context_decision_surface_paths(packet_folder: Path) -> list[Path]:
+    context_paths: list[Path] = []
+    for path in _packet_markdown_files(packet_folder):
+        relative = path.relative_to(packet_folder)
+        if not _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
+            continue
+        if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
+            context_paths.append(path)
+    return context_paths
+
+
 def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | None = None) -> list[Path]:
     start_here = packet_folder / "START_HERE.md"
     if not start_here.exists():
@@ -585,13 +596,20 @@ def validate_packet_folder(
     packet_text = _packet_non_context_markdown_text(packet_folder)
     primary_paths = _primary_decision_surface_paths(packet_folder)
     supporting_paths = _supporting_decision_surface_paths(packet_folder)
+    context_paths = _context_decision_surface_paths(packet_folder)
     if supporting_paths and not primary_paths:
+        failures.append(
+            f"{packet_folder}: Issue Candidate Table Only In Copied Context or secondary review aid; primary USER decision surface missing"
+        )
+    if context_paths and not primary_paths:
         failures.append(
             f"{packet_folder}: Issue Candidate Table Only In Copied Context or secondary review aid; primary USER decision surface missing"
         )
     if len(primary_paths) > 1:
         failures.append(f"{packet_folder}: multiple primary Issue Candidate Decision Surface files")
     primary_text = _packet_primary_text(packet_folder)
+    primary_rows = parse_issue_candidate_decision_surface(primary_text, source=str(packet_folder))
+    primary_row_ids = _candidate_ids_from_rows(primary_rows)
     if primary_text:
         failures.extend(validate_text(primary_text, source=str(packet_folder), github_snapshot=github_snapshot))
     else:
@@ -619,7 +637,7 @@ def validate_packet_folder(
                 f"{packet_folder}: Issue Candidate Decision Surface missing from active USER-facing packet files"
             )
         for candidate_id in sorted(current_ids):
-            if not _candidate_id_present(candidate_id, primary_text) and not _explicit_lineage_present(candidate_id, primary_text):
+            if candidate_id not in primary_row_ids and not _explicit_lineage_present(candidate_id, primary_text):
                 failures.append(
                     f"{packet_folder}: external RAR issue candidate {candidate_id} missing from active USER-facing packet files"
                 )
