@@ -5985,6 +5985,43 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet/ledger fixture allowed incidental lineage prose without a current successor row"
             )
 
+        ambiguous_directional_lineage_ledger = temp_root / "ambiguous_directional_lineage_ledger.md"
+        ambiguous_directional_lineage_ledger.write_text(table(row("FAM006-RAR-066")), encoding="utf-8")
+        ambiguous_directional_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "ambiguous-directional-lineage",
+                primary_text=(
+                    "Lineage note: predecessor FAM006-RAR-066 remains under review alongside FAM006-RAR-999.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=ambiguous_directional_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-066 missing" not in "\n".join(
+            ambiguous_directional_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed ambiguous predecessor prose without a directional successor mapping"
+            )
+
+        directional_lineage_ledger = temp_root / "directional_lineage_ledger.md"
+        directional_lineage_ledger.write_text(table(row("FAM006-RAR-067")), encoding="utf-8")
+        directional_lineage_carried = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "directional-lineage-carried",
+                primary_text=(
+                    table(row("FAM006-RAR-067-A"))
+                    + "\n\nLineage: successor FAM006-RAR-067-A replaces predecessor FAM006-RAR-067."
+                ),
+            ),
+            external_ledger=directional_lineage_ledger,
+        )
+        if directional_lineage_carried:
+            failures.append(
+                "Generated RAR packet/ledger fixture rejected explicit directional successor/predecessor lineage: "
+                + "; ".join(directional_lineage_carried[:5])
+            )
+
         same_id_different_lineage_ledger = temp_root / "same_id_different_lineage_ledger.md"
         same_id_different_lineage_ledger.write_text(table(row("FAM006-RAR-045")), encoding="utf-8")
         same_id_different_lineage_failures = rar_issue_durability.validate_packet_folder(
@@ -6001,6 +6038,34 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
         ):
             failures.append(
                 "Generated RAR packet/ledger fixture allowed same candidate ID with different surface/element/defect lineage"
+            )
+
+        legacy_duplicate_lineage_ledger = temp_root / "legacy_duplicate_lineage_ledger.md"
+        legacy_duplicate_lineage_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-068 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-068 | Owner FAM-006 RAR repair | No |",
+                    "| FAM006-RAR-068 | FAM-006 | Log Viewer Studio | Status row | Folder status mismatch | Legacy RAR row LOG-068 | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        legacy_duplicate_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "legacy-duplicate-lineage-missing",
+                primary_text=table(row("FAM006-RAR-068")),
+            ),
+            external_ledger=legacy_duplicate_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-068 missing" not in "\n".join(
+            legacy_duplicate_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed one same-ID legacy row to hide a second same-ID different-lineage row"
             )
 
         terminal_ledger = temp_root / "terminal_ledger.md"

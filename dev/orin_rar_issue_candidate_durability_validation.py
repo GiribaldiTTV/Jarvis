@@ -335,6 +335,22 @@ def _candidate_id_present(candidate_id: str, text: str) -> bool:
     return bool(re.search(rf"(?<![A-Za-z0-9_-]){escaped}(?![A-Za-z0-9_-])", text))
 
 
+def _directional_lineage_present(candidate_id: str, current_id: str, line: str) -> bool:
+    old = re.escape(candidate_id)
+    new = re.escape(current_id)
+    old_token = rf"(?<![A-Za-z0-9_-]){old}(?![A-Za-z0-9_-])"
+    new_token = rf"(?<![A-Za-z0-9_-]){new}(?![A-Za-z0-9_-])"
+    patterns = (
+        rf"\bsuccessor\b[^\n|]*{new_token}[^\n|]*(\breplaces\b|\bpredecessor\b|\bfrom\b)[^\n|]*{old_token}",
+        rf"{new_token}[^\n|]*\breplaces\b[^\n|]*{old_token}",
+        rf"\bpredecessor\b[^\n|]*{old_token}[^\n|]*(\bsuccessor\b|\breplaced by\b|\brenamed to\b|\bto\b)[^\n|]*{new_token}",
+        rf"{old_token}[^\n|]*\breplaced by\b[^\n|]*{new_token}",
+        rf"\brenamed from\b[^\n|]*{old_token}[^\n|]*(\bto\b|\bas\b)[^\n|]*{new_token}",
+        rf"\brenamed to\b[^\n|]*{new_token}[^\n|]*\bfrom\b[^\n|]*{old_token}",
+    )
+    return any(re.search(pattern, line, flags=re.IGNORECASE) for pattern in patterns)
+
+
 def _explicit_lineage_present(
     candidate_id: str,
     text: str,
@@ -354,7 +370,10 @@ def _explicit_lineage_present(
             continue
         if not current_ids:
             return True
-        if any(current_id != candidate_id and _candidate_id_present(current_id, line) for current_id in current_ids):
+        if any(
+            current_id != candidate_id and _directional_lineage_present(candidate_id, current_id, line)
+            for current_id in current_ids
+        ):
             return True
     return False
 
@@ -761,12 +780,11 @@ def validate_packet_folder(
             failures.append(
                 f"{packet_folder}: Issue Candidate Decision Surface missing from active USER-facing packet files"
             )
-        for candidate_id in sorted(current_ids):
-            current_row_matches = [row for row in current_rows if row.candidate_id == candidate_id]
+        for external_row in current_rows:
+            candidate_id = external_row.candidate_id
             primary_row_matches = primary_rows_by_id.get(candidate_id, [])
             lineage_matches = any(
                 _candidate_lineage_key(external_row) == _candidate_lineage_key(primary_row)
-                for external_row in current_row_matches
                 for primary_row in primary_row_matches
             )
             if not lineage_matches and not _explicit_lineage_present(candidate_id, primary_text, primary_row_ids):
