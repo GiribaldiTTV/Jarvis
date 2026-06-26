@@ -3196,6 +3196,7 @@ Required evidence:
 - plan-vs-vision comparison when a Branch Vision Contract Snapshot is required
 - `Vision-To-Proof Matrix` proof-gap review for material accepted requirements, including missing observed runtime evidence, missing comparison/reference surfaces, weak proof strength, circular evidence, unobservable claims, and USER validation/waiver routing
 - Future-Proof Implementation Review for brittle layouts, magic pixels, hardcoded assumptions, one-state/default-size-only proof, missing extension boundaries, future scope implemented by inference, and backend-to-visual truth drift
+- `Reference Candidate Sync Review` when the branch proposes, consumes, varies, supersedes, or depends on same-class Reference Standards, Templates, Shared Primitives, accepted comparators, token rules, geometry rules, visual grammar, control-state behavior, backend behavior, proof standards, naming rules, or applicability rules. Hardening must report promoted-reference check, admitted external candidate/collision check when available, conflict key, collision status, proposed resolution, USER decision need, and no-candidate-as-canon boundary.
 - explicit distinction between product defects, harness defects, environment issues, and canon or contract drift
 
 Exit:
