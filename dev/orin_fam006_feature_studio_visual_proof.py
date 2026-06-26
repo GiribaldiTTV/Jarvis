@@ -120,7 +120,8 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
     recordingStartAction: "[data-control='recording-studio-start']",
     recordingPauseAction: "[data-control='recording-studio-pause']",
     recordingStopAction: "[data-control='recording-studio-stop']",
-    recordingTargetTruth: "[data-element-group='recording-target-truth']",
+    recordingTargetTruth: "[data-element-group='recording-target-truth'] .monitoring-hud__studio-truth-row:first-child",
+    recordingStateTruth: "[data-element-group='recording-controller-truth']",
     recordingLogRoute: "[data-control='recording-studio-open-log-viewer']",
     logViewerActionStrip: "[data-element-group='log-folder-actions']",
     logViewerViewerState: "[data-folder-kind='viewer']",
@@ -138,6 +139,17 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
     const style = getComputedStyle(element);
     const label = element.querySelector(".monitoring-hud__button-label") || element;
     const labelStyle = getComputedStyle(label);
+    const children = Array.from(element.children || []);
+    const rowLabel = children.find((child) => child.tagName === "SPAN") || null;
+    const rowValue = children.find((child) => child.tagName === "STRONG") || null;
+    const rowLabelRect = rowLabel ? rowLabel.getBoundingClientRect() : null;
+    const rowValueRect = rowValue ? rowValue.getBoundingClientRect() : null;
+    const rectPayload = (targetRect) => targetRect ? {
+      left: Math.round(targetRect.left),
+      top: Math.round(targetRect.top),
+      right: Math.round(targetRect.right),
+      bottom: Math.round(targetRect.bottom),
+    } : null;
     out[key] = {
       selector,
       rect: {
@@ -194,6 +206,11 @@ def _capture_dom_bounds(widget) -> dict[str, object]:
         textTransform: labelStyle.textTransform,
         color: labelStyle.color,
       },
+      rowLabelRect: rectPayload(rowLabelRect),
+      rowValueRect: rectPayload(rowValueRect),
+      rowLabelText: rowLabel ? String(rowLabel.innerText || rowLabel.textContent || "").trim() : "",
+      rowValueText: rowValue ? String(rowValue.innerText || rowValue.textContent || "").trim() : "",
+      rowLabelValueGapPx: rowLabelRect && rowValueRect ? Math.round(rowValueRect.left - rowLabelRect.right) : null,
       text: String(element.innerText || element.textContent || "")
         .replace(/\s+/g, " ")
         .trim(),
@@ -367,6 +384,59 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "status": "PASS" if not failures else "REPAIR",
         }
 
+    def row_label_value_metrics(bounds: dict[str, object], surface_key: str) -> dict[str, object]:
+        row_keys = (
+            ("recordingTargetTruth", "TARGET"),
+            ("recordingStateTruth", "STATE"),
+        ) if surface_key == "recording" else (
+            ("logViewerViewerState", "VIEWER"),
+        )
+        rows: list[dict[str, object]] = []
+        failures: list[str] = []
+        for key, expected_label in row_keys:
+            item = bounds.get(key)
+            if not isinstance(item, dict):
+                failures.append(f"{key} missing DOM measurement")
+                continue
+            label_text = str(item.get("rowLabelText", ""))
+            value_text = str(item.get("rowValueText", ""))
+            gap = item.get("rowLabelValueGapPx")
+            label_rect = item.get("rowLabelRect")
+            value_rect = item.get("rowValueRect")
+            row_failures: list[str] = []
+            if label_text != expected_label:
+                row_failures.append(f"label {label_text!r} != {expected_label!r}")
+            if not value_text:
+                row_failures.append("value text missing")
+            if not isinstance(gap, int):
+                row_failures.append("label/value gap missing")
+            elif gap < 14 or gap > 22:
+                row_failures.append(f"label/value gap {gap}px outside deterministic 14-22px range")
+            if not isinstance(label_rect, dict) or not isinstance(value_rect, dict):
+                row_failures.append("label/value rect missing")
+            rows.append(
+                {
+                    "rowKey": key,
+                    "expectedLabel": expected_label,
+                    "labelText": label_text,
+                    "valueText": value_text,
+                    "labelRect": label_rect,
+                    "valueRect": value_rect,
+                    "labelValueGapPx": gap,
+                    "expectedGapPx": "14-22",
+                    "failures": row_failures,
+                    "status": "PASS" if not row_failures else "REPAIR",
+                }
+            )
+            failures.extend(f"{key}: {failure}" for failure in row_failures)
+        return {
+            "surface": "Recording Studio" if surface_key == "recording" else "Log Viewer",
+            "expected": "compact state rows use a content-fit label column and a deterministic 18px target label/value gap; the value must not float in a wide legacy label column",
+            "rows": rows,
+            "failures": failures,
+            "status": "PASS" if not failures else "REPAIR",
+        }
+
     def _rect_width(rect: dict[str, int]) -> int:
         return int(rect.get("right", 0)) - int(rect.get("left", 0))
 
@@ -478,6 +548,7 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         buttons = [button_metrics(bounds, key) for key in action_keys]
         control_gutter = control_gutter_metrics(bounds, surface_key)
         title_to_status = title_to_status_metrics(bounds, surface_key)
+        row_label_value = row_label_value_metrics(bounds, surface_key)
         action_layout = action_layout_metrics(bounds, surface_key)
         action_bottoms = [
             _dom_rect(bounds, key).get("bottom", 0)
@@ -504,6 +575,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "controlPillGutterVerdict": control_gutter["status"],
             "titleToStatusMeasurements": title_to_status,
             "titleToStatusVerdict": title_to_status["status"],
+            "rowLabelValueMeasurements": row_label_value,
+            "rowLabelValueVerdict": row_label_value["status"],
             "actionLayoutMeasurements": action_layout,
             "actionLayoutVerdict": action_layout["status"],
         }
@@ -555,6 +628,8 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         log_viewer["controlPillGutterVerdict"] == "PASS",
         recording["titleToStatusVerdict"] == "PASS",
         log_viewer["titleToStatusVerdict"] == "PASS",
+        recording["rowLabelValueVerdict"] == "PASS",
+        log_viewer["rowLabelValueVerdict"] == "PASS",
         recording["actionLayoutVerdict"] == "PASS",
         log_viewer["actionLayoutVerdict"] == "PASS",
         log_viewer["truthRowComputedStyle"].get("paddingTop") == "3px",
@@ -580,6 +655,10 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
             "logViewerTitleToStatusGapPx": log_viewer["titleToStatusMeasurements"].get("titleToStatusGapPx"),
             "recordingTitleToStatusVerdict": recording["titleToStatusVerdict"],
             "logViewerTitleToStatusVerdict": log_viewer["titleToStatusVerdict"],
+            "recordingRowLabelValueVerdict": recording["rowLabelValueVerdict"],
+            "logViewerRowLabelValueVerdict": log_viewer["rowLabelValueVerdict"],
+            "recordingRowLabelValueRows": recording["rowLabelValueMeasurements"].get("rows"),
+            "logViewerRowLabelValueRows": log_viewer["rowLabelValueMeasurements"].get("rows"),
             "windowControlTop": log_viewer["windowControlsComputedStyle"].get("top"),
             "windowControlRight": log_viewer["windowControlsComputedStyle"].get("right"),
             "recordingButtonPrimitiveVerdict": recording["buttonPrimitiveVerdict"],
@@ -613,6 +692,18 @@ def _runtime_visual_conformance_metrics(root: Path, manifest: dict[str, object])
         "| --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {recording['titleToStatusVerdict']} |\n"
         f"| Log Viewer | {log_viewer['titleToStatusMeasurements']['titleToStatusGapPx']}px | 2-6px | {log_viewer['titleToStatusVerdict']} |\n"
+        + "\n| Surface | Row label/value gap | Expected range | Verdict |\n"
+        "| --- | --- | --- | --- |\n"
+        + "\n".join(
+            f"| Recording Studio `{row['expectedLabel']}` | {row['labelValueGapPx']}px | 14-22px | {row['status']} |"
+            for row in recording["rowLabelValueMeasurements"]["rows"]
+        )
+        + "\n"
+        + "\n".join(
+            f"| Log Viewer `{row['expectedLabel']}` | {row['labelValueGapPx']}px | 14-22px | {row['status']} |"
+            for row in log_viewer["rowLabelValueMeasurements"]["rows"]
+        )
+        + "\n"
         + "\n| Surface | Action layout | Required grammar | Alignment deltas |\n"
         "| --- | --- | --- | --- |\n"
         f"| Recording Studio | {recording['actionLayoutVerdict']} | Segmented transport pill left; OPEN LOG VIEWER separate/right | transport left {recording['actionLayoutMeasurements'].get('transportPillLeftAlignedPx')}px; route right {recording['actionLayoutMeasurements'].get('openLogViewerRightAlignedPx')}px |\n"
