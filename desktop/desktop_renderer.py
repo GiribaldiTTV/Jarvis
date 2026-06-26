@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
     QSplitterHandle,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QPointF, QEvent
-from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPalette, QPixmap, QRegion, QPen
+from PySide6.QtGui import QColor, QCursor, QFont, QFontMetrics, QPainter, QPainterPath, QPalette, QPixmap, QRegion, QPen
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -1169,6 +1169,44 @@ class ResidentAccessSettingsDialog(QDialog):
     QUICK_SLOT_ROW_SPACING = 7
     QUICK_SLOT_CONTAINER_CHROME_HEIGHT = 118
     QUICK_ACCESS_WINDOW_VERTICAL_CHROME = 204
+    SETTINGS_NAV_CATEGORY_GAP = 4
+    SETTINGS_NAV_LABEL_POINT_SIZE = 10
+    SETTINGS_NAV_PARENT_DEFAULT_WIDTH = 118
+    SETTINGS_NAV_CHILD_DEFAULT_WIDTH = 112
+    SETTINGS_NAV_PARENT_MAX_WIDTH = 129
+    SETTINGS_NAV_CHILD_MAX_WIDTH = 115
+    SETTINGS_NAV_PARENT_DEFAULT_LABEL_WIDTH = 58
+    SETTINGS_NAV_CHILD_DEFAULT_LABEL_WIDTH = 88
+
+    @classmethod
+    def _settings_nav_text_width(cls, text: str) -> int:
+        font = QFont("Segoe UI")
+        font.setPointSize(cls.SETTINGS_NAV_LABEL_POINT_SIZE)
+        return QFontMetrics(font).horizontalAdvance(text) + 2
+
+    @classmethod
+    def _settings_nav_label_width(cls, text: str, role: str) -> int:
+        width = cls._settings_nav_text_width(text)
+        default_width = (
+            cls.SETTINGS_NAV_PARENT_DEFAULT_LABEL_WIDTH
+            if role == "parent"
+            else cls.SETTINGS_NAV_CHILD_DEFAULT_LABEL_WIDTH
+        )
+        max_width = (
+            cls.SETTINGS_NAV_PARENT_MAX_WIDTH - 53
+            if role == "parent"
+            else cls.SETTINGS_NAV_CHILD_MAX_WIDTH - 25
+        )
+        return min(max(default_width, width), max_width)
+
+    @classmethod
+    def _settings_nav_pill_width(cls, text: str, role: str) -> int:
+        text_width = cls._settings_nav_text_width(text)
+        if role == "parent":
+            required_width = 53 + text_width
+            return min(max(cls.SETTINGS_NAV_PARENT_DEFAULT_WIDTH, required_width), cls.SETTINGS_NAV_PARENT_MAX_WIDTH)
+        required_width = 25 + text_width
+        return min(max(cls.SETTINGS_NAV_CHILD_DEFAULT_WIDTH, required_width), cls.SETTINGS_NAV_CHILD_MAX_WIDTH)
 
     def __init__(self, parent=None, runtime=None, focus: str = "quick_access"):
         super().__init__(parent)
@@ -1220,7 +1258,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("platformException", "none")
         self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36")
         self.setProperty("quickAccessLayoutPolicy", "content-driven-balanced-gutter-row-count-close-intercept-v32")
-        self.setProperty("settingsRailPolishPolicy", "border-safe-balanced-gutter-sharpened-icons-v38")
+        self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-v39")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
         self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
         self.setProperty("dirtyCloseInterceptState", "idle")
@@ -1313,7 +1351,11 @@ class ResidentAccessSettingsDialog(QDialog):
         self.tray_nav_item.setProperty("settingsCategoryRole", "selectable-parent-page")
         self.tray_nav_item.setProperty("settingsNavDensity", "slim-parent-row")
         self.tray_nav_item.setAttribute(Qt.WA_StyledBackground, True)
-        self.tray_nav_item.setFixedSize(118, 28)
+        tray_label = "Tray"
+        tray_pill_width = self._settings_nav_pill_width(tray_label, "parent")
+        tray_label_width = self._settings_nav_label_width(tray_label, "parent")
+        self.tray_nav_item.setFixedSize(tray_pill_width, 28)
+        self.tray_nav_item.setProperty("settingsNavSizingPolicy", "font-metric-default-min-clamped-v39")
         tray_nav_layout = QHBoxLayout(self.tray_nav_item)
         tray_nav_layout.setContentsMargins(5, 2, 4, 2)
         tray_nav_layout.setSpacing(5)
@@ -1326,10 +1368,10 @@ class ResidentAccessSettingsDialog(QDialog):
         self.tray_nav_icon.setAccessibleName("Tray category icon")
         self.tray_nav_icon.setFixedSize(12, 12)
         tray_nav_layout.addWidget(self.tray_nav_icon)
-        self.tray_nav_button = QPushButton("Tray", self.tray_nav_item)
+        self.tray_nav_button = QPushButton(tray_label, self.tray_nav_item)
         self.tray_nav_button.setObjectName("residentAccessSettingsCategoryButton")
         self.tray_nav_button.setCheckable(True)
-        self.tray_nav_button.setMaximumWidth(58)
+        self.tray_nav_button.setMaximumWidth(tray_label_width)
         self.tray_nav_button.setAccessibleName("Open Tray Settings")
         self.tray_nav_button.clicked.connect(lambda: self.set_focus("tray"))
         tray_nav_layout.addWidget(self.tray_nav_button, 1)
@@ -1348,16 +1390,20 @@ class ResidentAccessSettingsDialog(QDialog):
         self.subpage_nav_rail.setObjectName("residentAccessSettingsSubpageRail")
         self.subpage_nav_rail.setAttribute(Qt.WA_StyledBackground, True)
         subpage_layout = QVBoxLayout(self.subpage_nav_rail)
-        subpage_layout.setContentsMargins(14, 2, 0, 0)
+        subpage_layout.setContentsMargins(14, 0, 0, 0)
         subpage_layout.setSpacing(2)
 
+        quick_access_label = "Quick Access"
+        quick_access_pill_width = self._settings_nav_pill_width(quick_access_label, "child")
+        quick_access_label_width = self._settings_nav_label_width(quick_access_label, "child")
         self.quick_access_nav_item = QFrame(self.nav_shell)
         self.quick_access_nav_item.setObjectName("residentAccessSettingsNavItem")
         self.quick_access_nav_item.setProperty("navState", "selected")
         self.quick_access_nav_item.setProperty("settingsNavDensity", "two-level-subpage-row")
         self.quick_access_nav_item.setProperty("settingsNavIdentity", "ndai-signal-leaf")
         self.quick_access_nav_item.setAttribute(Qt.WA_StyledBackground, True)
-        self.quick_access_nav_item.setFixedSize(112, 26)
+        self.quick_access_nav_item.setFixedSize(quick_access_pill_width, 26)
+        self.quick_access_nav_item.setProperty("settingsNavSizingPolicy", "font-metric-default-min-clamped-v39")
         nav_item_layout = QHBoxLayout(self.quick_access_nav_item)
         nav_item_layout.setContentsMargins(5, 2, 4, 2)
         nav_item_layout.setSpacing(4)
@@ -1369,10 +1415,10 @@ class ResidentAccessSettingsDialog(QDialog):
         nav_text_stack = QVBoxLayout()
         nav_text_stack.setContentsMargins(0, 0, 0, 0)
         nav_text_stack.setSpacing(0)
-        self.quick_access_nav_button = QPushButton("Quick Access", self.quick_access_nav_item)
+        self.quick_access_nav_button = QPushButton(quick_access_label, self.quick_access_nav_item)
         self.quick_access_nav_button.setObjectName("residentAccessSettingsNavButton")
         self.quick_access_nav_button.setCheckable(True)
-        self.quick_access_nav_button.setMaximumWidth(88)
+        self.quick_access_nav_button.setMaximumWidth(quick_access_label_width)
         self.quick_access_nav_button.setAccessibleName("Open Tray Quick Access Settings")
         self.quick_access_nav_button.clicked.connect(lambda: self.set_focus("quick_access"))
         self._nav_buttons["quick_access"] = self.quick_access_nav_button

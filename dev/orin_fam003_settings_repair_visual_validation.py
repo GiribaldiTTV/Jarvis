@@ -1633,7 +1633,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v38 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent, balanced vertical text gutters, reduced category gap, sharpened contained icons, independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+            else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus v39 compact NDAI visual grammar, dirty-close keybind/client shutdown guard proof, centered Settings title, deferred watermark record, bounded wide-state layout, single slot-count placement, quiet splitter affordance, polished left-rail hierarchy with border-safe standardized subcategory indent, fixed 4px category gap, deterministic font-metric pill sizing, balanced vertical text gutters, sharpened contained icons, independent child-width proof, balanced gutter row-count layout, splitter-attached user-resizable layout, control-scale matching, stress matrix, and live-style move/resize/cursor checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -2600,9 +2600,11 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "border-safe-balanced-gutter-sharpened-icons-v38"
+            and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-v39"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
+            and dialog.tray_nav_item.property("settingsNavSizingPolicy") == "font-metric-default-min-clamped-v39"
+            and dialog.quick_access_nav_item.property("settingsNavSizingPolicy") == "font-metric-default-min-clamped-v39"
             and dialog.tray_nav_icon.width() == 12
             and dialog.quick_access_nav_icon.width() == 12
             and dialog.tray_nav_icon.property("categoryIconRenderPolicy") == "high-contrast-contained-12px-v38"
@@ -2612,7 +2614,7 @@ def main() -> int:
             and dialog.tray_nav_button.maximumWidth() <= 58
             and dialog.quick_access_nav_button.maximumWidth() >= dialog.tray_nav_button.maximumWidth() + 24
             and dialog.tray_expand_button.property("quietGlyph") is True,
-            f"policy={dialog.property('settingsRailPolishPolicy')!r}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}/{dialog.tray_nav_icon.property('categoryIconRenderPolicy')!r}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}/{dialog.quick_access_nav_icon.property('categoryIconRenderPolicy')!r}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}",
+            f"policy={dialog.property('settingsRailPolishPolicy')!r}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; sizing={dialog.tray_nav_item.property('settingsNavSizingPolicy')!r}/{dialog.quick_access_nav_item.property('settingsNavSizingPolicy')!r}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}/{dialog.tray_nav_icon.property('categoryIconRenderPolicy')!r}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}/{dialog.quick_access_nav_icon.property('categoryIconRenderPolicy')!r}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}; parent_button_max={dialog.tray_nav_button.maximumWidth()}; child_button_max={dialog.quick_access_nav_button.maximumWidth()}",
         )
     )
 
@@ -2672,13 +2674,41 @@ def main() -> int:
             and parent_inner_gutter["bottom"] == 6
             and child_inner_gutter["top"] == 5
             and child_inner_gutter["bottom"] == 5
-            and category_gap == 6,
+            and category_gap == 4,
             "parent_inside={}; child_inside={}; parent_outer={}; child_outer={}; category_gap={}".format(
                 parent_inner_gutter,
                 child_inner_gutter,
                 parent_outer_gutter,
                 child_outer_gutter,
                 category_gap,
+            ),
+        )
+    )
+
+    future_parent_width = dialog._settings_nav_pill_width("Developer Tools", "parent")
+    future_child_width = dialog._settings_nav_pill_width("Recording Studio", "child")
+    rows.append(
+        (
+            "left rail deterministic text-width pill sizing",
+            dialog.tray_nav_item.width() == dialog._settings_nav_pill_width(dialog.tray_nav_button.text(), "parent")
+            and dialog.quick_access_nav_item.width()
+            == dialog._settings_nav_pill_width(dialog.quick_access_nav_button.text(), "child")
+            and dialog.tray_nav_item.width() == 118
+            and dialog.quick_access_nav_item.width() == 112
+            and future_parent_width == dialog.SETTINGS_NAV_PARENT_MAX_WIDTH
+            and future_child_width == dialog.SETTINGS_NAV_CHILD_MAX_WIDTH
+            and dialog.SETTINGS_NAV_CATEGORY_GAP == 4,
+            "current_parent={}/{}; current_child={}/{}; future_parent={}; future_child={}; text_widths={}/{}/{}; fixed_gap={}".format(
+                dialog.tray_nav_item.width(),
+                dialog._settings_nav_pill_width(dialog.tray_nav_button.text(), "parent"),
+                dialog.quick_access_nav_item.width(),
+                dialog._settings_nav_pill_width(dialog.quick_access_nav_button.text(), "child"),
+                future_parent_width,
+                future_child_width,
+                dialog._settings_nav_text_width(dialog.tray_nav_button.text()),
+                dialog._settings_nav_text_width(dialog.quick_access_nav_button.text()),
+                dialog._settings_nav_text_width("Recording Studio"),
+                dialog.SETTINGS_NAV_CATEGORY_GAP,
             ),
         )
     )
@@ -2936,7 +2966,7 @@ def main() -> int:
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
             and dialog.property("windowResizeBehavior") == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36"
             and dialog.property("quickAccessLayoutPolicy") == "content-driven-balanced-gutter-row-count-close-intercept-v32"
-            and dialog.property("settingsRailPolishPolicy") == "border-safe-balanced-gutter-sharpened-icons-v38"
+            and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-v39"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"
