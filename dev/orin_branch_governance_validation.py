@@ -3119,6 +3119,7 @@ CURRENT_DECISION_SURFACE_POINTER_DOCS = (
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_branch_readiness_planning_fixture_validation.py",
+    "dev/orin_rar_issue_candidate_durability_validation.py",
     "dev/orin_worktree_rebaseline_audit.py",
     "dev/orin_validation_suite.py",
     "dev/orin_user_review_bundle.py",

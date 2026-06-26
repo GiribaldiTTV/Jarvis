@@ -200,6 +200,8 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/branch_plans/README.md`
   - `Docs/governance_efficiency_operating_model.md`
   - `Docs/validation_helper_registry.md`
+
+Follow-up hardening: the executable durability gate must test packet, ledger, and GitHub snapshot parity together, not only scan one Markdown file. A candidate table in `Review Aids` or copied source-truth context is not a primary USER decision surface. Active external-ledger candidates must either appear in the primary packet decision surface or have explicit predecessor/successor lineage; terminal repaired/rejected/waived/closed-reconciled history may remain external/history-only when no current USER decision remains. GitHub issue mappings require read-only open/closed snapshot agreement and independent reconciliation for closed mappings; a parsed but unused snapshot is a false green.
   - `dev/orin_rar_issue_candidate_durability_validation.py`
 
 ## Pattern: PR Auto-Close Keywords Bypass Issue Approval

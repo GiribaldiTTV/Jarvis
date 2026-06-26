@@ -1,9 +1,9 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=VALIDATOR-HELPER; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=rar-issue-candidate-durability-validator; status=shared
 """Validate RAR issue-candidate durability without mutating state.
 
-This helper is intentionally narrow. It checks the table shape and disposition
-semantics that keep RAR issue candidates from disappearing after a packet is
-generated or reviewed.
+The helper is intentionally read-only. It checks the packet / external-ledger /
+GitHub-snapshot contract that keeps RAR issue candidates visible until they are
+durably repaired, waived, rejected, routed, or reconciled.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Mapping
 
 
 DECISION_SURFACE_HEADER = (
@@ -34,6 +34,21 @@ ACTIVE_DISPOSITIONS = {
     "UNKNOWN_GITHUB_STATE",
     "STALE_GITHUB_STATE",
 }
+CURRENT_PACKET_DISPOSITIONS = ACTIVE_DISPOSITIONS | {
+    "DEFERRED_WITH_OWNER",
+    "GITHUB_CREATION_APPROVED_PENDING",
+    "MAPPED_OPEN_GITHUB_ISSUE",
+}
+TERMINAL_DISPOSITIONS = {
+    "REPAIRED_VERIFIED",
+    "USER_REJECTED_WITH_REASON",
+    "USER_WAIVED_WITH_REASON",
+    "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+}
+GITHUB_MAPPED_DISPOSITIONS = {
+    "MAPPED_OPEN_GITHUB_ISSUE",
+    "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+}
 LEGAL_DISPOSITIONS = ACTIVE_DISPOSITIONS | {
     "REPAIRED_VERIFIED",
     "USER_REJECTED_WITH_REASON",
@@ -51,6 +66,27 @@ PACKETED_ONLY_PATTERNS = (
     "issue candidate packet user-reviewed",
 )
 EMPTY_VALUES = {"", "none", "n/a", "na", "not applicable", "tbd", "todo", "unknown"}
+HISTORICAL_PACKETED_ONLY_CONTEXT = (
+    "previous",
+    "prior",
+    "historical",
+    "formerly",
+    "invalid",
+    "not durable",
+    "repaired",
+    "replaced",
+)
+PRIMARY_REVIEW_FOLDER = "user review"
+REVIEW_AIDS_FOLDER = "review aids"
+SOURCE_TRUTH_CONTEXT_FOLDER = "source truth context"
+
+
+@dataclass(frozen=True)
+class GitHubIssueSnapshot:
+    issue: str
+    state: str
+    source: str
+    last_verified: str
 
 
 @dataclass(frozen=True)
@@ -68,6 +104,22 @@ class CandidateRow:
     last_verified: str
     exact_user_decision: str
     source: str
+
+    @property
+    def disposition(self) -> str:
+        return _normalize_token(self.current_disposition)
+
+    @property
+    def blocks_progression(self) -> bool:
+        return _normalize_token(self.progression_blocking) == "YES"
+
+    @property
+    def requires_current_packet(self) -> bool:
+        if self.disposition in CURRENT_PACKET_DISPOSITIONS:
+            return True
+        if self.blocks_progression and self.disposition not in TERMINAL_DISPOSITIONS:
+            return True
+        return False
 
 
 def _normalize_text(value: str) -> str:
@@ -99,74 +151,213 @@ def _is_separator(cells: Iterable[str]) -> bool:
 def _table_rows_after_header(text: str, header: str, expected_columns: int) -> list[list[str]]:
     lines = text.splitlines()
     rows: list[list[str]] = []
-    header_index = None
     for index, line in enumerate(lines):
         if _line_cells(line) == _line_cells(header):
-            header_index = index
-            break
-    if header_index is None or header_index + 1 >= len(lines):
-        return rows
-    separator_cells = _line_cells(lines[header_index + 1])
-    if len(separator_cells) != expected_columns or not _is_separator(separator_cells):
-        return rows
-    for line in lines[header_index + 2 :]:
-        cells = _line_cells(line)
-        if not cells:
-            break
-        if len(cells) != expected_columns:
-            rows.append(cells)
-            continue
-        rows.append(cells)
+            if index + 1 >= len(lines):
+                continue
+            separator_cells = _line_cells(lines[index + 1])
+            if len(separator_cells) != expected_columns or not _is_separator(separator_cells):
+                continue
+            for row_line in lines[index + 2 :]:
+                cells = _line_cells(row_line)
+                if not cells:
+                    break
+                rows.append(cells)
     return rows
+
+
+def _candidate_from_malformed_row(source: str) -> CandidateRow:
+    return CandidateRow(
+        candidate_id="",
+        owning_fam="",
+        surface="",
+        element_group="",
+        defect="",
+        evidence_pointer="",
+        current_disposition="",
+        progression_blocking="",
+        proposed_carrier="",
+        github_issue="",
+        last_verified="",
+        exact_user_decision="",
+        source=source,
+    )
+
+
+def _legacy_row_to_candidate(cells: list[str], source: str) -> CandidateRow:
+    return CandidateRow(
+        candidate_id=cells[0],
+        owning_fam=cells[1],
+        surface=cells[2],
+        element_group=cells[3],
+        defect=cells[4],
+        evidence_pointer=cells[5],
+        current_disposition="ACTIVE_PENDING_USER_DECISION",
+        progression_blocking="YES",
+        proposed_carrier=cells[6],
+        github_issue="PENDING" if _normalize_text(cells[7]) == "yes" else "NONE - issue mutation not approved",
+        last_verified="Legacy RAR ledger import - current verification required",
+        exact_user_decision=(
+            "USER must review this legacy RAR issue candidate and choose repair, "
+            "waiver with reason, route, deferral, or approved GitHub issue creation."
+        ),
+        source=source,
+    )
+
+
+def _looks_like_date_or_receipt(value: str) -> bool:
+    normalized = _normalize_text(value)
+    if re.search(r"\b20\d{2}-\d{2}-\d{2}\b", value) or re.search(r"\b20\d{6}\b", value):
+        return True
+    return any(word in normalized for word in ("receipt", "verified from", "not created yet"))
+
+
+def _issue_number(value: str) -> str | None:
+    match = re.search(r"#?(\d+)", value)
+    if not match:
+        return None
+    return match.group(1)
+
+
+def _snapshot_state(value: object) -> GitHubIssueSnapshot:
+    if isinstance(value, str):
+        state = value
+        source = "snapshot"
+        last_verified = "snapshot"
+        issue = ""
+    elif isinstance(value, Mapping):
+        state = str(value.get("state", ""))
+        source = str(value.get("source", "snapshot"))
+        last_verified = str(value.get("last_verified", value.get("lastVerified", "snapshot")))
+        issue = str(value.get("issue", ""))
+    else:
+        state = ""
+        source = "snapshot"
+        last_verified = "snapshot"
+        issue = ""
+    return GitHubIssueSnapshot(
+        issue=issue,
+        state=_normalize_token(state),
+        source=source,
+        last_verified=last_verified,
+    )
+
+
+def _candidate_ids_from_rows(rows: Iterable[CandidateRow]) -> set[str]:
+    return {row.candidate_id for row in rows if row.candidate_id}
+
+
+def _explicit_lineage_present(candidate_id: str, text: str) -> bool:
+    escaped = re.escape(candidate_id)
+    return bool(
+        re.search(
+            rf"\b(predecessor|successor|lineage|renamed from|renamed to)\b[^\n|]*\b{escaped}\b|\b{escaped}\b[^\n|]*\b(predecessor|successor|lineage|renamed from|renamed to)\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _candidate_id_present(candidate_id: str, text: str) -> bool:
+    escaped = re.escape(candidate_id)
+    return bool(re.search(rf"(?<![A-Za-z0-9]){escaped}(?![A-Za-z0-9])", text))
+
+
+def _is_historical_packeted_only_line(line: str) -> bool:
+    normalized = _normalize_text(line)
+    if not any(pattern in normalized for pattern in PACKETED_ONLY_PATTERNS):
+        return False
+    return any(word in normalized for word in HISTORICAL_PACKETED_ONLY_CONTEXT)
+
+
+def _active_packeted_only_lines(text: str) -> list[str]:
+    active_lines: list[str] = []
+    for line in text.splitlines():
+        normalized = _normalize_text(line)
+        if not any(pattern in normalized for pattern in PACKETED_ONLY_PATTERNS):
+            continue
+        if _is_historical_packeted_only_line(line):
+            continue
+        active_lines.append(line.strip())
+    return active_lines
+
+
+def _github_snapshot_for_issue(
+    github_snapshot: Mapping[str, GitHubIssueSnapshot] | None, issue: str
+) -> GitHubIssueSnapshot | None:
+    if github_snapshot is None:
+        return None
+    issue_number = _issue_number(issue)
+    if issue_number is None:
+        return None
+    return github_snapshot.get(issue_number)
+
+
+def _validate_github_mapping(
+    row: CandidateRow,
+    row_label: str,
+    github_snapshot: Mapping[str, GitHubIssueSnapshot] | None,
+    source: str,
+) -> list[str]:
+    failures: list[str] = []
+    if row.disposition not in GITHUB_MAPPED_DISPOSITIONS:
+        return failures
+    if not re.search(r"#\d+", row.github_issue):
+        failures.append(f"{source}: {row_label}: mapped GitHub disposition requires issue number")
+        return failures
+    if github_snapshot is None:
+        failures.append(f"{source}: {row_label}: mapped GitHub disposition requires GitHub snapshot reconciliation")
+        return failures
+    snapshot = _github_snapshot_for_issue(github_snapshot, row.github_issue)
+    if snapshot is None:
+        failures.append(f"{source}: {row_label}: RAR GitHub Issue State Unknown")
+        return failures
+    if snapshot.state not in {"OPEN", "CLOSED"}:
+        failures.append(f"{source}: {row_label}: RAR GitHub Issue State Unknown")
+        return failures
+    if not _looks_like_date_or_receipt(snapshot.last_verified):
+        failures.append(f"{source}: {row_label}: GitHub snapshot Last Verified missing")
+    if row.disposition == "MAPPED_OPEN_GITHUB_ISSUE" and snapshot.state != "OPEN":
+        failures.append(f"{source}: {row_label}: RAR GitHub Issue Mapping Stale: expected open issue")
+    if row.disposition == "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED" and snapshot.state != "CLOSED":
+        failures.append(f"{source}: {row_label}: RAR GitHub Issue Mapping Stale: expected closed issue")
+    return failures
 
 
 def parse_issue_candidate_decision_surface(text: str, source: str = "<text>") -> list[CandidateRow]:
     rows: list[CandidateRow] = []
     for cells in _table_rows_after_header(text, DECISION_SURFACE_HEADER, 12):
         if len(cells) != 12:
-            rows.append(
-                CandidateRow(
-                    candidate_id="",
-                    owning_fam="",
-                    surface="",
-                    element_group="",
-                    defect="",
-                    evidence_pointer="",
-                    current_disposition="",
-                    progression_blocking="",
-                    proposed_carrier="",
-                    github_issue="",
-                    last_verified="",
-                    exact_user_decision="",
-                    source=source,
-                )
-            )
+            rows.append(_candidate_from_malformed_row(source))
             continue
         rows.append(CandidateRow(*cells, source=source))
     return rows
 
 
-def parse_external_candidate_ids(text: str) -> set[str]:
-    ids = {row.candidate_id for row in parse_issue_candidate_decision_surface(text) if row.candidate_id}
+def parse_external_candidate_rows(text: str, source: str = "<external-ledger>") -> list[CandidateRow]:
+    rows = parse_issue_candidate_decision_surface(text, source=source)
     for cells in _table_rows_after_header(text, LEGACY_RAR_HEADER, 8):
         if len(cells) == 8 and not _is_empty(cells[0]):
-            ids.add(cells[0])
-    for match in re.finditer(r"\b[A-Z][A-Z0-9]+(?:-[A-Z0-9]+)*-\d{2,}\b", text):
-        if "UIREF" not in match.group(0):
-            ids.add(match.group(0))
-    return ids
+            rows.append(_legacy_row_to_candidate(cells, source))
+        elif len(cells) != 8:
+            rows.append(_candidate_from_malformed_row(source))
+    return rows
 
 
-def _has_packeted_only_terminal_claim(text: str) -> bool:
-    normalized = _normalize_text(text)
-    return any(pattern in normalized for pattern in PACKETED_ONLY_PATTERNS)
+def parse_external_candidate_ids(text: str) -> set[str]:
+    return _candidate_ids_from_rows(parse_external_candidate_rows(text))
 
 
-def validate_text(text: str, source: str = "<text>") -> list[str]:
+def validate_text(
+    text: str,
+    source: str = "<text>",
+    github_snapshot: Mapping[str, GitHubIssueSnapshot] | None = None,
+) -> list[str]:
     failures: list[str] = []
     rows = parse_issue_candidate_decision_surface(text, source=source)
 
-    if _has_packeted_only_terminal_claim(text):
+    active_packeted_only = _active_packeted_only_lines(text)
+    if active_packeted_only:
         failures.append(
             f"{source}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
         )
@@ -226,6 +417,17 @@ def validate_text(text: str, source: str = "<text>") -> list[str]:
 
         carrier_decision_text = f"{row.proposed_carrier} {row.exact_user_decision}"
         carrier_decision_normalized = _normalize_text(carrier_decision_text)
+        if not _looks_like_date_or_receipt(row.last_verified):
+            failures.append(f"{source}: {row_label}: Last Verified requires dated or receipt-based freshness evidence")
+
+        failures.extend(_validate_github_mapping(row, row_label, github_snapshot, source))
+
+        if disposition in {"USER_REJECTED_WITH_REASON", "USER_WAIVED_WITH_REASON"}:
+            if not re.search(r"\b(reason|because)\b", carrier_decision_normalized):
+                failures.append(f"{source}: {row_label}: USER rejection/waiver requires reason")
+            if disposition == "USER_WAIVED_WITH_REASON" and "scope" not in carrier_decision_normalized:
+                failures.append(f"{source}: {row_label}: USER waiver requires scope")
+
         if disposition == "DEFERRED_WITH_OWNER":
             for expected in ("owner", "reason", "trigger"):
                 if expected not in carrier_decision_normalized:
@@ -240,10 +442,8 @@ def validate_text(text: str, source: str = "<text>") -> list[str]:
         if disposition == "GITHUB_CREATION_APPROVED_PENDING":
             if _normalize_token(row.github_issue) not in {"PENDING", "APPROVED_PENDING", "NONE_PENDING"}:
                 failures.append(f"{source}: {row_label}: approved issue creation must remain visibly pending")
-
-        if disposition in {"MAPPED_OPEN_GITHUB_ISSUE", "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED"}:
-            if not re.search(r"#\d+", row.github_issue):
-                failures.append(f"{source}: {row_label}: mapped GitHub disposition requires issue number")
+            if not re.search(r"\b(approval|approved|receipt)\b", carrier_decision_normalized):
+                failures.append(f"{source}: {row_label}: approved issue creation requires USER approval receipt")
 
         if disposition == "MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED":
             if not re.search(r"\b(independent|verified|revalidated|reconciled)\b", _normalize_text(carrier_decision_text)):
@@ -259,53 +459,132 @@ def validate_text(text: str, source: str = "<text>") -> list[str]:
             if re.search(r"\b(closed|resolved|reconciled|green)\b", _normalize_text(row.exact_user_decision)):
                 failures.append(f"{source}: {row_label}: unknown/stale GitHub state cannot close candidate")
 
-        if disposition in ACTIVE_DISPOSITIONS and blocking == "NO":
-            if not re.search(r"\b(owner|carrier|trigger|review)\b", carrier_decision_normalized):
+        if disposition in CURRENT_PACKET_DISPOSITIONS and blocking == "NO":
+            has_owner = "owner" in carrier_decision_normalized
+            has_reason = "reason" in carrier_decision_normalized
+            has_route = "carrier" in carrier_decision_normalized or "route" in carrier_decision_normalized
+            has_trigger = "trigger" in carrier_decision_normalized
+            if not (has_owner and has_reason and has_route and has_trigger):
                 failures.append(
-                    f"{source}: {row_label}: non-blocking active carry-forward requires owner, carrier, reason, and trigger"
+                    f"{source}: {row_label}: non-blocking active carry-forward requires owner, carrier/route, reason, and trigger"
                 )
 
     return failures
 
 
-def _packet_markdown_text(packet_folder: Path) -> str:
+def _packet_markdown_files(packet_folder: Path) -> list[Path]:
+    return sorted(packet_folder.rglob("*.md"))
+
+
+def _path_has_part(path: Path, part: str) -> bool:
+    return any(path_part.casefold() == part for path_part in path.parts)
+
+
+def _packet_non_context_markdown_text(packet_folder: Path) -> str:
     parts: list[str] = []
     for path in sorted(packet_folder.rglob("*.md")):
         relative = path.relative_to(packet_folder)
-        if any(part.casefold() == "source truth context" for part in relative.parts):
+        if _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
             continue
         parts.append(path.read_text(encoding="utf-8"))
     return "\n\n".join(parts)
 
 
-def validate_packet_folder(packet_folder: Path, external_ledger: Path | None = None) -> list[str]:
+def _primary_decision_surface_paths(packet_folder: Path) -> list[Path]:
+    primary_paths: list[Path] = []
+    for path in _packet_markdown_files(packet_folder):
+        relative = path.relative_to(packet_folder)
+        if not _path_has_part(relative, PRIMARY_REVIEW_FOLDER):
+            continue
+        if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
+            primary_paths.append(path)
+    return primary_paths
+
+
+def _supporting_decision_surface_paths(packet_folder: Path) -> list[Path]:
+    supporting_paths: list[Path] = []
+    for path in _packet_markdown_files(packet_folder):
+        relative = path.relative_to(packet_folder)
+        if _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
+            continue
+        if _path_has_part(relative, PRIMARY_REVIEW_FOLDER):
+            continue
+        if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
+            supporting_paths.append(path)
+    return supporting_paths
+
+
+def _packet_primary_text(packet_folder: Path) -> str:
+    parts: list[str] = []
+    for path in _primary_decision_surface_paths(packet_folder):
+        parts.append(path.read_text(encoding="utf-8"))
+    return "\n\n".join(parts)
+
+
+def validate_packet_folder(
+    packet_folder: Path,
+    external_ledger: Path | None = None,
+    github_snapshot: Mapping[str, GitHubIssueSnapshot] | None = None,
+) -> list[str]:
     failures: list[str] = []
     if not packet_folder.exists() or not packet_folder.is_dir():
         return [f"{packet_folder}: packet folder missing"]
 
-    packet_text = _packet_markdown_text(packet_folder)
-    failures.extend(validate_text(packet_text, source=str(packet_folder)))
+    packet_text = _packet_non_context_markdown_text(packet_folder)
+    primary_paths = _primary_decision_surface_paths(packet_folder)
+    supporting_paths = _supporting_decision_surface_paths(packet_folder)
+    if supporting_paths and not primary_paths:
+        failures.append(
+            f"{packet_folder}: Issue Candidate Table Only In Copied Context or secondary review aid; primary USER decision surface missing"
+        )
+    if len(primary_paths) > 1:
+        failures.append(f"{packet_folder}: multiple primary Issue Candidate Decision Surface files")
+    primary_text = _packet_primary_text(packet_folder)
+    if primary_text:
+        failures.extend(validate_text(primary_text, source=str(packet_folder), github_snapshot=github_snapshot))
+    else:
+        active_packeted_only = _active_packeted_only_lines(packet_text)
+        if active_packeted_only:
+            failures.append(
+                f"{packet_folder}: RAR Issue Candidate Durability Missing: packeted-only or packet-reviewed-only wording is not a durable disposition"
+            )
 
     if external_ledger:
         external_text = external_ledger.read_text(encoding="utf-8")
-        active_ids = parse_external_candidate_ids(external_text)
-        if active_ids and DECISION_SURFACE_HEADER not in packet_text:
+        external_rows = parse_external_candidate_rows(external_text, source=str(external_ledger))
+        external_failures = validate_text(external_text, source=str(external_ledger), github_snapshot=github_snapshot)
+        failures.extend(external_failures)
+        current_rows = [row for row in external_rows if row.requires_current_packet]
+        current_ids = _candidate_ids_from_rows(current_rows)
+        if current_ids and not primary_paths:
             failures.append(
                 f"{packet_folder}: Issue Candidate Decision Surface missing from active USER-facing packet files"
             )
-        for candidate_id in sorted(active_ids):
-            if candidate_id not in packet_text:
+        for candidate_id in sorted(current_ids):
+            if not _candidate_id_present(candidate_id, primary_text) and not _explicit_lineage_present(candidate_id, primary_text):
                 failures.append(
                     f"{packet_folder}: external RAR issue candidate {candidate_id} missing from active USER-facing packet files"
                 )
     return failures
 
 
-def load_github_snapshot(path: Path) -> dict[str, str]:
+def load_github_snapshot(path: Path) -> dict[str, GitHubIssueSnapshot]:
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
-        raise ValueError("GitHub snapshot must be a JSON object mapping issue numbers to state strings")
-    return {str(key): str(value) for key, value in data.items()}
+        raise ValueError("GitHub snapshot must be a JSON object mapping issue numbers to state details")
+    snapshot: dict[str, GitHubIssueSnapshot] = {}
+    for raw_key, raw_value in data.items():
+        issue_number = _issue_number(str(raw_key))
+        if issue_number is None:
+            continue
+        parsed = _snapshot_state(raw_value)
+        snapshot[issue_number] = GitHubIssueSnapshot(
+            issue=issue_number,
+            state=parsed.state,
+            source=parsed.source,
+            last_verified=parsed.last_verified,
+        )
+    return snapshot
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -322,19 +601,23 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    if args.github_snapshot:
-        load_github_snapshot(args.github_snapshot)
+    github_snapshot = load_github_snapshot(args.github_snapshot) if args.github_snapshot else None
 
     failures: list[str] = []
     if args.validate_file:
         failures.extend(
-            validate_text(args.validate_file.read_text(encoding="utf-8"), source=str(args.validate_file))
+            validate_text(
+                args.validate_file.read_text(encoding="utf-8"),
+                source=str(args.validate_file),
+                github_snapshot=github_snapshot,
+            )
         )
     if args.validate_packet_folder:
-        failures.extend(validate_packet_folder(args.validate_packet_folder, args.external_ledger))
+        failures.extend(validate_packet_folder(args.validate_packet_folder, args.external_ledger, github_snapshot))
     if not args.validate_file and not args.validate_packet_folder:
         parser.print_help()
-        return 0
+        print("FAIL: no validation target supplied")
+        return 2
 
     if failures:
         print("FAIL: RAR issue-candidate durability validation failed")
