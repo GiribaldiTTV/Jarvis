@@ -79,6 +79,16 @@ HISTORICAL_PACKETED_ONLY_CONTEXT = (
 PRIMARY_REVIEW_FOLDER = "user review"
 REVIEW_AIDS_FOLDER = "review aids"
 SOURCE_TRUTH_CONTEXT_FOLDER = "source truth context"
+SECONDARY_REVIEW_FOLDERS = {
+    REVIEW_AIDS_FOLDER,
+    SOURCE_TRUTH_CONTEXT_FOLDER,
+    "archive",
+    "archived",
+    "historical",
+    "history",
+    "legacy",
+    "previous",
+}
 
 
 @dataclass(frozen=True)
@@ -531,6 +541,18 @@ def _path_first_part_is(path: Path, part: str) -> bool:
     return bool(path.parts) and path.parts[0].casefold() == part
 
 
+def _path_has_secondary_review_part(path: Path) -> bool:
+    return any(path_part.casefold() in SECONDARY_REVIEW_FOLDERS for path_part in path.parts)
+
+
+def _path_is_direct_user_review_file(path: Path) -> bool:
+    return (
+        len(path.parts) == 2
+        and _path_first_part_is(path, PRIMARY_REVIEW_FOLDER)
+        and path.suffix.casefold() == ".md"
+    )
+
+
 def _packet_non_context_markdown_text(packet_folder: Path) -> str:
     parts: list[str] = []
     for path in sorted(packet_folder.rglob("*.md")):
@@ -545,7 +567,7 @@ def _primary_decision_surface_paths(packet_folder: Path) -> list[Path]:
     primary_paths: list[Path] = []
     for path in _packet_markdown_files(packet_folder):
         relative = path.relative_to(packet_folder)
-        if not _path_first_part_is(relative, PRIMARY_REVIEW_FOLDER):
+        if not _path_is_direct_user_review_file(relative):
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             primary_paths.append(path)
@@ -575,9 +597,9 @@ def _start_here_routed_primary_paths(packet_folder: Path, excluded: set[Path] | 
         if path in excluded:
             continue
         relative = path.relative_to(packet_folder)
-        if _path_has_part(relative, SOURCE_TRUTH_CONTEXT_FOLDER):
+        if _path_has_secondary_review_part(relative):
             continue
-        if _path_has_part(relative, REVIEW_AIDS_FOLDER):
+        if _path_first_part_is(relative, PRIMARY_REVIEW_FOLDER) and not _path_is_direct_user_review_file(relative):
             continue
         path_text = relative.as_posix()
         name_text = path.name
@@ -605,7 +627,7 @@ def _supporting_decision_surface_paths(packet_folder: Path) -> list[Path]:
             continue
         if path in primary_paths:
             continue
-        if _path_first_part_is(relative, PRIMARY_REVIEW_FOLDER):
+        if _path_is_direct_user_review_file(relative):
             continue
         if parse_issue_candidate_decision_surface(path.read_text(encoding="utf-8"), source=str(path)):
             supporting_paths.append(path)

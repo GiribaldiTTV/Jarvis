@@ -5478,6 +5478,77 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture did not reject primary issue-candidate mention without decision table"
             )
 
+        nested_user_review_historical_packet = temp_root / "nested-user-review-historical-only" / "FAM-006"
+        nested_user_review_historical = nested_user_review_historical_packet / "USER Review" / "Historical"
+        nested_user_review_historical.mkdir(parents=True)
+        (nested_user_review_historical_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_user_review_historical / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-051")),
+            encoding="utf-8",
+        )
+        nested_user_review_historical_failures = rar_issue_durability.validate_packet_folder(
+            nested_user_review_historical_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            nested_user_review_historical_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject nested USER Review/Historical issue-candidate table as primary"
+            )
+
+        routed_nested_user_review_packet = temp_root / "routed-nested-user-review" / "FAM-006"
+        routed_nested_user_review_historical = (
+            routed_nested_user_review_packet / "USER Review" / "Historical"
+        )
+        routed_nested_user_review_historical.mkdir(parents=True)
+        (routed_nested_user_review_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: USER Review/Historical/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (routed_nested_user_review_historical / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-052")),
+            encoding="utf-8",
+        )
+        routed_nested_user_review_failures = rar_issue_durability.validate_packet_folder(
+            routed_nested_user_review_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            routed_nested_user_review_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject START_HERE-routed nested USER Review/Historical issue-candidate table"
+            )
+
+        hidden_nested_user_review_packet = temp_root / "hidden-nested-user-review-candidate" / "FAM-006"
+        hidden_nested_primary = hidden_nested_user_review_packet / "USER Review"
+        hidden_nested_historical = hidden_nested_user_review_packet / "USER Review" / "Historical"
+        hidden_nested_primary.mkdir(parents=True)
+        hidden_nested_historical.mkdir(parents=True)
+        (hidden_nested_user_review_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (hidden_nested_primary / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-053")),
+            encoding="utf-8",
+        )
+        (hidden_nested_historical / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-054")),
+            encoding="utf-8",
+        )
+        hidden_nested_user_review_failures = rar_issue_durability.validate_packet_folder(
+            hidden_nested_user_review_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-054 missing" not in "\n".join(
+            hidden_nested_user_review_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed active nested USER Review/Historical candidate absent from primary decision surface"
+            )
+
         routed_review_aid_packet = temp_root / "routed-review-aid-only" / "FAM-006"
         routed_review_aid = routed_review_aid_packet / "Review Aids"
         routed_review_context = routed_review_aid_packet / "Source Truth Context"
