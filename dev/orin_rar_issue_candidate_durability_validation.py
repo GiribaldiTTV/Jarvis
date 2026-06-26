@@ -709,9 +709,12 @@ def validate_packet_folder(
             continue
         if not row.requires_current_packet:
             continue
-        if row.candidate_id in primary_row_ids or _explicit_lineage_present(
-            row.candidate_id, primary_text, primary_row_ids
-        ):
+        primary_row_matches = primary_rows_by_id.get(row.candidate_id, [])
+        lineage_matches = any(
+            _candidate_lineage_key(row) == _candidate_lineage_key(primary_row)
+            for primary_row in primary_row_matches
+        )
+        if lineage_matches or _explicit_lineage_present(row.candidate_id, primary_text, primary_row_ids):
             continue
         failures.append(
             f"{packet_folder}: supporting/context RAR issue candidate {row.candidate_id} missing from active USER-facing packet files"

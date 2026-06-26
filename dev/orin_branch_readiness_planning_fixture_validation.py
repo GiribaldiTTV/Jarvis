@@ -5658,6 +5658,63 @@ def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
                 "Generated RAR packet fixture allowed active Review Aids candidate absent from primary decision surface"
             )
 
+        same_id_same_lineage_review_aid_packet = temp_root / "same-id-same-lineage-review-aid" / "FAM-006"
+        same_id_same_lineage_user_review = same_id_same_lineage_review_aid_packet / "USER Review"
+        same_id_same_lineage_review_aids = same_id_same_lineage_review_aid_packet / "Review Aids"
+        same_id_same_lineage_user_review.mkdir(parents=True)
+        same_id_same_lineage_review_aids.mkdir(parents=True)
+        (same_id_same_lineage_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (same_id_same_lineage_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-063")),
+            encoding="utf-8",
+        )
+        (same_id_same_lineage_review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-063")),
+            encoding="utf-8",
+        )
+        same_id_same_lineage_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            same_id_same_lineage_review_aid_packet
+        )
+        if same_id_same_lineage_review_aid_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected supporting Review Aids candidate with matching lineage: "
+                + "; ".join(same_id_same_lineage_review_aid_failures[:5])
+            )
+
+        same_id_different_lineage_review_aid_packet = (
+            temp_root / "same-id-different-lineage-review-aid" / "FAM-006"
+        )
+        same_id_different_lineage_user_review = same_id_different_lineage_review_aid_packet / "USER Review"
+        same_id_different_lineage_review_aids = same_id_different_lineage_review_aid_packet / "Review Aids"
+        same_id_different_lineage_user_review.mkdir(parents=True)
+        same_id_different_lineage_review_aids.mkdir(parents=True)
+        (same_id_different_lineage_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (same_id_different_lineage_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-064")),
+            encoding="utf-8",
+        )
+        (same_id_different_lineage_review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(
+                "| FAM006-RAR-064 | FAM-006 | Log Viewer Studio | Status row | Folder status mismatch | RAR contact sheet row LOG-STATUS-064 | ACTIVE_PENDING_USER_DECISION | YES | Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+            ),
+            encoding="utf-8",
+        )
+        same_id_different_lineage_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            same_id_different_lineage_review_aid_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-064 missing" not in "\n".join(
+            same_id_different_lineage_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed same-ID supporting Review Aids candidate with different lineage"
+            )
+
         hidden_context_packet = temp_root / "hidden-context-candidate" / "FAM-006"
         hidden_context_user_review = hidden_context_packet / "USER Review"
         hidden_context_folder = hidden_context_packet / "Source Truth Context"
