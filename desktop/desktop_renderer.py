@@ -1167,8 +1167,17 @@ class ResidentAccessSettingsDialog(QDialog):
     DEFAULT_SIZE = (780, 458)
     QUICK_SLOT_ROW_HEIGHT = 38
     QUICK_SLOT_ROW_SPACING = 7
+    QUICK_SLOT_INDEX_WIDTH = 22
+    QUICK_SLOT_ACTION_CLUSTER_WIDTH = 86
+    QUICK_SLOT_COMBO_MIN_WIDTH = 250
+    QUICK_SLOT_COMBO_MAX_WIDTH = 456
+    QUICK_SLOT_ROW_SIDE_GUTTER = 8
+    QUICK_SLOT_ROW_ITEM_GAP = 6
     QUICK_SLOT_CONTAINER_CHROME_HEIGHT = 118
     QUICK_ACCESS_WINDOW_VERTICAL_CHROME = 204
+    SETTINGS_NAV_MIN_WIDTH = 150
+    SETTINGS_NAV_MAX_WIDTH = 270
+    SETTINGS_NAV_CONTENT_MIN_WIDTH = 144
     SETTINGS_NAV_CATEGORY_GAP = 4
     SETTINGS_NAV_LABEL_POINT_SIZE = 10
     SETTINGS_NAV_PARENT_DEFAULT_WIDTH = 118
@@ -1246,7 +1255,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setWindowTitle("Global Settings")
         self.setObjectName("residentAccessSettingsDialog")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
-        self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-FAM-002")
+        self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-UIREF-007-FAM-002")
         self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v22")
         self.setProperty("referenceDerivedHeader", "ndai-global-settings-centered-settings-chrome-v22")
         self.setProperty("settingsVisualRepair", "lv1-global-settings-compact-ndai-grammar-close-intercept-v32")
@@ -1256,9 +1265,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v36")
-        self.setProperty("quickAccessLayoutPolicy", "content-driven-balanced-gutter-row-count-close-intercept-v32")
-        self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-v39")
+        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-150-270-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v40")
+        self.setProperty("quickAccessLayoutPolicy", "uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40")
+        self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-splitter-travel-v40")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
         self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
         self.setProperty("dirtyCloseInterceptState", "idle")
@@ -1319,8 +1328,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.nav_shell.setObjectName("residentAccessSettingsNavShell")
         self.nav_shell.setAttribute(Qt.WA_StyledBackground, True)
         self.nav_shell.setProperty("settingsShellIdentity", "ndai-slim-global-settings")
-        self.nav_shell.setMinimumWidth(150)
-        self.nav_shell.setMaximumWidth(174)
+        self.nav_shell.setMinimumWidth(self.SETTINGS_NAV_MIN_WIDTH)
+        self.nav_shell.setMaximumWidth(self.SETTINGS_NAV_MAX_WIDTH)
         self.nav_shell.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.settings_splitter.addWidget(self.nav_shell)
         nav_shell_layout = QVBoxLayout(self.nav_shell)
@@ -1330,7 +1339,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.nav_scroll_area = QScrollArea(self.nav_shell)
         self.nav_scroll_area.setObjectName("residentAccessSettingsNavScrollArea")
         self.nav_scroll_area.setFrameShape(QFrame.NoFrame)
-        self.nav_scroll_area.setWidgetResizable(False)
+        self.nav_scroll_area.setWidgetResizable(True)
         self.nav_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.nav_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.nav_scroll_area.setAccessibleName("Global Settings navigation list")
@@ -1338,9 +1347,9 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self.nav_content = QWidget(self.nav_scroll_area)
         self.nav_content.setObjectName("residentAccessSettingsNavContent")
-        self.nav_content.setFixedWidth(144)
+        self.nav_content.setMinimumWidth(self.SETTINGS_NAV_CONTENT_MIN_WIDTH)
         self.nav_content.setMinimumHeight(96)
-        self.nav_content.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.nav_content.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.nav_scroll_area.setWidget(self.nav_content)
         nav_layout = QVBoxLayout(self.nav_content)
         nav_layout.setContentsMargins(6, 6, 6, 6)
@@ -1442,6 +1451,8 @@ class ResidentAccessSettingsDialog(QDialog):
         content_shell.setObjectName("residentAccessSettingsContentShell")
         content_shell.setAttribute(Qt.WA_StyledBackground, True)
         self.settings_splitter.addWidget(content_shell)
+        self.settings_splitter.setStretchFactor(0, 0)
+        self.settings_splitter.setStretchFactor(1, 1)
         self.settings_splitter.setSizes([160, 590])
         content_layout = QVBoxLayout(content_shell)
         content_layout.setContentsMargins(0, 0, 0, 0)
@@ -2237,21 +2248,21 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: #ffffff;"
             "}"
             "#residentAccessQuickSlotActions {"
-            " background: transparent;"
-            " border: none;"
-            " border-radius: 0;"
+            " background: rgba(2, 13, 24, 0.70);"
+            " border: 1px solid rgba(118, 226, 255, 0.15);"
+            " border-radius: 9px;"
             "}"
             "#residentAccessQuickSlotActions QPushButton {"
             " min-height: 26px;"
             " max-height: 26px;"
             " padding: 0;"
-            " border-radius: 6px;"
+            " border-radius: 7px;"
             " font-size: 11px;"
             "}"
             "#residentAccessQuickSlotReorderGroup {"
-            " background: rgba(2, 13, 24, 0.72);"
-            " border: 1px solid rgba(118, 226, 255, 0.11);"
-            " border-radius: 9px;"
+            " background: rgba(7, 28, 43, 0.72);"
+            " border: 1px solid rgba(118, 226, 255, 0.18);"
+            " border-radius: 8px;"
             "}"
             "#residentAccessQuickSlotReorderGroup QPushButton {"
             " background: transparent;"
@@ -2260,11 +2271,13 @@ class ResidentAccessSettingsDialog(QDialog):
             " padding: 0;"
             "}"
             "#residentAccessQuickSlotReorderGroup QPushButton:hover, #residentAccessQuickSlotReorderGroup QPushButton:focus {"
-            " background: rgba(15, 75, 93, 0.64);"
+            " background: rgba(15, 75, 93, 0.72);"
+            " border: 1px solid rgba(153, 246, 228, 0.28);"
+            " color: rgba(236, 254, 255, 0.98);"
             "}"
             "#residentAccessQuickSlotDelete {"
             " color: #fecaca;"
-            " background: rgba(52, 13, 21, 0.48);"
+            " background: rgba(52, 13, 21, 0.56);"
             " border-color: rgba(248, 113, 113, 0.46);"
             " font-weight: 800;"
             "}"
@@ -2600,6 +2613,38 @@ class ResidentAccessSettingsDialog(QDialog):
                 widget.setParent(None)
                 widget.deleteLater()
         self._slot_combos = []
+        self._slot_rows: list[QFrame] = []
+        self._slot_action_clusters: list[QFrame] = []
+
+    def _quick_slot_combo_width_for_row(self, row_width: int) -> int:
+        reserved_width = (
+            self.QUICK_SLOT_ROW_SIDE_GUTTER * 2
+            + self.QUICK_SLOT_INDEX_WIDTH
+            + self.QUICK_SLOT_ACTION_CLUSTER_WIDTH
+            + self.QUICK_SLOT_ROW_ITEM_GAP * 2
+        )
+        available_width = max(0, row_width - reserved_width)
+        return max(
+            self.QUICK_SLOT_COMBO_MIN_WIDTH,
+            min(self.QUICK_SLOT_COMBO_MAX_WIDTH, available_width),
+        )
+
+    def _apply_quick_slot_row_geometry(self):
+        if not getattr(self, "_slot_combos", None):
+            return
+        rows = getattr(self, "_slot_rows", [])
+        for row, combo, action_cluster in zip(rows, self._slot_combos, self._slot_action_clusters):
+            row_width = row.width() or self.quick_slot_rows.width() or max(
+                0,
+                self.quick_slot_container.width() - 24,
+            )
+            combo_width = self._quick_slot_combo_width_for_row(row_width)
+            combo.setMinimumWidth(combo_width)
+            combo.setMaximumWidth(combo_width)
+            if combo.view() is not None:
+                combo.view().setMinimumWidth(combo_width)
+                combo.view().setMaximumWidth(combo_width)
+            action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
 
     def _rebuild_quick_slot_rows(self):
         self._clear_quick_slot_rows()
@@ -2612,17 +2657,22 @@ class ResidentAccessSettingsDialog(QDialog):
             row.setFixedHeight(self.QUICK_SLOT_ROW_HEIGHT)
             row.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(8, 3, 8, 3)
-            row_layout.setSpacing(6)
+            row_layout.setContentsMargins(
+                self.QUICK_SLOT_ROW_SIDE_GUTTER,
+                3,
+                self.QUICK_SLOT_ROW_SIDE_GUTTER,
+                3,
+            )
+            row_layout.setSpacing(self.QUICK_SLOT_ROW_ITEM_GAP)
             slot_label = QLabel(f"{index + 1:02d}", row)
             slot_label.setObjectName("residentAccessQuickSlotIndex")
             slot_label.setAccessibleName(f"Quick Access Slot {index + 1} label")
-            slot_label.setFixedWidth(22)
+            slot_label.setFixedWidth(self.QUICK_SLOT_INDEX_WIDTH)
             row_layout.addWidget(slot_label)
             combo = QComboBox(row)
             combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
-            combo.setMinimumWidth(330)
-            combo.setMaximumWidth(575)
+            combo.setMinimumWidth(self.QUICK_SLOT_COMBO_MIN_WIDTH)
+            combo.setMaximumWidth(self.QUICK_SLOT_COMBO_MAX_WIDTH)
             combo.setMaxVisibleItems(4)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
@@ -2658,21 +2708,23 @@ class ResidentAccessSettingsDialog(QDialog):
                     " color: #e5f0ff;"
                     "}"
                 )
-                popup.setMaximumHeight(124)
+                popup.setMinimumHeight(132)
+                popup.setMaximumHeight(136)
             combo.currentIndexChanged.connect(lambda _idx, index=index: self._update_slot(index))
             self._slot_combos.append(combo)
             row_layout.addWidget(combo, 1)
             action_cluster = QFrame(row)
             action_cluster.setObjectName("residentAccessQuickSlotActions")
             action_cluster.setAttribute(Qt.WA_StyledBackground, True)
-            action_cluster.setFixedWidth(80)
+            action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
+            action_cluster.setProperty("quickSlotActionControlPolicy", "integrated-capsule-up-down-delete-v40")
             action_layout = QHBoxLayout(action_cluster)
-            action_layout.setContentsMargins(0, 0, 0, 0)
-            action_layout.setSpacing(4)
+            action_layout.setContentsMargins(2, 0, 2, 0)
+            action_layout.setSpacing(5)
             reorder_group = QFrame(action_cluster)
             reorder_group.setObjectName("residentAccessQuickSlotReorderGroup")
             reorder_group.setAttribute(Qt.WA_StyledBackground, True)
-            reorder_group.setFixedSize(46, 27)
+            reorder_group.setFixedSize(50, 27)
             reorder_layout = QHBoxLayout(reorder_group)
             reorder_layout.setContentsMargins(1, 1, 1, 1)
             reorder_layout.setSpacing(0)
@@ -2680,7 +2732,7 @@ class ResidentAccessSettingsDialog(QDialog):
             up_button.setObjectName("residentAccessQuickSlotMoveUp")
             up_button.setProperty("quietGlyph", True)
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
-            up_button.setFixedSize(22, 25)
+            up_button.setFixedSize(24, 25)
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             reorder_layout.addWidget(up_button)
@@ -2688,7 +2740,7 @@ class ResidentAccessSettingsDialog(QDialog):
             down_button.setObjectName("residentAccessQuickSlotMoveDown")
             down_button.setProperty("quietGlyph", True)
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
-            down_button.setFixedSize(22, 25)
+            down_button.setFixedSize(24, 25)
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             reorder_layout.addWidget(down_button)
@@ -2698,14 +2750,17 @@ class ResidentAccessSettingsDialog(QDialog):
             delete_button.setProperty("dangerGlyph", True)
             delete_button.setProperty("quietGlyph", True)
             delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
-            delete_button.setFixedSize(24, 25)
+            delete_button.setFixedSize(25, 25)
             delete_button.setEnabled(len(selected_ids) > 1)
             delete_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(delete_button)
             row_layout.addWidget(action_cluster)
             self.quick_slot_rows_layout.addWidget(row)
+            self._slot_rows.append(row)
+            self._slot_action_clusters.append(action_cluster)
         self.add_slot_button.setEnabled(len(selected_ids) < self._available_quick_slot_limit())
         self._resize_for_slot_count(len(selected_ids))
+        QTimer.singleShot(0, self._apply_quick_slot_row_geometry)
         self._install_settings_resize_event_filters()
 
     def _resize_for_slot_count(self, slot_count: int):
@@ -3473,6 +3528,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._apply_quick_slot_row_geometry()
         self._position_close_guard_overlay()
 
 
