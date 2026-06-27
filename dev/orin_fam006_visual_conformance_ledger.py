@@ -1513,11 +1513,11 @@ def packet_hygiene_summary() -> dict[str, object]:
     }
 
 
-def render_markdown(rows: list[VisualLedgerRow]) -> str:
+def render_markdown(rows: list[VisualLedgerRow], status: str) -> str:
     lines = [
         "# FAM-006 Stop-The-Line Exhaustive Visual Conformance Ledger",
         "",
-        "Status: FAIL / REPAIR until renewed photo/video proof and USER packet hygiene are green.",
+        f"Status: {status}.",
         "",
         "Final disposition vocabulary is restricted. Vague progress language is not accepted as green.",
         "",
@@ -1622,7 +1622,7 @@ def main() -> int:
     if args.write:
         args.write.mkdir(parents=True, exist_ok=True)
         (args.write / "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md").write_text(
-            render_markdown(rows),
+            render_markdown(rows, str(proof["status"])),
             encoding="utf-8",
         )
         (args.write / "exhaustive_visual_conformance_ledger.json").write_text(

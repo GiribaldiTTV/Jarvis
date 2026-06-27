@@ -486,7 +486,7 @@ class PacketInspection:
 
 def _read_json(path: Path) -> tuple[dict[str, Any] | list[Any] | None, str | None]:
     try:
-        return json.loads(path.read_text(encoding="utf-8")), None
+        return json.loads(path.read_text(encoding="utf-8-sig")), None
     except Exception as exc:  # noqa: BLE001 - validation reports exact parse failure
         return None, str(exc)
 
@@ -494,6 +494,96 @@ def _read_json(path: Path) -> tuple[dict[str, Any] | list[Any] | None, str | Non
 def _find_one(root: Path, pattern: str) -> Path | None:
     matches = sorted(root.glob(pattern))
     return matches[0] if matches else None
+
+
+def _validation_summary_failure_names(data: Any) -> list[str]:
+    if not isinstance(data, list):
+        return ["validation summary is not a list"]
+    failures: list[str] = []
+    for index, row in enumerate(data, start=1):
+        if not isinstance(row, dict):
+            failures.append(f"validation summary row {index} is not an object")
+            continue
+        try:
+            exit_code = int(row.get("exit", 0))
+        except (TypeError, ValueError):
+            failures.append(f"{row.get('name', f'row-{index}')}: exit is not an integer")
+            continue
+        if exit_code != 0:
+            failures.append(f"{row.get('name', f'row-{index}')} exit {exit_code}")
+    return failures
+
+
+def _validate_active_packet_consistency(root: Path) -> list[str]:
+    failures: list[str] = []
+    review_aids = root / "Review Aids"
+    validation_outputs = review_aids / "Validation Outputs"
+
+    ledger_md = review_aids / "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md"
+    if ledger_md.is_file():
+        ledger_text = ledger_md.read_text(encoding="utf-8", errors="replace")
+        if "Status: FAIL" in ledger_text and "SUPERSEDED_HISTORICAL_EVIDENCE" not in ledger_text:
+            failures.append(
+                "active EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md presents FAIL status without superseded classification"
+            )
+
+    ledger_json = review_aids / "exhaustive_visual_conformance_ledger.json"
+    if ledger_json.is_file():
+        data, error = _read_json(ledger_json)
+        if error or not isinstance(data, dict):
+            failures.append(f"invalid active exhaustive_visual_conformance_ledger.json: {error}")
+        elif data.get("status") != "PASS":
+            failures.append(
+                "active exhaustive_visual_conformance_ledger.json status is not PASS: "
+                + str(data.get("status"))
+            )
+
+    if validation_outputs.is_dir():
+        ambiguous_summary_names = {
+            "validation_summary.json",
+            "rerun_validation_summary.json",
+        }
+        for summary_path in sorted(validation_outputs.glob("*validation_summary.json")):
+            data, error = _read_json(summary_path)
+            if error:
+                failures.append(f"{summary_path.name} is invalid JSON: {error}")
+                continue
+            summary_failures = _validation_summary_failure_names(data)
+            if summary_path.name in ambiguous_summary_names and summary_failures:
+                failures.append(
+                    f"{summary_path.name} contains non-zero exits in active Validation Outputs: "
+                    + "; ".join(summary_failures)
+                )
+        final_summary = validation_outputs / "final_validation_summary.json"
+        if final_summary.is_file():
+            data, error = _read_json(final_summary)
+            if error:
+                failures.append(f"final_validation_summary.json is invalid JSON: {error}")
+            else:
+                summary_failures = _validation_summary_failure_names(data)
+                if summary_failures:
+                    failures.append(
+                        "final_validation_summary.json contains non-zero exits: "
+                        + "; ".join(summary_failures)
+                    )
+
+        zip_manifest = validation_outputs / "zip_manifest_external.json"
+        if zip_manifest.is_file():
+            data, error = _read_json(zip_manifest)
+            if error or not isinstance(data, dict):
+                failures.append(f"zip_manifest_external.json is invalid JSON: {error}")
+            else:
+                sha = data.get("sha256")
+                size = data.get("size")
+                try:
+                    size_value = int(size)
+                except (TypeError, ValueError):
+                    size_value = 0
+                if not sha or size_value <= 0:
+                    failures.append(
+                        "zip_manifest_external.json has null/empty SHA or zero size in active Validation Outputs"
+                    )
+    return failures
 
 
 def _is_accepted_visual_target_packet(root: Path) -> bool:
@@ -1150,6 +1240,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
     failures.extend(_validate_source_truth_context(root))
     failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(root))
+    failures.extend(_validate_active_packet_consistency(root))
     is_known_bad = label.startswith("known-bad:")
     if not is_known_bad and _is_full_desktop_false_green_packet(root):
         packet_failures = validate_full_desktop_false_green_packet(root)
