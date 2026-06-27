@@ -535,6 +535,8 @@ def validate_static_wiring(failures: list[str]):
         "slot_count_badge",
         "residentAccessSettingsSlotCount",
         "residentAccessSettingsFooter",
+        "#residentAccessSettingsFooter",
+        "border: none;",
         "QPushButton(\"Defaults\"",
         "quick_help.setVisible(False)",
         "def _available_quick_slot_limit",
@@ -818,6 +820,12 @@ def validate_static_wiring(failures: list[str]):
         "matchesResizeCursor",
     ):
         assert_true(token in main_text, f"runtime fallback resident access token missing: {token}", failures)
+
+    assert_true(
+        '" border-top: 1px solid rgba(118, 226, 255, 0.10);"' not in main_text,
+        "Global Settings footer still has a top divider above Revert/Save",
+        failures,
+    )
 
     assert_true(
         "`dev/orin_fam003_resident_access_validation.py`" in registry_text,

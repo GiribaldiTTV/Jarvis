@@ -750,7 +750,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "font": "10pt buttons",
         "text": "pale action text",
         "background": "transparent footer",
-        "border": "top divider",
+        "border": "no divider",
         "effects": "save emphasis when enabled",
         "spacing": "right aligned",
         "hitbox": "28px min-height buttons",

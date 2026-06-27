@@ -2177,7 +2177,7 @@ class ResidentAccessSettingsDialog(QDialog):
             "}"
             "#residentAccessSettingsFooter {"
             " background: transparent;"
-            " border-top: 1px solid rgba(118, 226, 255, 0.10);"
+            " border: none;"
             " border-radius: 0;"
             "}"
             "#residentAccessCloseGuardOverlay {"
