@@ -476,14 +476,14 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "integrated dark navigation well",
         "border": "subtle cyan divider, splitter handle",
         "effects": "no fake future categories; selected parent carries child focus",
-        "spacing": "bounded 118-148px slim rail",
+        "spacing": "normal 160px slim rail, compressed 76px overflow state, wide 270px state",
         "hitbox": "left splitter pane",
         "icon_label": "painted tray icon, painted quick-access icon, compact chevron expander",
         "states": "default, active child, collapsed parent, narrow overflow, wide pane",
         "a11y": "Open Quick Access Settings; Resize Global Settings navigation pane",
         "comparator": "dense settings navigation grammar",
-        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png",
-        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page;left navigation active child proof;focused child pill border no-clipping proof;child pill focus/pressed state proof;left navigation collapsed proof;left navigation expanded proof;left pane minimum width has no horizontal overflow;left pane wide resize stays deterministic;left pane vertical overflow source-truth disposition",
+        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png",
+        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page;left navigation active child proof;focused child pill border no-clipping proof;child pill focus/pressed state proof;left navigation collapsed proof;left navigation expanded proof;left pane compressed width exposes horizontal overflow;left pane wide resize stays deterministic;left pane vertical overflow source-truth disposition",
     },
     {
         "id": "F3GS-008",
@@ -916,11 +916,11 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "spacing": "maximum popup height 178; 124px narrow nav viewport",
         "hitbox": "bounded popup and left navigation scroll area",
         "icon_label": "list rows and navigation child rows",
-        "states": "open list, no horizontal rail overflow, vertical overflow disposition",
+        "states": "open list, compressed horizontal rail overflow, vertical overflow disposition",
         "a11y": "combo list; Global Settings navigation list",
         "comparator": "dark selector list and compact settings navigation overflow",
-        "proof": "07_dropdown_list_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png",
-        "checks": "dropdown/list state screenshot saved;dropdown/list state is not white/native-light;left pane minimum width has no horizontal overflow;left pane vertical overflow source-truth disposition",
+        "proof": "07_dropdown_list_state.png; 04d_left_pane_compressed_horizontal_overflow.png",
+        "checks": "dropdown/list state screenshot saved;dropdown/list state is not white/native-light;left pane compressed width exposes horizontal overflow;left pane vertical overflow source-truth disposition",
     },
     {
         "id": "F3GS-027",
@@ -1034,8 +1034,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "states": "default, medium resized, live-style user drag, minimum-size, narrow/wide left pane",
         "a11y": "Resize Global Settings navigation pane",
         "comparator": "UIREF-001 top-level resizable window expectation",
-        "proof": "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png",
-        "checks": "window resize/minimum-size proof;live-style user drag resize proof;wide layout keeps active settings page attached to splitter;left pane minimum width has no horizontal overflow;left pane wide resize stays deterministic",
+        "proof": "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png",
+        "checks": "window resize/minimum-size proof;live-style user drag resize proof;wide layout keeps active settings page attached to splitter;left pane compressed width exposes horizontal overflow;left pane wide resize stays deterministic",
     },
 )
 
@@ -1586,7 +1586,7 @@ def _write_fail_capable_defect_ledger(
         "child pill focus/pressed state proof",
         "left navigation collapsed proof",
         "left navigation expanded proof",
-        "left pane minimum width has no horizontal overflow",
+        "left pane compressed width exposes horizontal overflow",
         "left pane wide resize stays deterministic",
         "left pane vertical overflow source-truth disposition",
         "selectable Tray parent page",
@@ -2184,7 +2184,7 @@ def main() -> int:
                 and len(synthetic_child) == 14
                 and stress_vbar_max > 0
                 and stress_hbar_max == 0
-                and stress_dialog.nav_scroll_area.horizontalScrollBarPolicy() == Qt.ScrollBarAlwaysOff
+                and stress_dialog.nav_scroll_area.horizontalScrollBarPolicy() == Qt.ScrollBarAsNeeded
                 and all(row.width() <= stress_dialog.nav_content.width() for row in [*synthetic_main, *synthetic_child]),
                 f"{rail_path} ({rail_width}x{rail_height}); main={len(synthetic_main)}; child={len(synthetic_child)}; nav_hbar={stress_hbar_max}; nav_vbar={stress_vbar_max}; nav_content_width={stress_dialog.nav_content.width()}; synthetic_widths={[row.width() for row in [*synthetic_main[:2], *synthetic_child[:2]]]}",
             )
@@ -2459,7 +2459,7 @@ def main() -> int:
             and 450 <= dialog.minimumHeight() <= 470
             and dialog.maximumWidth() == 840
             and dialog.maximumHeight() == 610
-            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-150-270-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v40",
+            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41",
             f"resized={resized_width}x{resized_height}; wide={wide_width}x{wide_height}; min={min_width}x{min_height}; grip_attr={hasattr(dialog, 'resize_grip')}; grip_widgets={len(dialog.findChildren(QFrame, 'residentAccessSettingsResizeGrip'))}; margin={dialog.RESIZE_MARGIN}; corner_margin={getattr(dialog, 'RESIZE_CORNER_MARGIN', None)}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -2530,7 +2530,7 @@ def main() -> int:
             and hasattr(drag_probe, "_start_settings_resize")
             and hasattr(drag_probe, "_finish_settings_resize")
             and drag_probe.property("windowResizeBehavior")
-            == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-150-270-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v40",
+            == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41",
             f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
         )
     )
@@ -2563,7 +2563,7 @@ def main() -> int:
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row"
             and dialog.quick_access_nav_item.property("settingsNavIdentity") == "ndai-signal-leaf"
             and dialog.nav_shell.property("settingsShellIdentity") == "ndai-slim-global-settings"
-            and dialog.nav_scroll_area.horizontalScrollBarPolicy() == Qt.ScrollBarAlwaysOff
+            and dialog.nav_scroll_area.horizontalScrollBarPolicy() == Qt.ScrollBarAsNeeded
             and dialog.nav_scroll_area.verticalScrollBarPolicy() == Qt.ScrollBarAsNeeded
             and dialog.tray_expand_button.property("glyphButton") == "chevron-down"
             and getattr(dialog.tray_nav_icon, "icon_kind", "") == "tray"
@@ -2600,7 +2600,7 @@ def main() -> int:
         (
             "left rail active icon and hierarchy polish",
             nav_ok
-            and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-splitter-travel-v40"
+            and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41"
             and dialog.tray_nav_item.property("navState") == "contains-selected"
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and dialog.tray_nav_item.property("settingsNavSizingPolicy") == "font-metric-default-min-clamped-v39"
@@ -2762,16 +2762,18 @@ def main() -> int:
         surface="left settings organizer",
         state="Quick Access child pill focused and pressed",
     )
+    child_pressed_has_focus = dialog.quick_access_nav_button.hasFocus()
+    child_pressed_is_down = dialog.quick_access_nav_button.isDown()
     dialog.quick_access_nav_button.setDown(False)
     app.processEvents()
     rows.append(
         (
             "child pill focus/pressed state proof",
             child_pressed_ok
-            and dialog.quick_access_nav_button.hasFocus()
+            and child_pressed_is_down
             and dialog.quick_access_nav_item.property("navState") == "selected"
             and child_right_inset >= 14,
-            f"{child_pressed_path} ({child_pressed_width}x{child_pressed_height}); has_focus={dialog.quick_access_nav_button.hasFocus()}; right_inset={child_right_inset}",
+            f"{child_pressed_path} ({child_pressed_width}x{child_pressed_height}); has_focus={child_pressed_has_focus}; is_down={child_pressed_is_down}; right_inset={child_right_inset}",
         )
     )
 
@@ -2819,32 +2821,41 @@ def main() -> int:
         )
     )
 
-    dialog.settings_splitter.setSizes([118, 584])
+    dialog.settings_splitter.setSizes([dialog.SETTINGS_NAV_MIN_WIDTH, 626])
     app.processEvents()
-    narrow_path = log_dir / "04d_left_pane_minimum_no_horizontal_scroll.png"
+    narrow_path = log_dir / "04d_left_pane_compressed_horizontal_overflow.png"
     narrow_ok, narrow_width, narrow_height = _capture(
         dialog.nav_shell,
         narrow_path,
         artifacts,
         surface="left settings organizer",
-        state="minimum pane / no horizontal overflow",
+        state="compressed pane / horizontal overflow",
     )
     hbar_max = dialog.nav_scroll_area.horizontalScrollBar().maximum()
+    hbar_policy = dialog.nav_scroll_area.horizontalScrollBarPolicy()
+    narrow_viewport_width = dialog.nav_scroll_area.viewport().width()
     narrow_child_origin = dialog.quick_access_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
     narrow_parent_origin = dialog.tray_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
+    narrow_parent_visible_width = max(
+        0,
+        min(dialog.tray_nav_item.width(), dialog.nav_shell.width() - narrow_parent_origin.x()),
+    )
     narrow_child_right_inset = dialog.nav_shell.width() - (
         narrow_child_origin.x() + dialog.quick_access_nav_item.width()
     )
     rows.append(
         (
-            "left pane minimum width has no horizontal overflow",
+            "left pane compressed width exposes horizontal overflow",
             narrow_ok
             and dialog.nav_shell.width() == dialog.SETTINGS_NAV_MIN_WIDTH
-            and hbar_max == 0
-            and dialog.nav_content.width() <= dialog.nav_scroll_area.viewport().width()
-            and narrow_child_right_inset >= 14
+            and hbar_policy == Qt.ScrollBarAsNeeded
+            and hbar_max > 0
+            and dialog.nav_content.width() > narrow_viewport_width
+            and 34 <= narrow_parent_visible_width <= 78
+            and narrow_parent_visible_width < dialog.tray_nav_item.width()
+            and narrow_child_right_inset < 0
             and narrow_child_origin.x() - narrow_parent_origin.x() == 14,
-            f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}; parent_origin={narrow_parent_origin.x()},{narrow_parent_origin.y()}; child_origin={narrow_child_origin.x()},{narrow_child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; child_right_inset={narrow_child_right_inset}",
+            f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; viewport_width={narrow_viewport_width}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}; hbar_policy={hbar_policy}; parent_origin={narrow_parent_origin.x()},{narrow_parent_origin.y()}; parent_width={dialog.tray_nav_item.width()}; parent_visible_width={narrow_parent_visible_width}; child_origin={narrow_child_origin.x()},{narrow_child_origin.y()}; child_width={dialog.quick_access_nav_item.width()}; child_right_inset={narrow_child_right_inset}",
         )
     )
 
@@ -2868,7 +2879,7 @@ def main() -> int:
             "left pane wide resize stays deterministic",
             wide_ok
             and dialog.nav_shell.width() == dialog.SETTINGS_NAV_MAX_WIDTH
-            and dialog.nav_shell.width() - dialog.SETTINGS_NAV_MIN_WIDTH >= 120
+            and dialog.nav_shell.width() - dialog.SETTINGS_NAV_MIN_WIDTH >= 190
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_item.isVisible()
             and dialog.tray_nav_item.width() == 118
@@ -2966,9 +2977,9 @@ def main() -> int:
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
-            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-150-270-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v40"
+            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41"
             and dialog.property("quickAccessLayoutPolicy") == "uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40"
-            and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-splitter-travel-v40"
+            and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
             and dialog.property("visibleResizeGrip") == "removed"
@@ -4300,8 +4311,8 @@ def main() -> int:
         ("F3-LV1-UI-022", "USER", "20260624-132602/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 16_defect_closure_contact_sheet.png; 17_red_team_review_sheet.png", "Global Settings is its own settings-window class: no title card, no stacked title, no sectioned title row", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-023", "USER / ChatGPT", "v17 left rail child row was nearly peer-level", "04_left_settings_organizer.png; 04a_left_nav_active_child.png", "Tray parent with visibly subordinate Quick Access child", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-024", "USER / ChatGPT", "v17/default v20 canvases were too large or visually zoomed out", "01_default_global_settings_shell.png", "780x460 content-deterministic default shell with proportional control scale", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-025", "USER / ChatGPT", "v17/v23 minimum floors were over-restrictive", "03c_window_minimum_size.png; 04d_left_pane_minimum_no_horizontal_scroll.png", "684x388 base minimum with active-content height growth and no visible horizontal rail overflow", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-026", "USER / ChatGPT", "nav rows stretched and overflow was treated as proof", "04_left_settings_organizer.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "bounded parent/child rail rows with no horizontal overflow", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-025", "USER / ChatGPT", "v17/v23 minimum floors were over-restrictive", "03c_window_minimum_size.png; 04d_left_pane_compressed_horizontal_overflow.png", "684x388 base minimum with active-content height growth and a deliberate compressed-rail overflow test state", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-026", "USER / ChatGPT", "nav rows stretched and overflow was treated as proof", "04_left_settings_organizer.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "bounded parent/child rail rows at normal/wide sizes plus intentional compressed horizontal overflow at the splitter minimum", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-027", "USER / ChatGPT", "3 active of 4 header badge was verbose and detached from Add Slot", "01_default_global_settings_shell.png", "3 of 4 placed beside Add Slot", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-028", "USER / ChatGPT", "clean-state Saved label was redundant", "01_default_global_settings_shell.png; 11_post_save_clean_state.png", "quiet clean/post-save state; dirty/guard copy remains meaningful", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-029", "USER", "v18 footer/status close guard did not match accepted Manage Monitors modal dirty guard", "08_close_guard.png; 13a_accepted_manage_monitors_dirty_guard_reference.png; 18_manage_monitors_dirty_guard_side_by_side.png; MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md", "accepted HUD Dashboard / Manage Monitors modal Save / Discard / Cancel dirty guard", "CLOSED_WITH_PROOF"),
@@ -4325,14 +4336,15 @@ def main() -> int:
         ("F3-LV1-UI-051", "USER / ChatGPT", "left rail active/icon/hierarchy polish remained under-authored", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png", "rail keeps slim rows while parent/child selection uses polished active signal, proportional icons, quiet expander, and deterministic hierarchy", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-052", "USER", "v29 live review found control pill looked polished while content UI still looked weaker and too small", "01_default_global_settings_shell.png; 02_top_level_chrome_control_cluster.png; 14_glyph_control_closeup.png", "control-pill-anchored proportional content scale v32", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-053", "USER", "Menu order card had top gutter without matching bottom breathing room", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "balanced top/bottom card gutter across 1/2/3/4 rows", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-054", "USER", "left rail scale remained too small and squished", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png", "134-162px rail with proportional parent/child rows and no horizontal overflow", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-054", "USER", "left rail scale remained too small and squished", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_compressed_horizontal_overflow.png", "normal rail preserves proportional parent/child rows while the splitter minimum intentionally compresses to a horizontal-overflow stress state", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-055", "USER", "Quick Access child pill appeared clipped/cut off", "04a_left_nav_active_child.png", "102x28 historical child pill closure proof retained as superseded context", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-056", "USER", "row controls/glyphs risked overpowering row labels", "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png", "quietGlyph secondary move/delete controls with labels remaining primary", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-057", "USER", "content/header typography and polish lacked compact NDAI richness", "01_default_global_settings_shell.png; 05_tray_parent_page.png; 12_reference_conformance_contact_sheet.png", "compact settings-tool polish through typography, panel depth, active state, and spacing without dashboard-like header cards", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-058", "USER", "The Quick Access sub-category pill in the left rail clips the right edge of its border.", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "104px child pill inside a 10px-left / 4px-right subpage rail budget with >=10px right inset and focused border proof", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-059", "USER", "fix the gutter inside the sub catagory, it looks squished. do not let the main catagory affect sub catagory button length", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "112px child pill inside a 6px-left / 0px-right subpage rail budget with independent 88px child label width, parent button max 58px, >=10px right inset, and focused/pressed proof", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-060", "USER", "do not let the indent of the sub catagory be affected. the indent needs to be fixed and standardized. now you can visually see that the distinguished difference in main categories and sub categories is gone.", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "fixed 10px subcategory indent with independent 110px child pill and 85px child label budget, parent button max 58px, >=10px right inset, and focused/pressed proof", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-061", "USER", "the border of the wuick acces is clipping again, and the indent needs to be more obvious. and fix the clipping", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "border-safe 150-174px left rail with fixed 14px subcategory indent, 112px child pill, 88px child label budget, parent button max 58px, >=14px right inset, stable selected/hover border, and focused/pressed proof", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-058", "USER", "The Quick Access sub-category pill in the left rail clips the right edge of its border.", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "normal/wide rail keeps border-safe child proof; compressed rail is explicitly a scroll/overflow stress state, not normal navigation proof", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-059", "USER", "fix the gutter inside the sub catagory, it looks squished. do not let the main catagory affect sub catagory button length", "04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "112px child pill inside a 6px-left / 0px-right subpage rail budget with independent 88px child label width at normal/wide states; compressed state preserves scroll recovery", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-060", "USER", "do not let the indent of the sub catagory be affected. the indent needs to be fixed and standardized. now you can visually see that the distinguished difference in main categories and sub categories is gone.", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "fixed 14px subcategory indent remains the hierarchy rule; compressed state is an intentional splitter stress state with horizontal scroll recovery", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-061", "USER", "the border of the wuick acces is clipping again, and the indent needs to be more obvious. and fix the clipping", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "border-safe normal/wide left rail with fixed 14px subcategory indent, 112px child pill, 88px child label budget, stable selected/hover border, and compressed horizontal-overflow stress proof", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-062", "USER", "splitter could not compress the rail far enough to show half of the main category or force horizontal scroll", "04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "76-270px splitter travel with AsNeeded horizontal scroll; compressed rail shows partial parent category and scroll recovery while normal/wide states remain readable", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-002", "USER", "NDAI close keybind/client shutdown could close the app even after dirty guard appeared", "DIRTY_CLOSE_INTERCEPT_MATRIX.md; desktop/orin_desktop_main.py; desktop/desktop_renderer.py", "client shutdown preflight blocks before shutdown_started and resumes only after Save or Discard; Cancel leaves app open", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),

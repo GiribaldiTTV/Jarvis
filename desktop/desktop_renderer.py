@@ -1175,7 +1175,7 @@ class ResidentAccessSettingsDialog(QDialog):
     QUICK_SLOT_ROW_ITEM_GAP = 6
     QUICK_SLOT_CONTAINER_CHROME_HEIGHT = 118
     QUICK_ACCESS_WINDOW_VERTICAL_CHROME = 204
-    SETTINGS_NAV_MIN_WIDTH = 150
+    SETTINGS_NAV_MIN_WIDTH = 76
     SETTINGS_NAV_MAX_WIDTH = 270
     SETTINGS_NAV_CONTENT_MIN_WIDTH = 144
     SETTINGS_NAV_CATEGORY_GAP = 4
@@ -1265,9 +1265,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-150-270-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v40")
+        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41")
         self.setProperty("quickAccessLayoutPolicy", "uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40")
-        self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-splitter-travel-v40")
+        self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
         self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
         self.setProperty("dirtyCloseInterceptState", "idle")
@@ -1340,7 +1340,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.nav_scroll_area.setObjectName("residentAccessSettingsNavScrollArea")
         self.nav_scroll_area.setFrameShape(QFrame.NoFrame)
         self.nav_scroll_area.setWidgetResizable(True)
-        self.nav_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.nav_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.nav_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.nav_scroll_area.setAccessibleName("Global Settings navigation list")
         nav_shell_layout.addWidget(self.nav_scroll_area, 1)
