@@ -1,16 +1,53 @@
 {
   "schema": "nexus-pr-review-churn-matrix-v1",
   "pr": 276,
-  "scope": "PR #276 RAR/UIREF parser helper/validator review-churn prevention",
-  "purpose": "Prevent another Codex Connector comment loop by proving source-truth, implementation, fixture, and generated sibling-mutation coverage before requesting another PR review.",
+  "scope": "Governance RAR/UIREF parser helper/validator review-churn prevention across PR #276 and PR #278",
+  "purpose": "Prevent another Codex Connector comment loop by proving source-truth, implementation, fixture, generated sibling-mutation coverage, and high-churn root-cause receipt proof before requesting another PR review.",
+  "review_churn_budget": {
+    "max_connector_comments_before_root_cause_receipt": 12,
+    "max_same_family_comments_before_root_cause_receipt": 3,
+    "root_cause_receipts": [
+      {
+        "pr": 278,
+        "connector_comments": 53,
+        "observed_family_counts": {
+          "pr2-comment-family-classifier": 4,
+          "pr2-thread-pagination-and-approval-latch": 2,
+          "rar-issue-candidate-disposition-parser": 31,
+          "rar-issue-candidate-durability-parser": 20,
+          "rar-path-suffix-parser": 14,
+          "rar-phase-advancement-parser": 2,
+          "rar-status-green-parser": 16,
+          "rar-table-row-parser": 12,
+          "rar-user-packet-proof-parser": 24
+        },
+        "pr_readiness_stage_1_failure": true,
+        "root_cause": "PR Readiness Stage 1 and the same-PR repair loop treated resolved connector comments plus family coverage as sufficient even though the live PR had already accumulated high-volume same-family parser churn.",
+        "prevention_summary": "High connector-comment volume now exceeds a churn budget and cannot pass the local review-churn helper unless a current PR root-cause receipt records exact live counts, family counts, source-truth cause, and preventive source-truth/helper/fixture repairs.",
+        "preventive_changes": [
+          "Docs/phase_governance.md defines high-volume PR review churn as a PR Readiness Stage 1 prediction failure.",
+          "Docs/validation_helper_registry.md makes the review-churn helper enforce comment budgets and exact PR root-cause receipts.",
+          "Docs/incident_patterns.md records the PR #278 49-comment loop as budget-exceeded review churn.",
+          "dev/orin_pr_review_churn_validation.py fails over-budget PRs without exact root-cause receipt proof.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py validates the review_churn_budget manifest contract."
+        ],
+        "receipt_file": "Docs/branch_records/feature_release_readiness_source_truth_intake.md",
+        "receipt_marker": "PR #278 Review-Churn Root-Cause Receipt"
+      }
+    ]
+  },
   "changed_file_coverage": {
     "dev/orin_branch_governance_validation.py": [
       "pr2-thread-pagination-and-approval-latch"
+    ],
+    "dev/orin_rar_issue_candidate_durability_validation.py": [
+      "rar-issue-candidate-durability-parser"
     ],
     "dev/orin_branch_readiness_planning_fixture_validation.py": [
       "rar-status-green-parser",
       "rar-phase-advancement-parser",
       "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
       "rar-table-row-parser",
@@ -25,6 +62,7 @@
       "rar-status-green-parser",
       "rar-phase-advancement-parser",
       "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
       "rar-table-row-parser",
@@ -149,6 +187,56 @@
         "Reviewed but not issue-created candidate",
         "Candidate table marker without row",
         "Incomplete USER-reviewed qualifier before closeout"
+      ]
+    },
+    {
+      "family_id": "rar-issue-candidate-durability-parser",
+      "title": "RAR issue-candidate packet, external-ledger, and lineage durability coverage",
+      "representative_comment_patterns": [
+        "Active external-ledger candidate omitted from primary packet",
+        "Incidental prose candidate ID mention accepted as carry-forward",
+        "Same Candidate ID reused with different owning FAM / surface / element group / defect lineage",
+        "Renamed or regrouped candidate accepted without predecessor/successor lineage",
+        "Review Aids or Source Truth Context candidate treated as durable active decision proof",
+        "No current USER decision wording falsely negates affirmative independent verification, waiver reason/scope, or carrier acceptance receipt proof"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+      ],
+      "implementation": [
+        "dev/orin_rar_issue_candidate_durability_validation.py",
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/valid_rar_issue_candidate_durability_carry_forward.md",
+        "dev/fixtures/branch_readiness_planning/valid_rar_issue_candidate_durability_user_dispositions.md",
+        "dev/fixtures/branch_readiness_planning/valid_rar_issue_candidate_durability_github_pending.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rar_issue_candidate_packeted_only.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rar_issue_candidate_duplicate_lineage.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rar_issue_candidate_repaired_unverified.md"
+      ],
+      "generated_mutation_coverage": [
+        "active external ledger candidate omitted from primary USER decision surface",
+        "eight active external candidates carried into the primary USER decision surface",
+        "incidental prose mention of candidate ID does not satisfy carry-forward",
+        "same candidate ID with different surface / element group / defect lineage fails",
+        "renamed candidate without predecessor/successor lineage fails",
+        "renamed candidate with explicit predecessor/successor lineage passes",
+        "Review Aids-only and Source Truth Context-only candidate tables fail active decision proof",
+        "no-decision affirmative proof wording passes for repaired, waived, and routed dispositions",
+        "no-decision wording with not independently verified proof fails"
+      ],
+      "sibling_variant_replay": [
+        "primary USER Review table",
+        "START_HERE-routed primary decision file",
+        "Review Aids supporting table",
+        "Source Truth Context copied table",
+        "legacy 8-column external ledger",
+        "expanded 12-column external ledger",
+        "mapped GitHub issue snapshot"
       ]
     },
     {
@@ -418,6 +506,8 @@
         "Common words like status, case, row, or visual overmatched into covered families",
         "Unrelated review comments should remain unknown until source-truth and fixture coverage exists",
         "New meta-classifier comments require their own covered family"
+        ,
+        "Review-churn budget comments for same-family-only and total-only receipts remain covered"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -435,6 +525,9 @@
         "standalone unknown wording returns unknown",
         "comment-family matching meta-comment maps to classifier family",
         "code-to-visual comparison drift maps to RAR code-to-visual family"
+        ,
+        "same-family-only churn receipt comment maps to PR2 classifier/churn family",
+        "total-only churn receipt comment maps to PR2 classifier/churn family"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",

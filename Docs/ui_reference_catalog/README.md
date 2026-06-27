@@ -18,6 +18,18 @@ This catalog must not own candidate evidence, active proof ledgers, current scre
 
 Promotion may include known limitations when the USER explicitly accepts or waives the missing proof for source-truth reference purposes. A promoted-with-known-limitations record is binding as reference grammar, but it does not prove every consuming branch state, implement code-level shared primitives, or clear branch-specific visual proof obligations.
 
+External Reference Candidate synchronization does not change this catalog boundary. Branch-owned candidate proposals may live as evidence under `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\...`, and generated aggregate/collision reports may summarize those proposals under `C:\Nexus Governance State\reference_standards\...` after the current workflow admits that external evidence. Those external records are not promoted UIREF records, are not accepted references, are not implementation templates, are not shared primitives, and do not override this catalog. A candidate becomes catalog source truth only when a USER-approved Governance source-truth update adds or updates the relevant repo catalog record and index.
+
+## General Reference Standard Relationship
+
+UIREF is the first domain implementation of the broader Nexus Reference Standard lifecycle. A Reference Standard is a USER-promoted durable comparator for a class of product behavior, UI, UX, runtime/backend behavior, proof, privacy, recovery, trust, or other repeated product/governance need. This folder remains UI-only until source truth admits another reference family. New non-UI reference families must not be created by naming inertia, branch-local evidence, or Codex recommendation alone; they require repeated evidence, a clear source-truth owner, a USER-reviewed promotion packet, adoption rules, known limitations, and a branch/RAR carrydown path.
+
+Reference Standard lifecycle: `Candidate -> USER Review -> Promoted Reference -> Consumed By Branch -> Effectiveness Reviewed -> Updated / Superseded / Deferred`.
+
+Candidate synchronization lifecycle: `Branch Candidate Proposal -> External Candidate Sync -> Collision Review When Needed -> USER Review / Promotion Packet -> Repo Catalog Update -> Consuming Branch Rebaseline / RAR`. External sync is a visibility step, not a promotion step.
+
+PR Readiness Stage 1 is the normal fold-down checkpoint for reference effectiveness. If an accepted reference produced repeated same-class repair cycles, unresolved exceptions, USER visual correction, or evidence that the reference failed to guide implementation, PR Readiness must record a Reference Standard Repair Candidate, supersession candidate, or deferred future carrier instead of treating the branch result as proof that the standard was sufficient.
+
 ## Reference, Template, Primitive, And Comparative Synthesis Model
 
 Nexus UI reuse has five distinct model terms. `Accepted Reference`, `Implementation Template`, and `Shared Primitive` are reusable reference or implementation authority levels. `Accepted Reference Set` and `Comparative Synthesis` are comparison/proof structures that determine how those authorities apply to a specific branch surface.
@@ -89,6 +101,7 @@ Allowed reference classes:
 - `Card / Row / Divider`
 - `Status / Failure / Recovery Panel`
 - `Tray / Doorway Surface`
+- `Window Geometry / Resize`
 - `Proof / Review Surface`
 - `Platform-Native Exception`
 
@@ -98,15 +111,18 @@ A reference is not promoted until a USER-approved promotion packet records the r
 
 Candidate evidence may be cited from USER review packets, branch proof, screenshots, videos, helper output, or Codex digests, but it remains evidence only until a promoted reference record exists in this catalog.
 
+Candidate evidence may also be cited from admitted external reference-candidate records or generated collision reports. The citing branch must still say whether an applicable promoted reference exists, whether the candidate conflicts with another candidate, whether the candidate is branch-local or reusable, and whether USER promotion, variant approval, supersession, rejection, or deferment is needed. A consuming branch must not call the candidate canon while waiting for that decision.
+
 ## Current Package Green Disposition
 
-The 2026-06-17 Package A-E completion pass promoted six durable records:
+The 2026-06-17 Package A-E completion pass promoted six durable records, and the 2026-06-25 Window Geometry / Resize intake promoted one additional source-truth geometry contract:
 
 - `UIREF-001` and `UIREF-002` clear Package A for top-level window and compact window-control reference grammar.
 - `UIREF-003` clears Package B for baseline control-state and selector grammar.
 - `UIREF-004` clears Package C for dialog, status, recovery, and doorway-surface grammar.
 - `UIREF-005` clears Package D as a source-truth design-rule baseline while deferring code-level token/shared-primitive implementation.
 - `UIREF-006` clears Package E as an enforcement contract while deferring helper, validator, and fixture code implementation.
+- `UIREF-007` records the Nexus Window Geometry And Resize Contract for min/default/max/fullscreen policy, breakpoint/reflow behavior, DPI/multi-monitor posture, geometry proof, and per-FAM carrydown while deferring product adoption to consuming FAM worktrees.
 
 These records do not mutate FAM worktrees, create runtime UI, create issues, implement shared primitives, or prove adoption in existing branches. Consuming branches must cite the applicable reference and still prove their own UI/UX implementation at their next legal gate.
 
@@ -114,7 +130,7 @@ Current implementation-template status: no catalog record currently promotes a r
 
 Current shared-primitive status: no catalog record currently promotes code-level Shared Primitives or design-token implementation.
 
-Current comparative-reference status: UIREF-001 through UIREF-004 provide accepted reference grammar with known limitations. AI Control Center is the strongest accepted seed where the individual UIREF record names it, but it is not automatically a complete template or primitive.
+Current comparative-reference status: UIREF-001 through UIREF-004 and UIREF-007 provide accepted reference grammar with known limitations. AI Control Center is the strongest accepted compact top-level seed where the individual UIREF record names it, but it is not automatically a complete template or primitive. FAM-006 HUD Dashboard remains comparison/adoption-target evidence for dashboard / parent-class geometry where UIREF-007 says it applies.
 
 ## Empty-Catalog Safety
 
