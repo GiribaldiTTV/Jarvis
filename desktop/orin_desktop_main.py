@@ -1178,7 +1178,7 @@ def main():
                 and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
                 and not resize_evidence["resizeActiveAfterRelease"]
                 and resize_evidence["windowResizeBehavior"]
-                == "frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-base-minimum-668x388-dynamic-content-minimum-maximum-840x610-close-intercept-v32"
+                == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42"
             )
             record_step(
                 "settings_window_user_drag_resize",

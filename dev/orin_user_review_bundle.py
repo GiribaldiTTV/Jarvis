@@ -1412,7 +1412,7 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "04a_left_nav_active_child.png",
         "04a1_quick_access_child_pill_no_clip_focus.png",
         "04a2_quick_access_child_pill_focus_pressed_state.png",
-        "04d_left_pane_minimum_no_horizontal_scroll.png",
+        "04d_left_pane_compressed_horizontal_overflow.png",
         "04e_left_pane_wide.png",
         "05_row_action_default_disabled_state.png",
         "05_tray_parent_page.png",
