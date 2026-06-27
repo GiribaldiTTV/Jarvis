@@ -654,20 +654,20 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotActions",
         "role": "reorder/remove controls",
         "rule": "UIREF-003",
-        "copy": "up/down reorder pill; Delete",
+        "copy": "up/down reorder; Delete",
         "font": "compact symbolic controls",
         "text": "pale action text",
-        "background": "dark action button",
-        "border": "1px muted cyan, round",
+        "background": "single dark integrated action capsule",
+        "border": "1px muted cyan shell with subtle divider",
         "effects": "hover/focus/pressed",
-        "spacing": "24px symbolic controls, 54px delete",
+        "spacing": "22-24px symbolic controls in one 86px capsule",
         "hitbox": "22-24px compact targets",
         "icon_label": "symbol controls with accessible names",
         "states": "enabled, disabled, pressed feasible",
         "a11y": "Move/Delete Quick Access Slot",
-        "comparator": "compact but readable action cluster",
+        "comparator": "compact integrated NDAI row affordance",
         "proof": "05_row_action_default_disabled_state.png",
-        "checks": "readable compact quick-slot controls;row actions show disabled state",
+        "checks": "integrated compact quick-slot controls;row actions show disabled state",
     },
     {
         "id": "F3GS-016",
@@ -1596,7 +1596,7 @@ def _write_fail_capable_defect_ledger(
         "Nexus UI exposure contract honored",
         "no internal telemetry text",
         "no fake overview/status strip",
-        "readable compact quick-slot controls",
+        "integrated compact quick-slot controls",
         "quick-slot row grouping has no excessive gutter",
         "slot count is placed beside Add Slot",
         "slot count appears once in active surface",
@@ -2459,7 +2459,7 @@ def main() -> int:
             and 450 <= dialog.minimumHeight() <= 470
             and dialog.maximumWidth() == 840
             and dialog.maximumHeight() == 610
-            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41",
+            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42",
             f"resized={resized_width}x{resized_height}; wide={wide_width}x{wide_height}; min={min_width}x{min_height}; grip_attr={hasattr(dialog, 'resize_grip')}; grip_widgets={len(dialog.findChildren(QFrame, 'residentAccessSettingsResizeGrip'))}; margin={dialog.RESIZE_MARGIN}; corner_margin={getattr(dialog, 'RESIZE_CORNER_MARGIN', None)}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -2530,7 +2530,7 @@ def main() -> int:
             and hasattr(drag_probe, "_start_settings_resize")
             and hasattr(drag_probe, "_finish_settings_resize")
             and drag_probe.property("windowResizeBehavior")
-            == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41",
+            == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42",
             f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
         )
     )
@@ -2977,8 +2977,8 @@ def main() -> int:
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
-            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41"
-            and dialog.property("quickAccessLayoutPolicy") == "uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40"
+            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42"
+            and dialog.property("quickAccessLayoutPolicy") == "uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42"
             and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
             and dialog.property("dirtyCloseRouteCoverage") == "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32"
@@ -3139,19 +3139,21 @@ def main() -> int:
     )
     rows.append(
         (
-            "readable compact quick-slot controls",
+            "integrated compact quick-slot controls",
             all(
                 (
                     button.property("glyphButton")
                     in {"up", "down"}
                     and 22 <= button.width() <= 28
                     and 24 <= button.height() <= 28
+                    and float(button.property("glyphScale") or 0) >= 0.74
                 )
                 or (
                     button.objectName() == "residentAccessQuickSlotDelete"
                     and button.property("glyphButton") == "close"
                     and 24 <= button.width() <= 32
                     and 24 <= button.height() <= 28
+                    and float(button.property("glyphScale") or 0) >= 0.74
                 )
                 for button in compact_action_buttons
             )
@@ -3255,7 +3257,8 @@ def main() -> int:
                     and slot_row.findChild(QFrame, "residentAccessQuickSlotActions").width()
                     == dialog.QUICK_SLOT_ACTION_CLUSTER_WIDTH
                     and slot_row.findChild(QFrame, "residentAccessQuickSlotActions").property("quickSlotActionControlPolicy")
-                    == "integrated-capsule-up-down-delete-v40"
+                    == "single-capsule-subtle-divider-sharp-glyphs-v42"
+                    and slot_row.findChild(QFrame, "residentAccessQuickSlotDeleteDivider") is not None
                     for slot_row in slot_rows
                 ),
                 f"row_widths={row_widths}; combo_widths={[slot_combo.width() for slot_combo in dialog._slot_combos]}; row_gutters={row_gutters}; action_width={dialog.QUICK_SLOT_ACTION_CLUSTER_WIDTH}",
@@ -3340,7 +3343,7 @@ def main() -> int:
                 and matrix_container_bottom <= matrix_footer_top
                 and dialog.add_slot_button.isEnabled() == expected_add_enabled
                 and dialog.quick_slot_container.property("quickAccessRowPolicy")
-                == "uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40"
+                == "uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42"
                 and matrix_count_labels == [(dialog.slot_count_badge.objectName(), f"{count} of {active_slot_limit}")]
             )
             detail = (
@@ -4328,7 +4331,7 @@ def main() -> int:
         ("F3-LV1-UI-043", "USER / ChatGPT", "current packet proof showed 3rd/4th Quick Access rows clipping, squashing, or colliding with the footer", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png; 10_max_slots_unclipped.png", "1/2/3/4 row matrix with equal 36px row heights, content-driven balanced-gutter card/window growth, and footer separation", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-044", "USER / ChatGPT", "content scale looked globally zoomed down relative to the accepted window-control pill", "01_default_global_settings_shell.png; 14_glyph_control_closeup.png; 22_row_count_3_of_4.png", "window-control scale used as anchor while row height, dropdown, action glyphs, footer buttons, and content spacing scale up without enlarging the rail icons into cards", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-045", "USER / ChatGPT", "footer/list collision risk increased as slot count changed", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "last row remains below card bottom padding and card bottom remains above footer for every active slot count", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-046", "USER / ChatGPT", "layout behaved like a fixed visual envelope instead of content-driven sizing", "fam003_settings_visual_fail_repair_manifest.json; 22_row_count_4_of_4.png; 03c_window_minimum_size.png", "quickAccessLayoutPolicy uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40 with row-count minimum height, deterministic combo width, polished action capsule, and Add Slot disabled at slot limit", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-046", "USER / ChatGPT", "layout behaved like a fixed visual envelope instead of content-driven sizing", "fam003_settings_visual_fail_repair_manifest.json; 22_row_count_4_of_4.png; 03c_window_minimum_size.png", "quickAccessLayoutPolicy uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42 with row-count minimum height, deterministic combo width, polished integrated action capsule, and Add Slot disabled at slot limit", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-047", "USER / ChatGPT", "185455 packet showed duplicate slot-count text in the Add Slot row and lower/footer area", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "visible count labels are machine-counted and each row state has exactly one N of 4 label beside Add Slot", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-048", "USER / ChatGPT", "185455 packet mixed claimed 860x560 live max with stale 1100x720 stress proof", "03d_window_wide_size.png; fam003_settings_visual_fail_repair_manifest.json; LV1_RETEST_PACKET_FILE_DIGEST.md", "live max is 820x590; synthetic stress proof is separated and stale 1100x720/920x520 artifacts are rejected from LV1 packet proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-049", "USER / ChatGPT", "wide/stress state still showed unexplained dead space and left-clustered content", "03d_window_wide_size.png; 19_stress_size_840x610.png", "max/wide shell is clamped to meaningful content width and validator fails unexplained right-side dead space", "CLOSED_WITH_PROOF"),
@@ -4345,6 +4348,8 @@ def main() -> int:
         ("F3-LV1-UI-060", "USER", "do not let the indent of the sub catagory be affected. the indent needs to be fixed and standardized. now you can visually see that the distinguished difference in main categories and sub categories is gone.", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "fixed 14px subcategory indent remains the hierarchy rule; compressed state is an intentional splitter stress state with horizontal scroll recovery", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-061", "USER", "the border of the wuick acces is clipping again, and the indent needs to be more obvious. and fix the clipping", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "border-safe normal/wide left rail with fixed 14px subcategory indent, 112px child pill, 88px child label budget, stable selected/hover border, and compressed horizontal-overflow stress proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-062", "USER", "splitter could not compress the rail far enough to show half of the main category or force horizontal scroll", "04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "76-270px splitter travel with AsNeeded horizontal scroll; compressed rail shows partial parent category and scroll recovery while normal/wide states remain readable", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-063", "USER", "Settings window resize-edge cursor flickered between pointer and resize cursor while other windows were stable", "fam003_settings_visual_fail_repair_manifest.json; 03e_live_user_drag_resized.png", "Settings resize cursor path keeps the no-forced-arrow Windows cursor release and adds a 2px release hysteresis so edge hover is not cleared by tiny no-edge samples", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-064", "USER", "Quick Access row button cluster looked visually out of place and non-immersive", "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png", "row actions render as one integrated 86px capsule with subtle divider and sharper 0.76 glyph scale, avoiding nested boxed controls", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-002", "USER", "NDAI close keybind/client shutdown could close the app even after dirty guard appeared", "DIRTY_CLOSE_INTERCEPT_MATRIX.md; desktop/orin_desktop_main.py; desktop/desktop_renderer.py", "client shutdown preflight blocks before shutdown_started and resumes only after Save or Discard; Cancel leaves app open", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),

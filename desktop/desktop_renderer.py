@@ -1125,6 +1125,7 @@ class NexusGlyphButton(QPushButton):
         quiet = bool(self.property("quietGlyph"))
         glyph_alpha = 152 if quiet else 226
         disabled_alpha = 58 if quiet else 92
+        custom_scale = self.property("glyphScale")
         color = QColor(216, 255, 248, glyph_alpha if enabled else disabled_alpha)
         if self.property("dangerGlyph"):
             color = QColor(255, 196, 196, (190 if quiet else 226) if enabled else (78 if quiet else 96))
@@ -1134,7 +1135,10 @@ class NexusGlyphButton(QPushButton):
         h = self.height()
         cx = w / 2
         cy = h / 2
-        scale = 0.66 if quiet else 1.0
+        try:
+            scale = float(custom_scale) if custom_scale is not None else (0.66 if quiet else 1.0)
+        except (TypeError, ValueError):
+            scale = 0.66 if quiet else 1.0
         if self._glyph in {"up", "down", "chevron-down", "chevron-right"}:
             path = QPainterPath()
             if self._glyph == "up":
@@ -1162,6 +1166,7 @@ class NexusGlyphButton(QPushButton):
 class ResidentAccessSettingsDialog(QDialog):
     RESIZE_MARGIN = 8
     RESIZE_CORNER_MARGIN = 12
+    RESIZE_CURSOR_RELEASE_MARGIN = 2
     BASE_MINIMUM_SIZE = (684, 388)
     MAXIMUM_SIZE = (840, 610)
     DEFAULT_SIZE = (780, 458)
@@ -1265,8 +1270,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-v41")
-        self.setProperty("quickAccessLayoutPolicy", "uiref-007-deterministic-row-width-combo-action-capsule-row-count-close-intercept-v40")
+        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42")
+        self.setProperty("quickAccessLayoutPolicy", "uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42")
         self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
         self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
@@ -2248,42 +2253,60 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: #ffffff;"
             "}"
             "#residentAccessQuickSlotActions {"
-            " background: rgba(2, 13, 24, 0.70);"
-            " border: 1px solid rgba(118, 226, 255, 0.15);"
-            " border-radius: 9px;"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(4, 24, 38, 0.72), stop:1 rgba(2, 13, 24, 0.70));"
+            " border: 1px solid rgba(118, 226, 255, 0.20);"
+            " border-radius: 10px;"
             "}"
             "#residentAccessQuickSlotActions QPushButton {"
-            " min-height: 26px;"
-            " max-height: 26px;"
+            " min-height: 25px;"
+            " max-height: 25px;"
             " padding: 0;"
-            " border-radius: 7px;"
+            " border: 1px solid transparent;"
+            " border-radius: 8px;"
             " font-size: 11px;"
+            " background: transparent;"
             "}"
             "#residentAccessQuickSlotReorderGroup {"
-            " background: rgba(7, 28, 43, 0.72);"
-            " border: 1px solid rgba(118, 226, 255, 0.18);"
+            " background: transparent;"
+            " border: none;"
             " border-radius: 8px;"
             "}"
             "#residentAccessQuickSlotReorderGroup QPushButton {"
             " background: transparent;"
-            " border: none;"
+            " border: 1px solid transparent;"
             " border-radius: 7px;"
             " padding: 0;"
             "}"
             "#residentAccessQuickSlotReorderGroup QPushButton:hover, #residentAccessQuickSlotReorderGroup QPushButton:focus {"
-            " background: rgba(15, 75, 93, 0.72);"
-            " border: 1px solid rgba(153, 246, 228, 0.28);"
+            " background: rgba(20, 184, 166, 0.14);"
+            " border: 1px solid rgba(153, 246, 228, 0.30);"
             " color: rgba(236, 254, 255, 0.98);"
+            "}"
+            "#residentAccessQuickSlotDeleteDivider {"
+            " background: rgba(118, 226, 255, 0.18);"
+            " border: none;"
+            " min-width: 1px;"
+            " max-width: 1px;"
+            " min-height: 16px;"
+            " max-height: 16px;"
             "}"
             "#residentAccessQuickSlotDelete {"
             " color: #fecaca;"
-            " background: rgba(52, 13, 21, 0.56);"
-            " border-color: rgba(248, 113, 113, 0.46);"
+            " background: transparent;"
+            " border: 1px solid transparent;"
             " font-weight: 800;"
             "}"
             "#residentAccessQuickSlotDelete:hover, #residentAccessQuickSlotDelete:focus {"
-            " background: rgba(91, 23, 35, 0.66);"
-            " border-color: rgba(248, 113, 113, 0.72);"
+            " background: rgba(91, 23, 35, 0.58);"
+            " border: 1px solid rgba(248, 113, 113, 0.56);"
+            "}"
+            "#residentAccessQuickSlotDelete:pressed {"
+            " background: rgba(127, 29, 29, 0.72);"
+            " border: 1px solid rgba(252, 165, 165, 0.70);"
+            "}"
+            "#residentAccessQuickSlotDelete:disabled {"
+            " background: transparent;"
+            " border: 1px solid transparent;"
             "}"
             "QComboBox {"
             " background: rgba(2, 12, 24, 0.96);"
@@ -2717,40 +2740,48 @@ class ResidentAccessSettingsDialog(QDialog):
             action_cluster.setObjectName("residentAccessQuickSlotActions")
             action_cluster.setAttribute(Qt.WA_StyledBackground, True)
             action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
-            action_cluster.setProperty("quickSlotActionControlPolicy", "integrated-capsule-up-down-delete-v40")
+            action_cluster.setProperty("quickSlotActionControlPolicy", "single-capsule-subtle-divider-sharp-glyphs-v42")
             action_layout = QHBoxLayout(action_cluster)
             action_layout.setContentsMargins(2, 0, 2, 0)
-            action_layout.setSpacing(5)
+            action_layout.setSpacing(3)
             reorder_group = QFrame(action_cluster)
             reorder_group.setObjectName("residentAccessQuickSlotReorderGroup")
             reorder_group.setAttribute(Qt.WA_StyledBackground, True)
-            reorder_group.setFixedSize(50, 27)
+            reorder_group.setFixedSize(47, 27)
             reorder_layout = QHBoxLayout(reorder_group)
             reorder_layout.setContentsMargins(1, 1, 1, 1)
             reorder_layout.setSpacing(0)
             up_button = NexusGlyphButton("up", reorder_group)
             up_button.setObjectName("residentAccessQuickSlotMoveUp")
             up_button.setProperty("quietGlyph", True)
+            up_button.setProperty("glyphScale", 0.76)
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
-            up_button.setFixedSize(24, 25)
+            up_button.setFixedSize(22, 25)
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             reorder_layout.addWidget(up_button)
             down_button = NexusGlyphButton("down", reorder_group)
             down_button.setObjectName("residentAccessQuickSlotMoveDown")
             down_button.setProperty("quietGlyph", True)
+            down_button.setProperty("glyphScale", 0.76)
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
-            down_button.setFixedSize(24, 25)
+            down_button.setFixedSize(22, 25)
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             reorder_layout.addWidget(down_button)
             action_layout.addWidget(reorder_group)
+            delete_divider = QFrame(action_cluster)
+            delete_divider.setObjectName("residentAccessQuickSlotDeleteDivider")
+            delete_divider.setAttribute(Qt.WA_StyledBackground, True)
+            delete_divider.setFixedSize(1, 16)
+            action_layout.addWidget(delete_divider)
             delete_button = NexusGlyphButton("close", action_cluster)
             delete_button.setObjectName("residentAccessQuickSlotDelete")
             delete_button.setProperty("dangerGlyph", True)
             delete_button.setProperty("quietGlyph", True)
+            delete_button.setProperty("glyphScale", 0.76)
             delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
-            delete_button.setFixedSize(25, 25)
+            delete_button.setFixedSize(24, 25)
             delete_button.setEnabled(len(selected_ids) > 1)
             delete_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(delete_button)
@@ -3186,14 +3217,36 @@ class ResidentAccessSettingsDialog(QDialog):
             return screen_point, Qt.Edges()
         return screen_point, self._settings_resize_edges_for_screen_point(screen_point)
 
+    def _settings_should_clear_resize_cursor(self, screen_point: QPoint) -> bool:
+        if self._settings_resize_cursor_key is None:
+            return False
+        if screen_point.isNull():
+            return True
+        if not self.geometry().adjusted(-2, -2, 2, 2).contains(screen_point):
+            return True
+        if not self._settings_point_belongs_to_window(screen_point):
+            return True
+        local = self.mapFromGlobal(screen_point)
+        if self._settings_control_cluster_rect().contains(local):
+            return True
+        release_margin = self.RESIZE_MARGIN + self.RESIZE_CURSOR_RELEASE_MARGIN
+        near_edge = (
+            local.x() <= release_margin
+            or local.x() >= self.width() - release_margin
+            or local.y() <= release_margin
+            or local.y() >= self.height() - release_margin
+        )
+        return not near_edge
+
     def _poll_settings_resize_hover_cursor(self) -> None:
         if self._settings_resize_active:
             return
-        _, edges = self._settings_resize_edges_under_cursor()
+        screen_point, edges = self._settings_resize_edges_under_cursor()
         if edges:
             self._set_settings_resize_cursor(edges)
             return
-        self._reset_settings_resize_cursor()
+        if self._settings_should_clear_resize_cursor(screen_point):
+            self._reset_settings_resize_cursor()
 
     def _reset_settings_resize_cursor_if_cursor_left(self) -> None:
         if self._settings_resize_active:
@@ -3471,7 +3524,7 @@ class ResidentAccessSettingsDialog(QDialog):
             edges = self._settings_resize_edges_for_screen_point(screen_point)
             if edges:
                 self._set_settings_resize_cursor(edges)
-            else:
+            elif self._settings_should_clear_resize_cursor(screen_point):
                 self._reset_settings_resize_cursor()
         if event_type == QEvent.MouseButtonRelease and self._settings_resize_active:
             self._finish_settings_resize(self._settings_cursor_screen_point())
@@ -3510,7 +3563,7 @@ class ResidentAccessSettingsDialog(QDialog):
                 edges = Qt.Edges()
             if edges:
                 self._set_settings_resize_cursor(edges)
-            else:
+            elif self._settings_should_clear_resize_cursor(self.mapToGlobal(local)):
                 self._reset_settings_resize_cursor()
         super().mouseMoveEvent(event)
 
