@@ -11,7 +11,6 @@
   <style>
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
       --ai-dashboard-chrome-padding: 12px;
-      --ai-dashboard-title-card-window-control-gutter: 15px;
       padding: var(--ai-dashboard-chrome-padding);
     }
 
@@ -103,8 +102,8 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-controls {
       position: absolute;
-      top: calc(var(--ai-dashboard-chrome-padding) + var(--ai-dashboard-title-card-window-control-gutter));
-      right: calc(var(--ai-dashboard-chrome-padding) + var(--ai-dashboard-title-card-window-control-gutter));
+      top: 15px;
+      right: 15px;
       z-index: 35;
       display: flex;
       align-items: center;

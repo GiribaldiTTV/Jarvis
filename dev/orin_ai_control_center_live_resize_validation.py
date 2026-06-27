@@ -2188,8 +2188,6 @@ def main() -> int:
                   subtitleOverlapsWindowControls: intersects(subtitleRect, windowControlRect),
                   windowControlOuterTopOffset: windowControls && chrome ? Math.round(windowControlRect.top - chromeRect.top) : 0,
                   windowControlOuterRightOffset: windowControls && chrome ? Math.round(chromeRect.right - windowControlRect.right) : 0,
-                  windowControlTitleCardTopGutter: windowControls && header ? Math.round(windowControlRect.top - titleGroupRect.top) : 0,
-                  windowControlTitleCardRightGutter: windowControls && header ? Math.round(titleGroupRect.right - windowControlRect.right) : 0,
                   topGutter: firstCard && hub ? Math.round(firstCard.getBoundingClientRect().top - hub.getBoundingClientRect().top) : 0,
                   scrollbarVisible: surface?.dataset.customScrollbarVisible || "false",
                   rowMetrics,
@@ -2865,9 +2863,9 @@ def main() -> int:
             _row_stack_vertical_gutter_ok(row_title_sizing_probe)
             and _row_stack_vertical_gutter_ok(horizontal_row_title_sizing_probe)
         ),
-        "windowControlTitleCardGutterProven": (
-            14 <= int(layout_metrics.get("windowControlTitleCardTopGutter") or 0) <= 17
-            and 14 <= int(layout_metrics.get("windowControlTitleCardRightGutter") or 0) <= 17
+        "windowControlEdgeGutterProven": (
+            14 <= int(layout_metrics.get("windowControlOuterTopOffset") or 0) <= 17
+            and 14 <= int(layout_metrics.get("windowControlOuterRightOffset") or 0) <= 17
         ),
         "rowTitleStatusTextSizeParityProven": (
             row_title_sizing_probe.get("rowCount") == 8
