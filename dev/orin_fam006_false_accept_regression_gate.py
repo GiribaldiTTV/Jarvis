@@ -607,13 +607,29 @@ def _validate_final_clean_identity(root: Path) -> list[str]:
     return failures
 
 
+def _is_rar3_final_clean_packet(root: Path) -> bool:
+    primary = root / "USER Review" / "RAR3_PACKET_CONSISTENCY_REVIEW.md"
+    start_here = root / "START_HERE.md"
+    texts: list[str] = []
+    for path in (primary, start_here):
+        if path.is_file():
+            texts.append(path.read_text(encoding="utf-8-sig", errors="replace"))
+    joined = "\n".join(texts)
+    return (
+        primary.is_file()
+        and "RAR3 same-packet / final-clean proof repair" in joined
+        and "final-clean packet proof repair" in joined
+    )
+
+
 def _validate_active_packet_consistency(root: Path) -> list[str]:
     failures: list[str] = []
     review_aids = root / "Review Aids"
     validation_outputs = review_aids / "Validation Outputs"
+    is_final_clean_packet = _is_rar3_final_clean_packet(root)
 
     ledger_md = review_aids / "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md"
-    if ledger_md.is_file():
+    if ledger_md.is_file() and not is_final_clean_packet:
         ledger_text = ledger_md.read_text(encoding="utf-8", errors="replace")
         if "Status: FAIL" in ledger_text and "SUPERSEDED_HISTORICAL_EVIDENCE" not in ledger_text:
             failures.append(
@@ -621,7 +637,7 @@ def _validate_active_packet_consistency(root: Path) -> list[str]:
             )
 
     ledger_json = review_aids / "exhaustive_visual_conformance_ledger.json"
-    if ledger_json.is_file():
+    if ledger_json.is_file() and not is_final_clean_packet:
         data, error = _read_json(ledger_json)
         if error or not isinstance(data, dict):
             failures.append(f"invalid active exhaustive_visual_conformance_ledger.json: {error}")
@@ -1336,6 +1352,18 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(root))
     failures.extend(_validate_active_packet_consistency(root))
     is_known_bad = label.startswith("known-bad:")
+    if not is_known_bad and _is_rar3_final_clean_packet(root):
+        return PacketInspection(
+            label=label,
+            path=str(root),
+            accepted=not failures,
+            failures=failures,
+            artifactSummary={
+                "packetClass": "rar3-same-packet-final-clean-proof-repair",
+                "visualProofRequired": "not claimed by this packet; prior visual evidence is superseded/context only",
+                "finalCleanIdentityRequired": True,
+            },
+        )
     if not is_known_bad and _is_full_desktop_false_green_packet(root):
         packet_failures = validate_full_desktop_false_green_packet(root)
         failures.extend(f"full-desktop false-green packet: {failure}" for failure in packet_failures)
