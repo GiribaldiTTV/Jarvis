@@ -184,6 +184,7 @@ Stage 4B migration planning matrix:
 | USER review bundle manifests | Desktop bundle helper output | `C:\Nexus Governance State\review_bundles\<worktree_label>\` after approval | Keep review-bundle rule in repo; do not commit local bundle outputs | `External State Promotion Missing` |
 | Rebaseline audit packets and temporary handoff digests | Codex packet / branch authority while active | `C:\Nexus Governance State\branches\<branch_slug>\` or `worktrees\<label>\` as operational evidence | Keep only durable decisions and final fold-down receipts in repo | `External State Promotion Missing` |
 | Cross-worktree lessons and governance candidates | Repo source truth only after USER-approved merge | `C:\Nexus Governance State\cross_worktree_lessons\` and `governance_candidates\` | Accepted governance returns to repo source truth by PR and merge | `Governance Candidate Not Promoted` |
+| Reference Standard candidate proposals and collision reports | Branch packets, Codex digest, helper output, or external evidence after workflow admission | `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\` plus generated `C:\Nexus Governance State\reference_standards\` reports | Promoted Reference Standards stay in repo source-truth catalogs; external candidates remain evidence until USER-approved promotion merges | `Reference Candidate Sync Missing` / `Reference Candidate Treated As Canon` |
 
 Stage 4B future execution wave plan:
 
@@ -776,6 +777,7 @@ C:\Nexus Governance State\release_windows\<release_slug>\
 C:\Nexus Governance State\review_bundles\<worktree_label>\
 C:\Nexus Governance State\cross_worktree_lessons\
 C:\Nexus Governance State\governance_candidates\
+C:\Nexus Governance State\reference_standards\
 C:\Nexus Governance State\promotion_packets\
 C:\Nexus Governance State\acknowledgements\
 C:\Nexus Governance State\snapshots\
@@ -793,6 +795,7 @@ branch_plan_review.md
 ufd_ledger.md
 change_intent_ledger.md
 element_to_phase_matrix.md
+reference_candidates\
 workstream_entry_review.md
 hardening_plan.md
 live_validation_plan.md
@@ -826,6 +829,8 @@ Required state models:
 - Lock State: `Unlocked`, `Locked`, `Expired`, `Stale`, `Conflict`, `Released`, `Recovery Required`
 - Promotion Result: `Approved`, `Rejected`, `Blocked`, `Superseded`, `Folded Into Repo`, `External Only`, `USER Decision Required`
 - Release Readiness Live-State Result: `Clear`, `Post-Release External State Carry-Forward`, `External Operational State Conflict`, `Repo Live-State Leakage`, `Durable Release Truth Defect`, `USER Decision Required`
+- Reference Candidate Status: `Proposed`, `Under Review`, `Collision Detected`, `Candidate Merged Into Another Candidate`, `Candidate Split`, `Candidate Rejected`, `Candidate Deferred With Owner`, `Candidate Promoted Pending PR`, `Promoted To Source Truth`, `Superseded`, `Not Applicable`, `Withdrawn`
+- Reference Collision Class: `Token Conflict`, `Visual Grammar Conflict`, `Geometry Conflict`, `Control-State Conflict`, `Backend Behavior Conflict`, `Proof Standard Conflict`, `Template Conflict`, `Shared Primitive Conflict`, `Naming Conflict`, `Applicability Conflict`, `Variant Conflict`, `Supersession Conflict`
 
 Required named blockers:
 
@@ -846,6 +851,10 @@ Required named blockers:
 - `External State Transition Drift`
 - `Docs Split Target Matrix Missing`
 - `External State Migration Premature`
+- `Reference Candidate Sync Missing`
+- `Reference Candidate Collision Unreviewed`
+- `Reference Candidate Treated As Canon`
+- `Promoted Reference Moved External`
 
 ## External State Transition Drift Gate
 

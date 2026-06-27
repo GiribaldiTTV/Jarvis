@@ -20,6 +20,7 @@ from pathlib import Path
 import orin_branch_governance_validation as governance
 import orin_external_state_validation as external_state
 from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT
+import orin_rar_issue_candidate_durability_validation as rar_issue_durability
 import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
 
@@ -33,6 +34,31 @@ PR_REVIEW_CHURN_MATRIX_FIXTURE = (
     / "pr_review_churn"
     / "pr_276_rar_review_churn_matrix.json"
 )
+
+
+def _pr_review_churn_receipt_exceeds_budget(
+    connector_comments: object,
+    total_budget: object,
+    family_counts: object,
+    same_family_budget: object,
+) -> bool:
+    """A root-cause receipt is required when total OR same-family churn exceeds budget."""
+    over_total = (
+        isinstance(connector_comments, int)
+        and isinstance(total_budget, int)
+        and connector_comments > total_budget
+    )
+    over_family = (
+        isinstance(family_counts, dict)
+        and isinstance(same_family_budget, int)
+        and any(
+            isinstance(count, int) and count > same_family_budget
+            for count in family_counts.values()
+        )
+    )
+    return over_total or over_family
+
+
 SHALLOW_FIXTURE = FIXTURE_DIR / "shallow_live_validation_product_plan.md"
 CONCRETE_FIXTURE = FIXTURE_DIR / "concrete_live_validation_product_plan.md"
 VALID_BRANCH_RUNTIME_PLAN_FIXTURE = (
@@ -560,6 +586,30 @@ INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_REQUIRED_REVIEW_NOT_COMPLETE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_required_review_not_complete.md"
 )
+VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE = (
+    FIXTURE_DIR / "valid_rar_issue_candidate_durability_carry_forward.md"
+)
+VALID_RAR_ISSUE_DURABILITY_USER_DISPOSITIONS_FIXTURE = (
+    FIXTURE_DIR / "valid_rar_issue_candidate_durability_user_dispositions.md"
+)
+VALID_RAR_ISSUE_DURABILITY_GITHUB_PENDING_FIXTURE = (
+    FIXTURE_DIR / "valid_rar_issue_candidate_durability_github_pending.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_PACKETED_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_packeted_only.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_DEFERRED_MISSING_OWNER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_deferred_missing_owner.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_STALE_GITHUB_CLOSED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_stale_github_closed.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_DUPLICATE_LINEAGE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_duplicate_lineage.md"
+)
+INVALID_RAR_ISSUE_DURABILITY_REPAIRED_UNVERIFIED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rar_issue_candidate_repaired_unverified.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -655,6 +705,7 @@ EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Mi
 EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By RAR"
 EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
 EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
+EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET = "RAR Issue Candidate Durability Missing"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -3768,6 +3819,151 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         matrix.get("schema") == "nexus-pr-review-churn-matrix-v1",
         f"{relative_matrix}: unexpected schema",
     )
+    budget = matrix.get("review_churn_budget")
+    require(
+        isinstance(budget, dict),
+        f"{relative_matrix}: review_churn_budget must be present",
+    )
+    if isinstance(budget, dict):
+        total_budget = budget.get("max_connector_comments_before_root_cause_receipt")
+        same_family_budget = budget.get(
+            "max_same_family_comments_before_root_cause_receipt"
+        )
+        require(
+            isinstance(total_budget, int) and total_budget > 0,
+            (
+                f"{relative_matrix}: max_connector_comments_before_root_cause_receipt "
+                "must be a positive integer"
+            ),
+        )
+        require(
+            isinstance(same_family_budget, int) and same_family_budget > 0,
+            (
+                f"{relative_matrix}: max_same_family_comments_before_root_cause_receipt "
+                "must be a positive integer"
+            ),
+        )
+        receipts = budget.get("root_cause_receipts")
+        require(
+            isinstance(receipts, list) and bool(receipts),
+            f"{relative_matrix}: root_cause_receipts must be a non-empty list",
+        )
+        if isinstance(receipts, list):
+            for receipt in receipts:
+                if not isinstance(receipt, dict):
+                    failures.append(
+                        f"{relative_matrix}: root-cause receipt must be an object"
+                    )
+                    continue
+                pr_number = receipt.get("pr")
+                connector_comments = receipt.get("connector_comments")
+                require(
+                    isinstance(pr_number, int) and pr_number > 0,
+                    f"{relative_matrix}: root-cause receipt pr must be a positive integer",
+                )
+                require(
+                    _pr_review_churn_receipt_exceeds_budget(
+                        connector_comments,
+                        total_budget,
+                        receipt.get("observed_family_counts"),
+                        same_family_budget,
+                    ),
+                    (
+                        f"{relative_matrix}: root-cause receipt must exceed the "
+                        "configured total or same-family budget"
+                    ),
+                )
+                require(
+                    receipt.get("pr_readiness_stage_1_failure") is True,
+                    (
+                        f"{relative_matrix}: high-churn receipt must mark "
+                        "pr_readiness_stage_1_failure true"
+                    ),
+                )
+                family_counts = receipt.get("observed_family_counts")
+                require(
+                    isinstance(family_counts, dict) and bool(family_counts),
+                    (
+                        f"{relative_matrix}: root-cause receipt must include "
+                        "observed_family_counts"
+                    ),
+                )
+                for field in (
+                    "root_cause",
+                    "prevention_summary",
+                    "receipt_file",
+                    "receipt_marker",
+                ):
+                    value = receipt.get(field)
+                    require(
+                        isinstance(value, str) and bool(value.strip()),
+                        f"{relative_matrix}: root-cause receipt missing {field}",
+                    )
+                changes = receipt.get("preventive_changes")
+                require(
+                    isinstance(changes, list)
+                    and bool(changes)
+                    and all(isinstance(item, str) and item.strip() for item in changes),
+                    (
+                        f"{relative_matrix}: root-cause receipt preventive_changes "
+                        "must be a non-empty string list"
+                    ),
+                )
+                receipt_file = receipt.get("receipt_file")
+                receipt_marker = receipt.get("receipt_marker")
+                if isinstance(receipt_file, str) and receipt_file.strip():
+                    receipt_path = ROOT / receipt_file.replace("\\", "/")
+                    require(
+                        receipt_path.exists(),
+                        (
+                            f"{relative_matrix}: root-cause receipt file is missing: "
+                            f"{receipt_file}"
+                        ),
+                    )
+                    if (
+                        receipt_path.exists()
+                        and isinstance(receipt_marker, str)
+                        and receipt_marker.strip()
+                    ):
+                        require(
+                            receipt_marker
+                            in receipt_path.read_text(encoding="utf-8"),
+                            (
+                                f"{relative_matrix}: root-cause receipt marker "
+                                f"not found in {receipt_file}"
+                            ),
+                        )
+        if isinstance(total_budget, int) and isinstance(same_family_budget, int):
+            require(
+                _pr_review_churn_receipt_exceeds_budget(
+                    total_budget + 1,
+                    total_budget,
+                    {
+                        "generated-total-only-family-a": same_family_budget,
+                        "generated-total-only-family-b": same_family_budget,
+                    },
+                    same_family_budget,
+                ),
+                f"{relative_matrix}: generated total-only churn receipt variant must be legal",
+            )
+            require(
+                _pr_review_churn_receipt_exceeds_budget(
+                    total_budget,
+                    total_budget,
+                    {"generated-same-family-only": same_family_budget + 1},
+                    same_family_budget,
+                ),
+                f"{relative_matrix}: generated same-family-only churn receipt variant must be legal",
+            )
+            require(
+                not _pr_review_churn_receipt_exceeds_budget(
+                    total_budget,
+                    total_budget,
+                    {"generated-within-budget": same_family_budget},
+                    same_family_budget,
+                ),
+                f"{relative_matrix}: generated within-budget churn receipt variant must stay illegal",
+            )
     families = matrix.get("families")
     require(
         isinstance(families, list) and bool(families),
@@ -5118,6 +5314,1893 @@ def _validate_primary_user_review_file_stage_priority() -> list[str]:
     return failures
 
 
+def _validate_rar_issue_candidate_durability_fixtures() -> list[str]:
+    failures: list[str] = []
+
+    def row(
+        candidate_id: str,
+        disposition: str = "ACTIVE_PENDING_USER_DECISION",
+        blocking: str = "YES",
+        github_issue: str = "NONE - issue mutation not approved",
+        carrier: str = "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review",
+        decision: str = "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation.",
+    ) -> str:
+        return (
+            f"| {candidate_id} | FAM-006 | HUD Dashboard | Window control cluster | "
+            "Legacy close control diverges from UIREF-002 | RAR contact sheet row HUD-CTRL-01 | "
+            f"{disposition} | {blocking} | {carrier} | {github_issue} | "
+            "Verified from RAR packet receipt 20260620 | "
+            f"{decision} |"
+        )
+
+    def table(*rows: str) -> str:
+        return "\n".join(
+            (
+                "Issue Candidate Decision Surface:",
+                "",
+                rar_issue_durability.DECISION_SURFACE_HEADER,
+                "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                *rows,
+            )
+        )
+
+    def packet_with_sections(
+        root: Path,
+        primary_text: str | None = None,
+        review_aid_text: str | None = None,
+    ) -> Path:
+        packet = root / "FAM-006"
+        user_review = packet / "USER Review"
+        review_aids = packet / "Review Aids"
+        context = packet / "Source Truth Context"
+        user_review.mkdir(parents=True)
+        review_aids.mkdir(parents=True)
+        context.mkdir(parents=True)
+        (packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        if primary_text is not None:
+            (user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+                primary_text,
+                encoding="utf-8",
+            )
+        if review_aid_text is not None:
+            (review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+                review_aid_text,
+                encoding="utf-8",
+            )
+        (context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n\nNo active issue-candidate decision surface lives in copied context.",
+            encoding="utf-8",
+        )
+        return packet
+
+    def snapshot(state: str) -> dict[str, rar_issue_durability.GitHubIssueSnapshot]:
+        return {
+            "275": rar_issue_durability.GitHubIssueSnapshot(
+                issue="275",
+                state=state,
+                source="gh issue view 275 --json state,updatedAt",
+                last_verified="2026-06-25",
+            )
+        }
+
+    valid_cases = (
+        VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_USER_DISPOSITIONS_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_GITHUB_PENDING_FIXTURE,
+    )
+    for fixture in valid_cases:
+        case_failures = rar_issue_durability.validate_text(
+            fixture.read_text(encoding="utf-8"), source=str(fixture)
+        )
+        if case_failures:
+            failures.append(
+                f"Valid RAR issue-candidate durability fixture unexpectedly failed: {fixture}: "
+                + "; ".join(case_failures[:5])
+            )
+
+    invalid_cases = (
+        (
+            INVALID_RAR_ISSUE_DURABILITY_PACKETED_ONLY_FIXTURE,
+            EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET,
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_DEFERRED_MISSING_OWNER_FIXTURE,
+            "deferred disposition requires durable owner",
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_STALE_GITHUB_CLOSED_FIXTURE,
+            "unknown/stale GitHub state cannot close candidate",
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_DUPLICATE_LINEAGE_FIXTURE,
+            "duplicate/conflicting lineage",
+        ),
+        (
+            INVALID_RAR_ISSUE_DURABILITY_REPAIRED_UNVERIFIED_FIXTURE,
+            "repaired disposition requires independent verification evidence",
+        ),
+    )
+    for fixture, expected_snippet in invalid_cases:
+        case_failures = rar_issue_durability.validate_text(
+            fixture.read_text(encoding="utf-8"), source=str(fixture)
+        )
+        if expected_snippet not in "\n".join(case_failures):
+            failures.append(
+                f"Invalid RAR issue-candidate durability fixture did not fail on {expected_snippet!r}: {fixture}"
+            )
+
+    generated_packeted_only_reviewed_text = (
+        VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE.read_text(encoding="utf-8")
+        .replace("ACTIVE_PENDING_USER_DECISION", "Issue Candidate Packet USER-Reviewed")
+        .replace(
+            "USER must review the RAR packet and choose repair, waiver with reason, deferred owner/trigger, route, or approved GitHub issue creation before normal progression.",
+            "The candidate was packeted only, so normal progression may continue.",
+        )
+    )
+    generated_packeted_only_failures = rar_issue_durability.validate_text(
+        generated_packeted_only_reviewed_text, source="generated packeted-only RAR"
+    )
+    if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+        generated_packeted_only_failures
+    ):
+        failures.append(
+            "Generated RAR durability adversarial case did not reject packeted-only reviewed wording"
+        )
+
+    documented_label_failures = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-030",
+                disposition="Repaired And Independently Verified",
+                blocking="NO",
+                carrier="Owner FAM-006; reason repaired in LV proof; carrier FAM-006 RAR repair; trigger regression only",
+                decision="Independent verification revalidated the repair; no current USER decision is needed.",
+            ),
+            row(
+                "FAM006-RAR-031",
+                disposition="USER Waived With Reason And Scope",
+                blocking="NO",
+                carrier="Owner FAM-006; reason USER accepted exception; scope HUD Dashboard current branch only; trigger reopened HUD work",
+                decision="USER waived this item because the current branch excludes the surface; scope HUD Dashboard current branch only.",
+            ),
+            row(
+                "FAM006-RAR-032",
+                disposition="Mapped To Open GitHub Issue",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason mapped to open issue; carrier GitHub issue #275; trigger issue closeout review",
+                decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+            ),
+        ),
+        source="generated documented disposition labels",
+        github_snapshot=snapshot("OPEN"),
+    )
+    if documented_label_failures:
+        failures.append(
+            "Generated RAR fixture rejected documented durable-disposition labels: "
+            + "; ".join(documented_label_failures[:5])
+        )
+
+    no_decision_affirmative_proof_failures = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-034",
+                disposition="REPAIRED_VERIFIED",
+                blocking="NO",
+                carrier="FAM-006 external RAR ledger.",
+                decision=(
+                    "No current USER decision is needed because independent "
+                    "verification revalidated the repair."
+                ),
+            ),
+            row(
+                "FAM006-RAR-035",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="FAM-006 external RAR ledger.",
+                decision=(
+                    "No current USER decision is needed because USER waived this "
+                    "with reason current branch excludes the surface and scope HUD "
+                    "Dashboard current branch only."
+                ),
+            ),
+            row(
+                "FAM006-RAR-036",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="Routed to FAM-006 legal carrier.",
+                decision="No current USER decision because carrier acceptance receipt recorded.",
+            ),
+        ),
+        source="generated no-decision affirmative proof wording",
+    )
+    if no_decision_affirmative_proof_failures:
+        failures.append(
+            "Generated RAR fixture falsely rejected affirmative no-decision proof wording: "
+            + "; ".join(no_decision_affirmative_proof_failures[:5])
+        )
+
+    duplicate_disposition_conflict = rar_issue_durability.validate_text(
+        table(
+            row("FAM006-RAR-033"),
+            row(
+                "FAM006-RAR-033",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="Owner FAM-006; reason USER accepted exception; carrier FAM-006 RAR repair; trigger reopened HUD work; scope HUD Dashboard current branch only",
+                decision="USER waived this item because current branch excludes the surface; scope HUD Dashboard current branch only.",
+            ),
+        ),
+        source="generated duplicate disposition conflict",
+    )
+    if "duplicate/conflicting lineage" not in "\n".join(duplicate_disposition_conflict):
+        failures.append(
+            "Generated RAR fixture did not reject duplicate lineage with conflicting disposition fields"
+        )
+
+    eight_active_rows = tuple(row(f"FAM006-RAR-{index:03d}") for index in range(1, 9))
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_root = Path(temp_dir)
+        ledger = temp_root / "external_ledger.md"
+        ledger.write_text(table(*eight_active_rows), encoding="utf-8")
+
+        omitted_packet = packet_with_sections(
+            temp_root / "omitted",
+            primary_text=table(row("FAM006-RAR-999")),
+        )
+        omitted_failures = rar_issue_durability.validate_packet_folder(
+            omitted_packet,
+            external_ledger=ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-001 missing" not in "\n".join(
+            omitted_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture did not reject active external candidates omitted from current packet"
+            )
+
+        carried_packet = packet_with_sections(
+            temp_root / "carried",
+            primary_text=table(*eight_active_rows),
+        )
+        carried_failures = rar_issue_durability.validate_packet_folder(
+            carried_packet,
+            external_ledger=ledger,
+        )
+        if carried_failures:
+            failures.append(
+                "Generated RAR packet/ledger fixture rejected active candidates carried into the primary USER surface: "
+                + "; ".join(carried_failures[:5])
+            )
+
+        review_aid_only_packet = packet_with_sections(
+            temp_root / "review-aid-only",
+            review_aid_text=table(row("FAM006-RAR-010")),
+        )
+        review_aid_failures = rar_issue_durability.validate_packet_folder(
+            review_aid_only_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject issue-candidate table present only in Review Aids"
+            )
+
+        same_basename_review_aid_packet = temp_root / "same-basename-review-aid-only" / "FAM-006"
+        same_basename_review_aids = same_basename_review_aid_packet / "Review Aids"
+        same_basename_context = same_basename_review_aid_packet / "Source Truth Context"
+        same_basename_review_aids.mkdir(parents=True)
+        same_basename_context.mkdir(parents=True)
+        (same_basename_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (same_basename_review_aids / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-036")),
+            encoding="utf-8",
+        )
+        (same_basename_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-CONTEXT-03")),
+            encoding="utf-8",
+        )
+        same_basename_failures = rar_issue_durability.validate_packet_folder(
+            same_basename_review_aid_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            same_basename_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject Review Aids-only decision table with the primary basename"
+            )
+
+        nested_review_aid_primary_packet = temp_root / "nested-review-aid-user-review" / "FAM-006"
+        nested_review_aid_user_review = nested_review_aid_primary_packet / "Review Aids" / "USER Review"
+        nested_review_aid_context = nested_review_aid_primary_packet / "Source Truth Context"
+        nested_review_aid_user_review.mkdir(parents=True)
+        nested_review_aid_context.mkdir(parents=True)
+        (nested_review_aid_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_review_aid_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-046")),
+            encoding="utf-8",
+        )
+        (nested_review_aid_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n",
+            encoding="utf-8",
+        )
+        nested_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            nested_review_aid_primary_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            nested_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject nested Review Aids/USER Review issue-candidate table as primary"
+            )
+
+        nested_context_primary_packet = temp_root / "nested-context-user-review" / "FAM-006"
+        nested_context_user_review = nested_context_primary_packet / "Source Truth Context" / "USER Review"
+        nested_context_user_review.mkdir(parents=True)
+        (nested_context_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_context_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-047")),
+            encoding="utf-8",
+        )
+        nested_context_primary_failures = rar_issue_durability.validate_packet_folder(
+            nested_context_primary_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            nested_context_primary_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject nested Source Truth Context/USER Review issue-candidate table as primary"
+            )
+
+        mention_only_packet = packet_with_sections(
+            temp_root / "mention-only-primary",
+            primary_text=None,
+        )
+        (
+            mention_only_packet
+            / "USER Review"
+            / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md"
+        ).write_text(
+            "# RAR Issue Candidate Decision Surface\n\nIssue Candidate: FAM006-RAR-048 still needs USER disposition.",
+            encoding="utf-8",
+        )
+        mention_only_packet_failures = rar_issue_durability.validate_packet_folder(
+            mention_only_packet
+        )
+        if "Issue Candidate Decision Surface Missing" not in "\n".join(
+            mention_only_packet_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject primary issue-candidate mention without decision table"
+            )
+
+        plural_mention_only_packet = packet_with_sections(
+            temp_root / "plural-mention-only-primary",
+            primary_text=None,
+        )
+        (
+            plural_mention_only_packet
+            / "USER Review"
+            / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md"
+        ).write_text(
+            "# RAR Issue Candidate Decision Surface\n\nIssue candidates FAM006-RAR-055 and FAM006-RAR-056 still need USER disposition.",
+            encoding="utf-8",
+        )
+        plural_mention_only_packet_failures = rar_issue_durability.validate_packet_folder(
+            plural_mention_only_packet
+        )
+        if "Issue Candidate Decision Surface Missing" not in "\n".join(
+            plural_mention_only_packet_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject plural issue-candidates mention without decision table"
+            )
+
+        nested_user_review_historical_packet = temp_root / "nested-user-review-historical-only" / "FAM-006"
+        nested_user_review_historical = nested_user_review_historical_packet / "USER Review" / "Historical"
+        nested_user_review_historical.mkdir(parents=True)
+        (nested_user_review_historical_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_user_review_historical / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-051")),
+            encoding="utf-8",
+        )
+        nested_user_review_historical_failures = rar_issue_durability.validate_packet_folder(
+            nested_user_review_historical_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            nested_user_review_historical_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject nested USER Review/Historical issue-candidate table as primary"
+            )
+
+        direct_historical_user_review_packet = (
+            temp_root / "direct-historical-user-review-only" / "FAM-006"
+        )
+        direct_historical_user_review = direct_historical_user_review_packet / "USER Review"
+        direct_historical_user_review.mkdir(parents=True)
+        (direct_historical_user_review_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (direct_historical_user_review / "HISTORICAL_RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-076")),
+            encoding="utf-8",
+        )
+        direct_historical_user_review_failures = rar_issue_durability.validate_packet_folder(
+            direct_historical_user_review_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            direct_historical_user_review_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject direct historical USER Review issue-candidate table as primary"
+            )
+
+        routed_nested_user_review_packet = temp_root / "routed-nested-user-review" / "FAM-006"
+        routed_nested_user_review_historical = (
+            routed_nested_user_review_packet / "USER Review" / "Historical"
+        )
+        routed_nested_user_review_historical.mkdir(parents=True)
+        (routed_nested_user_review_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: USER Review/Historical/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (routed_nested_user_review_historical / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-052")),
+            encoding="utf-8",
+        )
+        routed_nested_user_review_failures = rar_issue_durability.validate_packet_folder(
+            routed_nested_user_review_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            routed_nested_user_review_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject START_HERE-routed nested USER Review/Historical issue-candidate table"
+            )
+
+        routed_helper_output_packet = temp_root / "routed-helper-output-only" / "FAM-006"
+        routed_helper_output = routed_helper_output_packet / "Helper-Output"
+        routed_helper_context = routed_helper_output_packet / "Source Truth Context"
+        routed_helper_output.mkdir(parents=True)
+        routed_helper_context.mkdir(parents=True)
+        (routed_helper_output_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: Helper-Output/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (routed_helper_output / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-060")),
+            encoding="utf-8",
+        )
+        (routed_helper_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n",
+            encoding="utf-8",
+        )
+        routed_helper_output_failures = rar_issue_durability.validate_packet_folder(
+            routed_helper_output_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            routed_helper_output_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject START_HERE-routed helper-output issue-candidate table"
+            )
+
+        hidden_nested_user_review_packet = temp_root / "hidden-nested-user-review-candidate" / "FAM-006"
+        hidden_nested_primary = hidden_nested_user_review_packet / "USER Review"
+        hidden_nested_historical = hidden_nested_user_review_packet / "USER Review" / "Historical"
+        hidden_nested_primary.mkdir(parents=True)
+        hidden_nested_historical.mkdir(parents=True)
+        (hidden_nested_user_review_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (hidden_nested_primary / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-053")),
+            encoding="utf-8",
+        )
+        (hidden_nested_historical / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-054")),
+            encoding="utf-8",
+        )
+        hidden_nested_user_review_failures = rar_issue_durability.validate_packet_folder(
+            hidden_nested_user_review_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-054 missing" not in "\n".join(
+            hidden_nested_user_review_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed active nested USER Review/Historical candidate absent from primary decision surface"
+            )
+
+        routed_review_aid_packet = temp_root / "routed-review-aid-only" / "FAM-006"
+        routed_review_aid = routed_review_aid_packet / "Review Aids"
+        routed_review_context = routed_review_aid_packet / "Source Truth Context"
+        routed_review_aid.mkdir(parents=True)
+        routed_review_context.mkdir(parents=True)
+        (routed_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: Review Aids/RAR_ISSUE_CANDIDATE_REVIEW_AID.md\n",
+            encoding="utf-8",
+        )
+        (routed_review_aid / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-040")),
+            encoding="utf-8",
+        )
+        (routed_review_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-CONTEXT-04")),
+            encoding="utf-8",
+        )
+        routed_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            routed_review_aid_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            routed_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject START_HERE-routed Review Aids issue-candidate table"
+            )
+
+        hidden_review_aid_packet = temp_root / "hidden-review-aid-candidate" / "FAM-006"
+        hidden_user_review = hidden_review_aid_packet / "USER Review"
+        hidden_review_aids = hidden_review_aid_packet / "Review Aids"
+        hidden_context = hidden_review_aid_packet / "Source Truth Context"
+        hidden_user_review.mkdir(parents=True)
+        hidden_review_aids.mkdir(parents=True)
+        hidden_context.mkdir(parents=True)
+        (hidden_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (hidden_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-041")),
+            encoding="utf-8",
+        )
+        (hidden_review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-042")),
+            encoding="utf-8",
+        )
+        (hidden_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n",
+            encoding="utf-8",
+        )
+        hidden_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            hidden_review_aid_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-042 missing" not in "\n".join(
+            hidden_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed active Review Aids candidate absent from primary decision surface"
+            )
+
+        same_id_same_lineage_review_aid_packet = temp_root / "same-id-same-lineage-review-aid" / "FAM-006"
+        same_id_same_lineage_user_review = same_id_same_lineage_review_aid_packet / "USER Review"
+        same_id_same_lineage_review_aids = same_id_same_lineage_review_aid_packet / "Review Aids"
+        same_id_same_lineage_user_review.mkdir(parents=True)
+        same_id_same_lineage_review_aids.mkdir(parents=True)
+        (same_id_same_lineage_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (same_id_same_lineage_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-063")),
+            encoding="utf-8",
+        )
+        (same_id_same_lineage_review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(row("FAM006-RAR-063")),
+            encoding="utf-8",
+        )
+        same_id_same_lineage_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            same_id_same_lineage_review_aid_packet
+        )
+        if same_id_same_lineage_review_aid_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected supporting Review Aids candidate with matching lineage: "
+                + "; ".join(same_id_same_lineage_review_aid_failures[:5])
+            )
+
+        same_id_different_lineage_review_aid_packet = (
+            temp_root / "same-id-different-lineage-review-aid" / "FAM-006"
+        )
+        same_id_different_lineage_user_review = same_id_different_lineage_review_aid_packet / "USER Review"
+        same_id_different_lineage_review_aids = same_id_different_lineage_review_aid_packet / "Review Aids"
+        same_id_different_lineage_user_review.mkdir(parents=True)
+        same_id_different_lineage_review_aids.mkdir(parents=True)
+        (same_id_different_lineage_review_aid_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (same_id_different_lineage_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-064")),
+            encoding="utf-8",
+        )
+        (same_id_different_lineage_review_aids / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            table(
+                "| FAM006-RAR-064 | FAM-006 | Log Viewer Studio | Status row | Folder status mismatch | RAR contact sheet row LOG-STATUS-064 | ACTIVE_PENDING_USER_DECISION | YES | Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+            ),
+            encoding="utf-8",
+        )
+        same_id_different_lineage_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            same_id_different_lineage_review_aid_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-064 missing" not in "\n".join(
+            same_id_different_lineage_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed same-ID supporting Review Aids candidate with different lineage"
+            )
+
+        hidden_context_packet = temp_root / "hidden-context-candidate" / "FAM-006"
+        hidden_context_user_review = hidden_context_packet / "USER Review"
+        hidden_context_folder = hidden_context_packet / "Source Truth Context"
+        hidden_context_user_review.mkdir(parents=True)
+        hidden_context_folder.mkdir(parents=True)
+        (hidden_context_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (hidden_context_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-043")),
+            encoding="utf-8",
+        )
+        (hidden_context_folder / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-044")),
+            encoding="utf-8",
+        )
+        hidden_context_failures = rar_issue_durability.validate_packet_folder(
+            hidden_context_packet
+        )
+        if "supporting/context RAR issue candidate FAM006-RAR-044 missing" not in "\n".join(
+            hidden_context_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed active copied-context candidate absent from primary decision surface"
+            )
+
+        copied_context_only_packet = temp_root / "copied-context-only" / "FAM-006"
+        copied_context = copied_context_only_packet / "Source Truth Context"
+        copied_context.mkdir(parents=True)
+        (copied_context_only_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (copied_context / "COPIED_CONTEXT.md").write_text(
+            table(row("FAM006-RAR-038")),
+            encoding="utf-8",
+        )
+        copied_context_only_failures = rar_issue_durability.validate_packet_folder(
+            copied_context_only_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            copied_context_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject issue-candidate table present only in Source Truth Context"
+            )
+
+        nested_review_aid_only_packet = temp_root / "nested-review-aid-only" / "FAM-006"
+        nested_review_aid_user_review = (
+            nested_review_aid_only_packet / "Review Aids" / "USER Review"
+        )
+        nested_review_aid_user_review.mkdir(parents=True)
+        (nested_review_aid_only_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_review_aid_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-039")),
+            encoding="utf-8",
+        )
+        nested_review_aid_only_failures = rar_issue_durability.validate_packet_folder(
+            nested_review_aid_only_packet
+        )
+        if "primary USER decision surface missing" not in "\n".join(
+            nested_review_aid_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed nested Review Aids/USER Review copy as a primary decision surface"
+            )
+
+        nested_context_only_packet = temp_root / "nested-context-only" / "FAM-006"
+        nested_context_user_review = (
+            nested_context_only_packet / "Source Truth Context" / "USER Review"
+        )
+        nested_context_user_review.mkdir(parents=True)
+        (nested_context_only_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (nested_context_user_review / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-040")),
+            encoding="utf-8",
+        )
+        nested_context_only_failures = rar_issue_durability.validate_packet_folder(
+            nested_context_only_packet
+        )
+        if "primary USER decision surface missing" not in "\n".join(
+            nested_context_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed nested Source Truth Context/USER Review copy as a primary decision surface"
+            )
+
+        primary_packet = packet_with_sections(
+            temp_root / "primary",
+            primary_text=table(row("FAM006-RAR-011")),
+        )
+        primary_failures = rar_issue_durability.validate_packet_folder(primary_packet)
+        if primary_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected a primary USER issue-candidate decision surface: "
+                + "; ".join(primary_failures[:5])
+            )
+
+        malformed_review_aid_packet = packet_with_sections(
+            temp_root / "malformed-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-057")),
+            review_aid_text="\n".join(
+                (
+                    "Issue Candidate Decision Surface:",
+                    "",
+                    rar_issue_durability.DECISION_SURFACE_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-058 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges | Evidence with unescaped | pipe | ACTIVE_PENDING_USER_DECISION | YES | Owner FAM-006; reason current RAR gap; carrier FAM-006 RAR repair; trigger next RAR review | NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | USER must review repair, waiver, route, deferral, or approved GitHub issue creation. |",
+                )
+            ),
+        )
+        malformed_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            malformed_review_aid_packet
+        )
+        if "malformed supporting/context RAR issue candidate row" not in "\n".join(
+            malformed_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject malformed supporting Review Aids issue-candidate rows"
+            )
+
+        packeted_only_review_aid_packet = packet_with_sections(
+            temp_root / "packeted-only-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-049")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The issue candidate was packeted only, so normal progression may continue."
+            ),
+        )
+        packeted_only_review_aid_failures = rar_issue_durability.validate_packet_folder(
+            packeted_only_review_aid_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            packeted_only_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject packeted-only closure wording in Review Aids when a primary table exists"
+            )
+
+        packeted_only_start_here_packet = packet_with_sections(
+            temp_root / "packeted-only-start-here-with-primary",
+            primary_text=table(row("FAM006-RAR-050")),
+        )
+        (packeted_only_start_here_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Primary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n\n"
+            "The RAR issue candidate packet was USER-reviewed and packeted only, so normal progression may continue.\n",
+            encoding="utf-8",
+        )
+        packeted_only_start_here_failures = rar_issue_durability.validate_packet_folder(
+            packeted_only_start_here_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            packeted_only_start_here_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject packeted-only closure wording in START_HERE when a primary table exists"
+            )
+
+        hyphenated_packeted_only_start_here_packet = packet_with_sections(
+            temp_root / "hyphenated-packeted-only-start-here-with-primary",
+            primary_text=table(row("FAM006-RAR-070")),
+        )
+        (hyphenated_packeted_only_start_here_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Primary USER review file: USER Review/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n\n"
+            "The issue candidate was packeted-only, so normal progression may continue.\n",
+            encoding="utf-8",
+        )
+        hyphenated_packeted_only_start_here_failures = rar_issue_durability.validate_packet_folder(
+            hyphenated_packeted_only_start_here_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            hyphenated_packeted_only_start_here_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject hyphenated packeted-only closure wording in START_HERE"
+            )
+
+        hyphenated_packet_reviewed_only_review_aid_packet = packet_with_sections(
+            temp_root / "hyphenated-packet-reviewed-only-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-071")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "This issue candidate is packet-reviewed-only and may continue without durable disposition."
+            ),
+        )
+        hyphenated_packet_reviewed_only_review_aid_failures = (
+            rar_issue_durability.validate_packet_folder(hyphenated_packet_reviewed_only_review_aid_packet)
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            hyphenated_packet_reviewed_only_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject hyphenated packet-reviewed-only closure wording in Review Aids"
+            )
+
+        separator_packet_reviewed_only_review_aid_packet = packet_with_sections(
+            temp_root / "separator-packet-reviewed-only-review-aid-with-primary",
+            primary_text=table(row("FAM006-RAR-075")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "This issue candidate is packet_reviewed_only and normal-progression may continue."
+            ),
+        )
+        separator_packet_reviewed_only_review_aid_failures = (
+            rar_issue_durability.validate_packet_folder(separator_packet_reviewed_only_review_aid_packet)
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            separator_packet_reviewed_only_review_aid_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject separator-normalized packet_reviewed_only closure wording"
+            )
+
+        active_repaired_packeted_only_packet = packet_with_sections(
+            temp_root / "active-repaired-packeted-only-with-primary",
+            primary_text=table(row("FAM006-RAR-061")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The candidate is repaired and replaced because it was packeted only, so progression may continue."
+            ),
+        )
+        active_repaired_packeted_only_failures = rar_issue_durability.validate_packet_folder(
+            active_repaired_packeted_only_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            active_repaired_packeted_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject active repaired/replaced packeted-only closure wording"
+            )
+
+        active_not_durable_packeted_only_packet = packet_with_sections(
+            temp_root / "active-not-durable-packeted-only-with-primary",
+            primary_text=table(row("FAM006-RAR-062")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The issue candidate was packeted only and not durable, so normal progression may continue."
+            ),
+        )
+        active_not_durable_packeted_only_failures = rar_issue_durability.validate_packet_folder(
+            active_not_durable_packeted_only_packet
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            active_not_durable_packeted_only_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject active not-durable packeted-only closure wording"
+            )
+
+        historical_worded_packeted_only_closure_packet = packet_with_sections(
+            temp_root / "historical-worded-packeted-only-closure-with-primary",
+            primary_text=table(row("FAM006-RAR-065")),
+            review_aid_text=(
+                "# RAR Review Aid\n\n"
+                "The issue candidate was previously packeted only, so normal progression may continue."
+            ),
+        )
+        historical_worded_packeted_only_closure_failures = (
+            rar_issue_durability.validate_packet_folder(
+                historical_worded_packeted_only_closure_packet
+            )
+        )
+        if EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET not in "\n".join(
+            historical_worded_packeted_only_closure_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture did not reject historical-worded packeted-only progression closure"
+            )
+
+        routed_packet = temp_root / "routed-primary" / "FAM-006"
+        routed_review = routed_packet / "Review Aids"
+        routed_decisions = routed_packet / "Issue Decisions"
+        routed_context = routed_packet / "Source Truth Context"
+        routed_review.mkdir(parents=True)
+        routed_decisions.mkdir(parents=True)
+        routed_context.mkdir(parents=True)
+        (routed_packet / "START_HERE.md").write_text(
+            "# START HERE\n\nPrimary issue-candidate decision file: Issue Decisions/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (routed_decisions / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-034")),
+            encoding="utf-8",
+        )
+        (routed_review / "RAR_ISSUE_CANDIDATE_REVIEW_AID.md").write_text(
+            "# RAR Issue Candidate Review Aid\n\nSupporting narrative only; no active decision table.",
+            encoding="utf-8",
+        )
+        (routed_context / "COPIED_CONTEXT.md").write_text(
+            "# Copied Source Truth Context\n\nNo active issue-candidate decision surface lives in copied context.",
+            encoding="utf-8",
+        )
+        routed_primary_failures = rar_issue_durability.validate_packet_folder(routed_packet)
+        if routed_primary_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected START_HERE-routed primary issue-candidate decision file: "
+                + "; ".join(routed_primary_failures[:5])
+            )
+
+        legacy_ledger = temp_root / "legacy_ledger.md"
+        legacy_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-037 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-037 | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        legacy_carried = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "legacy-carried",
+                primary_text=table(row("FAM006-RAR-037")),
+            ),
+            external_ledger=legacy_ledger,
+        )
+        legacy_rows = rar_issue_durability.parse_external_candidate_rows(
+            legacy_ledger.read_text(encoding="utf-8"),
+            source=str(legacy_ledger),
+        )
+        if not legacy_rows or legacy_rows[0].github_issue != "NONE - issue mutation not approved":
+            failures.append(
+                "Generated RAR legacy import fixture did not preserve non-approved GitHub issue mutation state"
+            )
+        if legacy_carried:
+            failures.append(
+                "Generated RAR packet/ledger fixture rejected a recognized legacy external issue-candidate ledger carried into the primary packet: "
+                + "; ".join(legacy_carried[:5])
+            )
+
+        legacy_approved_ledger = temp_root / "legacy_approved_ledger.md"
+        legacy_approved_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-080 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-080 | Owner FAM-006 RAR repair | Yes |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        legacy_approved_rows = rar_issue_durability.parse_external_candidate_rows(
+            legacy_approved_ledger.read_text(encoding="utf-8"),
+            source=str(legacy_approved_ledger),
+        )
+        if not legacy_approved_rows or legacy_approved_rows[0].github_issue != "PENDING":
+            failures.append(
+                "Generated RAR legacy import fixture did not preserve approved GitHub issue mutation state as PENDING"
+            )
+
+        malformed_legacy_ledger = temp_root / "malformed_legacy_ledger.md"
+        malformed_legacy_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-038 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges | extra defect fragment | Legacy RAR row HUD-038 | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        malformed_legacy_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "malformed-legacy-ledger",
+                primary_text=table(row("FAM006-RAR-038")),
+            ),
+            external_ledger=malformed_legacy_ledger,
+        )
+        if "malformed external RAR issue candidate row" not in "\n".join(malformed_legacy_failures):
+            failures.append(
+                "Generated RAR packet/ledger fixture did not reject malformed legacy external issue-candidate rows"
+            )
+
+        blank_id_legacy_ledger = temp_root / "blank_id_legacy_ledger.md"
+        blank_id_legacy_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-084 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-084 | Owner FAM-006 RAR repair | No |",
+                    "|  | FAM-006 | HUD Dashboard | Window control cluster | Blank candidate identifier should not disappear | Legacy RAR row HUD-BLANK | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        blank_id_legacy_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "blank-id-legacy-ledger",
+                primary_text=table(row("FAM006-RAR-084")),
+            ),
+            external_ledger=blank_id_legacy_ledger,
+        )
+        if "malformed external RAR issue candidate row" not in "\n".join(
+            blank_id_legacy_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed blank-ID legacy external issue-candidate rows to disappear"
+            )
+
+        incidental_mention_ledger = temp_root / "incidental_mention_ledger.md"
+        incidental_mention_ledger.write_text(table(row("FAM006-RAR-039")), encoding="utf-8")
+        incidental_mention_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "incidental-mention",
+                primary_text=(
+                    "Narrative note mentions FAM006-RAR-039, but the active decision row below is different.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=incidental_mention_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-039 missing" not in "\n".join(
+            incidental_mention_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed incidental text mention to satisfy active candidate carry-forward"
+            )
+
+        incidental_lineage_ledger = temp_root / "incidental_lineage_ledger.md"
+        incidental_lineage_ledger.write_text(table(row("FAM006-RAR-059")), encoding="utf-8")
+        incidental_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "incidental-lineage",
+                primary_text=(
+                    "Lineage note: predecessor FAM006-RAR-059 remains under review.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=incidental_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-059 missing" not in "\n".join(
+            incidental_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed incidental lineage prose without a current successor row"
+            )
+
+        ambiguous_directional_lineage_ledger = temp_root / "ambiguous_directional_lineage_ledger.md"
+        ambiguous_directional_lineage_ledger.write_text(table(row("FAM006-RAR-066")), encoding="utf-8")
+        ambiguous_directional_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "ambiguous-directional-lineage",
+                primary_text=(
+                    "Lineage note: predecessor FAM006-RAR-066 remains under review alongside FAM006-RAR-999.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=ambiguous_directional_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-066 missing" not in "\n".join(
+            ambiguous_directional_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed ambiguous predecessor prose without a directional successor mapping"
+            )
+
+        unrelated_current_lineage_ledger = temp_root / "unrelated_current_lineage_ledger.md"
+        unrelated_current_lineage_ledger.write_text(table(row("FAM006-RAR-069")), encoding="utf-8")
+        unrelated_current_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "unrelated-current-lineage",
+                primary_text=(
+                    "Lineage note: predecessor FAM006-RAR-069 remains under review while unrelated current row "
+                    "FAM006-RAR-999 is reviewed separately.\n\n"
+                    + table(row("FAM006-RAR-999"))
+                ),
+            ),
+            external_ledger=unrelated_current_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-069 missing" not in "\n".join(
+            unrelated_current_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed unrelated current-row lineage prose without a directional successor mapping"
+            )
+
+        directional_lineage_ledger = temp_root / "directional_lineage_ledger.md"
+        directional_lineage_ledger.write_text(table(row("FAM006-RAR-067")), encoding="utf-8")
+        directional_lineage_carried = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "directional-lineage-carried",
+                primary_text=(
+                    table(row("FAM006-RAR-067-A"))
+                    + "\n\nLineage: successor FAM006-RAR-067-A replaces predecessor FAM006-RAR-067."
+                ),
+            ),
+            external_ledger=directional_lineage_ledger,
+        )
+        if directional_lineage_carried:
+            failures.append(
+                "Generated RAR packet/ledger fixture rejected explicit directional successor/predecessor lineage: "
+                + "; ".join(directional_lineage_carried[:5])
+            )
+
+        windows_routed_primary_packet = temp_root / "windows-routed-primary" / "FAM-006"
+        windows_issue_decisions = windows_routed_primary_packet / "Issue Decisions"
+        windows_issue_decisions.mkdir(parents=True)
+        (windows_routed_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Primary issue candidate decision file: Issue Decisions\\RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md\n",
+            encoding="utf-8",
+        )
+        (windows_issue_decisions / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-078")),
+            encoding="utf-8",
+        )
+        windows_routed_primary_failures = rar_issue_durability.validate_packet_folder(
+            windows_routed_primary_packet
+        )
+        if windows_routed_primary_failures:
+            failures.append(
+                "Generated RAR packet fixture rejected START_HERE Windows-separator routed primary issue decision file: "
+                + "; ".join(windows_routed_primary_failures[:5])
+            )
+
+        negated_routed_primary_packet = temp_root / "negated-routed-primary" / "FAM-006"
+        negated_issue_decisions = negated_routed_primary_packet / "Issue Decisions"
+        negated_issue_decisions.mkdir(parents=True)
+        (negated_routed_primary_packet / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Do not use Issue Decisions/RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md as the primary decision file.\n",
+            encoding="utf-8",
+        )
+        (negated_issue_decisions / "RAR_ISSUE_CANDIDATE_DECISION_SURFACE.md").write_text(
+            table(row("FAM006-RAR-081")),
+            encoding="utf-8",
+        )
+        negated_routed_primary_failures = rar_issue_durability.validate_packet_folder(
+            negated_routed_primary_packet
+        )
+        if "Issue Candidate Table Only In Copied Context" not in "\n".join(
+            negated_routed_primary_failures
+        ):
+            failures.append(
+                "Generated RAR packet fixture allowed negated START_HERE issue-candidate route as the primary decision file"
+            )
+
+        negated_lineage_ledger = temp_root / "negated_lineage_ledger.md"
+        negated_lineage_ledger.write_text(table(row("FAM006-RAR-067")), encoding="utf-8")
+        negated_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "negated-lineage",
+                primary_text=(
+                    table(row("FAM006-RAR-999"))
+                    + "\n\nLineage: successor FAM006-RAR-999 is not a replacement for predecessor FAM006-RAR-067."
+                ),
+            ),
+            external_ledger=negated_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-067 missing" not in "\n".join(
+            negated_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed negated successor/predecessor lineage to carry an external candidate"
+            )
+
+        same_id_different_lineage_ledger = temp_root / "same_id_different_lineage_ledger.md"
+        same_id_different_lineage_ledger.write_text(table(row("FAM006-RAR-045")), encoding="utf-8")
+        same_id_different_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "same-id-different-lineage",
+                primary_text=table(
+                    "| FAM006-RAR-045 | FAM-006 | Log Viewer Studio | Status row | Folder status mismatch | RAR contact sheet row LOG-STATUS-045 | ACTIVE_PENDING_USER_DECISION | YES | Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+                ),
+            ),
+            external_ledger=same_id_different_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-045 missing" not in "\n".join(
+            same_id_different_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed same candidate ID with different surface/element/defect lineage"
+            )
+
+        legacy_duplicate_lineage_ledger = temp_root / "legacy_duplicate_lineage_ledger.md"
+        legacy_duplicate_lineage_ledger.write_text(
+            "\n".join(
+                (
+                    "Legacy Issue Candidate Table:",
+                    "",
+                    rar_issue_durability.LEGACY_RAR_HEADER,
+                    "| --- | --- | --- | --- | --- | --- | --- | --- |",
+                    "| FAM006-RAR-068 | FAM-006 | HUD Dashboard | Window control cluster | Legacy close control diverges from UIREF-002 | Legacy RAR row HUD-068 | Owner FAM-006 RAR repair | No |",
+                    "| FAM006-RAR-068 | FAM-006 | Log Viewer Studio | Status row | Folder status mismatch | Legacy RAR row LOG-068 | Owner FAM-006 RAR repair | No |",
+                )
+            ),
+            encoding="utf-8",
+        )
+        legacy_duplicate_lineage_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "legacy-duplicate-lineage-missing",
+                primary_text=table(row("FAM006-RAR-068")),
+            ),
+            external_ledger=legacy_duplicate_lineage_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-068 missing" not in "\n".join(
+            legacy_duplicate_lineage_failures
+        ):
+            failures.append(
+                "Generated RAR packet/ledger fixture allowed one same-ID legacy row to hide a second same-ID different-lineage row"
+            )
+
+        terminal_ledger = temp_root / "terminal_ledger.md"
+        terminal_ledger.write_text(
+            table(
+                row(
+                    "FAM006-RAR-012",
+                    disposition="REPAIRED_VERIFIED",
+                    blocking="NO",
+                    carrier="Owner FAM-006; reason fixed in repair; carrier FAM-006 LV proof; trigger regression only",
+                    decision="Independent verification revalidated the repair; no current USER decision is needed.",
+                )
+            ),
+            encoding="utf-8",
+        )
+        terminal_absent_failures = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "terminal-absent",
+                primary_text=table(row("FAM006-RAR-013")),
+            ),
+            external_ledger=terminal_ledger,
+        )
+        if terminal_absent_failures:
+            failures.append(
+                "Generated RAR terminal-lineage fixture forced a repaired terminal candidate into a later packet: "
+                + "; ".join(terminal_absent_failures[:5])
+            )
+
+        renamed_ledger = temp_root / "renamed_ledger.md"
+        renamed_ledger.write_text(table(row("FAM006-RAR-014")), encoding="utf-8")
+        renamed_no_lineage = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "renamed-no-lineage",
+                primary_text=table(row("FAM006-RAR-014A")),
+            ),
+            external_ledger=renamed_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-014 missing" not in "\n".join(
+            renamed_no_lineage
+        ):
+            failures.append(
+                "Generated RAR renamed-candidate fixture did not reject rename/regroup without lineage"
+            )
+        renamed_with_lineage = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "renamed-with-lineage",
+                primary_text=(
+                    table(row("FAM006-RAR-014A"))
+                    + "\n\nLineage: successor FAM006-RAR-014A replaces predecessor FAM006-RAR-014."
+                ),
+            ),
+            external_ledger=renamed_ledger,
+        )
+        if renamed_with_lineage:
+            failures.append(
+                "Generated RAR renamed-candidate fixture rejected explicit predecessor/successor lineage: "
+                + "; ".join(renamed_with_lineage[:5])
+            )
+
+        suffix_renamed_ledger = temp_root / "suffix_renamed_ledger.md"
+        suffix_renamed_ledger.write_text(table(row("FAM006-RAR-015")), encoding="utf-8")
+        suffix_renamed_no_predecessor = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "suffix-renamed-no-predecessor",
+                primary_text=(
+                    table(row("FAM006-RAR-015-A"))
+                    + "\n\nLineage: successor FAM006-RAR-015-A is ready for review."
+                ),
+            ),
+            external_ledger=suffix_renamed_ledger,
+        )
+        if "external RAR issue candidate FAM006-RAR-015 missing" not in "\n".join(
+            suffix_renamed_no_predecessor
+        ):
+            failures.append(
+                "Generated RAR suffix-renamed fixture allowed substring lineage without exact predecessor candidate ID"
+            )
+        suffix_renamed_with_lineage = rar_issue_durability.validate_packet_folder(
+            packet_with_sections(
+                temp_root / "suffix-renamed-with-lineage",
+                primary_text=(
+                    table(row("FAM006-RAR-015-A"))
+                    + "\n\nLineage: successor FAM006-RAR-015-A replaces predecessor FAM006-RAR-015."
+                ),
+            ),
+            external_ledger=suffix_renamed_ledger,
+        )
+        if suffix_renamed_with_lineage:
+            failures.append(
+                "Generated RAR suffix-renamed fixture rejected explicit predecessor/successor lineage: "
+                + "; ".join(suffix_renamed_with_lineage[:5])
+            )
+
+    historical_packeted_only_text = (
+        "# Historical packeted-only repair\n\n"
+        "Prior invalid state was packeted only and not durable.\n\n"
+        + table(row("FAM006-RAR-020"))
+    )
+    historical_packeted_only_failures = rar_issue_durability.validate_text(
+        historical_packeted_only_text,
+        source="generated historical packeted-only RAR",
+    )
+    if historical_packeted_only_failures:
+        failures.append(
+            "Generated RAR historical packeted-only fixture was falsely rejected: "
+            + "; ".join(historical_packeted_only_failures[:5])
+        )
+
+    hyphenated_issue_candidate_missing_surface = rar_issue_durability.validate_text(
+        "# RAR issue-candidate summary\n\nIssue-Candidate Table: FAM006-RAR-030 pending USER decision.",
+        source="generated hyphenated issue-candidate missing table",
+    )
+    if "Issue Candidate Decision Surface Missing" not in "\n".join(
+        hyphenated_issue_candidate_missing_surface
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject hyphenated issue-candidate mention without decision table"
+        )
+
+    plural_issue_candidates_missing_surface = rar_issue_durability.validate_text(
+        "# RAR issue-candidates summary\n\nIssue-candidates FAM006-RAR-030 and FAM006-RAR-031 are pending USER decision.",
+        source="generated plural issue-candidates missing table",
+    )
+    if "Issue Candidate Decision Surface Missing" not in "\n".join(
+        plural_issue_candidates_missing_surface
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject plural issue-candidates mention without decision table"
+        )
+
+    no_issue_candidate_applicable = rar_issue_durability.validate_text(
+        "# RAR no-impact summary\n\nNo issue candidate is applicable for this RAR review.",
+        source="generated no issue candidate applicable",
+    )
+    if no_issue_candidate_applicable:
+        failures.append(
+            "Generated RAR fixture rejected explicit no issue candidate applicable wording: "
+            + "; ".join(no_issue_candidate_applicable[:5])
+        )
+
+    no_issue_candidates_applicable = rar_issue_durability.validate_text(
+        "# RAR no-impact summary\n\nNo issue candidates are applicable for this RAR review.",
+        source="generated no issue candidates applicable",
+    )
+    if no_issue_candidates_applicable:
+        failures.append(
+            "Generated RAR fixture rejected explicit no issue candidates applicable wording: "
+            + "; ".join(no_issue_candidates_applicable[:5])
+        )
+
+    no_candidate_with_concrete_id = rar_issue_durability.validate_text(
+        "# RAR issue-candidate summary\n\nNo issue candidates are applicable, but Issue Candidate FAM006-RAR-090 remains pending USER disposition.",
+        source="generated no-candidate wording with concrete candidate ID",
+    )
+    if "Issue Candidate Decision Surface Missing" not in "\n".join(
+        no_candidate_with_concrete_id
+    ):
+        failures.append(
+            "Generated RAR fixture let no-candidate wording hide a concrete issue candidate ID"
+        )
+
+    waiver_without_reason = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-021",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="Owner FAM-006; scope HUD Dashboard only; trigger reopened HUD work",
+                decision="USER waived this item.",
+            )
+        ),
+        source="generated waiver missing reason",
+    )
+    if "USER rejection/waiver requires reason" not in "\n".join(waiver_without_reason):
+        failures.append("Generated RAR fixture did not reject USER waiver without reason")
+
+    rejection_without_reason = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-022",
+                disposition="USER_REJECTED_WITH_REASON",
+                blocking="NO",
+                carrier="Owner FAM-006; trigger reopened HUD work",
+                decision="USER rejected this item.",
+            )
+        ),
+        source="generated rejection missing reason",
+    )
+    if "USER rejection/waiver requires reason" not in "\n".join(rejection_without_reason):
+        failures.append("Generated RAR fixture did not reject USER rejection without reason")
+
+    waiver_with_negated_reason_scope = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-085",
+                disposition="USER_WAIVED_WITH_REASON",
+                blocking="NO",
+                carrier="Owner FAM-006; no reason was recorded; no scope was approved.",
+                decision="USER waiver record is incomplete and cannot close this candidate.",
+            )
+        ),
+        source="generated waiver negated reason and scope",
+    )
+    waiver_with_negated_failures = "\n".join(waiver_with_negated_reason_scope)
+    if (
+        "USER rejection/waiver requires reason" not in waiver_with_negated_failures
+        or "USER waiver requires scope" not in waiver_with_negated_failures
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject USER waiver with negated reason/scope language"
+        )
+
+    terminal_blocking_failure = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-028",
+                disposition="USER_REJECTED_WITH_REASON",
+                blocking="YES",
+                carrier="Owner FAM-006; reason USER rejected this repair route; trigger replacement option review",
+                decision="USER rejected this item because the proposed issue route was wrong.",
+            )
+        ),
+        source="generated terminal disposition still blocking",
+    )
+    if "terminal disposition cannot remain progression blocking" not in "\n".join(
+        terminal_blocking_failure
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject terminal disposition rows that still block progression"
+        )
+
+    routed_negated_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-029",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="Target FAM-006 branch not accepted; no receipt yet.",
+                decision="No current USER decision because routing is proposed but carrier acceptance receipt is pending.",
+            )
+        ),
+        source="generated routed disposition negated receipt",
+    )
+    if "routed disposition requires carrier acceptance/receipt" not in "\n".join(
+        routed_negated_receipt
+    ):
+        failures.append("Generated RAR fixture did not reject routed disposition with negated receipt language")
+
+    routed_approved_without_carrier_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-072",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="USER approved routing to FAM-006.",
+                decision="No current USER decision because routing approval exists but carrier acceptance has not been recorded.",
+            )
+        ),
+        source="generated routed disposition approved without carrier receipt",
+    )
+    if "routed disposition requires carrier acceptance/receipt" not in "\n".join(
+        routed_approved_without_carrier_receipt
+    ):
+        failures.append("Generated RAR fixture did not reject routed disposition with approval but no carrier receipt")
+
+    routed_awaiting_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-073",
+                disposition="ROUTED_TO_LEGAL_CARRIER",
+                blocking="NO",
+                carrier="Routed to FAM-006 and awaiting carrier acceptance receipt.",
+                decision="No current USER decision because the target carrier receipt remains pending.",
+            )
+        ),
+        source="generated routed disposition awaiting receipt",
+    )
+    if "routed disposition requires carrier acceptance/receipt" not in "\n".join(routed_awaiting_receipt):
+        failures.append("Generated RAR fixture did not reject routed disposition awaiting receipt")
+
+    deferred_negated_owner = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-086",
+                disposition="DEFERRED_WITH_OWNER",
+                blocking="NO",
+                carrier="No owner assigned; reason backlog; trigger next review.",
+                decision="Candidate remains deferred, but durable ownership has not been recorded.",
+            )
+        ),
+        source="generated deferred disposition negated owner",
+    )
+    if "deferred disposition requires durable owner" not in "\n".join(
+        deferred_negated_owner
+    ):
+        failures.append("Generated RAR fixture did not reject deferred disposition with negated owner")
+
+    active_carry_forward_negated_owner = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-087",
+                disposition="ACTIVE_PENDING_USER_DECISION",
+                blocking="NO",
+                carrier="No owner assigned; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review.",
+                decision="USER still needs a decision, but this record has no durable owner.",
+            )
+        ),
+        source="generated active carry-forward negated owner",
+    )
+    if "non-blocking active carry-forward requires" not in "\n".join(
+        active_carry_forward_negated_owner
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject non-blocking active carry-forward with negated owner"
+        )
+
+    placeholder_required_fields = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-075 | UNKNOWN | TBD | Window control cluster | UNKNOWN | "
+            "RAR contact sheet row HUD-CTRL-075 | ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated placeholder required fields",
+    )
+    placeholder_required_failures = "\n".join(placeholder_required_fields)
+    if (
+        "Owning FAM missing" not in placeholder_required_failures
+        or "Surface missing" not in placeholder_required_failures
+        or "Defect missing" not in placeholder_required_failures
+    ):
+        failures.append("Generated RAR fixture did not reject placeholder required fields")
+
+    escaped_pipe_valid = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-079 | FAM-006 | HUD Dashboard | Status row | "
+            "PASS \\| FAIL label comparison must remain one cell | "
+            "RAR contact sheet row HUD-PIPE-079 | ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from RAR packet receipt 20260620 | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated escaped-pipe valid row",
+    )
+    if escaped_pipe_valid:
+        failures.append(
+            "Generated RAR fixture rejected escaped Markdown pipe inside a valid issue-candidate cell: "
+            + "; ".join(escaped_pipe_valid[:5])
+        )
+
+    stale_verified_from_helper = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-082 | FAM-006 | HUD Dashboard | Window control cluster | "
+            "Legacy close control diverges from UIREF-002 | RAR contact sheet row HUD-CTRL-082 | "
+            "ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from helper output | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated stale helper-output freshness text",
+    )
+    if "Last Verified requires dated or receipt-based freshness evidence" not in "\n".join(
+        stale_verified_from_helper
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject undated helper-output freshness wording"
+        )
+
+    stale_verified_from_notes = rar_issue_durability.validate_text(
+        table(
+            "| FAM006-RAR-083 | FAM-006 | HUD Dashboard | Window control cluster | "
+            "Legacy close control diverges from UIREF-002 | RAR contact sheet row HUD-CTRL-083 | "
+            "ACTIVE_PENDING_USER_DECISION | YES | "
+            "Owner FAM-006; reason current RAR adoption gap; carrier FAM-006 RAR repair; trigger next RAR review | "
+            "NONE - issue mutation not approved | Verified from old notes | "
+            "USER must review repair, waiver with reason and scope, route, deferral, or approved GitHub issue creation. |"
+        ),
+        source="generated stale notes freshness text",
+    )
+    if "Last Verified requires dated or receipt-based freshness evidence" not in "\n".join(
+        stale_verified_from_notes
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject undated old-notes freshness wording"
+        )
+
+    github_creation_approved_receipt = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-076",
+                disposition="GITHUB_CREATION_APPROVED_PENDING",
+                blocking="YES",
+                github_issue="PENDING",
+                carrier="USER approved GitHub issue creation; approval receipt recorded in RAR3 packet 20260620.",
+                decision="Issue mutation remains pending execution until the approved GitHub action is performed.",
+            )
+        ),
+        source="generated GitHub creation pending with completed approval receipt",
+    )
+    if github_creation_approved_receipt:
+        failures.append(
+            "Generated RAR fixture falsely rejected GitHub issue creation with completed USER approval receipt: "
+            + "; ".join(github_creation_approved_receipt[:5])
+        )
+
+    github_creation_not_approved = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-074",
+                disposition="GITHUB_CREATION_APPROVED_PENDING",
+                blocking="YES",
+                github_issue="PENDING",
+                carrier="Issue creation is not approved; no USER approval receipt yet.",
+                decision="No issue mutation may occur because approval is missing.",
+            )
+        ),
+        source="generated GitHub creation pending without positive approval",
+    )
+    if "approved issue creation requires USER approval receipt" not in "\n".join(
+        github_creation_not_approved
+    ):
+        failures.append("Generated RAR fixture did not reject GitHub issue creation pending without positive approval")
+
+    github_creation_future_approval = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-077",
+                disposition="GITHUB_CREATION_APPROVED_PENDING",
+                blocking="YES",
+                github_issue="PENDING",
+                carrier="Approval planned after USER review; USER approval will be requested later.",
+                decision="GitHub issue mutation is expected later but not approved now.",
+            )
+        ),
+        source="generated GitHub creation pending with future approval wording",
+    )
+    if "approved issue creation requires USER approval receipt" not in "\n".join(
+        github_creation_future_approval
+    ):
+        failures.append("Generated RAR fixture did not reject future approval wording for GitHub issue creation")
+
+    repaired_negated_verification = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-088",
+                disposition="REPAIRED_VERIFIED",
+                blocking="NO",
+                carrier="Owner FAM-006; reason repair claimed; carrier FAM-006 RAR repair; trigger regression only",
+                decision="The repair is not independently verified.",
+            )
+        ),
+        source="generated repaired disposition negated verification",
+    )
+    if "repaired disposition requires independent verification evidence" not in "\n".join(
+        repaired_negated_verification
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject repaired disposition with negated verification"
+        )
+
+    no_decision_negated_verification = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-090",
+                disposition="REPAIRED_VERIFIED",
+                blocking="NO",
+                carrier="Owner FAM-006; reason repair claimed; carrier FAM-006 RAR repair; trigger regression only",
+                decision="No current USER decision is needed because the repair is not independently verified.",
+            )
+        ),
+        source="generated no-decision repaired disposition negated verification",
+    )
+    if "repaired disposition requires independent verification evidence" not in "\n".join(
+        no_decision_negated_verification
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject no-decision wording with negated verification"
+        )
+
+    closed_issue_negated_verification = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-089",
+                disposition="MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason issue closed; carrier GitHub issue #275; trigger regression only",
+                decision="The closed issue reconciliation is not independently verified.",
+            )
+        ),
+        source="generated closed issue mapping negated verification",
+        github_snapshot=snapshot("CLOSED"),
+    )
+    if "closed GitHub issue mapping requires independent repair/reconciliation evidence" not in "\n".join(
+        closed_issue_negated_verification
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject closed issue mapping with negated verification"
+        )
+
+    nonblocking_missing_fields = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-023",
+                disposition="DEFERRED_WITH_OWNER",
+                blocking="NO",
+                carrier="Owner FAM-006; reason waits for later work",
+                decision="USER decision is not needed now.",
+            )
+        ),
+        source="generated nonblocking missing carry-forward fields",
+    )
+    if "non-blocking active carry-forward requires" not in "\n".join(
+        nonblocking_missing_fields
+    ):
+        failures.append(
+            "Generated RAR fixture did not reject non-blocking active carry-forward missing carrier/trigger"
+        )
+
+    mapped_open_snapshot_closed = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-024",
+                disposition="MAPPED_OPEN_GITHUB_ISSUE",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason issue remains open; carrier GitHub issue #275; trigger issue closeout review",
+                decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+            )
+        ),
+        source="generated open mapping closed snapshot",
+        github_snapshot=snapshot("CLOSED"),
+    )
+    if "RAR GitHub Issue Mapping Stale" not in "\n".join(mapped_open_snapshot_closed):
+        failures.append(
+            "Generated RAR GitHub fixture did not reject mapped-open candidate when snapshot is closed"
+        )
+
+    mapped_closed_snapshot_open = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-025",
+                disposition="MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason issue closed; carrier GitHub issue #275; trigger regression only",
+                decision="Independent repair evidence verified and reconciled the closed GitHub issue.",
+            )
+        ),
+        source="generated closed mapping open snapshot",
+        github_snapshot=snapshot("OPEN"),
+    )
+    if "RAR GitHub Issue Mapping Stale" not in "\n".join(mapped_closed_snapshot_open):
+        failures.append(
+            "Generated RAR GitHub fixture did not reject mapped-closed candidate when snapshot is open"
+        )
+
+    mapped_open_prefixed_issue_number = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-027",
+                disposition="MAPPED_OPEN_GITHUB_ISSUE",
+                blocking="NO",
+                github_issue="FAM-006 GitHub issue #275",
+                carrier="Owner FAM-006; reason issue remains open; carrier GitHub issue #275; trigger issue closeout review",
+                decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+            )
+        ),
+        source="generated open mapping prefixed issue number",
+        github_snapshot=snapshot("OPEN"),
+    )
+    if mapped_open_prefixed_issue_number:
+        failures.append(
+            "Generated RAR GitHub fixture rejected a # issue number when an earlier FAM number was present: "
+            + "; ".join(mapped_open_prefixed_issue_number[:5])
+        )
+
+    with tempfile.TemporaryDirectory() as snapshot_temp_dir:
+        raw_github_snapshot_path = Path(snapshot_temp_dir) / "github_snapshot_updated_at.json"
+        raw_github_snapshot_path.write_text(
+            json.dumps(
+                {
+                    "275": {
+                        "state": "OPEN",
+                        "updatedAt": "2026-06-25T10:20:30Z",
+                        "source": "gh issue view 275 --json state,updatedAt",
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        raw_github_snapshot = rar_issue_durability.load_github_snapshot(raw_github_snapshot_path)
+        mapped_open_updated_at_snapshot = rar_issue_durability.validate_text(
+            table(
+                row(
+                    "FAM006-RAR-029",
+                    disposition="MAPPED_OPEN_GITHUB_ISSUE",
+                    blocking="NO",
+                    github_issue="#275",
+                    carrier="Owner FAM-006; reason issue remains open; carrier GitHub issue #275; trigger issue closeout review",
+                    decision="Track through open issue #275; owner FAM-006 reviews on trigger when issue closes.",
+                )
+            ),
+            source="generated open mapping raw updatedAt snapshot",
+            github_snapshot=raw_github_snapshot,
+        )
+        if mapped_open_updated_at_snapshot:
+            failures.append(
+                "Generated RAR GitHub fixture rejected gh issue view state/updatedAt snapshot freshness: "
+                + "; ".join(mapped_open_updated_at_snapshot[:5])
+            )
+
+    mapped_closed_snapshot_closed = rar_issue_durability.validate_text(
+        table(
+            row(
+                "FAM006-RAR-026",
+                disposition="MAPPED_CLOSED_GITHUB_ISSUE_RECONCILED",
+                blocking="NO",
+                github_issue="#275",
+                carrier="Owner FAM-006; reason issue closed; carrier GitHub issue #275; trigger regression only",
+                decision="Independent repair evidence verified and reconciled the closed GitHub issue.",
+            )
+        ),
+        source="generated closed mapping closed snapshot",
+        github_snapshot=snapshot("CLOSED"),
+    )
+    if mapped_closed_snapshot_closed:
+        failures.append(
+            "Generated RAR GitHub fixture rejected closed mapping with closed snapshot plus independent reconciliation: "
+            + "; ".join(mapped_closed_snapshot_closed[:5])
+        )
+
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -5193,6 +7276,14 @@ def validate() -> list[str]:
         INVALID_FAMILY_FEATURE_VISION_LIVE_STATE_FIXTURE,
         VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE,
         INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_CARRY_FORWARD_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_USER_DISPOSITIONS_FIXTURE,
+        VALID_RAR_ISSUE_DURABILITY_GITHUB_PENDING_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_PACKETED_ONLY_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_DEFERRED_MISSING_OWNER_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_STALE_GITHUB_CLOSED_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_DUPLICATE_LINEAGE_FIXTURE,
+        INVALID_RAR_ISSUE_DURABILITY_REPAIRED_UNVERIFIED_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -9080,6 +11171,8 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid RAR fixture did not reject required-but-incomplete USER review disposition"
         )
+
+    failures.extend(_validate_rar_issue_candidate_durability_fixtures())
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
     failures.extend(_validate_current_worktree_family_feature_vision_files())

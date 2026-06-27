@@ -27,6 +27,8 @@ DEFAULT_MATRIX = (
     / "pr_review_churn"
     / "pr_276_rar_review_churn_matrix.json"
 )
+DEFAULT_TOTAL_COMMENT_BUDGET = 12
+DEFAULT_SAME_FAMILY_COMMENT_BUDGET = 3
 CONNECTOR_LOGINS = {"chatgpt-codex-connector", "codex"}
 CLASSIFIER_CONTEXT_KEYWORDS = (
     "rar",
@@ -51,6 +53,13 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "unresolved",
     "visual",
     "green",
+    "primary decision surface",
+    "decision surface",
+    "although",
+    "though",
+    "while",
+    "blocked",
+    "not blocked",
 }
 HELPER_FILE_PATTERNS = (
     "validation",
@@ -111,6 +120,37 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         ),
     ),
     FamilyRule(
+        "rar-issue-candidate-durability-parser",
+        (
+            "external-ledger candidate",
+            "external ledger candidate",
+            "external rar issue candidate",
+            "carrying external candidates",
+            "carried candidates",
+            "candidate_id in primary_row_ids",
+            "primary row",
+            "primary packet",
+            "candidate disappearance",
+            "candidate disappeared",
+            "disappeared from active packet",
+            "rar issue candidate disappeared",
+            "renamed-candidate disappearance",
+            "regrouped/renamed-candidate",
+            "external rar candidate",
+            "active packet",
+            "predecessor/successor lineage",
+            "candidate lineage",
+            "no current user decision",
+            "no-decision",
+            "proof negation",
+            "receipt negation",
+            "carrier acceptance",
+            "acceptance receipt",
+            "independent verification",
+            "reason and scope",
+        ),
+    ),
+    FamilyRule(
         "rar-user-packet-proof-parser",
         (
             "user packet",
@@ -125,6 +165,21 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "user adjudication",
             "user review required",
             "route selection",
+            "helper-output",
+            "helper output",
+            "chat-digest",
+            "chat digest",
+            "primary user decision",
+            "primary decision surface",
+            "primary surface",
+            "decision surface",
+            "review aid",
+            "review aids",
+            "copied table",
+            "copied context",
+            "nested path",
+            "nested review",
+            "active gate",
         ),
     ),
     FamilyRule(
@@ -218,6 +273,13 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "covered family",
             "matrix",
             "churn gate",
+            "review-churn budget",
+            "review churn budget",
+            "same-family budget",
+            "same family budget",
+            "total budget",
+            "root-cause receipt",
+            "root cause receipt",
         ),
     ),
     FamilyRule(
@@ -354,7 +416,9 @@ def _load_matrix(path: Path) -> dict[str, Any]:
 
 
 def _normalize(text: str) -> str:
-    return re.sub(r"\s+", " ", text.casefold()).strip()
+    base = re.sub(r"\s+", " ", text.casefold()).strip()
+    separator_normalized = re.sub(r"[-_/]+", " ", base)
+    return f"{base} {separator_normalized}".strip()
 
 
 def _is_connector_login(login: str) -> bool:
@@ -399,10 +463,33 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Comment-family classifier did not classify the classifier guardrail family"
         )
+    same_family_budget_comment = (
+        "Allow same-family-only churn receipts when the same-family budget is exceeded "
+        "even if the total budget is still within limit."
+    )
+    if "pr2-comment-family-classifier" not in _classify_comment(
+        same_family_budget_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify same-family budget receipt drift"
+        )
+    total_budget_comment = (
+        "Allow total-only churn receipts when the total budget is exceeded even if no "
+        "single family exceeds the same-family budget."
+    )
+    if "pr2-comment-family-classifier" not in _classify_comment(total_budget_comment):
+        failures.append(
+            "Comment-family classifier did not classify total budget receipt drift"
+        )
     standalone_unknown = "An unrelated validator message contains the word unknown."
     if _classify_comment(standalone_unknown) != ["unknown"]:
         failures.append(
             "Comment-family classifier overmatched standalone unknown wording"
+        )
+    unrelated_decision_surface = "A settings or migration decision surface changed during backend cleanup."
+    if _classify_comment(unrelated_decision_surface) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated decision-surface wording"
         )
     visual_comment = (
         "A Code-To-Visual row records Visual Match as Mismatch and Behavior Match "
@@ -411,6 +498,76 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-code-to-visual-reference-parser" not in _classify_comment(visual_comment):
         failures.append(
             "Comment-family classifier did not classify code-to-visual comparison drift"
+        )
+    durability_comment = (
+        "Require candidate lineage before carrying external candidates from the "
+        "current external-ledger candidate into the primary packet."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        durability_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify RAR issue-candidate durability lineage drift"
+        )
+    disappeared_comment = (
+        "RAR Issue Candidate Disappeared From Active Packet after packet "
+        "regeneration; candidate disappearance must be treated as durability "
+        "parser coverage, not only a disposition wording issue."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        disappeared_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify active-packet disappearance blocker wording"
+        )
+    no_decision_proof_comment = (
+        "Because validate_text concatenates Proposed Carrier with Exact USER Decision, "
+        "No current USER decision is needed because independent verification revalidated "
+        "the repair can false-red when broad proof negation sees the leading No."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        no_decision_proof_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify no-decision proof negation drift"
+        )
+    no_decision_receipt_comment = (
+        "Scope receipt negation away from no-decision wording because carrier "
+        "acceptance receipt recorded is valid routed-disposition proof."
+    )
+    if "rar-issue-candidate-durability-parser" not in _classify_comment(
+        no_decision_receipt_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify no-decision receipt negation drift"
+        )
+    helper_output_comment = (
+        "Reject helper-output decision tables as primary. START_HERE routes "
+        "to helper output or chat digest, so the packet has no real primary "
+        "USER Review decision surface and the active gate can pass."
+    )
+    helper_output_families = _classify_comment(helper_output_comment)
+    if "rar-user-packet-proof-parser" not in helper_output_families:
+        failures.append(
+            "Comment-family classifier did not classify helper-output/chat-digest primary packet drift"
+        )
+    nested_review_copy_comment = (
+        "Exclude nested review-aid/context copies from primary surfaces. "
+        "When a packet has no active USER Review decision file but a copied "
+        "table sits under a nested path like Review Aids/USER Review or "
+        "Source Truth Context/USER Review, it must not satisfy the primary "
+        "USER decision surface."
+    )
+    if "rar-user-packet-proof-parser" not in _classify_comment(
+        nested_review_copy_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify nested review-aid/context primary packet drift"
+        )
+    unrelated_lineage = "A migration lineage match failed for a database seed."
+    if _classify_comment(unrelated_lineage) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated lineage wording"
         )
     pr_readiness_comment = (
         "A PR Readiness packet is missing review-risk coverage for another "
@@ -424,6 +581,18 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-phase-advancement-parser" in pr_readiness_families:
         failures.append(
             "Comment-family classifier overmatched generic PR Readiness drift as RAR phase advancement"
+        )
+    current_head_latch_comment = (
+        "Current-head green proof accepted even though a later Connector review/comment signal exists."
+    )
+    current_head_latch_families = _classify_comment(current_head_latch_comment)
+    if "pr2-thread-pagination-and-approval-latch" not in current_head_latch_families:
+        failures.append(
+            "Comment-family classifier did not classify hyphenated current-head approval latch drift"
+        )
+    if "rar-phase-advancement-parser" in current_head_latch_families:
+        failures.append(
+            "Comment-family classifier overmatched current-head approval latch drift as RAR phase advancement"
         )
     helper_source = Path(__file__).read_text(encoding="utf-8")
     helper_lines = helper_source.splitlines()
@@ -838,6 +1007,130 @@ def _validate_matrix(
     return failures
 
 
+def _as_int(value: Any, default: int) -> int:
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+    return default
+
+
+def _review_churn_budget_result(
+    matrix: dict[str, Any],
+    pr_number: int,
+    connector_comment_count: int,
+    family_counts: dict[str, int],
+) -> tuple[str, list[str]]:
+    budget = matrix.get("review_churn_budget")
+    if not isinstance(budget, dict):
+        return (
+            "NOT CONFIGURED",
+            ["Review churn matrix missing review_churn_budget"],
+        )
+
+    total_budget = _as_int(
+        budget.get("max_connector_comments_before_root_cause_receipt"),
+        DEFAULT_TOTAL_COMMENT_BUDGET,
+    )
+    same_family_budget = _as_int(
+        budget.get("max_same_family_comments_before_root_cause_receipt"),
+        DEFAULT_SAME_FAMILY_COMMENT_BUDGET,
+    )
+    over_total = connector_comment_count > total_budget
+    over_family = any(count > same_family_budget for count in family_counts.values())
+    if not over_total and not over_family:
+        return (
+            (
+                f"WITHIN BUDGET - connector_comments={connector_comment_count} "
+                f"<= {total_budget}; max_family_count="
+                f"{max(family_counts.values(), default=0)} <= {same_family_budget}"
+            ),
+            [],
+        )
+
+    receipts = budget.get("root_cause_receipts")
+    if not isinstance(receipts, list):
+        return (
+            (
+                f"EXCEEDED WITHOUT RECEIPTS - connector_comments={connector_comment_count}; "
+                f"max_family_count={max(family_counts.values(), default=0)}"
+            ),
+            ["Review churn budget exceeded but root_cause_receipts is missing"],
+        )
+
+    matching_receipts = [
+        receipt
+        for receipt in receipts
+        if isinstance(receipt, dict) and _as_int(receipt.get("pr"), -1) == pr_number
+    ]
+    if not matching_receipts:
+        return (
+            (
+                f"EXCEEDED WITHOUT PR RECEIPT - connector_comments={connector_comment_count}; "
+                f"max_family_count={max(family_counts.values(), default=0)}"
+            ),
+            [f"Review churn budget exceeded but PR #{pr_number} has no root-cause receipt"],
+        )
+
+    failures: list[str] = []
+    receipt = matching_receipts[-1]
+    if _as_int(receipt.get("connector_comments"), -1) != connector_comment_count:
+        failures.append(
+            "Review churn root-cause receipt connector_comments does not match live evidence"
+        )
+    observed_family_counts = receipt.get("observed_family_counts")
+    if observed_family_counts != family_counts:
+        failures.append(
+            "Review churn root-cause receipt observed_family_counts does not match live evidence"
+        )
+    if receipt.get("pr_readiness_stage_1_failure") is not True:
+        failures.append(
+            "Review churn root-cause receipt must mark pr_readiness_stage_1_failure true"
+        )
+    for field in ("root_cause", "prevention_summary", "receipt_marker", "receipt_file"):
+        value = receipt.get(field)
+        if not isinstance(value, str) or not value.strip():
+            failures.append(f"Review churn root-cause receipt missing {field}")
+    preventive_changes = receipt.get("preventive_changes")
+    if not isinstance(preventive_changes, list) or not preventive_changes:
+        failures.append("Review churn root-cause receipt missing preventive_changes")
+    elif any(not isinstance(item, str) or not item.strip() for item in preventive_changes):
+        failures.append("Review churn root-cause receipt preventive_changes contains a blank item")
+
+    receipt_file = receipt.get("receipt_file")
+    receipt_marker = receipt.get("receipt_marker")
+    if isinstance(receipt_file, str) and receipt_file.strip():
+        path = ROOT / receipt_file.replace("\\", "/")
+        if not path.exists():
+            failures.append(f"Review churn root-cause receipt file does not exist: {receipt_file}")
+        elif isinstance(receipt_marker, str) and receipt_marker.strip():
+            text = path.read_text(encoding="utf-8")
+            if receipt_marker not in text:
+                failures.append(
+                    f"Review churn root-cause receipt marker not found in {receipt_file}"
+                )
+
+    if failures:
+        return (
+            (
+                f"EXCEEDED WITH INVALID RECEIPT - connector_comments={connector_comment_count}; "
+                f"max_family_count={max(family_counts.values(), default=0)}"
+            ),
+            failures,
+        )
+
+    return (
+        (
+            f"EXCEEDED WITH ROOT-CAUSE RECEIPT - connector_comments={connector_comment_count}; "
+            f"max_family_count={max(family_counts.values(), default=0)}; "
+            f"receipt={receipt.get('receipt_file')}"
+        ),
+        [],
+    )
+
+
 def build_report(args: argparse.Namespace) -> tuple[int, str]:
     owner, name = _split_repo(args.repo)
     pull_request, threads, page_count = _fetch_review_threads(owner, name, args.pr)
@@ -870,6 +1163,13 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         failures.append("At least one connector review comment was not classified")
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
+    budget_status, budget_failures = _review_churn_budget_result(
+        matrix,
+        args.pr,
+        len(comments),
+        family_counts,
+    )
+    failures.extend(budget_failures)
     green_bound, green_detail = _extract_latest_green(
         owner, name, args.pr, pull_request["headRefOid"], review_comments
     )
@@ -893,6 +1193,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
             f"outdated={thread_counts['outdated']}"
         ),
         f"Connector review comments collected: {len(comments)}",
+        f"Review-churn budget: {budget_status}",
         "Connector family counts:",
     ]
     for family_id, count in family_counts.items():
