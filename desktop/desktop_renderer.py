@@ -1123,12 +1123,17 @@ class NexusGlyphButton(QPushButton):
         painter.setRenderHint(QPainter.Antialiasing, True)
         enabled = self.isEnabled()
         quiet = bool(self.property("quietGlyph"))
+        glyph_zone = bool(self.property("glyphZoneButton"))
+        interactive = self.underMouse() or self.hasFocus() or self.isDown()
         glyph_alpha = 152 if quiet else 226
         disabled_alpha = 58 if quiet else 92
+        if glyph_zone and enabled:
+            glyph_alpha = 222 if interactive else 172
         custom_scale = self.property("glyphScale")
         color = QColor(216, 255, 248, glyph_alpha if enabled else disabled_alpha)
         if self.property("dangerGlyph"):
-            color = QColor(255, 196, 196, (190 if quiet else 226) if enabled else (78 if quiet else 96))
+            danger_alpha = 226 if interactive else (190 if quiet else 226)
+            color = QColor(255, 196, 196, danger_alpha if enabled else (78 if quiet else 96))
         painter.setPen(Qt.NoPen)
         painter.setBrush(color)
         w = self.width()
@@ -2257,6 +2262,10 @@ class ResidentAccessSettingsDialog(QDialog):
             " border: 1px solid rgba(118, 226, 255, 0.20);"
             " border-radius: 10px;"
             "}"
+            "#residentAccessQuickSlotActions:hover {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 32, 50, 0.78), stop:1 rgba(3, 18, 31, 0.74));"
+            " border: 1px solid rgba(153, 246, 228, 0.28);"
+            "}"
             "#residentAccessQuickSlotActions QPushButton {"
             " min-height: 25px;"
             " max-height: 25px;"
@@ -2265,6 +2274,12 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-radius: 8px;"
             " font-size: 11px;"
             " background: transparent;"
+            "}"
+            "#residentAccessQuickSlotActions QPushButton:hover,"
+            "#residentAccessQuickSlotActions QPushButton:focus,"
+            "#residentAccessQuickSlotActions QPushButton:pressed {"
+            " background: transparent;"
+            " border: 1px solid transparent;"
             "}"
             "#residentAccessQuickSlotReorderGroup {"
             " background: transparent;"
@@ -2278,8 +2293,8 @@ class ResidentAccessSettingsDialog(QDialog):
             " padding: 0;"
             "}"
             "#residentAccessQuickSlotReorderGroup QPushButton:hover, #residentAccessQuickSlotReorderGroup QPushButton:focus {"
-            " background: rgba(20, 184, 166, 0.14);"
-            " border: 1px solid rgba(153, 246, 228, 0.30);"
+            " background: transparent;"
+            " border: 1px solid transparent;"
             " color: rgba(236, 254, 255, 0.98);"
             "}"
             "#residentAccessQuickSlotDeleteDivider {"
@@ -2297,12 +2312,12 @@ class ResidentAccessSettingsDialog(QDialog):
             " font-weight: 800;"
             "}"
             "#residentAccessQuickSlotDelete:hover, #residentAccessQuickSlotDelete:focus {"
-            " background: rgba(91, 23, 35, 0.58);"
-            " border: 1px solid rgba(248, 113, 113, 0.56);"
+            " background: transparent;"
+            " border: 1px solid transparent;"
             "}"
             "#residentAccessQuickSlotDelete:pressed {"
-            " background: rgba(127, 29, 29, 0.72);"
-            " border: 1px solid rgba(252, 165, 165, 0.70);"
+            " background: transparent;"
+            " border: 1px solid transparent;"
             "}"
             "#residentAccessQuickSlotDelete:disabled {"
             " background: transparent;"
@@ -2739,8 +2754,9 @@ class ResidentAccessSettingsDialog(QDialog):
             action_cluster = QFrame(row)
             action_cluster.setObjectName("residentAccessQuickSlotActions")
             action_cluster.setAttribute(Qt.WA_StyledBackground, True)
+            action_cluster.setAttribute(Qt.WA_Hover, True)
             action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
-            action_cluster.setProperty("quickSlotActionControlPolicy", "single-capsule-subtle-divider-sharp-glyphs-v42")
+            action_cluster.setProperty("quickSlotActionControlPolicy", "single-capsule-glyph-zones-no-inner-pill-v43")
             action_layout = QHBoxLayout(action_cluster)
             action_layout.setContentsMargins(2, 0, 2, 0)
             action_layout.setSpacing(3)
@@ -2754,6 +2770,7 @@ class ResidentAccessSettingsDialog(QDialog):
             up_button = NexusGlyphButton("up", reorder_group)
             up_button.setObjectName("residentAccessQuickSlotMoveUp")
             up_button.setProperty("quietGlyph", True)
+            up_button.setProperty("glyphZoneButton", True)
             up_button.setProperty("glyphScale", 0.76)
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
             up_button.setFixedSize(22, 25)
@@ -2763,6 +2780,7 @@ class ResidentAccessSettingsDialog(QDialog):
             down_button = NexusGlyphButton("down", reorder_group)
             down_button.setObjectName("residentAccessQuickSlotMoveDown")
             down_button.setProperty("quietGlyph", True)
+            down_button.setProperty("glyphZoneButton", True)
             down_button.setProperty("glyphScale", 0.76)
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
             down_button.setFixedSize(22, 25)
@@ -2779,6 +2797,7 @@ class ResidentAccessSettingsDialog(QDialog):
             delete_button.setObjectName("residentAccessQuickSlotDelete")
             delete_button.setProperty("dangerGlyph", True)
             delete_button.setProperty("quietGlyph", True)
+            delete_button.setProperty("glyphZoneButton", True)
             delete_button.setProperty("glyphScale", 0.76)
             delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
             delete_button.setFixedSize(24, 25)

@@ -657,17 +657,17 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "copy": "up/down reorder; Delete",
         "font": "compact symbolic controls",
         "text": "pale action text",
-        "background": "single dark integrated action capsule",
-        "border": "1px muted cyan shell with subtle divider",
-        "effects": "hover/focus/pressed",
-        "spacing": "22-24px symbolic controls in one 86px capsule",
+        "background": "single dark integrated action capsule; transparent inner glyph zones",
+        "border": "1px muted cyan shell with subtle divider; no inner button pill",
+        "effects": "outer capsule hover plus glyph alpha state",
+        "spacing": "22-24px symbolic glyph zones in one 86px capsule",
         "hitbox": "22-24px compact targets",
         "icon_label": "symbol controls with accessible names",
         "states": "enabled, disabled, pressed feasible",
         "a11y": "Move/Delete Quick Access Slot",
-        "comparator": "compact integrated NDAI row affordance",
-        "proof": "05_row_action_default_disabled_state.png",
-        "checks": "integrated compact quick-slot controls;row actions show disabled state",
+        "comparator": "compact integrated NDAI row affordance without visible inner button pills",
+        "proof": "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png; 14a_glyph_zone_hover_no_inner_pill.png",
+        "checks": "integrated compact quick-slot controls;row actions show disabled state;glyph-zone hover no inner pill proof",
     },
     {
         "id": "F3GS-016",
@@ -1597,6 +1597,7 @@ def _write_fail_capable_defect_ledger(
         "no internal telemetry text",
         "no fake overview/status strip",
         "integrated compact quick-slot controls",
+        "glyph-zone hover no inner pill proof",
         "quick-slot row grouping has no excessive gutter",
         "slot count is placed beside Add Slot",
         "slot count appears once in active surface",
@@ -3147,6 +3148,7 @@ def main() -> int:
                     and 22 <= button.width() <= 28
                     and 24 <= button.height() <= 28
                     and float(button.property("glyphScale") or 0) >= 0.74
+                    and button.property("glyphZoneButton") is True
                 )
                 or (
                     button.objectName() == "residentAccessQuickSlotDelete"
@@ -3154,6 +3156,7 @@ def main() -> int:
                     and 24 <= button.width() <= 32
                     and 24 <= button.height() <= 28
                     and float(button.property("glyphScale") or 0) >= 0.74
+                    and button.property("glyphZoneButton") is True
                 )
                 for button in compact_action_buttons
             )
@@ -3257,7 +3260,7 @@ def main() -> int:
                     and slot_row.findChild(QFrame, "residentAccessQuickSlotActions").width()
                     == dialog.QUICK_SLOT_ACTION_CLUSTER_WIDTH
                     and slot_row.findChild(QFrame, "residentAccessQuickSlotActions").property("quickSlotActionControlPolicy")
-                    == "single-capsule-subtle-divider-sharp-glyphs-v42"
+                    == "single-capsule-glyph-zones-no-inner-pill-v43"
                     and slot_row.findChild(QFrame, "residentAccessQuickSlotDeleteDivider") is not None
                     for slot_row in slot_rows
                 ),
@@ -4054,10 +4057,56 @@ def main() -> int:
             glyph_path,
             artifacts,
             surface="Quick Access row glyph controls",
-            state="filled centered move/delete controls",
+            state="single capsule with transparent inner glyph zones",
         )
         glyph_detail = f"{glyph_path} ({glyph_w}x{glyph_h}); rect={action_rect.getRect()}; action_widget={action_widget.objectName()}"
     rows.append(("glyph/control close-up proof", glyph_ok and glyph_path.exists(), glyph_detail))
+
+    glyph_hover_path = log_dir / "14a_glyph_zone_hover_no_inner_pill.png"
+    glyph_hover_ok = False
+    glyph_hover_detail = "no visible quick-slot action cluster"
+    if action_widgets:
+        action_widget = action_widgets[0]
+        hover_button = action_widget.findChild(QPushButton, "residentAccessQuickSlotDelete") or action_widget.findChild(
+            QPushButton,
+            "residentAccessQuickSlotMoveDown",
+        )
+        if hover_button is not None:
+            QTest.mouseMove(hover_button, hover_button.rect().center())
+            hover_button.setFocus(Qt.FocusReason.MouseFocusReason)
+            app.processEvents()
+            QTest.qWait(40)
+            action_origin = action_widget.mapTo(dialog, QPoint(0, 0))
+            action_rect = QRect(
+                max(0, action_origin.x() - 8),
+                max(0, action_origin.y() - 8),
+                min(dialog.width(), action_widget.width() + 16),
+                min(dialog.height(), action_widget.height() + 16),
+            )
+            glyph_hover_ok, glyph_hover_w, glyph_hover_h = _capture_rect(
+                dialog,
+                action_rect,
+                glyph_hover_path,
+                artifacts,
+                surface="Quick Access row glyph controls",
+                state="hover/focus glyph zone without inner button pill",
+            )
+            glyph_hover_detail = (
+                f"{glyph_hover_path} ({glyph_hover_w}x{glyph_hover_h}); "
+                f"hover_button={hover_button.objectName()}; "
+                f"policy={action_widget.property('quickSlotActionControlPolicy')!r}; "
+                f"zone={hover_button.property('glyphZoneButton')!r}"
+            )
+    rows.append(
+        (
+            "glyph-zone hover no inner pill proof",
+            glyph_hover_ok
+            and glyph_hover_path.exists()
+            and action_widgets
+            and action_widgets[0].property("quickSlotActionControlPolicy") == "single-capsule-glyph-zones-no-inner-pill-v43",
+            glyph_hover_detail,
+        )
+    )
 
     splitter_closeup_path = log_dir / "15_left_pane_resize_affordance_closeup.png"
     splitter_handle = dialog.settings_splitter.handle(1)
@@ -4349,7 +4398,8 @@ def main() -> int:
         ("F3-LV1-UI-061", "USER", "the border of the wuick acces is clipping again, and the indent needs to be more obvious. and fix the clipping", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "border-safe normal/wide left rail with fixed 14px subcategory indent, 112px child pill, 88px child label budget, stable selected/hover border, and compressed horizontal-overflow stress proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-062", "USER", "splitter could not compress the rail far enough to show half of the main category or force horizontal scroll", "04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "76-270px splitter travel with AsNeeded horizontal scroll; compressed rail shows partial parent category and scroll recovery while normal/wide states remain readable", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-063", "USER", "Settings window resize-edge cursor flickered between pointer and resize cursor while other windows were stable", "fam003_settings_visual_fail_repair_manifest.json; 03e_live_user_drag_resized.png", "Settings resize cursor path keeps the no-forced-arrow Windows cursor release and adds a 2px release hysteresis so edge hover is not cleared by tiny no-edge samples", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-064", "USER", "Quick Access row button cluster looked visually out of place and non-immersive", "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png", "row actions render as one integrated 86px capsule with subtle divider and sharper 0.76 glyph scale, avoiding nested boxed controls", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-064", "USER", "Quick Access row button cluster looked visually out of place and non-immersive", "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png", "row actions render as one integrated 86px capsule with subtle divider, transparent inner glyph zones, and sharper 0.76 glyph scale, avoiding nested boxed controls", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-065", "USER", "Quick Access row glyphs were acceptable, but visible gray mini-button pills and button hover highlights inside the capsule broke immersion", "14_glyph_control_closeup.png; 14a_glyph_zone_hover_no_inner_pill.png", "inner action targets are transparent glyph zones; hover/focus/pressed feedback is carried by glyph brightness and the outer capsule, not separate inner button fills", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-001", "USER / ChatGPT", "dirty guard did not prove that close/app close was blocked until Save / Discard / Cancel resolved", "28_four_row_dirty_close_guard_intercept.png; 29_dirty_close_cancel_preserves_window.png; DIRTY_CLOSE_INTERCEPT_MATRIX.md", "close event is ignored while dirty; Cancel keeps the dirty window open; Save persists and closes; Discard drops and closes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-FUNC-002", "USER", "NDAI close keybind/client shutdown could close the app even after dirty guard appeared", "DIRTY_CLOSE_INTERCEPT_MATRIX.md; desktop/orin_desktop_main.py; desktop/desktop_renderer.py", "client shutdown preflight blocks before shutdown_started and resumes only after Save or Discard; Cancel leaves app open", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
