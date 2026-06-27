@@ -1806,6 +1806,7 @@ def main() -> int:
               const thirdCard = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
               const chromeStyle = chrome ? getComputedStyle(chrome) : null;
               const headerCopyStyle = headerCopy ? getComputedStyle(headerCopy) : null;
+              const titleBackingStyle = header ? getComputedStyle(header, "::before") : null;
               const subtitleStyle = subtitle ? getComputedStyle(subtitle) : null;
               const hubStyle = hub ? getComputedStyle(hub) : null;
               const rectFor = (node, extra = 0) => {
@@ -2156,6 +2157,7 @@ def main() -> int:
                 sameWindowFocusedSectionPolicy: surface?.dataset.sameWindowFocusedSectionPolicy || "",
                 defaultWindowWidth: surface?.dataset.defaultWindowWidth || "",
                 defaultWindowHeight: surface?.dataset.defaultWindowHeight || "",
+                titleBackingLayer: surface?.dataset.titleBackingLayer || "",
                 cardOrder: surface?.dataset.dashboardCardOrder || "",
                 cardNames,
                 launchers,
@@ -2180,6 +2182,10 @@ def main() -> int:
                   hubPaddingLeft: hubStyle ? hubStyle.paddingLeft : "",
                   hubPaddingRight: hubStyle ? hubStyle.paddingRight : "",
                   headerPaddingRight: headerCopyStyle ? headerCopyStyle.paddingRight : "",
+                  titleBackingDisplay: titleBackingStyle ? titleBackingStyle.display : "",
+                  titleBackingContent: titleBackingStyle ? titleBackingStyle.content : "",
+                  titleBackingOpacity: titleBackingStyle ? titleBackingStyle.opacity : "",
+                  titleBackingLayerRemoved: Boolean(titleBackingStyle && titleBackingStyle.display === "none"),
                   subtitleHeight: subtitle ? Math.round(subtitle.getBoundingClientRect().height) : 0,
                   subtitleLineHeight: subtitleStyle ? subtitleStyle.lineHeight : "",
                   subtitleLineCount: titleDescriptionWrap.lineCount,
@@ -2866,6 +2872,11 @@ def main() -> int:
         "windowControlEdgeGutterProven": (
             14 <= int(layout_metrics.get("windowControlOuterTopOffset") or 0) <= 17
             and 14 <= int(layout_metrics.get("windowControlOuterRightOffset") or 0) <= 17
+        ),
+        "titleCardBackingLayerRemoved": (
+            dashboard_probe.get("titleBackingLayer") == "single-title-card-no-secondary-backing"
+            and layout_metrics.get("titleBackingLayerRemoved") is True
+            and layout_metrics.get("titleBackingDisplay") == "none"
         ),
         "rowTitleStatusTextSizeParityProven": (
             row_title_sizing_probe.get("rowCount") == 8

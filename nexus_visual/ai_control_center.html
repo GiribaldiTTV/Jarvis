@@ -19,10 +19,17 @@
       --ai-dashboard-title-description-max-width: 100%;
       min-height: 0;
       padding: 12px 16px 10px;
+      border-color: rgba(130, 236, 255, 0.08);
       border-radius: 20px;
       background:
         linear-gradient(150deg, rgba(3, 14, 26, 0.99), rgba(2, 10, 20, 0.975)),
         linear-gradient(90deg, rgba(116, 240, 255, 0.06), transparent 58%);
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.025) inset;
+      backdrop-filter: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group::before {
+      display: none;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__header {
@@ -737,6 +744,7 @@
     data-dashboard-state-model="no-provider-no-prompt-no-memory"
     data-dashboard-warning-controls="visual-non-invasive-only"
     data-dashboard-fake-telemetry-policy="blocked"
+    data-title-backing-layer="single-title-card-no-secondary-backing"
     data-interactive-control-affordance="normal-hover-active-focus-visible-disabled-open-selected"
     data-interactive-control-reliability="first-click-stress-proof-required"
     data-click-interception-diagnostics="z-index-pointer-events-disabled-aria-dom-focus-timing"

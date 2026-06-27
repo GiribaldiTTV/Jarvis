@@ -270,6 +270,7 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "fixedColumnGutterAndUniformValueColumnProven",
     "rowStackVerticalGutterProven",
     "windowControlEdgeGutterProven",
+    "titleCardBackingLayerRemoved",
     "rowTitleStatusTextSizeParityProven",
     "belowTitleTextWeights720Proven",
     "resizeEdgeHitZoneProven",
