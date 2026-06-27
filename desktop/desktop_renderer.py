@@ -11,7 +11,7 @@ import time
 import webbrowser
 from html import escape
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Optional
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -1117,14 +1117,47 @@ class NexusGlyphButton(QPushButton):
         self.setProperty("glyphButton", glyph)
         self.update()
 
+    def enterEvent(self, event):
+        super().enterEvent(event)
+        self._update_glyph_zone_parent()
+
+    def leaveEvent(self, event):
+        super().leaveEvent(event)
+        self._update_glyph_zone_parent()
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        self._update_glyph_zone_parent()
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        self._update_glyph_zone_parent()
+
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        self._update_glyph_zone_parent()
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self._update_glyph_zone_parent()
+
+    def _update_glyph_zone_parent(self) -> None:
+        if bool(self.property("glyphZoneButton")) and self.parentWidget() is not None:
+            self.parentWidget().update()
+        self.update()
+
     def paintEvent(self, event):
-        super().paintEvent(event)
+        glyph_zone = bool(self.property("glyphZoneButton"))
+        if not glyph_zone:
+            super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         enabled = self.isEnabled()
         quiet = bool(self.property("quietGlyph"))
-        glyph_zone = bool(self.property("glyphZoneButton"))
         interactive = self.underMouse() or self.hasFocus() or self.isDown()
+        segment = str(self.property("glyphSegment") or "")
+        if glyph_zone:
+            self._paint_glyph_zone_background(painter, segment, enabled, interactive)
         glyph_alpha = 152 if quiet else 226
         disabled_alpha = 58 if quiet else 92
         if glyph_zone and enabled:
@@ -1166,6 +1199,99 @@ class NexusGlyphButton(QPushButton):
             span = 4.0 * scale
             painter.drawLine(QPoint(int(cx - span), int(cy - span)), QPoint(int(cx + span), int(cy + span)))
             painter.drawLine(QPoint(int(cx + span), int(cy - span)), QPoint(int(cx - span), int(cy + span)))
+
+    def _paint_glyph_zone_background(self, painter: QPainter, segment: str, enabled: bool, interactive: bool) -> None:
+        is_danger = bool(self.property("dangerGlyph")) or segment == "standalone-danger"
+        if is_danger:
+            if not enabled:
+                fill = QColor(148, 163, 184, 38)
+                border = QColor(148, 163, 184, 46)
+            elif self.isDown():
+                fill = QColor(127, 29, 29, 184)
+                border = QColor(252, 165, 165, 188)
+            elif interactive:
+                fill = QColor(91, 23, 35, 178)
+                border = QColor(248, 113, 113, 184)
+            else:
+                fill = QColor(52, 13, 21, 138)
+                border = QColor(248, 113, 113, 128)
+            rect = QRectF(0.5, 0.5, max(0, self.width() - 1), max(0, self.height() - 1))
+            painter.setPen(QPen(border, 1.0))
+            painter.setBrush(fill)
+            painter.drawRoundedRect(rect, 8.0, 8.0)
+            return
+
+        if segment in {"left", "right"}:
+            return
+
+        if not enabled:
+            fill = QColor(148, 163, 184, 34)
+        elif self.isDown():
+            fill = QColor(20, 184, 166, 66)
+        elif interactive:
+            fill = QColor(20, 184, 166, 42)
+        else:
+            return
+
+        rect = QRectF(0, 0, self.width(), self.height())
+        radius = 8.0
+        painter.save()
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(fill)
+        painter.setClipRect(rect)
+        path = QPainterPath()
+        if segment == "left":
+            path.addRoundedRect(QRectF(rect.x(), rect.y(), rect.width() + radius, rect.height()), radius, radius)
+        elif segment == "right":
+            path.addRoundedRect(QRectF(rect.x() - radius, rect.y(), rect.width() + radius, rect.height()), radius, radius)
+        else:
+            path.addRect(rect)
+        painter.drawPath(path)
+        painter.restore()
+
+
+class QuickSlotReorderPill(QFrame):
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        outer = QRectF(0.5, 0.5, max(0, self.width() - 1), max(0, self.height() - 1))
+        inner = QRectF(1.0, 1.0, max(0, self.width() - 2), max(0, self.height() - 2))
+        radius = 8.0
+        full_inner_path = QPainterPath()
+        full_inner_path.addRoundedRect(inner, radius, radius)
+
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(4, 24, 38, 194))
+        painter.drawPath(full_inner_path)
+
+        segments = (
+            ("left", self.findChild(QPushButton, "residentAccessQuickSlotMoveUp"), QRectF(1.0, 1.0, 25.0, 27.0)),
+            ("right", self.findChild(QPushButton, "residentAccessQuickSlotMoveDown"), QRectF(27.0, 1.0, 25.0, 27.0)),
+        )
+        for _role, button, segment_rect in segments:
+            fill = self._segment_fill(button)
+            if fill is None:
+                continue
+            clip_path = QPainterPath()
+            clip_path.addRect(segment_rect)
+            painter.setBrush(fill)
+            painter.drawPath(full_inner_path.intersected(clip_path))
+
+        painter.setPen(QPen(QColor(118, 226, 255, 56), 1.0))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRoundedRect(outer, 8.5, 8.5)
+
+    def _segment_fill(self, button: Optional[QPushButton]) -> Optional[QColor]:
+        if button is None:
+            return None
+        if not button.isEnabled():
+            return QColor(148, 163, 184, 38)
+        if button.isDown():
+            return QColor(20, 184, 166, 70)
+        if button.underMouse() or button.hasFocus():
+            return QColor(20, 184, 166, 46)
+        return None
 
 
 class ResidentAccessSettingsDialog(QDialog):
@@ -2258,70 +2384,74 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: #ffffff;"
             "}"
             "#residentAccessQuickSlotActions {"
-            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(4, 24, 38, 0.72), stop:1 rgba(2, 13, 24, 0.70));"
-            " border: 1px solid rgba(118, 226, 255, 0.20);"
-            " border-radius: 10px;"
-            "}"
-            "#residentAccessQuickSlotActions:hover {"
-            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 32, 50, 0.78), stop:1 rgba(3, 18, 31, 0.74));"
-            " border: 1px solid rgba(153, 246, 228, 0.28);"
+            " background: transparent;"
+            " border: none;"
             "}"
             "#residentAccessQuickSlotActions QPushButton {"
-            " min-height: 25px;"
-            " max-height: 25px;"
+            " min-height: 27px;"
+            " max-height: 27px;"
             " padding: 0;"
-            " border: 1px solid transparent;"
-            " border-radius: 8px;"
+            " border: none;"
+            " border-radius: 0;"
             " font-size: 11px;"
             " background: transparent;"
-            "}"
-            "#residentAccessQuickSlotActions QPushButton:hover,"
-            "#residentAccessQuickSlotActions QPushButton:focus,"
-            "#residentAccessQuickSlotActions QPushButton:pressed {"
-            " background: transparent;"
-            " border: 1px solid transparent;"
             "}"
             "#residentAccessQuickSlotReorderGroup {"
             " background: transparent;"
             " border: none;"
-            " border-radius: 8px;"
+            " border-radius: 9px;"
             "}"
             "#residentAccessQuickSlotReorderGroup QPushButton {"
             " background: transparent;"
-            " border: 1px solid transparent;"
-            " border-radius: 7px;"
+            " border: none;"
+            " border-radius: 0;"
             " padding: 0;"
             "}"
-            "#residentAccessQuickSlotReorderGroup QPushButton:hover, #residentAccessQuickSlotReorderGroup QPushButton:focus {"
+            "#residentAccessQuickSlotMoveUp {"
+            " border-top-left-radius: 8px;"
+            " border-bottom-left-radius: 8px;"
+            "}"
+            "#residentAccessQuickSlotMoveDown {"
+            " border-top-right-radius: 8px;"
+            " border-bottom-right-radius: 8px;"
+            "}"
+            "#residentAccessQuickSlotReorderGroup QPushButton:hover,"
+            "#residentAccessQuickSlotReorderGroup QPushButton:focus {"
             " background: transparent;"
-            " border: 1px solid transparent;"
             " color: rgba(236, 254, 255, 0.98);"
             "}"
-            "#residentAccessQuickSlotDeleteDivider {"
-            " background: rgba(118, 226, 255, 0.18);"
+            "#residentAccessQuickSlotReorderGroup QPushButton:pressed {"
+            " background: transparent;"
+            "}"
+            "#residentAccessQuickSlotReorderGroup QPushButton:disabled {"
+            " background: transparent;"
+            "}"
+            "#residentAccessQuickSlotReorderDivider {"
+            " background: rgba(118, 226, 255, 0.24);"
             " border: none;"
             " min-width: 1px;"
             " max-width: 1px;"
-            " min-height: 16px;"
-            " max-height: 16px;"
+            " min-height: 17px;"
+            " max-height: 17px;"
             "}"
             "#residentAccessQuickSlotDelete {"
             " color: #fecaca;"
             " background: transparent;"
-            " border: 1px solid transparent;"
+            " border: none;"
+            " border-radius: 9px;"
             " font-weight: 800;"
             "}"
             "#residentAccessQuickSlotDelete:hover, #residentAccessQuickSlotDelete:focus {"
             " background: transparent;"
-            " border: 1px solid transparent;"
+            " border: none;"
             "}"
             "#residentAccessQuickSlotDelete:pressed {"
             " background: transparent;"
-            " border: 1px solid transparent;"
+            " border: none;"
             "}"
             "#residentAccessQuickSlotDelete:disabled {"
             " background: transparent;"
-            " border: 1px solid transparent;"
+            " border: none;"
             "}"
             "QComboBox {"
             " background: rgba(2, 12, 24, 0.96);"
@@ -2756,14 +2886,15 @@ class ResidentAccessSettingsDialog(QDialog):
             action_cluster.setAttribute(Qt.WA_StyledBackground, True)
             action_cluster.setAttribute(Qt.WA_Hover, True)
             action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
-            action_cluster.setProperty("quickSlotActionControlPolicy", "single-capsule-glyph-zones-no-inner-pill-v43")
+            action_cluster.setProperty("quickSlotActionControlPolicy", "two-pill-reorder-delete-parent-painted-segment-fill-v47")
             action_layout = QHBoxLayout(action_cluster)
-            action_layout.setContentsMargins(2, 0, 2, 0)
-            action_layout.setSpacing(3)
-            reorder_group = QFrame(action_cluster)
+            action_layout.setContentsMargins(0, 0, 0, 0)
+            action_layout.setSpacing(4)
+            reorder_group = QuickSlotReorderPill(action_cluster)
             reorder_group.setObjectName("residentAccessQuickSlotReorderGroup")
             reorder_group.setAttribute(Qt.WA_StyledBackground, True)
-            reorder_group.setFixedSize(47, 27)
+            reorder_group.setFixedSize(53, 29)
+            reorder_group.setProperty("quickSlotReorderSplitPolicy", "parent-painted-25-1-25-exact-segment-fill-v47")
             reorder_layout = QHBoxLayout(reorder_group)
             reorder_layout.setContentsMargins(1, 1, 1, 1)
             reorder_layout.setSpacing(0)
@@ -2771,36 +2902,39 @@ class ResidentAccessSettingsDialog(QDialog):
             up_button.setObjectName("residentAccessQuickSlotMoveUp")
             up_button.setProperty("quietGlyph", True)
             up_button.setProperty("glyphZoneButton", True)
+            up_button.setProperty("glyphSegment", "left")
             up_button.setProperty("glyphScale", 0.76)
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
-            up_button.setFixedSize(22, 25)
+            up_button.setFixedSize(25, 27)
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             reorder_layout.addWidget(up_button)
+            reorder_divider = QFrame(reorder_group)
+            reorder_divider.setObjectName("residentAccessQuickSlotReorderDivider")
+            reorder_divider.setAttribute(Qt.WA_StyledBackground, True)
+            reorder_divider.setFixedSize(1, 17)
+            reorder_layout.addWidget(reorder_divider)
             down_button = NexusGlyphButton("down", reorder_group)
             down_button.setObjectName("residentAccessQuickSlotMoveDown")
             down_button.setProperty("quietGlyph", True)
             down_button.setProperty("glyphZoneButton", True)
+            down_button.setProperty("glyphSegment", "right")
             down_button.setProperty("glyphScale", 0.76)
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
-            down_button.setFixedSize(22, 25)
+            down_button.setFixedSize(25, 27)
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             reorder_layout.addWidget(down_button)
             action_layout.addWidget(reorder_group)
-            delete_divider = QFrame(action_cluster)
-            delete_divider.setObjectName("residentAccessQuickSlotDeleteDivider")
-            delete_divider.setAttribute(Qt.WA_StyledBackground, True)
-            delete_divider.setFixedSize(1, 16)
-            action_layout.addWidget(delete_divider)
             delete_button = NexusGlyphButton("close", action_cluster)
             delete_button.setObjectName("residentAccessQuickSlotDelete")
             delete_button.setProperty("dangerGlyph", True)
             delete_button.setProperty("quietGlyph", True)
             delete_button.setProperty("glyphZoneButton", True)
+            delete_button.setProperty("glyphSegment", "standalone-danger")
             delete_button.setProperty("glyphScale", 0.76)
             delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
-            delete_button.setFixedSize(24, 25)
+            delete_button.setFixedSize(28, 27)
             delete_button.setEnabled(len(selected_ids) > 1)
             delete_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(delete_button)
