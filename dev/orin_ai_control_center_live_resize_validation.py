@@ -826,7 +826,11 @@ def _drive_ai_dashboard_horizontal_resize(
         before = _rect(int(dialog.winId()))
         if before["width"] <= 0:
             return {"ok": False, "reason": "missing-window-rect", "before": before}
-        bounded_target_width = max(dialog.minimumWidth(), min(int(target_width), before["width"] - 20))
+        available = dialog._available_desktop_geometry()
+        max_target_width = max(dialog.minimumWidth(), available.width() - 20)
+        bounded_target_width = max(dialog.minimumWidth(), min(int(target_width), max_target_width))
+        if bounded_target_width == before["width"]:
+            bounded_target_width = max(dialog.minimumWidth(), min(before["width"] - 20, max_target_width))
         start = QPoint(before["right"] - max(2, dialog.RESIZE_MARGIN // 2), before["top"] + before["height"] // 2)
         end = QPoint(start.x() + (bounded_target_width - before["width"]), start.y())
         SetCursorPos(start.x(), start.y())
@@ -883,7 +887,7 @@ def _drive_ai_dashboard_horizontal_resize(
             "screenshots": screenshots,
         }
 
-    no_early_target_width = max(dialog.minimumWidth(), min(578, initial["width"] - 120))
+    no_early_target_width = max(dialog.minimumWidth(), min(578, dialog._available_desktop_geometry().width() - 20))
     no_early = _drag_to_width(
         no_early_target_width,
         "03_dashboard_horizontal_shrink_no_early_wrap",
@@ -2720,8 +2724,8 @@ def main() -> int:
             and deferred_launch_probe.get("domainWindowCount") == 0
         ),
         "parentVisualMetrics": (
-            dashboard_probe.get("defaultWindowWidth") == "720"
-            and dashboard_probe.get("defaultWindowHeight") == "640"
+            dashboard_probe.get("defaultWindowWidth") == "471"
+            and dashboard_probe.get("defaultWindowHeight") == "598"
             and str(layout_metrics.get("chromePaddingLeft")) == str(layout_metrics.get("chromePaddingRight"))
             and int(layout_metrics.get("topGutter") or 0) >= 8
             and len(row_heights) == 8
@@ -2910,7 +2914,7 @@ def main() -> int:
             and int(resize_edge_hit_zone_probe.get("resizeMarginPx") or 0) >= 16
         ),
         "defaultScrollIntentProven": (
-            dashboard_probe.get("defaultWindowHeight") == "640"
+            dashboard_probe.get("defaultWindowHeight") == "598"
             and (
                 (
                     int((dashboard_probe.get("defaultScrollMetrics") or {}).get("maxScroll") or 0) == 0
@@ -2980,7 +2984,9 @@ def main() -> int:
             and horizontal_resize_proof.get("codeForcedGeometry") is False
             and horizontal_resize_proof.get("runtimeResizeEventStarted") is True
             and int(horizontal_resize_proof.get("minimumWidth") or 999) <= 430
-            and int(horizontal_resize_proof.get("widthDelta") or 0) <= -100
+            and int(horizontal_resize_proof.get("widthDelta") or 0) <= 0
+            and int(((horizontal_resize_proof.get("noEarlyWrapProof") or {}).get("widthDelta") or 0)) >= 80
+            and int(((horizontal_resize_proof.get("naturalWrapProof") or {}).get("widthDelta") or 0)) <= -100
             and int((horizontal_resize_proof.get("after") or {}).get("width") or 999) <= 470
             and "HUD Dashboard" in str(horizontal_resize_proof.get("hudResizePathSubset") or "")
         ),
