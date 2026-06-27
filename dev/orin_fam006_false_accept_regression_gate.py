@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -29,6 +30,7 @@ from orin_fam006_visual_acceptance_target_packet import validate as validate_vis
 
 
 USER_ROOT = Path("C:/Nexus USER")
+REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CURRENT_PACKET = USER_ROOT / "FAM-006"
 EXTERNAL_BRANCH_ROOT = Path(
     "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
@@ -496,6 +498,17 @@ def _find_one(root: Path, pattern: str) -> Path | None:
     return matches[0] if matches else None
 
 
+def _git_output(*args: str) -> str:
+    return subprocess.check_output(
+        ["git", *args],
+        cwd=REPO_ROOT,
+        text=True,
+        stderr=subprocess.STDOUT,
+        encoding="utf-8",
+        errors="replace",
+    ).strip()
+
+
 def _validation_summary_failure_names(data: Any) -> list[str]:
     if not isinstance(data, list):
         return ["validation summary is not a list"]
@@ -511,6 +524,86 @@ def _validation_summary_failure_names(data: Any) -> list[str]:
             continue
         if exit_code != 0:
             failures.append(f"{row.get('name', f'row-{index}')} exit {exit_code}")
+    return failures
+
+
+def _validate_final_clean_identity(root: Path) -> list[str]:
+    failures: list[str] = []
+    validation_outputs = root / "Review Aids" / "Validation Outputs"
+    identity_path = validation_outputs / "git_status_identity.txt"
+    summary_path = validation_outputs / "final_validation_summary.json"
+    primary_paths = sorted((root / "USER Review").glob("*.md")) if (root / "USER Review").is_dir() else []
+    start_here = root / "START_HERE.md"
+
+    try:
+        current_head = _git_output("rev-parse", "HEAD")
+        current_branch = _git_output("branch", "--show-current")
+        current_upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    except Exception as exc:  # noqa: BLE001 - validation reports exact command failure
+        return [f"unable to read current git identity for final-clean packet proof: {exc}"]
+
+    if not identity_path.is_file():
+        failures.append("missing packet-contained git_status_identity.txt final-clean proof")
+    else:
+        identity_text = identity_path.read_text(encoding="utf-8-sig", errors="replace")
+        if current_head not in identity_text:
+            failures.append(
+                "packet-contained git_status_identity.txt does not contain current HEAD "
+                + current_head
+            )
+        if current_branch not in identity_text:
+            failures.append(
+                "packet-contained git_status_identity.txt does not contain current branch "
+                + current_branch
+            )
+        if current_upstream not in identity_text:
+            failures.append(
+                "packet-contained git_status_identity.txt does not contain current upstream "
+                + current_upstream
+            )
+        output_text = identity_text.split("--- OUTPUT ---", 1)[-1]
+        dirty_lines = [
+            line
+            for line in output_text.splitlines()
+            if line.startswith(" M ")
+            or line.startswith("M ")
+            or line.startswith("A ")
+            or line.startswith("D ")
+            or line.startswith("?? ")
+        ]
+        if dirty_lines:
+            failures.append(
+                "packet-contained git_status_identity.txt shows dirty files: "
+                + "; ".join(dirty_lines[:5])
+            )
+
+    if summary_path.is_file():
+        data, error = _read_json(summary_path)
+        if error or not isinstance(data, list):
+            failures.append(f"final_validation_summary.json final-clean proof invalid: {error}")
+        else:
+            identity_rows = [
+                row
+                for row in data
+                if isinstance(row, dict) and row.get("name") == "git_status_identity"
+            ]
+            if len(identity_rows) != 1:
+                failures.append("final_validation_summary.json must contain exactly one git_status_identity row")
+            elif int(identity_rows[0].get("exit", 1)) != 0:
+                failures.append("final_validation_summary.json git_status_identity row is not green")
+    else:
+        failures.append("missing final_validation_summary.json final-clean proof")
+
+    user_text_parts: list[str] = []
+    if start_here.is_file():
+        user_text_parts.append(start_here.read_text(encoding="utf-8-sig", errors="replace"))
+    for primary_path in primary_paths:
+        user_text_parts.append(primary_path.read_text(encoding="utf-8-sig", errors="replace"))
+    user_text = "\n".join(user_text_parts)
+    if current_head not in user_text:
+        failures.append("START_HERE / primary USER review files do not cite current final HEAD " + current_head)
+    if current_branch not in user_text:
+        failures.append("START_HERE / primary USER review files do not cite current branch " + current_branch)
     return failures
 
 
@@ -583,6 +676,7 @@ def _validate_active_packet_consistency(root: Path) -> list[str]:
                     failures.append(
                         "zip_manifest_external.json has null/empty SHA or zero size in active Validation Outputs"
                     )
+    failures.extend(_validate_final_clean_identity(root))
     return failures
 
 
