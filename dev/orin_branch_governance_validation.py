@@ -3119,6 +3119,8 @@ CURRENT_DECISION_SURFACE_POINTER_DOCS = (
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_branch_readiness_planning_fixture_validation.py",
+    "dev/orin_pr_review_churn_validation.py",
+    "dev/orin_rar_issue_candidate_durability_validation.py",
     "dev/orin_worktree_rebaseline_audit.py",
     "dev/orin_validation_suite.py",
     "dev/orin_user_review_bundle.py",
@@ -20452,6 +20454,7 @@ def _standing_governance_intake_file_allowed(path: str) -> bool:
         normalized.startswith("Docs/")
         or normalized.startswith("dev/fixtures/branch_readiness_planning/")
         or normalized.startswith("dev/fixtures/branch_record_live_state_leakage/")
+        or normalized.startswith("dev/fixtures/pr_review_churn/")
         or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
     )
 

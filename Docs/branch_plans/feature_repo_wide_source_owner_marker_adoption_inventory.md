@@ -24,6 +24,7 @@ Marker syntax: `NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=<OWNER>; ledge
 | `dev/orin_worktree_rebaseline_audit.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-CLEANUP-REBINDING-013` | `worktree-rebaseline-audit-helper` | `shared` |
 | `dev/orin_branch_readiness_planning_fixture_validation.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `branch-readiness-planning-fixture-validator` | `shared` |
 | `dev/orin_pr_review_churn_validation.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `pr-review-churn-validation` | `shared` |
+| `dev/orin_rar_issue_candidate_durability_validation.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `rar-issue-candidate-durability-validator` | `shared` |
 | `dev/orin_ai_provider_state_validation.py` | `FAM007-AI` | `SRCOWN-FIRSTPASS-FAM007-AI-007` | `fam007-provider-state-validator` | `shared` |
 | `dev/orin_public_leak_prevention_validation.py` | `FAM007-AI` | `SRCOWN-FIRSTPASS-FAM007-AI-007` | `fam007-public-leak-prevention-validator` | `shared` |
 | `dev/orin_monitoring_hud_surface_validation.py` | `FAM006-HUD` | `SRCOWN-FIRSTPASS-FAM006-HUD-008` | `fam006-hud-surface-validator` | `shared` |

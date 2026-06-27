@@ -54,15 +54,16 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 ## Pattern: PR Review Churn Means Adversarial Coverage Failed
 
 - trigger:
-  an open PR accumulates repeated actionable Codex Connector comments in the same helper, validator, parser, fixture, RAR, UIREF, Product Experience, packet, PR, release, or issue-governance family, especially when each repair closes the latest literal comment while a sibling false-green or false-red appears next
+  an open PR accumulates repeated actionable Codex Connector comments in the same helper, validator, parser, fixture, RAR, UIREF, Product Experience, packet, PR, release, or issue-governance family, total Codex Connector review comments exceed the configured review-churn budget, or each repair closes the latest literal comment while a sibling false-green or false-red appears next
 - layer:
   PR Readiness Stage 1, PR Readiness Stage 2, same-PR repair loops, helper/validator/fixture changes, generated USER packet checks, RAR adoption reviews, UIREF/Product Experience enforcement, and parser-heavy natural-language/Markdown validators
 - root-cause pattern:
-  Codex treats each PR comment as an isolated bug, adds an exact fixture, pushes, and re-requests review without first building a comment-family threat model; the PR bot becomes the first adversarial fuzzer and exposes defects that Stage 1 should have caught
+  Codex treats each PR comment as an isolated bug, adds an exact fixture, pushes, and re-requests review without first building a comment-family threat model; the PR bot becomes the first adversarial fuzzer and exposes defects that Stage 1 should have caught. Resolved review-thread state can hide the upstream PR1 miss unless high-volume churn itself is treated as failed pre-PR prediction.
 - fix pattern:
   stop PR continuation on `Review Churn Root-Cause Gate Active`, build a Review-Comment Pattern Matrix from all same-family comments, identify the missing source-truth rule, parser assumption, helper/validator seam, fixture family, generated mutation/adversarial case, and sibling-risk set, then repair the durable owner and validator harness before any further review request
 - validation pattern:
-  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, every GitHub review-thread page and every pull-review-comment page inspected, total/resolved/unresolved/outdated/unresolved-current thread counts reported, every Codex Connector review comment clustered into a covered family, changed helper/validator/parser file coverage proven, current-head green/approval latch handling that includes Codex Connector thumbs-up reactions when that is the live approval proof, and a final local Codex Connector simulation digest listing remaining sibling risks as cleared, waived, routed, or blocked
+  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, every GitHub review-thread page and every pull-review-comment page inspected, total/resolved/unresolved/outdated/unresolved-current thread counts reported, every Codex Connector review comment clustered into a covered family, changed helper/validator/parser file coverage proven, review-churn budget status reported, exact root-cause receipt proof when the budget is exceeded, current-head green/approval latch handling that includes Codex Connector thumbs-up reactions when that is the live approval proof, and a final local Codex Connector simulation digest listing remaining sibling risks as cleared, waived, routed, or blocked
+  budget and parser precision checks must also include sibling false-red coverage: total-comment budget overruns and same-family budget overruns are independent receipt triggers, and no-decision wording must not negate affirmative proof/receipt text unless the proof or receipt itself is pending, missing, unrecorded, or unverified
 - source references:
   - `Docs/phase_governance.md`
   - `Docs/validation_helper_registry.md`
@@ -182,6 +183,103 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/governance_efficiency_operating_model.md`
   - `Docs/validation_helper_registry.md`
   - `Docs/user_test_summary_guidance.md`
+
+## Pattern: RAR Issue Candidates Become Packeted-Only And Disappear
+
+- symptom:
+  RAR finds owned-surface or previous-branch defects and prepares issue candidates, but a later packet or phase digest treats `packeted only`, `issue candidate packet USER-reviewed`, or copied-context issue tables as closure. The candidate no longer appears as a primary USER decision, has no durable owner/route/GitHub mapping, and can be lost when a newer packet narrows the current branch scope.
+- layer:
+  RAR, active external branch plans, USER packets, GitHub issue-candidate routing, Branch Planning re-entry, PR Readiness, Release Readiness, and issue-governance helper checks
+- root-cause pattern:
+  the RAR packet requirement recorded issue-candidate evidence but did not require stable candidate ID/lineage, durable disposition vocabulary, progression-blocking classification, last GitHub state verification, or active USER-packet carry-forward. Packet generation/reviewability was allowed to behave like disposition, and helper checks focused on marker presence instead of candidate continuity.
+- fix pattern:
+  require the `RAR Issue-Candidate Durability Gate`. Every active candidate must keep a stable ID or lineage fingerprint, owning FAM, surface, element group, defect, evidence pointer, current disposition, blocking status, proposed carrier, GitHub issue state when mapped, last verified source/time, and exact USER decision. Legal exits are repaired and independently verified, USER rejected with reason, USER waived with reason/scope, deferred with durable owner/reason/target/trigger, routed with carrier acceptance receipt, approved for GitHub issue creation pending mutation, mapped to open GitHub issue, or mapped to closed GitHub issue and reconciled against repair evidence. `Packeted only` is transport evidence, not closure.
+- validation pattern:
+  future helpers should fail on `RAR Issue Candidate Durability Missing`, `RAR Issue Candidate Lineage Missing`, `RAR Issue Candidate Durable Disposition Missing`, `RAR Issue Candidate Disappeared From Active Packet`, `RAR Issue Candidate Packeted Only`, `RAR GitHub Issue State Unknown`, `RAR GitHub Issue Mapping Stale`, `Issue Candidate Table Only In Copied Context`, `Deferred Issue Candidate Owner Missing`, `Duplicate Issue Candidate Lineage`, or `Repaired Issue Candidate Verification Missing` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/validation_helper_registry.md`
+
+Follow-up hardening: the executable durability gate must test packet, ledger, and GitHub snapshot parity together, not only scan one Markdown file. A candidate table in `Review Aids` or copied source-truth context is not a primary USER decision surface. Active external-ledger candidates must either appear in the primary packet decision surface or have explicit predecessor/successor lineage; terminal repaired/rejected/waived/closed-reconciled history may remain external/history-only when no current USER decision remains. GitHub issue mappings require read-only open/closed snapshot agreement and independent reconciliation for closed mappings; a parsed but unused snapshot is a false green.
+  - `dev/orin_rar_issue_candidate_durability_validation.py`
+
+## Pattern: Issue Candidates Become GitHub Issue Sprawl
+
+- symptom:
+  RAR, UTS, Live Validation, or Branch Readiness identifies many atomic defects and Codex proposes one GitHub issue per tiny element, or requests issue creation without showing how candidates should be grouped.
+- layer:
+  RAR issue-candidate packets, GitHub issue creation approval, active external branch plans, USER packets, BR1/BR2 successor planning, and PR Readiness fold-down.
+- root-cause pattern:
+  atomic issue-candidate durability was required, but the USER-facing issue-creation decision did not require a consolidation step that groups related defects by owning FAM, surface, defect class, likely repair carrier, and validation path.
+- fix pattern:
+  require the `Issue Candidate Consolidation Gate` before GitHub issue creation is requested. Preserve every atomic candidate ID and lineage, but recommend the fewest coherent GitHub issues that preserve traceability. USER must be able to create, map to existing issue, defer to FAM ledger, split, merge, reject, or waive each group.
+- validation pattern:
+  future helpers should fail on `Issue Candidate Consolidation Missing`, `GitHub Issue Group Without Atomic Traceability`, `Issue Group Missing USER Choice`, or `Issue Mutation Requested Before Consolidation` when machine-checkable.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Reference Standard Vocabulary Collapses Into Ambiguity
+
+- symptom:
+  Codex treats a Vision Contract, accepted reference, screenshot, template, shared primitive, helper output, or validator green as interchangeable proof, then branches either improvise standards silently or assume a reference worked even after repeated repair cycles.
+- layer:
+  Project Vision, Family Vision, Family Feature Vision, UIREF, RAR, BP1/BP2/BP3, Workstream, Hardening, Live Validation, PR Readiness, and future non-UI standard families.
+- root-cause pattern:
+  UIREF created the first durable reference catalog, but the broader Reference Standard lifecycle and no-confusion vocabulary were not stated compactly across phase carrydown.
+- fix pattern:
+  use the Reference Standard lifecycle `Candidate -> USER Review -> Promoted Reference -> Consumed By Branch -> Effectiveness Reviewed -> Updated / Superseded / Deferred`. Keep Vision Contract as broad product law; Reference Standard as detailed comparator; Template as scaffold; Shared Primitive as reusable implementation source. RAR enforces/adopts merged standards but does not create them; BP can identify missing standards; PR Readiness Stage 1 reviews whether standards worked and records repair/supersession/defer candidates.
+- validation pattern:
+  future helpers should fail on `Reference Standard Review Missing`, `Claimed Standard Without USER Promotion`, `Reference Effectiveness Note Missing`, `Reference Standard Repair Candidate Required`, or `Template / Primitive / Reference Collapsed` when machine-checkable.
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/ui_reference_catalog/README.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Future-Proofing Becomes Screenshot-Tuned One-Off Repair
+
+- symptom:
+  Codex fixes the current visible defect with a magic pixel, hardcoded row count, default-size-only layout, one-state proof, or branch-local state assumption, then reports green even though the next same-class row, button, dropdown, status, resize state, backend state, or recovery path would require another rewrite.
+- layer:
+  Project Vision, FAM-002 presentation grammar, UIREF, Reference Standard carrydown, BP2/BP3, Workstream, Hardening, Live Validation, UTS, RAR, PR Readiness, and issue-candidate routing.
+- root-cause pattern:
+  Source truth required deterministic, intuitive, immersive, predictable, reliable, and consistent output, but did not force Codex to name the derivation rule, extension boundary, future-gated items, magic-value justification, template/shared-primitive/reference/source-truth gaps, or reference-effectiveness warnings before implementation and proof.
+- fix pattern:
+  require `Future-Proof Implementation Review` inside existing phases. BP2 names layout and state/runtime derivation rules; BP3 verifies proof coverage; Workstream implements from derivation rather than screenshot tuning or records a gap; Hardening inspects brittle assumptions; Live Validation proves relevant states and same-class extension behavior; RAR prepares issue candidates for old/out-of-scope non-future-proof output; PR Readiness reviews repeated same-class repairs for reference effectiveness failure. Future-proofing must never authorize speculative future feature implementation.
+- validation pattern:
+  future helpers should fail on `Future-Proof Review Missing`, `Future-Proof Proof Plan Missing`, `Magic Value Unjustified`, `Brittle Implementation Unresolved`, `Default-Only Future-Proof Proof`, `One-State Future-Proof Proof`, `Future Scope Implemented By Inference`, `Template Gap Unrouted`, `Shared Primitive Gap Unrouted`, `Reference Gap Unrouted`, `Source-Truth Gap Unrouted`, `Issue Candidate Disposition Missing`, or `Reference Effectiveness Warning Unrouted` when machine-checkable.
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Parallel Branches Invent Conflicting Reference Candidates
+
+- symptom:
+  FAM or Governance worktrees independently propose same-class standards such as token values, font weights, glow/radius/border rules, geometry breakpoints, control-state behavior, backend truth mapping, proof rules, template expectations, or shared-primitive requirements, and each branch assumes its proposal can become the standard because it passed branch-local proof.
+- layer:
+  Reference Standard lifecycle, UIREF, RAR, BR1/BR2, BP1/BP2/BP3, Workstream, Hardening, Live Validation, PR Readiness, external operational state, and future non-UI reference families.
+- root-cause pattern:
+  promoted references correctly live in repo source truth, but candidate proposals lacked a shared external synchronization and collision review model. Branch-local candidate evidence could therefore look authoritative inside one worktree while sibling worktrees proposed incompatible same-class traits.
+- fix pattern:
+  keep promoted Reference Standards in repo catalogs, store branch-owned candidate proposals as external evidence, generate aggregate/collision reports from branch-owned candidates when admitted, and require `Reference Candidate Sync Review` before a branch proposes or consumes same-class standards. Conflicts use the key `Reference Domain + Element / Behavior Class + Trait / State + Applicability Scope` and must produce a USER-reviewable collision row when the branch depends on that standard.
+- validation pattern:
+  future helpers should fail on `Reference Candidate Sync Missing`, `Reference Candidate Collision Unreviewed`, `Reference Candidate Treated As Canon`, `Promoted Reference Moved External`, `Same-Class Candidate Ignored`, `External Candidate Overrides Promoted Reference`, `Candidate Conflict Key Missing`, or `Candidate Promotion Packet Missing` when machine-checkable.
+- source references:
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/ui_reference_catalog/README.md`
+  - `Docs/validation_helper_registry.md`
 
 ## Pattern: PR Auto-Close Keywords Bypass Issue Approval
 
@@ -516,6 +614,26 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `Docs/branch_plans/README.md`
   - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Product Window Geometry Green Claimed From One Size Or Marker Proof
+
+- symptom:
+  A Nexus-owned product window, dashboard, detached child window, settings/tool window, or studio/log surface is reported visually green because it opens, has a marker, or looks acceptable at one default size, while minimum size, wide size, fullscreen/maximize, DPI/display scale, multi-monitor, portrait/narrow monitor, scroll/wrap/truncate/collapse, resize cursor, or sparse wide-state behavior remains unproven or visibly inconsistent with accepted references.
+- layer:
+  FAM-002 presentation standards, UIREF-007 geometry/resize contract, RAR, Branch Planning proof matrices, Hardening, Live Validation, USER packets, and issue-candidate routing
+- root-cause pattern:
+  a branch treats geometry as a secondary visual detail after proving the happy-path surface, or it assumes that a screenshot, helper marker, default-size rendering, hidden bottom-right resize grip, or global zoom behavior is enough. Existing owned surfaces outside the immediate repair sample can remain nonconforming because the packet does not force a full window/surface inventory or issue-candidate disposition.
+- fix pattern:
+  require a `Window Geometry / Resize Matrix` for applicable branches; classify each surface; define minimum/default/maximum/fullscreen policy; prove resize mechanics, breakpoints/reflow, DPI, multi-monitor, content overflow, active content/footer attachment, and accepted-reference comparison; route out-of-scope owned drift to USER-reviewable issue candidates before normal progression; and keep current window coordinates/live state out of repo docs.
+- validation pattern:
+  future helpers should fail on `Window Geometry Contract Missing`, `Window Classification Missing`, `Window Min Default Max Policy Missing`, `Window Fullscreen / Maximize Policy Missing`, `Window Resize Mechanics Proof Missing`, `Resize Cursor / Grip Policy Missing`, `DPI Display Scale Proof Missing`, `Multi-Monitor Geometry Proof Missing`, `Responsive Layout Proof Missing`, `Sparse Wide-State Shell`, `Global Zoom Used As Layout Substitute`, `Detached Child Acceptance Missing`, `Embedded Child Inheritance Unproven`, `Geometry Issue Candidate Missing`, `Marker-Only Geometry Conformance`, or `Repo File-State Tracking` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/family_feature_visions/F2-FF01.md`
+  - `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
   - `Docs/validation_helper_registry.md`
 
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
