@@ -972,6 +972,76 @@ def _require(condition: bool, message: str, failures: list[str]) -> None:
         failures.append(message)
 
 
+def _validate_local_ai_readiness_report(payload: dict[str, object], failures: list[str]) -> None:
+    report = payload.get("localAiReadinessReport")
+    _require(isinstance(report, dict), "local AI readiness report payload must exist", failures)
+    if not isinstance(report, dict):
+        return
+    _require(
+        report.get("schemaVersion") == ai_provider_state.LOCAL_AI_READINESS_REPORT_SCHEMA_VERSION,
+        "local AI readiness report schema mismatch",
+        failures,
+    )
+    _require(
+        report.get("state") == ai_provider_state.LOCAL_AI_READINESS_REPORT_STATE_READY,
+        "local AI readiness report must be report-ready",
+        failures,
+    )
+    _require(report.get("providerVisibleData") == "none", "local AI readiness report provider-visible data must be none", failures)
+    _require(report.get("sentToProvider") is False, "local AI readiness report must not send to provider", failures)
+    _require(report.get("canAcceptPrompts") is False, "local AI readiness report must not accept prompts", failures)
+    _require(
+        report.get("promptSendPosture") == ai_provider_state.PROMPT_SEND_POSTURE_DISABLED,
+        "local AI readiness report prompt send must remain disabled",
+        failures,
+    )
+    _require(
+        report.get("networkEgressState") == ai_provider_state.NETWORK_EGRESS_BLOCKED,
+        "local AI readiness report network egress must remain blocked",
+        failures,
+    )
+    _require(
+        report.get("memoryIndexingState") == ai_provider_state.MEMORY_INDEXING_DISABLED,
+        "local AI readiness report memory indexing must remain disabled",
+        failures,
+    )
+    _require(
+        report.get("copyMode") == ai_provider_state.LOCAL_AI_READINESS_REPORT_COPY_MODE,
+        "local AI readiness report copy mode must be clipboard-only and USER initiated",
+        failures,
+    )
+    _require(
+        report.get("persistence") == ai_provider_state.LOCAL_AI_READINESS_REPORT_PERSISTENCE,
+        "local AI readiness report must be view-only with no file persistence",
+        failures,
+    )
+    for key, minimum in (
+        ("readyConditions", 3),
+        ("missingRequirements", 3),
+        ("blockedPaths", 4),
+        ("localEvidenceChecked", 4),
+        ("safeNextSteps", 3),
+        ("trustBoundaries", 4),
+    ):
+        value = report.get(key)
+        _require(
+            isinstance(value, (list, tuple)) and len(value) >= minimum,
+            f"local AI readiness report {key} must include at least {minimum} item(s)",
+            failures,
+        )
+    useful_outcome = str(report.get("usefulOutcome", ""))
+    _require("USER can decide" in useful_outcome, "local AI readiness report must state a useful USER outcome", failures)
+    blocked_text = " ".join(str(item) for item in report.get("blockedPaths", ()))
+    for needle in (
+        "Provider/model execution",
+        "Prompt send",
+        "Downloads",
+        "Runtime cache",
+        "Private Developer/Owner setup",
+    ):
+        _require(needle in blocked_text, f"local AI readiness report blocked paths missing {needle}", failures)
+
+
 def _validate_owner_ai_operational_foundation_gates_state(
     state: dict[str, object], failures: list[str]
 ) -> None:
@@ -3193,6 +3263,7 @@ def validate() -> list[str]:
         omit_record=True,
         omit_config=True,
     )
+    _validate_local_ai_readiness_report(default_setup_completion_snapshot.as_renderer_payload(), failures)
     missing_config_setup_completion_snapshot = _setup_completion_snapshot(
         _durable_consent_record(setup_consent_granted=True),
         setup_completion_config=None,
@@ -3645,6 +3716,7 @@ def validate() -> list[str]:
     js = _read("nexus_visual/orin_core.js")
     ai_control_html = _read("nexus_visual/ai_control_center.html")
     ai_control_js = _read("nexus_visual/ai_control_center.js")
+    live_resize_helper = _read("dev/orin_ai_control_center_live_resize_validation.py")
     monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
     ai_control_renderer = "\n".join(
         (
@@ -3678,6 +3750,45 @@ def validate() -> list[str]:
     continuation_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md"
     )
+
+    normalized_renderer = renderer.replace("\r\n", "\n")
+
+    def _require_resize_cursor_no_forced_arrow_release(function_name: str) -> None:
+        marker = f"    def {function_name}"
+        start = normalized_renderer.find(marker)
+        _require(start >= 0, f"desktop renderer is missing {function_name}", failures)
+        if start < 0:
+            return
+        next_def = normalized_renderer.find("\n    def ", start + 1)
+        body = normalized_renderer[start : next_def if next_def >= 0 else len(normalized_renderer)]
+        guard_index = body.find("if not edges:\n            return")
+        cursor_api_index = body.find("LoadCursorW")
+        _require(
+            "resize-cursor-no-forced-arrow-release" in body,
+            f"{function_name} must carry the no-forced-arrow release marker",
+            failures,
+        )
+        _require(
+            guard_index >= 0,
+            f"{function_name} must return when no resize edge is active",
+            failures,
+        )
+        _require(
+            cursor_api_index >= 0,
+            f"{function_name} must own the Windows cursor API call",
+            failures,
+        )
+        _require(
+            0 <= guard_index < cursor_api_index,
+            f"{function_name} must avoid LoadCursorW when no resize edge is active",
+            failures,
+        )
+
+    for cursor_helper in (
+        "_apply_ai_control_center_windows_resize_cursor",
+        "_apply_monitoring_hud_windows_resize_cursor",
+    ):
+        _require_resize_cursor_no_forced_arrow_release(cursor_helper)
 
     _require(snapshot.package_id == PACKAGE_ID, "snapshot must remain in PKG-007", failures)
     _require(snapshot.slice_ids == (SLC_017_ID, SLC_018_ID), "snapshot must carry SLC-017 and SLC-018", failures)
@@ -8181,6 +8292,46 @@ def validate() -> list[str]:
             failures,
         )
         _require(
+            setup_completion_payload["aiControlCenterDiagnosticsSchemaVersion"]
+            == ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTICS_SCHEMA_VERSION
+            and setup_completion_payload["aiControlCenterDiagnosticState"]
+            == ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED
+            and setup_completion_payload["aiControlCenterDiagnosticLabel"]
+            == "No provider configured; fail-closed"
+            and setup_completion_payload["aiControlCenterProviderBoundaryLabel"]
+            == "Provider boundary: blocked"
+            and setup_completion_payload["aiControlCenterBlockedActionLabel"]
+            == "Prompt/provider/model action blocked"
+            and setup_completion_payload["aiControlCenterUnavailableCapabilityLabel"]
+            == "Capability packs unavailable"
+            and setup_completion_payload["aiControlCenterRecoveryLabel"]
+            == "Retry local check only"
+            and setup_completion_payload["aiControlCenterDegradedPathLabel"]
+            == "Local guidance only",
+            f"{label} setup-completion fixture must expose AI Control Center diagnostic copy",
+            failures,
+        )
+        diagnostic_states = {
+            item.get("state")
+            for item in setup_completion_payload["aiControlCenterStateTaxonomy"]
+        }
+        _require(
+            diagnostic_states
+            == {
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_PROVIDER_UNAVAILABLE,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_STALE_STATE,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_FAILED_CHECK,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_RETRY_LOCAL_ONLY,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_RECOVERY_LOCAL_ONLY,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_BLOCKED_ACTION,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_UNAVAILABLE_CAPABILITY,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_DEGRADED_NO_PROVIDER,
+            },
+            f"{label} setup-completion fixture must publish the complete AI Control Center diagnostic taxonomy",
+            failures,
+        )
+        _require(
             setup_completion_payload["capabilityPackEligibilityLabel"]
             == "Capability-pack eligibility: blocked until local capability proof",
             f"{label} setup-completion fixture must visibly disclose blocked capability-pack eligibility",
@@ -8854,16 +9005,16 @@ def validate() -> list[str]:
         "removed-webview-owned-specimen",
         "WINDOW_STATE_FILENAME",
         "ai_control_center_window_state.json",
-        "DEFAULT_WIDTH = 570",
-        "DEFAULT_HEIGHT = 610",
-        "DEFAULT_MAX_HEIGHT = 820",
+        "DEFAULT_WIDTH = 471",
+        "DEFAULT_HEIGHT = 598",
+        "DEFAULT_MAX_HEIGHT = 680",
         "DEFAULT_SCREEN_MARGIN_X = 96",
-        "DEFAULT_SCREEN_MARGIN_Y = 126",
-        "MINIMUM_WIDTH = 440",
-        "MINIMUM_HEIGHT = 540",
-        "RESIZE_MARGIN = 14",
+        "DEFAULT_SCREEN_MARGIN_Y = 80",
+        "MINIMUM_WIDTH = 430",
+        "MINIMUM_HEIGHT = 520",
+        "RESIZE_MARGIN = 16",
         "DRAG_HEADER_HEIGHT = 190",
-        "WINDOW_CONTROL_ZONE_TOP = 14",
+        "WINDOW_CONTROL_ZONE_TOP = 15",
         "WINDOW_CONTROL_ZONE_RIGHT = 15",
         "WINDOW_CONTROL_ZONE_WIDTH = 60",
         "WINDOW_CONTROL_ZONE_HEIGHT = 30",
@@ -8889,6 +9040,9 @@ def validate() -> list[str]:
         "GetAsyncKeyState",
         "AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED",
         "AI_CONTROL_CENTER_WINDOW_RESIZE_READY",
+        "resize-cursor-no-forced-arrow-release",
+        "_apply_ai_control_center_windows_resize_cursor",
+        "if not edges:",
         "self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)",
         "self.resize(self.DEFAULT_WIDTH, self.DEFAULT_HEIGHT)",
         "ai-control-center-window-geometry",
@@ -8993,6 +9147,17 @@ def validate() -> list[str]:
         "monitoring-hud__surface-role-copy",
         "width: fit-content",
         "max-width: 100%",
+        "flex-wrap: wrap",
+        "min-width: max-content",
+        "data-title-status-wrap=\"group-preserving-atomic-flex-wrap\"",
+        "data-title-description-wrap=\"measured-title-card-prose-word-wrap\"",
+        "--ai-dashboard-title-description-max-width",
+        "max-width: var(--ai-dashboard-title-description-max-width, 100%)",
+        "white-space: normal",
+        "overflow-wrap: normal",
+        "word-break: normal",
+        'data-title-description-wrap="measured-title-card-prose-word-wrap"',
+        "data-row-title-sizing=\"max-label-content-fixed-gutter\"",
         "monitoring-hud__control-hub",
         "monitoring-hud__hub-card",
         "monitoring-hud__hub-card-topline",
@@ -9005,17 +9170,43 @@ def validate() -> list[str]:
         'data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"',
         'data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"',
         'data-single-action-button-model="content-fit-fixed-height-ellipsis"',
-        'data-default-window-width="570"',
-        'data-default-window-height="610"',
-        'data-default-window-max-height="820"',
+        'data-default-window-width="471"',
+        'data-default-window-height="598"',
+        'data-default-window-max-height="680"',
         'data-window-restore-policy="disabled-until-fam003-reset-control"',
         'data-window-memory-policy="restart-memory-disabled"',
         'data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"',
         'data-window-control-cluster="compact-minimize-maximize-close"',
         'data-dashboard-close-layout="compact-window-control-cluster"',
         'data-dashboard-close-affordance="window-level-control-cluster"',
+        'data-title-backing-layer="single-title-card-no-secondary-backing"',
         'data-scrollbar-style="nexus-rounded-custom-overlay"',
         'data-row-density="compact-asymmetric-separated"',
+        'data-dashboard-card-order="status-trust-readiness-diagnostics-capabilities-maintenance"',
+        'data-dashboard-ia-model="ai-dashboard-parent-only-global-strip-category-cards-detached-child-windows-deferred"',
+        'data-dashboard-surface-model="hub-only-cards-are-doorways"',
+        'data-dashboard-inline-work-policy="no-local-check-no-report-no-diagnostics-inline"',
+        'data-category-card-launcher-contract="cards-show-deferred-doorway-controls-no-detached-window-launch"',
+        'data-child-window-model="detached-child-windows-deferred-not-accepted-current-gate"',
+        'data-same-window-focused-section-policy="blocked-as-dashboard-workspace-substitute"',
+        'data-dashboard-visible-name="AI Dashboard"',
+        'data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"',
+        'data-global-ai-strip="compact-truth-state-no-provider-no-execution"',
+        'data-below-title-text-weight="720-standard"',
+        'data-row-label-column-source="max-visible-label-content"',
+        'data-row-value-gutter="8"',
+        'data-settings-route="option-b-deferred-until-fam003-global-settings-window"',
+        'data-maintenance-updates-placement="lifecycle-domain-doorway-no-download-install-update-execution"',
+        'data-dashboard-hub-group="ai-dashboard-domain-doorways"',
+        'data-category-doorway="control-center"',
+        'data-category-doorway="readiness-diagnostics"',
+        'data-category-doorway="capabilities-maintenance"',
+        'data-action-state="deferred"',
+        'data-launch-target="deferred"',
+        'data-launch-window-kind="deferred-detached-child"',
+        'data-target-window-classification="deferred-detached-child"',
+        'data-card-does-not-contain="local-check-report-copy-results-diagnostics-body"',
+        'data-card-does-not-contain="download-install-update-fetch-execution"',
         "ai-control-center-scrollbar",
         "ai-control-center-scrollbar__thumb",
         'data-native-resize-model="os-edge-corner-resize"',
@@ -9032,29 +9223,59 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-card-description",
         "font-size: 10px",
         "font-size: 11px",
-        "text-indent: 42px",
-        "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
+        "text-indent: 0;",
+        "--ai-dashboard-chrome-padding: 12px",
+        ".monitoring-hud__title-group::before",
+        "backdrop-filter: none",
+        "top: 15px",
+        "right: 15px",
+        "--ai-dashboard-row-gutter: 8px",
+        "--ai-dashboard-row-vertical-gutter: 6px",
+        "--ai-dashboard-row-label-width: 0px",
+        "--ai-dashboard-row-label-column-contract: measured-max-visible-label-content-px",
+        "grid-template-columns: var(--ai-dashboard-row-label-width, 0px) minmax(0, 1fr)",
+        "column-gap: var(--ai-dashboard-row-gutter, 8px)",
+        "gap: var(--ai-dashboard-row-vertical-gutter, 6px)",
+        "max-width: none",
+        "font-weight: 720",
         "padding: 4px 0 2px",
         "scrollbar-width: none",
         "border-radius: 999px",
         "::-webkit-scrollbar-button",
         "background: rgba(108, 232, 255, 0.58)",
-        "AI Control Center",
-        "ORIN Status",
-        "Local Safety Check",
-        "Run Local Check",
-        "Minimize AI Control Center",
-        "Maximize or restore AI Control Center hidden until future implementation",
-        "Close AI Control Center",
-        "ORIN is not implemented; provider/model execution is not active.",
-        "Not implemented; no real AI executing",
+        "AI Dashboard",
+        "AI Persona",
+        "AI Readiness",
+        "Capabilities",
+        "Not Available Yet",
+        "Global AI Strip",
         "None",
-        "Disabled and blocked",
+        "AI Persona",
+        "Persona state before any AI action.",
+        "None; ORIN persona not implemented",
+        "Blocked; no model path active",
+        "Privacy",
+        "Protected; no provider or third-party tracking",
+        "Local checks and diagnostics doorway.",
+        "Check",
+        "Waiting for USER action",
+        "Report",
+        "Local decision aid behind diagnostics",
+        "Prompt",
         "Not accepted, sent, stored, or indexed",
-        "Provider data",
+        "Packs and updates stay blocked.",
+        "Packs",
         "Install blocked; downloads disabled",
-        "Public only; Developer and Owner gated",
-        "Waiting for local action",
+        "Updates",
+        "Future-gated; no install execution",
+        "Minimize AI Dashboard",
+        "Maximize or restore AI Dashboard hidden until future implementation",
+        "Close AI Dashboard",
+        "AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine.",
+        "AI is not implemented;",
+        "provider/model execution is blocked,",
+        "and no prompt, file, memory, telemetry,",
+        "or provider data leaves this machine.",
     ):
         _require(
             needle in ai_control_html,
@@ -9062,8 +9283,69 @@ def validate() -> list[str]:
             failures,
         )
 
+    for selector in (
+        'body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row span',
+        'body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span',
+    ):
+        marker = f"{selector} {{"
+        block = ai_control_html.split(marker, 1)[1].split("}", 1)[0] if marker in ai_control_html else ""
+        _require(
+            "font-size: 11px" in block and "font-size: 10px" not in block and "font-weight: 720" in block,
+            f"AI Control Center row title selector must match status text size at 11px and weight 720: {selector}",
+            failures,
+        )
+
     for forbidden in (
         "width: 210px",
+        "@media (max-width: 580px)",
+        "max-width: 270px",
+        "max-width: 600px",
+        "grid-template-columns: fit-content(112px) minmax(0, 1fr)",
+        "max-width: 112px",
+        'data-dashboard-ia-model="top-level-orin-status-then-diagnostics-readiness-trust-group"',
+        'data-dashboard-hub-group="ai-diagnostics-readiness-trust"',
+        'data-dashboard-card-order="active-ai-ai-control-center-ai-readiness-diagnostics-trust-provider-capabilities-maintenance"',
+        'data-dashboard-ia-model="ai-dashboard-global-strip-category-cards-launch-focused-domain-surfaces"',
+        'data-category-card-launcher-contract="cards-contain-launchers-domain-surfaces-house-work"',
+        'data-dashboard-ia-model="ai-dashboard-global-strip-category-cards-launch-real-child-domain-windows"',
+        'data-category-card-launcher-contract="cards-contain-launchers-real-child-domain-windows-house-work"',
+        'data-child-window-model="dashboard-launchers-open-exclusive-or-external-unique-windows"',
+        'data-category-launcher="control-center"',
+        'data-category-launcher="readiness-diagnostics"',
+        'data-category-launcher="capabilities-maintenance"',
+        'data-launch-target="control-center-child-window"',
+        'data-launch-target="readiness-diagnostics-child-window"',
+        'data-launch-target="capabilities-maintenance-child-window"',
+        '<span class="monitoring-hud__button-label">Open Control Center</span>',
+        '<span class="monitoring-hud__button-label">Open Diagnostics</span>',
+        '<span class="monitoring-hud__button-label">Open Capabilities</span>',
+        "Refined D/E target: compact AI truth, grouped doorways, and polished row grammar.",
+        'data-focused-surface=',
+        'data-domain-surface=',
+        'data-launch-target="ai-control-center-readiness-detail"',
+        'data-launch-target="ai-control-center-control-surface"',
+        'data-launch-target="ai-control-center-maintenance-detail"',
+        "Active AI",
+        "Trust & Provider",
+        "Settings future-gated.",
+        'id="ai-dashboard-settings-action"',
+        'id="ai-dashboard-settings-tooltip"',
+        "ai-dashboard-settings-cog",
+        "ai-dashboard-settings-tooltip",
+        'data-dashboard-utility-row="settings-route"',
+        'data-settings-state="future-gated-visual-only"',
+        'data-settings-visual-acceptance="candidate-a-visible-title-strip-trailing"',
+        'data-settings-behavior="future-gated-no-window-open"',
+        '<span class="monitoring-hud__button-label">Open</span>',
+        'id="ai-control-center-capability-packs"',
+        'id="ai-control-center-maintenance-updates"',
+        'id="ai-control-center-edition-lanes"',
+        'id="ai-control-center-unavailable-capability"',
+        "AI Readiness / Focused Detail",
+        'id="ai-control-center-local-check-action"',
+        'id="ai-control-center-generate-report-action"',
+        'id="ai-control-center-copy-report-action"',
+        "Local checks and reports stay grouped here; heavier future diagnostics remain child or drill-down work.",
         'id="ai-control-center-local-check-action"\n              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action"',
         "setFixedSize(250, 36)",
         "line-height: 1.22",
@@ -9088,12 +9370,113 @@ def validate() -> list[str]:
         "setAttribute('title'",
         ".title =",
         ".title=",
-        "data-tooltip",
         "aria-describedby",
     ):
         _require(
             forbidden not in ai_control_html and forbidden not in ai_control_js,
             f"AI Control Center must not define current tooltip hooks; explicit tooltip UX is future-gated: {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
+        "self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)",
+        "self.setAttribute(Qt.WA_TranslucentBackground, True)",
+        'self.setProperty("ndaiNativeChrome", True)',
+        'self.setProperty("genericOsChromeRejected", True)',
+        'data-ndai-native-chrome="true"',
+        'data-generic-os-chrome="rejected"',
+        'data-window-control-cluster="compact-minimize-close"',
+        'data-domain-command="window-minimize"',
+        'data-domain-command="window-close"',
+        'command == "window-minimize"',
+        'command == "window-close"',
+    ):
+        _require(
+            needle in renderer,
+            f"AI Dashboard child/domain window native chrome contract is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "os-cursor-webview-coordinate",
+        "SetCursorPos",
+        "mouse_event",
+        "duplicateFullDesktopProof",
+        '"fullDesktopProofNotDuplicated"',
+        '"dashboardHubParentOnly"',
+        '"doorwayButtonsDeferredNoFakeActions"',
+        '"parentVisualMetrics"',
+        '"returnedDensityAndButtonPlacementRepaired"',
+        '"returnedTitleSubtitleWrapRepaired"',
+        '"titleDescriptionProseWordWrapProven"',
+        '"titleDescriptionWindowsCursorProseWrapProven"',
+        '"acceptedReferenceComparisonProven"',
+        '"exhaustiveMainRuntimeVisualGrammarComparisonProven"',
+        '"deterministicStatusRowsAndTitlePill"',
+        '"titleStatusPillGroupWrapProven"',
+        '"titleStatusPillNoEarlyWrapAt580Proven"',
+        '"titleStatusPillWindowsCursorWrapProven"',
+        '"deterministicTitleColumnSizingProven"',
+        '"sharedStatusValueColumnProven"',
+        '"rowStackVerticalGutterProven"',
+        '"rowTitleStatusTextSizeParityProven"',
+        '"belowTitleTextWeights720Proven"',
+        '"labelValueFontSizeParity"',
+        '"valueColumnDerivedFromLabelContent"',
+        '"valueColumnDerivedFromMaxLabelContent"',
+        '"declaredLabelColumnMatchesMeasuredMax"',
+        '"fixedColumnGutterAndUniformValueColumnProven"',
+        '"fixedColumnGutterRestored"',
+        '"uniformValueColumnOffset"',
+        '"uniformValueLeftEdge"',
+        '"rowVerticalGutterRestored"',
+        '"rowStackMetrics"',
+        '"windowControlEdgeGutterProven"',
+        '"titleCardBackingLayerRemoved"',
+        '"rowTypography.labelValueFontSizeParity"',
+        '"resizeEdgeHitZoneProven"',
+        '"dashboardHorizontalResizeMinimumWorks"',
+        '"windows-cursor-left-button-drag"',
+        '"codeForcedGeometry"',
+        '"runtimeResizeEventStarted"',
+        '"proofPathVariant"',
+        '"noEarlyWrapProof"',
+        '"naturalWrapProof"',
+        "15_title_status_pill_no_early_wrap_windows_cursor_resize",
+        "16_title_status_pill_wrapped_windows_cursor_resize",
+        '"settingsCogRemovedAndDeferred"',
+        '"settingsOptionBSelectionDispositionProven"',
+        '"proofCrops"',
+        '"visualComparisonBoards"',
+        '"visualGrammarAudit"',
+        "_write_settings_option_b_disposition",
+        "_drive_ai_dashboard_horizontal_resize",
+        "_write_visual_grammar_audit",
+        '"resizeEdgeHitZoneProbe"',
+        "_capture_main_runtime_ai_control_center_reference",
+        "main-worktree-old-ai-control-center-runtime",
+        "currentVsMainRuntimeOldAiControlCenter",
+        "MAIN GREEN - Nexus Desktop AI Launcher.lnk",
+        '"runtimeCopyIsProductFacing"',
+        '"settingsTooltipProbe"',
+        '"settingsOptionBDisposition"',
+        '"deferredLaunchProbe"',
+    ):
+        _require(
+            needle in live_resize_helper,
+            f"AI Dashboard live parent-only helper is missing proof-hardening check {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "20260624-162154-child-window",
+        "20260615-081438",
+        "currentVsPr269Density",
+        "pr269AiControlCenterDensitySeed",
+    ):
+        _require(
+            forbidden not in live_resize_helper,
+            f"AI Dashboard live parent-only helper must not use branch-era AI Control Center proof as accepted comparator: {forbidden!r}",
             failures,
         )
 
@@ -9115,6 +9498,9 @@ def validate() -> list[str]:
         "blocked",
         "active",
         "syncCustomScrollbar",
+        "syncTitleDescriptionWrap",
+        "title-card-inner-content-width-px",
+        "measured-title-card-prose-word-wrap",
         "customScrollbarVisible",
         "run-local-check",
         "minimize",
@@ -9124,6 +9510,12 @@ def validate() -> list[str]:
         "No provider configured",
         "No prompt, file, memory, telemetry, or provider config is sent.",
         "provider-visible data remains none",
+        "No provider configured; fail-closed",
+        "Provider boundary: blocked",
+        "Prompt/provider/model action blocked",
+        "Capability packs unavailable",
+        "Retry local check only",
+        "Local guidance only",
     ):
         _require(
             needle in ai_control_js,
@@ -9139,6 +9531,8 @@ def validate() -> list[str]:
         "waiting for local action",
         ">none<",
         "No prompt, file, screen, memory, or telemetry is sent.",
+        "monitoring-hud__subtitle-group",
+        "group-preserving-measured-title-card-flex-wrap",
     ):
         _require(
             forbidden not in ai_control_html and forbidden not in ai_control_js,
@@ -9182,7 +9576,6 @@ def validate() -> list[str]:
         "WINDOW_STATE_SCHEMA_VERSION = 6",
         "WINDOW_STATE_SCHEMA_VERSION = 7",
         "DEFAULT_WIDTH = 780",
-        "DEFAULT_HEIGHT = 820",
         "DEFAULT_HEIGHT = 700",
         "DEFAULT_HEIGHT = 652",
         "DEFAULT_HEIGHT = 565",

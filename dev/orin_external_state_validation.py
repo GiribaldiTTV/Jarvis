@@ -885,6 +885,73 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
     return issues
 
 
+def validate_fam007_workstream_visual_acceptance_gate(root: Path) -> list[str]:
+    issues: list[str] = []
+    branch_root = root / "branches" / "feature_fam_007_ai_control_center_readiness_diagnostics"
+    branch_state = branch_root / "branch_state.md"
+    branch_plan = branch_root / "branch_plan.md"
+    if not branch_state.is_file() or not branch_plan.is_file():
+        return issues
+
+    state_text = branch_state.read_text(encoding="utf-8")
+    plan_text = branch_plan.read_text(encoding="utf-8")
+    state_normalized = state_text.casefold()
+    plan_normalized = plan_text.casefold()
+    is_ui_workstream_repair = (
+        "option g runtime ui repair implemented" in state_normalized
+        or "workstream_implementation_repaired" in plan_normalized
+        or "option g runtime adoption / child-window grammar repair" in plan_normalized
+    )
+    active_next = (
+        markdown_field_value(state_text, "Next Legal Phase")
+        or markdown_field_value(plan_text, "Next Legal Phase")
+        or ""
+    ).casefold()
+    active_current_gate = (markdown_field_value(state_text, "Current Gate") or "").casefold()
+    active_next_routes_to_visual_review = "workstream-exit visual acceptance" in active_next
+    routes_to_h1_lv = (
+        not active_next_routes_to_visual_review
+        and (
+            active_next.startswith("prepare hardening h1")
+            or active_next.startswith("prepare a source-truth-routed hardening h1")
+            or active_next.startswith("prepare h1")
+            or active_next.startswith("hardening h1")
+            or active_next.startswith("live validation")
+            or active_next.startswith("h1/lv")
+        )
+    ) or (
+        not active_next_routes_to_visual_review
+        and (
+            "prepare hardening h1" in active_next
+            or "prepare a source-truth-routed hardening h1" in active_next
+            or "prepare h1/lv" in active_next
+        )
+    ) or (
+        "next legal gate is hardening h1" in active_current_gate
+        or "next legal gate is h1" in active_current_gate
+    )
+    if not is_ui_workstream_repair or not routes_to_h1_lv:
+        return issues
+
+    gate_state = markdown_field_value(state_text, "Workstream Exit Visual Acceptance Gate State") or ""
+    gate_state_norm = gate_state.casefold()
+    accepted_or_waived = any(
+        marker in gate_state_norm
+        for marker in (
+            "user accepted",
+            "user waived",
+            "user deferred with explicit source-truth boundary",
+        )
+    )
+    if not accepted_or_waived:
+        issues.append(
+            "FAM-007 Workstream Visual Acceptance Gate Bypass: active state routes "
+            "Option G UI/UX Workstream repair toward H1/LV before USER accepted, "
+            "waived, or explicitly deferred the runtime visual acceptance gate"
+        )
+    return issues
+
+
 def validate_markdown_record(
     path: Path,
     expected_schema: str,
@@ -1013,6 +1080,7 @@ def main() -> int:
         issues.extend(validate_stage4_records(root, args.schema, args.expected_source_head))
         issues.extend(validate_released_locks(root))
         issues.extend(validate_active_branch_plan_posture(root))
+        issues.extend(validate_fam007_workstream_visual_acceptance_gate(root))
 
     if issues:
         print("Validation Result: BLOCKED")

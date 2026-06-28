@@ -160,6 +160,10 @@ AUDIT_ENVELOPE_PLANNED = "audit-envelope-planned"
 AUDIT_SECRETS_PLANNED = "audit-secrets-planned"
 SECRET_BOUNDARY_NO_SECRETS = "secret-boundary-no-secrets-stored"
 NETWORK_EGRESS_BLOCKED = "network-egress-blocked"
+LOCAL_AI_READINESS_REPORT_SCHEMA_VERSION = "local-ai-readiness-report.v1"
+LOCAL_AI_READINESS_REPORT_STATE_READY = "report-ready"
+LOCAL_AI_READINESS_REPORT_COPY_MODE = "clipboard-only-user-initiated"
+LOCAL_AI_READINESS_REPORT_PERSISTENCE = "view-only-no-file-persistence"
 FUTURE_MEMORY_ELIGIBILITY_GATED = "future-memory-eligibility-gated"
 WINDOWS_RESILIENCE_PLANNED = "windows-resilience-planned"
 OFFLINE_DEGRADED_PLANNED = "offline-degraded-planned"
@@ -490,6 +494,16 @@ LOCAL_ACTION_RESULT_SCHEMA_VERSION = "local-action-result.v1"
 LOCAL_ACTION_RESULT_IDLE = "local-action-idle"
 LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER = "deterministic-no-provider-result"
 LOCAL_ACTION_RESULT_BLOCKED_BOUNDARY_MISMATCH = "blocked-boundary-mismatch"
+AI_CONTROL_CENTER_DIAGNOSTICS_SCHEMA_VERSION = "ai-control-center-diagnostics.v1"
+AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED = "no-provider-fail-closed"
+AI_CONTROL_CENTER_DIAGNOSTIC_PROVIDER_UNAVAILABLE = "provider-unavailable"
+AI_CONTROL_CENTER_DIAGNOSTIC_STALE_STATE = "stale-state-fail-closed"
+AI_CONTROL_CENTER_DIAGNOSTIC_FAILED_CHECK = "failed-check-fail-closed"
+AI_CONTROL_CENTER_DIAGNOSTIC_RETRY_LOCAL_ONLY = "retry-local-check-only"
+AI_CONTROL_CENTER_DIAGNOSTIC_RECOVERY_LOCAL_ONLY = "recovery-local-only"
+AI_CONTROL_CENTER_DIAGNOSTIC_BLOCKED_ACTION = "blocked-action"
+AI_CONTROL_CENTER_DIAGNOSTIC_UNAVAILABLE_CAPABILITY = "unavailable-capability"
+AI_CONTROL_CENTER_DIAGNOSTIC_DEGRADED_NO_PROVIDER = "degraded-no-provider"
 MODEL_EXECUTION_STATUS_DISABLED = "model-execution-disabled"
 MODEL_EXECUTION_STATUS_FUTURE_GATED = "model-execution-future-gated"
 MODEL_WORKLOAD_READINESS_DISABLED = "model-workload-readiness-disabled"
@@ -2330,6 +2344,21 @@ class AIProviderStateSnapshot:
     local_action_result_prompt_send_posture: str = PROMPT_SEND_POSTURE_DISABLED
     local_action_result_network_egress_state: str = NETWORK_EGRESS_BLOCKED
     local_action_result_memory_indexing_state: str = MEMORY_INDEXING_DISABLED
+    ai_control_center_diagnostics_schema_version: str = AI_CONTROL_CENTER_DIAGNOSTICS_SCHEMA_VERSION
+    ai_control_center_diagnostic_state: str = AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED
+    ai_control_center_diagnostic_label: str = "No provider configured; fail-closed"
+    ai_control_center_provider_boundary_label: str = "Provider boundary: blocked"
+    ai_control_center_provider_boundary_detail: str = "Provider, model, prompt, memory, downloads, and network paths remain disabled."
+    ai_control_center_blocked_action_label: str = "Prompt/provider/model action blocked"
+    ai_control_center_blocked_action_detail: str = "No provider action can run until a future USER-approved provider path exists."
+    ai_control_center_unavailable_capability_label: str = "Capability packs unavailable"
+    ai_control_center_unavailable_capability_detail: str = "Downloads, install, update, and uninstall execution remain blocked."
+    ai_control_center_recovery_label: str = "Retry local check only"
+    ai_control_center_recovery_detail: str = "Recovery remains local-only; provider setup and execution stay future-gated."
+    ai_control_center_degraded_path_label: str = "Local guidance only"
+    ai_control_center_degraded_path_detail: str = "The degraded no-provider path reports status without accepting prompts or sending data."
+    ai_control_center_state_taxonomy: tuple[dict[str, str], ...] = ()
+    local_ai_readiness_report: dict[str, object] | None = None
     model_execution_status: str = MODEL_EXECUTION_STATUS_DISABLED
     model_execution_status_label: str = "Model execution status: disabled"
     model_workload_readiness_posture: str = MODEL_WORKLOAD_READINESS_DISABLED
@@ -3954,6 +3983,33 @@ class AIProviderStateSnapshot:
             "localActionResultPromptSendPosture": self.local_action_result_prompt_send_posture,
             "localActionResultNetworkEgressState": self.local_action_result_network_egress_state,
             "localActionResultMemoryIndexingState": self.local_action_result_memory_indexing_state,
+            "aiControlCenterDiagnosticsSchemaVersion": (
+                self.ai_control_center_diagnostics_schema_version
+            ),
+            "aiControlCenterDiagnosticState": self.ai_control_center_diagnostic_state,
+            "aiControlCenterDiagnosticLabel": self.ai_control_center_diagnostic_label,
+            "aiControlCenterProviderBoundaryLabel": (
+                self.ai_control_center_provider_boundary_label
+            ),
+            "aiControlCenterProviderBoundaryDetail": (
+                self.ai_control_center_provider_boundary_detail
+            ),
+            "aiControlCenterBlockedActionLabel": self.ai_control_center_blocked_action_label,
+            "aiControlCenterBlockedActionDetail": self.ai_control_center_blocked_action_detail,
+            "aiControlCenterUnavailableCapabilityLabel": (
+                self.ai_control_center_unavailable_capability_label
+            ),
+            "aiControlCenterUnavailableCapabilityDetail": (
+                self.ai_control_center_unavailable_capability_detail
+            ),
+            "aiControlCenterRecoveryLabel": self.ai_control_center_recovery_label,
+            "aiControlCenterRecoveryDetail": self.ai_control_center_recovery_detail,
+            "aiControlCenterDegradedPathLabel": self.ai_control_center_degraded_path_label,
+            "aiControlCenterDegradedPathDetail": self.ai_control_center_degraded_path_detail,
+            "aiControlCenterStateTaxonomy": [
+                dict(item) for item in self.ai_control_center_state_taxonomy
+            ],
+            "localAiReadinessReport": dict(self.local_ai_readiness_report or {}),
             "localStorage": self.local_storage,
             "consentState": self.consent_state,
             "consentLabel": self.consent_label,
@@ -10466,6 +10522,129 @@ def _provider_setup_completion_fields(
     }
 
 
+def build_local_ai_readiness_report() -> dict[str, object]:
+    """Build the public-safe local AI readiness report without provider execution."""
+
+    ready_conditions = (
+        {
+            "id": "provider-visible-data-none",
+            "label": "Provider-visible data is none",
+            "evidence": "providerVisibleData=none; sentToProvider=false",
+        },
+        {
+            "id": "prompt-send-disabled",
+            "label": "Prompt acceptance and prompt send are disabled",
+            "evidence": "canAcceptPrompts=false; promptSendPosture=prompt-send-disabled",
+        },
+        {
+            "id": "local-null-provider-boundary",
+            "label": "Local/null provider boundary is active",
+            "evidence": "provider profile is local/null and provider execution is disabled",
+        },
+        {
+            "id": "public-lane-visible",
+            "label": "Public Edition boundary is visible",
+            "evidence": "Developer and Owner lanes remain gated",
+        },
+    )
+    missing_requirements = (
+        {
+            "id": "provider-setup-approval",
+            "label": "Provider setup approval is not granted",
+            "reason": "Provider/model execution requires a later USER action gate",
+        },
+        {
+            "id": "capability-proof",
+            "label": "Capability-pack proof is not available",
+            "reason": "Hardware, manifest, source, and compatibility proof are future-gated",
+        },
+        {
+            "id": "private-lane-setup",
+            "label": "Developer and Owner private setup are not configured",
+            "reason": "Private roots, remotes, prompts, memory, and assets are excluded",
+        },
+    )
+    blocked_paths = (
+        {
+            "id": "provider-model-execution",
+            "label": "Provider/model execution",
+            "state": "blocked",
+            "gate": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        },
+        {
+            "id": "prompt-send",
+            "label": "Prompt send",
+            "state": "disabled",
+            "gate": "future provider/model approval",
+        },
+        {
+            "id": "downloads-install",
+            "label": "Downloads, install, update, and uninstall",
+            "state": "blocked",
+            "gate": "future capability-pack/FAM-008 approval",
+        },
+        {
+            "id": "runtime-cache-memory",
+            "label": "Runtime cache, memory, learning, and personalization",
+            "state": "blocked",
+            "gate": "future cache or memory USER approval",
+        },
+        {
+            "id": "private-setup",
+            "label": "Private Developer/Owner setup",
+            "state": "blocked",
+            "gate": "future private setup USER approval",
+        },
+    )
+    local_evidence_checked = (
+        "provider boundary payload",
+        "prompt/model/provider execution gates",
+        "network egress gate",
+        "memory/indexing gate",
+        "capability-pack install/download posture",
+        "Public/Developer/Owner lane boundary posture",
+    )
+    safe_next_steps = (
+        "Use this report as the local readiness summary for the current public-safe state.",
+        "Keep provider-visible data at none until a future provider/model setup gate is approved.",
+        "Treat capability-pack, cache, memory, private setup, and packaging paths as future-gated.",
+    )
+    trust_boundaries = (
+        "No prompt is accepted or sent.",
+        "No provider or model executes.",
+        "No download, install, runtime cache, memory, learning, personalization, or private setup path runs.",
+        "No hidden network behavior is authorized.",
+    )
+    return {
+        "schemaVersion": LOCAL_AI_READINESS_REPORT_SCHEMA_VERSION,
+        "state": LOCAL_AI_READINESS_REPORT_STATE_READY,
+        "title": "Local AI Readiness Report",
+        "summary": (
+            "Local AI readiness is public-safe but not provider-ready: local boundary proof is ready, "
+            "provider/model execution remains blocked, and no data leaves the machine."
+        ),
+        "generatedBy": "FAM-007 AI Control Center local deterministic report",
+        "providerVisibleData": "none",
+        "sentToProvider": False,
+        "canAcceptPrompts": False,
+        "promptSendPosture": PROMPT_SEND_POSTURE_DISABLED,
+        "networkEgressState": NETWORK_EGRESS_BLOCKED,
+        "memoryIndexingState": MEMORY_INDEXING_DISABLED,
+        "copyMode": LOCAL_AI_READINESS_REPORT_COPY_MODE,
+        "persistence": LOCAL_AI_READINESS_REPORT_PERSISTENCE,
+        "readyConditions": tuple(dict(item) for item in ready_conditions),
+        "missingRequirements": tuple(dict(item) for item in missing_requirements),
+        "blockedPaths": tuple(dict(item) for item in blocked_paths),
+        "localEvidenceChecked": local_evidence_checked,
+        "safeNextSteps": safe_next_steps,
+        "trustBoundaries": trust_boundaries,
+        "usefulOutcome": (
+            "The USER can decide what is locally ready, what is missing, what remains blocked, "
+            "and which safe next steps exist before any provider/model/capability work is approved."
+        ),
+    }
+
+
 def build_provider_setup_completion_foundation_state(
     readiness_config: AIProviderReadinessConfigSnapshot | dict[str, object] | None = None,
     *,
@@ -10540,7 +10719,7 @@ def build_provider_setup_completion_foundation_state(
         local_action_result_state=LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
         local_action_result_label="No-provider check: no provider configured",
         local_action_result_detail=(
-            "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
+            "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none. Capability packs, private lanes, downloads, memory, and network remain blocked."
         ),
         local_action_result_provider_visible_data="none",
         local_action_result_sent_to_provider=False,
@@ -10572,6 +10751,76 @@ def build_provider_setup_completion_foundation_state(
             "No-provider check runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked"
         ),
         no_provider_fallback_label="No-provider guard active",
+        ai_control_center_diagnostic_state=AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED,
+        ai_control_center_diagnostic_label="No provider configured; fail-closed",
+        ai_control_center_provider_boundary_label="Provider boundary: blocked",
+        ai_control_center_provider_boundary_detail=(
+            "Provider, model, prompt, memory, downloads, and network paths remain disabled."
+        ),
+        ai_control_center_blocked_action_label="Prompt/provider/model action blocked",
+        ai_control_center_blocked_action_detail=(
+            "Provider actions are blocked until a future USER-approved provider path exists."
+        ),
+        ai_control_center_unavailable_capability_label="Capability packs unavailable",
+        ai_control_center_unavailable_capability_detail=(
+            "Capability eligibility requires future local proof; downloads and install execution remain disabled."
+        ),
+        ai_control_center_recovery_label="Retry local check only",
+        ai_control_center_recovery_detail=(
+            "Recovery remains local-only; provider setup and execution stay future-gated."
+        ),
+        ai_control_center_degraded_path_label="Local guidance only",
+        ai_control_center_degraded_path_detail=(
+            "The degraded no-provider path reports status without accepting prompts or sending data."
+        ),
+        ai_control_center_state_taxonomy=(
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED,
+                "label": "No provider configured; fail-closed",
+                "detail": "No provider/model execution path exists in this release.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_PROVIDER_UNAVAILABLE,
+                "label": "Provider unavailable",
+                "detail": "Provider state cannot become active without future setup approval.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_STALE_STATE,
+                "label": "Stale state: fail-closed",
+                "detail": "Stale or missing provider state remains disabled and requires a fresh local check.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_FAILED_CHECK,
+                "label": "Failed check: fail-closed",
+                "detail": "A failed local check produces no provider result and sends no data.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_RETRY_LOCAL_ONLY,
+                "label": "Retry: local check only",
+                "detail": "Retry is limited to the local no-provider check.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_RECOVERY_LOCAL_ONLY,
+                "label": "Recovery: local-only",
+                "detail": "Recovery guidance cannot enable provider/model execution.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_BLOCKED_ACTION,
+                "label": "Blocked action",
+                "detail": "Prompt, provider, model, memory, download, and private setup actions stay blocked.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_UNAVAILABLE_CAPABILITY,
+                "label": "Unavailable capability",
+                "detail": "Capability packs require future proof and USER approval before install.",
+            },
+            {
+                "state": AI_CONTROL_CENTER_DIAGNOSTIC_DEGRADED_NO_PROVIDER,
+                "label": "Degraded no-provider path",
+                "detail": "No-provider guidance is deterministic, local-only, and public-safe.",
+            },
+        ),
+        local_ai_readiness_report=build_local_ai_readiness_report(),
         desktop_ai_owned_readiness_display_state=AI_PROVIDER_STATUS_DISPLAY_VISIBLE,
         desktop_ai_owned_readiness_display_label=(
             "Desktop AI-owned readiness display: no AI execution active"
