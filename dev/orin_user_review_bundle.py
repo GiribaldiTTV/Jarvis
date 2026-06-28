@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
+import json
 import os
 import re
 import shutil
@@ -46,6 +48,14 @@ USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
+PACKET_VALIDATION_MODE_ACTIVE_REVIEW = "active-review"
+PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL = "accepted-historical"
+PACKET_VALIDATION_MODE_NEXT_GATE = "next-gate"
+PACKET_VALIDATION_MODES = (
+    PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+    PACKET_VALIDATION_MODE_NEXT_GATE,
+)
 LOCAL_USER_PACKET_ROOT_FILES = {"START_HERE.md"}
 LOCAL_USER_PACKET_REQUIRED_DIRS = (
     USER_REVIEW_DIR_NAME,
@@ -246,6 +256,73 @@ USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...]
     ("worktree-status", re.compile(r"\bworktree status\b", re.IGNORECASE)),
     ("sha-like-proof", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
 )
+MIN_PRIMARY_REVIEW_WORDS = 80
+MIN_PRIMARY_REVIEW_CHARACTERS = 500
+FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "stale-dev-owner-skeleton-accepted",
+        re.compile(r"Accepted by USER\s*-\s*integrated Option A Dev/Owner Skeleton Readiness", re.IGNORECASE),
+    ),
+    (
+        "stale-dev-owner-skeleton-vision",
+        re.compile(r"Dev/Owner Skeleton Readiness Branch Vision", re.IGNORECASE),
+    ),
+    (
+        "stale-governance-pr-readiness-stage-1",
+        re.compile(r"Governance\s*/\s*PR Readiness Stage 1|PR Readiness Stage 1 analysis", re.IGNORECASE),
+    ),
+    (
+        "stale-approve-pr-readiness",
+        re.compile(r"approve\s+PR Readiness Stage 1|USER\s+approves?\s+PR Readiness Stage 1", re.IGNORECASE),
+    ),
+    (
+        "packet-validation-as-acceptance",
+        re.compile(r"packet validation (?:equals|is)\s+USER acceptance", re.IGNORECASE),
+    ),
+)
+REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
+    "dashboardHubParentOnly",
+    "doorwayButtonsDeferredNoFakeActions",
+    "parentVisualMetrics",
+    "returnedDensityAndButtonPlacementRepaired",
+    "returnedTitleSubtitleWrapRepaired",
+    "titleDescriptionProseWordWrapProven",
+    "titleDescriptionWindowsCursorProseWrapProven",
+    "acceptedReferenceComparisonProven",
+    "exhaustiveMainRuntimeVisualGrammarComparisonProven",
+    "deterministicStatusRowsAndTitlePill",
+    "titleStatusPillGroupWrapProven",
+    "titleStatusPillNoEarlyWrapAt580Proven",
+    "titleStatusPillWindowsCursorWrapProven",
+    "deterministicTitleColumnSizingProven",
+    "sharedStatusValueColumnProven",
+    "fixedColumnGutterAndUniformValueColumnProven",
+    "rowStackVerticalGutterProven",
+    "windowControlEdgeGutterProven",
+    "titleCardBackingLayerRemoved",
+    "rowTitleStatusTextSizeParityProven",
+    "belowTitleTextWeights720Proven",
+    "resizeEdgeHitZoneProven",
+    "dashboardHorizontalResizeMinimumWorks",
+    "defaultScrollIntentProven",
+    "runtimeCopyIsProductFacing",
+    "fullDesktopProofNotDuplicated",
+    "settingsCogRemovedAndDeferred",
+    "settingsOptionBSelectionDispositionProven",
+    "noInlineWorkspaceActions",
+    "childLifecycleBehavior",
+    "dashboardResizeStillWorks",
+    "providerExecutionStillBlocked",
+)
+IMAGE_PROOF_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
+    "dashboard_initial",
+    "dashboard_scrolled_bottom",
+    "dashboard_horizontal_shrink",
+    "dashboard_resized",
+}
+FAM007_LIVE_PROOF_MANIFEST_NAME = "live_resize_manifest.json"
+FAM007_UDL_IMAGE_PROOF_IDS = ("F7-UDL-006", "F7-UDL-007", "F7-UDL-016")
 USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "old-product-design-planning-gate",
@@ -414,6 +491,7 @@ class LocalUserPacketValidationResult:
     packet_dir: Path
     export_zip: Path
     label: str
+    validation_mode: str
     folder_file_count: int
     zip_file_count: int
     primary_user_review_files: tuple[str, ...]
@@ -891,6 +969,7 @@ def _validate_export_zip(
             "pending user response",
             "pending codex digest",
             "pending user confirmation",
+            "future preview only",
             "complete",
             "waived by user",
         )
@@ -900,7 +979,13 @@ def _validate_export_zip(
         )
     exact_decision = _section(user_review, "Exact USER Decision Supported").casefold()
     if contract_status.startswith(
-        ("draft", "pending user response", "pending codex digest", "pending user confirmation")
+        (
+            "draft",
+            "pending user response",
+            "pending codex digest",
+            "pending user confirmation",
+            "future preview only",
+        )
     ) and (
         "approve bounded slc" in exact_decision
         or "approve workstream implementation" in exact_decision
@@ -921,6 +1006,576 @@ def _packet_text_files(packet_dir: Path) -> dict[str, str]:
             encoding="utf-8"
         )
     return packet_files
+
+
+def _zip_text_files(export_zip: Path) -> dict[str, str]:
+    packet_files: dict[str, str] = {}
+    with zipfile.ZipFile(export_zip) as archive:
+        for info in archive.infolist():
+            if info.is_dir():
+                continue
+            name = info.filename.replace("\\", "/")
+            if PurePosixPath(name).suffix.lower() not in {".md", ".txt", ".json"}:
+                continue
+            packet_files[name] = archive.read(info).decode("utf-8")
+    return packet_files
+
+
+def _primary_review_substantive_failures(
+    packet_files: Mapping[str, str],
+    primary_files: tuple[str, ...],
+) -> list[str]:
+    if len(primary_files) != 1:
+        return []
+    primary_path = primary_files[0]
+    text = packet_files.get(primary_path, "")
+    stripped = text.strip()
+    failures: list[str] = []
+    if not stripped:
+        return [f"{primary_path}: primary USER review file is empty"]
+    if len(stripped) < MIN_PRIMARY_REVIEW_CHARACTERS or _review_word_count(stripped) < MIN_PRIMARY_REVIEW_WORDS:
+        failures.append(
+            f"{primary_path}: primary USER review file is not meaningful enough for a current-gate decision "
+            f"(requires at least {MIN_PRIMARY_REVIEW_WORDS} words and {MIN_PRIMARY_REVIEW_CHARACTERS} characters)"
+        )
+    if "## " not in stripped:
+        failures.append(f"{primary_path}: primary USER review file must include decision-section headings")
+
+    start_here = packet_files.get("START_HERE.md", "")
+    if start_here and primary_path not in start_here:
+        failures.append(f"START_HERE.md: does not identify the primary USER review file {primary_path}")
+
+    gate_match = re.search(r"^Current Gate:\s*`?([^`\n]+)`?\s*$", start_here, re.MULTILINE)
+    if gate_match:
+        gate_words = {
+            word
+            for word in re.findall(r"[A-Za-z0-9]+", gate_match.group(1).casefold())
+            if len(word) >= 4
+            and word not in {"current", "gate", "user", "review", "packet", "after", "with"}
+        }
+        primary_words = set(re.findall(r"[A-Za-z0-9]+", stripped.casefold()))
+        missing_gate_words = sorted(gate_words - primary_words)
+        if len(gate_words) >= 3 and len(missing_gate_words) > max(1, len(gate_words) // 2):
+            failures.append(
+                f"{primary_path}: primary USER review file does not match START_HERE.md Current Gate "
+                f"(missing gate terms: {', '.join(missing_gate_words)})"
+            )
+    return failures
+
+
+def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> list[str]:
+    failures: list[str] = []
+    primary_paths = {
+        name
+        for name in packet_files
+        if name.startswith(f"{USER_REVIEW_DIR_NAME}/")
+    }
+    primary_names = {_packet_file_basename(name) for name in primary_paths}
+    primary_name = next(iter(primary_names), "")
+    user_facing_prefixes = (
+        "START_HERE.md",
+        f"{USER_REVIEW_DIR_NAME}/",
+        f"{REVIEW_AIDS_DIR_NAME}/",
+    )
+    for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if not (
+            normalized == user_facing_prefixes[0]
+            or normalized.startswith(user_facing_prefixes[1])
+            or normalized.startswith(user_facing_prefixes[2])
+        ):
+            continue
+        for reason, pattern in FALSE_GREEN_STALE_ACTIVE_PATTERNS:
+            if pattern.search(text):
+                failures.append(f"{file_name}: active USER packet text contains stale false-green marker {reason}")
+        if primary_name and normalized != f"{USER_REVIEW_DIR_NAME}/{primary_name}":
+            for stale_primary in (
+                USER_BRANCH_PLAN_REVIEW_FILE,
+                USER_BRANCH_VISION_REVIEW_FILE,
+                "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            ):
+                if stale_primary == primary_name:
+                    continue
+                if re.search(
+                    rf"{re.escape(stale_primary)}[^\n]{{0,80}}\b(?:primary|active|decision)\b|"
+                    rf"\b(?:primary|active|decision)[^\n]{{0,80}}{re.escape(stale_primary)}",
+                    text,
+                    re.IGNORECASE,
+                ):
+                    failures.append(
+                        f"{file_name}: active support text points to stale primary/current decision file {stale_primary}"
+                    )
+    return failures
+
+
+def _current_branch_external_state_dir() -> Path | None:
+    try:
+        branch = subprocess.check_output(
+            ["git", "branch", "--show-current"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+    if not branch:
+        return None
+    branch_state_dir = re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_")
+    return Path(r"C:\Nexus Governance State\branches") / branch_state_dir
+
+
+def _accepted_historical_context_posture_failures(
+    packet_files: Mapping[str, str],
+    export_zip: Path,
+    copied_to_live: Mapping[str, Path | None],
+) -> list[str]:
+    failures: list[str] = []
+    state_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md"
+    plan_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md"
+    state_text = packet_files.get(state_name, "")
+    plan_text = packet_files.get(plan_name, "")
+    live_state_path = copied_to_live.get(state_name)
+    live_plan_path = copied_to_live.get(plan_name)
+    live_state_text = live_state_path.read_text(encoding="utf-8") if live_state_path and live_state_path.is_file() else ""
+    live_plan_text = live_plan_path.read_text(encoding="utf-8") if live_plan_path and live_plan_path.is_file() else ""
+
+    expected_zip = _normalize_windows_path_text(str(export_zip))
+    accepted_historical_zips = _accepted_historical_same_label_export_zip_paths(
+        _sanitize_folder_name(export_zip.stem.rsplit("-", 2)[0])
+    )
+    copied_zip_values = _markdown_field_values(state_text, "USER Review ZIP")
+    live_zip_values = _markdown_field_values(live_state_text, "USER Review ZIP")
+    if not copied_zip_values:
+        failures.append(
+            f"{state_name}: accepted historical packet mode requires a copied USER Review ZIP pointer"
+        )
+    elif _normalize_windows_path_text(copied_zip_values[0]) != expected_zip:
+        failures.append(
+            f"{state_name}: accepted historical packet mode USER Review ZIP "
+            f"{copied_zip_values[0]} does not match final ZIP {export_zip}"
+        )
+    if (
+        export_zip.resolve() not in accepted_historical_zips
+        and live_zip_values
+        and _normalize_windows_path_text(live_zip_values[0]) != expected_zip
+    ):
+        failures.append(
+            f"{state_name}: accepted historical packet mode is invalid because live external state "
+            f"does not point to or preserve this accepted packet; live USER Review ZIP is {live_zip_values[0]}"
+        )
+
+    acceptance_text = f"{live_state_text}\n{live_plan_text}"
+    if not re.search(r"\bUSER accepted\b.*\breviewable\b|\breviewable proof packet accepted\b", acceptance_text, re.IGNORECASE | re.DOTALL):
+        failures.append(
+            "Accepted historical packet mode requires a live external-state acceptance receipt "
+            "for this reviewable evidence packet"
+        )
+
+    state_heads = _markdown_field_values(state_text, "Source Repo HEAD")
+    plan_heads = _markdown_field_values(plan_text, "Source Repo HEAD")
+    if not state_heads:
+        failures.append(f"{state_name}: accepted historical packet mode requires copied Source Repo HEAD")
+    if not plan_heads:
+        failures.append(f"{plan_name}: accepted historical packet mode requires copied Source Repo HEAD")
+    if state_heads and plan_heads and state_heads[0] != plan_heads[0]:
+        failures.append(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}: accepted historical packet copied branch state Source Repo HEAD "
+            f"{state_heads[0]} disagrees with copied branch plan Source Repo HEAD {plan_heads[0]}"
+        )
+    return failures
+
+
+def _source_truth_context_currentness_failures(
+    packet_files: Mapping[str, str],
+    *,
+    validation_mode: str,
+    export_zip: Path,
+) -> list[str]:
+    failures: list[str] = []
+    external_state_dir = _current_branch_external_state_dir()
+    copied_to_live = {
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md": (
+            external_state_dir / "branch_state.md" if external_state_dir else None
+        ),
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md": (
+            external_state_dir / "branch_plan.md" if external_state_dir else None
+        ),
+    }
+    for copied_name, live_path in copied_to_live.items():
+        copied_text = packet_files.get(copied_name)
+        if copied_text is None:
+            continue
+        if re.search(r"PENDING_REGENERATION|Pending regeneration", copied_text, re.IGNORECASE):
+            failures.append(
+                f"{copied_name}: copied Source Truth Context still says packet regeneration is pending"
+            )
+        if re.search(r"USER Review ZIP:\s*`?PENDING", copied_text, re.IGNORECASE):
+            failures.append(
+                f"{copied_name}: copied Source Truth Context has no concrete current USER Review ZIP pointer"
+            )
+        if live_path is None or not live_path.is_file():
+            failures.append(f"{copied_name}: live external-state source is missing for current branch")
+            continue
+        live_text = live_path.read_text(encoding="utf-8")
+        if (
+            validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+            and _normalized_packet_text(copied_text) != _normalized_packet_text(live_text)
+        ):
+            failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
+    if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        failures.extend(
+            _accepted_historical_context_posture_failures(
+                packet_files,
+                export_zip,
+                copied_to_live,
+            )
+        )
+    return failures
+
+
+def _git_text(*args: str) -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", *args],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+
+
+def _markdown_field_values(text: str, field_name: str) -> list[str]:
+    pattern = re.compile(
+        rf"^{re.escape(field_name)}:\s*`?([^`\n]+?)`?\s*$",
+        re.MULTILINE,
+    )
+    return [match.group(1).strip() for match in pattern.finditer(text)]
+
+
+def _normalize_windows_path_text(text: str) -> str:
+    return text.strip().strip("`").replace("/", "\\").casefold()
+
+
+def _final_zip_active_metadata_failures(
+    packet_files: Mapping[str, str],
+    export_zip: Path,
+    *,
+    validation_mode: str,
+) -> list[str]:
+    failures: list[str] = []
+    live_head = _git_text("rev-parse", "HEAD")
+    source_truth_mismatch = False
+    context_files = (
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md",
+    )
+
+    for context_file in context_files:
+        text = packet_files.get(context_file)
+        if text is None:
+            continue
+        source_heads = _markdown_field_values(text, "Source Repo HEAD")
+        if context_file.endswith("current_external_branch_state.md") and not source_heads:
+            failures.append(f"{context_file}: copied current Source Truth Context is missing Source Repo HEAD")
+            source_truth_mismatch = True
+        if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL and live_head:
+            for source_head in source_heads:
+                if source_head != live_head:
+                    failures.append(
+                        f"{context_file}: copied current Source Truth Context Source Repo HEAD "
+                        f"{source_head} does not match live HEAD {live_head}"
+                    )
+                    source_truth_mismatch = True
+
+    state_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md", "")
+    plan_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", "")
+    state_heads = _markdown_field_values(state_text, "Source Repo HEAD")
+    plan_heads = _markdown_field_values(plan_text, "Source Repo HEAD")
+    if state_heads and plan_heads and state_heads[0] != plan_heads[0]:
+        failures.append(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}: copied branch state Source Repo HEAD "
+            f"{state_heads[0]} disagrees with copied branch plan Source Repo HEAD {plan_heads[0]}"
+        )
+        source_truth_mismatch = True
+
+    review_zip_values = _markdown_field_values(state_text, "USER Review ZIP")
+    if review_zip_values:
+        expected_zip = _normalize_windows_path_text(str(export_zip))
+        for review_zip in review_zip_values[:1]:
+            if _normalize_windows_path_text(review_zip) != expected_zip:
+                failures.append(
+                    f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md: "
+                    f"USER Review ZIP {review_zip} does not match final ZIP {export_zip}"
+                )
+                source_truth_mismatch = True
+
+    ledger_text = packet_files.get(f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md", "")
+    if source_truth_mismatch and re.search(
+        r"^\|.*F7-UDL-003.*CLOSED_WITH_PROOF.*\|",
+        ledger_text,
+        re.MULTILINE,
+    ):
+        failures.append(
+            f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md: "
+            "F7-UDL-003 is CLOSED_WITH_PROOF while final ZIP Source Truth Context is stale or inconsistent"
+        )
+
+    return failures
+
+
+def _proof_manifest_false_green_failures(packet_files: Mapping[str, str]) -> list[str]:
+    manifest_items = [
+        (name, text)
+        for name, text in sorted(packet_files.items())
+        if _packet_file_basename(name) == "live_resize_manifest.json"
+    ]
+    if not manifest_items:
+        return []
+    failures: list[str] = []
+    manifest_name, manifest_text = manifest_items[0]
+    try:
+        manifest = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        return [f"{manifest_name}: live proof manifest is not valid JSON: {exc}"]
+
+    checks = manifest.get("checks")
+    if not isinstance(checks, dict):
+        return [f"{manifest_name}: live proof manifest is missing checks object"]
+    for check_name in REQUIRED_FAM007_LIVE_PROOF_CHECKS:
+        if checks.get(check_name) is not True:
+            failures.append(f"{manifest_name}: required false-green proof check is not true: {check_name}")
+
+    child_probe = manifest.get("childChromeProbe")
+    if isinstance(child_probe, dict):
+        for child_name, probe in sorted(child_probe.items()):
+            if not isinstance(probe, dict):
+                failures.append(f"{manifest_name}: childChromeProbe.{child_name} is not an object")
+                continue
+            expected_pairs = {
+                "nativeChrome": "true",
+                "osChrome": "rejected",
+                "shellConformance": "ndai-webview-rounded-window-shell",
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+            }
+            for key, expected in expected_pairs.items():
+                if probe.get(key) != expected:
+                    failures.append(
+                        f"{manifest_name}: childChromeProbe.{child_name}.{key} expected {expected!r} got {probe.get(key)!r}"
+                    )
+    else:
+        failures.append(f"{manifest_name}: live proof manifest is missing childChromeProbe object")
+    return failures
+
+
+def _image_signature_valid(data: bytes, suffix: str) -> bool:
+    try:
+        from PIL import Image
+
+        with Image.open(io.BytesIO(data)) as image:
+            image.verify()
+        return True
+    except ImportError:
+        pass
+    except Exception:
+        return False
+
+    suffix = suffix.lower()
+    if suffix == ".png":
+        return data.startswith(b"\x89PNG\r\n\x1a\n")
+    if suffix in {".jpg", ".jpeg"}:
+        return data.startswith(b"\xff\xd8") and data.rstrip().endswith(b"\xff\xd9")
+    if suffix == ".webp":
+        return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+    return True
+
+
+def _archive_file_entries(archive: zipfile.ZipFile) -> set[str]:
+    return {entry.filename for entry in archive.infolist() if not entry.is_dir()}
+
+
+def _archive_text(archive: zipfile.ZipFile, entry: str) -> str | None:
+    try:
+        return archive.read(entry).decode("utf-8")
+    except KeyError:
+        return None
+    except UnicodeDecodeError:
+        return None
+
+
+def _proof_image_basename(value: object) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    windows_name = PureWindowsPath(text).name
+    posix_name = PurePosixPath(text).name
+    return windows_name if len(windows_name) <= len(posix_name) else posix_name
+
+
+def _manifest_image_expectations(
+    archive: zipfile.ZipFile,
+) -> tuple[set[str], set[str], bool]:
+    expected_entries: set[str] = set()
+    screenshot_classes: set[str] = set()
+    manifest_found = False
+    for entry in _archive_file_entries(archive):
+        if PurePosixPath(entry).name != FAM007_LIVE_PROOF_MANIFEST_NAME:
+            continue
+        text = _archive_text(archive, entry)
+        if text is None:
+            continue
+        try:
+            manifest = json.loads(text)
+        except json.JSONDecodeError:
+            continue
+        screenshots = manifest.get("screenshots")
+        if not isinstance(screenshots, dict):
+            continue
+        manifest_found = True
+        for screenshot_class, paths in screenshots.items():
+            if not isinstance(paths, dict):
+                continue
+            screenshot_classes.add(str(screenshot_class))
+            focused_name = _proof_image_basename(paths.get("focusedWindow"))
+            full_name = _proof_image_basename(paths.get("fullDesktop"))
+            if focused_name:
+                expected_entries.add(
+                    f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/focused_window_screenshots/{focused_name}"
+                )
+            if full_name:
+                expected_entries.add(
+                    f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/{full_name}"
+                )
+    return expected_entries, screenshot_classes, manifest_found
+
+
+def _proof_index_image_failures(
+    archive: zipfile.ZipFile,
+    zip_entries: set[str],
+    zip_image_entries: set[str],
+) -> list[str]:
+    failures: list[str] = []
+    image_basenames = {PurePosixPath(entry).name for entry in zip_image_entries}
+    image_reference_pattern = re.compile(
+        r"(?P<path>[A-Za-z]:\\[^\s)`]+|[\w./ -]+?\.(?:png|jpg|jpeg|webp))",
+        re.IGNORECASE,
+    )
+    for entry in sorted(zip_entries):
+        if not entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/") or PurePosixPath(entry).suffix.lower() != ".md":
+            continue
+        text = _archive_text(archive, entry)
+        if not text:
+            continue
+        for match in image_reference_pattern.finditer(text):
+            reference = match.group("path").strip("`.,;:)")
+            basename = _proof_image_basename(reference)
+            if not basename or PurePosixPath(basename).suffix.lower() not in IMAGE_PROOF_EXTENSIONS:
+                continue
+            if re.match(r"^[A-Za-z]:\\", reference):
+                failures.append(f"{entry}: proof index references local-only image path {basename}")
+            if basename not in image_basenames and reference.replace("\\", "/") not in zip_entries:
+                failures.append(f"{entry}: proof index references image proof not present in final ZIP {basename}")
+    return failures
+
+
+def _image_proof_failures(
+    packet_dir: Path,
+    export_zip: Path,
+    folder_entries: set[str],
+    *,
+    validate_folder_images: bool = True,
+) -> list[str]:
+    failures: list[str] = []
+    folder_image_entries = sorted(
+        entry
+        for entry in folder_entries
+        if PurePosixPath(entry).suffix.lower() in IMAGE_PROOF_EXTENSIONS
+    )
+    if validate_folder_images:
+        for entry in folder_image_entries:
+            data = (packet_dir / PurePosixPath(entry)).read_bytes()
+            if not _image_signature_valid(data, PurePosixPath(entry).suffix):
+                failures.append(f"{entry}: image proof file has invalid binary signature")
+
+    with zipfile.ZipFile(export_zip, "r") as archive:
+        zip_entries = _archive_file_entries(archive)
+        zip_image_entries = sorted(
+            entry
+            for entry in zip_entries
+            if PurePosixPath(entry).suffix.lower() in IMAGE_PROOF_EXTENSIONS
+        )
+        manifest_expected_entries, screenshot_classes, manifest_found = _manifest_image_expectations(archive)
+        for entry in zip_image_entries:
+            data = archive.read(entry)
+            if not _image_signature_valid(data, PurePosixPath(entry).suffix):
+                failures.append(f"{entry}: ZIP image proof file has invalid binary signature")
+        if manifest_expected_entries and not zip_image_entries:
+            failures.append(
+                "Inspectable Evidence: live proof manifest references screenshots but final ZIP contains zero image proof files"
+            )
+        missing_expected_entries = sorted(manifest_expected_entries.difference(zip_entries))
+        if missing_expected_entries:
+            preview = ", ".join(missing_expected_entries[:5])
+            if len(missing_expected_entries) > 5:
+                preview += f", ... total_missing={len(missing_expected_entries)}"
+            failures.append(
+                "Inspectable Evidence: final ZIP is missing manifest-referenced screenshot proof files "
+                f"entries=[{preview}]"
+            )
+        if manifest_expected_entries and len(zip_image_entries) < len(manifest_expected_entries):
+            failures.append(
+                "Inspectable Evidence: final ZIP image proof count is lower than manifest expectation "
+                f"zip_images={len(zip_image_entries)} expected_images={len(manifest_expected_entries)}"
+            )
+        if manifest_found:
+            missing_classes = sorted(FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES.difference(screenshot_classes))
+            if missing_classes:
+                failures.append(
+                    "Inspectable Evidence: live proof manifest is missing required screenshot classes "
+                    f"missing={', '.join(missing_classes)}"
+                )
+        zip_hashes_by_group: dict[str, dict[str, str]] = {}
+        for entry in zip_image_entries:
+            if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/"):
+                zip_hashes_by_group.setdefault("full_desktop_screenshots", {})[entry] = hashlib.sha256(
+                    archive.read(entry)
+                ).hexdigest()
+        failures.extend(_proof_index_image_failures(archive, zip_entries, set(zip_image_entries)))
+        udl_text = _archive_text(archive, f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md") or ""
+        image_proof_missing = bool(manifest_expected_entries and (not zip_image_entries or missing_expected_entries))
+        if image_proof_missing:
+            for defect_id in FAM007_UDL_IMAGE_PROOF_IDS:
+                if any(defect_id in line and "CLOSED_WITH_PROOF" in line for line in udl_text.splitlines()):
+                    failures.append(
+                        f"{defect_id} is CLOSED_WITH_PROOF while final ZIP screenshot proof is missing"
+                    )
+
+    full_desktop = sorted(
+        entry
+        for entry in zip_image_entries
+        if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/")
+    )
+    focused = sorted(
+        entry
+        for entry in zip_image_entries
+        if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/focused_window_screenshots/")
+    )
+    if focused and not full_desktop:
+        failures.append("Inspectable Evidence: focused/cropped window screenshots exist without full-desktop proof")
+    if focused and full_desktop and len(full_desktop) < len(focused):
+        failures.append(
+            "Inspectable Evidence: full-desktop proof count is lower than focused/cropped proof count "
+            f"focused={len(focused)} full_desktop={len(full_desktop)}"
+        )
+    full_hash_counts = Counter(zip_hashes_by_group.get("full_desktop_screenshots", {}).values())
+    duplicate_hashes = sorted(digest for digest, count in full_hash_counts.items() if count > 1)
+    if duplicate_hashes:
+        failures.append(
+            "Inspectable Evidence: duplicate full-desktop screenshot bytes detected "
+            f"duplicate_hash_count={len(duplicate_hashes)}"
+        )
+    return failures
 
 
 def _zip_file_entries(export_zip: Path) -> set[str]:
@@ -956,6 +1611,32 @@ def _same_label_export_zip_paths(review_root: Path, label: str) -> set[Path]:
     paths = {_legacy_stable_export_zip_path(review_root, label).resolve()}
     paths.update(path.resolve() for path in review_root.glob("*.zip") if timestamped_name.fullmatch(path.name))
     return paths
+
+
+def _accepted_historical_same_label_export_zip_paths(label: str) -> set[Path]:
+    external_state_dir = _current_branch_external_state_dir()
+    if external_state_dir is None:
+        return set()
+    accepted_paths: set[Path] = set()
+    safe_label = _sanitize_folder_name(label)
+    patterns = (
+        re.compile(r"Accepted Historical(?: Evidence)? Packet:\s*`([^`\n]+\.zip)`", re.IGNORECASE),
+        re.compile(r"\baccepted\b[^\n`]*`([^`\n]+\.zip)`[^\n]*\bhistorical evidence\b", re.IGNORECASE),
+    )
+    for file_name in ("branch_state.md", "branch_plan.md"):
+        path = external_state_dir / file_name
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        for pattern in patterns:
+            for match in pattern.finditer(text):
+                candidate = Path(match.group(1).strip()).resolve()
+                if candidate.name.startswith(f"{safe_label}-") and candidate.suffix.lower() == ".zip":
+                    accepted_paths.add(candidate)
+    return accepted_paths
 
 
 def _generic_user_facing_technical_metadata_failures(
@@ -1028,7 +1709,13 @@ def validate_local_user_packet(
     *,
     export_zip: Path,
     worktree_label: str | None = None,
+    validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
 ) -> LocalUserPacketValidationResult:
+    if validation_mode not in PACKET_VALIDATION_MODES:
+        raise ValueError(
+            f"Unsupported packet validation mode {validation_mode!r}; "
+            f"expected one of {', '.join(PACKET_VALIDATION_MODES)}"
+        )
     label = _sanitize_folder_name(worktree_label or packet_dir.name)
     packet_dir = packet_dir.resolve()
     export_zip = export_zip.resolve()
@@ -1040,6 +1727,7 @@ def validate_local_user_packet(
             packet_dir=packet_dir,
             export_zip=export_zip,
             label=label,
+            validation_mode=validation_mode,
             folder_file_count=0,
             zip_file_count=0,
             primary_user_review_files=(),
@@ -1051,6 +1739,7 @@ def validate_local_user_packet(
             packet_dir=packet_dir,
             export_zip=export_zip,
             label=label,
+            validation_mode=validation_mode,
             folder_file_count=len(_bundle_files(packet_dir)),
             zip_file_count=0,
             primary_user_review_files=(),
@@ -1068,9 +1757,10 @@ def validate_local_user_packet(
 
     same_label_paths = _same_label_export_zip_paths(review_root, label)
     stale_siblings = sorted(path for path in same_label_paths if path != export_zip)
-    for stale_zip in stale_siblings:
-        if stale_zip.exists():
-            failures.append(f"Stale same-label USER packet ZIP remains: {stale_zip}")
+    if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        for stale_zip in stale_siblings:
+            if stale_zip.exists():
+                failures.append(f"Stale same-label USER packet ZIP remains: {stale_zip}")
 
     stable_zip = _legacy_stable_export_zip_path(review_root, label)
     if stable_zip.exists():
@@ -1078,9 +1768,11 @@ def validate_local_user_packet(
 
     folder_hashes = _folder_file_hashes(packet_dir)
     folder_entries = set(folder_hashes)
+    zip_packet_files: dict[str, str] = {}
     try:
         zip_hashes, duplicate_zip_entries = _zip_file_hashes(export_zip)
         zip_entries = set(zip_hashes)
+        zip_packet_files = _zip_text_files(export_zip)
     except zipfile.BadZipFile as exc:
         failures.append(f"Review export ZIP is not readable: {export_zip}: {exc}")
         zip_hashes = {}
@@ -1093,14 +1785,15 @@ def validate_local_user_packet(
             f"entries={list(duplicate_zip_entries)}"
         )
 
-    if folder_entries != zip_entries:
+    parity_entries_match = folder_entries == zip_entries
+    if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL and not parity_entries_match:
         missing = sorted(folder_entries - zip_entries)
         extra = sorted(zip_entries - folder_entries)
         failures.append(
             "Folder/ZIP parity failed: "
             f"missing from ZIP={missing or 'none'} extra in ZIP={extra or 'none'}"
         )
-    else:
+    elif validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
         content_mismatches = sorted(
             entry
             for entry in folder_entries
@@ -1123,10 +1816,13 @@ def validate_local_user_packet(
             f"digest/receipt instead: entries={embedded_zip_entries}"
         )
 
-    layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, folder_entries)
+    layout_entries = zip_entries if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else folder_entries
+    layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, layout_entries)
     failures.extend(layout_failures)
 
-    packet_files = _packet_text_files(packet_dir)
+    folder_packet_files = _packet_text_files(packet_dir)
+    packet_files = zip_packet_files if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else (zip_packet_files or folder_packet_files)
+    failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
     generated_packet_files = {
         name: text
         for name, text in packet_files.items()
@@ -1142,11 +1838,37 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(_active_review_aid_false_green_failures(packet_files))
+    failures.extend(
+        _source_truth_context_currentness_failures(
+            packet_files,
+            validation_mode=validation_mode,
+            export_zip=export_zip,
+        )
+    )
+    failures.extend(
+        _final_zip_active_metadata_failures(
+            packet_files,
+            export_zip,
+            validation_mode=validation_mode,
+        )
+    )
+    if not any("Review export ZIP is not readable" in failure for failure in failures):
+        failures.extend(
+            _image_proof_failures(
+                packet_dir,
+                export_zip,
+                layout_entries,
+                validate_folder_images=validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+            )
+        )
+    failures.extend(_proof_manifest_false_green_failures(packet_files))
 
     return LocalUserPacketValidationResult(
         packet_dir=packet_dir,
         export_zip=export_zip,
         label=label,
+        validation_mode=validation_mode,
         folder_file_count=len(folder_entries),
         zip_file_count=len(zip_entries),
         primary_user_review_files=primary_files,
@@ -1161,6 +1883,7 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
         f"Packet Folder: {result.packet_dir}",
         f"Review Export Zip: {result.export_zip}",
         f"Worktree Label: {result.label}",
+        f"Packet Validation Mode: {result.validation_mode}",
         f"Folder File Count: {result.folder_file_count}",
         f"ZIP File Count: {result.zip_file_count}",
         "Primary USER Review Files: "
@@ -1178,6 +1901,11 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
     if result.failures:
         lines.append("Failures:")
         lines.extend(f"- {failure}" for failure in result.failures)
+    elif result.validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        lines.append(
+            "Final Packet Proof: PASS - accepted historical ZIP artifact validation used the timestamped ZIP "
+            "as the immutable evidence record; current local folder parity is not required for historical ZIPs."
+        )
     else:
         lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP file-list plus content-hash parity are validated.")
     return "\n".join(lines)
@@ -1959,9 +2687,14 @@ def _write_user_branch_vision_review(
     if not copied_context:
         copied_context = "the selected source-truth files"
     decision_text = exact_user_decision.casefold()
+    review_profile_text = " ".join([title, review_purpose, exact_user_decision]).casefold()
     current_bp1_review_packet = (
-        "bp1 branch vision review" in decision_text
-        and "authorize bp2 user branch plan review only if bp1" in decision_text
+        "bp1 branch vision review" in review_profile_text
+        and (
+            "authorize bp2 user branch plan review only if bp1" in decision_text
+            or "authorize bp2 user branch plan review preparation only" in decision_text
+            or "authorize bp2 preparation only" in decision_text
+        )
     )
     pr_readiness_context_packet = "pr readiness stage 1 analysis" in decision_text
     bp2_context_packet = (
@@ -1972,9 +2705,12 @@ def _write_user_branch_vision_review(
         and not current_bp1_review_packet
     )
     bp3_context_packet = (
-        "bp3" in decision_text
-        or "workstream entry / orchestration" in decision_text
-        or "orchestration validation" in decision_text
+        not current_bp1_review_packet
+        and (
+            "bp3" in decision_text
+            or "workstream entry / orchestration" in decision_text
+            or "orchestration validation" in decision_text
+        )
     )
     hardening_h1_context_packet = (
         "approve bounded hardening h1" in decision_text
@@ -3216,7 +3952,14 @@ def _write_user_branch_plan_review(
     )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
-        and "authorize bp2 user branch plan review only" in normalized_decision
+        and any(
+            marker in normalized_decision
+            for marker in (
+                "authorize bp2 user branch plan review only",
+                "authorize bp2 user branch plan review preparation only",
+                "authorize bp2 preparation only",
+            )
+        )
     )
     bp3_orchestration_packet = (
         not workstream_package_approval_packet
@@ -4408,6 +5151,98 @@ def _write_user_branch_plan_review(
             "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
             "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
         ]
+        if bp1_branch_vision_packet:
+            contract_status = (
+                "Future Preview Only - BP1 Branch Vision remains pending USER acceptance, "
+                "revision, waiver, rejection, or hold. BP2 review is not active."
+            )
+            contract_version = "v2 - Future BP2 preview aid for BP1 packet; not active BP2 review."
+            what_user_sees = (
+                "USER should use USER_BRANCH_VISION_REVIEW.md as the only primary decision file. "
+                "This supporting aid previews the kind of engineering-plan questions that may be "
+                "asked later if BP1 is accepted or waived; it does not make BP2 reviewable."
+            )
+            why_nexus = (
+                "This keeps Branch Vision and Branch Plan gates separate so a readable preview "
+                "cannot be mistaken for USER acceptance, implementation approval, or Workstream readiness."
+            )
+            design_ballot = [
+                "Do not decide BP2 from this preview.",
+                "Use this preview to note BP2 questions after BP1.",
+                "Route back to BP1 if the preview changes the Branch Vision.",
+                "Pause / unclear.",
+            ]
+            user_decisions_intro = (
+                "USER should decide only the BP1 Branch Vision from this packet. "
+                "Any BP2 notes are future preview feedback and do not make BP2 active."
+            )
+            implementation_constraints = [
+                "BP1 is the only active USER decision in this packet.",
+                "BP2 review, BP3, Workstream implementation, PR, merge, release, and runtime/provider/private/cache/memory actions remain blocked.",
+                "This preview must not be treated as USER acceptance or waiver."
+            ]
+            rejected_deferred = [
+                "BP2 acceptance is deferred until BP1 acceptance or waiver exists and a later USER-approved BP2 packet is generated.",
+                "BP3 and Workstream implementation remain deferred to later gates.",
+            ]
+            source_truth_impact = [
+                "No source-truth owner should treat this BP1 packet as accepted or implementation-ready.",
+                "Any later BP2 packet must regenerate from current source truth after BP1 is accepted or waived.",
+            ]
+            contract_change_log = [
+                "v2 - Generated as a future BP2 preview aid inside a BP1 packet to preserve validator compatibility without implying BP2 reviewability."
+            ]
+            completion_checklist = [
+                "BP1 acceptance or waiver exists before any later BP2 packet becomes active.",
+                "Later BP2 packet regenerates from current source truth and names affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries.",
+                "Helper output verifies packet freshness while USER-facing files keep packet reviewability separate from USER acceptance.",
+                "BP3 / Workstream Entry may approve implementation only after BP1 and BP2 are accepted or explicitly waived and BP3 is separately approved or waived.",
+            ]
+            plain_english_summary = (
+                "This is not the active BP2 review. It is a supporting preview included in a BP1 "
+                "packet so USER can see what engineering-plan questions may come later after the "
+                "Branch Vision is accepted or waived."
+            )
+            end_state_vision = (
+                "If BP1 is later accepted or waived, a regenerated BP2 packet should make the "
+                "implementation surfaces, validators, risks, proof path, rollback plan, and blocked "
+                "future gates clear before any BP3 or Workstream decision."
+            )
+            walkthrough = [
+                "Read USER_BRANCH_VISION_REVIEW.md first and decide BP1.",
+                "Use this supporting aid only to preview later BP2 engineering-plan concerns.",
+                "Do not treat this supporting aid as BP2 acceptance, BP3 approval, or implementation approval.",
+            ]
+            surface_map = [
+                "USER_BRANCH_VISION_REVIEW.md: active BP1 decision file.",
+                "USER_BRANCH_PLAN_REVIEW.md: supporting future BP2 preview only.",
+                "Source Truth Context: copied source-truth references for USER inspection.",
+            ]
+            implementation_options = [
+                "Option A - Decide BP1 first. Pros: keeps gates deterministic; Cons: BP2 waits; Risk: low.",
+                "Option B - Revise BP1 before BP2. Pros: fixes vision drift early; Cons: requires packet repair; Risk: low.",
+                "Option C - Hold BP1. Pros: preserves caution; Cons: blocks BP2; Risk: low.",
+            ]
+            recommended_direction = (
+                "Codex recommends deciding BP1 first, then regenerating a later BP2 packet only "
+                "after BP1 acceptance or waiver is recorded."
+            )
+            current_scope = [
+                "BP1 Branch Vision Review only.",
+                "Supporting BP2 preview aid is not an active decision.",
+            ]
+            future_scope = [
+                "BP2, BP3, Workstream implementation, PR, merge, release, runtime/provider/private/cache/memory actions, and cleanup remain pending USER decisions.",
+            ]
+            slc_package_plan = [
+                "SLCs remain candidate Slice-level planning details for later BP2/BP3.",
+                "No SLC or seam is implementation-approved by this BP1 packet.",
+            ]
+            user_decisions = [
+                "Does USER accept, revise, waive, reject, or hold the BP1 Branch Vision?",
+                "Does USER want any previewed BP2 concern considered before a later BP2 packet is generated?",
+                "Does USER confirm BP2, BP3, Workstream implementation, and all runtime/provider/private/cache/memory gates remain blocked?",
+            ]
     if is_fam007_private_boundary_setup:
         plain_english_summary = (
             "This BP2 support file is preview/context only because BP1 is still pending. "
@@ -7082,7 +7917,14 @@ def _write_workstream_entry_packet_digests(
     )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
-        and "authorize bp2 user branch plan review only" in normalized_decision
+        and any(
+            marker in normalized_decision
+            for marker in (
+                "authorize bp2 user branch plan review only",
+                "authorize bp2 user branch plan review preparation only",
+                "authorize bp2 preparation only",
+            )
+        )
     )
     bp2_packet = (
         not bp1_packet
@@ -9088,6 +9930,7 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
+    review_export_zip: Path | None,
 ) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
@@ -9133,6 +9976,17 @@ def build_bundle(
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
     export_zip = _export_zip_path(review_root, label, created_at_dt)
+    if review_export_zip is not None:
+        requested_export_zip = review_export_zip.resolve()
+        if requested_export_zip.parent != review_root.resolve():
+            raise ValueError(
+                "Review export zip override must live beside the local USER hub folder: "
+                f"expected parent={review_root.resolve()} actual parent={requested_export_zip.parent}"
+            )
+        name_failures = _timestamped_export_zip_name_failures(requested_export_zip, label)
+        if name_failures:
+            raise ValueError("; ".join(name_failures))
+        export_zip = requested_export_zip
     normalized_decision = exact_user_decision.casefold()
     workstream_package_approval_packet = (
         source_branch in FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES
@@ -9210,8 +10064,15 @@ def build_bundle(
         )
     )
     bp1_packet = (
-        "bp1 branch vision" in exact_user_decision.casefold()
-        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+        "bp1 branch vision" in normalized_decision
+        and any(
+            marker in normalized_decision
+            for marker in (
+                "authorize bp2 user branch plan review only",
+                "authorize bp2 user branch plan review preparation only",
+                "authorize bp2 preparation only",
+            )
+        )
     )
     bp2_packet = (
         not bp1_packet
@@ -9555,7 +10416,20 @@ def main() -> int:
     parser.add_argument(
         "--review-export-zip",
         type=Path,
-        help="Timestamped upload ZIP to validate with --validate-local-user-packet.",
+        help=(
+            "Timestamped upload ZIP to validate with --validate-local-user-packet, or "
+            "the exact timestamped ZIP path to generate when building a review bundle."
+        ),
+    )
+    parser.add_argument(
+        "--packet-validation-mode",
+        choices=PACKET_VALIDATION_MODES,
+        default=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        help=(
+            "Currentness mode for --validate-local-user-packet: active-review and next-gate "
+            "must match live external state; accepted-historical validates the immutable "
+            "accepted packet snapshot against its copied context and live acceptance receipt."
+        ),
     )
     parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
     parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
@@ -9575,6 +10449,7 @@ def main() -> int:
             args.validate_local_user_packet,
             export_zip=args.review_export_zip,
             worktree_label=args.worktree_label or args.folder_name,
+            validation_mode=args.packet_validation_mode,
         )
         print(_format_local_user_packet_validation_result(result))
         return 1 if result.failures else 0
@@ -9624,6 +10499,7 @@ def main() -> int:
         exact_user_decision=args.exact_user_decision,
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
+        review_export_zip=args.review_export_zip,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")

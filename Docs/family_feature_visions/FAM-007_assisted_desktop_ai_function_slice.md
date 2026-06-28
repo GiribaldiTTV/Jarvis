@@ -90,6 +90,40 @@ This FFV category is broader than one branch route. It covers the public-safe as
 
 The branch route label `Three-NDAI Assisted Desktop AI Function Slice` is a selected grouped implementation route that may consume a subset of this FFV's elements. It is not the FFV category title and must not turn this FFV into a branch plan or live-state ledger.
 
+## AI Dashboard / AI Control Center Ontology And Placement Contract
+
+Visible Top-Most AI Hub Surface Name: `AI Dashboard`
+
+Focused Control Domain/Card Name: `AI Control Center`
+
+Internal Product Model: `AI Home / Control Foyer`
+
+Durable Definition: `AI Dashboard is the FAM-007-owned top-level AI orientation and control-entry surface. It tells the USER what AI exists, what state it is in, what is safe or blocked, and where to go for each AI subsystem. AI Control Center is a focused control domain/card inside AI Dashboard for persona, capability, provider/model readiness, Developer / Owner lane, and AI permission/control-plane posture.`
+
+Top-Level Admission Rule: top-level AI Dashboard content must be compact, orienting, trust-critical, immediately useful, or navigational. The top level may show a Global AI Strip, AI truth summaries, category doorway cards, and launcher actions that open the correct external-unique or exclusive child/domain window for this branch's approved Dashboard repair. Category cards are doors, not workspaces. Permanent stacked top-level report bodies, setup flows, logs, selectors, provider internals, capability-pack detail tables, memory/cache/private setup content, direct local-check execution, direct readiness-report generation/results, and long diagnostics are disallowed unless source truth and USER approval create an explicit exception.
+
+Child/Domain Window Chrome Rule: for this branch's selected AI Dashboard repair, opened AI category windows must render through Nexus-native custom product chrome and must reject generic Windows title bars. Required proof includes a real Dashboard card launcher click path, custom compact minimize/close controls, opened-window classification as exclusive child or external unique, lifecycle proof, full-desktop proof, focused-window proof, and duplicate-screenshot rejection.
+
+Placement Role Vocabulary:
+
+- `Top-level summary`: compact truth about active AI, readiness, trust/provider, capability, lane, or recovery posture.
+- `Top-level action`: a bounded launcher action that opens an approved focused surface without executing tests, reports, diagnostics, setup, provider/model behavior, or future-gated behavior by implication.
+- `Category doorway`: a card or control that routes to a grouped AI subsystem such as Active AI, AI Readiness, AI Diagnostics, Trust & Provider, Capabilities, Developer / Owner, Activity / Recovery, or AI Settings handoff.
+- `Focused surface / child surface / drill-down detail`: a separate approved child/domain window for the current AI Dashboard repair, or a later USER-approved page, panel, or modal when source truth selects that route. It owns detailed reports, selectors, settings, logs, setup, diagnostics, or recovery flows.
+- `Settings route`: a compact utility affordance that routes toward FAM-003 Global Settings / AI when available and remains future-gated when that surface is not approved or implemented.
+- `Maintenance lifecycle detail`: compact version/update/capability lifecycle placement that does not execute downloads, installs, updates, capability fetches, provider/model execution, packaging, shortcut mutation, or FAM-008 behavior.
+- `Diagnostic / status / trust-boundary`: truthful provider, prompt, model, download, cache, memory, private-lane, or capability state explanation that does not count as a concrete feature by itself.
+- `Concrete USER-facing feature`: a useful outcome the USER can intentionally produce beyond blocked-state explanation, status, or proof. The packet must say what the USER can now do, what useful result they receive, and why the result is more than unavailable/blocked-path explanation.
+- `Future-gated placeholder`: honest disabled or deferred route that does not imply implementation.
+- `Cross-FAM dependency support`: narrow dependency context for FAM-002, FAM-003, FAM-006, FAM-008, Governance, or another owner without transferring branch ownership.
+- `Out-of-scope`: any content requiring unapproved provider/model execution, prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, installer/shortcut/packaging execution, sibling worktree mutation, issue mutation, PR, merge, release, imports, or v1.8.0 work.
+
+Recommended Category Taxonomy: `AI Control Center`, `AI Readiness / Diagnostics`, `Capabilities & Maintenance`, `Developer / Owner`, `Activity / Recovery`, and `AI Settings` only when an owning settings route is approved. `Active AI` and `Trust & Provider` may exist as compact state inside the Global AI Strip or an opened domain window, but this branch must not duplicate them as redundant top-level category cards.
+
+Readiness Report Placement: the local AI readiness report remains a valid concrete local decision-aid behavior when it gives the USER ready/missing/blocked conditions, evidence checked, safe next steps, provider-visible-data `none`, and enforced trust boundaries. Its Local AI Check action, report generation action, detailed body, copy action, diagnostics detail, and results belong inside the `AI Readiness / Diagnostics` external-unique child/domain window for this branch. The AI Dashboard top level may show a compact readiness summary plus an `Open` launcher, but must not run the local check, generate the report, copy the report, or display the full report body inline.
+
+Visual Proof Carry-In: future visible FAM-007 surfaces must classify whether they use the accepted rendered DOM/CSS path, a future approved template/shared primitive, a reference-derived implementation, or a USER-approved exception. Reference-derived implementations remain unproven until side-by-side element-group visual adjudication, code-to-visual trace, proof artifacts, and USER acceptance or waiver are recorded.
+
 ## User-Facing Surfaces
 
 - ORIN / AI status surface in the desktop visual layer.
