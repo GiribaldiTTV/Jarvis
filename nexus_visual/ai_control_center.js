@@ -2,6 +2,7 @@
   const commandPrefix = "NEXUS_AI_CONTROL_CENTER_COMMAND:";
   let providerState = {};
   let scrollbarDrag = null;
+  let currentReadinessReportText = "";
   const windowControlStates = {
     minimize: "active",
     maximizeRestore: "hidden",
@@ -11,24 +12,24 @@
     minimize: {
       id: "ai-control-center-minimize-action",
       command: "minimize",
-      activeLabel: "Minimize AI Control Center",
-      blockedLabel: "Minimize AI Control Center blocked",
-      hiddenLabel: "Minimize AI Control Center hidden",
+      activeLabel: "Minimize AI Dashboard",
+      blockedLabel: "Minimize AI Dashboard blocked",
+      hiddenLabel: "Minimize AI Dashboard hidden",
     },
     maximizeRestore: {
       id: "ai-control-center-maximize-action",
       command: "maximize-restore",
-      activeLabel: "Maximize AI Control Center",
-      activeMaximizedLabel: "Restore AI Control Center",
-      blockedLabel: "Maximize or restore AI Control Center blocked",
-      hiddenLabel: "Maximize or restore AI Control Center hidden until future implementation",
+      activeLabel: "Maximize AI Dashboard",
+      activeMaximizedLabel: "Restore AI Dashboard",
+      blockedLabel: "Maximize or restore AI Dashboard blocked",
+      hiddenLabel: "Maximize or restore AI Dashboard hidden until future implementation",
     },
     close: {
       id: "ai-control-center-close-action",
       command: "close",
-      activeLabel: "Close AI Control Center",
-      blockedLabel: "Close AI Control Center blocked",
-      hiddenLabel: "Close AI Control Center hidden",
+      activeLabel: "Close AI Dashboard",
+      blockedLabel: "Close AI Dashboard blocked",
+      hiddenLabel: "Close AI Dashboard hidden",
     },
   };
   const validWindowControlStates = new Set(["hidden", "blocked", "active"]);
@@ -42,6 +43,152 @@
   };
   const emitCommand = (name) => {
     console.info(`${commandPrefix}${name}`);
+  };
+  const formatReportItems = (items, keys = ["label"]) => {
+    const list = Array.isArray(items) ? items : [];
+    if (!list.length) {
+      return "None";
+    }
+    return list
+      .map((item) => {
+        if (item && typeof item === "object") {
+          return keys
+            .map((key) => String(item[key] || "").trim())
+            .filter(Boolean)
+            .join(" - ");
+        }
+        return String(item || "").trim();
+      })
+      .filter(Boolean)
+      .join("; ");
+  };
+  const buildReportText = (report) => {
+    const title = String(report.title || "Local AI Readiness Report");
+    const lines = [
+      title,
+      "",
+      `Summary: ${String(report.summary || "No local readiness report is available.")}`,
+      `Useful outcome: ${String(report.usefulOutcome || "Not available")}`,
+      `Provider-visible data: ${String(report.providerVisibleData || "none")}`,
+      `Copy/persistence: ${String(report.copyMode || "clipboard-only-user-initiated")} / ${String(report.persistence || "view-only-no-file-persistence")}`,
+      "",
+      `Ready: ${formatReportItems(report.readyConditions, ["label", "evidence"])}`,
+      `Missing: ${formatReportItems(report.missingRequirements, ["label", "reason"])}`,
+      `Blocked: ${formatReportItems(report.blockedPaths, ["label", "state", "gate"])}`,
+      `Evidence checked: ${formatReportItems(report.localEvidenceChecked)}`,
+      `Safe next steps: ${formatReportItems(report.safeNextSteps)}`,
+      `Trust boundaries: ${formatReportItems(report.trustBoundaries)}`,
+    ];
+    return lines.join("\n");
+  };
+  const setReportCopyEnabled = (enabled) => {
+    const button = byId("ai-control-center-copy-report-action");
+    if (!button) {
+      return;
+    }
+    button.disabled = !enabled;
+    button.setAttribute("aria-disabled", enabled ? "false" : "true");
+  };
+  const copyTextThroughLocalSurface = (text) => {
+    const copySurface = document.createElement("textarea");
+    copySurface.value = text;
+    copySurface.setAttribute("readonly", "");
+    copySurface.style.position = "fixed";
+    copySurface.style.left = "-9999px";
+    copySurface.style.top = "0";
+    document.body.appendChild(copySurface);
+    copySurface.focus();
+    copySurface.select();
+    const copied = document.execCommand("copy");
+    copySurface.remove();
+    return copied;
+  };
+  const renderReadinessReport = (report) => {
+    const normalized = report && typeof report === "object" ? report : {};
+    const guardClosed = (
+      normalized.providerVisibleData === "none"
+      && normalized.sentToProvider === false
+      && normalized.canAcceptPrompts === false
+      && normalized.promptSendPosture === "prompt-send-disabled"
+      && normalized.networkEgressState === "network-egress-blocked"
+      && normalized.memoryIndexingState === "memory-indexing-disabled"
+    );
+    const body = byId("ai-control-center-report-body");
+    if (!guardClosed) {
+      currentReadinessReportText = "";
+      setText("ai-control-center-report-state", "Blocked by boundary mismatch");
+      setText("ai-control-center-report-summary", "Report blocked because local trust-boundary proof is inconsistent.");
+      if (body) {
+        body.hidden = true;
+      }
+      setReportCopyEnabled(false);
+      requestAnimationFrame(syncDashboardLayout);
+      return false;
+    }
+
+    currentReadinessReportText = buildReportText(normalized);
+    setText("ai-control-center-report-state", "Generated locally");
+    setText("ai-control-center-report-persistence", "View-only; copy is USER initiated");
+    setText("ai-control-center-report-summary", normalized.summary || "Local readiness report generated.");
+    setText("ai-control-center-report-ready", formatReportItems(normalized.readyConditions, ["label", "evidence"]));
+    setText("ai-control-center-report-missing", formatReportItems(normalized.missingRequirements, ["label", "reason"]));
+    setText("ai-control-center-report-blocked", formatReportItems(normalized.blockedPaths, ["label", "state", "gate"]));
+    setText("ai-control-center-report-evidence", formatReportItems(normalized.localEvidenceChecked));
+    setText("ai-control-center-report-next", formatReportItems(normalized.safeNextSteps));
+    setText("ai-control-center-report-boundary", formatReportItems(normalized.trustBoundaries));
+    if (body) {
+      body.hidden = false;
+    }
+    setReportCopyEnabled(true);
+    requestAnimationFrame(syncDashboardLayout);
+    return true;
+  };
+  const copyReadinessReport = async () => {
+    if (!currentReadinessReportText) {
+      setText("ai-control-center-report-state", "Generate report before copying");
+      return false;
+    }
+    try {
+      if (copyTextThroughLocalSurface(currentReadinessReportText)) {
+        setText("ai-control-center-report-state", "Copied locally");
+        return true;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentReadinessReportText);
+      } else {
+        throw new Error("clipboard unavailable");
+      }
+      setText("ai-control-center-report-state", "Copied locally");
+      return true;
+    } catch (error) {
+      setText("ai-control-center-report-state", "Copy unavailable; report remains visible");
+      return false;
+    }
+  };
+  const attachActivationHandler = (element, handler) => {
+    if (!element || typeof handler !== "function") {
+      return;
+    }
+    let lastActivationAt = 0;
+    const activate = (event) => {
+      const now = Date.now();
+      if (now - lastActivationAt < 90) {
+        return;
+      }
+      lastActivationAt = now;
+      handler(event);
+    };
+    element.addEventListener("click", activate);
+    element.addEventListener("pointerup", activate);
+  };
+  const applyDeferredDoorwayState = () => {
+    document.querySelectorAll("[data-action-state='deferred']").forEach((button) => {
+      button.disabled = true;
+      button.setAttribute("aria-disabled", "true");
+      button.dataset.launchTarget = "deferred";
+      button.dataset.launchWindowKind = "deferred-detached-child";
+      button.removeAttribute("title");
+    });
   };
   const stripNativeTooltips = () => {
     const surface = byId("monitoring-hud");
@@ -157,6 +304,58 @@
     syncWindowControlState(byId("monitoring-hud")?.dataset.windowState || "normal", states);
   };
 
+  const syncRowLabelColumnSizing = () => {
+    const surface = byId("monitoring-hud");
+    const hub = byId("ai-control-center-card-hub");
+    if (!surface || !hub) {
+      return;
+    }
+    const labels = [...hub.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row > span")];
+    const maxLabelWidth = labels.reduce((maxWidth, label) => {
+      const rect = label.getBoundingClientRect();
+      return Math.max(maxWidth, Math.ceil(Math.max(rect.width || 0, label.scrollWidth || 0)));
+    }, 0);
+    hub.style.setProperty(
+      "--ai-dashboard-row-label-width",
+      `${maxLabelWidth}px`,
+    );
+    hub.style.setProperty("--ai-dashboard-row-gutter", "8px");
+    hub.style.setProperty("--ai-dashboard-row-vertical-gutter", "6px");
+    hub.dataset.rowLabelColumnSource = "measured-max-visible-label-content-px";
+    hub.dataset.rowLabelColumnWidth = String(maxLabelWidth);
+    hub.dataset.rowLabelColumnUnit = "px";
+    hub.dataset.rowValueGutter = "8";
+    hub.dataset.rowValueColumnContract = "shared-max-label-content-plus-fixed-gutter";
+    surface.dataset.rowTitleSizing = "shared-max-label-content-fixed-gutter";
+  };
+  window.nexusAiControlCenterSyncRowLabelColumnSizing = syncRowLabelColumnSizing;
+
+  const syncTitleDescriptionWrap = () => {
+    const surface = byId("monitoring-hud");
+    const titleGroup = document.querySelector(".monitoring-hud__title-group");
+    const subtitle = document.querySelector(".monitoring-hud__subtitle");
+    if (!surface || !titleGroup || !subtitle) {
+      return;
+    }
+    const style = getComputedStyle(titleGroup);
+    const rect = titleGroup.getBoundingClientRect();
+    const paddingX = Number.parseFloat(style.paddingLeft || "0") + Number.parseFloat(style.paddingRight || "0");
+    const maxWidth = Math.max(0, Math.floor(rect.width - paddingX));
+    titleGroup.style.setProperty("--ai-dashboard-title-description-max-width", `${maxWidth}px`);
+    surface.dataset.titleDescriptionWrap = "measured-title-card-prose-word-wrap";
+    subtitle.dataset.titleDescriptionWrap = "measured-title-card-prose-word-wrap";
+    subtitle.dataset.titleDescriptionColumnSource = "title-card-inner-content-width-px";
+    subtitle.dataset.titleDescriptionMaxWidth = String(maxWidth);
+  };
+  window.nexusAiControlCenterSyncTitleDescriptionWrap = syncTitleDescriptionWrap;
+
+  const syncDashboardLayout = () => {
+    syncTitleDescriptionWrap();
+    syncRowLabelColumnSizing();
+    syncCustomScrollbar();
+  };
+  window.nexusAiControlCenterSyncDashboardLayout = syncDashboardLayout;
+
   const syncCustomScrollbar = () => {
     const surface = byId("monitoring-hud");
     const chrome = surface?.querySelector(".monitoring-hud__chrome");
@@ -211,6 +410,15 @@
 
   window.nexusAiControlCenterApplyProviderState = (payload) => {
     providerState = payload && typeof payload === "object" ? payload : {};
+    const firstText = (...values) => {
+      for (const value of values) {
+        const text = String(value || "").trim();
+        if (text) {
+          return text;
+        }
+      }
+      return "";
+    };
     const providerExecution = (
       providerState.providerExecutionGateState === "provider-execution-disabled"
       && providerState.modelExecutionGateState === "model-execution-disabled"
@@ -236,19 +444,54 @@
         providerState.providerVisibleDataDetail
         || "Provider-visible data state requires review before any provider path runs."
       );
+    const diagnosticLabel = firstText(
+      providerState.aiControlCenterDiagnosticLabel,
+      "No provider configured; fail-closed",
+    );
+    const boundaryLabel = firstText(
+      providerState.aiControlCenterProviderBoundaryLabel,
+      "Provider boundary: blocked",
+    );
+    const blockedActionLabel = firstText(
+      providerState.aiControlCenterBlockedActionLabel,
+      "Prompt/provider/model action blocked",
+    );
+    const unavailableCapabilityLabel = firstText(
+      providerState.aiControlCenterUnavailableCapabilityLabel,
+      "Capability packs unavailable",
+    );
+    const recoveryLabel = firstText(
+      providerState.aiControlCenterRecoveryLabel,
+      "Retry local check only",
+    );
+    const degradedPathLabel = firstText(
+      providerState.aiControlCenterDegradedPathLabel,
+      "Local guidance only",
+    );
 
-    setText("ai-control-center-orin-state", "Not implemented; no real AI executing");
-    setText("ai-control-center-provider-visible-data", providerVisibleDataDisplay);
     setText("ai-control-center-provider-model", providerExecution);
     setText("ai-control-center-prompt-memory", "Not accepted, sent, stored, or indexed");
     setText("ai-control-center-capability-packs", capabilityPacks);
+    setText("ai-control-center-maintenance-updates", "Lifecycle placement only; update execution blocked");
     setText("ai-control-center-edition-lanes", "Public only; Developer and Owner gated");
+    setText("ai-control-center-provider-boundary", boundaryLabel);
+    setText("ai-control-center-diagnostic-state", diagnosticLabel);
+    setText("ai-control-center-recovery", recoveryLabel);
     setText("ai-control-center-local-result", "Waiting for local action");
     setText(
       "ai-control-center-local-detail",
       providerVisibleDataDetail,
     );
-    requestAnimationFrame(syncCustomScrollbar);
+    setText("ai-control-center-blocked-action", blockedActionLabel);
+    setText("ai-control-center-unavailable-capability", unavailableCapabilityLabel);
+    setText("ai-control-center-degraded-path", degradedPathLabel);
+    currentReadinessReportText = "";
+    setText("ai-control-center-report-state", "Not generated");
+    setText("ai-control-center-report-persistence", "View-only; copy is USER initiated");
+    setText("ai-control-center-report-summary", "Generate the report to inspect local readiness.");
+    byId("ai-control-center-report-body")?.setAttribute("hidden", "");
+    setReportCopyEnabled(false);
+    requestAnimationFrame(syncDashboardLayout);
   };
 
   window.nexusAiControlCenterRunLocalCheck = () => {
@@ -262,6 +505,10 @@
     const localResult = rawLocalResult === "No-provider check: no provider configured"
       ? "No provider configured"
       : rawLocalResult.replace(": no provider configured", ": No provider configured");
+    const localDetail = String(
+      providerState.localActionResultDetail
+      || "No prompt was accepted or sent; provider-visible data remains none. Capability packs, private lanes, downloads, memory, and network remain blocked.",
+    );
     setText(
       "ai-control-center-local-result",
       guardClosed ? localResult : "Local check: blocked",
@@ -269,9 +516,51 @@
     setText(
       "ai-control-center-local-detail",
       guardClosed
-        ? (providerState.localActionResultDetail || "No prompt was accepted or sent; provider-visible data remains none.")
+        ? localDetail
         : "Provider boundary mismatch; no local result was produced.",
     );
+    setText(
+      "ai-control-center-diagnostic-state",
+      guardClosed
+        ? (providerState.aiControlCenterDiagnosticLabel || "No provider configured; fail-closed")
+        : "Boundary mismatch; fail-closed",
+    );
+    setText(
+      "ai-control-center-blocked-action",
+      guardClosed
+        ? (providerState.aiControlCenterBlockedActionLabel || "Prompt/provider/model action blocked")
+        : "Local check blocked by boundary mismatch",
+    );
+    requestAnimationFrame(syncDashboardLayout);
+  };
+  window.nexusAiControlCenterGenerateReadinessReport = () => (
+    renderReadinessReport(providerState.localAiReadinessReport || {})
+  );
+  window.nexusAiControlCenterCopyReadinessReport = copyReadinessReport;
+
+  const observeDashboardLayoutDrift = () => {
+    const hub = byId("ai-control-center-card-hub");
+    if (!hub || !window.ResizeObserver) {
+      return;
+    }
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(syncDashboardLayout);
+    });
+    observer.observe(hub);
+    const titleGroup = document.querySelector(".monitoring-hud__title-group");
+    const subtitle = document.querySelector(".monitoring-hud__subtitle");
+    if (titleGroup) {
+      observer.observe(titleGroup);
+    }
+    if (subtitle) {
+      observer.observe(subtitle);
+    }
+    hub.querySelectorAll(".ai-control-center-card-rows .monitoring-hud__state-row > span").forEach((label) => {
+      observer.observe(label);
+    });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => requestAnimationFrame(syncDashboardLayout)).catch(() => {});
+    }
   };
 
   const attachWindowControlHandlers = () => {
@@ -295,14 +584,24 @@
   };
 
   hydrateWindowControlStatesFromMarkup();
+  applyDeferredDoorwayState();
   stripNativeTooltips();
   observeNativeTooltipDrift();
+  observeDashboardLayoutDrift();
   attachWindowControlHandlers();
-  byId("ai-control-center-local-check-action")?.addEventListener("click", () => {
+  attachActivationHandler(byId("ai-control-center-local-check-action"), () => {
     window.nexusAiControlCenterRunLocalCheck();
     emitCommand("run-local-check");
   });
-
+  attachActivationHandler(byId("ai-control-center-generate-report-action"), () => {
+    const generated = window.nexusAiControlCenterGenerateReadinessReport();
+    emitCommand(generated ? "generate-readiness-report" : "generate-readiness-report-blocked");
+  });
+  attachActivationHandler(byId("ai-control-center-copy-report-action"), () => {
+    window.nexusAiControlCenterCopyReadinessReport().then((copied) => {
+      emitCommand(copied ? "copy-readiness-report" : "copy-readiness-report-blocked");
+    });
+  });
   byId("ai-control-center-card-hub")?.addEventListener("scroll", syncCustomScrollbar, { passive: true });
   byId("ai-control-center-scrollbar-track")?.addEventListener("mousedown", (event) => {
     event.preventDefault();
@@ -332,8 +631,12 @@
   window.addEventListener("mouseup", () => {
     scrollbarDrag = null;
   });
-  window.addEventListener("resize", syncCustomScrollbar);
-  window.addEventListener("load", () => requestAnimationFrame(syncCustomScrollbar));
+  window.addEventListener("resize", syncDashboardLayout);
+  window.addEventListener("load", () => {
+    applyDeferredDoorwayState();
+    requestAnimationFrame(syncDashboardLayout);
+  });
   syncWindowControlState("normal");
-  requestAnimationFrame(syncCustomScrollbar);
+  syncDashboardLayout();
+  requestAnimationFrame(syncDashboardLayout);
 })();

@@ -52,6 +52,41 @@ Required active branch-plan route markers:
 
 Real feature implementation means the branch names the behavior, control, surface, state transition, workflow, source-truth enforcement, helper behavior, validator behavior, or runtime behavior that Workstream will create, change, or enforce. Proofs, packets, readiness matrices, registries, setup themes, boundary-control labels, decision paths, and validation plans are not enough by themselves. A boundary-control route is valid only when the branch plan names the actual control behavior that will be implemented or enforced; proof of the boundary is validation evidence, not the deliverable.
 
+## Concrete USER-Facing Feature Classification Gate
+
+Every Branch Readiness candidate matrix, BP1 Branch Vision, BP2 Branch Plan, BP3 Workstream Entry packet, Workstream approval packet, Hardening review, Live Validation / UTS packet, PR Readiness packet, and release-facing packet must classify planned and delivered work into these work-output categories:
+
+- `Concrete USER-facing feature`
+- `Runtime-facing behavior directly supporting a concrete USER-facing feature`
+- `Foundation / infrastructure`
+- `Diagnostic / status / trust-boundary`
+- `Proof / validator / helper`
+- `Governance / packet / documentation`
+- `Cross-FAM dependency support`
+
+`Concrete USER-facing feature` is the strict feature-delivery class. It must answer all three questions in plain USER language:
+
+1. What can the USER now do that they could not do before?
+2. What useful outcome does the system now produce?
+3. Is that outcome more than explaining unavailable or blocked paths, proving boundaries, or reporting readiness?
+
+Runtime-visible status, no-provider results, blocked-state explanations, provider-visible-data `none`, capability unavailable copy, truthful `AI not implemented` copy, validators, proof helpers, USER packets, RAR/UIREF carry-ins, and governance docs are not concrete feature delivery by themselves. They may be valuable foundation, trust-readiness, proof, or support work, but they cannot close a feature branch as a concrete runtime feature unless tied to a selected concrete USER-facing feature outcome.
+
+If no delivered item qualifies as a `Concrete USER-facing feature`, the branch plan or phase packet must choose one legal disposition before PR Readiness:
+
+- reject the plan as a feature branch
+- reclassify the branch as a bounded foundation / infrastructure cycle
+- hold before PR Readiness
+- return to BP1 / BP planning to identify the real runtime carrier
+- block until USER explicitly approves a foundation-only posture for PR consideration
+
+PR Readiness is blocked unless one of these is true:
+
+- the branch delivered a concrete USER-facing feature and that feature is hardened and validated according to source truth
+- the branch is explicitly classified as a bounded foundation / infrastructure cycle and USER separately approves that posture for PR consideration
+
+No branch may proceed to PR Readiness merely because validators pass, packets validate, proof helpers are green, diagnostic/status UI exists, trust-boundary UI exists, blocked-state copy exists, or source-truth artifacts were generated.
+
 When this requirement is machine-checkable, keep it deterministic: fixtures or validators should reject TBD implementation output, BP2-will-decide-later language, proof packets labeled as concrete feature routes, and boundary-control labels without an implemented control. When the distinction requires human judgment, the branch plan must say which semantic review remains open instead of treating marker presence as green.
 
 Infrastructure and setup can be branch-worthy only when tied to a selected implementation route or to an exact USER action gate. Creating User/Public, Developer, or Owner lanes by itself is groundwork, not a feature implementation carrier. When the legal answer is to pause, retarget, or rename, the branch plan must say so with `Route Disposition:` and `Retarget / Rename Recommendation:` before BP1 or BP2 continue.

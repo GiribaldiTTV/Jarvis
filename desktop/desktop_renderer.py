@@ -8,6 +8,7 @@ import ctypes
 import ctypes.wintypes
 import datetime
 import time
+import urllib.parse
 import webbrowser
 from html import escape
 from pathlib import Path
@@ -858,6 +859,792 @@ class AIControlCenterCommandPage(QWebEnginePage):
             self.ai_control_center_command.emit(message[len(prefix):])
             return
         super().javaScriptConsoleMessage(level, message, line_number, source_id)
+
+
+class AIDashboardDomainCommandPage(QWebEnginePage):
+    domain_command = Signal(str, str)
+
+    def __init__(self, domain_id: str, parent=None):
+        super().__init__(parent)
+        self._domain_id = str(domain_id or "unknown")
+
+    def javaScriptConsoleMessage(self, level, message, line_number, source_id):
+        prefix = "NEXUS_AI_DOMAIN_WINDOW_COMMAND:"
+        if isinstance(message, str) and message.startswith(prefix):
+            self.domain_command.emit(self._domain_id, message[len(prefix):])
+            return
+        super().javaScriptConsoleMessage(level, message, line_number, source_id)
+
+
+class AIDashboardDomainWindow(QDialog):
+    RESIZE_MARGIN = 12
+    SHELL_RADIUS = 24
+
+    DOMAIN_DEFINITIONS = {
+        "readiness-diagnostics": {
+            "title": "Diagnostics",
+            "kicker": "Nexus Desktop AI",
+            "description": "Local checks, readiness reports, copy, diagnostic detail, and results live here, outside the AI Dashboard hub.",
+            "classification": "external-unique",
+            "lifecycle": "stays-open-if-dashboard-closes",
+            "actions": ("run-local-check", "generate-readiness-report", "copy-readiness-report"),
+        },
+        "control-center": {
+            "title": "Control Center",
+            "kicker": "Nexus Desktop AI",
+            "description": "Persona, capabilities, provider/model readiness, Developer and Owner gates, and control-plane details live here.",
+            "classification": "exclusive-child",
+            "lifecycle": "closes-with-dashboard",
+            "actions": (),
+        },
+        "capabilities-maintenance": {
+            "title": "Capabilities",
+            "kicker": "Nexus Desktop AI",
+            "description": "Capability-pack, maintenance placement, and edition gates live here. Update, download, install, fetch, and capability execution are blocked.",
+            "classification": "exclusive-child",
+            "lifecycle": "closes-with-dashboard",
+            "actions": (),
+        },
+    }
+
+    def __init__(self, domain_id: str, screen, *, parent=None, event_logger=None):
+        super().__init__(parent)
+        self.domain_id = str(domain_id or "")
+        self.screen_ref = screen
+        self.event_logger = event_logger
+        self._provider_payload: dict[str, object] = {}
+        self._page_ready = False
+        self._current_report_text = ""
+        definition = self.DOMAIN_DEFINITIONS.get(self.domain_id, self.DOMAIN_DEFINITIONS["control-center"])
+        self.definition = definition
+        self.setObjectName(f"fam007AiDashboardDomainWindow_{self.domain_id.replace('-', '_')}")
+        self.setWindowTitle(definition["title"])
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowModality(Qt.NonModal)
+        self.setMinimumSize(460, 420)
+        self.resize(620, 560 if self.domain_id == "readiness-diagnostics" else 460)
+        self.setProperty("aiDashboardDomainWindow", self.domain_id)
+        self.setProperty("aiDashboardDomainClassification", definition["classification"])
+        self.setProperty("aiDashboardDomainLifecycle", definition["lifecycle"])
+        self.setProperty("ndaiNativeChrome", True)
+        self.setProperty("genericOsChromeRejected", True)
+        self.setProperty("windowControlCluster", "compact-minimize-close")
+        self.setProperty("providerVisibleData", "none")
+        self.setProperty("providerModelExecution", "blocked")
+        self.setProperty("promptSend", "prompt-send-disabled")
+        self.setProperty("networkEgress", "network-egress-blocked")
+        self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self.setProperty("ndaiShellConformance", "ndai-webview-rounded-window-shell")
+        self.setProperty("windowMoveBehavior", "header-drag")
+        self.setProperty("windowResizeBehavior", "edge-corner-resize")
+        self._drag_start_global = QPoint()
+        self._drag_window_origin = QPoint()
+        self._dragging_header = False
+        self._resize_start_global = QPoint()
+        self._resize_start_geometry = QRect()
+        self._resize_edges = Qt.Edges()
+        self._resizing_window = False
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.webview = QWebEngineView(self)
+        self.webview.setContextMenuPolicy(Qt.NoContextMenu)
+        self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.setMouseTracking(True)
+        self.setMouseTracking(True)
+        self.webview.installEventFilter(self)
+        self._web_page = AIDashboardDomainCommandPage(self.domain_id, self.webview)
+        self._web_page.domain_command.connect(self._handle_domain_command)
+        self.webview.setPage(self._web_page)
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
+        self.webview.loadFinished.connect(self._on_html_loaded)
+        layout.addWidget(self.webview)
+        self.webview.setHtml(self._domain_html(), QUrl.fromLocalFile(str(self._asset_base_dir()) + os.sep))
+        _apply_windows_dark_title_bar(self)
+        self._apply_shell_mask()
+
+    def eventFilter(self, obj, event):
+        if obj is self.webview:
+            event_type = event.type()
+            if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                local = event.position().toPoint() if hasattr(event, "position") else event.pos()
+                edges = self._resize_edges_for_point(local)
+                if edges:
+                    self._resizing_window = True
+                    self._resize_edges = edges
+                    self._resize_start_global = event.globalPosition().toPoint()
+                    self._resize_start_geometry = QRect(self.geometry())
+                    event.accept()
+                    return True
+                if 14 <= local.y() <= 92 and local.x() < max(0, self.webview.width() - 118):
+                    self._dragging_header = True
+                    self._drag_start_global = event.globalPosition().toPoint()
+                    self._drag_window_origin = self.frameGeometry().topLeft()
+                    event.accept()
+                    return True
+            if event_type == QEvent.MouseMove and self._resizing_window:
+                self._apply_resize_from_global(event.globalPosition().toPoint())
+                event.accept()
+                return True
+            if event_type == QEvent.MouseMove and self._dragging_header:
+                current = event.globalPosition().toPoint()
+                self.move(self._drag_window_origin + (current - self._drag_start_global))
+                event.accept()
+                return True
+            if event_type == QEvent.MouseMove:
+                local = event.position().toPoint() if hasattr(event, "position") else event.pos()
+                self._set_resize_cursor(self._resize_edges_for_point(local))
+            if event_type == QEvent.MouseButtonRelease and (self._dragging_header or self._resizing_window):
+                self._dragging_header = False
+                self._resizing_window = False
+                self._resize_edges = Qt.Edges()
+                event.accept()
+                return True
+        return super().eventFilter(obj, event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._apply_shell_mask()
+
+    def leaveEvent(self, event):
+        if not self._resizing_window:
+            self.unsetCursor()
+        super().leaveEvent(event)
+
+    def _apply_shell_mask(self) -> None:
+        if self.width() <= 0 or self.height() <= 0:
+            return
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(self.rect()), self.SHELL_RADIUS, self.SHELL_RADIUS)
+        self.setMask(QRegion(path.toFillPolygon().toPolygon()))
+
+    def _resize_edges_for_point(self, point: QPoint):
+        edges = Qt.Edges()
+        margin = self.RESIZE_MARGIN
+        if point.x() <= margin:
+            edges |= Qt.LeftEdge
+        elif point.x() >= self.webview.width() - margin:
+            edges |= Qt.RightEdge
+        if point.y() <= margin:
+            edges |= Qt.TopEdge
+        elif point.y() >= self.webview.height() - margin:
+            edges |= Qt.BottomEdge
+        return edges
+
+    def _set_resize_cursor(self, edges) -> None:
+        if edges in (Qt.LeftEdge | Qt.TopEdge, Qt.RightEdge | Qt.BottomEdge):
+            self.setCursor(Qt.SizeFDiagCursor)
+        elif edges in (Qt.RightEdge | Qt.TopEdge, Qt.LeftEdge | Qt.BottomEdge):
+            self.setCursor(Qt.SizeBDiagCursor)
+        elif edges & (Qt.LeftEdge | Qt.RightEdge):
+            self.setCursor(Qt.SizeHorCursor)
+        elif edges & (Qt.TopEdge | Qt.BottomEdge):
+            self.setCursor(Qt.SizeVerCursor)
+        else:
+            self.unsetCursor()
+
+    def _apply_resize_from_global(self, current_global: QPoint) -> None:
+        delta = current_global - self._resize_start_global
+        rect = QRect(self._resize_start_geometry)
+        min_width = self.minimumWidth()
+        min_height = self.minimumHeight()
+        if self._resize_edges & Qt.LeftEdge:
+            rect.setLeft(min(rect.right() - min_width, rect.left() + delta.x()))
+        if self._resize_edges & Qt.RightEdge:
+            rect.setRight(max(rect.left() + min_width, rect.right() + delta.x()))
+        if self._resize_edges & Qt.TopEdge:
+            rect.setTop(min(rect.bottom() - min_height, rect.top() + delta.y()))
+        if self._resize_edges & Qt.BottomEdge:
+            rect.setBottom(max(rect.top() + min_height, rect.bottom() + delta.y()))
+        self.setGeometry(rect)
+        self._apply_shell_mask()
+
+    def _asset_base_dir(self) -> Path:
+        return Path(__file__).resolve().parents[1] / "nexus_visual"
+
+    def _domain_html(self) -> str:
+        definition = self.definition
+        body = self._domain_body_html()
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{escape(definition["title"])}</title>
+  <link rel="stylesheet" href="monitoring_hud.css" />
+  <style>
+    html, body {{ margin: 0; min-height: 100%; background: transparent; }}
+    body.desktop-mode {{ overflow: hidden; }}
+    .ai-domain-window {{
+      min-height: 100vh;
+      padding: 12px;
+      box-sizing: border-box;
+      color: rgba(235, 252, 255, 0.96);
+      background: transparent;
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    }}
+    .ai-domain-window__chrome {{
+      position: relative;
+      height: calc(100vh - 24px);
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
+      border: 1px solid rgba(94, 207, 229, 0.42);
+      border-radius: 24px;
+      padding: 14px;
+      box-sizing: border-box;
+      background:
+        radial-gradient(circle at 20% 4%, rgba(94, 212, 235, 0.11), transparent 34%),
+        linear-gradient(180deg, rgba(4, 16, 28, 0.985), rgba(2, 8, 16, 0.985));
+      box-shadow:
+        0 18px 46px rgba(0, 0, 0, 0.46),
+        0 0 24px rgba(86, 236, 255, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar {{
+      width: 8px;
+      height: 8px;
+      background: transparent;
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-track {{
+      margin: 18px 0;
+      border-radius: 999px;
+      background: transparent;
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-button {{
+      width: 0;
+      height: 0;
+      display: none;
+      background: transparent;
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-thumb {{
+      min-height: 44px;
+      border-radius: 999px;
+      background: rgba(108, 232, 255, 0.58);
+      box-shadow: 0 0 8px rgba(88, 225, 255, 0.14);
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-thumb:hover {{
+      background: rgba(126, 248, 218, 0.66);
+      box-shadow: 0 0 12px rgba(88, 225, 255, 0.20);
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-corner {{
+      background: transparent;
+    }}
+    .ai-domain-window__header {{
+      display: grid;
+      gap: 6px;
+      padding: 10px 118px 14px 10px;
+      border-bottom: 1px solid rgba(94, 207, 229, 0.24);
+      margin-bottom: 12px;
+      cursor: move;
+      user-select: none;
+    }}
+    .ai-domain-window__controls {{
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid rgba(122, 232, 255, 0.44);
+      border-radius: 999px;
+      background: linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.76));
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.05) inset, 0 8px 19px rgba(0, 0, 0, 0.28);
+    }}
+    .ai-domain-window__control {{
+      position: relative;
+      width: 26px;
+      min-width: 26px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      border: 1px solid rgba(122, 232, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(5, 22, 36, 0.62);
+      color: transparent;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.04) inset;
+      transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+    }}
+    .ai-domain-window__control::before,
+    .ai-domain-window__control::after {{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      content: "";
+      box-sizing: border-box;
+      border-color: rgba(235, 252, 255, 0.92);
+      background: rgba(235, 252, 255, 0.92);
+      transform: translate(-50%, -50%);
+      transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+    }}
+    .ai-domain-window__control:hover,
+    .ai-domain-window__control:focus-visible {{
+      border-color: rgba(126, 248, 218, 0.56);
+      background: rgba(9, 49, 70, 0.78);
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.07) inset, 0 0 14px rgba(86, 236, 255, 0.28);
+      outline: none;
+    }}
+    .ai-domain-window__control:active {{
+      border-color: rgba(163, 255, 228, 0.72);
+      background: rgba(7, 40, 57, 0.86);
+      transform: translateY(1px);
+    }}
+    .ai-domain-window__control--minimize::before {{
+      width: 10px;
+      height: 2px;
+      border-radius: 999px;
+    }}
+    .ai-domain-window__control--close::before,
+    .ai-domain-window__control--close::after {{
+      width: 11px;
+      height: 2px;
+      border-radius: 999px;
+    }}
+    .ai-domain-window__control--close::before {{
+      transform: translate(-50%, -50%) rotate(45deg);
+    }}
+    .ai-domain-window__control--close::after {{
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }}
+    .ai-domain-window__kicker {{
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 11px;
+      font-weight: 820;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+    }}
+    .ai-domain-window__title {{
+      font-size: 26px;
+      line-height: 1.05;
+      font-weight: 850;
+      letter-spacing: 0;
+    }}
+    .ai-domain-window__description {{
+      margin: 0;
+      color: rgba(181, 218, 229, 0.88);
+      font-size: 12px;
+      font-weight: 660;
+      line-height: 1.35;
+    }}
+    .ai-domain-window__card {{
+      display: grid;
+      gap: 8px;
+      padding: 14px 18px 12px;
+      border: 1px solid rgba(94, 207, 229, 0.28);
+      border-radius: 18px;
+      background: rgba(3, 18, 32, 0.74);
+      margin-bottom: 10px;
+    }}
+    .ai-domain-window__card-heading {{
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 6px 14px;
+      align-items: start;
+    }}
+    .ai-domain-window__card-number {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(87, 213, 236, 0.46);
+      border-radius: 12px;
+      color: rgba(103, 224, 255, 0.98);
+      background: rgba(7, 54, 77, 0.52);
+      font-size: 11px;
+      font-weight: 820;
+    }}
+    .ai-domain-window__card-title {{
+      color: rgba(235, 252, 255, 0.96);
+      font-size: 16px;
+      font-weight: 840;
+      line-height: 1.12;
+      text-transform: uppercase;
+    }}
+    .ai-domain-window__card-description {{
+      grid-column: 2;
+      margin: -6px 0 2px;
+      color: rgba(181, 218, 229, 0.88);
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1.28;
+    }}
+    .ai-domain-window__rows {{
+      display: grid;
+      gap: 0;
+      min-width: 0;
+    }}
+    .ai-domain-window__row {{
+      display: grid;
+      grid-template-columns: minmax(132px, 0.36fr) minmax(0, 1fr);
+      gap: 8px;
+      min-height: 25px;
+      padding: 4px 0 2px;
+      border-top: 1px solid rgba(94, 207, 229, 0.18);
+    }}
+    .ai-domain-window__row span {{
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 820;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }}
+    .ai-domain-window__row strong {{
+      color: rgba(235, 252, 255, 0.96);
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1.35;
+    }}
+    .ai-domain-window__actions {{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      margin-top: 0;
+      padding-top: 5px;
+    }}
+    .ai-domain-window__button {{
+      min-height: 31px;
+      max-width: 220px;
+      padding: 0 14px;
+      border: 1px solid rgba(122, 232, 255, 0.36);
+      border-radius: 999px;
+      background: linear-gradient(145deg, rgba(7, 42, 62, 0.72), rgba(3, 18, 32, 0.78));
+      color: rgba(235, 252, 255, 0.96);
+      font-size: 11px;
+      font-weight: 820;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }}
+    .ai-domain-window__button:hover,
+    .ai-domain-window__button:focus-visible {{
+      border-color: rgba(126, 248, 218, 0.56);
+      background: rgba(9, 49, 70, 0.78);
+      box-shadow: 0 0 14px rgba(86, 236, 255, 0.24);
+      outline: none;
+    }}
+    .ai-domain-window__button:disabled {{
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+    }}
+  </style>
+</head>
+<body class="desktop-mode">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar">
+    <section class="ai-domain-window__chrome">
+      <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
+        <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
+        <button class="ai-domain-window__control ai-domain-window__control--close" type="button" data-domain-command="window-close" aria-label="Close {escape(definition["title"])}"></button>
+      </div>
+      <header class="ai-domain-window__header">
+        <div class="ai-domain-window__kicker">{escape(definition["kicker"])}</div>
+        <div class="ai-domain-window__title">{escape(definition["title"])}</div>
+        <p class="ai-domain-window__description">{escape(definition["description"])}</p>
+      </header>
+      {body}
+    </section>
+  </main>
+  <script>
+    const prefix = "NEXUS_AI_DOMAIN_WINDOW_COMMAND:";
+    let providerState = {{}};
+    let reportText = "";
+    const byId = (id) => document.getElementById(id);
+    const setText = (id, value) => {{ const target = byId(id); if (target) target.textContent = String(value || ""); }};
+    const emit = (command) => console.info(prefix + command);
+    const formatItems = (items, keys = ["label"]) => {{
+      const list = Array.isArray(items) ? items : [];
+      if (!list.length) return "None";
+      return list.map((item) => {{
+        if (item && typeof item === "object") {{
+          return keys.map((key) => String(item[key] || "").trim()).filter(Boolean).join(" - ");
+        }}
+        return String(item || "").trim();
+      }}).filter(Boolean).join("; ");
+    }};
+    const formatUserItems = (items, keys = ["label"]) => {{
+      const list = Array.isArray(items) ? items : [];
+      if (!list.length) return "None";
+      return list.map((item) => {{
+        if (item && typeof item === "object") {{
+          return keys.map((key) => String(item[key] || "").trim()).filter(Boolean).join(" - ");
+        }}
+        return String(item || "").trim();
+      }}).filter(Boolean).join("; ");
+    }};
+    const buildReportText = (report) => [
+      String(report.title || "Local AI Readiness Report"),
+      "",
+      "Summary: " + String(report.summary || "No local readiness report is available."),
+      "Provider-visible data: " + String(report.providerVisibleData || "none"),
+      "Ready: " + formatItems(report.readyConditions, ["label", "evidence"]),
+      "Missing: " + formatItems(report.missingRequirements, ["label", "reason"]),
+      "Blocked: " + formatItems(report.blockedPaths, ["label", "state", "gate"]),
+      "Evidence checked: " + formatItems(report.localEvidenceChecked),
+      "Safe next steps: " + formatItems(report.safeNextSteps),
+      "Trust boundaries: " + formatItems(report.trustBoundaries)
+    ].join("\\n");
+    const guardClosed = () => providerState.sentToProvider === false
+      && providerState.canAcceptPrompts === false
+      && providerState.providerVisibleData === "none"
+      && providerState.promptSendPosture === "prompt-send-disabled"
+      && providerState.networkEgressState === "network-egress-blocked"
+      && providerState.memoryIndexingState === "memory-indexing-disabled";
+    window.nexusAiDomainApplyProviderState = (payload) => {{
+      providerState = payload && typeof payload === "object" ? payload : {{}};
+      setText("provider-visible-data", providerState.providerVisibleData === "none" ? "None" : providerState.providerVisibleData || "None");
+      setText("provider-model", "Disabled and blocked");
+      setText("prompt-memory", "Not accepted, sent, stored, or indexed");
+      setText("capability-packs", "Install blocked; downloads disabled");
+      setText("maintenance-updates", "Lifecycle placement only; update execution blocked");
+      setText("edition-lanes", "Public only; Developer and Owner gated");
+      setText("local-result", "Waiting for local action");
+      setText("local-detail", providerState.providerVisibleDataDetail || "No prompt, file, memory, telemetry, or provider config is sent.");
+      setText("report-state", "Not generated");
+      setText("report-summary", "Generate the report to inspect local readiness.");
+      const body = byId("report-body");
+      if (body) body.hidden = true;
+      const copy = byId("copy-report");
+      if (copy) {{ copy.disabled = true; copy.setAttribute("aria-disabled", "true"); }}
+    }};
+    window.nexusAiDomainRunLocalCheck = () => {{
+      const ok = guardClosed();
+      setText("local-result", ok ? "No provider configured" : "Local check: blocked");
+      setText("local-detail", ok
+        ? (providerState.localActionResultDetail || "No prompt was accepted or sent; provider-visible data remains none.")
+        : "Provider boundary mismatch; no local result was produced.");
+      return ok;
+    }};
+    window.nexusAiDomainGenerateReport = () => {{
+      const report = providerState.localAiReadinessReport || {{}};
+      if (!guardClosed()) {{
+        reportText = "";
+        setText("report-state", "Blocked by boundary mismatch");
+        setText("report-summary", "Report blocked because local trust-boundary proof is inconsistent.");
+        return false;
+      }}
+      reportText = buildReportText(report);
+      setText("report-state", "Generated locally");
+      setText("report-summary", report.summary || "Local readiness report generated.");
+      setText("report-ready", formatUserItems(report.readyConditions, ["label"]));
+      setText("report-missing", formatUserItems(report.missingRequirements, ["label", "reason"]));
+      setText("report-blocked", formatUserItems(report.blockedPaths, ["label"]));
+      setText("report-evidence", formatUserItems(report.localEvidenceChecked));
+      setText("report-next", formatUserItems(report.safeNextSteps));
+      setText("report-boundary", "No provider/model execution, prompt send, download, cache, memory, or private setup ran. Copy report includes raw local proof details.");
+      const body = byId("report-body");
+      if (body) body.hidden = false;
+      const copy = byId("copy-report");
+      if (copy) {{ copy.disabled = false; copy.setAttribute("aria-disabled", "false"); }}
+      return true;
+    }};
+    window.nexusAiDomainCopyReport = () => {{
+      if (!reportText) {{
+        setText("report-state", "Generate report before copying");
+        return false;
+      }}
+      const text = document.createElement("textarea");
+      text.value = reportText;
+      text.setAttribute("readonly", "");
+      text.style.position = "fixed";
+      text.style.left = "-9999px";
+      document.body.appendChild(text);
+      text.focus();
+      text.select();
+      const copied = document.execCommand("copy");
+      text.remove();
+      setText("report-state", copied ? "Copied locally" : "Copy unavailable; report remains visible");
+      return copied;
+    }};
+    document.addEventListener("click", (event) => {{
+      const button = event.target.closest("[data-domain-command]");
+      if (!button || button.disabled) return;
+      const command = button.dataset.domainCommand;
+      if (command === "window-minimize" || command === "window-close") {{
+        emit(command);
+      }} else if (command === "run-local-check") {{
+        window.nexusAiDomainRunLocalCheck();
+        emit("run-local-check");
+      }} else if (command === "generate-readiness-report") {{
+        emit(window.nexusAiDomainGenerateReport() ? "generate-readiness-report" : "generate-readiness-report-blocked");
+      }} else if (command === "copy-readiness-report") {{
+        if (window.nexusAiDomainCopyReport()) {{
+          emit("copy-readiness-report");
+        }} else if (reportText) {{
+          setText("report-state", "Copying locally");
+          emit("copy-readiness-report-native:" + encodeURIComponent(reportText));
+        }} else {{
+          emit("copy-readiness-report-blocked");
+        }}
+      }}
+    }});
+  </script>
+</body>
+</html>"""
+
+    def _domain_body_html(self) -> str:
+        if self.domain_id == "readiness-diagnostics":
+            return """
+      <section class="ai-domain-window__card" data-domain-workspace="readiness-diagnostics" data-executes-inside-child-window="true">
+        <div class="ai-domain-window__card-heading">
+          <span class="ai-domain-window__card-number">01</span>
+          <strong class="ai-domain-window__card-title">Local Readiness</strong>
+          <p class="ai-domain-window__card-description">Runs local-only checks and report generation inside this diagnostics window.</p>
+        </div>
+        <div class="ai-domain-window__rows" data-row-group="readiness-diagnostics">
+          <div class="ai-domain-window__row"><span>Local check</span><strong id="local-result">Waiting for local action</strong></div>
+          <div class="ai-domain-window__row"><span>Prompt / data</span><strong id="local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong></div>
+          <div class="ai-domain-window__row"><span>Report state</span><strong id="report-state">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Persistence</span><strong>View-only; copy is USER initiated</strong></div>
+          <div class="ai-domain-window__row"><span>Summary</span><strong id="report-summary">Generate the report to inspect local readiness.</strong></div>
+        </div>
+        <div class="ai-domain-window__actions" data-action-row-contract="separate-from-state-rows">
+          <button class="ai-domain-window__button" type="button" id="run-local-check" data-domain-command="run-local-check">Run Local Check</button>
+          <button class="ai-domain-window__button" type="button" id="generate-report" data-domain-command="generate-readiness-report">Generate Report</button>
+          <button class="ai-domain-window__button" type="button" id="copy-report" data-domain-command="copy-readiness-report" disabled aria-disabled="true">Copy Report</button>
+        </div>
+        <div id="report-body" hidden>
+          <div class="ai-domain-window__row"><span>Ready</span><strong id="report-ready">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Missing</span><strong id="report-missing">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Blocked</span><strong id="report-blocked">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Evidence</span><strong id="report-evidence">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Next</span><strong id="report-next">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Boundary</span><strong id="report-boundary">Not generated</strong></div>
+        </div>
+      </section>"""
+        if self.domain_id == "capabilities-maintenance":
+            return """
+      <section class="ai-domain-window__card" data-domain-workspace="capabilities-maintenance" data-update-execution="blocked" data-download-execution="blocked" data-install-execution="blocked">
+        <div class="ai-domain-window__card-heading">
+          <span class="ai-domain-window__card-number">01</span>
+          <strong class="ai-domain-window__card-title">Capability Boundary</strong>
+          <p class="ai-domain-window__card-description">Shows capability and maintenance posture without update, download, or install execution.</p>
+        </div>
+        <div class="ai-domain-window__rows" data-row-group="capabilities-maintenance">
+          <div class="ai-domain-window__row"><span>Capability packs</span><strong id="capability-packs">Install blocked; downloads disabled</strong></div>
+          <div class="ai-domain-window__row"><span>Maintenance</span><strong id="maintenance-updates">Lifecycle placement only; update execution blocked</strong></div>
+          <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Provider/model lifecycle remains unavailable</strong></div>
+          <div class="ai-domain-window__row"><span>Execution</span><strong>No update, download, install, fetch, provider/model, or capability execution is approved.</strong></div>
+        </div>
+      </section>"""
+        return """
+      <section class="ai-domain-window__card" data-domain-workspace="control-center">
+        <div class="ai-domain-window__card-heading">
+          <span class="ai-domain-window__card-number">01</span>
+          <strong class="ai-domain-window__card-title">AI Control Boundary</strong>
+          <p class="ai-domain-window__card-description">Keeps provider, prompt, persona, and edition truth separate from future AI setup flows.</p>
+        </div>
+        <div class="ai-domain-window__rows" data-row-group="control-center">
+          <div class="ai-domain-window__row"><span>Provider data</span><strong id="provider-visible-data">None</strong></div>
+          <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Disabled and blocked</strong></div>
+          <div class="ai-domain-window__row"><span>Prompt / memory</span><strong id="prompt-memory">Not accepted, sent, stored, or indexed</strong></div>
+          <div class="ai-domain-window__row"><span>Persona</span><strong>Future-gated; ORIN persona is not implemented</strong></div>
+          <div class="ai-domain-window__row"><span>Developer / Owner</span><strong id="edition-lanes">Public only; Developer and Owner gated</strong></div>
+        </div>
+      </section>"""
+
+    def _on_html_loaded(self, ok: bool) -> None:
+        self._page_ready = bool(ok)
+        if self._page_ready:
+            self.update_provider_state(self._provider_payload)
+        elif callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_HTML_LOAD_FAILED"
+                f"|domain={self.domain_id}"
+            )
+
+    def _handle_domain_command(self, domain_id: str, command: str) -> None:
+        if (
+            domain_id == "readiness-diagnostics"
+            and command.startswith("copy-readiness-report-native:")
+        ):
+            encoded_report = command.split(":", 1)[1]
+            report_text = urllib.parse.unquote(encoded_report)
+            clipboard = QApplication.clipboard()
+            if clipboard is not None and report_text:
+                clipboard.setText(report_text)
+                self.webview.page().runJavaScript(
+                    "document.getElementById('report-state') && "
+                    "(document.getElementById('report-state').textContent = 'Copied locally');"
+                )
+                command = "copy-readiness-report"
+            else:
+                self.webview.page().runJavaScript(
+                    "document.getElementById('report-state') && "
+                    "(document.getElementById('report-state').textContent = "
+                    "'Copy unavailable; report remains visible');"
+                )
+                command = "copy-readiness-report-blocked"
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_COMMAND"
+                f"|domain={domain_id}|command={command}"
+            )
+        if command == "window-minimize":
+            self.showMinimized()
+        elif command == "window-close":
+            self.close()
+
+    def update_provider_state(self, payload: dict[str, object]) -> None:
+        self._provider_payload = dict(payload or {})
+        if not self._page_ready:
+            return
+        self.webview.page().runJavaScript(
+            "window.nexusAiDomainApplyProviderState && "
+            f"window.nexusAiDomainApplyProviderState({json.dumps(self._provider_payload, sort_keys=True)});"
+        )
+
+    def show_domain_window(self, origin: QRect | None = None) -> dict[str, object]:
+        if not self.isVisible():
+            if origin is not None and origin.isValid():
+                available = self.screen_ref.availableGeometry() if self.screen_ref is not None else QApplication.primaryScreen().availableGeometry()
+                target_x = origin.x() - self.width() - 24
+                if target_x < available.x() + 12:
+                    right_x = origin.x() + origin.width() + 24
+                    if right_x + self.width() <= available.right() - 12:
+                        target_x = right_x
+                    else:
+                        target_x = min(origin.x() + 44, available.right() - self.width() - 12)
+                domain_offset = {
+                    "control-center": 0,
+                    "readiness-diagnostics": 34,
+                    "capabilities-maintenance": 68,
+                }.get(self.domain_id, 0)
+                target_y = min(
+                    max(available.y() + 12, origin.y() + domain_offset),
+                    available.bottom() - self.height() - 12,
+                )
+                self.move(target_x, target_y)
+            _schedule_window_clamp(self, padding=18)
+        self.show()
+        self.raise_()
+        self.activateWindow()
+        if hasattr(self, "windowHandle"):
+            handle = self.windowHandle()
+            if handle is not None:
+                handle.requestActivate()
+        QApplication.processEvents()
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_VISIBLE"
+                f"|domain={self.domain_id}|classification={self.definition['classification']}"
+                f"|lifecycle={self.definition['lifecycle']}|singleton=true"
+            )
+        return {
+            "domain": self.domain_id,
+            "visible": bool(self.isVisible()),
+            "classification": self.definition["classification"],
+            "lifecycle": self.definition["lifecycle"],
+            "hwnd": int(self.winId()) if self.winId() else 0,
+        }
 
 
 class QuickCreateGroupDialog(QDialog):
@@ -5890,16 +6677,16 @@ class AIControlCenterDialog(QDialog):
     WINDOW_STATE_ENV = "NEXUS_AI_CONTROL_CENTER_STATE_PATH"
     WINDOW_GEOMETRY_MEMORY_ENV = "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
-    DEFAULT_WIDTH = 570
-    DEFAULT_HEIGHT = 610
-    DEFAULT_MAX_HEIGHT = 820
+    DEFAULT_WIDTH = 471
+    DEFAULT_HEIGHT = 598
+    DEFAULT_MAX_HEIGHT = 680
     DEFAULT_SCREEN_MARGIN_X = 96
-    DEFAULT_SCREEN_MARGIN_Y = 126
-    MINIMUM_WIDTH = 440
-    MINIMUM_HEIGHT = 540
-    RESIZE_MARGIN = 14
+    DEFAULT_SCREEN_MARGIN_Y = 80
+    MINIMUM_WIDTH = 430
+    MINIMUM_HEIGHT = 520
+    RESIZE_MARGIN = 16
     DRAG_HEADER_HEIGHT = 190
-    WINDOW_CONTROL_ZONE_TOP = 14
+    WINDOW_CONTROL_ZONE_TOP = 15
     WINDOW_CONTROL_ZONE_RIGHT = 15
     WINDOW_CONTROL_ZONE_WIDTH = 60
     WINDOW_CONTROL_ZONE_HEIGHT = 30
@@ -5925,7 +6712,7 @@ class AIControlCenterDialog(QDialog):
         self._geometry_persist_timer.setSingleShot(True)
         self._geometry_persist_timer.timeout.connect(self._persist_window_geometry)
         self.setObjectName("fam007AiControlCenter")
-        self.setWindowTitle("AI Control Center")
+        self.setWindowTitle("AI Dashboard")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setWindowModality(Qt.NonModal)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
@@ -5933,7 +6720,9 @@ class AIControlCenterDialog(QDialog):
         self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)
         self.resize(self.DEFAULT_WIDTH, self.DEFAULT_HEIGHT)
         self.setProperty("aiControlCenterOwner", "FAM-007")
-        self.setProperty("aiControlCenterRoute", "fam007-ai-control-center")
+        self.setProperty("aiControlCenterRoute", "fam007-ai-dashboard")
+        self.setProperty("aiDashboardVisibleName", "AI Dashboard")
+        self.setProperty("aiControlCenterPlacement", "focused-domain-card-inside-ai-dashboard")
         self.setProperty("fam003CarryIn", "f3-ff01-narrow-doorway-only")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
         self.setProperty("visualInheritance", "FAM-002-HUD")
@@ -5945,15 +6734,20 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
         self.setProperty("aiControlCenterWindowMemoryPolicy", "restart-memory-disabled")
         self.setProperty("fam003ResetDependency", "ai-global-settings-reset-default-location-size")
-        self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Control Center")
+        self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Dashboard")
         self.setProperty("aiControlCenterMaximizeDisposition", "hidden-future-gated")
         self.setProperty("aiControlCenterMaximizeDecisionGate", "per-window-relevance-before-inheritance")
         self.setProperty("aiControlCenterWindowControlStateModel", "hidden-blocked-active")
         self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
         self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-specimen")
         self.setProperty("aiControlCenterNativeMirrorDisposition", "removed-webview-owned-specimen")
+        self.setProperty("aiDashboardChildWindowModel", "detached-child-windows-deferred-not-accepted-current-gate")
+        self.setProperty("aiDashboardReadinessWindowClassification", "deferred-detached-child")
+        self.setProperty("aiDashboardControlWindowClassification", "deferred-detached-child")
+        self.setProperty("aiDashboardMaintenanceWindowClassification", "deferred-detached-child")
         self._page_ready = False
         self._pending_provider_payload = {}
+        self._domain_windows: dict[str, AIDashboardDomainWindow] = {}
         self._drag_offset = None
         self._resize_active = False
         self._resize_edges = Qt.Edges()
@@ -6051,9 +6845,89 @@ class AIControlCenterDialog(QDialog):
         if command == "close":
             self.close()
             return
+        if command in {
+            "open-readiness-diagnostics-child-window",
+            "open-control-center-child-window",
+            "open-maintenance-lifecycle-child-window",
+        }:
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_DASHBOARD_DETACHED_CHILD_WINDOW_DEFERRED"
+                    f"|command={command}|accepted_scope=false|window_opened=false"
+                )
+            return
         if command == "run-local-check":
             self.run_local_assist_check(sync_web=False)
             return
+        if command == "generate-readiness-report":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_GENERATED"
+                    "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
+                    "|prompt_send=disabled|network_egress=blocked|memory_indexing=disabled"
+                    "|persistence=view_only|copy_mode=clipboard_only_user_initiated"
+                )
+            return
+        if command == "generate-readiness-report-blocked":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_BLOCKED"
+                    "|reason=boundary_mismatch"
+                )
+            return
+        if command == "copy-readiness-report":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_COPIED"
+                    "|mode=clipboard_only_user_initiated|file_export=false"
+                )
+            return
+        if command == "copy-readiness-report-blocked":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_COPY_BLOCKED"
+                    "|reason=report_not_generated_or_clipboard_unavailable"
+                )
+            return
+        if command == "open-settings-future-gated":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_DASHBOARD_SETTINGS_ROUTE_FUTURE_GATED"
+                    "|route=fam003-global-settings-ai|fam003_mutation=false|settings_window_opened=false"
+            )
+            return
+
+    def _ai_dashboard_domain_parent_for(self, domain_id: str):
+        definition = AIDashboardDomainWindow.DOMAIN_DEFINITIONS.get(domain_id, {})
+        return None if definition.get("classification") == "external-unique" else self
+
+    def _show_ai_dashboard_domain_window(self, domain_id: str) -> dict[str, object]:
+        if domain_id not in AIDashboardDomainWindow.DOMAIN_DEFINITIONS:
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_BLOCKED"
+                    f"|domain={domain_id}|reason=unknown_domain"
+                )
+            return {"visible": False, "reason": "unknown_domain"}
+        window = self._domain_windows.get(domain_id)
+        if window is None:
+            window = AIDashboardDomainWindow(
+                domain_id,
+                self.screen_ref,
+                parent=self._ai_dashboard_domain_parent_for(domain_id),
+                event_logger=self.event_logger,
+            )
+            window.destroyed.connect(lambda _obj=None, key=domain_id: self._domain_windows.pop(key, None))
+            self._domain_windows[domain_id] = window
+        window.update_provider_state(self._provider_payload)
+        result = window.show_domain_window(self.geometry())
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_CATEGORY_LAUNCHER_OPENED_WINDOW"
+                f"|domain={domain_id}|classification={result.get('classification')}"
+                f"|lifecycle={result.get('lifecycle')}|singleton=true|focus=bring_to_front"
+            )
+        return result
 
     def _sync_provider_state_to_web(self) -> None:
         payload = dict(self._provider_payload or self._pending_provider_payload or {})
@@ -6206,6 +7080,10 @@ class AIControlCenterDialog(QDialog):
     def _apply_ai_control_center_windows_resize_cursor(self, edges) -> None:
         if os.name != "nt":
             return
+        # resize-cursor-no-forced-arrow-release: clear our override without
+        # forcing IDC_ARROW, or Windows edge hover can flicker arrow/resize.
+        if not edges:
+            return
         try:
             cursor_handle = LoadCursorW(None, self._ai_control_center_windows_resize_cursor_id_for_edges(edges))
             if cursor_handle:
@@ -6324,6 +7202,7 @@ class AIControlCenterDialog(QDialog):
             return False
         if os.name != "nt":
             return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
+        adjusted_geometry = self.geometry().adjusted(-2, -2, 2, 2)
         try:
             probe = ctypes.wintypes.POINT(int(point.x()), int(point.y()))
             hwnd = int(WindowFromPoint(probe))
@@ -6333,8 +7212,8 @@ class AIControlCenterDialog(QDialog):
                     return True
                 hwnd = int(GetParentW(ctypes.wintypes.HWND(hwnd)))
         except Exception:
-            return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
-        return False
+            return adjusted_geometry.contains(point)
+        return adjusted_geometry.contains(point)
 
     def _ai_control_center_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
         if not self.isVisible():
@@ -6805,6 +7684,10 @@ class AIControlCenterDialog(QDialog):
             self._finish_ai_control_center_resize(self._ai_control_center_cursor_screen_point())
         else:
             self._reset_ai_control_center_resize_cursor()
+        for domain_id, window in list(self._domain_windows.items()):
+            definition = AIDashboardDomainWindow.DOMAIN_DEFINITIONS.get(domain_id, {})
+            if definition.get("classification") == "exclusive-child":
+                window.close()
         self._geometry_persist_timer.stop()
         self._persist_window_geometry()
         super().closeEvent(event)
@@ -6812,6 +7695,11 @@ class AIControlCenterDialog(QDialog):
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
         self._sync_provider_state_to_web()
+        for window in list(self._domain_windows.values()):
+            try:
+                window.update_provider_state(self._provider_payload)
+            except RuntimeError:
+                pass
 
     def run_local_assist_check(self, *, sync_web: bool = True) -> None:
         payload = self._provider_payload or {}
@@ -9232,6 +10120,10 @@ class DesktopRuntimeWindow(QWidget):
 
     def _apply_monitoring_hud_windows_resize_cursor(self, edges):
         if os.name != "nt":
+            return
+        # resize-cursor-no-forced-arrow-release: clear our override without
+        # forcing IDC_ARROW, or Windows edge hover can flicker arrow/resize.
+        if not edges:
             return
         try:
             cursor_id = self._monitoring_hud_windows_resize_cursor_id_for_edges(edges)

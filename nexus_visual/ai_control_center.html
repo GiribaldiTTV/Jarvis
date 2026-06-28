@@ -6,20 +6,34 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexus Desktop AI Control Center</title>
+  <title>Nexus Desktop AI Dashboard</title>
   <link rel="stylesheet" href="monitoring_hud.css" />
   <style>
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
-      padding: 12px;
+      --ai-dashboard-chrome-padding: 12px;
+      padding: var(--ai-dashboard-chrome-padding);
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
-      padding: 12px 12px 10px;
+      position: relative;
+      --ai-dashboard-title-description-max-width: 100%;
+      min-height: 0;
+      padding: 12px 16px 10px;
+      border-color: rgba(130, 236, 255, 0.08);
       border-radius: 20px;
+      background:
+        linear-gradient(150deg, rgba(3, 14, 26, 0.99), rgba(2, 10, 20, 0.975)),
+        linear-gradient(90deg, rgba(116, 240, 255, 0.06), transparent 58%);
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.025) inset;
+      backdrop-filter: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group::before {
+      display: none;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__header {
-      padding-right: 0;
+      padding-right: 108px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__kicker {
@@ -34,8 +48,14 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__subtitle {
+      display: block;
+      width: fit-content;
+      max-width: var(--ai-dashboard-title-description-max-width, 100%);
       margin-top: 6px;
       line-height: 1.28;
+      white-space: normal;
+      overflow-wrap: normal;
+      word-break: normal;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role {
@@ -48,6 +68,9 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       max-width: 100%;
       gap: 6px 13px;
     }
@@ -66,9 +89,11 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy > .monitoring-hud__surface-role-pair {
       display: inline-flex;
+      flex: 0 0 auto;
       align-items: center;
       gap: 3px;
-      min-width: 0;
+      min-width: max-content;
+      max-width: 100%;
       white-space: nowrap;
     }
 
@@ -84,7 +109,7 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-controls {
       position: absolute;
-      top: 14px;
+      top: 15px;
       right: 15px;
       z-index: 35;
       display: flex;
@@ -232,6 +257,10 @@
       scrollbar-gutter: auto;
       scrollbar-width: none;
       scrollbar-color: transparent transparent;
+      --ai-dashboard-row-gutter: 8px;
+      --ai-dashboard-row-vertical-gutter: 6px;
+      --ai-dashboard-row-label-width: 0px;
+      --ai-dashboard-row-label-column-contract: measured-max-visible-label-content-px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar {
@@ -270,6 +299,197 @@
       border-radius: 20px;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group {
+      display: grid;
+      min-width: 0;
+      gap: 8px;
+      padding: 9px;
+      border: 1px solid rgba(116, 240, 255, 0.11);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(116, 240, 255, 0.045), transparent 32%),
+        rgba(2, 10, 20, 0.18);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.018);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__header {
+      display: grid;
+      gap: 2px;
+      padding: 1px 2px 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__eyebrow {
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 720;
+      letter-spacing: 0.10em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__title {
+      color: rgba(234, 253, 255, 0.96);
+      font-size: 13px;
+      font-weight: 720;
+      letter-spacing: 0.075em;
+      line-height: 1.18;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__description {
+      margin: 0;
+      color: rgba(181, 218, 229, 0.86);
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__cards {
+      display: grid;
+      min-width: 0;
+      gap: 6px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-foyer-grid {
+      display: grid;
+      min-width: 0;
+      gap: 8px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card {
+      display: grid;
+      min-width: 0;
+      min-height: 0;
+      align-content: start;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows {
+      display: grid;
+      gap: var(--ai-dashboard-row-vertical-gutter, 6px);
+      padding-top: 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row {
+      grid-template-columns: var(--ai-dashboard-row-label-width, 0px) minmax(0, 1fr);
+      column-gap: var(--ai-dashboard-row-gutter, 8px);
+      min-height: 0;
+      padding: 4px 0 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row span {
+      width: max-content;
+      max-width: none;
+      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 720;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row strong {
+      min-width: 0;
+      font-size: 11px;
+      font-weight: 720;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-topline {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      align-items: start;
+      justify-content: start;
+      gap: 3px 10px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-topline > span {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-title-copy strong {
+      font-size: 15px;
+      font-weight: 720;
+      line-height: 1.12;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-description {
+      grid-column: 2;
+      margin-top: -1px;
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.36;
+      text-indent: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-actions {
+      position: static;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      min-height: 31px;
+      margin-top: 0;
+      padding-top: 0;
+      z-index: 3;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-action--content-fit {
+      height: 31px;
+      min-height: 31px;
+      padding: 0 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 720;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail {
+      display: grid;
+      min-width: 0;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(116, 240, 255, 0.18);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 14% 8%, rgba(116, 240, 255, 0.055), transparent 32%),
+        rgba(2, 10, 20, 0.26);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail[hidden] {
+      display: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__header {
+      display: grid;
+      gap: 2px;
+      padding: 0 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__eyebrow {
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 720;
+      letter-spacing: 0.10em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__title {
+      color: rgba(234, 253, 255, 0.96);
+      font-size: 13px;
+      font-weight: 720;
+      letter-spacing: 0.075em;
+      line-height: 1.18;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__description {
+      margin: 0;
+      color: rgba(181, 218, 229, 0.86);
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
       display: grid;
       align-items: flex-start;
@@ -306,27 +526,109 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
-      grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr);
+      grid-template-columns: var(--ai-dashboard-row-label-width, 0px) minmax(0, 1fr);
       gap: 6px;
+      column-gap: var(--ai-dashboard-row-gutter, 8px);
       min-height: 0;
       padding: 4px 0 2px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span {
-      font-size: 10px;
+      width: max-content;
+      max-width: none;
+      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row strong {
+      min-width: 0;
       font-size: 11px;
+      font-weight: 720;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-actions {
       margin-top: 0;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report {
+      display: grid;
+      gap: 7px;
+      margin-top: 3px;
+      padding-top: 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__status {
+      color: rgba(171, 255, 226, 0.96);
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__body {
+      display: grid;
+      gap: 6px;
+      color: rgba(217, 245, 250, 0.94);
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__body[hidden] {
+      display: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section {
+      display: grid;
+      grid-template-columns: minmax(118px, 0.34fr) minmax(0, 1fr);
+      gap: 6px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(94, 207, 229, 0.22);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section span {
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 720;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section strong {
+      color: rgba(235, 252, 255, 0.96);
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
       font-size: 11px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit {
+      max-width: min(100%, 187px);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub span,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub strong,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub p,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub button,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub .monitoring-hud__button-label {
+      font-weight: 720;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--deferred,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--deferred:disabled {
+      opacity: 0.88;
+      cursor: default;
+      border-color: rgba(122, 232, 255, 0.32);
+      background: linear-gradient(145deg, rgba(8, 35, 52, 0.72), rgba(3, 18, 31, 0.76));
+      color: rgba(216, 244, 250, 0.92);
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+        0 0 11px rgba(86, 236, 255, 0.14);
+      transform: none;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-scrollbar {
@@ -370,9 +672,9 @@
     class="monitoring-hud"
     data-package="PKG-007"
     data-slice="SLC-002"
-    data-surface-id="fam007-ai-control-center"
-    data-product-surface-role="ai-transparency-control-surface"
-    data-dashboard-surface="fam007-ai-control-center"
+    data-surface-id="fam007-ai-dashboard"
+    data-product-surface-role="ai-dashboard-top-most-hub"
+    data-dashboard-surface="fam007-ai-dashboard"
     data-configures-surface="orin-provider-boundary"
     data-renderer-owner="DesktopRuntimeWindow"
     data-native-dashboard-owner="DesktopRuntimeWindow"
@@ -380,7 +682,7 @@
     data-split-contract="ai-control-center-status-boundary"
     data-hud-module="monitoring-hud-shell-module"
     data-product-surface="nexus-ai-control-center"
-    data-isolation-boundary="standalone-ai-control-center-layer"
+    data-isolation-boundary="standalone-ai-dashboard-layer"
     data-core-failure-isolation="ai-control-center-fail-does-not-hide-core"
     data-interaction-mode="standalone-dashboard-window"
     data-anchor-state="unanchored"
@@ -405,9 +707,9 @@
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
     data-single-action-button-model="content-fit-fixed-height-ellipsis"
-    data-default-window-width="570"
-    data-default-window-height="610"
-    data-default-window-max-height="820"
+    data-default-window-width="471"
+    data-default-window-height="598"
+    data-default-window-max-height="680"
     data-window-restore-policy="disabled-until-fam003-reset-control"
     data-window-memory-policy="restart-memory-disabled"
     data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"
@@ -423,18 +725,33 @@
     data-dashboard-quick-access="not-applicable"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
-    data-dashboard-card-order="orin-status-local-safety-check"
+    data-dashboard-card-order="status-trust-readiness-diagnostics-capabilities-maintenance"
+    data-dashboard-ia-model="ai-dashboard-parent-only-global-strip-category-cards-detached-child-windows-deferred"
+    data-dashboard-surface-model="hub-only-cards-are-doorways"
+    data-dashboard-inline-work-policy="no-local-check-no-report-no-diagnostics-inline"
+    data-category-card-launcher-contract="cards-show-deferred-doorway-controls-no-detached-window-launch"
+    data-child-window-model="detached-child-windows-deferred-not-accepted-current-gate"
+    data-same-window-focused-section-policy="blocked-as-dashboard-workspace-substitute"
+    data-dashboard-visible-name="AI Dashboard"
+    data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"
+    data-global-ai-strip="compact-truth-state-no-provider-no-execution"
+    data-title-status-wrap="group-preserving-atomic-flex-wrap"
+    data-title-description-wrap="measured-title-card-prose-word-wrap"
+    data-row-title-sizing="max-label-content-fixed-gutter"
+    data-settings-route="option-b-deferred-until-fam003-global-settings-window"
+    data-maintenance-updates-placement="lifecycle-domain-doorway-no-download-install-update-execution"
     data-dashboard-provider-truth="provider-contract-first"
     data-dashboard-state-model="no-provider-no-prompt-no-memory"
     data-dashboard-warning-controls="visual-non-invasive-only"
     data-dashboard-fake-telemetry-policy="blocked"
+    data-title-backing-layer="single-title-card-no-secondary-backing"
     data-interactive-control-affordance="normal-hover-active-focus-visible-disabled-open-selected"
     data-interactive-control-reliability="first-click-stress-proof-required"
     data-click-interception-diagnostics="z-index-pointer-events-disabled-aria-dom-focus-timing"
-    aria-label="Nexus Desktop AI Control Center product surface"
+    aria-label="Nexus Desktop AI Dashboard product surface"
   >
-    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Control Center panel">
-      <div class="monitoring-hud__window-controls" role="group" aria-label="AI Control Center window controls">
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Dashboard panel">
+      <div class="monitoring-hud__window-controls" role="group" aria-label="AI Dashboard window controls">
         <button
           type="button"
           id="ai-control-center-minimize-action"
@@ -443,7 +760,7 @@
           data-window-control-key="minimize"
           data-window-control-command="minimize"
           data-window-control-state="active"
-          aria-label="Minimize AI Control Center"
+          aria-label="Minimize AI Dashboard"
         ></button>
         <button
           type="button"
@@ -455,7 +772,7 @@
           data-window-control-state="hidden"
           data-window-control-reason="future-gated"
           data-window-state="normal"
-          aria-label="Maximize or restore AI Control Center hidden until future implementation"
+          aria-label="Maximize or restore AI Dashboard hidden until future implementation"
           aria-hidden="true"
           aria-disabled="true"
           tabindex="-1"
@@ -470,23 +787,29 @@
           data-window-control-key="close"
           data-window-control-command="close"
           data-window-control-state="active"
-          aria-label="Close AI Control Center"
+          aria-label="Close AI Dashboard"
         ></button>
       </div>
       <div class="monitoring-hud__title-group">
         <div class="monitoring-hud__header" id="ai-control-center-drag-handle">
           <div>
             <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
-            <div class="monitoring-hud__title">AI Control Center</div>
-            <div class="monitoring-hud__subtitle">ORIN is not implemented; provider/model execution is not active.</div>
+            <div class="monitoring-hud__title">AI Dashboard</div>
           </div>
         </div>
-        <div class="monitoring-hud__surface-role" data-dashboard-role="ai-transparency-status-surface">
+        <div
+          class="monitoring-hud__subtitle"
+          data-title-description-wrap="measured-title-card-prose-word-wrap"
+          aria-label="AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine."
+        >
+          AI is not implemented; provider/model execution is blocked, and no prompt, file, memory, telemetry, or provider data leaves this machine.
+        </div>
+        <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
           <div class="monitoring-hud__surface-role-copy">
-            <span class="monitoring-hud__surface-role-pair" aria-label="AI ORIN">
-              <span class="monitoring-hud__surface-role-label">AI</span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="AI Persona none">
+              <span class="monitoring-hud__surface-role-label">AI Persona</span>
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
-              <strong>ORIN</strong>
+              <strong>None</strong>
             </span>
             <span class="monitoring-hud__surface-role-pair" aria-label="Status not implemented">
               <span class="monitoring-hud__surface-role-label">Status</span>
@@ -505,72 +828,167 @@
         class="monitoring-hud__control-hub"
         id="ai-control-center-card-hub"
         data-dashboard-content="control-hub-cards"
-        data-child-window-model="hub-actions-standalone-child-windows"
-        aria-label="AI Control Center cards"
+        data-below-title-text-weight="720-standard"
+        data-row-label-column-source="max-visible-label-content"
+        data-row-value-gutter="8"
+        data-child-window-model="detached-child-windows-deferred-not-accepted-current-gate"
+        aria-label="AI Dashboard domain cards"
       >
-        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="orin-status" data-slice="SLC-001">
-          <div class="monitoring-hud__hub-card-topline">
-            <span>01</span>
-            <div class="monitoring-hud__hub-card-title-copy">
-              <strong>ORIN Status</strong>
+        <div
+          class="ai-control-center-foyer-grid"
+          data-dashboard-hub-group="ai-dashboard-domain-doorways"
+          aria-label="AI Dashboard category doorways"
+        >
+          <article
+            class="monitoring-hud__hub-card ai-control-center-category-card"
+            data-dashboard-hub-card="control-center"
+            data-category-card="control-center"
+            data-slice="SLC-R1"
+            data-category-doorway-state="detached-child-window-deferred"
+            data-target-window-classification="deferred-detached-child"
+            data-target-window="future-control-center"
+            data-card-does-not-contain="persona-selectors-provider-internals-developer-owner-details"
+          >
+            <div class="monitoring-hud__hub-card-topline">
+              <span>01</span>
+              <div class="monitoring-hud__hub-card-title-copy">
+                <strong>AI Persona</strong>
+              </div>
+              <p class="monitoring-hud__hub-card-description">Persona state before any AI action.</p>
             </div>
-            <p class="monitoring-hud__hub-card-description">Truthful inactive ORIN state for provider data, capability packs, and edition lanes.</p>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>ORIN</span>
-            <strong id="ai-control-center-orin-state">Not implemented; no real AI executing</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Provider data</span>
-            <strong id="ai-control-center-provider-visible-data">None</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Provider / model</span>
-            <strong id="ai-control-center-provider-model">Disabled and blocked</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Prompt / memory</span>
-            <strong id="ai-control-center-prompt-memory">Not accepted, sent, stored, or indexed</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Capability packs</span>
-            <strong id="ai-control-center-capability-packs">Install blocked; downloads disabled</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Edition lanes</span>
-            <strong id="ai-control-center-edition-lanes">Public only; Developer and Owner gated</strong>
-          </div>
-        </article>
+            <div class="ai-control-center-card-rows" aria-label="AI persona status and trust rows">
+              <div class="monitoring-hud__state-row">
+                <span>AI Persona</span>
+                <strong>None; ORIN persona not implemented</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Provider</span>
+                <strong>Blocked; no model path active</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Privacy</span>
+                <strong>Protected; no provider or third-party tracking</strong>
+              </div>
+            </div>
+            <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
+              <button
+                type="button"
+                id="ai-control-center-open-control-surface-action"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__hub-action--deferred"
+                data-control="control-center-child-window-deferred"
+                data-category-doorway="control-center"
+                data-action-state="deferred"
+                data-launch-target="deferred"
+                data-launch-window-kind="deferred-detached-child"
+                data-action-size="content-fit-fixed-height"
+                aria-label="Control Center surface not available yet"
+                aria-disabled="true"
+                disabled
+              >
+                <span class="monitoring-hud__button-label">Not Available Yet</span>
+              </button>
+            </div>
+          </article>
 
-        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-safety-check" data-slice="SLC-005">
-          <div class="monitoring-hud__hub-card-topline">
-            <span>02</span>
-            <div class="monitoring-hud__hub-card-title-copy">
-              <strong>Local Safety Check</strong>
+          <article
+            class="monitoring-hud__hub-card ai-control-center-category-card"
+            data-dashboard-hub-card="readiness-diagnostics"
+            data-category-card="readiness-diagnostics"
+            data-slice="SLC-R2"
+            data-category-doorway-state="detached-child-window-deferred"
+            data-target-window-classification="deferred-detached-child"
+            data-target-window="future-readiness-diagnostics"
+            data-card-does-not-contain="local-check-report-copy-results-diagnostics-body"
+          >
+              <div class="monitoring-hud__hub-card-topline">
+                <span>02</span>
+                <div class="monitoring-hud__hub-card-title-copy">
+                  <strong>AI Readiness</strong>
+                </div>
+                <p class="monitoring-hud__hub-card-description">Local checks and diagnostics doorway.</p>
+              </div>
+              <div class="ai-control-center-card-rows" aria-label="AI readiness and diagnostics rows">
+                <div class="monitoring-hud__state-row">
+                  <span>Check</span>
+                  <strong>Waiting for USER action</strong>
+                </div>
+                <div class="monitoring-hud__state-row">
+                  <span>Report</span>
+                  <strong>Local decision aid behind diagnostics</strong>
+                </div>
+                <div class="monitoring-hud__state-row">
+                  <span>Prompt</span>
+                  <strong>Not accepted, sent, stored, or indexed</strong>
+                </div>
+              </div>
+              <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
+                <button
+                  type="button"
+                  id="ai-control-center-open-readiness-surface-action"
+                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__hub-action--deferred"
+                  data-control="readiness-diagnostics-child-window-deferred"
+                  data-category-doorway="readiness-diagnostics"
+                  data-action-state="deferred"
+                  data-launch-target="deferred"
+                  data-launch-window-kind="deferred-detached-child"
+                  data-action-size="content-fit-fixed-height"
+                  aria-label="Diagnostics surface not available yet"
+                  aria-disabled="true"
+                  disabled
+                >
+                  <span class="monitoring-hud__button-label">Not Available Yet</span>
+                </button>
+              </div>
+            </article>
+
+          <article
+            class="monitoring-hud__hub-card ai-control-center-category-card"
+            data-dashboard-hub-card="capabilities-maintenance"
+            data-category-card="capabilities-maintenance"
+            data-slice="SLC-R4"
+            data-maintenance-updates-state="placement-only"
+            data-category-doorway-state="detached-child-window-deferred"
+            data-target-window-classification="deferred-detached-child"
+            data-target-window="future-capabilities-maintenance"
+            data-card-does-not-contain="download-install-update-fetch-execution"
+          >
+            <div class="monitoring-hud__hub-card-topline">
+              <span>03</span>
+              <div class="monitoring-hud__hub-card-title-copy">
+                <strong>Capabilities</strong>
+              </div>
+              <p class="monitoring-hud__hub-card-description">Packs and updates stay blocked.</p>
             </div>
-            <p class="monitoring-hud__hub-card-description">Runs one local check; no prompt/provider/model path is used.</p>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Local check</span>
-            <strong id="ai-control-center-local-result">Waiting for local action</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Prompt / data</span>
-            <strong id="ai-control-center-local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong>
-          </div>
-          <div class="monitoring-hud__hub-actions">
-            <button
-              type="button"
-              id="ai-control-center-local-check-action"
-              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-              data-control="run-local-check"
-              data-action-size="content-fit-fixed-height"
-              aria-label="Run Local Check"
-            >
-              <span class="monitoring-hud__button-label">Run Local Check</span>
-            </button>
-          </div>
-        </article>
+            <div class="ai-control-center-card-rows" aria-label="Capabilities and maintenance rows">
+              <div class="monitoring-hud__state-row">
+                <span>Packs</span>
+                <strong>Install blocked; downloads disabled</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Updates</span>
+                <strong>Future-gated; no install execution</strong>
+              </div>
+            </div>
+            <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
+              <button
+                type="button"
+                id="ai-control-center-open-maintenance-surface-action"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__hub-action--deferred"
+                data-control="capabilities-maintenance-child-window-deferred"
+                data-category-doorway="capabilities-maintenance"
+                data-action-state="deferred"
+                data-launch-target="deferred"
+                data-launch-window-kind="deferred-detached-child"
+                data-action-size="content-fit-fixed-height"
+                aria-label="Capabilities surface not available yet"
+                aria-disabled="true"
+                disabled
+              >
+                <span class="monitoring-hud__button-label">Not Available Yet</span>
+              </button>
+            </div>
+          </article>
+        </div>
       </div>
       <div class="ai-control-center-scrollbar" id="ai-control-center-scrollbar" aria-hidden="true">
         <div class="ai-control-center-scrollbar__track" id="ai-control-center-scrollbar-track">

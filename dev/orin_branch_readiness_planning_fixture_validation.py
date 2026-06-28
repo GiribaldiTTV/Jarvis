@@ -4716,7 +4716,21 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
     )
     (packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "FIXTURE_REVIEW.md").write_text(
         "# Fixture Review\n\n"
-        "This is the only primary USER review file for the current fixture gate.\n",
+        "## Current Gate\n\n"
+        "This is the only primary USER review file for the current fixture gate.\n\n"
+        "## Review Context\n\n"
+        "The fixture models a meaningful local USER packet decision surface. It must "
+        "contain enough plain-language content for the packet helper to distinguish "
+        "a real review file from an empty placeholder, a copied file list, or a "
+        "template shell. The fixture does not approve implementation, does not "
+        "approve PR Readiness, does not approve merge, and does not treat packet "
+        "validation as USER acceptance. It exists so validation can prove a current "
+        "packet has one readable decision file, supporting aids, copied context, "
+        "folder and ZIP parity, and no stale active gate language.\n\n"
+        "## USER Decision\n\n"
+        "For this fixture only, the expected decision is that the packet is "
+        "reviewable as a validation model and no product gate is accepted by the "
+        "helper result.\n",
         encoding="utf-8",
     )
     (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md").write_text(
