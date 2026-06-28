@@ -1174,6 +1174,14 @@ def _source_truth_context_currentness_failures(
         copied_text = packet_files.get(copied_name)
         if copied_text is None:
             continue
+        if re.search(r"PENDING_REGENERATION|Pending regeneration", copied_text, re.IGNORECASE):
+            failures.append(
+                f"{copied_name}: copied Source Truth Context still says packet regeneration is pending"
+            )
+        if re.search(r"USER Review ZIP:\s*`?PENDING", copied_text, re.IGNORECASE):
+            failures.append(
+                f"{copied_name}: copied Source Truth Context has no concrete current USER Review ZIP pointer"
+            )
         if live_path is None or not live_path.is_file():
             failures.append(f"{copied_name}: live external-state source is missing for current branch")
             continue
@@ -1183,14 +1191,6 @@ def _source_truth_context_currentness_failures(
             and _normalized_packet_text(copied_text) != _normalized_packet_text(live_text)
         ):
             failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
-        if re.search(r"PENDING_REGENERATION|Pending regeneration", copied_text, re.IGNORECASE):
-            failures.append(
-                f"{copied_name}: copied Source Truth Context still says packet regeneration is pending"
-            )
-        if re.search(r"USER Review ZIP:\s*`?PENDING", copied_text, re.IGNORECASE):
-            failures.append(
-                f"{copied_name}: copied Source Truth Context has no concrete current USER Review ZIP pointer"
-            )
     if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
         failures.extend(
             _accepted_historical_context_posture_failures(
