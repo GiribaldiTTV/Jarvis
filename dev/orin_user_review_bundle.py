@@ -652,6 +652,314 @@ def _markdown_lines(items: list[str]) -> list[str]:
     return [f"- {item}" for item in items]
 
 
+def _is_fam006_child_window_primitive_bp1_packet(profile_text: str) -> bool:
+    normalized = profile_text.casefold().replace("_", "-").replace(" ", "-")
+    return (
+        "fam-006" in normalized
+        and "hud" in normalized
+        and "child-window" in normalized
+        and "uiref-007" in normalized
+    )
+
+
+def _fam006_child_window_issue_matrix_lines() -> list[str]:
+    return [
+        "| Issue | Title | Status | Why admitted | Owning surfaces | Source-truth owners | BP1 disposition | Direct branch scope | Proof / validation expectations | Closeout boundary | Dependencies / risk |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| #275 | FAM-006 Manage Monitors resize blocks HUD Dashboard movement/accommodation | OPEN | USER-created FAM-006 resize/containment defect; directly tied to UIREF-007 child-window geometry. | Manage Monitors; HUD Dashboard parent movement/accommodation. | FAM-006 vision; FAM-002; UIREF-007; active external branch plan. | Include in BP1 vision as a current-branch candidate for BP2 planning. | Repair or plan contained resize/movement behavior only if BP2/BP3 later admit implementation. | Default/resized/contained states, dashboard movement after resize, no dead zone, code-to-visual trace, screenshot/video proof. | Branch may close only after USER-approved implementation/proof and explicit issue closeout approval. | Risk: child resize can trap parent dashboard or become broader layout overhaul. |",
+        "| #277 | UIREF-007 window geometry/resize adoption across FAM-owned surfaces | OPEN | Umbrella issue; FAM-006 admits only its own UIREF-007 adoption slice. | HUD Dashboard, Manage Monitors, Overlay Profile Settings, Active Overlay Profile selector; Recording Suite and Log Viewer as proof/reference only. | UIREF-007; FAM-002; FAM-006 vision; active external branch plan; issue #277 scoped comment. | Include as FAM-006-scoped boundary only. | Part of #277 / Related to #277 only; no FAM-003/FAM-007/FAM-008/Governance mutation. | Window geometry/resize matrix, accepted-reference comparison, code-to-visual trace, screenshot/video/contact-sheet proof, exception/waiver disposition. | #277 remains open as cross-FAM umbrella unless USER separately approves final closeout; no Fixes, Closes, or Resolves. | Risk: umbrella can over-broaden current branch into sibling worktree or Governance mutation. |",
+        "| #280 | FAM-006 HUD Dashboard chrome/control grammar adoption | OPEN | HUD Dashboard parent chrome/control grammar is a current FAM-006 surface affected by child-window primitive adoption. | HUD Dashboard / Monitoring HUD parent surface and top-level control cluster. | FAM-002; FAM-006 vision; UIREF-001/002/007; active external branch plan. | Include in BP1 as parent-surface adoption target. | BP2 must decide whether current branch repairs, explicitly waives, or routes issue candidate. | Focused chrome/control screenshots, hover/focus/pressed/disabled states, keyboard proof where applicable, comparator evidence. | Issue closeout requires later implementation/proof and explicit closeout approval. | Risk: parent-window grammar changes may affect all HUD surfaces. |",
+        "| #281 | FAM-006 Manage Monitors child-window primitive/state matrix | OPEN | Manage Monitors needs full attached-child primitive/state matrix beyond resize issue #275. | Manage Monitors buttons, rows, filters, provider/status rows, scrollbars, control states. | FAM-006 vision; FAM-002; UIREF-003/005/007; active external branch plan. | Include as attached child-window surface matrix. | BP2 should size default/hover/focus/pressed/disabled/empty/error/blocked state proof before any repair. | State matrix, list/filter/dropdown/scrollbar proof, code-to-visual trace, focused screenshots/video. | May close only after full matrix is implemented/proven and USER approves closeout. | Risk: same surface also carries #275 geometry blocker. |",
+        "| #282 | FAM-006 Overlay Profile Settings child-window primitive/state matrix | OPEN | Overlay Profile Settings has incomplete child-window primitive/state proof under newer standards. | Overlay Profile Settings create/edit/save/delete/discard, selectors, list rows, dirty/danger states. | FAM-006 vision; FAM-002; UIREF-003/005/007; active external branch plan. | Include as attached child-window matrix. | BP2 must decide current repair versus issue-candidate handling for any out-of-current-scope states. | Dirty guard, danger action, selector/list/filter/scrollbar, focus/keyboard, screenshot/video proof. | Closeout requires later accepted proof and explicit issue closeout approval. | Risk: profile behavior can spill into recording/overlay target reliability if mis-scoped. |",
+        "| #283 | FAM-006 Active Overlay Profile dropdown state matrix | OPEN | Active Overlay Profile selector/dropdown needs complete state matrix and visual inheritance proof. | HUD Overlay active profile selector/dropdown, target/profile display. | FAM-006 vision; FAM-002; UIREF-003; active external branch plan. | Include as selector/dropdown state target. | BP2 should plan large-list, no-profile, disabled, open, hover/focus/selected, keyboard, and error/recovery states. | Dropdown state screenshots/video, code-to-visual trace, keyboard/focus proof, branch-specific validation. | Closeout requires later implementation/proof and explicit issue closeout approval. | Risk: dropdown state can be falsely green if only default closed state is inspected. |",
+        "| #284 | FAM-006 child-window shared primitive standardization | OPEN | Branch exists to prevent repeated child-window primitive drift across FAM-006 surfaces. | Attached and detached child-window family grammar; Manage Monitors; Overlay Profile Settings; Recording Suite and Log Viewer as reference/proof surfaces. | FAM-006 vision; FAM-002; UIREF-001 through UIREF-007 where applicable; active external branch plan. | Include as branch-level primitive standardization objective. | Current branch may define/adopt FAM-006 primitives only after BP2/BP3/Workstream approval. | Shared primitive inventory, same-class comparator matrix, code-to-visual trace, focused state screenshots/video. | Closeout requires every admitted current-branch primitive state proven and USER issue closeout approval. | Risk: primitive work can become broad UI overhaul or cross-FAM standard promotion without authority. |",
+    ]
+
+
+def _fam006_child_window_surface_inventory_lines() -> list[str]:
+    return [
+        "| Surface | Ownership classification | Current known state | Issues | Source truth / UIREF | Expected proof states | Likely files/modules later | Later repair or reference-only | Validation needs | Risk / blocker candidates |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| HUD Dashboard / Monitoring HUD parent surface | FAM-006 dashboard / parent-class window | Existing FAM-006 parent surface; current branch has not approved runtime mutation yet. | #280, #277 | FAM-006 vision; FAM-002; UIREF-001/002/007. | default, resized, movement, chrome/control states, dashboard/card containment. | nexus_visual/monitoring_hud.*; desktop renderer bridge; FAM-006 proof helpers. | Direct repair expected later only if BP2/BP3 admit it. | visual comparator, geometry matrix, focused screenshot/video, code-to-visual trace. | Parent grammar change can affect every child surface and proof baseline. |",
+        "| HUD Dashboard chrome/control cluster | FAM-006 parent-window control group consuming FAM-002 grammar | Open issue candidate; must not be silently green. | #280, #277 | FAM-002 top-level control grammar; UIREF-001/002/007. | default, hover, focus, pressed, disabled/not-applicable, keyboard accessibility. | CSS/JS window primitives and HUD renderer code. | Direct repair candidate; may require USER exception if retained. | per-control state proof and Product Experience Contract review. | Large CLOSE/content-action confusion or mismatch with accepted primitives. |",
+        "| Manage Monitors attached child window | FAM-006 exclusive attached child window | Existing child window; resize containment defect reported and state matrix incomplete. | #275, #281, #277, #284 | FAM-006 vision; FAM-002 child-window grammar; UIREF-003/005/007. | default, resized, contained, scroll, filter/list states, hover/focus/pressed/disabled/error/empty. | monitoring_hud HTML/CSS/JS and related validators. | Direct repair likely if BP2/BP3 admit. | geometry matrix, state matrix, screenshots/video, code-to-visual trace. | Child resize can block parent; state proof can become default-only. |",
+        "| Overlay Profile Settings attached child window | FAM-006 exclusive attached child window | Existing child window; state/primitive matrix incomplete under newer standards. | #282, #277, #284 | FAM-006 vision; FAM-002; UIREF-003/005/007. | create/edit/save/delete/discard, dirty/danger, selector/list, scroll, focus/keyboard. | monitoring_hud HTML/CSS/JS, overlay profile state code, proof helpers. | Direct repair or issue-candidate disposition depends on BP2 scope. | state matrix, screenshot/video proof, keyboard/accessibility proof. | Profile behavior touches target reliability if over-broadened. |",
+        "| Active Overlay Profile dropdown / selector surface | FAM-006 selector/dropdown surface inside HUD Overlay | Open matrix issue; default closed state is insufficient. | #283, #277, #284 | FAM-006 vision; FAM-002; UIREF-003. | open/closed, hover/focus/selected, large-list, no-profile, disabled, error/recovery, keyboard. | monitoring_hud JS/CSS selector code. | Direct repair candidate after BP2 planning. | dropdown proof, state coverage, screenshot/video, code-to-visual trace. | Dropdown overlay may be clipped, mis-layered, or visually divergent. |",
+        "| Recording Suite | FAM-006 detached feature-studio reference/proof surface | Released prior branch surface; current branch should use as reference/proof only unless BP2 admits repair. | #284 reference; #277 proof/reference only. | FAM-006 recording vision; FAM-002; UIREF-007 if geometry touched. | Reference screenshots, primitive comparison only unless admitted. | monitoring_hud_studio and shared primitive files if later admitted. | Reference/proof only for BP1. | comparator proof; no issue closeout. | Do not reopen released Recording work by inertia. |",
+        "| Log Viewer | FAM-006 detached feature-studio reference/proof surface | Released prior branch surface; current branch should use as reference/proof only unless BP2 admits repair. | #284 reference; #277 proof/reference only. | FAM-006 recording vision; FAM-002; UIREF-007 if geometry touched. | Reference screenshots, primitive comparison only unless admitted. | monitoring_hud_studio and shared primitive files if later admitted. | Reference/proof only for BP1. | comparator proof; no issue closeout. | Do not turn minimal Log Viewer into full viewer/export implementation. |",
+    ]
+
+
+def _fam006_child_window_branch_vision_lines(
+    *,
+    title: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+    copied_context: str,
+) -> list[str]:
+    pending = _markdown_lines(pending_user_decisions)
+    return [
+        f"# {title} - USER Branch Vision Review",
+        "",
+        "USER Branch Vision Review: BP1",
+        "",
+        "## Review Status",
+        "",
+        "Needs USER Decision - this BP1 packet is reviewable, but USER has not accepted, revised, waived, rejected, or held the Branch Vision.",
+        "",
+        "## Contract Status",
+        "",
+        "Draft - USER acceptance or waiver is required before BP2 preparation can become green.",
+        "",
+        "## Packet Reviewability State",
+        "",
+        "Reviewable - this packet is a BP1 Branch Vision Review only.",
+        "",
+        "## USER Gate State",
+        "",
+        "Pending USER Review - BP2, BP3, Workstream/runtime implementation, issue closeout, PR creation, merge, release, cleanup deletion, sibling worktree mutation, Governance mutation, neutral-main mutation, provider/model/private/cache/memory work, and broad cross-FAM UIREF implementation remain unapproved.",
+        "",
+        "## Contract Revision",
+        "",
+        "v4 - repaired after lifecycle patch so the BP1 packet carries substantive FAM-006 issue, surface, proof, and artifact-lifecycle review material.",
+        "",
+        "## Project Vision Context",
+        "",
+        "This branch must preserve the Nexus Product Experience Contract: deterministic, intuitive, immersive, predictable, reliable, and consistent user-facing UI. BP1 must decide the branch vision before engineering planning, and helper green cannot substitute for USER acceptance.",
+        "",
+        "## Family Vision Context",
+        "",
+        "FAM-006 owns Monitoring/HUD surfaces: HUD Dashboard, Manage Monitors, Overlay Profile Settings, Active Overlay Profile selector/dropdown behavior, Recording Suite and Log Viewer proof/reference surfaces, and FAM-006 child-window visual inheritance. FAM-002 supplies shared desktop/interface grammar; UIREF-007 supplies geometry/resize carrydown.",
+        "",
+        "## Feature Vision Context",
+        "",
+        "This BP1 vision is for HUD Dashboard + Child Window UIREF-007 Adoption. The branch should evaluate and plan FAM-006-owned adoption for dashboard chrome/control grammar, attached child-window primitives and state matrices, dropdown state proof, shared child-window primitives, and geometry/resize behavior. It should not mutate sibling worktrees or promote broad cross-FAM UIREF law.",
+        "",
+        "## Branch Goal",
+        "",
+        "Define a FAM-006 branch vision that lets USER decide whether this successor branch should carry the HUD/child-window primitive and geometry adoption package for issues #275, #277 FAM-006-scoped only, #280, #281, #282, #283, and #284.",
+        "",
+        "## End-State Vision",
+        "",
+        "If later BP2/BP3/Workstream approvals are granted, the intended product end-state is a FAM-006 HUD and child-window system where parent dashboard chrome, attached child-window containment, child-window controls, dropdowns, state rows, scrollbars, focus/hover/pressed/disabled states, and geometry/resize behavior are derived from source-truth primitives and proven with code-to-visual and visual evidence.",
+        "",
+        "## What USER Will Actually See",
+        "",
+        "- In this BP1 packet: a decision-focused Branch Vision, issue matrix, surface inventory, proof plan, risk ledger, and artifact lifecycle proof.",
+        "- In later BP2 if accepted: an engineering plan that maps each admitted issue/surface to files, slices, validators, screenshot/video proof, rollback, and boundaries.",
+        "- In later Workstream only if approved: actual FAM-006 runtime/UI repairs for the admitted surfaces.",
+        "",
+        "## What Will I Actually See, And Where Will I See It?",
+        "",
+        "USER will review one BP1 decision file in `USER Review/USER_BRANCH_VISION_REVIEW.md`. That file names the FAM-006 HUD Dashboard and child-window adoption package, the admitted GitHub issues, the affected product surfaces, the available design paths, and the proof expectations that BP2 must preserve. `Review Aids` gives the source-truth scan, lifecycle proof, validation outputs, and digest material. `Source Truth Context` contains copied source-truth references only; those copies do not replace live repo authority for later gates.",
+        "",
+        "## How It Will Function",
+        "",
+        "If USER accepts this BP1 vision, BP2 may plan a bounded FAM-006 implementation package for HUD Dashboard chrome/control grammar, Manage Monitors containment and primitive state proof, Overlay Profile Settings state proof, Active Overlay Profile dropdown state proof, and shared child-window primitive standardization. If USER revises the vision, Codex must update the BP1 decision file and regenerate the packet before BP2 planning. If USER rejects, waives, or holds, BP2 remains blocked unless source truth and USER decision text provide a legal waiver path.",
+        "",
+        "## User Experience Flow",
+        "",
+        "1. USER opens `START_HERE.md` and follows the primary path to `USER Review/USER_BRANCH_VISION_REVIEW.md`.",
+        "2. USER reviews the branch goal, issue matrix, surface inventory, and option set.",
+        "3. USER decides whether the current branch should plan the full admitted package, geometry-first path, primitive/state-first path, or a revised route.",
+        "4. Codex digests the USER response into branch/external state before any BP2 plan treats the vision as accepted.",
+        "",
+        "## Surface Map",
+        "",
+        "- HUD Dashboard / Monitoring HUD parent surface: parent-class FAM-006 dashboard surface, including chrome/control grammar and geometry behavior.",
+        "- Manage Monitors: attached child-window surface requiring containment, resize behavior, primitive/state proof, scroll/list/filter/dropdown proof, and parent movement accommodation analysis.",
+        "- Overlay Profile Settings: attached child-window surface requiring create/edit/save/delete/discard, dirty/danger, selector/list, focus/keyboard, and state proof.",
+        "- Active Overlay Profile dropdown / selector: selector surface requiring open/closed, hover/focus/selected, large-list, no-profile, disabled, and error/recovery proof.",
+        "- Recording Suite and Log Viewer: BP1 reference/proof surfaces only unless USER later admits runtime repair in BP2/BP3.",
+        "",
+        "## Scope Boundary",
+        "",
+        "- In scope for BP1: HUD Dashboard, HUD Dashboard chrome/control cluster, Manage Monitors, Overlay Profile Settings, Active Overlay Profile dropdown/selector, FAM-006 child-window shared primitive direction, issue #275, issue #277 only as FAM-006-owned UIREF-007 adoption, and issues #280-#284.",
+        "- Reference/proof only for BP1: Recording Suite and Log Viewer.",
+        "- Out of scope: FAM-003, FAM-007, FAM-008, Governance/UIREF mutation, neutral-main mutation, broad cross-FAM implementation, provider/model/private/cache/memory work, issue closeout, PR creation, merge, release, and cleanup deletion.",
+        "",
+        "## Expanded Issue Matrix",
+        "",
+        *_fam006_child_window_issue_matrix_lines(),
+        "",
+        "## Expanded Surface Inventory",
+        "",
+        *_fam006_child_window_surface_inventory_lines(),
+        "",
+        "## Product Options / Design Paths",
+        "",
+        "- Option A - full admitted FAM-006 HUD/child-window package: plan #275, #280, #281, #282, #283, #284 plus #277 FAM-006-scoped carrydown together because they share one family, UIREF-007 adoption route, proof path, and branch objective. Tradeoff: broadest current branch plan, but avoids tiny-branch drift.",
+        "- Option B - geometry-first path: focus BP2 on #275 and #277 FAM-006 geometry/resize adoption, then issue-candidate the broader primitive/state matrices. Tradeoff: lower immediate scope, but leaves child-window visual/state drift open.",
+        "- Option C - primitive/state-first path: focus BP2 on #280-#284 shared primitives/state matrices while deferring the Manage Monitors resize/accommodation defect. Tradeoff: improves visual/system consistency first, but leaves a direct usability issue open.",
+        "",
+        "## Codex Recommendations",
+        "",
+        "- Recommendation: choose Option A for BP2 planning unless USER wants a smaller first branch, because the admitted issues are coupled by the same FAM-006 child-window/geometry adoption problem. Tradeoff: this is broader than a single-issue branch, but it avoids repeated primitive drift and keeps one proof model for the related FAM-006 surfaces.",
+        "- Recommendation: keep #277 explicitly scoped to FAM-006-owned UIREF-007 adoption. Tradeoff: the branch can reference the cross-FAM umbrella issue without claiming to close it or mutating sibling worktrees.",
+        "- Recommendation: require BP2 to turn this BP1 vision into a concrete surface-by-surface matrix before runtime implementation. Tradeoff: planning takes longer, but it prevents helper PASS or copied context from substituting for user-visible proof.",
+        "",
+        "## Why This Fits The Nexus Vision",
+        "",
+        "This BP1 packet keeps USER control in front of implementation by naming the visible FAM-006 surfaces, the open issues, the proof expectations, and the boundaries before code repair begins. It supports deterministic, intuitive, immersive, predictable, reliable, and consistent UI work by requiring same-class FAM-006 child-window primitives to be planned and proven rather than patched opportunistically. It also preserves local-first packet review: USER receives one clean packet folder and one timestamped upload ZIP, while acceptance remains a separate USER decision.",
+        "",
+        "## Proof / Validation Plan",
+        "",
+        "- BP2 should produce a Window Geometry / Resize Matrix for every admitted UIREF-007 surface.",
+        "- BP2 should produce an Element-to-Phase / state matrix for chrome, controls, buttons, dropdowns, rows, scrollbars, focus/keyboard, disabled/error/empty states, and parent-child containment.",
+        "- Workstream, if later approved, must prove code-to-visual trace, focused screenshots/video, hover/focus/pressed/disabled state proof, geometry/resize proof, and Product Experience Contract conformance.",
+        "- Packet validation must keep reviewability separate from USER acceptance.",
+        "",
+        "## Artifact Lifecycle / Retention Note",
+        "",
+        "The accepted lifecycle model is preserved: `C:\\Nexus USER\\FAM-006` is the durable local packet folder; `C:\\Nexus USER\\FAM-006-<timestamp>.zip` is the single current upload ZIP; protected prerequisite evidence may live under `Accepted Gate Artifacts\\BP<n>` inside the durable folder; stale generated packet content and old same-label ZIPs are cleanup targets.",
+        "",
+        "## Risk Ledger",
+        "",
+        "- #277 overreach risk: must remain FAM-006-scoped only, using `Part of #277` or `Related to #277` and never `Fixes`, `Closes`, or `Resolves`.",
+        "- Scope creep risk: BP1 does not authorize runtime UI repair, issue closeout, PR, merge, release, sibling worktree mutation, or Governance mutation.",
+        "- False-green risk: file-count parity, helper PASS, or copied context lists do not prove substantive BP1 reviewability.",
+        "- Visual proof risk: later phases must use screenshots/video/contact sheets and code-to-visual trace, not marker-only proof.",
+        "- Lifecycle artifact risk: old retained ZIPs must not substitute for internal accepted-gate prerequisite evidence.",
+        "",
+        "## Source Truth / Reference Plan",
+        "",
+        f"Copied source-truth context includes {copied_context}. BP2 must reload live source truth rather than relying on copied packet context if it is prepared later.",
+        "",
+        "## USER Design Questions",
+        "",
+        "- Does USER want Option A, Option B, Option C, or a revised scope for BP2 planning?",
+        "- Should Manage Monitors resize/accommodation (#275) be treated as a must-fix in the first implementation slice if BP2 is later accepted?",
+        "- Should HUD Dashboard chrome/control grammar (#280) be repaired in the same package or issue-candidated as historical/out-of-current-scope?",
+        "- Are Recording Suite and Log Viewer acceptable as reference/proof surfaces only for this BP1 branch vision?",
+        "",
+        "## USER Response",
+        "",
+        "Pending USER response or explicit waiver.",
+        "",
+        "## Codex Digest",
+        "",
+        "Pending USER response digest.",
+        "",
+        "## USER Response Proof",
+        "",
+        "Pending USER response or explicit waiver.",
+        "",
+        "## USER Response Digested",
+        "",
+        "No - BP1 remains open until Codex digests an explicit USER response or waiver.",
+        "",
+        "## Accepted Branch Vision",
+        "",
+        "Pending USER acceptance or waiver.",
+        "",
+        "## Family-Vision Versus Branch-Only Vision Impact",
+        "",
+        "Branch-only by default. If USER accepts reusable FAM-006 child-window primitive rules, later fold-down may be needed into FAM-006 vision or another durable owner after proper phase approval.",
+        "",
+        "## Must-Have Behavior",
+        "",
+        "- BP1 must be accepted or explicitly waived before BP2 preparation can be green.",
+        "- BP2 must preserve #277 as FAM-006-scoped only.",
+        "- BP2 must not treat reviewability, packet validation, or helper PASS as USER acceptance.",
+        "",
+        "## Future-Gated Decisions And Regression-Risk Controls",
+        "",
+        "- BP2, BP3, Workstream/runtime implementation, H1, Live Validation, UTS acceptance, issue closeout, PR creation, merge, release, and cleanup deletion remain pending later USER decisions.",
+        "- Regression-risk control: #277 must stay FAM-006-scoped in this branch and cannot be closed as a cross-FAM umbrella issue.",
+        "- Regression-risk control: Recording Suite and Log Viewer remain reference/proof surfaces only at BP1, preventing accidental reopening of released work.",
+        "- Regression-risk control: later implementation must prove element/state/geometry behavior with screenshots/video/contact sheets and code-to-visual trace.",
+        "",
+        "## Deferred And Future-Gated Ideas",
+        "",
+        *pending,
+        "",
+        "## Vision Question Queue",
+        "",
+        "- Should BP2 plan Option A, Option B, Option C, or a revised scope?",
+        "- Should #275 Manage Monitors resize/accommodation be mandatory in the first implementation seam if BP2 is later accepted?",
+        "- Should HUD Dashboard chrome/control grammar be repaired in the same package or recorded as a later issue candidate?",
+        "- Should any admitted surface receive an explicit waiver or exception before BP2 planning?",
+        "",
+        "## Design Assumption Ledger",
+        "",
+        "- Assumption: same-family attached child-window primitives should be standardized unless USER approves a variant.",
+        "- Assumption: UIREF-007 geometry/resize adoption can be planned inside FAM-006 only for FAM-006-owned surfaces.",
+        "- Assumption: BP1 reviewability does not equal USER acceptance.",
+        "- Assumption: copied source-truth context in this packet is evidence only; later gates reload live repo authority.",
+        "",
+        "## Acceptance / Revision / Rejection / Waiver Decision",
+        "",
+        exact_user_decision,
+        "",
+    ]
+
+
+def _fam006_child_window_bp1_reviewability_failures(
+    packet_files: Mapping[str, str],
+    folder_entries: set[str],
+) -> list[str]:
+    review_text = packet_files.get(USER_BRANCH_VISION_REVIEW_FILE, "")
+    normalized_review = review_text.casefold().replace("_", "-").replace(" ", "-")
+    if not _is_fam006_child_window_primitive_bp1_packet(normalized_review):
+        return []
+
+    failures: list[str] = []
+    generated_text = "\n".join(
+        text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    )
+    for required_heading in (
+        "## Expanded Issue Matrix",
+        "## Expanded Surface Inventory",
+        "## Artifact Lifecycle / Retention Note",
+        "## Risk Ledger",
+        "## Proof / Validation Plan",
+    ):
+        if required_heading not in review_text:
+            failures.append(
+                "FAM-006 BP1 packet reviewability failed: "
+                f"{USER_BRANCH_VISION_REVIEW_FILE} is missing {required_heading}"
+            )
+    for issue_id in ("#275", "#277", "#280", "#281", "#282", "#283", "#284"):
+        if issue_id not in review_text:
+            failures.append(
+                "FAM-006 BP1 packet reviewability failed: "
+                f"{USER_BRANCH_VISION_REVIEW_FILE} does not include admitted issue {issue_id}"
+            )
+    if "Part of #277" not in generated_text and "Related to #277" not in generated_text:
+        failures.append(
+            "FAM-006 BP1 packet reviewability failed: #277 must be framed as Part of/Related to #277, not closeout"
+        )
+    for stale_phrase in (
+        "FAM-007 family vision",
+        "Public/Dev/Owner boundary plan",
+        "AI Runtime And Trust Architecture",
+    ):
+        if stale_phrase in generated_text:
+            failures.append(
+                "FAM-006 BP1 packet reviewability failed: stale non-FAM-006 source-truth scan text remains "
+                f"({stale_phrase})"
+            )
+    validation_output_entries = [
+        entry for entry in folder_entries if entry.startswith("Review Aids/Validation Outputs/")
+    ]
+    if not validation_output_entries:
+        failures.append(
+            "FAM-006 BP1 packet reviewability failed: packet-contained validation outputs are missing"
+        )
+    lifecycle_entries = [
+        entry
+        for entry in folder_entries
+        if "Artifact Lifecycle" in entry or "ARTIFACT_LIFECYCLE" in entry
+    ]
+    if not lifecycle_entries:
+        failures.append(
+            "FAM-006 BP1 packet reviewability failed: artifact lifecycle proof/ledger is missing"
+        )
+    return failures
+
+
 def _extract_marker_from_text(text: str, marker: str) -> str | None:
     pattern = re.compile(rf"^{re.escape(marker)}\s*(.+)$", re.MULTILINE)
     match = pattern.search(text)
@@ -2706,6 +3014,7 @@ def validate_local_user_packet(
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_retained_bp_prerequisite_failures(packet_files, folder_entries))
+    failures.extend(_fam006_child_window_bp1_reviewability_failures(packet_files, folder_entries))
     failures.extend(
         _fam003_lv1_visual_retest_semantic_failures(
             packet_files,
@@ -3562,6 +3871,23 @@ def _write_user_branch_vision_review(
         copied_context += f", plus {len(source_file_names) - 5} more source-truth files"
     if not copied_context:
         copied_context = "the selected source-truth files"
+    early_profile_text = " ".join(
+        [title, review_purpose, exact_user_decision, *source_file_names]
+    )
+    if _is_fam006_child_window_primitive_bp1_packet(early_profile_text):
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text(
+            "\n".join(
+                _fam006_child_window_branch_vision_lines(
+                    title=title,
+                    exact_user_decision=exact_user_decision,
+                    pending_user_decisions=pending_user_decisions,
+                    copied_context=copied_context,
+                )
+            ),
+            encoding="utf-8",
+        )
+        return review_path.resolve()
     decision_text = exact_user_decision.casefold()
     review_profile_text = " ".join([title, review_purpose, exact_user_decision]).casefold()
     current_bp1_review_packet = (
@@ -3750,6 +4076,26 @@ def _write_user_branch_vision_review(
     profile_text = " ".join(
         [title, review_purpose, exact_user_decision, *source_file_names]
     ).casefold().replace("_", "-")
+    if (
+        _is_fam006_child_window_primitive_bp1_packet(profile_text)
+        and (
+            "bp1 branch vision review" in profile_text
+            or "bp1-branch-vision-review" in profile_text
+        )
+    ):
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text(
+            "\n".join(
+                _fam006_child_window_branch_vision_lines(
+                    title=title,
+                    exact_user_decision=exact_user_decision,
+                    pending_user_decisions=pending_user_decisions,
+                    copied_context=copied_context,
+                )
+            ),
+            encoding="utf-8",
+        )
+        return review_path.resolve()
     fam007_dev_owner_bp1_packet = (
         "fam-007" in profile_text
         and (
@@ -8806,6 +9152,12 @@ def _write_workstream_entry_packet_digests(
             )
         )
     )
+    fam006_child_window_bp1_packet = (
+        bp1_packet
+        and source_branch == "feature/fam-006-hud-child-window-primitive-adoption"
+        and "uiref-007" in normalized_decision
+        and ("child-window" in normalized_decision or "child window" in normalized_decision)
+    )
     bp2_packet = (
         not bp1_packet
         and not bp3_packet
@@ -8908,25 +9260,52 @@ def _write_workstream_entry_packet_digests(
             "Recommended Next Phase: BP1 USER decision, then BP2 USER Branch "
             "Plan Review only if USER accepts or explicitly waives BP1."
         )
-        scan_result = (
-            "Source-Truth Coverage: packet includes the project vision, FAM-007 "
-            "family vision, Public/Dev/Owner boundary plan, AI Runtime And Trust "
-            "Architecture, active branch authority record, branch artifact rules, "
-            "phase governance, execution rules, validation registry, backlog, and "
-            "roadmap context needed for the BP1 Branch Vision decision."
-        )
-        checklist_status = (
-            "Checklist Focus: BP1 Branch Vision Review - project, family, feature, "
-            "branch goal, end-state vision, user-facing review surfaces, options, "
-            "recommendations, future-gated decisions, and regression-risk controls "
-            "are represented for USER inspection."
-        )
-        digest_status = (
-            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
-            "USER_BRANCH_PLAN_REVIEW.md as BP2 preview only, required digest/"
-            "checklist files, and copied source-truth files are loaded and "
-            "digestible for USER review; BP1 remains pending USER decision."
-        )
+        if fam006_child_window_bp1_packet:
+            scan_result = (
+                "Source-Truth Coverage: packet includes the Main router, phase governance, "
+                "branch planning rules, Nexus vision, FAM-002 Desktop Interface vision, "
+                "FAM-006 Monitoring/HUD vision, UIREF-007 window geometry/resize contract, "
+                "validation helper registry, incident patterns, worktree slots, branch "
+                "record index, and active external FAM-006 branch plan/state needed for "
+                "the BP1 HUD Dashboard + Child Window UIREF-007 Adoption decision. "
+                "FAM-007 appears only as a comparator/reference boundary when source truth "
+                "permits; it is not an active owner in this packet."
+            )
+            checklist_status = (
+                "Checklist Focus: BP1 Branch Vision Review - FAM-006 branch objective, "
+                "admitted issues #275/#277/#280/#281/#282/#283/#284, #277 FAM-006 scoped "
+                "boundary, HUD Dashboard parent surface, Manage Monitors, Overlay Profile "
+                "Settings, Active Overlay Profile dropdown, reference/proof surfaces, "
+                "artifact lifecycle model, proof expectations, risk ledger, and pending "
+                "USER decisions are represented for USER inspection."
+            )
+            digest_status = (
+                "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
+                "generated issue/surface/lifecycle/validation Review Aids, and copied "
+                "source-truth files are loaded and digestible for USER review; BP1 remains "
+                "pending USER decision and BP2 preparation remains blocked until USER "
+                "accepts or waives BP1."
+            )
+        else:
+            scan_result = (
+                "Source-Truth Coverage: packet includes the project vision, FAM-007 "
+                "family vision, Public/Dev/Owner boundary plan, AI Runtime And Trust "
+                "Architecture, active branch authority record, branch artifact rules, "
+                "phase governance, execution rules, validation registry, backlog, and "
+                "roadmap context needed for the BP1 Branch Vision decision."
+            )
+            checklist_status = (
+                "Checklist Focus: BP1 Branch Vision Review - project, family, feature, "
+                "branch goal, end-state vision, user-facing review surfaces, options, "
+                "recommendations, future-gated decisions, and regression-risk controls "
+                "are represented for USER inspection."
+            )
+            digest_status = (
+                "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
+                "USER_BRANCH_PLAN_REVIEW.md as BP2 preview only, required digest/"
+                "checklist files, and copied source-truth files are loaded and "
+                "digestible for USER review; BP1 remains pending USER decision."
+            )
     elif bp2_packet:
         analysis_status = (
             "Analysis Summary: BP2 USER Branch Plan Review packet for the active "
