@@ -454,9 +454,11 @@ function monitoringHudSetRecordingError(message) {
 
 function monitoringHudStartRecording() {
   if (monitoringHudRecordingState() === "paused") {
+    const resumedAt = monitoringHudRecordingNowIso();
     monitoringHudControlState.recordingSessionState = "recording";
     monitoringHudControlState.recordingSessionMessage = "Recording resumed.";
-    monitoringHudControlState.recordingResumedAt = monitoringHudRecordingNowIso();
+    monitoringHudControlState.recordingResumedAt = resumedAt;
+    monitoringHudControlState.recordingActiveSegmentStartedAt = resumedAt;
     monitoringHudRenderControls();
     monitoringHudMarkChanged();
     return true;
@@ -475,6 +477,7 @@ function monitoringHudStartRecording() {
   monitoringHudControlState.recordingSessionId = `recording-${Date.now()}`;
   monitoringHudControlState.recordingStartedAt = startedAt;
   monitoringHudControlState.recordingStartedAtMs = Date.now();
+  monitoringHudControlState.recordingActiveSegmentStartedAt = startedAt;
   monitoringHudControlState.recordingStoppedAt = "";
   monitoringHudControlState.recordingSessionState = "recording";
   monitoringHudControlState.recordingSessionMessage = "Recording active. Target locked to active Overlay Profile at Start.";
@@ -493,8 +496,10 @@ function monitoringHudPauseRecording() {
   }
   const target = monitoringHudControlState.recordingSnapshotTarget || monitoringHudControlState.activeOverlayRecordingTarget || {};
   const pausedAt = monitoringHudRecordingNowIso();
-  const rows = monitoringHudBuildRecordingRowsFromTarget(target, monitoringHudControlState.recordingStartedAt, pausedAt);
+  const segmentStartedAt = monitoringHudControlState.recordingActiveSegmentStartedAt || monitoringHudControlState.recordingStartedAt;
+  const rows = monitoringHudBuildRecordingRowsFromTarget(target, segmentStartedAt, pausedAt);
   monitoringHudControlState.recordingPausedAt = pausedAt;
+  monitoringHudControlState.recordingActiveSegmentStartedAt = "";
   monitoringHudControlState.recordingSamples = (Array.isArray(monitoringHudControlState.recordingSamples) ? monitoringHudControlState.recordingSamples : []).concat(rows);
   monitoringHudControlState.recordingSessionState = "paused";
   monitoringHudControlState.recordingSessionMessage = "Recording paused. Stop saves the current session; Start resumes.";
@@ -504,18 +509,23 @@ function monitoringHudPauseRecording() {
 }
 
 function monitoringHudStopRecording() {
-  if (!["recording", "paused"].includes(monitoringHudRecordingState())) {
+  const currentRecordingState = monitoringHudRecordingState();
+  if (!["recording", "paused"].includes(currentRecordingState)) {
     return monitoringHudStartRecording();
   }
   const target = monitoringHudControlState.recordingSnapshotTarget || monitoringHudControlState.activeOverlayRecordingTarget || {};
   const stoppedAt = monitoringHudRecordingNowIso();
-  const rows = monitoringHudBuildRecordingRowsFromTarget(target, monitoringHudControlState.recordingStartedAt, stoppedAt);
+  const segmentStartedAt = monitoringHudControlState.recordingActiveSegmentStartedAt || monitoringHudControlState.recordingStartedAt;
+  const rows = currentRecordingState === "paused"
+    ? []
+    : monitoringHudBuildRecordingRowsFromTarget(target, segmentStartedAt, stoppedAt);
   const allRows = (Array.isArray(monitoringHudControlState.recordingSamples) ? monitoringHudControlState.recordingSamples : []).concat(rows);
   if (!allRows.length) {
     return monitoringHudSetRecordingError("Recording stopped without usable samples.");
   }
   const sequence = Number(monitoringHudControlState.recordingOutputRequestSequence || 0) + 1;
   monitoringHudControlState.recordingStoppedAt = stoppedAt;
+  monitoringHudControlState.recordingActiveSegmentStartedAt = "";
   monitoringHudControlState.recordingSamples = allRows;
   monitoringHudControlState.recordingOutputRequestSequence = sequence;
   monitoringHudControlState.recordingOutputRequest = {
@@ -1560,6 +1570,7 @@ let monitoringHudControlState = {
   recordingSessionState: "ready",
   recordingSessionId: "",
   recordingStartedAt: "",
+  recordingActiveSegmentStartedAt: "",
   recordingStoppedAt: "",
   recordingStartedAtMs: 0,
   recordingSessionMessage: "Ready for local Start/Stop recording.",
