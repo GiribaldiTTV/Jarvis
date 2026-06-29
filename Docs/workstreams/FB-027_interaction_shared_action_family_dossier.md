@@ -67,6 +67,7 @@ Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass
 | `F027-P04` | `Historical pass alias` | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | `Converted in Slice R5-S2` | `Released in v1.4.0-prebeta; preserves the first curated built-in catalog and settings expansion lane.` |
 | `F027-P05` | `Historical pass alias` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Converted in Slice R5-S2` | `Released in v1.4.1-prebeta; preserves tray quick-task UX, tray-origin create flow, and window-initialization repair history.` |
 | `F027-P06` | `Aggregation evidence` | `Docs/workstreams/FB-027_interaction_system_baseline.md` | `Indexed by one-time backlog governance repair` | `PR #109 merged shutdown-hotkey confirmation runtime proof; Standalone Release Driver: No; aggregation target is a future USER-approved FB-027 family release or larger approved release aggregation.` |
+| `F027-P07` | `Release-window target` | `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md` | `Indexed by RRI-20260629-001 release-target repair` | `PR #286 merged the FAM-003 Resident Access and Quick Actions runtime/UI package. Release Target: v1.7.37-prebeta; Release Floor: patch prerelease.` |
 
 ### Preserved Branch Trace Index
 
@@ -93,6 +94,7 @@ Ledger Population State: `Historical summary rows added for FB-036, FB-037, FB-0
 | `FB-037 / multi-seam implementation, hardening, live validation, release packaging` | `Curated built-in system actions and Nexus settings expansion` | `Historical pass chain` | `Converted in Slice R5-S2` | `Detailed branch-local built-in catalog, helper repair, and release-debt packaging history stay in the preserved FB-037 workstream record.` |
 | `FB-038 / workstream, hardening re-entry, live validation, release closeout` | `Tray quick-task UX, tray-origin create surface, and startup-visibility repair` | `Historical pass chain` | `Converted in Slice R5-S2` | `Detailed tray UX, H1-H4 hardening, live evidence, and waiver history stay in the preserved FB-038 workstream record.` |
 | `PR #109 / shutdown-hotkey confirmation` | `Confirm-before-exit runtime proof for shutdown hotkeys with accept, cancel, timeout, and session-preservation evidence` | `Aggregation evidence` | `Indexed by one-time backlog governance repair` | `Preserved as FB-027 family evidence only; Standalone Release Driver: No; future same-family continuation requires explicit USER approval before selection or branching.` |
+| `PR #286 / resident access and quick actions` | `One-icon Nexus resident doorway, tray menu hierarchy, Global Settings / Tray / Quick Access configuration, quick-access slot ordering, dirty-state handling, resize/splitter behavior, and proof/validator support` | `Release-window target` | `Indexed by RRI-20260629-001 release-target repair` | `Release Target: v1.7.37-prebeta. Release Floor: patch prerelease. Detailed release target, candidate anchor, contributor inventory, and issue closeout posture live in the FAM-003 branch record.` |
 
 ## Validator And Helper Index
 
@@ -123,3 +125,20 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 - R5-S5 completes the Phase 5 traceability sweep by indexing the preserved FB-037 branch-record trace, explicitly calling out the passes that do not have separate branch records, and confirming the dossier, backlog trace table, roadmap, alias workstream, and branch-record routing stay aligned without migrating narrative bodies.
 - Later Phase 4 and Phase 5 slices will populate indexes and convert historical records incrementally.
 - Until later migration lands, the existing workstream and alias records remain the authoritative detailed history.
+
+## RRI-20260629-001 FAM-003 Release Target Receipt
+
+Receipt Status: `Compact family-dossier pointer to the FAM-003 PR #286 release target repair.`
+Source Branch Record: `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md`
+Completed By PR: `#286 - FAM-003 Resident Access and Quick Actions`
+Merge Commit: `298c2c17661f227ba9505f63b5f159fb8358a4cb`
+Previous Public Prerelease: `v1.7.36-prebeta`
+Release Target: `v1.7.37-prebeta`
+Release Floor: `patch prerelease`
+Version Rationale: `The resident access and quick-actions package is a bounded user-facing FAM-003 runtime/UI increment inside the existing pre-Beta stage. It does not widen the release to a minor prerelease milestone or a new family.`
+Release Scope: `Resident access tray doorway, compact tray/menu routing, Global Settings / Tray / Quick Access configuration, quick-access slot and dirty-state behavior, resize/splitter behavior, and FAM-003 proof/validator support.`
+Release Artifacts: `Tag v1.7.37-prebeta; GitHub prerelease title Pre-Beta v1.7.37; user-facing release notes plus GitHub-generated What's Changed and Full Changelog sections.`
+Release Candidate Anchor: `current fetched origin/main`
+Target Commit: `298c2c17661f227ba9505f63b5f159fb8358a4cb`
+Release Window Contributor Inventory: `Single contributor: PR #286 / FAM-003 Resident Access and Quick Actions`
+Release Execution Gate: `Blocked pending separate USER approval for Release Readiness Stage 2`
