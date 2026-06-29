@@ -24,6 +24,16 @@ Target Family: `FAM-007`
 
 Sibling Worktree Candidate Exclusion: `FAM-003, FAM-006, FAM-008, Governance, neutral main, and other sibling worktrees are overlap/dependency context only for this carrier. This BR2 admission does not authorize sibling mutation.`
 
+## Branch Identity
+
+- Branch: `feature/fam-007-ai-dashboard-child-domain-diagnostics`
+- Worktree: `C:\Nexus Worktrees\FAM-007`
+- Upstream: `origin/feature/fam-007-ai-dashboard-child-domain-diagnostics`
+- Branch Creation Base: `origin/main@fc177f44e9c1dadc1378582066b214a4ae016219`
+- Durable Receipt Owner: `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md`
+- External Branch State: `C:\Nexus Governance State\branches\feature_fam_007_ai_dashboard_child_domain_diagnostics\branch_state.md`
+- External Branch Plan: `C:\Nexus Governance State\branches\feature_fam_007_ai_dashboard_child_domain_diagnostics\branch_plan.md`
+
 ## Stage 2 Authority And Scope
 
 USER Approval: `I approve bounded Branch Readiness Stage 2 for FAM-007 in C:\Nexus Worktrees\FAM-007, limited to repairing post-release selected-next external-state carry-forward, preserving the stable FAM-007 worktree path, and admitting the AI Dashboard child/domain doorway restoration plus no-provider diagnostics state-mapping successor candidate from current origin/main. I do not authorize runtime implementation, provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, issue mutation, PR creation, merge, release, cleanup beyond the approved carrier setup needs, imports, or v1.8.0 work.`
