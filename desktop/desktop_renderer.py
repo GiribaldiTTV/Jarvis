@@ -12,6 +12,7 @@ import urllib.parse
 import webbrowser
 from html import escape
 from pathlib import Path
+from typing import Iterable, Optional
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -31,9 +32,11 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QSizeGrip,
+    QSplitter,
+    QSplitterHandle,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QPointF, QEvent, QSettings
-from PySide6.QtGui import QColor, QCursor, QFont, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap, QRegion
+from PySide6.QtGui import QColor, QCursor, QFont, QFontMetrics, QLinearGradient, QPainter, QPainterPath, QPalette, QPen, QPixmap, QRegion
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -67,7 +70,20 @@ from .saved_action_authoring import (
     update_saved_action_from_draft,
 )
 from .saved_action_source import SavedActionSourceWriteBlocked
+from .resident_access import (
+    DEFAULT_QUICK_SLOT_ROUTE_IDS,
+    MAX_QUICK_SLOT_COUNT,
+    ResidentAccessSettings,
+    WINDOWS_TRAY_VISIBILITY_LIMITATION,
+    build_resident_access_menu_plan,
+    load_resident_access_settings,
+    normalize_quick_slot_ids,
+    quick_slot_candidate_routes,
+    route_for_id,
+    save_resident_access_settings,
+)
 from .shared_action_model import (
+    DEFAULT_COMMAND_ACTIONS,
     build_callable_group_phrases,
     build_saved_action_callable_phrases,
     default_saved_action_trigger_mode,
@@ -83,8 +99,10 @@ from .workerw_utils import (
 )
 
 WM_NCHITTEST = 0x0084
+WM_CLOSE = 0x0010
 WM_CANCELMODE = 0x001F
 WM_SETCURSOR = 0x0020
+WM_SYSCOMMAND = 0x0112
 WM_NCMOUSEMOVE = 0x00A0
 WM_NCLBUTTONDOWN = 0x00A1
 WM_NCLBUTTONUP = 0x00A2
@@ -106,6 +124,7 @@ HTTOPRIGHT = 14
 HTBOTTOM = 15
 HTBOTTOMLEFT = 16
 HTBOTTOMRIGHT = 17
+SC_CLOSE = 0xF060
 IDC_ARROW = 32512
 IDC_SIZENWSE = 32642
 IDC_SIZENESW = 32643
@@ -831,40 +850,187 @@ class ImmediateHelpButton(QLabel):
 
 
 class DialogChromeBar(QFrame):
-    def __init__(self, title: str, dialog: QDialog, *, object_prefix: str, parent=None, show_title: bool = False):
+    def __init__(
+        self,
+        title: str,
+        dialog: QDialog,
+        *,
+        object_prefix: str,
+        parent=None,
+        show_title: bool = False,
+        show_minimize: bool = False,
+        show_maximize: bool = False,
+        clustered_controls: bool = False,
+        hero_header: bool = False,
+        compact_hero: bool = False,
+        settings_header: bool = False,
+        kicker: str = "",
+        subtitle: str = "",
+        role_pairs: tuple[tuple[str, str], ...] = (),
+    ):
         super().__init__(parent or dialog)
         self._dialog = dialog
         self._drag_offset: QPoint | None = None
         self.setObjectName(f"{object_prefix}ChromeBar")
         self.setProperty("chromeRole", "bar")
         self.setProperty("showTitle", bool(show_title))
+        self.setProperty("windowControlCluster", "compact-minimize-maximize-close" if clustered_controls else "compact-close")
+        header_anatomy = "compact-dialog-bar"
+        if settings_header:
+            header_anatomy = "ndai-global-settings-centered-settings-chrome-v22"
+        elif hero_header:
+            header_anatomy = "ai-control-center-compact-reference-derived" if compact_hero else "ai-control-center-reference-derived"
+        self.setProperty("headerAnatomy", header_anatomy)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setCursor(Qt.OpenHandCursor)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 5, 16, 3)
-        layout.setSpacing(4)
+        if settings_header:
+            layout = QGridLayout(self)
+            layout.setContentsMargins(16, 5, 12, 5)
+            layout.setHorizontalSpacing(8)
+            layout.setVerticalSpacing(0)
+            layout.setColumnStretch(0, 1)
+            layout.setColumnStretch(1, 0)
+            layout.setColumnStretch(2, 1)
 
-        self.title_label = QLabel(title, self)
-        self.title_label.setObjectName(f"{object_prefix}ChromeTitle")
-        self.title_label.setProperty("chromeRole", "title")
-        self.title_label.setVisible(bool(show_title))
-        layout.addWidget(self.title_label, 0, Qt.AlignVCenter)
-        layout.addStretch(1)
+            self.kicker_label = QLabel(kicker, self)
+            self.kicker_label.setObjectName(f"{object_prefix}ChromeKicker")
+            self.kicker_label.setProperty("chromeRole", "kicker")
+            self.kicker_label.setAlignment(Qt.AlignCenter)
+            self.kicker_label.setVisible(False)
 
-        self.close_button = QPushButton("\N{MULTIPLICATION SIGN}", self)
+            self.title_label = QLabel(title, self)
+            self.title_label.setObjectName(f"{object_prefix}ChromeTitle")
+            self.title_label.setProperty("chromeRole", "title")
+            self.title_label.setAlignment(Qt.AlignCenter)
+            self.title_label.setVisible(bool(show_title))
+            layout.addWidget(self.title_label, 0, 1, Qt.AlignCenter)
+
+            self.subtitle_label = QLabel("", self)
+            self.subtitle_label.setVisible(False)
+            self.role_pill = QFrame(self)
+            self.role_pill.setVisible(False)
+            self.role_labels = []
+        else:
+            layout = QHBoxLayout(self)
+        if hero_header and not settings_header:
+            if compact_hero:
+                layout.setContentsMargins(20, 13, 14, 12)
+                layout.setSpacing(10)
+            else:
+                layout.setContentsMargins(24, 20, 16, 18)
+                layout.setSpacing(14)
+            title_stack = QVBoxLayout()
+            title_stack.setContentsMargins(0, 0, 0, 0)
+            title_stack.setSpacing(2 if compact_hero else 3)
+
+            self.kicker_label = QLabel(kicker, self)
+            self.kicker_label.setObjectName(f"{object_prefix}ChromeKicker")
+            self.kicker_label.setProperty("chromeRole", "kicker")
+            self.kicker_label.setVisible(bool(kicker))
+            title_stack.addWidget(self.kicker_label)
+
+            self.title_label = QLabel(title, self)
+            self.title_label.setObjectName(f"{object_prefix}ChromeTitle")
+            self.title_label.setProperty("chromeRole", "title")
+            self.title_label.setVisible(bool(show_title))
+            title_stack.addWidget(self.title_label)
+
+            self.subtitle_label = QLabel(subtitle, self)
+            self.subtitle_label.setObjectName(f"{object_prefix}ChromeSubtitle")
+            self.subtitle_label.setProperty("chromeRole", "subtitle")
+            self.subtitle_label.setVisible(bool(subtitle))
+            title_stack.addWidget(self.subtitle_label)
+
+            self.role_pill = QFrame(self)
+            self.role_pill.setObjectName(f"{object_prefix}ChromeRolePill")
+            self.role_pill.setProperty("chromeRole", "surface-role")
+            self.role_pill.setAttribute(Qt.WA_StyledBackground, True)
+            role_layout = QHBoxLayout(self.role_pill)
+            role_layout.setContentsMargins(10, 4, 10, 4)
+            role_layout.setSpacing(8)
+            self.role_labels: list[QLabel] = []
+            for label, value in role_pairs:
+                pair = QLabel(f"{label} - {value}", self.role_pill)
+                pair.setObjectName(f"{object_prefix}ChromeRolePair")
+                pair.setProperty("chromeRole", "surface-role-pair")
+                role_layout.addWidget(pair)
+                self.role_labels.append(pair)
+            role_layout.addStretch(1)
+            self.role_pill.setVisible(bool(role_pairs))
+            title_stack.addWidget(self.role_pill, 0, Qt.AlignLeft)
+            layout.addLayout(title_stack, 1)
+        elif not settings_header:
+            layout.setContentsMargins(12, 5, 14, 5)
+            layout.setSpacing(4)
+
+            self.kicker_label = QLabel("", self)
+            self.kicker_label.setVisible(False)
+            self.subtitle_label = QLabel("", self)
+            self.subtitle_label.setVisible(False)
+            self.role_pill = QFrame(self)
+            self.role_pill.setVisible(False)
+            self.role_labels = []
+
+            self.title_label = QLabel(title, self)
+            self.title_label.setObjectName(f"{object_prefix}ChromeTitle")
+            self.title_label.setProperty("chromeRole", "title")
+            self.title_label.setVisible(bool(show_title))
+            layout.addWidget(self.title_label, 0, Qt.AlignVCenter)
+            layout.addStretch(1)
+
+        self.control_cluster = QFrame(self)
+        self.control_cluster.setObjectName(f"{object_prefix}WindowControls")
+        self.control_cluster.setProperty("chromeRole", "window-controls")
+        if settings_header:
+            self.control_cluster.setProperty("controlClusterDensity", "settings-compact-v22")
+        self.control_cluster.setAttribute(Qt.WA_StyledBackground, True)
+        control_layout = QHBoxLayout(self.control_cluster)
+        control_layout.setContentsMargins(2, 2, 2, 2)
+        control_layout.setSpacing(2)
+
+        self.minimize_button = QPushButton("\N{MINUS SIGN}", self.control_cluster)
+        self.minimize_button.setObjectName(f"{object_prefix}ChromeMinimize")
+        self.minimize_button.setProperty("chromeRole", "minimize")
+        self.minimize_button.setAccessibleName(f"Minimize {title}")
+        self.minimize_button.setCursor(Qt.PointingHandCursor)
+        self.minimize_button.setFlat(True)
+        control_size = 24 if settings_header else (28 if clustered_controls else 20)
+        self.minimize_button.setFixedSize(control_size, control_size)
+        self.minimize_button.setVisible(bool(show_minimize))
+        self.minimize_button.clicked.connect(self._dialog.showMinimized)
+        control_layout.addWidget(self.minimize_button, 0, Qt.AlignVCenter)
+
+        self.maximize_button = QPushButton("\N{WHITE SQUARE}", self.control_cluster)
+        self.maximize_button.setObjectName(f"{object_prefix}ChromeMaximize")
+        self.maximize_button.setProperty("chromeRole", "maximize")
+        self.maximize_button.setAccessibleName(f"Maximize {title} unavailable")
+        self.maximize_button.setCursor(Qt.PointingHandCursor)
+        self.maximize_button.setFlat(True)
+        self.maximize_button.setFixedSize(control_size, control_size)
+        self.maximize_button.setVisible(bool(show_maximize))
+        self.maximize_button.setEnabled(False)
+        control_layout.addWidget(self.maximize_button, 0, Qt.AlignVCenter)
+
+        self.close_button = QPushButton("\N{MULTIPLICATION SIGN}", self.control_cluster)
         self.close_button.setObjectName(f"{object_prefix}ChromeClose")
         self.close_button.setProperty("chromeRole", "close")
-        self.close_button.setToolTip("Close")
+        self.close_button.setAccessibleName(f"Close {title}")
         close_font = QFont("Segoe UI Symbol")
         close_font.setPointSize(11)
         close_font.setWeight(QFont.DemiBold)
         self.close_button.setFont(close_font)
-        self.close_button.setFixedSize(20, 20)
+        self.close_button.setCursor(Qt.PointingHandCursor)
+        self.close_button.setFlat(True)
+        self.close_button.setFixedSize(control_size, control_size)
         self.close_button.clicked.connect(self._dialog.reject)
-        layout.addWidget(self.close_button, 0, Qt.AlignVCenter)
-        self.setFixedHeight(28)
+        control_layout.addWidget(self.close_button, 0, Qt.AlignVCenter)
+        if settings_header:
+            layout.addWidget(self.control_cluster, 0, 2, Qt.AlignRight | Qt.AlignVCenter)
+        else:
+            layout.addWidget(self.control_cluster, 0, Qt.AlignTop if hero_header else Qt.AlignVCenter)
+        self.setFixedHeight(46 if settings_header else ((92 if compact_hero else 148) if hero_header else (36 if clustered_controls else 28)))
 
     def set_title(self, title: str):
         self.title_label.setText(title)
@@ -888,6 +1054,2752 @@ class DialogChromeBar(QFrame):
         self._drag_offset = None
         self.setCursor(Qt.OpenHandCursor)
         super().mouseReleaseEvent(event)
+
+
+class NexusSettingsSplitterHandle(QSplitterHandle):
+    def __init__(self, orientation, parent=None):
+        super().__init__(orientation, parent)
+        self.setMouseTracking(True)
+        self.setProperty("splitterVisualState", "normal")
+
+    def _set_visual_state(self, state: str):
+        self.setProperty("splitterVisualState", state)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
+
+    def enterEvent(self, event):
+        if self.property("splitterVisualState") != "active":
+            self._set_visual_state("hover")
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if self.property("splitterVisualState") != "active":
+            self._set_visual_state("normal")
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._set_visual_state("active")
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._set_visual_state("hover" if self.rect().contains(event.position().toPoint()) else "normal")
+        super().mouseReleaseEvent(event)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        rect = self.rect()
+        center_x = rect.width() / 2
+        state = str(self.property("splitterVisualState") or "normal")
+        line_alpha = {"normal": 16, "hover": 58, "active": 92}.get(state, 16)
+        dot_alpha = {"normal": 0, "hover": 96, "active": 144}.get(state, 0)
+        painter.setPen(QPen(QColor(122, 232, 255, line_alpha), 1.0))
+        painter.drawLine(int(center_x), 10, int(center_x), max(10, rect.height() - 10))
+        if dot_alpha:
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor(153, 246, 228, dot_alpha))
+            mid_y = rect.height() / 2
+            for offset in (-7, 0, 7):
+                painter.drawRoundedRect(QRectF(center_x - 1.0, mid_y + offset - 1.0, 2.0, 2.0), 1.0, 1.0)
+
+
+class NexusSettingsSplitter(QSplitter):
+    def createHandle(self):
+        handle = NexusSettingsSplitterHandle(self.orientation(), self)
+        handle.setObjectName("residentAccessSettingsSplitterHandle")
+        handle.setAccessibleName("Resize Global Settings navigation pane")
+        return handle
+
+
+class NexusCategoryIcon(QWidget):
+    def __init__(self, icon_kind: str, parent=None):
+        super().__init__(parent)
+        self.icon_kind = icon_kind
+        self.setFixedSize(16, 16)
+        self.setProperty("categoryIconRenderPolicy", "high-contrast-contained-12px-v38")
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setPen(QPen(QColor(224, 252, 255, 246), 1.35, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        painter.setBrush(Qt.NoBrush)
+        if self.icon_kind == "tray":
+            painter.setBrush(QColor(91, 224, 244, 36))
+            painter.drawRoundedRect(QRectF(2.4, 2.7, 7.2, 5.2), 1.25, 1.25)
+            painter.setBrush(Qt.NoBrush)
+            painter.drawLine(QPointF(6.0, 8.0), QPointF(6.0, 10.0))
+            painter.drawLine(QPointF(3.8, 10.0), QPointF(8.2, 10.0))
+        else:
+            path = QPainterPath()
+            path.moveTo(6.8, 1.5)
+            path.lineTo(2.9, 6.9)
+            path.lineTo(5.8, 6.9)
+            path.lineTo(4.9, 10.8)
+            path.lineTo(9.2, 5.4)
+            path.lineTo(6.3, 5.4)
+            path.closeSubpath()
+            painter.setPen(QPen(QColor(227, 255, 249, 170), 0.65, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.setBrush(QColor(184, 255, 236, 244))
+            painter.drawPath(path)
+
+
+class NexusGlyphButton(QPushButton):
+    def __init__(self, glyph: str, parent=None):
+        super().__init__("", parent)
+        self._glyph = glyph
+        self.setProperty("glyphButton", glyph)
+
+    def set_glyph(self, glyph: str):
+        self._glyph = glyph
+        self.setProperty("glyphButton", glyph)
+        self.update()
+
+    def enterEvent(self, event):
+        super().enterEvent(event)
+        self._update_glyph_zone_parent()
+
+    def leaveEvent(self, event):
+        super().leaveEvent(event)
+        self._update_glyph_zone_parent()
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        self._update_glyph_zone_parent()
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        self._update_glyph_zone_parent()
+
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        self._update_glyph_zone_parent()
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self._update_glyph_zone_parent()
+
+    def _update_glyph_zone_parent(self) -> None:
+        if bool(self.property("glyphZoneButton")) and self.parentWidget() is not None:
+            self.parentWidget().update()
+        self.update()
+
+    def paintEvent(self, event):
+        glyph_zone = bool(self.property("glyphZoneButton"))
+        if not glyph_zone:
+            super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        enabled = self.isEnabled()
+        quiet = bool(self.property("quietGlyph"))
+        interactive = self.underMouse() or self.hasFocus() or self.isDown()
+        segment = str(self.property("glyphSegment") or "")
+        if glyph_zone:
+            self._paint_glyph_zone_background(painter, segment, enabled, interactive)
+        glyph_alpha = 152 if quiet else 226
+        disabled_alpha = 58 if quiet else 92
+        if glyph_zone and enabled:
+            glyph_alpha = 222 if interactive else 172
+        custom_scale = self.property("glyphScale")
+        color = QColor(216, 255, 248, glyph_alpha if enabled else disabled_alpha)
+        if self.property("dangerGlyph"):
+            danger_alpha = 226 if interactive else (190 if quiet else 226)
+            color = QColor(255, 196, 196, danger_alpha if enabled else (78 if quiet else 96))
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(color)
+        w = self.width()
+        h = self.height()
+        cx = w / 2
+        cy = h / 2
+        try:
+            scale = float(custom_scale) if custom_scale is not None else (0.66 if quiet else 1.0)
+        except (TypeError, ValueError):
+            scale = 0.66 if quiet else 1.0
+        if self._glyph in {"up", "down", "chevron-down", "chevron-right"}:
+            path = QPainterPath()
+            if self._glyph == "up":
+                path.moveTo(cx, cy - 4.0 * scale)
+                path.lineTo(cx - 5.0 * scale, cy + 3.5 * scale)
+                path.lineTo(cx + 5.0 * scale, cy + 3.5 * scale)
+            elif self._glyph == "down" or self._glyph == "chevron-down":
+                path.moveTo(cx - 5.0 * scale, cy - 3.5 * scale)
+                path.lineTo(cx + 5.0 * scale, cy - 3.5 * scale)
+                path.lineTo(cx, cy + 4.0 * scale)
+            else:
+                path.moveTo(cx - 3.0 * scale, cy - 5.0 * scale)
+                path.lineTo(cx + 4.0 * scale, cy)
+                path.lineTo(cx - 3.0 * scale, cy + 5.0 * scale)
+            path.closeSubpath()
+            painter.drawPath(path)
+            return
+        if self._glyph == "close":
+            painter.setPen(QPen(color, 1.35 if quiet else 1.7, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            span = 4.0 * scale
+            painter.drawLine(QPoint(int(cx - span), int(cy - span)), QPoint(int(cx + span), int(cy + span)))
+            painter.drawLine(QPoint(int(cx + span), int(cy - span)), QPoint(int(cx - span), int(cy + span)))
+
+    def _paint_glyph_zone_background(self, painter: QPainter, segment: str, enabled: bool, interactive: bool) -> None:
+        is_danger = bool(self.property("dangerGlyph")) or segment == "standalone-danger"
+        if is_danger:
+            if not enabled:
+                fill = QColor(148, 163, 184, 38)
+                border = QColor(148, 163, 184, 46)
+            elif self.isDown():
+                fill = QColor(127, 29, 29, 184)
+                border = QColor(252, 165, 165, 188)
+            elif interactive:
+                fill = QColor(91, 23, 35, 178)
+                border = QColor(248, 113, 113, 184)
+            else:
+                fill = QColor(52, 13, 21, 138)
+                border = QColor(248, 113, 113, 128)
+            rect = QRectF(0.5, 0.5, max(0, self.width() - 1), max(0, self.height() - 1))
+            painter.setPen(QPen(border, 1.0))
+            painter.setBrush(fill)
+            painter.drawRoundedRect(rect, 8.0, 8.0)
+            return
+
+        if segment in {"left", "right"}:
+            return
+
+        if not enabled:
+            fill = QColor(148, 163, 184, 34)
+        elif self.isDown():
+            fill = QColor(20, 184, 166, 66)
+        elif interactive:
+            fill = QColor(20, 184, 166, 42)
+        else:
+            return
+
+        rect = QRectF(0, 0, self.width(), self.height())
+        radius = 8.0
+        painter.save()
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(fill)
+        painter.setClipRect(rect)
+        path = QPainterPath()
+        if segment == "left":
+            path.addRoundedRect(QRectF(rect.x(), rect.y(), rect.width() + radius, rect.height()), radius, radius)
+        elif segment == "right":
+            path.addRoundedRect(QRectF(rect.x() - radius, rect.y(), rect.width() + radius, rect.height()), radius, radius)
+        else:
+            path.addRect(rect)
+        painter.drawPath(path)
+        painter.restore()
+
+
+class QuickSlotReorderPill(QFrame):
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        outer = QRectF(0.5, 0.5, max(0, self.width() - 1), max(0, self.height() - 1))
+        inner = QRectF(1.0, 1.0, max(0, self.width() - 2), max(0, self.height() - 2))
+        radius = 8.0
+        full_inner_path = QPainterPath()
+        full_inner_path.addRoundedRect(inner, radius, radius)
+
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(4, 24, 38, 194))
+        painter.drawPath(full_inner_path)
+
+        segments = (
+            ("left", self.findChild(QPushButton, "residentAccessQuickSlotMoveUp"), QRectF(1.0, 1.0, 25.0, 27.0)),
+            ("right", self.findChild(QPushButton, "residentAccessQuickSlotMoveDown"), QRectF(27.0, 1.0, 25.0, 27.0)),
+        )
+        for _role, button, segment_rect in segments:
+            fill = self._segment_fill(button)
+            if fill is None:
+                continue
+            clip_path = QPainterPath()
+            clip_path.addRect(segment_rect)
+            painter.setBrush(fill)
+            painter.drawPath(full_inner_path.intersected(clip_path))
+
+        painter.setPen(QPen(QColor(118, 226, 255, 56), 1.0))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRoundedRect(outer, 8.5, 8.5)
+
+    def _segment_fill(self, button: Optional[QPushButton]) -> Optional[QColor]:
+        if button is None:
+            return None
+        if not button.isEnabled():
+            return QColor(148, 163, 184, 38)
+        if button.isDown():
+            return QColor(20, 184, 166, 70)
+        if button.underMouse() or button.hasFocus():
+            return QColor(20, 184, 166, 46)
+        return None
+
+
+class ResidentAccessSettingsDialog(QDialog):
+    RESIZE_MARGIN = 8
+    RESIZE_CORNER_MARGIN = 12
+    RESIZE_CURSOR_RELEASE_MARGIN = 2
+    BASE_MINIMUM_SIZE = (684, 388)
+    MAXIMUM_SIZE = (840, 610)
+    DEFAULT_SIZE = (780, 458)
+    QUICK_SLOT_ROW_HEIGHT = 38
+    QUICK_SLOT_ROW_SPACING = 7
+    QUICK_SLOT_INDEX_WIDTH = 22
+    QUICK_SLOT_ACTION_CLUSTER_WIDTH = 86
+    QUICK_SLOT_COMBO_MIN_WIDTH = 250
+    QUICK_SLOT_COMBO_MAX_WIDTH = 456
+    QUICK_SLOT_ROW_SIDE_GUTTER = 8
+    QUICK_SLOT_ROW_ITEM_GAP = 6
+    QUICK_SLOT_CONTAINER_CHROME_HEIGHT = 118
+    QUICK_ACCESS_WINDOW_VERTICAL_CHROME = 204
+    SETTINGS_NAV_MIN_WIDTH = 76
+    SETTINGS_NAV_MAX_WIDTH = 270
+    SETTINGS_NAV_CONTENT_MIN_WIDTH = 144
+    SETTINGS_NAV_CATEGORY_GAP = 4
+    SETTINGS_NAV_LABEL_POINT_SIZE = 10
+    SETTINGS_NAV_PARENT_DEFAULT_WIDTH = 118
+    SETTINGS_NAV_CHILD_DEFAULT_WIDTH = 112
+    SETTINGS_NAV_PARENT_MAX_WIDTH = 129
+    SETTINGS_NAV_CHILD_MAX_WIDTH = 115
+    SETTINGS_NAV_PARENT_DEFAULT_LABEL_WIDTH = 58
+    SETTINGS_NAV_CHILD_DEFAULT_LABEL_WIDTH = 88
+
+    @classmethod
+    def _settings_nav_text_width(cls, text: str) -> int:
+        font = QFont("Segoe UI")
+        font.setPointSize(cls.SETTINGS_NAV_LABEL_POINT_SIZE)
+        return QFontMetrics(font).horizontalAdvance(text) + 2
+
+    @classmethod
+    def _settings_nav_label_width(cls, text: str, role: str) -> int:
+        width = cls._settings_nav_text_width(text)
+        default_width = (
+            cls.SETTINGS_NAV_PARENT_DEFAULT_LABEL_WIDTH
+            if role == "parent"
+            else cls.SETTINGS_NAV_CHILD_DEFAULT_LABEL_WIDTH
+        )
+        max_width = (
+            cls.SETTINGS_NAV_PARENT_MAX_WIDTH - 53
+            if role == "parent"
+            else cls.SETTINGS_NAV_CHILD_MAX_WIDTH - 25
+        )
+        return min(max(default_width, width), max_width)
+
+    @classmethod
+    def _settings_nav_pill_width(cls, text: str, role: str) -> int:
+        text_width = cls._settings_nav_text_width(text)
+        if role == "parent":
+            required_width = 53 + text_width
+            return min(max(cls.SETTINGS_NAV_PARENT_DEFAULT_WIDTH, required_width), cls.SETTINGS_NAV_PARENT_MAX_WIDTH)
+        required_width = 25 + text_width
+        return min(max(cls.SETTINGS_NAV_CHILD_DEFAULT_WIDTH, required_width), cls.SETTINGS_NAV_CHILD_MAX_WIDTH)
+
+    SETTINGS_FOCUS_ALIASES = {
+        "tray": "tray",
+        "quick_access": "quick_access",
+        "ai_status": "tray",
+        "privacy": "tray",
+        "owner_routes": "tray",
+    }
+    SETTINGS_TRAY_CONTEXT_DETAILS = {
+        "ai_status": "AI status opens through the FAM-007 Command Center doorway.",
+        "privacy": "Privacy controls stay FAM-007-owned; Tray keeps the doorway visible.",
+        "owner_routes": "Unavailable tray routes stay future-gated until the owning surface is active.",
+    }
+
+    def __init__(self, parent=None, runtime=None, focus: str = "quick_access"):
+        super().__init__(parent)
+        self.runtime = runtime or parent
+        self._focus = focus or "quick_access"
+        self._focus_context = self._focus
+        self._settings = load_resident_access_settings()
+        self._saved_settings = self._settings
+        self._notice_text = ""
+        self._close_guard_active = False
+        self._close_guard_pending_result = None
+        self._close_guard_pending_callback = None
+        self._dirty_close_intercept_count = 0
+        self._dirty_close_last_event_ignored = False
+        self._dirty_close_last_resolution = ""
+        self._slot_combos: list[QComboBox] = []
+        self._nav_buttons: dict[str, QPushButton] = {}
+        self._tray_children_expanded = True
+        self._settings_resize_active = False
+        self._settings_resize_edges = Qt.Edges()
+        self._settings_resize_start_global = QPoint()
+        self._settings_resize_start_geometry = QRect()
+        self._settings_resize_pending_point = QPoint()
+        self._settings_resize_last_geometry = QRect()
+        self._settings_resize_cursor_key = None
+        self._settings_resize_override_cursor_active = False
+        self._settings_resize_poll_timer = QTimer(self)
+        self._settings_resize_poll_timer.setInterval(8)
+        self._settings_resize_poll_timer.timeout.connect(self._poll_settings_resize)
+        self._settings_resize_hover_timer = QTimer(self)
+        self._settings_resize_hover_timer.setInterval(8)
+        self._settings_resize_hover_timer.timeout.connect(self._poll_settings_resize_hover_cursor)
+        self.setModal(False)
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setMouseTracking(True)
+        self.setWindowTitle("Global Settings")
+        self.setObjectName("residentAccessSettingsDialog")
+        self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
+        self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-UIREF-007-FAM-002")
+        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v22")
+        self.setProperty("referenceDerivedHeader", "ndai-global-settings-centered-settings-chrome-v22")
+        self.setProperty("settingsVisualRepair", "lv1-global-settings-compact-ndai-grammar-close-intercept-v32")
+        self.setProperty("dirtyGuardReference", "manage-monitors-modal-save-discard-cancel")
+        self.setProperty("uiExposureContract", "real-enabled-meaningful-visible-ui-v1")
+        self.setProperty("sharedPrimitiveClaim", "none-promoted-reference-derived-only")
+        self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
+        self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
+        self.setProperty("platformException", "none")
+        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42")
+        self.setProperty("quickAccessLayoutPolicy", "uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42")
+        self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41")
+        self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
+        self.setProperty("dirtyCloseRouteCoverage", "window-close-system-close-keybind-client-shutdown-save-discard-cancel-v32")
+        self.setProperty("dirtyCloseInterceptState", "idle")
+        self.setProperty("visibleResizeGrip", "removed")
+        self.setProperty("deferredWatermarkConcept", "future-centered-global-settings-watermark-deferred-no-runtime-exposure-v22")
+        self.setProperty("runtimeWatermarkVisible", "false")
+        self.setMinimumSize(*self.BASE_MINIMUM_SIZE)
+        self.setMaximumSize(*self.MAXIMUM_SIZE)
+        self.resize(*self.DEFAULT_SIZE)
+        self._apply_native_settings_palette()
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+
+        self.shell = QFrame(self)
+        self.shell.setObjectName("residentAccessSettingsShell")
+        self.shell.setAttribute(Qt.WA_StyledBackground, True)
+        root_layout.addWidget(self.shell)
+
+        shell_layout = QVBoxLayout(self.shell)
+        shell_layout.setContentsMargins(0, 0, 0, 0)
+        shell_layout.setSpacing(0)
+
+        self.chrome_bar = DialogChromeBar(
+            "Settings",
+            self,
+            object_prefix="residentAccessSettings",
+            parent=self.shell,
+            show_title=True,
+            show_minimize=True,
+            clustered_controls=True,
+            settings_header=True,
+            role_pairs=(),
+        )
+        self.chrome_bar.setFixedHeight(46)
+        shell_layout.addWidget(self.chrome_bar)
+
+        body = QWidget(self.shell)
+        self.settings_body = body
+        body.setObjectName("residentAccessSettingsBody")
+        body.setAttribute(Qt.WA_StyledBackground, True)
+        shell_layout.addWidget(body, 1)
+
+        body_layout = QHBoxLayout(body)
+        body_layout.setContentsMargins(16, 9, 16, 14)
+        body_layout.setSpacing(0)
+
+        self.settings_splitter = NexusSettingsSplitter(Qt.Horizontal, body)
+        self.settings_splitter.setObjectName("residentAccessSettingsSplitter")
+        self.settings_splitter.setChildrenCollapsible(False)
+        self.settings_splitter.setHandleWidth(9)
+        self.settings_splitter.setProperty("settingsSplitterAffordance", "quiet-default-hover-dots-9px-hit-zone-v28")
+        self.settings_splitter.setAccessibleName("Resize Global Settings navigation pane")
+        body_layout.addWidget(self.settings_splitter, 1)
+
+        self.nav_shell = QFrame(body)
+        self.nav_shell.setObjectName("residentAccessSettingsNavShell")
+        self.nav_shell.setAttribute(Qt.WA_StyledBackground, True)
+        self.nav_shell.setProperty("settingsShellIdentity", "ndai-slim-global-settings")
+        self.nav_shell.setMinimumWidth(self.SETTINGS_NAV_MIN_WIDTH)
+        self.nav_shell.setMaximumWidth(self.SETTINGS_NAV_MAX_WIDTH)
+        self.nav_shell.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.settings_splitter.addWidget(self.nav_shell)
+        nav_shell_layout = QVBoxLayout(self.nav_shell)
+        nav_shell_layout.setContentsMargins(0, 0, 0, 0)
+        nav_shell_layout.setSpacing(0)
+
+        self.nav_scroll_area = QScrollArea(self.nav_shell)
+        self.nav_scroll_area.setObjectName("residentAccessSettingsNavScrollArea")
+        self.nav_scroll_area.setFrameShape(QFrame.NoFrame)
+        self.nav_scroll_area.setWidgetResizable(True)
+        self.nav_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.nav_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.nav_scroll_area.setAccessibleName("Global Settings navigation list")
+        nav_shell_layout.addWidget(self.nav_scroll_area, 1)
+
+        self.nav_content = QWidget(self.nav_scroll_area)
+        self.nav_content.setObjectName("residentAccessSettingsNavContent")
+        self.nav_content.setMinimumWidth(self.SETTINGS_NAV_CONTENT_MIN_WIDTH)
+        self.nav_content.setMinimumHeight(96)
+        self.nav_content.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.nav_scroll_area.setWidget(self.nav_content)
+        nav_layout = QVBoxLayout(self.nav_content)
+        nav_layout.setContentsMargins(6, 6, 6, 6)
+        nav_layout.setSpacing(4)
+
+        self.tray_nav_item = QFrame(self.nav_shell)
+        self.tray_nav_item.setObjectName("residentAccessSettingsCategoryItem")
+        self.tray_nav_item.setProperty("settingsCategoryRole", "selectable-parent-page")
+        self.tray_nav_item.setProperty("settingsNavDensity", "slim-parent-row")
+        self.tray_nav_item.setAttribute(Qt.WA_StyledBackground, True)
+        tray_label = "Tray"
+        tray_pill_width = self._settings_nav_pill_width(tray_label, "parent")
+        tray_label_width = self._settings_nav_label_width(tray_label, "parent")
+        self.tray_nav_item.setFixedSize(tray_pill_width, 28)
+        self.tray_nav_item.setProperty("settingsNavSizingPolicy", "font-metric-default-min-clamped-v39")
+        tray_nav_layout = QHBoxLayout(self.tray_nav_item)
+        tray_nav_layout.setContentsMargins(5, 2, 4, 2)
+        tray_nav_layout.setSpacing(5)
+        self.tray_nav_indicator = QLabel("", self.tray_nav_item)
+        self.tray_nav_indicator.setObjectName("residentAccessSettingsNavIndicator")
+        self.tray_nav_indicator.setFixedSize(2, 18)
+        tray_nav_layout.addWidget(self.tray_nav_indicator)
+        self.tray_nav_icon = NexusCategoryIcon("tray", self.tray_nav_item)
+        self.tray_nav_icon.setObjectName("residentAccessSettingsNavPrimaryIcon")
+        self.tray_nav_icon.setAccessibleName("Tray category icon")
+        self.tray_nav_icon.setFixedSize(12, 12)
+        tray_nav_layout.addWidget(self.tray_nav_icon)
+        self.tray_nav_button = QPushButton(tray_label, self.tray_nav_item)
+        self.tray_nav_button.setObjectName("residentAccessSettingsCategoryButton")
+        self.tray_nav_button.setCheckable(True)
+        self.tray_nav_button.setMaximumWidth(tray_label_width)
+        self.tray_nav_button.setAccessibleName("Open Tray Settings")
+        self.tray_nav_button.clicked.connect(lambda: self.set_focus("tray"))
+        tray_nav_layout.addWidget(self.tray_nav_button, 1)
+        self.tray_expand_button = NexusGlyphButton("chevron-down", self.tray_nav_item)
+        self.tray_expand_button.setObjectName("residentAccessSettingsNavExpander")
+        self.tray_expand_button.setProperty("quietGlyph", True)
+        self.tray_expand_button.setCheckable(True)
+        self.tray_expand_button.setChecked(True)
+        self.tray_expand_button.setAccessibleName("Expand or collapse Tray settings pages")
+        self.tray_expand_button.clicked.connect(self._toggle_tray_children)
+        tray_nav_layout.addWidget(self.tray_expand_button)
+        nav_layout.addWidget(self.tray_nav_item)
+        self._nav_buttons["tray"] = self.tray_nav_button
+
+        self.subpage_nav_rail = QFrame(self.nav_shell)
+        self.subpage_nav_rail.setObjectName("residentAccessSettingsSubpageRail")
+        self.subpage_nav_rail.setAttribute(Qt.WA_StyledBackground, True)
+        subpage_layout = QVBoxLayout(self.subpage_nav_rail)
+        subpage_layout.setContentsMargins(14, 0, 0, 0)
+        subpage_layout.setSpacing(2)
+
+        quick_access_label = "Quick Access"
+        quick_access_pill_width = self._settings_nav_pill_width(quick_access_label, "child")
+        quick_access_label_width = self._settings_nav_label_width(quick_access_label, "child")
+        self.quick_access_nav_item = QFrame(self.nav_shell)
+        self.quick_access_nav_item.setObjectName("residentAccessSettingsNavItem")
+        self.quick_access_nav_item.setProperty("navState", "selected")
+        self.quick_access_nav_item.setProperty("settingsNavDensity", "two-level-subpage-row")
+        self.quick_access_nav_item.setProperty("settingsNavIdentity", "ndai-signal-leaf")
+        self.quick_access_nav_item.setAttribute(Qt.WA_StyledBackground, True)
+        self.quick_access_nav_item.setFixedSize(quick_access_pill_width, 26)
+        self.quick_access_nav_item.setProperty("settingsNavSizingPolicy", "font-metric-default-min-clamped-v39")
+        nav_item_layout = QHBoxLayout(self.quick_access_nav_item)
+        nav_item_layout.setContentsMargins(5, 2, 4, 2)
+        nav_item_layout.setSpacing(4)
+        self.quick_access_nav_icon = NexusCategoryIcon("quick-access", self.quick_access_nav_item)
+        self.quick_access_nav_icon.setObjectName("residentAccessSettingsNavIcon")
+        self.quick_access_nav_icon.setAccessibleName("Quick Access child page icon")
+        self.quick_access_nav_icon.setFixedSize(12, 12)
+        nav_item_layout.addWidget(self.quick_access_nav_icon)
+        nav_text_stack = QVBoxLayout()
+        nav_text_stack.setContentsMargins(0, 0, 0, 0)
+        nav_text_stack.setSpacing(0)
+        self.quick_access_nav_button = QPushButton(quick_access_label, self.quick_access_nav_item)
+        self.quick_access_nav_button.setObjectName("residentAccessSettingsNavButton")
+        self.quick_access_nav_button.setCheckable(True)
+        self.quick_access_nav_button.setMaximumWidth(quick_access_label_width)
+        self.quick_access_nav_button.setAccessibleName("Open Tray Quick Access Settings")
+        self.quick_access_nav_button.clicked.connect(lambda: self.set_focus("quick_access"))
+        self._nav_buttons["quick_access"] = self.quick_access_nav_button
+        nav_text_stack.addWidget(self.quick_access_nav_button)
+        self.quick_access_nav_caption = QLabel("", self.quick_access_nav_item)
+        self.quick_access_nav_caption.setObjectName("residentAccessSettingsNavCaption")
+        self.quick_access_nav_caption.setVisible(False)
+        nav_text_stack.addWidget(self.quick_access_nav_caption)
+        nav_item_layout.addLayout(nav_text_stack, 1)
+        subpage_layout.addWidget(self.quick_access_nav_item)
+        subpage_layout.addStretch(1)
+        nav_layout.addWidget(self.subpage_nav_rail)
+        nav_layout.addStretch(1)
+
+        self.nav_boundary = QLabel("", self.nav_shell)
+        self.nav_boundary.setObjectName("residentAccessSettingsNavBoundary")
+        self.nav_boundary.setWordWrap(True)
+        self.nav_boundary.setVisible(False)
+
+        content_shell = QFrame(body)
+        content_shell.setObjectName("residentAccessSettingsContentShell")
+        content_shell.setAttribute(Qt.WA_StyledBackground, True)
+        self.settings_splitter.addWidget(content_shell)
+        self.settings_splitter.setStretchFactor(0, 0)
+        self.settings_splitter.setStretchFactor(1, 1)
+        self.settings_splitter.setSizes([160, 590])
+        content_layout = QVBoxLayout(content_shell)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(6)
+
+        self.settings_page_frame = QFrame(content_shell)
+        self.settings_page_frame.setObjectName("residentAccessSettingsPageFrame")
+        self.settings_page_frame.setAttribute(Qt.WA_StyledBackground, True)
+        page_layout = QVBoxLayout(self.settings_page_frame)
+        page_layout.setContentsMargins(12, 9, 12, 9)
+        page_layout.setSpacing(6)
+        self.settings_page_frame.setMinimumWidth(486)
+        self.settings_page_frame.setMaximumWidth(660)
+        self.settings_page_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        content_layout.addWidget(self.settings_page_frame, 0, Qt.AlignTop)
+        content_layout.addStretch(1)
+
+        self.section_heading = QLabel("Quick Access", self.settings_page_frame)
+        self.section_heading.setObjectName("residentAccessSettingsHeading")
+        self.section_badge = QLabel("Tray", self.settings_page_frame)
+        self.section_badge.setObjectName("residentAccessSettingsSectionBadge")
+        self.section_badge.setAlignment(Qt.AlignCenter)
+        self.section_badge.setFixedSize(38, 24)
+        self.section_badge.setVisible(False)
+        self.section_scope = QLabel("", self.settings_page_frame)
+        self.section_scope.setObjectName("residentAccessSettingsScope")
+        self.section_scope.setVisible(False)
+        self.slot_count_badge = QLabel("", self.settings_page_frame)
+        self.slot_count_badge.setObjectName("residentAccessSettingsSlotCount")
+        self.slot_count_badge.setAlignment(Qt.AlignCenter)
+        self.slot_count_badge.setFixedSize(56, 28)
+        self.settings_state_chip = QLabel("", self.settings_page_frame)
+        self.settings_state_chip.setObjectName("residentAccessSettingsStateText")
+        self.settings_state_chip.setAlignment(Qt.AlignCenter)
+        self.settings_state_chip.setMaximumHeight(20)
+        self.settings_state_chip.setVisible(False)
+        page_layout.addWidget(self.section_scope)
+        header_row = QHBoxLayout()
+        header_row.setContentsMargins(0, 0, 0, 0)
+        header_row.setSpacing(8)
+        header_row.addWidget(self.section_heading)
+        header_row.addWidget(self.section_badge)
+        header_row.addStretch(1)
+        page_layout.addLayout(header_row)
+
+        self.section_detail = QLabel("", self.settings_page_frame)
+        self.section_detail.setObjectName("residentAccessSettingsDetail")
+        self.section_detail.setWordWrap(True)
+        self.section_detail.setVisible(False)
+        page_layout.addWidget(self.section_detail)
+
+        self.status_summary = QLabel("", self.settings_page_frame)
+        self.status_summary.setObjectName("residentAccessSettingsStatus")
+        self.status_summary.setWordWrap(True)
+        self.status_summary.setVisible(False)
+
+        self.change_summary = QLabel("", self.settings_page_frame)
+        self.change_summary.setObjectName("residentAccessSettingsChangeSummary")
+        self.change_summary.setWordWrap(False)
+        self.change_summary.setMinimumWidth(128)
+        self.change_summary.setMaximumHeight(24)
+
+        self.tray_overview_container = QFrame(self.settings_page_frame)
+        self.tray_overview_container.setObjectName("residentAccessTrayOverviewContainer")
+        self.tray_overview_container.setAttribute(Qt.WA_StyledBackground, True)
+        tray_overview_layout = QVBoxLayout(self.tray_overview_container)
+        tray_overview_layout.setContentsMargins(12, 10, 12, 10)
+        tray_overview_layout.setSpacing(6)
+        self.tray_deferred_notice = QFrame(self.tray_overview_container)
+        self.tray_deferred_notice.setObjectName("residentAccessTrayDeferredNotice")
+        self.tray_deferred_notice.setAttribute(Qt.WA_StyledBackground, True)
+        tray_notice_layout = QVBoxLayout(self.tray_deferred_notice)
+        tray_notice_layout.setContentsMargins(8, 6, 8, 6)
+        tray_notice_layout.setSpacing(1)
+        self.tray_deferred_title = QLabel("Tray behavior", self.tray_deferred_notice)
+        self.tray_deferred_title.setObjectName("residentAccessTrayDeferredTitle")
+        tray_notice_layout.addWidget(self.tray_deferred_title)
+        self.tray_deferred_detail = QLabel(
+            "Tray click settings are not active yet. "
+            f"{WINDOWS_TRAY_VISIBILITY_LIMITATION}",
+            self.tray_deferred_notice,
+        )
+        self.tray_deferred_detail.setObjectName("residentAccessTrayDeferredDetail")
+        self.tray_deferred_detail.setWordWrap(True)
+        tray_notice_layout.addWidget(self.tray_deferred_detail)
+        tray_overview_layout.addWidget(self.tray_deferred_notice)
+        tray_overview_layout.addStretch(1)
+        page_layout.addWidget(self.tray_overview_container)
+
+        self.quick_slot_container = QFrame(self.settings_page_frame)
+        self.quick_slot_container.setObjectName("residentAccessQuickSlotContainer")
+        self.quick_slot_container.setAttribute(Qt.WA_StyledBackground, True)
+        self.quick_slot_container.setMaximumWidth(620)
+        self.quick_slot_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        quick_slot_layout = QVBoxLayout(self.quick_slot_container)
+        quick_slot_layout.setContentsMargins(12, 10, 12, 14)
+        quick_slot_layout.setSpacing(6)
+
+        quick_header = QHBoxLayout()
+        quick_header.setContentsMargins(0, 0, 0, 0)
+        quick_header.setSpacing(8)
+        quick_header_text = QVBoxLayout()
+        quick_header_text.setContentsMargins(0, 0, 0, 0)
+        quick_header_text.setSpacing(1)
+        self.quick_slot_title = QLabel("Menu order", self.quick_slot_container)
+        self.quick_slot_title.setObjectName("residentAccessQuickSlotTitle")
+        quick_header_text.addWidget(self.quick_slot_title)
+        self.quick_slot_hint = QLabel("Top to bottom in the tray menu.", self.quick_slot_container)
+        self.quick_slot_hint.setObjectName("residentAccessQuickSlotHint")
+        quick_header_text.addWidget(self.quick_slot_hint)
+        quick_header.addLayout(quick_header_text, 1)
+        self.reset_slots_button = QPushButton("Defaults", self.quick_slot_container)
+        self.reset_slots_button.setObjectName("residentAccessDefaultsButton")
+        self.reset_slots_button.setAccessibleName("Restore Default Quick Access Shortcuts (stages changes)")
+        self.reset_slots_button.clicked.connect(self._reset_slots)
+        quick_header.addWidget(self.reset_slots_button)
+        quick_slot_layout.addLayout(quick_header)
+
+        self.quick_help = QLabel("", self.quick_slot_container)
+        self.quick_help.setObjectName("residentAccessSettingsQuickHelp")
+        self.quick_help.setWordWrap(True)
+        self.quick_help.setVisible(False)
+        quick_slot_layout.addWidget(self.quick_help)
+
+        self.quick_slot_rows = QWidget(self.quick_slot_container)
+        self.quick_slot_rows.setObjectName("residentAccessQuickSlotRows")
+        self.quick_slot_rows.setAttribute(Qt.WA_StyledBackground, True)
+        self.quick_slot_rows.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        self.quick_slot_rows_layout = QVBoxLayout(self.quick_slot_rows)
+        self.quick_slot_rows_layout.setContentsMargins(0, 0, 0, 0)
+        self.quick_slot_rows_layout.setSpacing(self.QUICK_SLOT_ROW_SPACING)
+        quick_slot_layout.addWidget(self.quick_slot_rows)
+        add_row = QHBoxLayout()
+        add_row.setContentsMargins(0, 0, 0, 0)
+        add_row.setSpacing(6)
+        self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
+        self.add_slot_button.setObjectName("residentAccessAddSlotButton")
+        self.add_slot_button.setAccessibleName("Add Quick Access Slot")
+        self.add_slot_button.clicked.connect(self._add_slot)
+        add_row.addWidget(self.add_slot_button, 0, Qt.AlignLeft)
+        add_row.addWidget(self.slot_count_badge, 0, Qt.AlignLeft | Qt.AlignVCenter)
+        add_row.addStretch(1)
+        quick_slot_layout.addLayout(add_row)
+        page_layout.addWidget(self.quick_slot_container)
+
+        self.route_summary = QLabel("", self.settings_page_frame)
+        self.route_summary.setObjectName("residentAccessSettingsRouteSummary")
+        self.route_summary.setWordWrap(True)
+        page_layout.addWidget(self.route_summary)
+
+        self.footer_frame = QFrame(self.settings_page_frame)
+        self.footer_frame.setObjectName("residentAccessSettingsFooter")
+        self.footer_frame.setAttribute(Qt.WA_StyledBackground, True)
+        self.footer_frame.setMaximumWidth(620)
+        self.footer_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        footer = QHBoxLayout(self.footer_frame)
+        footer.setContentsMargins(0, 3, 0, 0)
+        footer.setSpacing(7)
+        footer.addWidget(self.change_summary, 1)
+        footer.addWidget(self.settings_state_chip)
+        footer.addStretch(1)
+        self.keep_editing_button = QPushButton("Cancel", self.settings_page_frame)
+        self.keep_editing_button.setObjectName("residentAccessKeepEditingButton")
+        self.keep_editing_button.setAccessibleName("Cancel Close")
+        self.keep_editing_button.clicked.connect(self._keep_editing)
+        footer.addWidget(self.keep_editing_button)
+        self.discard_button = QPushButton("Discard", self.settings_page_frame)
+        self.discard_button.setObjectName("residentAccessDiscardButton")
+        self.discard_button.setAccessibleName("Discard Unsaved Quick Access Changes")
+        self.discard_button.clicked.connect(self._discard_and_close)
+        footer.addWidget(self.discard_button)
+        self.revert_button = QPushButton("Revert", self.settings_page_frame)
+        self.revert_button.setObjectName("residentAccessRevertButton")
+        self.revert_button.setAccessibleName("Revert Quick Access Settings")
+        self.revert_button.clicked.connect(self._revert_settings)
+        footer.addWidget(self.revert_button)
+        self.save_button = QPushButton("Save", self.settings_page_frame)
+        self.save_button.setObjectName("residentAccessSaveButton")
+        self.save_button.setAccessibleName("Save Quick Access Settings")
+        self.save_button.clicked.connect(self._save_settings)
+        footer.addWidget(self.save_button)
+        page_layout.addWidget(self.footer_frame)
+
+        self.close_guard_overlay = QFrame(self.shell)
+        self.close_guard_overlay.setObjectName("residentAccessCloseGuardOverlay")
+        self.close_guard_overlay.setAttribute(Qt.WA_StyledBackground, True)
+        self.close_guard_overlay.setProperty("unsavedGuard", "closed")
+        self.close_guard_overlay.setProperty("guardActionLayout", "modal-save-discard-cancel")
+        self.close_guard_overlay.setAccessibleName("Unsaved Quick Access changes close guard")
+        self.close_guard_overlay.hide()
+        overlay_layout = QVBoxLayout(self.close_guard_overlay)
+        overlay_layout.setContentsMargins(14, 14, 14, 14)
+        overlay_layout.setSpacing(0)
+        overlay_layout.addStretch(1)
+
+        self.close_guard_panel = QFrame(self.close_guard_overlay)
+        self.close_guard_panel.setObjectName("residentAccessCloseGuardPanel")
+        self.close_guard_panel.setAttribute(Qt.WA_StyledBackground, True)
+        self.close_guard_panel.setProperty("unsavedGuard", "closed")
+        self.close_guard_panel.setProperty("guardActionLayout", "modal-save-discard-cancel")
+        panel_layout = QVBoxLayout(self.close_guard_panel)
+        panel_layout.setContentsMargins(14, 12, 14, 14)
+        panel_layout.setSpacing(8)
+        self.close_guard_title = QLabel("Unsaved Quick Access changes", self.close_guard_panel)
+        self.close_guard_title.setObjectName("residentAccessCloseGuardTitle")
+        panel_layout.addWidget(self.close_guard_title)
+        self.close_guard_detail = QLabel("Save changes or discard the draft before continuing.", self.close_guard_panel)
+        self.close_guard_detail.setObjectName("residentAccessCloseGuardDetail")
+        self.close_guard_detail.setWordWrap(True)
+        panel_layout.addWidget(self.close_guard_detail)
+        guard_actions = QHBoxLayout()
+        guard_actions.setContentsMargins(0, 2, 0, 0)
+        guard_actions.setSpacing(8)
+        self.guard_save_button = QPushButton("Save", self.close_guard_panel)
+        self.guard_save_button.setObjectName("residentAccessCloseGuardSave")
+        self.guard_save_button.setAccessibleName("Save Quick Access changes and close Global Settings")
+        self.guard_save_button.setProperty("guardAction", "save")
+        self.guard_save_button.setProperty("guardVisualRole", "primary-save")
+        self.guard_save_button.clicked.connect(self._save_settings)
+        guard_actions.addWidget(self.guard_save_button)
+        self.guard_discard_button = QPushButton("Discard", self.close_guard_panel)
+        self.guard_discard_button.setObjectName("residentAccessCloseGuardDiscard")
+        self.guard_discard_button.setAccessibleName("Discard Quick Access changes and close Global Settings")
+        self.guard_discard_button.setProperty("guardAction", "discard")
+        self.guard_discard_button.setProperty("guardVisualRole", "destructive-discard")
+        self.guard_discard_button.clicked.connect(self._discard_and_close)
+        guard_actions.addWidget(self.guard_discard_button)
+        self.guard_cancel_button = QPushButton("Cancel", self.close_guard_panel)
+        self.guard_cancel_button.setObjectName("residentAccessCloseGuardCancel")
+        self.guard_cancel_button.setAccessibleName("Cancel close and keep editing Quick Access settings")
+        self.guard_cancel_button.setProperty("guardAction", "cancel")
+        self.guard_cancel_button.setProperty("guardVisualRole", "neutral-cancel")
+        self.guard_cancel_button.clicked.connect(self._keep_editing)
+        guard_actions.addWidget(self.guard_cancel_button)
+        panel_layout.addLayout(guard_actions)
+        overlay_layout.addWidget(self.close_guard_panel, 0, Qt.AlignCenter)
+        overlay_layout.addStretch(1)
+        self.close_guard_overlay.raise_()
+
+        dropdown_arrow_asset = (Path(__file__).resolve().parent / "nexus_dropdown_arrow.svg").as_posix()
+        self.setStyleSheet(
+            "#residentAccessSettingsDialog {"
+            " background: #020914;"
+            " color: #f8fafc;"
+            " font-family: 'Segoe UI';"
+            " font-size: 10pt;"
+            "}"
+            "#residentAccessSettingsShell {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #03111e, stop:0.48 #061725, stop:1 #020711);"
+            " border: 1px solid rgba(122, 232, 255, 0.42);"
+            " border-radius: 20px;"
+            "}"
+            "#residentAccessSettingsBody {"
+            " background: transparent;"
+            " border-bottom-left-radius: 20px;"
+            " border-bottom-right-radius: 20px;"
+            "}"
+            "#residentAccessSettingsChromeBar {"
+            " background: transparent;"
+            " border-bottom: none;"
+            " border-top-left-radius: 20px;"
+            " border-top-right-radius: 20px;"
+            " padding: 0;"
+            "}"
+            "#residentAccessSettingsChromeKicker {"
+            " color: rgba(132, 220, 244, 0.92);"
+            " font-size: 9px;"
+            " font-weight: 800;"
+            " letter-spacing: 0;"
+            "}"
+            "#residentAccessSettingsChromeTitle {"
+            " color: rgba(244, 250, 255, 0.98);"
+            " font-size: 16px;"
+            " font-weight: 850;"
+            "}"
+            "#residentAccessSettingsChromeSubtitle {"
+            " color: rgba(179, 204, 221, 0.94);"
+            " font-size: 11px;"
+            " font-weight: 700;"
+            "}"
+            "#residentAccessSettingsChromeRolePill {"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 16px;"
+            "}"
+            "#residentAccessSettingsChromeRolePair {"
+            " color: rgba(194, 248, 236, 0.96);"
+            " font-size: 10px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsWindowControls {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 38, 55, 0.86), stop:1 rgba(3, 18, 32, 0.94));"
+            " border: 1px solid rgba(122, 232, 255, 0.50);"
+            " border-radius: 16px;"
+            " min-height: 30px;"
+            " max-height: 30px;"
+            "}"
+            "#residentAccessSettingsChromeMinimize, #residentAccessSettingsChromeMaximize, #residentAccessSettingsChromeClose {"
+            " color: rgba(235, 252, 255, 0.92);"
+            " background: rgba(5, 22, 36, 0.40);"
+            " border: 1px solid rgba(122, 232, 255, 0.24);"
+            " border-radius: 12px;"
+            " padding: 0;"
+            " min-width: 24px;"
+            " min-height: 24px;"
+            " max-width: 24px;"
+            " max-height: 24px;"
+            " font-weight: 900;"
+            "}"
+            "#residentAccessSettingsChromeMinimize:hover, #residentAccessSettingsChromeClose:hover,"
+            "#residentAccessSettingsChromeMinimize:focus, #residentAccessSettingsChromeClose:focus {"
+            " background: rgba(9, 49, 70, 0.78);"
+            " border-color: rgba(126, 248, 218, 0.56);"
+            "}"
+            "#residentAccessSettingsChromeMinimize:pressed,"
+            "#residentAccessSettingsChromeClose:pressed {"
+            " background: rgba(7, 40, 57, 0.86);"
+            " border-color: rgba(163, 255, 228, 0.72);"
+            "}"
+            "#residentAccessSettingsSplitter {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsSplitter::handle {"
+            " background: rgba(122, 232, 255, 0.008);"
+            " border-left: 1px solid rgba(122, 232, 255, 0.035);"
+            " border-right: 1px solid rgba(153, 246, 228, 0.018);"
+            " border-radius: 3px;"
+            "}"
+            "#residentAccessSettingsSplitter::handle:hover {"
+            " background: rgba(122, 232, 255, 0.06);"
+            " border-color: rgba(153, 246, 228, 0.18);"
+            "}"
+            "#residentAccessSettingsNavShell {"
+            " background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(3, 18, 32, 0.78), stop:0.58 rgba(2, 12, 24, 0.62), stop:1 rgba(1, 8, 17, 0.42));"
+            " border: 1px solid rgba(122, 232, 255, 0.16);"
+            " border-right: 1px solid rgba(153, 246, 228, 0.26);"
+            " border-radius: 14px;"
+            "}"
+            "#residentAccessSettingsNavScrollArea {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsNavContent {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "QScrollBar:vertical {"
+            " background: rgba(2, 11, 21, 0.68);"
+            " width: 5px;"
+            " margin: 0;"
+            " border: none;"
+            " border-radius: 3px;"
+            "}"
+            "QScrollBar::handle:vertical {"
+            " background: rgba(122, 232, 255, 0.46);"
+            " border-radius: 3px;"
+            " min-height: 22px;"
+            "}"
+            "QScrollBar::handle:vertical:hover {"
+            " background: rgba(153, 246, 228, 0.66);"
+            "}"
+            "QScrollBar:horizontal {"
+            " background: rgba(2, 11, 21, 0.68);"
+            " height: 8px;"
+            " margin: 0;"
+            " border: none;"
+            " border-radius: 4px;"
+            "}"
+            "QScrollBar::handle:horizontal {"
+            " background: rgba(122, 232, 255, 0.46);"
+            " border-radius: 4px;"
+            " min-width: 24px;"
+            "}"
+            "QScrollBar::handle:horizontal:hover {"
+            " background: rgba(153, 246, 228, 0.66);"
+            "}"
+            "QScrollBar::add-line, QScrollBar::sub-line {"
+            " width: 0;"
+            " height: 0;"
+            " border: none;"
+            " background: transparent;"
+            "}"
+            "QScrollBar::add-page, QScrollBar::sub-page {"
+            " background: transparent;"
+            "}"
+            "#residentAccessSettingsPrimaryRail {"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 0;"
+            "}"
+            "#residentAccessSettingsSubpageRail {"
+            " background: transparent;"
+            " border-left: 1px solid rgba(122, 232, 255, 0.18);"
+            "}"
+            "#residentAccessSettingsCategoryItem {"
+            " background: transparent;"
+            " border: none;"
+            " border-left: 2px solid transparent;"
+            " border-radius: 6px;"
+            "}"
+            "#residentAccessSettingsCategoryItem[navState=\"selected\"] {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(11, 74, 94, 0.62), stop:1 rgba(5, 25, 41, 0.32));"
+            " border: 1px solid rgba(122, 232, 255, 0.22);"
+            " border-left-color: rgba(153, 246, 228, 0.78);"
+            "}"
+            "#residentAccessSettingsCategoryItem[navState=\"contains-selected\"] {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 39, 56, 0.44), stop:1 rgba(3, 18, 32, 0.18));"
+            " border: 1px solid rgba(122, 232, 255, 0.12);"
+            " border-left-color: rgba(122, 232, 255, 0.62);"
+            "}"
+            "#residentAccessSettingsCategoryItem[navState=\"available\"]:hover {"
+            " background: rgba(7, 26, 42, 0.42);"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsCategoryButton {"
+            " background: transparent;"
+            " color: rgba(225, 244, 248, 0.96);"
+            " border: none;"
+            " border-radius: 0;"
+            " min-height: 20px;"
+            " padding: 0;"
+            " text-align: left;"
+            " font-size: 10px;"
+            " font-weight: 850;"
+            "}"
+            "#residentAccessSettingsCategoryButton:hover, #residentAccessSettingsCategoryButton:focus, "
+            "#residentAccessSettingsCategoryButton:checked {"
+            " color: rgba(255, 255, 255, 0.98);"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsNavIndicator {"
+            " background: rgba(153, 246, 228, 0.70);"
+            " border-radius: 2px;"
+            "}"
+            "#residentAccessSettingsNavPrimaryIcon {"
+            " background: transparent;"
+            " color: rgba(213, 255, 246, 0.94);"
+            " border: none;"
+            " border-radius: 0;"
+            " font-size: 9px;"
+            " font-weight: 900;"
+            "}"
+            "#residentAccessSettingsNavExpander {"
+            " background: rgba(3, 16, 28, 0.52);"
+            " color: rgba(202, 241, 246, 0.96);"
+            " border: 1px solid rgba(122, 232, 255, 0.14);"
+            " border-radius: 5px;"
+            " min-width: 15px;"
+            " max-width: 15px;"
+            " min-height: 15px;"
+            " max-height: 15px;"
+            " padding: 0;"
+            " font-size: 8px;"
+            " font-weight: 820;"
+            "}"
+            "#residentAccessSettingsNavExpander:hover, #residentAccessSettingsNavExpander:focus {"
+            " background: rgba(10, 47, 64, 0.78);"
+            " border-color: rgba(153, 246, 228, 0.44);"
+            "}"
+            "#residentAccessSettingsPrimaryTray {"
+            " background: rgba(12, 52, 68, 0.62);"
+            " color: rgba(236, 253, 245, 0.98);"
+            " border: 1px solid rgba(153, 246, 228, 0.34);"
+            " border-radius: 8px;"
+            " min-width: 20px;"
+            " min-height: 20px;"
+            " max-width: 22px;"
+            " max-height: 22px;"
+            " padding: 0;"
+            " font-size: 12px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsPrimaryTray:hover, #residentAccessSettingsPrimaryTray:focus {"
+            " background: rgba(17, 70, 86, 0.82);"
+            " border-color: rgba(153, 246, 228, 0.58);"
+            "}"
+            "#residentAccessSettingsNavKicker {"
+            " color: rgba(132, 220, 244, 0.84);"
+            " font-size: 10px;"
+            " font-weight: 800;"
+            " letter-spacing: 1px;"
+            "}"
+            "#residentAccessSettingsNavTitle {"
+            " color: rgba(231, 245, 255, 0.96);"
+            " font-size: 15px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsCategoryLabel {"
+            " color: rgba(158, 232, 245, 0.86);"
+            " background: transparent;"
+            " border: none;"
+            " padding: 2px 4px 4px 4px;"
+            " font-size: 11px;"
+            " font-weight: 900;"
+            "}"
+            "#residentAccessSettingsNavDetail, #residentAccessSettingsNavCaption, #residentAccessSettingsNavBoundary {"
+            " color: rgba(132, 170, 188, 0.86);"
+            " font-size: 10px;"
+            " line-height: 1.25;"
+            "}"
+            "#residentAccessSettingsNavItem {"
+            " background: transparent;"
+            " border: none;"
+            " border-left: 2px solid transparent;"
+            " border-radius: 6px;"
+            "}"
+            "#residentAccessSettingsNavItem[navState=\"selected\"] {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(7, 47, 66, 0.58), stop:1 rgba(2, 19, 32, 0.20));"
+            " border: 1px solid rgba(122, 232, 255, 0.19);"
+            " border-left-color: rgba(153, 246, 228, 0.76);"
+            "}"
+            "#residentAccessSettingsNavItem:hover {"
+            " background: rgba(8, 31, 48, 0.46);"
+            " border: 1px solid rgba(122, 232, 255, 0.18);"
+            " border-left-color: rgba(153, 246, 228, 0.64);"
+            "}"
+            "#residentAccessSettingsNavItem[navState=\"selected\"]:hover, "
+            "#residentAccessSettingsNavItem[navState=\"selected\"]:focus {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(7, 47, 66, 0.64), stop:1 rgba(2, 19, 32, 0.24));"
+            " border: 1px solid rgba(122, 232, 255, 0.24);"
+            " border-left-color: rgba(153, 246, 228, 0.82);"
+            "}"
+            "#residentAccessSettingsNavBoundary {"
+            " color: rgba(116, 150, 168, 0.86);"
+            " border: none;"
+            " padding: 0;"
+            " margin: 0;"
+            "}"
+            "#residentAccessSettingsNavButton {"
+            " background: transparent;"
+            " color: rgba(225, 244, 248, 0.96);"
+            " border: none;"
+            " border-radius: 0;"
+            " min-height: 20px;"
+            " padding: 0;"
+            " text-align: left;"
+            " font-size: 10px;"
+            " font-weight: 820;"
+            "}"
+            "#residentAccessSettingsNavIcon {"
+            " color: rgba(206, 255, 244, 0.90);"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 0;"
+            " font-size: 9px;"
+            " font-weight: 900;"
+            "}"
+            "#residentAccessSettingsNavItem[navState=\"selected\"] #residentAccessSettingsNavIcon {"
+            " background: transparent;"
+            " border-color: transparent;"
+            "}"
+            "#residentAccessSettingsNavButton:hover, #residentAccessSettingsNavButton:focus {"
+            " color: rgba(255, 255, 255, 0.98);"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsNavButton:checked {"
+            " background: transparent;"
+            " color: rgba(255, 255, 255, 0.98);"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsContentShell {"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 12px;"
+            "}"
+            "#residentAccessSettingsPageFrame {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(3, 14, 25, 0.76), stop:1 rgba(2, 8, 17, 0.82));"
+            " border: 1px solid rgba(122, 232, 255, 0.16);"
+            " border-radius: 12px;"
+            "}"
+            "#residentAccessSettingsScope {"
+            " color: rgba(132, 220, 244, 0.84);"
+            " font-size: 10px;"
+            " font-weight: 800;"
+            " letter-spacing: 1px;"
+            "}"
+            "#residentAccessSettingsHeading {"
+            " color: #f8fafc;"
+            " font-size: 20px;"
+            " font-weight: 840;"
+            "}"
+            "#residentAccessSettingsSectionBadge {"
+            " color: rgba(153, 246, 228, 0.96);"
+            " background: rgba(8, 47, 73, 0.28);"
+            " border: 1px solid rgba(118, 226, 255, 0.14);"
+            " border-radius: 14px;"
+            " font-size: 11px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsSlotCount {"
+            " color: #9ee8f5;"
+            " background: rgba(8, 47, 73, 0.20);"
+            " border: 1px solid rgba(118, 226, 255, 0.12);"
+            " border-radius: 11px;"
+            " padding: 1px 6px;"
+            " font-size: 10px;"
+            " font-weight: 760;"
+            "}"
+            "#residentAccessSettingsSubheading {"
+            " color: #dbeafe;"
+            " font-size: 13px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsDetail, #residentAccessSettingsRouteSummary, #residentAccessSettingsQuickHelp {"
+            " color: rgba(176, 201, 219, 0.92);"
+            " line-height: 1.25;"
+            " font-size: 13px;"
+            "}"
+            "#residentAccessSettingsStateText {"
+            " color: rgba(153, 246, 228, 0.86);"
+            " background: transparent;"
+            " border: none;"
+            " padding: 0 2px;"
+            " font-size: 10px;"
+            " font-weight: 760;"
+            "}"
+            "#residentAccessSettingsStatus {"
+            " background: rgba(8, 47, 73, 0.88);"
+            " color: #e0f2fe;"
+            " border: 1px solid rgba(56, 189, 248, 0.52);"
+            " border-radius: 6px;"
+            " padding: 8px;"
+            "}"
+            "#residentAccessSettingsChangeSummary {"
+            " background: transparent;"
+            " color: rgba(186, 230, 253, 0.94);"
+            " border: none;"
+            " border-radius: 0;"
+            " padding: 2px 0;"
+            "}"
+            "#residentAccessTrayOverviewContainer {"
+            " background: rgba(2, 12, 24, 0.36);"
+            " border: 1px solid rgba(118, 226, 255, 0.12);"
+            " border-radius: 9px;"
+            "}"
+            "#residentAccessTrayDeferredNotice {"
+            " background: rgba(5, 18, 32, 0.50);"
+            " border: 1px solid rgba(117, 228, 255, 0.12);"
+            " border-left: 2px solid rgba(153, 246, 228, 0.32);"
+            " border-radius: 8px;"
+            "}"
+            "#residentAccessTrayDeferredTitle {"
+            " color: rgba(244, 250, 255, 0.96);"
+            " font-size: 13px;"
+            " font-weight: 850;"
+            "}"
+            "#residentAccessTrayDeferredDetail {"
+            " color: rgba(148, 184, 199, 0.90);"
+            " font-size: 10px;"
+            " font-weight: 700;"
+            "}"
+            "#residentAccessQuickSlotContainer {"
+            " background: rgba(2, 12, 24, 0.46);"
+            " border: 1px solid rgba(118, 226, 255, 0.16);"
+            " border-radius: 10px;"
+            "}"
+            "#residentAccessQuickSlotTitle {"
+            " color: rgba(244, 250, 255, 0.96);"
+            " font-size: 15px;"
+            " font-weight: 850;"
+            "}"
+            "#residentAccessQuickSlotHint {"
+            " color: rgba(148, 184, 199, 0.88);"
+            " font-size: 12px;"
+            " font-weight: 700;"
+            "}"
+            "#residentAccessQuickSlotRows {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessQuickSlotRow {"
+            " background: rgba(5, 18, 32, 0.76);"
+            " border: 1px solid rgba(117, 228, 255, 0.18);"
+            " border-left: 2px solid rgba(153, 246, 228, 0.38);"
+            " border-radius: 6px;"
+            "}"
+            "#residentAccessQuickSlotIndex {"
+            " color: rgba(139, 233, 255, 0.76);"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 0;"
+            " font-size: 13px;"
+            " font-weight: 760;"
+            " padding: 4px 0;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton, #residentAccessSettingsContentShell QPushButton {"
+            " background: rgba(7, 28, 43, 0.62);"
+            " color: rgba(191, 212, 207, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.14);"
+            " border-radius: 6px;"
+            " padding: 0 8px;"
+            " min-height: 31px;"
+            " font-size: 13px;"
+            " font-weight: 700;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:hover, #residentAccessSettingsContentShell QPushButton:hover {"
+            " background: rgba(13, 43, 65, 232);"
+            " border-color: rgba(118, 226, 255, 0.48);"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:focus, #residentAccessSettingsContentShell QPushButton:focus {"
+            " border-color: rgba(118, 226, 255, 0.54);"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:pressed, #residentAccessSettingsContentShell QPushButton:pressed {"
+            " background: rgba(15, 118, 110, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:disabled, #residentAccessSettingsContentShell QPushButton:disabled {"
+            " background: #101827;"
+            " color: #64748b;"
+            " border-color: #1f2937;"
+            "}"
+            "#residentAccessSaveButton:enabled {"
+            " background: #0f766e;"
+            " color: #ecfeff;"
+            " border-color: rgba(153, 246, 228, 0.58);"
+            "}"
+            "#residentAccessDiscardButton:enabled {"
+            " color: #fecaca;"
+            " border-color: rgba(248, 113, 113, 0.44);"
+            "}"
+            "#residentAccessSettingsFooter {"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 0;"
+            "}"
+            "#residentAccessCloseGuardOverlay {"
+            " background: qradialgradient(cx:0.50, cy:0.34, radius:0.72, fx:0.50, fy:0.34, stop:0 rgba(255, 214, 108, 0.08), stop:0.58 rgba(1, 8, 16, 0.62), stop:1 rgba(1, 8, 16, 0.74));"
+            " border-radius: 0;"
+            "}"
+            "#residentAccessCloseGuardPanel {"
+            " background: qradialgradient(cx:0.18, cy:0.00, radius:0.76, fx:0.18, fy:0.00, stop:0 rgba(46, 32, 14, 1.00), stop:0.50 rgba(21, 14, 10, 1.00), stop:1 rgba(21, 14, 10, 1.00));"
+            " border: 1px solid rgba(255, 214, 108, 0.24);"
+            " border-radius: 8px;"
+            " min-width: 360px;"
+            " max-width: 420px;"
+            "}"
+            "#residentAccessCloseGuardTitle {"
+            " color: rgba(255, 247, 225, 0.96);"
+            " font-size: 12px;"
+            " font-weight: 850;"
+            "}"
+            "#residentAccessCloseGuardDetail {"
+            " color: rgba(172, 215, 228, 0.84);"
+            " font-size: 12px;"
+            " font-weight: 620;"
+            " line-height: 1.3;"
+            "}"
+            "#residentAccessCloseGuardPanel QPushButton {"
+            " background: rgba(7, 28, 43, 0.70);"
+            " color: rgba(235, 250, 255, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.18);"
+            " border-radius: 6px;"
+            " min-width: 96px;"
+            " min-height: 28px;"
+            " padding: 0 10px;"
+            " font-weight: 760;"
+            "}"
+            "#residentAccessCloseGuardPanel QPushButton:hover, #residentAccessCloseGuardPanel QPushButton:focus {"
+            " background: rgba(13, 43, 65, 0.92);"
+            " border-color: rgba(118, 226, 255, 0.48);"
+            "}"
+            "#residentAccessCloseGuardPanel QPushButton:pressed {"
+            " background: rgba(15, 118, 110, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "QPushButton#residentAccessCloseGuardSave, QPushButton#residentAccessCloseGuardSave:hover, QPushButton#residentAccessCloseGuardSave:focus {"
+            " background: rgba(15, 118, 110, 0.94);"
+            " color: #ecfeff;"
+            " border-color: rgba(153, 246, 228, 0.58);"
+            "}"
+            "QPushButton#residentAccessCloseGuardSave:pressed {"
+            " background: rgba(20, 184, 166, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "QPushButton#residentAccessCloseGuardDiscard, QPushButton#residentAccessCloseGuardDiscard:hover, QPushButton#residentAccessCloseGuardDiscard:focus {"
+            " color: #fecaca;"
+            " border-color: rgba(248, 113, 113, 0.44);"
+            " background: rgba(52, 13, 21, 0.92);"
+            "}"
+            "QPushButton#residentAccessCloseGuardDiscard:pressed {"
+            " background: rgba(127, 29, 29, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "QPushButton#residentAccessCloseGuardCancel, QPushButton#residentAccessCloseGuardCancel:hover, QPushButton#residentAccessCloseGuardCancel:focus {"
+            " color: rgba(214, 226, 234, 0.94);"
+            " border-color: rgba(148, 163, 184, 0.28);"
+            " background: rgba(7, 28, 43, 0.82);"
+            "}"
+            "QPushButton#residentAccessCloseGuardCancel:pressed {"
+            " background: rgba(30, 41, 59, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "#residentAccessQuickSlotActions {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessQuickSlotActions QPushButton {"
+            " min-height: 27px;"
+            " max-height: 27px;"
+            " padding: 0;"
+            " border: none;"
+            " border-radius: 0;"
+            " font-size: 11px;"
+            " background: transparent;"
+            "}"
+            "#residentAccessQuickSlotReorderGroup {"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 9px;"
+            "}"
+            "#residentAccessQuickSlotReorderGroup QPushButton {"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 0;"
+            " padding: 0;"
+            "}"
+            "#residentAccessQuickSlotMoveUp {"
+            " border-top-left-radius: 8px;"
+            " border-bottom-left-radius: 8px;"
+            "}"
+            "#residentAccessQuickSlotMoveDown {"
+            " border-top-right-radius: 8px;"
+            " border-bottom-right-radius: 8px;"
+            "}"
+            "#residentAccessQuickSlotReorderGroup QPushButton:hover,"
+            "#residentAccessQuickSlotReorderGroup QPushButton:focus {"
+            " background: transparent;"
+            " color: rgba(236, 254, 255, 0.98);"
+            "}"
+            "#residentAccessQuickSlotReorderGroup QPushButton:pressed {"
+            " background: transparent;"
+            "}"
+            "#residentAccessQuickSlotReorderGroup QPushButton:disabled {"
+            " background: transparent;"
+            "}"
+            "#residentAccessQuickSlotReorderDivider {"
+            " background: rgba(118, 226, 255, 0.24);"
+            " border: none;"
+            " min-width: 1px;"
+            " max-width: 1px;"
+            " min-height: 17px;"
+            " max-height: 17px;"
+            "}"
+            "#residentAccessQuickSlotDelete {"
+            " color: #fecaca;"
+            " background: transparent;"
+            " border: none;"
+            " border-radius: 9px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessQuickSlotDelete:hover, #residentAccessQuickSlotDelete:focus {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessQuickSlotDelete:pressed {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessQuickSlotDelete:disabled {"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "QComboBox {"
+            " background: rgba(2, 12, 24, 0.96);"
+            " color: rgba(193, 213, 208, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.20);"
+            " border-radius: 6px;"
+            " padding: 0 22px 0 7px;"
+            " min-height: 30px;"
+            " font-size: 12px;"
+            " font-weight: 700;"
+            "}"
+            "QComboBox:hover { border-color: rgba(118, 226, 255, 0.38); background: rgba(7, 22, 36, 220); }"
+            "QComboBox:focus { border-color: rgba(118, 226, 255, 0.54); background: rgba(7, 22, 36, 232); }"
+            "QComboBox:disabled { color: #64748b; background: #101827; border-color: #1f2937; }"
+            "QComboBox::drop-down {"
+            " width: 22px;"
+            " border-left: 1px solid rgba(118, 226, 255, 0.16);"
+            " background: rgba(6, 27, 43, 0.55);"
+            "}"
+            "QComboBox::down-arrow {"
+            " image: url("
+            f"{dropdown_arrow_asset}"
+            ");"
+            " width: 9px;"
+            " height: 6px;"
+            " margin-right: 8px;"
+            "}"
+            "QComboBox QAbstractItemView {"
+            " background: rgba(5, 14, 25, 250);"
+            " color: rgba(193, 213, 208, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.28);"
+            " border-radius: 7px;"
+            " padding: 2px;"
+            " selection-background-color: rgba(22, 61, 90, 232);"
+            " selection-color: rgba(205, 221, 216, 0.99);"
+            " outline: none;"
+            "}"
+            "QComboBox QAbstractItemView::item {"
+            " min-height: 24px;"
+            " padding: 2px 6px;"
+            " border-radius: 5px;"
+            "}"
+            "QLineEdit {"
+            " background: rgba(2, 12, 24, 0.96);"
+            " color: rgba(222, 240, 237, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.18);"
+            " border-radius: 6px;"
+            " padding: 0 8px;"
+            " min-height: 24px;"
+            " font-size: 12px;"
+            " font-weight: 700;"
+            " selection-background-color: rgba(22, 61, 90, 232);"
+            " selection-color: #ffffff;"
+            "}"
+            "QLineEdit:focus {"
+            " border-color: rgba(153, 246, 228, 0.52);"
+            " background: rgba(7, 22, 36, 232);"
+            "}"
+            "QLineEdit:disabled {"
+            " color: #64748b;"
+            " background: #101827;"
+            " border-color: #1f2937;"
+            "}"
+            "QCheckBox {"
+            " color: rgba(214, 226, 234, 0.94);"
+            " spacing: 7px;"
+            " font-size: 12px;"
+            " font-weight: 700;"
+            "}"
+            "QCheckBox::indicator {"
+            " width: 14px;"
+            " height: 14px;"
+            " border: 1px solid rgba(118, 226, 255, 0.30);"
+            " border-radius: 4px;"
+            " background: rgba(2, 12, 24, 0.96);"
+            "}"
+            "QCheckBox::indicator:checked {"
+            " background: rgba(15, 118, 110, 0.94);"
+            " border-color: rgba(153, 246, 228, 0.68);"
+            "}"
+            "QCheckBox::indicator:disabled {"
+            " background: #101827;"
+            " border-color: #1f2937;"
+            "}"
+            "QSlider::groove:horizontal {"
+            " height: 5px;"
+            " background: rgba(2, 12, 24, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.14);"
+            " border-radius: 3px;"
+            "}"
+            "QSlider::handle:horizontal {"
+            " width: 14px;"
+            " margin: -5px 0;"
+            " border-radius: 7px;"
+            " background: rgba(153, 246, 228, 0.88);"
+            " border: 1px solid rgba(235, 252, 255, 0.55);"
+            "}"
+            "QSlider::sub-page:horizontal {"
+            " background: rgba(15, 118, 110, 0.78);"
+            " border-radius: 3px;"
+            "}"
+        )
+
+        self._rebuild_quick_slot_rows()
+        self.set_focus(self._focus)
+        self._install_settings_resize_event_filters()
+
+    def _apply_native_settings_palette(self):
+        base_font = QFont("Segoe UI")
+        base_font.setPointSize(10)
+        self.setFont(base_font)
+
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor("#07111f"))
+        palette.setColor(QPalette.WindowText, QColor("#f8fafc"))
+        palette.setColor(QPalette.Base, QColor("#0b1220"))
+        palette.setColor(QPalette.AlternateBase, QColor("#0f172a"))
+        palette.setColor(QPalette.Text, QColor("#f8fafc"))
+        palette.setColor(QPalette.Button, QColor("#132238"))
+        palette.setColor(QPalette.ButtonText, QColor("#e5f0ff"))
+        palette.setColor(QPalette.ToolTipBase, QColor("#101b2d"))
+        palette.setColor(QPalette.ToolTipText, QColor("#f8fafc"))
+        palette.setColor(QPalette.PlaceholderText, QColor("#8293a8"))
+        palette.setColor(QPalette.Highlight, QColor("#0f766e"))
+        palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
+        self.setPalette(palette)
+
+    def _install_settings_resize_event_filters(self) -> None:
+        for widget in [self, *self.findChildren(QWidget)]:
+            try:
+                if widget.property("settingsResizeEventFilterInstalled") == "true":
+                    continue
+                widget.installEventFilter(self)
+                widget.setMouseTracking(True)
+                widget.setProperty("settingsResizeEventFilterInstalled", "true")
+            except Exception:
+                pass
+
+    def _emit_runtime_signal(self, signal_name: str, **fields):
+        emitter = getattr(self.runtime, "_emit_runtime_signal", None)
+        if callable(emitter):
+            emitter(signal_name, **fields)
+
+    def _plan(self) -> dict[str, object]:
+        provider_state = None
+        provider = getattr(self.runtime, "_ai_provider_state", None)
+        if provider is not None and hasattr(provider, "as_renderer_payload"):
+            try:
+                provider_state = provider.as_renderer_payload()
+            except Exception:
+                provider_state = None
+        monitoring_state = {}
+        hud_provider = getattr(self.runtime, "monitoring_hud_feature_state", None)
+        if callable(hud_provider):
+            try:
+                monitoring_state = hud_provider()
+            except Exception:
+                monitoring_state = {}
+        command_state = {}
+        command_provider = getattr(self.runtime, "command_overlay_state", None)
+        if callable(command_provider):
+            try:
+                command_state = command_provider()
+            except Exception:
+                command_state = {}
+        return build_resident_access_menu_plan(
+            settings=self._settings,
+            ai_provider_state=provider_state,
+            monitoring_hud_state=monitoring_state,
+            command_overlay_state=command_state,
+        )
+
+    def _route_label(self, route) -> str:
+        compact_labels = {
+            "command_overlay": "Command Overlay",
+            "create_custom_task": "Create Task",
+            "open_saved_actions_folder": "Saved Actions",
+            "tray_visibility_education": "Tray Help",
+        }
+        return compact_labels.get(route.route_id, route.label)
+
+    def _has_unsaved_changes(self) -> bool:
+        return self._settings != self._saved_settings
+
+    def _available_quick_slot_limit(self) -> int:
+        return min(MAX_QUICK_SLOT_COUNT, len(quick_slot_candidate_routes()))
+
+    def _update_guard_buttons(self):
+        dirty = self._has_unsaved_changes()
+        self.save_button.setEnabled(dirty)
+        self.save_button.setText("Save")
+        self.revert_button.setEnabled(dirty)
+        self.revert_button.setVisible(not self._close_guard_active)
+        self.discard_button.setVisible(False)
+        self.keep_editing_button.setVisible(False)
+        guard_open = self._close_guard_active and dirty
+        self.close_guard_overlay.setVisible(guard_open)
+        self.close_guard_overlay.setProperty("unsavedGuard", "open-save-discard" if guard_open else "closed")
+        self.close_guard_panel.setProperty("unsavedGuard", "open-save-discard" if guard_open else "closed")
+        self.setProperty("dirtyCloseInterceptState", "blocked-before-resolution" if guard_open else "idle")
+        for widget in (self.close_guard_overlay, self.close_guard_panel):
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+        if guard_open:
+            self._position_close_guard_overlay()
+            self.close_guard_overlay.raise_()
+            QTimer.singleShot(0, self.guard_save_button.setFocus)
+
+    def _open_close_guard(self, source: str, pending_result=None, event_ignored: bool = False, pending_callback=None):
+        self._close_guard_active = True
+        self._close_guard_pending_result = pending_result
+        self._close_guard_pending_callback = pending_callback
+        self._dirty_close_intercept_count += 1
+        self._dirty_close_last_event_ignored = event_ignored
+        self._dirty_close_last_resolution = ""
+        self.setProperty("dirtyCloseInterceptState", "blocked-before-resolution")
+        self.setProperty("dirtyCloseInterceptSource", source)
+        self.setProperty("dirtyCloseInterceptCount", str(self._dirty_close_intercept_count))
+        self.setProperty("dirtyCloseEventIgnored", "true" if event_ignored else "not-applicable")
+        self._notice_text = "Unsaved changes"
+        self._refresh_text()
+        if not self.isVisible():
+            self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def request_dirty_close_intercept(self, source: str = "external_close", pending_callback=None) -> bool:
+        if not self._has_unsaved_changes():
+            return False
+        self._open_close_guard(
+            source,
+            pending_result=None,
+            event_ignored=True,
+            pending_callback=pending_callback,
+        )
+        return True
+
+    def _keep_editing(self):
+        self._dirty_close_last_resolution = "cancel-preserved-dirty-window-open"
+        self.setProperty("dirtyCloseInterceptState", "cancel-preserved-dirty-window-open")
+        self.setProperty("dirtyCloseResolution", self._dirty_close_last_resolution)
+        self._close_guard_pending_result = None
+        self._close_guard_pending_callback = None
+        self._close_guard_active = False
+        self._notice_text = "Unsaved changes"
+        self._refresh_text()
+
+    def _request_close(self):
+        if self._has_unsaved_changes():
+            self._open_close_guard("request_close", pending_result=None, event_ignored=False)
+            return
+        super().accept()
+
+    def _discard_and_close(self):
+        pending_callback = self._close_guard_pending_callback
+        self._settings = self._saved_settings
+        self._close_guard_active = False
+        self._dirty_close_last_resolution = "discard-dropped-draft-closed"
+        self.setProperty("dirtyCloseInterceptState", self._dirty_close_last_resolution)
+        self.setProperty("dirtyCloseResolution", self._dirty_close_last_resolution)
+        self._close_guard_pending_result = None
+        self._close_guard_pending_callback = None
+        super().reject()
+        if callable(pending_callback):
+            QTimer.singleShot(0, pending_callback)
+
+    def accept(self):
+        self._request_close()
+
+    def reject(self):
+        self._request_close()
+
+    def done(self, result):
+        if self._has_unsaved_changes():
+            self._open_close_guard("done", pending_result=result, event_ignored=False)
+            return
+        super().done(result)
+
+    def closeEvent(self, event):
+        if self._has_unsaved_changes():
+            self._open_close_guard("close_event", pending_result=None, event_ignored=True)
+            event.ignore()
+            return
+        self._settings_resize_hover_timer.stop()
+        self._reset_settings_resize_cursor()
+        super().closeEvent(event)
+
+    def keyPressEvent(self, event):
+        modifiers = event.modifiers()
+        key = event.key()
+        close_key = key == Qt.Key_Escape or (
+            key in (Qt.Key_W, Qt.Key_Q) and bool(modifiers & Qt.ControlModifier)
+        )
+        if close_key:
+            if self._has_unsaved_changes():
+                self._open_close_guard("keyboard_close", pending_result=None, event_ignored=True)
+                event.accept()
+                return
+            self._request_close()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._settings_resize_hover_timer.start()
+
+    def hideEvent(self, event):
+        self._settings_resize_hover_timer.stop()
+        if not self._settings_resize_active:
+            self._reset_settings_resize_cursor()
+        super().hideEvent(event)
+
+    def _selected_slot_ids(self) -> tuple[str, ...]:
+        ids = []
+        for combo in self._slot_combos:
+            route_id = combo.currentData()
+            if route_id:
+                ids.append(str(route_id))
+        return normalize_quick_slot_ids(ids)
+
+    def _clear_quick_slot_rows(self):
+        while self.quick_slot_rows_layout.count():
+            item = self.quick_slot_rows_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+        self._slot_combos = []
+        self._slot_rows: list[QFrame] = []
+        self._slot_action_clusters: list[QFrame] = []
+
+    def _quick_slot_combo_width_for_row(self, row_width: int) -> int:
+        reserved_width = (
+            self.QUICK_SLOT_ROW_SIDE_GUTTER * 2
+            + self.QUICK_SLOT_INDEX_WIDTH
+            + self.QUICK_SLOT_ACTION_CLUSTER_WIDTH
+            + self.QUICK_SLOT_ROW_ITEM_GAP * 2
+        )
+        available_width = max(0, row_width - reserved_width)
+        return max(
+            self.QUICK_SLOT_COMBO_MIN_WIDTH,
+            min(self.QUICK_SLOT_COMBO_MAX_WIDTH, available_width),
+        )
+
+    def _apply_quick_slot_row_geometry(self):
+        if not getattr(self, "_slot_combos", None):
+            return
+        rows = getattr(self, "_slot_rows", [])
+        for row, combo, action_cluster in zip(rows, self._slot_combos, self._slot_action_clusters):
+            row_width = row.width() or self.quick_slot_rows.width() or max(
+                0,
+                self.quick_slot_container.width() - 24,
+            )
+            combo_width = self._quick_slot_combo_width_for_row(row_width)
+            combo.setMinimumWidth(combo_width)
+            combo.setMaximumWidth(combo_width)
+            if combo.view() is not None:
+                combo.view().setMinimumWidth(combo_width)
+                combo.view().setMaximumWidth(combo_width)
+            action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
+
+    def _rebuild_quick_slot_rows(self):
+        self._clear_quick_slot_rows()
+        candidates = quick_slot_candidate_routes()
+        selected_ids = normalize_quick_slot_ids(self._settings.quick_slot_ids)
+        for index, selected_id in enumerate(selected_ids):
+            row = QFrame(self.quick_slot_rows)
+            row.setObjectName("residentAccessQuickSlotRow")
+            row.setAttribute(Qt.WA_StyledBackground, True)
+            row.setFixedHeight(self.QUICK_SLOT_ROW_HEIGHT)
+            row.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(
+                self.QUICK_SLOT_ROW_SIDE_GUTTER,
+                3,
+                self.QUICK_SLOT_ROW_SIDE_GUTTER,
+                3,
+            )
+            row_layout.setSpacing(self.QUICK_SLOT_ROW_ITEM_GAP)
+            slot_label = QLabel(f"{index + 1:02d}", row)
+            slot_label.setObjectName("residentAccessQuickSlotIndex")
+            slot_label.setAccessibleName(f"Quick Access Slot {index + 1} label")
+            slot_label.setFixedWidth(self.QUICK_SLOT_INDEX_WIDTH)
+            row_layout.addWidget(slot_label)
+            combo = QComboBox(row)
+            combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
+            combo.setMinimumWidth(self.QUICK_SLOT_COMBO_MIN_WIDTH)
+            combo.setMaximumWidth(self.QUICK_SLOT_COMBO_MAX_WIDTH)
+            combo.setMaxVisibleItems(4)
+            for route in candidates:
+                combo.addItem(self._route_label(route), route.route_id)
+                if route.route_id == selected_id:
+                    combo.setCurrentIndex(combo.count() - 1)
+            popup = combo.view()
+            if popup is not None:
+                popup.setObjectName("residentAccessQuickSlotRoutePopup")
+                popup.setAutoFillBackground(True)
+                popup_palette = popup.palette()
+                popup_palette.setColor(QPalette.Base, QColor("#08121e"))
+                popup_palette.setColor(QPalette.Text, QColor("#c1d5d0"))
+                popup_palette.setColor(QPalette.Highlight, QColor("#163d5a"))
+                popup_palette.setColor(QPalette.HighlightedText, QColor("#e5f0ff"))
+                popup.setPalette(popup_palette)
+                popup.setStyleSheet(
+                    "QAbstractItemView {"
+                    " background: #08121e;"
+                    " color: #c1d5d0;"
+                    " border: 1px solid #2b7485;"
+                    " selection-background-color: #163d5a;"
+                    " selection-color: #e5f0ff;"
+                    " outline: 0;"
+                    " padding: 2px;"
+                    "}"
+                    "QAbstractItemView::item {"
+                    " min-height: 24px;"
+                    " padding: 2px 6px;"
+                    " border-radius: 5px;"
+                    "}"
+                    "QAbstractItemView::item:selected {"
+                    " background: #163d5a;"
+                    " color: #e5f0ff;"
+                    "}"
+                )
+                popup.setMinimumHeight(132)
+                popup.setMaximumHeight(136)
+            combo.currentIndexChanged.connect(lambda _idx, index=index: self._update_slot(index))
+            self._slot_combos.append(combo)
+            row_layout.addWidget(combo, 1)
+            action_cluster = QFrame(row)
+            action_cluster.setObjectName("residentAccessQuickSlotActions")
+            action_cluster.setAttribute(Qt.WA_StyledBackground, True)
+            action_cluster.setAttribute(Qt.WA_Hover, True)
+            action_cluster.setFixedWidth(self.QUICK_SLOT_ACTION_CLUSTER_WIDTH)
+            action_cluster.setProperty("quickSlotActionControlPolicy", "two-pill-reorder-delete-parent-painted-segment-fill-v47")
+            action_layout = QHBoxLayout(action_cluster)
+            action_layout.setContentsMargins(0, 0, 0, 0)
+            action_layout.setSpacing(4)
+            reorder_group = QuickSlotReorderPill(action_cluster)
+            reorder_group.setObjectName("residentAccessQuickSlotReorderGroup")
+            reorder_group.setAttribute(Qt.WA_StyledBackground, True)
+            reorder_group.setFixedSize(53, 29)
+            reorder_group.setProperty("quickSlotReorderSplitPolicy", "parent-painted-25-1-25-exact-segment-fill-v47")
+            reorder_layout = QHBoxLayout(reorder_group)
+            reorder_layout.setContentsMargins(1, 1, 1, 1)
+            reorder_layout.setSpacing(0)
+            up_button = NexusGlyphButton("up", reorder_group)
+            up_button.setObjectName("residentAccessQuickSlotMoveUp")
+            up_button.setProperty("quietGlyph", True)
+            up_button.setProperty("glyphZoneButton", True)
+            up_button.setProperty("glyphSegment", "left")
+            up_button.setProperty("glyphScale", 0.76)
+            up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
+            up_button.setFixedSize(25, 27)
+            up_button.setEnabled(index > 0)
+            up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
+            reorder_layout.addWidget(up_button)
+            reorder_divider = QFrame(reorder_group)
+            reorder_divider.setObjectName("residentAccessQuickSlotReorderDivider")
+            reorder_divider.setAttribute(Qt.WA_StyledBackground, True)
+            reorder_divider.setFixedSize(1, 17)
+            reorder_layout.addWidget(reorder_divider)
+            down_button = NexusGlyphButton("down", reorder_group)
+            down_button.setObjectName("residentAccessQuickSlotMoveDown")
+            down_button.setProperty("quietGlyph", True)
+            down_button.setProperty("glyphZoneButton", True)
+            down_button.setProperty("glyphSegment", "right")
+            down_button.setProperty("glyphScale", 0.76)
+            down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
+            down_button.setFixedSize(25, 27)
+            down_button.setEnabled(index < len(selected_ids) - 1)
+            down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
+            reorder_layout.addWidget(down_button)
+            action_layout.addWidget(reorder_group)
+            delete_button = NexusGlyphButton("close", action_cluster)
+            delete_button.setObjectName("residentAccessQuickSlotDelete")
+            delete_button.setProperty("dangerGlyph", True)
+            delete_button.setProperty("quietGlyph", True)
+            delete_button.setProperty("glyphZoneButton", True)
+            delete_button.setProperty("glyphSegment", "standalone-danger")
+            delete_button.setProperty("glyphScale", 0.76)
+            delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
+            delete_button.setFixedSize(28, 27)
+            delete_button.setEnabled(len(selected_ids) > 1)
+            delete_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
+            action_layout.addWidget(delete_button)
+            row_layout.addWidget(action_cluster)
+            self.quick_slot_rows_layout.addWidget(row)
+            self._slot_rows.append(row)
+            self._slot_action_clusters.append(action_cluster)
+        self.add_slot_button.setEnabled(len(selected_ids) < self._available_quick_slot_limit())
+        self._resize_for_slot_count(len(selected_ids))
+        QTimer.singleShot(0, self._apply_quick_slot_row_geometry)
+        self._install_settings_resize_event_filters()
+
+    def _resize_for_slot_count(self, slot_count: int):
+        self.setMaximumSize(*self.MAXIMUM_SIZE)
+        bounded_count = max(1, min(slot_count, self._available_quick_slot_limit()))
+        row_total = (
+            bounded_count * self.QUICK_SLOT_ROW_HEIGHT
+            + max(0, bounded_count - 1) * self.QUICK_SLOT_ROW_SPACING
+        )
+        container_height = self.QUICK_SLOT_CONTAINER_CHROME_HEIGHT + row_total
+        dynamic_min_height = min(
+            self.MAXIMUM_SIZE[1],
+            max(self.BASE_MINIMUM_SIZE[1], self.QUICK_ACCESS_WINDOW_VERTICAL_CHROME + container_height),
+        )
+        target_width = max(self.width(), self.DEFAULT_SIZE[0])
+        target_height = min(
+            self.MAXIMUM_SIZE[1],
+            max(self.DEFAULT_SIZE[1], self.QUICK_ACCESS_WINDOW_VERTICAL_CHROME + container_height + 10),
+        )
+        self.setMinimumSize(self.BASE_MINIMUM_SIZE[0], dynamic_min_height)
+        self.setMaximumSize(*self.MAXIMUM_SIZE)
+        if hasattr(self, "quick_slot_container"):
+            self.quick_slot_rows.setMinimumHeight(row_total)
+            self.quick_slot_rows.setMaximumHeight(row_total)
+            self.quick_slot_container.setFixedHeight(container_height)
+            self.quick_slot_container.setProperty("quickAccessRowCount", str(bounded_count))
+            self.quick_slot_container.setProperty("quickAccessRowPolicy", self.property("quickAccessLayoutPolicy"))
+        if self.height() < target_height or self.width() < self.BASE_MINIMUM_SIZE[0]:
+            self.resize(min(self.MAXIMUM_SIZE[0], target_width), target_height)
+
+    def _replace_quick_slots(self, slot_ids: Iterable[str], notice: str | None = None):
+        self._settings = ResidentAccessSettings(
+            quick_slot_ids=normalize_quick_slot_ids(slot_ids),
+            menu_budget=self._settings.menu_budget,
+            show_ai_privacy_status=self._settings.show_ai_privacy_status,
+        )
+        self._close_guard_active = False
+        self._notice_text = notice or "Unsaved changes"
+        self._rebuild_quick_slot_rows()
+        self._refresh_text()
+
+    def _update_slot(self, _index):
+        self._replace_quick_slots(self._selected_slot_ids())
+
+    def _move_slot(self, index: int, direction: int):
+        slots = list(self._selected_slot_ids())
+        new_index = index + direction
+        if new_index < 0 or new_index >= len(slots):
+            return
+        slots[index], slots[new_index] = slots[new_index], slots[index]
+        self._replace_quick_slots(slots)
+
+    def _remove_slot(self, index: int):
+        slots = list(self._selected_slot_ids())
+        if len(slots) <= 1 or index < 0 or index >= len(slots):
+            return
+        del slots[index]
+        self._replace_quick_slots(slots)
+
+    def _add_slot(self):
+        slots = list(self._selected_slot_ids())
+        if len(slots) >= self._available_quick_slot_limit():
+            return
+        for route in quick_slot_candidate_routes():
+            if route.route_id not in slots:
+                slots.append(route.route_id)
+                break
+        self._replace_quick_slots(slots)
+
+    def _reset_slots(self):
+        self._replace_quick_slots(
+            DEFAULT_QUICK_SLOT_ROUTE_IDS,
+            notice="Default shortcut order staged.",
+        )
+
+    def _revert_settings(self):
+        self._settings = self._saved_settings
+        self._close_guard_active = False
+        self._notice_text = "Changes reverted."
+        self._rebuild_quick_slot_rows()
+        self._refresh_text()
+
+    def _save_settings(self):
+        should_close = self._close_guard_active
+        pending_callback = self._close_guard_pending_callback
+        self._settings = ResidentAccessSettings(
+            quick_slot_ids=self._selected_slot_ids(),
+            menu_budget=self._settings.menu_budget,
+            show_ai_privacy_status=self._settings.show_ai_privacy_status,
+        )
+        path = save_resident_access_settings(self._settings)
+        self._saved_settings = self._settings
+        self._close_guard_active = False
+        self._notice_text = ""
+        self._dirty_close_last_resolution = "save-persisted-closed" if should_close else "save-persisted-clean"
+        self.setProperty("dirtyCloseInterceptState", self._dirty_close_last_resolution)
+        self.setProperty("dirtyCloseResolution", self._dirty_close_last_resolution)
+        self._close_guard_pending_result = None
+        self._close_guard_pending_callback = None
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_SETTINGS_SAVED",
+            source="global_settings",
+            quick_slot_count=len(self._settings.quick_slot_ids),
+            path=str(path),
+        )
+        self._refresh_text(saved=True)
+        if should_close:
+            super().accept()
+            if callable(pending_callback):
+                QTimer.singleShot(0, pending_callback)
+
+    def _refresh_text(self, saved: bool = False):
+        plan = self._plan()
+        route_count = len(plan.get("quickSlots", ()) or ())
+        available_slot_limit = self._available_quick_slot_limit()
+        self.status_summary.clear()
+        self.status_summary.setVisible(False)
+        self.section_heading.setText("Tray" if self._focus == "tray" else "Quick Access")
+        self.section_badge.setVisible(False)
+        self.slot_count_badge.setText(f"{route_count} of {available_slot_limit}")
+        self.slot_count_badge.setVisible(self._focus == "quick_access")
+        if self._focus == "tray":
+            self.section_scope.setText("NEXUS TRAY")
+            self.section_detail.setText(
+                self.SETTINGS_TRAY_CONTEXT_DETAILS.get(
+                    self._focus_context,
+                    "Tray visibility help and future click behavior settings.",
+                )
+            )
+        else:
+            self.section_scope.setText("NEXUS TRAY / QUICK ACCESS")
+            self.section_detail.setText("Choose the shortcuts shown in the tray menu.")
+        self.section_scope.setVisible(True)
+        self.section_detail.setVisible(True)
+
+        dirty = self._has_unsaved_changes()
+        if self._close_guard_active and dirty:
+            change_text = ""
+        elif self._notice_text:
+            change_text = self._notice_text
+        elif dirty:
+            change_text = "Unsaved changes"
+        else:
+            change_text = ""
+        slot_count_text = f"{route_count} of {available_slot_limit}"
+        if change_text.strip() == slot_count_text:
+            change_text = "Unsaved changes" if dirty else ""
+        self.change_summary.setText(change_text)
+        if self._close_guard_active and dirty:
+            self.change_summary.setAccessibleName("Unsaved changes. Save, Discard, or Cancel before closing.")
+        else:
+            self.change_summary.setAccessibleName(change_text or "Quick Access change status")
+        self.change_summary.setVisible(bool(change_text))
+        self.settings_state_chip.setText("")
+        self.settings_state_chip.setAccessibleName("Quick Access settings state")
+        self.settings_state_chip.setVisible(False)
+        route_text = ""
+        self.route_summary.setText(route_text)
+        self.route_summary.setVisible(False)
+        self.tray_overview_container.setVisible(self._focus == "tray")
+        self.quick_slot_container.setVisible(self._focus == "quick_access")
+        self.subpage_nav_rail.setVisible(self._tray_children_expanded)
+        self.tray_expand_button.setChecked(self._tray_children_expanded)
+        if hasattr(self.tray_expand_button, "set_glyph"):
+            self.tray_expand_button.set_glyph("chevron-down" if self._tray_children_expanded else "chevron-right")
+        self.tray_expand_button.setProperty("expanded", "true" if self._tray_children_expanded else "false")
+        self.tray_expand_button.style().unpolish(self.tray_expand_button)
+        self.tray_expand_button.style().polish(self.tray_expand_button)
+        self._update_guard_buttons()
+        self.footer_frame.setVisible((self._focus == "quick_access" or dirty) and not self._close_guard_active)
+
+    def _toggle_tray_children(self):
+        self._tray_children_expanded = not self._tray_children_expanded
+        if not self._tray_children_expanded and self._focus == "quick_access":
+            self._focus = "tray"
+        self.set_focus(self._focus)
+
+    def set_focus(self, focus: str):
+        requested_focus = (focus or "").strip()
+        self._focus = self.SETTINGS_FOCUS_ALIASES.get(requested_focus, "quick_access")
+        self._focus_context = requested_focus if requested_focus in self.SETTINGS_FOCUS_ALIASES else self._focus
+        if self._focus == "quick_access" and not self._tray_children_expanded:
+            self._tray_children_expanded = True
+        for nav_id, button in self._nav_buttons.items():
+            is_selected = nav_id == self._focus
+            button.setChecked(is_selected)
+            button.setProperty("navState", "selected" if is_selected else "available")
+            button.style().unpolish(button)
+            button.style().polish(button)
+        tray_state = "selected" if self._focus == "tray" else "contains-selected"
+        self.tray_nav_item.setProperty("navState", tray_state)
+        self.quick_access_nav_item.setProperty("navState", "selected" if self._focus == "quick_access" else "available")
+        for nav_item in (self.tray_nav_item, self.quick_access_nav_item, self.subpage_nav_rail):
+            nav_item.style().unpolish(nav_item)
+            nav_item.style().polish(nav_item)
+        self._refresh_text()
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def _settings_resize_edges_for_local_pos(self, local: QPoint):
+        margin = self.RESIZE_MARGIN
+        corner_margin = self.RESIZE_CORNER_MARGIN
+        width = self.width()
+        height = self.height()
+        if not QRect(0, 0, width, height).contains(local):
+            return Qt.Edges()
+        edges = Qt.Edges()
+        if local.x() <= corner_margin and local.y() <= corner_margin:
+            edges |= Qt.LeftEdge | Qt.TopEdge
+        elif local.x() >= max(0, width - corner_margin) and local.y() <= corner_margin:
+            edges |= Qt.RightEdge | Qt.TopEdge
+        elif local.x() <= corner_margin and local.y() >= max(0, height - corner_margin):
+            edges |= Qt.LeftEdge | Qt.BottomEdge
+        elif local.x() >= max(0, width - corner_margin) and local.y() >= max(0, height - corner_margin):
+            edges |= Qt.RightEdge | Qt.BottomEdge
+        else:
+            if local.x() <= margin:
+                edges |= Qt.LeftEdge
+            elif local.x() >= max(0, width - margin):
+                edges |= Qt.RightEdge
+            if local.y() <= margin:
+                edges |= Qt.TopEdge
+            elif local.y() >= max(0, height - margin):
+                edges |= Qt.BottomEdge
+        return edges
+
+    def _settings_resize_edge_key(self, edges) -> tuple[bool, bool, bool, bool]:
+        return (
+            bool(edges & Qt.LeftEdge),
+            bool(edges & Qt.RightEdge),
+            bool(edges & Qt.TopEdge),
+            bool(edges & Qt.BottomEdge),
+        )
+
+    def _settings_resize_cursor_for_edges(self, edges):
+        left, right, top, bottom = self._settings_resize_edge_key(edges)
+        if (left and top) or (right and bottom):
+            return Qt.SizeFDiagCursor
+        if (right and top) or (left and bottom):
+            return Qt.SizeBDiagCursor
+        if left or right:
+            return Qt.SizeHorCursor
+        if top or bottom:
+            return Qt.SizeVerCursor
+        return None
+
+    def _settings_resize_cursor(self, edges):
+        return self._settings_resize_cursor_for_edges(edges) or Qt.ArrowCursor
+
+    def _settings_windows_resize_cursor_id_for_edges(self, edges):
+        if not edges:
+            return IDC_ARROW
+        left, right, top, bottom = self._settings_resize_edge_key(edges)
+        if (left and top) or (right and bottom):
+            return IDC_SIZENWSE
+        if (right and top) or (left and bottom):
+            return IDC_SIZENESW
+        if left or right:
+            return IDC_SIZEWE
+        if top or bottom:
+            return IDC_SIZENS
+        return IDC_ARROW
+
+    def _apply_settings_windows_resize_cursor(self, edges) -> None:
+        if os.name != "nt":
+            return
+        # resize-cursor-no-forced-arrow-release: clear our override without
+        # forcing IDC_ARROW, or Windows edge hover can flicker arrow/resize.
+        if not edges:
+            return
+        try:
+            cursor_handle = LoadCursorW(None, self._settings_windows_resize_cursor_id_for_edges(edges))
+            if cursor_handle:
+                SetCursor(cursor_handle)
+        except Exception:
+            pass
+
+    def _set_settings_override_resize_cursor(self, cursor) -> None:
+        try:
+            if cursor is None:
+                if self._settings_resize_override_cursor_active:
+                    QApplication.restoreOverrideCursor()
+                    self._settings_resize_override_cursor_active = False
+                return
+            qt_cursor = QCursor(cursor)
+            if self._settings_resize_override_cursor_active:
+                QApplication.changeOverrideCursor(qt_cursor)
+            else:
+                QApplication.setOverrideCursor(qt_cursor)
+                self._settings_resize_override_cursor_active = True
+        except Exception:
+            self._settings_resize_override_cursor_active = False
+
+    def _set_settings_resize_cursor(self, edges) -> None:
+        key = self._settings_resize_edge_key(edges) if edges else None
+        if key == self._settings_resize_cursor_key:
+            if os.name == "nt":
+                if key is not None:
+                    self._set_settings_override_resize_cursor(
+                        self._settings_resize_cursor_for_edges(edges)
+                    )
+                self._apply_settings_windows_resize_cursor(edges if key is not None else Qt.Edges())
+            return
+        self._settings_resize_cursor_key = key
+        cursor = self._settings_resize_cursor_for_edges(edges) if edges else None
+        targets = [self]
+        for attr_name in ("shell", "chrome_bar", "settings_body", "settings_splitter"):
+            target = getattr(self, attr_name, None)
+            if target is not None:
+                targets.append(target)
+        try:
+            targets.extend(self.findChildren(QWidget))
+        except Exception:
+            pass
+        if os.name == "nt":
+            for target in targets:
+                try:
+                    target.unsetCursor()
+                except Exception:
+                    pass
+            self._set_settings_override_resize_cursor(cursor)
+            self._apply_settings_windows_resize_cursor(edges if edges else Qt.Edges())
+            return
+        for target in targets:
+            try:
+                if cursor is None:
+                    target.unsetCursor()
+                else:
+                    target.setCursor(QCursor(cursor))
+            except Exception:
+                pass
+        self._set_settings_override_resize_cursor(cursor)
+        self._apply_settings_windows_resize_cursor(edges if edges else Qt.Edges())
+
+    def _reset_settings_resize_cursor(self) -> None:
+        self._set_settings_resize_cursor(Qt.Edges())
+
+    def _settings_resize_hit_test_for_edges(self, edges) -> int:
+        left = bool(edges & Qt.LeftEdge)
+        right = bool(edges & Qt.RightEdge)
+        top = bool(edges & Qt.TopEdge)
+        bottom = bool(edges & Qt.BottomEdge)
+        if left and top:
+            return HTTOPLEFT
+        if right and top:
+            return HTTOPRIGHT
+        if left and bottom:
+            return HTBOTTOMLEFT
+        if right and bottom:
+            return HTBOTTOMRIGHT
+        if left:
+            return HTLEFT
+        if right:
+            return HTRIGHT
+        if top:
+            return HTTOP
+        if bottom:
+            return HTBOTTOM
+        return 0
+
+    def _settings_resize_edges_for_hit_test(self, hit_test: int):
+        edge_map = {
+            HTLEFT: Qt.LeftEdge,
+            HTRIGHT: Qt.RightEdge,
+            HTTOP: Qt.TopEdge,
+            HTBOTTOM: Qt.BottomEdge,
+            HTTOPLEFT: Qt.TopEdge | Qt.LeftEdge,
+            HTTOPRIGHT: Qt.TopEdge | Qt.RightEdge,
+            HTBOTTOMLEFT: Qt.BottomEdge | Qt.LeftEdge,
+            HTBOTTOMRIGHT: Qt.BottomEdge | Qt.RightEdge,
+        }
+        return edge_map.get(int(hit_test), Qt.Edges())
+
+    def _settings_cursor_screen_point(self) -> QPoint:
+        if os.name == "nt":
+            try:
+                point = ctypes.wintypes.POINT()
+                if GetCursorPos(ctypes.byref(point)):
+                    return QPoint(int(point.x), int(point.y))
+            except Exception:
+                pass
+        try:
+            return QCursor.pos()
+        except Exception:
+            return QPoint()
+
+    def _settings_left_mouse_button_down(self) -> bool:
+        try:
+            return bool(GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+        except Exception:
+            return False
+
+    def _settings_point_belongs_to_window(self, point: QPoint) -> bool:
+        if point.isNull():
+            return False
+        if os.name != "nt":
+            return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
+        try:
+            probe = ctypes.wintypes.POINT(int(point.x()), int(point.y()))
+            hwnd = int(WindowFromPoint(probe))
+            settings_hwnd = int(self.winId())
+            while hwnd:
+                if hwnd == settings_hwnd:
+                    return True
+                hwnd = int(GetParentW(ctypes.wintypes.HWND(hwnd)))
+        except Exception:
+            return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
+        return False
+
+    def _settings_resize_edges_for_screen_point(self, screen_point: QPoint):
+        if screen_point.isNull():
+            return Qt.Edges()
+        local = self.mapFromGlobal(screen_point)
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return Qt.Edges()
+        if self._settings_control_cluster_rect().contains(local):
+            return Qt.Edges()
+        return self._settings_resize_edges_for_local_pos(local)
+
+    def _settings_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
+        if not self.isVisible():
+            return QPoint(), Qt.Edges()
+        screen_point = self._settings_cursor_screen_point()
+        if screen_point.isNull():
+            return QPoint(), Qt.Edges()
+        if not self.geometry().adjusted(-2, -2, 2, 2).contains(screen_point):
+            return screen_point, Qt.Edges()
+        if not self._settings_point_belongs_to_window(screen_point):
+            return screen_point, Qt.Edges()
+        return screen_point, self._settings_resize_edges_for_screen_point(screen_point)
+
+    def _settings_should_clear_resize_cursor(self, screen_point: QPoint) -> bool:
+        if self._settings_resize_cursor_key is None:
+            return False
+        if screen_point.isNull():
+            return True
+        if not self.geometry().adjusted(-2, -2, 2, 2).contains(screen_point):
+            return True
+        if not self._settings_point_belongs_to_window(screen_point):
+            return True
+        local = self.mapFromGlobal(screen_point)
+        if self._settings_control_cluster_rect().contains(local):
+            return True
+        release_margin = self.RESIZE_MARGIN + self.RESIZE_CURSOR_RELEASE_MARGIN
+        near_edge = (
+            local.x() <= release_margin
+            or local.x() >= self.width() - release_margin
+            or local.y() <= release_margin
+            or local.y() >= self.height() - release_margin
+        )
+        return not near_edge
+
+    def _poll_settings_resize_hover_cursor(self) -> None:
+        if self._settings_resize_active:
+            return
+        screen_point, edges = self._settings_resize_edges_under_cursor()
+        if edges:
+            self._set_settings_resize_cursor(edges)
+            return
+        if self._settings_should_clear_resize_cursor(screen_point):
+            self._reset_settings_resize_cursor()
+
+    def _reset_settings_resize_cursor_if_cursor_left(self) -> None:
+        if self._settings_resize_active:
+            return
+        screen_point = self._settings_cursor_screen_point()
+        if not screen_point.isNull() and self.geometry().adjusted(-2, -2, 2, 2).contains(screen_point):
+            if self._settings_point_belongs_to_window(screen_point):
+                return
+        self._reset_settings_resize_cursor()
+
+    def _settings_screen_point_from_mouse_event(self, watched, event) -> QPoint:
+        try:
+            local = event.position().toPoint()
+        except Exception:
+            try:
+                local = event.pos()
+            except Exception:
+                local = QPoint()
+        if local.isNull():
+            return self._settings_cursor_screen_point()
+        try:
+            return watched.mapToGlobal(local)
+        except Exception:
+            return self._settings_cursor_screen_point()
+
+    def _settings_available_desktop_geometry(self) -> QRect:
+        screens = QApplication.screens()
+        if not screens:
+            return QRect(0, 0, 1920, 1080)
+        available = QRect(screens[0].availableGeometry())
+        for screen in screens[1:]:
+            available = available.united(screen.availableGeometry())
+        return available
+
+    def _bound_settings_geometry_to_available_desktop(self, rect: QRect) -> QRect:
+        available = self._settings_available_desktop_geometry()
+        bounded = QRect(rect)
+        bounded.setWidth(max(self.minimumWidth(), min(bounded.width(), self.maximumWidth())))
+        bounded.setHeight(max(self.minimumHeight(), min(bounded.height(), self.maximumHeight())))
+        if bounded.left() < available.left():
+            bounded.moveLeft(available.left())
+        if bounded.top() < available.top():
+            bounded.moveTop(available.top())
+        if bounded.right() > available.right():
+            bounded.moveRight(available.right())
+        if bounded.bottom() > available.bottom():
+            bounded.moveBottom(available.bottom())
+        return bounded
+
+    def _start_settings_resize(self, edges, screen_point: QPoint) -> bool:
+        if not edges:
+            return False
+        if screen_point.isNull():
+            screen_point = self._settings_cursor_screen_point()
+        if screen_point.isNull():
+            return False
+        self._settings_resize_active = True
+        self._settings_resize_edges = edges
+        self._settings_resize_start_global = QPoint(screen_point)
+        self._settings_resize_start_geometry = QRect(self.geometry())
+        self._settings_resize_pending_point = QPoint(screen_point)
+        self._settings_resize_last_geometry = QRect(self.geometry())
+        try:
+            SetCapture(ctypes.wintypes.HWND(int(self.winId())))
+        except Exception:
+            pass
+        self._set_settings_resize_cursor(edges)
+        self._settings_resize_poll_timer.start()
+        self._update_settings_resize(screen_point)
+        return True
+
+    def _poll_settings_resize(self) -> None:
+        if not self._settings_resize_active:
+            self._settings_resize_poll_timer.stop()
+            return
+        screen_point = self._settings_cursor_screen_point()
+        if not screen_point.isNull():
+            self._update_settings_resize(screen_point)
+        if self._settings_left_mouse_button_down():
+            return
+        self._finish_settings_resize(screen_point)
+
+    def _update_settings_resize(self, screen_point: QPoint) -> None:
+        if not self._settings_resize_active or screen_point.isNull():
+            return
+        self._settings_resize_pending_point = QPoint(screen_point)
+        next_rect = self._settings_resize_rect_from_global_delta(screen_point)
+        if next_rect == self._settings_resize_last_geometry:
+            return
+        self.setGeometry(next_rect)
+        self._settings_resize_last_geometry = QRect(next_rect)
+        self._position_close_guard_overlay()
+
+    def _settings_resize_rect_from_global_delta(self, screen_point: QPoint) -> QRect:
+        base = self._settings_resize_start_geometry
+        if base.isNull() or not base.isValid():
+            base = QRect(self.geometry())
+        delta = screen_point - self._settings_resize_start_global
+        left_edge, right_edge, top_edge, bottom_edge = self._settings_resize_edge_key(self._settings_resize_edges)
+        x = base.x()
+        y = base.y()
+        width = base.width()
+        height = base.height()
+        if left_edge:
+            x = base.x() + delta.x()
+            width = base.width() - delta.x()
+        elif right_edge:
+            width = base.width() + delta.x()
+        if top_edge:
+            y = base.y() + delta.y()
+            height = base.height() - delta.y()
+        elif bottom_edge:
+            height = base.height() + delta.y()
+        min_width = self.minimumWidth()
+        min_height = self.minimumHeight()
+        max_width = self.maximumWidth()
+        max_height = self.maximumHeight()
+        if width < min_width:
+            if left_edge:
+                x = base.right() - min_width + 1
+            width = min_width
+        if height < min_height:
+            if top_edge:
+                y = base.bottom() - min_height + 1
+            height = min_height
+        if width > max_width:
+            if left_edge:
+                x = base.right() - max_width + 1
+            width = max_width
+        if height > max_height:
+            if top_edge:
+                y = base.bottom() - max_height + 1
+            height = max_height
+        return self._bound_settings_geometry_to_available_desktop(QRect(x, y, width, height))
+
+    def _finish_settings_resize(self, screen_point: QPoint = None) -> None:
+        if not self._settings_resize_active:
+            self._reset_settings_resize_cursor()
+            return
+        self._settings_resize_poll_timer.stop()
+        if screen_point is None or screen_point.isNull():
+            screen_point = self._settings_cursor_screen_point()
+        if screen_point.isNull():
+            screen_point = QPoint(self._settings_resize_start_global)
+        if not screen_point.isNull():
+            next_rect = self._settings_resize_rect_from_global_delta(screen_point)
+            if next_rect != self._settings_resize_last_geometry:
+                self.setGeometry(next_rect)
+                self._settings_resize_last_geometry = QRect(next_rect)
+        self._settings_resize_active = False
+        self._settings_resize_edges = Qt.Edges()
+        self._settings_resize_start_global = QPoint()
+        self._settings_resize_start_geometry = QRect()
+        self._settings_resize_pending_point = QPoint()
+        self._settings_resize_last_geometry = QRect()
+        try:
+            ReleaseCapture()
+        except Exception:
+            pass
+        self._reset_settings_resize_cursor()
+        self._position_close_guard_overlay()
+
+    def _settings_control_cluster_rect(self) -> QRect:
+        if not hasattr(self.chrome_bar, "control_cluster"):
+            return QRect()
+        origin = self.chrome_bar.control_cluster.mapTo(self, QPoint(0, 0))
+        return QRect(origin, self.chrome_bar.control_cluster.size()).adjusted(-6, -6, 6, 6)
+
+    def _settings_native_hit_test(self, screen_point: QPoint) -> int:
+        local = self.mapFromGlobal(screen_point)
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return 0
+        if self._settings_control_cluster_rect().contains(local):
+            return HTCLIENT
+        hit_test = self._settings_resize_hit_test_for_edges(self._settings_resize_edges_for_local_pos(local))
+        if hit_test:
+            return hit_test
+        if local.y() <= self.chrome_bar.height():
+            return HTCAPTION
+        return 0
+
+    def _position_close_guard_overlay(self):
+        if not hasattr(self, "close_guard_overlay") or not hasattr(self, "settings_body"):
+            return
+        self.close_guard_overlay.setGeometry(self.settings_body.geometry())
+        self.close_guard_overlay.raise_()
+
+    def nativeEvent(self, eventType, message):
+        if eventType in ("windows_generic_MSG", "windows_dispatcher_MSG"):
+            try:
+                msg = ctypes.wintypes.MSG.from_address(int(message))
+            except Exception:
+                msg = None
+            if msg is not None:
+                message_id = int(msg.message)
+                if message_id == WM_CLOSE:
+                    if self.request_dirty_close_intercept("wm_close"):
+                        return True, 0
+                if message_id == WM_SYSCOMMAND and (int(msg.wParam) & 0xFFF0) == SC_CLOSE:
+                    if self.request_dirty_close_intercept("system_close"):
+                        return True, 0
+                if message_id == WM_NCHITTEST:
+                    x = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
+                    hit_test = self._settings_native_hit_test(QPoint(x, y))
+                    if hit_test:
+                        return True, hit_test
+                if message_id == WM_SETCURSOR and not self._settings_resize_active:
+                    hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    edges = self._settings_resize_edges_for_hit_test(hit_test)
+                    if edges:
+                        self._set_settings_resize_cursor(edges)
+                        return True, 1
+                    _, hover_edges = self._settings_resize_edges_under_cursor()
+                    if hover_edges:
+                        self._set_settings_resize_cursor(hover_edges)
+                        return True, 1
+                    self._reset_settings_resize_cursor()
+                if message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._settings_resize_active:
+                    if message_id == WM_NCMOUSEMOVE:
+                        edges = self._settings_resize_edges_for_hit_test(int(msg.wParam))
+                        if edges:
+                            self._set_settings_resize_cursor(edges)
+                            return True, 0
+                    _, edges = self._settings_resize_edges_under_cursor()
+                    if edges:
+                        self._set_settings_resize_cursor(edges)
+                    elif message_id == WM_MOUSEMOVE:
+                        self._reset_settings_resize_cursor()
+                if message_id == WM_LBUTTONDOWN:
+                    screen_point, edges = self._settings_resize_edges_under_cursor()
+                    if edges and self._start_settings_resize(edges, screen_point):
+                        return True, 0
+                if message_id == WM_NCLBUTTONDOWN:
+                    edges = self._settings_resize_edges_for_hit_test(int(msg.wParam))
+                    screen_point = self._settings_cursor_screen_point()
+                    if edges and self._start_settings_resize(edges, screen_point):
+                        return True, 0
+                if self._settings_resize_active and message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE):
+                    screen_point = self._settings_cursor_screen_point()
+                    if not screen_point.isNull():
+                        self._update_settings_resize(screen_point)
+                    return True, 0
+                if self._settings_resize_active and message_id in (
+                    WM_LBUTTONUP,
+                    WM_NCLBUTTONUP,
+                    WM_CAPTURECHANGED,
+                    WM_CANCELMODE,
+                ):
+                    self._finish_settings_resize(self._settings_cursor_screen_point())
+                    return True, 0
+                if message_id == WM_NCLBUTTONDBLCLK:
+                    screen_point = QCursor.pos()
+                    if self._settings_native_hit_test(screen_point) == HTCAPTION:
+                        return True, 0
+        return super().nativeEvent(eventType, message)
+
+    def eventFilter(self, watched, event):
+        event_type = event.type()
+        if event_type == QEvent.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
+            screen_point = self._settings_screen_point_from_mouse_event(watched, event)
+            edges = self._settings_resize_edges_for_screen_point(screen_point)
+            if edges and self._start_settings_resize(edges, screen_point):
+                event.accept()
+                return True
+        if event_type == QEvent.MouseMove:
+            if self._settings_resize_active:
+                screen_point = self._settings_cursor_screen_point()
+                if screen_point.isNull():
+                    screen_point = self._settings_screen_point_from_mouse_event(watched, event)
+                self._update_settings_resize(screen_point)
+                event.accept()
+                return True
+            screen_point = self._settings_screen_point_from_mouse_event(watched, event)
+            edges = self._settings_resize_edges_for_screen_point(screen_point)
+            if edges:
+                self._set_settings_resize_cursor(edges)
+            elif self._settings_should_clear_resize_cursor(screen_point):
+                self._reset_settings_resize_cursor()
+        if event_type == QEvent.MouseButtonRelease and self._settings_resize_active:
+            self._finish_settings_resize(self._settings_cursor_screen_point())
+            event.accept()
+            return True
+        if event_type in (QEvent.Leave, QEvent.HoverLeave) and not self._settings_resize_active:
+            self._reset_settings_resize_cursor_if_cursor_left()
+        return super().eventFilter(watched, event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            screen_point, edges = self._settings_resize_edges_under_cursor()
+            if edges and self._start_settings_resize(edges, screen_point):
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._settings_resize_active:
+            screen_point = self._settings_cursor_screen_point()
+            if screen_point.isNull():
+                try:
+                    screen_point = event.globalPosition().toPoint()
+                except Exception:
+                    screen_point = QPoint()
+            self._update_settings_resize(screen_point)
+            event.accept()
+            return
+        try:
+            local = event.position().toPoint()
+        except Exception:
+            local = QPoint()
+        if not local.isNull():
+            edges = self._settings_resize_edges_for_local_pos(local)
+            if self._settings_control_cluster_rect().contains(local):
+                edges = Qt.Edges()
+            if edges:
+                self._set_settings_resize_cursor(edges)
+            elif self._settings_should_clear_resize_cursor(self.mapToGlobal(local)):
+                self._reset_settings_resize_cursor()
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if self._settings_resize_active and event.button() == Qt.MouseButton.LeftButton:
+            self._finish_settings_resize(self._settings_cursor_screen_point())
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def leaveEvent(self, event):
+        if not self._settings_resize_active:
+            self._reset_settings_resize_cursor_if_cursor_left()
+        super().leaveEvent(event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._apply_quick_slot_row_geometry()
+        self._position_close_guard_overlay()
 
 
 class AIControlCenterCommandPage(QWebEnginePage):
@@ -9623,6 +12535,7 @@ class DesktopRuntimeWindow(QWidget):
         self._callable_group_create_dialog_factory = CallableGroupCreateDialog
         self._created_groups_dialog_factory = CreatedGroupsDialog
         self._callable_group_edit_dialog_factory = CallableGroupEditDialog
+        self._resident_access_settings_dialog = None
         _DIALOG_RUNTIME_LOGGER = self._log_event
         self._command_model = CommandOverlayModel()
         self._command_panel = CommandOverlayPanel()
@@ -24140,6 +27053,141 @@ class DesktopRuntimeWindow(QWidget):
         )
         QTimer.singleShot(0, self.handle_create_custom_task_requested)
 
+    def resident_access_status_snapshot(self) -> dict[str, object]:
+        provider_payload = {}
+        try:
+            provider_payload = self._ai_provider_state.as_renderer_payload()
+        except Exception:
+            provider_payload = {}
+        return build_resident_access_menu_plan(
+            ai_provider_state=provider_payload,
+            monitoring_hud_state=self.monitoring_hud_feature_state(),
+            command_overlay_state=self.command_overlay_state(),
+        )
+
+    def open_resident_access_settings(self, source: str = "tray", focus: str = "quick_access"):
+        if self._is_shutting_down:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_SETTINGS_OPEN_ABORTED",
+                source=source,
+                reason="shutdown",
+            )
+            return
+        if self._resident_access_settings_dialog is None:
+            self._resident_access_settings_dialog = ResidentAccessSettingsDialog(
+                self,
+                runtime=self,
+                focus=focus,
+            )
+        self._resident_access_settings_dialog.set_focus(focus)
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_SETTINGS_OPENED",
+            source=source,
+            focus=focus,
+            shell="minimal-global-settings",
+        )
+
+    def request_resident_access_settings_shutdown_guard(self, source: str = "client_shutdown", resume_callback=None) -> bool:
+        dialog = self._resident_access_settings_dialog
+        if dialog is None:
+            return False
+        guard = getattr(dialog, "request_dirty_close_intercept", None)
+        if not callable(guard):
+            return False
+        blocked = bool(
+            guard(
+                source=source,
+                pending_callback=resume_callback,
+            )
+        )
+        if blocked:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_SETTINGS_DIRTY_CLOSE_BLOCKED",
+                source=source,
+                close_route="client_shutdown",
+            )
+        return blocked
+
+    def request_ai_status_from_resident_access(self, source: str = "tray"):
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_AI_STATUS_ROUTE_ONLY",
+            source=source,
+            owner="FAM-007",
+            provider_visible_data="none",
+        )
+        self.open_resident_access_settings(source=source, focus="ai_status")
+
+    def request_privacy_lockdown_from_resident_access(self, source: str = "tray"):
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_PRIVACY_LOCKDOWN_ROUTE_ONLY",
+            source=source,
+            owner="FAM-007",
+            effect="no_runtime_privacy_state_changed",
+        )
+        self.open_resident_access_settings(source=source, focus="privacy")
+
+    def _resident_command_action_by_id(self, route_id: str):
+        normalized = (route_id or "").strip().casefold()
+        for action in DEFAULT_COMMAND_ACTIONS:
+            if action.id.casefold() == normalized:
+                return action
+        return None
+
+    def request_resident_quick_action_from_tray(self, route_id: str, source: str = "tray"):
+        route_id = (route_id or "").strip()
+        route = route_for_id(route_id)
+        if route is None:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_ABORTED",
+                source=source,
+                route_id=route_id,
+                reason="unknown_route",
+            )
+            return
+        if not route.enabled:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_FUTURE_GATED",
+                source=source,
+                route_id=route_id,
+                owner=route.owner_family,
+                availability=route.availability,
+            )
+            self.open_resident_access_settings(source=source, focus="owner_routes")
+            return
+        if route_id == "tray_visibility_education":
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_TRAY_VISIBILITY_COPY_SHOWN",
+                source=source,
+                route_id=route_id,
+            )
+            self.open_resident_access_settings(source=source, focus="tray")
+            return
+        action = self._resident_command_action_by_id(route_id)
+        if action is None:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_ABORTED",
+                source=source,
+                route_id=route_id,
+                reason="launcher_unavailable",
+            )
+            return
+        try:
+            launch_command_action(action)
+        except Exception as exc:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_FAILED",
+                source=source,
+                route_id=route_id,
+                reason=type(exc).__name__,
+            )
+            return
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_QUICK_ACTION_SENT",
+            source=source,
+            route_id=route_id,
+            owner=route.owner_family,
+        )
+
     def show_ai_control_center_from_tray(self, source: str = "tray"):
         if self._is_shutting_down:
             self._emit_runtime_signal(
@@ -25755,7 +28803,10 @@ class DesktopRuntimeWindow(QWidget):
 
     def request_shutdown(self):
         if self._is_shutting_down:
-            return
+            return False
+        if self.request_resident_access_settings_shutdown_guard(source="renderer_request_shutdown"):
+            self._log_event("RENDERER_MAIN|SHUTDOWN_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD|source=renderer_request_shutdown")
+            return False
 
         self._log_event("RENDERER_MAIN|RENDERER_SHUTDOWN_BEGIN")
         self._is_shutting_down = True
@@ -25778,3 +28829,4 @@ class DesktopRuntimeWindow(QWidget):
 
         if app is not None:
             QTimer.singleShot(0, app.quit)
+        return True

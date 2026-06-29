@@ -1659,7 +1659,7 @@ Hard blockers:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
   for Codex-created PRs, PR Readiness cannot be green until the live PR has received a thumbs-up reaction or green approval comment from the Codex Connector bot. A bot comment is not approval; it keeps `PR Validation Pending` active until the branch fixes the comment on the same PR, pushes, replies to and resolves the review thread, requests Codex Connector bot revalidation, and receives a later Codex Connector bot thumbs-up reaction or green approval comment for the repaired live PR head. That approval proof must be bound to the current live PR head by review commit SHA, PR timeline order, or equivalent GitHub live-head evidence, not by local commit time alone. This is the same-PR Codex bot-review repair loop. Stage 2 final handoff cannot be green until the post-repair bot thumbs-up/approval latch is verified.
-  When this blocker is active on a live Codex-created PR, Stage 2 must use direct PR verification before handoff; a manual "check later" plan is not enough, and recurring PR watcher automation is denied by default. Direct PR verification must inspect bot reactions, bot comments, review threads, PR comments, inline comments, PR state, status checks, and mergeability, and may perform bounded same-PR repairs for valid Codex bot comments that stay inside the approved PR scope. If no Codex bot comment or thumbs-up/approval signal appears after the current PR head has been live for at least two minutes, Codex may post exactly one PR conversation nudge for that head SHA asking the Codex bot for the review signal, and must not repeat that nudge for the same head. Every Codex Connector review-request or revalidation PR comment must be 3-5 words only, preferably `@codex review please`; head SHAs, validation summaries, repair narratives, and governance proof belong in the Codex thread digest, helper output, validator output, or external operational state, not in the PR comment. The required repair loop is: verify identity, evaluate the bot comment against source truth, repair only approved same-PR scope, rerun required validation, commit and push to the same branch, reply/resolve only when the review-thread contract requires it, request Codex Connector bot revalidation, and continue direct PR verification until the later thumbs-up/approval latch clears. The Direct PR2 Continuation Rule blocks quiet handoff: after any revalidation request or repair push, bounded PR2 must keep checking the live PR in the active Codex turn until a new actionable Codex comment is repaired or blocked, a current-head Codex approval latch plus green mergeability allows merge, the PR merges/closes, or a real blocker prevents further direct verification. Out-of-scope bot requests must be reported as `BLOCKED`, not repaired.
+  When this blocker is active on a live Codex-created PR, Stage 2 must use direct PR verification before handoff; a manual "check later" plan is not enough, and recurring PR watcher automation is denied by default. Direct PR verification must inspect bot reactions, bot comments, review threads, PR comments, inline comments, PR state, status checks, and mergeability, and may perform bounded same-PR repairs for valid Codex bot comments that stay inside the approved PR scope. If no Codex bot comment or thumbs-up/approval signal appears after the current PR head has been live for at least two minutes, Codex may post exactly one PR conversation nudge for that head SHA asking the Codex bot for the review signal, and must not repeat that nudge for the same head. Every Codex Connector review-request or revalidation PR comment must be 3-5 words only, preferably `@codex review please`; head SHAs, validation summaries, repair narratives, and governance proof belong in the Codex thread digest, helper output, validator output, or external operational state, not in the PR comment. The required repair loop is: verify identity, evaluate the bot comment against source truth, repair only approved same-PR scope, rerun required validation, commit and push to the same branch, reply/resolve only when the review-thread contract requires it, request Codex Connector bot revalidation, and continue direct PR verification until the later thumbs-up/approval latch clears. The Direct PR2 Continuation Rule blocks quiet handoff: after any revalidation request or repair push, bounded PR2 must keep checking the live PR in the active Codex turn until a new actionable Codex comment is repaired or blocked, a current-head Codex approval latch plus green mergeability allows merge, the PR merges/closes, or a real blocker prevents further direct verification. `Current-Head Revalidation Pending` is an active PR2 continuation state, not a terminal `BLOCKED` state, while GitHub and the Codex Connector remain reachable and direct polling can continue; an eyes-only or quiet current-head review request must stay in the PR2 loop instead of becoming a blocked handoff. A final response that only reports an eyes-only/no-response current-head wait is a PR2 continuation failure unless direct verification is no longer possible, a true blocker is named, merge-ready/merged/closed state is proven, or the USER explicitly pauses/stops the loop. Out-of-scope bot requests must be reported as `BLOCKED`, not repaired.
 - `PR Watcher Provisioning Unproven`:
   recurring PR watcher automation is denied by default for bounded PR Readiness Stage 2. This blocker applies only when the USER explicitly approves a named watcher exception for the live PR. If an exception is approved, the watcher target, approved reporting surface, routing proof, runtime path, run-proof method, fallback, teardown rule, replacement provisioning for the next live PR, and the live bot-review action contract must be explicit and proven before watcher-based proof can support PR Readiness. Watcher configuration is not runtime proof. Manual rollout-file or transcript-file injection does not count as proof.
   The action contract is part of any approved exception: thumbs-up reaction means report green for PR-entry validation; one or more actionable bot comments means trigger the bounded same-branch PR comment-repair worker, fix the issue, commit, push, reply, resolve the corresponding review thread, request Codex Connector bot revalidation with a 3-5 word PR comment only, and then keep `PR Validation Pending` active until a later thumbs-up reaction or green approval comment clears the repaired head. If the repair worker cannot complete safely, keep `PR Validation Pending` active and surface the exact blocking comment.
@@ -1695,7 +1695,7 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 
 - `PR Readiness Stage 1 - Analysis Gate`: analysis-first readiness-lock gate. Stage 1 must analyze repo truth, identify PR-readiness drift/blockers, output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including Stage 2 execution plan, and remain active until one outcome is recorded: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync is allowed only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair; repair truth must be validated, committed, and pushed before Stage 1 can be declared ready. Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection, rooted in Nexus Vision, family vision, branch vision, current completed work, and the next implementation need. PR Readiness does not require selected-next truth or a waiver by default; Stage 1 owns repair or validation of selected-next truth only when USER explicitly approves PR-time selected-next sync or selected-next truth already exists and would merge as durable repo truth. Stage 1 also owns merge-target `No Active Branch` projection, no-release-debt posture, release target/floor semantics and Release Window Audit when relevant, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when Stage 1 finds them. Stage 1 still cannot create the PR, create recurring PR watcher automation, create the next branch, execute release work, create tags/artifacts/releases, admit packages, or grant waivers without explicit USER approval. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and Stage 2 must verify the synced truth before PR creation.
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
-- `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2 and only when Stage 1 reports `Stage 1 Ready For Stage 2`. Stage 2 owns final PR execution only: verifying durable Stage 1 projection, commit/push only for bounded operator metadata if legally needed, PR creation, direct PR verification, bot-review handling, mergeability validation, and direct merge/close verification. Recurring PR watcher automation is denied by default and requires a separate USER-approved watcher exception for the exact PR. Direct PR2 does not hand off while waiting for a bot response; it continues by direct PR verification until approval-plus-green-mergeability permits merge, a new comment is repaired or blocked, the PR merges/closes, or a real blocker appears.
+- `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2 and only when Stage 1 reports `Stage 1 Ready For Stage 2`. Stage 2 owns final PR execution only: verifying durable Stage 1 projection, commit/push only for bounded operator metadata if legally needed, PR creation, direct PR verification, bot-review handling, mergeability validation, and direct merge/close verification. Stage 2 PR creation must produce a ready-for-review pull request, not a draft; draft PR creation is invalid even when a plugin, connector, CLI helper, or external tool defaults to draft. If Codex accidentally creates or leaves a PR as draft during Stage 2, `Draft PR Created In PR2` blocks green until Codex converts the same PR to ready-for-review and records the correction in operator/external evidence. Recurring PR watcher automation is denied by default and requires a separate USER-approved watcher exception for the exact PR. Direct PR2 does not hand off while waiting for a bot response; it continues by direct PR verification until approval-plus-green-mergeability permits merge, a new comment is repaired or blocked, the PR merges/closes, or a real blocker appears.
 
 The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next validation status when selected-next truth exists or PR-time selection is explicitly approved, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned direct PR verification, planned watcher provisioning posture of `Denied by default` unless a USER-approved exception exists, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER. Packet field labels include `Selected-Next Validation Status:`, `Selected-Next Scope:`, `Branch Readiness Stage 1 Successor Selection Owner:`, `Review-Risk / Adversarial Coverage:`, `Optional Next Branch Block:`, and `Planned Watcher Provisioning:` so the output proves selected-next is either out of scope by default or explicitly validated, proves review-risk/adversarial coverage is complete for the changed-file scope, and proves recurring watcher automation will not be created by inertia. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2, create the PR, or create recurring watcher automation. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, selected-next validation item when applicable, branch-shape review item when applicable, review-risk/adversarial coverage item, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, or Stage 2 execution prerequisite remains unresolved.
 
@@ -1968,7 +1968,16 @@ Those evidence layers are supporting proof, not final green by themselves.
 
 Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the exact normal USER desktop runtime launcher path declared for the branch.
 For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the normal USER desktop launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, generated-equivalent shortcuts, active-client probes, and troubleshooting launcher runs are supporting evidence only unless launcher parity proof and USER approval make the troubleshooting launcher equivalent for the exact claim being validated.
-For Nexus Desktop AI, the default normal desktop launcher path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares a different exact USER desktop launcher path. A generated shortcut or non-Desktop equivalent is invalid as final USER-path proof unless USER explicitly grants a waiver with reason.
+For Nexus Desktop AI, the default normal desktop launcher path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares a different exact USER desktop launcher path. A generated shortcut or non-Desktop equivalent is invalid as final USER-path proof unless it is the declared worktree-local normal runtime launcher created or repaired under the normal worktree launcher rule, or USER explicitly grants a waiver with reason.
+
+Normal worktree launcher creation / repair:
+
+- if the branch's declared worktree-local normal runtime launcher is missing, Live Validation may create or repair that launcher as validation setup before User Test Summary handoff
+- the created or repaired launcher must target the active branch's normal product runtime entrypoint and working directory
+- the created or repaired launcher must not target a troubleshooting runtime launcher, validation helper, synthetic harness, Dev Toolkit path, or diagnostic-only entrypoint
+- the launcher must not enable troubleshooting mode, broad diagnostic capture, provider/model/cache/memory/private setup, startup registration, installer behavior, packaging/update behavior, or persistent OS integration
+- the active authority record must declare `Normal Worktree Launcher Creation: CREATED`, `Normal Worktree Launcher Path:`, `Normal Worktree Launcher Target:`, `Normal Worktree Launcher Arguments:`, and `Normal Worktree Launcher Validation: PASS` before the created launcher can satisfy the shortcut gate
+- this repair path is not a launcher parity waiver; it is valid only when the resulting launcher is the exact normal runtime path used for LV1 proof
 
 Two-launcher exception:
 
@@ -1985,6 +1994,7 @@ A blocked activation path requires a `Manual Validation Request Digest` before U
 Named blocker:
 
 - `User-Facing Shortcut Validation Pending`
+- `Normal Worktree Launcher Validation Pending`
 
 Machine-checkable authority-record markers:
 
@@ -2000,6 +2010,11 @@ Machine-checkable authority-record markers:
 - `Exact USER Desktop Launcher Validation: FAIL`
 - `Exact USER Desktop Launcher Validation: WAIVED`
 - `Exact USER Desktop Launcher Waiver Reason:`
+- `Normal Worktree Launcher Creation: CREATED`
+- `Normal Worktree Launcher Path:`
+- `Normal Worktree Launcher Target:`
+- `Normal Worktree Launcher Arguments:`
+- `Normal Worktree Launcher Validation: PASS`
 - `Troubleshooting Runtime Launcher Path:`
 - `Troubleshooting Runtime Launcher Consent: PENDING`
 - `Troubleshooting Runtime Launcher Consent: GRANTED`
@@ -2012,6 +2027,7 @@ Machine-checkable authority-record markers:
 Required proof:
 
 - the declared exact normal USER desktop runtime launcher path launches the active branch runtime
+- if a missing worktree-local normal runtime launcher was created or repaired during LV, its path, target, arguments, working directory, and normal-runtime posture are recorded and validation is `PASS`
 - the exact USER shortcut is visibly clicked, double-clicked, or keyboard-opened from a visible selected Desktop folder item when a Windows desktop shortcut is the declared normal launcher path
 - startup reaches the expected ready state
 - the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
@@ -2046,6 +2062,8 @@ Repair Path: add or repair the observability decision matrix, declare the exact 
 USER Decision Required: required to waive exact normal launcher proof, accept troubleshooting launcher proof as equivalent, waive photo/video proof, accept manual validation for unphotographable claims, enable troubleshooting mode, export/share diagnostic logs, or accept a product UI folder/path that exposes internal implementation concepts.
 Validation Owner: active Live Validation helper, `dev/orin_branch_governance_validation.py` when the rule becomes machine-checkable, `dev/orin_user_review_bundle.py` for USER packet completeness, and the relevant family/runtime validators.
 Final Disposition: Live Validation may report green only when exact normal launcher proof or approved parity proof, photo/video proof or USER-elevated waiver, runtime/log consistency, Dev Toolkit or helper evidence, visual adjudication, UTS state, and USER packet evidence are all reconciled. Direct runtime evidence remains diagnostic/supporting proof unless exact USER desktop launcher validation is passed or explicitly waived.
+
+If the exact normal worktree-local launcher is missing, Live Validation may create or repair that launcher before rerunning proof only when it remains a normal runtime launcher. This is validation setup, not installer/shortcut/startup/package implementation, and it does not permit troubleshooting mode unless troubleshooting consent and launcher parity are separately recorded.
 
 Formal proof hierarchy for user-facing runtime work:
 
@@ -2997,6 +3015,92 @@ returns to Hardening for that concern. Codex must record why the earlier proof
 was insufficient, patch the smallest reliable validator/helper coverage that
 would have caught the defect, rerun validation, and only then recommend PR
 Readiness or user handoff again.
+
+### Branch-Local Visual Acceptance Target Overlay
+
+An active implementation branch may record a branch-local Visual Acceptance
+Target overlay only when USER approval names the branch, worktree, affected
+surface class, and source-truth owners. The overlay is provisional branch-local
+source truth for that carrier; it is not a durable repo-wide phase, global UI
+standard, implementation template, shared primitive, or reusable validator
+mandate until a later Governance/FAM-002 carrier promotes it.
+
+Applies To: material UI/UX direction on the approved branch, including settings
+surfaces, tray menus, window chrome, dropdowns, lists, filters, buttons, dirty
+guards, state labels, tooltips, and other visible element groups where USER or
+Codex must select or compare a visual direction before implementation or before
+a green claim can be trusted.
+
+Required classification before implementation or green claims:
+
+- material UI/UX changes must be classified before implementation, renewed
+  Live Validation, UTS handoff, PR Readiness, or any visual green claim
+- when a packet includes design options, candidate renders, mockups, reference
+  comparisons, or hybrid recommendations, the packet must label them as
+  `Design Candidate Render`, `Reference`, `Rejected Pattern`,
+  `USER_ACCEPTED`, `REPAIR_REQUIRED`, `WAIVED_WITH_REASON`, or
+  `Not Applicable With Reason`
+- design candidate renders are evidence for USER judgment only; they are not
+  source truth until USER selects, combines, revises, rejects, or waives them
+- a USER-accepted Visual Acceptance Target is a high-fidelity guide/template
+  and comparison target for the affected branch-local surfaces and states; it
+  must be close enough to the intended final product to guide expectation and
+  implementation, but it is not a guaranteed literal final or end-state
+  screenshot
+- future Workstream, Hardening, Live Validation, UTS, or PR Readiness visual
+  green claims for those surfaces require actual implementation evidence
+  compared against the accepted guide/target, with material deviations
+  explained, source-truth-grounded, and USER-approved where required
+
+Evidence rules:
+
+- the packet must include actual inspectable evidence when evidence is in
+  scope, such as PNG screenshots, contact sheets, videos, ordered frame
+  sequences, code-to-visual traces, state matrices, or explicit proof-gap rows
+- visual-target packets that include an element legend must make the legend
+  traceable to rendered evidence through readable element IDs plus visual
+  callouts such as outlines, arrows, labels, highlight boxes, circles, or an
+  equivalent annotated element map; color alone is insufficient
+- local paths, screenshot existence, marker presence, helper green output,
+  validator green output, attractive screenshots, or packet ZIP parity cannot
+  by themselves prove visual acceptance or implementation match
+- USER/ChatGPT UI findings are seed defects, not the ceiling; Codex must
+  independently inspect nearby element groups, adjacent states, and likely
+  user journeys within the approved scope before reporting the surface green
+- hybrid or additional option recommendations are valid review inputs when the
+  source truth and USER approval allow additional rendered candidates; those
+  options must carry the same evidence, tradeoff, and state-matrix expectations
+  as the original candidates
+- if USER/ChatGPT identifies UI defects, proof gaps, false-green risk, or
+  missing evidence, the owning branch must use the Unified Defect Ledger or
+  equivalent active external branch ledger before broad repair or closure
+
+Required packet fields when a branch-local Visual Acceptance Target packet is
+generated: `Current Gate:`, `Design Candidate Render:`, `Visual Acceptance
+Target:`, `USER_ACCEPTED:`, `REPAIR_REQUIRED:`, `Implementation Match Proof:`,
+`Artifact To Surface Ledger:`, `State Matrix:`, `Rejected Patterns Ledger:`,
+`Legend / Callout Traceability:`, `Accepted Target Is Guide / Template, Not
+Literal Final Screenshot:`, `Source-Truth Conflict Classification:`,
+`Branch-Local vs Durable Governance Disposition:`, `USER / ChatGPT Findings Are
+Seed Defects:`, `Codex Independent Evidence Inspection:`, `Current Gate
+Preserved:`, and `Not LV Green / Not UTS Complete / Not PR-Ready:` or
+equivalent USER-readable wording.
+
+Blocking conditions: `Visual Impact Classification Missing`, `Design Candidate
+Evidence Missing`, `Visual Acceptance Target USER Decision Missing`, `Candidate
+Render Treated As Source Truth`, `Screenshot Existence Treated As Acceptance`,
+`Visual Target Treated As Literal Final Screenshot`, `Legend / Callout
+Traceability Missing`, `Implementation Match Proof Missing`, `USER Finding
+Ceiling Assumed`, `Codex Independent Evidence Inspection Missing`,
+`Branch-Local Visual Overlay Overclaimed As Repo-Wide Governance`, `Visual
+Defect Ledger Missing`, and `Visual Target Packet Evidence Missing`.
+
+Routing: a branch-local overlay may repair its own packets, validators,
+fixtures, helper registry rows, and active external branch ledgers only inside
+the approved carrier. Durable repo-wide enforcement, reusable packet schemas,
+shared settings primitives/templates, global helper/fixture gates, and sibling
+worktree adoption remain Governance/FAM-002 or owning-FAM follow-up work unless
+separately approved.
 
 ## Phase Transition Rule
 
