@@ -2929,7 +2929,8 @@ def main() -> int:
             and not dialog.footer_frame.isVisible()
             and dialog.tray_deferred_notice.isVisible()
             and dialog.tray_deferred_title.text() == "Tray behavior"
-            and "Tray click and menu behavior settings are not active yet." == dialog.tray_deferred_detail.text(),
+            and "Tray click settings are not active yet." in dialog.tray_deferred_detail.text()
+            and "Windows controls whether app notification icons stay pinned" in dialog.tray_deferred_detail.text(),
             f"focus={dialog._focus}; heading={dialog.section_heading.text()!r}; tray_checked={dialog.tray_nav_button.isChecked()}; quick_checked={dialog.quick_access_nav_button.isChecked()}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}; footer={dialog.footer_frame.isVisible()}; tray_notice={dialog.tray_deferred_detail.text()!r}",
         )
     )

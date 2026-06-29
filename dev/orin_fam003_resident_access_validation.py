@@ -324,6 +324,18 @@ def validate_static_wiring(failures: list[str]):
     settings_dialog_text = renderer_text[settings_dialog_start:settings_dialog_end]
 
     assert_true("SP_ComputerIcon" not in tray_text, "tray icon still falls back to monitor/computer icon", failures)
+    assert_true(
+        'focus="tray_visibility"' not in renderer_text,
+        "Tray Help quick action must not route to an unsupported tray_visibility focus",
+        failures,
+    )
+    assert_true(
+        'self.open_resident_access_settings(source=source, focus="tray")' in renderer_text
+        and "Tray visibility help and future click behavior settings." in settings_dialog_text
+        and "WINDOWS_TRAY_VISIBILITY_LIMITATION" in settings_dialog_text,
+        "Tray Help quick action must open the Tray parent page with honest Windows tray visibility copy",
+        failures,
+    )
     for token in (
         "build_resident_tray_icon",
         "TRAY_RESIDENT_ACCESS_TRAY_ICON_READY",
@@ -512,7 +524,8 @@ def validate_static_wiring(failures: list[str]):
         "self._nav_buttons[\"tray\"]",
         "self.set_focus(\"tray\")",
         "residentAccessTrayOverviewContainer",
-        "Tray click and menu behavior settings are not active yet.",
+        "Tray visibility help and future click behavior settings.",
+        "WINDOWS_TRAY_VISIBILITY_LIMITATION",
         "residentAccessSettingsSubpageRail",
         "settingsShellIdentity\", \"ndai-slim-global-settings",
         "residentAccessSettingsNavItem",

@@ -74,6 +74,7 @@ from .resident_access import (
     DEFAULT_QUICK_SLOT_ROUTE_IDS,
     MAX_QUICK_SLOT_COUNT,
     ResidentAccessSettings,
+    WINDOWS_TRAY_VISIBILITY_LIMITATION,
     build_resident_access_menu_plan,
     load_resident_access_settings,
     normalize_quick_slot_ids,
@@ -1708,7 +1709,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.tray_deferred_title.setObjectName("residentAccessTrayDeferredTitle")
         tray_notice_layout.addWidget(self.tray_deferred_title)
         self.tray_deferred_detail = QLabel(
-            "Tray click and menu behavior settings are not active yet.",
+            "Tray click settings are not active yet. "
+            f"{WINDOWS_TRAY_VISIBILITY_LIMITATION}",
             self.tray_deferred_notice,
         )
         self.tray_deferred_detail.setObjectName("residentAccessTrayDeferredDetail")
@@ -3109,7 +3111,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.slot_count_badge.setVisible(self._focus == "quick_access")
         if self._focus == "tray":
             self.section_scope.setText("NEXUS TRAY")
-            self.section_detail.setText("Click behavior settings are deferred until real options exist.")
+            self.section_detail.setText("Tray visibility help and future click behavior settings.")
         else:
             self.section_scope.setText("NEXUS TRAY / QUICK ACCESS")
             self.section_detail.setText("Choose the shortcuts shown in the tray menu.")
@@ -27137,7 +27139,7 @@ class DesktopRuntimeWindow(QWidget):
                 source=source,
                 route_id=route_id,
             )
-            self.open_resident_access_settings(source=source, focus="tray_visibility")
+            self.open_resident_access_settings(source=source, focus="tray")
             return
         action = self._resident_command_action_by_id(route_id)
         if action is None:
