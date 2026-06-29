@@ -410,9 +410,16 @@ function monitoringHudBuildRecordingRowsFromTarget(target, startedAt, stoppedAt)
     ? safeTarget.membershipSnapshotCandidate
     : [];
   const cards = monitoringHudSafeCardsObject(monitoringHudControlState.cards || {});
+  const sessionStartedMs = Number(monitoringHudControlState.recordingStartedAtMs || 0)
+    || Date.parse(monitoringHudControlState.recordingStartedAt || startedAt || "")
+    || Date.now();
+  const segmentStartedMs = Date.parse(startedAt || "") || sessionStartedMs;
+  const segmentStoppedMs = Date.parse(stoppedAt || "") || Date.now();
+  const segmentStartedElapsedMs = Math.max(0, segmentStartedMs - sessionStartedMs);
+  const segmentStoppedElapsedMs = Math.max(segmentStartedElapsedMs + 1, segmentStoppedMs - sessionStartedMs);
   const timestamps = [
-    { timestamp: startedAt || monitoringHudRecordingNowIso(), elapsedMs: 0 },
-    { timestamp: stoppedAt || monitoringHudRecordingNowIso(), elapsedMs: Math.max(1, Date.now() - Number(monitoringHudControlState.recordingStartedAtMs || Date.now())) }
+    { timestamp: startedAt || monitoringHudRecordingNowIso(), elapsedMs: segmentStartedElapsedMs },
+    { timestamp: stoppedAt || monitoringHudRecordingNowIso(), elapsedMs: segmentStoppedElapsedMs }
   ];
   const rows = [];
   ids.forEach((monitorId) => {
@@ -642,12 +649,14 @@ window.setMonitoringHudRecordingFolderOpenResult = function(result) {
 window.setMonitoringHudRecordingOutputResult = function(result) {
   const safeResult = result && typeof result === "object" ? result : {};
   monitoringHudControlState.recordingOutputResult = safeResult;
-  monitoringHudControlState.recordingOutputRequest = null;
-  monitoringHudControlState.recordingSamples = [];
   monitoringHudControlState.recordingSessionState = safeResult.passed ? "saved-complete" : "disabled-error";
   monitoringHudControlState.recordingSessionMessage = safeResult.passed
     ? "Recording saved and read back successfully."
     : String(safeResult.error || "Recording output could not be saved.");
+  if (safeResult.passed) {
+    monitoringHudControlState.recordingOutputRequest = null;
+    monitoringHudControlState.recordingSamples = [];
+  }
   monitoringHudRenderControls();
   monitoringHudMarkChanged();
 };
