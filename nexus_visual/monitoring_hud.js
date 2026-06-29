@@ -1595,6 +1595,7 @@ let monitoringHudControlState = {
 monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
 const monitoringHudStorageKey = "nexusMonitoringHudLayoutV4";
 const monitoringHudLegacyStorageKeys = ["nexusMonitoringHudLayoutV1", "nexusMonitoringHudLayoutV2", "nexusMonitoringHudLayoutV3"];
+const monitoringHudTransientRecordingSessionStates = new Set(["recording", "paused", "saving"]);
 const monitoringHudSnapSize = 20;
 const monitoringHudLargeMonitorFixtureCount = 125;
 const monitoringHudLargeSensorFixtureCount = 1200;
@@ -1713,6 +1714,25 @@ function monitoringHudFinishResizeFrame(payload) {
 window.monitoringHudRecordResizeFrame = monitoringHudRecordResizeFrame;
 window.monitoringHudFinishResizeFrame = monitoringHudFinishResizeFrame;
 
+function monitoringHudClearTransientRecordingRuntimeState(state) {
+  if (!state || typeof state !== "object") return state;
+  const sessionState = String(state.recordingSessionState || "");
+  if (monitoringHudTransientRecordingSessionStates.has(sessionState)) {
+    state.recordingSessionState = "ready";
+    state.recordingSessionMessage = "Ready for local Start/Stop recording.";
+  }
+  state.recordingSessionId = "";
+  state.recordingStartedAt = "";
+  state.recordingActiveSegmentStartedAt = "";
+  state.recordingPausedAt = "";
+  state.recordingStoppedAt = "";
+  state.recordingStartedAtMs = 0;
+  state.recordingSnapshotTarget = null;
+  state.recordingSamples = [];
+  state.recordingOutputRequest = null;
+  return state;
+}
+
 function monitoringHudLoadStoredState() {
   try {
     if (window.localStorage) {
@@ -1730,9 +1750,11 @@ function monitoringHudLoadStoredState() {
       monitoringHudControlState.selectedMonitorId = Object.keys(monitoringHudControlState.cards)[0] || "";
     }
     monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudClearTransientRecordingRuntimeState(monitoringHudControlState);
   } catch (_err) {
     monitoringHudControlState.changedAt = Date.now();
     monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudClearTransientRecordingRuntimeState(monitoringHudControlState);
   }
 }
 
@@ -1741,6 +1763,7 @@ function monitoringHudSaveStoredState() {
     if (!window.localStorage) return;
     const persistedState = JSON.parse(JSON.stringify(monitoringHudControlState));
     monitoringHudNormalizeOverlayProfileState(persistedState);
+    monitoringHudClearTransientRecordingRuntimeState(persistedState);
     window.localStorage.setItem(monitoringHudStorageKey, JSON.stringify(persistedState));
     monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
   } catch (_err) {}
