@@ -141,7 +141,7 @@ Release Scope: `FAM-003 resident access model and tray controller behavior; one-
 Release Artifacts: `Tag v1.7.37-prebeta; GitHub prerelease title Pre-Beta v1.7.37; public release notes should summarize the resident tray doorway, compact tray menu, and Global Settings / Quick Access configuration improvements in user-facing language, then include GitHub-generated ## What's Changed and Full Changelog sections.`
 Release Candidate Anchor: `current fetched origin/main after RRI-20260629-001 / PR #287 merges`
 Release Candidate Anchor Source: `default current fetched origin/main; PR #286 merge commit remains runtime payload audit evidence only`
-Target Commit: `post-repair current fetched origin/main after PR #287 merges; pre-merge repair evidence is PR #287 head 9901fe51fa73675d55b14ab14d48caa7cb3f28cf`
+Target Commit: `post-repair current fetched origin/main after PR #287 merges; pre-merge PR #287 head is audit evidence only and must be re-fetched, not pinned in this receipt`
 Historical Endpoint Handling: `v1.7.36-prebeta at d4a5262f48256b94936e81865c7520e36b324411 is the previous public prerelease baseline. PR #286 base, head, and merge commits are audit evidence only; no USER-selected historical release target is active.`
 Candidate Includes Later Governance Repairs: `YES - RRI-20260629-001 / PR #287 is a post-runtime source-truth repair after PR #286 and must be included in the default current-origin/main release candidate. Keep the governance repair internal to validation/traceability rather than presenting it as a user-facing product feature.`
 Release Window Contributor Inventory: `Single release-window contributor after v1.7.36-prebeta: PR #286 / feature/fam-003-resident-access-quick-actions / FAM-003 Resident Access and Quick Actions.`

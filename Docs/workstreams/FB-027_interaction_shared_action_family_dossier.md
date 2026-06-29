@@ -139,7 +139,7 @@ Version Rationale: `The resident access and quick-actions package is a bounded u
 Release Scope: `Resident access tray doorway, compact tray/menu routing, Global Settings / Tray / Quick Access configuration, quick-access slot and dirty-state behavior, resize/splitter behavior, and FAM-003 proof/validator support.`
 Release Artifacts: `Tag v1.7.37-prebeta; GitHub prerelease title Pre-Beta v1.7.37; user-facing release notes plus GitHub-generated What's Changed and Full Changelog sections.`
 Release Candidate Anchor: `current fetched origin/main after RRI-20260629-001 / PR #287 merges`
-Target Commit: `post-repair current fetched origin/main after PR #287 merges; pre-merge repair evidence is PR #287 head 9901fe51fa73675d55b14ab14d48caa7cb3f28cf`
+Target Commit: `post-repair current fetched origin/main after PR #287 merges; pre-merge PR #287 head is audit evidence only and must be re-fetched, not pinned in this receipt`
 Candidate Includes Later Governance Repairs: `YES - PR #287 is a post-runtime source-truth repair included for internal validation/traceability.`
 Release Window Contributor Inventory: `Single contributor: PR #286 / FAM-003 Resident Access and Quick Actions`
 Release Execution Gate: `Blocked pending separate USER approval for Release Readiness Stage 2`
