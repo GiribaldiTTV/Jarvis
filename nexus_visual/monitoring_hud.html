@@ -90,7 +90,7 @@
     data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"
     data-dashboard-close-affordance="window-level-close-button"
     data-dashboard-open-badge="removed"
-    data-dashboard-quick-access="warning-notifications-only"
+    data-dashboard-quick-access="warning-notifications-recording-start-stop"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
     data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"
@@ -98,7 +98,7 @@
     data-dashboard-settings-panel="settings-panel-child-window"
     data-dashboard-settings-panel-state="closed"
     data-dashboard-settings-proof="visible-open-close-control-hit-target"
-    data-dashboard-close-layout="window-level-top-right-close-pill"
+    data-dashboard-close-layout="uiref-002-compact-top-right-symbol-control"
     data-overlay-acceptance-policy="deferred-non-gating"
     data-interface-bundle-approval="not-granted"
     data-core-repair-classification="dependency-repair-only"
@@ -112,8 +112,8 @@
     aria-hidden="true"
   >
     <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Monitoring HUD panel">
-      <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close monitoring-hud__window-close" data-control="close-dashboard" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
-        Close
+      <button type="button" id="monitoring-hud-dashboard-close-action" class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close monitoring-hud__window-close" data-control="close-dashboard" data-window-control-cluster="UIREF-002-compact-window-control-cluster" aria-label="Close HUD Dashboard" title="Close HUD Dashboard">
+        X
       </button>
       <div class="monitoring-hud__title-group">
         <div class="monitoring-hud__header" id="monitoring-hud-drag-handle">
@@ -140,11 +140,24 @@
           </div>
         </div>
       </div>
-      <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard quick access" data-dashboard-quick-access="warning-notifications-only">
+      <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard quick access" data-dashboard-quick-access="warning-notifications-recording-start-stop">
         <span class="monitoring-hud__toolbar-label">Quick Access</span>
         <button type="button" id="monitoring-hud-warning-toggle" class="monitoring-hud__control-button" data-control="warning-notifications">
           Warning Notifications On
         </button>
+        <button
+          type="button"
+          id="monitoring-hud-recording-control-launcher"
+          class="monitoring-hud__control-button monitoring-hud__control-button--recording"
+          data-control="toggle-recording"
+          data-slice="SLC-053"
+          data-dashboard-quick-access="recording-start-stop"
+          data-recording-control-window-state="quick-access-start-stop"
+          data-recording-execution-state="ready"
+          data-recording-file-writing-state="ready"
+          data-native-window-contract="dashboard-quick-access-start-stop"
+          aria-disabled="false"
+        >Start Recording</button>
       </div>
       <div
         class="monitoring-hud__control-hub"
@@ -228,15 +241,15 @@
           data-recording-surface-owner="dashboard-card-not-hud-overlay"
           data-recording-card-visual-system="dashboard-hub-card-sampled"
           data-recording-card-sampled-elements="hud-overlay-monitor-groups-data-sources-readiness"
-          data-recording-execution-state="blocked"
-          data-recording-file-writing-state="blocked"
-          data-recording-control-surface-state="future-gated"
+          data-recording-execution-state="ready"
+          data-recording-file-writing-state="ready"
+          data-recording-control-surface-state="dashboard-status-summary"
         >
           <div class="monitoring-hud__hub-card-topline">
             <span>02</span>
             <strong>Recording</strong>
           </div>
-          <p id="monitoring-hud-recording-card-summary">Recording target/status follows the active Overlay Profile. Recording execution, file writing, and Start/Stop controls remain future-gated.</p>
+          <p id="monitoring-hud-recording-card-summary">Recording follows the active Overlay Profile and saves a native NDAI log when stopped.</p>
           <div
             class="monitoring-hud__recording-target-preview"
             id="monitoring-hud-recording-target-preview"
@@ -246,9 +259,9 @@
             data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"
             data-recording-card-placement="dashboard-recording-card-primary"
             data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"
-            data-recording-execution-state="blocked"
-            data-recording-file-writing-state="blocked"
-            data-recording-control-window-state="future-secondary"
+            data-recording-execution-state="ready"
+            data-recording-file-writing-state="ready"
+            data-recording-control-window-state="recording-card-status-summary"
             aria-label="Dashboard Recording card active Overlay target preview"
           >
             <div class="monitoring-hud__state-row">
@@ -259,21 +272,31 @@
               <span>Active monitors</span>
               <strong id="monitoring-hud-recording-target-count">2 active monitors</strong>
             </div>
-            <small id="monitoring-hud-recording-target-summary">Recording target preview follows active Overlay Profile membership. Recording execution and file writing are not enabled.</small>
-            <div class="monitoring-hud__hub-actions monitoring-hud__recording-target-actions" data-recording-target-actions="future-secondary-control-surface">
+            <small id="monitoring-hud-recording-target-summary">Ready for local Start/Stop recording.</small>
+            <div class="monitoring-hud__hub-actions monitoring-hud__recording-target-actions" data-recording-target-actions="recording-studio-and-log-viewer-launchers">
               <button
                 type="button"
-                id="monitoring-hud-recording-control-launcher"
-                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--deferred"
-                data-control="open-recording-control"
+                id="monitoring-hud-recording-studio-open"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
+                data-control="open-recording-studio"
                 data-slice="SLC-053"
-                data-recording-control-window-state="future-secondary"
-                data-recording-execution-state="blocked"
-                data-recording-file-writing-state="blocked"
-                data-native-window-contract="future-secondary-surface"
-                aria-disabled="true"
-                disabled
-              >Recording Controls Future</button>
+                data-recording-control-window-state="recording-studio-ready"
+                data-native-window-contract="recording-studio-focused-control-status"
+                data-recording-file-writing-state="ready"
+                aria-disabled="false"
+              >Recording Suite</button>
+              <button
+                type="button"
+                id="monitoring-hud-recording-open-folder"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
+                data-control="open-log-viewer"
+                data-slice="SLC-054"
+                data-recording-folder-action="native-and-export-folder-shell"
+                data-recording-folder-path-available="pre-session-root"
+                data-recording-file-writing-state="ready"
+                data-log-viewer-state="ready"
+                aria-disabled="false"
+              >Log Viewer</button>
             </div>
           </div>
         </article>
@@ -358,7 +381,7 @@
               <span>Dashboard Settings</span>
               <strong id="monitoring-hud-settings-title">Settings Panel</strong>
             </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="dashboard-settings" aria-label="Close Dashboard Settings">Close</button>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="dashboard-settings" data-window-control-class="child-window-compact-symbol-close" aria-label="Close Dashboard Settings" title="Close Dashboard Settings">Close</button>
           </header>
           <div class="monitoring-hud__settings-grid" aria-label="Dashboard settings status">
             <div class="monitoring-hud__setting-row">
@@ -415,7 +438,7 @@
               <span>Overlay Profiles</span>
               <strong id="monitoring-hud-overlay-profile-window-title">Select Or Create</strong>
             </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" aria-label="Close Overlay Profile Settings">Close</button>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="overlay-profile-settings" data-window-control-class="child-window-compact-symbol-close" aria-label="Close Overlay Profile Settings" title="Close Overlay Profile Settings">Close</button>
           </header>
           <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-overlay-profile-unsaved-guard" data-unsaved-guard="closed" hidden>
             <strong>Unsaved overlay profile changes</strong>
@@ -544,7 +567,7 @@
               <span>Assigned Overlay</span>
               <strong id="monitoring-hud-overlay-assignment-title">Overlay Assignment</strong>
             </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-overlay-assignment" aria-label="Close Overlay Assignment">Close</button>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-overlay-assignment" data-window-control-class="child-window-compact-symbol-close" aria-label="Close Overlay Assignment" title="Close Overlay Assignment">Close</button>
           </header>
           <div class="monitoring-hud__overlay-assignment-status">
             <span id="monitoring-hud-overlay-assignment-monitor-name">No monitor selected</span>
@@ -571,7 +594,7 @@
               <span>Source Settings</span>
               <strong id="monitoring-hud-source-settings-title">Sensor Settings</strong>
             </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="sensor-source-settings" aria-label="Close Source Settings">Close</button>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="sensor-source-settings" data-window-control-class="child-window-compact-symbol-close" aria-label="Close Source Settings" title="Close Source Settings">Close</button>
           </header>
           <div class="monitoring-hud__source-settings-summary">
             <span id="monitoring-hud-source-settings-name">Select a source</span>
@@ -599,7 +622,7 @@
               <span>Create Monitor</span>
               <strong id="monitoring-hud-create-monitor-title">New Monitor Group</strong>
             </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-create" aria-label="Close Create Monitor">Close</button>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-create" data-window-control-class="child-window-compact-symbol-close" aria-label="Close Create Monitor" title="Close Create Monitor">Close</button>
           </header>
           <label class="monitoring-hud__child-field">
             Group name
@@ -625,7 +648,7 @@
               <span>Manage Monitors</span>
               <strong id="monitoring-hud-edit-monitor-title">CPU Group</strong>
             </div>
-            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-edit" aria-label="Close Edit Monitor">Close</button>
+            <button type="button" class="monitoring-hud__child-window-close" data-child-window-close="monitor-group-edit" data-window-control-class="child-window-compact-symbol-close" aria-label="Close Edit Monitor" title="Close Edit Monitor">Close</button>
           </header>
           <div class="monitoring-hud__unsaved-guard monitoring-hud__unsaved-guard--modal" id="monitoring-hud-monitor-unsaved-guard" data-unsaved-guard="closed" hidden>
             <strong>Unsaved monitor changes</strong>

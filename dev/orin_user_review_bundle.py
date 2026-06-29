@@ -119,6 +119,9 @@ DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_BP1_BRANCH_VISION_REVIEW = "bp1-branch-vision-review"
 DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW = "bp2-branch-plan-review"
 DECISION_STATUS_BP3_ORCHESTRATION_REVIEW = "bp3-orchestration-review"
+DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW = (
+    "workstream-implementation-approval-review"
+)
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
@@ -174,10 +177,36 @@ BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS = (
     "not a workstream implementation approval",
     "workstream implementation remains pending",
 )
+FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS = (
+    "prepare the separate bounded workstream/runtime implementation approval packet",
+    "workstream implementation approval packet",
+    "does user approve bounded fam-006 workstream/runtime implementation",
+    "approve bounded fam-006 workstream/runtime implementation",
+)
 FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES = {
     "feature/fam-007-dev-owner-skeleton-readiness",
     "feature/fam-007-owner-ai-operational-foundation-gates",
 }
+
+
+def _is_fam006_workstream_implementation_approval_review(
+    normalized_decision: str,
+    *,
+    is_fam006_recording: bool,
+) -> bool:
+    return (
+        is_fam006_recording
+        and any(
+            marker in normalized_decision
+            for marker in FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS
+        )
+        and any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
+
+
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("shell-variable-branch", re.compile(r"(?<![A-Za-z0-9_])\$branch\b")),
     ("shell-variable-head", re.compile(r"(?<![A-Za-z0-9_])\$head\b")),
@@ -444,6 +473,7 @@ class WorkstreamEntryPacketDecisionPathResult:
             DECISION_STATUS_BP1_BRANCH_VISION_REVIEW,
             DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW,
             DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+            DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW,
             DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
             DECISION_STATUS_HARDENING_REVIEW,
             DECISION_STATUS_LIVE_VALIDATION_REVIEW,
@@ -848,6 +878,7 @@ def _validate_export_zip(
         *_fam007_bp2_plan_substantive_failures(packet_files),
         *_fam007_bp2_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -1617,6 +1648,15 @@ def _generic_user_facing_technical_metadata_failures(
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
         if (
+            normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Unified Defect Ledger/")
+            and normalized.endswith(".json")
+        ):
+            continue
+        if normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Validation Outputs/"):
+            continue
+        if normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Final Clean Proof/"):
+            continue
+        if (
             normalized != "START_HERE.md"
             and not normalized.startswith(f"{USER_REVIEW_DIR_NAME}/")
             and not normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
@@ -1764,6 +1804,17 @@ def validate_local_user_packet(
                 "Folder/ZIP parity failed: matching file list but content hash mismatch "
                 f"for entries={content_mismatches}"
             )
+
+    embedded_zip_entries = sorted(
+        entry
+        for entry in folder_entries | zip_entries
+        if PurePosixPath(entry).suffix.lower() == ".zip"
+    )
+    if embedded_zip_entries:
+        failures.append(
+            "Local USER packet must not embed ZIP artifacts; reference prior packets by "
+            f"digest/receipt instead: entries={embedded_zip_entries}"
+        )
 
     layout_entries = zip_entries if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else folder_entries
     layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, layout_entries)
@@ -2269,6 +2320,72 @@ def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list
     return failures
 
 
+def _is_fam006_bp3_orchestration_packet(packet_files: Mapping[str, str]) -> bool:
+    start_here = packet_files.get("START_HERE.md", "")
+    workstream_digest = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    combined = f"{start_here}\n{workstream_digest}".replace("\\", "/").casefold()
+    return (
+        "bp3 orchestration review" in combined
+        and "fam-006" in combined
+        and "recording" in combined
+        and "option c" in combined
+    )
+
+
+def _fam006_bp3_support_context_failures(packet_files: Mapping[str, str]) -> list[str]:
+    if not _is_fam006_bp3_orchestration_packet(packet_files):
+        return []
+
+    stale_patterns = (
+        (
+            "bp2-remains-pending",
+            re.compile(r"\bBP2 remains Pending USER Review\b", re.IGNORECASE),
+        ),
+        (
+            "active-response-bp2",
+            re.compile(r"active USER response now belongs to the BP2 Branch Plan Review", re.IGNORECASE),
+        ),
+        (
+            "primary-decision-bp2-file",
+            re.compile(r"primary active decision is USER Review/USER_BRANCH_PLAN_REVIEW\.md", re.IGNORECASE),
+        ),
+        (
+            "bp2-must-answer-option-c",
+            re.compile(r"BP2 must answer whether Option C", re.IGNORECASE),
+        ),
+        (
+            "bp3-may-be-prepared-after-bp2",
+            re.compile(r"BP3 may be prepared only after BP2 is accepted or waived", re.IGNORECASE),
+        ),
+        (
+            "prepared-bp2-around-option-c",
+            re.compile(r"prepared BP2 around Option C", re.IGNORECASE),
+        ),
+        (
+            "accepted-for-bp2-planning",
+            re.compile(r"Accepted for BP2 planning", re.IGNORECASE),
+        ),
+        (
+            "bp2-reviewability-boundary",
+            re.compile(r"Keep BP2 reviewability separate from USER acceptance", re.IGNORECASE),
+        ),
+    )
+
+    failures: list[str] = []
+    for file_name, text in sorted(packet_files.items()):
+        normalized_path = file_name.replace("\\", "/")
+        if normalized_path.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            continue
+        if _packet_file_basename(file_name) not in USER_FACING_GENERATED_FILES:
+            continue
+        for reason, pattern in stale_patterns:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: FAM-006 BP3 generated support file contains stale BP2-active wording {reason}"
+                )
+    return failures
+
+
 def _review_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'-]*", value))
 
@@ -2609,13 +2726,23 @@ def _write_user_branch_vision_review(
             or "dev/owner skeleton readiness" in decision_text
         )
     )
+    fam006_workstream_approval_context_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            decision_text,
+            is_fam006_recording=True,
+        )
+    )
     bp2_or_later_context_packet = (
         bp2_context_packet
         or bp3_context_packet
+        or fam006_workstream_approval_context_packet
         or hardening_h1_context_packet
         or live_validation_context_packet
     )
     active_planning_gate = (
+        "Workstream implementation approval"
+        if fam006_workstream_approval_context_packet
+        else
         "Live Validation LV1"
         if live_validation_context_packet
         else
@@ -2701,6 +2828,49 @@ def _write_user_branch_vision_review(
         if bp2_or_later_context_packet
         else "Pending USER acceptance or waiver."
     )
+    if fam006_workstream_approval_context_packet:
+        lines = [
+            f"# USER Branch Vision Review - {title}",
+            "",
+            "## Review Status",
+            "",
+            "Accepted BP1 Context - this file supports the active Workstream implementation approval packet and does not request a new BP1 decision.",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - USER accepted the revised FAM-006 Recording Branch Vision after Option F planning solidification.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - accepted BP1 context for the active Workstream implementation approval review packet.",
+            "",
+            "## USER Gate State",
+            "",
+            "USER Accepted - BP1 Branch Vision accepted by USER; BP2 and BP3 are also accepted; Workstream/runtime implementation approval remains Pending USER Review.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            "- USER Accepted - BP1 Branch Vision accepted by USER after Option F planning solidification.",
+            "- BP2 answered: Option C was accepted by USER as the Branch Plan.",
+            "- BP3 answered: Option C was accepted by USER as one coherent bounded Workstream package.",
+            "- Dashboard Recording Card remains the compact quick-access/status surface.",
+            "- Recording Studio is admitted as the focused recording control/status surface.",
+            "- Minimal Log Viewer Studio launch/folder shell is admitted only where it supports native/export log access.",
+            "- Native/export log boundary, open-folder pre-session usability, and issue #258 target reliability stay inside the accepted Option C package.",
+            "- SLC-051 / Seam 1 target reliability may be the first entry checkpoint, but Single-seam or single-slice authority is not granted.",
+            "",
+            "## Workstream Approval Boundary",
+            "",
+            "Workstream/runtime implementation remains pending until USER approves the primary Workstream implementation approval packet. A green first seam is continuation proof, not package completion.",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     profile_text = " ".join(
         [title, review_purpose, exact_user_decision, *source_file_names]
     ).casefold().replace("_", "-")
@@ -3686,6 +3856,74 @@ def _write_user_branch_plan_review(
         source_branch == "feature/fam-007-dev-owner-private-boundary-setup"
     )
     normalized_decision = exact_user_decision.casefold()
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+    )
+    fam006_workstream_approval_review_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            normalized_decision,
+            is_fam006_recording=is_fam006_recording,
+        )
+    )
+    if fam006_workstream_approval_review_packet:
+        copied_sources = "\n".join(
+            f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+        )
+        pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        lines = [
+            f"# {title} - Workstream Implementation Approval Review",
+            "",
+            "USER Branch Plan Review: Accepted BP2 context for Workstream implementation approval",
+            "",
+            "## Review Status",
+            "",
+            "Reviewable - this support file preserves accepted BP2 planning context for the primary Workstream implementation approval review.",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - BP2 Option C Branch Plan was accepted by USER; implementation remains pending until USER approves the primary packet.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - Workstream implementation approval packet support context.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - Workstream/runtime implementation remains pending until USER approves the primary packet.",
+            "",
+            "## Accepted Implementation Package",
+            "",
+            "- Dashboard Recording Card as the compact quick-access/status surface.",
+            "- Recording Studio as the focused recording control/status surface.",
+            "- Minimal Log Viewer Studio launch/folder shell where it directly supports native/export log access.",
+            "- Native/export log boundary with native NDAI logs as the normal product artifact and exported logs as USER-requested export artifacts.",
+            "- Open-folder pre-session usability.",
+            "- Issue #258 target reliability as a distinct admitted repair line item.",
+            "",
+            "## Entry Checkpoint And Continuation Guard",
+            "",
+            "SLC-051 / Seam 1 target reliability may start the package. A green first seam is continuation proof, not package completion. Single-seam or single-slice authority is not granted.",
+            "",
+            "## Workstream Approval Boundary",
+            "",
+            "Workstream/runtime implementation remains pending until USER approves the primary Workstream implementation approval packet.",
+            "",
+            "## Supporting Source-Truth Files",
+            "",
+            copied_sources or "- None copied.",
+            "",
+            "## Pending USER Decisions",
+            "",
+            pending,
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     workstream_package_approval_packet = any(
         marker in normalized_decision
         for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
@@ -7641,13 +7879,24 @@ def _write_workstream_entry_packet_digests(
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
         )
     )
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+    )
+    fam006_workstream_approval_review_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            normalized_decision,
+            is_fam006_recording=is_fam006_recording,
+        )
+    )
     bp3_packet = (
         source_branch
         in {
             "feature/fam-007-dev-owner-skeleton-readiness",
             "feature/fam-007-owner-ai-operational-foundation-gates",
+            "feature/fam-006-dashboard-recording-start-stop-local-file",
         }
         and not workstream_package_approval_packet
+        and not fam006_workstream_approval_review_packet
         and (
             "bp3" in normalized_decision
             or "workstream entry / orchestration" in normalized_decision
@@ -7694,6 +7943,12 @@ def _write_workstream_entry_packet_digests(
         "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
         "waiver, rejection, or hold remains pending; BP3 remains pending."
         if bp2_packet
+        else
+        "workstream implementation approval review - BP1, BP2, and BP3 are "
+        "accepted; bounded FAM-006 Workstream/runtime implementation approval "
+        "packet is Reviewable; USER implementation approval remains pending; "
+        "a green first seam is continuation proof, not package completion."
+        if fam006_workstream_approval_review_packet
         else
         "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
         "package implementation is approved by this packet with Seam 1 as the entry "
@@ -7827,6 +8082,186 @@ def _write_workstream_entry_packet_digests(
             "vision context, required digest/checklist files, and copied source-truth "
             "files are loaded and digestible for USER review; BP2 remains pending USER "
             "acceptance, revision, waiver, rejection, or hold."
+        )
+    elif bp3_packet and is_fam006_recording:
+        bp3_readiness_contract = (
+            "\n## Plain-Language BP3 Readiness Summary\n\n"
+            "BP3 is the final Branch Planning readiness check before a later "
+            "Workstream implementation approval can be considered. For FAM-006 "
+            "Recording, BP3 verifies that accepted BP2 Option C remains one coherent "
+            "bounded package: Dashboard Recording Card plus Recording Studio plus a "
+            "minimal Log Viewer Studio launch/folder shell. This packet does not "
+            "authorize runtime implementation.\n\n"
+            "## Accepted BP1 Vision Traceability\n\n"
+            "- BP1 accepted the Recording vision after Option F planning solidification.\n"
+            "- The accepted vision keeps Recording tied to the active Overlay Profile, "
+            "native NDAI logs as the product artifact, readable files as USER-requested "
+            "exports, and new/affected FAM-006 UI inheriting the existing Dashboard "
+            "visual system.\n"
+            "- Full Log Viewer Studio, previous-log selection, export customization, "
+            "tray controls, keybinds, full settings, and Native Log Loader full "
+            "implementation remain future-gated.\n\n"
+            "## Accepted BP2 Plan Traceability\n\n"
+            "- BP2 accepted Option C as the current-branch implementation shape: "
+            "Dashboard Recording Card, Recording Studio, and minimal Log Viewer "
+            "Studio launch/folder shell.\n"
+            "- BP2 kept issue #258 Overlay Profile persistence as a target-reliability "
+            "line item where it affects recording target trust.\n"
+            "- BP2 preserved open native/export folder behavior before active-session "
+            "recording exists, while keeping export customization future-gated.\n\n"
+            "## Option C Whole-Package Coherence Test\n\n"
+            "PASS with boundaries: Option C remains one coherent bounded FAM-006 "
+            "Workstream package if Recording Studio stays focused on recording "
+            "control/status, the Log Viewer Studio surface stays a minimal native/"
+            "export folder shell, issue #258 remains target-reliability repair rather "
+            "than broad Dashboard persistence, and all proof shares the same Dashboard/"
+            "HUD implementation route, validation path, rollback plan, release timing, "
+            "and risk class.\n\n"
+            "## Surface Admit / Split / Defer Findings\n\n"
+            "- Admit: Dashboard Recording Card as compact quick-access/status surface.\n"
+            "- Admit: Recording Studio as focused control/status surface.\n"
+            "- Admit: minimal Log Viewer Studio shell for native/export folder access "
+            "only; no previous-log selection, full in-app viewer, export customization, "
+            "or Native Log Loader implementation.\n"
+            "- Admit: native NDAI log save/readback path and no automatic CSV/Excel "
+            "normal product output.\n"
+            "- Admit: open native/export folder behavior before active-session recording.\n"
+            "- Admit: issue #258 only where Overlay Profile persistence protects "
+            "recording target reliability.\n"
+            "- Defer: full Log Viewer Studio, previous-log selection, export "
+            "customization, tray controls, keybinds, full settings, Native Log Loader "
+            "full implementation, provider/model/private work, sibling-family work, "
+            "PR, merge, release, issue closeout, and cleanup.\n"
+            "- Return to BP2 if any admitted surface requires a product-direction "
+            "change, full settings/export/viewer design, new visual grammar, or "
+            "broader Dashboard persistence package.\n\n"
+            "## Proposed Slice / SLC / Seam Sequence\n\n"
+            "1. SLC-051 / Seam 1 - target reliability and active Overlay Profile "
+            "contract: issue #258 persistence, target mirroring, and snapshot/readiness "
+            "preflight.\n"
+            "2. SLC-052 / Seam 2 - Dashboard Recording Card: compact quick access, "
+            "state labels, visual-system inheritance, and open-folder pre-session "
+            "entry points.\n"
+            "3. SLC-053 / Seam 3 - Recording Studio: focused non-child control/status "
+            "surface, no tray/keybind/settings creep.\n"
+            "4. SLC-054 / Seam 4 - native/export log boundary and minimal Log Viewer "
+            "Studio shell: native log readback, exported-folder access, and no "
+            "automatic readable export.\n"
+            "5. SLC-055 / Seam 5 - validation, Hardening, Live Validation, UTS, "
+            "rollback, and visual proof readiness for the full admitted package.\n\n"
+            "## Direct Proof Plan\n\n"
+            "- Dashboard Recording Card proof: focused screenshots, hover/focus/"
+            "disabled states, compact spacing, target/status text, and no full-studio "
+            "layout inside the card.\n"
+            "- Recording Studio proof: open/focus/close/minimize behavior for the "
+            "admitted minimal surface, recording state mirror, and no tray/keybind/"
+            "settings implementation by inertia.\n"
+            "- Log Viewer shell proof: native-log folder and exported-log folder buttons "
+            "work, folders can be created/opened before a recording, and no previous-log "
+            "selection, full viewer, or export customization exists.\n"
+            "- Native/export boundary proof: normal recording produces native NDAI output "
+            "and validation readback; readable CSV/Excel/JSON files appear only as "
+            "validation/export evidence or future USER-requested export.\n"
+            "- Issue #258 proof: create/switch/restart/reselect Overlay Profiles and "
+            "prove recording target reliability is preserved.\n\n"
+            "## Rollback And Reversibility Posture\n\n"
+            "The route stays reversible because each admitted surface can be disabled "
+            "or removed in layers: Dashboard card entry points, Recording Studio "
+            "launch/control shell, Log Viewer shell/folder access, native/export "
+            "boundary hooks, and issue #258 persistence repair.\n\n"
+            "## Validation / H1 / Live Validation / UTS Plan\n\n"
+            "- Workstream validation: targeted unit/helper/sandbox proof for target "
+            "state, folder behavior, native output/readback, visual inheritance, and "
+            "future-gated boundaries.\n"
+            "- Hardening H1: compare implemented behavior against accepted BP1, BP2, "
+            "and BP3; pressure-test negative states, rollback, visual mismatch, issue "
+            "#258 regression, and no automatic export.\n"
+            "- Live Validation: validate new or affected elements only, plus previous "
+            "elements whose dependencies changed; capture focused screenshots for "
+            "Dashboard Recording Card, Recording Studio, minimal Log Viewer shell, "
+            "folder states, and issue #258 proof.\n"
+            "- UTS: refresh `C:\\Nexus USER\\UTS - FAM-006.txt` as the active "
+            "worktree-specific handoff during Live Validation, not during BP3.\n\n"
+            "## Visual-System Inheritance Proof\n\n"
+            "Every new Recording card row, button, divider, window surface, hover/focus/"
+            "disabled state, spacing rule, glow/effect, typography choice, and density "
+            "choice must sample existing FAM-006 Dashboard/HUD surfaces. Helper PASS "
+            "and DOM presence are not enough; Codex must inspect focused screenshots "
+            "and return REPAIR if new elements do not belong in the existing visual "
+            "system.\n\n"
+            "## Deferred Carryforward Applicability\n\n"
+            "- Recording Studio: applies now only as focused control/status; tray-backed "
+            "minimize, keybind behavior, and warning dismissal settings remain deferred.\n"
+            "- Log Viewer Studio: applies now only as launch/folder shell; full viewer, "
+            "previous-log selection, export customization, and Native Log Loader remain "
+            "deferred.\n"
+            "- Native log model: applies now as normal product artifact and readback path.\n"
+            "- Exported log model: applies now only as folder boundary; export flow stays "
+            "future-gated.\n"
+            "- Overlay Profile persistence: applies now only as target reliability and "
+            "issue #258 proof.\n\n"
+            "## Exact BP3 USER Decision Options\n\n"
+            "- Accept BP3: confirm Option C is the accepted Workstream Entry / "
+            "Orchestration Validation contract and allow Codex to request separate "
+            "bounded Workstream implementation approval next.\n"
+            "- Revise BP3: name any surface, seam order, proof, rollback, Live "
+            "Validation, UTS, or deferred-boundary change needed before implementation "
+            "approval can be considered.\n"
+            "- Waive BP3: explicitly waive remaining BP3 concerns and allow a separate "
+            "Workstream approval packet next.\n"
+            "- Reject BP3: stop this current package route and request a different "
+            "FAM-006 branch shape.\n"
+            "- Hold BP3: keep the branch in BP3 USER review.\n"
+        )
+        analysis_status = (
+            "Analysis Summary: FAM-006 Recording BP3 Workstream Entry / "
+            "Orchestration Validation packet for the active Branch Planning carrier.\n"
+            "BP1 Contract Status: Complete - USER accepted the revised FAM-006 "
+            "Recording Branch Vision after Option F planning solidification.\n"
+            "BP2 Contract Status: Complete - USER accepted the Option C Branch Plan.\n"
+            "BP1 USER Gate State: USER Accepted\n"
+            "BP2 USER Gate State: USER Accepted\n"
+            "BP3 Packet Reviewability State: Reviewable\n"
+            "BP3 USER Gate State: Pending USER Review\n"
+            "Branch Package Size: PASS - Option C remains the largest safe coherent "
+            "FAM-006 Recording package if Studio and Log Viewer shell stay minimal.\n"
+            "SLC Traceability: Complete\n"
+            "Implementation Approval: Pending separate USER approval after BP3 review."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP3 is reviewable but USER BP3 approval is "
+            "pending; Workstream implementation, runtime mutation, issue closeout, "
+            "PR, merge, release, cleanup, and future-gated Recording ecosystem work "
+            "remain pending USER decisions."
+        )
+        recommended_seam = (
+            "Recommended First Bounded Workstream Seam: SLC-051 / Seam 1, target "
+            "reliability and active Overlay Profile contract, followed by Dashboard "
+            "Recording Card proof, Recording Studio proof, Log Viewer shell/native-"
+            "export boundary proof, and full validation/live/UTS readiness."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes accepted BP1 and BP2 context, "
+            "FAM-006 family vision, FAM-006 Recording Family Feature Vision, active "
+            "branch plan/receipt context, branch artifact rules, phase governance, "
+            "development rules, validation registry, incident patterns, feature "
+            "backlog, Nexus vision, and helper context needed for FAM-006 Option C "
+            "BP3 orchestration."
+        )
+        checklist_status = (
+            "Checklist Focus: FAM-006 BP3 Workstream Entry / Orchestration Validation "
+            "- accepted BP1/BP2 traceability, Option C coherence, split/defer triggers, "
+            "surface sequencing, Element-to-Phase proof, rollback, validation, H1, "
+            "Live Validation, UTS, visual-system inheritance, and future-gated "
+            "boundaries are represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md as "
+            "the primary BP3 decision file, USER_BRANCH_VISION_REVIEW.md and "
+            "USER_BRANCH_PLAN_REVIEW.md as supporting accepted BP1/BP2 context, "
+            "required digest/checklist files, and copied source-truth files are "
+            "loaded and digestible for USER review; BP3 remains pending USER "
+            "approval, revision, waiver, rejection, or hold."
         )
     elif bp3_packet:
         bp3_readiness_contract = (
@@ -8345,6 +8780,110 @@ def _write_workstream_entry_packet_digests(
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records PR Readiness Stage 1 complete and "
             "Stage 2 PR creation as the next USER decision."
+        )
+    elif fam006_workstream_approval_review_packet:
+        bp3_readiness_contract = (
+            "\n## Plain-Language Workstream Approval Review Summary\n\n"
+            "USER accepted BP1, BP2, and BP3 for the FAM-006 Dashboard Recording "
+            "Start/Stop To Local File branch. This packet is the separate "
+            "Workstream/runtime implementation approval review requested after "
+            "BP3. It is reviewable, but Workstream/runtime implementation remains "
+            "pending until USER approves this packet.\n\n"
+            "## Accepted Planning Basis\n\n"
+            "- BP1 answered: Option F planning solidified the Recording ecosystem "
+            "vision and USER accepted the revised BP1 Branch Vision.\n"
+            "- BP2 answered: Option C was accepted by USER as the Branch Plan.\n"
+            "- BP3 answered: Option C was accepted by USER as one coherent bounded "
+            "Workstream package.\n"
+            "- The admitted package includes Dashboard Recording Card, Recording "
+            "Studio, minimal Log Viewer Studio launch/folder shell, native/export "
+            "log boundary, open-folder pre-session usability, issue #258 target "
+            "reliability, deferred carryforward applicability, Element-to-Phase "
+            "proof, rollback, validation, H1, Live Validation, UTS, visual-system "
+            "inheritance, and slice/SLC/seam sequencing.\n\n"
+            "## Complete Bounded Workstream Scope\n\n"
+            "1. Dashboard Recording Card as the compact quick-access/status surface.\n"
+            "2. Recording Studio as the focused recording control/status surface.\n"
+            "3. Minimal Log Viewer Studio launch/folder shell for native/export "
+            "folder access that directly supports Recording.\n"
+            "4. Native NDAI logs as the normal product artifact and exported logs "
+            "as USER-requested export artifacts.\n"
+            "5. Open native/export folder behavior usable before a recording exists "
+            "in the active session.\n"
+            "6. Issue #258 Overlay Profile persistence as target-reliability proof "
+            "for recording target correctness.\n\n"
+            "## First Checkpoint And Continuation Rule\n\n"
+            "SLC-051 / Seam 1 target reliability is the recommended first checkpoint "
+            "because Recording target correctness depends on the active Overlay "
+            "Profile contract. A green first seam is continuation proof, not package "
+            "completion. Single-seam or single-slice authority is not granted. "
+            "Continuation remains bounded by the admitted Option C package and must "
+            "continue until Workstream Green, the approved scope is exhausted, a real "
+            "named blocker appears, or USER explicitly waives the remaining package.\n\n"
+            "## Future-Gated Boundaries\n\n"
+            "Full Log Viewer Studio implementation, previous-log selection, export "
+            "customization, tray recording controls, keybind implementation, full "
+            "settings implementation, Native Log Loader full implementation, "
+            "provider/model/private work, PR Readiness, issue closeout, merge, "
+            "release, branch cleanup, Governance/FAM-007/neutral-main mutation, and "
+            "unrelated runtime scope remain pending USER decisions.\n\n"
+            "## Exact Workstream USER Decision Options\n\n"
+            "- Approve bounded FAM-006 Workstream/runtime implementation for the "
+            "accepted Option C package, starting with SLC-051 / Seam 1 target "
+            "reliability and continuing under the bounded package rule.\n"
+            "- Request a revision to package scope, sequencing, proof, validators, "
+            "rollback, H1, Live Validation, UTS, or stop conditions.\n"
+            "- Waive a specific approval issue while preserving the accepted package "
+            "constraints.\n"
+            "- Hold before Workstream/runtime implementation.\n"
+            "- Reject or route back to BP3/BP2/BP1 if the accepted branch vision, "
+            "engineering plan, or orchestration needs repair.\n"
+        )
+        analysis_status = (
+            "Analysis Summary: Workstream/runtime implementation approval review "
+            "packet for FAM-006 Dashboard Recording Start/Stop To Local File.\n"
+            "BP1 USER Gate State: USER Accepted\n"
+            "BP2 USER Gate State: USER Accepted\n"
+            "BP3 USER Gate State: USER Accepted\n"
+            "Workstream Approval Packet Reviewability State: Reviewable\n"
+            "Workstream/runtime implementation approval remains Pending USER Review\n"
+            "Workstream Approval Target: complete bounded Option C package.\n"
+            "Entry Checkpoint: SLC-051 / Seam 1 target reliability."
+        )
+        implementation_posture = (
+            "Implementation Posture: Workstream/runtime implementation remains "
+            "pending until USER approves this packet. If approved, execution is "
+            "bounded to the complete admitted Option C package and starts with "
+            "SLC-051 / Seam 1 target reliability; a green first seam is "
+            "continuation proof, not package completion."
+        )
+        recommended_seam = (
+            "Entry Checkpoint: SLC-051 / Seam 1 target reliability and active "
+            "Overlay Profile contract before Dashboard Recording Card, Recording "
+            "Studio, minimal Log Viewer Studio shell, native/export boundary, "
+            "and validation/Live Validation/UTS readiness."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes accepted BP1, accepted BP2, "
+            "accepted BP3, FAM-006 Recording feature vision, family vision, active "
+            "branch record/plan context, branch artifact rules, phase governance, "
+            "development rules, codex modes, validation registry, backlog, roadmap, "
+            "and worktree-slot context needed for FAM-006 Workstream approval review."
+        )
+        checklist_status = (
+            "Checklist Focus: FAM-006 Workstream approval review - accepted BP1/BP2/"
+            "BP3 traceability, complete Option C package scope, SLC-051 / Seam 1 "
+            "entry checkpoint, continuation latch, native/export log boundary, "
+            "open-folder pre-session usability, issue #258 target reliability, "
+            "visual-system inheritance, H1/LV/UTS expectations, rollback posture, "
+            "and future-gated boundaries."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting accepted BP1/BP2 review files, required digest/checklist "
+            "files, and copied source-truth files are loaded for USER review; packet "
+            "wording treats SLC-051 / Seam 1 as the entry checkpoint for the complete "
+            "accepted Option C package and keeps implementation approval pending."
         )
     elif workstream_package_approval_packet and is_fam007_owner_ai_foundation:
         bp3_readiness_contract = (
@@ -9064,6 +9603,15 @@ def _packet_text_status(text: str) -> str:
     if any(marker in normalized for marker in final_review_markers):
         return DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW
 
+    workstream_approval_review_markers = (
+        "workstream implementation approval review",
+        "workstream/runtime implementation remains pending until user approves",
+        "bounded fam-006 workstream/runtime implementation approval packet",
+        "does user approve bounded fam-006 workstream/runtime implementation",
+    )
+    if any(marker in normalized for marker in workstream_approval_review_markers):
+        return DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
+
     live_validation_review_markers = (
         "live validation final decision review",
         "live validation lv1 is green",
@@ -9293,6 +9841,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_fam007_bp2_plan_substantive_failures(packet_files))
     failures.extend(_fam007_bp2_support_bp1_context_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
+    failures.extend(_fam006_bp3_support_context_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
@@ -9450,6 +9999,15 @@ def build_bundle(
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
         )
     )
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+    )
+    fam006_workstream_approval_review_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            normalized_decision,
+            is_fam006_recording=is_fam006_recording,
+        )
+    )
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded workstream implementation" in normalized_decision
@@ -9495,8 +10053,10 @@ def build_bundle(
         in {
             "feature/fam-007-dev-owner-skeleton-readiness",
             "feature/fam-007-owner-ai-operational-foundation-gates",
+            "feature/fam-006-dashboard-recording-start-stop-local-file",
         }
         and not workstream_package_approval_packet
+        and not fam006_workstream_approval_review_packet
         and (
             "bp3" in exact_user_decision.casefold()
             or "workstream entry / orchestration" in exact_user_decision.casefold()
@@ -9538,6 +10098,12 @@ def build_bundle(
         "revision, waiver, rejection, or hold remains pending; Workstream "
         "implementation remains pending separate USER approval."
         if bp3_packet
+        else
+        "workstream implementation approval review - BP1, BP2, and BP3 are "
+        "accepted; bounded FAM-006 Workstream/runtime implementation approval "
+        "packet is Reviewable; USER implementation approval remains pending; "
+        "a green first seam is continuation proof, not package completion."
+        if fam006_workstream_approval_review_packet
         else
         "workstream entry final decision review - Workstream Green review; admitted "
         "FAM-007 Dev/Owner proof seams are complete and Hardening H1 remains pending "
@@ -9731,6 +10297,16 @@ def build_bundle(
                 "",
             ]
         )
+    if fam006_workstream_approval_review_packet:
+        readme_lines.extend(
+            [
+                "Workstream Approval Packet Reviewability State: Reviewable",
+                "Workstream Approval USER Gate State: Pending USER Review",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Review - Workstream/runtime implementation approval remains pending",
+                "",
+            ]
+        )
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
     bundle_paths = _bundle_files(target)
@@ -9750,6 +10326,7 @@ def build_bundle(
         *_fam007_bp2_plan_substantive_failures(packet_files),
         *_fam007_bp2_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]

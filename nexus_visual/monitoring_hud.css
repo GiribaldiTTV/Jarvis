@@ -479,13 +479,19 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__chrome-button--close {
-  width: auto;
-  min-width: 76px;
-  padding: 8px 18px;
+  width: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  max-height: 34px;
+  padding: 0;
   border-color: rgba(122, 232, 255, 0.32);
   background: var(--monitoring-hud-button-neutral-bg);
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: 14px;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
 }
 
 .monitoring-hud__window-close {
@@ -493,6 +499,9 @@ body.desktop-mode #monitoring-hud > * {
   top: 12px;
   right: 14px;
   z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.05) inset,
     0 10px 24px rgba(0, 0, 0, 0.28);
@@ -956,12 +965,12 @@ body.desktop-mode #monitoring-hud > * {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
   padding: 12px 12px 22px;
   scroll-padding: 12px 12px 22px;
-  --dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;
+  --dashboard-card-holder-inset-proof: scrollbar-exempt-equal-card-insets;
 }
 
 .monitoring-hud__hub-card {
@@ -1161,6 +1170,10 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__recording-target-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
   padding-top: 3px;
 }
 
@@ -1697,9 +1710,72 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
 .monitoring-hud__child-window-close {
   position: relative;
   z-index: 5;
-  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  height: 30px;
+  min-height: 30px;
+  max-height: 30px;
+  padding: 0;
   flex: 0 0 auto;
   pointer-events: auto;
+  border-color: rgba(122, 232, 255, 0.36);
+  background:
+    linear-gradient(180deg, rgba(10, 49, 74, 0.78), rgba(6, 24, 39, 0.9)),
+    rgba(5, 22, 36, 0.84);
+  color: transparent;
+  font-size: 0;
+  letter-spacing: 0;
+  text-indent: -999px;
+  box-shadow:
+    0 0 18px rgba(95, 221, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -10px 18px rgba(2, 12, 22, 0.24);
+}
+
+.monitoring-hud__child-window-close::before,
+.monitoring-hud__child-window-close::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(235, 252, 255, 0.94);
+  box-shadow: 0 0 8px rgba(122, 232, 255, 0.26);
+  transform-origin: center;
+}
+
+.monitoring-hud__child-window-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.monitoring-hud__child-window-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.monitoring-hud__child-window-close:hover,
+.monitoring-hud__child-window-close:focus-visible {
+  border-color: rgba(122, 232, 255, 0.72);
+  background:
+    linear-gradient(180deg, rgba(16, 64, 92, 0.92), rgba(8, 34, 54, 0.96)),
+    rgba(7, 30, 48, 0.9);
+  box-shadow:
+    0 0 22px rgba(95, 221, 255, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 -10px 18px rgba(2, 12, 22, 0.22);
+  outline: none;
+}
+
+.monitoring-hud__child-window-close:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 0 12px rgba(95, 221, 255, 0.16),
+    inset 0 0 14px rgba(0, 0, 0, 0.24);
 }
 
 .monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-window-close {

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Desktop AI Studio</title>
+  <link rel="stylesheet" href="monitoring_hud.css" />
+  <link rel="stylesheet" href="nexus_window_primitives.css" />
+  <style>
+    body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__chrome {
+      min-height: 100%;
+      box-sizing: border-box;
+      padding: 10px 16px 10px;
+      overflow: hidden;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__header {
+      padding-right: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__control-hub {
+      margin-top: 3px;
+      gap: 0;
+      padding: 0;
+      scroll-padding: 0;
+      scrollbar-gutter: auto;
+      scrollbar-width: none;
+      scrollbar-color: transparent transparent;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      background-size: auto;
+      flex: 0 0 auto;
+      overflow: visible;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__hub-actions {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body class="desktop-mode">
+  <section
+    id="monitoring-hud"
+    class="monitoring-hud"
+    data-package="PKG-006"
+    data-slice="SLC-053"
+    data-surface-id="fam006-recording-studio"
+    data-product-surface-role="standalone-feature-studio"
+    data-product-surface="fam006-feature-studio"
+    data-studio-surface="recording"
+    data-feature-studio-purpose="ultra-lightweight-detached-recording-controller"
+    data-frame-ownership="fam006-compact-feature-studio-chrome"
+    data-shared-primitive-consumer="nexus-window-primitives-v1"
+    data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"
+    data-window-taxonomy="unique-child-standalone-feature-studio"
+    data-window-resize-taxonomy="no-resize-recording-edge-resize-log-viewer"
+    data-edge-resize-behavior="edge-resize-native-top-level"
+    data-attached-child-resize-grip="absent"
+    data-window-control-primitive="nexus-uiref-002-compact-cluster-v1"
+    data-window-control-cluster="compact-minimize-close"
+    data-window-control-state-model="hidden-blocked-active"
+    data-resize-contract="not-resizable-position-memory-only"
+    data-fixed-controller-height="154"
+    data-title-treatment="detached-child-window-header-no-title-card"
+    data-title-card-state="absent"
+    data-child-window-title-grammar="title-first-description-beneath-no-title-card"
+    aria-label="Nexus Desktop AI Recording Suite"
+  >
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Studio panel">
+      <div class="monitoring-hud__window-controls" role="group" aria-label="Studio window controls">
+        <button type="button" id="monitoring-hud-studio-minimize-action" class="monitoring-hud__window-control-button monitoring-hud__window-control-button--minimize" data-control="minimize-studio" data-window-control-key="minimize" data-window-control-command="minimize" data-window-control-state="active" aria-label="Minimize Studio"></button>
+        <button type="button" id="monitoring-hud-studio-close-action" class="monitoring-hud__window-control-button monitoring-hud__window-control-button--close" data-control="close-studio" data-window-control-key="close" data-window-control-command="close" data-window-control-state="active" aria-label="Close Studio"></button>
+      </div>
+      <div class="monitoring-hud__title-group monitoring-hud__child-window-header monitoring-hud__detached-child-studio-header">
+        <div class="monitoring-hud__header" id="monitoring-hud-studio-drag-handle">
+          <div>
+            <div class="monitoring-hud__title" id="monitoring-hud-studio-title">Recording Suite</div>
+            <div class="monitoring-hud__kicker" id="monitoring-hud-studio-kicker">Active Overlay Recording</div>
+            <div class="monitoring-hud__subtitle" id="monitoring-hud-studio-subtitle" aria-hidden="true">Start/Stop, target truth, and log handoff.</div>
+          </div>
+        </div>
+      </div>
+      <div class="monitoring-hud__control-hub" data-feature-studio-content="purpose-built-studio-shell" data-feature-studio-body-primitive="unique-child-purpose-stack-v6" aria-label="Studio controls">
+        <article id="monitoring-hud-studio-recording-card" class="monitoring-hud__feature-studio-panel" data-feature-studio-panel="recording-controller">
+          <div class="monitoring-hud__controller-meta-strip" data-element-group="recording-target-truth" data-row-primitive="ai-control-center-state-row" data-row-stack-vertical-gutter="6" data-row-dropdown-edge-gutter="1" data-dropdown-layer-contract="overlay-owned-control-not-peer-row">
+            <div class="monitoring-hud__state-row monitoring-hud__studio-truth-row">
+              <span>TARGET</span>
+              <strong id="monitoring-hud-studio-recording-target">No active overlay profile</strong>
+            </div>
+            <div class="monitoring-hud__state-row monitoring-hud__studio-truth-row" data-element-group="recording-controller-truth">
+              <span id="monitoring-hud-studio-recording-state-label">STATE</span>
+              <strong id="monitoring-hud-studio-recording-status">Selected overlay ready.</strong>
+              <em id="monitoring-hud-studio-recording-detail"></em>
+            </div>
+          </div>
+          <div class="monitoring-hud__feature-studio-actions monitoring-hud__feature-studio-actions--recording" data-element-group="recording-actions" data-action-layout="transport-pill-left-route-right">
+            <div class="monitoring-hud__transport-pill" data-control-group="recording-transport-pill" data-action-layout="segmented-transport-pill-left" aria-label="Recording transport controls">
+              <button type="button" id="monitoring-hud-studio-start-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-transport-action monitoring-hud__transport-segment monitoring-hud__transport-segment--first" data-control="recording-studio-start" data-recording-command="start" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill" aria-label="Start Recording"><span class="monitoring-hud__button-label">START</span></button>
+              <button type="button" id="monitoring-hud-studio-pause-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-transport-action monitoring-hud__transport-segment monitoring-hud__transport-segment--middle" data-control="recording-studio-pause" data-recording-command="pause" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill" aria-label="Pause Recording"><span class="monitoring-hud__button-label">PAUSE</span></button>
+              <button type="button" id="monitoring-hud-studio-stop-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-transport-action monitoring-hud__transport-segment monitoring-hud__transport-segment--last" data-control="recording-studio-stop" data-recording-command="stop" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill" aria-label="Stop Recording"><span class="monitoring-hud__button-label">STOP</span></button>
+            </div>
+            <button type="button" id="monitoring-hud-studio-open-log-viewer-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-route-action" data-control="recording-studio-open-log-viewer" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">OPEN LOG VIEWER</span></button>
+          </div>
+        </article>
+        <article id="monitoring-hud-studio-log-card" class="monitoring-hud__feature-studio-panel" data-feature-studio-panel="log-access-shell" hidden>
+          <div class="monitoring-hud__log-access-stack" data-log-shell-primitive="action-first-folder-access-shell-v6">
+            <div class="monitoring-hud__log-target-strip" data-element-group="log-viewer-deferred-state" data-row-primitive="ai-control-center-state-row" data-row-stack-vertical-gutter="6" data-row-dropdown-edge-gutter="1" data-dropdown-layer-contract="overlay-owned-control-not-peer-row">
+              <section class="monitoring-hud__state-row monitoring-hud__studio-truth-row" data-element-group="viewer-deferred-status" data-folder-kind="viewer">
+                <span>VIEWER</span>
+                <strong id="monitoring-hud-studio-viewer-state" aria-label="Log Viewer viewer state">Deferred</strong>
+              </section>
+            </div>
+            <div class="monitoring-hud__feature-studio-actions monitoring-hud__feature-studio-actions--log-viewer" data-element-group="log-folder-actions" data-action-layout="folder-actions-right-aligned">
+              <button type="button" id="monitoring-hud-studio-open-native-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-destination-action" data-control="log-viewer-open-native" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">OPEN NATIVE LOGS</span></button>
+              <button type="button" id="monitoring-hud-studio-open-export-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-destination-action" data-control="log-viewer-open-export" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">OPEN EXPORTED LOGS</span></button>
+            </div>
+            <div class="monitoring-hud__log-access-status" data-element-group="log-folder-action-status" hidden>
+              <span id="monitoring-hud-studio-folder-status">Choose a log destination to open.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <script src="monitoring_hud_studio.js"></script>
+</body>
+</html>

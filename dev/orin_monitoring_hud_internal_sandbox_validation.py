@@ -196,8 +196,10 @@ def _validate_static_surface(failures: list[str]) -> None:
             "Overlay Profile",
             "Recording Profile",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "runtime recording implementation remains future-gated",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
+            "compact pointer",
+            "monitoring/HUD, active-overlay recording, Recording Suite, Log Viewer",
+            "external/Git/GitHub/helper live truth",
             "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
@@ -207,10 +209,12 @@ def _validate_static_surface(failures: list[str]) -> None:
                 failures,
             )
         for needle in (
-            "durable planning and release receipts preserved; future recording runtime remains USER-gated",
+            "monitoring/HUD and active-overlay recording planning/proof history",
+            "Recording Suite",
+            "Log Viewer",
+            "user-visible proof remain routed through the owning phase and live-truth checks",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
         ):
             _require_contains(
                 prebeta_roadmap,
@@ -267,7 +271,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "no-synthetic-interaction preflight",
         "active route contains synthetic interaction code",
         "lacks real OS-level mouse input proof",
-        "JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned",
+        "JavaScript clicks, synthetic DOM events, WebView native-message fallback, WebView handler calls, QTest widget-only events, and state mutation are banned",
         "real-input fallback policy PASS",
         "synthetic fallback requires explicit USER waiver",
         "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
@@ -563,11 +567,11 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"',
         'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'data-dashboard-close-affordance="window-level-close-button"',
-        'data-dashboard-close-layout="window-level-top-right-close-pill"',
+        'data-dashboard-close-layout="uiref-002-compact-top-right-symbol-control"',
         'data-dashboard-open-badge="removed"',
         'data-dashboard-settings-model="hud-overlay-monitor-groups-provider-warning"',
         'data-dashboard-ia-model="branch2-ia-controls-followthrough"',
-        'data-dashboard-quick-access="warning-notifications-only"',
+        'data-dashboard-quick-access="warning-notifications-recording-start-stop"',
         'data-dashboard-global-feature-control="tray-owned"',
         'data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"',
         'data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"',
@@ -1193,7 +1197,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
         "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",
         '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',
-        "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+        "photo/video proof is the only LV1 acceptance proof",
+        "code, DOM, marker, log, manifest, and helper output are diagnostic evidence only",
+        "nonPhotoVideoProofEscalation",
+        "Claims that cannot be proven in a photo or video must be elevated to the USER for manual validation",
         "formalUserTestSummaryBoundary",
         "03_manage_monitors_open_state",
         "04_source_filter_dropdown_open_hover_reset",
@@ -1270,8 +1277,8 @@ def _validate_static_surface(failures: list[str]) -> None:
         "margin: 10px 0 14px;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",
-        "scrollbar-gutter: stable both-edges;",
-        "--dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;",
+        "scrollbar-gutter: auto;",
+        "--dashboard-card-holder-inset-proof: scrollbar-exempt-equal-card-insets;",
         ".monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open=\"true\"])",
         ".monitoring-hud__child-actions--guard",
         "justify-self: stretch;",
@@ -1413,10 +1420,10 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target"',
         'monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough"',
         'monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button"',
-        'monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill"',
+        'monitoringHud.dataset.dashboardCloseLayout = "uiref-002-compact-top-right-symbol-control"',
         'monitoringHud.dataset.dashboardOpenBadge = "removed"',
         'monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only"',
-        'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only"',
+        'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-recording-start-stop"',
         'monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned"',
         'monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable"',
         'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness"',
@@ -1542,6 +1549,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         "WM_NCLBUTTONDOWN",
         "GetAsyncKeyState",
         "_monitoring_hud_windows_resize_cursor_id_for_edges",
+        "resize-cursor-no-forced-arrow-release",
         "preclick-hover-cursor-aligned-14px-app-owned-resize-action",
         'overlay.setProperty("resizeProofVisibility", "invisible-test-gated-no-user-facing-artifacts")',
         "polls-real-cursor-before-click",
@@ -1914,15 +1922,17 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
     _require(output_contract.get("passed") is True, "SLC-054 recording output contract proof must pass", failures)
     _require(output_contract.get("parseReadback") is True, "SLC-054 output contract must parse/read back in memory", failures)
-    _require(output_contract.get("fileWritingBlocked") is True, "SLC-054 output contract must not admit file writing", failures)
-    _require(output_contract.get("recordingExecutionBlocked") is True, "SLC-054 output contract must not admit recording execution", failures)
+    _require(output_contract.get("fileWritingEnabled") is True, "SLC-054 output contract must admit bounded local file writing", failures)
+    _require(output_contract.get("recordingExecutionEnabled") is True, "SLC-054 output contract must admit bounded recording execution", failures)
+    _require(output_contract.get("writeReadbackPassed") is True, "SLC-054 output contract must prove write/readback", failures)
     _require(workstream_readiness.get("workstreamGreen") is True, "SLC-055 Workstream readiness proof must be green", failures)
     _require(workstream_readiness.get("packageSlicesComplete") is True, "SLC-055 must prove all five admitted slices are complete", failures)
     _require(workstream_readiness.get("hardeningH1State") == "pending-after-workstream-green", "SLC-055 must route H1 after Workstream Green", failures)
     _require(workstream_readiness.get("liveValidationLV1State") == "pending-after-h1", "SLC-055 must keep LV1 after H1", failures)
     _require(workstream_readiness.get("utsState") == "pending-after-lv1", "SLC-055 must keep UTS after LV1", failures)
-    _require(workstream_readiness.get("fileWritingBlocked") is True, "SLC-055 must keep file writing blocked", failures)
-    _require(workstream_readiness.get("recordingExecutionBlocked") is True, "SLC-055 must keep recording execution blocked", failures)
+    _require(workstream_readiness.get("fileWritingEnabled") is True, "SLC-055 must require bounded file writing", failures)
+    _require(workstream_readiness.get("recordingExecutionEnabled") is True, "SLC-055 must require bounded recording execution", failures)
+    _require(workstream_readiness.get("writeReadbackPassed") is True, "SLC-055 must require write/readback proof", failures)
 
     persisted_state = {}
     previous_state_path = os.environ.get(MONITORING_HUD_STATE_ENV)
@@ -2001,15 +2011,15 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 failures,
             )
             _require(
-                persisted_target.get("snapshotAtStartModel") == "future-snapshot-at-recording-start-target-candidate",
-                "SLC-051 recording target must preserve future snapshot-at-start semantics",
+                persisted_target.get("snapshotAtStartModel") == "snapshot-at-recording-start",
+                "SLC-051 recording target must preserve active snapshot-at-start semantics",
                 failures,
             )
             _require(
                 persisted_target.get("hiddenRecordingTargetState") == "absent"
-                and persisted_target.get("recordingExecutionState") == "blocked"
-                and persisted_target.get("fileWritingState") == "blocked",
-                "SLC-051 target proof must block hidden target state, recording execution, and file writing",
+                and persisted_target.get("recordingExecutionState") == "ready"
+                and persisted_target.get("fileWritingState") == "ready",
+                "SLC-051 target proof must block hidden target state while allowing ready recording execution and file writing",
                 failures,
             )
             normalized_legacy = normalize_monitoring_hud_overlay_profiles({}, ["cpu", "gpu"])

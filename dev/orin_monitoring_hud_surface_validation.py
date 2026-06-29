@@ -32,6 +32,22 @@ def _require_contains(text: str, needle: str, label: str, failures: list[str]) -
     _require(needle in text, f"{label} is missing {needle!r}", failures)
 
 
+def _require_css_block_properties(
+    css: str,
+    selector: str,
+    properties: tuple[str, ...],
+    label: str,
+    failures: list[str],
+) -> None:
+    match = re.search(rf"{re.escape(selector)}\s*\{{(?P<body>.*?)\}}", css, flags=re.DOTALL)
+    if not match:
+        failures.append(f"{label} is missing selector {selector!r}")
+        return
+    block = match.group("body")
+    for prop in properties:
+        _require(prop in block, f"{label} selector {selector!r} is missing {prop!r}", failures)
+
+
 def _html_section(text: str) -> str:
     match = re.search(
         r'<section\s+id="monitoring-hud".*?</section>',
@@ -67,12 +83,27 @@ def validate() -> list[str]:
     html = _read("nexus_visual/monitoring_hud.html")
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
+    studio_html = _read("nexus_visual/monitoring_hud_studio.html")
+    studio_js = _read("nexus_visual/monitoring_hud_studio.js")
+    studio_primitives = _read("nexus_visual/nexus_window_primitives.css")
+    studio_source = studio_html + "\n" + studio_js + "\n" + studio_primitives
     renderer = _read("desktop/desktop_renderer.py")
+    phase_governance = _read("Docs/phase_governance.md")
+    helper_registry = _read("Docs/validation_helper_registry.md")
     family_vision = _read("Docs/family_visions/FAM-006_monitoring_and_hud.md")
+    recording_feature_vision = _read("Docs/family_feature_visions/FAM-006_recording.md")
     output_contract = _read("desktop/recording_output_contract.py")
     workstream_readiness = _read("dev/orin_fam006_workstream_readiness.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
-    tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
+    tray = (
+        _read("desktop/orin_desktop_main.py")
+        + "\n"
+        + _read("desktop/tray_controller.py")
+        + "\n"
+        + _read("desktop/orin_desktop_launcher.pyw")
+        + "\n"
+        + _read("desktop/single_instance.py")
+    )
     hud_state = _read("desktop/monitoring_hud_state.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
@@ -170,8 +201,10 @@ def validate() -> list[str]:
             "Overlay Profile",
             "Recording Profile",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "runtime recording implementation remains future-gated",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
+            "compact pointer",
+            "monitoring/HUD, active-overlay recording, Recording Suite, Log Viewer",
+            "external/Git/GitHub/helper live truth",
             "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
@@ -181,10 +214,12 @@ def validate() -> list[str]:
                 failures,
             )
         for needle in (
-            "durable planning and release receipts preserved; future recording runtime remains USER-gated",
+            "monitoring/HUD and active-overlay recording planning/proof history",
+            "Recording Suite",
+            "Log Viewer",
+            "user-visible proof remain routed through the owning phase and live-truth checks",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
         ):
             _require_contains(
                 prebeta_roadmap,
@@ -224,6 +259,10 @@ def validate() -> list[str]:
         "A helper/validator `PASS` cannot be reported as LV green",
         "Verbal assurance, implementation description, or intent-language is not proof",
         "Codex-owned photo review notes",
+        "must not create, add, or depend on a new user-visible runtime control surface",
+        "Activation-path proof is non-transferable",
+        "Visible desktop coordinate control",
+        "Manual Validation Request Digest",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -233,6 +272,10 @@ def validate() -> list[str]:
         "SLC-041 Overlay Profile focused validation/live-proof readiness",
         "Overlay/display deferred/non-gating proof classification",
         "future Overlay/display proof only when that interface is re-admitted",
+        "Validation-Only Runtime Control Surface",
+        "Activation-Path Proof Non-Transferable",
+        "Visible Desktop Coordinate Control",
+        "Manual Validation Request Digest",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
     for needle in (
@@ -286,6 +329,40 @@ def validate() -> list[str]:
         "sourceSettingsFocusNoGold",
         "rowTitleTabsInspected",
         "responsiveWindowContract",
+        "FAM-006 LV1 Picture-Proof Addendum",
+        "FAM-006 LV1 Deterministic Action-Effect Matrix Addendum",
+        "FAM-006 LV1 Exact USER Desktop Launcher Addendum",
+        "Proof is only proof when",
+        "cannot be proven in a photo or video must be elevated to the USER",
+        "exact USER Desktop shortcut path",
+        "visible user-level desktop control",
+        "governed human-client helper",
+        "old-style real-cursor movement",
+        "Computer Use is optional supporting tooling only",
+        "optional Computer Use only when target-safe and stable",
+        "Visible Desktop Coordinate Control",
+        "visible mouse movement, left-click, right-click, double-click, and keyboard input",
+        "must not use desktop-wide `MinimizeAll`",
+        "deterministic visible-target acquisition loop",
+        "derive candidate targets from label/icon/proximity/state evidence",
+        "USER-assisted coordinate calibration",
+        "temporary environment evidence",
+        "hidden app activation calls",
+        "internal signal dispatch",
+        "synthetic tray/menu activation",
+        "manually and visually locate the intended tray icon or menu item",
+        "blind full-desktop, taskbar, tray, hidden-overflow, or notification-area coordinate probing is forbidden",
+        "Live Validation Control-Surface Acquisition Blocked",
+        "USER manual confirmation as supporting evidence, not PASS",
+        "Codex-owned visible user-level input opening the intended menu/control",
+        "visible_desktop_shortcut_double_clicked",
+        "recording_studio_visible_button_opens_native_window",
+        "log_viewer_studio_visible_button_opens_native_window",
+        "Restart-persistence proof must also relaunch through the exact USER Desktop shortcut",
+        "action/effect matrix",
+        "normal USER-path interaction",
+        "dependent UI state",
+        "before state, direct action result, and dependent changed surfaces",
         "Dropdown / Selection Volume Stress Addendum",
         "null-state proof",
         "100+ item state",
@@ -512,11 +589,11 @@ def validate() -> list[str]:
         'data-dashboard-home-model="control-hub-cards-monitor-management-child-windows"',
         'data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"',
         'data-dashboard-close-affordance="window-level-close-button"',
-        'data-dashboard-close-layout="window-level-top-right-close-pill"',
+        'data-dashboard-close-layout="uiref-002-compact-top-right-symbol-control"',
         'data-dashboard-open-badge="removed"',
         'data-dashboard-settings-model="hud-overlay-monitor-groups-provider-warning"',
         'data-dashboard-ia-model="branch2-ia-controls-followthrough"',
-        'data-dashboard-quick-access="warning-notifications-only"',
+        'data-dashboard-quick-access="warning-notifications-recording-start-stop"',
         'data-dashboard-global-feature-control="tray-owned"',
         'data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"',
         'data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"',
@@ -607,7 +684,9 @@ def validate() -> list[str]:
         'id="monitoring-hud-dashboard-close-action"',
         "monitoring-hud__chrome-button--close",
         'data-control="close-dashboard"',
-        "Close",
+        'data-window-control-cluster="UIREF-002-compact-window-control-cluster"',
+        "Close HUD Dashboard",
+        "        X",
         "Quick Access",
         'id="monitoring-hud-warning-toggle"',
         'id="monitoring-hud-edit-monitor-action"',
@@ -706,6 +785,28 @@ def validate() -> list[str]:
         "Name reconnect/setup gap",
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
+
+    _require(
+        html.count('data-window-control-class="child-window-compact-symbol-close"') >= 6,
+        "FAM-006 child-window header close controls must use the compact symbol window-control marker",
+        failures,
+    )
+    for child_close_visual in (
+        ".monitoring-hud__child-window-close::before",
+        ".monitoring-hud__child-window-close::after",
+        "color: transparent;",
+        "font-size: 0;",
+        "text-indent: -999px;",
+        ".monitoring-hud__child-window-close:hover",
+        ".monitoring-hud__child-window-close:focus-visible",
+        ".monitoring-hud__child-window-close:active",
+    ):
+        _require_contains(
+            css,
+            child_close_visual,
+            "FAM-006 child-window compact symbol close visual primitive CSS",
+            failures,
+        )
 
     for interactive_control_markup in (
         'id="monitoring-hud-monitor-detail-note"',
@@ -1216,7 +1317,7 @@ def validate() -> list[str]:
         "active-overlay-recording-target",
         "target-session-truth-only",
         "active-overlay-profile-membership",
-        "future-snapshot-at-recording-start-target-candidate",
+        "snapshot-at-recording-start",
         "hiddenRecordingTargetState",
         "recordingExecutionState",
         "fileWritingState",
@@ -1248,10 +1349,17 @@ def validate() -> list[str]:
         'data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"',
         'data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"',
         'id="monitoring-hud-recording-control-launcher"',
-        'data-recording-control-window-state="future-secondary"',
-        'data-native-window-contract="future-secondary-surface"',
-        'data-recording-execution-state="blocked"',
-        'data-recording-file-writing-state="blocked"',
+        'id="monitoring-hud-recording-open-folder"',
+        'data-recording-control-window-state="quick-access-start-stop"',
+        'data-recording-control-window-state="recording-card-status-summary"',
+        'id="monitoring-hud-recording-studio-open"',
+        'data-recording-folder-action="native-and-export-folder-shell"',
+        'data-recording-folder-path-available="pre-session-root"',
+        'data-native-window-contract="dashboard-quick-access-start-stop"',
+        'data-native-window-contract="recording-studio-focused-control-status"',
+        'data-log-viewer-state="ready"',
+        'data-recording-execution-state="ready"',
+        'data-recording-file-writing-state="ready"',
         '<span>Target overlay profile</span>',
         'id="monitoring-hud-recording-target-count">2 active monitors</strong>',
     ):
@@ -1259,7 +1367,11 @@ def validate() -> list[str]:
 
     for needle in (
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
+        "monitoringHudToggleRecording",
         "monitoringHudRequestRecordingControlWindow",
+        "monitoringHudRequestLogViewerWindow",
+        "monitoringHudRequestOpenRecordingFolder",
+        "setMonitoringHudRecordingFolderOpenResult",
         "runMonitoringHudRecordingTargetPreviewProof",
         "recordingTargetPreviewProof",
         "monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile",
@@ -1269,31 +1381,61 @@ def validate() -> list[str]:
         "slc-052-dashboard-recording-card-target-status",
         "slc-052-dashboard-visible-count-and-names",
         "dashboard-recording-card-primary",
+        "dashboard-status-summary",
+        "quick-access-start-stop",
         "hud-overlay-overlay-focused",
-        "Recording Controls Future",
-        "future-secondary-surface",
+        "Start Recording",
+        "Recording Suite",
+        "Log Viewer",
+        "recording-studio-focused-control-status",
+        "native-and-export-folder-shell",
+        "create-or-open-before-session",
         "trayRecordingControlState",
     ):
         _require_contains(js, needle, "SLC-052 Dashboard Recording card target/status JS proof", failures)
 
     for needle in (
-        "class MonitoringHudRecordingControlWindow",
-        'self.setWindowTitle("Nexus Recording Control")',
-        "MONITORING_HUD_RECORDING_CONTROL_WINDOW_READY",
+        "class MonitoringHudRecordingStudioWindow",
+        'self.setWindowTitle("Nexus Recording Suite")',
+        "MONITORING_HUD_RECORDING_STUDIO_READY",
         'slice="SLC-053"',
-        '"surface": "standalone_recording_control_window"',
+        '"surface": "recording_studio_window"',
         '"taskbarRestorable": True',
-        '"recordingExecutionState": "blocked"',
-        '"recordingFileWritingState": "blocked"',
-        '"startStopState": "future-gated"',
+        '"recordingExecutionState": "enabled"',
+        '"recordingFileWritingState": "enabled"',
+        '"startEnabled": self._start_stop_state == "start-enabled"',
+        "recording_action_handler",
+        "_dispatch_monitoring_hud_recording_studio_action",
     ):
-        _require_contains(renderer, needle, "SLC-053 native Recording Control window foundation", failures)
+        _require_contains(renderer, needle, "SLC-053 native Recording Suite window", failures)
+
+    for needle in (
+        "class MonitoringHudLogViewerStudioWindow",
+        'self.setWindowTitle("Nexus Log Viewer")',
+        "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
+        'slice="SLC-054"',
+        '"surface": "log_viewer_shell"',
+        '"nativeFolderPreSessionUsable": True',
+        '"exportFolderPreSessionUsable": True',
+        '"previousLogSelectionState": "future-gated"',
+        '"exportCustomizationState": "future-gated"',
+        "recording_output_dir",
+        "recording_export_dir",
+    ):
+        _require_contains(renderer, needle, "SLC-054 minimal Log Viewer shell", failures)
 
     for needle in (
         "RECORDING_OUTPUT_CONTRACT_ID",
         "slc-054-active-overlay-recording-output-contract",
         "RECORDING_OUTPUT_FORMAT",
-        "csv-with-json-metadata-manifest",
+        "ndai-native-recording-log",
+        "RECORDING_OUTPUT_EXTENSION",
+        ".ndailog",
+        "RECORDING_VALIDATION_EXPORT_ENV",
+        "normalProductSaveCreatesExport",
+        "manual-validation-or-future-user-export-only",
+        "nativeLogReadableOnlyByNDAI",
+        "write_recording_csv_export",
         "RECORDING_OUTPUT_HEADERS",
         "timestamp_utc",
         "elapsed_ms",
@@ -1305,8 +1447,8 @@ def validate() -> list[str]:
         "render_recording_output_csv",
         "parse_recording_output_csv",
         "validate_recording_output_contract",
-        '"fileWritingState": "blocked"',
-        '"recordingExecutionState": "blocked"',
+        '"fileWritingState": "enabled"',
+        '"recordingExecutionState": "enabled"',
         '"nativeLogLoaderState": "future-separate-viewer"',
     ):
         _require_contains(output_contract, needle, "SLC-054 durable recording output contract", failures)
@@ -1315,7 +1457,7 @@ def validate() -> list[str]:
         "WORKSTREAM_READINESS_ID",
         "slc-055-fam006-validation-live-proof-readiness",
         "WORKSTREAM_PACKAGE_ID",
-        "pkg-006-active-overlay-recording-runtime-foundation",
+        "pkg-006-dashboard-recording-studio-log-viewer-option-c",
         "build_fam006_workstream_readiness_proof",
         '"workstreamGreenCandidate"',
         '"packageSlicesComplete"',
@@ -1330,7 +1472,9 @@ def validate() -> list[str]:
         "no UTS is exported until Live Validation authority is active or waived",
         "recording execution",
         "file writing",
-        "real Start/Stop controls",
+        "Recording Suite",
+        "Log Viewer",
+        "minimal Log Viewer shell",
         "Native Log Loader implementation",
     ):
         _require_contains(workstream_readiness, needle, "SLC-055 validation/live proof readiness", failures)
@@ -1369,6 +1513,7 @@ def validate() -> list[str]:
 
     for needle in (
         "New Dashboard, HUD, Overlay Profile, Monitor Group, Recording, Sensor Command Center, or child-window UI must sample from the existing FAM-006 visual system",
+        "Visual-system inheritance means shared design DNA, not component cloning",
         "The Dashboard Recording card must look and behave like an existing Dashboard hub card",
         "Implementation must hold itself to this vision contract",
     ):
@@ -1378,6 +1523,7 @@ def validate() -> list[str]:
         "recordingCard: rectFor('[data-dashboard-hub-card=\"recording\"]')",
         'recordingTargetPreview: rectFor("#monitoring-hud-recording-target-preview")',
         'recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher")',
+        'recordingOpenFolder: rectFor("#monitoring-hud-recording-open-folder")',
     ):
         _require_contains(js, needle, "SLC-052 Dashboard Recording card live geometry proof", failures)
 
@@ -1385,8 +1531,468 @@ def validate() -> list[str]:
         "dashboard-card-system-sampled",
         "inherits-dashboard-state-row",
         "02_recording_card_target_preview_standard_state_rows",
+        "02_recording_card_log_viewer_studio_pre_session_ready_state",
+        "02_recording_studio_native_window_ready_state",
+        "02_log_viewer_studio_native_window_shell_state",
+        "02_recording_card_log_viewer_studio_opened_state",
+        "stateRowsContained",
+        "hidden-from-default-body-supporting-tooltip-only",
+        "supporting-tooltip-only",
+        "titleHeaderBadgeState",
+        "ai-control-center-title-group-no-extra-badge",
+        "top-right-header",
+        "fam006-unique-child-studio-shell-v5",
+        "unique-child-standalone-feature-studio",
+        "no-resize-recording-edge-resize-log-viewer",
+        "attachedChildCornerResizeGripAbsent",
+        "denseValidatorStatusPanelRejected",
+        "nexus-window-primitives-v1-rendered-dom-css",
+        "Bounded FAM-006 Shared Primitive Carry-In",
+        "nexus_visual/nexus_window_primitives.css",
+        "ai-control-center-symbol-window-control-cluster",
+        "ai-control-center-symbol-window-control-pill",
+        "sharedPrimitiveConsumer",
+        "featureStudioPrimitive",
+        "QWebEngineView/monitoring_hud.css DOM",
+        "studioVisualInheritanceMatrix",
+        "preLiveVisualPurposeConformanceGate",
+        "REQUIRED_BEFORE_FUNCTIONAL_LV",
+        "prove-window-looks-like-accepted-vision-contract-before-proving-behavior",
+        "photo-video-element-group-visual-adjudication",
+        "functional click proof before visual-purpose proof",
+        "Any missing or non-green unwaived element-group row blocks UTS handoff",
+        "REQUIRES_CODEX_PHOTO_VIDEO_ADJUDICATION",
+        "photo-video-comparison-not-runtime-self-attestation",
+        "requiredReferenceLabels",
+        "requiredTargetLabels",
+        "requiredComparisonDimensions",
+        "full-window body/background continuity",
+        "absence of transparent or see-through void regions",
+        "button focus state must not masquerade as hover after click",
+        "invalidPassBasis",
+        "03_manage_monitors_open_state",
+        "02_recording_studio_native_window_ready_state",
+        "02_log_viewer_studio_native_window_shell_state",
+        "nativeLogRowsContained",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
+
+    for needle in (
+        "Pre-Live Visual Purpose Conformance Gate",
+        "before Live Validation begins",
+        "first visual-purpose conformance from recorded evidence, then functional behavior and interaction proof",
+        "supported only by screenshot existence, helper output, runtime marker, DOM marker, code assertion, or unadjudicated photo/video evidence",
+        "Returned UTS FAIL / Bounded Workstream Repair Required",
+        "Returned UTS Workstream Repair Missing",
+        "Returned UTS Renewed H1 Missing",
+        "Returned UTS Renewed LV Missing",
+        "returned USER UTS `FAIL` / `REPAIR` / equivalent rejection, reopen a bounded Workstream repair",
+    ):
+        _require_contains(
+            phase_governance,
+            needle,
+            "repo-wide Pre-Live Visual Purpose Conformance phase governance",
+            failures,
+        )
+
+    for needle in (
+        "Pre-Live Visual Purpose Conformance validator guidance",
+        "required precondition for visible user-facing UI",
+        "runs functional interaction proof before visual-purpose conformance is adjudicated",
+        "source-truth purpose contract, recorded photo/video element-group visual adjudication",
+        "Returned UTS failure routing validator guidance",
+        "legal route back to bounded Workstream repair",
+        "bounded Hardening checks may run alongside repair seams/slices",
+        "Returned UTS Renewed UTS Handoff Missing",
+    ):
+        _require_contains(
+            helper_registry,
+            needle,
+            "repo-wide Pre-Live Visual Purpose Conformance helper registry",
+            failures,
+        )
+
+    for needle in (
+        "nexus_window_primitives.css",
+        'data-shared-primitive-consumer="nexus-window-primitives-v1"',
+        'data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"',
+        'data-window-taxonomy="unique-child-standalone-feature-studio"',
+        'data-window-resize-taxonomy="no-resize-recording-edge-resize-log-viewer"',
+        'data-attached-child-resize-grip="absent"',
+        'data-window-control-primitive="nexus-uiref-002-compact-cluster-v1"',
+        ".monitoring-hud__feature-studio-panel[hidden]",
+        "display: none !important",
+        'data-feature-studio-body-primitive="unique-child-purpose-stack-v6"',
+        'data-log-shell-primitive="action-first-folder-access-shell-v6"',
+        "monitoring-hud__detached-child-studio-header",
+        "nexusMonitoringHudStudioApplyState",
+        "data-product-surface=\"fam006-feature-studio\"",
+        "data-feature-studio-purpose=\"ultra-lightweight-detached-recording-controller\"",
+        "monitoring-hud-studio-open-log-viewer-action",
+        "monitoring-hud-studio-start-action",
+        "monitoring-hud-studio-pause-action",
+        "monitoring-hud-studio-stop-action",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
+        "height: 31px",
+        "padding-inline: 14px",
+        "font-weight: 720",
+        "--monitoring-hud-studio-row-value-gutter: 8px",
+        "--monitoring-hud-studio-row-label-column: max-content",
+        "--monitoring-hud-studio-row-stack-vertical-gutter: 6px",
+        "--monitoring-hud-studio-row-dropdown-edge-gutter: 1px",
+        "grid-template-columns: var(--monitoring-hud-studio-row-label-column, max-content) minmax(0, 1fr)",
+        "column-gap: var(--monitoring-hud-studio-row-value-gutter)",
+        "gap: var(--monitoring-hud-studio-row-stack-vertical-gutter)",
+        'data-row-stack-vertical-gutter="6"',
+        'data-row-dropdown-edge-gutter="1"',
+        'data-dropdown-layer-contract="overlay-owned-control-not-peer-row"',
+        ".monitoring-hud__studio-truth-row [data-bounded-dropdown]",
+        "margin-block: var(--monitoring-hud-studio-row-dropdown-edge-gutter)",
+        "padding: 4px 0 2px",
+        "syncStudioTruthRowValueColumns",
+        "syncTruthRowValueColumn",
+        "valueColumnAlignment",
+        "enforced-single-row",
+        "right: 14px",
+        'data-element-group="recording-actions"',
+        'data-action-layout="transport-pill-left-route-right"',
+        'data-control-group="recording-transport-pill"',
+        'data-action-layout="segmented-transport-pill-left"',
+        "monitoring-hud__transport-pill",
+        "monitoring-hud__transport-segment--first",
+        "monitoring-hud__transport-segment--middle",
+        "monitoring-hud__transport-segment--last",
+        'data-element-group="recording-target-truth"',
+        'data-element-group="log-folder-actions"',
+        'data-action-layout="folder-actions-right-aligned"',
+        'class="monitoring-hud__state-row monitoring-hud__studio-truth-row"',
+        "monitoring-hud-studio-viewer-state",
+        "detached-child-window-header-no-title-card",
+        "titleCardState",
+        "title-first-description-beneath-no-title-card",
+        "background: transparent",
+        "overflow: visible",
+        "text-overflow: clip",
+        'data-control="log-viewer-open-export"',
+        'data-button-layout="content-fit"',
+        "START",
+        "PAUSE",
+        "STOP",
+        "OPEN LOG VIEWER",
+        'data-resize-contract="not-resizable-position-memory-only"',
+        'data-fixed-controller-height="154"',
+        'data-row-primitive="ai-control-center-state-row"',
+        "edge-resizable-log-access-shell",
+        "edge-resize-native-top-level",
+        "OPEN NATIVE LOGS",
+        "OPEN EXPORTED LOGS",
+        "VIEWER",
+        "Deferred",
+        "hub-action-content-fit-equal-gutter-32px-pill",
+    ):
+        _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
+
+    for forbidden in (
+        "monitoring-hud-studio-recording-toggle-action",
+        'data-control="recording-studio-toggle"',
+        "runtime-current-single-toggle-candidate-selection-pending",
+        "grid-template-columns: repeat(3, minmax(0, 1fr))",
+        "monitoring-hud-hub-action-content-fit-v1",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+        'data-row-primitive="ai-control-center-fact-row"',
+        'class="monitoring-hud__controller-target"',
+        'class="monitoring-hud__controller-status"',
+        'class="monitoring-hud__log-access-item"',
+        "<span>Target Overlay Profile</span>",
+        "<span>Recording State</span>",
+        "<span>Native Log</span>",
+        'data-element-group="recording-target-log-truth"',
+        'id="monitoring-hud-studio-recording-log-state"',
+        'id="monitoring-hud-studio-recording-log-detail"',
+        "Available now</small>",
+        "Empty until exported</small>",
+        "--nexus-feature-studio-title-bg",
+        'data-fixed-controller-height="238"',
+        'data-fixed-controller-height="184"',
+        'data-fixed-controller-height="210"',
+        "HEIGHT = 238",
+        'data-fixed-controller-height="176"',
+        "HEIGHT = 176",
+        'data-fixed-controller-height="292"',
+        "HEIGHT = 292",
+        "HEIGHT = 352",
+        "HEIGHT = 330",
+        "HEIGHT = 164",
+        "MINIMUM_HEIGHT = 164",
+        "log_viewer_studio_feature_studio_v4",
+        "WIDTH = 480",
+        "WIDTH = 560",
+        "hub-action-content-fit-equal-gutter-38px-pill",
+        "hub-action-content-fit-equal-gutter-34px-pill",
+        "fam006-detached-child-studio-shell-v3",
+        "child-window-row-stack",
+        "monitoring-hud__resize-corner",
+        "qsizegrip-bottom-right-enabled",
+        "feature-studio-summary",
+        "Folder Action",
+        ):
+        _require(
+            forbidden not in studio_html + "\n" + studio_js,
+            f"FAM-006 Recording Suite returned-UTS repair must reject stale UI primitive/content: {forbidden}",
+            failures,
+        )
+
+    studio_selector_root = (
+        'body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"]'
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__title",
+        ("font-size: 17px", "font-weight: 720", "letter-spacing: 0.04em"),
+        "FAM-006 Studio title must use the accepted compact child-window title scale",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__kicker",
+        ("font-size: 11px", "font-weight: 720", "letter-spacing: 0.08em"),
+        "FAM-006 Studio descriptor must use the accepted compact child-window descriptor scale",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__controller-meta-strip",
+        (
+            "--monitoring-hud-studio-row-stack-vertical-gutter: 6px",
+            "--monitoring-hud-studio-row-dropdown-edge-gutter: 1px",
+            "gap: var(--monitoring-hud-studio-row-stack-vertical-gutter)",
+            "padding: 0",
+        ),
+        "FAM-006 Recording Suite row stack must use AI Control Center row rhythm",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__log-target-strip",
+        (
+            "--monitoring-hud-studio-row-stack-vertical-gutter: 6px",
+            "--monitoring-hud-studio-row-dropdown-edge-gutter: 1px",
+            "gap: var(--monitoring-hud-studio-row-stack-vertical-gutter)",
+            "padding: 0",
+        ),
+        "FAM-006 Log Viewer row stack must use AI Control Center row rhythm",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__studio-truth-row span",
+        ("width: max-content", "font-size: 11px", "font-weight: 720"),
+        "FAM-006 Studio row label must match current AI Dashboard row label grammar",
+        failures,
+    )
+    _require_css_block_properties(
+        studio_primitives,
+        f"{studio_selector_root} .monitoring-hud__studio-truth-row strong",
+        ("font-size: 11px", "font-weight: 720"),
+        "FAM-006 Studio row status/value column must match the accepted row weight",
+        failures,
+    )
+
+    for needle in (
+        "monitoringHudStudioNativeDragHandle",
+        "DRAG_HEADER_HEIGHT = 64",
+        "HEIGHT = 154",
+        "MINIMUM_HEIGHT = 154",
+        "recording_studio_feature_studio_v5",
+        "HEIGHT = 134",
+        "MINIMUM_HEIGHT = 134",
+        "log_viewer_studio_feature_studio_v6",
+        "WM_NCHITTEST+manual-fallback-geometry-resize",
+        "hub-action-content-fit-equal-gutter-32px-pill",
+    ):
+        _require_contains(renderer, needle, "FAM-006 native Studio geometry and drag contract", failures)
+
+    for forbidden in (
+        '_monitoring_hud_studio_badge("REC"',
+        '_monitoring_hud_studio_badge("LOG"',
+        'header.addWidget(_monitoring_hud_studio_badge',
+        "log_viewer_studio_feature_studio_v5",
+    ):
+        _require(
+            forbidden not in renderer,
+            "FAM-006 Studio title/header grammar must not use REC/LOG title badges",
+            failures,
+        )
+
+    for needle in (
+        "profile-specific log consistency",
+        "normal USER-path activation for Recording Suite and Log Viewer",
+        "ultra-lightweight detached Recording controller",
+        "compact current-branch shell",
+        "standalone window layout that is not a Dashboard card clone",
+        "Recording Suite visual proof only after the normal visible activation path is",
+        "Log Viewer visual-system inheritance",
+        "user-visible native/export folder labels and paths",
+    ):
+        _require_contains(
+            recording_feature_vision,
+            needle,
+            "FAM-006 Recording returned-UTS determinism proof expectations",
+            failures,
+        )
+
+    for needle in (
+        "RETURNED_UTS_PROFILE_LOG_CONSISTENCY_GATE",
+        "RETURNED_UTS_RECORDING_STUDIO_MANUAL_BUTTON_GATE",
+        "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE",
+        "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE",
+        "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE",
+        "Assert-ReturnedUtsDeterminismGatesClear",
+        "Live Validation LV1 UTS export blocked by returned-UTS determinism gates",
+        'status = "PASS"',
+    ):
+        _require_contains(
+            live_validation,
+            needle,
+            "FAM-006 returned-UTS deterministic Live Validation stop-loss",
+            failures,
+        )
+
+    for needle in (
+        "visible_desktop_shortcut_double_clicked",
+        "recording_studio_visible_button_opens_native_window",
+        "log_viewer_studio_visible_button_opens_native_window",
+        "Live Validation LV1 UTS export blocked: required visible desktop shortcut / human-client proof is missing or failed",
+        "Vision-To-Proof Matrix For This Handoff",
+        "Log Viewer native/export path rows must be readable and contained",
+    ):
+        _require_contains(
+            live_validation,
+            needle,
+            "FAM-006 LV1 visible shortcut and native-window UTS export gate",
+            failures,
+        )
+
+    for needle in (
+        "profileLogConsistencyPassed",
+        "twoProfileLogConsistencyPassed",
+        "rowProfileIds",
+        "rowMonitorIds",
+        "targetMonitorIds",
+        "flat-user-recording-and-export-roots",
+        "nativeRootFolderName",
+        "exportRootFolderName",
+        "surfaceChildFolderState",
+        "surfaceChildFolderAbsent",
+        "internalPathLeakageAbsent",
+    ):
+        _require_contains(
+            output_contract,
+            needle,
+            "FAM-006 returned-UTS product repair recording-output proof",
+            failures,
+        )
+
+    _require(
+        'RECORDING_OUTPUT_FAMILY_DIR_NAME = "FAM-006"' not in output_contract,
+        "FAM-006 returned-UTS product repair must not expose the FAM label as the default user-visible log folder",
+        failures,
+    )
+    _require(
+        'RECORDING_OUTPUT_SURFACE_DIR_NAME = "Monitoring HUD"' not in output_contract,
+        "FAM-006 recording output must not create a Monitoring HUD child folder under Recordings or Exported Logs",
+        failures,
+    )
+
+    for needle in (
+        "always-openable-target-state-visible",
+        "recording-studio-open-target-required",
+        "recordingStudioUserPath",
+        "recording-target-no-sensor-sample",
+        "no-sensor-sample",
+    ):
+        _require_contains(
+            js,
+            needle,
+            "FAM-006 returned-UTS product repair Recording Suite visible-button proof",
+            failures,
+        )
+
+    for needle in (
+        "nativeCursorRecordingStudioReopenProof",
+        "MONITORING_HUD_STUDIO_VISUAL_INHERITANCE",
+        "nexus-window-primitives-v1-rendered-dom-css",
+        "fam006-unique-child-studio-shell-v5",
+        "ai-control-center-uiref-001-002-003-primitives",
+        "Bounded FAM-006 Shared Primitive Carry-In",
+        '"primaryVisualComparator": "FAM-006 unique child feature-studio grammar"',
+        '"compositionModel": "action-first-ultra-lightweight-detached-recording-controller"',
+        '"compositionModel": "compact-current-branch-log-access-shell"',
+        '"windowTaxonomy": "unique-child-standalone-feature-studio"',
+        '"attachedChildResizeGrip": False',
+        '"denseValidatorStatusPanelRejected": True',
+        '"attachedChildCornerResizeGripAbsent": True',
+        '"futureScopeVisualLeakageAbsent": True',
+        '"edgeResizeProofRequired": True',
+        '"visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract()',
+        '"acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES)',
+        '"headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group"',
+        '"panelPrimitiveSeed": "FAM-006 action-first controller plus AI Control Center / HUD Dashboard state-row underglow"',
+        '"panelPrimitiveSeed": "FAM-006 compact folder-action shell with AI Control Center / HUD Dashboard state-row underglow"',
+        '"visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT',
+        '"visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION',
+        '"visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY',
+        '"visualRuntimeSelfAttestation": "rejected"',
+        '"visualMatrixRequired": True',
+        '"standaloneWindowLayout": "ultra-lightweight-detached-recording-controller"',
+        '"standaloneWindowLayout": "compact-current-branch-log-access-shell"',
+        '"dashboardLifecycleDependency": "independent-while-runtime-active"',
+        '"logViewerRoute": "recording-studio-open-log-viewer-action"',
+        '"sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css"',
+        '"sharedPrimitiveConsumer": "nexus-window-primitives-v1"',
+        '"featureStudioPrimitive": MONITORING_HUD_STUDIO_VISUAL_CONTRACT',
+        '"sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css"',
+        '"genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css"',
+        '"titleHeaderBadgeState": "removed"',
+        '"standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge"',
+        '"minimizeControlLocation": "top-right-header"',
+        '"closeControlLocation": "top-right-header"',
+        '"buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-v4-button-primitive"',
+        '"windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR',
+        "AI-Control-Center-UIREF-002-window-control-cluster",
+        "AI-Control-Center-UIREF-003-action-button",
+        "AI-Control-Center-UIREF-001-title-group",
+        '"windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster"',
+        '"actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v4"',
+        '"stateRowDensityPolicy": "action-first-controller-with-ai-control-center-state-rows-no-report-panels"',
+        '"stateRowDensityPolicy": "doorway-shell-viewer-deferred-row-plus-bottom-folder-actions-no-technical-path-table"',
+        '"titleGroupVisualPolicy": "detached-child-window-header-no-title-card"',
+        "ai-control-center-symbol-window-control-pill",
+        "hub-action-content-fit-equal-gutter-32px-pill",
+        '"recordingStudioVisibleActionModel": "selected-REC-A-explicit-start-pause-stop-plus-open-log-viewer"',
+        '"recordingStartControlProof": _monitoring_hud_studio_dom_control_proof("recording-start")',
+        '"recordingPauseControlProof": _monitoring_hud_studio_dom_control_proof("recording-pause")',
+        '"recordingStopControlProof": _monitoring_hud_studio_dom_control_proof("recording-stop")',
+        '"logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer")',
+        '"resizeBehavior": self.RESIZE_BEHAVIOR',
+        'RESIZE_BEHAVIOR = "not-resizable-position-memory-only"',
+        'RESIZE_BEHAVIOR = "edge-resize-native-top-level"',
+        '"nativeLogRowsContained": bool',
+        '"windowPlacementMemoryState": "enabled"',
+        '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',
+        '"pathRowsVisualState": "hidden-from-default-body-supporting-tooltip-only"',
+        '"nativeLogPathDisplayMode": "supporting-tooltip-only"',
+        '"viewerDeferredRow": "VIEWER - Deferred"',
+        '"visibleAnatomy": "doorway-shell-with-viewer-deferred-row-and-bottom-native-export-actions"',
+        '"internalPathLeakageAbsent": not any(term in combined_roots for term in leakage_terms)',
+        "Native NDAI logs",
+    ):
+        _require_contains(
+            renderer,
+            needle,
+            "FAM-006 returned-UTS product repair Studio/Log Viewer runtime proof",
+            failures,
+        )
 
     for needle in (
         'data-package="PKG-006"',
@@ -1535,8 +2141,8 @@ def validate() -> list[str]:
         ".monitoring-hud__title-group",
         "position: sticky;",
         "scrollbar-gutter: stable;",
-        "scrollbar-gutter: stable both-edges;",
-        "--dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;",
+        "scrollbar-gutter: auto;",
+        "--dashboard-card-holder-inset-proof: scrollbar-exempt-equal-card-insets;",
         ".monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open=\"true\"])",
         ".monitoring-hud--validation-fault",
         "@media (max-width: 760px), (max-height: 620px)",
@@ -1716,10 +2322,10 @@ def validate() -> list[str]:
         'monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target"',
         'monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough"',
         'monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button"',
-        'monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill"',
+        'monitoringHud.dataset.dashboardCloseLayout = "uiref-002-compact-top-right-symbol-control"',
         'monitoringHud.dataset.dashboardOpenBadge = "removed"',
         'monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only"',
-        'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only"',
+        'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-recording-start-stop"',
         'monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned"',
         'monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable"',
         'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness"',
@@ -1934,7 +2540,8 @@ def validate() -> list[str]:
         "SLC-039 Overlay Profile settings-window controls stay bounded and distinct",
         "SLC-041 Overlay Profile focused proof chain covers Dashboard selector, settings-window membership, compact Manage Monitors context, and LV1 UTS boundary",
         '"proofSeam": "SLC-041 Overlay Profile validation and live desktop proof"',
-        "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+        "photo/video proof is the only LV1 acceptance proof",
+        "nonPhotoVideoProofEscalation",
         "formalUserTestSummaryBoundary",
         "MONITORING_HUD_WINDOW_STATUS_READY",
         "MONITORING_HUD_WINDOW_OWNERSHIP_FOCUS_READY",
@@ -1976,6 +2583,7 @@ def validate() -> list[str]:
         "WM_NCLBUTTONDOWN",
         "GetAsyncKeyState",
         "_monitoring_hud_windows_resize_cursor_id_for_edges",
+        "resize-cursor-no-forced-arrow-release",
         "preclick-hover-cursor-aligned-14px-app-owned-resize-action",
         'overlay.setProperty("resizeProofVisibility", "invisible-test-gated-no-user-facing-artifacts")',
         "polls-real-cursor-before-click",
@@ -2176,6 +2784,11 @@ def validate() -> list[str]:
         "activeResizeStateCleared",
         "cursorReset",
         "repairSelection = \"proof-path handle/coordinate/timing reacquisition; no product edge-math adjustment\"",
+        "targetAcquisitionStatus = \"PASS-codex-visible-user-level-right-click-opened-menu\"",
+        "manualUserConfirmationDisposition = \"supporting-only-not-pass-proof\"",
+        "Live Validation Control-Surface Acquisition Blocked",
+        "do not probe nearby taskbar coordinates",
+        "tooltip identity or USER manual confirmation is supporting evidence only",
     ):
         _require_contains(human_client_validation, needle, "monitoring HUD human-client validation helper", failures)
     for needle in (
@@ -2202,6 +2815,11 @@ def validate() -> list[str]:
         "SHUTDOWN_CONFIRMATION_DIALOG_VISIBLE",
         "REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV",
         "REAL_CLIENT_TRAY_PRECHECK_STARTED",
+        "MONITORING_HUD_LIVE_SELF_QA_MANIFEST_ENV",
+        "MONITORING_HUD_LIVE_SELF_QA_ROOT_ENV",
+        "MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS_ENV",
+        "MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS_ENV",
+        "MONITORING_HUD_LIVE_SELF_QA_LANE_ENV",
         "from desktop.monitoring_hud_state import load_monitoring_hud_state",
         "MONITORING_HUD_STARTUP_STATE_READY",
         "monitoring_hud_feature_enabled_at_startup",
@@ -2211,6 +2829,19 @@ def validate() -> list[str]:
         "command_overlay_action",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+    for forbidden in (
+        "RuntimeControlSurfaceWindow",
+        "Nexus Desktop AI Runtime Controls",
+        "RUNTIME_CONTROL_SURFACE_SIGNAL_RECEIVED",
+        "RUNTIME_CONTROL_SURFACE_SIGNAL_HANDLED",
+        "RUNTIME_CONTROL_SURFACE_VISIBLE",
+        "ACTIVE_SESSION_CONTROL_SURFACE_SIGNAL_SENT",
+    ):
+        if forbidden in tray:
+            failures.append(
+                "desktop launcher Core/HUD failure isolation must not contain "
+                f"validation-only runtime control surface marker {forbidden!r}"
+            )
 
     for needle in (
         'MONITORING_HUD_STATE_ENV = "NEXUS_MONITORING_HUD_STATE_PATH"',
@@ -2350,7 +2981,7 @@ def validate() -> list[str]:
         "Dashboard-specific active-client proof - no UTS export",
         "ProofSeam",
         "proofStandard",
-        "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only",
+        "Photo/video is the only accepted proof class for visible USER-facing Live Validation claims",
         "elementValidationLedger",
         "feature_fam_006_monitoring_hud_product_surface_element_ledger.md",
         "elementLedgerAlignedUserTestSummary",
@@ -2417,6 +3048,23 @@ def validate() -> list[str]:
         "ActiveUserFacingClient",
         "InteractionStepDelayMilliseconds",
         "FinalClientHoldSeconds",
+        "ExactDesktopShortcutPath",
+        "Get-ExactUserDesktopShortcutPath",
+        "Resolve-ExactDesktopShortcutForActiveRoot",
+        "Start-ExactDesktopShortcutRuntime",
+        "C:\\Users\\anden\\OneDrive\\Desktop\\FAM-006 RED - Nexus Desktop AI Launcher.lnk",
+        "NEXUS_MONITORING_HUD_LIVE_SELF_QA_MANIFEST",
+        "NEXUS_MONITORING_HUD_LIVE_SELF_QA_ROOT",
+        "NEXUS_MONITORING_HUD_LIVE_SELF_QA_LANE",
+        "NEXUS_HARNESS_LOG_ROOT",
+        "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH",
+        "NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
+        "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS",
+        "exact-user-desktop-shortcut-launch",
+        "lv1PhotoVideoOnlyProofRule",
+        "lv1NonVisualClaimUserElevationRequired",
+        "lv1ExactUserDesktopShortcutRequired",
+        "exactUserDesktopShortcutLaunchProof",
         "InteractionManifest",
         "InteractionEvidenceRoot",
         "ElementScreenshotEvidenceRoot",
@@ -2425,13 +3073,14 @@ def validate() -> list[str]:
         "lv1DetailedPerElementScreenshotsRequired",
         "per-element visual inventory",
         "issueFormCoverageMatrix",
+        "02_recording_option_c_focused_lane_complete",
         "Get-HudIssueIdsForElementLabel",
         "minimum is $MinimumScreenshots",
         "lv1RealUserFacingDesktopLauncherRequired",
         "focused_element_screenshots",
         "LV1 focused per-element screenshots missing or failed",
         "full-desktop screenshots are context only",
-        "active-client/direct-runtime proof is supporting only",
+        "supporting-only-unless-launched-through-exact-user-desktop-shortcut",
         "ShortVideoFrameRoot",
         "monitoring_hud_lv1_short_video.mp4",
         "lv1ScreenshotAndShortVideoProofRequired",
@@ -2502,16 +3151,21 @@ def validate() -> list[str]:
         "skipped User Test Summary export: UTS is Live Validation Stage 1 only",
         "Overlay/display release acceptance is deferred and non-gating",
         "Current Phase: Live Validation Stage 1 User Test Summary handoff",
-        "This pass is focused on the Dashboard Recording card visual-system repair seam.",
+        "This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.",
         "FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance",
         "FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile",
-        "FAM006-LV1-REC-003 - Future-Gated Recording Controls Stay Blocked",
-        "FAM006-LV1-REC-004 - Dashboard Card Holder Equal Insets",
+        "FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log",
+        "FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart",
+        "FAM006-LV1-REC-005 - Dashboard Card Holder Equal Insets",
         "The Recording card must not look like a custom green boxed table or a separate visual system.",
         "The Recording card target overlay profile follows the active Overlay Profile.",
         "switching the Active Overlay Profile must update the Recording card target overlay profile",
+        "Stop Recording stops the session and produces a saved/readback-complete native NDAI log.",
+        "Normal product flow must not auto-create Excel/CSV output",
+        "Log Viewer stays available for native/export folder access",
+        "The Recording card should still mirror the active Overlay Profile after restart.",
         "The scrollbar gutter must not make the cards look offset",
-        "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, and provider/model behavior are still not enabled.",
+        "Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.",
         "Step 7 - #137 Dashboard Rounded Corners On Light Background",
         "no black rectangular native corner extends beyond the visible rounded Dashboard chrome",
         "manifest.json",
@@ -2521,7 +3175,7 @@ def validate() -> list[str]:
         "no-synthetic-interaction preflight",
         "active route contains synthetic interaction code",
         "lacks real OS-level mouse input proof",
-        "JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned",
+        "JavaScript clicks, synthetic DOM events, WebView native-message fallback, WebView handler calls, QTest widget-only events, and state mutation are banned",
         "real-input fallback policy PASS",
         "synthetic fallback requires explicit USER waiver",
         "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
@@ -2547,6 +3201,12 @@ def validate() -> list[str]:
         "modalGuard",
         "closeSuppressed",
         "Active child window prevents Dashboard click-through under overlapping controls",
+        "UIREF-002-compact-window-control-cluster",
+        "ai-control-center-symbol-visible-accessible-label",
+        "default-hover-focus-pressed-disabled-keyboard-accessible",
+        "controls-focusable-accessible-names-tooltips",
+        "folder-open-blocked-status-visible",
+        "Log Viewer folder action status",
     ):
         _require_contains(renderer, needle, "monitoring HUD renderer live interaction proof", failures)
 
