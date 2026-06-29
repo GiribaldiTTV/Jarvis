@@ -642,6 +642,8 @@ window.setMonitoringHudRecordingFolderOpenResult = function(result) {
 window.setMonitoringHudRecordingOutputResult = function(result) {
   const safeResult = result && typeof result === "object" ? result : {};
   monitoringHudControlState.recordingOutputResult = safeResult;
+  monitoringHudControlState.recordingOutputRequest = null;
+  monitoringHudControlState.recordingSamples = [];
   monitoringHudControlState.recordingSessionState = safeResult.passed ? "saved-complete" : "disabled-error";
   monitoringHudControlState.recordingSessionMessage = safeResult.passed
     ? "Recording saved and read back successfully."
