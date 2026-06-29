@@ -1,8 +1,4 @@
-"""FAM-006 Workstream proof-readiness contract.
-
-This helper records SLC-055 readiness only. It does not run Hardening H1,
-Live Validation LV1, UTS, runtime recording, file writing, or PR readiness.
-"""
+"""FAM-006 Workstream proof-readiness contract."""
 
 from __future__ import annotations
 
@@ -19,12 +15,12 @@ from desktop.recording_output_contract import validate_recording_output_contract
 
 
 WORKSTREAM_READINESS_ID = "slc-055-fam006-validation-live-proof-readiness"
-WORKSTREAM_PACKAGE_ID = "pkg-006-active-overlay-recording-runtime-foundation"
+WORKSTREAM_PACKAGE_ID = "pkg-006-dashboard-recording-studio-log-viewer-option-c"
 WORKSTREAM_SEAMS = (
     "SLC-051 target-session-truth",
     "SLC-052 dashboard-recording-card-target-status",
-    "SLC-053 future-secondary-recording-control-boundary",
-    "SLC-054 output-contract-schema-readback",
+    "SLC-053 dashboard-quick-access-start-stop",
+    "SLC-054 output-contract-write-readback",
     "SLC-055 validation-live-proof-readiness",
 )
 
@@ -36,25 +32,25 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
             "slice": "SLC-051",
             "status": "complete",
             "proof": "active Overlay Profile target/session truth validator coverage",
-            "futureGate": "recording execution and file writing blocked",
+            "runtime": "snapshot-at-start target truth feeds Dashboard Start/Stop",
         },
         {
             "slice": "SLC-052",
             "status": "complete",
-            "proof": "Dashboard Recording card target/status and active-monitor transparency validator coverage",
-            "futureGate": "real Start/Stop, tray, export/share, and provider/model work blocked",
+            "proof": "Dashboard Recording card target/status, Dashboard Quick Access Start/Stop, recording execution, and active-monitor transparency validator coverage",
+            "futureGate": "tray, export/share, provider/model, and Native Log Loader work blocked",
         },
         {
             "slice": "SLC-053",
             "status": "complete",
-            "proof": "Recording Control remains future-secondary; no standalone/native control surface is active",
-            "futureGate": "Start/Stop controls, native window activation, and file writing disabled and future-gated",
+            "proof": "Dashboard quick-access Start/Stop is active and the standalone/native Recording Suite opens as the focused control/status surface",
+            "futureGate": "tray controls, keybinds, export/share customization, and provider/model work remain future-gated",
         },
         {
             "slice": "SLC-054",
             "status": "complete",
-            "proof": "durable output contract schema/readback proof",
-            "futureGate": "file writing and recording execution blocked",
+            "proof": "durable local file writing output contract writes native NDAI log output and proves readback; minimal Log Viewer shell opens native/export folders before an active-session recording exists",
+            "futureGate": "full Log Viewer, previous-log selection, export customization, Native Log Loader, export/share, and provider/model work remain future-gated",
         },
         {
             "slice": "SLC-055",
@@ -88,8 +84,8 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         "hardeningH1State": "pending-after-workstream-green",
         "hardeningH1Expectations": [
             "compare SLC-051 through SLC-055 against accepted BP1/BP2/BP3",
-            "stress null active profile, stale profile, high-volume membership, compact/default UI, output contract, and blocked execution boundaries",
-            "verify no file writing, recording execution, tray controls, export/share, provider/model, or FAM-007 scope slipped into Workstream",
+            "stress null active profile, stale profile, high-volume membership, compact/default UI, output contract, and Start/Stop states",
+            "verify file writing stays in the runtime-owned local output root, Log Viewer opens native/export roots pre-session, and tray/export customization/provider/model/FAM-007 scope does not slip into Workstream",
         ],
         "liveValidationLV1State": "pending-after-h1",
         "liveValidationLV1Expectations": [
@@ -99,30 +95,36 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         ],
         "utsState": "pending-after-lv1",
         "utsExpectations": [
-            "USER-facing summary covers Dashboard Recording card target/status, blocked execution, future-secondary Recording Control boundary, and future-gated file writing",
+            "USER-facing summary covers Dashboard Quick Access Start/Stop, Recording card target/status, Recording Suite, minimal Log Viewer shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
             "no UTS is exported until Live Validation authority is active or waived",
         ],
         "futureGatedBoundaries": [
-            "recording execution",
-            "file writing",
-            "real Start/Stop controls",
             "tray controls",
-            "export/share",
+            "keybinds",
+            "export/share customization",
+            "full Log Viewer",
+            "previous-log selection",
             "provider/model work",
             "Native Log Loader implementation",
             "FAM-007 mutation",
         ],
         "outputContractProofPassed": output_contract["passed"],
-        "fileWritingBlocked": output_contract["fileWritingBlocked"],
-        "recordingExecutionBlocked": output_contract["recordingExecutionBlocked"],
+        "fileWritingEnabled": output_contract["fileWritingEnabled"],
+        "recordingExecutionEnabled": output_contract["recordingExecutionEnabled"],
+        "writeReadbackPassed": output_contract["writeReadbackPassed"],
+        "profileLogConsistencyPassed": output_contract["profileLogConsistencyPassed"],
+        "twoProfileLogConsistencyPassed": output_contract["twoProfileLogConsistencyPassed"],
         "workstreamGreen": False,
     }
     proof["workstreamGreen"] = (
         proof["workstreamGreenCandidate"]
         and proof["packageSlicesComplete"]
         and proof["outputContractProofPassed"]
-        and proof["fileWritingBlocked"]
-        and proof["recordingExecutionBlocked"]
+        and proof["fileWritingEnabled"]
+        and proof["recordingExecutionEnabled"]
+        and proof["writeReadbackPassed"]
+        and proof["profileLogConsistencyPassed"]
+        and proof["twoProfileLogConsistencyPassed"]
         and proof["hardeningH1State"] == "pending-after-workstream-green"
         and proof["liveValidationLV1State"] == "pending-after-h1"
         and proof["utsState"] == "pending-after-lv1"

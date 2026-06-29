@@ -25,6 +25,8 @@ Known Limitations: `Accepted token values, shared CSS/component implementations,
 
 Adoption Rule: `Until code-level shared primitives are implemented, branches must treat UIREF-005 as a source-truth design-rule baseline and still prove their own surfaces visually. A future implementation carrier may turn this baseline into concrete tokens/components after USER approval.`
 
+Bounded Carry-In Note: `FAM-006 may carry nexus_visual/nexus_window_primitives.css as a branch-local shared primitive candidate only for the active returned-UTS Recording Studio / Log Viewer Studio repair approved by USER on 2026-06-22. This is a consuming-branch repair path, not global UIREF-005 primitive promotion. The branch must record consumption, proof, limitations, and any future promotion need before claiming reusable program-wide authority.`
+
 Validator / Helper Guidance: `Future helpers should flag branches that claim design-token implementation without a code carrier, claim shared primitives exist by inference, or skip visual proof because a design-rule baseline exists.`
 
 Promotion Result: `PROMOTED_AS_SOURCE_TRUTH_BASELINE_WITH_IMPLEMENTATION_DEFERRED`

@@ -198,6 +198,12 @@ INVALID_BP1_SLC_CENTERED_FIXTURE = (
 INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_technical_metadata.md"
 )
+INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE = (
+    FIXTURE_DIR / "invalid_runtime_focus_issue_anchored_selection.md"
+)
+INVALID_RUNTIME_FOCUS_FOUNDATION_LABEL_SELECTION_FIXTURE = (
+    FIXTURE_DIR / "invalid_runtime_focus_foundation_label_selection.md"
+)
 INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
 )
@@ -718,6 +724,12 @@ EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET = "BP1 cannot be SLC-centered"
 EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
     "BP1 must not center active branch technical metadata"
 )
+EXPECTED_RUNTIME_FOCUS_ISSUE_ANCHORED_FAILURE_SNIPPET = (
+    "Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity"
+)
+EXPECTED_RUNTIME_FOCUS_FOUNDATION_LABEL_FAILURE_SNIPPET = (
+    "Runtime focus selection must name a concrete feature outcome"
+)
 EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
 EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET = (
     "BP2 must be engineering-plan-first"
@@ -920,6 +932,94 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_runtime_focus_selection_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    runtime_focus_packet = (
+        "runtime focus selection" in normalized
+        or "runtime focus options" in normalized
+        or "neutral family runtime survey" in normalized
+        or "runtime feature focus" in normalized
+        or "feature carrier selection" in normalized
+        or "feature implementation options" in normalized
+        or "actual feature implementation" in normalized
+    )
+    if not runtime_focus_packet:
+        return failures
+    issue_identity_phrases = (
+        "issue #258 role: br2/bp1 branch identity",
+        "issue #258 as the selection source before surveying",
+        "selected because issue #258",
+        "github issue #258 as the selection source",
+    )
+    issue_identity_present = any(phrase in normalized for phrase in issue_identity_phrases)
+    issue_deferred_present = (
+        "future bp2/bp3 proof input" in normalized
+        or "issue evidence is not deferred to later proof planning" in normalized
+    )
+    neutral_survey_present = (
+        "family vision" in normalized
+        and "backlog" in normalized
+        and "roadmap" in normalized
+        and "workstream history" in normalized
+        and "remaining runtime layers" in normalized
+    )
+    foundation_label_present = any(
+        phrase in normalized
+        for phrase in (
+            "active overlay recording execution foundation",
+            "persistence foundation",
+            "infrastructure foundation",
+            "execution foundation",
+            "dashboard overlay profile persistence and restart hydration runtime foundation",
+        )
+    ) and "recommended runtime focus:" in normalized
+    concrete_outcome_markers = (
+        "feature outcome:",
+        "user-visible feature outcome:",
+        "what user gets:",
+        "what the user gets:",
+        "actual feature outcome:",
+        "concrete feature outcome:",
+    )
+    concrete_outcome_present = any(phrase in normalized for phrase in concrete_outcome_markers)
+    missing_concrete_outcome_present = any(
+        phrase in normalized
+        for phrase in (
+            "feature outcome: missing",
+            "feature outcome: `missing",
+            "user-visible feature outcome: missing",
+            "user-visible feature outcome: `missing",
+            "actual feature outcome: missing",
+            "actual feature outcome: `missing",
+            "concrete feature outcome: missing",
+            "concrete feature outcome: `missing",
+            "what user gets: missing",
+            "what user gets: `missing",
+            "what the user gets: missing",
+            "what the user gets: `missing",
+        )
+    )
+    require(
+        not issue_identity_present,
+        "Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity",
+    )
+    require(
+        neutral_survey_present,
+        "Runtime focus selection must survey family/runtime source truth before issue evidence",
+    )
+    require(
+        issue_deferred_present,
+        "Runtime focus selection must defer issue evidence to future BP2/BP3 proof input",
+    )
+    require(
+        not foundation_label_present
+        or (concrete_outcome_present and not missing_concrete_outcome_present),
+        "Runtime focus selection must name a concrete feature outcome when infrastructure, groundwork, persistence, execution, schema, hydration, or foundation labels are used",
+    )
+    return failures
+
+
 def _validate_user_branch_plan_review_text(text: str) -> list[str]:
     failures, require = _collect_failures()
     governance._validate_user_branch_plan_review_gate(
@@ -1019,6 +1119,15 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         "user will see a local user hub packet",
         "the accepted bp1 vision will become the target for bp2",
         "user reads the fam-007 packet",
+        "name the concrete branch outcome",
+        "user should be able to point to the accepted outcome",
+        "user should see an applied explanation",
+        "the branch vision functions as the product and governance target",
+        "strongest implied",
+        "narrower surface path",
+        "broader owner/family impact path",
+        "choose the most concrete",
+        "which concrete outcome should user expect",
     )
     for phrase in template_shell_phrases:
         require(
@@ -4885,6 +4994,18 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             failures.append("Local USER packet validation did not reject stable-name Governance.zip")
         stable_zip.unlink()
 
+        embedded_zip = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "NESTED_PACKET.zip"
+        embedded_zip.write_bytes(export_zip.read_bytes())
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        embedded_zip_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("must not embed ZIP artifacts" in failure for failure in embedded_zip_result.failures):
+            failures.append("Local USER packet validation did not reject embedded packet ZIP artifacts")
+        embedded_zip.unlink()
+
         extra_primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "SECOND_REVIEW.md"
         extra_primary.write_text("# Second Review\n\nInvalid extra primary file.\n", encoding="utf-8")
         _zip_local_user_packet_fixture(packet_dir, export_zip)
@@ -5116,6 +5237,142 @@ def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
     return failures
 
 
+def _validate_fam006_bp3_packet_generation_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "I accept the FAM-006 BP2 Option C Branch Plan and approve Codex to "
+        "prepare BP3 Workstream Entry / Orchestration Validation. BP3 must "
+        "validate the Dashboard Recording Card, Recording Studio, minimal Log "
+        "Viewer Studio launch/folder shell, native/export log boundary, "
+        "open-folder pre-session usability, issue #258 target-reliability line "
+        "item, deferred carryforward, Element-to-Phase proof, rollback, "
+        "validation, Live Validation, UTS expectations, visual-system inheritance "
+        "proof, branch-sprawl safety, and slice/SLC/seam sequencing. Workstream "
+        "implementation remains pending separate USER approval."
+    )
+    copied = [
+        (
+            "Docs/family_feature_visions/FAM-006_recording.md",
+            "FAM-006_recording.md",
+        ),
+        (
+            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
+            "feature_fam_006_dashboard_recording_start_stop_local_file.md",
+        ),
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-006-20260601-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=7,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=["Workstream implementation remains pending USER approval."],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: bp3 orchestration review\n"
+                "BP3 Packet Reviewability State: Reviewable\n"
+                "BP3 USER Gate State: Pending USER Review\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if result.status != review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        failures.append(
+            "FAM-006 BP3 generated packet did not classify as bp3-orchestration-review: "
+            f"{result.status}; {result.failures[:3]}"
+        )
+
+    stale_support_packet_files = dict(packet_files)
+    stale_support_packet_files[review_bundle.USER_BRANCH_VISION_REVIEW_FILE] = (
+        "FAM-006 BP3 support context.\n"
+        "USER Accepted - BP1 Branch Vision accepted after Option F planning "
+        "solidification. BP2 remains Pending USER Review.\n"
+    )
+    stale_support_result = review_bundle._validate_workstream_entry_packet_decision_path(
+        stale_support_packet_files,
+        expected_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if not any("stale BP2-active wording" in failure for failure in stale_support_result.failures):
+        failures.append(
+            "FAM-006 BP3 packet validation did not reject stale BP2-pending wording "
+            "inside a generated support file"
+        )
+
+    combined = "\n".join(packet_files.values()).casefold()
+    forbidden_terms = [
+        "workstream entry final decision review",
+        "implementation approval: approved",
+        "approve bounded workstream package implementation",
+    ]
+    stale_terms = [term for term in forbidden_terms if term in combined]
+    if stale_terms:
+        failures.append(
+            "FAM-006 BP3 generated packet emitted stale implementation/final-review wording: "
+            + "; ".join(stale_terms)
+        )
+
+    primary_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    required_sections = [
+        "## Plain-Language BP3 Readiness Summary",
+        "## Accepted BP1 Vision Traceability",
+        "## Accepted BP2 Plan Traceability",
+        "## Option C Whole-Package Coherence Test",
+        "## Surface Admit / Split / Defer Findings",
+        "## Proposed Slice / SLC / Seam Sequence",
+        "## Direct Proof Plan",
+        "## Rollback And Reversibility Posture",
+        "## Validation / H1 / Live Validation / UTS Plan",
+        "## Visual-System Inheritance Proof",
+        "## Deferred Carryforward Applicability",
+        "## Exact BP3 USER Decision Options",
+    ]
+    missing_sections = [section for section in required_sections if section not in primary_digest]
+    if missing_sections:
+        failures.append(
+            "FAM-006 BP3 primary digest is missing substantive orchestration sections: "
+            + "; ".join(missing_sections)
+        )
+
+    required_proof_terms = [
+        "Dashboard Recording Card proof",
+        "Recording Studio proof",
+        "Log Viewer shell proof",
+        "Native/export boundary proof",
+        "Issue #258 proof",
+        "Option C remains one coherent bounded",
+        "Return to BP2",
+    ]
+    missing_proof_terms = [term for term in required_proof_terms if term not in primary_digest]
+    if missing_proof_terms:
+        failures.append(
+            "FAM-006 BP3 primary digest is missing direct-proof topics: "
+            + "; ".join(missing_proof_terms)
+        )
+
+    return failures
+
+
 def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[str]:
     failures: list[str] = []
     exact_decision = (
@@ -5252,6 +5509,197 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
             "FAM-007 Workstream implementation approval packet is missing "
             "implementation-ready terms: "
             + "; ".join(missing_required_terms)
+        )
+    return failures
+
+
+def _validate_fam006_workstream_approval_review_packet_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "Does USER approve bounded FAM-006 Workstream/runtime implementation "
+        "for the accepted Option C package: Dashboard Recording Card, Recording "
+        "Studio, minimal Log Viewer Studio launch/folder shell, native/export "
+        "log boundary, open-folder pre-session usability, issue #258 target "
+        "reliability, deferred carryforward applicability, Element-to-Phase "
+        "proof, rollback, validation, H1, Live Validation, UTS, visual-system "
+        "inheritance, and slice/SLC/seam sequencing? Workstream implementation "
+        "remains pending until USER approves this packet."
+    )
+    copied = [
+        (
+            "Docs/family_feature_visions/FAM-006_recording.md",
+            "FAM-006_recording.md",
+        ),
+        (
+            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
+            "feature_fam_006_dashboard_recording_start_stop_local_file.md",
+        ),
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-006-20260609-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=7,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Runtime mutation, issue closeout, PR Readiness, merge, release, "
+                "branch cleanup, Governance/FAM-007/neutral-main mutation, "
+                "provider/model/private work, and full Log Viewer/export/tray/"
+                "keybind/settings/Native Log Loader scope remain pending."
+            ],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: workstream implementation approval review - "
+                "BP1, BP2, and BP3 are accepted; bounded FAM-006 Workstream/runtime "
+                "implementation approval packet is Reviewable; USER implementation "
+                "approval remains pending.\n"
+                "Packet Reviewability State: Reviewable\n"
+                "USER Gate State: Pending USER Review - Workstream/runtime "
+                "implementation approval remains pending\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="FAM-006 Dashboard Recording Start/Stop To Local File",
+            review_purpose="Fixture Workstream implementation approval review support file.",
+            source_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+            source_head="fixture-head",
+            upstream="origin/feature/fam-006-dashboard-recording-start-stop-local-file",
+            origin_main="fixture-origin-main",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Runtime mutation, issue closeout, PR Readiness, merge, release, "
+                "branch cleanup, Governance/FAM-007/neutral-main mutation, "
+                "provider/model/private work, and full Log Viewer/export/tray/"
+                "keybind/settings/Native Log Loader scope remain pending."
+            ],
+            copied=copied,
+        )
+        branch_plan_review = (
+            target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+        ).read_text(encoding="utf-8")
+        packet_files[review_bundle.USER_BRANCH_PLAN_REVIEW_FILE] = branch_plan_review
+        review_bundle._write_user_branch_vision_review(
+            target=target,
+            title="FAM-006 Workstream Implementation Approval Review - Option C",
+            review_purpose="Fixture Workstream implementation approval review accepted BP1 support file.",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Runtime mutation, issue closeout, PR Readiness, merge, release, "
+                "branch cleanup, Governance/FAM-007/neutral-main mutation, "
+                "provider/model/private work, and full Log Viewer/export/tray/"
+                "keybind/settings/Native Log Loader scope remain pending."
+            ],
+            copied=copied,
+        )
+        branch_vision_review = (
+            target / review_bundle.USER_BRANCH_VISION_REVIEW_FILE
+        ).read_text(encoding="utf-8")
+        packet_files[review_bundle.USER_BRANCH_VISION_REVIEW_FILE] = branch_vision_review
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if (
+        result.status
+        != review_bundle.DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
+    ):
+        failures.append(
+            "FAM-006 Workstream implementation approval review packet did not "
+            f"classify as pending approval review: {result.status}; "
+            f"{result.failures[:3]}"
+        )
+    combined = "\n".join(packet_files.values())
+    required_terms = [
+        "Dashboard Recording Card",
+        "Recording Studio",
+        "minimal Log Viewer Studio",
+        "native/export log boundary",
+        "issue #258 target reliability",
+        "SLC-051 / Seam 1 target reliability",
+        "A green first seam is continuation proof, not package completion",
+        "Single-seam or single-slice authority is not granted",
+        "Workstream/runtime implementation remains pending until USER approves",
+    ]
+    missing_required_terms = [term for term in required_terms if term not in combined]
+    if missing_required_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review packet is missing "
+            "required bounded-package terms: "
+            + "; ".join(missing_required_terms)
+        )
+    combined_normalized = combined.casefold()
+    forbidden_terms = [
+        "fam-007 dev/owner",
+        "fam-007 breakpoint",
+        "dev/owner",
+        "action-gate registry",
+        "bounded workstream package implementation is approved by this packet",
+        "bp3 is not accepted",
+        "bp2 remains pending",
+    ]
+    emitted_forbidden_terms = [
+        term for term in forbidden_terms if term in combined_normalized
+    ]
+    if emitted_forbidden_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review packet emitted "
+            "wrong-family, approved-implementation, or stale-gate wording: "
+            + "; ".join(emitted_forbidden_terms)
+        )
+    side_aid_required_terms = [
+        "Accepted BP1 Context",
+        "USER Accepted - BP1 Branch Vision accepted by USER",
+        "BP2 answered: Option C was accepted by USER as the Branch Plan",
+        "BP3 answered: Option C was accepted by USER as one coherent bounded Workstream package",
+        "Workstream/runtime implementation approval remains Pending USER Review",
+    ]
+    missing_side_aid_terms = [
+        term for term in side_aid_required_terms if term not in branch_vision_review
+    ]
+    if missing_side_aid_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review BP1 support aid "
+            "is missing accepted-context terms: "
+            + "; ".join(missing_side_aid_terms)
+        )
+    side_aid_forbidden_terms = [
+        "Draft - update to Complete",
+        "BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded",
+        "USER must accept, revise, waive, reject, or block BP1 before BP2 preparation can be green",
+        "BP2 remains Pending USER Review",
+        "BP3 remains Pending USER Review",
+        "BP3 may be prepared only after BP2 is accepted or waived",
+        "BP3 must answer whether Option C is accepted",
+        "Workstream Entry remains pending",
+    ]
+    emitted_side_aid_forbidden_terms = [
+        term
+        for term in side_aid_forbidden_terms
+        if term.casefold() in branch_vision_review.casefold()
+    ]
+    if emitted_side_aid_forbidden_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review BP1 support aid "
+            "emitted stale BP1/BP2/BP3 gate wording: "
+            + "; ".join(emitted_side_aid_forbidden_terms)
         )
     return failures
 
@@ -7267,6 +7715,7 @@ def validate() -> list[str]:
         INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE,
         INVALID_BP1_SLC_CENTERED_FIXTURE,
         INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
+        INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE,
         INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE,
         VALID_BP2_FAM006_DOGFOOD_FIXTURE,
         VALID_BP2_FAM007_DOGFOOD_FIXTURE,
@@ -7909,6 +8358,26 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BP1 technical-metadata fixture did not reject active branch metadata"
+        )
+
+    runtime_focus_issue_failures = _validate_runtime_focus_selection_text(
+        INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RUNTIME_FOCUS_ISSUE_ANCHORED_FAILURE_SNIPPET not in "\n".join(
+        runtime_focus_issue_failures
+    ):
+        failures.append(
+            "Invalid runtime-focus issue-anchored fixture did not reject issue-shaped selection"
+        )
+
+    runtime_focus_foundation_failures = _validate_runtime_focus_selection_text(
+        INVALID_RUNTIME_FOCUS_FOUNDATION_LABEL_SELECTION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RUNTIME_FOCUS_FOUNDATION_LABEL_FAILURE_SNIPPET not in "\n".join(
+        runtime_focus_foundation_failures
+    ):
+        failures.append(
+            "Invalid runtime-focus foundation-label fixture did not reject non-feature selection"
         )
 
     missing_bp1_trace_failures = _validate_bp2_branch_plan_review_text(
@@ -11205,7 +11674,9 @@ line item, not a seam or separate branch.
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
+    failures.extend(_validate_fam006_bp3_packet_generation_guard())
     failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
+    failures.extend(_validate_fam006_workstream_approval_review_packet_guard())
 
     return failures
 

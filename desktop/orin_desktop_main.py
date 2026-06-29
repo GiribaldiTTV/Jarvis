@@ -35,10 +35,16 @@ MONITORING_HUD_LIVE_SELF_QA_MANIFEST = ""
 MONITORING_HUD_LIVE_SELF_QA_ROOT = ""
 MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = 250
 MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = 0
+MONITORING_HUD_LIVE_SELF_QA_LANE = "full"
 RUNTIME_RELAUNCH_EVENT = r"Local\NexusRuntimeRelaunchRequestV1"
 RUNTIME_DESKTOP_SETTLED_EVENT = r"Local\NexusRuntimeDesktopSettledV1"
 AUTHORITATIVE_DESKTOP_SETTLED_MARKER = "DESKTOP_OUTCOME|SETTLED|state=dormant"
 MONITORING_HUD_STARTUP_ENV = "NEXUS_MONITORING_HUD_STARTUP_ENABLED"
+MONITORING_HUD_LIVE_SELF_QA_MANIFEST_ENV = "NEXUS_MONITORING_HUD_LIVE_SELF_QA_MANIFEST"
+MONITORING_HUD_LIVE_SELF_QA_ROOT_ENV = "NEXUS_MONITORING_HUD_LIVE_SELF_QA_ROOT"
+MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS_ENV = "NEXUS_MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS"
+MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS_ENV = "NEXUS_MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS"
+MONITORING_HUD_LIVE_SELF_QA_LANE_ENV = "NEXUS_MONITORING_HUD_LIVE_SELF_QA_LANE"
 SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
 REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"
@@ -165,6 +171,28 @@ def parse_startup_abort_signal_arg(argv):
 def parse_monitoring_hud_live_self_qa_args(argv):
     global MONITORING_HUD_LIVE_SELF_QA_MANIFEST, MONITORING_HUD_LIVE_SELF_QA_ROOT
     global MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS, MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS
+    global MONITORING_HUD_LIVE_SELF_QA_LANE
+    MONITORING_HUD_LIVE_SELF_QA_MANIFEST = (
+        os.environ.get(MONITORING_HUD_LIVE_SELF_QA_MANIFEST_ENV) or ""
+    ).strip()
+    MONITORING_HUD_LIVE_SELF_QA_ROOT = (
+        os.environ.get(MONITORING_HUD_LIVE_SELF_QA_ROOT_ENV) or ""
+    ).strip()
+    env_step_delay = (os.environ.get(MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS_ENV) or "").strip()
+    if env_step_delay:
+        try:
+            MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = max(250, int(env_step_delay))
+        except ValueError:
+            MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = 250
+    env_final_hold = (os.environ.get(MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS_ENV) or "").strip()
+    if env_final_hold:
+        try:
+            MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = max(0, int(env_final_hold))
+        except ValueError:
+            MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = 0
+    env_lane = (os.environ.get(MONITORING_HUD_LIVE_SELF_QA_LANE_ENV) or "").strip()
+    if env_lane:
+        MONITORING_HUD_LIVE_SELF_QA_LANE = env_lane
     for i, arg in enumerate(argv):
         if arg == "--monitoring-hud-live-self-qa-manifest" and i + 1 < len(argv):
             MONITORING_HUD_LIVE_SELF_QA_MANIFEST = argv[i + 1]
@@ -180,6 +208,8 @@ def parse_monitoring_hud_live_self_qa_args(argv):
                 MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = max(0, int(argv[i + 1]))
             except ValueError:
                 MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = 0
+        elif arg == "--monitoring-hud-live-self-qa-lane" and i + 1 < len(argv):
+            MONITORING_HUD_LIVE_SELF_QA_LANE = argv[i + 1]
 
 
 def runtime_milestone(event):
@@ -518,6 +548,7 @@ def main():
                 surface_role="hud",
                 monitoring_hud_feature_enabled=monitoring_hud_feature_enabled_at_startup,
                 monitoring_hud_dashboard_visible=monitoring_hud_dashboard_visible_at_startup,
+                monitoring_hud_initial_state=monitoring_hud_saved_state,
             )
         except Exception as exc:
             window = DesktopRuntimeUnavailable(
@@ -530,6 +561,7 @@ def main():
             evidence_root=MONITORING_HUD_LIVE_SELF_QA_ROOT,
             step_delay_ms=MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS,
             final_hold_ms=MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS,
+            lane=MONITORING_HUD_LIVE_SELF_QA_LANE,
         )
     runtime_milestone("RENDERER_MAIN|WINDOW_CONSTRUCTED")
     if exit_if_startup_abort_requested():

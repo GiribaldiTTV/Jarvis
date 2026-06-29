@@ -18,6 +18,7 @@ User Experience Flow: Review the copied branch-specific files and note any chang
 Surface Map: Decision surface and review surface are described by copied source-truth context.
 Product Options / Design Paths: Accept the proposed Branch Vision, revise the Branch Vision, waive BP1, or reject this branch direction.
 Codex Recommendations: Recommendation one includes placement, behavior, tradeoffs, risks, and reasoning, but it still tells USER how BP1 works instead of recommending a branch-specific product direction.
+Additional Shell Example: Name the concrete branch outcome, choose the most concrete outcome USER can visualize, and decide between strongest implied outcome, narrower surface path, or broader owner/family impact path.
 Why This Fits The Nexus Vision: This keeps project and family vision above branch planning while preventing implementation seams from becoming accidental product direction.
 USER Design Questions: Does this Branch Vision match what the USER wants this branch to become? Are any surfaces, flows, boundaries, or future-gated ideas missing?
 USER Response: Pending USER response.
