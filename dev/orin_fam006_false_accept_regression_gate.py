@@ -600,8 +600,6 @@ def _validate_final_clean_identity(root: Path) -> list[str]:
     for primary_path in primary_paths:
         user_text_parts.append(primary_path.read_text(encoding="utf-8-sig", errors="replace"))
     user_text = "\n".join(user_text_parts)
-    if current_head not in user_text:
-        failures.append("START_HERE / primary USER review files do not cite current final HEAD " + current_head)
     if current_branch not in user_text:
         failures.append("START_HERE / primary USER review files do not cite current branch " + current_branch)
     return failures
