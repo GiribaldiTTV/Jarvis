@@ -1,6 +1,7 @@
 import os
 import sys
 import ctypes
+import ctypes.wintypes
 import datetime
 import json
 import threading
@@ -13,14 +14,15 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from PySide6.QtGui import QCursor
-from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot
+from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot, QPoint
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from desktop.core_visualization_renderer import CoreVisualizationWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 from desktop.monitoring_hud_state import load_monitoring_hud_state
+from desktop.resident_access import build_resident_access_menu_plan
 from desktop.single_instance import NamedSignal
-from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL
+from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL, build_resident_tray_icon
 
 try:
     from desktop.desktop_renderer import DesktopRuntimeWindow
@@ -49,6 +51,8 @@ SHUTDOWN_CONFIRMATION_DECISION_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_DECISION"
 SHUTDOWN_CONFIRMATION_TIMEOUT_ENV = "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS"
 REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_MANIFEST"
 REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"
+FAM003_SETTINGS_LIVE_RESIZE_MANIFEST_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_MANIFEST"
+FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_EXIT"
 DESKTOP_VALIDATION_SHORTCUT_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
@@ -100,8 +104,41 @@ class DesktopRuntimeUnavailable(QObject):
     def open_command_overlay(self):
         self.toggle_command_overlay()
 
+    def command_overlay_state(self):
+        return {"visible": False, "phase": "closed"}
+
     def request_create_custom_task_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+
+    def resident_access_status_snapshot(self):
+        return build_resident_access_menu_plan(
+            monitoring_hud_state=self.monitoring_hud_feature_state(),
+            command_overlay_state=self.command_overlay_state(),
+        )
+
+    def open_resident_access_settings(self, source="tray", focus="quick_access"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_SETTINGS_OPEN_ABORTED"
+            f"|source={source}|focus={focus}|reason=desktop_runtime_unavailable"
+        )
+
+    def request_ai_status_from_resident_access(self, source="tray"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_AI_STATUS_UNAVAILABLE"
+            f"|source={source}|reason=desktop_runtime_unavailable"
+        )
+
+    def request_privacy_lockdown_from_resident_access(self, source="tray"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_PRIVACY_LOCKDOWN_UNAVAILABLE"
+            f"|source={source}|reason=desktop_runtime_unavailable"
+        )
+
+    def request_resident_quick_action_from_tray(self, route_id="", source="tray"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_QUICK_ACTION_ABORTED"
+            f"|source={source}|route_id={route_id}|reason=desktop_runtime_unavailable"
+        )
 
     def show_ai_control_center_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|AI_CONTROL_CENTER_ABORTED|source={source}|reason=desktop_runtime_unavailable")
@@ -458,6 +495,15 @@ def real_client_tray_precheck_shortcut_path():
     )
 
 
+def fam003_settings_live_resize_manifest_path():
+    return (os.environ.get(FAM003_SETTINGS_LIVE_RESIZE_MANIFEST_ENV) or "").strip()
+
+
+def fam003_settings_live_resize_exits_after_run():
+    value = (os.environ.get(FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV) or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
+
+
 def startup_abort_requested():
     return bool(STARTUP_ABORT_SIGNAL_FILE) and os.path.exists(STARTUP_ABORT_SIGNAL_FILE)
 
@@ -493,6 +539,7 @@ def main():
 
     app = QApplication(sys.argv)
     app.setApplicationName(TRAY_IDENTITY_LABEL)
+    app.setWindowIcon(build_resident_tray_icon())
     app.setQuitOnLastWindowClosed(False)
     try:
         app.setApplicationDisplayName(TRAY_IDENTITY_LABEL)
@@ -582,6 +629,22 @@ def main():
         nonlocal shutdown_started, shutdown_force_kill_timer
         if shutdown_started:
             return
+        settings_guard = getattr(window, "request_resident_access_settings_shutdown_guard", None)
+        if callable(settings_guard):
+            try:
+                if settings_guard(source="client_shutdown", resume_callback=do_shutdown):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        "|source=client_shutdown"
+                    )
+                    return
+            except TypeError:
+                if settings_guard(source="client_shutdown"):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        "|source=client_shutdown"
+                    )
+                    return
         shutdown_started = True
         runtime_milestone("RENDERER_MAIN|SHUTDOWN_REQUESTED")
         tray_entry.close()
@@ -605,6 +668,25 @@ def main():
                 f"RENDERER_MAIN|SHUTDOWN_CONFIRMATION_IGNORED|source={safe_source}|reason=already_active"
             )
             return
+        settings_guard = getattr(window, "request_resident_access_settings_shutdown_guard", None)
+        if callable(settings_guard):
+            try:
+                if settings_guard(
+                    source=f"shutdown_confirmation_{safe_source}",
+                    resume_callback=lambda: request_shutdown_confirmation(source=safe_source),
+                ):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        f"|source={safe_source}"
+                    )
+                    return
+            except TypeError:
+                if settings_guard(source=f"shutdown_confirmation_{safe_source}"):
+                    runtime_milestone(
+                        "RENDERER_MAIN|SHUTDOWN_CONFIRMATION_BLOCKED_BY_RESIDENT_SETTINGS_DIRTY_GUARD"
+                        f"|source={safe_source}"
+                    )
+                    return
 
         shutdown_confirmation_active = True
         try:
@@ -714,6 +796,16 @@ def main():
                     return {"error": f"{type(exc).__name__}: {exc}"}
             return {"error": "monitoring_hud_feature_state unavailable"}
 
+        def visible_tray_action_texts():
+            try:
+                return [
+                    action.text()
+                    for action in tray_entry.tray_menu.actions()
+                    if not action.isSeparator() and action.isVisible()
+                ]
+            except Exception:
+                return []
+
         def record_step(step_id, title, ok, detail, proof_class="active-client-tray-precheck"):
             steps.append(
                 {
@@ -764,21 +856,36 @@ def main():
             initial_state = current_state()
             record_step(
                 "launch_settled_tray_available",
-                "Desktop shortcut runtime settled with tray available",
-                tray_entry.tray_icon is not None and not bool(initial_state.get("feature_enabled")),
-                "tray icon exists and HUD feature starts disabled",
+                "Desktop shortcut runtime settled with tray available and USER-disabled HUD rows hidden",
+                tray_entry.tray_icon is not None
+                and not bool(initial_state.get("feature_enabled"))
+                and "Open HUD Dashboard" not in visible_tray_action_texts()
+                and "HUD Overlay Deferred" not in visible_tray_action_texts(),
+                (
+                    "tray icon exists, HUD feature starts disabled, "
+                    f"visible_actions={visible_tray_action_texts()}"
+                ),
             )
 
-            tray_entry.request_monitoring_hud_toggle_from_tray("real_client_precheck_enable")
+            settings_setup = getattr(window, "_set_monitoring_hud_feature_enabled", None)
+            if callable(settings_setup):
+                settings_setup(True, source="real_client_precheck_settings_setup")
+            tray_entry.refresh_monitoring_hud_actions("real_client_precheck_settings_setup")
             pump(700)
             enabled_state = current_state()
             record_step(
-                "enable_hud_opens_dashboard",
-                "Tray Enable HUD Feature opens the real HUD Dashboard",
+                "settings_setup_admits_hud_route",
+                "Settings/setup-owned HUD admission makes the dashboard route available for tray proof",
                 bool(enabled_state.get("feature_enabled"))
-                and bool(enabled_state.get("dashboard_visible"))
-                and bool(window.isVisible()),
-                f"feature_enabled={enabled_state.get('feature_enabled')} dashboard_visible={enabled_state.get('dashboard_visible')} window_visible={window.isVisible()}",
+                and (
+                    "Open HUD Dashboard" in visible_tray_action_texts()
+                    or "Close HUD Dashboard" in visible_tray_action_texts()
+                ),
+                (
+                    f"feature_enabled={enabled_state.get('feature_enabled')} "
+                    f"dashboard_visible={enabled_state.get('dashboard_visible')} "
+                    f"window_visible={window.isVisible()} visible_actions={visible_tray_action_texts()}"
+                ),
             )
 
             tray_entry.request_monitoring_hud_dashboard_from_tray("real_client_precheck_close")
@@ -805,17 +912,26 @@ def main():
                 f"feature_enabled={reopened_state.get('feature_enabled')} dashboard_visible={reopened_state.get('dashboard_visible')} window_visible={window.isVisible()}",
             )
 
-            tray_entry.request_monitoring_hud_toggle_from_tray("real_client_precheck_disable")
+            if callable(settings_setup):
+                settings_setup(False, source="real_client_precheck_settings_disable")
+            tray_entry.refresh_monitoring_hud_actions("real_client_precheck_settings_disable")
             pump(500)
             disabled_state = current_state()
             record_step(
-                "disable_hud_recovers",
-                "Tray Disable HUD Feature hides Dashboard and leaves runtime recoverable",
+                "settings_disable_hides_hud_rows",
+                "Settings/setup-owned HUD disable hides HUD rows and leaves runtime recoverable",
                 not bool(disabled_state.get("feature_enabled"))
                 and not bool(disabled_state.get("dashboard_visible"))
                 and not bool(window.isVisible())
+                and "Open HUD Dashboard" not in visible_tray_action_texts()
+                and "HUD Overlay Deferred" not in visible_tray_action_texts()
                 and not shutdown_started,
-                f"feature_enabled={disabled_state.get('feature_enabled')} dashboard_visible={disabled_state.get('dashboard_visible')} window_visible={window.isVisible()} shutdown_started={shutdown_started}",
+                (
+                    f"feature_enabled={disabled_state.get('feature_enabled')} "
+                    f"dashboard_visible={disabled_state.get('dashboard_visible')} "
+                    f"window_visible={window.isVisible()} shutdown_started={shutdown_started} "
+                    f"visible_actions={visible_tray_action_texts()}"
+                ),
             )
 
             tray_entry.request_shutdown_from_tray("real_client_precheck_exit")
@@ -840,6 +956,345 @@ def main():
             write_manifest("FAIL", f"{type(exc).__name__}: {exc}")
         finally:
             if real_client_tray_precheck_exits_after_run():
+                QTimer.singleShot(500, do_shutdown)
+
+    fam003_settings_live_resize_started = False
+
+    def run_fam003_settings_live_resize_precheck():
+        nonlocal fam003_settings_live_resize_started
+        manifest_path = fam003_settings_live_resize_manifest_path()
+        if not manifest_path or fam003_settings_live_resize_started or shutdown_started:
+            return
+        fam003_settings_live_resize_started = True
+        runtime_milestone("RENDERER_MAIN|FAM003_SETTINGS_LIVE_RESIZE_PRECHECK_STARTED")
+        started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        steps = []
+
+        def pump(duration_ms=250):
+            deadline = time.time() + (max(0, duration_ms) / 1000.0)
+            while time.time() < deadline:
+                QApplication.processEvents()
+                time.sleep(0.025)
+
+        def record_step(step_id, title, ok, detail, evidence=None):
+            steps.append(
+                {
+                    "id": step_id,
+                    "title": title,
+                    "codexPrecheck": "PASS" if ok else "FAIL",
+                    "detail": detail,
+                    "evidence": evidence or {},
+                }
+            )
+
+        def write_manifest(status, failure=""):
+            payload = {
+                "schema": "fam003-settings-live-resize-precheck-v2",
+                "status": status,
+                "failure": failure,
+                "startedAt": started_at,
+                "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "surface": "FAM-003 Global Settings",
+                "shortcutPath": real_client_tray_precheck_shortcut_path(),
+                "normalLauncherProof": True,
+                "proofMethod": "normal desktop shortcut launch plus Windows resize cursor hover proof plus SetCursorPos held Win32 left-button drag",
+                "formalUtsTouched": False,
+                "steps": steps,
+            }
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(manifest_path)), exist_ok=True)
+                with open(manifest_path, "w", encoding="utf-8") as handle:
+                    json.dump(payload, handle, indent=2, sort_keys=True)
+                runtime_milestone(
+                    "RENDERER_MAIN|FAM003_SETTINGS_LIVE_RESIZE_PRECHECK_MANIFEST_WRITTEN"
+                    f"|status={status}|path={manifest_path}"
+                )
+            except Exception as exc:
+                runtime_milestone(
+                    "RENDERER_MAIN|FAM003_SETTINGS_LIVE_RESIZE_PRECHECK_MANIFEST_FAILED"
+                    f"|reason={type(exc).__name__}"
+                )
+
+        def drive_resize_drag(dialog):
+            user32 = ctypes.windll.user32
+            set_cursor_pos = user32.SetCursorPos
+            set_cursor_pos.argtypes = [ctypes.c_int, ctypes.c_int]
+            set_cursor_pos.restype = ctypes.c_bool
+            mouse_event = user32.mouse_event
+            mouse_event.argtypes = [
+                ctypes.wintypes.DWORD,
+                ctypes.c_long,
+                ctypes.c_long,
+                ctypes.wintypes.DWORD,
+                ctypes.c_ulong,
+            ]
+            mouse_event.restype = None
+            move = 0x0001
+            left_down = 0x0002
+            left_up = 0x0004
+
+            class CursorInfo(ctypes.Structure):
+                _fields_ = [
+                    ("cbSize", ctypes.wintypes.DWORD),
+                    ("flags", ctypes.wintypes.DWORD),
+                    ("hCursor", ctypes.wintypes.HCURSOR),
+                    ("ptScreenPos", ctypes.wintypes.POINT),
+                ]
+
+            get_cursor_info = user32.GetCursorInfo
+            get_cursor_info.argtypes = [ctypes.POINTER(CursorInfo)]
+            get_cursor_info.restype = ctypes.c_bool
+            load_cursor = user32.LoadCursorW
+            load_cursor.restype = ctypes.wintypes.HCURSOR
+            bring_window_to_top = user32.BringWindowToTop
+            bring_window_to_top.argtypes = [ctypes.wintypes.HWND]
+            bring_window_to_top.restype = ctypes.c_bool
+            set_foreground_window = user32.SetForegroundWindow
+            set_foreground_window.argtypes = [ctypes.wintypes.HWND]
+            set_foreground_window.restype = ctypes.c_bool
+            set_active_window = user32.SetActiveWindow
+            set_active_window.argtypes = [ctypes.wintypes.HWND]
+            set_active_window.restype = ctypes.wintypes.HWND
+            get_foreground_window = user32.GetForegroundWindow
+            get_foreground_window.restype = ctypes.wintypes.HWND
+
+            def current_cursor_handle():
+                info = CursorInfo()
+                info.cbSize = ctypes.sizeof(CursorInfo)
+                if not get_cursor_info(ctypes.byref(info)):
+                    return 0, False
+                return int(info.hCursor or 0), bool(int(info.flags) & 0x00000001)
+
+            def focus_dialog_window():
+                hwnd = ctypes.wintypes.HWND(int(dialog.winId()))
+                try:
+                    bring_window_to_top(hwnd)
+                    set_active_window(hwnd)
+                    set_foreground_window(hwnd)
+                except Exception:
+                    pass
+                QApplication.processEvents()
+                return int(get_foreground_window() or 0)
+
+            def settle_cursor_at_point(point):
+                set_cursor_pos(int(point.x() - 2), int(point.y() - 2))
+                QApplication.processEvents()
+                time.sleep(0.045)
+                set_cursor_pos(int(point.x()), int(point.y()))
+                mouse_event(move, 1, 0, 0, 0)
+                QApplication.processEvents()
+                time.sleep(0.035)
+                set_cursor_pos(int(point.x()), int(point.y()))
+                for _ in range(18):
+                    QApplication.processEvents()
+                    time.sleep(0.010)
+                try:
+                    getattr(dialog, "_poll_settings_resize_hover_cursor")()
+                except Exception:
+                    pass
+                first = current_cursor_handle()
+                for _ in range(9):
+                    QApplication.processEvents()
+                    time.sleep(0.010)
+                try:
+                    getattr(dialog, "_poll_settings_resize_hover_cursor")()
+                except Exception:
+                    pass
+                second = current_cursor_handle()
+                return second if second[0] else first
+
+            expected_cursor = int(load_cursor(None, 32642) or 0)
+            arrow_cursor = int(load_cursor(None, 32512) or 0)
+            before = dialog.geometry()
+            foreground_after_focus = focus_dialog_window()
+            start_global = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(8, 8))
+            end_global = start_global + QPoint(170, 120)
+            cursor_before_drag, cursor_visible = settle_cursor_at_point(start_global)
+            cursor_edges = getattr(dialog, "_settings_resize_edges_for_screen_point")(start_global)
+            cursor_edges_under = getattr(dialog, "_settings_resize_edges_under_cursor")()[1]
+            cursor_key = getattr(dialog, "_settings_resize_cursor_key", None)
+            point_belongs = getattr(dialog, "_settings_point_belongs_to_window")(start_global)
+            cursor_matches_resize = cursor_visible and expected_cursor and cursor_before_drag == expected_cursor
+            cursor_changed_from_arrow = cursor_visible and arrow_cursor and cursor_before_drag != arrow_cursor
+            mouse_event(left_down, 0, 0, 0, 0)
+            try:
+                for step in range(1, 38):
+                    x = int(start_global.x() + (end_global.x() - start_global.x()) * step / 37)
+                    y = int(start_global.y() + (end_global.y() - start_global.y()) * step / 37)
+                    set_cursor_pos(x, y)
+                    mouse_event(move, 0, 0, 0, 0)
+                    QApplication.processEvents()
+                    time.sleep(0.008)
+            finally:
+                mouse_event(left_up, 0, 0, 0, 0)
+            pump(220)
+            after = dialog.geometry()
+            return {
+                "before": {
+                    "x": before.x(),
+                    "y": before.y(),
+                    "width": before.width(),
+                    "height": before.height(),
+                },
+                "after": {
+                    "x": after.x(),
+                    "y": after.y(),
+                    "width": after.width(),
+                    "height": after.height(),
+                },
+                "widthDelta": after.width() - before.width(),
+                "heightDelta": after.height() - before.height(),
+                "start": {"x": start_global.x(), "y": start_global.y()},
+                "end": {"x": end_global.x(), "y": end_global.y()},
+                "maximum": {
+                    "width": dialog.maximumWidth(),
+                    "height": dialog.maximumHeight(),
+                },
+                "minimum": {
+                    "width": dialog.minimumWidth(),
+                    "height": dialog.minimumHeight(),
+                },
+                "cursorBeforeDrag": {
+                    "handle": cursor_before_drag,
+                    "expectedResizeCursor": expected_cursor,
+                    "arrowCursor": arrow_cursor,
+                    "visible": cursor_visible,
+                    "matchesResizeCursor": cursor_matches_resize,
+                    "changedFromArrow": cursor_changed_from_arrow,
+                    "edgesForScreen": str(cursor_edges),
+                    "edgesUnderCursor": str(cursor_edges_under),
+                    "cursorKey": str(cursor_key),
+                    "foregroundAfterFocus": foreground_after_focus,
+                    "dialogWindowHandle": int(dialog.winId()),
+                    "settingsHoverPollTickedForValidation": True,
+                    "pointBelongsToWindow": bool(point_belongs),
+                    "startPointInsideResizeRail": bool(getattr(cursor_edges, "value", cursor_edges)),
+                },
+                "resizeActiveAfterRelease": bool(getattr(dialog, "_settings_resize_active", False)),
+                "windowResizeBehavior": str(dialog.property("windowResizeBehavior") or ""),
+            }
+
+        try:
+            opener = getattr(window, "open_resident_access_settings", None)
+            if not callable(opener):
+                record_step(
+                    "settings_open_route_available",
+                    "Runtime exposes the FAM-003 Global Settings open route",
+                    False,
+                    "open_resident_access_settings is unavailable",
+                )
+                write_manifest("FAIL", "open_resident_access_settings unavailable")
+                return
+            opener(source="fam003_settings_live_resize_precheck", focus="quick_access")
+            pump(700)
+            dialog = getattr(window, "_resident_access_settings_dialog", None)
+            open_ok = dialog is not None and dialog.isVisible()
+            record_step(
+                "settings_window_opened",
+                "Global Settings opens through the resident access runtime route",
+                open_ok,
+                f"dialog_present={dialog is not None}; visible={bool(dialog and dialog.isVisible())}",
+            )
+            if not open_ok:
+                write_manifest("FAIL", "Global Settings did not open")
+                return
+            dialog.move(160, 120)
+            dialog.resize(700, 360)
+            dialog.raise_()
+            dialog.activateWindow()
+            pump(260)
+            resize_evidence = drive_resize_drag(dialog)
+            resize_ok = (
+                resize_evidence["widthDelta"] >= 120
+                and resize_evidence["heightDelta"] >= 80
+                and resize_evidence["cursorBeforeDrag"]["matchesResizeCursor"]
+                and not resize_evidence["resizeActiveAfterRelease"]
+                and resize_evidence["windowResizeBehavior"]
+                == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42"
+            )
+            record_step(
+                "settings_window_user_drag_resize",
+                "Global Settings resizes through a real held left-button drag on the reachable resize rail",
+                resize_ok,
+                (
+                    f"delta={resize_evidence['widthDelta']}x{resize_evidence['heightDelta']}; "
+                    f"cursorMatchesResize={resize_evidence['cursorBeforeDrag']['matchesResizeCursor']}; "
+                    f"behavior={resize_evidence['windowResizeBehavior']}"
+                ),
+                resize_evidence,
+            )
+            dirty_dialog = dialog
+            if dirty_dialog is not None and getattr(dirty_dialog, "_slot_combos", None):
+                combo = dirty_dialog._slot_combos[0]
+                if combo.count() > 1:
+                    combo.setCurrentIndex((combo.currentIndex() + 1) % combo.count())
+                    pump(160)
+            dirty_before_shutdown = bool(
+                dirty_dialog is not None
+                and dirty_dialog.isVisible()
+                and getattr(dirty_dialog, "_has_unsaved_changes")()
+            )
+            do_shutdown()
+            pump(260)
+            dirty_shutdown_blocked = bool(
+                dirty_dialog is not None
+                and dirty_dialog.isVisible()
+                and not shutdown_started
+                and getattr(dirty_dialog, "_close_guard_active", False)
+                and dirty_dialog.close_guard_overlay.isVisible()
+                and dirty_dialog.property("dirtyCloseInterceptSource") == "client_shutdown"
+            )
+            record_step(
+                "settings_dirty_client_shutdown_guard",
+                "Dirty Global Settings blocks the actual client shutdown route before any app close",
+                dirty_before_shutdown and dirty_shutdown_blocked,
+                (
+                    f"dirtyBefore={dirty_before_shutdown}; shutdownStarted={shutdown_started}; "
+                    f"dialogVisible={bool(dirty_dialog and dirty_dialog.isVisible())}; "
+                    f"guard={bool(dirty_dialog and getattr(dirty_dialog, '_close_guard_active', False))}; "
+                    f"source={dirty_dialog.property('dirtyCloseInterceptSource') if dirty_dialog else None!r}"
+                ),
+                {
+                    "dirtyBeforeShutdown": dirty_before_shutdown,
+                    "shutdownStarted": shutdown_started,
+                    "dialogVisible": bool(dirty_dialog and dirty_dialog.isVisible()),
+                    "guardActive": bool(dirty_dialog and getattr(dirty_dialog, "_close_guard_active", False)),
+                    "interceptSource": str(dirty_dialog.property("dirtyCloseInterceptSource") if dirty_dialog else ""),
+                },
+            )
+            if dirty_dialog is not None and dirty_dialog.isVisible() and getattr(dirty_dialog, "_close_guard_active", False):
+                dirty_dialog.guard_cancel_button.click()
+                pump(180)
+            cancel_kept_alive = bool(
+                dirty_dialog is not None
+                and dirty_dialog.isVisible()
+                and not shutdown_started
+                and getattr(dirty_dialog, "_has_unsaved_changes")()
+                and not getattr(dirty_dialog, "_close_guard_active", False)
+                and dirty_dialog.property("dirtyCloseResolution") == "cancel-preserved-dirty-window-open"
+            )
+            record_step(
+                "settings_dirty_client_shutdown_cancel",
+                "Cancel keeps the dirty Settings window and client alive after shutdown guard",
+                cancel_kept_alive,
+                (
+                    f"shutdownStarted={shutdown_started}; dialogVisible={bool(dirty_dialog and dirty_dialog.isVisible())}; "
+                    f"dirty={bool(dirty_dialog and getattr(dirty_dialog, '_has_unsaved_changes')())}; "
+                    f"resolution={dirty_dialog.property('dirtyCloseResolution') if dirty_dialog else None!r}"
+                ),
+            )
+            status = "PASS" if all(step["codexPrecheck"] == "PASS" for step in steps) else "FAIL"
+            write_manifest(status)
+        except Exception as exc:
+            record_step(
+                "settings_live_resize_exception",
+                "FAM-003 Settings live resize precheck exception",
+                False,
+                f"{type(exc).__name__}: {exc}",
+            )
+            write_manifest("FAIL", f"{type(exc).__name__}: {exc}")
+        finally:
+            if fam003_settings_live_resize_exits_after_run():
                 QTimer.singleShot(500, do_shutdown)
 
     def settle_passive_default_handoff():
@@ -870,6 +1325,8 @@ def main():
         settle_passive_default_handoff()
         if real_client_tray_precheck_manifest_path():
             QTimer.singleShot(800, run_real_client_tray_precheck)
+        if fam003_settings_live_resize_manifest_path():
+            QTimer.singleShot(950, run_fam003_settings_live_resize_precheck)
 
     window_show_requested = False
 

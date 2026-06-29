@@ -80,6 +80,45 @@ class FamilyRule:
 
 FAMILY_RULES: tuple[FamilyRule, ...] = (
     FamilyRule(
+        "fam003-settings-focus-routing",
+        (
+            "residentaccesssettingsdialog",
+            "set_focus",
+            "settings focus",
+            "focus target",
+            "focus targets",
+            "focus=\"tray_visibility\"",
+            "focus=\"ai_status\"",
+            "focus=\"privacy\"",
+            "focus=\"owner_routes\"",
+            "tray_visibility",
+            "ai_status",
+            "owner_routes",
+            "quick_access",
+            "quick access editor",
+            "tray help",
+            "settings page",
+            "tray parent",
+        ),
+    ),
+    FamilyRule(
+        "fam003-native-tray-submenu-winapi",
+        (
+            "native tray",
+            "tray icon",
+            "quick access/ai native submenus",
+            "createpopupmenu",
+            "appendmenuw",
+            "trackpopupmenu",
+            "hmenu",
+            "uint_ptr",
+            "mf_popup",
+            "submenu handle",
+            "handle-sized",
+            "ctypes",
+        ),
+    ),
+    FamilyRule(
         "rar-status-green-parser",
         (
             "status",
@@ -87,7 +126,6 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "unproven",
             "green",
             "case",
-            "normalize",
             "disposition",
             "resolved",
             "no applicable impact",

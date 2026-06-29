@@ -955,6 +955,18 @@ def _read(relative_path: str) -> str:
     return (ROOT / relative_path).read_text(encoding="utf-8")
 
 
+def _slice_between(text: str, start_marker: str, end_marker: str | None = None) -> str:
+    start = text.find(start_marker)
+    if start == -1:
+        return ""
+    if end_marker is None:
+        return text[start:]
+    end = text.find(end_marker, start + len(start_marker))
+    if end == -1:
+        return text[start:]
+    return text[start:end]
+
+
 def _require(condition: bool, message: str, failures: list[str]) -> None:
     if not condition:
         failures.append(message)
@@ -3706,6 +3718,16 @@ def validate() -> list[str]:
     ai_control_js = _read("nexus_visual/ai_control_center.js")
     live_resize_helper = _read("dev/orin_ai_control_center_live_resize_validation.py")
     monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
+    ai_control_renderer = "\n".join(
+        (
+            _slice_between(
+                renderer,
+                "class AIControlCenterCommandPage",
+                "class QuickCreateGroupDialog",
+            ),
+            _slice_between(renderer, "class AIControlCenterDialog"),
+        )
+    )
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
     active_activation_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md"
@@ -9598,7 +9620,7 @@ def validate() -> list[str]:
         'data-scrollbar-style="nexus-thin-glow"',
     ):
         _require(
-            forbidden not in renderer,
+            forbidden not in ai_control_renderer,
             f"desktop renderer AI Control Center must not retain stale visual/content contract {forbidden!r}",
             failures,
         )
@@ -9616,11 +9638,14 @@ def validate() -> list[str]:
     for needle in (
         "ai_control_center_action",
         "ai_control_center_button",
-        "AI Control Center",
+        "AI Status / Command Center",
+        "request_ai_status_from_tray",
+        "TRAY_AI_STATUS_COMMAND_CENTER_ROUTED",
+        "route=fam007-ai-control-center",
         "request_ai_control_center_from_tray",
         "TRAY_AI_CONTROL_CENTER_REQUESTED",
         "TRAY_AI_CONTROL_CENTER_ROUTED",
-        "90: self.request_ai_control_center_from_tray",
+        "120: self.request_ai_status_from_tray",
         "carry_in=f3-ff01-narrow-doorway",
         "provider_visible_data=none",
         "provider_execution=blocked",
@@ -9629,6 +9654,15 @@ def validate() -> list[str]:
         "route_not_visible",
     ):
         _require(needle in tray_controller, f"tray controller native AI doorway is missing {needle!r}", failures)
+    for forbidden in (
+        'append(ai_menu, 90, "AI Control Center", True)',
+        '"AI Control Center",',
+    ):
+        _require(
+            forbidden not in tray_controller,
+            f"tray controller native AI doorway must not expose stale FAM-007 visible label {forbidden!r}",
+            failures,
+        )
 
     for needle in (
         "show_ai_control_center_from_tray",
