@@ -5,7 +5,7 @@ does not make LV green. It proves that the current branch state either blocks
 a new LV1 retest candidate while recurring defects remain reopened, that the
 recurring rows have branch-local closure proof before a fresh packet is
 generated, or that a fresh packet has been generated and USER LV1 retest is
-still pending.
+still pending or legally returned as PASS and digested.
 """
 
 from __future__ import annotations
@@ -169,11 +169,18 @@ def main() -> int:
     repaired_mode = "Retest Candidate Gate: `PASS - READY FOR FRESH LV1 RETEST PACKET`" in ledger_text
     active_state_text = "\n".join(_read(state_file) for state_file in STATE_FILES)
     uts_text = _read(UTS_PATH)
+    user_pass_digested_mode = (
+        repaired_mode
+        and "User Test Summary Results: `PASS`" in active_state_text
+        and "User Test Summary Results Pending is cleared" in active_state_text
+        and "Result: PASS" in uts_text
+        and "Returned USER result: PASS" in uts_text
+    )
     packet_generated_mode = (
         repaired_mode
         and _has_fresh_retest_pending(active_state_text)
         and re.search(r"FAM-003-\d{8}-\d{6}\.zip", active_state_text)
-        and "Result: USER RETEST PENDING" in uts_text
+        and ("Result: USER RETEST PENDING" in uts_text or user_pass_digested_mode)
     )
 
     _row(rows, "same-defect recurrence ledger exists", bool(ledger_text), str(RECURRENCE_LEDGER))
@@ -182,7 +189,10 @@ def main() -> int:
         rows,
         "recurrence gate mode is recognized",
         blocked_mode or repaired_mode,
-        f"blocked={blocked_mode}; repaired={repaired_mode}; packet_generated={packet_generated_mode}",
+        (
+            f"blocked={blocked_mode}; repaired={repaired_mode}; "
+            f"packet_generated={packet_generated_mode}; user_pass_digested={user_pass_digested_mode}"
+        ),
     )
 
     for phrase in COMMON_REQUIRED_LEDGER_PHRASES:
@@ -288,8 +298,19 @@ def main() -> int:
             and "WAIVED:" in uts_text
             and _has_current_proof_stamp(uts_text)
         )
-        uts_ok = pre_packet_uts_ok or post_packet_uts_ok
-        uts_label = "UTS handoff waits for or routes fresh retest packet"
+        returned_pass_uts_ok = (
+            "Result: PASS" in uts_text
+            and "Returned USER result: PASS" in uts_text
+            and "Current gate: Live Validation Stage 1 - USER retest PASS returned" in uts_text
+            and re.search(r"FAM-003-\d{8}-\d{6}\.zip", uts_text)
+            and "Recorded result options:" in uts_text
+            and "PASS: USER returned" in uts_text
+            and "FAIL: Not selected." in uts_text
+            and "WAIVED: Not selected." in uts_text
+            and _has_current_proof_stamp(uts_text)
+        )
+        uts_ok = pre_packet_uts_ok or post_packet_uts_ok or returned_pass_uts_ok
+        uts_label = "UTS handoff waits for, routes, or records fresh retest result"
     _row(rows, uts_label, uts_ok, str(UTS_PATH))
 
     bundle_text = _read(Path(__file__).with_name("orin_user_review_bundle.py"))
@@ -317,7 +338,9 @@ def main() -> int:
     if failed:
         print("FAIL: FAM-003 same-defect recurrence validation failed")
         return 1
-    if repaired_mode and packet_generated_mode:
+    if user_pass_digested_mode:
+        print("PASS: FAM-003 same-defect recurrence gate is repaired and USER retest PASS is digested")
+    elif repaired_mode and packet_generated_mode:
         print("PASS: FAM-003 same-defect recurrence gate is repaired and USER retest packet is pending USER result")
     elif repaired_mode:
         print("PASS: FAM-003 same-defect recurrence gate is repaired and ready for fresh packet generation")
