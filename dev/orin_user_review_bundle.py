@@ -18,6 +18,7 @@ import os
 import re
 import shutil
 import stat
+import struct
 import subprocess
 import zipfile
 from collections import Counter
@@ -1704,6 +1705,803 @@ def _local_user_packet_layout_failures(
     return failures, primary_files
 
 
+def _fam003_lv1_visual_retest_packet_detected(packet_files: Mapping[str, str]) -> bool:
+    combined = "\n".join(
+        (
+            packet_files.get("START_HERE.md", ""),
+            packet_files.get("USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md", ""),
+            packet_files.get("Review Aids/LV1_RETEST_PACKET_FILE_DIGEST.md", ""),
+        )
+    ).casefold()
+    return (
+        "fam-003" in combined
+        and "lv1 visual retest" in combined
+        and "global settings" in combined
+        and "quick access" in combined
+    )
+
+
+FAM003_VISUAL_UDL_IDS = tuple(f"UDL-VIS-{index:03d}" for index in range(1, 15))
+FAM003_VISUAL_UDL_REQUIRED_FIELDS = (
+    "Defect ID",
+    "Origin",
+    "Exact USER wording where applicable",
+    "Source-truth basis",
+    "Expected behavior",
+    "Actual behavior",
+    "Evidence path or screenshot reference",
+    "Affected files/surfaces",
+    "Owner/family boundary",
+    "Impact",
+    "Root cause",
+    "Validator/proof gap",
+    "Adjacent-defect sweep result",
+    "Exact repair target",
+    "Acceptance criteria",
+    "Required proof",
+    "Validation required",
+    "Status",
+    "Closure proof when closed",
+)
+FAM003_VISUAL_UDL_ALLOWED_STATUSES = {
+    "OPEN",
+    "REPRODUCED",
+    "IN_REPAIR",
+    "FIXED_PENDING_PROOF",
+    "PROOF_FAILED",
+    "REOPENED",
+    "CLOSED_WITH_PROOF",
+    "BLOCKED_SOURCE_TRUTH",
+    "OUT_OF_SCOPE_USER_APPROVAL_REQUIRED",
+}
+FAM003_RECURRING_DEFECT_IDS = (
+    "F3-LV1-UI-001",
+    "F3-LV1-UI-016",
+    "F3-LV1-UI-020",
+    "F3-LV1-UI-021",
+    "F3-LV1-PROOF-002",
+    "F3-LV1-UI-030",
+    "F3-LV1-UI-031",
+    "F3-LV1-UI-032",
+    "F3-LV1-UI-033",
+    "F3-LV1-UI-034",
+    "F3-LV1-UI-035",
+    "F3-LV1-UI-036",
+    "F3-LV1-UI-037",
+    "F3-LV1-UI-038",
+    "F3-LV1-UI-043",
+    "F3-LV1-UI-044",
+    "F3-LV1-UI-045",
+    "F3-LV1-UI-046",
+    "F3-LV1-UI-047",
+    "F3-LV1-UI-048",
+    "F3-LV1-UI-049",
+    "F3-LV1-UI-050",
+    "F3-LV1-UI-051",
+)
+FAM003_LOOP_BREAKER_DEFECT_ID = "F3-LV1-PROOF-003"
+FAM003_PACKET_IMAGE_INTEGRITY_DEFECT_ID = "F3-LV1-PROOF-004"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+PNG_SIGNATURE_HEX = "89 50 4E 47 0D 0A 1A 0A"
+
+
+def _fam003_recurrence_ledger_failures(recurrence_text: str) -> list[str]:
+    failures: list[str] = []
+    if FAM003_LOOP_BREAKER_DEFECT_ID not in recurrence_text:
+        failures.append(f"{FAM003_LOOP_BREAKER_DEFECT_ID} is missing from recurrence ledger")
+    if "Result: `PASS - WOULD BLOCK`" not in recurrence_text:
+        failures.append("recurrence ledger lacks prior-packet blockability proof")
+    if "Retest Candidate Gate: `BLOCKED`" in recurrence_text:
+        failures.append("same-defect recurrence gate is BLOCKED; packet cannot be a retest candidate")
+
+    table_statuses: dict[str, str] = {}
+    table_pattern = re.compile(
+        r"^\|\s*`(F3-LV1-(?:UI|PROOF|FUNC)-\d{3})`\s*\|\s*`([^`]+)`\s*\|",
+        re.MULTILINE,
+    )
+    for match in table_pattern.finditer(recurrence_text):
+        table_statuses[match.group(1)] = match.group(2).strip()
+
+    for defect_id in (*FAM003_RECURRING_DEFECT_IDS, FAM003_LOOP_BREAKER_DEFECT_ID):
+        status = table_statuses.get(defect_id)
+        if not status:
+            failures.append(f"{defect_id} is missing from recurrence table")
+        elif status != "CLOSED_WITH_PROOF":
+            failures.append(f"{defect_id} recurrence status is not CLOSED_WITH_PROOF: {status}")
+    return failures
+
+
+def _fam003_visual_udl_schema_failures(visual_udl_text: str) -> list[str]:
+    failures: list[str] = []
+    if "| ID | Status | Defect / Risk |" in visual_udl_text:
+        failures.append("visual UDL is still a compact summary table")
+
+    section_pattern = re.compile(
+        r"^##\s+(UDL-VIS-\d{3})\b(?P<body>.*?)(?=^##\s+UDL-VIS-\d{3}\b|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    field_pattern = re.compile(r"^-\s+([^:]+):\s*(.*)$")
+    sections: dict[str, dict[str, str]] = {}
+    for match in section_pattern.finditer(visual_udl_text):
+        defect_id = match.group(1)
+        fields: dict[str, str] = {}
+        current_field: str | None = None
+        for raw_line in match.group("body").splitlines():
+            field_match = field_pattern.match(raw_line)
+            if field_match:
+                current_field = field_match.group(1).strip()
+                fields[current_field] = field_match.group(2).strip()
+            elif current_field and raw_line.startswith("  "):
+                fields[current_field] = f"{fields[current_field]} {raw_line.strip()}".strip()
+            else:
+                current_field = None
+        sections[defect_id] = fields
+
+    for defect_id in FAM003_VISUAL_UDL_IDS:
+        fields = sections.get(defect_id)
+        if not fields:
+            failures.append(f"{defect_id} missing detailed section")
+            continue
+        missing_fields = [
+            field
+            for field in FAM003_VISUAL_UDL_REQUIRED_FIELDS
+            if not fields.get(field) or fields.get(field) in {"TODO", "`TODO`", "TBD", "`TBD`"}
+        ]
+        if missing_fields:
+            failures.append(f"{defect_id} missing fields: {', '.join(missing_fields)}")
+        status = fields.get("Status", "").strip("` ")
+        if status not in FAM003_VISUAL_UDL_ALLOWED_STATUSES:
+            failures.append(f"{defect_id} has illegal status {fields.get('Status', '<missing>')}")
+        elif status != "CLOSED_WITH_PROOF":
+            failures.append(f"{defect_id} is not CLOSED_WITH_PROOF: {status}")
+        if status == "CLOSED_WITH_PROOF":
+            for closure_field in (
+                "Evidence path or screenshot reference",
+                "Acceptance criteria",
+                "Validation required",
+                "Closure proof when closed",
+            ):
+                if not fields.get(closure_field):
+                    failures.append(f"{defect_id} missing closure field {closure_field}")
+    return failures
+
+
+def _fam003_latest_defect_statuses(udl_text: str) -> dict[str, str]:
+    """Return the latest recorded status per FAM-003 packet/visual defect row."""
+
+    statuses: dict[str, str] = {}
+    section_pattern = re.compile(
+        r"^##\s+((?:UDL-\d{3})|(?:F3-LV1-(?:UI|PROOF|FUNC)-\d{3}))\b(?P<body>.*?)(?="
+        r"^##\s+(?:UDL-\d{3}|F3-LV1-(?:UI|PROOF|FUNC)-\d{3})\b|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    for match in section_pattern.finditer(udl_text):
+        status_match = re.search(
+            r"^Status:\s*`?([^`\n]+)`?",
+            match.group("body"),
+            re.MULTILINE,
+        )
+        if status_match:
+            statuses[match.group(1)] = status_match.group(1).strip()
+    return statuses
+
+
+def _posix_entry_path(base_dir: Path, entry: str) -> Path:
+    return base_dir.joinpath(*PurePosixPath(entry).parts)
+
+
+def _png_image_decode(data: bytes) -> tuple[bool, str, int, int]:
+    if data[:8] != PNG_SIGNATURE:
+        return False, f"invalid PNG signature {data[:8].hex(' ').upper()}", 0, 0
+    if len(data) < 24 or data[12:16] != b"IHDR":
+        return False, "PNG IHDR chunk is missing or truncated", 0, 0
+
+    try:
+        from PIL import Image
+
+        with Image.open(io.BytesIO(data)) as image:
+            width, height = image.size
+            image.verify()
+        if width <= 0 or height <= 0:
+            return False, f"Pillow decoded zero-size PNG {width}x{height}", width, height
+        return True, "Pillow", width, height
+    except ImportError:
+        pass
+    except Exception as exc:
+        pillow_error = f"Pillow decode failed: {exc}"
+    else:
+        pillow_error = ""
+
+    try:
+        from PySide6.QtGui import QImage
+
+        image = QImage.fromData(data, "PNG")
+        if image.isNull():
+            return False, "QImage decode failed: null PNG image", 0, 0
+        width, height = image.width(), image.height()
+        if width <= 0 or height <= 0:
+            return False, f"QImage decoded zero-size PNG {width}x{height}", width, height
+        return True, "QImage", width, height
+    except ImportError:
+        pass
+    except Exception as exc:
+        qimage_error = f"QImage decode failed: {exc}"
+    else:
+        qimage_error = ""
+
+    if "pillow_error" in locals():
+        return False, pillow_error, 0, 0
+    if "qimage_error" in locals():
+        return False, qimage_error, 0, 0
+    width, height = struct.unpack(">II", data[16:24])
+    return False, f"no normal image decoder available; IHDR-only size {width}x{height}", width, height
+
+
+def _fam003_manifest_png_entries(
+    manifest_text: str,
+    *,
+    settings_prefix: str,
+    known_settings_entries: set[str],
+) -> tuple[set[str], list[str]]:
+    if not manifest_text.strip():
+        return set(), []
+
+    try:
+        manifest = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        return set(), [f"settings visual manifest is not valid JSON: {exc}"]
+
+    png_values: list[str] = []
+    artifacts = manifest.get("artifacts") if isinstance(manifest, Mapping) else None
+    if isinstance(artifacts, list):
+        for artifact in artifacts:
+            if isinstance(artifact, Mapping):
+                path_value = artifact.get("path")
+                if isinstance(path_value, str) and path_value.casefold().endswith(".png"):
+                    png_values.append(path_value)
+
+    manage_guard = (
+        manifest.get("manageMonitorsDirtyGuardReference")
+        if isinstance(manifest, Mapping)
+        else None
+    )
+    if isinstance(manage_guard, Mapping):
+        for key in ("image", "sideBySide"):
+            path_value = manage_guard.get(key)
+            if isinstance(path_value, str) and path_value.casefold().endswith(".png"):
+                png_values.append(path_value)
+
+    entries: set[str] = set()
+    failures: list[str] = []
+    for raw_value in png_values:
+        normalized = raw_value.replace("\\", "/")
+        match = re.search(
+            r"fam003_settings_repair_visual_validation/\d{8}-\d{6}/(.+?\.png)$",
+            normalized,
+            re.IGNORECASE,
+        )
+        if match:
+            entries.add(settings_prefix + match.group(1))
+            continue
+
+        basename = PurePosixPath(normalized).name
+        matches = sorted(
+            entry for entry in known_settings_entries if PurePosixPath(entry).name == basename
+        )
+        if len(matches) == 1:
+            entries.add(matches[0])
+        else:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: manifest PNG reference "
+                f"{raw_value!r} cannot be mapped to exactly one packet artifact"
+            )
+    return entries, failures
+
+
+def _fam003_receipt_has_pass_row(receipt_text: str, artifact_tail: str) -> bool:
+    escaped = re.escape(artifact_tail)
+    pattern = re.compile(
+        rf"^\|\s*`?(?:{escaped}|.*?/{escaped})`?\s*\|[^\n]*\bPASS\b",
+        re.MULTILINE,
+    )
+    return bool(pattern.search(receipt_text))
+
+
+def _fam003_packet_image_integrity_failures(
+    packet_dir: Path,
+    *,
+    export_zip: Path,
+    settings_prefix: str,
+    normalized_entries: set[str],
+    required_image_artifacts: tuple[str, ...],
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    failures: list[str] = []
+    settings_png_entries = {
+        entry
+        for entry in normalized_entries
+        if entry.startswith(settings_prefix) and entry.casefold().endswith(".png")
+    }
+    required_image_entries = {settings_prefix + artifact for artifact in required_image_artifacts}
+    manifest_text = packet_files.get(settings_prefix + "fam003_settings_visual_fail_repair_manifest.json", "")
+    manifest_entries, manifest_failures = _fam003_manifest_png_entries(
+        manifest_text,
+        settings_prefix=settings_prefix,
+        known_settings_entries=settings_png_entries | required_image_entries,
+    )
+    failures.extend(manifest_failures)
+
+    image_entries = sorted(settings_png_entries | required_image_entries | manifest_entries)
+    receipt_entry = settings_prefix + "IMAGE_INTEGRITY_RECEIPT.md"
+    receipt_text = packet_files.get(receipt_entry, "")
+    if not receipt_text.strip():
+        failures.append(
+            "FAM-003 LV1 packet image integrity failed: IMAGE_INTEGRITY_RECEIPT.md is missing"
+        )
+
+    try:
+        with zipfile.ZipFile(export_zip, "r") as archive:
+            zip_entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
+            zip_bytes = {
+                entry: archive.read(entry)
+                for entry in image_entries
+                if entry in zip_entries
+            }
+    except zipfile.BadZipFile as exc:
+        return [f"FAM-003 LV1 packet image integrity failed: ZIP unreadable: {exc}"]
+
+    for entry in image_entries:
+        artifact_tail = entry.removeprefix(settings_prefix)
+        folder_path = _posix_entry_path(packet_dir, entry)
+        if entry not in normalized_entries or not folder_path.is_file():
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: missing folder PNG artifact "
+                f"{entry}"
+            )
+            continue
+        folder_data = folder_path.read_bytes()
+        ok, decoder, width, height = _png_image_decode(folder_data)
+        if not ok:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: folder PNG invalid "
+                f"{entry}: {decoder}"
+            )
+        elif width <= 0 or height <= 0:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: folder PNG has zero dimensions "
+                f"{entry}: {width}x{height}"
+            )
+
+        if entry not in zip_bytes:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: ZIP PNG artifact missing "
+                f"{entry}"
+            )
+            continue
+        zip_data = zip_bytes[entry]
+        zip_ok, zip_decoder, zip_width, zip_height = _png_image_decode(zip_data)
+        if not zip_ok:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: ZIP PNG invalid "
+                f"{entry}: {zip_decoder}"
+            )
+        elif zip_width <= 0 or zip_height <= 0:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: ZIP PNG has zero dimensions "
+                f"{entry}: {zip_width}x{zip_height}"
+            )
+
+        if folder_data != zip_data:
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: folder/ZIP PNG bytes differ "
+                f"{entry}"
+            )
+        if receipt_text and not _fam003_receipt_has_pass_row(receipt_text, artifact_tail):
+            failures.append(
+                "FAM-003 LV1 packet image integrity failed: image integrity receipt "
+                f"lacks PASS row for {artifact_tail}"
+            )
+    return failures
+
+
+def _fam003_lv1_visual_retest_semantic_failures(
+    packet_files: Mapping[str, str],
+    packet_dir: Path,
+    folder_entries: set[str],
+    export_zip: Path,
+) -> list[str]:
+    """FAM-003-local semantic proof checks for the LV1 visual retest packet."""
+
+    if not _fam003_lv1_visual_retest_packet_detected(packet_files):
+        return []
+
+    failures: list[str] = []
+    normalized_entries = {entry.replace("\\", "/") for entry in folder_entries}
+    expected_zip_name = export_zip.name
+    settings_prefix = "Source Truth Context/Proof Artifacts/Settings Visual Proof/"
+    required_settings_artifacts = (
+        "01_default_global_settings_shell.png",
+        "02_top_level_chrome_control_cluster.png",
+        "03_window_control_focus_pressed_state.png",
+        "03a_window_moved_by_chrome.png",
+        "03b_window_resized.png",
+        "03d_window_wide_size.png",
+        "03c_window_minimum_size.png",
+        "04_left_settings_organizer.png",
+        "04a_left_nav_active_child.png",
+        "04a1_quick_access_child_pill_no_clip_focus.png",
+        "04a2_quick_access_child_pill_focus_pressed_state.png",
+        "04d_left_pane_compressed_horizontal_overflow.png",
+        "04e_left_pane_wide.png",
+        "05_row_action_default_disabled_state.png",
+        "05_tray_parent_page.png",
+        "06_dirty_quick_access.png",
+        "07_dropdown_list_state.png",
+        "08_close_guard.png",
+        "09_defaults_staged.png",
+        "10_max_slots_unclipped.png",
+        "11_post_save_clean_state.png",
+        "12_reference_conformance_contact_sheet.png",
+        "13a_accepted_manage_monitors_dirty_guard_reference.png",
+        "13_accepted_ai_control_center_default.png",
+        "14_glyph_control_closeup.png",
+        "15_left_pane_resize_affordance_closeup.png",
+        "16_defect_closure_contact_sheet.png",
+        "17_red_team_review_sheet.png",
+        "18_manage_monitors_dirty_guard_side_by_side.png",
+        "19_stress_size_684x500.png",
+        "19_stress_size_700x500.png",
+        "19_stress_size_780x500.png",
+        "19_stress_size_840x530.png",
+        "19_stress_size_840x610.png",
+        "22_row_count_1_of_4.png",
+        "22_row_count_2_of_4.png",
+        "22_row_count_3_of_4.png",
+        "22_row_count_4_of_4.png",
+        "26_four_row_dirty_state.png",
+        "27_four_row_dropdown_open.png",
+        "28_four_row_dirty_close_guard_intercept.png",
+        "29_dirty_close_cancel_preserves_window.png",
+        "REFERENCE_CONFORMANCE_CONTACT_SHEET.png",
+        "ARTIFACT_TO_SURFACE_LEDGER.md",
+        "DEFECT_CLOSURE_PROOF_LEDGER.md",
+        "DIRTY_CLOSE_INTERCEPT_MATRIX.md",
+        "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md",
+        "FAIL_CAPABLE_DEFECT_LEDGER.md",
+        "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md",
+        "IMAGE_INTEGRITY_RECEIPT.md",
+        "MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md",
+        "fam003_settings_visual_fail_repair_manifest.json",
+        "resident_access_settings.json",
+    )
+    forbidden_settings_artifacts = (
+        "19_stress_size_1100x720.png",
+        "19_stress_size_920x520.png",
+        "19_stress_size_620x360.png",
+        "19_stress_size_660x424.png",
+        "19_stress_size_748x434.png",
+        "19_stress_size_860x560.png",
+        "19_stress_size_780x560.png",
+        "19_stress_size_780x460.png",
+        "19_stress_size_720x406.png",
+        "19_stress_size_590x338.png",
+        "19_stress_size_700x360.png",
+        "19_stress_size_640x340.png",
+        "19_stress_size_560x318.png",
+        "19_stress_size_620x466.png",
+        "19_stress_size_660x466.png",
+        "19_stress_size_748x466.png",
+        "19_stress_size_820x500.png",
+        "19_stress_size_820x590.png",
+    )
+    required_image_artifacts = tuple(
+        artifact for artifact in required_settings_artifacts if artifact.casefold().endswith(".png")
+    )
+    settings_files = sorted(
+        entry for entry in normalized_entries if entry.startswith(settings_prefix)
+    )
+    if not settings_files:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: Settings Visual Proof folder is empty"
+        )
+    for artifact in required_settings_artifacts:
+        expected_entry = settings_prefix + artifact
+        if expected_entry not in normalized_entries:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: missing settings proof artifact "
+                f"{expected_entry}"
+            )
+    for artifact in forbidden_settings_artifacts:
+        forbidden_entry = settings_prefix + artifact
+        if forbidden_entry in normalized_entries:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: stale or mislabeled live/stress proof artifact present "
+                f"{forbidden_entry}"
+            )
+    failures.extend(
+        _fam003_packet_image_integrity_failures(
+            packet_dir,
+            export_zip=export_zip,
+            settings_prefix=settings_prefix,
+            normalized_entries=normalized_entries,
+            required_image_artifacts=required_image_artifacts,
+            packet_files=packet_files,
+        )
+    )
+
+    review_text = packet_files.get("USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md", "")
+    if "The packet includes focused screenshots" in review_text and not settings_files:
+        failures.append(
+            "USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md: claims focused screenshots are included, "
+            "but Settings Visual Proof contains no files"
+        )
+
+    missing_source_text = packet_files.get(
+        "Source Truth Context/MISSING_SOURCE_FILES.md", ""
+    )
+    if missing_source_text.strip():
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: MISSING_SOURCE_FILES.md is present; "
+            "source-truth copy claims must be reconciled before USER review"
+        )
+
+    current_uiref_files = (
+        "Source Truth Context/Repo Source Truth/UIREF-003_control_state_and_selector_grammar.md",
+        "Source Truth Context/Repo Source Truth/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md",
+        "Source Truth Context/Repo Source Truth/UIREF-005_design_token_and_shared_rule_baseline.md",
+        "Source Truth Context/Repo Source Truth/UIREF-006_negative_example_and_enforcement_contract.md",
+    )
+    for entry in current_uiref_files:
+        if entry not in normalized_entries:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: missing current UIREF source snapshot "
+                f"{entry}"
+            )
+    stale_uiref_name_patterns = (
+        "UIREF-003_spacing_density.md",
+        "UIREF-004_control_states.md",
+        "UIREF-005_menu_dropdown_list_behavior.md",
+        "UIREF-006_visual_proof_and_reference_usage.md",
+    )
+    stale_uiref_mentions = [
+        name for name in stale_uiref_name_patterns if name in missing_source_text
+    ]
+    if stale_uiref_mentions:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: stale UIREF filenames listed as missing "
+            f"{stale_uiref_mentions}"
+        )
+
+    uts_text = packet_files.get("Source Truth Context/UTS Context/UTS - FAM-003.txt", "")
+    if not uts_text.strip():
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: UTS context snapshot is missing"
+        )
+    else:
+        packet_refs = sorted(set(re.findall(r"FAM-003-\d{8}-\d{6}\.zip", uts_text)))
+        stale_packet_refs = [ref for ref in packet_refs if ref != expected_zip_name]
+        if stale_packet_refs:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context references stale packet(s) "
+                f"{stale_packet_refs}; expected {expected_zip_name}"
+            )
+        sha_refs = sorted(set(re.findall(r"\b[A-Fa-f0-9]{64}\b", uts_text)))
+        if sha_refs:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context contains ZIP SHA256 value(s); "
+                "packet-internal UTS must use an outside-packet final receipt model"
+            )
+        commit_sha_refs = sorted(set(re.findall(r"\b[A-Fa-f0-9]{40}\b", uts_text)))
+        if commit_sha_refs:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context contains commit SHA value(s); "
+                "packet-internal UTS must not carry live HEAD receipts"
+            )
+
+    file_digest = packet_files.get("Review Aids/LV1_RETEST_PACKET_FILE_DIGEST.md", "")
+    proof_root_match = re.search(
+        r"fam003_settings_repair_visual_validation[\\/](\d{8}-\d{6})",
+        file_digest,
+        re.IGNORECASE,
+    )
+    expected_proof_stamp = proof_root_match.group(1) if proof_root_match else ""
+    if not expected_proof_stamp:
+        failures.append(
+            "Review Aids/LV1_RETEST_PACKET_FILE_DIGEST.md: current settings proof root is missing"
+        )
+    elif uts_text:
+        uts_proof_stamps = sorted(
+            set(
+                re.findall(
+                    r"fam003_settings_repair_visual_validation[\\/](\d{8}-\d{6})",
+                    uts_text,
+                    re.IGNORECASE,
+                )
+            )
+        )
+        stale_proof_stamps = [
+            stamp for stamp in uts_proof_stamps if stamp != expected_proof_stamp
+        ]
+        if stale_proof_stamps:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context references stale proof root(s) "
+                f"{stale_proof_stamps}; expected {expected_proof_stamp}"
+            )
+
+    incident_entries = [
+        entry
+        for entry in normalized_entries
+        if "false_green_incident" in PurePosixPath(entry).name.lower()
+    ]
+    if not incident_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: false-green incident record is missing"
+        )
+
+    stale_output_incident_entries = [
+        entry
+        for entry in normalized_entries
+        if "stale_output_false_green_incident" in PurePosixPath(entry).name.lower()
+    ]
+    if not stale_output_incident_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: stale-output false-green incident record is missing"
+        )
+
+    recurrence_entries = [
+        entry
+        for entry in normalized_entries
+        if "same_defect_recurrence_ledger" in PurePosixPath(entry).name.lower()
+    ]
+    if not recurrence_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: same-defect recurrence ledger is missing"
+        )
+    else:
+        recurrence_text = "\n".join(packet_files.get(entry, "") for entry in recurrence_entries)
+        for recurrence_failure in _fam003_recurrence_ledger_failures(recurrence_text):
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: " + recurrence_failure
+            )
+
+    udl_entries = [
+        entry
+        for entry in normalized_entries
+        if "unified_defect_ledger" in PurePosixPath(entry).name.lower()
+    ]
+    if not udl_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: Unified Defect Ledger is missing"
+        )
+    else:
+        udl_text = "\n".join(packet_files.get(entry, "") for entry in udl_entries)
+        required_udl_ids = (
+            "UDL-001",
+            "UDL-002",
+            "UDL-003",
+            "UDL-004",
+            "UDL-005",
+            "UDL-006",
+            "UDL-007",
+            "UDL-008",
+            "UDL-009",
+            "UDL-010",
+            "UDL-011",
+            "F3-LV1-UI-001",
+            "F3-LV1-UI-015",
+            "F3-LV1-UI-016",
+            "F3-LV1-UI-017",
+            "F3-LV1-UI-018",
+            "F3-LV1-UI-019",
+            "F3-LV1-UI-020",
+            "F3-LV1-UI-021",
+            "F3-LV1-UI-022",
+            "F3-LV1-UI-023",
+            "F3-LV1-UI-024",
+            "F3-LV1-UI-025",
+            "F3-LV1-UI-026",
+            "F3-LV1-UI-027",
+            "F3-LV1-UI-028",
+            "F3-LV1-UI-029",
+            "F3-LV1-UI-030",
+            "F3-LV1-UI-031",
+            "F3-LV1-UI-032",
+            "F3-LV1-UI-033",
+            "F3-LV1-UI-034",
+            "F3-LV1-UI-035",
+            "F3-LV1-UI-036",
+            "F3-LV1-UI-037",
+            "F3-LV1-UI-038",
+            "F3-LV1-UI-043",
+            "F3-LV1-UI-044",
+            "F3-LV1-UI-045",
+            "F3-LV1-UI-046",
+            "F3-LV1-UI-047",
+            "F3-LV1-UI-048",
+            "F3-LV1-UI-049",
+            "F3-LV1-UI-050",
+            "F3-LV1-UI-051",
+            "F3-LV1-UI-052",
+            "F3-LV1-UI-053",
+            "F3-LV1-UI-054",
+            "F3-LV1-UI-055",
+            "F3-LV1-UI-056",
+            "F3-LV1-UI-057",
+            "F3-LV1-UI-058",
+            "F3-LV1-UI-059",
+            "F3-LV1-UI-060",
+            "F3-LV1-UI-061",
+            "F3-LV1-FUNC-001",
+            "F3-LV1-FUNC-002",
+            "F3-LV1-PROOF-001",
+            "F3-LV1-PROOF-002",
+            "F3-LV1-PROOF-005",
+            "F3-LV1-PROOF-006",
+            FAM003_LOOP_BREAKER_DEFECT_ID,
+            FAM003_PACKET_IMAGE_INTEGRITY_DEFECT_ID,
+        )
+        for defect_id in required_udl_ids:
+            if defect_id not in udl_text:
+                failures.append(
+                    f"FAM-003 LV1 packet semantic proof failed: {defect_id} is missing from the UDL"
+                )
+        latest_statuses = _fam003_latest_defect_statuses(udl_text)
+        non_closed_statuses = sorted(
+            f"{defect_id}={latest_statuses.get(defect_id, '<missing>')}"
+            for defect_id in required_udl_ids
+            if latest_statuses.get(defect_id) != "CLOSED_WITH_PROOF"
+        )
+        if non_closed_statuses:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: latest current-owned UDL rows are not closed "
+                f"{non_closed_statuses}"
+            )
+
+    visual_udl_entries = [
+        entry
+        for entry in normalized_entries
+        if "unified_visual_defect_ledger" in PurePosixPath(entry).name.lower()
+    ]
+    if not visual_udl_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: visual Unified Defect Ledger is missing"
+        )
+    else:
+        visual_udl_text = "\n".join(packet_files.get(entry, "") for entry in visual_udl_entries)
+        if "VISUAL-UDL-SCHEMA-RETEST-STOP" not in visual_udl_text:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: visual UDL lacks the 125842 schema retest-stop receipt"
+            )
+        for schema_failure in _fam003_visual_udl_schema_failures(visual_udl_text):
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: " + schema_failure
+            )
+        rejected_current_packet_markers = (
+            "Current regenerated USER retest packet: `C:\\Nexus USER\\FAM-003-20260623-125842.zip`",
+            "Current packet is C:\\Nexus USER\\FAM-003-20260623-125842.zip",
+            "Upload file: C:\\Nexus USER\\FAM-003-20260623-125842.zip",
+        )
+        for marker in rejected_current_packet_markers:
+            if marker in visual_udl_text:
+                failures.append(
+                    "FAM-003 LV1 packet semantic proof failed: visual UDL still names rejected 125842 packet as current"
+                )
+                break
+
+    fail_ledger_text = packet_files.get(
+        "Source Truth Context/Proof Artifacts/Settings Visual Proof/FAIL_CAPABLE_DEFECT_LEDGER.md",
+        "",
+    )
+    if fail_ledger_text and "Actual visual/product conformance | PASS" in fail_ledger_text:
+        visual_udl_text = "\n".join(packet_files.get(entry, "") for entry in visual_udl_entries)
+        if not visual_udl_entries or "UDL-VIS-014" not in visual_udl_text:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: visual PASS lacks visual UDL closure mapping"
+            )
+
+    return failures
+
+
 def validate_local_user_packet(
     packet_dir: Path,
     *,
@@ -1838,6 +2636,14 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(
+        _fam003_lv1_visual_retest_semantic_failures(
+            packet_files,
+            packet_dir,
+            folder_entries,
+            export_zip,
+        )
+    )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(
         _source_truth_context_currentness_failures(
@@ -1907,7 +2713,7 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
             "as the immutable evidence record; current local folder parity is not required for historical ZIPs."
         )
     else:
-        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP file-list plus content-hash parity are validated.")
+        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, folder/ZIP file-list plus content-hash parity, and FAM-003 LV1 PNG image-integrity gates where applicable are validated.")
     return "\n".join(lines)
 
 
