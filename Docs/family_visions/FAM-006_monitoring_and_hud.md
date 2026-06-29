@@ -17,11 +17,12 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Recording should be active-overlay-driven, not a separately loaded Recording Profile. The active Overlay Profile determines what is recorded.
 - Visual proof must include focused per-element review for user-facing changes.
 - Visual proof must also prove visual-system inheritance: new cards, rows, controls, dividers, empty/deferred states, status fields, and child-window surfaces must match established FAM-006 color tokens, shape/radius, spacing, typography, row/divider treatment, button effects, hover/focus/disabled states, shadows/glows, scrollbar treatment, and layout density unless BP1/BP2/BP3 explicitly accepts a new visual grammar.
+- Visual-system inheritance means shared design DNA, not component cloning. Standalone, non-child windows such as Recording Suite and Log Viewer Studio do not need Dashboard card layouts, but they must visibly share the FAM-006/HUD chrome, color, opacity, typography, button, row/divider, glow, state, spacing, and density grammar.
 - Deferred actions should be disabled, removed, or clearly labeled; they must not look broken.
 - Monitoring, HUD, telemetry, screenshots, recordings, logs, and support evidence must preserve local file hygiene, clear evidence roots, privacy-safe review posture, and no fake or hidden data collection.
 - Sensitive telemetry, recording, overlay, process, or performance surfaces must make provider/external telemetry boundaries explicit before any external data path is admitted.
-- Resident tray quick access may link to HUD Dashboard, Recording Studio, or Log Viewer Studio after those FAM-006 surfaces exist, but the tray must not own recording state, monitoring state, log-reader internals, or sensor/telemetry truth.
-- Recording Studio and Log Viewer Studio are future FAM-006 user-facing surfaces; tray entries should open them as polished owning surfaces rather than turning the tray menu into a recording or log-control workspace.
+- Resident tray quick access may link to HUD Dashboard, Recording Suite, or Log Viewer Studio after those FAM-006 surfaces exist, but the tray must not own recording state, monitoring state, log-reader internals, or sensor/telemetry truth.
+- Recording Suite and Log Viewer Studio are future FAM-006 user-facing surfaces; tray entries should open them as polished owning surfaces rather than turning the tray menu into a recording or log-control workspace.
 - FAM-006 Live Validation for user-facing UI or runtime behavior must use the exact normal USER desktop runtime launcher path declared for the branch, with direct runtime/helper evidence treated as diagnostics unless USER waives the launcher requirement.
 - Troubleshooting runtime launcher evidence may support diagnosis and may substitute for normal launcher proof only when USER consent and launcher parity proof show the diagnostic profile does not change the behavior being validated.
 - Visible FAM-006 closeout claims require photo/video or ordered frame-sequence proof; claims that cannot be proven visually must be elevated to USER manual validation, explicit waiver, or blocker rather than treated as proven by logs, markers, or helper PASS alone.
@@ -48,7 +49,9 @@ Family-specific UI requirements:
 - Recording-specific styling must not introduce a unique card color family, nested boxed table, custom row shape, custom glow, or separate visual hierarchy that makes the Recording card feel detached from the standardized Dashboard card format.
 - The HUD Overlay card should stay focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions. It should not host recording-specific controls or be the primary recording launcher after this vision revision.
 - Any future standalone Recording Control window, expanded settings window, or secondary recording-detail surface now requires revised BP1/BP2/BP3 approval because the active design direction centers recording in its own Dashboard card first.
-- Future recording output should use a valid, durable, graph/plot-ready format. CSV-like output is a likely first candidate, but file-format options should be proposed before output/file writing is admitted.
+- Recording output should save first as a native NDAI recording log owned by Nexus Desktop AI. The native log is the canonical product artifact for NDAI readback, future in-app viewing, and validation.
+- Excel/CSV, JSON, or other third-party readable files are export artifacts, not the default recording save. Export requires a USER-requested export flow with supported file-type choices and validation that the exported file opens/readably displays in the target class of software.
+- The Dashboard Recording card may open the exported-log folder, but normal Start/Stop recording must not auto-create CSV or other third-party export files. Until a future export branch exists, manual CSV files may be created only as validation artifacts outside the product-native log folder.
 - Native Log Loader is a future separate graph/log viewer that reads completed recording logs over time. It is not the recording control surface and is not admitted for implementation by the active-overlay recording contract alone.
 
 ## Future Effective Polling Policy Vision
@@ -74,6 +77,7 @@ Family-specific UI requirements:
 - The historical `Recording Profile Runtime Foundation` branch introduced Recording Profile state/UI foundation before this active-overlay-driven recording vision correction. Future FAM-006 planning must reconcile or retire that profile-loaded direction before implementing actual recording runtime.
 - Active FAM-006 branches must use Branch Runtime Engineering Plans, UFD disposition, and visual proof gates before implementation and Live Validation handoff.
 - Implementation must hold itself to this vision contract: any branch that creates or changes FAM-006 user-facing UI must state the existing element(s) it sampled, preserve or intentionally justify differences in color, shape, spacing, typography, effects, interaction states, and layout density, then prove those matches in Workstream, Hardening, and Live Validation. Validator/helper green is not enough when the visible result diverges from this family visual system.
+- Same-class FAM-006 controls, window chrome, buttons, state rows, title/header groups, scrollbars, and compact panels must consume an admitted shared primitive/template when one exists. If the strongest accepted reference is only available as a rendered HTML/CSS/DOM surface, the branch must either reuse that rendered primitive path, produce side-by-side photo/video proof that every shared element group is visually indistinguishable, or stop for USER waiver/blocker handling. Reference-derived, close-enough, same-family, or marker-only proof is not sufficient for Recording Suite, Log Viewer Studio, Dashboard, child-window, or future FAM-006 product-surface closeout.
 - Normal product mode should keep recording and monitoring logs minimal and privacy-safe. Troubleshooting-mode diagnostics for FAM-006 are future/branch-gated unless the active branch explicitly admits them with USER consent and clear return-to-normal behavior.
 
 ## Canonical Pointers
@@ -82,6 +86,7 @@ Family-specific UI requirements:
 - Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
 - Backlog registry: `Docs/feature_backlog.md`
+- Recording Family Feature Vision: `Docs/family_feature_visions/FAM-006_recording.md`
 - Durable receipt pointer: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
 - Active branch pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 - Released planning receipt pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`

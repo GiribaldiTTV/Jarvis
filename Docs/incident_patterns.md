@@ -301,7 +301,7 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
 ## Pattern: Template-Shell USER Review Artifact Passed Reviewability
 
 - symptom:
-  BP1, BP2, or BP3 USER review artifacts are structurally valid, stale-language-clean, and ZIP-consistent, but the USER-facing content remains template-like: sections tell Codex or USER what a heading should contain, list copied files instead of mapping decision or experience surfaces, use generic accept/revise/waive/reject options, provide generic Codex recommendations, or ask broad non-decision-driving USER questions. The packet is reviewable as a file, but it is not useful as a branch vision, engineering plan, or orchestration-readiness contract.
+  BP1, BP2, or BP3 USER review artifacts are structurally valid, stale-language-clean, and ZIP-consistent, but the USER-facing content remains template-like: sections tell Codex or USER what a heading should contain, list copied files instead of mapping decision or experience surfaces, use generic accept/revise/waive/reject options, provide generic Codex recommendations, ask broad non-decision-driving USER questions, or ask USER to name/select the real runtime item from generic strongest-implied/narrower/broader paths. The packet is reviewable as a file, but it is not useful as a branch vision, engineering plan, or orchestration-readiness contract.
 - layer:
   Branch Planning, USER review hub packets, `dev/orin_user_review_bundle.py`, Branch Readiness planning fixtures, and future branch/worktree review packets across all families.
 - root-cause pattern:
@@ -309,9 +309,27 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
 - fix pattern:
   BP1 must be a substantive branch vision contract, BP2 must be a substantive engineering plan contract derived from accepted or waived BP1, and BP3 must be a substantive orchestration-readiness contract against accepted or waived BP1/BP2. `Reviewable` remains separate from `USER Accepted`, `USER Waived`, `USER Approved`, or implementation authority. Copied source-truth files are context, not a substitute for the review artifact.
 - validation pattern:
-  run `python dev\orin_user_review_bundle.py` packet validation when applicable and `python dev\orin_branch_readiness_planning_fixture_validation.py`. Fixtures must prove that template-shell BP1 content, copied-file-list-only surface maps, generic USER questions, shallow recommendations, and implementation approval while BP1/BP2 are pending fail reviewability checks.
+  run `python dev\orin_user_review_bundle.py` packet validation when applicable and `python dev\orin_branch_readiness_planning_fixture_validation.py`. Fixtures must prove that template-shell BP1 content, runtime-item-selection shells, copied-file-list-only surface maps, generic USER questions, shallow recommendations, and implementation approval while BP1/BP2 are pending fail reviewability checks.
 - source references:
   - `Docs/branch_plans/README.md`
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
+
+## Pattern: Runtime Focus Selection Collapsed Into Issue Thread
+
+- symptom:
+  USER asks Codex to select or recommend the next runtime focus from a full family/runtime source-truth survey, but the packet centers one GitHub issue, names the branch after that issue's failure mode, treats issue evidence as BR2/BP1 branch identity, or recommends a vague `Execution Foundation`, `Persistence Foundation`, `Infrastructure Foundation`, schema, hydration, or groundwork lane without naming the concrete feature outcome USER will receive or inspect.
+- layer:
+  Branch Readiness Stage 1 / Stage 2, runtime focus options packets, `dev/orin_user_review_bundle.py`, Branch Readiness planning fixtures, and family-scoped runtime carrier selection.
+- root-cause pattern:
+  a branch-specific helper/template special case or Codex judgment used issue evidence as the selection source instead of loading issue evidence after the neutral family/runtime survey. The resulting packet can look substantive while still skipping the actual family/package selection question.
+- fix pattern:
+  runtime focus selection must survey family/runtime source truth first, list credible runtime options, classify each option by runtime/UI/governance/bugfix/proof/future-gated role, name the actual user-visible feature outcome, and only then map issue evidence as possible future BP2/BP3 proof input. Issue evidence may support a selected branch plan, but it must not define BR2/BP1 identity unless USER explicitly selects that issue-shaped focus after seeing the neutral options. Infrastructure and groundwork labels are acceptable only as supporting scope inside a named feature outcome.
+- validation pattern:
+  run `python dev\orin_branch_readiness_planning_fixture_validation.py`. The invalid runtime-focus issue-anchored fixture must fail on `Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity`, and the invalid runtime-focus foundation-label fixture must fail on `Runtime focus selection must name a concrete feature outcome`.
+- source references:
   - `Docs/phase_governance.md`
   - `Docs/validation_helper_registry.md`
   - `dev/orin_user_review_bundle.py`
@@ -540,6 +558,25 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/branch_plans/README.md`
   - `Docs/user_test_summary_guidance.md`
   - `Docs/validation_helper_registry.md`
+
+## Pattern: Implementation Started Before Visual Acceptance Target
+
+- symptom:
+  USER repeatedly rejects a visible UI/UX result after runtime implementation because the branch implemented from prose, inferred style, screenshots, helper output, or broad reference language instead of first producing a rendered and USER-reviewable visual target.
+- layer:
+  Branch Planning, Workstream implementation, Hardening visual proof, Live Validation handoff, USER packets, and helper/validator interpretation.
+- root-cause pattern:
+  Codex treats BP1/BP2/BP3 visual prose, reference names, partial comparator screenshots, or "looks closer" repair language as enough to implement. The branch has no explicit render authority level, no USER-selected Visual Acceptance Target, no rejected-pattern ledger, no state/contact-sheet coverage, or no later Implementation Match Proof comparing actual runtime screenshots/video against the accepted target.
+- fix pattern:
+  route material visible UI/UX work through the `Visual Acceptance Target Gate` before runtime implementation. Produce reviewable Design Candidate Renders when direction is unresolved, include focused and desktop/context renders, include state renders or contact sheets, provide stable element IDs, record a selection ledger, record rejected patterns, classify source-truth conflicts, obtain USER acceptance/revision/waiver of the target, and only then implement. After implementation, gather actual screenshots/video and compare them to the accepted target before H1/LV/UTS/PR green.
+- validation pattern:
+  future helpers should fail on `Visual Acceptance Target Missing`, `Visual Acceptance Target Not Reviewable`, `Concept Render Misclassified As Target`, `Design Candidate Media Missing`, `Visual Target State Coverage Missing`, `Visual Selection Ledger Missing`, `Rejected Pattern Ledger Missing`, `Render Authority Level Missing`, `Implementation Started Before Visual Acceptance`, `Implementation Match Proof Missing`, `Implementation Match Proof Not Compared`, `Source-Truth Visual Conflict Unclassified`, `Vague Visual Acceptance Language`, `Visual Target Packet Hygiene Missing`, or `Visual Target USER Decision Missing` when the defect is machine-checkable.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
 
 ## Pattern: Broad Or Multi-Issue Repair Reported Complete Without Coverage
 
