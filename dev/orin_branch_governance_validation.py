@@ -8456,6 +8456,12 @@ def _external_branch_state_record_for_branch(
         and _normalized_local_path(state_worktree) != _normalized_local_path(actual_root)
     ):
         return "", ""
+    state_identity = _section(state_text, "Branch Identity")
+    if _extract_exact_marker_value(state_identity, "Worktree") and _section(
+        state_text,
+        "Assigned Worktree Confinement",
+    ):
+        return str(state_path), state_text
     record_pointer = _extract_exact_marker_value(state_text, "Repo Branch Record Pointer")
     if not record_pointer:
         return "", ""
@@ -8466,7 +8472,6 @@ def _external_branch_state_record_for_branch(
     if _extract_branch_identity_branch(record_text) != branch_name:
         return "", ""
     record_identity = _section(record_text, "Branch Identity")
-    state_identity = _section(state_text, "Branch Identity")
     if _extract_exact_marker_value(record_identity, "Worktree") and _section(
         record_text,
         "Assigned Worktree Confinement",
