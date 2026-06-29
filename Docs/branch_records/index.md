@@ -242,6 +242,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 
 ## Durable Branch Receipt Records
 
+- `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md`
 - `Docs/branch_records/feature_fam_007_ai_control_center_readiness_diagnostics.md`
 - `Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md`
 - `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`
