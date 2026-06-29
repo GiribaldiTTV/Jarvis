@@ -1395,10 +1395,24 @@ class ResidentAccessSettingsDialog(QDialog):
         required_width = 25 + text_width
         return min(max(cls.SETTINGS_NAV_CHILD_DEFAULT_WIDTH, required_width), cls.SETTINGS_NAV_CHILD_MAX_WIDTH)
 
+    SETTINGS_FOCUS_ALIASES = {
+        "tray": "tray",
+        "quick_access": "quick_access",
+        "ai_status": "tray",
+        "privacy": "tray",
+        "owner_routes": "tray",
+    }
+    SETTINGS_TRAY_CONTEXT_DETAILS = {
+        "ai_status": "AI status opens through the FAM-007 Command Center doorway.",
+        "privacy": "Privacy controls stay FAM-007-owned; Tray keeps the doorway visible.",
+        "owner_routes": "Unavailable tray routes stay future-gated until the owning surface is active.",
+    }
+
     def __init__(self, parent=None, runtime=None, focus: str = "quick_access"):
         super().__init__(parent)
         self.runtime = runtime or parent
         self._focus = focus or "quick_access"
+        self._focus_context = self._focus
         self._settings = load_resident_access_settings()
         self._saved_settings = self._settings
         self._notice_text = ""
@@ -3111,7 +3125,12 @@ class ResidentAccessSettingsDialog(QDialog):
         self.slot_count_badge.setVisible(self._focus == "quick_access")
         if self._focus == "tray":
             self.section_scope.setText("NEXUS TRAY")
-            self.section_detail.setText("Tray visibility help and future click behavior settings.")
+            self.section_detail.setText(
+                self.SETTINGS_TRAY_CONTEXT_DETAILS.get(
+                    self._focus_context,
+                    "Tray visibility help and future click behavior settings.",
+                )
+            )
         else:
             self.section_scope.setText("NEXUS TRAY / QUICK ACCESS")
             self.section_detail.setText("Choose the shortcuts shown in the tray menu.")
@@ -3161,7 +3180,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.set_focus(self._focus)
 
     def set_focus(self, focus: str):
-        self._focus = focus if focus in {"tray", "quick_access"} else "quick_access"
+        requested_focus = (focus or "").strip()
+        self._focus = self.SETTINGS_FOCUS_ALIASES.get(requested_focus, "quick_access")
+        self._focus_context = requested_focus if requested_focus in self.SETTINGS_FOCUS_ALIASES else self._focus
         if self._focus == "quick_access" and not self._tray_children_expanded:
             self._tray_children_expanded = True
         for nav_id, button in self._nav_buttons.items():

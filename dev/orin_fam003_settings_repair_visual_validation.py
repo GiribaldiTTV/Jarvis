@@ -2955,6 +2955,28 @@ def main() -> int:
             ),
         )
     )
+    for alias, expected_detail in (
+        ("ai_status", "AI status opens through the FAM-007 Command Center doorway."),
+        ("privacy", "Privacy controls stay FAM-007-owned; Tray keeps the doorway visible."),
+        ("owner_routes", "Unavailable tray routes stay future-gated until the owning surface is active."),
+    ):
+        dialog.set_focus(alias)
+        app.processEvents()
+        rows.append(
+            (
+                f"{alias} route focus lands on Tray parent page",
+                dialog._focus == "tray"
+                and dialog._focus_context == alias
+                and dialog.tray_nav_button.isChecked()
+                and not dialog.quick_access_nav_button.isChecked()
+                and dialog.tray_overview_container.isVisible()
+                and not dialog.quick_slot_container.isVisible()
+                and expected_detail == dialog.section_detail.text(),
+                f"alias={alias}; focus={dialog._focus}; context={dialog._focus_context}; detail={dialog.section_detail.text()!r}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}",
+            )
+        )
+    dialog.set_focus("tray")
+    app.processEvents()
     dialog.set_focus("quick_access")
     app.processEvents()
 

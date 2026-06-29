@@ -336,6 +336,16 @@ def validate_static_wiring(failures: list[str]):
         "Tray Help quick action must open the Tray parent page with honest Windows tray visibility copy",
         failures,
     )
+    assert_true(
+        "SETTINGS_FOCUS_ALIASES" in settings_dialog_text
+        and '"ai_status": "tray"' in settings_dialog_text
+        and '"privacy": "tray"' in settings_dialog_text
+        and '"owner_routes": "tray"' in settings_dialog_text
+        and "self._focus_context = requested_focus" in settings_dialog_text
+        and "SETTINGS_TRAY_CONTEXT_DETAILS" in settings_dialog_text,
+        "route-only settings focus targets must preserve context on the Tray parent page instead of falling through to Quick Access",
+        failures,
+    )
     for token in (
         "build_resident_tray_icon",
         "TRAY_RESIDENT_ACCESS_TRAY_ICON_READY",
