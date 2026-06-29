@@ -469,6 +469,39 @@ class DesktopTrayEntry:
             return False
         try:
             user32 = ctypes.windll.user32
+            HMENU = getattr(ctypes.wintypes, "HMENU", ctypes.wintypes.HANDLE)
+            UINT = ctypes.wintypes.UINT
+            UINT_PTR = getattr(ctypes.wintypes, "UINT_PTR", ctypes.c_size_t)
+            WPARAM = getattr(ctypes.wintypes, "WPARAM", ctypes.c_size_t)
+            LPARAM = getattr(ctypes.wintypes, "LPARAM", ctypes.c_size_t)
+            LPCWSTR = ctypes.wintypes.LPCWSTR
+
+            user32.CreatePopupMenu.argtypes = []
+            user32.CreatePopupMenu.restype = HMENU
+            user32.AppendMenuW.argtypes = [HMENU, UINT, UINT_PTR, LPCWSTR]
+            user32.AppendMenuW.restype = ctypes.wintypes.BOOL
+            user32.DestroyMenu.argtypes = [HMENU]
+            user32.DestroyMenu.restype = ctypes.wintypes.BOOL
+            user32.SetForegroundWindow.argtypes = [ctypes.wintypes.HWND]
+            user32.SetForegroundWindow.restype = ctypes.wintypes.BOOL
+            user32.TrackPopupMenu.argtypes = [
+                HMENU,
+                UINT,
+                ctypes.c_int,
+                ctypes.c_int,
+                ctypes.c_int,
+                ctypes.wintypes.HWND,
+                ctypes.c_void_p,
+            ]
+            user32.TrackPopupMenu.restype = UINT
+            user32.PostMessageW.argtypes = [
+                ctypes.wintypes.HWND,
+                UINT,
+                WPARAM,
+                LPARAM,
+            ]
+            user32.PostMessageW.restype = ctypes.wintypes.BOOL
+
             menu = user32.CreatePopupMenu()
             if not menu:
                 return False
@@ -495,13 +528,13 @@ class DesktopTrayEntry:
 
             def append(target_menu, command_id, text, enabled=True):
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
-                user32.AppendMenuW(target_menu, flags, int(command_id), ctypes.c_wchar_p(text))
+                user32.AppendMenuW(target_menu, flags, UINT_PTR(int(command_id)), ctypes.c_wchar_p(text))
 
             def append_submenu(parent_menu, submenu, text, enabled=True):
                 flags = MF_STRING | MF_POPUP
                 if not enabled:
                     flags |= MF_GRAYED
-                user32.AppendMenuW(parent_menu, flags, int(submenu), ctypes.c_wchar_p(text))
+                user32.AppendMenuW(parent_menu, flags, UINT_PTR(int(submenu)), ctypes.c_wchar_p(text))
 
             append(menu, 110, "Global Settings", True)
             quick_access_menu = user32.CreatePopupMenu()
