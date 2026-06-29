@@ -16,6 +16,8 @@ Bounded PR Readiness Stage 2 denies recurring PR watcher automation by default.
 
 Do not create or update heartbeat, cron, same-thread, or fallback PR watcher automations during bounded PR Readiness Stage 2 unless the USER explicitly approves a named watcher exception for that PR after seeing the direct PR verification plan. A normal Stage 2 approval authorizes PR creation, direct live PR inspection, same-PR Codex review repair within admitted scope, validation, push, concise revalidation comments, and direct merge/close verification. It does not authorize recurring watcher provisioning.
 
+Nexus PR Readiness Stage 2 must create and maintain ready-for-review pull requests, not draft pull requests. Draft PR creation is not a valid Nexus PR2 output, even when a local plugin, connector, CLI helper, or external tool defaults to draft. If Codex accidentally creates or leaves a PR as draft during PR2, Codex must treat that as `Draft PR Created In PR2`, immediately convert the same PR to ready-for-review before continuing PR2 direct verification, record the defect in operator/external evidence, and must not claim PR Readiness green while the PR remains draft.
+
 The required default proof is `Direct PR Verification Proof:` in the Codex digest or helper output, including configured cwd, PR number, head SHA, mergeability, unresolved review-thread count, latest bot review, status checks, repair authority, approval latch posture, and next PR posture. If a stale watcher automation exists for the same PR, Codex must delete or pause it before relying on direct PR verification.
 
 Direct PR2 Continuation Rule:
