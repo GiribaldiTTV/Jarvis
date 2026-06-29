@@ -1739,6 +1739,14 @@ function monitoringHudClearTransientRecordingRuntimeState(state) {
   state.recordingSnapshotTarget = null;
   state.recordingSamples = [];
   state.recordingOutputRequest = null;
+  state.recordingControlWindowRequested = false;
+  state.recordingControlWindowRequestId = 0;
+  state.recordingControlWindowState = "ready";
+  state.recordingControlWindowTargetSummary = null;
+  state.logViewerRequested = false;
+  state.logViewerRequestId = "";
+  state.logViewerState = "ready";
+  state.logViewerSummary = null;
   return state;
 }
 
@@ -2871,6 +2879,7 @@ function monitoringHudWireReliableControl(element, key, handler, options = {}) {
     if (keyName !== "Enter" && keyName !== " ") return;
     monitoringHudApplyPressedState(element, true);
     activate(event, keyName === "Enter" ? "keyboard-enter" : "keyboard-space");
+    element.dataset.reliableKeyboardActivatedAt = String(Date.now());
   });
   element.addEventListener("keyup", () => monitoringHudApplyPressedState(element, false));
   element.addEventListener("click", (event) => {
@@ -2881,6 +2890,12 @@ function monitoringHudWireReliableControl(element, key, handler, options = {}) {
         if (event && typeof event.stopPropagation === "function") event.stopPropagation();
         return;
       }
+    }
+    const keyboardActivatedAt = Number(element.dataset.reliableKeyboardActivatedAt || 0);
+    if (keyboardActivatedAt && Date.now() - keyboardActivatedAt < 700 && Number(event.detail || 0) === 0) {
+      if (event && typeof event.preventDefault === "function") event.preventDefault();
+      if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+      return;
     }
     activate(event, "click");
   });
