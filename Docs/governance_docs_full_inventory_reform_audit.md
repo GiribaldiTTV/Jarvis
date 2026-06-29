@@ -237,8 +237,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 - Audit Branch: not stored in this audit dossier; derive from Git/helper output at review time.
 - Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.
-- Audit File Count: 215 files under `Docs/`
-- Manifest Files Enumerated: 215
+- Audit File Count: 216 files under `Docs/`
+- Manifest Files Enumerated: 216
 - Manifest Match: PASS - filesystem enumeration and dossier manifest counts match.
 - Mutation Scope: docs/source-truth/governance/validator reform only.
 - Runtime Mutation: none.
@@ -365,6 +365,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 63 | `Docs/branch_records/feature_fam_006_sensor_hud_provider_governance.md` | branch authority / structured receipt | 504 | Organize structured receipt | High | High |
 | 64 | `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md` | branch authority / structured receipt | 249 | Keep historical receipt | High | High |
 | 65 | `Docs/branch_records/feature_fam_007_ai_control_center_readiness_diagnostics.md` | branch authority / structured receipt | 258 | Keep historical receipt | Medium | High |
+| 216 | `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md` | branch authority / structured receipt | 128 | Keep branch admission receipt | Medium | Low |
 | 66 | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | branch authority / structured receipt | 836 | Organize structured receipt | High | High |
 | 67 | `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | branch authority / structured receipt | 449 | Organize structured receipt | High | High |
 | 68 | `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation_post_merge_projection.md` | branch authority / structured receipt | 146 | Keep historical receipt | Medium | High |
@@ -525,6 +526,7 @@ This is the full file-by-file cleanup plan. It includes every file under `Docs/`
 | `Docs/ai_runtime_and_trust_architecture.md` | AI Runtime And Trust Architecture | Keep as AI architecture owner | Keep as cross-family AI runtime/trust architecture; implementation-specific work still belongs to the owning FAM branch plan. | Keep; no deletion recommended in this pass. | No |
 | `Docs/architecture.md` | product / architecture reference | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
 | `Docs/boot_access_design.md` | product / architecture reference | Keep | Keep unless a focused USER-approved consolidation pass names a replacement owner. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md` | branch authority / structured receipt | Keep branch admission receipt | Keep as the current BR2 durable admission receipt until branch fold-down; preserve as historical receipt after completion. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | branch runtime engineering plan | Retired posture indexed | Listed in Docs/branch_plans/retirement_index.md as historical retired posture; keep durable lookup paths in branch records/workstreams/fa... | Retired from active planning posture; do not delete without separate USER approval and reference proof. | Yes |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | branch runtime engineering plan | Retired posture indexed | Listed in Docs/branch_plans/retirement_index.md as historical retired posture; keep durable lookup paths in branch records/workstreams/fa... | Retired from active planning posture; do not delete without separate USER approval and reference proof. | Yes |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | branch runtime engineering plan | Keep transition branch plan | Not listed in the retired branch-plan table; keep as transition/current branch-local planning receipt until owning branch fold-down or ex... | Transition/current branch-local branch-plan receipt; do not delete, archive, or retire until owning branch fold-down... | Yes |
@@ -749,6 +751,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/ai_runtime_and_trust_architecture.md` | High | `volatile-current-wording=12`; `unclear-ownership-wording=23`; `soft-commitment-wording=44`; `state-ledger-wording=51` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/architecture.md` | Medium | `volatile-current-wording=18`; `unclear-ownership-wording=5`; `soft-commitment-wording=7`; `state-ledger-wording=5` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/boot_access_design.md` | Medium | `volatile-current-wording=7`; `unclear-ownership-wording=2`; `soft-commitment-wording=15`; `state-ledger-wording=4` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md` | Medium | `current-branch-admission-wording`; `external-state-pointer-wording`; `future-route-wording` | Keep live operational truth routed to C:\Nexus Governance State and fold down after branch completion. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | High | `volatile-current-wording=187`; `unclear-ownership-wording=151`; `soft-commitment-wording=17`; `state-ledger-wording=109` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | High | `volatile-current-wording=305`; `unclear-ownership-wording=201`; `soft-commitment-wording=22`; `state-ledger-wording=128` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -973,6 +976,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/ai_runtime_and_trust_architecture.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/architecture.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/boot_access_design.md` | Low | Structure is acceptable for current owner category. |
+| `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md` | Low | Structure is acceptable for current branch-admission receipt category. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | Low | Structure is acceptable for current owner category. |
@@ -1193,6 +1197,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/ai_runtime_and_trust_architecture.md` | 478 | AI Runtime And Trust Architecture | AI Runtime And Trust Architecture | cross-family AI runtime/trust architecture | AI-native architecture, permission-state, deterministic routing, Trust Journal, cache governa... | No direct edit in this branch; classified and governed by this dossier. | Keep as cross-family AI runtime/trust architecture; do not use as implementation approval or... | Keep as AI architecture owner | High | Low | Yes | Yes | Yes | Branch governance validator should require AI-native branches to cite this owner when consumi... | _Add notes here._ |
 | `Docs/architecture.md` | 165 | Nexus Architecture | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/boot_access_design.md` | 166 | Nexus Boot Access Design | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md` | 128 | Branch Record: feature/fam-007-ai-dashboard-child-domain-diagnostics | branch authority / structured receipt | BR2 durable admission receipt for the FAM-007 successor carrier | durable branch identity, approved scope, selected route, non-includes, and next legal phase | Added in this BR2 carrier setup. | Fold down after branch completion; keep external live state in C:\Nexus Governance State. | Keep branch admission receipt | Medium | Low | Yes | No | Yes | Branch governance and external-state validators check branch identity, external pointers, and active authority. | _Add notes here._ |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | 132 | Compact-AI Status Card Branch Engineering Plan | branch runtime engineering plan | branch engineering plan shape and durable/historical branch-plan receipt | per-seam checklists, deltas, proof, approval boundaries as transition evidence or historical... | No direct edit in this branch; classified and governed by this dossier. | Do not reuse as an active plan; deletion requires later USER approval plus reference proof th... | Retired posture indexed | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; governance efficiency validation r... | _Add notes here._ |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | 494 | Branch Runtime Engineering Plan - FAM-006 Active Overlay Recording Runtime Foundation | branch runtime engineering plan | branch engineering plan shape and durable/historical branch-plan receipt | per-seam checklists, deltas, proof, approval boundaries as transition evidence or historical... | No direct edit in this branch; classified and governed by this dossier. | Do not reuse as an active plan; deletion requires later USER approval plus reference proof th... | Retired posture indexed | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; governance efficiency validation r... | _Add notes here._ |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | 653 | Branch Runtime Engineering Plan - FAM-006 Active Overlay Recording Runtime Implementation | branch runtime engineering plan | branch engineering plan shape and durable/historical branch-plan receipt | per-seam checklists, deltas, proof, approval boundaries as transition evidence or historical... | No direct edit in this branch; classified and governed by this dossier. | Not listed in the retired branch-plan table; preserve as transition/current branch-local plan... | Keep transition branch plan | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; governance efficiency validation r... | _Add notes here._ |
@@ -1574,6 +1579,33 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan is retired from active planning posture and preserved for lookup | owning branch record plus workstream/family dossier after fold-down | delete only after USER approval plus reference proof; do not delete by default |
 
 ## File-By-File Review Dossier
+
+### 216. `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md`
+
+- File path: `Docs/branch_records/feature_fam_007_ai_dashboard_child_domain_diagnostics.md`
+- Line count: 128
+- Current purpose: Branch Record: feature/fam-007-ai-dashboard-child-domain-diagnostics
+- Actual observed use: BR2 durable admission receipt for the FAM-007 successor carrier.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch admission identity, approved BR2 scope, successor route, explicit non-includes, source-truth load, planned BP carry-in slices, dependencies, boundaries, and next legal phase.
+- What should be recorded here: durable branch receipt facts and source-truth pointers for the FAM-007 successor carrier.
+- What should move elsewhere: live branch/worktree status, current external authority, and packet operational state belong to C:\Nexus Governance State, Git/GitHub/helper truth, and C:\Nexus USER.
+- Migration target: C:\Nexus Governance State for live authority; branch fold-down after completion for historical posture.
+- Recommendation: Keep branch admission receipt.
+- Consolidation target: Keep as the current BR2 durable admission receipt until branch fold-down; preserve as historical receipt after completion.
+- Deletion posture: Keep; no deletion recommended in this pass.
+- Ambiguity risk: Medium.
+- Ambiguity signals: `current-branch-admission-wording`; `external-state-pointer-wording`; `future-route-wording`
+- Ambiguity review action: Keep live operational truth routed to C:\Nexus Governance State and fold down after branch completion.
+- Structure risk: Low.
+- Structure action: Structure is acceptable for current branch-admission receipt category.
+- Duplicate fact classes found: branch authority, selected-next pointer, external branch/worktree state, next legal phase.
+- Live operational truth fields found: external branch state and selected-next pointers are referenced but not owned here.
+- Governance receipt fields found: USER approval, branch identity, source-truth load, route boundaries, non-includes, and next legal phase.
+- Repetitive language found: No major repetitive language flagged by scanner.
+- Current-state markers found: Current markers are scoped to the BR2 admission receipt and route live state to external operational state.
+- Package Trace / Slice Trace markers found: SLC terms are defined as Slice-level aliases.
+- Branch/worktree/phase markers found: Branch Readiness Stage 2 setup complete; BP1 pending.
 
 ### 1. `Docs/ai_runtime_and_trust_architecture.md`
 
