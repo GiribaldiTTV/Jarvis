@@ -4806,6 +4806,105 @@ def _validate_user_review_bundle_export_zip_cleanup_guard() -> list[str]:
     return failures
 
 
+def _validate_user_review_bundle_accepted_gate_artifact_guard() -> list[str]:
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        retained_bp1 = (
+            packet_dir
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP1"
+            / "USER_BRANCH_VISION_REVIEW.md"
+        )
+        retained_bp1.parent.mkdir(parents=True, exist_ok=True)
+        retained_bp1.write_text(
+            "# Accepted BP1 Branch Vision Evidence\n\n"
+            "Accepted internal prerequisite artifact fixture.\n",
+            encoding="utf-8",
+        )
+        stale_generated = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "STALE.md"
+        stale_generated.parent.mkdir(parents=True, exist_ok=True)
+        stale_generated.write_text("stale generated packet content", encoding="utf-8")
+
+        review_bundle._clear_target(packet_dir)
+
+        if not packet_dir.is_dir():
+            failures.append("USER review cleanup deleted the durable FAM-006 packet folder")
+        if not retained_bp1.is_file():
+            failures.append("USER review cleanup deleted retained accepted BP1 prerequisite evidence")
+        if stale_generated.exists():
+            failures.append("USER review cleanup preserved stale generated packet content")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        export_zip = review_root / "FAM-006-20260629-150000.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "FIXTURE_REVIEW.md"
+        primary.unlink()
+        (packet_dir / review_bundle.USER_REVIEW_DIR_NAME / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE).write_text(
+            "# BP2 Fixture\n\n"
+            "## Current Gate\n\n"
+            "BP2 USER Branch Plan Review.\n\n"
+            "## Accepted Branch Vision Summary\n\n"
+            "BP1 accepted for this fixture, so BP2 must require retained internal BP1 evidence.\n\n"
+            "## USER Decision\n\n"
+            "Review BP2 only.\n",
+            encoding="utf-8",
+        )
+        (packet_dir / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Review Purpose: fixture BP2 packet validation.\n"
+            "Current Gate: BP2 USER Branch Plan Review\n"
+            "Local USER Hub Folder: fixture local hub.\n"
+            "Review Order: open USER Review/USER_BRANCH_PLAN_REVIEW.md first.\n"
+            "USER Decision This Packet Supports: fixture BP2 review only.\n"
+            "Pending USER Decisions: none for fixture.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        missing_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        if not any(
+            "BP2 prerequisite evidence missing" in failure
+            for failure in missing_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation did not reject BP2 without retained internal BP1 evidence"
+            )
+
+        retained_bp1 = (
+            packet_dir
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP1"
+            / "USER_BRANCH_VISION_REVIEW.md"
+        )
+        retained_bp1.parent.mkdir(parents=True, exist_ok=True)
+        retained_bp1.write_text(
+            "# Accepted BP1 Branch Vision Evidence\n\n"
+            "Retained internal prerequisite artifact fixture.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        retained_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        if any(
+            "BP2 prerequisite evidence missing" in failure
+            for failure in retained_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation rejected BP2 even with retained internal BP1 evidence"
+            )
+    return failures
+
+
 def _write_local_user_packet_fixture(packet_dir: Path) -> None:
     (packet_dir / review_bundle.USER_REVIEW_DIR_NAME).mkdir(parents=True, exist_ok=True)
     (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME).mkdir(parents=True, exist_ok=True)
@@ -11670,6 +11769,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
     failures.extend(_validate_user_review_bundle_export_zip_cleanup_guard())
+    failures.extend(_validate_user_review_bundle_accepted_gate_artifact_guard())
     failures.extend(_validate_local_user_packet_folder_zip_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())

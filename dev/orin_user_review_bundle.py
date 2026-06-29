@@ -39,16 +39,18 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper cleared the stable worktree review folder, copied fresh "
-    "source-truth files, wrote START_HERE for this source-truth snapshot, and atomically "
-    "created a timestamped review zip from that refreshed folder after removing previous "
-    "same-label upload zips."
+    "PASS - helper cleared generated packet content in the stable worktree review folder, "
+    "preserved protected accepted-gate artifacts, copied fresh source-truth files, wrote "
+    "START_HERE for this source-truth snapshot, and atomically created a timestamped "
+    "review zip from that refreshed folder after removing previous same-label upload zips."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
+ACCEPTED_GATE_ARTIFACTS_DIR_NAME = "Accepted Gate Artifacts"
+PROTECTED_RETAINED_ARTIFACT_DIR_NAMES = (ACCEPTED_GATE_ARTIFACTS_DIR_NAME,)
 PACKET_VALIDATION_MODE_ACTIVE_REVIEW = "active-review"
 PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL = "accepted-historical"
 PACKET_VALIDATION_MODE_NEXT_GATE = "next-gate"
@@ -549,11 +551,47 @@ def _clear_readonly(function, path: str, _exc_info) -> None:
     function(path)
 
 
+def _clear_path(path: Path) -> None:
+    if path.is_dir() and not path.is_symlink():
+        try:
+            shutil.rmtree(path, onexc=_clear_readonly)
+        except TypeError:
+            shutil.rmtree(path, onerror=_clear_readonly)
+        return
+    path.unlink()
+
+
 def _clear_target(target: Path) -> None:
-    try:
-        shutil.rmtree(target, onexc=_clear_readonly)
-    except TypeError:
-        shutil.rmtree(target, onerror=_clear_readonly)
+    """Clear generated packet content without deleting retained gate artifacts."""
+
+    if not target.exists():
+        return
+    if not target.is_dir():
+        raise ValueError(f"Review packet target is not a folder: {target}")
+    for child in target.iterdir():
+        if child.name in PROTECTED_RETAINED_ARTIFACT_DIR_NAMES:
+            if not child.is_dir():
+                raise ValueError(
+                    "Protected accepted gate artifact path must be a folder: "
+                    f"{child}"
+                )
+            continue
+        _clear_path(child)
+
+
+def _protected_prerequisite_artifact_files(target: Path) -> set[Path]:
+    retained: set[Path] = set()
+    for directory_name in PROTECTED_RETAINED_ARTIFACT_DIR_NAMES:
+        directory = target / directory_name
+        if not directory.exists():
+            continue
+        if not directory.is_dir():
+            raise ValueError(
+                "Protected accepted gate artifact path must be a folder: "
+                f"{directory}"
+            )
+        retained.update(path for path in directory.rglob("*") if path.is_file())
+    return retained
 
 
 def _flat_copy_name(relative_file: str) -> str:
@@ -1682,7 +1720,11 @@ def _local_user_packet_layout_failures(
         if not directory.is_dir():
             failures.append(f"{directory_name}/ folder is missing from the packet")
 
-    allowed_top_level = set(LOCAL_USER_PACKET_REQUIRED_DIRS) | LOCAL_USER_PACKET_ROOT_FILES
+    allowed_top_level = (
+        set(LOCAL_USER_PACKET_REQUIRED_DIRS)
+        | LOCAL_USER_PACKET_ROOT_FILES
+        | set(PROTECTED_RETAINED_ARTIFACT_DIR_NAMES)
+    )
     for entry in sorted(folder_entries):
         first_part = PurePosixPath(entry).parts[0]
         if first_part not in allowed_top_level:
@@ -1703,6 +1745,33 @@ def _local_user_packet_layout_failures(
     elif PurePosixPath(primary_files[0]).suffix.lower() != ".md":
         failures.append(f"{primary_files[0]}: primary USER review file must be Markdown")
     return failures, primary_files
+
+
+def _retained_bp_prerequisite_failures(
+    packet_files: Mapping[str, str],
+    folder_entries: set[str],
+) -> list[str]:
+    start_here = packet_files.get("START_HERE.md", "").casefold()
+    primary_bp2 = f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}" in packet_files
+    if not primary_bp2 or "bp2" not in start_here:
+        return []
+
+    bp2_text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE).casefold()
+    if "accepted bp1" not in bp2_text and "bp1 accepted" not in bp2_text:
+        return []
+
+    bp1_prefix = f"{ACCEPTED_GATE_ARTIFACTS_DIR_NAME}/BP1/"
+    retained_bp1_entries = [
+        entry
+        for entry in folder_entries
+        if entry.startswith(bp1_prefix) and PurePosixPath(entry).suffix.lower() != ".zip"
+    ]
+    if retained_bp1_entries:
+        return []
+    return [
+        "BP2 prerequisite evidence missing: accepted or waived BP1 trace requires "
+        f"retained internal evidence under {bp1_prefix} instead of an old BP1 ZIP"
+    ]
 
 
 def _fam003_lv1_visual_retest_packet_detected(packet_files: Mapping[str, str]) -> bool:
@@ -2636,6 +2705,7 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(_retained_bp_prerequisite_failures(packet_files, folder_entries))
     failures.extend(
         _fam003_lv1_visual_retest_semantic_failures(
             packet_files,
@@ -4764,6 +4834,8 @@ def _write_user_branch_plan_review(
                 "authorize bp2 user branch plan review only",
                 "authorize bp2 user branch plan review preparation only",
                 "authorize bp2 preparation only",
+                "bp2 preparation remains pending",
+                "bp2 remains pending",
             )
         )
     )
@@ -8729,6 +8801,8 @@ def _write_workstream_entry_packet_digests(
                 "authorize bp2 user branch plan review only",
                 "authorize bp2 user branch plan review preparation only",
                 "authorize bp2 preparation only",
+                "bp2 preparation remains pending",
+                "bp2 remains pending",
             )
         )
     )
@@ -10877,6 +10951,8 @@ def build_bundle(
                 "authorize bp2 user branch plan review only",
                 "authorize bp2 user branch plan review preparation only",
                 "authorize bp2 preparation only",
+                "bp2 preparation remains pending",
+                "bp2 remains pending",
             )
         )
     )
@@ -11006,7 +11082,13 @@ def build_bundle(
     if primary_source_path in expected_generated_paths:
         expected_generated_paths.remove(primary_source_path)
     expected_generated_paths.add(primary_destination_path)
-    actual_bundle_files = copied_targets | expected_generated_paths | {start_here}
+    retained_prerequisite_artifacts = _protected_prerequisite_artifact_files(target)
+    actual_bundle_files = (
+        copied_targets
+        | expected_generated_paths
+        | retained_prerequisite_artifacts
+        | {start_here}
+    )
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
