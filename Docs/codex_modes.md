@@ -589,7 +589,7 @@ That means:
 - Workstream may execute multiple planned seams in one pass when they share the same workstream, phase, branch class, approved scope, and subsystem family or tightly coupled implementation, validation, or governance chain
 - each seam is still analyzed, bounded, executed, validated, recorded, and judged before the next seam starts
 - Hardening and Live Validation may continue through constrained validation or evidence-digestion seams only when their phase rules allow it
-- PR Readiness uses readiness-gate seams for PR package, PR creation, and PR validation rather than implementation continuation
+- PR Readiness uses readiness-gate seams for PR package, PR creation, and PR validation rather than implementation continuation; during PR2, response-level stop is illegal for a quiet/eyes-only current-head Codex Connector wait while direct GitHub verification can continue
 - Release Readiness is review-only and file-frozen; it must not mutate repository files through a seam
 - the output must report the per-seam validation result and `continue` or `stop` decision
 - reporting `Next Safe Move` is not a substitute for execution when continuation authority passes
