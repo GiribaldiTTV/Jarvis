@@ -194,6 +194,25 @@
       }
     },
     {
+      "caseId": "active-slc001-workstream-entry-stale-bp1-review-aid",
+      "expectedBranch": "feature/fam-007-ai-dashboard-child-domain-diagnostics",
+      "expectedHead": "synthetic-fam007-ai-dashboard-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": false,
+      "expectedValid": false,
+      "expectedStatus": "workstream-entry-final-review",
+      "expectedFailureContains": "supporting BP1 context contains stale pending-BP1 wording",
+      "files": {
+        "START_HERE.md": "Review Purpose: synthetic FAM-007 SLC-001 packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: USER may accept, revise, hold, reject, or waive the bounded FAM-007 SLC-001 / Seam 1 Workstream Entry preparation packet.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: USER may accept, revise, hold, reject, or waive the bounded FAM-007 SLC-001 / Seam 1 Workstream Entry preparation packet.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: USER may accept, revise, hold, reject, or waive the bounded FAM-007 SLC-001 / Seam 1 Workstream Entry preparation packet.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md": "# FAM-007 SLC-001 / Seam 1 Workstream Entry Preparation - USER Branch Vision Review\n\nUSER Branch Vision Review: BP1\n\n## Review Status\n\nNeeds USER Decision unless this packet records an explicit USER acceptance or waiver.\n\n## Contract Status\n\nDraft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch.\n\n## Packet Reviewability State\n\nReviewable - BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded.\n\n## USER Gate State\n\nPending USER Review - USER must accept, revise, waive, reject, or block BP1 before BP2 preparation can be green.\n\n## Accepted Branch Vision\n\nPending USER acceptance or waiver.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
+      }
+    },
+    {
       "caseId": "missing-required-digest-file",
       "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
       "expectedHead": "synthetic-dev-owner-head",

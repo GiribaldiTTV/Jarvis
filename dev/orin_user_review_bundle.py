@@ -878,6 +878,7 @@ def _validate_export_zip(
         *_fam007_dev_owner_lv1_substantive_failures(packet_files),
         *_fam007_bp2_plan_substantive_failures(packet_files),
         *_fam007_bp2_support_bp1_context_failures(packet_files),
+        *_fam007_slc001_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
         *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
@@ -2633,6 +2634,7 @@ def validate_local_user_packet(
     failures.extend(_user_branch_plan_stale_bp1_wording_failures(generated_packet_files))
     failures.extend(_fam007_bp2_plan_substantive_failures(generated_packet_files))
     failures.extend(_fam007_bp2_support_bp1_context_failures(generated_packet_files))
+    failures.extend(_fam007_slc001_support_bp1_context_failures(generated_packet_files))
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
@@ -3105,6 +3107,88 @@ def _fam007_bp2_support_bp1_context_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _fam007_slc001_workstream_entry_packet_detected(packet_files: Mapping[str, str]) -> bool:
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    combined = f"{start_here}\n{primary}".replace("\\", "/").casefold()
+    return (
+        "fam-007" in combined
+        and "slc-001" in combined
+        and "seam 1" in combined
+        and "workstream entry" in combined
+        and (
+            "workstream implementation remains pending user approval" in combined
+            or "does not authorize workstream implementation" in combined
+            or "runtime implementation remains blocked" in combined
+        )
+    )
+
+
+def _fam007_slc001_support_bp1_context_failures(packet_files: Mapping[str, str]) -> list[str]:
+    """Block FAM-007 SLC-001 Workstream Entry packets with stale BP1 support aids."""
+
+    if not _fam007_slc001_workstream_entry_packet_detected(packet_files):
+        return []
+
+    support = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if not support:
+        return []
+
+    display_name = _packet_file_path(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    failures: list[str] = []
+    contract_status = _section(support, "Contract Status").casefold()
+    user_gate_state = _section(support, "USER Gate State").casefold()
+    accepted_vision = _section(support, "Accepted Branch Vision").casefold()
+
+    if not contract_status.startswith(("complete", "waived by user")):
+        failures.append(
+            f"{display_name}: supporting BP1 context Contract Status must be Complete or Waived by USER for a FAM-007 SLC-001 Workstream Entry packet"
+        )
+    if not user_gate_state.startswith(("user accepted", "user waived")):
+        failures.append(
+            f"{display_name}: supporting BP1 context USER Gate State must record USER Accepted or USER Waived for a FAM-007 SLC-001 Workstream Entry packet"
+        )
+    if "accepted by user" not in accepted_vision and "waived by user" not in accepted_vision:
+        failures.append(
+            f"{display_name}: supporting BP1 context Accepted Branch Vision must record accepted or waived BP1 context for a FAM-007 SLC-001 Workstream Entry packet"
+        )
+
+    forbidden_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        (
+            "draft-contract-status",
+            re.compile(r"Draft - update to Complete or Waived by USER", re.IGNORECASE),
+        ),
+        (
+            "bp1-ready-acceptance-not-recorded",
+            re.compile(
+                r"BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "pending-bp1-user-gate",
+            re.compile(
+                r"Pending USER Review - USER must accept, revise, waive, reject, or block BP1",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "pending-user-acceptance-or-waiver",
+            re.compile(r"Pending USER acceptance or waiver", re.IGNORECASE),
+        ),
+        (
+            "final-bp1-acceptance-pending",
+            re.compile(r"Final BP1 acceptance remains pending", re.IGNORECASE),
+        ),
+    )
+    for reason, pattern in forbidden_patterns:
+        if pattern.search(support):
+            failures.append(
+                f"{display_name}: supporting BP1 context contains stale pending-BP1 wording {reason}"
+            )
+    return failures
+
+
 def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list[str]:
     combined = "\n".join(
         _packet_file_text(packet_files, file_name)
@@ -3538,16 +3622,32 @@ def _write_user_branch_vision_review(
             is_fam006_recording=True,
         )
     )
+    fam007_slc001_workstream_entry_context_packet = (
+        "fam-007" in review_profile_text
+        and "slc-001" in review_profile_text
+        and "seam 1" in review_profile_text
+        and "workstream entry" in review_profile_text
+        and (
+            "does not authorize workstream implementation" in decision_text
+            or "workstream implementation remains pending user approval" in review_profile_text
+            or "runtime implementation remains blocked" in review_profile_text
+        )
+        and not current_bp1_review_packet
+    )
     bp2_or_later_context_packet = (
         bp2_context_packet
         or bp3_context_packet
         or fam006_workstream_approval_context_packet
+        or fam007_slc001_workstream_entry_context_packet
         or hardening_h1_context_packet
         or live_validation_context_packet
     )
     active_planning_gate = (
         "Workstream implementation approval"
         if fam006_workstream_approval_context_packet
+        else
+        "SLC-001 / Seam 1 Workstream Entry review"
+        if fam007_slc001_workstream_entry_context_packet
         else
         "Live Validation LV1"
         if live_validation_context_packet
@@ -3668,6 +3768,54 @@ def _write_user_branch_vision_review(
             "## Workstream Approval Boundary",
             "",
             "Workstream/runtime implementation remains pending until USER approves the primary Workstream implementation approval packet. A green first seam is continuation proof, not package completion.",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
+    if fam007_slc001_workstream_entry_context_packet:
+        lines = [
+            f"# {title} - Accepted BP1 Branch Vision Context",
+            "",
+            "USER Branch Vision Review: BP1 Context",
+            "",
+            "## Review Status",
+            "",
+            "Accepted BP1 Context - this file supports the active SLC-001 / Seam 1 Workstream Entry review packet and does not request a new BP1 decision.",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - BP1 Branch Vision accepted by USER and used as accepted context for this SLC-001 / Seam 1 Workstream Entry packet.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - supporting accepted BP1 context for the active SLC-001 / Seam 1 Workstream Entry packet.",
+            "",
+            "## USER Gate State",
+            "",
+            "USER Accepted - BP1 Branch Vision accepted by USER; BP2 and BP3 are also accepted; SLC-001 / Seam 1 remains Pending USER Review.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            "- USER Accepted - BP1 Branch Vision accepted by USER for the AI Dashboard parent hub and first child-domain doorway direction.",
+            "- BP2 accepted - the engineering plan is accepted as planning context only.",
+            "- BP3 accepted - the Workstream Entry / Orchestration Validation planning contract is accepted as planning context only.",
+            "- The active packet is bounded to SLC-001 / Seam 1 Workstream Entry preparation after rebaseline/RAR.",
+            "- AI Dashboard remains a top-level parent hub surface for AI status, diagnostics, trust boundary clarity, and child-domain entry.",
+            "- AI Control Center Card 1 / first child-domain doorway restoration remains a future implementation target only after separate USER approval.",
+            "- Provider/model execution, prompt send, downloads, cache, memory, private setup, Settings implementation, persistence, packaging, PR, merge, release, imports, cleanup beyond routed packet/state currentness, v1.8.0 work, and sibling worktree mutation remain blocked.",
+            "",
+            "## Current Packet Gate",
+            "",
+            "SLC-001 / Seam 1 remains Pending USER Review. Workstream/runtime implementation cannot begin from this support aid.",
+            "",
+            "## Future-Gated Boundaries",
+            "",
+            *_markdown_lines(pending_user_decisions),
             "",
             "## Exact USER Decision Supported",
             "",
@@ -10646,6 +10794,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_fam007_dev_owner_lv1_substantive_failures(packet_files))
     failures.extend(_fam007_bp2_plan_substantive_failures(packet_files))
     failures.extend(_fam007_bp2_support_bp1_context_failures(packet_files))
+    failures.extend(_fam007_slc001_support_bp1_context_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
     failures.extend(_fam006_bp3_support_context_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))

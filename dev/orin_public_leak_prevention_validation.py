@@ -2161,6 +2161,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "branch-correct-implementation-ready",
         "branch-correct-repair-revalidation",
         "stale-branch-packet",
+        "active-slc001-workstream-entry-stale-bp1-review-aid",
         "missing-required-digest-file",
         "conflicting-next-legal-phase",
         "chat-only-decision-missing-packet-evidence",
