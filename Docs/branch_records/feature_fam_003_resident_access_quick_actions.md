@@ -139,17 +139,17 @@ Release Floor: `patch prerelease`
 Version Rationale: `FAM-003 delivers a bounded user-facing resident access, tray doorway, tray menu hierarchy, and compact Global Settings / Quick Access configuration package inside the existing pre-Beta stage. The change is a narrow runtime/UI product increment in an existing family rather than a broad minor milestone or new product family.`
 Release Scope: `FAM-003 resident access model and tray controller behavior; one-icon Nexus resident doorway; compact tray menu and owner-bounded route visibility; Global Settings / Tray / Quick Access configuration surface; quick-access slot ordering, save/revert/dirty-close behavior, resize/splitter behavior, visual-proof and same-defect validation support; source-truth receipts preserving FAM-002, FAM-006, FAM-007, and FAM-008 ownership boundaries.`
 Release Artifacts: `Tag v1.7.37-prebeta; GitHub prerelease title Pre-Beta v1.7.37; public release notes should summarize the resident tray doorway, compact tray menu, and Global Settings / Quick Access configuration improvements in user-facing language, then include GitHub-generated ## What's Changed and Full Changelog sections.`
-Release Candidate Anchor: `current fetched origin/main`
-Release Candidate Anchor Source: `default current fetched origin/main`
-Target Commit: `298c2c17661f227ba9505f63b5f159fb8358a4cb`
+Release Candidate Anchor: `current fetched origin/main after RRI-20260629-001 / PR #287 merges`
+Release Candidate Anchor Source: `default current fetched origin/main; PR #286 merge commit remains runtime payload audit evidence only`
+Target Commit: `post-repair current fetched origin/main after PR #287 merges; pre-merge repair evidence is PR #287 head 9901fe51fa73675d55b14ab14d48caa7cb3f28cf`
 Historical Endpoint Handling: `v1.7.36-prebeta at d4a5262f48256b94936e81865c7520e36b324411 is the previous public prerelease baseline. PR #286 base, head, and merge commits are audit evidence only; no USER-selected historical release target is active.`
-Candidate Includes Later Governance Repairs: `NO - no separate post-runtime governance/source-truth PR exists after PR #286 in the selected release window. PR #286 includes its own branch-local source-truth, helper, validator, and proof hardening as part of the same merged package.`
+Candidate Includes Later Governance Repairs: `YES - RRI-20260629-001 / PR #287 is a post-runtime source-truth repair after PR #286 and must be included in the default current-origin/main release candidate. Keep the governance repair internal to validation/traceability rather than presenting it as a user-facing product feature.`
 Release Window Contributor Inventory: `Single release-window contributor after v1.7.36-prebeta: PR #286 / feature/fam-003-resident-access-quick-actions / FAM-003 Resident Access and Quick Actions.`
 Release Ownership Model: `Aggregated release window - single contributor`
 Release Window Contributors: `FAM-003 PR #286 Resident Access and Quick Actions`
 Merged-Unreleased Scope Inventory: `Historical pre-release snapshot evidence for selected release candidate PR #286: FAM-003 resident access and quick actions package, including the runtime tray doorway, Global Settings / Quick Access configuration surface, proof validators, and source-truth/helper hardening merged in that PR.`
 Last Runtime PR: `#286`
-Post-Runtime Governance Repairs: `None as separate PR after #286 in this release window`
+Post-Runtime Governance Repairs: `RRI-20260629-001 / PR #287 standing Governance release-target source-truth repair; internal validation/traceability only.`
 FAM Contributor Routing: `FAM-003 owns this release-window contributor. FAM-002 remains the visual/presentation authority consumed by the FAM-003 surface; FAM-006, FAM-007, and FAM-008 dependency boundaries remain owner-bounded and do not become release-window contributors unless their own merged PRs enter the selected candidate.`
 Issue Closeout Candidate Inventory: `Issue #277 is an open cross-FAM UIREF geometry/resize adoption issue and remains No Action for this release. Issues #281, #282, and #283 are FAM-006 issue search matches and remain No Action for this FAM-003 release target. No GitHub issue mutation is approved by this receipt.`
 Release Execution Gate: `Blocked pending separate USER approval for Release Readiness Stage 2.`
