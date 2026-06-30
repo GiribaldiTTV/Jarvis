@@ -1627,6 +1627,78 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
     return failures
 
 
+def _final_active_packet_lifecycle_proof_failures(
+    packet_files: Mapping[str, str],
+    export_zip: Path,
+    *,
+    validation_mode: str,
+) -> list[str]:
+    if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        return []
+
+    failures: list[str] = []
+    expected_zip_name = export_zip.name
+    no_zip_name = f"{REVIEW_AIDS_DIR_NAME}/Artifact Lifecycle Proof/NO_ZIP_SPRAWL_PROOF.md"
+    no_zip_text = packet_files.get(no_zip_name, "")
+    if no_zip_text:
+        if expected_zip_name not in no_zip_text:
+            failures.append(
+                f"{no_zip_name}: final no-ZIP-sprawl proof must name final export ZIP "
+                f"{expected_zip_name}"
+            )
+        stale_zip_names = sorted(
+            {
+                match.group(0)
+                for match in re.finditer(r"\bFAM-006-\d{8}-\d{6}\.zip\b", no_zip_text)
+                if match.group(0) != expected_zip_name
+            }
+        )
+        if stale_zip_names:
+            failures.append(
+                f"{no_zip_name}: final no-ZIP-sprawl proof references stale export ZIP(s): "
+                + ", ".join(stale_zip_names)
+            )
+        if re.search(r"\bbefore final rebuild\b", no_zip_text, re.IGNORECASE):
+            failures.append(
+                f"{no_zip_name}: final no-ZIP-sprawl proof still describes pre-final rebuild state"
+            )
+
+    external_snapshot_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/External State Snapshot/EXTERNAL_STATE_SNAPSHOT.md"
+    )
+    external_snapshot_text = packet_files.get(external_snapshot_name, "")
+    if external_snapshot_text and re.search(r"\bin progress\b", external_snapshot_text, re.IGNORECASE):
+        failures.append(
+            f"{external_snapshot_name}: final active packet snapshot still carries in-progress wording"
+        )
+
+    final_parity_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Artifact Lifecycle Proof/FINAL_FOLDER_ZIP_PARITY_PROOF.md"
+    )
+    final_parity_text = packet_files.get(final_parity_name, "")
+    if not final_parity_text:
+        failures.append(
+            f"{final_parity_name}: active packet must include inspectable final folder/ZIP parity proof"
+        )
+    else:
+        required_markers = (
+            f"Final Export ZIP: {expected_zip_name}",
+            "Folder/ZIP File List Parity: PASS",
+            "Folder/ZIP Content Hash Parity: PASS",
+        )
+        for marker in required_markers:
+            if marker not in final_parity_text:
+                failures.append(
+                    f"{final_parity_name}: final parity proof missing marker {marker!r}"
+                )
+        if re.search(r"\b(?:pre-final|sidecar-only|after ZIP creation only)\b", final_parity_text, re.IGNORECASE):
+            failures.append(
+                f"{final_parity_name}: final parity proof cannot rely on pre-final or sidecar-only proof"
+            )
+
+    return failures
+
+
 def _current_branch_external_state_dir() -> Path | None:
     try:
         branch = subprocess.check_output(
@@ -3243,6 +3315,13 @@ def validate_local_user_packet(
         )
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
+    failures.extend(
+        _final_active_packet_lifecycle_proof_failures(
+            packet_files,
+            export_zip,
+            validation_mode=validation_mode,
+        )
+    )
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,

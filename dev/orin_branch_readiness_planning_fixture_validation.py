@@ -5053,6 +5053,77 @@ def _validate_user_review_bundle_accepted_gate_artifact_guard() -> list[str]:
             failures.append(
                 "Local USER packet validation did not reject unresolved shell placeholder output in active artifact tree proof"
             )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        export_zip = review_root / "FAM-006-20260629-190000.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        lifecycle_dir = (
+            packet_dir
+            / review_bundle.REVIEW_AIDS_DIR_NAME
+            / "Artifact Lifecycle Proof"
+        )
+        lifecycle_dir.mkdir(parents=True, exist_ok=True)
+        (lifecycle_dir / "NO_ZIP_SPRAWL_PROOF.md").write_text(
+            "# No-ZIP-Sprawl Proof\n\n"
+            "Current root FAM-006 ZIP exports before final rebuild:\n"
+            "- `FAM-006-20260629-180000.zip`\n",
+            encoding="utf-8",
+        )
+        (
+            packet_dir
+            / review_bundle.REVIEW_AIDS_DIR_NAME
+            / "External State Snapshot"
+            / "EXTERNAL_STATE_SNAPSHOT.md"
+        ).parent.mkdir(parents=True, exist_ok=True)
+        (
+            packet_dir
+            / review_bundle.REVIEW_AIDS_DIR_NAME
+            / "External State Snapshot"
+            / "EXTERNAL_STATE_SNAPSHOT.md"
+        ).write_text(
+            "# External State Snapshot\n\n"
+            "External State Snapshot Status: BP3 packet proof repair in progress.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        stale_final_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        stale_final_failures = "\n".join(stale_final_result.failures)
+        if "final no-ZIP-sprawl proof must name final export ZIP" not in stale_final_failures:
+            failures.append(
+                "Local USER packet validation did not reject stale no-ZIP-sprawl final ZIP proof"
+            )
+        if "final active packet snapshot still carries in-progress wording" not in stale_final_failures:
+            failures.append(
+                "Local USER packet validation did not reject in-progress external-state snapshot wording"
+            )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        export_zip = review_root / "FAM-006-20260629-200000.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(packet_dir.rglob("*")):
+                if path.is_file():
+                    archive.write(path, path.relative_to(packet_dir).as_posix())
+        missing_parity_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        if not any(
+            "active packet must include inspectable final folder/ZIP parity proof" in failure
+            for failure in missing_parity_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation did not require inspectable final folder/ZIP parity proof"
+            )
     return failures
 
 
@@ -5067,10 +5138,10 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
         "Review Order: open USER Review/FIXTURE_REVIEW.md first.\n"
         "USER Decision This Packet Supports: fixture review only.\n"
         "Pending USER Decisions: none for fixture.\n"
-        "Bundle File Count: 5\n"
+        "Bundle File Count: 6\n"
         "Expected File Count: 2\n"
         "Copied File Count: 2\n"
-        "Extra Bundle File Count: 2\n",
+        "Extra Bundle File Count: 3\n",
         encoding="utf-8",
     )
     (packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "FIXTURE_REVIEW.md").write_text(
@@ -5112,6 +5183,19 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
 
 
 def _zip_local_user_packet_fixture(packet_dir: Path, export_zip: Path) -> None:
+    lifecycle_dir = (
+        packet_dir
+        / review_bundle.REVIEW_AIDS_DIR_NAME
+        / "Artifact Lifecycle Proof"
+    )
+    lifecycle_dir.mkdir(parents=True, exist_ok=True)
+    (lifecycle_dir / "FINAL_FOLDER_ZIP_PARITY_PROOF.md").write_text(
+        "# Final Folder/ZIP Parity Proof\n\n"
+        f"Final Export ZIP: {export_zip.name}\n"
+        "Folder/ZIP File List Parity: PASS\n"
+        "Folder/ZIP Content Hash Parity: PASS\n",
+        encoding="utf-8",
+    )
     with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(packet_dir.rglob("*")):
             if path.is_file():
