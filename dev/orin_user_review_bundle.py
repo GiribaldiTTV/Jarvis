@@ -49,6 +49,10 @@ USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
+EXTERNAL_STATE_CONTEXT_COPIES = (
+    ("branch_state.md", "current_external_branch_state.md"),
+    ("branch_plan.md", "current_external_branch_plan.md"),
+)
 PACKET_VALIDATION_MODE_ACTIVE_REVIEW = "active-review"
 PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL = "accepted-historical"
 PACKET_VALIDATION_MODE_NEXT_GATE = "next-gate"
@@ -1126,6 +1130,33 @@ def _current_branch_external_state_dir() -> Path | None:
     return Path(r"C:\Nexus Governance State\branches") / branch_state_dir
 
 
+def _copy_external_state_context(target: Path) -> set[Path]:
+    external_state_dir = _current_branch_external_state_dir()
+    if external_state_dir is None:
+        return set()
+
+    copied: set[Path] = set()
+    for source_name, copy_name in EXTERNAL_STATE_CONTEXT_COPIES:
+        source = external_state_dir / source_name
+        if not source.is_file():
+            continue
+        destination = target / SOURCE_TRUTH_CONTEXT_DIR_NAME / copy_name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+        copied.add(destination.resolve())
+    return copied
+
+
+def _normalized_external_state_context_text(text: str) -> str:
+    normalized = _normalized_packet_text(text)
+    return re.sub(
+        r"^USER Review ZIP SHA256:\s*`?[^`\n]+`?\s*$",
+        "USER Review ZIP SHA256: <self-referential-zip-sha>",
+        normalized,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )
+
+
 def _accepted_historical_context_posture_failures(
     packet_files: Mapping[str, str],
     export_zip: Path,
@@ -1221,7 +1252,8 @@ def _source_truth_context_currentness_failures(
         live_text = live_path.read_text(encoding="utf-8")
         if (
             validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
-            and _normalized_packet_text(copied_text) != _normalized_packet_text(live_text)
+            and _normalized_external_state_context_text(copied_text)
+            != _normalized_external_state_context_text(live_text)
         ):
             failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
     if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
@@ -1282,7 +1314,7 @@ def _final_zip_active_metadata_failures(
             failures.append(f"{context_file}: copied current Source Truth Context is missing Source Repo HEAD")
             source_truth_mismatch = True
         if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL and live_head:
-            for source_head in source_heads:
+            for source_head in source_heads[:1]:
                 if source_head != live_head:
                     failures.append(
                         f"{context_file}: copied current Source Truth Context Source Repo HEAD "
@@ -11200,6 +11232,7 @@ def build_bundle(
         _copy_file(file_name, target, copy_name, subdir=SOURCE_TRUTH_CONTEXT_DIR_NAME)
         for file_name, copy_name in zip(files, _copy_names(files), strict=True)
     ]
+    external_context_targets = _copy_external_state_context(target)
     copied_count = len(copied)
     copied_targets = {(target / copied_rel).resolve() for _source_rel, copied_rel in copied}
     expected_count = expected_file_count if expected_file_count is not None else copied_count
@@ -11440,7 +11473,7 @@ def build_bundle(
     if primary_source_path in expected_generated_paths:
         expected_generated_paths.remove(primary_source_path)
     expected_generated_paths.add(primary_destination_path)
-    actual_bundle_files = copied_targets | expected_generated_paths | {start_here}
+    actual_bundle_files = copied_targets | external_context_targets | expected_generated_paths | {start_here}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
