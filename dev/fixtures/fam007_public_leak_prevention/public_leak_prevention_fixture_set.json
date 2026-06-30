@@ -149,7 +149,7 @@
       "requireImplementationReady": true,
       "expectedValid": false,
       "expectedStatus": "unknown",
-      "expectedFailureContains": "blocks implementation approval",
+      "expectedFailureContains": "not Workstream-conduct-ready",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: This packet does not approve Workstream implementation.\nDecision Path Summary: No implementation approval is granted by this packet.",
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: No implementation approval is granted by this packet.\nUSER Decision: This packet does not approve Workstream implementation.",
@@ -166,7 +166,7 @@
       "requireImplementationReady": true,
       "expectedValid": false,
       "expectedStatus": "repair-revalidation",
-      "expectedFailureContains": "blocks implementation approval",
+      "expectedFailureContains": "not Workstream-conduct-ready",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Branch Readiness Stage 2 repair/revalidation before implementation planning continues.\nDecision Path Summary: repair/revalidation - repair before Workstream implementation.",
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: repair/revalidation - repair before Workstream implementation.\nUSER Decision: Approve Branch Readiness Stage 2 repair/revalidation before implementation planning continues.",
