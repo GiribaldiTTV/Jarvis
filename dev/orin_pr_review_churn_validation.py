@@ -70,6 +70,23 @@ HELPER_FILE_PATTERNS = (
     "audit",
     "harness",
 )
+REPO_LIVE_STATE_CURRENT_CYCLE_CONTEXT = (
+    "rri",
+    "external state",
+    "external-state",
+    "external operational state",
+    "external branch state",
+    "c:\\nexus governance state",
+    "repo live-state",
+    "repo live state",
+    "standing governance",
+    "active rri cycle",
+    "latest closed rri cycle",
+    "return digest status",
+    "release window",
+    "release candidate anchor",
+    "target commit",
+)
 
 
 @dataclass(frozen=True)
@@ -495,6 +512,16 @@ def _classify_comment(body: str) -> list[str]:
         matched_keywords = [
             keyword for keyword in rule.keywords if keyword in normalized
         ]
+        if rule.family_id == "repo-live-state-boundary-parser":
+            matched_keywords = [
+                keyword
+                for keyword in matched_keywords
+                if keyword != "current cycle"
+                or any(
+                    context_keyword in normalized
+                    for context_keyword in REPO_LIVE_STATE_CURRENT_CYCLE_CONTEXT
+                )
+            ]
         if not matched_keywords:
             continue
         strong_keywords = [
@@ -676,6 +703,23 @@ def _classifier_guardrail_failures() -> list[str]:
     if "repo-live-state-boundary-parser" not in _classify_comment(closeout_comment):
         failures.append(
             "Comment-family classifier did not classify external RRI closeout proof drift"
+        )
+    unrelated_current_cycle = (
+        "A current cycle calculation bug changed the retry backoff for product runtime logic."
+    )
+    if _classify_comment(unrelated_current_cycle) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated current-cycle wording"
+        )
+    contextual_current_cycle = (
+        "Require external branch state Current Cycle None plus Latest Closed RRI Cycle "
+        "before accepting standing Governance closeout."
+    )
+    if "repo-live-state-boundary-parser" not in _classify_comment(
+        contextual_current_cycle
+    ):
+        failures.append(
+            "Comment-family classifier did not classify contextual external Current Cycle drift"
         )
     worktree_confinement_comment = (
         "Restore active worktree confinement markers such as Active Thread Owner, "
@@ -1264,8 +1308,10 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     green_bound, green_detail = _extract_latest_green(
         owner, name, args.pr, pull_request["headRefOid"], review_comments
     )
-    if args.require_current_green and not green_bound:
-        failures.append("Current-head Codex Connector green approval latch is missing")
+    current_green_failure = "Current-head Codex Connector green approval latch is missing"
+    current_head_revalidation_pending = args.require_current_green and not green_bound
+    if current_head_revalidation_pending:
+        failures.append(current_green_failure)
 
     lines = [
         "PR Review Churn Validation",
@@ -1296,6 +1342,19 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
             f"Latest current-head green proof: {'BOUND' if green_bound else 'NOT BOUND'} - {green_detail}",
         ]
     )
+    if current_head_revalidation_pending:
+        if failures == [current_green_failure]:
+            lines.append(
+                "PR2 continuation posture: CURRENT_HEAD_REVALIDATION_PENDING - "
+                "merge-ready proof is not green; continue direct PR2 polling or "
+                "revalidation instead of treating this as a terminal BLOCKED state."
+            )
+        else:
+            lines.append(
+                "PR2 continuation posture: CURRENT_HEAD_REVALIDATION_PENDING with "
+                "additional failures; repair non-latch failures before normal "
+                "direct PR2 continuation."
+            )
     if failures:
         lines.append("Result: FAIL")
         lines.extend(f"- {failure}" for failure in failures)
