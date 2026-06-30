@@ -1036,6 +1036,8 @@ def _fam006_active_final_clean_git_proof_failures(
 ) -> list[str]:
     if validation_mode != PACKET_VALIDATION_MODE_ACTIVE_REVIEW:
         return []
+    if f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}" not in packet_files:
+        return []
 
     review_text = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
     normalized_review = review_text.casefold().replace("_", "-").replace(" ", "-")

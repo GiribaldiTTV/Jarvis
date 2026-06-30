@@ -4956,6 +4956,70 @@ def _validate_user_review_bundle_accepted_gate_artifact_guard() -> list[str]:
             failures.append(
                 "Local USER packet validation did not reject nested Accepted Gate Artifacts directories"
             )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        export_zip = review_root / "FAM-006-20260629-170000.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "FIXTURE_REVIEW.md"
+        primary.unlink()
+        (
+            packet_dir
+            / review_bundle.USER_REVIEW_DIR_NAME
+            / "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ).write_text(
+            "# BP3 Workstream Entry / Orchestration Validation\n\n"
+            "Packet Reviewability State: Reviewable\n"
+            "USER Gate State: Pending USER Review\n\n"
+            "## USER Decision\n\n"
+            "Fixture BP3 orchestration review only. Workstream implementation remains pending.\n",
+            encoding="utf-8",
+        )
+        (packet_dir / "START_HERE.md").write_text(
+            "# START HERE\n\n"
+            "Decision Path: bp3 orchestration review - accepted BP1 and BP2 are retained evidence only.\n"
+            "Packet Reviewability State: Reviewable\n"
+            "USER Gate State: Pending USER Review\n"
+            "Primary USER Review File: USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md\n"
+            "USER Decision This Packet Supports: fixture BP3 orchestration review only.\n",
+            encoding="utf-8",
+        )
+        retained_bp1_git = (
+            packet_dir
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP1"
+            / "Review Aids"
+            / "Validation Outputs"
+            / "git_identity_status.txt"
+        )
+        retained_bp1_git.parent.mkdir(parents=True, exist_ok=True)
+        retained_bp1_git.write_text(
+            "Historical accepted BP1 proof for a prior HEAD only.\n"
+            "0123456789012345678901234567890123456789\n",
+            encoding="utf-8",
+        )
+        retained_bp2 = (
+            packet_dir
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP2"
+            / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+        )
+        retained_bp2.parent.mkdir(parents=True, exist_ok=True)
+        retained_bp2.write_text("# Accepted BP2 Evidence\n", encoding="utf-8")
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        retained_history_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        if any(
+            "FAM-006 BP1 packet final-clean proof failed" in failure
+            for failure in retained_history_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation treated retained BP1 evidence as the active BP1 final-clean packet"
+            )
     return failures
 
 
