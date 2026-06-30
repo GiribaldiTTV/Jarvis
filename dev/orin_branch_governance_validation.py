@@ -20632,7 +20632,7 @@ def _run_standing_governance_intake_gate(require) -> None:
             external_cycle_error = str(exc)
         else:
             external_cycle_match = re.search(
-                r"^\s*Current Cycle:\s*`?(RRI-\d{8}-\d{3})`?\s*$",
+                r"^\s*(?:-\s*)?Current Cycle:\s*`?(RRI-\d{8}-\d{3})`?\s*$",
                 external_cycle_text,
                 flags=re.M,
             )
@@ -20643,13 +20643,13 @@ def _run_standing_governance_intake_gate(require) -> None:
             )
     external_no_active_cycle = bool(
         re.search(
-            r"^\s*Current Cycle:\s*`?(?:None|No active cycle|Closed)`?\s*$",
+            r"^\s*(?:-\s*)?Current Cycle:\s*`?(?:None|No active cycle|Closed)`?\s*$",
             external_cycle_text,
             flags=re.I | re.M,
         )
     )
     external_latest_closed_cycle_match = re.search(
-        r"^\s*Latest Closed RRI Cycle:\s*`?(RRI-\d{8}-\d{3})`?",
+        r"^\s*(?:-\s*)?Latest Closed RRI Cycle:\s*`?(RRI-\d{8}-\d{3})`?",
         external_cycle_text,
         flags=re.M,
     )
@@ -20660,7 +20660,7 @@ def _run_standing_governance_intake_gate(require) -> None:
     )
     external_return_digest_closeout = bool(
         re.search(
-            r"^\s*Return Digest Status:\s*`?[^`\n]*(?:Complete|Closeout Pending)",
+            r"^\s*(?:-\s*)?Return Digest Status:\s*`?[^`\n]*(?:Complete|Closeout Pending)",
             external_cycle_text,
             flags=re.I | re.M,
         )
