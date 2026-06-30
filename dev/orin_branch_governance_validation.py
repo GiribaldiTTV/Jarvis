@@ -2923,6 +2923,9 @@ STANDING_GOVERNANCE_INTAKE_RECORD = Path(
     "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
 )
 STANDING_GOVERNANCE_INTAKE_RECORD_PATH = STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER = (
+    r"C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md"
+)
 STANDING_GOVERNANCE_INTAKE_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -20461,7 +20464,37 @@ def _standing_governance_intake_file_allowed(path: str) -> bool:
     )
 
 
+def _repo_active_rri_cycle_values(active_cycle_values: list[str]) -> list[str]:
+    return [
+        value.strip()
+        for value in active_cycle_values
+        if re.match(r"^RRI-\d{8}-\d{3}", value.strip(), flags=re.I)
+    ]
+
+
+def _run_repo_active_rri_cycle_parser_fixtures(require) -> None:
+    sample_values = [
+        "External operational state only - see C:\\Nexus Governance State\\branches\\feature_release_readiness_source_truth_intake\\branch_state.md",
+        "RRI-20260629-001",
+        "RRI-20260629-001 - release target repair",
+        "`RRI-20260629-001`",
+    ]
+    forbidden_values = _repo_active_rri_cycle_values(sample_values)
+    require(
+        forbidden_values == [
+            "RRI-20260629-001",
+            "RRI-20260629-001 - release target repair",
+        ],
+        (
+            "Standing Governance Intake active-cycle parser must reject exact "
+            "`RRI-*` values and `RRI-*` values with suffix text, while allowing "
+            "the external-state pointer"
+        ),
+    )
+
+
 def _run_standing_governance_intake_gate(require) -> None:
+    _run_repo_active_rri_cycle_parser_fixtures(require)
     branch_name = _git_current_branch()
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     active_branch_record_paths = _collect_branch_record_paths(
@@ -20591,17 +20624,85 @@ def _run_standing_governance_intake_gate(require) -> None:
         record_text,
         flags=re.M,
     )
-    active_cycles = [
-        value.strip()
-        for value in active_cycle_values
-        if re.fullmatch(r"RRI-\d{8}-\d{3}", value.strip())
-    ]
+    repo_active_cycles = _repo_active_rri_cycle_values(active_cycle_values)
     require(
-        len(set(active_cycles)) <= 1,
-        f"{expected_record_path}: only one active `RRI-*` cycle may be recorded",
+        not repo_active_cycles,
+        (
+            f"{expected_record_path}: active `RRI-*` cycle values must not be "
+            "recorded in repo branch records after external-state migration; "
+            f"point `Active RRI Cycle:` to `{STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER}`"
+        ),
+    )
+    active_cycle_external_owner_recorded = any(
+        "external operational state" in value.casefold()
+        and STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER in value
+        for value in active_cycle_values
+    )
+    require(
+        active_cycle_external_owner_recorded,
+        (
+            f"{expected_record_path}: `Active RRI Cycle:` must route the current "
+            "standing-intake cycle to external operational state instead of "
+            "owning the live cycle value in repo docs"
+        ),
+    )
+    external_cycle_text = ""
+    external_cycle_error = ""
+    external_cycle_id = ""
+    if active_cycle_external_owner_recorded:
+        try:
+            external_cycle_text = Path(
+                STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER
+            ).read_text(encoding="utf-8")
+        except OSError as exc:
+            external_cycle_error = str(exc)
+        else:
+            external_cycle_match = re.search(
+                r"^\s*(?:-\s*)?Current Cycle:\s*`?(RRI-\d{8}-\d{3})`?\s*$",
+                external_cycle_text,
+                flags=re.M,
+            )
+            external_cycle_id = (
+                external_cycle_match.group(1).strip()
+                if external_cycle_match
+                else ""
+            )
+    external_no_active_cycle = bool(
+        re.search(
+            r"^\s*(?:-\s*)?Current Cycle:\s*`?(?:None|No active cycle|Closed)`?\s*$",
+            external_cycle_text,
+            flags=re.I | re.M,
+        )
+    )
+    external_latest_closed_cycle_match = re.search(
+        r"^\s*(?:-\s*)?Latest Closed RRI Cycle:\s*`?(RRI-\d{8}-\d{3})`?",
+        external_cycle_text,
+        flags=re.M,
+    )
+    external_latest_closed_cycle = (
+        external_latest_closed_cycle_match.group(1).strip()
+        if external_latest_closed_cycle_match
+        else ""
+    )
+    external_return_digest_status_match = re.search(
+        r"^\s*(?:-\s*)?Return Digest Status:\s*`?([^`\n]+)`?\s*$",
+        external_cycle_text,
+        flags=re.I | re.M,
+    )
+    external_return_digest_status = (
+        external_return_digest_status_match.group(1).strip()
+        if external_return_digest_status_match
+        else ""
+    )
+    external_return_digest_closeout = bool(
+        re.match(
+            r"^(?:Complete|Closeout Pending)(?:\b|[\s:;.,-]|$)",
+            external_return_digest_status,
+            flags=re.I,
+        )
     )
 
-    active_cycle = active_cycles[-1] if active_cycles else ""
+    active_cycle = ""
     latest_closed_cycle_values = re.findall(
         r"^\s*(?:-\s*)?Latest Closed RRI Cycle:\s*`?([^`\n]+)`?\s*$",
         record_text,
@@ -20618,10 +20719,10 @@ def _run_standing_governance_intake_gate(require) -> None:
     )
     latest_closed_cycle = latest_closed_cycles[-1] if latest_closed_cycles else ""
     closeout_cycle_recorded = bool(
-        latest_closed_cycle
-        and "Return Digest Status:" in record_text
-        and ("Complete" in record_text or "Closeout Pending" in record_text)
-        and "Active RRI Cycle: `None`" in record_text
+        external_latest_closed_cycle
+        and active_cycle_external_owner_recorded
+        and external_no_active_cycle
+        and external_return_digest_closeout
     )
     bootstrap_setup_recorded = (
         "Bootstrap Setup:" in record_text
@@ -20641,7 +20742,7 @@ def _run_standing_governance_intake_gate(require) -> None:
                 "branch creation base SHA to be recorded"
             ),
         )
-    if active_cycle:
+    if active_cycle or active_cycle_external_owner_recorded:
         require(
             (
                 "Release Readiness digest" in intake_source
@@ -20722,6 +20823,37 @@ def _run_standing_governance_intake_gate(require) -> None:
                     f"before carrying bootstrap or RRI-cycle changes: {ancestor_error}"
                 ),
             )
+            external_active_cycle_ok = False
+            if active_cycle_external_owner_recorded:
+                require(
+                    not external_cycle_error,
+                    (
+                        "Standing Governance Intake branch is ahead of origin/main "
+                        "but the external active-cycle state could not be read: "
+                        f"{external_cycle_error}"
+                    ),
+                )
+                if not closeout_cycle_recorded:
+                    require(
+                        bool(re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)),
+                        (
+                            "Standing Governance Intake branch is ahead of origin/main "
+                            "but the external branch state does not prove a concrete "
+                            "`Current Cycle: RRI-YYYYMMDD-NNN`"
+                        ),
+                    )
+                    require(
+                        "Current Gate:" in external_cycle_text
+                        and "Current Pull Request:" in external_cycle_text,
+                        (
+                            "Standing Governance Intake branch is ahead of origin/main "
+                            "but the external branch state is missing current gate or "
+                            "pull-request proof for the active cycle"
+                        ),
+                    )
+                    external_active_cycle_ok = bool(
+                        re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)
+                    )
             for changed_file in changed_files:
                 require(
                     _standing_governance_intake_file_allowed(changed_file),
@@ -20731,10 +20863,11 @@ def _run_standing_governance_intake_gate(require) -> None:
                     ),
                 )
             require(
-                bool(active_cycle or bootstrap_active or closeout_cycle_recorded),
+                bool(active_cycle or external_active_cycle_ok or bootstrap_active or closeout_cycle_recorded),
                 (
                     "Standing Governance Intake branch is ahead of origin/main without an "
-                    "active RRI cycle, recorded bootstrap setup exception, or return-digest closeout"
+                    "externally proven active RRI cycle, recorded bootstrap setup exception, "
+                    "or return-digest closeout"
                 ),
             )
 
