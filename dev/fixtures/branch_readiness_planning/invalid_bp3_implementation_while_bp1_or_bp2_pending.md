@@ -11,4 +11,4 @@ Branch Package Size: Largest safe coherent feature branch.
 SLC Traceability: Complete
 Future-Gated Boundaries: Private/runtime/provider actions remain gated.
 First Bounded Workstream Seam: Seam 1
-Implementation Approval: Approved for Workstream implementation.
+Workstream Conduct Approval: Approved for Workstream conduct.

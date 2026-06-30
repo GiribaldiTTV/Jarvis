@@ -11,4 +11,4 @@ Branch Package Size: PASS - the package is the largest safe coherent UI/runtime-
 SLC Traceability: Complete
 Future-Gated Boundaries: PASS - real recording runtime, Start and Stop execution, file writing, Native Log Loader, tray controls, external telemetry, backup/export, and cleanup/deletion behavior remain pending USER decisions.
 Workstream Entry Seam: Seam 1 updates source-truth and UI readiness copy for HUD Overlay recording posture before validators and visual proof are expanded.
-Implementation Approval: Approved for the admitted same-branch Workstream package with Seam 1 as the entry checkpoint; implementation must preserve inactive recording posture and cannot create recording files or hidden telemetry while continuation proceeds until Workstream Green, a real blocker, or an explicit USER waiver.
+Workstream Conduct Approval: Approved for the admitted same-branch Workstream package with Seam 1 as the entry checkpoint; implementation must preserve inactive recording posture and cannot create recording files or hidden telemetry while continuation proceeds until Workstream Green, a real blocker, or an explicit USER waiver.

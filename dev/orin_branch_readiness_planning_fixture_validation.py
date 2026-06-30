@@ -735,7 +735,7 @@ EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET = (
     "BP2 must be engineering-plan-first"
 )
 EXPECTED_BP3_PENDING_FAILURE_SNIPPET = (
-    "BP3 cannot approve implementation while BP1 or BP2 is pending"
+    "BP3 cannot approve Workstream conduct while BP1 or BP2 is pending"
 )
 EXPECTED_USER_PACKET_ACTIVE_METADATA_FAILURE_SNIPPET = (
     "USER-facing packet file contains active technical metadata"
@@ -922,7 +922,7 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
         "hardening h1",
         "live validation lv1",
         "uts handoff",
-        "exact implementation approval text",
+        "exact workstream phase conduct text",
     )
     for phrase in required_summary_phrases:
         require(
@@ -1284,7 +1284,7 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "SLC Traceability:",
         "Future-Gated Boundaries:",
         "Workstream Entry Seam:",
-        "Implementation Approval:",
+        "Workstream Conduct Approval:",
     ):
         require(marker in text, f"BP3 Orchestration Validation missing {marker}")
     bp1 = governance._normalized_planning_value(
@@ -1302,20 +1302,20 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
     bp3_gate = governance._normalized_planning_value(
         governance._extract_marker_value(text, "BP3 USER Gate State:")
     )
-    implementation_approval = governance._normalized_planning_value(
-        governance._extract_marker_value(text, "Implementation Approval:")
+    workstream_conduct_approval = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Workstream Conduct Approval:")
     )
-    if "approve" in implementation_approval or "approved" in implementation_approval:
+    if "approve" in workstream_conduct_approval or "approved" in workstream_conduct_approval:
         require(
             bp1.startswith(("complete", "waived by user"))
             and bp2.startswith(("complete", "waived by user")),
-            "BP3 cannot approve implementation while BP1 or BP2 is pending",
+            "BP3 cannot approve Workstream conduct while BP1 or BP2 is pending",
         )
         require(
             bp1_gate.startswith(("user accepted", "user waived"))
             and bp2_gate.startswith(("user accepted", "user waived"))
             and bp3_gate.startswith(("user approved", "user waived")),
-            "BP3 cannot approve implementation while a USER review gate is pending",
+            "BP3 cannot approve Workstream conduct while a USER review gate is pending",
         )
     require(
         "slc traceability: complete" in normalized,
@@ -1326,7 +1326,7 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "Branch Package Size:",
         "Future-Gated Boundaries:",
         "Workstream Entry Seam:",
-        "Implementation Approval:",
+        "Workstream Conduct Approval:",
     )
     for marker in substantive_markers:
         value = governance._extract_marker_value(text, marker)
@@ -1334,15 +1334,16 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
             governance._planning_word_count(value) >= 8,
             f"{marker} is too shallow for BP3 substantive orchestration review",
         )
-    if "approved" in implementation_approval or "approve" in implementation_approval:
+    if "approved" in workstream_conduct_approval or "approve" in workstream_conduct_approval:
         require(
             (
-                "admitted same-branch workstream package" in implementation_approval
-                or "bounded workstream package" in implementation_approval
+                "admitted same-branch workstream package" in workstream_conduct_approval
+                or "bounded workstream phase conduct" in workstream_conduct_approval
+                or "bounded workstream package" in workstream_conduct_approval
             )
-            and "entry checkpoint" in implementation_approval
-            and "workstream green" in implementation_approval,
-            "BP3 implementation approval must name bounded Workstream package execution, entry checkpoint, and Workstream Green continuation",
+            and "entry checkpoint" in workstream_conduct_approval
+            and "workstream green" in workstream_conduct_approval,
+            "BP3 Workstream conduct approval must name bounded Workstream phase conduct, entry checkpoint, and Workstream Green continuation",
         )
     return failures
 
@@ -5543,9 +5544,9 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
             "START_HERE.md": (
                 "USER Decision This Packet Supports: "
                 f"{exact_decision}\n"
-                "Decision Path Summary: implementation-ready - BP1, BP2, and BP3 "
-                "are accepted; bounded Workstream package implementation is "
-                "approved by this packet with Seam 1 as the entry checkpoint.\n"
+                "Decision Path Summary: workstream-conduct-ready - BP1, BP2, and BP3 "
+                "are accepted; bounded Workstream phase conduct is approved by this "
+                "packet with Seam 1 as the entry checkpoint.\n"
             )
         }
         for path in target.glob("*.md"):
@@ -5578,10 +5579,13 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
         expected_origin_main="fixture-origin-main",
         require_implementation_ready=True,
     )
-    if result.status != review_bundle.DECISION_STATUS_IMPLEMENTATION_READY:
+    if result.status not in {
+        review_bundle.DECISION_STATUS_IMPLEMENTATION_READY,
+        review_bundle.DECISION_STATUS_WORKSTREAM_CONDUCT_READY,
+    }:
         failures.append(
-            "FAM-007 Workstream implementation approval packet did not classify "
-            f"as implementation-ready: {result.status}; {result.failures[:3]}"
+            "FAM-007 Workstream conduct packet did not classify "
+            f"as Workstream-conduct-ready: {result.status}; {result.failures[:3]}"
         )
     combined = "\n".join(packet_files.values()).casefold()
     forbidden_bp3_review_terms = [
@@ -5595,7 +5599,7 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
     ]
     if emitted_forbidden_terms:
         failures.append(
-            "FAM-007 Workstream implementation approval packet emitted BP3 review "
+            "FAM-007 Workstream conduct packet emitted BP3 review "
             "or pending-gate wording despite implementation approval: "
             + "; ".join(emitted_forbidden_terms)
         )
@@ -5611,34 +5615,34 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
     ]
     if emitted_support_file_terms:
         failures.append(
-            "FAM-007 Workstream implementation approval support BP2 file emitted "
+            "FAM-007 Workstream conduct support BP2 file emitted "
             "pending or BP3-only wording: "
             + "; ".join(emitted_support_file_terms)
         )
     support_file_required_terms = [
         "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is accepted",
         "Status: Accepted by USER - this BP2 support file is closed as accepted engineering-plan context",
-        "Implementation-ready - BP1, BP2, and BP3 are accepted",
+        "Workstream-conduct-ready - BP1, BP2, and BP3 are accepted",
     ]
     missing_support_terms = [
         term for term in support_file_required_terms if term not in branch_plan_review
     ]
     if missing_support_terms:
         failures.append(
-            "FAM-007 Workstream implementation approval support BP2 file is missing "
-            "accepted implementation-ready context: "
+            "FAM-007 Workstream conduct support BP2 file is missing "
+            "accepted Workstream-conduct-ready context: "
             + "; ".join(missing_support_terms)
         )
     required_terms = [
-        "bounded Workstream package implementation is approved",
+        "bounded Workstream phase conduct is approved",
         "Seam 1 as the entry checkpoint",
         "Continuation must proceed one active same-branch seam at a time until Workstream Green",
     ]
     missing_required_terms = [term for term in required_terms if term not in "\n".join(packet_files.values())]
     if missing_required_terms:
         failures.append(
-            "FAM-007 Workstream implementation approval packet is missing "
-            "implementation-ready terms: "
+            "FAM-007 Workstream conduct packet is missing "
+            "Workstream-conduct-ready terms: "
             + "; ".join(missing_required_terms)
         )
     return failures

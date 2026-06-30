@@ -36,16 +36,16 @@ Future-Gated Scope: Future provider execution, model downloads, memory, voice, s
 Implementation Staging Notes: The accepted package implements visible consent/readiness status first, proves disabled protected actions, then validates source truth and user-facing proof.
 Alternatives / Tradeoffs: Alternative is a broader setup wizard, but it increases scope and provider-boundary risk.
 USER Decisions Needed: USER already accepted the bounded consent-status direction and deferred broader provider setup questions.
-USER Review Response: Accepted by USER - USER response was attached and accepted the branch plan review before implementation approval.
+USER Review Response: Accepted by USER - USER response was attached and accepted the branch plan review before Workstream phase conduct approval.
 Codex Response Digest: Digested - Codex recorded the USER response and preserved provider execution as future-gated before Workstream implementation.
 Implementation Constraints Created By USER Response: Provider execution remains future-gated; visible setup status and disabled protected actions must be testable; screenshots and UTS proof must match the accepted contract.
 USER Rejected / Deferred Ideas: Broader setup wizard behavior, provider execution, model downloads, memory, voice, shortcuts, installer, and private-edition work remain deferred.
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the fixture contract is complete and aligned with the branch plan.
 Contract Change Log: v1 created the accepted USER Branch Plan Contract for the fixture.
-Workstream Entry Result: Workstream Entry may return bounded Workstream package implementation approval text with the entry seam, affected files, validators, proof requirements, USER-facing proof, and continuation posture.
-Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the complete contract.
+Workstream Entry Result: Workstream Entry may return bounded Workstream phase conduct text with the entry seam, affected files, validators, proof requirements, USER-facing proof, and continuation posture.
+Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact Workstream phase conduct text must cite the complete contract.
 Accepted Scope: Accepted scope includes consent status, safe setup copy, disabled actions, validation, screenshots, and UTS proof.
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Rejected Scope: No rejected current scope beyond excluding protected private-provider behavior from this branch.
 Exact USER Decision Needed: USER may approve Workstream implementation for the accepted plan or request changes before implementation.
-Implementation Approval: Pending exact USER Workstream approval; plan review acceptance alone does not authorize runtime mutation.
+Workstream Conduct Approval: Pending exact USER Workstream approval; plan review acceptance alone does not authorize runtime mutation.

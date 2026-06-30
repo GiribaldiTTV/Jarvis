@@ -11,4 +11,4 @@ Branch Package Size: PASS - the package is the largest safe coherent trust-bound
 SLC Traceability: Complete
 Future-Gated Boundaries: PASS - private repo creation, private remotes, provider SDK execution, model downloads, backup/import behavior, memory, runtime cache, voice/Core sync, shortcut, installer, and v1.8.0 work remain pending USER decisions.
 Workstream Entry Seam: Seam 1 updates public-safe source truth and action-gate proof before provider-state, public-leak, and review-packet evidence are hardened.
-Implementation Approval: Approved for the admitted same-branch Workstream package with Seam 1 as the entry checkpoint; implementation must preserve no private-state mutation, no provider execution, and no private path leakage while continuation proceeds until Workstream Green, a real blocker, or an explicit USER waiver.
+Workstream Conduct Approval: Approved for the admitted same-branch Workstream package with Seam 1 as the entry checkpoint; implementation must preserve no private-state mutation, no provider execution, and no private path leakage while continuation proceeds until Workstream Green, a real blocker, or an explicit USER waiver.

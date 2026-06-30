@@ -723,7 +723,7 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Deferred Scope:",
     "Rejected Scope:",
     "Exact USER Decision Needed:",
-    "Implementation Approval:",
+    "Workstream Conduct Approval:",
 )
 USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES = {
     "USER Plan Review Questions:": ("USER Design Review Questions:",),
@@ -10306,14 +10306,14 @@ def _validate_user_branch_plan_review_gate(
         "Contract Change Log:",
         "Contract Completion Checklist:",
         "Exact USER Decision Needed:",
-        "Implementation Approval:",
+        "Workstream Conduct Approval:",
     ):
         value = extract_plan_marker(marker)
         require(
             _planning_word_count(value) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS,
             (
                 f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
-                f"'{marker}' is too shallow for USER implementation review"
+                f"'{marker}' is too shallow for USER Workstream conduct review"
             ),
         )
 
@@ -10363,7 +10363,7 @@ def _validate_user_branch_plan_review_gate(
         (
             f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Codex Response "
             "Digest must record that USER response was digested, remains pending, "
-            "or was explicitly waived/rejected before Workstream implementation"
+            "or was explicitly waived/rejected before Workstream conduct"
         ),
     )
 
@@ -10424,17 +10424,17 @@ def _validate_user_branch_plan_review_gate(
             ),
         )
 
-    implementation_approval = _normalized_planning_value(
-        _extract_marker_value(gate_section, "Implementation Approval:")
+    workstream_conduct_approval = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Workstream Conduct Approval:")
     )
     require(
         any(
-            term in implementation_approval
+            term in workstream_conduct_approval
             for term in ("pending", "approved", "blocked", "waiver", "accepted", "not authorized")
         ),
         (
-            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Implementation "
-            "Approval must preserve the implementation approval boundary"
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Workstream "
+            "Conduct Approval must preserve the Workstream conduct boundary"
         ),
     )
     exact_user_decision = _normalized_planning_value(
@@ -10450,6 +10450,9 @@ def _validate_user_branch_plan_review_gate(
     )
     implementation_request = (
         "approve bounded slc" in exact_user_decision
+        or "approve workstream conduct" in exact_user_decision
+        or "approve bounded workstream phase conduct" in exact_user_decision
+        or "workstream phase conduct" in exact_user_decision
         or "approve workstream implementation" in exact_user_decision
         or "approve bounded workstream implementation" in exact_user_decision
         or "implementation approval" in exact_user_decision
@@ -10468,7 +10471,7 @@ def _validate_user_branch_plan_review_gate(
             not implementation_request,
             (
                 f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} cannot return "
-                "implementation approval text while Contract Status is Draft, "
+                "Workstream conduct text while Contract Status is Draft, "
                 "Pending USER Response, Pending Codex Digest, or Pending USER Confirmation"
             ),
         )

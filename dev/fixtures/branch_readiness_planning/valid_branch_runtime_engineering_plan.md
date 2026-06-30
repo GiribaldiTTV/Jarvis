@@ -26,7 +26,7 @@ Approval-Boundary Audit: Approval boundary audit records planning accepted, runt
 FAM / Shared-Surface Overlap Forecast: Shared-surface overlap forecast names desktop renderer, Core visual labels, branch records, backlog, roadmap, and provider validators as coordination surfaces.
 Open Questions: USER questions remain for runtime activation timing, release selection, model download behavior, provider execution policy, and live validation waiver posture.
 Feature Vision Context: Project Vision, Family Vision, Family Feature Vision when present, Branch Vision, deferred feature carryforward, and proof expectations are loaded before BP2/BP3 planning.
-Deferred Feature Carryforward Review: Deferred carryforward items are reviewed for dependency trigger, grouping recommendation, future-gated reason, proof expectation, and branch-fit before implementation approval.
+Deferred Feature Carryforward Review: Deferred carryforward items are reviewed for dependency trigger, grouping recommendation, future-gated reason, proof expectation, and branch-fit before Workstream phase conduct approval.
 USER Planning Decisions: USER accepted this plan shape, deferred future-gated execution, preserved pending runtime approval, and requires plan revision if implementation scope changes.
 Plan Revision History: Plan v1 accepted as fixture evidence; later repo truth changes require a revision packet before new runtime behavior is admitted.
 Plan-To-Implementation Traceability Table: Planned rows trace baseline, delta, files, actual implementation, validation proof, user-facing proof, and future-gated decisions before PR Readiness.
@@ -41,7 +41,7 @@ Troubleshooting Mode Decision: Troubleshooting launcher and direct runtime route
 USER Packet Evidence Plan: C:\Nexus USER review hub and UTS packet record evidence references with PASS, FAIL, BLOCKED, UNPROVEN, or WAIVED disposition.
 PR Readiness Fold-Down / Retention Checklist: PR Readiness fold-down decides retained historical plan detail, compact branch receipt, promoted workstream lessons, and release-scope summary.
 Release Readiness Public-Scope Translation Checklist: Release Readiness public scope translates internal runtime proof into release highlights, excluded work, future-gated language, and user-facing notes.
-USER Planning Review: Accepted - USER reviewed the engineering plan and kept implementation approval separate.
+USER Planning Review: Accepted - USER reviewed the engineering plan and kept Workstream phase conduct approval separate.
 PR Fold-Down Packet: Pending until PR Readiness compares the branch against implementation evidence.
 Runtime Implementation Approval: Pending - planning is accepted but runtime implementation remains a separate USER decision.
 
@@ -93,16 +93,16 @@ Future-Gated Scope: Future provider execution, model download, memory, voice, sh
 Implementation Staging Notes: The accepted package implements visible provider readiness status first, proves disabled protected actions, then validates source truth and user-facing proof.
 Alternatives / Tradeoffs: Alternative is a broader setup wizard, but it increases scope and provider-boundary risk.
 USER Decisions Needed: USER already accepted the bounded provider-readiness direction and deferred broader provider setup questions.
-USER Review Response: Accepted by USER - USER response was attached to the review packet and accepted before implementation approval.
+USER Review Response: Accepted by USER - USER response was attached to the review packet and accepted before Workstream phase conduct approval.
 Codex Response Digest: Digested - Codex digested the USER response and recorded future provider execution boundaries before implementation.
 Implementation Constraints Created By USER Response: Provider execution remains future-gated; provider readiness status must be visible; protected actions must remain disabled; screenshots and UTS proof must match the accepted contract.
 USER Rejected / Deferred Ideas: Broader provider setup, provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the fixture contract is complete and aligned with the branch plan.
 Contract Change Log: v1 created the accepted USER Branch Plan Contract for the runtime engineering fixture.
-Workstream Entry Result: Workstream Entry may return bounded Workstream package implementation approval text with the entry seam, affected files, validators, proof requirements, USER-facing proof, and continuation posture.
-Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the complete contract.
+Workstream Entry Result: Workstream Entry may return bounded Workstream phase conduct text with the entry seam, affected files, validators, proof requirements, USER-facing proof, and continuation posture.
+Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact Workstream phase conduct text must cite the complete contract.
 Accepted Scope: Accepted scope includes consent status, safe setup copy, disabled actions, validation, screenshots, and UTS proof.
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Rejected Scope: No rejected current scope beyond excluding protected private-provider behavior from this branch.
 Exact USER Decision Needed: USER may approve Workstream implementation for the accepted plan or request changes before implementation.
-Implementation Approval: Pending exact USER Workstream approval; plan review acceptance alone does not authorize runtime mutation.
+Workstream Conduct Approval: Pending exact USER Workstream approval; plan review acceptance alone does not authorize runtime mutation.

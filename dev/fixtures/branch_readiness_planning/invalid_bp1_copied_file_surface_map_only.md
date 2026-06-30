@@ -13,7 +13,7 @@ Feature Vision Context: This branch must preserve the accepted family direction 
 Branch Goal: Establish a branch-specific vision that tells USER what outcome will be inspected and which decisions are being requested before BP2.
 End-State Vision: USER has a clear accepted or revised branch vision that later engineering planning must trace to without changing product direction by inertia.
 What Will I Actually See, And Where Will I See It?: USER sees the branch vision packet in the local USER hub and uses START_HERE only to inspect source context.
-How It Will Function: BP1 records product direction, BP2 derives engineering implementation detail, and BP3 validates readiness before implementation approval can be requested.
+How It Will Function: BP1 records product direction, BP2 derives engineering implementation detail, and BP3 validates readiness before Workstream phase conduct can be requested.
 User Experience Flow: USER reads the branch vision, chooses among concrete design options, answers decision-driving questions, and waits for Codex to digest the response.
 Surface Map: `Docs/nexus_vision.md` copied as `nexus_vision.md`; `Docs/family_visions/FAM-007.md` copied as `FAM-007.md`; `Docs/branch_plans/example.md` copied as `example.md`.
 Product Options / Design Paths: Option A accepts the current branch vision; Option B revises the experience surface before BP2; Option C keeps private/provider behavior future-gated.

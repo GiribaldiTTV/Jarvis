@@ -42,10 +42,10 @@ Implementation Constraints Created By USER Response: Public-safe copy remains cu
 USER Rejected / Deferred Ideas: Private provider execution, setup flow, model install, downloads, memory, voice, shortcuts, and installer behavior are deferred to a future branch.
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the waiver preserves current public-safe branch boundaries.
 Contract Change Log: v1 created the waived USER Branch Plan Contract for deferred private-provider scope.
-Workstream Entry Result: Workstream Entry may return the first public-safe implementation seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text.
-Contract Completion Checklist: Waived by USER - USER waiver is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the waiver.
+Workstream Entry Result: Workstream Entry may return the first public-safe implementation seam, affected files, validators, proof requirements, USER-facing proof, and exact Workstream phase conduct text.
+Contract Completion Checklist: Waived by USER - USER waiver is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact Workstream phase conduct text must cite the waiver.
 Accepted Scope: Accepted current scope includes public copy, protected-action suppression, validator proof, screenshots, and UTS proof.
 Deferred Scope: Private provider execution, model install, downloads, memory, voice, shortcut, and installer behavior are future scope.
 Rejected Scope: Rejected current scope includes any public runtime path that imports private provider assets or setup flows.
 Exact USER Decision Needed: USER may approve public-safe implementation while waiving private setup to a future branch.
-Implementation Approval: Pending exact USER Workstream approval; deferred waiver does not authorize private provider mutation.
+Workstream Conduct Approval: Pending exact USER Workstream approval; deferred waiver does not authorize private provider mutation.

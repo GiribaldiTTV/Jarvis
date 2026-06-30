@@ -22,4 +22,4 @@ Accepted Scope: Accepted scope includes consent status, safe setup copy, disable
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Rejected Scope: No rejected current scope beyond excluding protected private-provider behavior from this branch.
 Exact USER Decision Needed: USER may approve Workstream implementation for the accepted plan or request changes before implementation.
-Implementation Approval: Pending exact USER Workstream approval; plan review acceptance alone does not authorize runtime mutation.
+Workstream Conduct Approval: Pending exact USER Workstream approval; plan review acceptance alone does not authorize runtime mutation.

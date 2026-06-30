@@ -2,7 +2,7 @@
 
 ## Contract Status
 
-Complete - USER accepted the final USER Branch Plan Contract before implementation approval.
+Complete - USER accepted the final USER Branch Plan Contract before Workstream phase conduct approval.
 
 ## Contract Version / Revision
 
