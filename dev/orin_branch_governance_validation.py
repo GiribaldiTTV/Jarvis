@@ -4815,6 +4815,10 @@ BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
         r"^\s*(?:-\s*)?(?:Current Phase|Phase):\s*`?(?:Branch Readiness|Branch Planning|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)`?",
     ),
     (
+        "active current phase after setup",
+        r"^\s*(?:-\s*)?Current Phase After [^:\r\n]+:\s*`?(?!(?:Historical|Not applicable|No current phase|Closed)\b)[^`\r\n]*(?:Branch Readiness|Branch Planning|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)\b",
+    ),
+    (
         "active review/PR pending gate",
         r"\b(?:PR Readiness Stage 1 pending USER approval|Stage 2 PR creation pending USER approval|PR creation pending USER approval)\b",
     ),

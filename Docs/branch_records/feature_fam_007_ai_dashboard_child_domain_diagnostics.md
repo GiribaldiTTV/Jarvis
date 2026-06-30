@@ -121,8 +121,16 @@ FAM-008 / Packaging Boundary: `Capability pack install, download, shortcut, inst
 
 AI Runtime Boundary: `Provider/model execution, prompt send, network/provider calls, cache, memory, learning, private setup, and provider-visible data beyond the recorded none posture remain blocked.`
 
-## Next Legal Gate
+## BR2 Historical Closure And External Authority Pointer
 
-Current Phase After BR2 Setup: `Branch Readiness Stage 2 setup complete once committed, pushed, external state repaired, and validators pass.`
+BR2 Closure State: `Completed durable branch-admission receipt. This repo record does not own current lifecycle state after BR2 admission.`
 
-Next Legal Phase: `BP1 - USER Branch Vision Review / planning approval for the admitted successor route only. BP1 may review and refine branch vision, scope, element selection, source-truth conflicts, dependencies, and proof expectations. BP2/BP3, Workstream implementation, runtime mutation, PR Readiness, PR creation, merge, release, issue mutation, imports, cleanup, and v1.8.0 work remain blocked until separately approved.`
+Historical BR2 Next Gate At Admission: `BP1 - USER Branch Vision Review / planning approval for the admitted successor route only.`
+
+External Current Authority: `C:\Nexus Governance State\branches\feature_fam_007_ai_dashboard_child_domain_diagnostics\branch_state.md`
+
+External Active Plan: `C:\Nexus Governance State\branches\feature_fam_007_ai_dashboard_child_domain_diagnostics\branch_plan.md`
+
+Live-State Boundary: `Current phase, current USER gate, active review packet, current worktree assignment, source HEAD, ahead/behind state, validation freshness, and implementation authority belong to external operational state plus Git/GitHub/helper-derived truth, not this repo receipt.`
+
+Implementation Boundary: `Runtime implementation, Workstream implementation, PR creation, merge, release, issue mutation, imports, cleanup, and v1.8.0 work remain blocked unless current external authority and source truth separately approve them.`
