@@ -1425,6 +1425,7 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
           const title = document.querySelector(".ai-domain-window__title");
           const workspaceNodes = [...document.querySelectorAll("[data-domain-workspace]")];
           const readinessWorkspace = document.querySelector("[data-domain-workspace='readiness-diagnostics']");
+          const capabilityWorkspace = document.querySelector("[data-domain-workspace='capabilities-maintenance']");
           const controls = [...document.querySelectorAll("[data-domain-command='window-minimize'], [data-domain-command='window-close']")];
           const actionButtons = [...document.querySelectorAll(".ai-domain-window__button")].map((button) => ({
             id: button.id || "",
@@ -1456,6 +1457,8 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             viewModelProviderRuntimeBlocked: surface?.dataset.viewModelProviderRuntimeBlocked || "",
             viewModelPromptSendDisabled: surface?.dataset.viewModelPromptSendDisabled || "",
             viewModelProviderVisibleDataNone: surface?.dataset.viewModelProviderVisibleDataNone || "",
+            viewModelPrivateSetupBlocked: surface?.dataset.viewModelPrivateSetupBlocked || "",
+            viewModelOwnerMemoryAgentsBlocked: surface?.dataset.viewModelOwnerMemoryAgentsBlocked || "",
             providerVisibleDataState: surface?.dataset.providerVisibleDataState || "",
             noProviderState: surface?.dataset.noProviderState || "",
             promptExecutionState: surface?.dataset.promptExecutionState || "",
@@ -1470,6 +1473,12 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             providerVisibleData: textFor("provider-visible-data"),
             providerModel: textFor("provider-model"),
             promptMemory: textFor("prompt-memory"),
+            capabilityPacks: textFor("capability-packs"),
+            maintenanceUpdates: textFor("maintenance-updates"),
+            developerLaneBoundary: textFor("developer-lane-boundary"),
+            ownerLaneBoundary: textFor("owner-lane-boundary"),
+            privateSetupBoundary: textFor("private-setup-boundary"),
+            executionBoundary: textFor("execution-boundary"),
             localResult: textFor("local-result"),
             localDetail: textFor("local-detail"),
             reportState: textFor("report-state"),
@@ -1481,6 +1490,23 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             updateExecution: document.querySelector("[data-update-execution]")?.dataset.updateExecution || "",
             downloadExecution: document.querySelector("[data-download-execution]")?.dataset.downloadExecution || "",
             installExecution: document.querySelector("[data-install-execution]")?.dataset.installExecution || "",
+            fetchExecution: capabilityWorkspace?.dataset.fetchExecution || "",
+            capabilityExecution: capabilityWorkspace?.dataset.capabilityExecution || "",
+            packagingExecution: capabilityWorkspace?.dataset.packagingExecution || "",
+            capabilitiesBoundaryContract: capabilityWorkspace?.dataset.capabilitiesBoundaryContract || "",
+            capabilityPackLifecycleState: capabilityWorkspace?.dataset.capabilityPackLifecycleState || "",
+            capabilityPackDownloadState: capabilityWorkspace?.dataset.capabilityPackDownloadState || "",
+            installIntentState: capabilityWorkspace?.dataset.installIntentState || "",
+            capabilityPackInstallState: capabilityWorkspace?.dataset.capabilityPackInstallState || "",
+            capabilityPackUpdateState: capabilityWorkspace?.dataset.capabilityPackUpdateState || "",
+            capabilityPackUninstallState: capabilityWorkspace?.dataset.capabilityPackUninstallState || "",
+            developerLaneBoundaryState: capabilityWorkspace?.dataset.developerLaneBoundaryState || "",
+            ownerLaneBoundaryState: capabilityWorkspace?.dataset.ownerLaneBoundaryState || "",
+            privateSetupBoundaryState: capabilityWorkspace?.dataset.privateSetupBoundaryState || "",
+            privateSetupAuthorized: capabilityWorkspace?.dataset.privateSetupAuthorized || "",
+            privateMaterialVisible: capabilityWorkspace?.dataset.privateMaterialVisible || "",
+            ownerMemoryEnabled: capabilityWorkspace?.dataset.ownerMemoryEnabled || "",
+            ownerAgentsEnabled: capabilityWorkspace?.dataset.ownerAgentsEnabled || "",
             noProviderDiagnosticsFlow: readinessWorkspace?.dataset.noProviderDiagnosticsFlow || "",
             noProviderFlowState: readinessWorkspace?.dataset.noProviderFlowState || "",
             noProviderFlowProviderVisibleData: readinessWorkspace?.dataset.noProviderFlowProviderVisibleData || "",
@@ -2553,7 +2579,29 @@ def main() -> int:
                     noProviderDiagnosticsFlow: card.dataset.noProviderDiagnosticsFlow || "",
                     noProviderFlowState: card.dataset.noProviderFlowState || "",
                     unavailableCapabilityState: card.dataset.unavailableCapabilityState || "",
-                    blockedActionState: card.dataset.blockedActionState || ""
+                    blockedActionState: card.dataset.blockedActionState || "",
+                    capabilitiesBoundaryContract: card.dataset.capabilitiesBoundaryContract || "",
+                    capabilityPackLifecycleState: card.dataset.capabilityPackLifecycleState || "",
+                    capabilityPackDownloadState: card.dataset.capabilityPackDownloadState || "",
+                    installIntentState: card.dataset.installIntentState || "",
+                    capabilityPackInstallState: card.dataset.capabilityPackInstallState || "",
+                    capabilityPackUpdateState: card.dataset.capabilityPackUpdateState || "",
+                    capabilityPackUninstallState: card.dataset.capabilityPackUninstallState || "",
+                    developerLaneBoundaryState: card.dataset.developerLaneBoundaryState || "",
+                    ownerLaneBoundaryState: card.dataset.ownerLaneBoundaryState || "",
+                    privateSetupBoundaryState: card.dataset.privateSetupBoundaryState || "",
+                    privateSetupAuthorized: card.dataset.privateSetupAuthorized || "",
+                    privateMaterialVisible: card.dataset.privateMaterialVisible || "",
+                    ownerMemoryEnabled: card.dataset.ownerMemoryEnabled || "",
+                    ownerAgentsEnabled: card.dataset.ownerAgentsEnabled || "",
+                    downloadExecution: card.dataset.downloadExecution || "",
+                    installExecution: card.dataset.installExecution || "",
+                    updateExecution: card.dataset.updateExecution || "",
+                    fetchExecution: card.dataset.fetchExecution || "",
+                    capabilityExecution: card.dataset.capabilityExecution || "",
+                    packagingExecution: card.dataset.packagingExecution || "",
+                    viewModelPrivateSetupBlocked: card.dataset.viewModelPrivateSetupBlocked || "",
+                    viewModelOwnerMemoryAgentsBlocked: card.dataset.viewModelOwnerMemoryAgentsBlocked || ""
                   }
                 ])),
                 stateTaxonomyStripPairs: [...document.querySelectorAll("[data-dashboard-role='global-ai-strip'] .monitoring-hud__surface-role-pair")].map((pair) => ({
@@ -3313,6 +3361,8 @@ def main() -> int:
                 "providerVisibleDataEgress": True,
                 "capabilityInstallDownload": True,
                 "maintenanceUpdateExecution": True,
+                "privateSetup": True,
+                "ownerMemoryAgents": True,
             }
             and recovery.get("label") == "Retry local check only"
             and flattened_values == expected_values
@@ -3478,6 +3528,76 @@ def main() -> int:
             and readiness_card.get("promptExecutionState") == "prompt-send-disabled"
         )
 
+    def _capabilities_boundary_ok() -> bool:
+        cards = dashboard_probe.get("stateTaxonomyCards") if isinstance(dashboard_probe.get("stateTaxonomyCards"), dict) else {}
+        capabilities_card = cards.get("capabilities-maintenance") if isinstance(cards.get("capabilities-maintenance"), dict) else {}
+        capability_child = child_chrome_probe.get("capabilities-maintenance") if isinstance(child_chrome_probe.get("capabilities-maintenance"), dict) else {}
+        capability_dom = capability_child.get("dom") if isinstance(capability_child.get("dom"), dict) else {}
+        view_model = dashboard_probe.get("dashboardViewModel") if isinstance(dashboard_probe.get("dashboardViewModel"), dict) else {}
+        source_fields = view_model.get("sourceFields") if isinstance(view_model.get("sourceFields"), dict) else {}
+        disabled_actions = view_model.get("disabledActions") if isinstance(view_model.get("disabledActions"), dict) else {}
+
+        expected_states = {
+            "capabilitiesBoundaryContract": "capabilities-maintenance-developer-owner-boundary-v1",
+            "capabilityPackLifecycleState": "capability-pack-lifecycle-planned",
+            "capabilityPackDownloadState": "capability-pack-downloads-blocked",
+            "installIntentState": "install-intent-blocked",
+            "capabilityPackInstallState": "install-blocked",
+            "capabilityPackUpdateState": "update-blocked",
+            "capabilityPackUninstallState": "uninstall-blocked",
+            "developerLaneBoundaryState": "developer-lane-private-setup-blocked",
+            "ownerLaneBoundaryState": "owner-lane-private-setup-blocked",
+            "privateSetupBoundaryState": "private-setup-blocked",
+            "privateSetupAuthorized": "false",
+            "privateMaterialVisible": "false",
+            "ownerMemoryEnabled": "false",
+            "ownerAgentsEnabled": "false",
+            "downloadExecution": "blocked",
+            "installExecution": "blocked",
+            "updateExecution": "blocked",
+            "fetchExecution": "blocked",
+            "capabilityExecution": "blocked",
+            "packagingExecution": "blocked",
+            "viewModelPrivateSetupBlocked": "true",
+            "viewModelOwnerMemoryAgentsBlocked": "true",
+        }
+        provider_expected = {
+            "capabilityPackLifecycleState": "capability-pack-lifecycle-planned",
+            "capabilityPackDownloadState": "capability-pack-downloads-blocked",
+            "installIntentState": "install-intent-blocked",
+            "capabilityPackInstallState": "install-blocked",
+            "capabilityPackUpdateState": "update-blocked",
+            "capabilityPackUninstallState": "uninstall-blocked",
+            "developerLaneBoundaryState": "developer-lane-private-setup-blocked",
+            "ownerLaneBoundaryState": "owner-lane-private-setup-blocked",
+            "privateSetupBoundaryState": "private-setup-blocked",
+        }
+        return (
+            all(capabilities_card.get(key) == value for key, value in expected_states.items())
+            and all(capability_dom.get(key) == value for key, value in expected_states.items())
+            and all(source_fields.get(key) == value for key, value in provider_expected.items())
+            and all(provider_payload.get(key) == value for key, value in provider_expected.items())
+            and source_fields.get("privateSetupAuthorized") == "false"
+            and source_fields.get("privateMaterialVisible") == "false"
+            and source_fields.get("ownerMemoryEnabled") == "false"
+            and source_fields.get("ownerAgentsEnabled") == "false"
+            and provider_payload.get("privateSetupAuthorized") is False
+            and provider_payload.get("privateMaterialVisible") is False
+            and provider_payload.get("ownerMemoryEnabled") is False
+            and provider_payload.get("ownerAgentsEnabled") is False
+            and disabled_actions.get("capabilityInstallDownload") is True
+            and disabled_actions.get("maintenanceUpdateExecution") is True
+            and disabled_actions.get("privateSetup") is True
+            and disabled_actions.get("ownerMemoryAgents") is True
+            and capability_dom.get("capabilityPacks") == "Install blocked; downloads disabled"
+            and capability_dom.get("maintenanceUpdates") == "Lifecycle placement only; update execution blocked"
+            and capability_dom.get("developerLaneBoundary") == "Developer lane: gated; private setup not configured"
+            and capability_dom.get("ownerLaneBoundary") == "Owner lane: gated; private setup not configured"
+            and capability_dom.get("privateSetupBoundary") == "Private setup blocked; no private material visible"
+            and "No update, download, install, fetch, provider/model, private setup, packaging, or capability execution is approved."
+            in str(capability_dom.get("executionBoundary") or "")
+        )
+
     def _singleton_focus_ok(probe: object) -> bool:
         if not isinstance(probe, dict):
             return False
@@ -3579,6 +3699,7 @@ def main() -> int:
             and provider_state.as_renderer_payload().get("networkEgressState") == "network-egress-blocked"
             and provider_state.as_renderer_payload().get("memoryIndexingState") == "memory-indexing-disabled"
         ),
+        "capabilitiesMaintenanceDeveloperOwnerBoundaryDisplayProven": _capabilities_boundary_ok(),
         "parentVisualMetrics": (
             dashboard_probe.get("defaultWindowWidth") == "471"
             and dashboard_probe.get("defaultWindowHeight") == "598"
@@ -3962,6 +4083,20 @@ def main() -> int:
             "viewModelContract": VIEW_MODEL_CONTRACT,
             "dashboardViewModelState": dashboard_probe.get("viewModelState"),
             "dashboardViewModelRecoveryGuidance": dashboard_probe.get("viewModelRecoveryGuidance"),
+            "capabilitiesBoundaryContract": "capabilities-maintenance-developer-owner-boundary-v1",
+            "capabilityPackLifecycleState": provider_payload.get("capabilityPackLifecycleState"),
+            "capabilityPackDownloadState": provider_payload.get("capabilityPackDownloadState"),
+            "installIntentState": provider_payload.get("installIntentState"),
+            "capabilityPackInstallState": provider_payload.get("capabilityPackInstallState"),
+            "capabilityPackUpdateState": provider_payload.get("capabilityPackUpdateState"),
+            "capabilityPackUninstallState": provider_payload.get("capabilityPackUninstallState"),
+            "developerLaneBoundaryState": provider_payload.get("developerLaneBoundaryState"),
+            "ownerLaneBoundaryState": provider_payload.get("ownerLaneBoundaryState"),
+            "privateSetupBoundaryState": provider_payload.get("privateSetupBoundaryState"),
+            "privateSetupAuthorized": provider_payload.get("privateSetupAuthorized"),
+            "privateMaterialVisible": provider_payload.get("privateMaterialVisible"),
+            "ownerMemoryEnabled": provider_payload.get("ownerMemoryEnabled"),
+            "ownerAgentsEnabled": provider_payload.get("ownerAgentsEnabled"),
         },
         "events": events,
         "checks": checks,

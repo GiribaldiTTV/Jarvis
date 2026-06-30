@@ -4397,6 +4397,11 @@ class AIDashboardDomainWindow(QDialog):
         && providerState.memoryIndexingState === "memory-indexing-disabled";
       const installBlocked = String(providerState.installIntentState || "").includes("blocked")
         || String(providerState.capabilityPackInstallState || "").includes("blocked");
+      const updatesBlocked = String(providerState.capabilityPackUpdateState || "").includes("blocked");
+      const privateSetupBlocked = providerState.privateSetupAuthorized === false
+        && providerState.privateMaterialVisible === false;
+      const ownerRuntimeBlocked = providerState.ownerMemoryEnabled === false
+        && providerState.ownerAgentsEnabled === false;
       return {{
         contract: viewModelContract,
         source: "AIProviderStateSnapshot.as_renderer_payload",
@@ -4404,16 +4409,51 @@ class AIDashboardDomainWindow(QDialog):
         providerModel: providerRuntimeBlocked ? "Disabled and blocked" : "Disabled; provider state requires review",
         promptMemory: promptDisabled ? "Not accepted, sent, stored, or indexed" : "Not accepted; prompt boundary mismatch",
         capabilityPacks: installBlocked ? "Install blocked; downloads disabled" : "Install unavailable; capability proof required",
-        maintenanceUpdates: "Lifecycle placement only; update execution blocked",
+        maintenanceUpdates: updatesBlocked ? "Lifecycle placement only; update execution blocked" : "Lifecycle placement only; update state requires review",
+        developerLane: providerState.developerLaneBoundaryLabel || "Developer lane: gated; private setup not configured",
+        ownerLane: providerState.ownerLaneBoundaryLabel || "Owner lane: gated; private setup not configured",
+        privateSetup: privateSetupBlocked ? "Private setup blocked; no private material visible" : "Private setup boundary requires review",
+        executionBoundary: "No update, download, install, fetch, provider/model, private setup, packaging, or capability execution is approved.",
         localResult: "Waiting for local action",
         localDetail: providerState.providerVisibleDataDetail || "No prompt, file, memory, telemetry, or provider config is sent.",
         disabledActions: {{
           providerModelExecution: providerRuntimeBlocked,
           promptSend: promptDisabled,
           capabilityInstallDownload: installBlocked,
+          maintenanceUpdateExecution: updatesBlocked,
           providerVisibleDataEgress: providerVisibleDataNone && providerState.sentToProvider === false,
+          privateSetup: privateSetupBlocked,
+          ownerMemoryAgents: ownerRuntimeBlocked,
         }},
       }};
+    }};
+    const syncCapabilityBoundaryContract = (viewModel) => {{
+      const workspace = document.querySelector("[data-domain-workspace='capabilities-maintenance']");
+      if (!workspace) return;
+      Object.assign(workspace.dataset, {{
+        capabilitiesBoundaryContract: "capabilities-maintenance-developer-owner-boundary-v1",
+        capabilityPackLifecycleState: String(providerState.capabilityPackLifecycleState || "capability-pack-lifecycle-planned"),
+        capabilityPackDownloadState: String(providerState.capabilityPackDownloadState || "capability-pack-downloads-blocked"),
+        installIntentState: String(providerState.installIntentState || "install-intent-blocked"),
+        capabilityPackInstallState: String(providerState.capabilityPackInstallState || "install-blocked"),
+        capabilityPackUpdateState: String(providerState.capabilityPackUpdateState || "update-blocked"),
+        capabilityPackUninstallState: String(providerState.capabilityPackUninstallState || "uninstall-blocked"),
+        developerLaneBoundaryState: String(providerState.developerLaneBoundaryState || "developer-lane-private-setup-blocked"),
+        ownerLaneBoundaryState: String(providerState.ownerLaneBoundaryState || "owner-lane-private-setup-blocked"),
+        privateSetupBoundaryState: String(providerState.privateSetupBoundaryState || "private-setup-blocked"),
+        privateSetupAuthorized: providerState.privateSetupAuthorized === false ? "false" : String(providerState.privateSetupAuthorized || ""),
+        privateMaterialVisible: providerState.privateMaterialVisible === false ? "false" : String(providerState.privateMaterialVisible || ""),
+        ownerMemoryEnabled: providerState.ownerMemoryEnabled === false ? "false" : String(providerState.ownerMemoryEnabled || ""),
+        ownerAgentsEnabled: providerState.ownerAgentsEnabled === false ? "false" : String(providerState.ownerAgentsEnabled || ""),
+        updateExecution: "blocked",
+        downloadExecution: "blocked",
+        installExecution: "blocked",
+        fetchExecution: "blocked",
+        capabilityExecution: "blocked",
+        packagingExecution: "blocked",
+        viewModelPrivateSetupBlocked: viewModel.disabledActions.privateSetup ? "true" : "false",
+        viewModelOwnerMemoryAgentsBlocked: viewModel.disabledActions.ownerMemoryAgents ? "true" : "false",
+      }});
     }};
     const applyDomainViewModel = () => {{
       const viewModel = buildDomainViewModel();
@@ -4427,6 +4467,8 @@ class AIDashboardDomainWindow(QDialog):
           viewModelProviderRuntimeBlocked: viewModel.disabledActions.providerModelExecution ? "true" : "false",
           viewModelPromptSendDisabled: viewModel.disabledActions.promptSend ? "true" : "false",
           viewModelProviderVisibleDataNone: viewModel.disabledActions.providerVisibleDataEgress ? "true" : "false",
+          viewModelPrivateSetupBlocked: viewModel.disabledActions.privateSetup ? "true" : "false",
+          viewModelOwnerMemoryAgentsBlocked: viewModel.disabledActions.ownerMemoryAgents ? "true" : "false",
         }});
       }}
       setText("provider-visible-data", viewModel.providerVisibleData);
@@ -4434,8 +4476,13 @@ class AIDashboardDomainWindow(QDialog):
       setText("prompt-memory", viewModel.promptMemory);
       setText("capability-packs", viewModel.capabilityPacks);
       setText("maintenance-updates", viewModel.maintenanceUpdates);
+      setText("developer-lane-boundary", viewModel.developerLane);
+      setText("owner-lane-boundary", viewModel.ownerLane);
+      setText("private-setup-boundary", viewModel.privateSetup);
+      setText("execution-boundary", viewModel.executionBoundary);
       setText("local-result", viewModel.localResult);
       setText("local-detail", viewModel.localDetail);
+      syncCapabilityBoundaryContract(viewModel);
       return viewModel;
     }};
     const syncStateTaxonomyContract = () => {{
@@ -4617,7 +4664,7 @@ class AIDashboardDomainWindow(QDialog):
       </section>"""
         if self.domain_id == "capabilities-maintenance":
             return """
-      <section class="ai-domain-window__card" data-domain-workspace="capabilities-maintenance" data-update-execution="blocked" data-download-execution="blocked" data-install-execution="blocked">
+      <section class="ai-domain-window__card" data-domain-workspace="capabilities-maintenance" data-capabilities-boundary-contract="capabilities-maintenance-developer-owner-boundary-v1" data-capability-pack-lifecycle-state="capability-pack-lifecycle-planned" data-capability-pack-download-state="capability-pack-downloads-blocked" data-install-intent-state="install-intent-blocked" data-capability-pack-install-state="install-blocked" data-capability-pack-update-state="update-blocked" data-capability-pack-uninstall-state="uninstall-blocked" data-developer-lane-boundary-state="developer-lane-private-setup-blocked" data-owner-lane-boundary-state="owner-lane-private-setup-blocked" data-private-setup-boundary-state="private-setup-blocked" data-private-setup-authorized="false" data-private-material-visible="false" data-owner-memory-enabled="false" data-owner-agents-enabled="false" data-update-execution="blocked" data-download-execution="blocked" data-install-execution="blocked" data-fetch-execution="blocked" data-capability-execution="blocked" data-packaging-execution="blocked">
         <div class="ai-domain-window__card-heading">
           <span class="ai-domain-window__card-number">01</span>
           <strong class="ai-domain-window__card-title">Capability Boundary</strong>
@@ -4627,7 +4674,10 @@ class AIDashboardDomainWindow(QDialog):
           <div class="ai-domain-window__row"><span>Capability packs</span><strong id="capability-packs">Install blocked; downloads disabled</strong></div>
           <div class="ai-domain-window__row"><span>Maintenance</span><strong id="maintenance-updates">Lifecycle placement only; update execution blocked</strong></div>
           <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Provider/model lifecycle remains unavailable</strong></div>
-          <div class="ai-domain-window__row"><span>Execution</span><strong>No update, download, install, fetch, provider/model, or capability execution is approved.</strong></div>
+          <div class="ai-domain-window__row"><span>Developer</span><strong id="developer-lane-boundary">Developer lane: gated; private setup not configured</strong></div>
+          <div class="ai-domain-window__row"><span>Owner</span><strong id="owner-lane-boundary">Owner lane: gated; private setup not configured</strong></div>
+          <div class="ai-domain-window__row"><span>Private setup</span><strong id="private-setup-boundary">Private setup blocked; no private material visible</strong></div>
+          <div class="ai-domain-window__row"><span>Execution</span><strong id="execution-boundary">No update, download, install, fetch, provider/model, private setup, packaging, or capability execution is approved.</strong></div>
         </div>
       </section>"""
         return """

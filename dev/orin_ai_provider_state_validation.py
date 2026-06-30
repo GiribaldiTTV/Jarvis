@@ -9436,6 +9436,7 @@ def validate() -> list[str]:
         '"activeDomainWindowLaunchChromeAndGeometry"',
         '"readinessDiagnosticsLocalActionsStayInsideChild"',
         '"readinessDiagnosticsNoProviderLocalOnlyFlowProven"',
+        '"capabilitiesMaintenanceDeveloperOwnerBoundaryDisplayProven"',
         '"domainLaunchProbe"',
         '"parentVisualMetrics"',
         '"returnedDensityAndButtonPlacementRepaired"',
@@ -9502,6 +9503,12 @@ def validate() -> list[str]:
         "noProviderDiagnosticsFlow",
         "noProviderFlowState",
         "local-only-no-provider-readiness-v1",
+        "capabilitiesBoundaryContract",
+        "capabilities-maintenance-developer-owner-boundary-v1",
+        "developerLaneBoundaryState",
+        "ownerLaneBoundaryState",
+        "privateSetupAuthorized",
+        "ownerMemoryEnabled",
     ):
         _require(
             needle in live_resize_helper,
@@ -9571,6 +9578,16 @@ def validate() -> list[str]:
         "ai-dashboard-provider-state-view-model-v1",
         "viewModelProviderRuntimeBlocked",
         "viewModelPromptSendDisabled",
+        "syncCapabilitiesBoundaryContract",
+        "capabilities-maintenance-developer-owner-boundary-v1",
+        "developerLaneBoundaryState",
+        "ownerLaneBoundaryState",
+        "privateSetupAuthorized",
+        "privateMaterialVisible",
+        "ownerMemoryEnabled",
+        "ownerAgentsEnabled",
+        "viewModelPrivateSetupBlocked",
+        "viewModelOwnerMemoryAgentsBlocked",
     ):
         _require(
             needle in ai_control_js,
@@ -9599,6 +9616,37 @@ def validate() -> list[str]:
         _require(
             needle in renderer or needle in ai_control_html,
             f"AI Dashboard no-provider diagnostics flow contract is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "data-capabilities-boundary-contract=\"capabilities-maintenance-developer-owner-boundary-v1\"",
+        "data-capability-pack-lifecycle-state=\"capability-pack-lifecycle-planned\"",
+        "data-capability-pack-download-state=\"capability-pack-downloads-blocked\"",
+        "data-install-intent-state=\"install-intent-blocked\"",
+        "data-capability-pack-install-state=\"install-blocked\"",
+        "data-capability-pack-update-state=\"update-blocked\"",
+        "data-developer-lane-boundary-state=\"developer-lane-private-setup-blocked\"",
+        "data-owner-lane-boundary-state=\"owner-lane-private-setup-blocked\"",
+        "data-private-setup-boundary-state=\"private-setup-blocked\"",
+        "data-private-setup-authorized=\"false\"",
+        "data-private-material-visible=\"false\"",
+        "data-owner-memory-enabled=\"false\"",
+        "data-owner-agents-enabled=\"false\"",
+        "data-download-execution=\"blocked\"",
+        "data-install-execution=\"blocked\"",
+        "data-update-execution=\"blocked\"",
+        "data-fetch-execution=\"blocked\"",
+        "data-capability-execution=\"blocked\"",
+        "data-packaging-execution=\"blocked\"",
+        "Developer lane: gated; private setup not configured",
+        "Owner lane: gated; private setup not configured",
+        "Private setup blocked; no private material visible",
+        "No update, download, install, fetch, provider/model, private setup, packaging, or capability execution is approved.",
+    ):
+        _require(
+            needle in renderer or needle in ai_control_html,
+            f"AI Dashboard capability/developer/owner boundary contract is missing {needle!r}",
             failures,
         )
 

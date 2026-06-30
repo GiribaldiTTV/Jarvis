@@ -403,11 +403,19 @@
       && providerState.sentToProvider === false
       && providerState.networkEgressState === "network-egress-blocked"
     );
-    const installBlocked = (
+  const installBlocked = (
       String(providerState.installIntentState || "").includes("blocked")
       || String(providerState.capabilityPackInstallState || "").includes("blocked")
     );
     const updatesBlocked = String(providerState.capabilityPackUpdateState || "").includes("blocked");
+    const privateSetupBlocked = (
+      providerState.privateSetupAuthorized === false
+      && providerState.privateMaterialVisible === false
+    );
+    const ownerRuntimeBlocked = (
+      providerState.ownerMemoryEnabled === false
+      && providerState.ownerAgentsEnabled === false
+    );
     const rows = {
       controlCenter: {
         aiPersona: "None; ORIN persona not implemented",
@@ -432,6 +440,11 @@
         maintenanceUpdates: updatesBlocked
           ? "Future-gated; no install execution"
           : "Future-gated; update state requires review",
+        developerLane: providerState.developerLaneBoundaryLabel || "Developer lane: gated; private setup not configured",
+        ownerLane: providerState.ownerLaneBoundaryLabel || "Owner lane: gated; private setup not configured",
+        privateSetup: privateSetupBlocked
+          ? "Private setup blocked; no private material visible"
+          : "Private setup boundary requires review",
       },
     };
     return {
@@ -447,8 +460,20 @@
         promptAcceptance: providerState.promptAcceptance || "",
         memoryIndexingState: providerState.memoryIndexingState || "",
         installIntentState: providerState.installIntentState || "",
+        capabilityPackLifecycleState: providerState.capabilityPackLifecycleState || "",
+        capabilityPackDownloadState: providerState.capabilityPackDownloadState || "",
         capabilityPackInstallState: providerState.capabilityPackInstallState || "",
         capabilityPackUpdateState: providerState.capabilityPackUpdateState || "",
+        capabilityPackUninstallState: providerState.capabilityPackUninstallState || "",
+        developerLaneBoundaryState: providerState.developerLaneBoundaryState || "",
+        developerLaneBoundaryLabel: providerState.developerLaneBoundaryLabel || "",
+        ownerLaneBoundaryState: providerState.ownerLaneBoundaryState || "",
+        ownerLaneBoundaryLabel: providerState.ownerLaneBoundaryLabel || "",
+        privateSetupBoundaryState: providerState.privateSetupBoundaryState || "",
+        privateSetupAuthorized: providerState.privateSetupAuthorized === false ? "false" : String(providerState.privateSetupAuthorized || ""),
+        privateMaterialVisible: providerState.privateMaterialVisible === false ? "false" : String(providerState.privateMaterialVisible || ""),
+        ownerMemoryEnabled: providerState.ownerMemoryEnabled === false ? "false" : String(providerState.ownerMemoryEnabled || ""),
+        ownerAgentsEnabled: providerState.ownerAgentsEnabled === false ? "false" : String(providerState.ownerAgentsEnabled || ""),
         recoveryLabel: providerState.aiControlCenterRecoveryLabel || "Retry local check only",
       },
       disabledActions: {
@@ -457,6 +482,8 @@
         providerVisibleDataEgress: privacyProtected,
         capabilityInstallDownload: installBlocked,
         maintenanceUpdateExecution: updatesBlocked,
+        privateSetup: privateSetupBlocked,
+        ownerMemoryAgents: ownerRuntimeBlocked,
       },
       recoveryGuidance: {
         label: providerState.aiControlCenterRecoveryLabel || "Retry local check only",
@@ -464,6 +491,37 @@
       },
       rows,
     };
+  };
+
+  const syncCapabilitiesBoundaryContract = (viewModel) => {
+    const card = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
+    if (!card) {
+      return;
+    }
+    Object.assign(card.dataset, {
+      capabilitiesBoundaryContract: "capabilities-maintenance-developer-owner-boundary-v1",
+      capabilityPackLifecycleState: viewModel.sourceFields.capabilityPackLifecycleState || "capability-pack-lifecycle-planned",
+      capabilityPackDownloadState: viewModel.sourceFields.capabilityPackDownloadState || "capability-pack-downloads-blocked",
+      installIntentState: viewModel.sourceFields.installIntentState || "install-intent-blocked",
+      capabilityPackInstallState: viewModel.sourceFields.capabilityPackInstallState || "install-blocked",
+      capabilityPackUpdateState: viewModel.sourceFields.capabilityPackUpdateState || "update-blocked",
+      capabilityPackUninstallState: viewModel.sourceFields.capabilityPackUninstallState || "uninstall-blocked",
+      developerLaneBoundaryState: viewModel.sourceFields.developerLaneBoundaryState || "developer-lane-private-setup-blocked",
+      ownerLaneBoundaryState: viewModel.sourceFields.ownerLaneBoundaryState || "owner-lane-private-setup-blocked",
+      privateSetupBoundaryState: viewModel.sourceFields.privateSetupBoundaryState || "private-setup-blocked",
+      privateSetupAuthorized: viewModel.sourceFields.privateSetupAuthorized || "false",
+      privateMaterialVisible: viewModel.sourceFields.privateMaterialVisible || "false",
+      ownerMemoryEnabled: viewModel.sourceFields.ownerMemoryEnabled || "false",
+      ownerAgentsEnabled: viewModel.sourceFields.ownerAgentsEnabled || "false",
+      downloadExecution: "blocked",
+      installExecution: "blocked",
+      updateExecution: "blocked",
+      fetchExecution: "blocked",
+      capabilityExecution: "blocked",
+      packagingExecution: "blocked",
+      viewModelPrivateSetupBlocked: viewModel.disabledActions.privateSetup ? "true" : "false",
+      viewModelOwnerMemoryAgentsBlocked: viewModel.disabledActions.ownerMemoryAgents ? "true" : "false",
+    });
   };
 
   const applyDashboardViewModel = () => {
@@ -487,8 +545,11 @@
         viewModelPromptSendDisabled: viewModel.disabledActions.promptSend ? "true" : "false",
         viewModelProviderVisibleDataNone: viewModel.sourceFields.providerVisibleData === "none" ? "true" : "false",
         viewModelRecoveryGuidance: viewModel.recoveryGuidance.label,
+        viewModelPrivateSetupBlocked: viewModel.disabledActions.privateSetup ? "true" : "false",
+        viewModelOwnerMemoryAgentsBlocked: viewModel.disabledActions.ownerMemoryAgents ? "true" : "false",
       });
     }
+    syncCapabilitiesBoundaryContract(viewModel);
     document.querySelectorAll("[data-view-model-key]").forEach((row) => {
       row.dataset.viewModelContract = viewModel.contract;
       row.dataset.viewModelBound = "provider-payload";
