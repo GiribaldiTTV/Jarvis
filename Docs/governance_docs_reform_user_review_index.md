@@ -152,9 +152,9 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
-| `Docs/Main.md` | High | `volatile-current-wording=347`; `unclear-ownership-wording=164`; `soft-commitment-wording=69`; `state-ledger-wording=248` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=348`; `unclear-ownership-wording=163`; `soft-commitment-wording=69`; `state-ledger-wording=250` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ai_runtime_and_trust_architecture.md` | High | `volatile-current-wording=12`; `unclear-ownership-wording=23`; `soft-commitment-wording=44`; `state-ledger-wording=51` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/README.md` | High | `volatile-current-wording=160`; `unclear-ownership-wording=138`; `soft-commitment-wording=54`; `state-ledger-wording=233` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/README.md` | High | `volatile-current-wording=160`; `unclear-ownership-wording=139`; `soft-commitment-wording=54`; `state-ledger-wording=233` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | High | `volatile-current-wording=187`; `unclear-ownership-wording=151`; `soft-commitment-wording=17`; `state-ledger-wording=109` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | High | `volatile-current-wording=305`; `unclear-ownership-wording=201`; `soft-commitment-wording=22`; `state-ledger-wording=128` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
