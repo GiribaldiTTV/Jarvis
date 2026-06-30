@@ -134,6 +134,9 @@ DECISION_STATUS_PR_READINESS_STAGE1_REVIEW = "pr-readiness-stage1-review"
 DECISION_STATUS_PR_READINESS_STAGE2_REVIEW = "pr-readiness-stage2-review"
 DECISION_STATUS_REPAIR_REVALIDATION = "repair-revalidation"
 DECISION_STATUS_UNKNOWN = "unknown"
+FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH = (
+    "feature/fam-007-ai-dashboard-child-domain-diagnostics"
+)
 BRANCH_PLANNING_PACKET_REVIEWABILITY_VALUES = {
     "missing",
     "generated",
@@ -159,6 +162,10 @@ BRANCH_PLANNING_PENDING_USER_GATE_VALUES = {
     "user blocked",
 }
 BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS = (
+    "approve bounded workstream entry approval and conduct",
+    "approve workstream entry approval and conduct",
+    "workstream entry approval and conduct",
+    "workstream approval and conduct",
     "approve complete bounded workstream package implementation",
     "approve complete bounded workstream implementation",
     "complete bounded workstream package implementation",
@@ -189,6 +196,7 @@ FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS = (
     "approve bounded fam-006 workstream/runtime implementation",
 )
 FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES = {
+    FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH,
     "feature/fam-007-dev-owner-skeleton-readiness",
     "feature/fam-007-owner-ai-operational-foundation-gates",
 }
@@ -3148,11 +3156,6 @@ def _fam007_slc001_workstream_entry_packet_detected(packet_files: Mapping[str, s
         and "slc-001" in combined
         and "seam 1" in combined
         and "workstream entry" in combined
-        and (
-            "workstream implementation remains pending user approval" in combined
-            or "does not authorize workstream implementation" in combined
-            or "runtime implementation remains blocked" in combined
-        )
     )
 
 
@@ -3654,13 +3657,29 @@ def _write_user_branch_vision_review(
             is_fam006_recording=True,
         )
     )
+    fam007_slc001_workstream_conduct_packet = (
+        "fam-007" in review_profile_text
+        and "slc-001" in review_profile_text
+        and "seam 1" in review_profile_text
+        and "workstream entry" in review_profile_text
+        and any(
+            marker in decision_text
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+        )
+        and not any(
+            marker in decision_text
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
     fam007_slc001_workstream_entry_context_packet = (
         "fam-007" in review_profile_text
         and "slc-001" in review_profile_text
         and "seam 1" in review_profile_text
         and "workstream entry" in review_profile_text
         and (
-            "does not authorize workstream implementation" in decision_text
+            fam007_slc001_workstream_conduct_packet
+            or "workstream approval and conduct" in decision_text
+            or "does not authorize workstream implementation" in decision_text
             or "workstream implementation remains pending user approval" in review_profile_text
             or "runtime implementation remains blocked" in review_profile_text
         )
@@ -3677,6 +3696,8 @@ def _write_user_branch_vision_review(
     active_planning_gate = (
         "Workstream implementation approval"
         if fam006_workstream_approval_context_packet
+        else "SLC-001 / Seam 1 Workstream approval and conduct"
+        if fam007_slc001_workstream_conduct_packet
         else
         "SLC-001 / Seam 1 Workstream Entry review"
         if fam007_slc001_workstream_entry_context_packet
@@ -3849,29 +3870,29 @@ def _write_user_branch_vision_review(
             "",
             "## Codex Understanding",
             "",
-            "Codex understands this file as supporting BP1 context for a later FAM-007 packet. BP1, BP2, and BP3 are already accepted planning context; the only active USER decision is whether this bounded SLC-001 / Seam 1 Workstream Entry preparation packet should move forward to a separately approved implementation phase.",
+            "Codex understands this file as supporting BP1 context for the active FAM-007 Workstream Entry approval/conduct packet. BP1, BP2, and BP3 are already accepted planning context; the active USER decision authorizes bounded SLC-001 / Seam 1 Workstream conduct for the admitted entry seam, not a later duplicate implementation approval packet.",
             "",
             "## Branch Goal",
             "",
-            "The branch goal remains to make AI Dashboard child-domain entry deterministic, reviewable, and truth-mapped while preserving disabled no-provider behavior. SLC-001 should prepare the first doorway restoration without adding provider execution, prompt handling, downloads, cache, memory, private setup, or release behavior.",
+            "The branch goal remains to make AI Dashboard child-domain entry deterministic, reviewable, and truth-mapped while preserving disabled no-provider behavior. SLC-001 / Seam 1 may implement the first doorway-restoration contract without adding provider execution, prompt handling, downloads, cache, memory, private setup, or release behavior.",
             "",
             "## End-State Vision",
             "",
-            "When the admitted SLC-001 work later completes under separate approval, USER should see a coherent AI Dashboard doorway into the proper AI Control Center child domain, with status language and no-provider diagnostics that match source truth and remain visibly blocked where runtime AI is not implemented.",
+            "When the admitted SLC-001 / Seam 1 Workstream conduct completes, USER should see a coherent AI Dashboard doorway into the proper AI Control Center child domain, with status language and no-provider diagnostics that match source truth and remain visibly blocked where runtime AI is not implemented.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "USER should inspect the active packet through the local USER review folder, especially the Workstream Entry digest and this accepted BP1 support aid. In a later implementation phase, the visible surface would be the AI Dashboard parent hub and its first child-domain doorway into the AI Control Center family area.",
+            "USER should inspect the active packet through the local USER review folder, especially the Workstream Entry digest and this accepted BP1 support aid. During this bounded Workstream conduct, the visible surface is the AI Dashboard parent hub and its first child-domain doorway into the AI Control Center family area.",
             "",
             "## How It Will Function",
             "",
-            "The doorway must function as navigation and diagnostics context only until a later approval changes the implementation state. It should expose no provider calls, no prompt send path, no model execution, no download behavior, no runtime cache, no memory, no private setup, and no persistence side effects.",
+            "The doorway must function as navigation and diagnostics context only inside the approved SLC-001 / Seam 1 boundary. It should expose no provider calls, no prompt send path, no model execution, no download behavior, no runtime cache, no memory, no private setup, and no persistence side effects.",
             "",
             "## User Experience Flow",
             "",
             "1. USER reviews this packet as an SLC-001 / Seam 1 Workstream Entry decision, not as a fresh BP1 decision.",
-            "2. Codex preserves BP1, BP2, and BP3 as accepted context while keeping Workstream implementation blocked.",
-            "3. If USER accepts the active packet, a later bounded implementation approval is still required before runtime files may change.",
+            "2. Codex preserves BP1, BP2, and BP3 as accepted context while treating Workstream Entry approval as bounded SLC-001 / Seam 1 conduct authority.",
+            "3. If USER accepts the active packet, Codex may conduct the admitted SLC-001 / Seam 1 Workstream implementation under the accepted package constraints.",
             "4. Any later UI proof must show the AI Dashboard doorway and no-provider diagnostics without crossing provider, prompt, cache, memory, private setup, packaging, PR, merge, or release gates.",
             "",
             "## Surface Map",
@@ -3883,7 +3904,7 @@ def _write_user_branch_vision_review(
             "",
             "## Product Options / Design Paths",
             "",
-            "- Option A - accept this SLC-001 Workstream Entry preparation packet as the next bounded doorway-restoration route. Tradeoff: it lets planning proceed, but still requires a later implementation approval before code changes.",
+            "- Option A - accept this SLC-001 / Seam 1 Workstream Entry approval/conduct packet as the bounded doorway-restoration route. Tradeoff: it authorizes only the admitted entry seam and keeps later seams gated by Workstream continuation proof.",
             "- Option B - revise the packet to narrow doorway scope, diagnostics state mapping, or proof expectations before any implementation request. Tradeoff: slower entry, but lower risk of scope drift.",
             "- Option C - hold or reject SLC-001 for now and leave the accepted BP1/BP2/BP3 chain unchanged. Tradeoff: no runtime risk, but the AI Dashboard child-domain doorway remains unresolved.",
             "",
@@ -3891,7 +3912,7 @@ def _write_user_branch_vision_review(
             "",
             "- Recommendation 1: keep SLC-001 bounded to doorway restoration and no-provider diagnostics because that matches the accepted AI Dashboard parent-hub direction. Tradeoff: broader AI Control Center behavior stays deferred.",
             "- Recommendation 2: require later visual and backend-to-visual proof before implementation can be called green because the doorway must remain deterministic and source-truth mapped. Tradeoff: proof work takes time but prevents false acceptance.",
-            "- Recommendation 3: keep provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, PR, merge, release, imports, and v1.8.0 outside this gate because the active decision is entry preparation only.",
+            "- Recommendation 3: keep provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, PR, merge, release, imports, and v1.8.0 outside this gate because the active decision is bounded SLC-001 / Seam 1 Workstream conduct only.",
             "",
             "## Why This Fits The Nexus Vision",
             "",
@@ -3899,7 +3920,7 @@ def _write_user_branch_vision_review(
             "",
             "## USER Design Questions",
             "",
-            "- Does USER accept SLC-001 / Seam 1 as the next bounded Workstream Entry preparation target while implementation remains separately gated?",
+            "- Does USER accept SLC-001 / Seam 1 as the bounded Workstream Entry approval/conduct target?",
             "- Should the first child-domain doorway prioritize AI Control Center Card 1 restoration, no-provider diagnostics wording, or visual/source-truth proof expectations if the scope must be narrowed?",
             "- Are any provider, prompt, cache, memory, private setup, Settings, persistence, packaging, PR, merge, release, import, or v1.8.0 boundaries missing from the blocked list?",
             "",
@@ -3922,11 +3943,11 @@ def _write_user_branch_vision_review(
             "## Accepted Branch Vision",
             "",
             "- USER Accepted - BP1 Branch Vision accepted by USER for the AI Dashboard parent hub and first child-domain doorway direction.",
-            "- BP2 accepted - the engineering plan is accepted as planning context only.",
-            "- BP3 accepted - the Workstream Entry / Orchestration Validation planning contract is accepted as planning context only.",
-            "- The active packet is bounded to SLC-001 / Seam 1 Workstream Entry preparation after rebaseline/RAR.",
+            "- BP2 accepted - the engineering plan is accepted as the SLC-001 / Seam 1 conduct basis.",
+            "- BP3 accepted - the Workstream Entry / Orchestration Validation contract routes into this bounded entry-seam conduct packet.",
+            "- The active packet is bounded to SLC-001 / Seam 1 Workstream Entry approval/conduct after rebaseline/RAR.",
             "- AI Dashboard remains a top-level parent hub surface for AI status, diagnostics, trust boundary clarity, and child-domain entry.",
-            "- AI Control Center Card 1 / first child-domain doorway restoration remains a future implementation target only after separate USER approval.",
+            "- AI Control Center Card 1 / first child-domain doorway restoration is the approved entry-seam implementation target under this bounded Workstream conduct gate.",
             "- Provider/model execution, prompt send, downloads, cache, memory, private setup, Settings implementation, persistence, packaging, PR, merge, release, imports, cleanup beyond routed packet/state currentness, v1.8.0 work, and sibling worktree mutation remain blocked.",
             "",
             "## Family-Vision Versus Branch-Only Vision Impact",
@@ -3935,7 +3956,7 @@ def _write_user_branch_vision_review(
             "",
             "## Must-Have Behavior",
             "",
-            "- BP1, BP2, and BP3 acceptance must be treated as context only; SLC-001 implementation still needs a separate USER approval.",
+            "- BP1, BP2, and BP3 acceptance must be treated as accepted context; this Workstream Entry approval/conduct packet is the bounded SLC-001 / Seam 1 implementation authority.",
             "- The AI Dashboard parent hub and first child-domain doorway must preserve no-provider, no-prompt, no-download, no-cache, no-memory, and no-private-setup truth mapping.",
             "- Future proof must compare visible UI, disabled states, diagnostics wording, and backend-to-visual state mapping against current source truth and accepted references.",
             "",
@@ -3951,27 +3972,27 @@ def _write_user_branch_vision_review(
             "",
             "## Vision Question Queue",
             "",
-            "- Confirm whether USER accepts SLC-001 / Seam 1 as the next bounded entry-preparation target.",
+            "- Confirm whether USER accepts SLC-001 / Seam 1 as the bounded Workstream conduct target.",
             "- Confirm the first child-domain doorway proof expectations before any later implementation phase.",
             "- Confirm whether any additional blocked runtime, private, packaging, release, or sibling-worktree boundaries must be named before implementation can be requested.",
             "",
             "## Design Assumption Ledger",
             "",
-            "- Assumption: the current packet may repair and review SLC-001 Workstream Entry preparation artifacts, but may not implement runtime behavior.",
+            "- Assumption: the current packet may authorize bounded SLC-001 / Seam 1 Workstream conduct, but may not implement provider, prompt, cache, memory, private setup, packaging, PR, merge, release, or sibling-worktree behavior.",
             "- Assumption: provider-visible data remains none, prompt acceptance remains disabled, downloads stay blocked, cache and memory remain inactive, and private setup stays unavailable.",
             "- Assumption: accepted BP1/BP2/BP3 context remains valid unless USER revises or routes a new source-truth owner decision.",
             "",
             "## Acceptance / Revision / Rejection / Waiver Decision",
             "",
-            "- Accept: USER accepts this SLC-001 / Seam 1 Workstream Entry preparation packet as reviewable context for the next separately approved gate.",
+            "- Accept: USER accepts this SLC-001 / Seam 1 Workstream Entry approval/conduct packet as the bounded implementation authority for the admitted entry seam.",
             "- Revise: USER requests changes to SLC-001 scope, proof expectations, blocked boundaries, or accepted-context wording before any implementation request.",
             "- Hold / More Options: USER wants additional doorway or diagnostic proof options before deciding.",
-            "- Reject: USER rejects this SLC-001 Workstream Entry preparation packet.",
-            "- Waive: USER explicitly waives this review step while preserving the need for a later implementation approval.",
+            "- Reject: USER rejects this SLC-001 Workstream Entry approval/conduct packet.",
+            "- Waive: USER explicitly waives this review step while naming the remaining Workstream conduct authority or blocker.",
             "",
             "## Current Packet Gate",
             "",
-            "SLC-001 / Seam 1 remains Pending USER Review. Workstream/runtime implementation cannot begin from this support aid.",
+            "SLC-001 / Seam 1 is the active Workstream Entry approval/conduct target. This support aid cannot expand scope beyond the primary packet.",
             "",
             "## Exact USER Decision Supported",
             "",
@@ -4961,6 +4982,9 @@ def _write_user_branch_plan_review(
     is_fam007_owner_ai_foundation = (
         source_branch == "feature/fam-007-owner-ai-operational-foundation-gates"
     )
+    is_fam007_ai_dashboard_child_domain = (
+        source_branch == FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH
+    )
     is_fam007_dev_owner_skeleton = source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
     is_fam007_private_boundary_setup = (
         source_branch == "feature/fam-007-dev-owner-private-boundary-setup"
@@ -5035,14 +5059,20 @@ def _write_user_branch_plan_review(
         review_path.write_text("\n".join(lines), encoding="utf-8")
         return review_path.resolve()
     fam007_slc001_workstream_entry_review_packet = (
-        source_branch == "feature/fam-007-ai-dashboard-child-domain-diagnostics"
+        source_branch == FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH
         and "fam-007" in normalized_decision
         and "slc-001" in normalized_decision
         and "seam 1" in normalized_decision
         and "workstream entry" in normalized_decision
-        and any(
-            marker in normalized_decision
-            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        and (
+            any(
+                marker in normalized_decision
+                for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+            )
+            or any(
+                marker in normalized_decision
+                for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+            )
         )
     )
     if fam007_slc001_workstream_entry_review_packet:
@@ -5055,15 +5085,15 @@ def _write_user_branch_plan_review(
             "",
             "## Contract Status",
             "",
-            "Complete - BP2 engineering plan context is accepted by USER and carried forward only as support for the active SLC-001 / Seam 1 Workstream Entry review packet.",
+            "Complete - BP2 engineering plan context is accepted by USER and carried forward only as support for the active SLC-001 / Seam 1 Workstream Entry approval/conduct packet.",
             "",
             "## Packet Reviewability State",
             "",
-            "Reviewable - supporting accepted BP2 context for the active SLC-001 / Seam 1 Workstream Entry packet.",
+            "Reviewable - supporting accepted BP2 context for the active SLC-001 / Seam 1 Workstream Entry approval/conduct packet.",
             "",
             "## USER Gate State",
             "",
-            "USER Accepted - BP2 engineering plan accepted by USER; SLC-001 / Seam 1 remains Pending USER Review.",
+            "USER Accepted - BP2 engineering plan accepted by USER; SLC-001 / Seam 1 is the active bounded Workstream conduct target.",
             "",
             "## USER Response Proof",
             "",
@@ -5071,51 +5101,51 @@ def _write_user_branch_plan_review(
             "",
             "## USER Response Digested",
             "",
-            "Digested - accepted BP2 context is preserved; the active SLC-001 / Seam 1 packet remains pending USER review.",
+            "Digested - accepted BP2 context is preserved; the active SLC-001 / Seam 1 packet carries Workstream Entry approval/conduct authority.",
             "",
             "## Acceptance / Waiver / Revision / Rejection Receipt",
             "",
-            "Accepted BP2 context - this aid does not request a new BP2 decision and cannot authorize implementation.",
+            "Accepted BP2 context - this aid does not request a new BP2 decision and cannot expand implementation beyond the primary SLC-001 / Seam 1 packet.",
             "",
             "## Contract Version / Revision",
             "",
-            "v1 - accepted BP2 support context for FAM-007 SLC-001 / Seam 1 Workstream Entry review.",
+            "v2 - accepted BP2 support context for FAM-007 SLC-001 / Seam 1 Workstream Entry approval/conduct.",
             "",
             "## Plain-English Branch Summary",
             "",
-            "This file is a support aid for the active FAM-007 SLC-001 / Seam 1 Workstream Entry packet. It records that BP2 is accepted planning context while the actual USER decision remains whether to accept, revise, hold, reject, or waive the bounded SLC-001 entry-preparation packet.",
+            "This file is a support aid for the active FAM-007 SLC-001 / Seam 1 Workstream Entry packet. It records that BP2 is accepted planning context while the actual USER decision is whether to approve, revise, hold, reject, or waive bounded SLC-001 / Seam 1 Workstream conduct.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "USER should inspect the primary Workstream Entry digest, this accepted BP2 support aid, and the accepted BP1 support aid in the local USER review folder. Later implementation, if separately approved, would affect the AI Dashboard parent hub and first AI Control Center child-domain doorway.",
+            "USER should inspect the primary Workstream Entry digest, this accepted BP2 support aid, and the accepted BP1 support aid in the local USER review folder. Approved bounded conduct affects the AI Dashboard parent hub and first AI Control Center child-domain doorway only inside SLC-001 / Seam 1.",
             "",
             "## End-State Vision",
             "",
-            "The intended later end state is a deterministic first doorway from AI Dashboard into the appropriate AI Control Center child-domain surface, with no-provider diagnostics and blocked runtime states represented truthfully. This support aid does not create that doorway; it preserves planning context for the active review.",
+            "The intended entry-seam end state is a deterministic first doorway from AI Dashboard into the appropriate AI Control Center child-domain surface, with no-provider diagnostics and blocked runtime states represented truthfully. This support aid does not create that doorway; it preserves accepted planning context for the active Workstream conduct packet.",
             "",
             "## Visual / Functional Walkthrough",
             "",
             "- Review `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md` as the primary active decision file.",
             "- Review `Review Aids/USER_BRANCH_VISION_REVIEW.md` for accepted BP1 context and this file for accepted BP2 context.",
-            "- Confirm SLC-001 is bounded to entry preparation and that Workstream/runtime implementation remains blocked.",
+            "- Confirm SLC-001 is bounded to Workstream Entry approval/conduct and that provider/runtime-private/package/release behavior remains blocked.",
             "- Confirm later proof must inspect visible UI, disabled states, diagnostics wording, and backend-to-visual truth mapping before green can be claimed.",
             "",
             "## Surface Map",
             "",
             "- Active decision surface: SLC-001 / Seam 1 Workstream Entry packet.",
-            "- Product surface: AI Dashboard parent hub and AI Control Center Card 1 / first child-domain doorway, only after separate implementation approval.",
+            "- Product surface: AI Dashboard parent hub and AI Control Center Card 1 / first child-domain doorway, inside the approved SLC-001 / Seam 1 boundary.",
             "- Proof surface: future screenshots, validators, and backend-to-visual checks must prove disabled no-provider behavior and source-truth mapping.",
             "- Support context surface: copied source-truth files and accepted BP1/BP2/BP3 review aids.",
             "",
             "## Implementation Options",
             "",
-            "- Option A - accept the active SLC-001 entry-preparation packet and preserve all runtime/provider/private/package gates. Pros: moves toward doorway repair; Cons: still requires a later implementation approval; Risk: low if proof remains strict.",
+            "- Option A - approve the active SLC-001 / Seam 1 Workstream Entry conduct packet and preserve all provider/private/package gates. Pros: starts bounded doorway repair; Cons: later seams remain gated by Workstream continuation proof; Risk: low if proof remains strict.",
             "- Option B - revise SLC-001 scope or proof expectations before any implementation request. Pros: stronger review precision; Cons: slows the entry path; Risk: low.",
             "- Option C - hold, reject, or waive this entry review while leaving accepted BP2 context unchanged. Pros: maximum control; Cons: AI Dashboard doorway repair remains deferred; Risk: low.",
             "",
             "## Recommended Direction",
             "",
-            "Codex recommends accepting only the bounded SLC-001 Workstream Entry preparation packet if USER agrees the doorway route, blocked boundaries, and proof expectations are clear. The recommendation does not authorize implementation, provider behavior, private setup, packaging, merge, release, imports, or cleanup beyond routed packet/state currentness.",
+            "Codex recommends approving only the bounded SLC-001 / Seam 1 Workstream Entry conduct packet if USER agrees the doorway route, blocked boundaries, and proof expectations are clear. The recommendation does not authorize provider behavior, private setup, packaging, merge, release, imports, or cleanup beyond routed packet/state currentness.",
             "",
             "## Why This Fits The Nexus Vision",
             "",
@@ -5123,30 +5153,30 @@ def _write_user_branch_plan_review(
             "",
             "## USER Plan Review Decision",
             "",
-            "Choose one path for the active SLC-001 / Seam 1 packet: accept, revise, hold for more options, reject, or waive this review step. Any implementation approval remains a later separate USER decision.",
+            "Choose one path for the active SLC-001 / Seam 1 packet: approve Workstream conduct, revise, hold for more options, reject, or waive this review step. No duplicate later implementation approval is required for the admitted entry seam.",
             "",
             "## USER Decisions Needed",
             "",
-            "- Does USER accept SLC-001 / Seam 1 as the next bounded Workstream Entry preparation target?",
-            "- Does USER want the doorway scope, diagnostics proof, visual proof, or backend-to-visual mapping tightened before implementation can be requested?",
+            "- Does USER approve SLC-001 / Seam 1 as the bounded Workstream Entry conduct target?",
+            "- Does USER want the doorway scope, diagnostics proof, visual proof, or backend-to-visual mapping tightened before Workstream conduct begins?",
             "- Does USER confirm provider/model execution, prompt send, downloads, cache, memory, private setup, Settings implementation, persistence, packaging, issue mutation, PR creation, merge, release, imports, cleanup beyond routed packet/state currentness, v1.8.0 work, and sibling worktree mutation remain blocked?",
             "",
             "## USER Response",
             "",
-            "Status: Pending USER Review for the active SLC-001 / Seam 1 packet. BP2 is accepted context only.",
+            "Status: USER approval/conduct correction pending in the active SLC-001 / Seam 1 packet. BP2 is accepted context only.",
             "",
             "## Codex Response Digest",
             "",
-            "Status: Pending USER Review - Codex has not digested a final SLC-001 packet disposition. Workstream implementation requires later explicit USER approval.",
+            "Status: Workstream Entry approval/conduct correction is active. Codex must use the primary packet, not this support aid alone, before conducting SLC-001 / Seam 1.",
             "",
             "## Implementation Constraints Created By USER Response",
             "",
-            "- Pending USER response for the active SLC-001 / Seam 1 packet.",
-            "- No runtime implementation, taskbar/tray/menu code, provider/model execution, prompt send, downloads, cache, memory, private setup, Settings implementation, persistence, packaging, issue mutation, PR creation, merge, release, imports, v1.8.0, or sibling worktree mutation is authorized.",
+            "- Bounded SLC-001 / Seam 1 Workstream conduct may proceed only from the primary packet decision path.",
+            "- No provider/model execution, prompt send, downloads, cache, memory, private setup, Settings implementation, persistence, packaging, issue mutation, PR creation, merge, release, imports, v1.8.0, or sibling worktree mutation is authorized.",
             "",
             "## USER Rejected / Deferred Ideas",
             "",
-            "- Deferred: SLC-001 implementation until separate USER approval.",
+            "- Deferred: SLC-002 through SLC-006 execution until same-branch Workstream continuation proof admits each next seam.",
             "- Deferred: SLC-002 through SLC-006 implementation.",
             "- Deferred: provider/model/prompt/download/cache/memory/private/setup/packaging/PR/merge/release work.",
             "",
@@ -5156,13 +5186,13 @@ def _write_user_branch_plan_review(
             "",
             "## Contract Change Log",
             "",
-            "- v1 - Generated as accepted BP2 support context for the active FAM-007 SLC-001 / Seam 1 Workstream Entry review packet.",
+            "- v2 - Generated as accepted BP2 support context for the active FAM-007 SLC-001 / Seam 1 Workstream Entry approval/conduct packet.",
             "",
             "## Current Branch Scope",
             "",
-            "- Packet artifact repair and reviewability for FAM-007 SLC-001 / Seam 1 Workstream Entry preparation.",
+            "- Packet artifact repair and reviewability for FAM-007 SLC-001 / Seam 1 Workstream Entry approval/conduct.",
             "- Accepted BP1, BP2, and BP3 context carry-forward.",
-            "- No runtime implementation or provider/private/package/release action.",
+            "- Bounded entry-seam conduct only; no provider/private/package/release action.",
             "",
             "## Future-Gated Scope",
             "",
@@ -5170,16 +5200,16 @@ def _write_user_branch_plan_review(
             "",
             "## Implementation Staging Notes",
             "",
-            "Implementation staging remains blocked. A later authorized implementation packet would need to name exact files, validators, visual proof, backend-to-visual state mapping, rollback path, and stop conditions before any runtime file is changed.",
+            "Implementation staging is bounded to SLC-001 / Seam 1. The primary packet must name exact files, validators, visual proof, backend-to-visual state mapping, rollback path, and stop conditions before any runtime file is changed.",
             "",
             "## Workstream Entry Result",
             "",
-            "Pending USER Review - SLC-001 / Seam 1 entry preparation is reviewable but not accepted, implemented, or green.",
+            "Workstream Entry approval/conduct - SLC-001 / Seam 1 is the bounded entry seam; implementation is not complete or green until proof passes.",
             "",
             "## Contract Completion Checklist",
             "",
             "- BP2 support context records USER Accepted.",
-            "- Active SLC-001 decision remains pending USER review.",
+            "- Active SLC-001 decision records Workstream Entry approval/conduct authority through the primary packet.",
             "- Runtime/provider/private/package/release boundaries remain blocked.",
             "- Folder and timestamped ZIP validation must pass before this packet can be treated as reviewable.",
             "",
@@ -9112,6 +9142,9 @@ def _write_workstream_entry_packet_digests(
     is_fam007_owner_ai_foundation = (
         source_branch == "feature/fam-007-owner-ai-operational-foundation-gates"
     )
+    is_fam007_ai_dashboard_child_domain = (
+        source_branch == FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH
+    )
     seam1_approval_packet = (
         is_fam007_breakpoint_2
         and "approve bounded workstream implementation" in exact_user_decision.casefold()
@@ -10156,6 +10189,45 @@ def _write_workstream_entry_packet_digests(
             "wording treats SLC-051 / Seam 1 as the entry checkpoint for the complete "
             "accepted Option C package and keeps implementation approval pending."
         )
+    elif workstream_package_approval_packet and is_fam007_ai_dashboard_child_domain:
+        analysis_status = (
+            "Analysis Summary: BP1, BP2, and BP3 are accepted; USER approval now "
+            "carries the branch from Workstream Entry into bounded SLC-001 / Seam 1 "
+            "Workstream conduct for the FAM-007 AI Dashboard child/domain doorway "
+            "restoration package."
+        )
+        implementation_posture = (
+            "Implementation Posture: bounded Workstream conduct is approved by this "
+            "packet decision path for SLC-001 / Seam 1 only. Continuation must proceed "
+            "one active same-branch seam at a time until Workstream Green, a real "
+            "named blocker, or explicit USER waiver."
+        )
+        recommended_seam = (
+            "Entry Checkpoint: SLC-001 / Seam 1 - restore the AI Dashboard parent/"
+            "child doorway contract and AI Control Center Card 1 route boundary."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, development "
+            "rules, phase governance, validation helper registry, branch record, "
+            "active external branch plan/state context, accepted BP1/BP2/BP3 context, "
+            "FAM-002/FAM-003/FAM-007/FAM-008/FAM-010 vision context, UIREF references, "
+            "provider-state validation, public leak-prevention validation, and "
+            "Workstream proof surfaces needed for bounded SLC-001 conduct."
+        )
+        checklist_status = (
+            "Checklist Focus: SLC-001 / Seam 1 Workstream approval/conduct - accepted "
+            "BP1/BP2/BP3 traceability, AI Dashboard parent-hub preservation, AI Control "
+            "Center Card 1 child-domain doorway boundary, no-provider diagnostics truth, "
+            "provider/private/package/release exclusions, proof commands, rollback posture, "
+            "and continuation gating for later SLCs."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting accepted BP1/BP2 review files, required digest/checklist files, "
+            "and copied source-truth files are loaded and digestible for USER review; "
+            "packet wording treats SLC-001 / Seam 1 as the approved entry seam, not a "
+            "preparation-only packet and not terminal Workstream completion."
+        )
     elif workstream_package_approval_packet and is_fam007_owner_ai_foundation:
         bp3_readiness_contract = (
             "\n## Plain-Language Workstream Approval Summary\n\n"
@@ -10795,6 +10867,10 @@ def _packet_text_status(text: str) -> str:
             return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
 
     implementation_markers = (
+        "approve bounded workstream entry approval and conduct",
+        "approve workstream entry approval and conduct",
+        "workstream entry approval and conduct",
+        "workstream approval and conduct",
         "approve complete bounded workstream package implementation",
         "approve complete bounded workstream implementation",
         "complete bounded workstream package implementation",

@@ -797,8 +797,8 @@ Transition Rule:
 - BP2.3 records `USER Accepted`, `USER Waived`, `USER Rejected`, `USER Revision Requested`, or `USER Blocked` before BP3 preparation.
 - BP3.1 prepares and repairs Workstream Entry / Orchestration Validation only after BP1 and BP2 are `USER Accepted` or `USER Waived`.
 - BP3.2 is the USER Workstream Entry / Orchestration Review Gate with `USER Gate State: Pending USER Review` until USER responds.
-- BP3.3 records `USER Approved`, `USER Waived`, `USER Revision Requested`, or `USER Blocked` before first Workstream implementation approval may be requested.
-- Workstream implementation remains blocked until BP1 is `USER Accepted` or `USER Waived`, BP2 is `USER Accepted` or `USER Waived`, BP3 is `USER Approved` or `USER Waived`, and USER separately approves bounded Workstream implementation for the admitted same-branch package or explicitly named initial seam sequence.
+- BP3.3 records `USER Approved`, `USER Waived`, `USER Revision Requested`, or `USER Blocked`; when BP3 approval or waiver names the admitted same-branch package and entry seam or initial seam sequence, that recorded Workstream Entry approval is the bounded Workstream conduct authority for that package unless the approved BP3 artifact explicitly withholds implementation.
+- Workstream implementation remains blocked until BP1 is `USER Accepted` or `USER Waived`, BP2 is `USER Accepted` or `USER Waived`, BP3 is `USER Approved` or `USER Waived`, the admitted same-branch package and entry seam or initial seam sequence are explicit, and no Branch Planning blocker remains active. A second post-BP3 implementation packet is not required by default; it is required only when the approved BP3 artifact or branch-specific source truth explicitly routes to one.
 
 ## Cross-Phase Rules
 
@@ -1217,7 +1217,7 @@ Runtime Branch Engineering Contract:
 
 - runtime-focused implementation branches must carry `## Runtime Branch Engineering Contract` beside the Product Definition Plan before Workstream begins or any later phase resumes
 - the contract must translate USER-reviewed product intent into engineering intent with `USER Engineering Planning Review:`, `Runtime Implementation Approval:`, `Current Runtime Baseline:`, `Planned Runtime Delta:`, `User-Facing Runtime Delta:`, `State / Config / Schema Delta:`, `Validator / Helper Delta:`, `Expected Changed Files / Surfaces:`, `Approval-Boundary Audit:`, `Future-Gated Items:`, `Workstream Seam Map:`, `Proof Expectations:`, `Risk Forecast:`, `Recommendations And Alternatives:`, `Plan Version / Revision Status:`, and `Plan-To-Implementation Traceability:`
-- Branch Readiness Stage 1 proposes the contract and stops for USER planning review; Branch Readiness Stage 2 may admit or revise it, but `Runtime Implementation Approval:` remains pending until Workstream is separately approved
+- Branch Readiness Stage 1 proposes the contract and stops for USER planning review; Branch Readiness Stage 2 may admit or revise it, but `Runtime Implementation Approval:` remains pending until BP3 / Workstream Entry approval admits the bounded Workstream package and entry seam or initial seam sequence
 - Workstream seam start/closeout, Workstream Green, Hardening, Live Validation, PR Readiness, and Release Readiness must compare actual deltas, visible behavior, validator/helper proof, skipped items, and public release scope against the admitted contract
 - if implementation discovers the contract is too narrow, stale, or wrong, Codex must stop with a plan revision packet that names the current approved plan, discovered repo truth, proposed revision, affected seams, approval-boundary impact, and exact USER decision needed
 
