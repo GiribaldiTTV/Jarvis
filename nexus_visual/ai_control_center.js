@@ -33,6 +33,11 @@
     },
   };
   const validWindowControlStates = new Set(["hidden", "blocked", "active"]);
+  const domainDoorwayCommands = {
+    "control-center": "open-control-center-child-window",
+    "readiness-diagnostics": "open-readiness-diagnostics-child-window",
+    "capabilities-maintenance": "open-maintenance-lifecycle-child-window",
+  };
 
   const byId = (id) => document.getElementById(id);
   const setText = (id, value) => {
@@ -181,13 +186,27 @@
     element.addEventListener("click", activate);
     element.addEventListener("pointerup", activate);
   };
-  const applyDeferredDoorwayState = () => {
-    document.querySelectorAll("[data-action-state='deferred']").forEach((button) => {
-      button.disabled = true;
-      button.setAttribute("aria-disabled", "true");
-      button.dataset.launchTarget = "deferred";
-      button.dataset.launchWindowKind = "deferred-detached-child";
+  const applyDomainDoorwayState = () => {
+    document.querySelectorAll("[data-category-doorway]").forEach((button) => {
+      const doorway = button.dataset.categoryDoorway || "";
+      const command = domainDoorwayCommands[doorway] || "";
       button.removeAttribute("title");
+      if (!command) {
+        button.disabled = true;
+        button.setAttribute("aria-disabled", "true");
+        button.dataset.actionState = "blocked";
+        button.dataset.launchTarget = "blocked";
+        button.dataset.launchWindowKind = "blocked";
+        return;
+      }
+      button.disabled = false;
+      button.setAttribute("aria-disabled", "false");
+      button.dataset.actionState = "ready";
+      button.dataset.launchTarget = doorway;
+      button.dataset.launchCommand = command;
+      if (!button.dataset.launchWindowKind || button.dataset.launchWindowKind === "deferred-detached-child") {
+        button.dataset.launchWindowKind = doorway === "readiness-diagnostics" ? "external-unique" : "exclusive-child";
+      }
     });
   };
   const stripNativeTooltips = () => {
@@ -582,13 +601,29 @@
       });
     });
   };
+  const attachDomainDoorwayHandlers = () => {
+    document.querySelectorAll("[data-category-doorway]").forEach((button) => {
+      attachActivationHandler(button, (event) => {
+        if (button.disabled || button.getAttribute("aria-disabled") === "true") {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        const command = button.dataset.launchCommand || domainDoorwayCommands[button.dataset.categoryDoorway || ""];
+        if (command) {
+          emitCommand(command);
+        }
+      });
+    });
+  };
 
   hydrateWindowControlStatesFromMarkup();
-  applyDeferredDoorwayState();
+  applyDomainDoorwayState();
   stripNativeTooltips();
   observeNativeTooltipDrift();
   observeDashboardLayoutDrift();
   attachWindowControlHandlers();
+  attachDomainDoorwayHandlers();
   attachActivationHandler(byId("ai-control-center-local-check-action"), () => {
     window.nexusAiControlCenterRunLocalCheck();
     emitCommand("run-local-check");
@@ -633,7 +668,7 @@
   });
   window.addEventListener("resize", syncDashboardLayout);
   window.addEventListener("load", () => {
-    applyDeferredDoorwayState();
+    applyDomainDoorwayState();
     requestAnimationFrame(syncDashboardLayout);
   });
   syncWindowControlState("normal");

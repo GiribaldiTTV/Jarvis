@@ -1,6 +1,6 @@
 # Helper Status: Workstream-scoped
-# Owner Workstream: FAM-007 AI Dashboard parent-only Workstream-exit repair
-# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific; this helper proves FAM-007 parent-dashboard visual/function acceptance after detached child windows were deferred.
+# Owner Workstream: FAM-007 AI Dashboard domain-doorway Workstream repair
+# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific; this helper proves FAM-007 AI Dashboard visual/function acceptance plus active detached domain doorway lifecycle.
 # Consolidation Target: future reusable Nexus product-window visual and functional acceptance validator
 # Promotion Decision Point: before PR Readiness fold-down
 
@@ -898,6 +898,36 @@ def _drive_ai_dashboard_horizontal_resize(
         "03_dashboard_horizontal_shrink",
         "16_title_status_pill_wrapped_windows_cursor_resize",
     )
+    natural_attempts = [natural]
+
+    def _natural_wrap_attempt_ok(proof: object) -> bool:
+        if not isinstance(proof, dict):
+            return False
+        layout = proof.get("layout") if isinstance(proof.get("layout"), dict) else {}
+        wrap = layout.get("titleStatusPillWrap") if isinstance(layout.get("titleStatusPillWrap"), dict) else {}
+        after = proof.get("after") if isinstance(proof.get("after"), dict) else {}
+        crop = proof.get("wrapCrop") if isinstance(proof.get("wrapCrop"), dict) else {}
+        return (
+            proof.get("started") is True
+            and int(after.get("width") or 999) <= 470
+            and int(after.get("width") or 0) >= dialog.minimumWidth()
+            and int(layout.get("clippedCount") or 0) == 0
+            and layout.get("stripSettingsOverlap") is False
+            and int(wrap.get("lineCount") or 0) >= 2
+            and wrap.get("groupsAtomic") is True
+            and int(wrap.get("clippedPairCount", 999)) == 0
+            and crop.get("ok") is True
+        )
+
+    retry_index = 1
+    while not _natural_wrap_attempt_ok(natural) and retry_index <= 2:
+        natural = _drag_to_width(
+            int(dialog.minimumWidth()),
+            f"03_dashboard_horizontal_shrink_retry_{retry_index}",
+            f"16_title_status_pill_wrapped_windows_cursor_resize_retry_{retry_index}",
+        )
+        natural_attempts.append(natural)
+        retry_index += 1
     no_early_layout = no_early.get("layout") if isinstance(no_early, dict) else {}
     no_early_layout = no_early_layout if isinstance(no_early_layout, dict) else {}
     no_early_wrap = no_early_layout.get("titleStatusPillWrap") or {}
@@ -953,6 +983,7 @@ def _drive_ai_dashboard_horizontal_resize(
         "screenshots": natural.get("screenshots") or {},
         "noEarlyWrapProof": no_early,
         "naturalWrapProof": natural,
+        "naturalWrapAttempts": natural_attempts,
     }
 
 
@@ -1345,7 +1376,200 @@ def _open_from_dashboard(app: QApplication, dialog: AIControlCenterDialog, butto
     click = _click_web_button(app, dialog, button_id)
     _pump(app, 700)
     window = dialog._domain_windows.get(domain_id)
-    return {"probe": json.loads(result or "{}"), "realClick": click}, window, before
+    dom_click_fallback = {"ok": False, "skipped": True, "reason": "os-cursor-click-opened-window"}
+    if window is None:
+        raw_fallback = _run_js(
+            app,
+            dialog,
+            f"""
+            (() => {{
+              const button = document.getElementById({json.dumps(button_id)});
+              if (!button) return JSON.stringify({{ ok: false, reason: "missing-button" }});
+              button.click();
+              return JSON.stringify({{ ok: true, button: {json.dumps(button_id)}, clickMode: "dom-button-click-fallback" }});
+            }})();
+            """,
+        )
+        try:
+            dom_click_fallback = json.loads(raw_fallback or "{}")
+        except Exception:
+            dom_click_fallback = {"ok": False, "raw": str(raw_fallback or "")}
+        _pump(app, 700)
+        window = dialog._domain_windows.get(domain_id)
+    return {"probe": json.loads(result or "{}"), "realClick": click, "domClickFallback": dom_click_fallback}, window, before
+
+
+def _probe_child_window(app: QApplication, window) -> dict[str, object]:
+    if window is None:
+        return {"ok": False, "reason": "missing-window"}
+    raw = _run_child_js(
+        app,
+        window,
+        """
+        (() => {
+          const surface = document.querySelector("[data-ai-dashboard-child-window]");
+          const title = document.querySelector(".ai-domain-window__title");
+          const workspaceNodes = [...document.querySelectorAll("[data-domain-workspace]")];
+          const controls = [...document.querySelectorAll("[data-domain-command='window-minimize'], [data-domain-command='window-close']")];
+          const actionButtons = [...document.querySelectorAll(".ai-domain-window__button")].map((button) => ({
+            id: button.id || "",
+            text: button.textContent.trim(),
+            command: button.dataset.domainCommand || "",
+            disabled: Boolean(button.disabled),
+            ariaDisabled: button.getAttribute("aria-disabled") || ""
+          }));
+          const textFor = (id) => document.getElementById(id)?.textContent.trim() || "";
+          return JSON.stringify({
+            domDomain: surface?.dataset.aiDashboardChildWindow || "",
+            domClassification: surface?.dataset.windowClassification || "",
+            domLifecycle: surface?.dataset.windowLifecycle || "",
+            nativeChrome: surface?.dataset.ndaiNativeChrome || "",
+            genericOsChrome: surface?.dataset.genericOsChrome || "",
+            shellConformance: surface?.dataset.shellConformance || "",
+            move: surface?.dataset.windowMove || "",
+            resize: surface?.dataset.windowResize || "",
+            controlCluster: surface?.dataset.windowControlCluster || "",
+            controlCount: controls.length,
+            controlCommands: controls.map((control) => control.dataset.domainCommand || ""),
+            title: title?.textContent.trim() || "",
+            workspaceCount: workspaceNodes.length,
+            workspaces: workspaceNodes.map((node) => node.dataset.domainWorkspace || ""),
+            actionButtons,
+            providerVisibleData: textFor("provider-visible-data"),
+            providerModel: textFor("provider-model"),
+            promptMemory: textFor("prompt-memory"),
+            localResult: textFor("local-result"),
+            localDetail: textFor("local-detail"),
+            reportState: textFor("report-state"),
+            reportSummary: textFor("report-summary"),
+            reportBodyHidden: Boolean(document.getElementById("report-body")?.hidden),
+            reportBoundary: textFor("report-boundary"),
+            copyDisabled: Boolean(document.getElementById("copy-report")?.disabled),
+            copyAriaDisabled: document.getElementById("copy-report")?.getAttribute("aria-disabled") || "",
+            updateExecution: document.querySelector("[data-update-execution]")?.dataset.updateExecution || "",
+            downloadExecution: document.querySelector("[data-download-execution]")?.dataset.downloadExecution || "",
+            installExecution: document.querySelector("[data-install-execution]")?.dataset.installExecution || "",
+            bodyText: document.body.innerText.replace(/\\s+/g, " ").trim()
+          });
+        })();
+        """,
+    )
+    try:
+        dom = json.loads(raw or "{}")
+    except Exception:
+        dom = {"raw": str(raw or "")}
+    rect = _rect(int(window.winId())) if window.winId() else {"width": 0, "height": 0}
+    return {
+        "ok": True,
+        "visible": bool(window.isVisible()),
+        "windowTitle": window.windowTitle(),
+        "objectName": window.objectName(),
+        "propertyDomain": str(window.property("aiDashboardDomainWindow") or ""),
+        "propertyClassification": str(window.property("aiDashboardDomainClassification") or ""),
+        "propertyLifecycle": str(window.property("aiDashboardDomainLifecycle") or ""),
+        "propertyShellConformance": str(window.property("ndaiShellConformance") or ""),
+        "propertyMoveBehavior": str(window.property("windowMoveBehavior") or ""),
+        "propertyResizeBehavior": str(window.property("windowResizeBehavior") or ""),
+        "propertyProviderVisibleData": str(window.property("providerVisibleData") or ""),
+        "propertyProviderModelExecution": str(window.property("providerModelExecution") or ""),
+        "propertyPromptSend": str(window.property("promptSend") or ""),
+        "propertyNetworkEgress": str(window.property("networkEgress") or ""),
+        "propertyMemoryIndexing": str(window.property("memoryIndexing") or ""),
+        "rect": rect,
+        "dom": dom,
+    }
+
+
+def _exercise_readiness_child_window(app: QApplication, window) -> dict[str, object]:
+    if window is None:
+        return {"ok": False, "reason": "missing-readiness-window"}
+    before = _probe_child_window(app, window)
+    local_click = _click_web_button(app, window, "run-local-check")
+    _pump(app, 220)
+    after_local = _probe_child_window(app, window)
+    local_fallback = {"ok": False, "skipped": True, "reason": "os-cursor-click-updated-local-check"}
+    if ((after_local.get("dom") or {}).get("localResult") != "No provider configured"):
+        raw = _run_child_js(
+            app,
+            window,
+            """
+            (() => {
+              const button = document.getElementById("run-local-check");
+              if (!button) return JSON.stringify({ ok: false, reason: "missing-button" });
+              button.click();
+              return JSON.stringify({ ok: true, button: "run-local-check", clickMode: "dom-button-click-fallback" });
+            })();
+            """,
+        )
+        try:
+            local_fallback = json.loads(raw or "{}")
+        except Exception:
+            local_fallback = {"ok": False, "raw": str(raw or "")}
+        _pump(app, 260)
+        after_local = _probe_child_window(app, window)
+    generate_click = _click_web_button(app, window, "generate-report")
+    _pump(app, 320)
+    after_generate = _probe_child_window(app, window)
+    generate_fallback = {"ok": False, "skipped": True, "reason": "os-cursor-click-generated-report"}
+    if ((after_generate.get("dom") or {}).get("reportState") != "Generated locally"):
+        raw = _run_child_js(
+            app,
+            window,
+            """
+            (() => {
+              const button = document.getElementById("generate-report");
+              if (!button) return JSON.stringify({ ok: false, reason: "missing-button" });
+              button.click();
+              return JSON.stringify({ ok: true, button: "generate-report", clickMode: "dom-button-click-fallback" });
+            })();
+            """,
+        )
+        try:
+            generate_fallback = json.loads(raw or "{}")
+        except Exception:
+            generate_fallback = {"ok": False, "raw": str(raw or "")}
+        _pump(app, 360)
+        after_generate = _probe_child_window(app, window)
+    copy_click = _click_web_button(app, window, "copy-report")
+    _pump(app, 360)
+    after_copy = _probe_child_window(app, window)
+    copy_fallback = {"ok": False, "skipped": True, "reason": "os-cursor-click-copied-report"}
+    if ((after_copy.get("dom") or {}).get("reportState") not in {
+        "Copied locally",
+        "Copying locally",
+        "Copy unavailable; report remains visible",
+    }):
+        raw = _run_child_js(
+            app,
+            window,
+            """
+            (() => {
+              const button = document.getElementById("copy-report");
+              if (!button) return JSON.stringify({ ok: false, reason: "missing-button" });
+              button.click();
+              return JSON.stringify({ ok: true, button: "copy-report", clickMode: "dom-button-click-fallback" });
+            })();
+            """,
+        )
+        try:
+            copy_fallback = json.loads(raw or "{}")
+        except Exception:
+            copy_fallback = {"ok": False, "raw": str(raw or "")}
+        _pump(app, 360)
+        after_copy = _probe_child_window(app, window)
+    return {
+        "ok": True,
+        "before": before,
+        "localClick": local_click,
+        "localDomClickFallback": local_fallback,
+        "afterLocalCheck": after_local,
+        "generateClick": generate_click,
+        "generateDomClickFallback": generate_fallback,
+        "afterGenerate": after_generate,
+        "copyClick": copy_click,
+        "copyDomClickFallback": copy_fallback,
+        "afterCopy": after_copy,
+    }
 
 
 def _hash_file(path: str) -> str:
@@ -1641,9 +1865,9 @@ def _write_visual_grammar_audit(
     add(
         "buttonState.affordance",
         "INTENTIONAL_VARIANT",
-        dashboard_probe.get("deferredButtons"),
+        dashboard_probe.get("doorwayButtons"),
         reference_grammar.get("buttonMetrics"),
-        "Current doorway controls are disabled/deferred by branch scope; Main comparator has active local-check action. Geometry and typography remain same-family.",
+        "Current Dashboard doorway controls open detached domain windows; Main comparator has a focused local-check action. Geometry and typography remain same-family.",
     )
 
     current_css = current_grammar.get("cssStateSelectors") if isinstance(current_grammar, dict) else {}
@@ -1778,16 +2002,21 @@ def main() -> int:
                 target: button.dataset.launchTarget || "",
                 kind: button.dataset.launchWindowKind || ""
               }));
-              const deferredButtons = Array.from(document.querySelectorAll("[data-action-state='deferred']")).map((button) => {
+              const doorwayButtons = Array.from(document.querySelectorAll("[data-category-doorway]")).map((button) => {
                 const rect = button.getBoundingClientRect();
                 const style = getComputedStyle(button);
                 return {
                   id: button.id || "",
                   text: button.textContent.trim(),
+                  doorway: button.dataset.categoryDoorway || "",
+                  actionState: button.dataset.actionState || "",
+                  control: button.dataset.control || "",
+                  command: button.dataset.launchCommand || "",
                   disabled: Boolean(button.disabled),
                   ariaDisabled: button.getAttribute("aria-disabled") || "",
                   launchTarget: button.dataset.launchTarget || "",
                   launchKind: button.dataset.launchWindowKind || "",
+                  lifecycle: button.dataset.windowLifecycle || "",
                   width: Math.round(rect.width),
                   height: Math.round(rect.height),
                   fontSize: style.fontSize,
@@ -2122,7 +2351,7 @@ def main() -> int:
                 const rowsRect = rows?.getBoundingClientRect();
                 const action = card.querySelector(".monitoring-hud__hub-actions");
                 const actionRect = action?.getBoundingClientRect();
-                const button = card.querySelector("[data-action-state='deferred']");
+                const button = card.querySelector("[data-category-doorway]");
                 const buttonRect = button?.getBoundingClientRect();
                 const descriptions = card.querySelector(".monitoring-hud__hub-card-description");
                 const descriptionStyle = descriptions ? getComputedStyle(descriptions) : null;
@@ -2161,7 +2390,7 @@ def main() -> int:
                 cardOrder: surface?.dataset.dashboardCardOrder || "",
                 cardNames,
                 launchers,
-                deferredButtons,
+                doorwayButtons,
                 designProcessCopyPresent: /Refined|Option\\s+[A-Z]|target/i.test(document.body.innerText || ""),
                 detachedWindowOpenCopyPresent: /Open Control Center|Open Diagnostics|Open Capabilities/.test(document.body.innerText || ""),
                 cardTitles: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-title-copy strong")].map((node) => node.textContent.trim()),
@@ -2169,7 +2398,7 @@ def main() -> int:
                 stripText: document.querySelector("[data-dashboard-role='global-ai-strip']")?.textContent.replace(/\\s+/g, " ").trim() || "",
                 launcherActionRows: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-actions")].map((row) => ({
                   contract: row.dataset.actionRowContract || "",
-                  buttonCount: row.querySelectorAll("[data-action-state='deferred']").length,
+                  buttonCount: row.querySelectorAll("[data-category-doorway]").length,
                   followsRows: Boolean(row.previousElementSibling?.classList.contains("ai-control-center-card-rows")),
                   insideRows: Boolean(row.closest(".ai-control-center-card-rows"))
                 })),
@@ -2353,11 +2582,13 @@ def main() -> int:
     readiness_result = {}
     singleton_focus = {}
     child_control_behavior = {}
-    deferred_launch_probe = {
+    opened_desktop_hashes = {}
+    domain_launch_probe = {
         "domainWindowCount": len(dialog._domain_windows),
         "domainWindowKeys": sorted(dialog._domain_windows.keys()),
-        "acceptedScope": "parent-dashboard-only",
-        "detachedChildWindowDisposition": "deferred-not-accepted-current-gate",
+        "acceptedScope": "SLC-001-active-domain-doorways",
+        "detachedChildWindowDisposition": "active-domain-window-route-lifecycle",
+        "launches": {},
     }
 
     dashboard_rect_before_resize = _rect(int(dialog.winId()))
@@ -2441,17 +2672,124 @@ def main() -> int:
         "heightDelta": dashboard_rect_after_resize["height"] - dashboard_rect_before_resize["height"],
     }
 
-    dialog.close()
-    _pump(app, 500)
-    lifecycle_after_dashboard_close = {
-        "controlVisible": False,
-        "maintenanceVisible": False,
-        "readinessVisible": False,
+    doorway_launch_contract = {
+        "control-center": {
+            "buttonId": "ai-control-center-open-control-surface-action",
+            "classification": "exclusive-child",
+            "lifecycle": "closes-with-dashboard",
+            "title": "AI Control Center",
+        },
+        "readiness-diagnostics": {
+            "buttonId": "ai-control-center-open-readiness-surface-action",
+            "classification": "external-unique",
+            "lifecycle": "stays-open-if-dashboard-closes",
+            "title": "Diagnostics",
+        },
+        "capabilities-maintenance": {
+            "buttonId": "ai-control-center-open-maintenance-surface-action",
+            "classification": "exclusive-child",
+            "lifecycle": "closes-with-dashboard",
+            "title": "Capabilities",
+        },
+    }
+    for domain_id, contract in doorway_launch_contract.items():
+        launch, window, previous_keys = _open_from_dashboard(
+            app,
+            dialog,
+            str(contract["buttonId"]),
+            domain_id,
+        )
+        _pump(app, 500)
+        probe = _probe_child_window(app, window)
+        child_chrome_probe[domain_id] = probe
+        if window is not None:
+            child_geometry_behavior[domain_id] = {
+                "move": _drag_child_window(app, window),
+                "resize": _resize_child_window(app, window),
+            }
+            screenshots[f"child_{domain_id}"] = _capture_window(
+                app,
+                window,
+                log_root,
+                f"17_child_{domain_id}",
+            )
+            opened_desktop_hashes[domain_id] = _hash_file(
+                screenshots[f"child_{domain_id}"]["fullDesktop"]
+            )
+        domain_launch_probe["launches"][domain_id] = {
+            **launch,
+            "previousDomainWindowKeys": sorted(previous_keys),
+            "windowPresent": window is not None,
+            "visible": bool(window and window.isVisible()),
+            "windowObjectId": id(window) if window is not None else 0,
+            "domainWindowKeysAfterLaunch": sorted(dialog._domain_windows.keys()),
+            "expectedClassification": contract["classification"],
+            "expectedLifecycle": contract["lifecycle"],
+            "expectedTitle": contract["title"],
+        }
+    domain_launch_probe["domainWindowCountAfterLaunch"] = len(dialog._domain_windows)
+    domain_launch_probe["domainWindowKeysAfterLaunch"] = sorted(dialog._domain_windows.keys())
+
+    control_window = dialog._domain_windows.get("control-center")
+    singleton_before_keys = sorted(dialog._domain_windows.keys())
+    singleton_before_id = id(control_window) if control_window is not None else 0
+    singleton_launch, singleton_after_window, singleton_previous_keys = _open_from_dashboard(
+        app,
+        dialog,
+        "ai-control-center-open-control-surface-action",
+        "control-center",
+    )
+    _pump(app, 400)
+    singleton_focus = {
+        "domain": "control-center",
+        "beforeKeys": singleton_before_keys,
+        "previousKeysForSecondLaunch": sorted(singleton_previous_keys),
+        "afterKeys": sorted(dialog._domain_windows.keys()),
+        "beforeObjectId": singleton_before_id,
+        "afterObjectId": id(singleton_after_window) if singleton_after_window is not None else 0,
+        "sameWindowObject": bool(
+            singleton_before_id
+            and singleton_after_window is not None
+            and singleton_before_id == id(singleton_after_window)
+        ),
+        "secondLaunch": singleton_launch,
+        "visibleAfterSecondLaunch": bool(singleton_after_window and singleton_after_window.isVisible()),
     }
 
-    opened_desktop_hashes = {}
-    duplicate_full_desktop_proof = False
-    actual_deferred_labels = [button.get("text") for button in dashboard_probe.get("deferredButtons") or []]
+    readiness_window = dialog._domain_windows.get("readiness-diagnostics")
+    readiness_result = _exercise_readiness_child_window(app, readiness_window)
+    child_control_behavior = {
+        "readinessLocalCheckReportCopy": readiness_result,
+        "providerExecutionEvents": [
+            event for event in events
+            if "AI_DASHBOARD_DOMAIN_WINDOW_COMMAND" in event
+            or "AI_DASHBOARD_CATEGORY_LAUNCHER_OPENED_WINDOW" in event
+            or "AI_DASHBOARD_DOMAIN_WINDOW_VISIBLE" in event
+        ],
+    }
+    for domain_id, window in list(dialog._domain_windows.items()):
+        child_windows_visible_before_close[domain_id] = bool(window and window.isVisible())
+
+    dialog.close()
+    _pump(app, 500)
+    post_close_windows = {
+        domain_id: window
+        for domain_id, window in list(dialog._domain_windows.items())
+    }
+    lifecycle_after_dashboard_close = {
+        "controlVisible": bool(post_close_windows.get("control-center") and post_close_windows["control-center"].isVisible()),
+        "maintenanceVisible": bool(post_close_windows.get("capabilities-maintenance") and post_close_windows["capabilities-maintenance"].isVisible()),
+        "readinessVisible": bool(post_close_windows.get("readiness-diagnostics") and post_close_windows["readiness-diagnostics"].isVisible()),
+    }
+    for window in list(post_close_windows.values()):
+        try:
+            window.close()
+        except RuntimeError:
+            pass
+    _pump(app, 220)
+
+    duplicate_full_desktop_proof = len(set(opened_desktop_hashes.values())) != len(opened_desktop_hashes)
+    actual_doorway_labels = [button.get("text") for button in dashboard_probe.get("doorwayButtons") or []]
     expected_option_g_rows = {
         "control-center": [
             {"label": "AI Persona", "value": "None; ORIN persona not implemented"},
@@ -2550,7 +2888,7 @@ def main() -> int:
         visual_comparison_boards["currentVsMainRuntimeOldAiControlCenter"].get("ok") is True
         and visual_comparison_boards["beforeAfterParentDensity"].get("ok") is True
     )
-    deferred_buttons = dashboard_probe.get("deferredButtons") or []
+    doorway_buttons = dashboard_probe.get("doorwayButtons") or []
 
     def _int_or(value: object, fallback: int = -999) -> int:
         try:
@@ -2685,21 +3023,143 @@ def main() -> int:
             return False
         return True
 
+    expected_doorway_buttons = {
+        "control-center": {
+            "target": "control-center",
+            "kind": "exclusive-child",
+            "command": "open-control-center-child-window",
+            "lifecycle": "closes-with-dashboard",
+        },
+        "readiness-diagnostics": {
+            "target": "readiness-diagnostics",
+            "kind": "external-unique",
+            "command": "open-readiness-diagnostics-child-window",
+            "lifecycle": "stays-open-if-dashboard-closes",
+        },
+        "capabilities-maintenance": {
+            "target": "capabilities-maintenance",
+            "kind": "exclusive-child",
+            "command": "open-maintenance-lifecycle-child-window",
+            "lifecycle": "closes-with-dashboard",
+        },
+    }
+    doorway_buttons_by_id = {
+        str(button.get("doorway") or ""): button
+        for button in doorway_buttons
+        if isinstance(button, dict)
+    }
+
+    def _domain_launch_ok(domain_id: str) -> bool:
+        launch = (domain_launch_probe.get("launches") or {}).get(domain_id)
+        if not isinstance(launch, dict):
+            return False
+        probe = launch.get("probe") if isinstance(launch.get("probe"), dict) else {}
+        click = launch.get("realClick") if isinstance(launch.get("realClick"), dict) else {}
+        expected = expected_doorway_buttons.get(domain_id, {})
+        return (
+            probe.get("ok") is True
+            and click.get("ok") is True
+            and probe.get("target") == expected.get("target")
+            and probe.get("kind") == expected.get("kind")
+            and launch.get("windowPresent") is True
+            and launch.get("visible") is True
+            and domain_id in (launch.get("domainWindowKeysAfterLaunch") or [])
+        )
+
+    def _child_probe_ok(domain_id: str, *, title: str, classification: str, lifecycle: str) -> bool:
+        probe = child_chrome_probe.get(domain_id)
+        if not isinstance(probe, dict):
+            return False
+        dom = probe.get("dom") if isinstance(probe.get("dom"), dict) else {}
+        return (
+            probe.get("ok") is True
+            and probe.get("visible") is True
+            and probe.get("windowTitle") == title
+            and probe.get("propertyDomain") == domain_id
+            and probe.get("propertyClassification") == classification
+            and probe.get("propertyLifecycle") == lifecycle
+            and probe.get("propertyShellConformance") == "ndai-webview-rounded-window-shell"
+            and probe.get("propertyMoveBehavior") == "header-drag"
+            and probe.get("propertyResizeBehavior") == "edge-corner-resize"
+            and probe.get("propertyProviderVisibleData") == "none"
+            and probe.get("propertyProviderModelExecution") == "blocked"
+            and probe.get("propertyPromptSend") == "prompt-send-disabled"
+            and probe.get("propertyNetworkEgress") == "network-egress-blocked"
+            and probe.get("propertyMemoryIndexing") == "memory-indexing-disabled"
+            and dom.get("domDomain") == domain_id
+            and dom.get("domClassification") == classification
+            and dom.get("domLifecycle") == lifecycle
+            and dom.get("nativeChrome") == "true"
+            and dom.get("genericOsChrome") == "rejected"
+            and dom.get("shellConformance") == "ndai-webview-rounded-window-shell"
+            and dom.get("move") == "header-drag"
+            and dom.get("resize") == "edge-corner-resize"
+            and dom.get("controlCluster") == "compact-minimize-close"
+            and dom.get("controlCount") == 2
+            and dom.get("workspaceCount") == 1
+            and domain_id in (dom.get("workspaces") or [])
+        )
+
+    def _child_geometry_ok(domain_id: str) -> bool:
+        behavior = child_geometry_behavior.get(domain_id)
+        if not isinstance(behavior, dict):
+            return False
+        move = behavior.get("move") if isinstance(behavior.get("move"), dict) else {}
+        resize = behavior.get("resize") if isinstance(behavior.get("resize"), dict) else {}
+        return move.get("moved") is True and resize.get("resized") is True
+
+    def _readiness_actions_ok(result: object) -> bool:
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            return False
+        local = result.get("afterLocalCheck") if isinstance(result.get("afterLocalCheck"), dict) else {}
+        generated = result.get("afterGenerate") if isinstance(result.get("afterGenerate"), dict) else {}
+        copied = result.get("afterCopy") if isinstance(result.get("afterCopy"), dict) else {}
+        local_dom = local.get("dom") if isinstance(local.get("dom"), dict) else {}
+        generated_dom = generated.get("dom") if isinstance(generated.get("dom"), dict) else {}
+        copied_dom = copied.get("dom") if isinstance(copied.get("dom"), dict) else {}
+        return (
+            (result.get("localClick") or {}).get("ok") is True
+            and (result.get("generateClick") or {}).get("ok") is True
+            and (result.get("copyClick") or {}).get("ok") is True
+            and local_dom.get("localResult") == "No provider configured"
+            and "no prompt" in str(local_dom.get("localDetail") or "").lower()
+            and generated_dom.get("reportState") == "Generated locally"
+            and generated_dom.get("reportBodyHidden") is False
+            and generated_dom.get("copyDisabled") is False
+            and "No provider/model execution" in str(generated_dom.get("reportBoundary") or "")
+            and copied_dom.get("copyDisabled") is False
+            and copied_dom.get("reportState") in {
+                "Copied locally",
+                "Copying locally",
+                "Copy unavailable; report remains visible",
+            }
+        )
+
+    def _singleton_focus_ok(probe: object) -> bool:
+        if not isinstance(probe, dict):
+            return False
+        return (
+            probe.get("sameWindowObject") is True
+            and probe.get("visibleAfterSecondLaunch") is True
+            and probe.get("beforeKeys") == probe.get("afterKeys")
+            and (probe.get("secondLaunch") or {}).get("realClick", {}).get("ok") is True
+        )
+
     checks = {
-        "dashboardHubParentOnly": (
+        "dashboardHubActiveDoorwayLifecycle": (
             dashboard_probe.get("title") == "AI Dashboard"
-            and dashboard_probe.get("dashboardIaModel") == "ai-dashboard-parent-only-global-strip-category-cards-detached-child-windows-deferred"
+            and dashboard_probe.get("dashboardIaModel") == "ai-dashboard-parent-global-strip-category-cards-detached-domain-windows-active"
             and dashboard_probe.get("dashboardSurfaceModel") == "hub-only-cards-are-doorways"
-            and dashboard_probe.get("childWindowModel") == "detached-child-windows-deferred-not-accepted-current-gate"
+            and dashboard_probe.get("childWindowModel") == "detached-domain-window-route-lifecycle-active"
             and dashboard_probe.get("sameWindowFocusedSectionPolicy") == "blocked-as-dashboard-workspace-substitute"
             and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
             and dashboard_probe.get("cardTitles") == [
-                "AI Persona",
+                "AI Control Center",
                 "AI Readiness",
                 "Capabilities",
             ]
             and dashboard_probe.get("cardDescriptions") == [
-                "Persona state before any AI action.",
+                "Persona and provider boundary doorway.",
                 "Local checks and diagnostics doorway.",
                 "Packs and updates stay blocked.",
             ]
@@ -2717,15 +3177,53 @@ def main() -> int:
             and dashboard_probe.get("focusedSurfaceCount") == 0
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
-        "doorwayButtonsDeferredNoFakeActions": (
-            actual_deferred_labels == ["Not Available Yet", "Not Available Yet", "Not Available Yet"]
+        "doorwayButtonsOpenDomainWindowsNoInlineActions": (
+            actual_doorway_labels == ["Open", "Open", "Open"]
             and len(dashboard_probe.get("launchers") or []) == 0
-            and len(deferred_buttons) == 3
-            and all(button.get("disabled") is True for button in deferred_buttons)
-            and all(button.get("ariaDisabled") == "true" for button in deferred_buttons)
-            and all(button.get("launchTarget") == "deferred" for button in deferred_buttons)
-            and all(button.get("launchKind") == "deferred-detached-child" for button in deferred_buttons)
-            and deferred_launch_probe.get("domainWindowCount") == 0
+            and len(doorway_buttons) == 3
+            and set(doorway_buttons_by_id.keys()) == set(expected_doorway_buttons.keys())
+            and all(button.get("disabled") is False for button in doorway_buttons)
+            and all(button.get("ariaDisabled") == "false" for button in doorway_buttons)
+            and all(button.get("actionState") == "ready" for button in doorway_buttons)
+            and all(
+                doorway_buttons_by_id[doorway].get("launchTarget") == contract["target"]
+                and doorway_buttons_by_id[doorway].get("launchKind") == contract["kind"]
+                and doorway_buttons_by_id[doorway].get("command") == contract["command"]
+                and doorway_buttons_by_id[doorway].get("lifecycle") == contract["lifecycle"]
+                for doorway, contract in expected_doorway_buttons.items()
+            )
+            and domain_launch_probe.get("domainWindowCount") == 0
+            and domain_launch_probe.get("domainWindowCountAfterLaunch") == 3
+            and set(domain_launch_probe.get("domainWindowKeysAfterLaunch") or []) == set(expected_doorway_buttons.keys())
+        ),
+        "activeDomainWindowLaunchChromeAndGeometry": (
+            all(_domain_launch_ok(domain_id) for domain_id in expected_doorway_buttons)
+            and _child_probe_ok(
+                "control-center",
+                title="AI Control Center",
+                classification="exclusive-child",
+                lifecycle="closes-with-dashboard",
+            )
+            and _child_probe_ok(
+                "readiness-diagnostics",
+                title="Diagnostics",
+                classification="external-unique",
+                lifecycle="stays-open-if-dashboard-closes",
+            )
+            and _child_probe_ok(
+                "capabilities-maintenance",
+                title="Capabilities",
+                classification="exclusive-child",
+                lifecycle="closes-with-dashboard",
+            )
+            and all(_child_geometry_ok(domain_id) for domain_id in expected_doorway_buttons)
+            and _singleton_focus_ok(singleton_focus)
+        ),
+        "readinessDiagnosticsLocalActionsStayInsideChild": (
+            _readiness_actions_ok(readiness_result)
+            and provider_state.as_renderer_payload().get("sentToProvider") is False
+            and provider_state.as_renderer_payload().get("canAcceptPrompts") is False
+            and provider_state.as_renderer_payload().get("providerVisibleData") == "none"
         ),
         "parentVisualMetrics": (
             dashboard_probe.get("defaultWindowWidth") == "471"
@@ -2735,9 +3233,9 @@ def main() -> int:
             and len(row_heights) == 8
             and min(row_heights or [0]) >= 18
             and max(row_heights or [999]) <= 28
-            and all(30 <= int(button.get("height") or 0) <= 32 for button in deferred_buttons)
-            and all(int(button.get("width") or 0) >= 120 for button in deferred_buttons)
-            and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 700 for button in deferred_buttons)
+            and all(30 <= int(button.get("height") or 0) <= 32 for button in doorway_buttons)
+            and all(48 <= int(button.get("width") or 0) <= 96 for button in doorway_buttons)
+            and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 700 for button in doorway_buttons)
             and int(layout_metrics.get("headerWidth") or 0) >= int(layout_metrics.get("surfaceWidth") or 0) - 32
         ),
         "deterministicStatusRowsAndTitlePill": (
@@ -2793,8 +3291,8 @@ def main() -> int:
             and int(horizontal_title_status_pill_wrap.get("clippedPairCount", 999)) == 0
             and int(horizontal_title_status_pill_wrap.get("lineCount", 0)) >= 2
             and horizontal_wrap_crop.get("ok") is True
-            and str(horizontal_wrap_crop.get("path") or "").endswith(
-                "16_title_status_pill_wrapped_windows_cursor_resize.png"
+            and Path(str(horizontal_wrap_crop.get("path") or "")).name.startswith(
+                "16_title_status_pill_wrapped_windows_cursor_resize"
             )
         ),
         "titleDescriptionProseWordWrapProven": (
@@ -2813,8 +3311,8 @@ def main() -> int:
             and int(horizontal_title_description_wrap.get("lineCount") or 0) > int(no_early_title_description_wrap.get("lineCount") or 0)
             and horizontal_title_description_wrap.get("lastPhraseWrapsByWord") is True
             and horizontal_title_description_wrap_crop.get("ok") is True
-            and str(horizontal_title_description_wrap_crop.get("path") or "").endswith(
-                "16_title_status_pill_wrapped_windows_cursor_resize_title_description.png"
+            and Path(str(horizontal_title_description_wrap_crop.get("path") or "")).name.startswith(
+                "16_title_status_pill_wrapped_windows_cursor_resize"
             )
         ),
         "deterministicTitleColumnSizingProven": (
@@ -2979,7 +3477,8 @@ def main() -> int:
             and settings_option_b_disposition.get("implementedRuntimeOption") == "B"
         ),
         "fullDesktopProofNotDuplicated": (
-            len(opened_desktop_hashes) == 0
+            set(opened_desktop_hashes.keys()) == set(expected_doorway_buttons.keys())
+            and len(opened_desktop_hashes) == 3
             and duplicate_full_desktop_proof is False
         ),
         "dashboardResizeStillWorks": (
@@ -3002,7 +3501,12 @@ def main() -> int:
         "childLifecycleBehavior": (
             lifecycle_after_dashboard_close["controlVisible"] is False
             and lifecycle_after_dashboard_close["maintenanceVisible"] is False
-            and lifecycle_after_dashboard_close["readinessVisible"] is False
+            and lifecycle_after_dashboard_close["readinessVisible"] is True
+            and child_windows_visible_before_close == {
+                "control-center": True,
+                "readiness-diagnostics": True,
+                "capabilities-maintenance": True,
+            }
         ),
         "providerExecutionStillBlocked": (
             all("PROVIDER" not in event or "provider_visible_data=none" in event.lower() or "provider/model" not in event.lower() for event in events)
@@ -3019,7 +3523,7 @@ def main() -> int:
         "status": status,
         "stamp": stamp,
         "helper": "dev/orin_ai_control_center_live_resize_validation.py",
-        "proofClass": "live AI Dashboard parent-only visual and functional proof",
+        "proofClass": "live AI Dashboard active domain-doorway visual and functional proof",
         "worktree": str(REPO_ROOT),
         "window": "AI Dashboard",
         "dashboardProbe": dashboard_probe,
@@ -3035,12 +3539,12 @@ def main() -> int:
             "currentSurface": "parent AI Dashboard top-most hub",
             "currentSurfaceRole": dashboard_probe.get("surfaceRole"),
             "aiControlCenterPlacement": dashboard_probe.get("aiControlCenterPlacement"),
-            "detachedChildWindowDisposition": "deferred-not-accepted-current-gate",
-            "acceptedComparatorUse": "Main worktree old AI Control Center runtime is comparator proof only, not global UIREF promotion or detached-child acceptance",
+            "detachedChildWindowDisposition": "active-domain-window-route-lifecycle",
+            "acceptedComparatorUse": "Main worktree old AI Control Center runtime is comparator proof only, not global UIREF promotion",
             "acceptedComparatorSource": main_runtime_ai_control_center_reference.get("referenceSource"),
             "acceptedComparatorDesktopLauncher": main_runtime_ai_control_center_reference.get("desktopLauncher"),
         },
-        "deferredLaunchProbe": deferred_launch_probe,
+        "domainLaunchProbe": domain_launch_probe,
         "settingsTooltipProbe": settings_tooltip_probe,
         "settingsOptionBDisposition": settings_option_b_disposition,
         "defaultScrollIntentProbe": scrolled_probe,
@@ -3050,37 +3554,37 @@ def main() -> int:
         "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {
             "control-center": {
-                "sourceCategoryCard": "AI Persona",
-                "launcherLabel": "Not Available Yet",
-                "classification": "deferred-detached-child",
+                "sourceCategoryCard": "AI Control Center",
+                "launcherLabel": "Open",
+                "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
-                "singleton": False,
-                "moveBehavior": "not-in-accepted-scope",
-                "resizeBehavior": "not-in-accepted-scope",
-                "shellConformance": "deferred-not-accepted-current-gate",
-                "focusBehavior": "not-in-accepted-scope",
+                "singleton": True,
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+                "shellConformance": "ndai-webview-rounded-window-shell",
+                "focusBehavior": "bring-to-front-existing-singleton",
             },
             "readiness-diagnostics": {
                 "sourceCategoryCard": "AI Readiness",
-                "launcherLabel": "Not Available Yet",
-                "classification": "deferred-detached-child",
-                "remainsOpenIfDashboardCloses": False,
-                "singleton": False,
-                "moveBehavior": "not-in-accepted-scope",
-                "resizeBehavior": "not-in-accepted-scope",
-                "shellConformance": "deferred-not-accepted-current-gate",
-                "focusBehavior": "not-in-accepted-scope",
+                "launcherLabel": "Open",
+                "classification": "external-unique",
+                "remainsOpenIfDashboardCloses": True,
+                "singleton": True,
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+                "shellConformance": "ndai-webview-rounded-window-shell",
+                "focusBehavior": "bring-to-front-existing-singleton",
             },
             "capabilities-maintenance": {
                 "sourceCategoryCard": "Capabilities",
-                "launcherLabel": "Not Available Yet",
-                "classification": "deferred-detached-child",
+                "launcherLabel": "Open",
+                "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
-                "singleton": False,
-                "moveBehavior": "not-in-accepted-scope",
-                "resizeBehavior": "not-in-accepted-scope",
-                "shellConformance": "deferred-not-accepted-current-gate",
-                "focusBehavior": "not-in-accepted-scope",
+                "singleton": True,
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+                "shellConformance": "ndai-webview-rounded-window-shell",
+                "focusBehavior": "bring-to-front-existing-singleton",
             },
         },
         "readinessResult": readiness_result,
@@ -3115,9 +3619,9 @@ def main() -> int:
         (user_evidence_root / settings_disposition_json.name).write_bytes(settings_disposition_json.read_bytes())
 
     if status != "PASS":
-        print(f"FAIL: FAM-007 AI Dashboard parent-only validation failed. Manifest: {manifest_path}")
+        print(f"FAIL: FAM-007 AI Dashboard active domain-doorway validation failed. Manifest: {manifest_path}")
         return 1
-    print(f"PASS: FAM-007 AI Dashboard parent-only validation passed. Manifest: {manifest_path}")
+    print(f"PASS: FAM-007 AI Dashboard active domain-doorway validation passed. Manifest: {manifest_path}")
     print(f"USER_EVIDENCE_ROOT: {user_evidence_root}")
     return 0
 

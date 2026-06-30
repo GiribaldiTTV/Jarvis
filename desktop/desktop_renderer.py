@@ -3842,7 +3842,7 @@ class AIDashboardDomainWindow(QDialog):
             "actions": ("run-local-check", "generate-readiness-report", "copy-readiness-report"),
         },
         "control-center": {
-            "title": "Control Center",
+            "title": "AI Control Center",
             "kicker": "Nexus Desktop AI",
             "description": "Persona, capabilities, provider/model readiness, Developer and Owner gates, and control-plane details live here.",
             "classification": "exclusive-child",
@@ -11407,10 +11407,10 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
         self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-specimen")
         self.setProperty("aiControlCenterNativeMirrorDisposition", "removed-webview-owned-specimen")
-        self.setProperty("aiDashboardChildWindowModel", "detached-child-windows-deferred-not-accepted-current-gate")
-        self.setProperty("aiDashboardReadinessWindowClassification", "deferred-detached-child")
-        self.setProperty("aiDashboardControlWindowClassification", "deferred-detached-child")
-        self.setProperty("aiDashboardMaintenanceWindowClassification", "deferred-detached-child")
+        self.setProperty("aiDashboardChildWindowModel", "detached-domain-window-route-lifecycle-active")
+        self.setProperty("aiDashboardReadinessWindowClassification", "external-unique")
+        self.setProperty("aiDashboardControlWindowClassification", "exclusive-child")
+        self.setProperty("aiDashboardMaintenanceWindowClassification", "exclusive-child")
         self._page_ready = False
         self._pending_provider_payload = {}
         self._domain_windows: dict[str, AIDashboardDomainWindow] = {}
@@ -11511,16 +11511,13 @@ class AIControlCenterDialog(QDialog):
         if command == "close":
             self.close()
             return
-        if command in {
-            "open-readiness-diagnostics-child-window",
-            "open-control-center-child-window",
-            "open-maintenance-lifecycle-child-window",
-        }:
-            if callable(self.event_logger):
-                self.event_logger(
-                    "RENDERER_MAIN|AI_DASHBOARD_DETACHED_CHILD_WINDOW_DEFERRED"
-                    f"|command={command}|accepted_scope=false|window_opened=false"
-                )
+        domain_by_command = {
+            "open-readiness-diagnostics-child-window": "readiness-diagnostics",
+            "open-control-center-child-window": "control-center",
+            "open-maintenance-lifecycle-child-window": "capabilities-maintenance",
+        }
+        if command in domain_by_command:
+            self._show_ai_dashboard_domain_window(domain_by_command[command])
             return
         if command == "run-local-check":
             self.run_local_assist_check(sync_web=False)
