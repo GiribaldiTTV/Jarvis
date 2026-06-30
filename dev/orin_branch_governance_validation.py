@@ -2923,6 +2923,9 @@ STANDING_GOVERNANCE_INTAKE_RECORD = Path(
     "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
 )
 STANDING_GOVERNANCE_INTAKE_RECORD_PATH = STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER = (
+    r"C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md"
+)
 STANDING_GOVERNANCE_INTAKE_DOCS = (
     Path("Docs/phase_governance.md"),
     Path("Docs/development_rules.md"),
@@ -20591,17 +20594,34 @@ def _run_standing_governance_intake_gate(require) -> None:
         record_text,
         flags=re.M,
     )
-    active_cycles = [
+    repo_active_cycles = [
         value.strip()
         for value in active_cycle_values
         if re.fullmatch(r"RRI-\d{8}-\d{3}", value.strip())
     ]
     require(
-        len(set(active_cycles)) <= 1,
-        f"{expected_record_path}: only one active `RRI-*` cycle may be recorded",
+        not repo_active_cycles,
+        (
+            f"{expected_record_path}: active `RRI-*` cycle values must not be "
+            "recorded in repo branch records after external-state migration; "
+            f"point `Active RRI Cycle:` to `{STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER}`"
+        ),
+    )
+    active_cycle_external_owner_recorded = any(
+        "external operational state" in value.casefold()
+        and STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER in value
+        for value in active_cycle_values
+    )
+    require(
+        active_cycle_external_owner_recorded,
+        (
+            f"{expected_record_path}: `Active RRI Cycle:` must route the current "
+            "standing-intake cycle to external operational state instead of "
+            "owning the live cycle value in repo docs"
+        ),
     )
 
-    active_cycle = active_cycles[-1] if active_cycles else ""
+    active_cycle = ""
     latest_closed_cycle_values = re.findall(
         r"^\s*(?:-\s*)?Latest Closed RRI Cycle:\s*`?([^`\n]+)`?\s*$",
         record_text,
@@ -20641,7 +20661,7 @@ def _run_standing_governance_intake_gate(require) -> None:
                 "branch creation base SHA to be recorded"
             ),
         )
-    if active_cycle:
+    if active_cycle or active_cycle_external_owner_recorded:
         require(
             (
                 "Release Readiness digest" in intake_source
@@ -20731,10 +20751,11 @@ def _run_standing_governance_intake_gate(require) -> None:
                     ),
                 )
             require(
-                bool(active_cycle or bootstrap_active or closeout_cycle_recorded),
+                bool(active_cycle or active_cycle_external_owner_recorded or bootstrap_active or closeout_cycle_recorded),
                 (
                     "Standing Governance Intake branch is ahead of origin/main without an "
-                    "active RRI cycle, recorded bootstrap setup exception, or return-digest closeout"
+                    "external active RRI cycle owner pointer, recorded bootstrap setup exception, "
+                    "or return-digest closeout"
                 ),
             )
 

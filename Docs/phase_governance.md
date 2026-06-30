@@ -1093,7 +1093,7 @@ The branch must either:
 
 - move the record into the historical branch-record list with merge-safe phase-status wording, or
 - remove the record entirely if no durable historical value remains
-- when post-merge truth will remain `No Active Branch`, merge-stable pointer surfaces such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in external operational state, Git/GitHub/helper-derived truth, or the standing Governance intake exception until merge
+- when post-merge truth will remain `No Active Branch`, merge-stable pointer surfaces such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in external operational state, Git/GitHub/helper-derived truth, or durable standing Governance routing pointers until merge
 
 ### Repo-Level Admission Gate
 
@@ -3713,7 +3713,7 @@ Allowed:
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
 - `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, incoming changed files, current worktree changed files, branch changed files, `Rebaseline Overlap Files:`, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, mutation status, and `Rebaseline Overlap Intent Gate` result when overlap exists
-- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR
+- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR. The active cycle value and PR/return-digest/release-window posture must be recorded in `C:\Nexus Governance State` or derived from Git/GitHub/helpers; the repo branch record may only point to that owner.
 - source-truth/governance/validator drift repair named by the intake digest
 - a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake and `Neutral Main Workspace Rebaseline:` proof for `C:\Nexus Desktop AI`
 - Release Readiness blocker digests that discover stale active branch authority, stale phase wording, stale PR Readiness wording, selected-next ambiguity, release-window contributor ambiguity, or `No Active Branch` conflict must explicitly say `Governance Intake Routing: send this to C:\Nexus Worktrees\Governance on feature/release-readiness-source-truth-intake`

@@ -85,6 +85,10 @@ BLOCKING_PHRASES = (
     "PR Readiness Stage 1 Ready For Stage 2",
 )
 
+BLOCKING_PATTERNS = (
+    re.compile(r"\bActive RRI Cycle:\s*`?RRI-\d{8}-\d{3}`?\b", re.IGNORECASE),
+)
+
 TARGET_OWNER_BY_CATEGORY = {
     "active-branch-state": "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_state.md",
     "worktree-assignment": "C:\\Nexus Governance State\\worktrees\\<worktree_label>\\worktree_state.md",
@@ -271,6 +275,12 @@ def scan_file(
             ):
                 classification = "Repo Live-State Leakage"
                 reason = "stale live PR/PR-readiness wording in a repo operational tracker surface"
+            if (
+                any(pattern.search(line) for pattern in BLOCKING_PATTERNS)
+                and classification == "Migration Candidate"
+            ):
+                classification = "Repo Live-State Leakage"
+                reason = "active RRI cycle value belongs in external operational state"
             findings.append(
                 Finding(
                     path=relative_path,
