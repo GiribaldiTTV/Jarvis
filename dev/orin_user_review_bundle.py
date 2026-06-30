@@ -32,6 +32,9 @@ ROOT = Path(__file__).resolve().parents[1]
 WINDOWS_USER_HUB_ROOT_TEXT = r"C:\Nexus USER"
 DEFAULT_USER_HUB_ROOT = Path(WINDOWS_USER_HUB_ROOT_TEXT)
 DEFAULT_REVIEW_ROOT_NAME = ""
+DEFAULT_EXTERNAL_STATE_ROOT = Path(
+    os.environ.get("NEXUS_EXTERNAL_STATE_ROOT", r"C:\Nexus Governance State")
+)
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "PASS - copied file list and START_HERE file-list metadata are repo-relative "
@@ -662,31 +665,79 @@ def _is_fam006_child_window_primitive_bp1_packet(profile_text: str) -> bool:
     )
 
 
-def _fam006_child_window_issue_matrix_lines() -> list[str]:
+def _external_branch_slug(branch: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_").lower()
+
+
+def _external_branch_plan_path(branch: str | None = None) -> Path:
+    branch_name = branch or _git_output("branch", "--show-current")
+    return DEFAULT_EXTERNAL_STATE_ROOT / "branches" / _external_branch_slug(branch_name) / "branch_plan.md"
+
+
+def _external_branch_plan_text(branch: str | None = None) -> str:
+    path = _external_branch_plan_path(branch)
+    if not path.is_file():
+        return ""
+    return path.read_text(encoding="utf-8")
+
+
+def _external_markdown_section_lines(text: str, heading: str) -> list[str]:
+    lines = text.splitlines()
+    section: list[str] = []
+    in_section = False
+    marker = f"## {heading}".casefold()
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("## ") and stripped.casefold() == marker:
+            in_section = True
+            continue
+        if in_section and stripped.startswith("## "):
+            break
+        if in_section:
+            section.append(line.rstrip())
+    return [line for line in section if line.strip()]
+
+
+def _fam006_external_issue_matrix_lines() -> list[str]:
+    """Return active issue scope from external state so repo helper code stays non-ledger."""
+    external_text = _external_branch_plan_text()
+    admitted = _external_markdown_section_lines(external_text, "Admitted Issue Set")
+    boundary = _external_markdown_section_lines(external_text, "#277 FAM-006 Boundary")
+    source = _external_branch_plan_path()
+    if not admitted:
+        return [
+            "| External State Source | Result |",
+            "| --- | --- |",
+            f"| `{source}` | BLOCKED - active admitted issue set is missing from external branch plan. |",
+        ]
     return [
-        "| Issue | Title | Status | Why admitted | Owning surfaces | Source-truth owners | BP1 disposition | Direct branch scope | Proof / validation expectations | Closeout boundary | Dependencies / risk |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
-        "| #275 | FAM-006 Manage Monitors resize blocks HUD Dashboard movement/accommodation | OPEN | USER-created FAM-006 resize/containment defect; directly tied to UIREF-007 child-window geometry. | Manage Monitors; HUD Dashboard parent movement/accommodation. | FAM-006 vision; FAM-002; UIREF-007; active external branch plan. | Include in BP1 vision as a current-branch candidate for BP2 planning. | Repair or plan contained resize/movement behavior only if BP2/BP3 later admit implementation. | Default/resized/contained states, dashboard movement after resize, no dead zone, code-to-visual trace, screenshot/video proof. | Branch may close only after USER-approved implementation/proof and explicit issue closeout approval. | Risk: child resize can trap parent dashboard or become broader layout overhaul. |",
-        "| #277 | UIREF-007 window geometry/resize adoption across FAM-owned surfaces | OPEN | Umbrella issue; FAM-006 admits only its own UIREF-007 adoption slice. | HUD Dashboard, Manage Monitors, Overlay Profile Settings, Active Overlay Profile selector; Recording Suite and Log Viewer as proof/reference only. | UIREF-007; FAM-002; FAM-006 vision; active external branch plan; issue #277 scoped comment. | Include as FAM-006-scoped boundary only. | Part of #277 / Related to #277 only; no FAM-003/FAM-007/FAM-008/Governance mutation. | Window geometry/resize matrix, accepted-reference comparison, code-to-visual trace, screenshot/video/contact-sheet proof, exception/waiver disposition. | #277 remains open as cross-FAM umbrella unless USER separately approves final closeout; no Fixes, Closes, or Resolves. | Risk: umbrella can over-broaden current branch into sibling worktree or Governance mutation. |",
-        "| #280 | FAM-006 HUD Dashboard chrome/control grammar adoption | OPEN | HUD Dashboard parent chrome/control grammar is a current FAM-006 surface affected by child-window primitive adoption. | HUD Dashboard / Monitoring HUD parent surface and top-level control cluster. | FAM-002; FAM-006 vision; UIREF-001/002/007; active external branch plan. | Include in BP1 as parent-surface adoption target. | BP2 must decide whether current branch repairs, explicitly waives, or routes issue candidate. | Focused chrome/control screenshots, hover/focus/pressed/disabled states, keyboard proof where applicable, comparator evidence. | Issue closeout requires later implementation/proof and explicit closeout approval. | Risk: parent-window grammar changes may affect all HUD surfaces. |",
-        "| #281 | FAM-006 Manage Monitors child-window primitive/state matrix | OPEN | Manage Monitors needs full attached-child primitive/state matrix beyond resize issue #275. | Manage Monitors buttons, rows, filters, provider/status rows, scrollbars, control states. | FAM-006 vision; FAM-002; UIREF-003/005/007; active external branch plan. | Include as attached child-window surface matrix. | BP2 should size default/hover/focus/pressed/disabled/empty/error/blocked state proof before any repair. | State matrix, list/filter/dropdown/scrollbar proof, code-to-visual trace, focused screenshots/video. | May close only after full matrix is implemented/proven and USER approves closeout. | Risk: same surface also carries #275 geometry blocker. |",
-        "| #282 | FAM-006 Overlay Profile Settings child-window primitive/state matrix | OPEN | Overlay Profile Settings has incomplete child-window primitive/state proof under newer standards. | Overlay Profile Settings create/edit/save/delete/discard, selectors, list rows, dirty/danger states. | FAM-006 vision; FAM-002; UIREF-003/005/007; active external branch plan. | Include as attached child-window matrix. | BP2 must decide current repair versus issue-candidate handling for any out-of-current-scope states. | Dirty guard, danger action, selector/list/filter/scrollbar, focus/keyboard, screenshot/video proof. | Closeout requires later accepted proof and explicit issue closeout approval. | Risk: profile behavior can spill into recording/overlay target reliability if mis-scoped. |",
-        "| #283 | FAM-006 Active Overlay Profile dropdown state matrix | OPEN | Active Overlay Profile selector/dropdown needs complete state matrix and visual inheritance proof. | HUD Overlay active profile selector/dropdown, target/profile display. | FAM-006 vision; FAM-002; UIREF-003; active external branch plan. | Include as selector/dropdown state target. | BP2 should plan large-list, no-profile, disabled, open, hover/focus/selected, keyboard, and error/recovery states. | Dropdown state screenshots/video, code-to-visual trace, keyboard/focus proof, branch-specific validation. | Closeout requires later implementation/proof and explicit issue closeout approval. | Risk: dropdown state can be falsely green if only default closed state is inspected. |",
-        "| #284 | FAM-006 child-window shared primitive standardization | OPEN | Branch exists to prevent repeated child-window primitive drift across FAM-006 surfaces. | Attached and detached child-window family grammar; Manage Monitors; Overlay Profile Settings; Recording Suite and Log Viewer as reference/proof surfaces. | FAM-006 vision; FAM-002; UIREF-001 through UIREF-007 where applicable; active external branch plan. | Include as branch-level primitive standardization objective. | Current branch may define/adopt FAM-006 primitives only after BP2/BP3/Workstream approval. | Shared primitive inventory, same-class comparator matrix, code-to-visual trace, focused state screenshots/video. | Closeout requires every admitted current-branch primitive state proven and USER issue closeout approval. | Risk: primitive work can become broad UI overhaul or cross-FAM standard promotion without authority. |",
+        f"External State Source: `{source}`",
+        "",
+        *admitted,
+        "",
+        "### #277 Boundary Extract",
+        "",
+        *(boundary or ["- BLOCKED - #277 FAM-006 boundary is missing from external branch plan."]),
+        "",
+        "Closeout Boundary: #277 is Part of/Related to #277 only for FAM-006-owned adoption unless USER separately approves umbrella closeout.",
     ]
 
 
-def _fam006_child_window_surface_inventory_lines() -> list[str]:
+def _fam006_external_surface_inventory_lines() -> list[str]:
+    """Return active surface scope from external state so repo helper code stays non-ledger."""
+    external_text = _external_branch_plan_text()
+    surface_inventory = _external_markdown_section_lines(external_text, "Surface Inventory For BP1")
+    source = _external_branch_plan_path()
+    if not surface_inventory:
+        return [
+            f"External State Source: `{source}`",
+            "",
+            "- BLOCKED - active BP1 surface inventory is missing from external branch plan.",
+        ]
     return [
-        "| Surface | Ownership classification | Current known state | Issues | Source truth / UIREF | Expected proof states | Likely files/modules later | Later repair or reference-only | Validation needs | Risk / blocker candidates |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
-        "| HUD Dashboard / Monitoring HUD parent surface | FAM-006 dashboard / parent-class window | Existing FAM-006 parent surface; current branch has not approved runtime mutation yet. | #280, #277 | FAM-006 vision; FAM-002; UIREF-001/002/007. | default, resized, movement, chrome/control states, dashboard/card containment. | nexus_visual/monitoring_hud.*; desktop renderer bridge; FAM-006 proof helpers. | Direct repair expected later only if BP2/BP3 admit it. | visual comparator, geometry matrix, focused screenshot/video, code-to-visual trace. | Parent grammar change can affect every child surface and proof baseline. |",
-        "| HUD Dashboard chrome/control cluster | FAM-006 parent-window control group consuming FAM-002 grammar | Open issue candidate; must not be silently green. | #280, #277 | FAM-002 top-level control grammar; UIREF-001/002/007. | default, hover, focus, pressed, disabled/not-applicable, keyboard accessibility. | CSS/JS window primitives and HUD renderer code. | Direct repair candidate; may require USER exception if retained. | per-control state proof and Product Experience Contract review. | Large CLOSE/content-action confusion or mismatch with accepted primitives. |",
-        "| Manage Monitors attached child window | FAM-006 exclusive attached child window | Existing child window; resize containment defect reported and state matrix incomplete. | #275, #281, #277, #284 | FAM-006 vision; FAM-002 child-window grammar; UIREF-003/005/007. | default, resized, contained, scroll, filter/list states, hover/focus/pressed/disabled/error/empty. | monitoring_hud HTML/CSS/JS and related validators. | Direct repair likely if BP2/BP3 admit. | geometry matrix, state matrix, screenshots/video, code-to-visual trace. | Child resize can block parent; state proof can become default-only. |",
-        "| Overlay Profile Settings attached child window | FAM-006 exclusive attached child window | Existing child window; state/primitive matrix incomplete under newer standards. | #282, #277, #284 | FAM-006 vision; FAM-002; UIREF-003/005/007. | create/edit/save/delete/discard, dirty/danger, selector/list, scroll, focus/keyboard. | monitoring_hud HTML/CSS/JS, overlay profile state code, proof helpers. | Direct repair or issue-candidate disposition depends on BP2 scope. | state matrix, screenshot/video proof, keyboard/accessibility proof. | Profile behavior touches target reliability if over-broadened. |",
-        "| Active Overlay Profile dropdown / selector surface | FAM-006 selector/dropdown surface inside HUD Overlay | Open matrix issue; default closed state is insufficient. | #283, #277, #284 | FAM-006 vision; FAM-002; UIREF-003. | open/closed, hover/focus/selected, large-list, no-profile, disabled, error/recovery, keyboard. | monitoring_hud JS/CSS selector code. | Direct repair candidate after BP2 planning. | dropdown proof, state coverage, screenshot/video, code-to-visual trace. | Dropdown overlay may be clipped, mis-layered, or visually divergent. |",
-        "| Recording Suite | FAM-006 detached feature-studio reference/proof surface | Released prior branch surface; current branch should use as reference/proof only unless BP2 admits repair. | #284 reference; #277 proof/reference only. | FAM-006 recording vision; FAM-002; UIREF-007 if geometry touched. | Reference screenshots, primitive comparison only unless admitted. | monitoring_hud_studio and shared primitive files if later admitted. | Reference/proof only for BP1. | comparator proof; no issue closeout. | Do not reopen released Recording work by inertia. |",
-        "| Log Viewer | FAM-006 detached feature-studio reference/proof surface | Released prior branch surface; current branch should use as reference/proof only unless BP2 admits repair. | #284 reference; #277 proof/reference only. | FAM-006 recording vision; FAM-002; UIREF-007 if geometry touched. | Reference screenshots, primitive comparison only unless admitted. | monitoring_hud_studio and shared primitive files if later admitted. | Reference/proof only for BP1. | comparator proof; no issue closeout. | Do not turn minimal Log Viewer into full viewer/export implementation. |",
+        f"External State Source: `{source}`",
+        "",
+        *surface_inventory,
     ]
 
 
@@ -780,11 +831,11 @@ def _fam006_child_window_branch_vision_lines(
         "",
         "## Expanded Issue Matrix",
         "",
-        *_fam006_child_window_issue_matrix_lines(),
+        *_fam006_external_issue_matrix_lines(),
         "",
         "## Expanded Surface Inventory",
         "",
-        *_fam006_child_window_surface_inventory_lines(),
+        *_fam006_external_surface_inventory_lines(),
         "",
         "## Product Options / Design Paths",
         "",

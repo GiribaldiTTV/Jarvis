@@ -63,6 +63,10 @@ LIVE_STATE_PATTERNS = {
         r"\b(origin/main|HEAD|merge base|ahead|behind|dirty|clean|git status|git rev-parse)\b",
         re.IGNORECASE,
     ),
+    "helper-embedded-active-state": re.compile(
+        r"\|\s*#\d{2,5}\s*\|[^|]+\|\s*(?:OPEN|PENDING|BLOCKED|ACTIVE|GREEN|RED|REPAIR)\s*\|",
+        re.IGNORECASE,
+    ),
 }
 
 HISTORICAL_RECEIPT_WORDS = (
@@ -92,6 +96,7 @@ TARGET_OWNER_BY_CATEGORY = {
     "release-window": "Git/GitHub/helpers for live release facts; C:\\Nexus Governance State\\release_windows\\<release_slug>\\release_window_state.md for assembly",
     "selected-next": "C:\\Nexus Governance State\\central\\selected_next_state.md or branch/family planning state after migration",
     "derived-git-truth": "Git/GitHub/helpers",
+    "helper-embedded-active-state": "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md or GitHub-derived issue truth",
 }
 
 
@@ -233,6 +238,9 @@ def classify_finding(
 
     if normalized.startswith("Docs/workstreams/"):
         return "Migration Candidate", "workstream routing stays durable; live watcher/PR/release-window state should be external or derived"
+
+    if normalized.startswith("dev/") and category == "helper-embedded-active-state":
+        return "Repo Live-State Leakage", "tracked helper embeds live issue/branch rows instead of deriving them from external state or GitHub"
 
     return "Review Candidate", "manual review needed to confirm durable receipt versus live operational tracker"
 
