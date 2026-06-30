@@ -139,6 +139,9 @@ DECISION_STATUS_BP3_ORCHESTRATION_REVIEW = "bp3-orchestration-review"
 DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW = (
     "workstream-implementation-approval-review"
 )
+DECISION_STATUS_WORKSTREAM_EXIT_VISUAL_ACCEPTANCE_REVIEW = (
+    "workstream-exit-visual-acceptance-review"
+)
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
@@ -222,6 +225,12 @@ FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES = {
     "feature/fam-007-dev-owner-skeleton-readiness",
     "feature/fam-007-owner-ai-operational-foundation-gates",
 }
+FAM007_AI_DASHBOARD_WORKSTREAM_EXIT_MARKERS = (
+    "workstream-exit visual acceptance",
+    "workstream exit visual acceptance",
+    "workstream completion visual acceptance",
+    "workstream green visual acceptance",
+)
 
 
 def _is_fam006_workstream_implementation_approval_review(
@@ -743,6 +752,10 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
                 r"\bbounded workstream package\b",
                 r"\bworkstream implementation\b",
                 r"\bimplementation approval\b",
+                r"\bworkstream[- ]exit\b",
+                r"\bworkstream completion\b",
+                r"\bworkstream green\b",
+                r"\bvisual acceptance\b",
             ),
         ),
         (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
@@ -1238,6 +1251,96 @@ def _copy_external_state_context(target: Path) -> set[Path]:
             encoding="utf-8",
         )
         copied.add(destination.resolve())
+    return copied
+
+
+def _copy_fam007_visual_proof_artifacts(target: Path, proof_root: Path | None) -> set[Path]:
+    if proof_root is None:
+        return set()
+    proof_root = proof_root.resolve()
+    if not proof_root.is_dir():
+        raise ValueError(f"Visual proof root does not exist: {proof_root}")
+
+    manifest_path = proof_root / FAM007_LIVE_PROOF_MANIFEST_NAME
+    if not manifest_path.is_file():
+        raise ValueError(f"Visual proof root is missing {FAM007_LIVE_PROOF_MANIFEST_NAME}: {proof_root}")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Visual proof manifest is not valid JSON: {manifest_path}: {exc}") from exc
+
+    evidence_dir = target / REVIEW_AIDS_DIR_NAME / "Inspectable Evidence"
+    focused_dir = evidence_dir / "focused_window_screenshots"
+    full_dir = evidence_dir / "full_desktop_screenshots"
+    supplemental_dir = evidence_dir / "supplemental_visual_proof"
+    for directory in (focused_dir, full_dir, supplemental_dir):
+        directory.mkdir(parents=True, exist_ok=True)
+
+    copied: set[Path] = set()
+    manifest_destination = evidence_dir / FAM007_LIVE_PROOF_MANIFEST_NAME
+    shutil.copy2(manifest_path, manifest_destination)
+    copied.add(manifest_destination.resolve())
+
+    screenshots = manifest.get("screenshots")
+    if not isinstance(screenshots, dict):
+        raise ValueError(f"Visual proof manifest is missing screenshots object: {manifest_path}")
+    for screenshot_class, paths in sorted(screenshots.items()):
+        if not isinstance(paths, dict):
+            raise ValueError(f"Visual proof manifest screenshots.{screenshot_class} is not an object")
+        for key, destination_dir in (("focusedWindow", focused_dir), ("fullDesktop", full_dir)):
+            source_text = str(paths.get(key) or "").strip()
+            if not source_text:
+                continue
+            source = Path(source_text)
+            if not source.is_file():
+                source = proof_root / _proof_image_basename(source_text)
+            if not source.is_file():
+                raise ValueError(
+                    f"Visual proof manifest references missing screenshot {key} for {screenshot_class}: {source_text}"
+                )
+            destination = destination_dir / source.name
+            shutil.copy2(source, destination)
+            copied.add(destination.resolve())
+
+    supplemental_patterns = (
+        "11_before_parent_dashboard_density_reference.png",
+        "12_current_vs_main_runtime_old_ai_control_center.png",
+        "13_before_after_parent_dashboard_density.png",
+        "14_exhaustive_visual_grammar_audit.*",
+        "15_settings_option_b_removal_deferment.json",
+        "15_title_status_pill_no_early_wrap_windows_cursor_resize*.png",
+        "16_title_status_pill_wrapped_windows_cursor_resize*.png",
+    )
+    for pattern in supplemental_patterns:
+        for source in sorted(proof_root.glob(pattern)):
+            if source.is_file():
+                destination = supplemental_dir / source.name
+                shutil.copy2(source, destination)
+                copied.add(destination.resolve())
+
+    index_path = evidence_dir / "INSPECTABLE_EVIDENCE_INDEX.md"
+    index_lines = [
+        "# Inspectable Evidence Index",
+        "",
+        "Evidence Purpose: FAM-007 Workstream-exit Visual Acceptance proof for the completed AI Dashboard child/domain doorway and no-provider diagnostics package.",
+        "Evidence Boundary: proof artifacts are copied into this packet ZIP for USER visual review; local source paths are not required to inspect the packet.",
+        "",
+        "## Included Proof Groups",
+        "",
+        "- Live proof manifest: `live_resize_manifest.json`",
+        "- Focused window screenshots: `focused_window_screenshots/`",
+        "- Full desktop screenshots: `full_desktop_screenshots/`",
+        "- Supplemental visual proof: `supplemental_visual_proof/`",
+        "",
+        "## Screenshot Classes From Manifest",
+        "",
+        *[
+            f"- `{screenshot_class}`"
+            for screenshot_class in sorted(str(name) for name in screenshots)
+        ],
+    ]
+    index_path.write_text("\n".join(index_lines), encoding="utf-8")
+    copied.add(index_path.resolve())
     return copied
 
 
@@ -3807,17 +3910,24 @@ def _write_user_branch_vision_review(
         )
         and not current_bp1_review_packet
     )
+    fam007_ai_dashboard_workstream_exit_context_packet = (
+        "fam-007" in review_profile_text
+        and any(marker in decision_text for marker in FAM007_AI_DASHBOARD_WORKSTREAM_EXIT_MARKERS)
+    )
     bp2_or_later_context_packet = (
         bp2_context_packet
         or bp3_context_packet
         or fam006_workstream_approval_context_packet
         or fam007_slc001_workstream_entry_context_packet
+        or fam007_ai_dashboard_workstream_exit_context_packet
         or hardening_h1_context_packet
         or live_validation_context_packet
     )
     active_planning_gate = (
         "Workstream implementation approval"
         if fam006_workstream_approval_context_packet
+        else "Workstream-exit Visual Acceptance"
+        if fam007_ai_dashboard_workstream_exit_context_packet
         else "SLC-001 / Seam 1 Workstream approval and conduct"
         if fam007_slc001_workstream_conduct_packet
         else
@@ -3943,6 +4053,152 @@ def _write_user_branch_vision_review(
             "## Workstream Approval Boundary",
             "",
             "Workstream/runtime implementation remains pending until USER approves the primary Workstream implementation approval packet. A green first seam is continuation proof, not package completion.",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
+    if fam007_ai_dashboard_workstream_exit_context_packet:
+        lines = [
+            f"# {title} - Accepted BP1 Branch Vision Context",
+            "",
+            "USER Branch Vision Review: BP1 Context",
+            "",
+            "## Review Status",
+            "",
+            "Accepted BP1 Context - this file supports the active Workstream-exit Visual Acceptance packet and does not request a new BP1 decision.",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - BP1 Branch Vision accepted by USER and used as accepted context for this Workstream-exit Visual Acceptance packet.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - supporting accepted BP1 context for the active Workstream-exit Visual Acceptance packet.",
+            "",
+            "## USER Gate State",
+            "",
+            "USER Accepted - BP1 Branch Vision accepted by USER; BP2 and BP3 are also accepted; Workstream-exit Visual Acceptance remains Pending USER Review.",
+            "",
+            "## Contract Revision",
+            "",
+            "v3 - accepted BP1 support context carried through SLC-006 Workstream-exit Visual Acceptance review.",
+            "",
+            "## Project Vision Context",
+            "",
+            "Nexus Desktop AI should remain deterministic, intuitive, immersive, predictable, reliable, and consistent while clearly separating visible AI readiness from real provider/model execution.",
+            "",
+            "## Family Vision Context",
+            "",
+            "FAM-007 owns local AI and capability-pack surfaces that truthfully show no-provider, blocked, future-gated, and local-only states before provider/model behavior exists.",
+            "",
+            "## Feature Vision Context",
+            "",
+            "The accepted branch vision routes AI Dashboard as the parent hub and AI Control Center, AI Readiness / Diagnostics, and Capabilities / Maintenance as focused child/domain surfaces.",
+            "",
+            "## Branch Goal",
+            "",
+            "Restore the AI Dashboard child/domain doorway package and prove no-provider diagnostics, provider-state truth mapping, capability/Developer/Owner boundaries, and visual grammar without enabling provider/model/private behavior.",
+            "",
+            "## End-State Vision",
+            "",
+            "The user can inspect a coherent AI Dashboard hub and child/domain windows that explain AI persona, readiness, diagnostics, provider/runtime blocking, privacy, capabilities, maintenance, and Developer/Owner boundaries truthfully.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "USER sees the AI Dashboard parent, AI Control Center child/domain, AI Readiness / Diagnostics child/domain, Capabilities / Maintenance child/domain, proof screenshots, manifest evidence, and accepted planning context inside this packet.",
+            "",
+            "## How It Will Function",
+            "",
+            "The surfaces remain local-only and blocked where functionality is not implemented. Doorways and diagnostics expose deterministic state and recovery guidance without prompt send, provider/model execution, downloads, cache, memory, private setup, packaging, or Settings implementation.",
+            "",
+            "## User Experience Flow",
+            "",
+            "Open AI Dashboard, inspect parent rows, open or review child/domain surfaces, verify no-provider diagnostics and blocked capability boundaries, then judge whether the packet-contained focused and full-desktop proof meets Visual Acceptance.",
+            "",
+            "## Surface Map",
+            "",
+            "- Parent surface: AI Dashboard.",
+            "- Child/domain surfaces: AI Control Center, AI Readiness / Diagnostics, Capabilities / Maintenance.",
+            "- Proof surfaces: live proof manifest, focused screenshots, full-desktop screenshots, supplemental visual grammar audit, provider-state validator, leak-prevention validator.",
+            "",
+            "## Product Options / Design Paths",
+            "",
+            "- Accept the completed visual proof.",
+            "- Request targeted visual repair for a named element group or state.",
+            "- Waive a named visual concern with reason.",
+            "- Hold or reject the packet if proof is insufficient.",
+            "",
+            "## Codex Recommendations",
+            "",
+            "Codex recommends USER acceptance only if the packet-contained screenshots and proof manifest satisfy the accepted AI Dashboard visual grammar and no-provider product-truth boundaries.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "The branch makes AI status understandable without pretending real AI exists, keeps blocked actions visible, and preserves future-gated provider/private/capability setup decisions.",
+            "",
+            "## USER Design Questions",
+            "",
+            "- Does the AI Dashboard visual grammar meet the accepted reference direction?",
+            "- Do the child/domain windows feel coherent with the parent hub?",
+            "- Are title/status wrapping, row spacing, gutters, typography, buttons, scroll, and child-domain lifecycle acceptable?",
+            "",
+            "## USER Response",
+            "",
+            "Pending USER Visual Acceptance review.",
+            "",
+            "## Codex Digest",
+            "",
+            "SLC-001 through SLC-006 completed the accepted AI Dashboard child/domain doorway package and route this proof packet to USER Visual Acceptance.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Pending USER response; packet validation is not USER acceptance.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Pending USER response digestion.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            "Accepted by USER - AI Dashboard is the parent hub, child/domain surfaces carry detailed AI Control Center, readiness/diagnostics, and capability/maintenance boundaries, and provider/model/private/capability execution remains future-gated.",
+            "",
+            "## Family-Vision Versus Branch-Only Vision Impact",
+            "",
+            "Branch-local implementation proof does not promote a reusable UIREF template, shared primitive, provider behavior, private setup, or durable family vision change by itself.",
+            "",
+            "## Must-Have Behavior",
+            "",
+            "- Truthful no-provider and AI-not-implemented states.",
+            "- Provider-visible data remains none.",
+            "- Prompt send, provider/model execution, downloads, cache, memory, private setup, packaging, and Settings implementation remain blocked.",
+            "- Visual proof must be inspectable from the packet ZIP.",
+            "",
+            "## Future-Gated Decisions And Regression-Risk Controls",
+            "",
+            "- H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, cleanup, issue mutation, provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, Settings implementation, persistence expansion, drag/drop, imports, v1.8.0, sibling worktree mutation, and Governance repo mutation require separate gates.",
+            "",
+            "## Deferred And Future-Gated Ideas",
+            "",
+            "- ORIN persona implementation, provider/model execution, capability downloads/updates, Developer/Owner private setup, real memory, real agents, and Settings-window integration.",
+            "",
+            "## Vision Question Queue",
+            "",
+            "- Whether any Visual Acceptance feedback should become a branch-local repair, USER waiver, or future issue candidate.",
+            "",
+            "## Design Assumption Ledger",
+            "",
+            "- AI Control Center from main remains the strongest comparator seed where source truth says it applies.",
+            "- HUD/FAM-006 and related surfaces remain same-class context only, not sibling mutation authority.",
+            "- Packet-contained proof is required before visual claims are considered reviewable.",
+            "",
+            "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            "USER may accept Visual Acceptance, request revision, reject, hold, or waive a named concern with reason. This packet does not approve downstream gates.",
             "",
             "## Exact USER Decision Supported",
             "",
@@ -5344,6 +5600,182 @@ def _write_user_branch_plan_review(
             "## Supporting Source-Truth Files",
             "",
             copied_sources or "- None copied.",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
+    fam007_ai_dashboard_workstream_exit_packet = (
+        is_fam007_ai_dashboard_child_domain
+        and any(marker in normalized_decision for marker in FAM007_AI_DASHBOARD_WORKSTREAM_EXIT_MARKERS)
+    )
+    if fam007_ai_dashboard_workstream_exit_packet:
+        copied_sources = "\n".join(
+            f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+        )
+        pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        lines = [
+            f"# USER Branch Plan Review - {title}",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - accepted BP2/BP3 engineering-plan context is carried forward as support for the active Workstream-exit Visual Acceptance packet.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - supporting accepted BP2/BP3 context for the active Workstream-exit Visual Acceptance packet.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - Workstream-exit Visual Acceptance remains pending USER acceptance, revision, waiver, hold, or rejection.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Accepted planning context - BP1, BP2, BP3, and Workstream conduct approvals are recorded in external branch planning state and carried forward here as support context.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Digested - accepted planning context is preserved; the active primary decision file is WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md for Workstream-exit Visual Acceptance.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "Workstream-exit packet support context - this aid does not request H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, issue mutation, cleanup, provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, Settings implementation, persistence expansion, drag/drop, imports, v1.8.0, sibling worktree mutation, or Governance repo mutation.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "v3 - accepted BP2/BP3 support context carried through SLC-006 Workstream-exit Visual Acceptance review.",
+            "",
+            "## Plain-English Branch Summary",
+            "",
+            "This file is support context for the completed FAM-007 AI Dashboard Workstream. The primary packet asks USER to visually review the completed parent hub, child/domain windows, no-provider diagnostics, provider-state truth mapping, boundary display, wrap/resize proof, and packet-contained screenshots.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "The packet includes START_HERE.md, the primary Workstream Entry Analysis Digest under USER Review, accepted BP1/BP2 support files, source-truth context, live proof manifest, focused window screenshots, full-desktop screenshots, and supplemental visual proof under Review Aids.",
+            "",
+            "## End-State Vision",
+            "",
+            "AI Dashboard remains the top-most FAM-007 hub. AI Control Center, AI Readiness / Diagnostics, and Capabilities / Maintenance are child/domain surfaces with local-only, no-provider, and blocked-execution truth visible without enabling provider/model behavior.",
+            "",
+            "## Visual / Functional Walkthrough",
+            "",
+            "- Inspect the primary Workstream-exit digest.",
+            "- Inspect focused and full-desktop screenshots for initial, scrolled, resized, and child-domain states.",
+            "- Verify status rows, title/status wrapping, row gutter, button placement, child-domain lifecycle, no-provider diagnostics, and Developer/Owner boundary display match the accepted visual grammar.",
+            "- Treat any visual acceptance concern as USER feedback for the next legal repair route; do not infer H1/LV/UTS/PR approval from this packet.",
+            "",
+            "## Surface Map",
+            "",
+            "- Parent: AI Dashboard.",
+            "- Children: AI Control Center, AI Readiness / Diagnostics, Capabilities / Maintenance.",
+            "- Proof: live resize manifest, focused/full-desktop screenshots, supplemental visual grammar audit, provider-state and leak-prevention validators.",
+            "",
+            "## Implementation Options",
+            "",
+            "- Accept Visual Acceptance: routes next to the source-truth-approved post-Visual-Acceptance gate only.",
+            "- Request visual repair: name the element/group/state needing repair.",
+            "- Waive a specific visual concern with reason.",
+            "- Hold or reject the packet if proof is insufficient.",
+            "",
+            "## Recommended Direction",
+            "",
+            "Codex recommends reviewing the packet-contained screenshots and accepting only if the AI Dashboard and child/domain surfaces meet the visual grammar and product-experience standard. This recommendation does not approve downstream gates.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "The completed Workstream keeps AI behavior honest, local-first, deterministic, and inspectable while preserving blocked provider/model/private/capability boundaries.",
+            "",
+            "## USER Plan Review Decision",
+            "",
+            "USER may accept the Workstream-exit Visual Acceptance packet, request repair, waive a named concern, hold, or reject.",
+            "",
+            "## USER Decisions Needed",
+            "",
+            "- Does USER visually accept the completed FAM-007 AI Dashboard Workstream proof packet?",
+            "- If not, which exact element group, state, or proof artifact needs repair?",
+            "- Does USER confirm downstream gates remain blocked until separately approved?",
+            "",
+            "## USER Response",
+            "",
+            "Pending USER Visual Acceptance review.",
+            "",
+            "## Codex Response Digest",
+            "",
+            "SLC-001 through SLC-006 were completed under the bounded Workstream phase and this packet preserves proof for USER review.",
+            "",
+            "## Implementation Constraints Created By USER Response",
+            "",
+            "- Downstream gates remain blocked until USER acts separately.",
+            "- Any returned visual concern must route to the next legal repair phase.",
+            "",
+            "## USER Rejected / Deferred Ideas",
+            "",
+            "- Provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, Settings implementation, active dropdown behavior, persistence expansion, drag/drop, imports, v1.8.0, issue mutation, PR creation, merge, release, cleanup, sibling worktree mutation, and Governance repo mutation remain deferred or blocked.",
+            "",
+            "## Vision Delta / Source-Truth Impact",
+            "",
+            "No durable vision promotion, UIREF promotion, shared primitive promotion, or Governance repo mutation is requested by this support file.",
+            "",
+            "## Contract Change Log",
+            "",
+            "- v1/v2: BP2/BP3 accepted planning context.",
+            "- v3: SLC-006 Workstream-exit Visual Acceptance support context.",
+            "",
+            "## Current Branch Scope",
+            "",
+            "- Completed bounded FAM-007 AI Dashboard child/domain doorway and diagnostics Workstream.",
+            "",
+            "## Future-Gated Scope",
+            "",
+            "- H1, Live Validation, UTS, PR Readiness, PR creation, merge, release, provider/model/private/capability execution, Settings implementation, and cleanup.",
+            "",
+            "## Implementation Staging Notes",
+            "",
+            "- SLC-001 through SLC-006 are complete; no additional runtime implementation is approved by this packet.",
+            "",
+            "## Workstream Entry Result",
+            "",
+            "Workstream Green - SLC-001 through SLC-006 are complete and routed to USER Visual Acceptance review.",
+            "",
+            "## Contract Completion Checklist",
+            "",
+            "- Packet contains one primary USER review file.",
+            "- Packet contains source-truth context and external-state context.",
+            "- Packet contains live proof manifest and screenshot evidence.",
+            "- Packet validation remains separate from USER acceptance.",
+            "",
+            "## Codex Recommendations And Implementation Options",
+            "",
+            "See Recommended Direction and Implementation Options above.",
+            "",
+            "## USER Plan Review Questions",
+            "",
+            "See USER Decisions Needed above.",
+            "",
+            "## Appendix - Legacy Validator Compatibility",
+            "",
+            "Legacy compatibility sections are retained only for older validators and should not replace the contract sections above.",
+            "",
+            "## Active External Branch Plan / Historical Branch Plan Files",
+            "",
+            "- `current_external_branch_state.md`",
+            "- `current_external_branch_plan.md`",
+            "",
+            "## Historical / Rollback Context Files",
+            "",
+            "- Accepted BP1/BP2/BP3 and SLC-001 through SLC-005 receipts are preserved in external state.",
+            "",
+            "## Supporting Source-Truth Files",
+            "",
+            copied_sources or "- None copied.",
+            "",
+            "## Pending USER Decisions",
+            "",
+            pending,
             "",
             "## Exact USER Decision Supported",
             "",
@@ -9310,6 +9742,10 @@ def _write_workstream_entry_packet_digests(
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
         )
     )
+    fam007_ai_dashboard_workstream_exit_packet = (
+        source_branch == FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH
+        and any(marker in normalized_decision for marker in FAM007_AI_DASHBOARD_WORKSTREAM_EXIT_MARKERS)
+    )
     is_fam006_recording = (
         source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
     )
@@ -9386,6 +9822,12 @@ def _write_workstream_entry_packet_digests(
         "entry checkpoint and continuation governed until Workstream Green, a real "
         "blocker, or explicit USER waiver."
         if workstream_package_approval_packet
+        else
+        "workstream-exit visual acceptance review - SLC-001 through SLC-006 are "
+        "complete and the packet is Reviewable for USER Visual Acceptance; Hardening "
+        "H1, Live Validation, UTS execution/acceptance, PR Readiness, PR creation, "
+        "merge, release, and cleanup remain pending separate USER approval."
+        if fam007_ai_dashboard_workstream_exit_packet
         else
         "workstream entry final decision review - Workstream Green review; admitted "
         "FAM-007 Dev/Owner proof seams are complete and Hardening H1 remains pending "
@@ -10316,6 +10758,57 @@ def _write_workstream_entry_packet_digests(
             "wording treats SLC-051 / Seam 1 as the entry checkpoint for the complete "
             "accepted Option C package and keeps implementation approval pending."
         )
+    elif fam007_ai_dashboard_workstream_exit_packet:
+        analysis_status = (
+            "Analysis Summary: Workstream Green / Workstream-exit Visual Acceptance "
+            "review packet for the FAM-007 AI Dashboard child/domain doorway restoration "
+            "and no-provider diagnostics package. SLC-001 through SLC-006 are complete "
+            "inside the bounded Workstream phase, and this packet routes the completed "
+            "visible/user-facing proof to USER Visual Acceptance review."
+        )
+        implementation_posture = (
+            "Workstream Exit Posture: runtime implementation for the admitted SLC-001 "
+            "through SLC-006 package is complete and validator-green, but USER Visual "
+            "Acceptance remains pending. Hardening H1, Live Validation, UTS execution/"
+            "acceptance, PR Readiness, PR creation, merge, release, issue mutation, "
+            "cleanup, provider/model execution, prompt send, downloads, cache, memory, "
+            "private setup, packaging, active Settings/dropdown behavior, persistence/"
+            "schema expansion, drag/drop, imports, v1.8.0, sibling worktree mutation, "
+            "and Governance repo mutation remain blocked until their own gates."
+        )
+        recommended_seam = (
+            "Review Target: USER Visual Acceptance of the completed AI Dashboard parent "
+            "hub, AI Control Center child/domain, AI Readiness / Diagnostics child/domain, "
+            "Capabilities / Maintenance child/domain, deterministic state taxonomy, "
+            "provider-state view-model mapping, no-provider local-only diagnostics flow, "
+            "Developer/Owner boundary display, wrap/resize proof, and packet-contained "
+            "focused plus full-desktop evidence."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, development rules, "
+            "phase governance, validation helper registry, branch record, active external "
+            "branch plan/state context, accepted BP1/BP2/BP3 context, FAM-002/FAM-003/"
+            "FAM-007/FAM-008/FAM-010 vision context, UIREF references, Workstream source "
+            "files, provider-state validation, public leak-prevention validation, live "
+            "resize manifest, focused/full-desktop screenshot proof, and supplemental "
+            "visual grammar proof needed for Workstream-exit Visual Acceptance review."
+        )
+        checklist_status = (
+            "Checklist Focus: Workstream-exit Visual Acceptance - SLC-001 active "
+            "domain doorway lifecycle; SLC-002 state taxonomy; SLC-003 provider-state "
+            "view-model mapping; SLC-004 no-provider local-only diagnostics; SLC-005 "
+            "Capabilities/Maintenance plus Developer/Owner boundary display; SLC-006 "
+            "packet-contained proof, validator currentness, H1/LV/UTS carrydown posture, "
+            "one-ZIP packet hygiene, and blocked downstream gates."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting accepted BP1/BP2 review files, required digest/checklist files, "
+            "copied source-truth files, copied external-state context, packet-contained "
+            "live proof manifest, and focused/full-desktop screenshot evidence are loaded "
+            "and digestible for USER review; the contract records Workstream Green and "
+            "routes only to USER Visual Acceptance review."
+        )
     elif workstream_package_approval_packet and is_fam007_ai_dashboard_child_domain:
         analysis_status = (
             "Analysis Summary: BP1, BP2, and BP3 are accepted; USER acceptance of "
@@ -11135,6 +11628,15 @@ def _packet_text_status(text: str) -> str:
     if any(marker in normalized for marker in workstream_approval_review_markers):
         return DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
 
+    workstream_exit_visual_acceptance_markers = (
+        "workstream-exit visual acceptance review",
+        "workstream exit visual acceptance review",
+        "workstream green / workstream-exit visual acceptance",
+        "user visual acceptance remains pending",
+    )
+    if any(marker in normalized for marker in workstream_exit_visual_acceptance_markers):
+        return DECISION_STATUS_WORKSTREAM_EXIT_VISUAL_ACCEPTANCE_REVIEW
+
     live_validation_review_markers = (
         "live validation final decision review",
         "live validation lv1 is green",
@@ -11458,6 +11960,7 @@ def build_bundle(
     pending_user_decisions: list[str],
     expected_file_count: int | None,
     review_export_zip: Path | None,
+    proof_root: Path | None,
 ) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
@@ -11488,6 +11991,7 @@ def build_bundle(
         for file_name, copy_name in zip(files, _copy_names(files), strict=True)
     ]
     external_context_targets = _copy_external_state_context(target)
+    proof_artifact_targets = _copy_fam007_visual_proof_artifacts(target, proof_root)
     copied_count = len(copied)
     copied_targets = {(target / copied_rel).resolve() for _source_rel, copied_rel in copied}
     expected_count = expected_file_count if expected_file_count is not None else copied_count
@@ -11652,6 +12156,12 @@ def build_bundle(
         "blocker, or explicit USER waiver."
         if workstream_package_approval_packet
         else
+        "workstream-exit visual acceptance review - SLC-001 through SLC-006 are "
+        "complete and the packet is Reviewable for USER Visual Acceptance; Hardening "
+        "H1, Live Validation, UTS execution/acceptance, PR Readiness, PR creation, "
+        "merge, release, and cleanup remain pending separate USER approval."
+        if fam007_ai_dashboard_workstream_exit_packet
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
@@ -11734,7 +12244,13 @@ def build_bundle(
     if primary_source_path in expected_generated_paths:
         expected_generated_paths.remove(primary_source_path)
     expected_generated_paths.add(primary_destination_path)
-    actual_bundle_files = copied_targets | external_context_targets | expected_generated_paths | {start_here}
+    actual_bundle_files = (
+        copied_targets
+        | external_context_targets
+        | proof_artifact_targets
+        | expected_generated_paths
+        | {start_here}
+    )
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -11967,6 +12483,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--proof-root",
+        type=Path,
+        help=(
+            "Optional FAM-007 visual proof root to copy into Review Aids/Inspectable Evidence "
+            "for Workstream-exit Visual Acceptance packets."
+        ),
+    )
+    parser.add_argument(
         "--packet-validation-mode",
         choices=PACKET_VALIDATION_MODES,
         default=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
@@ -12048,6 +12572,7 @@ def main() -> int:
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
         review_export_zip=args.review_export_zip,
+        proof_root=args.proof_root,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
