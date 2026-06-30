@@ -9086,6 +9086,10 @@ def validate() -> list[str]:
         "prompt-send-disabled",
         "network-egress-blocked",
         "memory-indexing-disabled",
+        "ai-dashboard-ai-control-center-state-taxonomy-v1",
+        "aiControlCenterStateTaxonomyContract",
+        "aiControlCenterStateTaxonomyComplete",
+        "aiControlCenterStateTaxonomyRenderedStates",
     ):
         _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
 
@@ -9414,6 +9418,7 @@ def validate() -> list[str]:
         '"fullDesktopProofNotDuplicated"',
         '"dashboardHubActiveDoorwayLifecycle"',
         '"doorwayButtonsOpenDomainWindowsNoInlineActions"',
+        '"aiDashboardStateTaxonomyContractProven"',
         '"activeDomainWindowLaunchChromeAndGeometry"',
         '"readinessDiagnosticsLocalActionsStayInsideChild"',
         '"domainLaunchProbe"',
@@ -9474,6 +9479,9 @@ def validate() -> list[str]:
         '"runtimeCopyIsProductFacing"',
         '"settingsTooltipProbe"',
         '"settingsOptionBDisposition"',
+        "STATE_TAXONOMY_CONTRACT",
+        "REQUIRED_STATE_TAXONOMY_STATES",
+        "stateTaxonomyContract",
     ):
         _require(
             needle in live_resize_helper,
@@ -9529,6 +9537,13 @@ def validate() -> list[str]:
         "Capability packs unavailable",
         "Retry local check only",
         "Local guidance only",
+        "syncStateTaxonomyContract",
+        "nexusAiControlCenterSyncStateTaxonomyContract",
+        "ai-dashboard-ai-control-center-state-taxonomy-v1",
+        "stateTaxonomyComplete",
+        "providerVisibleDataState",
+        "promptExecutionState",
+        "providerModelRuntimeState",
     ):
         _require(
             needle in ai_control_js,

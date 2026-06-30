@@ -33,6 +33,19 @@ from desktop.ai_provider_state import (  # noqa: E402
 )
 from desktop.desktop_renderer import AIControlCenterDialog  # noqa: E402
 
+STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
+REQUIRED_STATE_TAXONOMY_STATES = {
+    "no-provider-fail-closed",
+    "provider-unavailable",
+    "stale-state-fail-closed",
+    "failed-check-fail-closed",
+    "retry-local-check-only",
+    "recovery-local-only",
+    "blocked-action",
+    "unavailable-capability",
+    "degraded-no-provider",
+}
+
 
 _VISUAL_GRAMMAR_PROBE_SCRIPT = r"""
 (() => {
@@ -1429,6 +1442,17 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             move: surface?.dataset.windowMove || "",
             resize: surface?.dataset.windowResize || "",
             controlCluster: surface?.dataset.windowControlCluster || "",
+            stateTaxonomyContract: surface?.dataset.stateTaxonomyContract || "",
+            stateTaxonomySource: surface?.dataset.stateTaxonomySource || "",
+            stateTaxonomyScope: surface?.dataset.stateTaxonomyScope || "",
+            stateTaxonomyRequiredStates: surface?.dataset.stateTaxonomyRequiredStates || "",
+            stateTaxonomyRenderedStates: surface?.dataset.stateTaxonomyRenderedStates || "",
+            stateTaxonomyComplete: surface?.dataset.stateTaxonomyComplete || "",
+            providerVisibleDataState: surface?.dataset.providerVisibleDataState || "",
+            noProviderState: surface?.dataset.noProviderState || "",
+            promptExecutionState: surface?.dataset.promptExecutionState || "",
+            providerModelRuntimeState: surface?.dataset.providerModelRuntimeState || "",
+            trustBoundaryState: surface?.dataset.trustBoundaryState || "",
             controlCount: controls.length,
             controlCommands: controls.map((control) => control.dataset.domainCommand || ""),
             title: title?.textContent.trim() || "",
@@ -1475,6 +1499,10 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
         "propertyPromptSend": str(window.property("promptSend") or ""),
         "propertyNetworkEgress": str(window.property("networkEgress") or ""),
         "propertyMemoryIndexing": str(window.property("memoryIndexing") or ""),
+        "propertyStateTaxonomyContract": str(window.property("aiControlCenterStateTaxonomyContract") or ""),
+        "propertyStateTaxonomyComplete": str(window.property("aiControlCenterStateTaxonomyComplete") or ""),
+        "propertyDiagnosticState": str(window.property("aiControlCenterDiagnosticState") or ""),
+        "propertyStateTaxonomyRenderedStates": str(window.property("aiControlCenterStateTaxonomyRenderedStates") or ""),
         "rect": rect,
         "dom": dom,
     }
@@ -2454,6 +2482,51 @@ def main() -> int:
                     value: row.querySelector("strong")?.textContent.trim() || ""
                   }))
                 ])),
+                stateTaxonomyRows: Object.fromEntries([...document.querySelectorAll("[data-dashboard-hub-card]")].map((card) => [
+                  card.dataset.dashboardHubCard || "",
+                  [...card.querySelectorAll(".monitoring-hud__state-row")].map((row) => ({
+                    label: row.querySelector("span")?.textContent.trim() || "",
+                    value: row.querySelector("strong")?.textContent.trim() || "",
+                    taxonomyKey: row.dataset.stateTaxonomyKey || "",
+                    taxonomyValue: row.dataset.stateTaxonomyValue || ""
+                  }))
+                ])),
+                stateTaxonomyContract: surface?.dataset.stateTaxonomyContract || "",
+                stateTaxonomySource: surface?.dataset.stateTaxonomySource || "",
+                stateTaxonomyRendering: surface?.dataset.stateTaxonomyRendering || "",
+                stateTaxonomyRequiredStates: surface?.dataset.stateTaxonomyRequiredStates || "",
+                stateTaxonomyRenderedStates: surface?.dataset.stateTaxonomyRenderedStates || "",
+                stateTaxonomyComplete: surface?.dataset.stateTaxonomyComplete || "",
+                aiPersonaState: surface?.dataset.aiPersonaState || "",
+                aiStatusState: surface?.dataset.aiStatusState || "",
+                providerModelRuntimeState: surface?.dataset.providerModelRuntimeState || "",
+                providerVisibleDataState: surface?.dataset.providerVisibleDataState || "",
+                noProviderState: surface?.dataset.noProviderState || "",
+                promptExecutionState: surface?.dataset.promptExecutionState || "",
+                trustBoundaryState: surface?.dataset.trustBoundaryState || "",
+                stateTaxonomyCards: Object.fromEntries([...document.querySelectorAll("[data-dashboard-hub-card]")].map((card) => [
+                  card.dataset.dashboardHubCard || "",
+                  {
+                    contract: card.dataset.stateTaxonomyContract || "",
+                    scope: card.dataset.stateTaxonomyScope || "",
+                    renderedStates: card.dataset.stateTaxonomyRenderedStates || "",
+                    complete: card.dataset.stateTaxonomyComplete || "",
+                    aiPersonaState: card.dataset.aiPersonaState || "",
+                    providerModelRuntimeState: card.dataset.providerModelRuntimeState || "",
+                    providerVisibleDataState: card.dataset.providerVisibleDataState || "",
+                    noProviderState: card.dataset.noProviderState || "",
+                    retryState: card.dataset.retryState || "",
+                    recoveryState: card.dataset.recoveryState || "",
+                    promptExecutionState: card.dataset.promptExecutionState || "",
+                    unavailableCapabilityState: card.dataset.unavailableCapabilityState || "",
+                    blockedActionState: card.dataset.blockedActionState || ""
+                  }
+                ])),
+                stateTaxonomyStripPairs: [...document.querySelectorAll("[data-dashboard-role='global-ai-strip'] .monitoring-hud__surface-role-pair")].map((pair) => ({
+                  text: pair.textContent.replace(/\\s+/g, " ").trim(),
+                  key: pair.dataset.stateTaxonomyKey || "",
+                  value: pair.dataset.stateTaxonomyValue || ""
+                })),
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
                 settingsRouteMetadata: document.getElementById("monitoring-hud")?.dataset.settingsRoute || "",
                 titleStatusWrapMetadata: document.getElementById("monitoring-hud")?.dataset.titleStatusWrap || "",
@@ -3048,6 +3121,89 @@ def main() -> int:
         for button in doorway_buttons
         if isinstance(button, dict)
     }
+    provider_payload = provider_state.as_renderer_payload()
+    provider_taxonomy_states = {
+        str(item.get("state") or "")
+        for item in provider_payload.get("aiControlCenterStateTaxonomy", [])
+        if isinstance(item, dict)
+    }
+
+    def _states_from_text(value: object) -> set[str]:
+        return {part for part in str(value or "").split() if part}
+
+    def _dashboard_state_taxonomy_ok() -> bool:
+        cards = dashboard_probe.get("stateTaxonomyCards")
+        rows = dashboard_probe.get("stateTaxonomyRows")
+        pairs = dashboard_probe.get("stateTaxonomyStripPairs")
+        if not isinstance(cards, dict) or not isinstance(rows, dict) or not isinstance(pairs, list):
+            return False
+        control_card = cards.get("control-center")
+        readiness_card = cards.get("readiness-diagnostics")
+        capabilities_card = cards.get("capabilities-maintenance")
+        if not isinstance(control_card, dict) or not isinstance(readiness_card, dict) or not isinstance(capabilities_card, dict):
+            return False
+        if dashboard_probe.get("stateTaxonomyContract") != STATE_TAXONOMY_CONTRACT:
+            return False
+        if dashboard_probe.get("stateTaxonomySource") != "AIProviderStateSnapshot.aiControlCenterStateTaxonomy":
+            return False
+        if dashboard_probe.get("stateTaxonomyComplete") != "true":
+            return False
+        if not REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(dashboard_probe.get("stateTaxonomyRequiredStates"))):
+            return False
+        if not REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(dashboard_probe.get("stateTaxonomyRenderedStates"))):
+            return False
+        if not REQUIRED_STATE_TAXONOMY_STATES.issubset(provider_taxonomy_states):
+            return False
+        if dashboard_probe.get("aiPersonaState") != "none-orin-persona-not-implemented":
+            return False
+        if dashboard_probe.get("aiStatusState") != "not-implemented":
+            return False
+        if dashboard_probe.get("providerModelRuntimeState") != "blocked-no-model-path":
+            return False
+        if dashboard_probe.get("providerVisibleDataState") != "none":
+            return False
+        if dashboard_probe.get("noProviderState") != "no-provider-fail-closed":
+            return False
+        if dashboard_probe.get("promptExecutionState") != "prompt-send-disabled":
+            return False
+        if dashboard_probe.get("trustBoundaryState") != "local-only-no-egress-no-memory-no-cache":
+            return False
+        if any(pair.get("key") == "" or pair.get("value") == "" for pair in pairs if isinstance(pair, dict)):
+            return False
+        return (
+            control_card.get("contract") == STATE_TAXONOMY_CONTRACT
+            and control_card.get("scope") == "ai-control-center-card-1"
+            and control_card.get("complete") == "true"
+            and control_card.get("aiPersonaState") == "none-orin-persona-not-implemented"
+            and control_card.get("providerModelRuntimeState") == "blocked-no-model-path"
+            and control_card.get("providerVisibleDataState") == "none"
+            and control_card.get("noProviderState") == "no-provider-fail-closed"
+            and readiness_card.get("retryState") == "retry-local-check-only"
+            and readiness_card.get("recoveryState") == "recovery-local-only"
+            and readiness_card.get("promptExecutionState") == "prompt-send-disabled"
+            and capabilities_card.get("unavailableCapabilityState") == "unavailable-capability"
+            and capabilities_card.get("blockedActionState") == "blocked-action"
+            and rows.get("control-center") == [
+                {
+                    "label": "AI Persona",
+                    "value": "None; ORIN persona not implemented",
+                    "taxonomyKey": "ai-persona",
+                    "taxonomyValue": "none-orin-persona-not-implemented",
+                },
+                {
+                    "label": "Provider",
+                    "value": "Blocked; no model path active",
+                    "taxonomyKey": "provider-model-runtime",
+                    "taxonomyValue": "blocked-no-model-path",
+                },
+                {
+                    "label": "Privacy",
+                    "value": "Protected; no provider or third-party tracking",
+                    "taxonomyKey": "provider-visible-data",
+                    "taxonomyValue": "none",
+                },
+            ]
+        )
 
     def _domain_launch_ok(domain_id: str) -> bool:
         launch = (domain_launch_probe.get("launches") or {}).get(domain_id)
@@ -3086,6 +3242,10 @@ def main() -> int:
             and probe.get("propertyPromptSend") == "prompt-send-disabled"
             and probe.get("propertyNetworkEgress") == "network-egress-blocked"
             and probe.get("propertyMemoryIndexing") == "memory-indexing-disabled"
+            and probe.get("propertyStateTaxonomyContract") == STATE_TAXONOMY_CONTRACT
+            and probe.get("propertyStateTaxonomyComplete") == "true"
+            and probe.get("propertyDiagnosticState") == "no-provider-fail-closed"
+            and REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(probe.get("propertyStateTaxonomyRenderedStates")))
             and dom.get("domDomain") == domain_id
             and dom.get("domClassification") == classification
             and dom.get("domLifecycle") == lifecycle
@@ -3095,6 +3255,17 @@ def main() -> int:
             and dom.get("move") == "header-drag"
             and dom.get("resize") == "edge-corner-resize"
             and dom.get("controlCluster") == "compact-minimize-close"
+            and dom.get("stateTaxonomyContract") == STATE_TAXONOMY_CONTRACT
+            and dom.get("stateTaxonomySource") == "AIProviderStateSnapshot.aiControlCenterStateTaxonomy"
+            and dom.get("stateTaxonomyScope") == domain_id
+            and dom.get("stateTaxonomyComplete") == "true"
+            and REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(dom.get("stateTaxonomyRequiredStates")))
+            and REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(dom.get("stateTaxonomyRenderedStates")))
+            and dom.get("providerVisibleDataState") == "none"
+            and dom.get("noProviderState") == "no-provider-fail-closed"
+            and dom.get("promptExecutionState") == "prompt-send-disabled"
+            and dom.get("providerModelRuntimeState") == "blocked-no-model-path"
+            and dom.get("trustBoundaryState") == "local-only-no-egress-no-memory-no-cache"
             and dom.get("controlCount") == 2
             and dom.get("workspaceCount") == 1
             and domain_id in (dom.get("workspaces") or [])
@@ -3177,6 +3348,7 @@ def main() -> int:
             and dashboard_probe.get("focusedSurfaceCount") == 0
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
+        "aiDashboardStateTaxonomyContractProven": _dashboard_state_taxonomy_ok(),
         "doorwayButtonsOpenDomainWindowsNoInlineActions": (
             actual_doorway_labels == ["Open", "Open", "Open"]
             and len(dashboard_probe.get("launchers") or []) == 0
@@ -3595,11 +3767,16 @@ def main() -> int:
         "childWindowsVisibleBeforeDashboardClose": child_windows_visible_before_close,
         "childGeometryBehavior": child_geometry_behavior,
         "providerBoundary": {
-            "sentToProvider": provider_state.as_renderer_payload().get("sentToProvider"),
-            "canAcceptPrompts": provider_state.as_renderer_payload().get("canAcceptPrompts"),
-            "providerVisibleData": provider_state.as_renderer_payload().get("providerVisibleData"),
-            "networkEgressState": provider_state.as_renderer_payload().get("networkEgressState"),
-            "memoryIndexingState": provider_state.as_renderer_payload().get("memoryIndexingState"),
+            "sentToProvider": provider_payload.get("sentToProvider"),
+            "canAcceptPrompts": provider_payload.get("canAcceptPrompts"),
+            "providerVisibleData": provider_payload.get("providerVisibleData"),
+            "networkEgressState": provider_payload.get("networkEgressState"),
+            "memoryIndexingState": provider_payload.get("memoryIndexingState"),
+            "stateTaxonomyContract": STATE_TAXONOMY_CONTRACT,
+            "requiredStateTaxonomyStates": sorted(REQUIRED_STATE_TAXONOMY_STATES),
+            "providerTaxonomyStates": sorted(provider_taxonomy_states),
+            "dashboardTaxonomyComplete": dashboard_probe.get("stateTaxonomyComplete"),
+            "dashboardTaxonomyRenderedStates": dashboard_probe.get("stateTaxonomyRenderedStates"),
         },
         "events": events,
         "checks": checks,

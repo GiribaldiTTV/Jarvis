@@ -672,6 +672,7 @@
     class="monitoring-hud"
     data-package="PKG-007"
     data-slice="SLC-001"
+    data-workstream-slices="SLC-001 SLC-002"
     data-surface-id="fam007-ai-dashboard"
     data-product-surface-role="ai-dashboard-top-most-hub"
     data-dashboard-surface="fam007-ai-dashboard"
@@ -742,6 +743,17 @@
     data-maintenance-updates-placement="lifecycle-domain-doorway-no-download-install-update-execution"
     data-dashboard-provider-truth="provider-contract-first"
     data-dashboard-state-model="no-provider-no-prompt-no-memory"
+    data-state-taxonomy-contract="ai-dashboard-ai-control-center-state-taxonomy-v1"
+    data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy"
+    data-state-taxonomy-rendering="backend-payload-to-dashboard-and-child-domain-metadata"
+    data-state-taxonomy-required-states="no-provider-fail-closed provider-unavailable stale-state-fail-closed failed-check-fail-closed retry-local-check-only recovery-local-only blocked-action unavailable-capability degraded-no-provider"
+    data-ai-persona-state="none-orin-persona-not-implemented"
+    data-ai-status-state="not-implemented"
+    data-provider-model-runtime-state="blocked-no-model-path"
+    data-provider-visible-data-state="none"
+    data-no-provider-state="no-provider-fail-closed"
+    data-prompt-execution-state="prompt-send-disabled"
+    data-trust-boundary-state="local-only-no-egress-no-memory-no-cache"
     data-dashboard-warning-controls="visual-non-invasive-only"
     data-dashboard-fake-telemetry-policy="blocked"
     data-title-backing-layer="single-title-card-no-secondary-backing"
@@ -806,17 +818,17 @@
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
           <div class="monitoring-hud__surface-role-copy">
-            <span class="monitoring-hud__surface-role-pair" aria-label="AI Persona none">
+            <span class="monitoring-hud__surface-role-pair" data-state-taxonomy-key="ai-persona" data-state-taxonomy-value="none-orin-persona-not-implemented" aria-label="AI Persona none">
               <span class="monitoring-hud__surface-role-label">AI Persona</span>
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
               <strong>None</strong>
             </span>
-            <span class="monitoring-hud__surface-role-pair" aria-label="Status not implemented">
+            <span class="monitoring-hud__surface-role-pair" data-state-taxonomy-key="ai-status" data-state-taxonomy-value="not-implemented" aria-label="Status not implemented">
               <span class="monitoring-hud__surface-role-label">Status</span>
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
               <strong>Not implemented</strong>
             </span>
-            <span class="monitoring-hud__surface-role-pair" aria-label="Provider blocked">
+            <span class="monitoring-hud__surface-role-pair" data-state-taxonomy-key="provider-model-runtime" data-state-taxonomy-value="blocked-no-model-path" aria-label="Provider blocked">
               <span class="monitoring-hud__surface-role-label">Provider</span>
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
               <strong>Blocked</strong>
@@ -845,6 +857,12 @@
             data-category-card="control-center"
             data-slice="SLC-001"
             data-category-doorway-state="active"
+            data-state-taxonomy-contract="ai-dashboard-ai-control-center-state-taxonomy-v1"
+            data-state-taxonomy-scope="ai-control-center-card-1"
+            data-ai-persona-state="none-orin-persona-not-implemented"
+            data-provider-model-runtime-state="blocked-no-model-path"
+            data-provider-visible-data-state="none"
+            data-no-provider-state="no-provider-fail-closed"
             data-target-window-classification="exclusive-child"
             data-target-window="control-center"
             data-target-window-lifecycle="closes-with-dashboard"
@@ -858,15 +876,15 @@
               <p class="monitoring-hud__hub-card-description">Persona and provider boundary doorway.</p>
             </div>
             <div class="ai-control-center-card-rows" aria-label="AI persona status and trust rows">
-              <div class="monitoring-hud__state-row">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="ai-persona" data-state-taxonomy-value="none-orin-persona-not-implemented">
                 <span>AI Persona</span>
                 <strong>None; ORIN persona not implemented</strong>
               </div>
-              <div class="monitoring-hud__state-row">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="provider-model-runtime" data-state-taxonomy-value="blocked-no-model-path">
                 <span>Provider</span>
                 <strong>Blocked; no model path active</strong>
               </div>
-              <div class="monitoring-hud__state-row">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="provider-visible-data" data-state-taxonomy-value="none">
                 <span>Privacy</span>
                 <strong>Protected; no provider or third-party tracking</strong>
               </div>
@@ -897,6 +915,11 @@
             data-category-card="readiness-diagnostics"
             data-slice="SLC-001"
             data-category-doorway-state="active"
+            data-state-taxonomy-contract="ai-dashboard-ai-control-center-state-taxonomy-v1"
+            data-state-taxonomy-scope="readiness-diagnostics-card"
+            data-retry-state="retry-local-check-only"
+            data-recovery-state="recovery-local-only"
+            data-prompt-execution-state="prompt-send-disabled"
             data-target-window-classification="external-unique"
             data-target-window="readiness-diagnostics"
             data-target-window-lifecycle="stays-open-if-dashboard-closes"
@@ -910,15 +933,15 @@
                 <p class="monitoring-hud__hub-card-description">Local checks and diagnostics doorway.</p>
               </div>
               <div class="ai-control-center-card-rows" aria-label="AI readiness and diagnostics rows">
-                <div class="monitoring-hud__state-row">
+                <div class="monitoring-hud__state-row" data-state-taxonomy-key="retry" data-state-taxonomy-value="retry-local-check-only">
                   <span>Check</span>
                   <strong>Waiting for USER action</strong>
                 </div>
-                <div class="monitoring-hud__state-row">
+                <div class="monitoring-hud__state-row" data-state-taxonomy-key="recovery" data-state-taxonomy-value="recovery-local-only">
                   <span>Report</span>
                   <strong>Local decision aid behind diagnostics</strong>
                 </div>
-                <div class="monitoring-hud__state-row">
+                <div class="monitoring-hud__state-row" data-state-taxonomy-key="prompt-execution" data-state-taxonomy-value="prompt-send-disabled">
                   <span>Prompt</span>
                   <strong>Not accepted, sent, stored, or indexed</strong>
                 </div>
@@ -950,6 +973,10 @@
             data-slice="SLC-001"
             data-maintenance-updates-state="placement-only"
             data-category-doorway-state="active"
+            data-state-taxonomy-contract="ai-dashboard-ai-control-center-state-taxonomy-v1"
+            data-state-taxonomy-scope="capabilities-maintenance-card"
+            data-unavailable-capability-state="unavailable-capability"
+            data-blocked-action-state="blocked-action"
             data-target-window-classification="exclusive-child"
             data-target-window="capabilities-maintenance"
             data-target-window-lifecycle="closes-with-dashboard"
@@ -963,11 +990,11 @@
               <p class="monitoring-hud__hub-card-description">Packs and updates stay blocked.</p>
             </div>
             <div class="ai-control-center-card-rows" aria-label="Capabilities and maintenance rows">
-              <div class="monitoring-hud__state-row">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="unavailable-capability" data-state-taxonomy-value="unavailable-capability">
                 <span>Packs</span>
                 <strong>Install blocked; downloads disabled</strong>
               </div>
-              <div class="monitoring-hud__state-row">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="blocked-action" data-state-taxonomy-value="blocked-action">
                 <span>Updates</span>
                 <strong>Future-gated; no install execution</strong>
               </div>

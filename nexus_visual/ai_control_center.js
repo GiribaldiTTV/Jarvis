@@ -1,5 +1,17 @@
 (() => {
   const commandPrefix = "NEXUS_AI_CONTROL_CENTER_COMMAND:";
+  const stateTaxonomyContract = "ai-dashboard-ai-control-center-state-taxonomy-v1";
+  const requiredStateTaxonomyStates = [
+    "no-provider-fail-closed",
+    "provider-unavailable",
+    "stale-state-fail-closed",
+    "failed-check-fail-closed",
+    "retry-local-check-only",
+    "recovery-local-only",
+    "blocked-action",
+    "unavailable-capability",
+    "degraded-no-provider",
+  ];
   let providerState = {};
   let scrollbarDrag = null;
   let currentReadinessReportText = "";
@@ -375,6 +387,58 @@
   };
   window.nexusAiControlCenterSyncDashboardLayout = syncDashboardLayout;
 
+  const syncStateTaxonomyContract = () => {
+    const surface = byId("monitoring-hud");
+    if (!surface) {
+      return;
+    }
+    const taxonomy = Array.isArray(providerState.aiControlCenterStateTaxonomy)
+      ? providerState.aiControlCenterStateTaxonomy
+      : [];
+    const renderedStates = taxonomy
+      .map((item) => (item && typeof item === "object" ? String(item.state || "").trim() : ""))
+      .filter(Boolean);
+    const complete = requiredStateTaxonomyStates.every((state) => renderedStates.includes(state));
+    const providerVisibleData = String(providerState.providerVisibleData || "none");
+    const promptSendPosture = String(providerState.promptSendPosture || "prompt-send-disabled");
+    const diagnosticState = String(providerState.aiControlCenterDiagnosticState || "no-provider-fail-closed");
+    const providerExecution = (
+      providerState.providerExecutionGateState === "provider-execution-disabled"
+      && providerState.modelExecutionGateState === "model-execution-disabled"
+    ) ? "blocked-no-model-path" : "blocked-fail-closed";
+    Object.assign(surface.dataset, {
+      stateTaxonomyContract,
+      stateTaxonomySource: "AIProviderStateSnapshot.aiControlCenterStateTaxonomy",
+      stateTaxonomyRenderedStates: renderedStates.join(" "),
+      stateTaxonomyComplete: complete ? "true" : "false",
+      providerVisibleDataState: providerVisibleData,
+      noProviderState: diagnosticState,
+      promptExecutionState: promptSendPosture,
+      providerModelRuntimeState: providerExecution,
+      trustBoundaryState: (
+        providerVisibleData === "none"
+        && promptSendPosture === "prompt-send-disabled"
+        && providerState.networkEgressState === "network-egress-blocked"
+        && providerState.memoryIndexingState === "memory-indexing-disabled"
+      ) ? "local-only-no-egress-no-memory-no-cache" : "fail-closed-boundary-mismatch",
+    });
+    document.querySelectorAll("[data-state-taxonomy-contract]").forEach((node) => {
+      node.dataset.stateTaxonomyContract = stateTaxonomyContract;
+      node.dataset.stateTaxonomyRenderedStates = renderedStates.join(" ");
+      node.dataset.stateTaxonomyComplete = complete ? "true" : "false";
+    });
+    const card = document.querySelector('[data-dashboard-hub-card="control-center"]');
+    if (card) {
+      Object.assign(card.dataset, {
+        aiPersonaState: "none-orin-persona-not-implemented",
+        providerModelRuntimeState: providerExecution,
+        providerVisibleDataState: providerVisibleData,
+        noProviderState: diagnosticState,
+      });
+    }
+  };
+  window.nexusAiControlCenterSyncStateTaxonomyContract = syncStateTaxonomyContract;
+
   const syncCustomScrollbar = () => {
     const surface = byId("monitoring-hud");
     const chrome = surface?.querySelector(".monitoring-hud__chrome");
@@ -429,6 +493,7 @@
 
   window.nexusAiControlCenterApplyProviderState = (payload) => {
     providerState = payload && typeof payload === "object" ? payload : {};
+    syncStateTaxonomyContract();
     const firstText = (...values) => {
       for (const value of values) {
         const text = String(value || "").trim();

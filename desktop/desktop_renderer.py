@@ -3831,6 +3831,18 @@ class AIDashboardDomainCommandPage(QWebEnginePage):
 class AIDashboardDomainWindow(QDialog):
     RESIZE_MARGIN = 12
     SHELL_RADIUS = 24
+    STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
+    REQUIRED_STATE_TAXONOMY_STATES = (
+        "no-provider-fail-closed",
+        "provider-unavailable",
+        "stale-state-fail-closed",
+        "failed-check-fail-closed",
+        "retry-local-check-only",
+        "recovery-local-only",
+        "blocked-action",
+        "unavailable-capability",
+        "degraded-no-provider",
+    )
 
     DOMAIN_DEFINITIONS = {
         "readiness-diagnostics": {
@@ -3887,6 +3899,10 @@ class AIDashboardDomainWindow(QDialog):
         self.setProperty("promptSend", "prompt-send-disabled")
         self.setProperty("networkEgress", "network-egress-blocked")
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self.setProperty("aiControlCenterStateTaxonomyContract", self.STATE_TAXONOMY_CONTRACT)
+        self.setProperty("aiControlCenterStateTaxonomyComplete", "false")
+        self.setProperty("aiControlCenterDiagnosticState", "no-provider-fail-closed")
+        self.setProperty("aiControlCenterStateTaxonomyRenderedStates", "")
         self.setProperty("ndaiShellConformance", "ndai-webview-rounded-window-shell")
         self.setProperty("windowMoveBehavior", "header-drag")
         self.setProperty("windowResizeBehavior", "edge-corner-resize")
@@ -4291,7 +4307,7 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
     <section class="ai-domain-window__chrome">
       <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
         <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
@@ -4307,6 +4323,8 @@ class AIDashboardDomainWindow(QDialog):
   </main>
   <script>
     const prefix = "NEXUS_AI_DOMAIN_WINDOW_COMMAND:";
+    const stateTaxonomyContract = "{escape(self.STATE_TAXONOMY_CONTRACT)}";
+    const requiredStateTaxonomyStates = {json.dumps(list(self.REQUIRED_STATE_TAXONOMY_STATES))};
     let providerState = {{}};
     let reportText = "";
     const byId = (id) => document.getElementById(id);
@@ -4350,8 +4368,39 @@ class AIDashboardDomainWindow(QDialog):
       && providerState.promptSendPosture === "prompt-send-disabled"
       && providerState.networkEgressState === "network-egress-blocked"
       && providerState.memoryIndexingState === "memory-indexing-disabled";
+    const syncStateTaxonomyContract = () => {{
+      const surface = document.querySelector("[data-ai-dashboard-child-window]");
+      if (!surface) return;
+      const taxonomy = Array.isArray(providerState.aiControlCenterStateTaxonomy)
+        ? providerState.aiControlCenterStateTaxonomy
+        : [];
+      const renderedStates = taxonomy
+        .map((item) => item && typeof item === "object" ? String(item.state || "").trim() : "")
+        .filter(Boolean);
+      const complete = requiredStateTaxonomyStates.every((state) => renderedStates.includes(state));
+      const providerVisibleData = String(providerState.providerVisibleData || "none");
+      const promptSendPosture = String(providerState.promptSendPosture || "prompt-send-disabled");
+      const diagnosticState = String(providerState.aiControlCenterDiagnosticState || "no-provider-fail-closed");
+      const providerExecution = (
+        providerState.providerExecutionGateState === "provider-execution-disabled"
+        && providerState.modelExecutionGateState === "model-execution-disabled"
+      ) ? "blocked-no-model-path" : "blocked-fail-closed";
+      Object.assign(surface.dataset, {{
+        stateTaxonomyContract,
+        stateTaxonomyRenderedStates: renderedStates.join(" "),
+        stateTaxonomyComplete: complete ? "true" : "false",
+        providerVisibleDataState: providerVisibleData,
+        noProviderState: diagnosticState,
+        promptExecutionState: promptSendPosture,
+        providerModelRuntimeState: providerExecution,
+        trustBoundaryState: guardClosed()
+          ? "local-only-no-egress-no-memory-no-cache"
+          : "fail-closed-boundary-mismatch",
+      }});
+    }};
     window.nexusAiDomainApplyProviderState = (payload) => {{
       providerState = payload && typeof payload === "object" ? payload : {{}};
+      syncStateTaxonomyContract();
       setText("provider-visible-data", providerState.providerVisibleData === "none" ? "None" : providerState.providerVisibleData || "None");
       setText("provider-model", "Disabled and blocked");
       setText("prompt-memory", "Not accepted, sent, stored, or indexed");
@@ -4547,6 +4596,22 @@ class AIDashboardDomainWindow(QDialog):
 
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
+        taxonomy = self._provider_payload.get("aiControlCenterStateTaxonomy")
+        rendered_states = []
+        if isinstance(taxonomy, list):
+            for item in taxonomy:
+                if isinstance(item, dict):
+                    state = str(item.get("state") or "").strip()
+                    if state:
+                        rendered_states.append(state)
+        complete = set(self.REQUIRED_STATE_TAXONOMY_STATES).issubset(set(rendered_states))
+        self.setProperty("aiControlCenterStateTaxonomyContract", self.STATE_TAXONOMY_CONTRACT)
+        self.setProperty("aiControlCenterStateTaxonomyComplete", "true" if complete else "false")
+        self.setProperty(
+            "aiControlCenterDiagnosticState",
+            str(self._provider_payload.get("aiControlCenterDiagnosticState") or "no-provider-fail-closed"),
+        )
+        self.setProperty("aiControlCenterStateTaxonomyRenderedStates", " ".join(rendered_states))
         if not self._page_ready:
             return
         self.webview.page().runJavaScript(
