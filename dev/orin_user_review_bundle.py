@@ -53,6 +53,17 @@ EXTERNAL_STATE_CONTEXT_COPIES = (
     ("branch_state.md", "current_external_branch_state.md"),
     ("branch_plan.md", "current_external_branch_plan.md"),
 )
+PACKET_CONTAINED_ZIP_SHA_PLACEHOLDER = (
+    "PRE_ZIP_PLACEHOLDER - final ZIP SHA256 is recorded after export in the "
+    "post-ZIP sidecar receipt and live external operational state."
+)
+PACKET_CONTAINED_ZIP_SHA_PLACEHOLDER_LINE = (
+    f"USER Review ZIP SHA256: `{PACKET_CONTAINED_ZIP_SHA_PLACEHOLDER}`"
+)
+POST_ZIP_RECEIPT_SUFFIX = ".post_zip_receipt.md"
+VALIDATION_OUTPUTS_DIR_NAME = "Validation Outputs"
+PACKET_VALIDATION_OUTPUT_FILE = "PACKET_VALIDATION_COMMAND_OUTPUTS.md"
+POST_ZIP_RECEIPT_STRATEGY_FILE = "POST_ZIP_RECEIPT_STRATEGY.md"
 PACKET_VALIDATION_MODE_ACTIVE_REVIEW = "active-review"
 PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL = "accepted-historical"
 PACKET_VALIDATION_MODE_NEXT_GATE = "next-gate"
@@ -829,6 +840,42 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         raise
 
 
+def _file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+
+
+def _post_zip_receipt_path(export_zip: Path) -> Path:
+    return export_zip.with_name(f"{export_zip.stem}{POST_ZIP_RECEIPT_SUFFIX}")
+
+
+def _write_post_zip_sidecar_receipt(
+    export_zip: Path,
+    *,
+    source_branch: str,
+    source_head: str,
+    origin_main: str,
+) -> Path:
+    receipt_path = _post_zip_receipt_path(export_zip)
+    receipt_lines = [
+        "# Post-ZIP Receipt",
+        "",
+        "Receipt Purpose: final byte-proof receipt for the timestamped USER review ZIP.",
+        f"Packet ZIP: `{export_zip}`",
+        f"Packet ZIP SHA256: `{_file_sha256(export_zip)}`",
+        f"Source Branch: `{source_branch}`",
+        f"Source Repo HEAD: `{source_head}`",
+        f"Source origin/main: `{origin_main}`",
+        "Packet-Contained ZIP SHA Classification: `PRE_ZIP_PLACEHOLDER`",
+        "Self-Mutation Boundary: final ZIP SHA256 is recorded outside the ZIP because "
+        "embedding it inside the ZIP would change the ZIP bytes and invalidate the hash.",
+        "Review Use: pair this sidecar with the matching timestamped ZIP; do not treat "
+        "packet-contained PRE_ZIP_PLACEHOLDER lines as final byte proof.",
+        "",
+    ]
+    receipt_path.write_text("\n".join(receipt_lines), encoding="utf-8")
+    return receipt_path
+
+
 def _validate_export_zip(
     export_zip: Path,
     *,
@@ -1138,6 +1185,15 @@ def _current_branch_external_state_dir() -> Path | None:
     return Path(r"C:\Nexus Governance State\branches") / branch_state_dir
 
 
+def _packetize_external_state_context_text(text: str) -> str:
+    return re.sub(
+        r"^USER Review ZIP SHA256:\s*`?[^`\n]+`?\s*$",
+        PACKET_CONTAINED_ZIP_SHA_PLACEHOLDER_LINE,
+        text,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )
+
+
 def _copy_external_state_context(target: Path) -> set[Path]:
     external_state_dir = _current_branch_external_state_dir()
     if external_state_dir is None:
@@ -1150,16 +1206,36 @@ def _copy_external_state_context(target: Path) -> set[Path]:
             continue
         destination = target / SOURCE_TRUTH_CONTEXT_DIR_NAME / copy_name
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, destination)
+        destination.write_text(
+            _packetize_external_state_context_text(source.read_text(encoding="utf-8")),
+            encoding="utf-8",
+        )
         copied.add(destination.resolve())
     return copied
 
 
-def _normalized_external_state_context_text(text: str) -> str:
+def _zip_sha_value_is_nonfinal_placeholder(value: str) -> bool:
+    normalized = value.casefold()
+    return (
+        "pre_zip_placeholder" in normalized
+        or "reference_only" in normalized
+        or "post-zip sidecar" in normalized
+        or "post_zip" in normalized
+    )
+
+
+def _normalized_external_state_context_text(text: str, *, live_text: bool = False) -> str:
     normalized = _normalized_packet_text(text)
+
+    def replace_zip_sha(match: re.Match[str]) -> str:
+        value = match.group(1).strip()
+        if live_text or _zip_sha_value_is_nonfinal_placeholder(value):
+            return "USER Review ZIP SHA256: <self-referential-zip-sha>"
+        return match.group(0)
+
     return re.sub(
-        r"^USER Review ZIP SHA256:\s*`?[^`\n]+`?\s*$",
-        "USER Review ZIP SHA256: <self-referential-zip-sha>",
+        r"^USER Review ZIP SHA256:\s*`?([^`\n]+)`?\s*$",
+        replace_zip_sha,
         normalized,
         flags=re.IGNORECASE | re.MULTILINE,
     )
@@ -1261,7 +1337,7 @@ def _source_truth_context_currentness_failures(
         if (
             validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
             and _normalized_external_state_context_text(copied_text)
-            != _normalized_external_state_context_text(live_text)
+            != _normalized_external_state_context_text(live_text, live_text=True)
         ):
             failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
     if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
@@ -1332,6 +1408,20 @@ def _final_zip_active_metadata_failures(
 
     state_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md", "")
     plan_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", "")
+    if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        for context_file, context_text in (
+            (f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md", state_text),
+            (f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", plan_text),
+        ):
+            for zip_sha in _markdown_field_values(context_text, "USER Review ZIP SHA256"):
+                if re.search(r"\b[0-9a-f]{64}\b", zip_sha, re.IGNORECASE):
+                    failures.append(
+                        f"{context_file}: active-review copied Source Truth Context contains "
+                        "a final-looking USER Review ZIP SHA256; use PRE_ZIP_PLACEHOLDER "
+                        "inside the packet and record final byte proof in the post-ZIP sidecar"
+                    )
+                    source_truth_mismatch = True
+
     state_heads = _markdown_field_values(state_text, "Source Repo HEAD")
     plan_heads = _markdown_field_values(plan_text, "Source Repo HEAD")
     if state_heads and plan_heads and state_heads[0] != plan_heads[0]:
@@ -10824,6 +10914,38 @@ def _write_workstream_entry_packet_digests(
     return written
 
 
+def _write_packet_validation_output_artifacts(
+    *,
+    target: Path,
+    validation_summary: str,
+    export_zip: Path,
+) -> list[Path]:
+    validation_dir = target / VALIDATION_OUTPUTS_DIR_NAME
+    validation_dir.mkdir(parents=True, exist_ok=True)
+    command_output_path = validation_dir / PACKET_VALIDATION_OUTPUT_FILE
+    strategy_path = validation_dir / POST_ZIP_RECEIPT_STRATEGY_FILE
+    command_output_text = validation_summary.strip() or "No command evidence supplied."
+    command_output_path.write_text(
+        "# Packet Validation Command Outputs\n\n"
+        "Evidence Boundary: packet-contained command evidence captured before final ZIP export. "
+        "Final post-ZIP byte proof is recorded in the sidecar receipt beside the ZIP.\n\n"
+        f"{command_output_text}\n",
+        encoding="utf-8",
+    )
+    strategy_path.write_text(
+        "# Post-ZIP Receipt Strategy\n\n"
+        f"Expected Timestamped ZIP: `{export_zip}`\n\n"
+        "Packet-contained copied external state uses "
+        f"`{PACKET_CONTAINED_ZIP_SHA_PLACEHOLDER}` for `USER Review ZIP SHA256` fields.\n\n"
+        f"Final Sidecar Receipt: `{_post_zip_receipt_path(export_zip)}`\n\n"
+        "Reason: the final ZIP SHA256 cannot be embedded inside the same ZIP without changing "
+        "the ZIP bytes. The packet therefore carries a non-final classification, while final "
+        "byte proof is recorded in the sidecar and live external operational state after export.\n",
+        encoding="utf-8",
+    )
+    return [command_output_path.resolve(), strategy_path.resolve()]
+
+
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
     bp1_markers = (
@@ -11543,7 +11665,13 @@ def build_bundle(
         for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES
         if name != "START_HERE.md"
     }
+    validation_output_paths = _write_packet_validation_output_artifacts(
+        target=review_aids_dir,
+        validation_summary=validation_summary,
+        export_zip=export_zip,
+    )
     expected_generated_paths = {user_vision_file.resolve(), user_review_file.resolve(), *digest_paths}
+    expected_generated_paths.update(validation_output_paths)
     primary_source_path = (review_aids_dir / primary_user_review_file_name).resolve()
     primary_destination_path = (user_review_dir / primary_user_review_file_name).resolve()
     if primary_source_path in expected_generated_paths:
@@ -11694,6 +11822,12 @@ def build_bundle(
         origin_main=origin_main,
         expected_label=label,
         expected_entries=expected_zip_entries,
+    )
+    _write_post_zip_sidecar_receipt(
+        export_zip,
+        source_branch=source_branch,
+        source_head=source_head,
+        origin_main=origin_main,
     )
     return target, export_zip
 
@@ -11852,6 +11986,9 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    sidecar_receipt = _post_zip_receipt_path(export_zip)
+    if sidecar_receipt.is_file():
+        print(f"Post-ZIP receipt: {sidecar_receipt}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_VISION_REVIEW_FILE}, {USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "

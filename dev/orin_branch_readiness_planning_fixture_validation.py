@@ -5030,6 +5030,46 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         )
         if not any("Folder/ZIP parity failed" in failure for failure in mismatch_result.failures):
             failures.append("Local USER packet validation did not reject folder/ZIP parity drift")
+
+        copied_context = packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
+        stale_sha = "A" * 64
+        current_head = review_bundle._git_text("rev-parse", "HEAD") or "fixture-head"
+        copied_state = (
+            "# Copied External State\n\n"
+            f"Source Repo HEAD: `{current_head}`\n"
+            f"USER Review ZIP: `{export_zip}`\n"
+            f"USER Review ZIP SHA256: `{stale_sha}`\n"
+        )
+        copied_plan = copied_state.replace("Copied External State", "Copied External Plan")
+        (copied_context / "current_external_branch_state.md").write_text(
+            copied_state,
+            encoding="utf-8",
+        )
+        (copied_context / "current_external_branch_plan.md").write_text(
+            copied_plan,
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        external_state_dir = review_root / "external_state"
+        external_state_dir.mkdir()
+        live_state = copied_state.replace(stale_sha, "B" * 64)
+        live_plan = copied_plan.replace(stale_sha, "B" * 64)
+        (external_state_dir / "branch_state.md").write_text(live_state, encoding="utf-8")
+        (external_state_dir / "branch_plan.md").write_text(live_plan, encoding="utf-8")
+        original_external_state_dir = review_bundle._current_branch_external_state_dir
+        try:
+            review_bundle._current_branch_external_state_dir = lambda: external_state_dir
+            stale_context_result = review_bundle.validate_local_user_packet(
+                packet_dir,
+                export_zip=export_zip,
+                worktree_label="Governance",
+            )
+        finally:
+            review_bundle._current_branch_external_state_dir = original_external_state_dir
+        if not any("final-looking USER Review ZIP SHA256" in failure for failure in stale_context_result.failures):
+            failures.append(
+                "Local USER packet validation did not reject final-looking stale copied USER Review ZIP SHA256"
+            )
     return failures
 
 
