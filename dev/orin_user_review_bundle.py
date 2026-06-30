@@ -967,7 +967,7 @@ def _fam006_child_window_bp1_reviewability_failures(
     packet_files: Mapping[str, str],
     folder_entries: set[str],
 ) -> list[str]:
-    review_text = packet_files.get(USER_BRANCH_VISION_REVIEW_FILE, "")
+    review_text = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
     normalized_review = review_text.casefold().replace("_", "-").replace(" ", "-")
     if not _is_fam006_child_window_primitive_bp1_packet(normalized_review):
         return []
@@ -1026,6 +1026,103 @@ def _fam006_child_window_bp1_reviewability_failures(
         failures.append(
             "FAM-006 BP1 packet reviewability failed: artifact lifecycle proof/ledger is missing"
         )
+    return failures
+
+
+def _fam006_active_final_clean_git_proof_failures(
+    packet_files: Mapping[str, str],
+    *,
+    validation_mode: str,
+) -> list[str]:
+    if validation_mode != PACKET_VALIDATION_MODE_ACTIVE_REVIEW:
+        return []
+
+    review_text = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    normalized_review = review_text.casefold().replace("_", "-").replace(" ", "-")
+    if not _is_fam006_child_window_primitive_bp1_packet(normalized_review):
+        return []
+
+    proof_text = _packet_file_text(packet_files, "git_identity_status.txt")
+    if not proof_text:
+        return [
+            "FAM-006 BP1 packet final-clean proof failed: "
+            "Review Aids/Validation Outputs/git_identity_status.txt is missing"
+        ]
+
+    def git_output(*args: str) -> str:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=ROOT,
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        return result.stdout.strip()
+
+    failures: list[str] = []
+    try:
+        current_head = git_output("rev-parse", "HEAD")
+        current_origin_main = git_output("rev-parse", "origin/main")
+        current_merge_base = git_output("merge-base", "HEAD", "origin/main")
+        origin_counts = git_output("rev-list", "--left-right", "--count", "origin/main...HEAD")
+        upstream_counts = git_output("rev-list", "--left-right", "--count", "@{u}...HEAD")
+        current_status = git_output("status", "--short", "--branch")
+    except subprocess.CalledProcessError as exc:
+        return [
+            "FAM-006 BP1 packet final-clean proof failed: "
+            f"could not read current git identity for comparison: {exc.stderr.strip() or exc}"
+        ]
+
+    status_lines = [line for line in current_status.splitlines() if line.strip()]
+    dirty_lines = [line for line in status_lines if not line.startswith("##")]
+    if dirty_lines:
+        failures.append(
+            "FAM-006 BP1 packet final-clean proof failed: current worktree is dirty "
+            f"while validating active packet proof: {dirty_lines}"
+        )
+
+    packet_status_lines = [
+        line
+        for line in proof_text.splitlines()
+        if re.match(r"^(?:[ MADRCU?!]{1,2}|[?]{2})\s+\S", line)
+    ]
+    if packet_status_lines:
+        failures.append(
+            "FAM-006 BP1 packet final-clean proof failed: packet-contained git proof "
+            f"shows dirty/untracked files: {packet_status_lines}"
+        )
+
+    for label, expected in (
+        ("HEAD", current_head),
+        ("origin/main", current_origin_main),
+        ("merge base", current_merge_base),
+    ):
+        if expected not in proof_text:
+            failures.append(
+                "FAM-006 BP1 packet final-clean proof failed: "
+                f"packet git proof does not include current {label} {expected}"
+            )
+
+    normalized_proof = re.sub(r"[ \t]+", "\t", proof_text)
+    expected_origin_counts = re.sub(r"[ \t]+", "\t", origin_counts)
+    expected_upstream_counts = re.sub(r"[ \t]+", "\t", upstream_counts)
+    if expected_origin_counts not in normalized_proof:
+        failures.append(
+            "FAM-006 BP1 packet final-clean proof failed: packet git proof lacks "
+            f"current origin/main...HEAD ahead/behind output {origin_counts!r}"
+        )
+    if expected_upstream_counts != "0\t0":
+        failures.append(
+            "FAM-006 BP1 packet final-clean proof failed: current branch is not "
+            f"upstream-clean; @{u}...HEAD output is {upstream_counts!r}"
+        )
+    elif expected_upstream_counts not in normalized_proof:
+        failures.append(
+            "FAM-006 BP1 packet final-clean proof failed: packet git proof lacks "
+            "current upstream-clean ahead/behind output '0\t0'"
+        )
+
     return failures
 
 
@@ -3084,6 +3181,12 @@ def validate_local_user_packet(
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_retained_bp_prerequisite_failures(packet_files, folder_entries))
     failures.extend(_fam006_child_window_bp1_reviewability_failures(packet_files, folder_entries))
+    failures.extend(
+        _fam006_active_final_clean_git_proof_failures(
+            packet_files,
+            validation_mode=validation_mode,
+        )
+    )
     failures.extend(
         _fam003_lv1_visual_retest_semantic_failures(
             packet_files,
