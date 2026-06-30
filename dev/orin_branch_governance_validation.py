@@ -20683,7 +20683,7 @@ def _run_standing_governance_intake_gate(require) -> None:
     )
     latest_closed_cycle = latest_closed_cycles[-1] if latest_closed_cycles else ""
     closeout_cycle_recorded = bool(
-        (latest_closed_cycle or external_latest_closed_cycle)
+        external_latest_closed_cycle
         and active_cycle_external_owner_recorded
         and external_no_active_cycle
         and external_return_digest_closeout
