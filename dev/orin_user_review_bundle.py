@@ -920,8 +920,13 @@ def _validate_export_zip(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
         )
+    generated_packet_files = {
+        name: text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    }
     artifact_failures = [
-        *_unresolved_template_placeholder_failures(packet_files),
+        *_unresolved_template_placeholder_failures(generated_packet_files),
         *_packet_identity_failures(
             packet_files,
             expected_branch=source_branch,
