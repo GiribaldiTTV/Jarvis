@@ -1,6 +1,7 @@
 (() => {
   const commandPrefix = "NEXUS_AI_CONTROL_CENTER_COMMAND:";
   const stateTaxonomyContract = "ai-dashboard-ai-control-center-state-taxonomy-v1";
+  const dashboardViewModelContract = "ai-dashboard-provider-state-view-model-v1";
   const requiredStateTaxonomyStates = [
     "no-provider-fail-closed",
     "provider-unavailable",
@@ -387,6 +388,116 @@
   };
   window.nexusAiControlCenterSyncDashboardLayout = syncDashboardLayout;
 
+  const buildDashboardViewModel = () => {
+    const providerRuntimeBlocked = (
+      providerState.providerExecutionGateState === "provider-execution-disabled"
+      && providerState.modelExecutionGateState === "model-execution-disabled"
+    );
+    const promptDisabled = (
+      providerState.promptSendPosture === "prompt-send-disabled"
+      && providerState.promptAcceptance === "disabled"
+      && providerState.memoryIndexingState === "memory-indexing-disabled"
+    );
+    const privacyProtected = (
+      providerState.providerVisibleData === "none"
+      && providerState.sentToProvider === false
+      && providerState.networkEgressState === "network-egress-blocked"
+    );
+    const installBlocked = (
+      String(providerState.installIntentState || "").includes("blocked")
+      || String(providerState.capabilityPackInstallState || "").includes("blocked")
+    );
+    const updatesBlocked = String(providerState.capabilityPackUpdateState || "").includes("blocked");
+    const rows = {
+      controlCenter: {
+        aiPersona: "None; ORIN persona not implemented",
+        providerRuntime: providerRuntimeBlocked
+          ? "Blocked; no model path active"
+          : "Blocked; provider state requires review",
+        privacy: privacyProtected
+          ? "Protected; no provider or third-party tracking"
+          : "Protected; fail-closed boundary mismatch",
+      },
+      readinessDiagnostics: {
+        readinessCheck: "Waiting for USER action",
+        readinessReport: "Local decision aid behind diagnostics",
+        prompt: promptDisabled
+          ? "Not accepted, sent, stored, or indexed"
+          : "Not accepted; prompt boundary mismatch",
+      },
+      capabilitiesMaintenance: {
+        capabilityPacks: installBlocked
+          ? "Install blocked; downloads disabled"
+          : "Install unavailable; capability proof required",
+        maintenanceUpdates: updatesBlocked
+          ? "Future-gated; no install execution"
+          : "Future-gated; update state requires review",
+      },
+    };
+    return {
+      contract: dashboardViewModelContract,
+      source: "AIProviderStateSnapshot.as_renderer_payload",
+      sourceFields: {
+        providerExecutionGateState: providerState.providerExecutionGateState || "",
+        modelExecutionGateState: providerState.modelExecutionGateState || "",
+        providerVisibleData: providerState.providerVisibleData || "",
+        sentToProvider: providerState.sentToProvider === false ? "false" : String(providerState.sentToProvider || ""),
+        networkEgressState: providerState.networkEgressState || "",
+        promptSendPosture: providerState.promptSendPosture || "",
+        promptAcceptance: providerState.promptAcceptance || "",
+        memoryIndexingState: providerState.memoryIndexingState || "",
+        installIntentState: providerState.installIntentState || "",
+        capabilityPackInstallState: providerState.capabilityPackInstallState || "",
+        capabilityPackUpdateState: providerState.capabilityPackUpdateState || "",
+        recoveryLabel: providerState.aiControlCenterRecoveryLabel || "Retry local check only",
+      },
+      disabledActions: {
+        providerModelExecution: providerRuntimeBlocked,
+        promptSend: promptDisabled,
+        providerVisibleDataEgress: privacyProtected,
+        capabilityInstallDownload: installBlocked,
+        maintenanceUpdateExecution: updatesBlocked,
+      },
+      recoveryGuidance: {
+        label: providerState.aiControlCenterRecoveryLabel || "Retry local check only",
+        detail: providerState.aiControlCenterRecoveryDetail || "Recovery remains local-only; provider setup and execution stay future-gated.",
+      },
+      rows,
+    };
+  };
+
+  const applyDashboardViewModel = () => {
+    const viewModel = buildDashboardViewModel();
+    window.nexusAiControlCenterCurrentViewModel = viewModel;
+    setText("ai-dashboard-ai-persona-value", viewModel.rows.controlCenter.aiPersona);
+    setText("ai-dashboard-provider-runtime-value", viewModel.rows.controlCenter.providerRuntime);
+    setText("ai-dashboard-privacy-value", viewModel.rows.controlCenter.privacy);
+    setText("ai-dashboard-readiness-check-value", viewModel.rows.readinessDiagnostics.readinessCheck);
+    setText("ai-dashboard-readiness-report-value", viewModel.rows.readinessDiagnostics.readinessReport);
+    setText("ai-dashboard-prompt-value", viewModel.rows.readinessDiagnostics.prompt);
+    setText("ai-dashboard-capability-packs-value", viewModel.rows.capabilitiesMaintenance.capabilityPacks);
+    setText("ai-dashboard-maintenance-updates-value", viewModel.rows.capabilitiesMaintenance.maintenanceUpdates);
+    const surface = byId("monitoring-hud");
+    if (surface) {
+      Object.assign(surface.dataset, {
+        viewModelContract: viewModel.contract,
+        viewModelSource: viewModel.source,
+        viewModelState: "provider-payload-applied",
+        viewModelProviderRuntimeBlocked: viewModel.disabledActions.providerModelExecution ? "true" : "false",
+        viewModelPromptSendDisabled: viewModel.disabledActions.promptSend ? "true" : "false",
+        viewModelProviderVisibleDataNone: viewModel.sourceFields.providerVisibleData === "none" ? "true" : "false",
+        viewModelRecoveryGuidance: viewModel.recoveryGuidance.label,
+      });
+    }
+    document.querySelectorAll("[data-view-model-key]").forEach((row) => {
+      row.dataset.viewModelContract = viewModel.contract;
+      row.dataset.viewModelBound = "provider-payload";
+    });
+    return viewModel;
+  };
+  window.nexusAiControlCenterBuildDashboardViewModel = buildDashboardViewModel;
+  window.nexusAiControlCenterApplyDashboardViewModel = applyDashboardViewModel;
+
   const syncStateTaxonomyContract = () => {
     const surface = byId("monitoring-hud");
     if (!surface) {
@@ -493,6 +604,7 @@
 
   window.nexusAiControlCenterApplyProviderState = (payload) => {
     providerState = payload && typeof payload === "object" ? payload : {};
+    const dashboardViewModel = applyDashboardViewModel();
     syncStateTaxonomyContract();
     const firstText = (...values) => {
       for (const value of values) {
@@ -545,6 +657,7 @@
       "Capability packs unavailable",
     );
     const recoveryLabel = firstText(
+      dashboardViewModel.recoveryGuidance.label,
       providerState.aiControlCenterRecoveryLabel,
       "Retry local check only",
     );

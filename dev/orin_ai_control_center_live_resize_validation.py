@@ -34,6 +34,7 @@ from desktop.ai_provider_state import (  # noqa: E402
 from desktop.desktop_renderer import AIControlCenterDialog  # noqa: E402
 
 STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
+VIEW_MODEL_CONTRACT = "ai-dashboard-provider-state-view-model-v1"
 REQUIRED_STATE_TAXONOMY_STATES = {
     "no-provider-fail-closed",
     "provider-unavailable",
@@ -1448,6 +1449,12 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             stateTaxonomyRequiredStates: surface?.dataset.stateTaxonomyRequiredStates || "",
             stateTaxonomyRenderedStates: surface?.dataset.stateTaxonomyRenderedStates || "",
             stateTaxonomyComplete: surface?.dataset.stateTaxonomyComplete || "",
+            viewModelContract: surface?.dataset.viewModelContract || "",
+            viewModelSource: surface?.dataset.viewModelSource || "",
+            viewModelState: surface?.dataset.viewModelState || "",
+            viewModelProviderRuntimeBlocked: surface?.dataset.viewModelProviderRuntimeBlocked || "",
+            viewModelPromptSendDisabled: surface?.dataset.viewModelPromptSendDisabled || "",
+            viewModelProviderVisibleDataNone: surface?.dataset.viewModelProviderVisibleDataNone || "",
             providerVisibleDataState: surface?.dataset.providerVisibleDataState || "",
             noProviderState: surface?.dataset.noProviderState || "",
             promptExecutionState: surface?.dataset.promptExecutionState || "",
@@ -1473,6 +1480,7 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             updateExecution: document.querySelector("[data-update-execution]")?.dataset.updateExecution || "",
             downloadExecution: document.querySelector("[data-download-execution]")?.dataset.downloadExecution || "",
             installExecution: document.querySelector("[data-install-execution]")?.dataset.installExecution || "",
+            domainViewModel: window.nexusAiDomainCurrentViewModel || null,
             bodyText: document.body.innerText.replace(/\\s+/g, " ").trim()
           });
         })();
@@ -1503,6 +1511,8 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
         "propertyStateTaxonomyComplete": str(window.property("aiControlCenterStateTaxonomyComplete") or ""),
         "propertyDiagnosticState": str(window.property("aiControlCenterDiagnosticState") or ""),
         "propertyStateTaxonomyRenderedStates": str(window.property("aiControlCenterStateTaxonomyRenderedStates") or ""),
+        "propertyViewModelContract": str(window.property("aiDashboardProviderStateViewModelContract") or ""),
+        "propertyViewModelApplied": str(window.property("aiDashboardProviderStateViewModelApplied") or ""),
         "rect": rect,
         "dom": dom,
     }
@@ -2488,12 +2498,23 @@ def main() -> int:
                     label: row.querySelector("span")?.textContent.trim() || "",
                     value: row.querySelector("strong")?.textContent.trim() || "",
                     taxonomyKey: row.dataset.stateTaxonomyKey || "",
-                    taxonomyValue: row.dataset.stateTaxonomyValue || ""
+                    taxonomyValue: row.dataset.stateTaxonomyValue || "",
+                    viewModelKey: row.dataset.viewModelKey || "",
+                    viewModelContract: row.dataset.viewModelContract || "",
+                    viewModelBound: row.dataset.viewModelBound || ""
                   }))
                 ])),
                 stateTaxonomyContract: surface?.dataset.stateTaxonomyContract || "",
                 stateTaxonomySource: surface?.dataset.stateTaxonomySource || "",
                 stateTaxonomyRendering: surface?.dataset.stateTaxonomyRendering || "",
+                viewModelContract: surface?.dataset.viewModelContract || "",
+                viewModelSource: surface?.dataset.viewModelSource || "",
+                viewModelState: surface?.dataset.viewModelState || "",
+                viewModelProviderRuntimeBlocked: surface?.dataset.viewModelProviderRuntimeBlocked || "",
+                viewModelPromptSendDisabled: surface?.dataset.viewModelPromptSendDisabled || "",
+                viewModelProviderVisibleDataNone: surface?.dataset.viewModelProviderVisibleDataNone || "",
+                viewModelRecoveryGuidance: surface?.dataset.viewModelRecoveryGuidance || "",
+                dashboardViewModel: window.nexusAiControlCenterCurrentViewModel || null,
                 stateTaxonomyRequiredStates: surface?.dataset.stateTaxonomyRequiredStates || "",
                 stateTaxonomyRenderedStates: surface?.dataset.stateTaxonomyRenderedStates || "",
                 stateTaxonomyComplete: surface?.dataset.stateTaxonomyComplete || "",
@@ -3170,6 +3191,36 @@ def main() -> int:
             return False
         if any(pair.get("key") == "" or pair.get("value") == "" for pair in pairs if isinstance(pair, dict)):
             return False
+        expected_control_taxonomy_rows = [
+            {
+                "label": "AI Persona",
+                "value": "None; ORIN persona not implemented",
+                "taxonomyKey": "ai-persona",
+                "taxonomyValue": "none-orin-persona-not-implemented",
+            },
+            {
+                "label": "Provider",
+                "value": "Blocked; no model path active",
+                "taxonomyKey": "provider-model-runtime",
+                "taxonomyValue": "blocked-no-model-path",
+            },
+            {
+                "label": "Privacy",
+                "value": "Protected; no provider or third-party tracking",
+                "taxonomyKey": "provider-visible-data",
+                "taxonomyValue": "none",
+            },
+        ]
+        control_rows = rows.get("control-center")
+        control_rows_ok = (
+            isinstance(control_rows, list)
+            and len(control_rows) == len(expected_control_taxonomy_rows)
+            and all(
+                isinstance(actual, dict)
+                and all(actual.get(key) == value for key, value in expected.items())
+                for actual, expected in zip(control_rows, expected_control_taxonomy_rows)
+            )
+        )
         return (
             control_card.get("contract") == STATE_TAXONOMY_CONTRACT
             and control_card.get("scope") == "ai-control-center-card-1"
@@ -3183,26 +3234,82 @@ def main() -> int:
             and readiness_card.get("promptExecutionState") == "prompt-send-disabled"
             and capabilities_card.get("unavailableCapabilityState") == "unavailable-capability"
             and capabilities_card.get("blockedActionState") == "blocked-action"
-            and rows.get("control-center") == [
-                {
-                    "label": "AI Persona",
-                    "value": "None; ORIN persona not implemented",
-                    "taxonomyKey": "ai-persona",
-                    "taxonomyValue": "none-orin-persona-not-implemented",
-                },
-                {
-                    "label": "Provider",
-                    "value": "Blocked; no model path active",
-                    "taxonomyKey": "provider-model-runtime",
-                    "taxonomyValue": "blocked-no-model-path",
-                },
-                {
-                    "label": "Privacy",
-                    "value": "Protected; no provider or third-party tracking",
-                    "taxonomyKey": "provider-visible-data",
-                    "taxonomyValue": "none",
-                },
-            ]
+            and control_rows_ok
+        )
+
+    def _dashboard_view_model_ok() -> bool:
+        view_model = dashboard_probe.get("dashboardViewModel")
+        rows = dashboard_probe.get("stateTaxonomyRows")
+        if not isinstance(view_model, dict) or not isinstance(rows, dict):
+            return False
+        source_fields = view_model.get("sourceFields")
+        disabled_actions = view_model.get("disabledActions")
+        model_rows = view_model.get("rows")
+        recovery = view_model.get("recoveryGuidance")
+        if not isinstance(source_fields, dict) or not isinstance(disabled_actions, dict):
+            return False
+        if not isinstance(model_rows, dict) or not isinstance(recovery, dict):
+            return False
+        expected_values = {
+            "aiPersona": "None; ORIN persona not implemented",
+            "providerRuntime": "Blocked; no model path active",
+            "privacy": "Protected; no provider or third-party tracking",
+            "readinessCheck": "Waiting for USER action",
+            "readinessReport": "Local decision aid behind diagnostics",
+            "prompt": "Not accepted, sent, stored, or indexed",
+            "capabilityPacks": "Install blocked; downloads disabled",
+            "maintenanceUpdates": "Future-gated; no install execution",
+        }
+        flattened_values = {
+            "aiPersona": (model_rows.get("controlCenter") or {}).get("aiPersona"),
+            "providerRuntime": (model_rows.get("controlCenter") or {}).get("providerRuntime"),
+            "privacy": (model_rows.get("controlCenter") or {}).get("privacy"),
+            "readinessCheck": (model_rows.get("readinessDiagnostics") or {}).get("readinessCheck"),
+            "readinessReport": (model_rows.get("readinessDiagnostics") or {}).get("readinessReport"),
+            "prompt": (model_rows.get("readinessDiagnostics") or {}).get("prompt"),
+            "capabilityPacks": (model_rows.get("capabilitiesMaintenance") or {}).get("capabilityPacks"),
+            "maintenanceUpdates": (model_rows.get("capabilitiesMaintenance") or {}).get("maintenanceUpdates"),
+        }
+        row_key_to_value = {}
+        for grouped_rows in rows.values():
+            if not isinstance(grouped_rows, list):
+                return False
+            for row in grouped_rows:
+                if isinstance(row, dict):
+                    row_key_to_value[str(row.get("viewModelKey") or "")] = row
+        return (
+            dashboard_probe.get("viewModelContract") == VIEW_MODEL_CONTRACT
+            and dashboard_probe.get("viewModelSource") == "AIProviderStateSnapshot.as_renderer_payload"
+            and dashboard_probe.get("viewModelState") == "provider-payload-applied"
+            and dashboard_probe.get("viewModelProviderRuntimeBlocked") == "true"
+            and dashboard_probe.get("viewModelPromptSendDisabled") == "true"
+            and dashboard_probe.get("viewModelProviderVisibleDataNone") == "true"
+            and dashboard_probe.get("viewModelRecoveryGuidance") == "Retry local check only"
+            and view_model.get("contract") == VIEW_MODEL_CONTRACT
+            and view_model.get("source") == "AIProviderStateSnapshot.as_renderer_payload"
+            and source_fields.get("providerExecutionGateState") == "provider-execution-disabled"
+            and source_fields.get("modelExecutionGateState") == "model-execution-disabled"
+            and source_fields.get("providerVisibleData") == "none"
+            and source_fields.get("sentToProvider") == "false"
+            and source_fields.get("networkEgressState") == "network-egress-blocked"
+            and source_fields.get("promptSendPosture") == "prompt-send-disabled"
+            and source_fields.get("memoryIndexingState") == "memory-indexing-disabled"
+            and disabled_actions == {
+                "providerModelExecution": True,
+                "promptSend": True,
+                "providerVisibleDataEgress": True,
+                "capabilityInstallDownload": True,
+                "maintenanceUpdateExecution": True,
+            }
+            and recovery.get("label") == "Retry local check only"
+            and flattened_values == expected_values
+            and set(row_key_to_value.keys()) == set(expected_values.keys())
+            and all(
+                row_key_to_value[key].get("value") == value
+                and row_key_to_value[key].get("viewModelContract") == VIEW_MODEL_CONTRACT
+                and row_key_to_value[key].get("viewModelBound") == "provider-payload"
+                for key, value in expected_values.items()
+            )
         )
 
     def _domain_launch_ok(domain_id: str) -> bool:
@@ -3246,6 +3353,8 @@ def main() -> int:
             and probe.get("propertyStateTaxonomyComplete") == "true"
             and probe.get("propertyDiagnosticState") == "no-provider-fail-closed"
             and REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(probe.get("propertyStateTaxonomyRenderedStates")))
+            and probe.get("propertyViewModelContract") == VIEW_MODEL_CONTRACT
+            and probe.get("propertyViewModelApplied") == "true"
             and dom.get("domDomain") == domain_id
             and dom.get("domClassification") == classification
             and dom.get("domLifecycle") == lifecycle
@@ -3259,6 +3368,13 @@ def main() -> int:
             and dom.get("stateTaxonomySource") == "AIProviderStateSnapshot.aiControlCenterStateTaxonomy"
             and dom.get("stateTaxonomyScope") == domain_id
             and dom.get("stateTaxonomyComplete") == "true"
+            and dom.get("viewModelContract") == VIEW_MODEL_CONTRACT
+            and dom.get("viewModelSource") == "AIProviderStateSnapshot.as_renderer_payload"
+            and dom.get("viewModelState") == "provider-payload-applied"
+            and dom.get("viewModelProviderRuntimeBlocked") == "true"
+            and dom.get("viewModelPromptSendDisabled") == "true"
+            and dom.get("viewModelProviderVisibleDataNone") == "true"
+            and (dom.get("domainViewModel") or {}).get("contract") == VIEW_MODEL_CONTRACT
             and REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(dom.get("stateTaxonomyRequiredStates")))
             and REQUIRED_STATE_TAXONOMY_STATES.issubset(_states_from_text(dom.get("stateTaxonomyRenderedStates")))
             and dom.get("providerVisibleDataState") == "none"
@@ -3349,6 +3465,7 @@ def main() -> int:
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
         "aiDashboardStateTaxonomyContractProven": _dashboard_state_taxonomy_ok(),
+        "aiDashboardProviderStateViewModelProven": _dashboard_view_model_ok(),
         "doorwayButtonsOpenDomainWindowsNoInlineActions": (
             actual_doorway_labels == ["Open", "Open", "Open"]
             and len(dashboard_probe.get("launchers") or []) == 0
@@ -3777,6 +3894,9 @@ def main() -> int:
             "providerTaxonomyStates": sorted(provider_taxonomy_states),
             "dashboardTaxonomyComplete": dashboard_probe.get("stateTaxonomyComplete"),
             "dashboardTaxonomyRenderedStates": dashboard_probe.get("stateTaxonomyRenderedStates"),
+            "viewModelContract": VIEW_MODEL_CONTRACT,
+            "dashboardViewModelState": dashboard_probe.get("viewModelState"),
+            "dashboardViewModelRecoveryGuidance": dashboard_probe.get("viewModelRecoveryGuidance"),
         },
         "events": events,
         "checks": checks,

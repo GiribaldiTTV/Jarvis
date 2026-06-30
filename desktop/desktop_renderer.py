@@ -3832,6 +3832,7 @@ class AIDashboardDomainWindow(QDialog):
     RESIZE_MARGIN = 12
     SHELL_RADIUS = 24
     STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
+    VIEW_MODEL_CONTRACT = "ai-dashboard-provider-state-view-model-v1"
     REQUIRED_STATE_TAXONOMY_STATES = (
         "no-provider-fail-closed",
         "provider-unavailable",
@@ -3903,6 +3904,8 @@ class AIDashboardDomainWindow(QDialog):
         self.setProperty("aiControlCenterStateTaxonomyComplete", "false")
         self.setProperty("aiControlCenterDiagnosticState", "no-provider-fail-closed")
         self.setProperty("aiControlCenterStateTaxonomyRenderedStates", "")
+        self.setProperty("aiDashboardProviderStateViewModelContract", self.VIEW_MODEL_CONTRACT)
+        self.setProperty("aiDashboardProviderStateViewModelApplied", "false")
         self.setProperty("ndaiShellConformance", "ndai-webview-rounded-window-shell")
         self.setProperty("windowMoveBehavior", "header-drag")
         self.setProperty("windowResizeBehavior", "edge-corner-resize")
@@ -4307,7 +4310,7 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-view-model-contract="{escape(self.VIEW_MODEL_CONTRACT)}" data-view-model-source="AIProviderStateSnapshot.as_renderer_payload" data-view-model-state="pending-provider-payload" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
     <section class="ai-domain-window__chrome">
       <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
         <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
@@ -4324,6 +4327,7 @@ class AIDashboardDomainWindow(QDialog):
   <script>
     const prefix = "NEXUS_AI_DOMAIN_WINDOW_COMMAND:";
     const stateTaxonomyContract = "{escape(self.STATE_TAXONOMY_CONTRACT)}";
+    const viewModelContract = "{escape(self.VIEW_MODEL_CONTRACT)}";
     const requiredStateTaxonomyStates = {json.dumps(list(self.REQUIRED_STATE_TAXONOMY_STATES))};
     let providerState = {{}};
     let reportText = "";
@@ -4368,6 +4372,55 @@ class AIDashboardDomainWindow(QDialog):
       && providerState.promptSendPosture === "prompt-send-disabled"
       && providerState.networkEgressState === "network-egress-blocked"
       && providerState.memoryIndexingState === "memory-indexing-disabled";
+    const buildDomainViewModel = () => {{
+      const providerVisibleDataNone = providerState.providerVisibleData === "none";
+      const providerRuntimeBlocked = providerState.providerExecutionGateState === "provider-execution-disabled"
+        && providerState.modelExecutionGateState === "model-execution-disabled";
+      const promptDisabled = providerState.promptSendPosture === "prompt-send-disabled"
+        && providerState.memoryIndexingState === "memory-indexing-disabled";
+      const installBlocked = String(providerState.installIntentState || "").includes("blocked")
+        || String(providerState.capabilityPackInstallState || "").includes("blocked");
+      return {{
+        contract: viewModelContract,
+        source: "AIProviderStateSnapshot.as_renderer_payload",
+        providerVisibleData: providerVisibleDataNone ? "None" : String(providerState.providerVisibleData || "None"),
+        providerModel: providerRuntimeBlocked ? "Disabled and blocked" : "Disabled; provider state requires review",
+        promptMemory: promptDisabled ? "Not accepted, sent, stored, or indexed" : "Not accepted; prompt boundary mismatch",
+        capabilityPacks: installBlocked ? "Install blocked; downloads disabled" : "Install unavailable; capability proof required",
+        maintenanceUpdates: "Lifecycle placement only; update execution blocked",
+        localResult: "Waiting for local action",
+        localDetail: providerState.providerVisibleDataDetail || "No prompt, file, memory, telemetry, or provider config is sent.",
+        disabledActions: {{
+          providerModelExecution: providerRuntimeBlocked,
+          promptSend: promptDisabled,
+          capabilityInstallDownload: installBlocked,
+          providerVisibleDataEgress: providerVisibleDataNone && providerState.sentToProvider === false,
+        }},
+      }};
+    }};
+    const applyDomainViewModel = () => {{
+      const viewModel = buildDomainViewModel();
+      window.nexusAiDomainCurrentViewModel = viewModel;
+      const surface = document.querySelector("[data-ai-dashboard-child-window]");
+      if (surface) {{
+        Object.assign(surface.dataset, {{
+          viewModelContract: viewModel.contract,
+          viewModelSource: viewModel.source,
+          viewModelState: "provider-payload-applied",
+          viewModelProviderRuntimeBlocked: viewModel.disabledActions.providerModelExecution ? "true" : "false",
+          viewModelPromptSendDisabled: viewModel.disabledActions.promptSend ? "true" : "false",
+          viewModelProviderVisibleDataNone: viewModel.disabledActions.providerVisibleDataEgress ? "true" : "false",
+        }});
+      }}
+      setText("provider-visible-data", viewModel.providerVisibleData);
+      setText("provider-model", viewModel.providerModel);
+      setText("prompt-memory", viewModel.promptMemory);
+      setText("capability-packs", viewModel.capabilityPacks);
+      setText("maintenance-updates", viewModel.maintenanceUpdates);
+      setText("local-result", viewModel.localResult);
+      setText("local-detail", viewModel.localDetail);
+      return viewModel;
+    }};
     const syncStateTaxonomyContract = () => {{
       const surface = document.querySelector("[data-ai-dashboard-child-window]");
       if (!surface) return;
@@ -4400,15 +4453,16 @@ class AIDashboardDomainWindow(QDialog):
     }};
     window.nexusAiDomainApplyProviderState = (payload) => {{
       providerState = payload && typeof payload === "object" ? payload : {{}};
+      const viewModel = applyDomainViewModel();
       syncStateTaxonomyContract();
-      setText("provider-visible-data", providerState.providerVisibleData === "none" ? "None" : providerState.providerVisibleData || "None");
-      setText("provider-model", "Disabled and blocked");
-      setText("prompt-memory", "Not accepted, sent, stored, or indexed");
-      setText("capability-packs", "Install blocked; downloads disabled");
-      setText("maintenance-updates", "Lifecycle placement only; update execution blocked");
+      setText("provider-visible-data", viewModel.providerVisibleData);
+      setText("provider-model", viewModel.providerModel);
+      setText("prompt-memory", viewModel.promptMemory);
+      setText("capability-packs", viewModel.capabilityPacks);
+      setText("maintenance-updates", viewModel.maintenanceUpdates);
       setText("edition-lanes", "Public only; Developer and Owner gated");
-      setText("local-result", "Waiting for local action");
-      setText("local-detail", providerState.providerVisibleDataDetail || "No prompt, file, memory, telemetry, or provider config is sent.");
+      setText("local-result", viewModel.localResult);
+      setText("local-detail", viewModel.localDetail);
       setText("report-state", "Not generated");
       setText("report-summary", "Generate the report to inspect local readiness.");
       const body = byId("report-body");
@@ -4607,6 +4661,8 @@ class AIDashboardDomainWindow(QDialog):
         complete = set(self.REQUIRED_STATE_TAXONOMY_STATES).issubset(set(rendered_states))
         self.setProperty("aiControlCenterStateTaxonomyContract", self.STATE_TAXONOMY_CONTRACT)
         self.setProperty("aiControlCenterStateTaxonomyComplete", "true" if complete else "false")
+        self.setProperty("aiDashboardProviderStateViewModelContract", self.VIEW_MODEL_CONTRACT)
+        self.setProperty("aiDashboardProviderStateViewModelApplied", "true")
         self.setProperty(
             "aiControlCenterDiagnosticState",
             str(self._provider_payload.get("aiControlCenterDiagnosticState") or "no-provider-fail-closed"),

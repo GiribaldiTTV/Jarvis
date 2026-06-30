@@ -9090,6 +9090,9 @@ def validate() -> list[str]:
         "aiControlCenterStateTaxonomyContract",
         "aiControlCenterStateTaxonomyComplete",
         "aiControlCenterStateTaxonomyRenderedStates",
+        "ai-dashboard-provider-state-view-model-v1",
+        "aiDashboardProviderStateViewModelContract",
+        "aiDashboardProviderStateViewModelApplied",
     ):
         _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
 
@@ -9197,6 +9200,16 @@ def validate() -> list[str]:
         'data-dashboard-visible-name="AI Dashboard"',
         'data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"',
         'data-global-ai-strip="compact-truth-state-no-provider-no-execution"',
+        'data-view-model-contract="ai-dashboard-provider-state-view-model-v1"',
+        'data-view-model-source="AIProviderStateSnapshot.as_renderer_payload"',
+        'id="ai-dashboard-ai-persona-value"',
+        'id="ai-dashboard-provider-runtime-value"',
+        'id="ai-dashboard-privacy-value"',
+        'id="ai-dashboard-readiness-check-value"',
+        'id="ai-dashboard-readiness-report-value"',
+        'id="ai-dashboard-prompt-value"',
+        'id="ai-dashboard-capability-packs-value"',
+        'id="ai-dashboard-maintenance-updates-value"',
         'data-below-title-text-weight="720-standard"',
         'data-row-label-column-source="max-visible-label-content"',
         'data-row-value-gutter="8"',
@@ -9419,6 +9432,7 @@ def validate() -> list[str]:
         '"dashboardHubActiveDoorwayLifecycle"',
         '"doorwayButtonsOpenDomainWindowsNoInlineActions"',
         '"aiDashboardStateTaxonomyContractProven"',
+        '"aiDashboardProviderStateViewModelProven"',
         '"activeDomainWindowLaunchChromeAndGeometry"',
         '"readinessDiagnosticsLocalActionsStayInsideChild"',
         '"domainLaunchProbe"',
@@ -9480,8 +9494,10 @@ def validate() -> list[str]:
         '"settingsTooltipProbe"',
         '"settingsOptionBDisposition"',
         "STATE_TAXONOMY_CONTRACT",
+        "VIEW_MODEL_CONTRACT",
         "REQUIRED_STATE_TAXONOMY_STATES",
         "stateTaxonomyContract",
+        "dashboardViewModel",
     ):
         _require(
             needle in live_resize_helper,
@@ -9544,6 +9560,13 @@ def validate() -> list[str]:
         "providerVisibleDataState",
         "promptExecutionState",
         "providerModelRuntimeState",
+        "dashboardViewModelContract",
+        "nexusAiControlCenterBuildDashboardViewModel",
+        "nexusAiControlCenterApplyDashboardViewModel",
+        "nexusAiControlCenterCurrentViewModel",
+        "ai-dashboard-provider-state-view-model-v1",
+        "viewModelProviderRuntimeBlocked",
+        "viewModelPromptSendDisabled",
     ):
         _require(
             needle in ai_control_js,

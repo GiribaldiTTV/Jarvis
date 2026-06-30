@@ -746,6 +746,9 @@
     data-state-taxonomy-contract="ai-dashboard-ai-control-center-state-taxonomy-v1"
     data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy"
     data-state-taxonomy-rendering="backend-payload-to-dashboard-and-child-domain-metadata"
+    data-view-model-contract="ai-dashboard-provider-state-view-model-v1"
+    data-view-model-source="AIProviderStateSnapshot.as_renderer_payload"
+    data-view-model-state="pending-provider-payload"
     data-state-taxonomy-required-states="no-provider-fail-closed provider-unavailable stale-state-fail-closed failed-check-fail-closed retry-local-check-only recovery-local-only blocked-action unavailable-capability degraded-no-provider"
     data-ai-persona-state="none-orin-persona-not-implemented"
     data-ai-status-state="not-implemented"
@@ -876,17 +879,17 @@
               <p class="monitoring-hud__hub-card-description">Persona and provider boundary doorway.</p>
             </div>
             <div class="ai-control-center-card-rows" aria-label="AI persona status and trust rows">
-              <div class="monitoring-hud__state-row" data-state-taxonomy-key="ai-persona" data-state-taxonomy-value="none-orin-persona-not-implemented">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="ai-persona" data-state-taxonomy-value="none-orin-persona-not-implemented" data-view-model-key="aiPersona">
                 <span>AI Persona</span>
-                <strong>None; ORIN persona not implemented</strong>
+                <strong id="ai-dashboard-ai-persona-value">None; ORIN persona not implemented</strong>
               </div>
-              <div class="monitoring-hud__state-row" data-state-taxonomy-key="provider-model-runtime" data-state-taxonomy-value="blocked-no-model-path">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="provider-model-runtime" data-state-taxonomy-value="blocked-no-model-path" data-view-model-key="providerRuntime">
                 <span>Provider</span>
-                <strong>Blocked; no model path active</strong>
+                <strong id="ai-dashboard-provider-runtime-value">Blocked; no model path active</strong>
               </div>
-              <div class="monitoring-hud__state-row" data-state-taxonomy-key="provider-visible-data" data-state-taxonomy-value="none">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="provider-visible-data" data-state-taxonomy-value="none" data-view-model-key="privacy">
                 <span>Privacy</span>
-                <strong>Protected; no provider or third-party tracking</strong>
+                <strong id="ai-dashboard-privacy-value">Protected; no provider or third-party tracking</strong>
               </div>
             </div>
             <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
@@ -933,17 +936,17 @@
                 <p class="monitoring-hud__hub-card-description">Local checks and diagnostics doorway.</p>
               </div>
               <div class="ai-control-center-card-rows" aria-label="AI readiness and diagnostics rows">
-                <div class="monitoring-hud__state-row" data-state-taxonomy-key="retry" data-state-taxonomy-value="retry-local-check-only">
+                <div class="monitoring-hud__state-row" data-state-taxonomy-key="retry" data-state-taxonomy-value="retry-local-check-only" data-view-model-key="readinessCheck">
                   <span>Check</span>
-                  <strong>Waiting for USER action</strong>
+                  <strong id="ai-dashboard-readiness-check-value">Waiting for USER action</strong>
                 </div>
-                <div class="monitoring-hud__state-row" data-state-taxonomy-key="recovery" data-state-taxonomy-value="recovery-local-only">
+                <div class="monitoring-hud__state-row" data-state-taxonomy-key="recovery" data-state-taxonomy-value="recovery-local-only" data-view-model-key="readinessReport">
                   <span>Report</span>
-                  <strong>Local decision aid behind diagnostics</strong>
+                  <strong id="ai-dashboard-readiness-report-value">Local decision aid behind diagnostics</strong>
                 </div>
-                <div class="monitoring-hud__state-row" data-state-taxonomy-key="prompt-execution" data-state-taxonomy-value="prompt-send-disabled">
+                <div class="monitoring-hud__state-row" data-state-taxonomy-key="prompt-execution" data-state-taxonomy-value="prompt-send-disabled" data-view-model-key="prompt">
                   <span>Prompt</span>
-                  <strong>Not accepted, sent, stored, or indexed</strong>
+                  <strong id="ai-dashboard-prompt-value">Not accepted, sent, stored, or indexed</strong>
                 </div>
               </div>
               <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
@@ -990,13 +993,13 @@
               <p class="monitoring-hud__hub-card-description">Packs and updates stay blocked.</p>
             </div>
             <div class="ai-control-center-card-rows" aria-label="Capabilities and maintenance rows">
-              <div class="monitoring-hud__state-row" data-state-taxonomy-key="unavailable-capability" data-state-taxonomy-value="unavailable-capability">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="unavailable-capability" data-state-taxonomy-value="unavailable-capability" data-view-model-key="capabilityPacks">
                 <span>Packs</span>
-                <strong>Install blocked; downloads disabled</strong>
+                <strong id="ai-dashboard-capability-packs-value">Install blocked; downloads disabled</strong>
               </div>
-              <div class="monitoring-hud__state-row" data-state-taxonomy-key="blocked-action" data-state-taxonomy-value="blocked-action">
+              <div class="monitoring-hud__state-row" data-state-taxonomy-key="blocked-action" data-state-taxonomy-value="blocked-action" data-view-model-key="maintenanceUpdates">
                 <span>Updates</span>
-                <strong>Future-gated; no install execution</strong>
+                <strong id="ai-dashboard-maintenance-updates-value">Future-gated; no install execution</strong>
               </div>
             </div>
             <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
