@@ -20641,6 +20641,30 @@ def _run_standing_governance_intake_gate(require) -> None:
                 if external_cycle_match
                 else ""
             )
+    external_no_active_cycle = bool(
+        re.search(
+            r"^\s*Current Cycle:\s*`?(?:None|No active cycle|Closed)`?\s*$",
+            external_cycle_text,
+            flags=re.I | re.M,
+        )
+    )
+    external_latest_closed_cycle_match = re.search(
+        r"^\s*Latest Closed RRI Cycle:\s*`?(RRI-\d{8}-\d{3})`?",
+        external_cycle_text,
+        flags=re.M,
+    )
+    external_latest_closed_cycle = (
+        external_latest_closed_cycle_match.group(1).strip()
+        if external_latest_closed_cycle_match
+        else ""
+    )
+    external_return_digest_closeout = bool(
+        re.search(
+            r"^\s*Return Digest Status:\s*`?[^`\n]*(?:Complete|Closeout Pending)",
+            external_cycle_text,
+            flags=re.I | re.M,
+        )
+    )
 
     active_cycle = ""
     latest_closed_cycle_values = re.findall(
@@ -20659,10 +20683,10 @@ def _run_standing_governance_intake_gate(require) -> None:
     )
     latest_closed_cycle = latest_closed_cycles[-1] if latest_closed_cycles else ""
     closeout_cycle_recorded = bool(
-        latest_closed_cycle
-        and "Return Digest Status:" in record_text
-        and ("Complete" in record_text or "Closeout Pending" in record_text)
-        and "Active RRI Cycle: `None`" in record_text
+        (latest_closed_cycle or external_latest_closed_cycle)
+        and active_cycle_external_owner_recorded
+        and external_no_active_cycle
+        and external_return_digest_closeout
     )
     bootstrap_setup_recorded = (
         "Bootstrap Setup:" in record_text
@@ -20773,26 +20797,27 @@ def _run_standing_governance_intake_gate(require) -> None:
                         f"{external_cycle_error}"
                     ),
                 )
-                require(
-                    bool(re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)),
-                    (
-                        "Standing Governance Intake branch is ahead of origin/main "
-                        "but the external branch state does not prove a concrete "
-                        "`Current Cycle: RRI-YYYYMMDD-NNN`"
-                    ),
-                )
-                require(
-                    "Current Gate:" in external_cycle_text
-                    and "Current Pull Request:" in external_cycle_text,
-                    (
-                        "Standing Governance Intake branch is ahead of origin/main "
-                        "but the external branch state is missing current gate or "
-                        "pull-request proof for the active cycle"
-                    ),
-                )
-                external_active_cycle_ok = bool(
-                    re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)
-                )
+                if not closeout_cycle_recorded:
+                    require(
+                        bool(re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)),
+                        (
+                            "Standing Governance Intake branch is ahead of origin/main "
+                            "but the external branch state does not prove a concrete "
+                            "`Current Cycle: RRI-YYYYMMDD-NNN`"
+                        ),
+                    )
+                    require(
+                        "Current Gate:" in external_cycle_text
+                        and "Current Pull Request:" in external_cycle_text,
+                        (
+                            "Standing Governance Intake branch is ahead of origin/main "
+                            "but the external branch state is missing current gate or "
+                            "pull-request proof for the active cycle"
+                        ),
+                    )
+                    external_active_cycle_ok = bool(
+                        re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)
+                    )
             for changed_file in changed_files:
                 require(
                     _standing_governance_intake_file_allowed(changed_file),
