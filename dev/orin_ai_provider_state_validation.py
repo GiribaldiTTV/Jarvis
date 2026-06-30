@@ -9435,6 +9435,7 @@ def validate() -> list[str]:
         '"aiDashboardProviderStateViewModelProven"',
         '"activeDomainWindowLaunchChromeAndGeometry"',
         '"readinessDiagnosticsLocalActionsStayInsideChild"',
+        '"readinessDiagnosticsNoProviderLocalOnlyFlowProven"',
         '"domainLaunchProbe"',
         '"parentVisualMetrics"',
         '"returnedDensityAndButtonPlacementRepaired"',
@@ -9498,6 +9499,9 @@ def validate() -> list[str]:
         "REQUIRED_STATE_TAXONOMY_STATES",
         "stateTaxonomyContract",
         "dashboardViewModel",
+        "noProviderDiagnosticsFlow",
+        "noProviderFlowState",
+        "local-only-no-provider-readiness-v1",
     ):
         _require(
             needle in live_resize_helper,
@@ -9571,6 +9575,30 @@ def validate() -> list[str]:
         _require(
             needle in ai_control_js,
             f"AI Control Center script is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "setNoProviderFlowState",
+        "local-only-no-provider-readiness-v1",
+        "waiting-for-user-action",
+        "local-check-complete-no-provider",
+        "report-generated-local-only",
+        "ready-user-initiated-only",
+        "report-copied-locally",
+        "copy-unavailable-report-visible",
+        "data-no-provider-diagnostics-flow=\"local-only-no-provider-readiness-v1\"",
+        "data-no-provider-flow-state=\"waiting-for-user-action\"",
+        "data-no-provider-flow-provider-visible-data=\"none\"",
+        "data-no-provider-flow-sent-to-provider=\"false\"",
+        "data-no-provider-flow-can-accept-prompts=\"false\"",
+        "data-no-provider-flow-prompt-send=\"prompt-send-disabled\"",
+        "data-no-provider-flow-network-egress=\"network-egress-blocked\"",
+        "data-no-provider-flow-memory-indexing=\"memory-indexing-disabled\"",
+    ):
+        _require(
+            needle in renderer or needle in ai_control_html,
+            f"AI Dashboard no-provider diagnostics flow contract is missing {needle!r}",
             failures,
         )
 

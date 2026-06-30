@@ -1424,6 +1424,7 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
           const surface = document.querySelector("[data-ai-dashboard-child-window]");
           const title = document.querySelector(".ai-domain-window__title");
           const workspaceNodes = [...document.querySelectorAll("[data-domain-workspace]")];
+          const readinessWorkspace = document.querySelector("[data-domain-workspace='readiness-diagnostics']");
           const controls = [...document.querySelectorAll("[data-domain-command='window-minimize'], [data-domain-command='window-close']")];
           const actionButtons = [...document.querySelectorAll(".ai-domain-window__button")].map((button) => ({
             id: button.id || "",
@@ -1480,6 +1481,16 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             updateExecution: document.querySelector("[data-update-execution]")?.dataset.updateExecution || "",
             downloadExecution: document.querySelector("[data-download-execution]")?.dataset.downloadExecution || "",
             installExecution: document.querySelector("[data-install-execution]")?.dataset.installExecution || "",
+            noProviderDiagnosticsFlow: readinessWorkspace?.dataset.noProviderDiagnosticsFlow || "",
+            noProviderFlowState: readinessWorkspace?.dataset.noProviderFlowState || "",
+            noProviderFlowProviderVisibleData: readinessWorkspace?.dataset.noProviderFlowProviderVisibleData || "",
+            noProviderFlowSentToProvider: readinessWorkspace?.dataset.noProviderFlowSentToProvider || "",
+            noProviderFlowCanAcceptPrompts: readinessWorkspace?.dataset.noProviderFlowCanAcceptPrompts || "",
+            noProviderFlowPromptSend: readinessWorkspace?.dataset.noProviderFlowPromptSend || "",
+            noProviderFlowNetworkEgress: readinessWorkspace?.dataset.noProviderFlowNetworkEgress || "",
+            noProviderFlowMemoryIndexing: readinessWorkspace?.dataset.noProviderFlowMemoryIndexing || "",
+            noProviderFlowReportState: readinessWorkspace?.dataset.noProviderFlowReportState || "",
+            noProviderFlowCopyState: readinessWorkspace?.dataset.noProviderFlowCopyState || "",
             domainViewModel: window.nexusAiDomainCurrentViewModel || null,
             bodyText: document.body.innerText.replace(/\\s+/g, " ").trim()
           });
@@ -2539,6 +2550,8 @@ def main() -> int:
                     retryState: card.dataset.retryState || "",
                     recoveryState: card.dataset.recoveryState || "",
                     promptExecutionState: card.dataset.promptExecutionState || "",
+                    noProviderDiagnosticsFlow: card.dataset.noProviderDiagnosticsFlow || "",
+                    noProviderFlowState: card.dataset.noProviderFlowState || "",
                     unavailableCapabilityState: card.dataset.unavailableCapabilityState || "",
                     blockedActionState: card.dataset.blockedActionState || ""
                   }
@@ -3401,25 +3414,68 @@ def main() -> int:
         local = result.get("afterLocalCheck") if isinstance(result.get("afterLocalCheck"), dict) else {}
         generated = result.get("afterGenerate") if isinstance(result.get("afterGenerate"), dict) else {}
         copied = result.get("afterCopy") if isinstance(result.get("afterCopy"), dict) else {}
+        before = result.get("before") if isinstance(result.get("before"), dict) else {}
+        before_dom = before.get("dom") if isinstance(before.get("dom"), dict) else {}
         local_dom = local.get("dom") if isinstance(local.get("dom"), dict) else {}
         generated_dom = generated.get("dom") if isinstance(generated.get("dom"), dict) else {}
         copied_dom = copied.get("dom") if isinstance(copied.get("dom"), dict) else {}
+        def _flow_boundary_ok(dom: dict[str, object]) -> bool:
+            return (
+                dom.get("noProviderDiagnosticsFlow") == "local-only-no-provider-readiness-v1"
+                and dom.get("noProviderFlowProviderVisibleData") == "none"
+                and dom.get("noProviderFlowSentToProvider") == "false"
+                and dom.get("noProviderFlowCanAcceptPrompts") == "false"
+                and dom.get("noProviderFlowPromptSend") == "prompt-send-disabled"
+                and dom.get("noProviderFlowNetworkEgress") == "network-egress-blocked"
+                and dom.get("noProviderFlowMemoryIndexing") == "memory-indexing-disabled"
+            )
         return (
             (result.get("localClick") or {}).get("ok") is True
             and (result.get("generateClick") or {}).get("ok") is True
             and (result.get("copyClick") or {}).get("ok") is True
+            and _flow_boundary_ok(before_dom)
+            and before_dom.get("noProviderFlowState") == "waiting-for-user-action"
+            and before_dom.get("noProviderFlowReportState") == "not-generated"
+            and before_dom.get("noProviderFlowCopyState") == "not-ready"
+            and _flow_boundary_ok(local_dom)
+            and local_dom.get("noProviderFlowState") == "local-check-complete-no-provider"
+            and local_dom.get("noProviderFlowReportState") == "not-generated"
             and local_dom.get("localResult") == "No provider configured"
             and "no prompt" in str(local_dom.get("localDetail") or "").lower()
+            and _flow_boundary_ok(generated_dom)
+            and generated_dom.get("noProviderFlowState") == "report-generated-local-only"
+            and generated_dom.get("noProviderFlowReportState") == "generated-locally"
+            and generated_dom.get("noProviderFlowCopyState") == "ready-user-initiated-only"
             and generated_dom.get("reportState") == "Generated locally"
             and generated_dom.get("reportBodyHidden") is False
             and generated_dom.get("copyDisabled") is False
             and "No provider/model execution" in str(generated_dom.get("reportBoundary") or "")
+            and _flow_boundary_ok(copied_dom)
+            and copied_dom.get("noProviderFlowState") in {
+                "report-copied-locally",
+                "copy-unavailable-report-visible",
+            }
+            and copied_dom.get("noProviderFlowCopyState") in {
+                "copied-locally",
+                "copy-unavailable-report-visible",
+            }
             and copied_dom.get("copyDisabled") is False
             and copied_dom.get("reportState") in {
                 "Copied locally",
                 "Copying locally",
                 "Copy unavailable; report remains visible",
             }
+        )
+
+    def _dashboard_readiness_flow_contract_ok() -> bool:
+        cards = dashboard_probe.get("stateTaxonomyCards") if isinstance(dashboard_probe.get("stateTaxonomyCards"), dict) else {}
+        readiness_card = cards.get("readiness-diagnostics") if isinstance(cards.get("readiness-diagnostics"), dict) else {}
+        return (
+            readiness_card.get("noProviderDiagnosticsFlow") == "local-only-no-provider-readiness-v1"
+            and readiness_card.get("noProviderFlowState") == "waiting-for-user-action"
+            and readiness_card.get("retryState") == "retry-local-check-only"
+            and readiness_card.get("recoveryState") == "recovery-local-only"
+            and readiness_card.get("promptExecutionState") == "prompt-send-disabled"
         )
 
     def _singleton_focus_ok(probe: object) -> bool:
@@ -3513,6 +3569,15 @@ def main() -> int:
             and provider_state.as_renderer_payload().get("sentToProvider") is False
             and provider_state.as_renderer_payload().get("canAcceptPrompts") is False
             and provider_state.as_renderer_payload().get("providerVisibleData") == "none"
+        ),
+        "readinessDiagnosticsNoProviderLocalOnlyFlowProven": (
+            _dashboard_readiness_flow_contract_ok()
+            and _readiness_actions_ok(readiness_result)
+            and provider_state.as_renderer_payload().get("sentToProvider") is False
+            and provider_state.as_renderer_payload().get("canAcceptPrompts") is False
+            and provider_state.as_renderer_payload().get("providerVisibleData") == "none"
+            and provider_state.as_renderer_payload().get("networkEgressState") == "network-egress-blocked"
+            and provider_state.as_renderer_payload().get("memoryIndexingState") == "memory-indexing-disabled"
         ),
         "parentVisualMetrics": (
             dashboard_probe.get("defaultWindowWidth") == "471"

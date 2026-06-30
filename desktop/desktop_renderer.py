@@ -4372,6 +4372,23 @@ class AIDashboardDomainWindow(QDialog):
       && providerState.promptSendPosture === "prompt-send-disabled"
       && providerState.networkEgressState === "network-egress-blocked"
       && providerState.memoryIndexingState === "memory-indexing-disabled";
+    const setNoProviderFlowState = (state, extra = {{}}) => {{
+      const surface = document.querySelector("[data-ai-dashboard-child-window]");
+      const workspace = document.querySelector("[data-domain-workspace='readiness-diagnostics']");
+      const target = workspace || surface;
+      if (!target) return;
+      Object.assign(target.dataset, {{
+        noProviderDiagnosticsFlow: "local-only-no-provider-readiness-v1",
+        noProviderFlowState: state,
+        noProviderFlowProviderVisibleData: String(providerState.providerVisibleData || "none"),
+        noProviderFlowSentToProvider: providerState.sentToProvider === false ? "false" : String(providerState.sentToProvider || ""),
+        noProviderFlowCanAcceptPrompts: providerState.canAcceptPrompts === false ? "false" : String(providerState.canAcceptPrompts || ""),
+        noProviderFlowPromptSend: String(providerState.promptSendPosture || "prompt-send-disabled"),
+        noProviderFlowNetworkEgress: String(providerState.networkEgressState || "network-egress-blocked"),
+        noProviderFlowMemoryIndexing: String(providerState.memoryIndexingState || "memory-indexing-disabled"),
+        ...extra,
+      }});
+    }};
     const buildDomainViewModel = () => {{
       const providerVisibleDataNone = providerState.providerVisibleData === "none";
       const providerRuntimeBlocked = providerState.providerExecutionGateState === "provider-execution-disabled"
@@ -4465,6 +4482,10 @@ class AIDashboardDomainWindow(QDialog):
       setText("local-detail", viewModel.localDetail);
       setText("report-state", "Not generated");
       setText("report-summary", "Generate the report to inspect local readiness.");
+      setNoProviderFlowState("waiting-for-user-action", {{
+        noProviderFlowReportState: "not-generated",
+        noProviderFlowCopyState: "not-ready",
+      }});
       const body = byId("report-body");
       if (body) body.hidden = true;
       const copy = byId("copy-report");
@@ -4476,6 +4497,10 @@ class AIDashboardDomainWindow(QDialog):
       setText("local-detail", ok
         ? (providerState.localActionResultDetail || "No prompt was accepted or sent; provider-visible data remains none.")
         : "Provider boundary mismatch; no local result was produced.");
+      setNoProviderFlowState(ok ? "local-check-complete-no-provider" : "local-check-blocked-fail-closed", {{
+        noProviderFlowReportState: "not-generated",
+        noProviderFlowCopyState: "not-ready",
+      }});
       return ok;
     }};
     window.nexusAiDomainGenerateReport = () => {{
@@ -4484,6 +4509,10 @@ class AIDashboardDomainWindow(QDialog):
         reportText = "";
         setText("report-state", "Blocked by boundary mismatch");
         setText("report-summary", "Report blocked because local trust-boundary proof is inconsistent.");
+        setNoProviderFlowState("report-blocked-fail-closed", {{
+          noProviderFlowReportState: "blocked-boundary-mismatch",
+          noProviderFlowCopyState: "not-ready",
+        }});
         return false;
       }}
       reportText = buildReportText(report);
@@ -4499,11 +4528,18 @@ class AIDashboardDomainWindow(QDialog):
       if (body) body.hidden = false;
       const copy = byId("copy-report");
       if (copy) {{ copy.disabled = false; copy.setAttribute("aria-disabled", "false"); }}
+      setNoProviderFlowState("report-generated-local-only", {{
+        noProviderFlowReportState: "generated-locally",
+        noProviderFlowCopyState: "ready-user-initiated-only",
+      }});
       return true;
     }};
     window.nexusAiDomainCopyReport = () => {{
       if (!reportText) {{
         setText("report-state", "Generate report before copying");
+        setNoProviderFlowState("copy-blocked-report-not-generated", {{
+          noProviderFlowCopyState: "blocked-report-not-generated",
+        }});
         return false;
       }}
       const text = document.createElement("textarea");
@@ -4517,6 +4553,10 @@ class AIDashboardDomainWindow(QDialog):
       const copied = document.execCommand("copy");
       text.remove();
       setText("report-state", copied ? "Copied locally" : "Copy unavailable; report remains visible");
+      setNoProviderFlowState(copied ? "report-copied-locally" : "copy-unavailable-report-visible", {{
+        noProviderFlowReportState: "generated-locally",
+        noProviderFlowCopyState: copied ? "copied-locally" : "copy-unavailable-report-visible",
+      }});
       return copied;
     }};
     document.addEventListener("click", (event) => {{
@@ -4548,7 +4588,7 @@ class AIDashboardDomainWindow(QDialog):
     def _domain_body_html(self) -> str:
         if self.domain_id == "readiness-diagnostics":
             return """
-      <section class="ai-domain-window__card" data-domain-workspace="readiness-diagnostics" data-executes-inside-child-window="true">
+      <section class="ai-domain-window__card" data-domain-workspace="readiness-diagnostics" data-executes-inside-child-window="true" data-no-provider-diagnostics-flow="local-only-no-provider-readiness-v1" data-no-provider-flow-state="waiting-for-user-action" data-no-provider-flow-provider-visible-data="none" data-no-provider-flow-sent-to-provider="false" data-no-provider-flow-can-accept-prompts="false" data-no-provider-flow-prompt-send="prompt-send-disabled" data-no-provider-flow-network-egress="network-egress-blocked" data-no-provider-flow-memory-indexing="memory-indexing-disabled" data-no-provider-flow-report-state="not-generated" data-no-provider-flow-copy-state="not-ready">
         <div class="ai-domain-window__card-heading">
           <span class="ai-domain-window__card-number">01</span>
           <strong class="ai-domain-window__card-title">Local Readiness</strong>
