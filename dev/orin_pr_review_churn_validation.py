@@ -282,8 +282,29 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "live adoption ledger in repo",
             "repo live state",
             "repo doc",
+            "repo branch record",
+            "repo branch records",
             "external mirror",
+            "external branch state",
+            "external active-cycle state",
+            "external active cycle",
+            "external rri gate",
             "c:\\nexus governance state",
+            "active rri cycle",
+            "current cycle",
+            "latest closed rri cycle",
+            "return digest status",
+            "release candidate anchor",
+            "target commit",
+            "candidate includes later governance repairs",
+            "current fetched origin/main",
+            "standing governance",
+            "worktree confinement",
+            "active thread owner",
+            "thread assignment status",
+            "intended write set",
+            "transition-legal active records",
+            "transition legal active records",
         ),
     ),
     FamilyRule(
@@ -631,6 +652,38 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-phase-advancement-parser" in current_head_latch_families:
         failures.append(
             "Comment-family classifier overmatched current-head approval latch drift as RAR phase advancement"
+        )
+    release_target_comment = (
+        "Pin Target Commit to a parseable release SHA because the release candidate "
+        "anchor must derive from current fetched origin/main after later governance repairs."
+    )
+    if "repo-live-state-boundary-parser" not in _classify_comment(release_target_comment):
+        failures.append(
+            "Comment-family classifier did not classify release target/external-state boundary drift"
+        )
+    suffixed_rri_comment = (
+        "Reject every in-repo RRI cycle marker when Active RRI Cycle starts with "
+        "RRI-20260629-001 and suffix text follows."
+    )
+    if "repo-live-state-boundary-parser" not in _classify_comment(suffixed_rri_comment):
+        failures.append(
+            "Comment-family classifier did not classify suffixed Active RRI Cycle live-state drift"
+        )
+    closeout_comment = (
+        "Require external branch state Current Cycle None plus Latest Closed RRI Cycle "
+        "and Return Digest Status Complete before accepting closeout."
+    )
+    if "repo-live-state-boundary-parser" not in _classify_comment(closeout_comment):
+        failures.append(
+            "Comment-family classifier did not classify external RRI closeout proof drift"
+        )
+    worktree_confinement_comment = (
+        "Restore active worktree confinement markers such as Active Thread Owner, "
+        "Thread Assignment Status, and Intended Write Set."
+    )
+    if "repo-live-state-boundary-parser" not in _classify_comment(worktree_confinement_comment):
+        failures.append(
+            "Comment-family classifier did not classify standing worktree confinement drift"
         )
     helper_source = Path(__file__).read_text(encoding="utf-8")
     helper_lines = helper_source.splitlines()

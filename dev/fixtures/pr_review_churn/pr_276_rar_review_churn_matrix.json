@@ -33,12 +33,35 @@
         ],
         "receipt_file": "Docs/branch_records/feature_release_readiness_source_truth_intake.md",
         "receipt_marker": "PR #278 Review-Churn Root-Cause Receipt"
+      },
+      {
+        "pr": 287,
+        "connector_comments": 11,
+        "observed_family_counts": {
+          "rar-path-suffix-parser": 3,
+          "repo-live-state-boundary-parser": 11
+        },
+        "pr_readiness_stage_1_failure": true,
+        "root_cause": "PR #287 external-state drift repair correctly moved active RRI, PR, and release-window facts out of repo docs, but PR2 treated each Codex Connector comment as an isolated parser fix instead of recognizing a repeated standing-governance live-state boundary family.",
+        "prevention_summary": "The PR2 churn classifier now recognizes release target, external RRI state, return-digest closeout, worktree-confinement, transition-legal active-record, and suffixed Active RRI Cycle comments as repo-live-state-boundary-parser coverage, and the root-cause receipt records exact PR #287 live review counts before another review request.",
+        "preventive_changes": [
+          "dev/orin_pr_review_churn_validation.py classifies PR #287 standing-governance external-state/RRI review comments instead of leaving them unknown.",
+          "dev/orin_branch_governance_validation.py rejects in-repo Active RRI Cycle values that start with RRI-YYYYMMDD-NNN even when suffix text follows.",
+          "dev/orin_repo_live_state_leakage_scan.py uses the same start-of-RRI blocker for strict active-RRI leakage scanning.",
+          "Docs/branch_records/feature_release_readiness_source_truth_intake.md records the PR #287 review-churn root-cause receipt."
+        ],
+        "receipt_file": "Docs/branch_records/feature_release_readiness_source_truth_intake.md",
+        "receipt_marker": "PR #287 Review-Churn Root-Cause Receipt"
       }
     ]
   },
   "changed_file_coverage": {
     "dev/orin_branch_governance_validation.py": [
-      "pr2-thread-pagination-and-approval-latch"
+      "pr2-thread-pagination-and-approval-latch",
+      "repo-live-state-boundary-parser"
+    ],
+    "dev/orin_repo_live_state_leakage_scan.py": [
+      "repo-live-state-boundary-parser"
     ],
     "dev/orin_rar_issue_candidate_durability_validation.py": [
       "rar-issue-candidate-durability-parser"
@@ -450,22 +473,29 @@
         "Docs/validation_helper_registry.md"
       ],
       "implementation": [
+        "dev/orin_branch_governance_validation.py",
         "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_repo_live_state_leakage_scan.py",
         "dev/orin_pr_review_churn_validation.py"
       ],
       "fixture_coverage": [
         "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_repo_live_state_tracking.md",
+        "dev/fixtures/branch_record_live_state_leakage/invalid_unindexed_branch_record_live_state.md",
         "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_review.md"
       ],
       "generated_mutation_coverage": [
         "repo live-state ledger text with external-state mention",
         "external-state owner reference without repo live ledger",
-        "active RAR rows stay external while repo docs remain durable rules"
+        "active RAR rows stay external while repo docs remain durable rules",
+        "release target comments stay external/Git-derived before final Release Readiness operator package",
+        "Active RRI Cycle values with suffix text remain blocked in repo docs"
       ],
       "sibling_variant_replay": [
         "No Repo Live-State Tracking marker",
         "External operational state pointer",
-        "Repo doc active ledger wording"
+        "Repo doc active ledger wording",
+        "standing Governance Active RRI Cycle pointer",
+        "return-digest closeout external state"
       ]
     },
     {
