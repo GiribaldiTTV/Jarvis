@@ -3774,6 +3774,11 @@ def _write_user_branch_vision_review(
         and (
             fam007_slc001_workstream_conduct_packet
             or "workstream approval and conduct" in decision_text
+            or (
+                "bounded slc-001 / seam 1 workstream conduct begins only after user accepts"
+                in review_profile_text
+            )
+            or "no runtime implementation is conducted" in review_profile_text
             or "does not authorize workstream implementation" in decision_text
             or "workstream implementation remains pending user approval" in review_profile_text
             or "runtime implementation remains blocked" in review_profile_text
@@ -5085,6 +5090,7 @@ def _write_user_branch_plan_review(
         source_branch == "feature/fam-007-dev-owner-private-boundary-setup"
     )
     normalized_decision = exact_user_decision.casefold()
+    review_profile_text = " ".join([title, review_purpose, exact_user_decision]).casefold()
     is_fam006_recording = (
         source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
     )
@@ -5155,10 +5161,10 @@ def _write_user_branch_plan_review(
         return review_path.resolve()
     fam007_slc001_workstream_entry_review_packet = (
         source_branch == FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH
-        and "fam-007" in normalized_decision
-        and "slc-001" in normalized_decision
-        and "seam 1" in normalized_decision
-        and "workstream entry" in normalized_decision
+        and "fam-007" in review_profile_text
+        and "slc-001" in review_profile_text
+        and "seam 1" in review_profile_text
+        and "workstream entry" in review_profile_text
         and (
             any(
                 marker in normalized_decision
@@ -5168,6 +5174,11 @@ def _write_user_branch_plan_review(
                 marker in normalized_decision
                 for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
             )
+            or (
+                "bounded slc-001 / seam 1 workstream conduct begins only after user accepts"
+                in review_profile_text
+            )
+            or "no runtime implementation is conducted" in review_profile_text
         )
     )
     if fam007_slc001_workstream_entry_review_packet:

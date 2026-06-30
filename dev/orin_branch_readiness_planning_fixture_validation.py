@@ -5161,6 +5161,97 @@ def _validate_fam007_workstream_approval_packet_metadata_guard() -> list[str]:
     return failures
 
 
+def _validate_fam007_slc001_currentness_support_aids_guard() -> list[str]:
+    failures: list[str] = []
+    title = "FAM-007 Workstream Entry Packet Currentness And Validation Evidence Repair"
+    review_purpose = (
+        "USER reviews the regenerated FAM-007 Workstream Entry / SLC-001 / "
+        "Seam 1 packet after stale ZIP SHA/currentness and missing "
+        "command-level validation evidence were repaired."
+    )
+    exact_decision = (
+        "USER accepts the regenerated FAM-007 Workstream Entry / SLC-001 / "
+        "Seam 1 packet as current, internally consistent, validation-backed, "
+        "and reviewable. This preserves the accepted BP3-to-Workstream routing "
+        "direction, but bounded SLC-001 / Seam 1 Workstream conduct begins only "
+        "after USER accepts this regenerated packet; no runtime implementation "
+        "is conducted by this repair packet."
+    )
+    pending = [
+        "Bounded SLC-001 / Seam 1 Workstream conduct begins only after USER accepts this regenerated packet.",
+        "Provider/model execution, prompt send, downloads, cache, memory, private setup, packaging, PR creation, merge, and release remain blocked.",
+    ]
+    copied = [
+        ("Docs/Main.md", "Main.md"),
+        (
+            "C:/Nexus Governance State/branches/feature_fam_007_ai_dashboard_child_domain_diagnostics/branch_plan.md",
+            "branch_plan.md",
+        ),
+    ]
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_user_branch_vision_review(
+            target=target,
+            title=title,
+            review_purpose=review_purpose,
+            exact_user_decision=exact_decision,
+            pending_user_decisions=pending,
+            copied=copied,
+        )
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title=title,
+            review_purpose=review_purpose,
+            source_branch=review_bundle.FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH,
+            source_head="fixture-head",
+            upstream=f"origin/{review_bundle.FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH}",
+            origin_main="fixture-origin-main",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=pending,
+            copied=copied,
+        )
+        vision_text = (target / review_bundle.USER_BRANCH_VISION_REVIEW_FILE).read_text(
+            encoding="utf-8"
+        )
+        plan_text = (target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE).read_text(
+            encoding="utf-8"
+        )
+
+    combined = f"{vision_text}\n{plan_text}"
+    for stale_name, pattern in review_bundle.FALSE_GREEN_STALE_ACTIVE_PATTERNS:
+        if pattern.search(combined):
+            failures.append(
+                "FAM-007 SLC-001 currentness support aid emitted stale active "
+                f"language ({stale_name})"
+            )
+    required_terms = (
+        "AI Dashboard parent hub",
+        "first child-domain doorway",
+        "SLC-001 / Seam 1 Workstream Entry",
+        "no runtime implementation is conducted",
+    )
+    for term in required_terms:
+        if term not in combined:
+            failures.append(
+                "FAM-007 SLC-001 currentness support aid missed required term: "
+                + term
+            )
+    forbidden_terms = (
+        "BP3 is the active USER decision",
+        "Does USER approve PR Readiness Stage 1",
+        "Governance / PR Readiness Stage 1",
+        "Dev/Owner Skeleton Readiness Branch Vision",
+    )
+    for term in forbidden_terms:
+        if term in combined:
+            failures.append(
+                "FAM-007 SLC-001 currentness support aid retained stale term: "
+                + term
+            )
+    return failures
+
+
 def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
     failures: list[str] = []
     exact_decision = (
@@ -11713,6 +11804,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_local_user_packet_folder_zip_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
+    failures.extend(_validate_fam007_slc001_currentness_support_aids_guard())
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
     failures.extend(_validate_fam006_bp3_packet_generation_guard())
     failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
