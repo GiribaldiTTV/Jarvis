@@ -701,9 +701,16 @@ def _external_markdown_section_lines(text: str, heading: str) -> list[str]:
 def _fam006_external_issue_matrix_lines() -> list[str]:
     """Return active issue scope from external state so repo helper code stays non-ledger."""
     external_text = _external_branch_plan_text()
+    expanded = _external_markdown_section_lines(external_text, "BP1 Expanded Issue Matrix")
     admitted = _external_markdown_section_lines(external_text, "Admitted Issue Set")
     boundary = _external_markdown_section_lines(external_text, "#277 FAM-006 Boundary")
     source = _external_branch_plan_path()
+    if expanded:
+        return [
+            f"External State Source: `{source}`",
+            "",
+            *expanded,
+        ]
     if not admitted:
         return [
             "| External State Source | Result |",
@@ -726,8 +733,15 @@ def _fam006_external_issue_matrix_lines() -> list[str]:
 def _fam006_external_surface_inventory_lines() -> list[str]:
     """Return active surface scope from external state so repo helper code stays non-ledger."""
     external_text = _external_branch_plan_text()
+    expanded = _external_markdown_section_lines(external_text, "BP1 Expanded Surface Inventory")
     surface_inventory = _external_markdown_section_lines(external_text, "Surface Inventory For BP1")
     source = _external_branch_plan_path()
+    if expanded:
+        return [
+            f"External State Source: `{source}`",
+            "",
+            *expanded,
+        ]
     if not surface_inventory:
         return [
             f"External State Source: `{source}`",
@@ -828,6 +842,10 @@ def _fam006_child_window_branch_vision_lines(
         "- In scope for BP1: HUD Dashboard, HUD Dashboard chrome/control cluster, Manage Monitors, Overlay Profile Settings, Active Overlay Profile dropdown/selector, FAM-006 child-window shared primitive direction, issue #275, issue #277 only as FAM-006-owned UIREF-007 adoption, and issues #280-#284.",
         "- Reference/proof only for BP1: Recording Suite and Log Viewer.",
         "- Out of scope: FAM-003, FAM-007, FAM-008, Governance/UIREF mutation, neutral-main mutation, broad cross-FAM implementation, provider/model/private/cache/memory work, issue closeout, PR creation, merge, release, and cleanup deletion.",
+        "",
+        "## External-State Drift Guard",
+        "",
+        f"Active issue and surface facts in this packet are loaded from the external branch plan at `{_external_branch_plan_path()}` when the packet is generated. The repo helper owns only generic packet generation and validation logic; it must not hard-code the active FAM-006 issue matrix, current phase posture, upload digest, current commit, or surface ledger as tracked repo canon.",
         "",
         "## Expanded Issue Matrix",
         "",
