@@ -12031,6 +12031,10 @@ def build_bundle(
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
         )
     )
+    fam007_ai_dashboard_workstream_exit_packet = (
+        source_branch == FAM007_AI_DASHBOARD_CHILD_DOMAIN_BRANCH
+        and any(marker in normalized_decision for marker in FAM007_AI_DASHBOARD_WORKSTREAM_EXIT_MARKERS)
+    )
     is_fam006_recording = (
         source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
     )
