@@ -20658,11 +20658,21 @@ def _run_standing_governance_intake_gate(require) -> None:
         if external_latest_closed_cycle_match
         else ""
     )
+    external_return_digest_status_match = re.search(
+        r"^\s*(?:-\s*)?Return Digest Status:\s*`?([^`\n]+)`?\s*$",
+        external_cycle_text,
+        flags=re.I | re.M,
+    )
+    external_return_digest_status = (
+        external_return_digest_status_match.group(1).strip()
+        if external_return_digest_status_match
+        else ""
+    )
     external_return_digest_closeout = bool(
-        re.search(
-            r"^\s*(?:-\s*)?Return Digest Status:\s*`?[^`\n]*(?:Complete|Closeout Pending)",
-            external_cycle_text,
-            flags=re.I | re.M,
+        re.match(
+            r"^(?:Complete|Closeout Pending)(?:\b|[\s:;.,-]|$)",
+            external_return_digest_status,
+            flags=re.I,
         )
     )
 

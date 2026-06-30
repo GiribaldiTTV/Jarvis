@@ -277,7 +277,7 @@ def scan_file(
                 reason = "stale live PR/PR-readiness wording in a repo operational tracker surface"
             if (
                 any(pattern.search(line) for pattern in BLOCKING_PATTERNS)
-                and classification == "Migration Candidate"
+                and classification in {"Migration Candidate", "Transition-Legal Current Owner"}
             ):
                 classification = "Repo Live-State Leakage"
                 reason = "active RRI cycle value belongs in external operational state"
