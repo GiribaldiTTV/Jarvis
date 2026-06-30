@@ -11869,6 +11869,11 @@ def main() -> int:
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
     parser.add_argument(
+        "--validation-summary-file",
+        type=Path,
+        help="File containing command-level validation evidence to embed under Review Aids/Validation Outputs.",
+    )
+    parser.add_argument(
         "--review-order",
         action="append",
         default=[],
@@ -11961,6 +11966,9 @@ def main() -> int:
             print("PASS: Workstream Entry packet is self-consistent and implementation-ready.")
             print(f"Packet status: {result.status}")
         return 0
+
+    if args.validation_summary is None and args.validation_summary_file is not None:
+        args.validation_summary = args.validation_summary_file.read_text(encoding="utf-8")
 
     for required_arg in ("review_purpose", "validation_summary", "exact_user_decision"):
         if getattr(args, required_arg) is None:
