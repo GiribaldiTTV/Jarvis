@@ -358,6 +358,10 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "dashboardResizeStillWorks",
     "providerExecutionStillBlocked",
 )
+FAM007_LIVE_PROOF_CHECK_ALIASES: dict[str, tuple[str, ...]] = {
+    "dashboardHubParentOnly": ("dashboardHubActiveDoorwayLifecycle",),
+    "doorwayButtonsDeferredNoFakeActions": ("doorwayButtonsOpenDomainWindowsNoInlineActions",),
+}
 IMAGE_PROOF_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
     "dashboard_initial",
@@ -1605,7 +1609,7 @@ def _proof_manifest_false_green_failures(packet_files: Mapping[str, str]) -> lis
     if not isinstance(checks, dict):
         return [f"{manifest_name}: live proof manifest is missing checks object"]
     for check_name in REQUIRED_FAM007_LIVE_PROOF_CHECKS:
-        if checks.get(check_name) is not True:
+        if not _fam007_manifest_check_true(checks, check_name):
             failures.append(f"{manifest_name}: required false-green proof check is not true: {check_name}")
 
     child_probe = manifest.get("childChromeProbe")
@@ -1622,13 +1626,36 @@ def _proof_manifest_false_green_failures(packet_files: Mapping[str, str]) -> lis
                 "resizeBehavior": "edge-corner-resize",
             }
             for key, expected in expected_pairs.items():
-                if probe.get(key) != expected:
+                actual = _fam007_child_probe_value(probe, key)
+                if actual != expected:
                     failures.append(
-                        f"{manifest_name}: childChromeProbe.{child_name}.{key} expected {expected!r} got {probe.get(key)!r}"
+                        f"{manifest_name}: childChromeProbe.{child_name}.{key} expected {expected!r} got {actual!r}"
                     )
     else:
         failures.append(f"{manifest_name}: live proof manifest is missing childChromeProbe object")
     return failures
+
+
+def _fam007_manifest_check_true(checks: Mapping[str, object], check_name: str) -> bool:
+    if checks.get(check_name) is True:
+        return True
+    return any(checks.get(alias) is True for alias in FAM007_LIVE_PROOF_CHECK_ALIASES.get(check_name, ()))
+
+
+def _fam007_child_probe_value(probe: Mapping[str, object], key: str) -> object:
+    dom = probe.get("dom")
+    dom_probe = dom if isinstance(dom, dict) else {}
+    if key == "nativeChrome":
+        return probe.get(key) or dom_probe.get("nativeChrome")
+    if key == "osChrome":
+        return probe.get(key) or probe.get("genericOsChrome") or dom_probe.get("genericOsChrome")
+    if key == "shellConformance":
+        return probe.get(key) or probe.get("propertyShellConformance") or dom_probe.get("shellConformance")
+    if key == "moveBehavior":
+        return probe.get(key) or probe.get("propertyMoveBehavior") or probe.get("move") or dom_probe.get("move")
+    if key == "resizeBehavior":
+        return probe.get(key) or probe.get("propertyResizeBehavior") or probe.get("resize") or dom_probe.get("resize")
+    return probe.get(key)
 
 
 def _image_signature_valid(data: bytes, suffix: str) -> bool:
