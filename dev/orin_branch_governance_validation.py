@@ -20620,6 +20620,27 @@ def _run_standing_governance_intake_gate(require) -> None:
             "owning the live cycle value in repo docs"
         ),
     )
+    external_cycle_text = ""
+    external_cycle_error = ""
+    external_cycle_id = ""
+    if active_cycle_external_owner_recorded:
+        try:
+            external_cycle_text = Path(
+                STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER
+            ).read_text(encoding="utf-8")
+        except OSError as exc:
+            external_cycle_error = str(exc)
+        else:
+            external_cycle_match = re.search(
+                r"^\s*Current Cycle:\s*`?(RRI-\d{8}-\d{3})`?\s*$",
+                external_cycle_text,
+                flags=re.M,
+            )
+            external_cycle_id = (
+                external_cycle_match.group(1).strip()
+                if external_cycle_match
+                else ""
+            )
 
     active_cycle = ""
     latest_closed_cycle_values = re.findall(
@@ -20742,6 +20763,36 @@ def _run_standing_governance_intake_gate(require) -> None:
                     f"before carrying bootstrap or RRI-cycle changes: {ancestor_error}"
                 ),
             )
+            external_active_cycle_ok = False
+            if active_cycle_external_owner_recorded:
+                require(
+                    not external_cycle_error,
+                    (
+                        "Standing Governance Intake branch is ahead of origin/main "
+                        "but the external active-cycle state could not be read: "
+                        f"{external_cycle_error}"
+                    ),
+                )
+                require(
+                    bool(re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)),
+                    (
+                        "Standing Governance Intake branch is ahead of origin/main "
+                        "but the external branch state does not prove a concrete "
+                        "`Current Cycle: RRI-YYYYMMDD-NNN`"
+                    ),
+                )
+                require(
+                    "Current Gate:" in external_cycle_text
+                    and "Current Pull Request:" in external_cycle_text,
+                    (
+                        "Standing Governance Intake branch is ahead of origin/main "
+                        "but the external branch state is missing current gate or "
+                        "pull-request proof for the active cycle"
+                    ),
+                )
+                external_active_cycle_ok = bool(
+                    re.fullmatch(r"RRI-\d{8}-\d{3}", external_cycle_id)
+                )
             for changed_file in changed_files:
                 require(
                     _standing_governance_intake_file_allowed(changed_file),
@@ -20751,10 +20802,10 @@ def _run_standing_governance_intake_gate(require) -> None:
                     ),
                 )
             require(
-                bool(active_cycle or active_cycle_external_owner_recorded or bootstrap_active or closeout_cycle_recorded),
+                bool(active_cycle or external_active_cycle_ok or bootstrap_active or closeout_cycle_recorded),
                 (
                     "Standing Governance Intake branch is ahead of origin/main without an "
-                    "external active RRI cycle owner pointer, recorded bootstrap setup exception, "
+                    "externally proven active RRI cycle, recorded bootstrap setup exception, "
                     "or return-digest closeout"
                 ),
             )

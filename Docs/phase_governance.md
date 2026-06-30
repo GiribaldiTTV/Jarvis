@@ -2232,6 +2232,8 @@ Default anchor rule:
 - historical PR merge commits may be inspected as audit evidence, but they do not become the release-validation base unless USER explicitly selects that historical commit as the release target
 - if USER selects a historical PR merge commit as the release target, Release Readiness must label `Release Candidate Anchor Source:` as `USER-selected historical commit` and must verify that commit's source truth without silently mixing later `origin/main` repairs
 
+Pre-merge standing-Governance repair receipts are not the final Release Execution operator package. While the standing Governance PR is still in flight, a repo durable receipt may keep `Target Commit:` as an explicit external-owner pointer when it also names the release-window external state owner and says the final target commit must be resolved from Git/GitHub/helper live truth during Release Readiness. The active release-window external state must carry the current candidate target posture for local coordination. Once Release Readiness produces the release operator copy block, `Target Commit` must be a concrete commit SHA only.
+
 ### Release Window Aggregation Ownership
 
 A release is owned by the selected release candidate window, not by whichever implementation PR or worktree merged last.
@@ -2388,7 +2390,7 @@ Required release operator copy blocks:
 
 ### Target Commit
 ```text
-<commit sha only>
+<commit sha only for the final Release Execution operator package>
 ```
 
 ### Release Notes
