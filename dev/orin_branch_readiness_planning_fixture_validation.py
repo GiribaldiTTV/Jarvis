@@ -5020,6 +5020,39 @@ def _validate_user_review_bundle_accepted_gate_artifact_guard() -> list[str]:
             failures.append(
                 "Local USER packet validation treated retained BP1 evidence as the active BP1 final-clean packet"
             )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        export_zip = review_root / "FAM-006-20260629-180000.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        bad_proof = (
+            packet_dir
+            / review_bundle.REVIEW_AIDS_DIR_NAME
+            / "Artifact Lifecycle Proof"
+            / "ACCEPTED_GATE_ARTIFACT_TREE_PROOF.md"
+        )
+        bad_proof.parent.mkdir(parents=True, exist_ok=True)
+        bad_proof.write_text(
+            "# Accepted Gate Artifact Tree Proof\n\n"
+            "## Retained Artifact Files\n\n"
+            "- $f`r\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        placeholder_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        if not any(
+            "ACCEPTED_GATE_ARTIFACT_TREE_PROOF.md" in failure
+            and "unresolved template placeholder" in failure
+            for failure in placeholder_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation did not reject unresolved shell placeholder output in active artifact tree proof"
+            )
     return failures
 
 

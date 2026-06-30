@@ -214,12 +214,16 @@ def _is_fam006_workstream_implementation_approval_review(
 
 
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("unresolved-shell-variable", re.compile(r"(?<![A-Za-z0-9_])\$[A-Za-z_][A-Za-z0-9_]*\b")),
     ("shell-variable-branch", re.compile(r"(?<![A-Za-z0-9_])\$branch\b")),
     ("shell-variable-head", re.compile(r"(?<![A-Za-z0-9_])\$head\b")),
     ("shell-variable-origin-main", re.compile(r"(?<![A-Za-z0-9_])\$originMain\b")),
     ("shell-variable-packet", re.compile(r"(?<![A-Za-z0-9_])\$packet\b")),
     ("shell-variable-zip", re.compile(r"(?<![A-Za-z0-9_])\$zip\b")),
     ("unevaluated-shell-expression", re.compile(r"\$\([^)\n]+\)")),
+    ("double-brace-template", re.compile(r"\{\{[^}\n]*\}\}")),
+    ("replacement-marker", re.compile(r"<REPLACE[^>\n]*>", re.IGNORECASE)),
+    ("todo-placeholder", re.compile(r"\b(?:TODO|PLACEHOLDER|TBD|FIXME)\b")),
 )
 BUNDLE_COUNT_FIELDS: tuple[str, ...] = (
     "Bundle File Count",
@@ -3333,6 +3337,13 @@ def _field_int(text: str, field_name: str) -> int | None:
 def _unresolved_template_placeholder_failures(packet_files: Mapping[str, str]) -> list[str]:
     failures: list[str] = []
     for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if normalized.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            continue
+        if normalized.startswith(f"{ACCEPTED_GATE_ARTIFACTS_DIR_NAME}/"):
+            continue
+        if normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Validation Outputs/"):
+            continue
         for reason, pattern in UNRESOLVED_TEMPLATE_PATTERNS:
             matches = sorted({match.group(0) for match in pattern.finditer(text)})
             if matches:
