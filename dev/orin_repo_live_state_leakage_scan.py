@@ -86,7 +86,7 @@ BLOCKING_PHRASES = (
 )
 
 BLOCKING_PATTERNS = (
-    re.compile(r"\bActive RRI Cycle:\s*`?RRI-\d{8}-\d{3}`?\b", re.IGNORECASE),
+    re.compile(r"\bActive RRI Cycle:\s*`?RRI-\d{8}-\d{3}", re.IGNORECASE),
 )
 
 TARGET_OWNER_BY_CATEGORY = {
