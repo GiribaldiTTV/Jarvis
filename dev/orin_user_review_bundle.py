@@ -2221,31 +2221,71 @@ def _local_user_packet_layout_failures(
     return failures, primary_files
 
 
+def _accepted_gate_artifact_structure_failures(folder_entries: set[str]) -> list[str]:
+    failures: list[str] = []
+    accepted_root = ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+    valid_gate_dirs = {"BP1", "BP2", "BP3"}
+    for entry in sorted(folder_entries):
+        parts = PurePosixPath(entry).parts
+        if not parts or parts[0] != accepted_root:
+            continue
+        if len(parts) < 3:
+            continue
+        gate_dir = parts[1]
+        nested_parts = parts[2:]
+        if gate_dir in valid_gate_dirs and nested_parts and nested_parts[0] == gate_dir:
+            failures.append(
+                "Accepted Gate Artifacts must not recursively nest the same BP gate: "
+                f"{entry}"
+            )
+        if accepted_root in nested_parts:
+            failures.append(
+                "Accepted Gate Artifacts must not contain nested accepted-gate "
+                f"artifact directories: {entry}"
+            )
+    return failures
+
+
 def _retained_bp_prerequisite_failures(
     packet_files: Mapping[str, str],
     folder_entries: set[str],
 ) -> list[str]:
+    failures: list[str] = []
     start_here = packet_files.get("START_HERE.md", "").casefold()
     primary_bp2 = f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}" in packet_files
-    if not primary_bp2 or "bp2" not in start_here:
-        return []
+    bp3_packet = (
+        f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" in packet_files
+        or "bp3 orchestration" in start_here
+        or "workstream entry / orchestration validation" in start_here
+    )
 
-    bp2_text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE).casefold()
-    if "accepted bp1" not in bp2_text and "bp1 accepted" not in bp2_text:
-        return []
+    def retained_entries(gate: str) -> list[str]:
+        prefix = f"{ACCEPTED_GATE_ARTIFACTS_DIR_NAME}/{gate}/"
+        return [
+            entry
+            for entry in folder_entries
+            if entry.startswith(prefix) and PurePosixPath(entry).suffix.lower() != ".zip"
+        ]
 
-    bp1_prefix = f"{ACCEPTED_GATE_ARTIFACTS_DIR_NAME}/BP1/"
-    retained_bp1_entries = [
-        entry
-        for entry in folder_entries
-        if entry.startswith(bp1_prefix) and PurePosixPath(entry).suffix.lower() != ".zip"
-    ]
-    if retained_bp1_entries:
-        return []
-    return [
-        "BP2 prerequisite evidence missing: accepted or waived BP1 trace requires "
-        f"retained internal evidence under {bp1_prefix} instead of an old BP1 ZIP"
-    ]
+    if primary_bp2 and "bp2" in start_here:
+        bp2_text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE).casefold()
+        if "accepted bp1" in bp2_text or "bp1 accepted" in bp2_text:
+            bp1_prefix = f"{ACCEPTED_GATE_ARTIFACTS_DIR_NAME}/BP1/"
+            if not retained_entries("BP1"):
+                failures.append(
+                    "BP2 prerequisite evidence missing: accepted or waived BP1 trace requires "
+                    f"retained internal evidence under {bp1_prefix} instead of an old BP1 ZIP"
+                )
+
+    if bp3_packet:
+        for gate in ("BP1", "BP2"):
+            gate_prefix = f"{ACCEPTED_GATE_ARTIFACTS_DIR_NAME}/{gate}/"
+            if not retained_entries(gate):
+                failures.append(
+                    "BP3 prerequisite evidence missing: accepted BP3 trace requires "
+                    f"retained internal evidence under {gate_prefix} instead of old root ZIP exports"
+                )
+    return failures
 
 
 def _fam003_lv1_visual_retest_packet_detected(packet_files: Mapping[str, str]) -> bool:
@@ -3160,6 +3200,7 @@ def validate_local_user_packet(
     layout_entries = zip_entries if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else folder_entries
     layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, layout_entries)
     failures.extend(layout_failures)
+    failures.extend(_accepted_gate_artifact_structure_failures(layout_entries))
 
     folder_packet_files = _packet_text_files(packet_dir)
     packet_files = zip_packet_files if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else (zip_packet_files or folder_packet_files)

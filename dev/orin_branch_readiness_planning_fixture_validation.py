@@ -4902,6 +4902,60 @@ def _validate_user_review_bundle_accepted_gate_artifact_guard() -> list[str]:
             failures.append(
                 "Local USER packet validation rejected BP2 even with retained internal BP1 evidence"
             )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "FAM-006"
+        export_zip = review_root / "FAM-006-20260629-160000.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        nested_bp1 = (
+            packet_dir
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP1"
+            / "BP1"
+            / "USER_BRANCH_VISION_REVIEW.md"
+        )
+        nested_bp1.parent.mkdir(parents=True, exist_ok=True)
+        nested_bp1.write_text(
+            "# Recursively Nested Accepted BP1 Evidence\n\n"
+            "This fixture models the invalid Accepted Gate Artifacts/BP1/BP1 tree.\n",
+            encoding="utf-8",
+        )
+        nested_accepted_root = (
+            packet_dir
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP2"
+            / review_bundle.ACCEPTED_GATE_ARTIFACTS_DIR_NAME
+            / "BP1"
+            / "USER_BRANCH_VISION_REVIEW.md"
+        )
+        nested_accepted_root.parent.mkdir(parents=True, exist_ok=True)
+        nested_accepted_root.write_text(
+            "# Nested Accepted Gate Artifacts Evidence\n\n"
+            "This fixture models recursive accepted-gate artifact promotion.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        nested_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="FAM-006",
+        )
+        if not any(
+            "Accepted Gate Artifacts must not recursively nest the same BP gate" in failure
+            for failure in nested_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation did not reject Accepted Gate Artifacts/BP1/BP1 recursion"
+            )
+        if not any(
+            "Accepted Gate Artifacts must not contain nested accepted-gate artifact directories"
+            in failure
+            for failure in nested_result.failures
+        ):
+            failures.append(
+                "Local USER packet validation did not reject nested Accepted Gate Artifacts directories"
+            )
     return failures
 
 
