@@ -3810,6 +3810,9 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             (
                 authority_marker,
                 " ".join(" ".join(row) for row in implementation_authority_rows),
+                " ".join(
+                    row[2] for row in visual_family_rows if len(row) >= 3
+                ),
             )
         )
     )
@@ -3928,20 +3931,41 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET,
     )
 
-    for forbidden, snippet in (
-        ("screenshot exists therefore accepted", EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
-        ("screenshot path proves visual acceptance", EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
-        ("helper green proves visual acceptance", EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
-        ("validator green proves visual acceptance", EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
-        ("css similarity proves visual family", EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET),
-        ("css marker similarity proves visual family", EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET),
-        ("reviewable packet means user accepted", EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET),
-        ("uiref citation alone is sufficient", EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET),
-        ("reference cited but not compared", EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET),
-        ("implementation-first visual target backfill", EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET),
-        ("visual target created after implementation", EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET),
+    for pattern, snippet in (
+        (
+            r"\bscreenshot\s+exists\s+therefore\s+accepted\b|\bscreenshot\s+(?:exists|path)\s+(?:therefore\s+)?(?:proves|equals|is|means)\s+(?:visual\s+)?accept(?:ance|ed)\b",
+            EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET,
+        ),
+        (
+            r"\b(?:helper|validator)\s+green\s+(?:proves|equals|is|means)\s+visual\s+acceptance\b",
+            EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET,
+        ),
+        (
+            r"\bcss\s+(?:marker\s+)?similarity\s+(?:proves|equals|is|means)\s+visual\s+family\b",
+            EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET,
+        ),
+        (
+            r"\breviewable\s+packet\s+means\s+user\s+accepted\b",
+            EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET,
+        ),
+        (
+            r"\buiref\s+citation\s+alone\s+is\s+sufficient\b",
+            EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+        ),
+        (
+            r"\breference\s+cited\s+but\s+not\s+compared\b",
+            EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+        ),
+        (
+            r"\bimplementation-first\s+visual\s+target\s+backfill\b",
+            EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET,
+        ),
+        (
+            r"\bvisual\s+target\s+created\s+after\s+implementation\b",
+            EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET,
+        ),
     ):
-        require(forbidden not in normalized, snippet)
+        require(re.search(pattern, normalized) is None, snippet)
 
     role_scope = governance._normalized_planning_value(
         " ".join(
@@ -4071,6 +4095,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject incomplete second visual row"
+        )
+
+    generated_visual_family_template_authority_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Implementation Template Instantiated | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+    )
+    generated_visual_family_template_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_family_template_authority_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_visual_family_template_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject template claim hidden in visual-family row"
         )
 
     generated_shared_primitive_claim = valid_text.replace(
@@ -4323,6 +4363,34 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             "Generated Visual Acceptance fixture did not reject helper-green visual acceptance claim"
         )
 
+    generated_helper_green_means_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green means visual acceptance for this review packet.",
+    )
+    generated_helper_green_means_failures = _validate_visual_acceptance_enforcement_text(
+        generated_helper_green_means_claim
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_means_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green means visual acceptance claim"
+        )
+
+    generated_screenshot_equals_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot path equals visual acceptance for this review packet.",
+    )
+    generated_screenshot_equals_failures = _validate_visual_acceptance_enforcement_text(
+        generated_screenshot_equals_claim
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_equals_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-path equals visual acceptance claim"
+        )
+
     generated_css_similarity_claim = valid_text.replace(
         "Visual Family Relation Proof: Row-by-row comparison maps title stack, frame, window control cluster, card borders, typography, spacing, glow, states, and scroll behavior against UIREF-001 through UIREF-004.",
         "Visual Family Relation Proof: CSS similarity proves visual family for title stack, frame, window controls, cards, spacing, glow, states, and scroll behavior.",
@@ -4335,6 +4403,20 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject CSS similarity as visual-family proof"
+        )
+
+    generated_css_similarity_is_claim = valid_text.replace(
+        "Visual Family Relation Proof: Row-by-row comparison maps title stack, frame, window control cluster, card borders, typography, spacing, glow, states, and scroll behavior against UIREF-001 through UIREF-004.",
+        "Visual Family Relation Proof: CSS similarity is visual family for title stack, frame, window controls, cards, spacing, glow, states, and scroll behavior.",
+    )
+    generated_css_similarity_is_failures = _validate_visual_acceptance_enforcement_text(
+        generated_css_similarity_is_claim
+    )
+    if EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET not in "\n".join(
+        generated_css_similarity_is_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject CSS similarity is visual-family claim"
         )
 
     generated_implementation_backfill_claim = valid_text.replace(
