@@ -4065,6 +4065,12 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "shared primitive gap",
         "source-truth gap",
         "mismatch",
+        "not compared",
+        "not reviewed",
+        "not evaluated",
+        "uncompared",
+        "unreviewed",
+        "comparison missing",
     )
     green_visual_verdict_pattern = re.compile(
         r"\b(?:conforming|green|pass|accepted|resolved)\b"
@@ -4214,6 +4220,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject unresolved match columns with green verdict"
+        )
+
+    generated_visual_match_not_compared_green_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Not compared | Not compared | CONFORMING | Continue |",
+    )
+    generated_not_compared_green_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_match_not_compared_green_claim
+        )
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET not in "\n".join(
+        generated_not_compared_green_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject not-compared match columns with green verdict"
         )
 
     generated_visual_nonconforming_blocker_claim = valid_text.replace(
