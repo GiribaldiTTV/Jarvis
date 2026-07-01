@@ -5877,6 +5877,43 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         failures.append(
             "Invalid USER review bundle fixture did not reject screenshot path as accepted"
         )
+    screenshot_user_acceptance_packet_files = dict(packet_files)
+    screenshot_user_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: screenshot path means USER acceptance.\n"
+        + "Visual Acceptance: screenshot is USER accepted.\n"
+    )
+    if "screenshot-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            screenshot_user_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject screenshot path as USER acceptance"
+        )
+    helper_acceptance_packet_files = dict(packet_files)
+    helper_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: helper green means acceptance.\n"
+        + "Visual Acceptance: helper green means USER acceptance.\n"
+        + "Visual Acceptance: validator passed means accepted.\n"
+    )
+    if "helper-green-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            helper_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject helper or validator green as acceptance"
+        )
     uiref_citation_acceptance_packet_files = dict(packet_files)
     uiref_citation_acceptance_packet_files[
         f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
@@ -5946,6 +5983,24 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         failures.append(
             "Invalid USER review bundle fixture did not reject packet reviewability as USER acceptance"
         )
+    unsafe_status_acceptance_packet_files = dict(packet_files)
+    unsafe_status_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nReviewable status proves acceptance.\n"
+        + "Packet status means accepted.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_status_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject reviewable or packet status as acceptance"
+        )
     unsafe_packet_validation_packet_files = dict(packet_files)
     unsafe_packet_validation_packet_files[
         f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
@@ -5962,6 +6017,24 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
     ):
         failures.append(
             "Invalid USER review bundle fixture did not reject packet validation as USER accepted"
+        )
+    unsafe_validation_pass_packet_files = dict(packet_files)
+    unsafe_validation_pass_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nValidation pass proves acceptance.\n"
+        + "Validation passed means USER accepted.\n"
+    )
+    if "packet-validation-as-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_validation_pass_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject validation pass as acceptance"
         )
     safe_reviewability_packet_files = dict(packet_files)
     safe_reviewability_packet_files[

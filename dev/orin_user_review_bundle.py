@@ -259,6 +259,13 @@ USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...]
 )
 MIN_PRIMARY_REVIEW_WORDS = 80
 MIN_PRIMARY_REVIEW_CHARACTERS = 500
+_FALSE_GREEN_ACCEPTANCE_TARGET = (
+    r"(?:USER\s+visual\s+acceptance|USER\s+acceptance|USER\s+accepted|"
+    r"product\s+acceptance|visual\s+acceptance|accepted|acceptance)\b"
+)
+_FALSE_GREEN_PENDING_NEGATION = (
+    r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
+)
 FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "stale-dev-owner-skeleton-accepted",
@@ -279,9 +286,9 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "packet-validation-as-acceptance",
         re.compile(
-            r"packet validation (?:equals|is|means)\s+"
-            r"(?:USER\s+acceptance|USER\s+accepted|accepted|acceptance)\b"
-            r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))",
+            r"(?:packet validation|validation pass(?:ed)?)\s+(?:proves|equals|is|means)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION,
             re.IGNORECASE,
         ),
     ),
@@ -289,10 +296,11 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "packet-reviewability-as-product-acceptance",
         re.compile(
             r"(?:"
-            r"(?:packet reviewability|reviewable packet)\s+(?:equals|is|means)\s+"
-            r"(?:(?:product|visual|USER visual)\s+acceptance|USER\s+acceptance|USER\s+accepted|accepted|acceptance)\b"
-            r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
-            r")",
+            r"(?:packet reviewability|reviewable packet|reviewable status|reviewability status|packet status)\s+"
+            r"(?:proves|equals|is|means)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION
+            + r")",
             re.IGNORECASE,
         ),
     ),
@@ -300,7 +308,9 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "screenshot-as-visual-acceptance",
         re.compile(
             r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is)\s+"
-            r"(?:visual\s+acceptance|accepted|acceptance)|"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION
+            + r"|"
             r"screenshot exists therefore accepted)",
             re.IGNORECASE,
         ),
@@ -308,7 +318,9 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "helper-green-as-visual-acceptance",
         re.compile(
-            r"(?:helper|validator)\s+(?:green|pass(?:ed)?)\s+(?:proves|equals|means|is)\s+visual acceptance",
+            r"(?:helper|validator)\s+(?:green|pass(?:ed)?)\s+(?:proves|equals|means|is)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION,
             re.IGNORECASE,
         ),
     ),
