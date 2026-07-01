@@ -399,7 +399,9 @@
         "role-ambiguous child surface lacks functionality contract",
         "visual acceptance target tbd or pending user review",
         "template source path tbd or none",
-        "primitive source path tbd or none"
+        "primitive source path tbd or none",
+        "table-only approved template yes without source path",
+        "table-only approved shared primitive yes without source path"
       ],
       "sibling_variant_replay": [
         "BP2/BP3 Visual Acceptance Target Plan",

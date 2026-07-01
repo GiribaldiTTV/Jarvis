@@ -3653,6 +3653,15 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             return True
         return False
 
+    def is_affirmative_authority_cell(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        return (
+            normalized_value == "yes"
+            or normalized_value.startswith(("yes ", "yes -", "approved "))
+            or "approved template" in normalized_value
+            or "approved shared primitive" in normalized_value
+        )
+
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
         return [
             row
@@ -3745,6 +3754,14 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "shared primitive gap",
         "source-truth gap",
     )
+    table_claims_template = any(
+        len(row) >= 2 and is_affirmative_authority_cell(row[1])
+        for row in implementation_authority_rows
+    )
+    table_claims_shared_primitive = any(
+        len(row) >= 3 and is_affirmative_authority_cell(row[2])
+        for row in implementation_authority_rows
+    )
     require(
         any(term in authority_scope for term in authority_terms),
         EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
@@ -3754,6 +3771,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         or "approved template? yes" in authority_scope
         or "template consumed" in authority_scope
         or "ai control center template" in authority_scope
+        or table_claims_template
     ):
         require(
             has_substantive_label_value("Template source path:"),
@@ -3763,6 +3781,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "shared primitive consumed" in authority_scope
         or "approved shared primitive? yes" in authority_scope
         or "shared primitive consumed" in normalized
+        or table_claims_shared_primitive
     ):
         require(
             has_substantive_label_value("Primitive source path:"),
@@ -3975,6 +3994,34 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject placeholder primitive source path"
+        )
+
+    generated_table_only_template_claim = valid_text.replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_table_only_template_failures = _validate_visual_acceptance_enforcement_text(
+        generated_table_only_template_claim
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_table_only_template_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject table-only template claim"
+        )
+
+    generated_table_only_primitive_claim = valid_text.replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved primitive source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_table_only_primitive_failures = _validate_visual_acceptance_enforcement_text(
+        generated_table_only_primitive_claim
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_table_only_primitive_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject table-only primitive claim"
         )
 
     generated_helper_green_claim = valid_text.replace(
