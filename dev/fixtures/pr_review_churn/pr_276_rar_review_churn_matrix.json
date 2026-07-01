@@ -57,20 +57,24 @@
       },
       {
         "pr": 289,
-        "connector_comments": 9,
+        "connector_comments": 11,
         "observed_family_counts": {
+          "rar-phase-advancement-parser": 1,
           "rar-table-row-parser": 1,
           "rar-user-packet-proof-parser": 1,
-          "visual-acceptance-proof-chain-parser": 9
+          "visual-acceptance-proof-chain-parser": 11
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants, exact branch-plan field-label synchronization, or explanatory negative authority-table wording.",
-        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, placeholder target/source values, template/shared-primitive claims that omit consumer contracts, and equals/is/means reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording and explanatory negative authority cells; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
+        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants, exact branch-plan field-label synchronization, explanatory negative authority-table wording, incomplete additional material rows, or current source-truth authority for claimed templates/shared primitives.",
+        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, placeholder target/source values, incomplete material table rows, template/shared-primitive claims that omit consumer contracts, template/shared-primitive claims while the catalog records no promoted implementation templates or code-level shared primitives, UIREF reference paths used as template/primitive sources, and equals/is/means reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording and explanatory negative authority cells; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
         "preventive_changes": [
           "dev/orin_branch_readiness_planning_fixture_validation.py enforces exactly one Implementation Authority Classification term for visual acceptance planning.",
           "dev/orin_branch_readiness_planning_fixture_validation.py validates substantive Template/Primitive source-path values and consumer-contract values.",
           "dev/orin_branch_readiness_planning_fixture_validation.py adds generated adversarial mutations for placeholder targets, placeholder source paths, table-only authority claims, and source-without-consumer-contract claims.",
           "dev/orin_branch_readiness_planning_fixture_validation.py treats explanatory negative authority-table cells such as no approved template exists as non-claims.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects incomplete material rows instead of dropping them before table-level proof checks.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects template/shared-primitive authority claims while the UI Reference Catalog records no promoted implementation templates or code-level shared primitives.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects UIREF reference paths as template or primitive source paths.",
           "dev/orin_branch_readiness_planning_fixture_validation.py rejects packet-reviewability-as-product-acceptance phrasing across equals/is/means variants while allowing explicit pending-acceptance phrasing.",
           "dev/orin_branch_readiness_planning_fixture_validation.py proves USER packet false-green scanning rejects reviewability-as-acceptance but allows pending-acceptance wording.",
           "dev/orin_user_review_bundle.py narrows packet reviewability/product acceptance false-green matching to avoid pending-acceptance false reds.",
@@ -429,6 +433,9 @@
         "table-only approved template yes without source path",
         "table-only approved shared primitive yes without source path",
         "negative approved template/shared primitive authority cells pass as non-claims",
+        "incomplete second visual row fails instead of being dropped",
+        "UIREF path used as template source fails even with a consumer contract",
+        "template/shared primitive claims fail while the catalog has no promoted implementation authority",
         "dual implementation authority classification",
         "template source path without template consumer contract",
         "primitive source path without primitive consumer contract",

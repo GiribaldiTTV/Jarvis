@@ -34,6 +34,7 @@ PR_REVIEW_CHURN_MATRIX_FIXTURE = (
     / "pr_review_churn"
     / "pr_276_rar_review_churn_matrix.json"
 )
+UI_REFERENCE_CATALOG_README = ROOT / "Docs" / "ui_reference_catalog" / "README.md"
 
 
 def _pr_review_churn_receipt_exceeds_budget(
@@ -3624,7 +3625,11 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         } or normalized_value.startswith(("tbd ", "todo ", "placeholder "))
 
     def has_substantive_label_value(label: str) -> bool:
+        return bool(substantive_label_values(label))
+
+    def substantive_label_values(label: str) -> list[str]:
         label_pattern = re.escape(label)
+        values: list[str] = []
         for match in re.finditer(
             rf"(?im){label_pattern}\s*([^\n|]+)",
             text,
@@ -3650,8 +3655,8 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
                 )
             ):
                 continue
-            return True
-        return False
+            values.append(value)
+        return values
 
     def is_affirmative_authority_cell(value: str) -> bool:
         normalized_value = governance._normalized_planning_value(value).strip(" .;:")
@@ -3670,21 +3675,85 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             and not any(is_placeholder_cell(cell) for cell in row[:expected_columns])
         ]
 
+    def has_incomplete_table_rows(rows: list[list[str]], expected_columns: int) -> bool:
+        return any(
+            len(row) != expected_columns
+            or any(is_placeholder_cell(cell) for cell in row[:expected_columns])
+            for row in rows
+        )
+
+    def catalog_currently_promotes_templates() -> bool:
+        try:
+            catalog_text = governance._normalized_planning_value(
+                UI_REFERENCE_CATALOG_README.read_text(encoding="utf-8")
+            )
+        except OSError:
+            return False
+        return (
+            "current implementation-template status: no catalog record currently promotes"
+            not in catalog_text
+        )
+
+    def catalog_currently_promotes_shared_primitives() -> bool:
+        try:
+            catalog_text = governance._normalized_planning_value(
+                UI_REFERENCE_CATALOG_README.read_text(encoding="utf-8")
+            )
+        except OSError:
+            return False
+        return (
+            "current shared-primitive status: no catalog record currently promotes"
+            not in catalog_text
+        )
+
+    def source_values_point_at_reference_records(values: list[str]) -> bool:
+        return any(
+            "docs/ui_reference_catalog/uiref-" in value
+            or re.search(r"\buiref-\d{3}\b", value)
+            for value in values
+        )
+
+    visual_family_table_rows = table_rows_after_header(visual_family_header, 12)
+    implementation_authority_table_rows = table_rows_after_header(
+        implementation_authority_header,
+        8,
+    )
+    functionality_role_table_rows = table_rows_after_header(
+        functionality_role_header,
+        10,
+    )
+    visual_chain_table_rows = table_rows_after_header(visual_chain_header, 5)
     visual_family_rows = substantive_rows(
-        table_rows_after_header(visual_family_header, 12),
+        visual_family_table_rows,
         12,
     )
     implementation_authority_rows = substantive_rows(
-        table_rows_after_header(implementation_authority_header, 8),
+        implementation_authority_table_rows,
         8,
     )
     functionality_role_rows = substantive_rows(
-        table_rows_after_header(functionality_role_header, 10),
+        functionality_role_table_rows,
         10,
     )
     visual_chain_rows = substantive_rows(
-        table_rows_after_header(visual_chain_header, 5),
+        visual_chain_table_rows,
         5,
+    )
+    require(
+        not has_incomplete_table_rows(visual_family_table_rows, 12),
+        EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+    )
+    require(
+        not has_incomplete_table_rows(implementation_authority_table_rows, 8),
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    require(
+        not has_incomplete_table_rows(functionality_role_table_rows, 10),
+        EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+    )
+    require(
+        not has_incomplete_table_rows(visual_chain_table_rows, 5),
+        "Visual Acceptance Chain Missing",
     )
     require(bool(visual_family_rows), EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET)
     require(
@@ -3781,8 +3850,14 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         or "ai control center template" in authority_scope
         or table_claims_template
     ):
+        template_source_values = substantive_label_values("Template source path:")
         require(
-            has_substantive_label_value("Template source path:"),
+            bool(template_source_values),
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            catalog_currently_promotes_templates()
+            and not source_values_point_at_reference_records(template_source_values),
             EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
         )
         require(
@@ -3795,8 +3870,14 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         or "shared primitive consumed" in normalized
         or table_claims_shared_primitive
     ):
+        primitive_source_values = substantive_label_values("Primitive source path:")
         require(
-            has_substantive_label_value("Primitive source path:"),
+            bool(primitive_source_values),
+            EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            catalog_currently_promotes_shared_primitives()
+            and not source_values_point_at_reference_records(primitive_source_values),
             EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
         )
         require(
@@ -3978,6 +4059,20 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
                 f"Invalid Visual Acceptance fixture did not reject {label}"
             )
 
+    generated_incomplete_second_visual_row = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |\n| AI readiness child window | TBD | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame and compact controls | Readiness content may differ | TBD | Match planned | Match planned | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+    )
+    generated_incomplete_row_failures = _validate_visual_acceptance_enforcement_text(
+        generated_incomplete_second_visual_row
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET not in "\n".join(
+        generated_incomplete_row_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject incomplete second visual row"
+        )
+
     generated_shared_primitive_claim = valid_text.replace(
         "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
         "Shared Primitive Consumed - the branch claims a shared primitive but omits the primitive source path.",
@@ -4078,6 +4173,25 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject template source without consumer contract"
+        )
+
+    generated_template_uiref_source_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Template Instantiated - the branch claims an AI Control Center template. Template source path: Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md. Template consumer contract: instantiate the claimed template and prove all non-editable visual invariants.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_template_uiref_source_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_template_uiref_source_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_template_uiref_source_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject UIREF path as template source"
         )
 
     generated_primitive_source_no_contract_claim = valid_text.replace(
