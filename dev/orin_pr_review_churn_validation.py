@@ -42,6 +42,7 @@ CLASSIFIER_CONTEXT_KEYWORDS = (
     "pr readiness",
     "uiref",
     "code-to-visual",
+    "visual acceptance",
 )
 GENERIC_CLASSIFIER_KEYWORDS = {
     "status",
@@ -251,6 +252,30 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "visual match",
             "behavior match",
             "visual",
+        ),
+    ),
+    FamilyRule(
+        "visual-acceptance-proof-chain-parser",
+        (
+            "visual acceptance",
+            "visual acceptance target",
+            "accepted reference set",
+            "comparative synthesis",
+            "visual family relation",
+            "implementation authority",
+            "reference-derived implementation",
+            "implementation match proof",
+            "pre-live visual purpose conformance",
+            "packet reviewability",
+            "product acceptance",
+            "screenshot-green",
+            "screenshot green",
+            "helper green",
+            "validator green",
+            "template claim",
+            "shared primitive",
+            "functionality role",
+            "role ambiguous",
         ),
     ),
     FamilyRule(
@@ -584,6 +609,33 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-code-to-visual-reference-parser" not in _classify_comment(visual_comment):
         failures.append(
             "Comment-family classifier did not classify code-to-visual comparison drift"
+        )
+    visual_acceptance_comment = (
+        "Reject screenshot-green Visual Acceptance Target claims because packet "
+        "reviewability, helper green, and a template claim cannot prove product "
+        "acceptance without an accepted reference set and implementation match proof."
+    )
+    if "visual-acceptance-proof-chain-parser" not in _classify_comment(
+        visual_acceptance_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify visual acceptance proof-chain drift"
+        )
+    visual_role_comment = (
+        "The diagnostics surface is role ambiguous because the Functionality Role "
+        "Contract and Implementation Authority table do not distinguish the child "
+        "window from the AI Dashboard comparator."
+    )
+    if "visual-acceptance-proof-chain-parser" not in _classify_comment(
+        visual_role_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify visual acceptance role-contract drift"
+        )
+    unrelated_screenshot = "A screenshot filename changed during a docs cleanup pass."
+    if _classify_comment(unrelated_screenshot) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched unrelated screenshot wording"
         )
     durability_comment = (
         "Require candidate lineage before carrying external candidates from the "

@@ -75,6 +75,7 @@
       "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
       "rar-table-row-parser",
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
@@ -90,11 +91,15 @@
       "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
       "rar-table-row-parser",
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
       "repo-live-state-boundary-parser",
       "pr-readiness-review-risk-parser"
+    ],
+    "dev/orin_user_review_bundle.py": [
+      "visual-acceptance-proof-chain-parser"
     ]
   },
   "families": [
@@ -351,6 +356,55 @@
         "Backend-to-visual trace row",
         "comparison-column mismatch with green status text",
         "accepted-reference gap/issue mismatch with resolved RAR stage"
+      ]
+    },
+    {
+      "family_id": "visual-acceptance-proof-chain-parser",
+      "title": "Visual Acceptance proof-chain and packet false-green coverage",
+      "representative_comment_patterns": [
+        "Screenshot existence, helper green, validator green, CSS similarity, or UIREF citation treated as Visual Acceptance",
+        "Implementation template or shared primitive claimed without approved source path",
+        "Packet reviewability treated as product or visual acceptance",
+        "Role-ambiguous child or diagnostics surface allowed to proceed",
+        "Implementation-first visual target backfill accepted"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/branch_plans/README.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md",
+        "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py",
+        "dev/orin_user_review_bundle.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/valid_visual_acceptance_enforcement_chain.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_missing_target.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_screenshot_green.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_uiref_no_comparison.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_template_claim.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_packet_reviewability_acceptance.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_role_ambiguous.md"
+      ],
+      "generated_mutation_coverage": [
+        "shared primitive claim without source path",
+        "helper green proves visual acceptance",
+        "CSS similarity proves visual family",
+        "implementation-first visual target backfill",
+        "screenshot exists therefore accepted",
+        "packet reviewability equals product acceptance",
+        "role-ambiguous child surface lacks functionality contract"
+      ],
+      "sibling_variant_replay": [
+        "BP2/BP3 Visual Acceptance Target Plan",
+        "Pre-Live Visual Purpose Conformance",
+        "USER packet false-green scan",
+        "Accepted Reference Set / Comparative Synthesis table",
+        "Implementation Authority Table",
+        "Functionality Role Contract Table"
       ]
     },
     {
