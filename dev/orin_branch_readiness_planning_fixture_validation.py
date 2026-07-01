@@ -315,6 +315,27 @@ VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
 INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_deferred_carryforward_missing_applicability.md"
 )
+VALID_VISUAL_ACCEPTANCE_ENFORCEMENT_FIXTURE = (
+    FIXTURE_DIR / "valid_visual_acceptance_enforcement_chain.md"
+)
+INVALID_VISUAL_ACCEPTANCE_MISSING_TARGET_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_missing_target.md"
+)
+INVALID_VISUAL_ACCEPTANCE_SCREENSHOT_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_screenshot_green.md"
+)
+INVALID_VISUAL_ACCEPTANCE_UIREF_NO_COMPARISON_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_uiref_no_comparison.md"
+)
+INVALID_VISUAL_ACCEPTANCE_TEMPLATE_CLAIM_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_template_claim.md"
+)
+INVALID_VISUAL_ACCEPTANCE_PACKET_REVIEWABILITY_ACCEPTANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_packet_reviewability_acceptance.md"
+)
+INVALID_VISUAL_ACCEPTANCE_ROLE_AMBIGUOUS_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_role_ambiguous.md"
+)
 VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_review.md"
 )
@@ -712,6 +733,31 @@ EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By
 EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
 EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
 EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET = "RAR Issue Candidate Durability Missing"
+EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET = "Visual Acceptance Target Missing"
+EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET = "Visual Family Relation Proof Missing"
+EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET = "Implementation Authority Classification Missing"
+EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET = "Functionality Role Contract Missing"
+EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET = "Pre-Live Visual Purpose Conformance Missing"
+EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET = (
+    "Packet Reviewability Treated As Product Acceptance"
+)
+EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET = (
+    "Screenshot Path Treated As Visual Acceptance"
+)
+EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET = (
+    "Helper Green Treated As Visual Acceptance"
+)
+EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET = (
+    "CSS Similarity Treated As Visual Family Proof"
+)
+EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET = "Template Claim Unsupported"
+EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET = "Shared Primitive Claim Unsupported"
+EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET = (
+    "Accepted Reference Not Compared"
+)
+EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET = (
+    "Implementation-First Visual Target Backfill"
+)
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -3486,6 +3532,394 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     return failures
 
 
+def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+
+    required_markers = (
+        "Material Visible Change Classification:",
+        "Visual Acceptance Target Plan:",
+        "Implementation Authority Classification:",
+        "Accepted Reference Set / Comparative Synthesis:",
+        "Visual Family Relation Proof:",
+        "Implementation Authority Table:",
+        "Functionality Role Contract:",
+        "Implementation Match Proof Plan:",
+        "Pre-Live Visual Purpose Conformance:",
+        "Visual Acceptance Chain:",
+        "Packet Reviewability vs Product Acceptance:",
+    )
+    marker_failures = {
+        "Visual Acceptance Target Plan:": EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+        "Implementation Authority Classification:": EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+        "Accepted Reference Set / Comparative Synthesis:": EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+        "Visual Family Relation Proof:": EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+        "Implementation Authority Table:": EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+        "Functionality Role Contract:": EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+        "Pre-Live Visual Purpose Conformance:": EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET,
+    }
+    for marker in required_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(
+            bool(value) and governance._planning_word_count(value) >= 3,
+            marker_failures.get(marker, f"Visual Acceptance Chain Missing: {marker}"),
+        )
+
+    visual_family_header = (
+        "| Surface / Window | Role Classification | Implementation Authority | Accepted Reference | "
+        "Element Group | Invariant Traits | Feature-Specific Traits | Rendered Evidence | "
+        "Visual Match | Functional Match | Verdict | Next Legal Action |"
+    )
+    implementation_authority_header = (
+        "| Surface / Window | Approved Template? | Approved Shared Primitive? | Promoted Reference Consumed? | "
+        "Reference-Derived? | One-Off? | Gap / Exception | Proof Required |"
+    )
+    functionality_role_header = (
+        "| Window / Surface | Product Role | Parent / Launch Source | Primary Actions | Secondary Actions | "
+        "Non-Goals | Backend / State Owner | UI-Visible Truth Mapping | Recovery / Failure Behavior | "
+        "Separate Surface Justification |"
+    )
+    visual_chain_header = (
+        "| Gate | Required Visual Proof | What Cannot Prove It | Blocking Condition | USER Decision Needed? |"
+    )
+
+    def table_rows_after_header(header: str, expected_columns: int) -> list[list[str]]:
+        lines = text.splitlines()
+        try:
+            header_index = next(
+                index for index, line in enumerate(lines) if line.strip() == header
+            )
+        except StopIteration:
+            return []
+        rows: list[list[str]] = []
+        seen_separator = False
+        for line in lines[header_index + 1 :]:
+            if not line.strip().startswith("|"):
+                if rows or seen_separator:
+                    break
+                if line.strip():
+                    return [[line.strip()]]
+                continue
+            cells = governance._markdown_table_cells(line)
+            if governance._is_markdown_table_separator(cells):
+                if len(cells) != expected_columns:
+                    rows.append(cells)
+                seen_separator = True
+                continue
+            if not seen_separator:
+                continue
+            rows.append(cells)
+        return rows
+
+    def is_placeholder_cell(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        return normalized_value in {
+            "",
+            "tbd",
+            "todo",
+            "placeholder",
+            "none",
+            "n/a",
+            "not applicable",
+        } or normalized_value.startswith(("tbd ", "todo ", "placeholder "))
+
+    def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
+        return [
+            row
+            for row in rows
+            if len(row) == expected_columns
+            and not any(is_placeholder_cell(cell) for cell in row[:expected_columns])
+        ]
+
+    visual_family_rows = substantive_rows(
+        table_rows_after_header(visual_family_header, 12),
+        12,
+    )
+    implementation_authority_rows = substantive_rows(
+        table_rows_after_header(implementation_authority_header, 8),
+        8,
+    )
+    functionality_role_rows = substantive_rows(
+        table_rows_after_header(functionality_role_header, 10),
+        10,
+    )
+    visual_chain_rows = substantive_rows(
+        table_rows_after_header(visual_chain_header, 5),
+        5,
+    )
+    require(bool(visual_family_rows), EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET)
+    require(
+        bool(implementation_authority_rows),
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    require(bool(functionality_role_rows), EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET)
+    require(bool(visual_chain_rows), "Visual Acceptance Chain Missing")
+
+    visual_target = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Visual Acceptance Target Plan:")
+    )
+    require(
+        bool(visual_target)
+        and "visual acceptance target" in visual_target
+        and not any(
+            forbidden in visual_target
+            for forbidden in (
+                "after implementation",
+                "after workstream",
+                "backfill",
+                "packet path only",
+                "screenshot only",
+            )
+        ),
+        EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+
+    authority_scope = governance._normalized_planning_value(
+        " ".join(
+            (
+                governance._extract_marker_value(
+                    text, "Implementation Authority Classification:"
+                ),
+                " ".join(" ".join(row) for row in implementation_authority_rows),
+            )
+        )
+    )
+    authority_terms = (
+        "shared primitive consumed",
+        "implementation template instantiated",
+        "reference-derived implementation",
+        "one-off implementation",
+        "user-approved exception",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+        "source-truth gap",
+    )
+    require(
+        any(term in authority_scope for term in authority_terms),
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    if (
+        "implementation template instantiated" in authority_scope
+        or "approved template? yes" in authority_scope
+        or "template consumed" in authority_scope
+        or "ai control center template" in authority_scope
+    ):
+        require(
+            "template source path:" in normalized,
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+        )
+    if (
+        "shared primitive consumed" in authority_scope
+        or "approved shared primitive? yes" in authority_scope
+        or "shared primitive consumed" in normalized
+    ):
+        require(
+            "primitive source path:" in normalized,
+            EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
+        )
+
+    reference_scope = governance._normalized_planning_value(
+        governance._extract_marker_value(
+            text, "Accepted Reference Set / Comparative Synthesis:"
+        )
+    )
+    require(
+        (
+            "uiref" in reference_scope
+            or "accepted reference" in reference_scope
+            or "promoted reference" in reference_scope
+        )
+        and any(
+            token in reference_scope
+            for token in ("element-by-element", "row-by-row", "side-by-side", "compare")
+        ),
+        EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+    )
+
+    pre_live_scope = governance._normalized_planning_value(
+        governance._extract_marker_value(
+            text, "Pre-Live Visual Purpose Conformance:"
+        )
+    )
+    require(
+        bool(pre_live_scope)
+        and "before live validation" in pre_live_scope
+        and "implementation match" in pre_live_scope,
+        EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET,
+    )
+
+    for forbidden, snippet in (
+        ("screenshot exists therefore accepted", EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
+        ("screenshot path proves visual acceptance", EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
+        ("helper green proves visual acceptance", EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
+        ("validator green proves visual acceptance", EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET),
+        ("css similarity proves visual family", EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET),
+        ("css marker similarity proves visual family", EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET),
+        ("packet reviewability equals product acceptance", EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET),
+        ("reviewable packet means user accepted", EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET),
+        ("uiref citation alone is sufficient", EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET),
+        ("reference cited but not compared", EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET),
+        ("implementation-first visual target backfill", EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET),
+        ("visual target created after implementation", EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET),
+    ):
+        require(forbidden not in normalized, snippet)
+
+    role_scope = governance._normalized_planning_value(
+        " ".join(
+            (
+                governance._extract_marker_value(text, "Functionality Role Contract:"),
+                " ".join(" ".join(row) for row in functionality_role_rows),
+            )
+        )
+    )
+    require(
+        "role ambiguous" not in role_scope
+        and "unrouted detached child" not in role_scope
+        and "unclear parent" not in role_scope,
+        EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+    )
+
+    unresolved_visual_verdicts = (
+        "unproven",
+        "partial",
+        "nonconforming",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+        "source-truth gap",
+    )
+    for row in visual_family_rows:
+        verdict = governance._normalized_planning_value(row[10]).strip(" .;:")
+        next_action = governance._normalized_planning_value(row[11])
+        if any(status in verdict for status in unresolved_visual_verdicts):
+            require(
+                any(
+                    token in next_action
+                    for token in ("repair", "block", "user decision", "issue candidate", "defer")
+                ),
+                EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+            )
+
+    return failures
+
+
+def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
+    failures: list[str] = []
+
+    valid_text = VALID_VISUAL_ACCEPTANCE_ENFORCEMENT_FIXTURE.read_text(
+        encoding="utf-8"
+    )
+    valid_failures = _validate_visual_acceptance_enforcement_text(valid_text)
+    if valid_failures:
+        failures.append(
+            "Valid Visual Acceptance enforcement fixture unexpectedly failed: "
+            + "; ".join(valid_failures[:5])
+        )
+
+    invalid_cases = (
+        (
+            INVALID_VISUAL_ACCEPTANCE_MISSING_TARGET_FIXTURE,
+            EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+            "missing Visual Acceptance Target",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_SCREENSHOT_GREEN_FIXTURE,
+            EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET,
+            "screenshot path treated as Visual Acceptance",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_UIREF_NO_COMPARISON_FIXTURE,
+            EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+            "UIREF citation without element comparison",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_TEMPLATE_CLAIM_FIXTURE,
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+            "template claim without approved template source",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_PACKET_REVIEWABILITY_ACCEPTANCE_FIXTURE,
+            EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET,
+            "packet reviewability treated as product acceptance",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_ROLE_AMBIGUOUS_FIXTURE,
+            EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+            "role-ambiguous window allowed to continue",
+        ),
+    )
+    for fixture, expected_snippet, label in invalid_cases:
+        result = _validate_visual_acceptance_enforcement_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if expected_snippet not in "\n".join(result):
+            failures.append(
+                f"Invalid Visual Acceptance fixture did not reject {label}"
+            )
+
+    generated_shared_primitive_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Shared Primitive Consumed - the branch claims a shared primitive but omits the primitive source path.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | None | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | None | Element-by-element visual family proof before Workstream and Pre-Live. |",
+    )
+    generated_shared_primitive_failures = _validate_visual_acceptance_enforcement_text(
+        generated_shared_primitive_claim
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_shared_primitive_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject shared primitive claim without source"
+        )
+
+    generated_helper_green_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green proves visual acceptance for this review packet.",
+    )
+    generated_helper_green_failures = _validate_visual_acceptance_enforcement_text(
+        generated_helper_green_claim
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green visual acceptance claim"
+        )
+
+    generated_css_similarity_claim = valid_text.replace(
+        "Visual Family Relation Proof: Row-by-row comparison maps title stack, frame, window control cluster, card borders, typography, spacing, glow, states, and scroll behavior against UIREF-001 through UIREF-004.",
+        "Visual Family Relation Proof: CSS similarity proves visual family for title stack, frame, window controls, cards, spacing, glow, states, and scroll behavior.",
+    )
+    generated_css_similarity_failures = _validate_visual_acceptance_enforcement_text(
+        generated_css_similarity_claim
+    )
+    if EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET not in "\n".join(
+        generated_css_similarity_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject CSS similarity as visual-family proof"
+        )
+
+    generated_implementation_backfill_claim = valid_text.replace(
+        "Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.",
+        "Visual Acceptance Target Plan: Visual target created after implementation and used as implementation-first visual target backfill.",
+    )
+    generated_backfill_failures = _validate_visual_acceptance_enforcement_text(
+        generated_implementation_backfill_claim
+    )
+    if EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_backfill_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject implementation-first visual target backfill"
+        )
+
+    return failures
+
+
 def _validate_family_feature_vision_scaffolding_source_truth() -> list[str]:
     failures: list[str] = []
     ffv_dir = ROOT / "Docs" / "family_feature_visions"
@@ -4512,6 +4946,22 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
                 "Invalid USER review bundle identity fixture did not reject "
                 f"{expected}"
             )
+
+    false_green_packet_files = dict(packet_files)
+    false_green_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: screenshot exists therefore accepted.\n"
+    )
+    if "screenshot-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(false_green_packet_files)
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject screenshot existence as visual acceptance"
+        )
     return failures
 
 
@@ -9968,6 +10418,8 @@ line item, not a seam or separate branch.
             "Invalid BR2 Deferred Carryforward matrix fixture did not reject "
             "missing applicability/dependency/grouping proof"
         )
+
+    failures.extend(_validate_visual_acceptance_enforcement_fixtures())
 
     valid_rar_failures = _validate_rebaseline_adoption_review_text(
         VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE.read_text(encoding="utf-8")

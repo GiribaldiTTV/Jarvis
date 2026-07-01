@@ -116,7 +116,33 @@ Required branch-plan fields when the gate applies:
 - `Visual Target Exceptions / Waivers:`
 - `Visual Target Next Legal Phase:`
 
-BP1 should discover the visual purpose, source-truth conflicts, reference set, and whether the USER needs options before deciding final branch shape. BP2 should translate the accepted or waived visual direction into implementation proof requirements, state coverage, screenshot/video needs, and rollback. BP3 should verify that Workstream may implement only the USER-accepted/revised/waived target or explicitly route unresolved visual direction back to BP1/BP2. Workstream must not implement a material visible UI/UX change before the target decision is legal. Hardening and Live Validation must compare actual implementation screenshots/video against the accepted target; they cannot replace the missing target with post-hoc visual judgment.
+BP1 should discover the visual purpose, source-truth conflicts, reference set, and whether the USER needs options before deciding final branch shape. BP2 should translate the accepted or waived visual direction into implementation proof requirements, state coverage, screenshot/video needs, rollback, implementation authority classification, functionality role contract, and implementation-match proof plan. BP3 should verify that Workstream may implement only the USER-accepted/revised/waived target or explicitly route unresolved visual direction back to BP1/BP2. Workstream must not implement a material visible UI/UX change before the target decision is legal. Hardening and Live Validation must compare actual implementation screenshots/video against the accepted target; they cannot replace the missing target with post-hoc visual judgment.
+
+Required visual-proof chain fields when visible UI is material:
+
+- `Visual Acceptance Chain:`
+- `Implementation Authority Table:`
+- `Visual Family Relation Proof Table:`
+- `Functionality Role Contract Table:`
+- `Accepted Reference Set / Comparative Synthesis:`
+- `Implementation Match Proof Plan:`
+- `Pre-Live Visual Purpose Conformance Plan:`
+- `Packet Reviewability vs Product Acceptance:`
+
+The required chain is `Vision Contract -> UIREF / Accepted Reference Set -> Visual Acceptance Target -> Implementation Match Proof -> Pre-Live Visual Purpose Conformance -> Live Validation -> UTS / PR`. `Packet Reviewability State` and `Product Acceptance` are separate axes. A reviewable packet, clean timestamped ZIP, helper pass, validator pass, UIREF citation, CSS marker similarity, screenshot path, or Codex summary can start USER review, but it cannot become `USER_ACCEPTED Visual Acceptance Target`, `Implementation Match Proof PASS`, or Live Validation green without row-by-row visual-family comparison and the required USER decision or waiver.
+
+BP2/BP3 Workstream approval is invalid when a material visible UI plan lacks any of these:
+
+- accepted or reviewable Visual Acceptance Target path, or explicit `Not Applicable With Reason`
+- implementation authority classification: `Shared Primitive Consumed`, `Implementation Template Instantiated`, `Reference-Derived Implementation`, `One-Off Implementation`, `USER-Approved Exception`, `Reference Gap`, `Template Gap`, `Shared Primitive Gap`, or `Source-Truth Gap`
+- accepted reference set and comparative synthesis
+- visual family relation proof table
+- functionality role contract for each new, detached, child, modal, dashboard, diagnostics, settings, doorway, status, or recovery surface
+- state/contact-sheet coverage or explicit source-truth exception
+- implementation-match proof plan and expected evidence path
+- pre-Live visual purpose conformance plan
+
+Branches must not claim a template or shared primitive without the approved source path and consumer contract. If no approved implementation source exists, the branch must classify the surface as `Reference-Derived Implementation`, `One-Off Implementation`, or a gap/exception value and prove element-by-element parity against the accepted reference set before green.
 
 Branch-local external plans may keep detailed target ledgers and packet paths. Repo branch-plan files remain compact pointer and schema owners; they must not become live visual-target ledgers.
 

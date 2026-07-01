@@ -280,6 +280,42 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "packet-validation-as-acceptance",
         re.compile(r"packet validation (?:equals|is)\s+USER acceptance", re.IGNORECASE),
     ),
+    (
+        "packet-reviewability-as-product-acceptance",
+        re.compile(
+            r"packet reviewability (?:equals|means|is)\s+(?:product|visual|USER visual)\s+acceptance",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "screenshot-as-visual-acceptance",
+        re.compile(
+            r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is)\s+visual acceptance|"
+            r"screenshot exists therefore accepted)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "helper-green-as-visual-acceptance",
+        re.compile(
+            r"(?:helper|validator)\s+(?:green|pass(?:ed)?)\s+(?:proves|equals|means|is)\s+visual acceptance",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "css-similarity-as-visual-family-proof",
+        re.compile(
+            r"css(?:\s+marker)?\s+similarity\s+(?:proves|equals|means|is)\s+visual family",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "uiref-citation-as-visual-proof",
+        re.compile(
+            r"(?:UIREF citation alone is sufficient|reference cited but not compared)",
+            re.IGNORECASE,
+        ),
+    ),
 )
 REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "dashboardHubParentOnly",

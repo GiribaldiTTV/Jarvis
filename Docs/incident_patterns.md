@@ -242,6 +242,26 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/ui_reference_catalog/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Visual Acceptance Reviewability Becomes Product Acceptance
+
+- symptom:
+  a branch produces a clean USER packet, screenshot/contact-sheet evidence, UIREF citations, helper output, validator output, or CSS-marker comparison and then treats the surface as visually accepted even though USER did not accept/revise/waive a Visual Acceptance Target, no row-by-row visual-family comparison exists, and implementation-match proof is missing or backfilled after code was already written
+- layer:
+  BP2/BP3, Workstream, Hardening, Live Validation, RAR, UTS, PR Readiness, USER packets, UIREF adoption, Product Experience Contract proof, and branch-local visual repair loops
+- root-cause pattern:
+  Visual Acceptance, RAR, UIREF, Vision-To-Proof, Product Experience, and packet validation existed as separate checks, but the phase gate did not force them into one enforceable proof chain. Codex could prove that a packet was reviewable, that a screenshot existed, or that a reference was cited while still missing the USER-facing proof that the new surface belonged to the accepted Nexus visual family and served the intended product role.
+- fix pattern:
+  require the Visual Acceptance proof chain: `Vision Contract -> UIREF / Accepted Reference Set -> Visual Acceptance Target -> Implementation Match Proof -> Pre-Live Visual Purpose Conformance -> Live Validation -> UTS / PR`. Material visible UI must classify implementation authority, compare each element group against the accepted reference set, record Visual Family Relation Proof, record a Functionality Role Contract for new/detached/child/domain surfaces, keep packet reviewability separate from product acceptance, and stop on `Reference-Derived Parity Unproven`, `Template Gap`, `Shared Primitive Gap`, `Role-Ambiguous Surface Unrouted`, issue candidate, waiver, or repair when proof is incomplete.
+- validation pattern:
+  helpers and fixtures should fail on `Visual Acceptance Target Missing`, `Implementation Started Before Visual Acceptance`, `Implementation Match Proof Missing`, `Accepted Reference Not Compared`, `Reference-Derived Parity Unproven`, `Template Claim Unsupported`, `Shared Primitive Claim Unsupported`, `One-Off Implementation Overclaimed`, `Functionality Role Contract Missing`, `Packet Reviewability Treated As Product Acceptance`, `Screenshot Path Treated As Visual Acceptance`, `Helper Green Treated As Visual Acceptance`, `CSS Similarity Treated As Visual Family Proof`, `Implementation-First Visual Target Backfill`, and `Pre-Live Visual Purpose Conformance Missing` when machine-checkable.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/nexus_vision.md`
+  - `Docs/ui_reference_catalog/README.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
+
 ## Pattern: Future-Proofing Becomes Screenshot-Tuned One-Off Repair
 
 - symptom:
