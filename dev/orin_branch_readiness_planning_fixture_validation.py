@@ -5637,6 +5637,24 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                     and all(isinstance(item, str) and item.strip() for item in command),
                     f"{relative_matrix}: pre_pr_firewall validation command must be a string list",
                 )
+                if (
+                    isinstance(command, list)
+                    and any(
+                        isinstance(item, str)
+                        and item.replace("\\", "/").casefold().endswith(".py")
+                        for item in command
+                    )
+                ):
+                    require(
+                        bool(command)
+                        and isinstance(command[0], str)
+                        and command[0].casefold()
+                        in {"{python}", "{python_executable}"},
+                        (
+                            f"{relative_matrix}: pre_pr_firewall Python validation "
+                            "commands must use the portable {python} token"
+                        ),
+                    )
                 require(
                     isinstance(covers, list)
                     and bool(covers)

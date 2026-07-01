@@ -71,6 +71,7 @@ HELPER_FILE_PATTERNS = (
     "audit",
     "harness",
 )
+PYTHON_COMMAND_TOKENS = {"{python}", "{python_executable}"}
 REPO_LIVE_STATE_CURRENT_CYCLE_CONTEXT = (
     "rri",
     "external state",
@@ -385,6 +386,14 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "total budget",
             "root-cause receipt",
             "root cause receipt",
+            "pre-pr firewall",
+            "adversarial firewall",
+            "portable python",
+            "python launcher",
+            "windows py launcher",
+            "validation command",
+            "validation_commands",
+            "current interpreter",
         ),
     ),
     FamilyRule(
@@ -424,21 +433,37 @@ def _run(args: list[str], *, stdin: str | None = None) -> str:
 
 
 def _run_for_status(args: list[str]) -> tuple[int, str]:
-    result = subprocess.run(
-        args,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        cwd=ROOT,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            args,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=ROOT,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        return 127, str(exc)
     output = (result.stdout or "").strip()
     stderr = (result.stderr or "").strip()
     if stderr:
         output = f"{output}\n{stderr}".strip()
     return result.returncode, output
+
+
+def _resolve_manifest_command(command: list[str]) -> list[str]:
+    return [
+        sys.executable if part.casefold() in PYTHON_COMMAND_TOKENS else part
+        for part in command
+    ]
+
+
+def _python_manifest_command_uses_portable_token(command: list[str]) -> bool:
+    if not any(part.replace("\\", "/").casefold().endswith(".py") for part in command):
+        return True
+    return bool(command) and command[0].casefold() in PYTHON_COMMAND_TOKENS
 
 
 def _split_repo(repo: str) -> tuple[str, str]:
@@ -1469,8 +1494,16 @@ def _validate_pre_pr_firewall(
             ):
                 failures.append(f"validation_commands row {index} has an invalid command")
                 continue
-            code, output = _run_for_status(command)
-            lines.append(f"- {name}: {'PASS' if code == 0 else 'FAIL'} ({' '.join(command)})")
+            if not _python_manifest_command_uses_portable_token(command):
+                failures.append(
+                    f"validation_commands row {index} must use {{python}} for Python scripts"
+                )
+                continue
+            resolved_command = _resolve_manifest_command(command)
+            code, output = _run_for_status(resolved_command)
+            lines.append(
+                f"- {name}: {'PASS' if code == 0 else 'FAIL'} ({' '.join(command)})"
+            )
             if code != 0:
                 failures.append(
                     f"pre_pr_firewall validation command failed ({' '.join(command)}): {output}"
