@@ -5596,6 +5596,94 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         f"{relative_matrix}: duplicate or missing family_id values",
     )
 
+    pre_pr_firewall = matrix.get("pre_pr_firewall")
+    require(
+        isinstance(pre_pr_firewall, dict),
+        f"{relative_matrix}: pre_pr_firewall must be present",
+    )
+    if isinstance(pre_pr_firewall, dict):
+        purpose = pre_pr_firewall.get("purpose")
+        require(
+            isinstance(purpose, str)
+            and "before PR Readiness Stage 2" in purpose
+            and "connector" in purpose.casefold(),
+            (
+                f"{relative_matrix}: pre_pr_firewall purpose must name the "
+                "pre-PR/connector replay boundary"
+            ),
+        )
+        validation_commands = pre_pr_firewall.get("validation_commands")
+        require(
+            isinstance(validation_commands, list) and bool(validation_commands),
+            f"{relative_matrix}: pre_pr_firewall validation_commands must be non-empty",
+        )
+        if isinstance(validation_commands, list):
+            for command_entry in validation_commands:
+                if not isinstance(command_entry, dict):
+                    failures.append(
+                        f"{relative_matrix}: pre_pr_firewall validation command must be an object"
+                    )
+                    continue
+                command_name = command_entry.get("name")
+                command = command_entry.get("command")
+                covers = command_entry.get("covers_families")
+                require(
+                    isinstance(command_name, str) and bool(command_name.strip()),
+                    f"{relative_matrix}: pre_pr_firewall validation command missing name",
+                )
+                require(
+                    isinstance(command, list)
+                    and bool(command)
+                    and all(isinstance(item, str) and item.strip() for item in command),
+                    f"{relative_matrix}: pre_pr_firewall validation command must be a string list",
+                )
+                require(
+                    isinstance(covers, list)
+                    and bool(covers)
+                    and all(family_id in observed_families for family_id in covers),
+                    (
+                        f"{relative_matrix}: pre_pr_firewall validation command "
+                        "covers_families must reference known families"
+                    ),
+                )
+        corpus = pre_pr_firewall.get("connector_corpus_replay")
+        require(
+            isinstance(corpus, list) and bool(corpus),
+            f"{relative_matrix}: pre_pr_firewall connector_corpus_replay must be non-empty",
+        )
+        if isinstance(corpus, list):
+            for row in corpus:
+                if not isinstance(row, dict):
+                    failures.append(
+                        f"{relative_matrix}: pre_pr_firewall corpus row must be an object"
+                    )
+                    continue
+                require(
+                    row.get("family_id") in observed_families,
+                    (
+                        f"{relative_matrix}: pre_pr_firewall corpus row must "
+                        "reference a known family"
+                    ),
+                )
+                comment = row.get("comment")
+                require(
+                    isinstance(comment, str) and bool(comment.strip()),
+                    f"{relative_matrix}: pre_pr_firewall corpus row missing comment text",
+                )
+        unknown_guardrails = pre_pr_firewall.get("unknown_comment_guardrails")
+        require(
+            isinstance(unknown_guardrails, list)
+            and bool(unknown_guardrails)
+            and all(
+                isinstance(comment, str) and comment.strip()
+                for comment in unknown_guardrails
+            ),
+            (
+                f"{relative_matrix}: pre_pr_firewall unknown_comment_guardrails "
+                "must be a non-empty string list"
+            ),
+        )
+
     required_list_fields = (
         "representative_comment_patterns",
         "source_truth",

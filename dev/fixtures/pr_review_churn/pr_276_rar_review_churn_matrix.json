@@ -112,6 +112,99 @@
       }
     ]
   },
+  "pre_pr_firewall": {
+    "purpose": "Run before PR Readiness Stage 2 or before another @codex review request when helper, validator, parser, packet, RAR, UIREF, Product Experience, PR, release, or issue-governance files changed. The firewall locally replays connector-style comment families, generated sibling variants, changed-file family coverage, and local fixture validation so the Codex Connector is not the first adversarial parser.",
+    "validation_commands": [
+      {
+        "name": "branch readiness planning adversarial fixture suite",
+        "command": [
+          "py",
+          "-3",
+          "dev/orin_branch_readiness_planning_fixture_validation.py"
+        ],
+        "covers_families": [
+          "rar-status-green-parser",
+          "rar-phase-advancement-parser",
+          "rar-issue-candidate-disposition-parser",
+          "rar-issue-candidate-durability-parser",
+          "rar-user-packet-proof-parser",
+          "rar-code-to-visual-reference-parser",
+          "visual-acceptance-proof-chain-parser",
+          "rar-table-row-parser",
+          "rar-path-suffix-parser",
+          "rar-short-marker-parser",
+          "repo-live-state-boundary-parser",
+          "pr-readiness-review-risk-parser",
+          "pr2-comment-family-classifier",
+          "pr2-thread-pagination-and-approval-latch"
+        ]
+      }
+    ],
+    "connector_corpus_replay": [
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject Visual Acceptance Target claims when packet reviewability proves product acceptance without accepted reference set, implementation match proof, and USER acceptance."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject helper green means USER acceptance and validator passed means visual acceptance for a UIREF child surface."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject approved template authority when the implementation template source path is a UIREF catalog reference and the template consumer contract is missing."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject screenshot path means product acceptance and screenshot existence proves visual acceptance for the AI Dashboard comparator."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Reject USER packet proof when START_HERE routes to helper output instead of a primary USER Review decision surface and the timestamped ZIP path is only helper output."
+      },
+      {
+        "family_id": "rar-path-suffix-parser",
+        "comment": "Reject C:\\Nexus USER\\FAM-006-20260620-120000.zip.tmp because the USER packet ZIP token has an extra suffix."
+      },
+      {
+        "family_id": "rar-table-row-parser",
+        "comment": "Reject RAR Code-To-Visual Trace Matrix rows that are sparse, malformed, or header-only while the table is used as acceptance proof."
+      },
+      {
+        "family_id": "rar-status-green-parser",
+        "comment": "Reject status green when NONCONFORMING and UNPROVEN rows remain unresolved in a RAR adoption review."
+      },
+      {
+        "family_id": "rar-phase-advancement-parser",
+        "comment": "Reject normal phase progression although RAR remains blocked and issue candidates are not dispositioned."
+      },
+      {
+        "family_id": "rar-issue-candidate-durability-parser",
+        "comment": "Reject active packet disappearance when an external-ledger RAR issue candidate loses predecessor/successor lineage after regeneration."
+      },
+      {
+        "family_id": "repo-live-state-boundary-parser",
+        "comment": "Reject Active RRI Cycle RRI-20260629-001 stored in repo docs instead of external operational state for standing Governance."
+      },
+      {
+        "family_id": "pr-readiness-review-risk-parser",
+        "comment": "Reject PR Readiness Stage 1 packet when review-risk coverage is missing for a changed helper family outside RAR phase advancement."
+      },
+      {
+        "family_id": "pr2-thread-pagination-and-approval-latch",
+        "comment": "Reject merge-ready when review thread pages, pull review comment pages, unresolved-current counts, and current-head Codex Connector approval latch are not all proven."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Tighten comment-family matching so an unrelated status row does not pass as a covered connector family."
+      }
+    ],
+    "unknown_comment_guardrails": [
+      "A database migration status row has mixed case after cleanup.",
+      "A screenshot filename changed during a docs cleanup pass.",
+      "An unrelated validator message contains the word unknown.",
+      "A current cycle calculation bug changed product retry backoff for runtime logic."
+    ]
+  },
   "changed_file_coverage": {
     "dev/orin_branch_governance_validation.py": [
       "pr2-thread-pagination-and-approval-latch",

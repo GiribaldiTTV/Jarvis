@@ -423,6 +423,24 @@ def _run(args: list[str], *, stdin: str | None = None) -> str:
     return result.stdout
 
 
+def _run_for_status(args: list[str]) -> tuple[int, str]:
+    result = subprocess.run(
+        args,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=ROOT,
+        check=False,
+    )
+    output = (result.stdout or "").strip()
+    stderr = (result.stderr or "").strip()
+    if stderr:
+        output = f"{output}\n{stderr}".strip()
+    return result.returncode, output
+
+
 def _split_repo(repo: str) -> tuple[str, str]:
     if "/" not in repo:
         raise ValueError("--repo must be OWNER/NAME")
@@ -1332,6 +1350,168 @@ def _review_churn_budget_result(
     )
 
 
+def _families_for_changed_files(
+    matrix: dict[str, Any], changed_helper_files: list[str]
+) -> set[str]:
+    file_coverage = matrix.get("changed_file_coverage")
+    if not isinstance(file_coverage, dict):
+        return set()
+    families: set[str] = set()
+    for changed_file in changed_helper_files:
+        for family_id in file_coverage.get(changed_file, []):
+            if isinstance(family_id, str) and family_id.strip():
+                families.add(family_id)
+    return families
+
+
+def _family_entries(matrix: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    entries = matrix.get("families")
+    if not isinstance(entries, list):
+        return {}
+    return {
+        entry.get("family_id"): entry
+        for entry in entries
+        if isinstance(entry, dict) and isinstance(entry.get("family_id"), str)
+    }
+
+
+def _validate_pre_pr_firewall(
+    matrix: dict[str, Any],
+    changed_helper_files: list[str],
+    *,
+    skip_commands: bool,
+) -> tuple[list[str], list[str]]:
+    failures: list[str] = []
+    lines: list[str] = []
+    firewall = matrix.get("pre_pr_firewall")
+    if not isinstance(firewall, dict):
+        return ["Review churn matrix missing pre_pr_firewall"], lines
+
+    changed_families = _families_for_changed_files(matrix, changed_helper_files)
+    entries = _family_entries(matrix)
+    if changed_helper_files and not changed_families:
+        failures.append(
+            "Pre-PR firewall found changed helper/validator/parser files but no mapped families"
+        )
+    for family_id in sorted(changed_families):
+        entry = entries.get(family_id)
+        if not entry:
+            failures.append(f"Pre-PR firewall mapped unknown family: {family_id}")
+            continue
+        mutations = entry.get("generated_mutation_coverage")
+        siblings = entry.get("sibling_variant_replay")
+        if not isinstance(mutations, list) or len(mutations) < 3:
+            failures.append(
+                f"{family_id}: pre-PR firewall requires at least three generated mutation variants"
+            )
+        if not isinstance(siblings, list) or len(siblings) < 2:
+            failures.append(
+                f"{family_id}: pre-PR firewall requires at least two sibling replay variants"
+            )
+
+    replay_rows = firewall.get("connector_corpus_replay")
+    if not isinstance(replay_rows, list) or not replay_rows:
+        failures.append("pre_pr_firewall.connector_corpus_replay must be a non-empty list")
+    else:
+        for index, row in enumerate(replay_rows, start=1):
+            if not isinstance(row, dict):
+                failures.append(f"connector_corpus_replay row {index} must be an object")
+                continue
+            family_id = row.get("family_id")
+            comment = row.get("comment")
+            if not isinstance(family_id, str) or family_id not in entries:
+                failures.append(
+                    f"connector_corpus_replay row {index} references unknown family {family_id}"
+                )
+                continue
+            if not isinstance(comment, str) or not comment.strip():
+                failures.append(f"connector_corpus_replay row {index} has no comment text")
+                continue
+            classified = set(_classify_comment(comment))
+            if family_id not in classified:
+                failures.append(
+                    f"connector_corpus_replay row {index} did not classify as {family_id}: {sorted(classified)}"
+                )
+            lines.append(
+                f"- {family_id}: {'PASS' if family_id in classified else 'FAIL'}"
+            )
+
+    unknown_guardrails = firewall.get("unknown_comment_guardrails")
+    if not isinstance(unknown_guardrails, list) or not unknown_guardrails:
+        failures.append("pre_pr_firewall.unknown_comment_guardrails must be a non-empty list")
+    else:
+        for index, comment in enumerate(unknown_guardrails, start=1):
+            if not isinstance(comment, str) or not comment.strip():
+                failures.append(f"unknown_comment_guardrails row {index} is blank")
+                continue
+            classified = _classify_comment(comment)
+            if classified != ["unknown"]:
+                failures.append(
+                    f"unknown_comment_guardrails row {index} overmatched as {classified}"
+                )
+
+    commands = firewall.get("validation_commands")
+    if not isinstance(commands, list) or not commands:
+        failures.append("pre_pr_firewall.validation_commands must be a non-empty list")
+    elif skip_commands:
+        lines.append("- local validation commands: SKIPPED by caller")
+    else:
+        for index, command_entry in enumerate(commands, start=1):
+            if not isinstance(command_entry, dict):
+                failures.append(f"validation_commands row {index} must be an object")
+                continue
+            command = command_entry.get("command")
+            name = command_entry.get("name") or f"command {index}"
+            if (
+                not isinstance(command, list)
+                or not command
+                or any(not isinstance(part, str) or not part.strip() for part in command)
+            ):
+                failures.append(f"validation_commands row {index} has an invalid command")
+                continue
+            code, output = _run_for_status(command)
+            lines.append(f"- {name}: {'PASS' if code == 0 else 'FAIL'} ({' '.join(command)})")
+            if code != 0:
+                failures.append(
+                    f"pre_pr_firewall validation command failed ({' '.join(command)}): {output}"
+                )
+
+    return failures, lines
+
+
+def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
+    matrix = _load_matrix(Path(args.matrix))
+    changed_files = _changed_files(args.base)
+    changed_helper_files = [
+        path for path in changed_files if _is_helper_validator_parser(path)
+    ]
+    changed_families = _families_for_changed_files(matrix, changed_helper_files)
+    failures: list[str] = []
+    failures.extend(_classifier_guardrail_failures())
+    failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
+    firewall_failures, firewall_lines = _validate_pre_pr_firewall(
+        matrix, changed_helper_files, skip_commands=args.skip_pre_pr_commands
+    )
+    failures.extend(firewall_failures)
+
+    lines = [
+        "Pre-PR Adversarial Review Firewall",
+        f"Base: {args.base}",
+        "Changed helper/validator/parser files:",
+        *[f"- {path}" for path in changed_helper_files],
+        "Mapped connector families:",
+        *[f"- {family_id}" for family_id in sorted(changed_families)],
+        "Local adversarial replay:",
+        *firewall_lines,
+    ]
+    if failures:
+        lines.append("Result: FAIL")
+        lines.extend(f"- {failure}" for failure in failures)
+        return 1, "\n".join(lines)
+    lines.append("Result: PASS")
+    return 0, "\n".join(lines)
+
+
 def build_report(args: argparse.Namespace) -> tuple[int, str]:
     owner, name = _split_repo(args.repo)
     pull_request, threads, page_count = _fetch_review_threads(owner, name, args.pr)
@@ -1431,10 +1611,20 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pr", type=int, required=True)
+    parser.add_argument("--pr", type=int)
     parser.add_argument("--repo", default="GiribaldiTTV/Nexus-Desktop-AI")
     parser.add_argument("--base", default="origin/main")
     parser.add_argument("--matrix", default=str(DEFAULT_MATRIX))
+    parser.add_argument(
+        "--pre-pr-firewall",
+        action="store_true",
+        help="Run local adversarial coverage, corpus, and changed-file family checks before PR review.",
+    )
+    parser.add_argument(
+        "--skip-pre-pr-commands",
+        action="store_true",
+        help="Validate the pre-PR firewall schema and corpus without executing nested validation commands.",
+    )
     parser.add_argument(
         "--require-current-green",
         action="store_true",
@@ -1442,7 +1632,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     try:
-        code, report = build_report(args)
+        if args.pre_pr_firewall:
+            code, report = build_pre_pr_report(args)
+        else:
+            if args.pr is None:
+                parser.error("--pr is required unless --pre-pr-firewall is used")
+            code, report = build_report(args)
     except Exception as exc:  # pragma: no cover - command-line reporting
         print(f"FAIL: PR review churn validation could not complete: {exc}")
         return 1
