@@ -3992,7 +3992,9 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "source-truth gap",
         "mismatch",
     )
-    green_visual_verdicts = ("conforming", "green", "pass", "accepted", "resolved")
+    green_visual_verdict_pattern = re.compile(
+        r"\b(?:conforming|green|pass|accepted|resolved)\b"
+    )
     for row in visual_family_rows:
         visual_match = governance._normalized_planning_value(row[8]).strip(" .;:")
         functional_match = governance._normalized_planning_value(row[9]).strip(" .;:")
@@ -4001,7 +4003,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         comparison_scope = " ".join((visual_match, functional_match, verdict))
         if any(status in comparison_scope for status in unresolved_visual_verdicts):
             require(
-                not any(green in verdict for green in green_visual_verdicts),
+                green_visual_verdict_pattern.search(verdict) is None,
                 EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
             )
             require(
@@ -4136,6 +4138,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject unresolved match columns with green verdict"
+        )
+
+    generated_visual_nonconforming_blocker_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Mismatch | Unproven | NONCONFORMING | Repair before continuing |",
+    )
+    generated_visual_nonconforming_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_nonconforming_blocker_claim
+        )
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET in "\n".join(
+        generated_visual_nonconforming_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected nonconforming blocker row as green"
         )
 
     generated_shared_primitive_claim = valid_text.replace(
