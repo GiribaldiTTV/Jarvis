@@ -162,6 +162,12 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "though",
             "while",
             "next legal phase",
+            "continue to pr readiness",
+            "proceed to pr readiness",
+            "advance to pr readiness",
+            "continue to workstream",
+            "proceed to workstream",
+            "advance to workstream",
         ),
     ),
     FamilyRule(
@@ -776,6 +782,17 @@ def _classifier_guardrail_failures() -> list[str]:
     if "rar-phase-advancement-parser" in pr_readiness_families:
         failures.append(
             "Comment-family classifier overmatched generic PR Readiness drift as RAR phase advancement"
+        )
+    rar_pr_readiness_advance_comment = (
+        "Reject RAR wording that says waiver not approved so continue to "
+        "PR Readiness while adoption remains active."
+    )
+    rar_pr_readiness_advance_families = _classify_comment(
+        rar_pr_readiness_advance_comment
+    )
+    if "rar-phase-advancement-parser" not in rar_pr_readiness_advance_families:
+        failures.append(
+            "Comment-family classifier did not classify RAR continue-to-PR-Readiness advancement"
         )
     current_head_latch_comment = (
         "Current-head green proof accepted even though a later Connector review/comment signal exists."

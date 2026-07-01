@@ -307,7 +307,7 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "screenshot-as-visual-acceptance",
         re.compile(
-            r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is)\s+"
+            r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is|therefore)\s+"
             + _FALSE_GREEN_ACCEPTANCE_TARGET
             + _FALSE_GREEN_PENDING_NEGATION
             + r"|"
@@ -318,7 +318,7 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "helper-green-as-visual-acceptance",
         re.compile(
-            r"(?:helper|validator)\s+(?:green|pass(?:ed)?)\s+(?:proves|equals|means|is)\s+"
+            r"(?:helper|validator)\s+(?:green|pass(?:ed)?)\s+(?:proves|equals|means|is|therefore)\s+"
             + _FALSE_GREEN_ACCEPTANCE_TARGET
             + _FALSE_GREEN_PENDING_NEGATION,
             re.IGNORECASE,

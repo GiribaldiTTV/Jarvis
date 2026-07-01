@@ -3448,10 +3448,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         clauses = re.split(phase_claim_clause_pattern, value)
         kept: list[str] = []
         for clause in clauses:
-            if any(token in clause for token in advancement_tokens) and any(
-                token in clause for token in phase_disclaimer_tokens
-            ):
-                continue
             if phase_clause_explicitly_blocks_or_holds(clause):
                 continue
             kept.append(clause)
@@ -4040,7 +4036,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         (
             r"\bscreenshot\s+exists\s+therefore\s+accepted\b|"
             r"\bscreenshot(?:\s+(?:exists|existence|path))?\s+(?:therefore\s+)?"
-            r"(?:proves|equals|is|means)\s+"
+            r"(?:proves|equals|is|means|therefore)\s+"
             + reviewability_acceptance_target
             + r"\b"
             + false_green_pending_negation,
@@ -4049,7 +4045,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         (
             r"\b(?:(?:helper|validator)(?:\s+(?:output|result|validation))?"
             r"\s+(?:green|pass|passed)|validation\s+pass(?:ed)?)\s+"
-            r"(?:proves|equals|is|means)\s+"
+            r"(?:proves|equals|is|means|therefore)\s+"
             + reviewability_acceptance_target
             + r"\b"
             + false_green_pending_negation,
@@ -4810,6 +4806,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject helper-green means acceptance claim"
+        )
+
+    generated_helper_green_therefore_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green therefore accepted for this review packet.",
+    )
+    generated_helper_green_therefore_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_helper_green_therefore_acceptance_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_therefore_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green therefore accepted claim"
         )
 
     generated_helper_green_user_acceptance_claim = valid_text.replace(
@@ -6233,6 +6245,8 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         + "\nVisual Acceptance: helper green means acceptance.\n"
         + "Visual Acceptance: helper green means USER acceptance.\n"
         + "Visual Acceptance: validator passed means accepted.\n"
+        + "Visual Acceptance: helper green therefore accepted.\n"
+        + "Visual Acceptance: validator passed therefore accepted.\n"
     )
     if "helper-green-as-visual-acceptance" not in "\n".join(
         review_bundle._active_review_aid_false_green_failures(
@@ -13430,6 +13444,27 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
+        )
+
+    generated_waiver_not_approved_continue_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: waiver not approved so continue to PR Readiness.",
+        )
+    )
+    generated_waiver_not_approved_continue_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_waiver_not_approved_continue_text
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        generated_waiver_not_approved_continue_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject waiver-not-approved phase advancement"
         )
 
     generated_although_phase_advance_text = (
