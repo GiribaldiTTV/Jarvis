@@ -337,6 +337,9 @@ INVALID_VISUAL_ACCEPTANCE_PACKET_REVIEWABILITY_ACCEPTANCE_FIXTURE = (
 INVALID_VISUAL_ACCEPTANCE_ROLE_AMBIGUOUS_FIXTURE = (
     FIXTURE_DIR / "invalid_visual_acceptance_role_ambiguous.md"
 )
+INVALID_VISUAL_ACCEPTANCE_REFERENCE_SET_AS_AUTHORITY_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_reference_set_as_authority.md"
+)
 VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_review.md"
 )
@@ -4198,6 +4201,11 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             INVALID_VISUAL_ACCEPTANCE_ROLE_AMBIGUOUS_FIXTURE,
             EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
             "role-ambiguous window allowed to continue",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_REFERENCE_SET_AS_AUTHORITY_FIXTURE,
+            EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+            "accepted reference set compared used as implementation authority",
         ),
     )
     for fixture, expected_snippet, label in invalid_cases:
