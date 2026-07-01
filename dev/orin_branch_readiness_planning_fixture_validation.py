@@ -4058,6 +4058,7 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     branch_plan_readme = ROOT / "Docs" / "branch_plans" / "README.md"
     branch_plan_text = branch_plan_readme.read_text(encoding="utf-8")
     for required_label in (
+        "Implementation Authority Classification:",
         "Visual Family Relation Proof:",
         "Functionality Role Contract:",
         "Pre-Live Visual Purpose Conformance:",

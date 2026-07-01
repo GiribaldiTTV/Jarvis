@@ -121,6 +121,7 @@ BP1 should discover the visual purpose, source-truth conflicts, reference set, a
 Required visual-proof chain fields when visible UI is material:
 
 - `Visual Acceptance Chain:`
+- `Implementation Authority Classification:`
 - `Implementation Authority Table:`
 - `Visual Family Relation Proof:`
 - `Functionality Role Contract:`

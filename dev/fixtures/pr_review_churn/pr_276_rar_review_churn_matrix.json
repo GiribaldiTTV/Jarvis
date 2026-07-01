@@ -57,7 +57,7 @@
       },
       {
         "pr": 289,
-        "connector_comments": 20,
+        "connector_comments": 21,
         "observed_family_counts": {
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-code-to-visual-reference-parser": 1,
@@ -66,10 +66,10 @@
           "rar-status-green-parser": 2,
           "rar-table-row-parser": 1,
           "rar-user-packet-proof-parser": 4,
-          "visual-acceptance-proof-chain-parser": 20
+          "visual-acceptance-proof-chain-parser": 21
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants including USER acceptance/accepted wording and reviewable-packet product-acceptance wording, exact branch-plan field-label synchronization, explanatory negative authority-table wording, incomplete additional material rows, current source-truth authority for claimed templates/shared primitives, authority claims hidden in visual-family rows, UIREF/reference-citation-as-acceptance wording in USER packet and planning false-green scans, false-green screenshot/helper/CSS verb variants including screenshot path equals accepted wording, Visual Family Relation match-column disagreement hidden behind a green verdict, substring green-verdict checks that treated NONCONFORMING as CONFORMING, or placeholder/vague Implementation Match Proof Plan wording accepted by generic marker checks.",
+        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants including USER acceptance/accepted wording and reviewable-packet product-acceptance wording, exact branch-plan field-label synchronization including the required Implementation Authority Classification field, explanatory negative authority-table wording, incomplete additional material rows, current source-truth authority for claimed templates/shared primitives, authority claims hidden in visual-family rows, UIREF/reference-citation-as-acceptance wording in USER packet and planning false-green scans, false-green screenshot/helper/CSS verb variants including screenshot path equals accepted wording, Visual Family Relation match-column disagreement hidden behind a green verdict, substring green-verdict checks that treated NONCONFORMING as CONFORMING, or placeholder/vague Implementation Match Proof Plan wording accepted by generic marker checks.",
         "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, authority claims hidden in visual-family rows, placeholder target/source values, placeholder or vague implementation-match proof plans, incomplete material table rows, template/shared-primitive claims that omit consumer contracts, template/shared-primitive claims while the catalog records no promoted implementation templates or code-level shared primitives, UIREF reference paths used as template/primitive sources, screenshot/helper/CSS false-green phrasing across proves/equals/is/means variants, unresolved Visual Match / Functional Match columns with green verdicts, and equals/is/means reviewability-as-acceptance false-green wording across packet-reviewability and reviewable-packet wording while allowing explicit pending-acceptance wording, explicit nonconforming blocker rows, and explanatory negative authority cells; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance, packet-validation-as-acceptance, and UIREF/reference-citation-as-acceptance false-green wording across product, visual, USER acceptance, USER accepted, accepted, and reviewable-packet variants while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
         "preventive_changes": [
           "dev/orin_branch_readiness_planning_fixture_validation.py enforces exactly one Implementation Authority Classification term for visual acceptance planning.",
@@ -93,7 +93,7 @@
           "dev/orin_user_review_bundle.py rejects screenshot path equals/means/is accepted or acceptance as screenshot-only acceptance wording.",
           "dev/orin_user_review_bundle.py rejects UIREF/reference citation proves/means/equals/is visual or product acceptance wording.",
           "dev/orin_pr_review_churn_validation.py classifies authority-cardinality and consumer-contract review comments under visual-acceptance-proof-chain-parser.",
-          "Docs/branch_plans/README.md keeps documented visual-proof field labels in sync with validator-extracted labels.",
+          "Docs/branch_plans/README.md keeps documented visual-proof field labels, including Implementation Authority Classification, in sync with validator-extracted labels.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records the PR #289 review-churn root-cause receipt."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
