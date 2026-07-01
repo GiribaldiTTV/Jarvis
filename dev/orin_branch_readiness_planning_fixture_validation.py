@@ -735,6 +735,9 @@ EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Mi
 EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
 EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET = "RAR Issue Candidate Durability Missing"
 EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET = "Visual Acceptance Target Missing"
+EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET = (
+    "Implementation Match Proof Plan Missing"
+)
 EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET = "Visual Family Relation Proof Missing"
 EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET = "Implementation Authority Classification Missing"
 EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET = "Functionality Role Contract Missing"
@@ -3557,6 +3560,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "Visual Family Relation Proof:": EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
         "Implementation Authority Table:": EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
         "Functionality Role Contract:": EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+        "Implementation Match Proof Plan:": EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET,
         "Pre-Live Visual Purpose Conformance:": EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET,
     }
     for marker in required_markers:
@@ -3800,6 +3804,35 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     require(
         not any(term in visual_target for term in placeholder_visual_target_terms),
         EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+
+    implementation_match_proof = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Implementation Match Proof Plan:")
+    )
+    placeholder_implementation_match_terms = placeholder_visual_target_terms + (
+        "pending proof",
+        "future proof",
+        "future review",
+        "to be supplied",
+    )
+    implementation_match_evidence_terms = (
+        "screenshot",
+        "video",
+        "ordered-frame",
+        "frame proof",
+        "rendered",
+        "comparison",
+        "compare",
+        "trace",
+        "code region",
+    )
+    require(
+        not any(term in implementation_match_proof for term in placeholder_implementation_match_terms),
+        EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET,
+    )
+    require(
+        any(term in implementation_match_proof for term in implementation_match_evidence_terms),
+        EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET,
     )
 
     authority_marker = governance._normalized_planning_value(
@@ -4185,6 +4218,34 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject placeholder target plan"
+        )
+
+    generated_placeholder_implementation_match_claim = valid_text.replace(
+        "Implementation Match Proof Plan: Workstream must trace code regions to the rendered child window and produce focused screenshots or ordered-frame proof for every listed element group before Pre-Live.",
+        "Implementation Match Proof Plan: TBD pending review.",
+    )
+    generated_placeholder_match_failures = _validate_visual_acceptance_enforcement_text(
+        generated_placeholder_implementation_match_claim
+    )
+    if EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_match_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder implementation match proof plan"
+        )
+
+    generated_vague_implementation_match_claim = valid_text.replace(
+        "Implementation Match Proof Plan: Workstream must trace code regions to the rendered child window and produce focused screenshots or ordered-frame proof for every listed element group before Pre-Live.",
+        "Implementation Match Proof Plan: Workstream will confirm implementation matches before Pre-Live.",
+    )
+    generated_vague_match_failures = _validate_visual_acceptance_enforcement_text(
+        generated_vague_implementation_match_claim
+    )
+    if EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET not in "\n".join(
+        generated_vague_match_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject vague implementation match proof plan"
         )
 
     generated_placeholder_template_source_claim = valid_text.replace(
