@@ -263,6 +263,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "comparative synthesis",
             "visual family relation",
             "implementation authority",
+            "authority classification",
+            "authority value",
             "reference-derived implementation",
             "implementation match proof",
             "pre-live visual purpose conformance",
@@ -273,6 +275,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "helper green",
             "validator green",
             "template claim",
+            "template consumer contract",
+            "consumer contract",
             "shared primitive",
             "functionality role",
             "role ambiguous",
@@ -631,6 +635,16 @@ def _classifier_guardrail_failures() -> list[str]:
     ):
         failures.append(
             "Comment-family classifier did not classify visual acceptance role-contract drift"
+        )
+    authority_contract_comment = (
+        "Require exactly one authority classification and require the template "
+        "consumer contract when Implementation Template Instantiated is claimed."
+    )
+    if "visual-acceptance-proof-chain-parser" not in _classify_comment(
+        authority_contract_comment
+    ):
+        failures.append(
+            "Comment-family classifier did not classify visual acceptance authority-contract drift"
         )
     unrelated_screenshot = "A screenshot filename changed during a docs cleanup pass."
     if _classify_comment(unrelated_screenshot) != ["unknown"]:

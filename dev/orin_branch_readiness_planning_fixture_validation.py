@@ -3733,12 +3733,13 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
     )
 
+    authority_marker = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Implementation Authority Classification:")
+    )
     authority_scope = governance._normalized_planning_value(
         " ".join(
             (
-                governance._extract_marker_value(
-                    text, "Implementation Authority Classification:"
-                ),
+                authority_marker,
                 " ".join(" ".join(row) for row in implementation_authority_rows),
             )
         )
@@ -3766,6 +3767,13 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         any(term in authority_scope for term in authority_terms),
         EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
     )
+    marker_authority_matches = [
+        term for term in authority_terms if term in authority_marker
+    ]
+    require(
+        len(marker_authority_matches) == 1,
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
     if (
         "implementation template instantiated" in authority_scope
         or "approved template? yes" in authority_scope
@@ -3777,6 +3785,10 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             has_substantive_label_value("Template source path:"),
             EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
         )
+        require(
+            has_substantive_label_value("Template consumer contract:"),
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+        )
     if (
         "shared primitive consumed" in authority_scope
         or "approved shared primitive? yes" in authority_scope
@@ -3785,6 +3797,10 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     ):
         require(
             has_substantive_label_value("Primitive source path:"),
+            EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            has_substantive_label_value("Primitive consumer contract:"),
             EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
         )
 
@@ -3994,6 +4010,58 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject placeholder primitive source path"
+        )
+
+    generated_dual_authority_claim = valid_text.replace(
+        "Implementation Authority Classification: Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Authority Classification: Reference-Derived Implementation and One-Off Implementation.",
+    )
+    generated_dual_authority_failures = _validate_visual_acceptance_enforcement_text(
+        generated_dual_authority_claim
+    )
+    if EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET not in "\n".join(
+        generated_dual_authority_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject dual authority classification"
+        )
+
+    generated_template_source_no_contract_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Template Instantiated - the branch claims an AI Control Center template. Template source path: Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_template_no_contract_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_template_source_no_contract_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_template_no_contract_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject template source without consumer contract"
+        )
+
+    generated_primitive_source_no_contract_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Shared Primitive Consumed - the branch claims a shared primitive. Primitive source path: Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved primitive source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_primitive_no_contract_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_primitive_source_no_contract_claim
+        )
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_primitive_no_contract_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject primitive source without consumer contract"
         )
 
     generated_table_only_template_claim = valid_text.replace(
