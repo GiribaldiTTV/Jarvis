@@ -4036,7 +4036,8 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         r"(?:product|visual|user visual|user)\s+accepted|acceptance|accepted)"
     )
     false_green_pending_negation = (
-        r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
+        r"(?!\s*(?:[,;:.-]\s*)?(?:which\s+)?"
+        r"(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
     )
     packet_reviewability_false_green_pattern = re.compile(
         r"(?:"
@@ -4786,6 +4787,23 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture falsely rejected pending packet reviewability wording"
+        )
+
+    generated_packet_reviewability_punctuated_pending = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means product acceptance, which remains pending until USER visual acceptance.",
+    )
+    generated_punctuated_reviewability_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_punctuated_pending
+        )
+    )
+    if (
+        EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET
+        in generated_punctuated_reviewability_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected punctuated pending packet reviewability wording"
         )
 
     generated_reviewable_packet_pending_acceptance = valid_text.replace(
@@ -6399,6 +6417,23 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
     ):
         failures.append(
             "Invalid USER review bundle fixture did not reject packet reviewability as product acceptance"
+        )
+    pending_reviewability_packet_files = dict(packet_files)
+    pending_reviewability_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means product acceptance, which remains pending until USER acceptance or waiver.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            pending_reviewability_packet_files
+        )
+    ):
+        failures.append(
+            "Valid USER review bundle fixture falsely rejected punctuated pending packet reviewability wording"
         )
     unsafe_user_acceptance_packet_files = dict(packet_files)
     unsafe_user_acceptance_packet_files[

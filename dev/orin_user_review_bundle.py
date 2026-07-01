@@ -265,7 +265,8 @@ _FALSE_GREEN_ACCEPTANCE_TARGET = (
     r"visual\s+accepted|accepted|acceptance)\b"
 )
 _FALSE_GREEN_PENDING_NEGATION = (
-    r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
+    r"(?!\s*(?:[,;:.-]\s*)?(?:which\s+)?"
+    r"(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
 )
 FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
