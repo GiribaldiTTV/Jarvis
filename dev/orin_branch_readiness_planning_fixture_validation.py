@@ -3786,10 +3786,13 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "none",
         "no target",
     )
-    visual_target_not_applicable = (
-        "not applicable with reason" in visual_target
-        or "visual acceptance target not applicable" in visual_target
-    )
+    def has_reasoned_not_applicable(value: str) -> bool:
+        if "not applicable with reason" not in value:
+            return False
+        reason = value.split("not applicable with reason", 1)[1].strip(" .:-")
+        return governance._planning_word_count(reason) >= 3
+
+    visual_target_not_applicable = has_reasoned_not_applicable(visual_target)
     visual_target_path_labels = (
         "Reviewable Visual Acceptance Target Path:",
         "Accepted Visual Acceptance Target Path:",
@@ -3968,6 +3971,21 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             text, "Accepted Reference Set / Comparative Synthesis:"
         )
     )
+    reference_comparison_blockers = (
+        "not compared",
+        "not yet compared",
+        "without comparison",
+        "comparison later",
+        "compare later",
+        "later comparison",
+        "future comparison",
+        "future compare",
+        "comparison pending",
+        "pending comparison",
+        "to be compared",
+        "will compare",
+        "will be compared",
+    )
     require(
         (
             "uiref" in reference_scope
@@ -3976,8 +3994,12 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         )
         and any(
             token in reference_scope
-            for token in ("element-by-element", "row-by-row", "side-by-side", "compare")
+            for token in ("element-by-element", "row-by-row", "side-by-side")
         ),
+        EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+    )
+    require(
+        not any(blocker in reference_scope for blocker in reference_comparison_blockers),
         EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
     )
 
@@ -4253,6 +4275,38 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             "Generated Visual Acceptance fixture did not reject not-compared match columns with green verdict"
         )
 
+    generated_reference_not_compared_claim = valid_text.replace(
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.",
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001 is cited but not compared.",
+    )
+    generated_reference_not_compared_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reference_not_compared_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_reference_not_compared_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject negated accepted-reference comparison"
+        )
+
+    generated_reference_later_comparison_claim = valid_text.replace(
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.",
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001 and AI Control Center comparison later.",
+    )
+    generated_reference_later_comparison_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reference_later_comparison_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_reference_later_comparison_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject future-only accepted-reference comparison"
+        )
+
     generated_visual_nonconforming_blocker_claim = valid_text.replace(
         "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
         "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Mismatch | Unproven | NONCONFORMING | Repair before continuing |",
@@ -4312,6 +4366,20 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject target plan without reviewable path"
+        )
+
+    generated_bare_not_applicable_target = generated_missing_reviewable_target_path.replace(
+        "Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.",
+        "Visual Acceptance Target Plan: Visual Acceptance Target Not Applicable.",
+    )
+    generated_bare_not_applicable_failures = _validate_visual_acceptance_enforcement_text(
+        generated_bare_not_applicable_target
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_bare_not_applicable_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject bare not-applicable target plan"
         )
 
     generated_uiref_only_target_path = valid_text.replace(
