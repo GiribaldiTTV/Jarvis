@@ -4083,8 +4083,8 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     for pattern, snippet in (
         (
             r"\bscreenshot\s+exists\s+therefore\s+accepted\b|"
-            r"\bscreenshot(?:\s+(?:exists|existence|path))?\s+(?:therefore\s+)?"
-            r"(?:proves|equals|is|means|therefore)\s+"
+            r"\bscreenshot(?:s|\s+(?:exists|existence|paths?))?\s+(?:therefore\s+)?"
+            r"(?:prove(?:s)?|equals|is|mean(?:s)?|therefore)\s+"
             + reviewability_acceptance_target
             + r"\b"
             + false_green_pending_negation,
@@ -5060,6 +5060,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject screenshot-exists visual acceptance claims"
+        )
+
+    generated_screenshot_plural_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshots prove visual acceptance; screenshot paths mean USER acceptance.",
+    )
+    generated_screenshot_plural_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_screenshot_plural_acceptance_claim
+        )
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_plural_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject plural screenshot visual acceptance claims"
         )
 
     generated_screenshot_product_acceptance_claim = valid_text.replace(
@@ -6374,6 +6390,8 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         + "Visual Acceptance: screenshot is USER accepted.\n"
         + "Visual Acceptance: screenshot exists proves visual acceptance.\n"
         + "Visual Acceptance: screenshot exists means visual acceptance.\n"
+        + "Visual Acceptance: screenshots prove visual acceptance.\n"
+        + "Visual Acceptance: screenshot paths mean USER acceptance.\n"
     )
     if "screenshot-as-visual-acceptance" not in "\n".join(
         review_bundle._active_review_aid_false_green_failures(
