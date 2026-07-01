@@ -3807,15 +3807,18 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             return False
         if "docs/ui_reference_catalog/" in normalized_value:
             return False
-        return bool(
-            re.search(
-                r"(?:[a-z]:\\|\\\\|/|c:\\nexus user\\|user review|review aids|"
-                r"source truth context|visual_acceptance|visual acceptance|"
-                r"\.(?:md|png|jpg|jpeg|webp|mp4|mov|zip|pdf|html)\b)",
-                normalized_value,
-                re.IGNORECASE,
-            )
+        has_artifact_extension = re.search(
+            r"\.(?:md|png|jpg|jpeg|webp|mp4|mov|zip|pdf|html)\b",
+            normalized_value,
+            re.IGNORECASE,
         )
+        has_path_context = re.search(
+            r"(?:[a-z]:\\|\\\\|\\|/|c:\\nexus user\\|user review|"
+            r"review aids|source truth context)",
+            normalized_value,
+            re.IGNORECASE,
+        )
+        return bool(has_artifact_extension and has_path_context)
 
     require(
         bool(visual_target)
@@ -4311,6 +4314,34 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject UIREF-only visual target path"
+        )
+
+    generated_prose_only_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.",
+        "Reviewable Visual Acceptance Target Path: visual acceptance target ready for review.",
+    )
+    generated_prose_only_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_prose_only_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_prose_only_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject prose-only visual target path"
+        )
+
+    generated_bare_slash_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.",
+        "Reviewable Visual Acceptance Target Path: review/ready target.",
+    )
+    generated_bare_slash_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_bare_slash_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_bare_slash_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject bare-slash visual target path"
         )
 
     generated_placeholder_implementation_match_claim = valid_text.replace(
