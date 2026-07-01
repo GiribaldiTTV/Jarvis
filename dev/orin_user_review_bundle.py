@@ -278,14 +278,19 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ),
     (
         "packet-validation-as-acceptance",
-        re.compile(r"packet validation (?:equals|is)\s+USER acceptance", re.IGNORECASE),
+        re.compile(
+            r"packet validation (?:equals|is|means)\s+"
+            r"(?:USER\s+acceptance|USER\s+accepted|accepted|acceptance)\b"
+            r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))",
+            re.IGNORECASE,
+        ),
     ),
     (
         "packet-reviewability-as-product-acceptance",
         re.compile(
             r"(?:"
-            r"packet reviewability (?:equals|is)\s+(?:product|visual|USER visual)\s+acceptance|"
-            r"packet reviewability means\s+(?:product|visual|USER visual)\s+acceptance\b"
+            r"(?:packet reviewability|reviewable packet)\s+(?:equals|is|means)\s+"
+            r"(?:(?:product|visual|USER visual)\s+acceptance|USER\s+acceptance|USER\s+accepted|accepted|acceptance)\b"
             r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
             r")",
             re.IGNORECASE,
@@ -294,7 +299,8 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "screenshot-as-visual-acceptance",
         re.compile(
-            r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is)\s+visual acceptance|"
+            r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is)\s+"
+            r"(?:visual\s+acceptance|accepted|acceptance)|"
             r"screenshot exists therefore accepted)",
             re.IGNORECASE,
         ),
