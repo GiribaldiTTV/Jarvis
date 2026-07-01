@@ -3984,7 +3984,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET,
         ),
         (
-            r"\buiref\s+citation\s+alone\s+is\s+sufficient\b",
+            r"\buiref\s+citation\s+alone\s+is\s+sufficient\b|\b(?:uiref|reference)\s+citation\s+(?:alone\s+)?(?:proves|equals|is|means)\s+(?:(?:visual|product)\s+)?(?:acceptance|accepted|proof|sufficient)\b",
             EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
         ),
         (
@@ -4572,6 +4572,38 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject CSS similarity is visual-family claim"
+        )
+
+    generated_uiref_citation_acceptance_claim = (
+        valid_text
+        + "\nAccepted Reference Set / Comparative Synthesis: UIREF citation proves visual acceptance.\n"
+    )
+    generated_uiref_citation_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_uiref_citation_acceptance_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_uiref_citation_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject UIREF citation as visual acceptance"
+        )
+
+    generated_reference_citation_product_claim = (
+        valid_text
+        + "\nAccepted Reference Set / Comparative Synthesis: reference citation means product acceptance.\n"
+    )
+    generated_reference_citation_product_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reference_citation_product_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_reference_citation_product_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject reference citation as product acceptance"
         )
 
     generated_implementation_backfill_claim = valid_text.replace(
@@ -5650,6 +5682,40 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
     ):
         failures.append(
             "Invalid USER review bundle fixture did not reject screenshot path as accepted"
+        )
+    uiref_citation_acceptance_packet_files = dict(packet_files)
+    uiref_citation_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: UIREF citation proves visual acceptance.\n"
+    )
+    if "uiref-citation-as-visual-proof" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            uiref_citation_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject UIREF citation as visual acceptance"
+        )
+    reference_citation_acceptance_packet_files = dict(packet_files)
+    reference_citation_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: reference citation means product acceptance.\n"
+    )
+    if "uiref-citation-as-visual-proof" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            reference_citation_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject reference citation as product acceptance"
         )
     unsafe_reviewability_packet_files = dict(packet_files)
     unsafe_reviewability_packet_files[

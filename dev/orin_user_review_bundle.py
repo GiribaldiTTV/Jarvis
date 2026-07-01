@@ -322,7 +322,9 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "uiref-citation-as-visual-proof",
         re.compile(
-            r"(?:UIREF citation alone is sufficient|reference cited but not compared)",
+            r"(?:UIREF citation alone is sufficient|reference cited but not compared|"
+            r"(?:UIREF|reference)\s+citation\s+(?:alone\s+)?(?:proves|equals|means|is)\s+"
+            r"(?:(?:visual|product)\s+)?(?:acceptance|accepted|proof|sufficient))",
             re.IGNORECASE,
         ),
     ),
