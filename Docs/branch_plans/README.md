@@ -122,11 +122,11 @@ Required visual-proof chain fields when visible UI is material:
 
 - `Visual Acceptance Chain:`
 - `Implementation Authority Table:`
-- `Visual Family Relation Proof Table:`
-- `Functionality Role Contract Table:`
+- `Visual Family Relation Proof:`
+- `Functionality Role Contract:`
 - `Accepted Reference Set / Comparative Synthesis:`
 - `Implementation Match Proof Plan:`
-- `Pre-Live Visual Purpose Conformance Plan:`
+- `Pre-Live Visual Purpose Conformance:`
 - `Packet Reviewability vs Product Acceptance:`
 
 The required chain is `Vision Contract -> UIREF / Accepted Reference Set -> Visual Acceptance Target -> Implementation Match Proof -> Pre-Live Visual Purpose Conformance -> Live Validation -> UTS / PR`. `Packet Reviewability State` and `Product Acceptance` are separate axes. A reviewable packet, clean timestamped ZIP, helper pass, validator pass, UIREF citation, CSS marker similarity, screenshot path, or Codex summary can start USER review, but it cannot become `USER_ACCEPTED Visual Acceptance Target`, `Implementation Match Proof PASS`, or Live Validation green without row-by-row visual-family comparison and the required USER decision or waiver.
