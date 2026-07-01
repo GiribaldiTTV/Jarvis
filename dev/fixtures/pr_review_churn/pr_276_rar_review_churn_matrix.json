@@ -57,19 +57,20 @@
       },
       {
         "pr": 289,
-        "connector_comments": 8,
+        "connector_comments": 9,
         "observed_family_counts": {
           "rar-table-row-parser": 1,
           "rar-user-packet-proof-parser": 1,
-          "visual-acceptance-proof-chain-parser": 8
+          "visual-acceptance-proof-chain-parser": 9
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants, or exact branch-plan field-label synchronization.",
-        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, placeholder target/source values, template/shared-primitive claims that omit consumer contracts, and equals/is/means reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
+        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants, exact branch-plan field-label synchronization, or explanatory negative authority-table wording.",
+        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, placeholder target/source values, template/shared-primitive claims that omit consumer contracts, and equals/is/means reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording and explanatory negative authority cells; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
         "preventive_changes": [
           "dev/orin_branch_readiness_planning_fixture_validation.py enforces exactly one Implementation Authority Classification term for visual acceptance planning.",
           "dev/orin_branch_readiness_planning_fixture_validation.py validates substantive Template/Primitive source-path values and consumer-contract values.",
           "dev/orin_branch_readiness_planning_fixture_validation.py adds generated adversarial mutations for placeholder targets, placeholder source paths, table-only authority claims, and source-without-consumer-contract claims.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py treats explanatory negative authority-table cells such as no approved template exists as non-claims.",
           "dev/orin_branch_readiness_planning_fixture_validation.py rejects packet-reviewability-as-product-acceptance phrasing across equals/is/means variants while allowing explicit pending-acceptance phrasing.",
           "dev/orin_branch_readiness_planning_fixture_validation.py proves USER packet false-green scanning rejects reviewability-as-acceptance but allows pending-acceptance wording.",
           "dev/orin_user_review_bundle.py narrows packet reviewability/product acceptance false-green matching to avoid pending-acceptance false reds.",
@@ -427,6 +428,7 @@
         "primitive source path tbd or none",
         "table-only approved template yes without source path",
         "table-only approved shared primitive yes without source path",
+        "negative approved template/shared primitive authority cells pass as non-claims",
         "dual implementation authority classification",
         "template source path without template consumer contract",
         "primitive source path without primitive consumer contract",

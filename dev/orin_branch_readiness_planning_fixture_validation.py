@@ -3655,11 +3655,11 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
 
     def is_affirmative_authority_cell(value: str) -> bool:
         normalized_value = governance._normalized_planning_value(value).strip(" .;:")
-        return (
-            normalized_value == "yes"
-            or normalized_value.startswith(("yes ", "yes -", "approved "))
-            or "approved template" in normalized_value
-            or "approved shared primitive" in normalized_value
+        return bool(
+            re.match(
+                r"^(yes|approved)(?:\b|[\s:;-])",
+                normalized_value,
+            )
         )
 
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
@@ -4125,6 +4125,25 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject table-only primitive claim"
+        )
+
+    generated_negative_authority_cells = valid_text.replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No approved template exists | No approved shared primitive exists | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+    )
+    generated_negative_authority_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_negative_authority_cells
+        )
+    )
+    if (
+        EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET
+        in generated_negative_authority_failures
+        or EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET
+        in generated_negative_authority_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected negative template/shared primitive authority cells"
         )
 
     generated_packet_reviewability_means_acceptance = valid_text.replace(
