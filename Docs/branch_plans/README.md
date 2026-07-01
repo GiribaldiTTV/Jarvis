@@ -105,6 +105,7 @@ Required branch-plan fields when the gate applies:
 - `Material Visible Change Classification:`
 - `Render Authority Level:`
 - `Design Candidate Packet Path:` when USER selection is needed
+- `Reviewable Visual Acceptance Target Path:` when a target is available for USER/ChatGPT/Codex review before USER acceptance
 - `Design Candidate Media Included:`
 - `Visual Selection Ledger:`
 - `Rejected Pattern Ledger:`

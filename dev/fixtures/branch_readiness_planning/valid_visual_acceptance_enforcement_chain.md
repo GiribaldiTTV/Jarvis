@@ -4,6 +4,8 @@ Material Visible Change Classification: Material visible UI is in scope for an A
 
 Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.
 
+Reviewable Visual Acceptance Target Path: C:\Nexus USER\FAM-007\Review Aids\AI_Diagnostics_Visual_Acceptance_Target.md.
+
 Implementation Authority Classification: Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.
 
 Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.

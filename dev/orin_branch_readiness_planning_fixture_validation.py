@@ -3786,9 +3786,43 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "none",
         "no target",
     )
+    visual_target_not_applicable = (
+        "not applicable with reason" in visual_target
+        or "visual acceptance target not applicable" in visual_target
+    )
+    visual_target_path_labels = (
+        "Reviewable Visual Acceptance Target Path:",
+        "Accepted Visual Acceptance Target Path:",
+        "Design Candidate Packet Path:",
+    )
+    visual_target_path_values = [
+        value
+        for label in visual_target_path_labels
+        for value in substantive_label_values(label)
+    ]
+
+    def is_reviewable_visual_target_path(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value)
+        if any(term in normalized_value for term in placeholder_visual_target_terms):
+            return False
+        if "docs/ui_reference_catalog/" in normalized_value:
+            return False
+        return bool(
+            re.search(
+                r"(?:[a-z]:\\|\\\\|/|c:\\nexus user\\|user review|review aids|"
+                r"source truth context|visual_acceptance|visual acceptance|"
+                r"\.(?:md|png|jpg|jpeg|webp|mp4|mov|zip|pdf|html)\b)",
+                normalized_value,
+                re.IGNORECASE,
+            )
+        )
+
     require(
         bool(visual_target)
-        and "visual acceptance target" in visual_target
+        and (
+            "visual acceptance target" in visual_target
+            or visual_target_not_applicable
+        )
         and not any(
             forbidden in visual_target
             for forbidden in (
@@ -3803,6 +3837,11 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     )
     require(
         not any(term in visual_target for term in placeholder_visual_target_terms),
+        EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+    require(
+        visual_target_not_applicable
+        or any(is_reviewable_visual_target_path(value) for value in visual_target_path_values),
         EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
     )
 
@@ -3953,7 +3992,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
 
     reviewability_acceptance_target = (
         r"(?:(?:product|visual|USER visual|USER)\s+acceptance|"
-        r"(?:product|visual|USER visual|USER)\s+accepted|accepted)"
+        r"(?:product|visual|USER visual|USER)\s+accepted|acceptance|accepted)"
     )
     packet_reviewability_false_green_pattern = re.compile(
         r"(?:"
@@ -4059,6 +4098,7 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     branch_plan_text = branch_plan_readme.read_text(encoding="utf-8")
     for required_label in (
         "Implementation Authority Classification:",
+        "Reviewable Visual Acceptance Target Path:",
         "Visual Family Relation Proof:",
         "Functionality Role Contract:",
         "Pre-Live Visual Purpose Conformance:",
@@ -4221,6 +4261,34 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject placeholder target plan"
+        )
+
+    generated_missing_reviewable_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.\n\n",
+        "",
+    )
+    generated_missing_target_path_failures = _validate_visual_acceptance_enforcement_text(
+        generated_missing_reviewable_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_missing_target_path_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject target plan without reviewable path"
+        )
+
+    generated_uiref_only_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.",
+        "Reviewable Visual Acceptance Target Path: Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md.",
+    )
+    generated_uiref_only_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_uiref_only_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_uiref_only_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject UIREF-only visual target path"
         )
 
     generated_placeholder_implementation_match_claim = valid_text.replace(
@@ -4453,6 +4521,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject packet reviewability means USER acceptance"
+        )
+
+    generated_packet_reviewability_bare_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means acceptance.",
+    )
+    generated_reviewability_bare_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_bare_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_bare_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability means acceptance"
         )
 
     generated_reviewable_packet_product_acceptance = valid_text.replace(
