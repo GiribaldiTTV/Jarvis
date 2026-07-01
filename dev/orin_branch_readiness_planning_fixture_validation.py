@@ -4724,6 +4724,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             "Generated Visual Acceptance fixture did not reject reviewable status proves acceptance"
         )
 
+    generated_reviewable_status_scoped_accepted = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet Reviewability means product accepted; reviewable status means visual accepted.",
+    )
+    generated_reviewable_status_scoped_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_status_scoped_accepted
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewable_status_scoped_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject product/visual accepted reviewability claims"
+        )
+
     generated_packet_status_acceptance = valid_text.replace(
         "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
         "Packet Reviewability vs Product Acceptance: Packet status means accepted.",
@@ -4862,6 +4878,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             "Generated Visual Acceptance fixture did not reject helper-pass visual acceptance claim"
         )
 
+    generated_helper_output_result_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper output green means visual acceptance; helper result pass proves product acceptance.",
+    )
+    generated_helper_output_result_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_helper_output_result_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_output_result_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-output/result acceptance claims"
+        )
+
     generated_validator_passed_claim = valid_text.replace(
         "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
         "Packet Reviewability vs Product Acceptance: validator passed means visual acceptance for this review packet.",
@@ -4936,6 +4968,22 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject screenshot-path USER acceptance claim"
+        )
+
+    generated_screenshot_exists_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot exists proves visual acceptance; screenshot exists means visual acceptance.",
+    )
+    generated_screenshot_exists_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_screenshot_exists_acceptance_claim
+        )
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_exists_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-exists visual acceptance claims"
         )
 
     generated_screenshot_product_acceptance_claim = valid_text.replace(
@@ -6248,6 +6296,8 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         ]
         + "\nVisual Acceptance: screenshot path means USER acceptance.\n"
         + "Visual Acceptance: screenshot is USER accepted.\n"
+        + "Visual Acceptance: screenshot exists proves visual acceptance.\n"
+        + "Visual Acceptance: screenshot exists means visual acceptance.\n"
     )
     if "screenshot-as-visual-acceptance" not in "\n".join(
         review_bundle._active_review_aid_false_green_failures(
@@ -6266,6 +6316,8 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         ]
         + "\nVisual Acceptance: helper green means acceptance.\n"
         + "Visual Acceptance: helper green means USER acceptance.\n"
+        + "Visual Acceptance: helper output green means visual acceptance.\n"
+        + "Visual Acceptance: helper result pass proves product acceptance.\n"
         + "Visual Acceptance: validator passed means accepted.\n"
         + "Visual Acceptance: helper green therefore accepted.\n"
         + "Visual Acceptance: validator passed therefore accepted.\n"
@@ -6320,6 +6372,8 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
             f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
         ]
         + "\nPacket Reviewability means product acceptance.\n"
+        + "Packet Reviewability means product accepted.\n"
+        + "Reviewable status means visual accepted.\n"
     )
     if "packet-reviewability-as-product-acceptance" not in "\n".join(
         review_bundle._active_review_aid_false_green_failures(

@@ -261,7 +261,8 @@ MIN_PRIMARY_REVIEW_WORDS = 80
 MIN_PRIMARY_REVIEW_CHARACTERS = 500
 _FALSE_GREEN_ACCEPTANCE_TARGET = (
     r"(?:USER\s+visual\s+acceptance|USER\s+acceptance|USER\s+accepted|"
-    r"product\s+acceptance|visual\s+acceptance|accepted|acceptance)\b"
+    r"product\s+acceptance|product\s+accepted|visual\s+acceptance|"
+    r"visual\s+accepted|accepted|acceptance)\b"
 )
 _FALSE_GREEN_PENDING_NEGATION = (
     r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
@@ -307,7 +308,7 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "screenshot-as-visual-acceptance",
         re.compile(
-            r"(?:screenshot(?:\s+(?:path|existence))?\s+(?:proves|equals|means|is|therefore)\s+"
+            r"(?:screenshot(?:\s+(?:path|existence|exists))?\s+(?:proves|equals|means|is|therefore)\s+"
             + _FALSE_GREEN_ACCEPTANCE_TARGET
             + _FALSE_GREEN_PENDING_NEGATION
             + r"|"
@@ -318,7 +319,9 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "helper-green-as-visual-acceptance",
         re.compile(
-            r"(?:helper|validator)\s+(?:green|pass(?:ed)?)\s+(?:proves|equals|means|is|therefore)\s+"
+            r"(?:(?:helper|validator)(?:\s+(?:output|result|validation))?"
+            r"\s+(?:green|pass(?:ed)?)|validation\s+pass(?:ed)?)\s+"
+            r"(?:proves|equals|means|is|therefore)\s+"
             + _FALSE_GREEN_ACCEPTANCE_TARGET
             + _FALSE_GREEN_PENDING_NEGATION,
             re.IGNORECASE,
