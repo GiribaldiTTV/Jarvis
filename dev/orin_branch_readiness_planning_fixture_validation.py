@@ -3446,12 +3446,29 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             return False
         return True
 
+    def phase_clause_denies_phase_without_advancement(clause: str) -> bool:
+        if not re.search(rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b", clause):
+            return False
+        if not re.search(rf"\b(?:{phase_disclaimer_token_pattern})\b", clause):
+            return False
+        # Keep mixed denial/action clauses so "not approved so continue to PR
+        # Readiness" remains an invalid advancement request.
+        if re.search(
+            rf"\b(?:so|therefore|then|now)\b[\w\s/-]{{0,120}}"
+            rf"\b(?:{phase_action_token_pattern})\b",
+            clause,
+        ):
+            return False
+        return True
+
     def strip_negated_phase_disclaimers(value: str) -> str:
         value = negated_phase_list_pattern.sub(" ", value)
         clauses = re.split(phase_claim_clause_pattern, value)
         kept: list[str] = []
         for clause in clauses:
             if phase_clause_explicitly_blocks_or_holds(clause):
+                continue
+            if phase_clause_denies_phase_without_advancement(clause):
                 continue
             kept.append(clause)
         return " ".join(kept)
@@ -13541,6 +13558,23 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Generated RAR adversarial matrix did not reject waiver-not-approved phase advancement"
+        )
+
+    generated_phase_first_denial_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: PR Readiness is not approved while RAR review remains active.",
+        )
+    )
+    generated_phase_first_denial_failures = "\n".join(
+        _validate_rebaseline_adoption_review_text(generated_phase_first_denial_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in generated_phase_first_denial_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected phase-first denial wording"
         )
 
     generated_although_phase_advance_text = (
