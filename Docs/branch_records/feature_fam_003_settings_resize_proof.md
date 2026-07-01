@@ -22,7 +22,7 @@ Admission Summary: `USER approved Branch Readiness Stage 2 setup for a fresh FAM
 - External Branch Plan Owner: `C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_plan.md`
 - Branch Runtime Engineering Plan Path: `C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_plan.md`
 - Branch Runtime Engineering Plan: `External operational branch plan; active planning rows remain outside repo source truth.`
-- Engineering Plan Status: `Durable setup pointer; active external state records F3-BR-GOV-001 as repaired by BR2 route admission and F3-BR-GOV-002 as a BR2 route-amendment hold pending USER route-scope decision. BP1/BP2/BP3 remain future USER-gated planning/orchestration phases after the route decision, and runtime implementation remains blocked until source truth and USER approval admit it.`
+- Engineering Plan Status: `Durable setup pointer; active external state records F3-BR-GOV-001 as repaired by BR2 route admission and F3-BR-GOV-002 Option C as admitted for BP1. BP1/BP2/BP3 remain future USER-gated planning/orchestration phases for the admitted Option C route, and runtime implementation remains blocked until source truth and USER approval admit it.`
 - Created From Receipt: `origin/main@70099064c787dd4eacb8291050ab7c441d7f9e59; rebaselined to origin/main@063e477c2135e888bec6a40530fcc53dd6eb6ca8 after USER-approved prompt-entry rebaseline.`
 
 ## Branch Readiness Setup Gate Receipt
@@ -58,9 +58,9 @@ Sibling Worktree Candidate Exclusion: `FAM-006, FAM-007, FAM-008, Governance, ne
 
 ## Route Receipt
 
-Selected Implementation Route: `Implement FAM-003 Global Settings resize/cursor conformance behavior for the Nexus Tray and Quick Access settings window under UIREF-007.`
-Implementation Route Class: `Proof-first implementation-bearing FAM-003 user-facing Global Settings geometry and resize route consuming FAM-002/UIREF-007.`
-Carrier Purpose: `Carry the deferred Settings window resize/cursor conformance route as a concrete FAM-003 implementation-bearing branch while keeping runtime implementation blocked until BP gates and later Workstream approval.`
+Selected Implementation Route: `Implement the FAM-003 resident access and command-surface conformance package covering Settings resize/cursor behavior, NDAI-native resident tray right-click menu presentation, and NDAI Command Prompt visual/functional conformance plus issue-admission pass.`
+Implementation Route Class: `Implementation-bearing FAM-003 multi-surface resident access and command interaction package consuming FAM-002/UIREF-003/UIREF-004/UIREF-005/UIREF-007 presentation, control, doorway, design-token, and geometry standards.`
+Carrier Purpose: `Carry the amended Option C FAM-003 implementation-bearing route while keeping runtime implementation blocked until BP gates and later Workstream approval.`
 Route Selection Basis: `The USER approved creating or switching to a fresh FAM-003 branch from current origin/main, preserving the stable worktree path, and carrying the deferred Settings resize cursor/live-style proof task as proof-first scope only.`
 Branch Planning Route Receipt: `BR2 route admission has recorded the implementation-bearing route fields in active external state. Future movement must pass BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, and separate runtime implementation approval before source implementation unless USER explicitly waives the applicable gate.`
 
@@ -68,16 +68,16 @@ Branch Planning Route Receipt: `BR2 route admission has recorded the implementat
 
 Defect ID: `F3-BR-GOV-002`
 Defect Class: `Branch Readiness route-admission understatement before BP1`
-Durable Receipt: `After F3-BR-GOV-001 admitted the Settings resize/cursor route, USER identified additional FAM-003 candidate scope before BP1: a styled NDAI-native taskbar tray menu and an NDAI Command Prompt pass. Active external state now records the amendment as a BR2 hold requiring a USER route-scope decision before BP1 preparation.`
+Durable Receipt: `After F3-BR-GOV-001 admitted the Settings resize/cursor route, USER identified additional FAM-003 candidate scope before BP1 and then approved Option C. Active external state now records the amended route as Settings resize/cursor conformance, NDAI-native resident tray right-click menu presentation, and NDAI Command Prompt visual/functional conformance plus issue-admission pass.`
 Current External State Owner: `C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_state.md`
 Active Plan Owner: `C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_plan.md`
-Final Route Classification: `BR2_ROUTE_AMENDMENT_HOLD_PENDING_USER_DECISION`
-Tray Menu Ownership Receipt: `FAM-003 owns resident tray doorway behavior, compact resident menu routing, quick-access menu budget, and tray tooltip/status mechanism while consuming FAM-002/UIREF visual grammar and owned route truth from FAM-006/FAM-007/FAM-008. Current F3-FF01 source truth says compact native tray right-click menu; a styled NDAI-native right-click tray menu is FAM-003-owned candidate scope but requires USER route admission and BP1 reconciliation before implementation.`
-NDAI Command Prompt Ownership Receipt: `FAM-003 owns the interaction/action family and current typed-first NCP / command overlay doorway behavior. The NCP pass is FAM-003-owned candidate scope but not automatically admitted into the current settings-resize carrier unless USER explicitly selects that route amendment before BP1.`
+Final Route Classification: `BR2_ROUTE_AMENDMENT_OPTION_C_ADMITTED`
+Tray Menu Ownership Receipt: `USER admitted the NDAI-native resident tray right-click menu presentation into this FAM-003 route. FAM-003 owns resident tray doorway behavior, compact resident menu routing, quick-access menu budget, and tray tooltip/status mechanism while consuming FAM-002/UIREF visual grammar and owned route truth from FAM-006/FAM-007/FAM-008. BP1 must reconcile the F3-FF01 native-menu wording with the admitted NDAI-native presentation target before implementation.`
+NDAI Command Prompt Ownership Receipt: `USER admitted the NDAI Command Prompt visual/functional conformance plus issue-admission pass into this FAM-003 route. FAM-003 owns the interaction/action family and current typed-first NCP / command overlay doorway behavior.`
 HUD Dashboard Route Boundary: `F3-FF01 names the dependency as a FAM-006-owned HUD Dashboard doorway route. The phrase Overlay -> Overlay Dashboard is not admitted by this receipt. FAM-003 may own a compact route entry; FAM-006 owns HUD behavior, runtime state, and proof.`
-GitHub Issue Boundary: `No GitHub Issue creation is authorized by this receipt. An NCP issue candidate may be prepared only after legal BP gates, BP3 issue relevance, and explicit USER issue-mutation approval.`
-Correct Next Legal Phase: `USER route-scope decision for F3-BR-GOV-002 before BP1 preparation can begin.`
-Implementation Blocker: `Runtime Implementation Approval Missing. BP1/BP2/BP3 and later bounded Workstream approval remain required or waived after the route decision before runtime mutation or visual/live proof execution.`
+GitHub Issue Boundary: `No GitHub Issue creation is authorized by this receipt. The NCP issue-admission pass may prepare issue-candidate analysis only after BP planning admits it; actual GitHub Issue creation remains blocked until BP3 admission and explicit USER issue-mutation approval.`
+Correct Next Legal Phase: `BP1 USER Branch Vision Review for the admitted Option C route, only after USER requests BP1 preparation or explicitly waives BP1.`
+Implementation Blocker: `Runtime Implementation Approval Missing. BP1/BP2/BP3 and later bounded Workstream approval remain required or waived before runtime mutation or visual/live proof execution.`
 No Runtime Approval: `This receipt does not approve runtime repair, Live Validation, UTS completion, PR readiness, PR creation, merge, release, cleanup/deletion, issue mutation, selected-next mutation, sibling worktree mutation, Governance worktree mutation, provider/model/private/cache/memory work, installer/startup/shortcut/packaging work, branch rename/split, or separate settings/tray/AI branches.`
 
 ## BR2 Route-Admission Misroute Repair Receipt
@@ -87,8 +87,8 @@ Defect Class: `Branch Readiness route-admission / Branch Planning misroute`
 Repair Receipt: `The earlier setup receipt routed the fresh proof-first carrier directly to BP1 before the active external plan proved the required concrete implementation-bearing route fields. This repo receipt now points to the corrected external state instead of preserving BP1 as the active next gate.`
 Correct Current Gate Owner: `C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_state.md`
 Correct Active Plan Owner: `C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_plan.md`
-Correct Next Legal Phase: `SUPERSEDED by F3-BR-GOV-002 - USER route-scope decision before BP1 preparation can begin.`
-Implementation Blocker: `Runtime Implementation Approval Missing. F3-BR-GOV-001 route admission is repaired, but F3-BR-GOV-002 keeps BR2 open for route-scope decision; BP1/BP2/BP3 and later bounded Workstream approval remain required or waived after that decision before runtime mutation or visual/live proof execution.`
+Correct Next Legal Phase: `SUPERSEDED by F3-BR-GOV-002 Option C - BP1 USER Branch Vision Review for the admitted Option C route if USER requests BP1 preparation or explicitly waives BP1.`
+Implementation Blocker: `Runtime Implementation Approval Missing. F3-BR-GOV-001 route admission is repaired and F3-BR-GOV-002 Option C is admitted; BP1/BP2/BP3 and later bounded Workstream approval remain required or waived before runtime mutation or visual/live proof execution.`
 No Runtime Approval: `This receipt does not approve runtime repair, Live Validation, UTS completion, PR readiness, PR creation, merge, release, cleanup/deletion, issue mutation, selected-next mutation, sibling worktree mutation, Governance worktree mutation, provider/model/private/cache/memory work, installer/startup/shortcut/packaging work, branch rename/split, or separate settings/tray/AI branches.`
 
 ## Source Truth Context
