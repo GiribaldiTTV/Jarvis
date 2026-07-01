@@ -8,7 +8,7 @@ Record State: `Historical merged post-release canon-closure receipt`
 
 ## Status
 
-Status: `Historical receipt for the USER-approved FAM-007 v1.7.23-prebeta post-release canon-closure carrier. PR #220 merged this branch into origin/main@d35755ca5135a3c1081de27d023f2db96c2c9741 after it folded PR #217, PR #218, and PR #219 from merged-unreleased release-window posture into released v1.7.23-prebeta source truth and preserved private/provider/runtime exclusions. This record no longer authorizes active Branch Readiness, PR creation, merge, release execution, branch/worktree cleanup, Workstream implementation, private Dev or Owner repos, private remotes, backup/recovery, Public-to-Dev import, providers/models, memory, visible runtime behavior, release artifacts, or v1.8.0-prebeta.`
+Status: `Historical receipt for the USER-approved FAM-007 v1.7.23-prebeta post-release canon-closure carrier. PR #220 merged this branch into origin/main@d35755ca5135a3c1081de27d023f2db96c2c9741 after it folded PR #217, PR #218, and PR #219 from historical pre-release snapshot evidence of merged-unreleased release-window posture into released v1.7.23-prebeta source truth and preserved private/provider/runtime exclusions. This record no longer authorizes active Branch Readiness, PR creation, merge, release execution, branch/worktree cleanup, Workstream implementation, private Dev or Owner repos, private remotes, backup/recovery, Public-to-Dev import, providers/models, memory, visible runtime behavior, release artifacts, or v1.8.0-prebeta.`
 
 ## Branch Identity
 
