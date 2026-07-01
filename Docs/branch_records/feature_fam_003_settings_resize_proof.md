@@ -25,12 +25,11 @@ Admission Summary: `USER approved Branch Readiness Stage 2 setup for a fresh FAM
 - Engineering Plan Status: `Durable setup pointer; BP1/BP2/BP3 planning state is external.`
 - Created From Receipt: `origin/main@70099064c787dd4eacb8291050ab7c441d7f9e59; rebaselined to origin/main@063e477c2135e888bec6a40530fcc53dd6eb6ca8 after USER-approved prompt-entry rebaseline.`
 
-## Current Phase
+## Branch Readiness Setup Gate Receipt
 
-Phase: `Branch Readiness`
-Stage: `BR2 setup/rebaseline recorded; BP1 USER Branch Vision Review preparation pending`
-Runtime Implementation Approval: `BLOCKED`
-PR Creation Approval: `BLOCKED`
+Setup Gate Receipt: `BR2 setup/rebaseline was recorded for this branch; live gate posture remains external operational state, not this repo receipt.`
+Runtime Implementation Boundary: `No runtime implementation was approved by this durable receipt.`
+PR Boundary: `No PR creation was approved by this durable receipt.`
 
 ## Assigned Worktree Confinement
 
