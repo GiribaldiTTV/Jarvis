@@ -3623,6 +3623,36 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             "not applicable",
         } or normalized_value.startswith(("tbd ", "todo ", "placeholder "))
 
+    def has_substantive_label_value(label: str) -> bool:
+        label_pattern = re.escape(label)
+        for match in re.finditer(
+            rf"(?im){label_pattern}\s*([^\n|]+)",
+            text,
+        ):
+            value = governance._normalized_planning_value(match.group(1)).strip(
+                " .;:`"
+            )
+            if not value or is_placeholder_cell(value):
+                continue
+            if any(
+                placeholder in value
+                for placeholder in (
+                    "to be determined",
+                    "pending user review",
+                    "pending user decision",
+                    "pending approval",
+                    "pending review",
+                    "not yet defined",
+                    "not selected",
+                    "not approved",
+                    "missing",
+                    "omitted",
+                )
+            ):
+                continue
+            return True
+        return False
+
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
         return [
             row
@@ -3658,6 +3688,22 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     visual_target = governance._normalized_planning_value(
         governance._extract_marker_value(text, "Visual Acceptance Target Plan:")
     )
+    placeholder_visual_target_terms = (
+        "tbd",
+        "todo",
+        "placeholder",
+        "to be determined",
+        "pending user review",
+        "pending user decision",
+        "pending approval",
+        "pending review",
+        "not yet defined",
+        "not selected",
+        "missing",
+        "omitted",
+        "none",
+        "no target",
+    )
     require(
         bool(visual_target)
         and "visual acceptance target" in visual_target
@@ -3671,6 +3717,10 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
                 "screenshot only",
             )
         ),
+        EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+    require(
+        not any(term in visual_target for term in placeholder_visual_target_terms),
         EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
     )
 
@@ -3706,7 +3756,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         or "ai control center template" in authority_scope
     ):
         require(
-            "template source path:" in normalized,
+            has_substantive_label_value("Template source path:"),
             EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
         )
     if (
@@ -3715,7 +3765,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         or "shared primitive consumed" in normalized
     ):
         require(
-            "primitive source path:" in normalized,
+            has_substantive_label_value("Primitive source path:"),
             EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
         )
 
@@ -3873,6 +3923,58 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject shared primitive claim without source"
+        )
+
+    generated_placeholder_visual_target_claim = valid_text.replace(
+        "Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.",
+        "Visual Acceptance Target Plan: Visual Acceptance Target is TBD pending USER review.",
+    )
+    generated_placeholder_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_placeholder_visual_target_claim
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder target plan"
+        )
+
+    generated_placeholder_template_source_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Template Instantiated - the branch claims an AI Control Center template. Template source path: TBD.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_placeholder_template_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_placeholder_template_source_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_template_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder template source path"
+        )
+
+    generated_placeholder_primitive_source_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Shared Primitive Consumed - the branch claims a shared primitive. Primitive source path: none.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved primitive source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_placeholder_primitive_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_placeholder_primitive_source_claim
+        )
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_primitive_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder primitive source path"
         )
 
     generated_helper_green_claim = valid_text.replace(
