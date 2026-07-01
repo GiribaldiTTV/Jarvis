@@ -283,7 +283,11 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "packet-reviewability-as-product-acceptance",
         re.compile(
-            r"packet reviewability (?:equals|means|is)\s+(?:product|visual|USER visual)\s+acceptance",
+            r"(?:"
+            r"packet reviewability (?:equals|is)\s+(?:product|visual|USER visual)\s+acceptance|"
+            r"packet reviewability means\s+(?:product|visual|USER visual)\s+acceptance\b"
+            r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
+            r")",
             re.IGNORECASE,
         ),
     ),

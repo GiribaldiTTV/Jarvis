@@ -57,18 +57,21 @@
       },
       {
         "pr": 289,
-        "connector_comments": 5,
+        "connector_comments": 6,
         "observed_family_counts": {
           "rar-table-row-parser": 1,
-          "visual-acceptance-proof-chain-parser": 5
+          "rar-user-packet-proof-parser": 1,
+          "visual-acceptance-proof-chain-parser": 6
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, or template/shared-primitive consumer contracts.",
-        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, placeholder target/source values, and template/shared-primitive claims that omit consumer contracts; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
+        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, or safe pending-acceptance wording in USER packet false-green scans.",
+        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, placeholder target/source values, and template/shared-primitive claims that omit consumer contracts; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
         "preventive_changes": [
           "dev/orin_branch_readiness_planning_fixture_validation.py enforces exactly one Implementation Authority Classification term for visual acceptance planning.",
           "dev/orin_branch_readiness_planning_fixture_validation.py validates substantive Template/Primitive source-path values and consumer-contract values.",
           "dev/orin_branch_readiness_planning_fixture_validation.py adds generated adversarial mutations for placeholder targets, placeholder source paths, table-only authority claims, and source-without-consumer-contract claims.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py proves USER packet false-green scanning rejects reviewability-as-acceptance but allows pending-acceptance wording.",
+          "dev/orin_user_review_bundle.py narrows packet reviewability/product acceptance false-green matching to avoid pending-acceptance false reds.",
           "dev/orin_pr_review_churn_validation.py classifies authority-cardinality and consumer-contract review comments under visual-acceptance-proof-chain-parser.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records the PR #289 review-churn root-cause receipt."
         ],
@@ -424,7 +427,9 @@
         "table-only approved shared primitive yes without source path",
         "dual implementation authority classification",
         "template source path without template consumer contract",
-        "primitive source path without primitive consumer contract"
+        "primitive source path without primitive consumer contract",
+        "packet reviewability as product acceptance fails",
+        "pending product acceptance wording passes"
       ],
       "sibling_variant_replay": [
         "BP2/BP3 Visual Acceptance Target Plan",

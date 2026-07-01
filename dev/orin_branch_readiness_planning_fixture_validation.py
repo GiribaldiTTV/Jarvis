@@ -5180,6 +5180,41 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         failures.append(
             "Invalid USER review bundle fixture did not reject screenshot existence as visual acceptance"
         )
+    unsafe_reviewability_packet_files = dict(packet_files)
+    unsafe_reviewability_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means product acceptance.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_reviewability_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject packet reviewability as product acceptance"
+        )
+    safe_reviewability_packet_files = dict(packet_files)
+    safe_reviewability_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means product acceptance remains pending until USER acceptance or waiver.\n"
+    )
+    safe_false_green_failures = "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            safe_reviewability_packet_files
+        )
+    )
+    if "packet-reviewability-as-product-acceptance" in safe_false_green_failures:
+        failures.append(
+            "Valid USER review bundle fixture falsely rejected pending product acceptance wording"
+        )
     return failures
 
 
