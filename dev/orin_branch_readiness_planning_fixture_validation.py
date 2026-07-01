@@ -3929,6 +3929,33 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         len(row) >= 3 and is_affirmative_authority_cell(row[2])
         for row in implementation_authority_rows
     )
+
+    def has_affirmative_template_reference(value: str) -> bool:
+        for match in re.finditer(r"\bai control center template\b", value):
+            local_context = value[max(0, match.start() - 80) : match.end() + 80]
+            if any(
+                negation in local_context
+                for negation in (
+                    "not approved",
+                    "not consumed",
+                    "not instantiated",
+                    "not used",
+                    "no approved",
+                    "no template",
+                    "without approved",
+                    "does not consume",
+                    "does not instantiate",
+                )
+            ):
+                continue
+            if re.search(
+                r"\b(?:claim|claims|claimed|consume|consumes|consumed|instantiate|"
+                r"instantiates|instantiated|use|uses|used|using|approved)\b",
+                local_context,
+            ):
+                return True
+        return False
+
     require(
         any(term in authority_scope for term in authority_terms),
         EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
@@ -3944,7 +3971,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         "implementation template instantiated" in authority_scope
         or "approved template? yes" in authority_scope
         or "template consumed" in authority_scope
-        or "ai control center template" in authority_scope
+        or has_affirmative_template_reference(authority_scope)
         or table_claims_template
     ):
         template_source_values = substantive_label_values("Template source path:")
@@ -4628,6 +4655,20 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture falsely rejected negative template/shared primitive authority cells"
+        )
+
+    generated_negative_template_reference = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Reference-Derived Implementation - the AI Control Center template is not approved or consumed for this surface class.",
+    )
+    generated_negative_template_reference_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_negative_template_reference
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET in generated_negative_template_reference_failures:
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected negative AI Control Center template reference"
         )
 
     generated_packet_reviewability_means_acceptance = valid_text.replace(
