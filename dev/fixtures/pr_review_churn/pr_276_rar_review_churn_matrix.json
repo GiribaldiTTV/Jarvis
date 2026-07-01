@@ -57,16 +57,19 @@
       },
       {
         "pr": 289,
-        "connector_comments": 13,
+        "connector_comments": 14,
         "observed_family_counts": {
+          "pr2-thread-pagination-and-approval-latch": 1,
+          "rar-code-to-visual-reference-parser": 1,
           "rar-phase-advancement-parser": 1,
+          "rar-status-green-parser": 1,
           "rar-table-row-parser": 1,
           "rar-user-packet-proof-parser": 1,
-          "visual-acceptance-proof-chain-parser": 13
+          "visual-acceptance-proof-chain-parser": 14
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants, exact branch-plan field-label synchronization, explanatory negative authority-table wording, incomplete additional material rows, current source-truth authority for claimed templates/shared primitives, authority claims hidden in visual-family rows, or false-green screenshot/helper/CSS verb variants.",
-        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, authority claims hidden in visual-family rows, placeholder target/source values, incomplete material table rows, template/shared-primitive claims that omit consumer contracts, template/shared-primitive claims while the catalog records no promoted implementation templates or code-level shared primitives, UIREF reference paths used as template/primitive sources, screenshot/helper/CSS false-green phrasing across proves/equals/is/means variants, and equals/is/means reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording and explanatory negative authority cells; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
+        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, template/shared-primitive consumer contracts, safe pending-acceptance wording in USER packet false-green scans, all reviewability-as-acceptance verb variants, exact branch-plan field-label synchronization, explanatory negative authority-table wording, incomplete additional material rows, current source-truth authority for claimed templates/shared primitives, authority claims hidden in visual-family rows, false-green screenshot/helper/CSS verb variants, or Visual Family Relation match-column disagreement hidden behind a green verdict.",
+        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, authority claims hidden in visual-family rows, placeholder target/source values, incomplete material table rows, template/shared-primitive claims that omit consumer contracts, template/shared-primitive claims while the catalog records no promoted implementation templates or code-level shared primitives, UIREF reference paths used as template/primitive sources, screenshot/helper/CSS false-green phrasing across proves/equals/is/means variants, unresolved Visual Match / Functional Match columns with green verdicts, and equals/is/means reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording and explanatory negative authority cells; branch-plan docs now use the exact labels validators extract; the USER packet helper still rejects reviewability-as-acceptance false-green wording while allowing explicit pending-acceptance wording; the churn classifier recognizes authority/consumer-contract comments as visual-acceptance proof-chain coverage.",
         "preventive_changes": [
           "dev/orin_branch_readiness_planning_fixture_validation.py enforces exactly one Implementation Authority Classification term for visual acceptance planning.",
           "dev/orin_branch_readiness_planning_fixture_validation.py validates substantive Template/Primitive source-path values and consumer-contract values.",
@@ -77,6 +80,7 @@
           "dev/orin_branch_readiness_planning_fixture_validation.py rejects UIREF reference paths as template or primitive source paths.",
           "dev/orin_branch_readiness_planning_fixture_validation.py includes visual-family row implementation-authority cells in template/shared-primitive claim detection.",
           "dev/orin_branch_readiness_planning_fixture_validation.py rejects screenshot/helper/CSS false-green wording across proves, equals, is, and means variants.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py inspects Visual Match and Functional Match columns before accepting visual-family rows as green.",
           "dev/orin_branch_readiness_planning_fixture_validation.py rejects packet-reviewability-as-product-acceptance phrasing across equals/is/means variants while allowing explicit pending-acceptance phrasing.",
           "dev/orin_branch_readiness_planning_fixture_validation.py proves USER packet false-green scanning rejects reviewability-as-acceptance but allows pending-acceptance wording.",
           "dev/orin_user_review_bundle.py narrows packet reviewability/product acceptance false-green matching to avoid pending-acceptance false reds.",
@@ -440,6 +444,7 @@
         "template/shared primitive claims fail while the catalog has no promoted implementation authority",
         "template claim hidden in visual-family implementation-authority cell fails",
         "screenshot/helper/CSS false-green equals/is/means variants fail",
+        "unresolved visual/functional match columns with green verdict fail",
         "dual implementation authority classification",
         "template source path without template consumer contract",
         "primitive source path without primitive consumer contract",
@@ -455,7 +460,8 @@
         "USER packet false-green scan",
         "Accepted Reference Set / Comparative Synthesis table",
         "Implementation Authority Table",
-        "Functionality Role Contract Table"
+        "Functionality Role Contract Table",
+        "Visual Family Relation match columns cannot be overridden by CONFORMING verdict text"
       ]
     },
     {
