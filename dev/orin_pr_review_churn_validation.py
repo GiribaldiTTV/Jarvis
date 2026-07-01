@@ -71,6 +71,18 @@ HELPER_FILE_PATTERNS = (
     "audit",
     "harness",
 )
+FIREWALL_GATED_PATHS = {
+    "docs/branch_plans/readme.md",
+    "docs/branch_records/feature_release_readiness_source_truth_intake.md",
+    "docs/incident_patterns.md",
+    "docs/phase_governance.md",
+    "docs/validation_helper_registry.md",
+}
+FIREWALL_GATED_PREFIXES = (
+    "dev/fixtures/branch_readiness_planning/",
+    "dev/fixtures/pr_review_churn/",
+    "docs/ui_reference_catalog/",
+)
 PYTHON_COMMAND_TOKENS = {"{python}", "{python_executable}"}
 REPO_LIVE_STATE_CURRENT_CYCLE_CONTEXT = (
     "rri",
@@ -393,6 +405,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "root-cause receipt",
             "root cause receipt",
             "pre-pr firewall",
+            "pre pr firewall",
             "adversarial firewall",
             "portable python",
             "python launcher",
@@ -400,6 +413,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "validation command",
             "validation_commands",
             "current interpreter",
+            "changed-family",
+            "changed family",
+            "fixture-only",
+            "fixture only",
         ),
     ),
     FamilyRule(
@@ -966,6 +983,27 @@ def _is_helper_validator_parser(path: str) -> bool:
     return any(pattern in name for pattern in HELPER_FILE_PATTERNS)
 
 
+def _is_firewall_gated_path(path: str, matrix: dict[str, Any]) -> bool:
+    normalized = path.replace("\\", "/").casefold()
+    file_coverage = matrix.get("changed_file_coverage", {})
+    covered_paths = {
+        str(key).replace("\\", "/").casefold()
+        for key in file_coverage
+    } if isinstance(file_coverage, dict) else set()
+    return (
+        normalized in covered_paths
+        or _is_helper_validator_parser(path)
+        or normalized in FIREWALL_GATED_PATHS
+        or any(normalized.startswith(prefix) for prefix in FIREWALL_GATED_PREFIXES)
+    )
+
+
+def _is_global_churn_matrix_path(path: str) -> bool:
+    normalized = path.replace("\\", "/").casefold()
+    matrix_path = DEFAULT_MATRIX.relative_to(ROOT).as_posix().casefold()
+    return normalized == matrix_path
+
+
 def _comment_reactions(owner: str, name: str, comment_id: int) -> list[dict[str, Any]]:
     return _rest_paginated(
         f"repos/{owner}/{name}/issues/comments/{comment_id}/reactions"
@@ -1251,7 +1289,7 @@ def _validate_matrix(
         families = file_coverage.get(changed_file)
         if not isinstance(families, list) or not families:
             failures.append(
-                f"Changed helper/validator/parser lacks family coverage: {changed_file}"
+                f"Changed pre-PR firewall-gated file lacks family coverage: {changed_file}"
             )
             continue
         for family_id in families:
@@ -1261,9 +1299,12 @@ def _validate_matrix(
                 )
             else:
                 entry = entries[family_id]
-                if changed_file not in entry.get("implementation", []):
+                coverage_fields = ("source_truth", "implementation", "fixture_coverage")
+                if not any(
+                    changed_file in entry.get(field, []) for field in coverage_fields
+                ) and not _is_global_churn_matrix_path(changed_file):
                     failures.append(
-                        f"{changed_file}: family {family_id} does not list the file as implementation coverage"
+                        f"{changed_file}: family {family_id} does not list the file as source-truth, implementation, or fixture coverage"
                     )
     return failures
 
@@ -1533,7 +1574,7 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     matrix = _load_matrix(Path(args.matrix))
     changed_files = _changed_files(args.base)
     changed_helper_files = [
-        path for path in changed_files if _is_helper_validator_parser(path)
+        path for path in changed_files if _is_firewall_gated_path(path, matrix)
     ]
     changed_families = _families_for_changed_files(matrix, changed_helper_files)
     failures: list[str] = []
@@ -1547,7 +1588,7 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     lines = [
         "Pre-PR Adversarial Review Firewall",
         f"Base: {args.base}",
-        "Changed helper/validator/parser files:",
+        "Changed pre-PR firewall-gated files:",
         *[f"- {path}" for path in changed_helper_files],
         "Mapped connector families:",
         *[f"- {family_id}" for family_id in sorted(changed_families)],
@@ -1573,7 +1614,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     thread_counts = _thread_counts(threads)
     changed_files = _changed_files(args.base)
     changed_helper_files = [
-        path for path in changed_files if _is_helper_validator_parser(path)
+        path for path in changed_files if _is_firewall_gated_path(path, matrix)
     ]
     observed_families = {
         family
@@ -1633,7 +1674,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         lines.append(f"- {family_id}: {count}")
     lines.extend(
         [
-            "Changed helper/validator/parser files:",
+            "Changed pre-PR firewall-gated files:",
             *[f"- {path}" for path in changed_helper_files],
             f"Latest current-head green proof: {'BOUND' if green_bound else 'NOT BOUND'} - {green_detail}",
         ]

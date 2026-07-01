@@ -5823,10 +5823,16 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         f"{relative_matrix}: changed_file_coverage must be a non-empty object",
     )
     if isinstance(changed_file_coverage, dict):
+        relative_matrix_path = relative_matrix.as_posix()
         for path, family_ids in changed_file_coverage.items():
             require(
-                isinstance(path, str) and path.startswith("dev/") and path.endswith(".py"),
-                f"{relative_matrix}: changed-file coverage key must be a dev Python helper path",
+                isinstance(path, str)
+                and (
+                    path.startswith("dev/")
+                    or path.startswith("Docs/")
+                    or path.startswith("docs/")
+                ),
+                f"{relative_matrix}: changed-file coverage key must be a gated repo path",
             )
             require(
                 (ROOT / str(path)).exists(),
@@ -5853,8 +5859,16 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                     {},
                 )
                 require(
-                    path in matching_family.get("implementation", []),
-                    f"{relative_matrix}: {path} must also appear in implementation coverage for {family_id}",
+                    path == relative_matrix_path
+                    or any(
+                        path in matching_family.get(field, [])
+                        for field in (
+                            "source_truth",
+                            "implementation",
+                            "fixture_coverage",
+                        )
+                    ),
+                    f"{relative_matrix}: {path} must also appear in source-truth, implementation, or fixture coverage for {family_id}",
                 )
 
     return failures
