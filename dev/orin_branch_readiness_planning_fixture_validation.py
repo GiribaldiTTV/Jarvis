@@ -3951,12 +3951,18 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET,
     )
 
+    reviewability_acceptance_target = (
+        r"(?:(?:product|visual|USER visual|USER)\s+acceptance|"
+        r"(?:product|visual|USER visual|USER)\s+accepted|accepted)"
+    )
     packet_reviewability_false_green_pattern = re.compile(
         r"(?:"
-        r"packet reviewability (?:equals|is)\s+(?:product|visual|USER visual)\s+acceptance|"
-        r"packet reviewability means\s+(?:product|visual|USER visual)\s+acceptance\b"
-        r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
-        r")",
+        r"packet reviewability\s+(?:equals|is|means)\s+"
+        + reviewability_acceptance_target
+        + r"|reviewable\s+packet\s+(?:equals|is|means)\s+"
+        + reviewability_acceptance_target
+        + r")\b"
+        r"(?!\s+(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))",
         re.IGNORECASE,
     )
     require(
@@ -3976,10 +3982,6 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
         (
             r"\bcss\s+(?:marker\s+)?similarity\s+(?:proves|equals|is|means)\s+visual\s+family\b",
             EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET,
-        ),
-        (
-            r"\breviewable\s+packet\s+means\s+user\s+accepted\b",
-            EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET,
         ),
         (
             r"\buiref\s+citation\s+alone\s+is\s+sufficient\b",
@@ -4436,6 +4438,38 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             "Generated Visual Acceptance fixture did not reject packet reviewability is product acceptance"
         )
 
+    generated_packet_reviewability_user_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means USER acceptance.",
+    )
+    generated_reviewability_user_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_user_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_user_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability means USER acceptance"
+        )
+
+    generated_reviewable_packet_product_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: A reviewable packet means product acceptance.",
+    )
+    generated_reviewable_packet_product_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_packet_product_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewable_packet_product_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject reviewable packet means product acceptance"
+        )
+
     generated_packet_reviewability_pending_acceptance = valid_text.replace(
         "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
         "Packet Reviewability vs Product Acceptance: Packet reviewability means product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
@@ -4451,6 +4485,23 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture falsely rejected pending packet reviewability wording"
+        )
+
+    generated_reviewable_packet_pending_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: A reviewable packet means product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+    )
+    generated_reviewable_packet_pending_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_packet_pending_acceptance
+        )
+    )
+    if (
+        EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET
+        in generated_reviewable_packet_pending_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected pending reviewable-packet wording"
         )
 
     generated_helper_green_claim = valid_text.replace(
