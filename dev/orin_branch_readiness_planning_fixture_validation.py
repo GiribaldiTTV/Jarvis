@@ -34,6 +34,7 @@ PR_REVIEW_CHURN_MATRIX_FIXTURE = (
     / "pr_review_churn"
     / "pr_276_rar_review_churn_matrix.json"
 )
+UI_REFERENCE_CATALOG_README = ROOT / "Docs" / "ui_reference_catalog" / "README.md"
 
 
 def _pr_review_churn_receipt_exceeds_budget(
@@ -314,6 +315,30 @@ VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
 )
 INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_deferred_carryforward_missing_applicability.md"
+)
+VALID_VISUAL_ACCEPTANCE_ENFORCEMENT_FIXTURE = (
+    FIXTURE_DIR / "valid_visual_acceptance_enforcement_chain.md"
+)
+INVALID_VISUAL_ACCEPTANCE_MISSING_TARGET_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_missing_target.md"
+)
+INVALID_VISUAL_ACCEPTANCE_SCREENSHOT_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_screenshot_green.md"
+)
+INVALID_VISUAL_ACCEPTANCE_UIREF_NO_COMPARISON_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_uiref_no_comparison.md"
+)
+INVALID_VISUAL_ACCEPTANCE_TEMPLATE_CLAIM_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_template_claim.md"
+)
+INVALID_VISUAL_ACCEPTANCE_PACKET_REVIEWABILITY_ACCEPTANCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_packet_reviewability_acceptance.md"
+)
+INVALID_VISUAL_ACCEPTANCE_ROLE_AMBIGUOUS_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_role_ambiguous.md"
+)
+INVALID_VISUAL_ACCEPTANCE_REFERENCE_SET_AS_AUTHORITY_FIXTURE = (
+    FIXTURE_DIR / "invalid_visual_acceptance_reference_set_as_authority.md"
 )
 VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_review.md"
@@ -712,6 +737,34 @@ EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By
 EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
 EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
 EXPECTED_RAR_ISSUE_DURABILITY_FAILURE_SNIPPET = "RAR Issue Candidate Durability Missing"
+EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET = "Visual Acceptance Target Missing"
+EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET = (
+    "Implementation Match Proof Plan Missing"
+)
+EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET = "Visual Family Relation Proof Missing"
+EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET = "Implementation Authority Classification Missing"
+EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET = "Functionality Role Contract Missing"
+EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET = "Pre-Live Visual Purpose Conformance Missing"
+EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET = (
+    "Packet Reviewability Treated As Product Acceptance"
+)
+EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET = (
+    "Screenshot Path Treated As Visual Acceptance"
+)
+EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET = (
+    "Helper Green Treated As Visual Acceptance"
+)
+EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET = (
+    "CSS Similarity Treated As Visual Family Proof"
+)
+EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET = "Template Claim Unsupported"
+EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET = "Shared Primitive Claim Unsupported"
+EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET = (
+    "Accepted Reference Not Compared"
+)
+EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET = (
+    "Implementation-First Visual Target Backfill"
+)
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -3393,16 +3446,29 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             return False
         return True
 
+    def phase_clause_denies_phase_without_advancement(clause: str) -> bool:
+        if not re.search(rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b", clause):
+            return False
+        if not re.search(rf"\b(?:{phase_disclaimer_token_pattern})\b", clause):
+            return False
+        # Keep mixed denial/action clauses so "not approved so continue to PR
+        # Readiness" remains an invalid advancement request.
+        if re.search(
+            rf"\b(?:so|therefore|then|now)\b[\w\s/-]{{0,120}}"
+            rf"\b(?:{phase_action_token_pattern})\b",
+            clause,
+        ):
+            return False
+        return True
+
     def strip_negated_phase_disclaimers(value: str) -> str:
         value = negated_phase_list_pattern.sub(" ", value)
         clauses = re.split(phase_claim_clause_pattern, value)
         kept: list[str] = []
         for clause in clauses:
-            if any(token in clause for token in advancement_tokens) and any(
-                token in clause for token in phase_disclaimer_tokens
-            ):
-                continue
             if phase_clause_explicitly_blocks_or_holds(clause):
+                continue
+            if phase_clause_denies_phase_without_advancement(clause):
                 continue
             kept.append(clause)
         return " ".join(kept)
@@ -3441,8 +3507,17 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         phase_advancement_action_pattern.search(phase_advancement_marker_values)
         is not None
     )
+    bare_phase_next_step_pattern = re.compile(
+        rf"(?:"
+        rf"^\s*\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b\s*$"
+        rf"|"
+        rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b\s+"
+        rf"(?:after|once|when|upon|on)\s+[\w\s/-]{{0,80}}"
+        rf"\b(?:validation|green|review|approval|waiver|repair|closeout|resolved)\b"
+        rf")"
+    )
     concrete_marker_bare_phase_requested = (
-        re.search(rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b", phase_advancement_next_step_scope)
+        bare_phase_next_step_pattern.search(phase_advancement_next_step_scope)
         is not None
     )
     concrete_advancement_requested = concrete_next_phase_requested or (
@@ -3483,6 +3558,1704 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         not (advancement_requested and active_rar_context),
         "Normal Phase Progression Blocked By RAR",
     )
+    return failures
+
+
+def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+
+    required_markers = (
+        "Material Visible Change Classification:",
+        "Visual Acceptance Target Plan:",
+        "Render Authority Level:",
+        "Implementation Authority Classification:",
+        "Accepted Reference Set / Comparative Synthesis:",
+        "Visual Family Relation Proof:",
+        "Implementation Authority Table:",
+        "Functionality Role Contract:",
+        "Implementation Match Proof Plan:",
+        "Pre-Live Visual Purpose Conformance:",
+        "Visual Acceptance Chain:",
+        "Packet Reviewability vs Product Acceptance:",
+    )
+    marker_failures = {
+        "Visual Acceptance Target Plan:": EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+        "Implementation Authority Classification:": EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+        "Accepted Reference Set / Comparative Synthesis:": EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+        "Visual Family Relation Proof:": EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+        "Implementation Authority Table:": EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+        "Functionality Role Contract:": EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+        "Implementation Match Proof Plan:": EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET,
+        "Pre-Live Visual Purpose Conformance:": EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET,
+    }
+    for marker in required_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(
+            bool(value) and governance._planning_word_count(value) >= 3,
+            marker_failures.get(marker, f"Visual Acceptance Chain Missing: {marker}"),
+        )
+
+    visual_family_header = (
+        "| Surface / Window | Role Classification | Implementation Authority | Accepted Reference | "
+        "Element Group | Invariant Traits | Feature-Specific Traits | Rendered Evidence | "
+        "Visual Match | Functional Match | Verdict | Next Legal Action |"
+    )
+    implementation_authority_header = (
+        "| Surface / Window | Approved Template? | Approved Shared Primitive? | Promoted Reference Consumed? | "
+        "Reference-Derived? | One-Off? | Gap / Exception | Proof Required |"
+    )
+    functionality_role_header = (
+        "| Window / Surface | Product Role | Parent / Launch Source | Primary Actions | Secondary Actions | "
+        "Non-Goals | Backend / State Owner | UI-Visible Truth Mapping | Recovery / Failure Behavior | "
+        "Separate Surface Justification |"
+    )
+    visual_chain_header = (
+        "| Gate | Required Visual Proof | What Cannot Prove It | Blocking Condition | USER Decision Needed? |"
+    )
+
+    def table_rows_after_header(header: str, expected_columns: int) -> list[list[str]]:
+        lines = text.splitlines()
+        try:
+            header_index = next(
+                index for index, line in enumerate(lines) if line.strip() == header
+            )
+        except StopIteration:
+            return []
+        rows: list[list[str]] = []
+        seen_separator = False
+        for line in lines[header_index + 1 :]:
+            if not line.strip().startswith("|"):
+                if rows or seen_separator:
+                    break
+                if line.strip():
+                    return [[line.strip()]]
+                continue
+            cells = governance._markdown_table_cells(line)
+            if governance._is_markdown_table_separator(cells):
+                if len(cells) != expected_columns:
+                    rows.append(cells)
+                seen_separator = True
+                continue
+            if not seen_separator:
+                continue
+            rows.append(cells)
+        return rows
+
+    def is_placeholder_cell(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        return normalized_value in {
+            "",
+            "tbd",
+            "todo",
+            "placeholder",
+            "none",
+            "n/a",
+            "not applicable",
+        } or normalized_value.startswith(("tbd ", "todo ", "placeholder "))
+
+    def has_substantive_label_value(label: str) -> bool:
+        return bool(substantive_label_values(label))
+
+    def substantive_label_values(label: str) -> list[str]:
+        label_pattern = re.escape(label)
+        values: list[str] = []
+        for match in re.finditer(
+            rf"(?im){label_pattern}\s*([^\n|]+)",
+            text,
+        ):
+            value = governance._normalized_planning_value(match.group(1)).strip(
+                " .;:`"
+            )
+            if not value or is_placeholder_cell(value):
+                continue
+            if any(
+                placeholder in value
+                for placeholder in (
+                    "to be determined",
+                    "pending user review",
+                    "pending user decision",
+                    "pending approval",
+                    "pending review",
+                    "not yet defined",
+                    "not selected",
+                    "not approved",
+                    "missing",
+                    "omitted",
+                )
+            ):
+                continue
+            values.append(value)
+        return values
+
+    def is_affirmative_authority_cell(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        return bool(
+            re.match(
+                r"^(yes|approved)(?:\b|[\s:;-])",
+                normalized_value,
+            )
+        )
+
+    def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
+        return [
+            row
+            for row in rows
+            if len(row) == expected_columns
+            and not any(is_placeholder_cell(cell) for cell in row[:expected_columns])
+        ]
+
+    def has_incomplete_table_rows(rows: list[list[str]], expected_columns: int) -> bool:
+        return any(
+            len(row) != expected_columns
+            or any(is_placeholder_cell(cell) for cell in row[:expected_columns])
+            for row in rows
+        )
+
+    def catalog_currently_promotes_templates() -> bool:
+        try:
+            catalog_text = governance._normalized_planning_value(
+                UI_REFERENCE_CATALOG_README.read_text(encoding="utf-8")
+            )
+        except OSError:
+            return False
+        return (
+            "current implementation-template status: no catalog record currently promotes"
+            not in catalog_text
+        )
+
+    def catalog_currently_promotes_shared_primitives() -> bool:
+        try:
+            catalog_text = governance._normalized_planning_value(
+                UI_REFERENCE_CATALOG_README.read_text(encoding="utf-8")
+            )
+        except OSError:
+            return False
+        return (
+            "current shared-primitive status: no catalog record currently promotes"
+            not in catalog_text
+        )
+
+    def source_values_point_at_reference_records(values: list[str]) -> bool:
+        return any(
+            "docs/ui_reference_catalog/uiref-" in value
+            or re.search(r"\buiref-\d{3}\b", value)
+            for value in values
+        )
+
+    visual_family_table_rows = table_rows_after_header(visual_family_header, 12)
+    implementation_authority_table_rows = table_rows_after_header(
+        implementation_authority_header,
+        8,
+    )
+    functionality_role_table_rows = table_rows_after_header(
+        functionality_role_header,
+        10,
+    )
+    visual_chain_table_rows = table_rows_after_header(visual_chain_header, 5)
+    visual_family_rows = substantive_rows(
+        visual_family_table_rows,
+        12,
+    )
+    implementation_authority_rows = substantive_rows(
+        implementation_authority_table_rows,
+        8,
+    )
+    functionality_role_rows = substantive_rows(
+        functionality_role_table_rows,
+        10,
+    )
+    visual_chain_rows = substantive_rows(
+        visual_chain_table_rows,
+        5,
+    )
+    require(
+        not has_incomplete_table_rows(visual_family_table_rows, 12),
+        EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+    )
+    require(
+        not has_incomplete_table_rows(implementation_authority_table_rows, 8),
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    require(
+        not has_incomplete_table_rows(functionality_role_table_rows, 10),
+        EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+    )
+    require(
+        not has_incomplete_table_rows(visual_chain_table_rows, 5),
+        "Visual Acceptance Chain Missing",
+    )
+    require(bool(visual_family_rows), EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET)
+    require(
+        bool(implementation_authority_rows),
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    require(bool(functionality_role_rows), EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET)
+    require(bool(visual_chain_rows), "Visual Acceptance Chain Missing")
+
+    visual_target = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Visual Acceptance Target Plan:")
+    )
+    placeholder_visual_target_terms = (
+        "tbd",
+        "todo",
+        "placeholder",
+        "to be determined",
+        "pending user review",
+        "pending user decision",
+        "pending approval",
+        "pending review",
+        "not yet defined",
+        "not selected",
+        "missing",
+        "omitted",
+        "none",
+        "no target",
+    )
+    def has_reasoned_not_applicable(value: str) -> bool:
+        if "not applicable with reason" not in value:
+            return False
+        reason = value.split("not applicable with reason", 1)[1].strip(" .:-")
+        return governance._planning_word_count(reason) >= 3
+
+    visual_target_not_applicable = has_reasoned_not_applicable(visual_target)
+    visual_target_path_labels = (
+        "Reviewable Visual Acceptance Target Path:",
+        "Accepted Visual Acceptance Target Path:",
+        "Design Candidate Packet Path:",
+    )
+    visual_target_path_values = [
+        value
+        for label in visual_target_path_labels
+        for value in substantive_label_values(label)
+    ]
+
+    def is_reviewable_visual_target_path(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value)
+        if any(term in normalized_value for term in placeholder_visual_target_terms):
+            return False
+        if "docs/ui_reference_catalog/" in normalized_value:
+            return False
+        has_artifact_extension = re.search(
+            r"\.(?:md|png|jpg|jpeg|webp|mp4|mov|zip|pdf|html)\b",
+            normalized_value,
+            re.IGNORECASE,
+        )
+        has_path_context = re.search(
+            r"(?:[a-z]:\\|\\\\|\\|/|c:\\nexus user\\|user review|"
+            r"review aids|source truth context)",
+            normalized_value,
+            re.IGNORECASE,
+        )
+        return bool(has_artifact_extension and has_path_context)
+
+    require(
+        bool(visual_target)
+        and (
+            "visual acceptance target" in visual_target
+            or visual_target_not_applicable
+        )
+        and not any(
+            forbidden in visual_target
+            for forbidden in (
+                "after implementation",
+                "after workstream",
+                "backfill",
+                "packet path only",
+                "screenshot only",
+            )
+        ),
+        EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+    require(
+        not any(term in visual_target for term in placeholder_visual_target_terms),
+        EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+    require(
+        visual_target_not_applicable
+        or any(is_reviewable_visual_target_path(value) for value in visual_target_path_values),
+        EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+    )
+
+    implementation_match_proof = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Implementation Match Proof Plan:")
+    )
+    placeholder_implementation_match_terms = placeholder_visual_target_terms + (
+        "pending proof",
+        "future proof",
+        "future review",
+        "to be supplied",
+    )
+    implementation_match_evidence_terms = (
+        "screenshot",
+        "video",
+        "ordered-frame",
+        "frame proof",
+        "rendered",
+        "comparison",
+        "compare",
+        "trace",
+        "code region",
+    )
+    require(
+        not any(term in implementation_match_proof for term in placeholder_implementation_match_terms),
+        EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET,
+    )
+    require(
+        any(term in implementation_match_proof for term in implementation_match_evidence_terms),
+        EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET,
+    )
+
+    authority_marker = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Implementation Authority Classification:")
+    )
+    authority_scope = governance._normalized_planning_value(
+        " ".join(
+            (
+                authority_marker,
+                " ".join(" ".join(row) for row in implementation_authority_rows),
+                " ".join(
+                    row[2] for row in visual_family_rows if len(row) >= 3
+                ),
+            )
+        )
+    )
+    authority_terms = (
+        "shared primitive consumed",
+        "implementation template instantiated",
+        "reference-derived implementation",
+        "one-off implementation",
+        "user-approved exception",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+        "source-truth gap",
+    )
+    table_claims_template = any(
+        len(row) >= 2 and is_affirmative_authority_cell(row[1])
+        for row in implementation_authority_rows
+    )
+    table_claims_shared_primitive = any(
+        len(row) >= 3 and is_affirmative_authority_cell(row[2])
+        for row in implementation_authority_rows
+    )
+
+    def has_affirmative_template_reference(value: str) -> bool:
+        action_pattern = re.compile(
+            r"\b(?:claim|claims|claimed|consume|consumes|consumed|instantiate|"
+            r"instantiates|instantiated|use|uses|used|using|approved)\b"
+        )
+        negation_terms = (
+            "not approved",
+            "not consumed",
+            "not instantiated",
+            "not used",
+            "no approved",
+            "no template",
+            "without approved",
+            "does not consume",
+            "does not instantiate",
+        )
+        for match in re.finditer(r"\bai control center template\b", value):
+            local_context = value[max(0, match.start() - 80) : match.end() + 80]
+            for clause in re.split(
+                r"[.;]|\b(?:but|however|yet|although|though|while|then)\b",
+                local_context,
+            ):
+                if not action_pattern.search(clause):
+                    continue
+                if any(negation in clause for negation in negation_terms):
+                    continue
+                return True
+        return False
+
+    require(
+        any(term in authority_scope for term in authority_terms),
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    marker_authority_matches = [
+        term for term in authority_terms if term in authority_marker
+    ]
+    require(
+        len(marker_authority_matches) == 1,
+        EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+    )
+    if (
+        "implementation template instantiated" in authority_scope
+        or "approved template? yes" in authority_scope
+        or "template consumed" in authority_scope
+        or has_affirmative_template_reference(authority_scope)
+        or table_claims_template
+    ):
+        template_source_values = substantive_label_values("Template source path:")
+        require(
+            bool(template_source_values),
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            catalog_currently_promotes_templates()
+            and not source_values_point_at_reference_records(template_source_values),
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            has_substantive_label_value("Template consumer contract:"),
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+        )
+    if (
+        "shared primitive consumed" in authority_scope
+        or "approved shared primitive? yes" in authority_scope
+        or "shared primitive consumed" in normalized
+        or table_claims_shared_primitive
+    ):
+        primitive_source_values = substantive_label_values("Primitive source path:")
+        require(
+            bool(primitive_source_values),
+            EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            catalog_currently_promotes_shared_primitives()
+            and not source_values_point_at_reference_records(primitive_source_values),
+            EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
+        )
+        require(
+            has_substantive_label_value("Primitive consumer contract:"),
+            EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET,
+        )
+
+    reference_scope = governance._normalized_planning_value(
+        governance._extract_marker_value(
+            text, "Accepted Reference Set / Comparative Synthesis:"
+        )
+    )
+    reference_comparison_blockers = (
+        "not compared",
+        "not yet compared",
+        "without comparison",
+        "comparison later",
+        "compare later",
+        "later comparison",
+        "future comparison",
+        "future compare",
+        "comparison pending",
+        "pending comparison",
+        "to be compared",
+        "will compare",
+        "will be compared",
+    )
+    require(
+        (
+            "uiref" in reference_scope
+            or "accepted reference" in reference_scope
+            or "promoted reference" in reference_scope
+        )
+        and any(
+            token in reference_scope
+            for token in ("element-by-element", "row-by-row", "side-by-side")
+        ),
+        EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+    )
+    require(
+        not any(blocker in reference_scope for blocker in reference_comparison_blockers),
+        EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+    )
+
+    pre_live_scope = governance._normalized_planning_value(
+        governance._extract_marker_value(
+            text, "Pre-Live Visual Purpose Conformance:"
+        )
+    )
+    require(
+        bool(pre_live_scope)
+        and "before live validation" in pre_live_scope
+        and "implementation match" in pre_live_scope,
+        EXPECTED_PRE_LIVE_VISUAL_PURPOSE_FAILURE_SNIPPET,
+    )
+
+    reviewability_acceptance_target = (
+        r"(?:(?:product|visual|user visual|user)\s+acceptance|"
+        r"(?:product|visual|user visual|user)\s+accepted|acceptance|accepted)"
+    )
+    false_green_pending_negation = (
+        r"(?!\s*(?:[,;:.-]\s*)?(?:which\s+)?"
+        r"(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
+    )
+    packet_reviewability_false_green_pattern = re.compile(
+        r"(?:"
+        r"(?:packet reviewability|reviewable\s+packet|reviewable status|reviewability status|packet status)\s+"
+        r"(?:proves|equals|is|means)\s+"
+        + reviewability_acceptance_target
+        + r")\b"
+        + false_green_pending_negation,
+        re.IGNORECASE,
+    )
+    require(
+        packet_reviewability_false_green_pattern.search(normalized) is None,
+        EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET,
+    )
+
+    for pattern, snippet in (
+        (
+            r"\bscreenshot\s+exists\s+therefore\s+accepted\b|"
+            r"\bscreenshot(?:s|\s+(?:exists|existence|paths?))?\s+(?:therefore\s+)?"
+            r"(?:prove(?:s)?|equals|is|mean(?:s)?|therefore)\s+"
+            + reviewability_acceptance_target
+            + r"\b"
+            + false_green_pending_negation,
+            EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET,
+        ),
+        (
+            r"\b(?:(?:helper|validator)(?:\s+(?:output|result|validation))?"
+            r"\s+(?:green|pass|passed)|validation\s+pass(?:ed)?)\s+"
+            r"(?:proves|equals|is|means|therefore)\s+"
+            + reviewability_acceptance_target
+            + r"\b"
+            + false_green_pending_negation,
+            EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET,
+        ),
+        (
+            r"\bcss\s+(?:marker\s+)?similarity\s+(?:proves|equals|is|means)\s+visual\s+family\b",
+            EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET,
+        ),
+        (
+            r"\buiref\s+citation\s+alone\s+is\s+sufficient\b|\b(?:uiref|reference)\s+citation\s+(?:alone\s+)?(?:proves|equals|is|means)\s+(?:(?:visual|product)\s+)?(?:acceptance|accepted|proof|sufficient)\b"
+            + false_green_pending_negation,
+            EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+        ),
+        (
+            r"\breference\s+cited\s+but\s+not\s+compared\b",
+            EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+        ),
+        (
+            r"\bimplementation-first\s+visual\s+target\s+backfill\b",
+            EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET,
+        ),
+        (
+            r"\bvisual\s+target\s+created\s+after\s+implementation\b",
+            EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET,
+        ),
+    ):
+        require(re.search(pattern, normalized) is None, snippet)
+
+    role_scope = governance._normalized_planning_value(
+        " ".join(
+            (
+                governance._extract_marker_value(text, "Functionality Role Contract:"),
+                " ".join(" ".join(row) for row in functionality_role_rows),
+            )
+        )
+    )
+    require(
+        "role ambiguous" not in role_scope
+        and "unrouted detached child" not in role_scope
+        and "unclear parent" not in role_scope,
+        EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+    )
+
+    unresolved_visual_verdicts = (
+        "unproven",
+        "partial",
+        "nonconforming",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+        "source-truth gap",
+        "mismatch",
+        "not compared",
+        "not reviewed",
+        "not evaluated",
+        "uncompared",
+        "unreviewed",
+        "comparison missing",
+    )
+    green_visual_verdict_pattern = re.compile(
+        r"\b(?:conforming|green|pass|accepted|resolved)\b"
+    )
+    for row in visual_family_rows:
+        visual_match = governance._normalized_planning_value(row[8]).strip(" .;:")
+        functional_match = governance._normalized_planning_value(row[9]).strip(" .;:")
+        verdict = governance._normalized_planning_value(row[10]).strip(" .;:")
+        next_action = governance._normalized_planning_value(row[11])
+        comparison_scope = " ".join((visual_match, functional_match, verdict))
+        if any(status in comparison_scope for status in unresolved_visual_verdicts):
+            require(
+                green_visual_verdict_pattern.search(verdict) is None,
+                EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+            )
+            require(
+                any(
+                    token in next_action
+                    for token in ("repair", "block", "user decision", "issue candidate", "defer")
+                ),
+                EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET,
+            )
+
+    return failures
+
+
+def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
+    failures: list[str] = []
+
+    branch_plan_readme = ROOT / "Docs" / "branch_plans" / "README.md"
+    branch_plan_text = branch_plan_readme.read_text(encoding="utf-8")
+    for required_label in (
+        "Implementation Authority Classification:",
+        "Render Authority Level:",
+        "Reviewable Visual Acceptance Target Path:",
+        "Visual Family Relation Proof:",
+        "Functionality Role Contract:",
+        "Pre-Live Visual Purpose Conformance:",
+    ):
+        if f"`{required_label}`" not in branch_plan_text:
+            failures.append(
+                "Branch Planning README visual-proof field label drift: "
+                f"{required_label}"
+            )
+    for stale_label in (
+        "`Visual Family Relation Proof Table:`",
+        "`Functionality Role Contract Table:`",
+        "`Pre-Live Visual Purpose Conformance Plan:`",
+    ):
+        if stale_label in branch_plan_text:
+            failures.append(
+                "Branch Planning README still documents stale visual-proof label "
+                f"{stale_label}"
+            )
+
+    valid_text = VALID_VISUAL_ACCEPTANCE_ENFORCEMENT_FIXTURE.read_text(
+        encoding="utf-8"
+    )
+    valid_failures = _validate_visual_acceptance_enforcement_text(valid_text)
+    if valid_failures:
+        failures.append(
+            "Valid Visual Acceptance enforcement fixture unexpectedly failed: "
+            + "; ".join(valid_failures[:5])
+        )
+
+    generated_missing_render_authority = valid_text.replace(
+        "Render Authority Level: Visual Acceptance Target - reviewable target packet exists before Workstream and USER acceptance remains pending.\n\n",
+        "",
+    )
+    generated_missing_render_authority_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_missing_render_authority
+        )
+    )
+    if "Visual Acceptance Chain Missing: Render Authority Level:" not in generated_missing_render_authority_failures:
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject missing Render Authority Level"
+        )
+
+    invalid_cases = (
+        (
+            INVALID_VISUAL_ACCEPTANCE_MISSING_TARGET_FIXTURE,
+            EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET,
+            "missing Visual Acceptance Target",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_SCREENSHOT_GREEN_FIXTURE,
+            EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET,
+            "screenshot path treated as Visual Acceptance",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_UIREF_NO_COMPARISON_FIXTURE,
+            EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
+            "UIREF citation without element comparison",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_TEMPLATE_CLAIM_FIXTURE,
+            EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET,
+            "template claim without approved template source",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_PACKET_REVIEWABILITY_ACCEPTANCE_FIXTURE,
+            EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET,
+            "packet reviewability treated as product acceptance",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_ROLE_AMBIGUOUS_FIXTURE,
+            EXPECTED_FUNCTIONALITY_ROLE_FAILURE_SNIPPET,
+            "role-ambiguous window allowed to continue",
+        ),
+        (
+            INVALID_VISUAL_ACCEPTANCE_REFERENCE_SET_AS_AUTHORITY_FIXTURE,
+            EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET,
+            "accepted reference set compared used as implementation authority",
+        ),
+    )
+    for fixture, expected_snippet, label in invalid_cases:
+        result = _validate_visual_acceptance_enforcement_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if expected_snippet not in "\n".join(result):
+            failures.append(
+                f"Invalid Visual Acceptance fixture did not reject {label}"
+            )
+
+    generated_incomplete_second_visual_row = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |\n| AI readiness child window | TBD | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame and compact controls | Readiness content may differ | TBD | Match planned | Match planned | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+    )
+    generated_incomplete_row_failures = _validate_visual_acceptance_enforcement_text(
+        generated_incomplete_second_visual_row
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET not in "\n".join(
+        generated_incomplete_row_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject incomplete second visual row"
+        )
+
+    generated_visual_family_template_authority_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Implementation Template Instantiated | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+    )
+    generated_visual_family_template_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_family_template_authority_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_visual_family_template_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject template claim hidden in visual-family row"
+        )
+
+    generated_visual_match_columns_unresolved_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Mismatch | Unproven | CONFORMING | Continue |",
+    )
+    generated_visual_match_unresolved_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_match_columns_unresolved_claim
+        )
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET not in "\n".join(
+        generated_visual_match_unresolved_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject unresolved match columns with green verdict"
+        )
+
+    generated_visual_match_not_compared_green_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Not compared | Not compared | CONFORMING | Continue |",
+    )
+    generated_not_compared_green_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_match_not_compared_green_claim
+        )
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET not in "\n".join(
+        generated_not_compared_green_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject not-compared match columns with green verdict"
+        )
+
+    generated_reference_not_compared_claim = valid_text.replace(
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.",
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001 is cited but not compared.",
+    )
+    generated_reference_not_compared_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reference_not_compared_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_reference_not_compared_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject negated accepted-reference comparison"
+        )
+
+    generated_reference_later_comparison_claim = valid_text.replace(
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.",
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001 and AI Control Center comparison later.",
+    )
+    generated_reference_later_comparison_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reference_later_comparison_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_reference_later_comparison_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject future-only accepted-reference comparison"
+        )
+
+    generated_visual_nonconforming_blocker_claim = valid_text.replace(
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Match planned through row-by-row comparison | Match planned through local diagnostic action proof | CONFORMING WHEN PROVEN | Continue only after Pre-Live proof is green |",
+        "| AI diagnostics child window | Detached child diagnostics surface launched from AI Dashboard | Reference-Derived Implementation | UIREF-001, UIREF-002, AI Dashboard, AI Control Center | Window frame and compact control cluster | Seamless rounded NDAI frame, compact top-right control cluster, deterministic glow and spacing | Diagnostics title and local readiness rows may differ by content only | Focused screenshot set and ordered-frame proof | Mismatch | Unproven | NONCONFORMING | Repair before continuing |",
+    )
+    generated_visual_nonconforming_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_visual_nonconforming_blocker_claim
+        )
+    )
+    if EXPECTED_VISUAL_FAMILY_RELATION_FAILURE_SNIPPET in "\n".join(
+        generated_visual_nonconforming_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected nonconforming blocker row as green"
+        )
+
+    generated_shared_primitive_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Shared Primitive Consumed - the branch claims a shared primitive but omits the primitive source path.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | None | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | None | Element-by-element visual family proof before Workstream and Pre-Live. |",
+    )
+    generated_shared_primitive_failures = _validate_visual_acceptance_enforcement_text(
+        generated_shared_primitive_claim
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_shared_primitive_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject shared primitive claim without source"
+        )
+
+    generated_placeholder_visual_target_claim = valid_text.replace(
+        "Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.",
+        "Visual Acceptance Target Plan: Visual Acceptance Target is TBD pending USER review.",
+    )
+    generated_placeholder_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_placeholder_visual_target_claim
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder target plan"
+        )
+
+    generated_missing_reviewable_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.\n\n",
+        "",
+    )
+    generated_missing_target_path_failures = _validate_visual_acceptance_enforcement_text(
+        generated_missing_reviewable_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_missing_target_path_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject target plan without reviewable path"
+        )
+
+    generated_bare_not_applicable_target = generated_missing_reviewable_target_path.replace(
+        "Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.",
+        "Visual Acceptance Target Plan: Visual Acceptance Target Not Applicable.",
+    )
+    generated_bare_not_applicable_failures = _validate_visual_acceptance_enforcement_text(
+        generated_bare_not_applicable_target
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_bare_not_applicable_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject bare not-applicable target plan"
+        )
+
+    generated_uiref_only_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.",
+        "Reviewable Visual Acceptance Target Path: Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md.",
+    )
+    generated_uiref_only_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_uiref_only_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_uiref_only_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject UIREF-only visual target path"
+        )
+
+    generated_prose_only_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.",
+        "Reviewable Visual Acceptance Target Path: visual acceptance target ready for review.",
+    )
+    generated_prose_only_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_prose_only_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_prose_only_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject prose-only visual target path"
+        )
+
+    generated_bare_slash_target_path = valid_text.replace(
+        "Reviewable Visual Acceptance Target Path: C:\\Nexus USER\\FAM-007\\Review Aids\\AI_Diagnostics_Visual_Acceptance_Target.md.",
+        "Reviewable Visual Acceptance Target Path: review/ready target.",
+    )
+    generated_bare_slash_target_failures = _validate_visual_acceptance_enforcement_text(
+        generated_bare_slash_target_path
+    )
+    if EXPECTED_VISUAL_ACCEPTANCE_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_bare_slash_target_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject bare-slash visual target path"
+        )
+
+    generated_placeholder_implementation_match_claim = valid_text.replace(
+        "Implementation Match Proof Plan: Workstream must trace code regions to the rendered child window and produce focused screenshots or ordered-frame proof for every listed element group before Pre-Live.",
+        "Implementation Match Proof Plan: TBD pending review.",
+    )
+    generated_placeholder_match_failures = _validate_visual_acceptance_enforcement_text(
+        generated_placeholder_implementation_match_claim
+    )
+    if EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_match_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder implementation match proof plan"
+        )
+
+    generated_vague_implementation_match_claim = valid_text.replace(
+        "Implementation Match Proof Plan: Workstream must trace code regions to the rendered child window and produce focused screenshots or ordered-frame proof for every listed element group before Pre-Live.",
+        "Implementation Match Proof Plan: Workstream will confirm implementation matches before Pre-Live.",
+    )
+    generated_vague_match_failures = _validate_visual_acceptance_enforcement_text(
+        generated_vague_implementation_match_claim
+    )
+    if EXPECTED_IMPLEMENTATION_MATCH_PROOF_FAILURE_SNIPPET not in "\n".join(
+        generated_vague_match_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject vague implementation match proof plan"
+        )
+
+    generated_placeholder_template_source_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Template Instantiated - the branch claims an AI Control Center template. Template source path: TBD.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_placeholder_template_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_placeholder_template_source_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_template_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder template source path"
+        )
+
+    generated_placeholder_primitive_source_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Shared Primitive Consumed - the branch claims a shared primitive. Primitive source path: none.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved primitive source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_placeholder_primitive_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_placeholder_primitive_source_claim
+        )
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_placeholder_primitive_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject placeholder primitive source path"
+        )
+
+    generated_dual_authority_claim = valid_text.replace(
+        "Implementation Authority Classification: Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Authority Classification: Reference-Derived Implementation and One-Off Implementation.",
+    )
+    generated_dual_authority_failures = _validate_visual_acceptance_enforcement_text(
+        generated_dual_authority_claim
+    )
+    if EXPECTED_IMPLEMENTATION_AUTHORITY_FAILURE_SNIPPET not in "\n".join(
+        generated_dual_authority_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject dual authority classification"
+        )
+
+    generated_template_source_no_contract_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Template Instantiated - the branch claims an AI Control Center template. Template source path: Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_template_no_contract_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_template_source_no_contract_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_template_no_contract_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject template source without consumer contract"
+        )
+
+    generated_template_uiref_source_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Implementation Template Instantiated - the branch claims an AI Control Center template. Template source path: Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md. Template consumer contract: instantiate the claimed template and prove all non-editable visual invariants.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_template_uiref_source_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_template_uiref_source_claim
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_template_uiref_source_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject UIREF path as template source"
+        )
+
+    generated_primitive_source_no_contract_claim = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Shared Primitive Consumed - the branch claims a shared primitive. Primitive source path: Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md.",
+    ).replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved primitive source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_primitive_no_contract_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_primitive_source_no_contract_claim
+        )
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_primitive_no_contract_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject primitive source without consumer contract"
+        )
+
+    generated_table_only_template_claim = valid_text.replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | Yes | No | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved template source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_table_only_template_failures = _validate_visual_acceptance_enforcement_text(
+        generated_table_only_template_claim
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_table_only_template_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject table-only template claim"
+        )
+
+    generated_table_only_primitive_claim = valid_text.replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No | Yes | Yes - UIREF-001 and UIREF-002 | No | No | No gap claimed | Approved primitive source path and element-by-element proof before Workstream and Pre-Live. |",
+    )
+    generated_table_only_primitive_failures = _validate_visual_acceptance_enforcement_text(
+        generated_table_only_primitive_claim
+    )
+    if EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET not in "\n".join(
+        generated_table_only_primitive_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject table-only primitive claim"
+        )
+
+    generated_negative_authority_cells = valid_text.replace(
+        "| AI diagnostics child window | No | No | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+        "| AI diagnostics child window | No approved template exists | No approved shared primitive exists | Yes - UIREF-001 and UIREF-002 | Yes - AI Dashboard and AI Control Center comparator synthesis | No | No gap; reference-derived proof required | Element-by-element visual family proof before Workstream and Pre-Live. |",
+    )
+    generated_negative_authority_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_negative_authority_cells
+        )
+    )
+    if (
+        EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET
+        in generated_negative_authority_failures
+        or EXPECTED_SHARED_PRIMITIVE_CLAIM_FAILURE_SNIPPET
+        in generated_negative_authority_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected negative template/shared primitive authority cells"
+        )
+
+    generated_negative_template_reference = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Reference-Derived Implementation - the AI Control Center template is not approved or consumed for this surface class.",
+    )
+    generated_negative_template_reference_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_negative_template_reference
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET in generated_negative_template_reference_failures:
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected negative AI Control Center template reference"
+        )
+
+    generated_negated_but_used_template_reference = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Reference-Derived Implementation - the AI Control Center template is not approved but is used for this surface class.",
+    )
+    generated_negated_but_used_template_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_negated_but_used_template_reference
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in generated_negated_but_used_template_failures:
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject negated-but-used AI Control Center template reference"
+        )
+
+    generated_packet_reviewability_means_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means product acceptance.",
+    )
+    generated_reviewability_means_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_means_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_means_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability means product acceptance"
+        )
+
+    generated_packet_reviewability_is_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability is product acceptance.",
+    )
+    generated_reviewability_is_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_is_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_is_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability is product acceptance"
+        )
+
+    generated_packet_reviewability_proves_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability proves product acceptance.",
+    )
+    generated_reviewability_proves_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_proves_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_proves_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability proves product acceptance"
+        )
+
+    generated_packet_reviewability_user_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means USER acceptance.",
+    )
+    generated_reviewability_user_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_user_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_user_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability means USER acceptance"
+        )
+
+    generated_packet_reviewability_bare_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means acceptance.",
+    )
+    generated_reviewability_bare_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_bare_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewability_bare_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet reviewability means acceptance"
+        )
+
+    generated_reviewable_packet_product_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: A reviewable packet means product acceptance.",
+    )
+    generated_reviewable_packet_product_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_packet_product_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewable_packet_product_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject reviewable packet means product acceptance"
+        )
+
+    generated_reviewable_status_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Reviewable status proves acceptance.",
+    )
+    generated_reviewable_status_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_status_acceptance
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewable_status_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject reviewable status proves acceptance"
+        )
+
+    generated_reviewable_status_scoped_accepted = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet Reviewability means product accepted; reviewable status means visual accepted.",
+    )
+    generated_reviewable_status_scoped_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_status_scoped_accepted
+        )
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_reviewable_status_scoped_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject product/visual accepted reviewability claims"
+        )
+
+    generated_packet_status_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet status means accepted.",
+    )
+    generated_packet_status_failures = _validate_visual_acceptance_enforcement_text(
+        generated_packet_status_acceptance
+    )
+    if EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_packet_status_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject packet status means accepted"
+        )
+
+    generated_packet_reviewability_pending_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+    )
+    generated_reviewability_pending_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_pending_acceptance
+        )
+    )
+    if (
+        EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET
+        in generated_reviewability_pending_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected pending packet reviewability wording"
+        )
+
+    generated_packet_reviewability_punctuated_pending = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: Packet reviewability means product acceptance, which remains pending until USER visual acceptance.",
+    )
+    generated_punctuated_reviewability_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_packet_reviewability_punctuated_pending
+        )
+    )
+    if (
+        EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET
+        in generated_punctuated_reviewability_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected punctuated pending packet reviewability wording"
+        )
+
+    generated_reviewable_packet_pending_acceptance = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: A reviewable packet means product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+    )
+    generated_reviewable_packet_pending_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_reviewable_packet_pending_acceptance
+        )
+    )
+    if (
+        EXPECTED_PACKET_REVIEWABILITY_PRODUCT_ACCEPTANCE_FAILURE_SNIPPET
+        in generated_reviewable_packet_pending_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected pending reviewable-packet wording"
+        )
+
+    generated_helper_green_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green proves visual acceptance for this review packet.",
+    )
+    generated_helper_green_failures = _validate_visual_acceptance_enforcement_text(
+        generated_helper_green_claim
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green visual acceptance claim"
+        )
+
+    generated_helper_green_means_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green means visual acceptance for this review packet.",
+    )
+    generated_helper_green_means_failures = _validate_visual_acceptance_enforcement_text(
+        generated_helper_green_means_claim
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_means_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green means visual acceptance claim"
+        )
+
+    generated_helper_green_bare_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green means acceptance for this review packet.",
+    )
+    generated_helper_green_bare_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_helper_green_bare_acceptance_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_bare_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green means acceptance claim"
+        )
+
+    generated_helper_green_therefore_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green therefore accepted for this review packet.",
+    )
+    generated_helper_green_therefore_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_helper_green_therefore_acceptance_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_therefore_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green therefore accepted claim"
+        )
+
+    generated_helper_green_user_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper green means USER acceptance for this review packet.",
+    )
+    generated_helper_green_user_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_helper_green_user_acceptance_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_green_user_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-green means USER acceptance claim"
+        )
+
+    generated_helper_pass_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper pass proves visual acceptance for this review packet.",
+    )
+    generated_helper_pass_failures = _validate_visual_acceptance_enforcement_text(
+        generated_helper_pass_claim
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_pass_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-pass visual acceptance claim"
+        )
+
+    generated_helper_output_result_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: helper output green means visual acceptance; helper result pass proves product acceptance.",
+    )
+    generated_helper_output_result_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_helper_output_result_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_helper_output_result_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject helper-output/result acceptance claims"
+        )
+
+    generated_validator_passed_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: validator passed means visual acceptance for this review packet.",
+    )
+    generated_validator_passed_failures = _validate_visual_acceptance_enforcement_text(
+        generated_validator_passed_claim
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_validator_passed_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject validator-passed visual acceptance claim"
+        )
+
+    generated_validator_passed_accepted_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: validator passed means accepted for this review packet.",
+    )
+    generated_validator_passed_accepted_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_validator_passed_accepted_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_validator_passed_accepted_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject validator-passed accepted claim"
+        )
+
+    generated_validation_pass_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: validation pass proves acceptance for this review packet.",
+    )
+    generated_validation_pass_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_validation_pass_acceptance_claim
+        )
+    )
+    if EXPECTED_HELPER_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_validation_pass_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject validation pass acceptance claim"
+        )
+
+    generated_screenshot_equals_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot path equals visual acceptance for this review packet.",
+    )
+    generated_screenshot_equals_failures = _validate_visual_acceptance_enforcement_text(
+        generated_screenshot_equals_claim
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_equals_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-path equals visual acceptance claim"
+        )
+
+    generated_screenshot_user_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot path means USER acceptance for this review packet.",
+    )
+    generated_screenshot_user_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_screenshot_user_acceptance_claim
+        )
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_user_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-path USER acceptance claim"
+        )
+
+    generated_screenshot_exists_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot exists proves visual acceptance; screenshot exists means visual acceptance.",
+    )
+    generated_screenshot_exists_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_screenshot_exists_acceptance_claim
+        )
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_exists_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-exists visual acceptance claims"
+        )
+
+    generated_screenshot_plural_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshots prove visual acceptance; screenshot paths mean USER acceptance.",
+    )
+    generated_screenshot_plural_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_screenshot_plural_acceptance_claim
+        )
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_plural_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject plural screenshot visual acceptance claims"
+        )
+
+    generated_screenshot_product_acceptance_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot path means product acceptance for this review packet.",
+    )
+    generated_screenshot_product_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_screenshot_product_acceptance_claim
+        )
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_product_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-path product acceptance claim"
+        )
+
+    generated_screenshot_proves_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot proves visual acceptance for this review packet.",
+    )
+    generated_screenshot_proves_failures = _validate_visual_acceptance_enforcement_text(
+        generated_screenshot_proves_claim
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_proves_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject bare screenshot proves visual acceptance claim"
+        )
+
+    generated_screenshot_existence_claim = valid_text.replace(
+        "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
+        "Packet Reviewability vs Product Acceptance: screenshot existence proves visual acceptance for this review packet.",
+    )
+    generated_screenshot_existence_failures = _validate_visual_acceptance_enforcement_text(
+        generated_screenshot_existence_claim
+    )
+    if EXPECTED_SCREENSHOT_VISUAL_ACCEPTANCE_FAILURE_SNIPPET not in "\n".join(
+        generated_screenshot_existence_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject screenshot-existence proves visual acceptance claim"
+        )
+
+    generated_css_similarity_claim = valid_text.replace(
+        "Visual Family Relation Proof: Row-by-row comparison maps title stack, frame, window control cluster, card borders, typography, spacing, glow, states, and scroll behavior against UIREF-001 through UIREF-004.",
+        "Visual Family Relation Proof: CSS similarity proves visual family for title stack, frame, window controls, cards, spacing, glow, states, and scroll behavior.",
+    )
+    generated_css_similarity_failures = _validate_visual_acceptance_enforcement_text(
+        generated_css_similarity_claim
+    )
+    if EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET not in "\n".join(
+        generated_css_similarity_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject CSS similarity as visual-family proof"
+        )
+
+    generated_css_similarity_is_claim = valid_text.replace(
+        "Visual Family Relation Proof: Row-by-row comparison maps title stack, frame, window control cluster, card borders, typography, spacing, glow, states, and scroll behavior against UIREF-001 through UIREF-004.",
+        "Visual Family Relation Proof: CSS similarity is visual family for title stack, frame, window controls, cards, spacing, glow, states, and scroll behavior.",
+    )
+    generated_css_similarity_is_failures = _validate_visual_acceptance_enforcement_text(
+        generated_css_similarity_is_claim
+    )
+    if EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET not in "\n".join(
+        generated_css_similarity_is_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject CSS similarity is visual-family claim"
+        )
+
+    generated_uiref_citation_acceptance_claim = (
+        valid_text
+        + "\nAccepted Reference Set / Comparative Synthesis: UIREF citation proves visual acceptance.\n"
+    )
+    generated_uiref_citation_acceptance_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_uiref_citation_acceptance_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_uiref_citation_acceptance_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject UIREF citation as visual acceptance"
+        )
+
+    generated_reference_citation_product_claim = (
+        valid_text
+        + "\nAccepted Reference Set / Comparative Synthesis: reference citation means product acceptance.\n"
+    )
+    generated_reference_citation_product_failures = (
+        _validate_visual_acceptance_enforcement_text(
+            generated_reference_citation_product_claim
+        )
+    )
+    if EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET not in "\n".join(
+        generated_reference_citation_product_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject reference citation as product acceptance"
+        )
+
+    generated_uiref_citation_pending_claim = valid_text.replace(
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.",
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior. UIREF citation means visual proof remains pending until comparison.",
+    )
+    generated_uiref_citation_pending_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_uiref_citation_pending_claim
+        )
+    )
+    if (
+        EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET
+        in generated_uiref_citation_pending_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected pending UIREF citation wording"
+        )
+
+    generated_implementation_backfill_claim = valid_text.replace(
+        "Visual Acceptance Target Plan: Visual Acceptance Target is defined before Workstream from UIREF-001 through UIREF-004 and the accepted AI Dashboard / AI Control Center comparator set.",
+        "Visual Acceptance Target Plan: Visual target created after implementation and used as implementation-first visual target backfill.",
+    )
+    generated_backfill_failures = _validate_visual_acceptance_enforcement_text(
+        generated_implementation_backfill_claim
+    )
+    if EXPECTED_IMPLEMENTATION_FIRST_TARGET_FAILURE_SNIPPET not in "\n".join(
+        generated_backfill_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject implementation-first visual target backfill"
+        )
+
     return failures
 
 
@@ -4092,6 +5865,7 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         "rar-short-marker-parser",
         "repo-live-state-boundary-parser",
         "pr-readiness-review-risk-parser",
+        "visual-acceptance-proof-chain-parser",
         "pr2-comment-family-classifier",
         "pr2-thread-pagination-and-approval-latch",
     }
@@ -4109,6 +5883,112 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         len(observed_families) == len(families),
         f"{relative_matrix}: duplicate or missing family_id values",
     )
+
+    pre_pr_firewall = matrix.get("pre_pr_firewall")
+    require(
+        isinstance(pre_pr_firewall, dict),
+        f"{relative_matrix}: pre_pr_firewall must be present",
+    )
+    if isinstance(pre_pr_firewall, dict):
+        purpose = pre_pr_firewall.get("purpose")
+        require(
+            isinstance(purpose, str)
+            and "before PR Readiness Stage 2" in purpose
+            and "connector" in purpose.casefold(),
+            (
+                f"{relative_matrix}: pre_pr_firewall purpose must name the "
+                "pre-PR/connector replay boundary"
+            ),
+        )
+        validation_commands = pre_pr_firewall.get("validation_commands")
+        require(
+            isinstance(validation_commands, list) and bool(validation_commands),
+            f"{relative_matrix}: pre_pr_firewall validation_commands must be non-empty",
+        )
+        if isinstance(validation_commands, list):
+            for command_entry in validation_commands:
+                if not isinstance(command_entry, dict):
+                    failures.append(
+                        f"{relative_matrix}: pre_pr_firewall validation command must be an object"
+                    )
+                    continue
+                command_name = command_entry.get("name")
+                command = command_entry.get("command")
+                covers = command_entry.get("covers_families")
+                require(
+                    isinstance(command_name, str) and bool(command_name.strip()),
+                    f"{relative_matrix}: pre_pr_firewall validation command missing name",
+                )
+                require(
+                    isinstance(command, list)
+                    and bool(command)
+                    and all(isinstance(item, str) and item.strip() for item in command),
+                    f"{relative_matrix}: pre_pr_firewall validation command must be a string list",
+                )
+                if (
+                    isinstance(command, list)
+                    and any(
+                        isinstance(item, str)
+                        and item.replace("\\", "/").casefold().endswith(".py")
+                        for item in command
+                    )
+                ):
+                    require(
+                        bool(command)
+                        and isinstance(command[0], str)
+                        and command[0].casefold()
+                        in {"{python}", "{python_executable}"},
+                        (
+                            f"{relative_matrix}: pre_pr_firewall Python validation "
+                            "commands must use the portable {python} token"
+                        ),
+                    )
+                require(
+                    isinstance(covers, list)
+                    and bool(covers)
+                    and all(family_id in observed_families for family_id in covers),
+                    (
+                        f"{relative_matrix}: pre_pr_firewall validation command "
+                        "covers_families must reference known families"
+                    ),
+                )
+        corpus = pre_pr_firewall.get("connector_corpus_replay")
+        require(
+            isinstance(corpus, list) and bool(corpus),
+            f"{relative_matrix}: pre_pr_firewall connector_corpus_replay must be non-empty",
+        )
+        if isinstance(corpus, list):
+            for row in corpus:
+                if not isinstance(row, dict):
+                    failures.append(
+                        f"{relative_matrix}: pre_pr_firewall corpus row must be an object"
+                    )
+                    continue
+                require(
+                    row.get("family_id") in observed_families,
+                    (
+                        f"{relative_matrix}: pre_pr_firewall corpus row must "
+                        "reference a known family"
+                    ),
+                )
+                comment = row.get("comment")
+                require(
+                    isinstance(comment, str) and bool(comment.strip()),
+                    f"{relative_matrix}: pre_pr_firewall corpus row missing comment text",
+                )
+        unknown_guardrails = pre_pr_firewall.get("unknown_comment_guardrails")
+        require(
+            isinstance(unknown_guardrails, list)
+            and bool(unknown_guardrails)
+            and all(
+                isinstance(comment, str) and comment.strip()
+                for comment in unknown_guardrails
+            ),
+            (
+                f"{relative_matrix}: pre_pr_firewall unknown_comment_guardrails "
+                "must be a non-empty string list"
+            ),
+        )
 
     required_list_fields = (
         "representative_comment_patterns",
@@ -4151,10 +6031,16 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         f"{relative_matrix}: changed_file_coverage must be a non-empty object",
     )
     if isinstance(changed_file_coverage, dict):
+        relative_matrix_path = relative_matrix.as_posix()
         for path, family_ids in changed_file_coverage.items():
             require(
-                isinstance(path, str) and path.startswith("dev/") and path.endswith(".py"),
-                f"{relative_matrix}: changed-file coverage key must be a dev Python helper path",
+                isinstance(path, str)
+                and (
+                    path.startswith("dev/")
+                    or path.startswith("Docs/")
+                    or path.startswith("docs/")
+                ),
+                f"{relative_matrix}: changed-file coverage key must be a gated repo path",
             )
             require(
                 (ROOT / str(path)).exists(),
@@ -4181,8 +6067,16 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                     {},
                 )
                 require(
-                    path in matching_family.get("implementation", []),
-                    f"{relative_matrix}: {path} must also appear in implementation coverage for {family_id}",
+                    path == relative_matrix_path
+                    or any(
+                        path in matching_family.get(field, [])
+                        for field in (
+                            "source_truth",
+                            "implementation",
+                            "fixture_coverage",
+                        )
+                    ),
+                    f"{relative_matrix}: {path} must also appear in source-truth, implementation, or fixture coverage for {family_id}",
                 )
 
     return failures
@@ -4512,6 +6406,296 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
                 "Invalid USER review bundle identity fixture did not reject "
                 f"{expected}"
             )
+
+    false_green_packet_files = dict(packet_files)
+    false_green_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: screenshot exists therefore accepted.\n"
+    )
+    if "screenshot-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(false_green_packet_files)
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject screenshot existence as visual acceptance"
+        )
+    screenshot_accepted_packet_files = dict(packet_files)
+    screenshot_accepted_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: screenshot path equals accepted.\n"
+    )
+    if "screenshot-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            screenshot_accepted_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject screenshot path as accepted"
+        )
+    screenshot_user_acceptance_packet_files = dict(packet_files)
+    screenshot_user_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: screenshot path means USER acceptance.\n"
+        + "Visual Acceptance: screenshot is USER accepted.\n"
+        + "Visual Acceptance: screenshot exists proves visual acceptance.\n"
+        + "Visual Acceptance: screenshot exists means visual acceptance.\n"
+        + "Visual Acceptance: screenshots prove visual acceptance.\n"
+        + "Visual Acceptance: screenshot paths mean USER acceptance.\n"
+    )
+    if "screenshot-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            screenshot_user_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject screenshot path as USER acceptance"
+        )
+    helper_acceptance_packet_files = dict(packet_files)
+    helper_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: helper green means acceptance.\n"
+        + "Visual Acceptance: helper green means USER acceptance.\n"
+        + "Visual Acceptance: helper output green means visual acceptance.\n"
+        + "Visual Acceptance: helper result pass proves product acceptance.\n"
+        + "Visual Acceptance: validator passed means accepted.\n"
+        + "Visual Acceptance: helper green therefore accepted.\n"
+        + "Visual Acceptance: validator passed therefore accepted.\n"
+    )
+    if "helper-green-as-visual-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            helper_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject helper or validator green as acceptance"
+        )
+    uiref_citation_acceptance_packet_files = dict(packet_files)
+    uiref_citation_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: UIREF citation proves visual acceptance.\n"
+    )
+    if "uiref-citation-as-visual-proof" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            uiref_citation_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject UIREF citation as visual acceptance"
+        )
+    reference_citation_acceptance_packet_files = dict(packet_files)
+    reference_citation_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: reference citation means product acceptance.\n"
+    )
+    if "uiref-citation-as-visual-proof" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            reference_citation_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject reference citation as product acceptance"
+        )
+    uiref_citation_pending_packet_files = dict(packet_files)
+    uiref_citation_pending_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: UIREF citation means visual proof remains pending until comparison.\n"
+    )
+    if "uiref-citation-as-visual-proof" in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            uiref_citation_pending_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture falsely rejected pending UIREF citation wording"
+        )
+    unsafe_reviewability_packet_files = dict(packet_files)
+    unsafe_reviewability_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means product acceptance.\n"
+        + "Packet Reviewability means product accepted.\n"
+        + "Reviewable status means visual accepted.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_reviewability_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject packet reviewability as product acceptance"
+        )
+    pending_reviewability_packet_files = dict(packet_files)
+    pending_reviewability_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means product acceptance, which remains pending until USER acceptance or waiver.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            pending_reviewability_packet_files
+        )
+    ):
+        failures.append(
+            "Valid USER review bundle fixture falsely rejected punctuated pending packet reviewability wording"
+        )
+    unsafe_user_acceptance_packet_files = dict(packet_files)
+    unsafe_user_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means USER acceptance.\n"
+        + "A reviewable packet means USER accepted.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_user_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject packet reviewability as USER acceptance"
+        )
+    unsafe_status_acceptance_packet_files = dict(packet_files)
+    unsafe_status_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nReviewable status proves acceptance.\n"
+        + "Packet status means accepted.\n"
+    )
+    if "packet-reviewability-as-product-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_status_acceptance_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject reviewable or packet status as acceptance"
+        )
+    unsafe_packet_validation_packet_files = dict(packet_files)
+    unsafe_packet_validation_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket validation means USER accepted.\n"
+    )
+    if "packet-validation-as-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_packet_validation_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject packet validation as USER accepted"
+        )
+    unsafe_validation_pass_packet_files = dict(packet_files)
+    unsafe_validation_pass_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nValidation pass proves acceptance.\n"
+        + "Validation passed means USER accepted.\n"
+    )
+    if "packet-validation-as-acceptance" not in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            unsafe_validation_pass_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture did not reject validation pass as acceptance"
+        )
+    safe_reviewability_packet_files = dict(packet_files)
+    safe_reviewability_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means product acceptance remains pending until USER acceptance or waiver.\n"
+    )
+    safe_false_green_failures = "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            safe_reviewability_packet_files
+        )
+    )
+    if "packet-reviewability-as-product-acceptance" in safe_false_green_failures:
+        failures.append(
+            "Valid USER review bundle fixture falsely rejected pending product acceptance wording"
+        )
+    safe_user_acceptance_packet_files = dict(packet_files)
+    safe_user_acceptance_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket Reviewability means USER acceptance remains pending until USER acceptance or waiver.\n"
+    )
+    safe_user_acceptance_failures = "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            safe_user_acceptance_packet_files
+        )
+    )
+    if "packet-reviewability-as-product-acceptance" in safe_user_acceptance_failures:
+        failures.append(
+            "Valid USER review bundle fixture falsely rejected pending USER acceptance wording"
+        )
+    safe_packet_validation_packet_files = dict(packet_files)
+    safe_packet_validation_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nPacket validation means USER acceptance remains pending until USER acceptance or waiver.\n"
+    )
+    safe_packet_validation_failures = "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            safe_packet_validation_packet_files
+        )
+    )
+    if "packet-validation-as-acceptance" in safe_packet_validation_failures:
+        failures.append(
+            "Valid USER review bundle fixture falsely rejected pending packet validation wording"
+        )
     return failures
 
 
@@ -10303,6 +12487,8 @@ line item, not a seam or separate branch.
             "missing applicability/dependency/grouping proof"
         )
 
+    failures.extend(_validate_visual_acceptance_enforcement_fixtures())
+
     valid_rar_failures = _validate_rebaseline_adoption_review_text(
         VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE.read_text(encoding="utf-8")
     )
@@ -11856,6 +14042,61 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject mixed disclaimer plus affirmative phase advancement"
+        )
+
+    generated_waiver_not_approved_continue_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: waiver not approved so continue to PR Readiness.",
+        )
+    )
+    generated_waiver_not_approved_continue_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_waiver_not_approved_continue_text
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        generated_waiver_not_approved_continue_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject waiver-not-approved phase advancement"
+        )
+
+    generated_phase_first_denial_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: PR Readiness is not approved while RAR review remains active.",
+        )
+    )
+    generated_phase_first_denial_failures = "\n".join(
+        _validate_rebaseline_adoption_review_text(generated_phase_first_denial_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in generated_phase_first_denial_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected phase-first denial wording"
+        )
+
+    generated_no_release_impact_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: USER reviews RAR issue candidates; no release impact is claimed and normal phase progression remains blocked.",
+        )
+    )
+    generated_no_release_impact_failures = "\n".join(
+        _validate_rebaseline_adoption_review_text(generated_no_release_impact_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in generated_no_release_impact_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected passive no-release-impact wording"
         )
 
     generated_although_phase_advance_text = (

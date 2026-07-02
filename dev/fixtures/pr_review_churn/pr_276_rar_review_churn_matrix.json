@@ -54,10 +54,344 @@
         ],
         "receipt_file": "Docs/branch_records/feature_release_readiness_source_truth_intake.md",
         "receipt_marker": "PR #287 Review-Churn Root-Cause Receipt"
+      },
+      {
+        "pr": 289,
+        "connector_comments": 50,
+        "observed_family_counts": {
+          "pr-readiness-review-risk-parser": 2,
+          "pr2-comment-family-classifier": 2,
+          "pr2-thread-pagination-and-approval-latch": 2,
+          "rar-code-to-visual-reference-parser": 4,
+          "rar-issue-candidate-durability-parser": 1,
+          "rar-path-suffix-parser": 4,
+          "rar-phase-advancement-parser": 6,
+          "rar-status-green-parser": 7,
+          "rar-table-row-parser": 2,
+          "rar-user-packet-proof-parser": 16,
+          "visual-acceptance-proof-chain-parser": 45
+        },
+        "pr_readiness_stage_1_failure": true,
+        "root_cause": "PR #289 visual acceptance PR2 exposed that local pre-review checks enforced marker/table presence but not exact implementation-authority cardinality, source-path substance, reviewable target-path substance including prose-only or bare-slash pseudo-paths, reasoned not-applicable visual-target disposition, render-authority marker coverage, template/shared-primitive consumer contracts, affirmative versus negated template-reference wording, safe pending-acceptance wording in USER packet false-green scans, punctuated safe pending-acceptance wording such as product acceptance, which remains pending, all reviewability-as-acceptance verb variants including bare acceptance, USER acceptance/accepted wording, product accepted and visual accepted wording, reviewable-status/packet-status wording, packet reviewability proves product acceptance, and reviewable-packet product-acceptance wording, exact branch-plan field-label synchronization including the required Implementation Authority Classification and Reviewable Visual Acceptance Target Path fields, explanatory negative authority-table wording, incomplete additional material rows, current source-truth authority for claimed templates/shared primitives, authority claims hidden in visual-family rows, UIREF/reference-citation-as-acceptance wording in USER packet and planning false-green scans, false-green screenshot/helper/validator/CSS verb variants including screenshot path equals accepted, screenshot path means USER acceptance, screenshot path means product acceptance, screenshot is USER accepted, screenshot exists proves visual acceptance, screenshot exists means visual acceptance, screenshots prove visual acceptance, screenshot paths mean USER acceptance, bare screenshot proves visual acceptance, screenshot existence proves visual acceptance, helper pass proves visual acceptance, helper green means acceptance, helper green means USER acceptance, helper output green means visual acceptance, helper result pass proves product acceptance, helper green therefore accepted, validator passed therefore accepted, validator passed means accepted, validator passed means visual acceptance, validation pass proves acceptance, validation passed means USER accepted wording, Visual Family Relation match-column disagreement or missing-comparison wording hidden behind a green verdict, substring green-verdict checks that treated NONCONFORMING as CONFORMING, placeholder/vague Implementation Match Proof Plan wording accepted by generic marker checks, negated or future-only accepted-reference comparison wording such as not compared or comparison later, mixed negation/action RAR phase-advancement clauses such as waiver not approved so continue to PR Readiness, phase-first RAR denial wording such as PR Readiness is not approved while RAR remains active, passive phase-token wording such as no release impact being mistaken for advancement, negated-but-affirmative template wording such as not approved but used, pending UIREF citation wording being mistaken for citation-only proof, Windows-only nested pre-PR firewall commands in the manifest that would fail on POSIX review agents before the adversarial fixture suite ran, a pre-PR firewall changed-file filter that ignored docs, JSON fixtures, Markdown fixtures, packet/RAR/UIREF files, and source-truth ambiguity that listed Accepted Reference Set Compared as an implementation classification even though it is a comparative-synthesis proof disposition.",
+        "prevention_summary": "The visual-acceptance validator now rejects multi-authority classification markers, table-only template/shared-primitive authority claims without source paths, authority claims hidden in visual-family rows, placeholder target/source values, Visual Acceptance Target plans without a reviewable/accepted/design-candidate packet or media path, missing Render Authority Level markers, bare not-applicable target disposition without an explicit reason, prose-only or bare-slash pseudo target paths, UIREF catalog paths used as a target path substitute, placeholder or vague implementation-match proof plans, incomplete material table rows, template/shared-primitive claims that omit consumer contracts, template/shared-primitive claims while the catalog records no promoted implementation templates or code-level shared primitives, affirmative AI Control Center template references without approved source/consumer proof, UIREF reference paths used as template/primitive sources, screenshot/helper/validator/CSS false-green phrasing across proves/equals/is/means/therefore and green/pass/passed variants, plural screenshots/screenshot paths as acceptance wording, unresolved or not-compared Visual Match / Functional Match columns with green verdicts, negated or future-only accepted-reference comparison wording, Accepted Reference Set Compared when it is incorrectly used as Implementation Authority Classification instead of comparative-synthesis proof disposition, and proves/equals/is/means reviewability-as-acceptance false-green wording across packet-reviewability, reviewable-packet, reviewable-status, reviewability-status, and packet-status wording while allowing explicit pending-acceptance wording, punctuated which-remains-pending wording, explicit nonconforming blocker rows, explanatory negative authority cells, negated AI Control Center template references, explicit negated-but-used AI Control Center template references, and pending UIREF citation wording; branch-plan docs now use the exact labels validators extract; the UI Reference Catalog now separates implementation-authority values from accepted-reference-set comparison/proof dispositions; the USER packet helper now shares explicit acceptance target coverage across screenshot, screenshots, screenshot path(s), screenshot exists, helper/validator output/result, packet-validation, validation-pass, packet-reviewability, reviewable-status, packet-status, and UIREF/reference citation false-green scans so USER acceptance, USER accepted, product acceptance, product accepted, visual acceptance, visual accepted, accepted, acceptance, proof, and sufficient variants are rejected without rejecting explicit pending-acceptance or pending-proof wording; the RAR phase-advancement parser now strips phase-first denial clauses and passive no-impact phase mentions that do not contain an affirmative action while preserving mixed denial/action clauses such as not approved so continue to PR Readiness as invalid; the branch-planning validator now uses normalized lowercase USER/product/visual/bare acceptance targets for packet-reviewability, screenshot, helper, validator, and validation-pass false-green scans; the churn classifier recognizes authority/consumer-contract, pre-PR firewall portability, pre-pr-firewall, changed-family, and fixture-only comments under covered PR2 families; the pre-PR firewall now gates source-truth docs, packet/RAR/UIREF docs, PR churn fixtures, branch-readiness fixtures, and Python helpers/validators/parsers, and the manifest uses a portable {python} token resolved by the helper to the current interpreter for nested Python validation commands.",
+        "preventive_changes": [
+          "dev/orin_branch_readiness_planning_fixture_validation.py enforces exactly one Implementation Authority Classification term for visual acceptance planning.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py validates substantive Template/Primitive source-path values and consumer-contract values.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py adds generated adversarial mutations for placeholder targets, placeholder source paths, table-only authority claims, and source-without-consumer-contract claims.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py treats explanatory negative authority-table cells such as no approved template exists as non-claims.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py treats negated AI Control Center template references as non-claims unless affirmative consume/instantiate/use/approval wording appears.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects negated-but-affirmative AI Control Center template references such as not approved but used.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects incomplete material rows instead of dropping them before table-level proof checks.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects template/shared-primitive authority claims while the UI Reference Catalog records no promoted implementation templates or code-level shared primitives.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects UIREF reference paths as template or primitive source paths.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py includes visual-family row implementation-authority cells in template/shared-primitive claim detection.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects screenshot/helper/CSS false-green wording across proves, equals, is, and means variants.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects bare screenshot, screenshot existence, helper pass, and validator passed as visual-acceptance proof wording.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects BP2/BP3 planning false-green screenshot, helper, validator, and validation-pass wording across USER acceptance, product acceptance, bare acceptance, USER accepted, product accepted, and accepted variants.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects plural screenshot and screenshot-path false-green variants.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects therefore-style helper/validator green acceptance wording in branch-planning packets and active USER packet scans.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py preserves affirmative phase-advancement clauses when unrelated waiver/approval negation appears earlier in the same RAR clause.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py allows phase-first denial wording such as PR Readiness is not approved while RAR remains active when no affirmative phase action is present.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py allows passive phase-token wording such as no release impact when no advancement action or next-step condition is present.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py inspects Visual Match and Functional Match columns before accepting visual-family rows as green.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py treats not-compared, not-reviewed, not-evaluated, uncompared, unreviewed, and comparison-missing Visual Match / Functional Match values as unresolved when paired with green verdicts.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py uses whole-word green verdict checks so NONCONFORMING blocker rows do not false-red.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects placeholder or vague Implementation Match Proof Plan markers that do not name screenshot/video/ordered-frame/code-to-visual comparison evidence.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py requires a reviewable/accepted/design-candidate Visual Acceptance Target path or explicit not-applicable disposition before material visible UI planning can pass.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py requires Render Authority Level for material visible UI planning and proves missing render authority fails.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py requires explicit reason text before Not Applicable With Reason can bypass Visual Acceptance Target path proof.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects UIREF catalog paths as a substitute for a USER-reviewable Visual Acceptance Target packet or media path.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py requires visual target paths to include an artifact extension plus real path/folder context, rejecting prose-only or bare-slash pseudo-paths.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects Accepted Reference Set comparison wording that is negated, pending, or future-only.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects Accepted Reference Set Compared when used as the Implementation Authority Classification marker.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects packet-reviewability-as-product-acceptance and reviewable-packet-as-product-acceptance phrasing across equals/is/means variants while allowing explicit pending-acceptance phrasing.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py allows punctuated pending-acceptance reviewability wording when acceptance remains explicitly pending.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects packet-reviewability, reviewable-packet, reviewable-status, reviewability-status, and packet-status false-green phrasing across proves, equals, is, and means variants.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects product accepted and visual accepted reviewability/status false-green variants.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects bare packet-reviewability-as-acceptance wording without requiring a product/visual/USER qualifier.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py proves USER packet false-green scanning rejects reviewability-as-acceptance, reviewable-packet-as-accepted, and screenshot-path-as-accepted wording while allowing pending-acceptance wording.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py proves branch-planning and USER packet false-green scanning rejects UIREF/reference citation as visual or product acceptance without comparison.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py proves USER packet false-green scanning rejects packet-validation-as-USER-accepted wording while allowing pending-acceptance wording.",
+          "dev/orin_user_review_bundle.py narrows packet reviewability/product acceptance false-green matching to avoid pending-acceptance false reds and broadens it to reject USER acceptance/accepted variants.",
+          "dev/orin_user_review_bundle.py allows punctuated pending-acceptance reviewability wording such as product acceptance, which remains pending.",
+          "dev/orin_user_review_bundle.py broadens packet validation false-green matching to reject USER accepted/accepted variants while preserving pending-acceptance wording.",
+          "dev/orin_user_review_bundle.py rejects screenshot path equals/means/is accepted or acceptance as screenshot-only acceptance wording.",
+          "dev/orin_user_review_bundle.py uses a shared USER/product/visual/bare acceptance target for screenshot, helper/validator, packet-validation, validation-pass, packet-reviewability, reviewable-status, and packet-status false-green scans.",
+          "dev/orin_user_review_bundle.py rejects screenshot exists proves/means visual acceptance wording in active USER-facing review packets.",
+          "dev/orin_user_review_bundle.py rejects plural screenshot and screenshot-path false-green variants in active USER-facing review packets.",
+          "dev/orin_user_review_bundle.py rejects helper/validator output/result green or pass wording as visual or product acceptance in active USER-facing review packets.",
+          "dev/orin_user_review_bundle.py rejects therefore-style helper/validator green acceptance wording in active USER-facing review packets.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py proves active USER packets reject screenshot path means USER acceptance, screenshot is USER accepted, screenshot exists proves/means visual acceptance, helper green means acceptance, helper green means USER acceptance, helper output green means visual acceptance, helper result pass proves product acceptance, validator passed means accepted, reviewable or packet status as acceptance, product/visual accepted reviewability claims, and validation pass or passed as acceptance.",
+          "dev/orin_user_review_bundle.py rejects UIREF/reference citation proves/means/equals/is visual or product acceptance wording.",
+          "dev/orin_user_review_bundle.py allows UIREF/reference citation wording that explicitly says visual proof remains pending until comparison.",
+          "dev/orin_pr_review_churn_validation.py classifies authority-cardinality and consumer-contract review comments under visual-acceptance-proof-chain-parser.",
+          "dev/orin_pr_review_churn_validation.py classifies pre-PR firewall portability comments under pr2-comment-family-classifier.",
+          "dev/orin_pr_review_churn_validation.py gates non-Python source-truth, packet, RAR, UIREF, JSON fixture, and Markdown fixture changes through the same changed-family coverage check as helper/validator/parser changes.",
+          "dev/orin_pr_review_churn_validation.py resolves the {python} manifest token to the current interpreter and reports missing executables as normal validation failures.",
+          "dev/orin_branch_readiness_planning_fixture_validation.py rejects pre_pr_firewall Python validation commands that do not use the portable {python} token.",
+          "Docs/branch_plans/README.md keeps documented visual-proof field labels, including Implementation Authority Classification and Reviewable Visual Acceptance Target Path, in sync with validator-extracted labels.",
+          "Docs/ui_reference_catalog/README.md clarifies that Accepted Reference Set Compared is a comparative-synthesis proof disposition, not an Implementation Authority Classification value.",
+          "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records the PR #289 review-churn root-cause receipt."
+        ],
+        "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
+        "receipt_marker": "PR #289 Review-Churn Root-Cause Receipt"
       }
     ]
   },
+  "pre_pr_firewall": {
+    "purpose": "Run before PR Readiness Stage 2 or before another @codex review request when helper, validator, parser, packet, RAR, UIREF, Product Experience, PR, release, or issue-governance files changed. The firewall locally replays connector-style comment families, generated sibling variants, changed-file family coverage, and local fixture validation so the Codex Connector is not the first adversarial parser.",
+    "validation_commands": [
+      {
+        "name": "branch readiness planning adversarial fixture suite",
+        "command": [
+          "{python}",
+          "dev/orin_branch_readiness_planning_fixture_validation.py"
+        ],
+        "covers_families": [
+          "rar-status-green-parser",
+          "rar-phase-advancement-parser",
+          "rar-issue-candidate-disposition-parser",
+          "rar-issue-candidate-durability-parser",
+          "rar-user-packet-proof-parser",
+          "rar-code-to-visual-reference-parser",
+          "visual-acceptance-proof-chain-parser",
+          "rar-table-row-parser",
+          "rar-path-suffix-parser",
+          "rar-short-marker-parser",
+          "repo-live-state-boundary-parser",
+          "pr-readiness-review-risk-parser",
+          "pr2-comment-family-classifier",
+          "pr2-thread-pagination-and-approval-latch"
+        ]
+      }
+    ],
+    "connector_corpus_replay": [
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject Visual Acceptance Target claims when packet reviewability proves product acceptance without accepted reference set, implementation match proof, and USER acceptance."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject helper green means USER acceptance and validator passed means visual acceptance for a UIREF child surface."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject approved template authority when the implementation template source path is a UIREF catalog reference and the template consumer contract is missing."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject screenshot path means product acceptance and screenshot existence proves visual acceptance for the AI Dashboard comparator."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Require an explicit Not Applicable With Reason before a Visual Acceptance Target path can be bypassed."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Include non-Python gated files in the pre-pr-firewall changed-family scan, including fixture-only RAR/UIREF packet changes."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject Accepted Reference Set Compared as an implementation authority classification while preserving accepted-reference-set comparison as proof disposition."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Check only affirmative template claims: an AI Control Center template is not approved or not consumed should not require a template source path."
+      },
+      {
+        "family_id": "rar-code-to-visual-reference-parser",
+        "comment": "Reject Accepted Reference Set wording that cites UIREF-001 but says it is not compared or that comparison happens later."
+      },
+      {
+        "family_id": "rar-phase-advancement-parser",
+        "comment": "Reject RAR wording that says waiver not approved so continue to PR Readiness while adoption remains active."
+      },
+      {
+        "family_id": "pr-readiness-review-risk-parser",
+        "comment": "Allow RAR denial wording that says PR Readiness is not approved while RAR review remains active without treating the phase token as an advancement request."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Reject USER packet proof when START_HERE routes to helper output instead of a primary USER Review decision surface and the timestamped ZIP path is only helper output."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Reject active USER packet text where helper green therefore accepted or validator passed therefore accepted."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Reject active USER packet text where screenshot exists proves visual acceptance, screenshot exists means visual acceptance, helper output green means visual acceptance, or helper result pass proves product acceptance."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Allow USER packet wording that says Packet reviewability means product acceptance, which remains pending until USER acceptance or waiver."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Reject active USER packet text where screenshots prove visual acceptance or screenshot paths mean USER acceptance."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Reject active USER packet status wording where Packet Reviewability means product accepted or reviewable status means visual accepted."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Allow visual-acceptance planning wording that says Packet reviewability means product acceptance, which remains pending until USER visual acceptance."
+      },
+      {
+        "family_id": "rar-path-suffix-parser",
+        "comment": "Reject C:\\Nexus USER\\FAM-006-20260620-120000.zip.tmp because the USER packet ZIP token has an extra suffix."
+      },
+      {
+        "family_id": "rar-table-row-parser",
+        "comment": "Reject RAR Code-To-Visual Trace Matrix rows that are sparse, malformed, or header-only while the table is used as acceptance proof."
+      },
+      {
+        "family_id": "rar-status-green-parser",
+        "comment": "Reject status green when NONCONFORMING and UNPROVEN rows remain unresolved in a RAR adoption review."
+      },
+      {
+        "family_id": "rar-phase-advancement-parser",
+        "comment": "Reject normal phase progression although RAR remains blocked and issue candidates are not dispositioned."
+      },
+      {
+        "family_id": "rar-issue-candidate-durability-parser",
+        "comment": "Reject active packet disappearance when an external-ledger RAR issue candidate loses predecessor/successor lineage after regeneration."
+      },
+      {
+        "family_id": "repo-live-state-boundary-parser",
+        "comment": "Reject Active RRI Cycle RRI-20260629-001 stored in repo docs instead of external operational state for standing Governance."
+      },
+      {
+        "family_id": "pr-readiness-review-risk-parser",
+        "comment": "Reject PR Readiness Stage 1 packet when review-risk coverage is missing for a changed helper family outside RAR phase advancement."
+      },
+      {
+        "family_id": "pr2-thread-pagination-and-approval-latch",
+        "comment": "Reject merge-ready when review thread pages, pull review comment pages, unresolved-current counts, and current-head Codex Connector approval latch are not all proven."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Tighten comment-family matching so an unrelated status row does not pass as a covered connector family."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Use a portable Python launcher for the pre-PR firewall because Windows py is not available on Linux review agents."
+      },
+      {
+        "family_id": "rar-phase-advancement-parser",
+        "comment": "Allow active RAR packet wording such as no release impact when no phase advancement action is requested."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Reject AI Control Center template wording that says the template is not approved but is still used or instantiated."
+      },
+      {
+        "family_id": "rar-user-packet-proof-parser",
+        "comment": "Allow USER packet wording such as UIREF citation means visual proof remains pending until comparison."
+      },
+      {
+        "family_id": "visual-acceptance-proof-chain-parser",
+        "comment": "Require Render Authority Level in visual acceptance planning so visible UI packets distinguish concept render, design candidate, visual acceptance target, and implementation match proof."
+      }
+    ],
+    "unknown_comment_guardrails": [
+      "A database migration status row has mixed case after cleanup.",
+      "A screenshot filename changed during a docs cleanup pass.",
+      "An unrelated validator message contains the word unknown.",
+      "A current cycle calculation bug changed product retry backoff for runtime logic."
+    ]
+  },
   "changed_file_coverage": {
+    "Docs/branch_plans/README.md": [
+      "rar-issue-candidate-disposition-parser",
+      "visual-acceptance-proof-chain-parser",
+      "rar-table-row-parser"
+    ],
+    "Docs/branch_records/feature_release_readiness_source_truth_intake.md": [
+      "rar-status-green-parser",
+      "rar-issue-candidate-durability-parser",
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "Docs/incident_patterns.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "Docs/ui_reference_catalog/README.md": [
+      "visual-acceptance-proof-chain-parser",
+      "rar-code-to-visual-reference-parser"
+    ],
+    "Docs/phase_governance.md": [
+      "rar-status-green-parser",
+      "rar-phase-advancement-parser",
+      "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
+      "rar-user-packet-proof-parser",
+      "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
+      "rar-table-row-parser",
+      "rar-path-suffix-parser",
+      "rar-short-marker-parser",
+      "repo-live-state-boundary-parser",
+      "pr-readiness-review-risk-parser",
+      "pr2-comment-family-classifier",
+      "pr2-thread-pagination-and-approval-latch"
+    ],
+    "Docs/validation_helper_registry.md": [
+      "rar-status-green-parser",
+      "rar-phase-advancement-parser",
+      "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
+      "rar-user-packet-proof-parser",
+      "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
+      "rar-table-row-parser",
+      "rar-path-suffix-parser",
+      "rar-short-marker-parser",
+      "repo-live-state-boundary-parser",
+      "pr-readiness-review-risk-parser",
+      "pr2-comment-family-classifier",
+      "pr2-thread-pagination-and-approval-latch"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_missing_target.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_packet_reviewability_acceptance.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_role_ambiguous.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_reference_set_as_authority.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_screenshot_green.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_template_claim.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_uiref_no_comparison.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/branch_readiness_planning/valid_visual_acceptance_enforcement_chain.md": [
+      "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json": [
+      "rar-status-green-parser",
+      "rar-phase-advancement-parser",
+      "rar-issue-candidate-disposition-parser",
+      "rar-issue-candidate-durability-parser",
+      "rar-user-packet-proof-parser",
+      "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
+      "rar-table-row-parser",
+      "rar-path-suffix-parser",
+      "rar-short-marker-parser",
+      "repo-live-state-boundary-parser",
+      "pr-readiness-review-risk-parser",
+      "pr2-comment-family-classifier",
+      "pr2-thread-pagination-and-approval-latch"
+    ],
     "dev/orin_branch_governance_validation.py": [
       "pr2-thread-pagination-and-approval-latch",
       "repo-live-state-boundary-parser"
@@ -75,6 +409,7 @@
       "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
       "rar-table-row-parser",
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
@@ -90,11 +425,15 @@
       "rar-issue-candidate-durability-parser",
       "rar-user-packet-proof-parser",
       "rar-code-to-visual-reference-parser",
+      "visual-acceptance-proof-chain-parser",
       "rar-table-row-parser",
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
       "repo-live-state-boundary-parser",
       "pr-readiness-review-risk-parser"
+    ],
+    "dev/orin_user_review_bundle.py": [
+      "visual-acceptance-proof-chain-parser"
     ]
   },
   "families": [
@@ -140,7 +479,8 @@
       "representative_comment_patterns": [
         "Normal phase progression accepted while RAR remains active",
         "Blocked/held wording misread as phase advancement",
-        "Although/though/while connector hides affirmative phase movement"
+        "Although/though/while connector hides affirmative phase movement",
+        "Passive no-impact phase wording misread as advancement"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -164,7 +504,9 @@
         "though connector phase advancement",
         "while connector phase advancement",
         "blocked-until wording that must pass",
-        "not-blocked wording that must not prove completion"
+        "not-blocked wording that must not prove completion",
+        "waiver-not-approved wording followed by continue to PR Readiness fails",
+        "no release impact wording without an advancement action passes"
       ],
       "sibling_variant_replay": [
         "Next Legal Phase row",
@@ -272,7 +614,8 @@
         "USER Packet Path and ZIP labels mismatch",
         "Stable or off-root packet/ZIP accepted",
         "CONFORMING status hides unresolved comparison cells that still require USER waiver",
-        "USER judgment wording in Defect / Gap cell does not require a USER packet"
+        "USER judgment wording in Defect / Gap cell does not require a USER packet",
+        "Pending UIREF/reference citation wording misread as citation-only USER acceptance proof"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -298,6 +641,9 @@
         "RAR USER Decision table row",
         "Next Legal Phase USER review wording",
         "folder/ZIP label mismatch",
+        "helper green therefore accepted active USER packet wording",
+        "validator passed therefore accepted active USER packet wording",
+        "UIREF citation means visual proof remains pending until comparison passes",
         "unresolved visual/behavior comparison with USER waiver action and USER Packet Path not required",
         "unresolved visual/behavior comparison with USER judgment in Defect / Gap and USER Packet Path not required"
       ],
@@ -351,6 +697,140 @@
         "Backend-to-visual trace row",
         "comparison-column mismatch with green status text",
         "accepted-reference gap/issue mismatch with resolved RAR stage"
+      ]
+    },
+    {
+      "family_id": "visual-acceptance-proof-chain-parser",
+      "title": "Visual Acceptance proof-chain and packet false-green coverage",
+      "representative_comment_patterns": [
+        "Screenshot existence, helper green, validator green, CSS similarity, or UIREF citation treated as Visual Acceptance",
+        "Implementation template or shared primitive claimed without approved source path",
+        "Packet reviewability treated as product or visual acceptance",
+        "Pending UIREF/reference citation wording rejected even though proof remains pending",
+        "Render Authority Level missing from material visible UI planning markers",
+        "Role-ambiguous child or diagnostics surface allowed to proceed",
+        "Implementation-first visual target backfill accepted",
+        "Visual Acceptance Target prose accepted without a USER-reviewable target path"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/branch_plans/README.md",
+        "Docs/ui_reference_catalog/README.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md",
+        "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py",
+        "dev/orin_user_review_bundle.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/valid_visual_acceptance_enforcement_chain.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_missing_target.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_screenshot_green.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_uiref_no_comparison.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_template_claim.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_packet_reviewability_acceptance.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_role_ambiguous.md",
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_reference_set_as_authority.md"
+      ],
+      "generated_mutation_coverage": [
+        "shared primitive claim without source path",
+        "helper green proves visual acceptance",
+        "CSS similarity proves visual family",
+        "implementation-first visual target backfill",
+        "screenshot exists therefore accepted",
+        "screenshot path equals accepted",
+        "screenshot path means USER acceptance",
+        "screenshot path means product acceptance",
+        "screenshot is USER accepted",
+        "screenshot exists proves visual acceptance",
+        "screenshot exists means visual acceptance",
+        "screenshots prove visual acceptance",
+        "screenshot paths mean USER acceptance",
+        "UIREF citation proves visual acceptance",
+        "reference citation means product acceptance",
+        "packet reviewability equals product acceptance",
+        "packet reviewability proves product acceptance",
+        "packet reviewability means USER acceptance",
+        "reviewable packet means USER accepted",
+        "packet reviewability means product accepted",
+        "reviewable status means visual accepted",
+        "reviewable status proves acceptance",
+        "packet status means accepted",
+        "packet validation means USER accepted",
+        "validation pass proves acceptance",
+        "validation passed means USER accepted",
+        "role-ambiguous child surface lacks functionality contract",
+        "visual acceptance target tbd or pending user review",
+        "visual acceptance target prose without reviewable target path fails",
+        "UIREF-only path rejected as a Visual Acceptance Target path",
+        "prose-only visual target path fails",
+        "bare-slash visual target path fails",
+        "bare Visual Acceptance Target Not Applicable fails without reason text",
+        "template source path tbd or none",
+        "primitive source path tbd or none",
+        "table-only approved template yes without source path",
+        "table-only approved shared primitive yes without source path",
+        "negative approved template/shared primitive authority cells pass as non-claims",
+        "negative AI Control Center template reference passes as non-claim",
+        "negative AI Control Center template reference followed by affirmative use fails",
+        "incomplete second visual row fails instead of being dropped",
+        "UIREF path used as template source fails even with a consumer contract",
+        "template/shared primitive claims fail while the catalog has no promoted implementation authority",
+        "template claim hidden in visual-family implementation-authority cell fails",
+        "screenshot/helper/CSS false-green equals/is/means variants fail",
+        "bare screenshot proves visual acceptance fails",
+        "screenshot existence proves visual acceptance fails",
+        "plural screenshot false-green variants fail",
+        "helper pass proves visual acceptance fails",
+        "helper green means acceptance fails",
+        "helper green means USER acceptance fails",
+        "helper output green means visual acceptance fails",
+        "helper result pass proves product acceptance fails",
+        "helper green therefore accepted fails",
+        "validator passed means visual acceptance fails",
+        "validator passed means accepted fails",
+        "validator passed therefore accepted fails",
+        "unresolved visual/functional match columns with green verdict fail",
+        "not-compared visual/functional match columns with green verdict fail",
+        "nonconforming blocker row with repair action passes without green-verdict false red",
+        "placeholder implementation match proof plan fails",
+        "vague implementation match proof plan without evidence route fails",
+        "Accepted Reference Set not compared wording fails",
+        "Accepted Reference Set comparison later wording fails",
+        "Accepted Reference Set Compared as implementation authority fails",
+        "dual implementation authority classification",
+        "template source path without template consumer contract",
+        "primitive source path without primitive consumer contract",
+        "packet reviewability as product acceptance fails",
+        "pending product acceptance wording passes",
+        "pending USER acceptance wording passes",
+        "pending packet validation acceptance wording passes",
+        "pending UIREF citation proof wording passes",
+        "missing Render Authority Level fails",
+        "punctuated pending reviewability acceptance wording passes",
+        "phase-first RAR denial without advancement action passes",
+        "packet reviewability means product acceptance fails",
+        "packet reviewability proves product acceptance fails",
+        "packet reviewability is product acceptance fails",
+        "packet reviewability means bare acceptance fails",
+        "reviewable status proves acceptance fails",
+        "packet status means accepted fails",
+        "screenshot path means product acceptance fails",
+        "validation pass proves acceptance fails",
+        "validation passed means USER accepted fails",
+        "branch-plan visual-proof field labels match validator markers"
+      ],
+      "sibling_variant_replay": [
+        "BP2/BP3 Visual Acceptance Target Plan",
+        "Pre-Live Visual Purpose Conformance",
+        "USER packet false-green scan",
+        "Accepted Reference Set / Comparative Synthesis table",
+        "Implementation Authority Table",
+        "Functionality Role Contract Table",
+        "Visual Family Relation match columns cannot be overridden by CONFORMING verdict text"
       ]
     },
     {
@@ -542,7 +1022,8 @@
         "Unrelated review comments should remain unknown until source-truth and fixture coverage exists",
         "New meta-classifier comments require their own covered family"
         ,
-        "Review-churn budget comments for same-family-only and total-only receipts remain covered"
+        "Review-churn budget comments for same-family-only and total-only receipts remain covered",
+        "Pre-PR firewall validation commands must use a portable Python launcher/current interpreter token"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -562,13 +1043,18 @@
         "code-to-visual comparison drift maps to RAR code-to-visual family"
         ,
         "same-family-only churn receipt comment maps to PR2 classifier/churn family",
-        "total-only churn receipt comment maps to PR2 classifier/churn family"
+        "total-only churn receipt comment maps to PR2 classifier/churn family",
+        "pre-PR firewall portable Python launcher comment maps to PR2 classifier/churn family",
+        "Python validation command using py instead of {python} fails manifest validation",
+        "non-Python gated fixture-only changed-family comment maps to PR2 classifier/churn family"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",
         "standalone unknown text without classifier/churn context",
         "new unknown family must block until matrix coverage is added",
-        "classifier comments are not hidden under broad RAR parser keywords"
+        "classifier comments are not hidden under broad RAR parser keywords",
+        "nested pre-PR firewall validation uses the current interpreter on Windows and POSIX runners",
+        "source-truth docs and Markdown/JSON fixtures are included in changed-family firewall coverage"
       ]
     },
     {
