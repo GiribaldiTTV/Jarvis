@@ -114,10 +114,15 @@ WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES: tuple[str, ...] = (
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
 )
 
+WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_FILE = (
+    "WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"
+)
+
 WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
     "START_HERE.md",
     "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
     "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_FILE,
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
 )
 
@@ -1273,20 +1278,30 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
     stage_patterns = (
         (
-            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_FILE,
             0,
+            (
+                r"\bworkstream implementation approval\b",
+                r"\bworkstream/runtime implementation approval\b",
+                r"\bbounded workstream implementation\b",
+                r"\bbounded workstream/runtime implementation\b",
+                r"\bimplementation approval packet\b",
+                r"\bworkstream implementation approval review\b",
+            ),
+        ),
+        (
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            1,
             (
                 r"\bbp3\b",
                 r"\borchestration\b",
                 r"\bworkstream entry\b",
                 r"\bworkstream package implementation\b",
                 r"\bbounded workstream package\b",
-                r"\bworkstream implementation\b",
-                r"\bimplementation approval\b",
             ),
         ),
-        (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
-        (USER_BRANCH_VISION_REVIEW_FILE, 2, (r"\bbp1\b", r"\bbranch vision\b")),
+        (USER_BRANCH_PLAN_REVIEW_FILE, 2, (r"\bbp2\b", r"\bbranch plan\b")),
+        (USER_BRANCH_VISION_REVIEW_FILE, 3, (r"\bbp1\b", r"\bbranch vision\b")),
     )
     action_match = re.search(
         r"\b(?:approve|approves|approved|approval|green-light|greenlight)\b",
@@ -11073,6 +11088,26 @@ def _write_workstream_entry_packet_digests(
             "BP3 Packet Reviewability State: Reviewable\n"
             "BP3 USER Gate State: Pending USER Review\n"
         )
+    workstream_primary_name = "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    workstream_primary_title = "Workstream Entry Analysis Digest"
+    if (
+        _packet_text_status(common)
+        == DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
+    ):
+        workstream_primary_name = WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_FILE
+        workstream_primary_title = "Workstream Implementation Approval Review"
+
+    workstream_primary_text = (
+        f"# {workstream_primary_title}\n\n"
+        f"{common}"
+        f"{analysis_status}\n"
+        f"{implementation_posture}\n"
+        f"{recommended_seam}"
+        f"{bp3_readiness_contract}\n\n"
+        "## Pending Gates\n\n"
+        f"{pending}\n"
+    )
+
     files: dict[str, str] = {
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
             "# USER Review Folder And File Digest\n\n"
@@ -11088,22 +11123,15 @@ def _write_workstream_entry_packet_digests(
             f"{common}"
             f"{scan_result}\n"
         ),
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": (
-            "# Workstream Entry Analysis Digest\n\n"
-            f"{common}"
-            f"{analysis_status}\n"
-            f"{implementation_posture}\n"
-            f"{recommended_seam}"
-            f"{bp3_readiness_contract}\n\n"
-            "## Pending Gates\n\n"
-            f"{pending}\n"
-        ),
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": workstream_primary_text,
         "BRANCH_VISION_VALIDATION_CHECKLIST.md": (
             "# Branch Vision Validation Checklist\n\n"
             f"{common}"
             f"{checklist_status}\n"
         ),
     }
+    if workstream_primary_name != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md":
+        files[workstream_primary_name] = workstream_primary_text
     written: list[Path] = []
     for name, text in files.items():
         path = target / name
@@ -11153,6 +11181,17 @@ def _packet_text_status(text: str) -> str:
             return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
         if any(marker in normalized for marker in bp1_markers):
             return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
+
+    workstream_approval_review_markers = (
+        "workstream implementation approval review",
+        "workstream/runtime implementation remains pending until user approves",
+        "bounded fam-006 workstream/runtime implementation approval packet",
+        "does user approve bounded fam-006 workstream/runtime implementation",
+        "workstream/runtime implementation approval remains pending",
+        "current packet is a workstream/runtime implementation approval review",
+    )
+    if any(marker in normalized for marker in workstream_approval_review_markers):
+        return DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
 
     implementation_markers = (
         "approve complete bounded workstream package implementation",
@@ -11233,15 +11272,6 @@ def _packet_text_status(text: str) -> str:
     )
     if any(marker in normalized for marker in final_review_markers):
         return DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW
-
-    workstream_approval_review_markers = (
-        "workstream implementation approval review",
-        "workstream/runtime implementation remains pending until user approves",
-        "bounded fam-006 workstream/runtime implementation approval packet",
-        "does user approve bounded fam-006 workstream/runtime implementation",
-    )
-    if any(marker in normalized for marker in workstream_approval_review_markers):
-        return DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
 
     live_validation_review_markers = (
         "live validation final decision review",

@@ -7662,7 +7662,9 @@ def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
             packet_folder=target,
             export_zip=target / "FAM-007-20260601-120000.zip",
             copied=copied,
-            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            extra_bundle_files=[
+                "USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"
+            ],
             bundle_file_count=6,
             expected_count=len(copied),
             copied_count=len(copied),
@@ -8251,11 +8253,11 @@ def _validate_primary_user_review_file_stage_priority() -> list[str]:
     workstream_implementation_decision = "Approve bounded workstream implementation."
     if (
         review_bundle._primary_user_review_file(workstream_implementation_decision)
-        != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        != review_bundle.WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_FILE
     ):
         failures.append(
             "Workstream implementation approval packets must route the primary "
-            "USER review file to WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+            "USER review file to WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"
         )
     bp2_trace_decision = (
         "I approve BP2 Branch Plan Review after accepted BP1 branch vision proof."
