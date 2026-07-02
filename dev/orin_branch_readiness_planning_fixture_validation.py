@@ -3507,8 +3507,17 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         phase_advancement_action_pattern.search(phase_advancement_marker_values)
         is not None
     )
+    bare_phase_next_step_pattern = re.compile(
+        rf"(?:"
+        rf"^\s*\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b\s*$"
+        rf"|"
+        rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b\s+"
+        rf"(?:after|once|when|upon|on)\s+[\w\s/-]{{0,80}}"
+        rf"\b(?:validation|green|review|approval|waiver|repair|closeout|resolved)\b"
+        rf")"
+    )
     concrete_marker_bare_phase_requested = (
-        re.search(rf"\b(?:{phase_token_pattern})(?:\s+stage\s+\d+)?\b", phase_advancement_next_step_scope)
+        bare_phase_next_step_pattern.search(phase_advancement_next_step_scope)
         is not None
     )
     concrete_advancement_requested = concrete_next_phase_requested or (
@@ -3931,28 +3940,31 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     )
 
     def has_affirmative_template_reference(value: str) -> bool:
+        action_pattern = re.compile(
+            r"\b(?:claim|claims|claimed|consume|consumes|consumed|instantiate|"
+            r"instantiates|instantiated|use|uses|used|using|approved)\b"
+        )
+        negation_terms = (
+            "not approved",
+            "not consumed",
+            "not instantiated",
+            "not used",
+            "no approved",
+            "no template",
+            "without approved",
+            "does not consume",
+            "does not instantiate",
+        )
         for match in re.finditer(r"\bai control center template\b", value):
             local_context = value[max(0, match.start() - 80) : match.end() + 80]
-            if any(
-                negation in local_context
-                for negation in (
-                    "not approved",
-                    "not consumed",
-                    "not instantiated",
-                    "not used",
-                    "no approved",
-                    "no template",
-                    "without approved",
-                    "does not consume",
-                    "does not instantiate",
-                )
-            ):
-                continue
-            if re.search(
-                r"\b(?:claim|claims|claimed|consume|consumes|consumed|instantiate|"
-                r"instantiates|instantiated|use|uses|used|using|approved)\b",
+            for clause in re.split(
+                r"[.;]|\b(?:but|however|yet|although|though|while|then)\b",
                 local_context,
             ):
+                if not action_pattern.search(clause):
+                    continue
+                if any(negation in clause for negation in negation_terms):
+                    continue
                 return True
         return False
 
@@ -4104,7 +4116,8 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
             EXPECTED_CSS_VISUAL_FAMILY_FAILURE_SNIPPET,
         ),
         (
-            r"\buiref\s+citation\s+alone\s+is\s+sufficient\b|\b(?:uiref|reference)\s+citation\s+(?:alone\s+)?(?:proves|equals|is|means)\s+(?:(?:visual|product)\s+)?(?:acceptance|accepted|proof|sufficient)\b",
+            r"\buiref\s+citation\s+alone\s+is\s+sufficient\b|\b(?:uiref|reference)\s+citation\s+(?:alone\s+)?(?:proves|equals|is|means)\s+(?:(?:visual|product)\s+)?(?:acceptance|accepted|proof|sufficient)\b"
+            + false_green_pending_negation,
             EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET,
         ),
         (
@@ -4671,6 +4684,20 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
             "Generated Visual Acceptance fixture falsely rejected negative AI Control Center template reference"
         )
 
+    generated_negated_but_used_template_reference = valid_text.replace(
+        "Reference-Derived Implementation - no approved template or shared primitive exists for this surface class.",
+        "Reference-Derived Implementation - the AI Control Center template is not approved but is used for this surface class.",
+    )
+    generated_negated_but_used_template_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_negated_but_used_template_reference
+        )
+    )
+    if EXPECTED_TEMPLATE_CLAIM_FAILURE_SNIPPET not in generated_negated_but_used_template_failures:
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject negated-but-used AI Control Center template reference"
+        )
+
     generated_packet_reviewability_means_acceptance = valid_text.replace(
         "Packet Reviewability vs Product Acceptance: The packet can become reviewable only after the tables are complete; product acceptance remains pending until USER visual acceptance, USER waiver, or approved defer/repair route.",
         "Packet Reviewability vs Product Acceptance: Packet reviewability means product acceptance.",
@@ -5180,6 +5207,23 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     ):
         failures.append(
             "Generated Visual Acceptance fixture did not reject reference citation as product acceptance"
+        )
+
+    generated_uiref_citation_pending_claim = valid_text.replace(
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior.",
+        "Accepted Reference Set / Comparative Synthesis: UIREF-001, UIREF-002, UIREF-003, UIREF-004, AI Dashboard, and AI Control Center are compared element-by-element for invariant chrome, controls, rows, cards, spacing, typography, glow, and visible state behavior. UIREF citation means visual proof remains pending until comparison.",
+    )
+    generated_uiref_citation_pending_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_uiref_citation_pending_claim
+        )
+    )
+    if (
+        EXPECTED_ACCEPTED_REFERENCE_NOT_COMPARED_FAILURE_SNIPPET
+        in generated_uiref_citation_pending_failures
+    ):
+        failures.append(
+            "Generated Visual Acceptance fixture falsely rejected pending UIREF citation wording"
         )
 
     generated_implementation_backfill_claim = valid_text.replace(
@@ -6457,6 +6501,23 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
     ):
         failures.append(
             "Invalid USER review bundle fixture did not reject reference citation as product acceptance"
+        )
+    uiref_citation_pending_packet_files = dict(packet_files)
+    uiref_citation_pending_packet_files[
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ] = (
+        packet_files[
+            f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ]
+        + "\nVisual Acceptance: UIREF citation means visual proof remains pending until comparison.\n"
+    )
+    if "uiref-citation-as-visual-proof" in "\n".join(
+        review_bundle._active_review_aid_false_green_failures(
+            uiref_citation_pending_packet_files
+        )
+    ):
+        failures.append(
+            "Invalid USER review bundle fixture falsely rejected pending UIREF citation wording"
         )
     unsafe_reviewability_packet_files = dict(packet_files)
     unsafe_reviewability_packet_files[
@@ -13669,6 +13730,23 @@ line item, not a seam or separate branch.
     if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in generated_phase_first_denial_failures:
         failures.append(
             "Generated RAR adversarial matrix falsely rejected phase-first denial wording"
+        )
+
+    generated_no_release_impact_text = (
+        INVALID_REBASELINE_ADOPTION_MIXED_DISCLAIMER_PHASE_ADVANCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: this does not authorize PR Readiness but proceeds to Workstream now.",
+            "Exact Next USER Decision: USER reviews RAR issue candidates; no release impact is claimed and normal phase progression remains blocked.",
+        )
+    )
+    generated_no_release_impact_failures = "\n".join(
+        _validate_rebaseline_adoption_review_text(generated_no_release_impact_text)
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET in generated_no_release_impact_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected passive no-release-impact wording"
         )
 
     generated_although_phase_advance_text = (
