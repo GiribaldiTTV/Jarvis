@@ -73,76 +73,68 @@ class TrayCommandPopup(QWidget):
         self.owner = owner
         self.setWindowTitle("Nexus Desktop AI Tray")
         self.setObjectName("nexusDesktopTrayPopup")
-        self.setMinimumWidth(320)
+        self.setMinimumWidth(276)
         self._command_buttons = []
         self.setStyleSheet(
             "#nexusDesktopTrayPopup {"
-            " background: #07111f;"
-            " border: 1px solid #25636c;"
-            " border-radius: 6px;"
+            " background: #04101b;"
+            " border: 1px solid rgba(105, 224, 244, 0.48);"
+            " border-radius: 10px;"
             "}"
-            "#nexusDesktopTrayIdentity {"
-            " color: #f8fafc;"
-            " font-size: 12px;"
-            " min-height: 18px;"
-            " padding: 7px 10px 2px 10px;"
-            "}"
-            "#nexusDesktopTrayStatus {"
-            " background: #082f49;"
-            " border: 1px solid #38bdf8;"
-            " border-radius: 5px;"
-            " color: #e0f2fe;"
-            " font-size: 12px;"
-            " margin: 2px 8px 7px 8px;"
-            " min-height: 34px;"
-            " padding: 6px 8px;"
+            "QLabel[traySection='true'] {"
+            " color: rgba(125, 230, 255, 0.86);"
+            " font-size: 10px;"
+            " font-weight: 800;"
+            " margin: 5px 8px 2px 8px;"
+            " padding: 0;"
             "}"
             "QPushButton {"
-            " background: #0f172a;"
-            " border: 1px solid transparent;"
-            " border-radius: 5px;"
-            " color: #f8fafc;"
-            " min-height: 26px;"
-            " padding: 5px 12px;"
+            " background: rgba(6, 24, 39, 0.88);"
+            " border: 1px solid rgba(104, 214, 236, 0.22);"
+            " border-radius: 7px;"
+            " color: rgba(239, 253, 255, 0.96);"
+            " font-size: 11px;"
+            " font-weight: 760;"
+            " min-height: 25px;"
+            " padding: 4px 10px;"
             " text-align: left;"
             "}"
             "QPushButton:hover {"
-            " background: #173b52;"
-            " border-color: #38bdf8;"
+            " background: rgba(10, 54, 74, 0.94);"
+            " border-color: rgba(126, 248, 218, 0.66);"
             "}"
             "QPushButton:focus {"
-            " border-color: #7dd3fc;"
+            " border-color: rgba(171, 245, 255, 0.88);"
             "}"
             "QPushButton:pressed {"
-            " background: #0f766e;"
+            " background: rgba(13, 116, 117, 0.92);"
             "}"
             "QPushButton:disabled {"
-            " background: #101827;"
-            " border-color: #1f2937;"
-            " color: #64748b;"
+            " background: rgba(8, 20, 32, 0.74);"
+            " border-color: rgba(80, 112, 130, 0.20);"
+            " color: rgba(133, 154, 170, 0.74);"
             "}"
             "QFrame {"
-            " background: #244454;"
+            " background: rgba(105, 224, 244, 0.20);"
             " max-height: 1px;"
             " min-height: 1px;"
+            " margin: 4px 4px;"
             "}"
         )
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(4, 4, 4, 4)
-        self.layout.setSpacing(1)
-        identity = QLabel(f"{TRAY_IDENTITY_LABEL} / {TRAY_ORIN_MARK_LABEL}", self)
-        identity.setObjectName("nexusDesktopTrayIdentity")
-        identity.setAccessibleName(TRAY_IDENTITY_LABEL)
-        identity_font = QFont("Segoe UI")
-        identity_font.setWeight(QFont.DemiBold)
-        identity.setFont(identity_font)
-        self.layout.addWidget(identity)
-        self.resident_status_label = QLabel("", self)
-        self.resident_status_label.setObjectName("nexusDesktopTrayStatus")
-        self.resident_status_label.setAccessibleName("Resident access status")
-        self.resident_status_label.setWordWrap(True)
-        self.layout.addWidget(self.resident_status_label)
-        self.add_separator()
+        self.layout.setContentsMargins(6, 6, 6, 6)
+        self.layout.setSpacing(2)
+        self.resident_status_label = None
+
+    def add_section_label(self, text):
+        label = QLabel(text, self)
+        label.setProperty("traySection", True)
+        label.setAccessibleName(text)
+        label_font = QFont("Segoe UI")
+        label_font.setWeight(QFont.DemiBold)
+        label.setFont(label_font)
+        self.layout.addWidget(label)
+        return label
 
     def add_separator(self):
         line = QFrame(self)
@@ -154,7 +146,7 @@ class TrayCommandPopup(QWidget):
     def add_button(self, text, handler):
         button = QPushButton(text, self)
         button.setAccessibleName(text)
-        button.setMinimumWidth(240)
+        button.setMinimumWidth(224)
         button.clicked.connect(lambda _checked=False: self.owner._invoke_button_action(handler))
         self._command_buttons.append((button, handler))
         self.layout.addWidget(button)
@@ -339,6 +331,7 @@ class DesktopTrayEntry:
             self.request_global_settings_from_tray,
         )
         self.tray_popup.add_separator()
+        self.tray_popup.add_section_label("Quick Access")
         for index in range(5):
             button = self.tray_popup.add_button(
                 f"Quick Access {index + 1}",
@@ -346,6 +339,7 @@ class DesktopTrayEntry:
             )
             self.quick_slot_buttons.append(button)
         self.tray_popup.add_separator()
+        self.tray_popup.add_section_label("AI")
         self.ai_status_button = self.tray_popup.add_button(
             "AI Status / Command Center",
             self.request_ai_status_from_tray,
@@ -457,10 +451,7 @@ class DesktopTrayEntry:
         self._release_mouse_capture_for_tray_popup()
         self.refresh_resident_access_actions("tray_popup_about_to_show")
         self.refresh_monitoring_hud_actions("tray_popup_about_to_show")
-        if self._show_native_tray_menu():
-            self.refresh_resident_access_actions("tray_native_menu_closed")
-            self.refresh_monitoring_hud_actions("tray_native_menu_closed")
-            return
+        self._emit("RENDERER_MAIN|TRAY_STYLED_POPUP_REQUESTED|source=tray_icon|native_menu_primary=false")
         self._popup_guard_active = True
         self.tray_popup.popup_at_cursor()
 

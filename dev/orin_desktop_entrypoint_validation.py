@@ -7481,7 +7481,7 @@ def run_validation():
     )
     checks["tray_quick_access_submenu_present"] = line_status(
         "Quick Access" in action_texts
-        and {"Open Command Overlay", "Create Custom Task", "Open Saved Actions Folder"}.issubset(
+        and {"Command Overlay", "Create Task", "Saved Actions"}.issubset(
             set(submenu_action_texts.get("Quick Access", []))
         ),
         f"action_texts={action_texts}; quick_access={submenu_action_texts.get('Quick Access', [])}",

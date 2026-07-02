@@ -63,6 +63,23 @@ def validate_no_forced_arrow_release(renderer_text: str, failures: list[str]):
                 f"{helper_name} must skip SetCursor before no-edge cursor release",
                 failures,
             )
+    assert_true(
+        "close-intercept-no-forced-arrow-hysteresis-v43" in renderer_text,
+        "Settings resize behavior must record the no-forced-arrow hysteresis repair",
+        failures,
+    )
+    assert_true(
+        "if self._settings_should_clear_resize_cursor(screen_point):\n                        self._reset_settings_resize_cursor()"
+        in renderer_text,
+        "Settings WM_SETCURSOR no-edge path must not reset the resize cursor until hysteresis clears",
+        failures,
+    )
+    assert_true(
+        "elif message_id == WM_MOUSEMOVE:\n                        screen_point = self._settings_cursor_screen_point()\n                        if self._settings_should_clear_resize_cursor(screen_point):\n                            self._reset_settings_resize_cursor()"
+        in renderer_text,
+        "Settings WM_MOUSEMOVE no-edge path must not reset the resize cursor until hysteresis clears",
+        failures,
+    )
 
 
 def validate_resident_model(failures: list[str]):
@@ -371,8 +388,9 @@ def validate_static_wiring(failures: list[str]):
         "UINT_PTR(int(submenu))",
         "append_submenu(menu, quick_access_menu, \"Quick Access\", True)",
         "append_submenu(menu, ai_menu, \"AI\", True)",
-        "nexusDesktopTrayStatus",
-        "#07111f",
+        "nexusDesktopTrayPopup",
+        "QLabel[traySection='true']",
+        "rgba(105, 224, 244, 0.48)",
     ):
         assert_true(token in tray_text, f"tray resident access token missing: {token}", failures)
     assert_true(
@@ -463,7 +481,7 @@ def validate_static_wiring(failures: list[str]):
         "referenceDerivedHeader\", \"ndai-global-settings-centered-settings-chrome-v22",
         "dirtyGuardReference\", \"manage-monitors-modal-save-discard-cancel",
         "standardWindowArchitecture\", \"pyside-dialogchrome-native-edge-corner-hit-test-reference-derived",
-        "windowResizeBehavior\", \"uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42",
+        "windowResizeBehavior\", \"uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-no-forced-arrow-hysteresis-v43",
         "quickAccessLayoutPolicy\", \"uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42",
         "settingsRailPolishPolicy\", \"fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41",
         "settingsNavSizingPolicy\", \"font-metric-default-min-clamped-v39",
@@ -820,9 +838,36 @@ def validate_static_wiring(failures: list[str]):
             failures,
         )
 
+    show_popup_block = function_block(tray_text, "_show_tray_popup")
+    assert_true(show_popup_block, "styled tray popup show route is missing", failures)
     assert_true(
-        "button.setMinimumWidth(240)" in tray_text,
-        "tray resident action buttons must keep a stable readable hitbox",
+        "TRAY_STYLED_POPUP_REQUESTED" in show_popup_block,
+        "tray right-click must request the NDAI-styled tray popup",
+        failures,
+    )
+    assert_true(
+        "_show_native_tray_menu()" not in show_popup_block,
+        "native Windows tray menu must not be the primary right-click presentation",
+        failures,
+    )
+    assert_true(
+        "self.tray_popup.add_section_label(\"Quick Access\")" in tray_text,
+        "styled tray popup must present Quick Access as a compact category",
+        failures,
+    )
+    assert_true(
+        "self.tray_popup.add_section_label(\"AI\")" in tray_text,
+        "styled tray popup must present AI as a compact category",
+        failures,
+    )
+    assert_true(
+        "self.resident_status_label = None" in tray_text,
+        "tray menu must keep long resident status out of the right-click menu",
+        failures,
+    )
+    assert_true(
+        "button.setMinimumWidth(224)" in tray_text,
+        "tray resident action buttons must keep a compact stable readable hitbox",
         failures,
     )
     assert_true(

@@ -134,11 +134,12 @@ user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
 gdi32 = ctypes.windll.gdi32
 WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.wintypes.BOOL, ctypes.wintypes.HWND, ctypes.wintypes.LPARAM)
+HCURSOR = getattr(ctypes.wintypes, "HCURSOR", ctypes.wintypes.HANDLE)
 LoadCursorW = user32.LoadCursorW
-LoadCursorW.restype = ctypes.wintypes.HCURSOR
+LoadCursorW.restype = HCURSOR
 SetCursor = user32.SetCursor
-SetCursor.argtypes = [ctypes.wintypes.HCURSOR]
-SetCursor.restype = ctypes.wintypes.HCURSOR
+SetCursor.argtypes = [HCURSOR]
+SetCursor.restype = HCURSOR
 SetCapture = user32.SetCapture
 SetCapture.argtypes = [ctypes.wintypes.HWND]
 SetCapture.restype = ctypes.wintypes.HWND
@@ -1457,7 +1458,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setProperty("referenceComparatorRequired", "ui-reference-plus-product-grade-same-defect-comparator-v22")
         self.setProperty("standardWindowArchitecture", "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42")
+        self.setProperty("windowResizeBehavior", "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-no-forced-arrow-hysteresis-v43")
         self.setProperty("quickAccessLayoutPolicy", "uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42")
         self.setProperty("settingsRailPolishPolicy", "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41")
         self.setProperty("contentScalePolicy", "control-pill-anchored-proportional-content-scale-v32")
@@ -3681,7 +3682,9 @@ class ResidentAccessSettingsDialog(QDialog):
                     if hover_edges:
                         self._set_settings_resize_cursor(hover_edges)
                         return True, 1
-                    self._reset_settings_resize_cursor()
+                    screen_point = self._settings_cursor_screen_point()
+                    if self._settings_should_clear_resize_cursor(screen_point):
+                        self._reset_settings_resize_cursor()
                 if message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._settings_resize_active:
                     if message_id == WM_NCMOUSEMOVE:
                         edges = self._settings_resize_edges_for_hit_test(int(msg.wParam))
@@ -3692,7 +3695,9 @@ class ResidentAccessSettingsDialog(QDialog):
                     if edges:
                         self._set_settings_resize_cursor(edges)
                     elif message_id == WM_MOUSEMOVE:
-                        self._reset_settings_resize_cursor()
+                        screen_point = self._settings_cursor_screen_point()
+                        if self._settings_should_clear_resize_cursor(screen_point):
+                            self._reset_settings_resize_cursor()
                 if message_id == WM_LBUTTONDOWN:
                     screen_point, edges = self._settings_resize_edges_under_cursor()
                     if edges and self._start_settings_resize(edges, screen_point):

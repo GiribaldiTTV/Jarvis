@@ -1,4 +1,4 @@
-﻿"""Reference-conformance proof for FAM-003 Global Settings repair.
+"""Reference-conformance proof for FAM-003 Global Settings repair.
 
 This helper uses an isolated resident-access settings file so it can validate
 Quick Access behavior without mutating USER runtime preferences. It is
@@ -1406,11 +1406,13 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
     left_down = 0x0002
     left_up = 0x0004
 
+    hcursor_type = getattr(ctypes.wintypes, "HCURSOR", ctypes.wintypes.HANDLE)
+
     class CursorInfo(ctypes.Structure):
         _fields_ = [
             ("cbSize", ctypes.wintypes.DWORD),
             ("flags", ctypes.wintypes.DWORD),
-            ("hCursor", ctypes.wintypes.HCURSOR),
+            ("hCursor", hcursor_type),
             ("ptScreenPos", ctypes.wintypes.POINT),
         ]
 
@@ -1418,7 +1420,7 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
     get_cursor_info.argtypes = [ctypes.POINTER(CursorInfo)]
     get_cursor_info.restype = ctypes.c_bool
     load_cursor = user32.LoadCursorW
-    load_cursor.restype = ctypes.wintypes.HCURSOR
+    load_cursor.restype = hcursor_type
 
     def current_cursor_handle() -> tuple[int, bool]:
         info = CursorInfo()
@@ -2460,7 +2462,7 @@ def main() -> int:
             and 450 <= dialog.minimumHeight() <= 470
             and dialog.maximumWidth() == 840
             and dialog.maximumHeight() == 610
-            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42",
+            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-no-forced-arrow-hysteresis-v43",
             f"resized={resized_width}x{resized_height}; wide={wide_width}x{wide_height}; min={min_width}x{min_height}; grip_attr={hasattr(dialog, 'resize_grip')}; grip_widgets={len(dialog.findChildren(QFrame, 'residentAccessSettingsResizeGrip'))}; margin={dialog.RESIZE_MARGIN}; corner_margin={getattr(dialog, 'RESIZE_CORNER_MARGIN', None)}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -2531,7 +2533,7 @@ def main() -> int:
             and hasattr(drag_probe, "_start_settings_resize")
             and hasattr(drag_probe, "_finish_settings_resize")
             and drag_probe.property("windowResizeBehavior")
-            == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42",
+            == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-no-forced-arrow-hysteresis-v43",
             f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
         )
     )
@@ -3001,7 +3003,7 @@ def main() -> int:
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
             and dialog.property("standardWindowArchitecture") == "pyside-dialogchrome-native-edge-corner-hit-test-reference-derived"
-            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-cursor-release-hysteresis-v42"
+            and dialog.property("windowResizeBehavior") == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-no-forced-arrow-hysteresis-v43"
             and dialog.property("quickAccessLayoutPolicy") == "uiref-007-deterministic-row-width-combo-integrated-action-capsule-row-count-close-intercept-v42"
             and dialog.property("settingsRailPolishPolicy") == "fixed-gap-deterministic-text-width-sharpened-icons-horizontal-overflow-splitter-travel-v41"
             and dialog.property("contentScalePolicy") == "control-pill-anchored-proportional-content-scale-v32"
