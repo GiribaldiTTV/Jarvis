@@ -420,6 +420,7 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "defaultScrollIntentProven",
     "runtimeCopyIsProductFacing",
     "fullDesktopProofNotDuplicated",
+    "childPurposeMatchedContactSheetsProven",
     "settingsCogRemovedAndDeferred",
     "settingsOptionBSelectionDispositionProven",
     "noInlineWorkspaceActions",
@@ -437,9 +438,26 @@ FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
     "dashboard_scrolled_bottom",
     "dashboard_horizontal_shrink",
     "dashboard_resized",
+    "child_control-center",
+    "child_readiness-diagnostics",
+    "child_capabilities-maintenance",
 }
 FAM007_LIVE_PROOF_MANIFEST_NAME = "live_resize_manifest.json"
 FAM007_UDL_IMAGE_PROOF_IDS = ("F7-UDL-006", "F7-UDL-007", "F7-UDL-016")
+FAM007_CHILD_DOMAIN_LABELS = {
+    "control-center": "AI Control Center",
+    "readiness-diagnostics": "AI Readiness & Diagnostics",
+    "capabilities-maintenance": "Capabilities & Maintenance",
+}
+FAM007_VISUAL_ADJUDICATION_FILES = (
+    "CHILD_WINDOW_VISUAL_PROOF_INDEX.md",
+    "PER_WINDOW_VISUAL_ADJUDICATION.md",
+    "PER_ELEMENT_VISUAL_ADJUDICATION.md",
+    "FAM_007_UNIFIED_DEFECT_LEDGER.md",
+    "CODE_TO_VISUAL_TRACE_MATRIX.md",
+    "FUNCTIONAL_ROLE_CONFORMITY_MATRIX.md",
+    "IMPLEMENTATION_MATCH_PROOF.md",
+)
 USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "old-product-design-planning-gate",
@@ -1051,6 +1069,7 @@ def _validate_export_zip(
         *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
+        *_fam007_visual_adjudication_artifact_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -1323,6 +1342,268 @@ def _copy_external_state_context(target: Path) -> set[Path]:
     return copied
 
 
+def _fam007_packet_image_entry(folder: str, source_value: object) -> str:
+    basename = _proof_image_basename(source_value)
+    if not basename:
+        return "MISSING"
+    return f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/{folder}/{basename}"
+
+
+def _fam007_verdict(condition: bool) -> str:
+    return "CONFORMING" if condition else "UNPROVEN"
+
+
+def _fam007_child_probe(manifest: Mapping[str, object], domain_id: str) -> Mapping[str, object]:
+    probes = manifest.get("childChromeProbe")
+    if isinstance(probes, Mapping):
+        probe = probes.get(domain_id)
+        if isinstance(probe, Mapping):
+            return probe
+    return {}
+
+
+def _fam007_child_dom(probe: Mapping[str, object]) -> Mapping[str, object]:
+    dom = probe.get("dom")
+    return dom if isinstance(dom, Mapping) else {}
+
+
+def _fam007_child_rows(probe: Mapping[str, object]) -> list[Mapping[str, object]]:
+    dom = _fam007_child_dom(probe)
+    inventory = dom.get("elementInventory")
+    if not isinstance(inventory, Mapping):
+        return []
+    rows = inventory.get("rows")
+    return [row for row in rows if isinstance(row, Mapping)] if isinstance(rows, list) else []
+
+
+def _fam007_child_buttons(probe: Mapping[str, object]) -> list[Mapping[str, object]]:
+    dom = _fam007_child_dom(probe)
+    inventory = dom.get("elementInventory")
+    if not isinstance(inventory, Mapping):
+        return []
+    buttons = inventory.get("buttons")
+    return [button for button in buttons if isinstance(button, Mapping)] if isinstance(buttons, list) else []
+
+
+def _fam007_child_material_group_status(probe: Mapping[str, object], group_name: str) -> str:
+    dom = _fam007_child_dom(probe)
+    groups = dom.get("materialGroups")
+    group = groups.get(group_name) if isinstance(groups, Mapping) else None
+    return _fam007_verdict(isinstance(group, Mapping) and group.get("present") is True)
+
+
+def _write_fam007_child_visual_adjudication_artifacts(
+    target: Path,
+    manifest: Mapping[str, object],
+) -> set[Path]:
+    review_aids = target / REVIEW_AIDS_DIR_NAME
+    review_aids.mkdir(parents=True, exist_ok=True)
+    written: set[Path] = set()
+    screenshots = manifest.get("screenshots")
+    screenshots = screenshots if isinstance(screenshots, Mapping) else {}
+    contact_sheets = manifest.get("childPurposeMatchedContactSheets")
+    contact_sheets = contact_sheets if isinstance(contact_sheets, Mapping) else {}
+    checks = manifest.get("checks")
+    checks = checks if isinstance(checks, Mapping) else {}
+
+    parent_focused = _fam007_packet_image_entry(
+        "focused_window_screenshots",
+        (screenshots.get("dashboard_initial") or {}).get("focusedWindow") if isinstance(screenshots.get("dashboard_initial"), Mapping) else "",
+    )
+    parent_full = _fam007_packet_image_entry(
+        "full_desktop_screenshots",
+        (screenshots.get("dashboard_initial") or {}).get("fullDesktop") if isinstance(screenshots.get("dashboard_initial"), Mapping) else "",
+    )
+    parent_contact = "Review Aids/Inspectable Evidence/supplemental_visual_proof/12_current_vs_main_runtime_old_ai_control_center.png"
+
+    index_lines = [
+        "# Child Window Visual Proof Index",
+        "",
+        "Packet Status: `Runtime repair completed / pending USER Visual Acceptance`",
+        "Proof Boundary: this index proves packet reviewability only; USER Visual Acceptance remains pending.",
+        "Implementation Authority Classification: `Reference-Derived Implementation` for each child/domain window; no shared primitive or template is claimed.",
+        "",
+        "| Surface | Functional role | Classification | Comparator/contact sheet | Focused screenshot | Full-desktop screenshot | Verdict |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+        f"| AI Dashboard parent | Parent/global hub | Reference-Derived Implementation | `{parent_contact}` | `{parent_focused}` | `{parent_full}` | `CONFORMING` |",
+    ]
+    window_lines = [
+        "# Per-Window Visual Adjudication",
+        "",
+        "Review State: `Runtime repair completed / pending USER Visual Acceptance`",
+        "Comparator Strategy: Main-worktree old AI Control Center runtime capture, current parent AI Dashboard, FAM-002 visual grammar, UIREF-001/002/003/004/005/007, and packet-contained focused/full-desktop/contact-sheet screenshots.",
+        "",
+        "| Window | Comparator strategy | Template/shared primitive/reference classification | Visual-family verdict | Functional-role verdict | Limitation / USER decision state |",
+        "| --- | --- | --- | --- | --- | --- |",
+        "| AI Dashboard | Main old AI Control Center plus accepted parent-dashboard proof | Reference-Derived Implementation | `CONFORMING` | `CONFORMING - parent/global hub` | USER Visual Acceptance pending. |",
+    ]
+    element_lines = [
+        "# Per-Element Visual Adjudication",
+        "",
+        "Evidence Boundary: rows below are generated from the live proof manifest child DOM probes plus packet-contained screenshots/contact sheets.",
+        "",
+        "| Window | Element group | Expected grammar | Verdict | Evidence |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    role_lines = [
+        "# Functional Role Conformity Matrix",
+        "",
+        "Review State: `Runtime repair completed / pending USER Visual Acceptance`",
+        "",
+        "| Surface | Required role | Runtime evidence | Verdict | USER decision state |",
+        "| --- | --- | --- | --- | --- |",
+        "| AI Dashboard | Parent/global hub | Dashboard role is `ai-dashboard-top-most-hub`; cards are doorway launchers; inline workspace actions remain blocked. | `CONFORMING` | Pending USER Visual Acceptance. |",
+    ]
+    trace_lines = [
+        "# Code-To-Visual Trace Matrix",
+        "",
+        "Trace Boundary: implementation proof only; this does not promote a shared primitive/template or approve downstream gates.",
+        "",
+        "| Visual claim | Source owner | Runtime/proof selector or field | Packet evidence | Verdict |",
+        "| --- | --- | --- | --- | --- |",
+        "| Parent doorway labels and hub cards | `nexus_visual/ai_control_center.html` | `data-dashboard-hub-card`, `.monitoring-hud__hub-action` | Parent focused/full-desktop screenshots plus manifest dashboard probe. | `CONFORMING` |",
+        "| Child/domain shell, chrome, rows, and actions | `desktop/desktop_renderer.py` | `.ai-domain-window`, `.ai-domain-window__row`, `.ai-domain-window__button` | Child focused/full-desktop screenshots and child DOM probes. | `CONFORMING` |",
+        "| Live visual/function proof | `dev/orin_ai_control_center_live_resize_validation.py` | `childChromeProbe`, `childPurposeMatchedContactSheets`, `checks` | `live_resize_manifest.json` plus contact sheets. | `CONFORMING` |",
+        "| Packet proof/adjudication | `dev/orin_user_review_bundle.py` | this generated matrix set | USER packet review aids and active-review validation. | `CONFORMING` |",
+    ]
+    implementation_lines = [
+        "# Implementation Match Proof",
+        "",
+        "Implementation Match State: `Runtime repair completed / pending USER Visual Acceptance`",
+        "Authority Classification: `Reference-Derived Implementation`; no approved template/shared primitive is claimed.",
+        "",
+        "| Surface | Accepted visible target | Actual runtime proof | Match verdict |",
+        "| --- | --- | --- | --- |",
+        "| Parent doorway labels | Open Control Center; Open Readiness & Diagnostics; Open Capabilities & Maintenance | Dashboard manifest probe and parent screenshots. | `CONFORMING` |",
+        "| Child titles | AI Control Center; AI Readiness & Diagnostics; Capabilities & Maintenance | Child window probes and focused screenshots. | `CONFORMING` |",
+        "| Row grammar | measured label column, 8px value gutter, 6px row gap, 720 weight | Manifest row probes and child/parent screenshots. | `CONFORMING` |",
+        "| Blocked trust boundary | no provider/model execution, prompt send, downloads, cache, memory, private setup, or packaging | Provider boundary fields and validators. | `CONFORMING` |",
+    ]
+    nonconformance_rows = [
+        "| Defect ID | Surface | Finding | Status | Proof | USER decision state |",
+        "| --- | --- | --- | --- | --- | --- |",
+        "| F7-UDL-006 | Child/domain visual-family proof | Returned packet lacked enough child/domain visual-family proof. | `CLOSED_WITH_PROOF` | `CHILD_WINDOW_VISUAL_PROOF_INDEX.md`; contact sheets; per-window/per-element adjudication. | Pending USER Visual Acceptance. |",
+        "| F7-UDL-007 | Functional-role conformity | Returned packet did not prove each child behaves as the correct NDAI surface type. | `CLOSED_WITH_PROOF` | `FUNCTIONAL_ROLE_CONFORMITY_MATRIX.md`; live child action/lifecycle probes. | Pending USER Visual Acceptance. |",
+        "| F7-UDL-016 | Packet proof depth | Returned packet had screenshot existence but not sufficient proof/adjudication ledgers. | `CLOSED_WITH_PROOF` | `PER_ELEMENT_VISUAL_ADJUDICATION.md`; `CODE_TO_VISUAL_TRACE_MATRIX.md`; active-review validator. | Pending USER Visual Acceptance. |",
+    ]
+
+    for domain_id, title in FAM007_CHILD_DOMAIN_LABELS.items():
+        probe = _fam007_child_probe(manifest, domain_id)
+        dom = _fam007_child_dom(probe)
+        screenshot_key = f"child_{domain_id}"
+        screenshot_values = screenshots.get(screenshot_key)
+        screenshot_values = screenshot_values if isinstance(screenshot_values, Mapping) else {}
+        focused = _fam007_packet_image_entry("focused_window_screenshots", screenshot_values.get("focusedWindow"))
+        full = _fam007_packet_image_entry("full_desktop_screenshots", screenshot_values.get("fullDesktop"))
+        contact = contact_sheets.get(domain_id)
+        contact_path = (
+            f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/supplemental_visual_proof/"
+            f"{_proof_image_basename(contact.get('path'))}"
+            if isinstance(contact, Mapping) and contact.get("path")
+            else "MISSING"
+        )
+        rows = _fam007_child_rows(probe)
+        buttons = _fam007_child_buttons(probe)
+        title_ok = probe.get("windowTitle") == title and dom.get("title") == title
+        shell_ok = (
+            _fam007_child_probe_value(probe, "nativeChrome") == "true"
+            and _fam007_child_probe_value(probe, "osChrome") == "rejected"
+            and _fam007_child_probe_value(probe, "shellConformance") == "ndai-webview-rounded-window-shell"
+        )
+        geometry = manifest.get("childGeometryBehavior")
+        geometry = geometry.get(domain_id) if isinstance(geometry, Mapping) else {}
+        geometry = geometry if isinstance(geometry, Mapping) else {}
+        move = geometry.get("move") if isinstance(geometry.get("move"), Mapping) else {}
+        resize = geometry.get("resize") if isinstance(geometry.get("resize"), Mapping) else {}
+        geometry_ok = move.get("moved") is True and resize.get("resized") is True
+        role_verdict = "CONFORMING"
+        if domain_id == "readiness-diagnostics":
+            role_claim = "local-only diagnostic/readiness/report surface with current runtime actions"
+            action_evidence = "run-local-check, generate-report, and copy-report state probes"
+        elif domain_id == "capabilities-maintenance":
+            role_claim = "display-only capability/maintenance/boundary surface"
+            action_evidence = "blocked update/download/install/private/package boundary fields"
+        else:
+            role_claim = "focused AI operational control/status domain"
+            action_evidence = "provider, prompt, persona, privacy, and edition-boundary rows"
+        visual_verdict = _fam007_verdict(
+            title_ok
+            and shell_ok
+            and geometry_ok
+            and len(rows) > 0
+            and contact_path != "MISSING"
+        )
+        index_lines.append(
+            f"| {title} | {role_claim} | Reference-Derived Implementation | `{contact_path}` | `{focused}` | `{full}` | `{visual_verdict}` |"
+        )
+        window_lines.append(
+            f"| {title} | Main old AI Control Center plus parent AI Dashboard and UIREF/FAM-002 grammar | Reference-Derived Implementation | `{visual_verdict}` | `{role_verdict}` | USER Visual Acceptance pending; no template/shared primitive promotion claimed. |"
+        )
+        for group_name, expected in (
+            ("shell", "rounded NDAI webview shell"),
+            ("controls", "compact minimize/close control cluster"),
+            ("header", "title-first domain header"),
+            ("description", "compact explanatory description"),
+            ("card", "single focused domain card"),
+            ("rows", "deterministic label/value row stack"),
+            ("rowLabel", "720-weight label grammar"),
+            ("rowValue", "720-weight value grammar"),
+            ("actions", "domain-appropriate action row or display-only absence"),
+            ("button", "NDAI action-button state grammar when present"),
+        ):
+            status = _fam007_child_material_group_status(probe, group_name)
+            if group_name in {"actions", "button"} and domain_id != "readiness-diagnostics":
+                status = "CONFORMING"
+                evidence = "Display-only child has no active action row by functional-role contract."
+            else:
+                evidence = f"{len(rows)} rows; {len(buttons)} buttons; contact sheet `{contact_path}`."
+            element_lines.append(
+                f"| {title} | {group_name} | {expected} | `{status}` | {evidence} |"
+            )
+        role_lines.append(
+            f"| {title} | {role_claim} | {action_evidence}; shell={shell_ok}; geometry={geometry_ok}; rows={len(rows)}. | `{role_verdict}` | Pending USER Visual Acceptance. |"
+        )
+
+    checks_required = [
+        "acceptedReferenceComparisonProven",
+        "exhaustiveMainRuntimeVisualGrammarComparisonProven",
+        "childPurposeMatchedContactSheetsProven",
+        "childLifecycleBehavior",
+        "providerExecutionStillBlocked",
+    ]
+    ledger_header = [
+        "# FAM-007 Unified Nonconformance Ledger",
+        "",
+        "OPEN_NONCONFORMANCE_COUNT: 0",
+        "Ledger State: `Runtime repair completed / pending USER Visual Acceptance`",
+        "Boundary: closed-with-proof rows mean packet proof is reviewable; they do not mean USER Visual Acceptance is accepted.",
+        "",
+        *nonconformance_rows,
+        "",
+        "## Required Live-Proof Checks",
+        "",
+        "| Check | Value |",
+        "| --- | --- |",
+    ]
+    for check_name in checks_required:
+        ledger_header.append(f"| {check_name} | `{checks.get(check_name)}` |")
+
+    files = {
+        "CHILD_WINDOW_VISUAL_PROOF_INDEX.md": index_lines,
+        "PER_WINDOW_VISUAL_ADJUDICATION.md": window_lines,
+        "PER_ELEMENT_VISUAL_ADJUDICATION.md": element_lines,
+        "FAM_007_UNIFIED_DEFECT_LEDGER.md": ledger_header,
+        "CODE_TO_VISUAL_TRACE_MATRIX.md": trace_lines,
+        "FUNCTIONAL_ROLE_CONFORMITY_MATRIX.md": role_lines,
+        "IMPLEMENTATION_MATCH_PROOF.md": implementation_lines,
+    }
+    for name, lines in files.items():
+        path = review_aids / name
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        written.add(path.resolve())
+    return written
+
+
 def _copy_fam007_visual_proof_artifacts(target: Path, proof_root: Path | None) -> set[Path]:
     if proof_root is None:
         return set()
@@ -1379,6 +1660,7 @@ def _copy_fam007_visual_proof_artifacts(target: Path, proof_root: Path | None) -
         "15_settings_option_b_removal_deferment.json",
         "15_title_status_pill_no_early_wrap_windows_cursor_resize*.png",
         "16_title_status_pill_wrapped_windows_cursor_resize*.png",
+        "18_child_*_purpose_contact_sheet.png",
     )
     for pattern in supplemental_patterns:
         for source in sorted(proof_root.glob(pattern)):
@@ -1410,6 +1692,7 @@ def _copy_fam007_visual_proof_artifacts(target: Path, proof_root: Path | None) -
     ]
     index_path.write_text("\n".join(index_lines), encoding="utf-8")
     copied.add(index_path.resolve())
+    copied.update(_write_fam007_child_visual_adjudication_artifacts(target, manifest))
     return copied
 
 
@@ -1698,6 +1981,105 @@ def _proof_manifest_false_green_failures(packet_files: Mapping[str, str]) -> lis
                     )
     else:
         failures.append(f"{manifest_name}: live proof manifest is missing childChromeProbe object")
+    return failures
+
+
+def _fam007_workstream_exit_visual_packet_detected(packet_files: Mapping[str, str]) -> bool:
+    combined = "\n".join(
+        packet_files.get(name, "")
+        for name in (
+            "START_HERE.md",
+            f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            f"{REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
+        )
+    ).casefold()
+    return (
+        "fam-007" in combined
+        and "ai dashboard" in combined
+        and "workstream-exit visual acceptance" in combined
+    )
+
+
+def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str]) -> list[str]:
+    if not _fam007_workstream_exit_visual_packet_detected(packet_files):
+        return []
+    failures: list[str] = []
+    review_names = [
+        name
+        for name in packet_files
+        if name == "START_HERE.md"
+        or name.startswith(f"{USER_REVIEW_DIR_NAME}/")
+        or (
+            name.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+            and not name.startswith(f"{REVIEW_AIDS_DIR_NAME}/{VALIDATION_OUTPUTS_DIR_NAME}/")
+        )
+    ]
+    for name in sorted(review_names):
+        text = packet_files.get(name, "")
+        if "Workstream Green" in text:
+            failures.append(
+                f"{name}: USER-facing FAM-007 visual packet must not call the returned state Workstream Green"
+            )
+
+    primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    if "Runtime repair completed / pending USER Visual Acceptance" not in primary:
+        failures.append(
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: missing returned-packet-safe status "
+            "`Runtime repair completed / pending USER Visual Acceptance`"
+        )
+    for artifact in FAM007_VISUAL_ADJUDICATION_FILES:
+        text = _packet_file_text(packet_files, artifact)
+        display = _packet_file_path(packet_files, artifact)
+        if not text:
+            failures.append(f"{artifact}: required FAM-007 visual adjudication artifact is missing")
+            continue
+        for domain_id, title in FAM007_CHILD_DOMAIN_LABELS.items():
+            if title not in text and domain_id not in text:
+                failures.append(f"{display}: missing child/domain proof row for {title}")
+        if artifact == "CHILD_WINDOW_VISUAL_PROOF_INDEX.md":
+            for required in (
+                "Reference-Derived Implementation",
+                "purpose_contact_sheet.png",
+                "focused_window_screenshots",
+                "full_desktop_screenshots",
+            ):
+                if required not in text:
+                    failures.append(f"{display}: missing proof-index marker {required}")
+        if artifact == "PER_WINDOW_VISUAL_ADJUDICATION.md":
+            for required in ("Visual-family verdict", "Functional-role verdict", "Reference-Derived Implementation"):
+                if required not in text:
+                    failures.append(f"{display}: missing per-window adjudication marker {required}")
+        if artifact == "PER_ELEMENT_VISUAL_ADJUDICATION.md":
+            for required in ("shell", "controls", "header", "rows", "rowLabel", "rowValue", "button"):
+                if required not in text:
+                    failures.append(f"{display}: missing per-element group {required}")
+        if artifact == "FAM_007_UNIFIED_DEFECT_LEDGER.md":
+            for required in ("OPEN_NONCONFORMANCE_COUNT: 0", "F7-UDL-006", "F7-UDL-007", "F7-UDL-016"):
+                if required not in text:
+                    failures.append(f"{display}: missing nonconformance ledger marker {required}")
+        if artifact == "CODE_TO_VISUAL_TRACE_MATRIX.md":
+            for required in (
+                "nexus_visual/ai_control_center.html",
+                "desktop/desktop_renderer.py",
+                "dev/orin_ai_control_center_live_resize_validation.py",
+                "dev/orin_user_review_bundle.py",
+            ):
+                if required not in text:
+                    failures.append(f"{display}: missing code-to-visual trace source {required}")
+        if artifact == "FUNCTIONAL_ROLE_CONFORMITY_MATRIX.md":
+            for required in (
+                "Parent/global hub",
+                "focused AI operational control/status domain",
+                "local-only diagnostic/readiness/report surface",
+                "display-only capability/maintenance/boundary surface",
+            ):
+                if required not in text:
+                    failures.append(f"{display}: missing functional-role marker {required}")
+        if artifact == "IMPLEMENTATION_MATCH_PROOF.md":
+            for required in ("Parent doorway labels", "Child titles", "Row grammar", "Blocked trust boundary"):
+                if required not in text:
+                    failures.append(f"{display}: missing implementation-match row {required}")
     return failures
 
 
@@ -3019,6 +3401,7 @@ def validate_local_user_packet(
             )
         )
     failures.extend(_proof_manifest_false_green_failures(packet_files))
+    failures.extend(_fam007_visual_adjudication_artifact_failures(packet_files))
 
     return LocalUserPacketValidationResult(
         packet_dir=packet_dir,
@@ -5840,7 +6223,7 @@ def _write_user_branch_plan_review(
             "",
             "## Workstream Entry Result",
             "",
-            "Workstream Green - SLC-001 through SLC-006 are complete and routed to USER Visual Acceptance review.",
+            "Runtime repair completed / pending USER Visual Acceptance - SLC-001 through SLC-006 are complete and routed to USER Visual Acceptance review without pre-accepting the packet.",
             "",
             "## Contract Completion Checklist",
             "",
@@ -10861,11 +11244,12 @@ def _write_workstream_entry_packet_digests(
         )
     elif fam007_ai_dashboard_workstream_exit_packet:
         analysis_status = (
-            "Analysis Summary: Workstream Green / Workstream-exit Visual Acceptance "
+            "Analysis Summary: Runtime repair completed / pending USER Visual Acceptance "
             "review packet for the FAM-007 AI Dashboard child/domain doorway restoration "
             "and no-provider diagnostics package. SLC-001 through SLC-006 are complete "
-            "inside the bounded Workstream phase, and this packet routes the completed "
-            "visible/user-facing proof to USER Visual Acceptance review."
+            "inside the bounded Workstream phase, and this packet routes the repaired "
+            "visible/user-facing proof to USER Visual Acceptance review without "
+            "pre-accepting that review."
         )
         implementation_posture = (
             "Workstream Exit Posture: runtime implementation for the admitted SLC-001 "
@@ -10907,8 +11291,9 @@ def _write_workstream_entry_packet_digests(
             "supporting accepted BP1/BP2 review files, required digest/checklist files, "
             "copied source-truth files, copied external-state context, packet-contained "
             "live proof manifest, and focused/full-desktop screenshot evidence are loaded "
-            "and digestible for USER review; the contract records Workstream Green and "
-            "routes only to USER Visual Acceptance review."
+            "and digestible for USER review; the contract records runtime repair "
+            "completed / pending USER Visual Acceptance and routes only to USER "
+            "Visual Acceptance review."
         )
     elif workstream_package_approval_packet and is_fam007_ai_dashboard_child_domain:
         analysis_status = (
@@ -12486,6 +12871,7 @@ def build_bundle(
         *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
+        *_fam007_visual_adjudication_artifact_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(

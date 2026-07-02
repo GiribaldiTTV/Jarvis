@@ -498,6 +498,22 @@ def _write_side_by_side_board(
     }
 
 
+def _write_child_contact_sheet(
+    comparator_path: Path,
+    child_path: Path,
+    out_path: Path,
+    comparator_label: str,
+    child_label: str,
+) -> dict[str, object]:
+    return _write_side_by_side_board(
+        comparator_path,
+        child_path,
+        out_path,
+        comparator_label,
+        child_label,
+    )
+
+
 def _write_settings_option_b_disposition(log_root: Path) -> dict[str, object]:
     manifest_path = log_root / "15_settings_option_b_removal_deferment.json"
     payload = {
@@ -1423,6 +1439,68 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
         (() => {
           const surface = document.querySelector("[data-ai-dashboard-child-window]");
           const title = document.querySelector(".ai-domain-window__title");
+          const cssText = Array.from(document.styleSheets).map((sheet) => {
+            try {
+              return Array.from(sheet.cssRules || []).map((rule) => rule.cssText || "").join("\\n");
+            } catch (error) {
+              return "";
+            }
+          }).join("\\n");
+          const rectFor = (node) => {
+            if (!node) return null;
+            const rect = node.getBoundingClientRect();
+            return {
+              left: Math.round(rect.left),
+              top: Math.round(rect.top),
+              right: Math.round(rect.right),
+              bottom: Math.round(rect.bottom),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height)
+            };
+          };
+          const styleFor = (node) => {
+            if (!node) return {};
+            const style = getComputedStyle(node);
+            return {
+              display: style.display,
+              gridTemplateColumns: style.gridTemplateColumns,
+              gap: style.gap,
+              columnGap: style.columnGap,
+              rowGap: style.rowGap,
+              padding: `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`,
+              fontSize: style.fontSize,
+              fontWeight: style.fontWeight,
+              letterSpacing: style.letterSpacing,
+              color: style.color,
+              backgroundColor: style.backgroundColor,
+              borderRadius: style.borderRadius,
+              borderTopWidth: style.borderTopWidth,
+              borderTopColor: style.borderTopColor,
+              boxShadow: style.boxShadow,
+              overflow: style.overflow,
+              whiteSpace: style.whiteSpace
+            };
+          };
+          const textForNode = (node) => (node?.textContent || "").replace(/\\s+/g, " ").trim();
+          const group = (name, selector) => {
+            const node = document.querySelector(selector);
+            return {
+              name,
+              selector,
+              present: Boolean(node),
+              rect: rectFor(node),
+              style: styleFor(node),
+              text: textForNode(node).slice(0, 220)
+            };
+          };
+          const all = (selector) => [...document.querySelectorAll(selector)].map((node, index) => ({
+            index,
+            rect: rectFor(node),
+            style: styleFor(node),
+            text: textForNode(node).slice(0, 220),
+            id: node.id || "",
+            dataset: Object.assign({}, node.dataset || {})
+          }));
           const workspaceNodes = [...document.querySelectorAll("[data-domain-workspace]")];
           const readinessWorkspace = document.querySelector("[data-domain-workspace='readiness-diagnostics']");
           const capabilityWorkspace = document.querySelector("[data-domain-workspace='capabilities-maintenance']");
@@ -1451,6 +1529,55 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             stateTaxonomyRequiredStates: surface?.dataset.stateTaxonomyRequiredStates || "",
             stateTaxonomyRenderedStates: surface?.dataset.stateTaxonomyRenderedStates || "",
             stateTaxonomyComplete: surface?.dataset.stateTaxonomyComplete || "",
+            rowLabelColumnSource: surface?.dataset.rowLabelColumnSource || "",
+            rowValueColumnContract: surface?.dataset.rowValueColumnContract || "",
+            rowValueGutter: surface?.dataset.rowValueGutter || "",
+            rowVerticalGutter: surface?.dataset.rowVerticalGutter || "",
+            materialGroups: {
+              shell: group("shell", ".ai-domain-window"),
+              chrome: group("chrome", ".ai-domain-window__chrome"),
+              controls: group("controls", ".ai-domain-window__controls"),
+              controlButton: group("controlButton", ".ai-domain-window__control"),
+              header: group("header", ".ai-domain-window__header"),
+              kicker: group("kicker", ".ai-domain-window__kicker"),
+              title: group("title", ".ai-domain-window__title"),
+              description: group("description", ".ai-domain-window__description"),
+              card: group("card", ".ai-domain-window__card"),
+              cardHeading: group("cardHeading", ".ai-domain-window__card-heading"),
+              cardNumber: group("cardNumber", ".ai-domain-window__card-number"),
+              cardTitle: group("cardTitle", ".ai-domain-window__card-title"),
+              cardDescription: group("cardDescription", ".ai-domain-window__card-description"),
+              rows: group("rows", ".ai-domain-window__rows"),
+              row: group("row", ".ai-domain-window__row"),
+              rowLabel: group("rowLabel", ".ai-domain-window__row span"),
+              rowValue: group("rowValue", ".ai-domain-window__row strong"),
+              actions: group("actions", ".ai-domain-window__actions"),
+              button: group("button", ".ai-domain-window__button")
+            },
+            elementInventory: {
+              rows: all(".ai-domain-window__row").map((row) => ({
+                index: row.index,
+                text: row.text,
+                rect: row.rect,
+                gridTemplateColumns: row.style.gridTemplateColumns,
+                columnGap: row.style.columnGap,
+                rowGap: row.style.rowGap,
+                label: document.querySelectorAll(".ai-domain-window__row")[row.index]?.querySelector("span")?.textContent.trim() || "",
+                value: document.querySelectorAll(".ai-domain-window__row")[row.index]?.querySelector("strong")?.textContent.trim() || ""
+              })),
+              buttons: all(".ai-domain-window__button"),
+              controls: all(".ai-domain-window__control")
+            },
+            cssStateSelectors: {
+              buttonHover: cssText.includes(".ai-domain-window__button:hover"),
+              buttonFocus: cssText.includes(".ai-domain-window__button:focus-visible"),
+              buttonPressed: cssText.includes(".ai-domain-window__button:active"),
+              buttonDisabled: cssText.includes(".ai-domain-window__button:disabled"),
+              windowControlHover: cssText.includes(".ai-domain-window__control:hover"),
+              windowControlFocus: cssText.includes(".ai-domain-window__control:focus-visible"),
+              windowControlPressed: cssText.includes(".ai-domain-window__control:active"),
+              customScrollbar: cssText.includes(".ai-domain-window__chrome::-webkit-scrollbar-thumb")
+            },
             viewModelContract: surface?.dataset.viewModelContract || "",
             viewModelSource: surface?.dataset.viewModelSource || "",
             viewModelState: surface?.dataset.viewModelState || "",
@@ -2743,6 +2870,7 @@ def main() -> int:
     }
     child_chrome_probe = {}
     child_geometry_behavior = {}
+    child_comparison_boards = {}
     readiness_result = {}
     singleton_focus = {}
     child_control_behavior = {}
@@ -2877,6 +3005,19 @@ def main() -> int:
                 log_root,
                 f"17_child_{domain_id}",
             )
+            reference_focus = Path(str(main_runtime_ai_control_center_reference.get("focusedWindow", "")))
+            child_focus = Path(screenshots[f"child_{domain_id}"]["focusedWindow"])
+            child_comparison_boards[domain_id] = _write_child_contact_sheet(
+                reference_focus,
+                child_focus,
+                log_root / f"18_child_{domain_id}_purpose_contact_sheet.png",
+                "Main runtime old AI Control Center",
+                f"{contract['title']} child/domain",
+            ) if reference_focus.exists() else {
+                "ok": False,
+                "reason": "missing-main-runtime-comparator",
+                "domain": domain_id,
+            }
             opened_desktop_hashes[domain_id] = _hash_file(
                 screenshots[f"child_{domain_id}"]["fullDesktop"]
             )
@@ -3980,6 +4121,10 @@ def main() -> int:
             and len(opened_desktop_hashes) == 3
             and duplicate_full_desktop_proof is False
         ),
+        "childPurposeMatchedContactSheetsProven": (
+            set(child_comparison_boards.keys()) == set(expected_doorway_buttons.keys())
+            and all(board.get("ok") is True for board in child_comparison_boards.values())
+        ),
         "dashboardResizeStillWorks": (
             dashboard_resize_proof["widthDelta"] >= 30
             and dashboard_resize_proof["heightDelta"] >= 20
@@ -4049,6 +4194,7 @@ def main() -> int:
         "defaultScrollIntentProbe": scrolled_probe,
         "childChromeProbe": child_chrome_probe,
         "childControlBehavior": child_control_behavior,
+        "childPurposeMatchedContactSheets": child_comparison_boards,
         "fullDesktopHashes": opened_desktop_hashes,
         "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {
