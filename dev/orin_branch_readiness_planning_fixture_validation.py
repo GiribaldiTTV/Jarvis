@@ -3568,6 +3568,7 @@ def _validate_visual_acceptance_enforcement_text(text: str) -> list[str]:
     required_markers = (
         "Material Visible Change Classification:",
         "Visual Acceptance Target Plan:",
+        "Render Authority Level:",
         "Implementation Authority Classification:",
         "Accepted Reference Set / Comparative Synthesis:",
         "Visual Family Relation Proof:",
@@ -4198,6 +4199,7 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
     branch_plan_text = branch_plan_readme.read_text(encoding="utf-8")
     for required_label in (
         "Implementation Authority Classification:",
+        "Render Authority Level:",
         "Reviewable Visual Acceptance Target Path:",
         "Visual Family Relation Proof:",
         "Functionality Role Contract:",
@@ -4227,6 +4229,20 @@ def _validate_visual_acceptance_enforcement_fixtures() -> list[str]:
         failures.append(
             "Valid Visual Acceptance enforcement fixture unexpectedly failed: "
             + "; ".join(valid_failures[:5])
+        )
+
+    generated_missing_render_authority = valid_text.replace(
+        "Render Authority Level: Visual Acceptance Target - reviewable target packet exists before Workstream and USER acceptance remains pending.\n\n",
+        "",
+    )
+    generated_missing_render_authority_failures = "\n".join(
+        _validate_visual_acceptance_enforcement_text(
+            generated_missing_render_authority
+        )
+    )
+    if "Visual Acceptance Chain Missing: Render Authority Level:" not in generated_missing_render_authority_failures:
+        failures.append(
+            "Generated Visual Acceptance fixture did not reject missing Render Authority Level"
         )
 
     invalid_cases = (
