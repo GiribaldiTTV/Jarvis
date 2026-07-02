@@ -259,6 +259,15 @@ USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...]
 )
 MIN_PRIMARY_REVIEW_WORDS = 80
 MIN_PRIMARY_REVIEW_CHARACTERS = 500
+_FALSE_GREEN_ACCEPTANCE_TARGET = (
+    r"(?:USER\s+visual\s+acceptance|USER\s+acceptance|USER\s+accepted|"
+    r"product\s+acceptance|product\s+accepted|visual\s+acceptance|"
+    r"visual\s+accepted|accepted|acceptance)\b"
+)
+_FALSE_GREEN_PENDING_NEGATION = (
+    r"(?!\s*(?:[,;:.-]\s*)?(?:which\s+)?"
+    r"(?:remains|stays|is\s+pending|pending|requires|only\s+after|after|until|separate))"
+)
 FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "stale-dev-owner-skeleton-accepted",
@@ -278,7 +287,65 @@ FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ),
     (
         "packet-validation-as-acceptance",
-        re.compile(r"packet validation (?:equals|is)\s+USER acceptance", re.IGNORECASE),
+        re.compile(
+            r"(?:packet validation|validation pass(?:ed)?)\s+(?:proves|equals|is|means)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION,
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "packet-reviewability-as-product-acceptance",
+        re.compile(
+            r"(?:"
+            r"(?:packet reviewability|reviewable packet|reviewable status|reviewability status|packet status)\s+"
+            r"(?:proves|equals|is|means)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION
+            + r")",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "screenshot-as-visual-acceptance",
+        re.compile(
+            r"(?:screenshot(?:s|\s+(?:paths?|existence|exists))?\s+"
+            r"(?:prove(?:s)?|equals|mean(?:s)?|is|therefore)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION
+            + r"|"
+            r"screenshot exists therefore accepted)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "helper-green-as-visual-acceptance",
+        re.compile(
+            r"(?:(?:helper|validator)(?:\s+(?:output|result|validation))?"
+            r"\s+(?:green|pass(?:ed)?)|validation\s+pass(?:ed)?)\s+"
+            r"(?:proves|equals|means|is|therefore)\s+"
+            + _FALSE_GREEN_ACCEPTANCE_TARGET
+            + _FALSE_GREEN_PENDING_NEGATION,
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "css-similarity-as-visual-family-proof",
+        re.compile(
+            r"css(?:\s+marker)?\s+similarity\s+(?:proves|equals|means|is)\s+visual family",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "uiref-citation-as-visual-proof",
+        re.compile(
+            r"(?:UIREF citation alone is sufficient|reference cited but not compared|"
+            r"(?:UIREF|reference)\s+citation\s+(?:alone\s+)?(?:proves|equals|means|is)\s+"
+            r"(?:(?:visual|product)\s+)?(?:acceptance|accepted|proof|sufficient)"
+            + _FALSE_GREEN_PENDING_NEGATION
+            + r")",
+            re.IGNORECASE,
+        ),
     ),
 )
 REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
