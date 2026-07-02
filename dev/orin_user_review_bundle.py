@@ -1895,12 +1895,62 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
             return "USER Review ZIP SHA256: <self-referential-zip-sha>"
         return match.group(0)
 
-    return re.sub(
+    normalized = re.sub(
         r"^USER Review ZIP SHA256:\s*`?([^`\n]+)`?\s*$",
         replace_zip_sha,
         normalized,
         flags=re.IGNORECASE | re.MULTILINE,
     )
+    post_zip_receipt_normalizers = (
+        (
+            r"^(State Version|Plan Version):\s*`?[^`\n]+`?\s*$",
+            r"\1: <post-zip-reconciled-external-version>",
+        ),
+        (
+            r"^Last Updated:\s*`?[^`\n]+`?\s*$",
+            "Last Updated: <post-zip-reconciled-updated-at>",
+        ),
+        (
+            r"^External State Current Acceptance Receipt:\s*`?RETURNED_WORKSTREAM_VISUAL_PROOF_QUALITY_ADJUDICATION_REPAIR_PACKET(?:_PREZIP)?_CURRENT\b.*$",
+            "External State Current Acceptance Receipt: <post-zip-reconciled-current-receipt>",
+        ),
+        (
+            r"^External State Item Status:\s*`?Returned-packet proof-quality/adjudication repair is source/helper/live-proof(?:/packet-validation)? PASS\b.*$",
+            "External State Item Status: <post-zip-reconciled-item-status>",
+        ),
+        (
+            r"^Stage:\s*`?Returned Workstream-exit proof-quality / visual-adjudication repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.`?\s*$",
+            "Stage: <post-zip-reconciled-stage>",
+        ),
+        (
+            r"^Current Snapshot Boundary:\s*`?CURRENT authority is the header plus the Returned Workstream Visual Proof-Quality / Adjudication Repair\b.*$",
+            "Current Snapshot Boundary: <post-zip-reconciled-snapshot-boundary>",
+        ),
+        (
+            r"^## Returned Workstream Visual Proof-Quality / Adjudication Repair (?:Pre-ZIP|Packet) Receipt - .*$",
+            "## Returned Workstream Visual Proof-Quality / Adjudication Repair <post-zip-reconciled-receipt>",
+        ),
+        (
+            r"^Receipt Status:\s*`?RETURNED_WORKSTREAM_VISUAL_PROOF_QUALITY_ADJUDICATION_REPAIR_PACKET(?:_PREZIP)?_CURRENT`?\s*$",
+            "Receipt Status: <post-zip-reconciled-current-receipt-status>",
+        ),
+        (
+            r"^Post-ZIP Receipt:\s*`?[^`\n]+`?\s*$",
+            "",
+        ),
+        (
+            r"^Validation:\s*`?(?:PRE-ZIP )?PASS - .*?(?:pending post-ZIP receipt\.|final ZIP SHA256 sidecar proof\.)`?\s*$",
+            "Validation: <post-zip-reconciled-validation>",
+        ),
+    )
+    for pattern, replacement in post_zip_receipt_normalizers:
+        normalized = re.sub(pattern, replacement, normalized, flags=re.IGNORECASE | re.MULTILINE)
+    normalized = re.sub(
+        r"(USER Review ZIP SHA256: <self-referential-zip-sha>)\n\n(Validation: <post-zip-reconciled-validation>)",
+        r"\1\n\2",
+        normalized,
+    )
+    return re.sub(r"\n{3,}", "\n\n", normalized).strip()
 
 
 def _accepted_historical_context_posture_failures(
