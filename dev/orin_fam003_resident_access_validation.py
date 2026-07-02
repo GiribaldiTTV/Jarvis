@@ -860,6 +860,31 @@ def validate_static_wiring(failures: list[str]):
         "styled tray popup must present AI as a compact category",
         failures,
     )
+    option_c_proof_validator = ROOT / "dev" / "orin_fam003_option_c_workstream_proof_validation.py"
+    assert_true(
+        option_c_proof_validator.exists(),
+        "Option C Workstream review packets must have a direct tray/NCP proof validator",
+        failures,
+    )
+    option_c_proof_text = (
+        option_c_proof_validator.read_text(encoding="utf-8")
+        if option_c_proof_validator.exists()
+        else ""
+    )
+    assert_true(
+        "F3-WS-PROOF-TRAY-001" in option_c_proof_text
+        and "01_tray_styled_popup_focused.png" in option_c_proof_text
+        and "native menu not primary" in option_c_proof_text,
+        "tray PASS must require packet-contained styled-popup visual proof, not route-only proof",
+        failures,
+    )
+    assert_true(
+        "F3-WS-PROOF-NCP-001" in option_c_proof_text
+        and "10_ncp_entry_typed_request.png" in option_c_proof_text
+        and "13_ncp_result_launch_requested.png" in option_c_proof_text,
+        "NCP PASS must require packet-contained typed/choose/confirm/result visual proof",
+        failures,
+    )
     assert_true(
         "self.resident_status_label = None" in tray_text,
         "tray menu must keep long resident status out of the right-click menu",
