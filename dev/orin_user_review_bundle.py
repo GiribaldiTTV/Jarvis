@@ -3482,6 +3482,88 @@ def _packet_identity_failures(
     return failures
 
 
+def _bp3_active_state_consistency_failures(
+    packet_files: Mapping[str, str],
+    *,
+    status: str,
+) -> list[str]:
+    if status != DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        return []
+
+    failures: list[str] = []
+    expected_terms = (
+        "bp3",
+        "workstream entry",
+        "orchestration validation",
+    )
+    blocked_terms = (
+        "workstream implementation remains blocked",
+        "implementation remains blocked",
+        "runtime implementation approval: `blocked`",
+    )
+    stale_active_patterns = (
+        re.compile(r"\bBP1\b.*\bUSER response pending\b", re.IGNORECASE),
+        re.compile(r"\bBP2\b.*\bUSER response pending\b", re.IGNORECASE),
+        re.compile(r"\bBP1\b.*\bcurrent\b", re.IGNORECASE),
+        re.compile(r"\bBP2\b.*\bcurrent\b", re.IGNORECASE),
+    )
+
+    branch_state_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md"
+    branch_state_text = packet_files.get(branch_state_name, "")
+    current_phase = _section(branch_state_text, "Current Phase")
+    if not current_phase:
+        failures.append(f"{branch_state_name}: top-level Current Phase section is missing")
+    else:
+        normalized_phase = re.sub(r"\s+", " ", current_phase).casefold()
+        if not all(term in normalized_phase for term in expected_terms):
+            failures.append(
+                f"{branch_state_name}: top-level Current Phase does not report BP3 "
+                "Workstream Entry / Orchestration Validation as the active gate"
+            )
+        if not any(term in normalized_phase for term in blocked_terms):
+            failures.append(
+                f"{branch_state_name}: top-level Current Phase does not state that "
+                "Workstream implementation remains blocked"
+            )
+        for pattern in stale_active_patterns:
+            if pattern.search(current_phase):
+                failures.append(
+                    f"{branch_state_name}: top-level Current Phase contains stale "
+                    "BP1/BP2 active-gate wording"
+                )
+                break
+
+    active_gate_files = (
+        ("START_HERE.md", "first"),
+        ("USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "first"),
+        (f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", "first"),
+        (f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_worktree_state.md", "last"),
+    )
+    for file_name, gate_position in active_gate_files:
+        text = packet_files.get(file_name, "")
+        if not text:
+            failures.append(f"{file_name}: required BP3 active-state file is missing")
+            continue
+        gate_matches = list(re.finditer(r"^Current Gate:\s*`?([^`\n]+)`?", text, re.MULTILINE))
+        if gate_matches:
+            gate_match = gate_matches[0] if gate_position == "first" else gate_matches[-1]
+            gate_text = gate_match.group(1)
+        else:
+            gate_text = text[:800]
+        normalized_gate = re.sub(r"\s+", " ", gate_text).casefold()
+        if not all(term in normalized_gate for term in expected_terms):
+            failures.append(
+                f"{file_name}: first Current Gate / active-state text does not report "
+                "BP3 Workstream Entry / Orchestration Validation"
+            )
+        if "blocked" not in normalized_gate:
+            failures.append(
+                f"{file_name}: first Current Gate / active-state text does not keep "
+                "Workstream implementation blocked"
+            )
+    return failures
+
+
 def _user_facing_decision_text(exact_user_decision: str) -> str:
     """Keep USER files decision-focused while chat/helper output carries byte proof."""
 
@@ -10748,6 +10830,13 @@ def _validate_workstream_entry_packet_decision_path(
         status = next(iter(distinct_statuses))
     else:
         status = DECISION_STATUS_UNKNOWN
+
+    failures.extend(
+        _bp3_active_state_consistency_failures(
+            packet_files,
+            status=status,
+        )
+    )
 
     if require_implementation_ready and status != DECISION_STATUS_IMPLEMENTATION_READY:
         joined = ", ".join(f"{file_name}={status_value}" for file_name, status_value in sorted(file_statuses.items()))
