@@ -3502,10 +3502,9 @@ def _bp3_active_state_consistency_failures(
         "runtime implementation approval: `blocked`",
     )
     stale_active_patterns = (
-        re.compile(r"\bBP1\b.*\bUSER response pending\b", re.IGNORECASE),
-        re.compile(r"\bBP2\b.*\bUSER response pending\b", re.IGNORECASE),
-        re.compile(r"\bBP1\b.*\bcurrent\b", re.IGNORECASE),
-        re.compile(r"\bBP2\b.*\bcurrent\b", re.IGNORECASE),
+        re.compile(r"^Stage:\s*`?BP[12]\b", re.IGNORECASE | re.MULTILINE),
+        re.compile(r"^Current Gate:\s*`?Branch Planning - BP[12]\b", re.IGNORECASE | re.MULTILINE),
+        re.compile(r"^Next Legal Phase:\s*`?USER review of BP[12]\b", re.IGNORECASE | re.MULTILINE),
     )
 
     branch_state_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md"
