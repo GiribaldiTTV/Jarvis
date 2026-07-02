@@ -607,7 +607,14 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit {
-      max-width: min(100%, 187px);
+      width: max-content;
+      max-width: 100%;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
+      max-width: none;
+      overflow: visible;
+      text-overflow: clip;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] #ai-control-center-card-hub span,
@@ -707,7 +714,7 @@
     data-compact-layout-density="ai-control-center-compact-v1"
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
-    data-single-action-button-model="content-fit-fixed-height-ellipsis"
+    data-single-action-button-model="content-fit-fixed-height-no-ellipsis"
     data-default-window-width="471"
     data-default-window-height="598"
     data-default-window-max-height="680"
@@ -907,7 +914,7 @@
                 aria-label="Open AI Control Center"
                 aria-disabled="false"
               >
-                <span class="monitoring-hud__button-label">Open</span>
+                <span class="monitoring-hud__button-label">Open Control Center</span>
               </button>
             </div>
           </article>
@@ -933,7 +940,7 @@
               <div class="monitoring-hud__hub-card-topline">
                 <span>02</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>AI Readiness</strong>
+                  <strong>AI Readiness &amp; Diagnostics</strong>
                 </div>
                 <p class="monitoring-hud__hub-card-description">Local checks and diagnostics doorway.</p>
               </div>
@@ -966,7 +973,7 @@
                   aria-label="Open AI Readiness and Diagnostics"
                   aria-disabled="false"
                 >
-                  <span class="monitoring-hud__button-label">Open</span>
+                  <span class="monitoring-hud__button-label">Open Readiness &amp; Diagnostics</span>
                 </button>
               </div>
             </article>
@@ -1010,7 +1017,7 @@
             <div class="monitoring-hud__hub-card-topline">
               <span>03</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>Capabilities</strong>
+                <strong>Capabilities &amp; Maintenance</strong>
               </div>
               <p class="monitoring-hud__hub-card-description">Packs and updates stay blocked.</p>
             </div>
@@ -1036,10 +1043,10 @@
                 data-launch-window-kind="exclusive-child"
                 data-window-lifecycle="closes-with-dashboard"
                 data-action-size="content-fit-fixed-height"
-                aria-label="Open Capabilities"
+                aria-label="Open Capabilities and Maintenance"
                 aria-disabled="false"
               >
-                <span class="monitoring-hud__button-label">Open</span>
+                <span class="monitoring-hud__button-label">Open Capabilities &amp; Maintenance</span>
               </button>
             </div>
           </article>

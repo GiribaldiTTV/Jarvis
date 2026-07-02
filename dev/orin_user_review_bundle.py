@@ -4196,7 +4196,7 @@ def _write_user_branch_vision_review(
             "",
             "## Feature Vision Context",
             "",
-            "The accepted branch vision routes AI Dashboard as the parent hub and AI Control Center, AI Readiness / Diagnostics, and Capabilities / Maintenance as focused child/domain surfaces.",
+            "The accepted branch vision routes AI Dashboard as the parent hub and AI Control Center, AI Readiness & Diagnostics, and Capabilities & Maintenance as focused child/domain surfaces.",
             "",
             "## Branch Goal",
             "",
@@ -4208,7 +4208,7 @@ def _write_user_branch_vision_review(
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "USER sees the AI Dashboard parent, AI Control Center child/domain, AI Readiness / Diagnostics child/domain, Capabilities / Maintenance child/domain, proof screenshots, manifest evidence, and accepted planning context inside this packet.",
+            "USER sees the AI Dashboard parent, AI Control Center child/domain, AI Readiness & Diagnostics child/domain, Capabilities & Maintenance child/domain, proof screenshots, manifest evidence, and accepted planning context inside this packet.",
             "",
             "## How It Will Function",
             "",
@@ -4221,7 +4221,7 @@ def _write_user_branch_vision_review(
             "## Surface Map",
             "",
             "- Parent surface: AI Dashboard.",
-            "- Child/domain surfaces: AI Control Center, AI Readiness / Diagnostics, Capabilities / Maintenance.",
+            "- Child/domain surfaces: AI Control Center, AI Readiness & Diagnostics, Capabilities & Maintenance.",
             "- Proof surfaces: live proof manifest, focused screenshots, full-desktop screenshots, supplemental visual grammar audit, provider-state validator, leak-prevention validator.",
             "",
             "## Product Options / Design Paths",
@@ -5760,7 +5760,7 @@ def _write_user_branch_plan_review(
             "",
             "## End-State Vision",
             "",
-            "AI Dashboard remains the top-most FAM-007 hub. AI Control Center, AI Readiness / Diagnostics, and Capabilities / Maintenance are child/domain surfaces with local-only, no-provider, and blocked-execution truth visible without enabling provider/model behavior.",
+            "AI Dashboard remains the top-most FAM-007 hub. AI Control Center, AI Readiness & Diagnostics, and Capabilities & Maintenance are child/domain surfaces with local-only, no-provider, and blocked-execution truth visible without enabling provider/model behavior.",
             "",
             "## Visual / Functional Walkthrough",
             "",
@@ -5772,7 +5772,7 @@ def _write_user_branch_plan_review(
             "## Surface Map",
             "",
             "- Parent: AI Dashboard.",
-            "- Children: AI Control Center, AI Readiness / Diagnostics, Capabilities / Maintenance.",
+            "- Children: AI Control Center, AI Readiness & Diagnostics, Capabilities & Maintenance.",
             "- Proof: live resize manifest, focused/full-desktop screenshots, supplemental visual grammar audit, provider-state and leak-prevention validators.",
             "",
             "## Implementation Options",
@@ -10879,8 +10879,8 @@ def _write_workstream_entry_packet_digests(
         )
         recommended_seam = (
             "Review Target: USER Visual Acceptance of the completed AI Dashboard parent "
-            "hub, AI Control Center child/domain, AI Readiness / Diagnostics child/domain, "
-            "Capabilities / Maintenance child/domain, deterministic state taxonomy, "
+            "hub, AI Control Center child/domain, AI Readiness & Diagnostics child/domain, "
+            "Capabilities & Maintenance child/domain, deterministic state taxonomy, "
             "provider-state view-model mapping, no-provider local-only diagnostics flow, "
             "Developer/Owner boundary display, wrap/resize proof, and packet-contained "
             "focused plus full-desktop evidence."

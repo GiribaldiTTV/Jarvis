@@ -3847,7 +3847,7 @@ class AIDashboardDomainWindow(QDialog):
 
     DOMAIN_DEFINITIONS = {
         "readiness-diagnostics": {
-            "title": "Diagnostics",
+            "title": "AI Readiness & Diagnostics",
             "kicker": "Nexus Desktop AI",
             "description": "Local checks, readiness reports, copy, diagnostic detail, and results live here, outside the AI Dashboard hub.",
             "classification": "external-unique",
@@ -3863,7 +3863,7 @@ class AIDashboardDomainWindow(QDialog):
             "actions": (),
         },
         "capabilities-maintenance": {
-            "title": "Capabilities",
+            "title": "Capabilities & Maintenance",
             "kicker": "Nexus Desktop AI",
             "description": "Capability-pack, maintenance placement, and edition gates live here. Update, download, install, fetch, and capability execution are blocked.",
             "classification": "exclusive-child",
@@ -4051,6 +4051,9 @@ class AIDashboardDomainWindow(QDialog):
     .ai-domain-window {{
       min-height: 100vh;
       padding: 12px;
+      --ai-domain-row-gutter: 8px;
+      --ai-domain-row-vertical-gutter: 6px;
+      --ai-domain-row-label-width: 0px;
       box-sizing: border-box;
       color: rgba(235, 252, 255, 0.96);
       background: transparent;
@@ -4199,7 +4202,7 @@ class AIDashboardDomainWindow(QDialog):
       margin: 0;
       color: rgba(181, 218, 229, 0.88);
       font-size: 12px;
-      font-weight: 660;
+      font-weight: 720;
       line-height: 1.35;
     }}
     .ai-domain-window__card {{
@@ -4247,28 +4250,31 @@ class AIDashboardDomainWindow(QDialog):
     }}
     .ai-domain-window__rows {{
       display: grid;
-      gap: 0;
+      gap: var(--ai-domain-row-vertical-gutter, 6px);
       min-width: 0;
     }}
     .ai-domain-window__row {{
       display: grid;
-      grid-template-columns: minmax(132px, 0.36fr) minmax(0, 1fr);
-      gap: 8px;
-      min-height: 25px;
+      grid-template-columns: var(--ai-domain-row-label-width, 0px) minmax(0, 1fr);
+      column-gap: var(--ai-domain-row-gutter, 8px);
+      min-height: 0;
       padding: 4px 0 2px;
       border-top: 1px solid rgba(94, 207, 229, 0.18);
     }}
     .ai-domain-window__row span {{
       color: rgba(103, 224, 255, 0.95);
-      font-size: 10px;
-      font-weight: 820;
+      width: max-content;
+      max-width: none;
+      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 720;
       letter-spacing: 0.07em;
       text-transform: uppercase;
     }}
     .ai-domain-window__row strong {{
       color: rgba(235, 252, 255, 0.96);
       font-size: 11px;
-      font-weight: 760;
+      font-weight: 720;
       line-height: 1.35;
     }}
     .ai-domain-window__actions {{
@@ -4290,7 +4296,7 @@ class AIDashboardDomainWindow(QDialog):
       background: linear-gradient(145deg, rgba(7, 42, 62, 0.72), rgba(3, 18, 32, 0.78));
       color: rgba(235, 252, 255, 0.96);
       font-size: 11px;
-      font-weight: 820;
+      font-weight: 720;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       cursor: pointer;
@@ -4333,6 +4339,20 @@ class AIDashboardDomainWindow(QDialog):
     let reportText = "";
     const byId = (id) => document.getElementById(id);
     const setText = (id, value) => {{ const target = byId(id); if (target) target.textContent = String(value || ""); }};
+    const syncDomainRowLayout = () => {{
+      const surface = document.querySelector("[data-ai-dashboard-child-window]");
+      const labels = [...document.querySelectorAll(".ai-domain-window__row > span")];
+      if (!surface || !labels.length) return;
+      const maxLabelWidth = Math.ceil(Math.max(...labels.map((label) => label.getBoundingClientRect().width || 0)));
+      surface.style.setProperty("--ai-domain-row-label-width", maxLabelWidth + "px");
+      Object.assign(surface.dataset, {{
+        rowLabelColumnSource: "measured-max-visible-label-content-px",
+        rowLabelColumnWidth: String(maxLabelWidth),
+        rowLabelColumnUnit: "px",
+        rowValueGutter: "8",
+        rowVerticalGutter: "6",
+      }});
+    }};
     const emit = (command) => console.info(prefix + command);
     const formatItems = (items, keys = ["label"]) => {{
       const list = Array.isArray(items) ? items : [];
@@ -4483,6 +4503,7 @@ class AIDashboardDomainWindow(QDialog):
       setText("local-result", viewModel.localResult);
       setText("local-detail", viewModel.localDetail);
       syncCapabilityBoundaryContract(viewModel);
+      requestAnimationFrame(syncDomainRowLayout);
       return viewModel;
     }};
     const syncStateTaxonomyContract = () => {{
@@ -4537,6 +4558,7 @@ class AIDashboardDomainWindow(QDialog):
       if (body) body.hidden = true;
       const copy = byId("copy-report");
       if (copy) {{ copy.disabled = true; copy.setAttribute("aria-disabled", "true"); }}
+      requestAnimationFrame(syncDomainRowLayout);
     }};
     window.nexusAiDomainRunLocalCheck = () => {{
       const ok = guardClosed();
@@ -4548,6 +4570,7 @@ class AIDashboardDomainWindow(QDialog):
         noProviderFlowReportState: "not-generated",
         noProviderFlowCopyState: "not-ready",
       }});
+      requestAnimationFrame(syncDomainRowLayout);
       return ok;
     }};
     window.nexusAiDomainGenerateReport = () => {{
@@ -4579,6 +4602,7 @@ class AIDashboardDomainWindow(QDialog):
         noProviderFlowReportState: "generated-locally",
         noProviderFlowCopyState: "ready-user-initiated-only",
       }});
+      requestAnimationFrame(syncDomainRowLayout);
       return true;
     }};
     window.nexusAiDomainCopyReport = () => {{
@@ -4628,6 +4652,16 @@ class AIDashboardDomainWindow(QDialog):
         }}
       }}
     }});
+    if (window.ResizeObserver) {{
+      const rowObserver = new ResizeObserver(() => requestAnimationFrame(syncDomainRowLayout));
+      document.querySelectorAll(".ai-domain-window__row > span, .ai-domain-window__chrome").forEach((node) => rowObserver.observe(node));
+    }}
+    if (document.fonts && document.fonts.ready) {{
+      document.fonts.ready.then(() => requestAnimationFrame(syncDomainRowLayout)).catch(() => {{}});
+    }}
+    window.addEventListener("resize", syncDomainRowLayout);
+    syncDomainRowLayout();
+    requestAnimationFrame(syncDomainRowLayout);
   </script>
 </body>
 </html>"""

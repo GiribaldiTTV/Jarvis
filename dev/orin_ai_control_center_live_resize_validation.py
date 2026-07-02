@@ -2080,6 +2080,10 @@ def main() -> int:
               const doorwayButtons = Array.from(document.querySelectorAll("[data-category-doorway]")).map((button) => {
                 const rect = button.getBoundingClientRect();
                 const style = getComputedStyle(button);
+                const label = button.querySelector(".monitoring-hud__button-label");
+                const labelRect = label?.getBoundingClientRect();
+                const labelStyle = label ? getComputedStyle(label) : null;
+                const horizontalPadding = Math.round(parseFloat(style.paddingLeft || "0") + parseFloat(style.paddingRight || "0"));
                 return {
                   id: button.id || "",
                   text: button.textContent.trim(),
@@ -2094,6 +2098,10 @@ def main() -> int:
                   lifecycle: button.dataset.windowLifecycle || "",
                   width: Math.round(rect.width),
                   height: Math.round(rect.height),
+                  horizontalPadding,
+                  labelWidth: labelRect ? Math.round(labelRect.width) : 0,
+                  labelOverflow: labelStyle ? labelStyle.overflow : "",
+                  labelTextOverflow: labelStyle ? labelStyle.textOverflow : "",
                   fontSize: style.fontSize,
                   fontWeight: style.fontWeight
                 };
@@ -2467,7 +2475,8 @@ def main() -> int:
                 launchers,
                 doorwayButtons,
                 designProcessCopyPresent: /Refined|Option\\s+[A-Z]|target/i.test(document.body.innerText || ""),
-                detachedWindowOpenCopyPresent: /Open Control Center|Open Diagnostics|Open Capabilities/.test(document.body.innerText || ""),
+                detachedWindowOpenCopyPresent: [...document.querySelectorAll(".monitoring-hud__button-label")]
+                  .some((node) => ["Open", "Open Diagnostics", "Open Capabilities"].includes(node.textContent.trim())),
                 cardTitles: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-title-copy strong")].map((node) => node.textContent.trim()),
                 cardDescriptions: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-description")].map((node) => node.textContent.trim()),
                 stripText: document.querySelector("[data-dashboard-role='global-ai-strip']")?.textContent.replace(/\\s+/g, " ").trim() || "",
@@ -2838,13 +2847,13 @@ def main() -> int:
             "buttonId": "ai-control-center-open-readiness-surface-action",
             "classification": "external-unique",
             "lifecycle": "stays-open-if-dashboard-closes",
-            "title": "Diagnostics",
+            "title": "AI Readiness & Diagnostics",
         },
         "capabilities-maintenance": {
             "buttonId": "ai-control-center-open-maintenance-surface-action",
             "classification": "exclusive-child",
             "lifecycle": "closes-with-dashboard",
-            "title": "Capabilities",
+            "title": "Capabilities & Maintenance",
         },
     }
     for domain_id, contract in doorway_launch_contract.items():
@@ -3618,8 +3627,8 @@ def main() -> int:
             and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
             and dashboard_probe.get("cardTitles") == [
                 "AI Control Center",
-                "AI Readiness",
-                "Capabilities",
+                "AI Readiness & Diagnostics",
+                "Capabilities & Maintenance",
             ]
             and dashboard_probe.get("cardDescriptions") == [
                 "Persona and provider boundary doorway.",
@@ -3643,7 +3652,11 @@ def main() -> int:
         "aiDashboardStateTaxonomyContractProven": _dashboard_state_taxonomy_ok(),
         "aiDashboardProviderStateViewModelProven": _dashboard_view_model_ok(),
         "doorwayButtonsOpenDomainWindowsNoInlineActions": (
-            actual_doorway_labels == ["Open", "Open", "Open"]
+            actual_doorway_labels == [
+                "Open Control Center",
+                "Open Readiness & Diagnostics",
+                "Open Capabilities & Maintenance",
+            ]
             and len(dashboard_probe.get("launchers") or []) == 0
             and len(doorway_buttons) == 3
             and set(doorway_buttons_by_id.keys()) == set(expected_doorway_buttons.keys())
@@ -3671,13 +3684,13 @@ def main() -> int:
             )
             and _child_probe_ok(
                 "readiness-diagnostics",
-                title="Diagnostics",
+                title="AI Readiness & Diagnostics",
                 classification="external-unique",
                 lifecycle="stays-open-if-dashboard-closes",
             )
             and _child_probe_ok(
                 "capabilities-maintenance",
-                title="Capabilities",
+                title="Capabilities & Maintenance",
                 classification="exclusive-child",
                 lifecycle="closes-with-dashboard",
             )
@@ -3709,7 +3722,18 @@ def main() -> int:
             and min(row_heights or [0]) >= 18
             and max(row_heights or [999]) <= 28
             and all(30 <= int(button.get("height") or 0) <= 32 for button in doorway_buttons)
-            and all(48 <= int(button.get("width") or 0) <= 96 for button in doorway_buttons)
+            and all(
+                int(button.get("labelWidth") or 0) > 0
+                and int(button.get("horizontalPadding") or 0) == 28
+                and 0 <= (
+                    int(button.get("width") or 0)
+                    - int(button.get("labelWidth") or 0)
+                    - int(button.get("horizontalPadding") or 0)
+                ) <= 4
+                and button.get("labelOverflow") == "visible"
+                and button.get("labelTextOverflow") == "clip"
+                for button in doorway_buttons
+            )
             and all(str(button.get("fontWeight") or "").isdigit() and int(button.get("fontWeight")) >= 700 for button in doorway_buttons)
             and int(layout_metrics.get("headerWidth") or 0) >= int(layout_metrics.get("surfaceWidth") or 0) - 32
         ),
@@ -4030,7 +4054,7 @@ def main() -> int:
         "childWindowClassificationLedger": {
             "control-center": {
                 "sourceCategoryCard": "AI Control Center",
-                "launcherLabel": "Open",
+                "launcherLabel": "Open Control Center",
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
@@ -4040,8 +4064,8 @@ def main() -> int:
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
             "readiness-diagnostics": {
-                "sourceCategoryCard": "AI Readiness",
-                "launcherLabel": "Open",
+                "sourceCategoryCard": "AI Readiness & Diagnostics",
+                "launcherLabel": "Open Readiness & Diagnostics",
                 "classification": "external-unique",
                 "remainsOpenIfDashboardCloses": True,
                 "singleton": True,
@@ -4051,8 +4075,8 @@ def main() -> int:
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
             "capabilities-maintenance": {
-                "sourceCategoryCard": "Capabilities",
-                "launcherLabel": "Open",
+                "sourceCategoryCard": "Capabilities & Maintenance",
+                "launcherLabel": "Open Capabilities & Maintenance",
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
