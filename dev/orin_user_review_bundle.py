@@ -2201,6 +2201,17 @@ def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str
             failures.append(
                 f"{name}: USER-facing FAM-007 visual packet must not call the returned state Workstream Green"
             )
+        if "supplemental_visual_proof/14_exhaustive_visual_grammar_audit." in name and (
+            "`CONFORMING`" in text
+            or '"status": "CONFORMING"' in text
+            or "`INTENTIONAL_VARIANT`" in text
+            or '"status": "INTENTIONAL_VARIANT"' in text
+        ):
+            failures.append(
+                f"{name}: supplemental visual grammar audit must use the returned-packet verdict "
+                "vocabulary (`PASS`, `PARTIAL`, `NONCONFORMING`, `UNPROVEN`, "
+                "`WAIVED_WITH_REASON`, `NOT_APPLICABLE_WITH_REASON`)"
+            )
 
     primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
     if "Proof-quality/adjudication repair completed / pending USER Visual Acceptance" not in primary:
@@ -2214,10 +2225,10 @@ def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str
         if not text:
             failures.append(f"{artifact}: required FAM-007 visual adjudication artifact is missing")
             continue
-        if "`CONFORMING`" in text or "OPEN_NONCONFORMANCE_COUNT: 0" in text:
+        if "`CONFORMING`" in text or "`INTENTIONAL_VARIANT`" in text or "OPEN_NONCONFORMANCE_COUNT: 0" in text:
             failures.append(
                 f"{display}: returned FAM-007 proof-quality packet must not preserve "
-                "self-certifying `CONFORMING` or zero-open-nonconformance wording"
+                "self-certifying `CONFORMING`, old variant vocabulary, or zero-open-nonconformance wording"
             )
         child_required_artifacts = {
             "CHILD_WINDOW_VISUAL_PROOF_INDEX.md",

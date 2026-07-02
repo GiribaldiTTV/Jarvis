@@ -1963,13 +1963,13 @@ def _write_visual_grammar_audit(
     for group_name in required_groups:
         current_present = bool(_grammar_group(current_grammar, group_name).get("present"))
         reference_present = bool(_grammar_group(reference_grammar, group_name).get("present"))
-        status = "CONFORMING" if current_present and reference_present else "UNPROVEN"
+        status = "PASS" if current_present and reference_present else "UNPROVEN"
         add(
             group_name,
             status,
             "present" if current_present else "missing",
             "present" if reference_present else "missing",
-            "Material element-group exists in both rendered surfaces." if status == "CONFORMING" else "Required material element-group missing from current or comparator render.",
+            "Material element-group exists in both rendered surfaces." if status == "PASS" else "Required material element-group missing from current or comparator render.",
         )
 
     current_summary = _metric_summary(current_grammar)
@@ -1990,7 +1990,7 @@ def _write_visual_grammar_audit(
         diff = abs(current - reference)
         add(
             f"{group_name}.{style_key}",
-            "CONFORMING" if diff <= tolerance else status_on_difference,
+            "PASS" if diff <= tolerance else status_on_difference,
             current,
             reference,
             note if diff <= tolerance else f"{note} Difference {diff:.1f}px exceeds {tolerance:.1f}px tolerance.",
@@ -2001,7 +2001,7 @@ def _write_visual_grammar_audit(
         reference = _grammar_style(reference_grammar, group_name, style_key)
         add(
             f"{group_name}.{style_key}",
-            "CONFORMING" if str(current) == str(reference) else "NONCONFORMING",
+            "PASS" if str(current) == str(reference) else "NONCONFORMING",
             current,
             reference,
             note,
@@ -2028,14 +2028,14 @@ def _write_visual_grammar_audit(
         "fontSize",
         0.5,
         "Row label size follows the USER row title/status text-size parity rule; Main comparator label size is retained as reference context.",
-        status_on_difference="INTENTIONAL_VARIANT",
+        status_on_difference="WAIVED_WITH_REASON",
     )
     compare_px("rowValue", "fontSize", 0.5, "Row value size matches the Main comparator.")
     current_row_label_font = _px(_grammar_style(current_grammar, "rowLabel", "fontSize"))
     current_row_value_font = _px(_grammar_style(current_grammar, "rowValue", "fontSize"))
     add(
         "rowTypography.labelValueFontSizeParity",
-        "CONFORMING"
+        "PASS"
         if current_row_label_font is not None
         and current_row_value_font is not None
         and abs(current_row_label_font - current_row_value_font) <= 0.1
@@ -2051,7 +2051,7 @@ def _write_visual_grammar_audit(
     row_height_diff = abs(float(current_summary["medianRowHeight"]) - float(reference_summary["medianRowHeight"]))
     add(
         "rowRhythm.medianHeight",
-        "CONFORMING" if row_height_diff <= 2 else "NONCONFORMING",
+        "PASS" if row_height_diff <= 2 else "NONCONFORMING",
         current_summary["medianRowHeight"],
         reference_summary["medianRowHeight"],
         "Median row height must stay within 2px of Main-runtime row rhythm.",
@@ -2059,7 +2059,7 @@ def _write_visual_grammar_audit(
     after_row_gap_diff = abs(float(current_summary["medianAfterRowGap"]) - float(reference_summary["medianAfterRowGap"]))
     add(
         "afterRowSpacing.medianGap",
-        "CONFORMING" if after_row_gap_diff <= 2 else "NONCONFORMING",
+        "PASS" if after_row_gap_diff <= 2 else "NONCONFORMING",
         current_summary["medianAfterRowGap"],
         reference_summary["medianAfterRowGap"],
         "Rows-to-action spacing must stay within 2px of Main-runtime rhythm.",
@@ -2067,28 +2067,28 @@ def _write_visual_grammar_audit(
     button_height_diff = abs(float(current_summary["medianButtonHeight"]) - float(reference_summary["medianButtonHeight"]))
     add(
         "buttonSize.medianHeight",
-        "CONFORMING" if button_height_diff <= 1 else "NONCONFORMING",
+        "PASS" if button_height_diff <= 1 else "NONCONFORMING",
         current_summary["medianButtonHeight"],
         reference_summary["medianButtonHeight"],
         "Median action button height must match the Main-runtime control grammar.",
     )
     add(
         "surfaceRole.defaultWindowSize",
-        "INTENTIONAL_VARIANT",
+        "WAIVED_WITH_REASON",
         f'{dashboard_probe.get("defaultWindowWidth")}x{dashboard_probe.get("defaultWindowHeight")}',
         f'{reference_probe.get("defaultWindowWidth")}x{reference_probe.get("defaultWindowHeight")}',
         "AI Dashboard is the wider parent hub; Main AI Control Center remains the focused comparator, not an identical surface footprint.",
     )
     add(
         "cardSet.countAndPurpose",
-        "INTENTIONAL_VARIANT",
+        "WAIVED_WITH_REASON",
         current_summary["cardCount"],
         reference_summary["cardCount"],
         "Current parent Dashboard has three doorway cards; Main old AI Control Center has two focused cards.",
     )
     add(
         "buttonState.affordance",
-        "INTENTIONAL_VARIANT",
+        "WAIVED_WITH_REASON",
         dashboard_probe.get("doorwayButtons"),
         reference_grammar.get("buttonMetrics"),
         "Current Dashboard doorway controls open detached domain windows; Main comparator has a focused local-check action. Geometry and typography remain same-family.",
@@ -2112,7 +2112,7 @@ def _write_visual_grammar_audit(
     ]:
         add(
             f"stateCoverage.{key}",
-            "CONFORMING" if current_css.get(key) and reference_css.get(key) else "UNPROVEN",
+            "PASS" if current_css.get(key) and reference_css.get(key) else "UNPROVEN",
             current_css.get(key),
             reference_css.get(key),
             "CSS state selector coverage exists in both current and comparator surfaces.",
