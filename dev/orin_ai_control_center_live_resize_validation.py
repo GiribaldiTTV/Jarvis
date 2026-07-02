@@ -1682,10 +1682,13 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
     }
 
 
-def _exercise_readiness_child_window(app: QApplication, window) -> dict[str, object]:
+def _exercise_readiness_child_window(app: QApplication, window, log_root: Path) -> dict[str, object]:
     if window is None:
         return {"ok": False, "reason": "missing-readiness-window"}
     before = _probe_child_window(app, window)
+    visual_proof_screenshots: dict[str, dict[str, str]] = {
+        "beforeRun": _capture_window(app, window, log_root, "19_readiness_before_run"),
+    }
     local_click = _click_web_button(app, window, "run-local-check")
     _pump(app, 220)
     after_local = _probe_child_window(app, window)
@@ -1709,6 +1712,12 @@ def _exercise_readiness_child_window(app: QApplication, window) -> dict[str, obj
             local_fallback = {"ok": False, "raw": str(raw or "")}
         _pump(app, 260)
         after_local = _probe_child_window(app, window)
+    visual_proof_screenshots["afterLocalCheck"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "20_readiness_after_local_check",
+    )
     generate_click = _click_web_button(app, window, "generate-report")
     _pump(app, 320)
     after_generate = _probe_child_window(app, window)
@@ -1732,6 +1741,12 @@ def _exercise_readiness_child_window(app: QApplication, window) -> dict[str, obj
             generate_fallback = {"ok": False, "raw": str(raw or "")}
         _pump(app, 360)
         after_generate = _probe_child_window(app, window)
+    visual_proof_screenshots["afterReportGeneration"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "21_readiness_after_report_generation",
+    )
     copy_click = _click_web_button(app, window, "copy-report")
     _pump(app, 360)
     after_copy = _probe_child_window(app, window)
@@ -1759,9 +1774,16 @@ def _exercise_readiness_child_window(app: QApplication, window) -> dict[str, obj
             copy_fallback = {"ok": False, "raw": str(raw or "")}
         _pump(app, 360)
         after_copy = _probe_child_window(app, window)
+    visual_proof_screenshots["afterCopyAction"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "22_readiness_after_copy_action",
+    )
     return {
         "ok": True,
         "before": before,
+        "visualProofScreenshots": visual_proof_screenshots,
         "localClick": local_click,
         "localDomClickFallback": local_fallback,
         "afterLocalCheck": after_local,
@@ -3062,7 +3084,23 @@ def main() -> int:
     }
 
     readiness_window = dialog._domain_windows.get("readiness-diagnostics")
-    readiness_result = _exercise_readiness_child_window(app, readiness_window)
+    readiness_result = _exercise_readiness_child_window(app, readiness_window, log_root)
+    readiness_visual_state_names = {
+        "beforeRun": "readiness_before_run",
+        "afterLocalCheck": "readiness_after_local_check",
+        "afterReportGeneration": "readiness_after_report_generation",
+        "afterCopyAction": "readiness_after_copy_action",
+    }
+    readiness_visual_screenshots = (
+        readiness_result.get("visualProofScreenshots")
+        if isinstance(readiness_result, dict)
+        else {}
+    )
+    if isinstance(readiness_visual_screenshots, dict):
+        for state_key, screenshot_key in readiness_visual_state_names.items():
+            screenshot_paths = readiness_visual_screenshots.get(state_key)
+            if isinstance(screenshot_paths, dict):
+                screenshots[screenshot_key] = screenshot_paths
     child_control_behavior = {
         "readinessLocalCheckReportCopy": readiness_result,
         "providerExecutionEvents": [
@@ -3667,6 +3705,28 @@ def main() -> int:
             }
         )
 
+    def _readiness_after_action_visual_proof_ok(result: object) -> bool:
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            return False
+        screenshots_by_state = result.get("visualProofScreenshots")
+        if not isinstance(screenshots_by_state, dict):
+            return False
+        required_states = (
+            "beforeRun",
+            "afterLocalCheck",
+            "afterReportGeneration",
+            "afterCopyAction",
+        )
+        for state_name in required_states:
+            screenshots_for_state = screenshots_by_state.get(state_name)
+            if not isinstance(screenshots_for_state, dict):
+                return False
+            for key in ("focusedWindow", "fullDesktop"):
+                image_path = Path(str(screenshots_for_state.get(key) or ""))
+                if not image_path.is_file():
+                    return False
+        return _readiness_actions_ok(result)
+
     def _dashboard_readiness_flow_contract_ok() -> bool:
         cards = dashboard_probe.get("stateTaxonomyCards") if isinstance(dashboard_probe.get("stateTaxonomyCards"), dict) else {}
         readiness_card = cards.get("readiness-diagnostics") if isinstance(cards.get("readiness-diagnostics"), dict) else {}
@@ -3844,6 +3904,7 @@ def main() -> int:
             and provider_state.as_renderer_payload().get("canAcceptPrompts") is False
             and provider_state.as_renderer_payload().get("providerVisibleData") == "none"
         ),
+        "readinessAfterActionVisualProofProven": _readiness_after_action_visual_proof_ok(readiness_result),
         "readinessDiagnosticsNoProviderLocalOnlyFlowProven": (
             _dashboard_readiness_flow_contract_ok()
             and _readiness_actions_ok(readiness_result)
