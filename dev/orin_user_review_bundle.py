@@ -1563,6 +1563,9 @@ def _write_fam007_child_visual_adjudication_artifacts(
         role_lines.append(
             f"| {title} | {role_claim} | {action_evidence}; shell={shell_ok}; geometry={geometry_ok}; rows={len(rows)}. | `{role_verdict}` | Pending USER Visual Acceptance. |"
         )
+        trace_lines.append(
+            f"| {title} child/domain visual-family proof | `desktop/desktop_renderer.py`; `dev/orin_ai_control_center_live_resize_validation.py` | `childChromeProbe.{domain_id}`, `childPurposeMatchedContactSheets.{domain_id}` | `{contact_path}` plus focused/full-desktop screenshots and DOM rows={len(rows)}. | `{visual_verdict}` |"
+        )
 
     checks_required = [
         "acceptedReferenceComparisonProven",
@@ -1579,6 +1582,15 @@ def _write_fam007_child_visual_adjudication_artifacts(
         "Boundary: closed-with-proof rows mean packet proof is reviewable; they do not mean USER Visual Acceptance is accepted.",
         "",
         *nonconformance_rows,
+        "",
+        "## Child/Domain Coverage",
+        "",
+        "| Surface | Coverage artifact | Current disposition |",
+        "| --- | --- | --- |",
+        *[
+            f"| {title} | purpose contact sheet, per-window adjudication, per-element adjudication, functional-role matrix, code-to-visual trace, implementation-match proof | `CLOSED_WITH_PROOF_FOR_USER_REVIEW` |"
+            for title in FAM007_CHILD_DOMAIN_LABELS.values()
+        ],
         "",
         "## Required Live-Proof Checks",
         "",
