@@ -535,7 +535,7 @@ def _build_saved_inventory_item_text(item: dict) -> str:
     if target_kind:
         metadata_bits.append(target_kind)
     if metadata_bits:
-        item_text += f"\n{' • '.join(metadata_bits)}"
+        item_text += f"\n{' - '.join(metadata_bits)}"
     if target_display:
         item_text += f"\n{target_display}"
     return item_text
@@ -8206,6 +8206,9 @@ class CommandOverlayPanel(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setObjectName("commandOverlayWindow")
+        command_font = QFont("Segoe UI")
+        command_font.setPointSize(10)
+        self.setFont(command_font)
         self._visible_ambiguous_count = 0
 
         root = QVBoxLayout(self)
@@ -8459,6 +8462,9 @@ class CommandOverlayPanel(QWidget):
 
         self.setStyleSheet(
             """
+            #commandOverlayWindow, #commandOverlayWindow * {
+                font-family: "Segoe UI";
+            }
             #commandPanel {
                 border: 1px solid rgba(118, 226, 255, 0.22);
                 border-radius: 22px;
@@ -8769,7 +8775,7 @@ class CommandOverlayPanel(QWidget):
             if target_kind:
                 metadata_bits.append(target_kind)
             if metadata_bits:
-                button_text += f"\n{' • '.join(metadata_bits)}"
+                button_text += f"\n{' - '.join(metadata_bits)}"
             if target_display:
                 button_text += f"\n{target_display}"
             button = QPushButton(button_text, self.ambiguous_choices_frame)

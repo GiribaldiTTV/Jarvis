@@ -74,15 +74,20 @@ class TrayCommandPopup(QWidget):
         self.setWindowTitle("Nexus Desktop AI Tray")
         self.setObjectName("nexusDesktopTrayPopup")
         self.setMinimumWidth(276)
+        base_font = QFont("Segoe UI")
+        base_font.setPointSize(9)
+        self.setFont(base_font)
         self._command_buttons = []
         self.setStyleSheet(
             "#nexusDesktopTrayPopup {"
             " background: #04101b;"
             " border: 1px solid rgba(105, 224, 244, 0.48);"
             " border-radius: 10px;"
+            " font-family: 'Segoe UI';"
             "}"
             "QLabel[traySection='true'] {"
             " color: rgba(125, 230, 255, 0.86);"
+            " font-family: 'Segoe UI';"
             " font-size: 10px;"
             " font-weight: 800;"
             " margin: 5px 8px 2px 8px;"
@@ -93,6 +98,7 @@ class TrayCommandPopup(QWidget):
             " border: 1px solid rgba(104, 214, 236, 0.22);"
             " border-radius: 7px;"
             " color: rgba(239, 253, 255, 0.96);"
+            " font-family: 'Segoe UI';"
             " font-size: 11px;"
             " font-weight: 760;"
             " min-height: 25px;"
@@ -146,6 +152,7 @@ class TrayCommandPopup(QWidget):
     def add_button(self, text, handler):
         button = QPushButton(text, self)
         button.setAccessibleName(text)
+        button.setFont(self.font())
         button.setMinimumWidth(224)
         button.clicked.connect(lambda _checked=False: self.owner._invoke_button_action(handler))
         self._command_buttons.append((button, handler))

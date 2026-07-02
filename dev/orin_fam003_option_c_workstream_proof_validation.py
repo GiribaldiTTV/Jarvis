@@ -23,11 +23,15 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# This helper captures USER-review proof for text-heavy Qt widgets. Offscreen
+# Qt on Windows can substitute a glyph-box font, so force normal desktop Qt
+# rendering when a parent shell left an offscreen platform override behind.
+if os.environ.get("QT_QPA_PLATFORM", "").casefold() == "offscreen":
+    os.environ.pop("QT_QPA_PLATFORM", None)
 
 from PySide6.QtCore import QRect, Qt
-from PySide6.QtGui import QAction, QColor, QFont, QPainter, QPixmap
-from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QAction, QColor, QFont, QFontInfo, QPainter, QPixmap
+from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -109,7 +113,39 @@ def _make_qapp() -> QApplication:
     app = QApplication.instance()
     if app is None:
         app = QApplication(["orin_fam003_option_c_workstream_proof_validation"])
+    base_font = QFont("Segoe UI", 10)
+    app.setFont(base_font)
     return app
+
+
+def _readable_text_contract(widget, *, surface: str, required_texts: tuple[str, ...]) -> dict[str, object]:
+    text_widgets = [widget]
+    text_widgets.extend(widget.findChildren(QLabel))
+    text_widgets.extend(widget.findChildren(QPushButton))
+    text_widgets.extend(widget.findChildren(QLineEdit))
+    observed: list[str] = []
+    font_families: dict[str, str] = {}
+    for child in text_widgets:
+        text = ""
+        if hasattr(child, "text"):
+            text = child.text()
+        elif isinstance(child, QLineEdit):
+            text = child.displayText()
+        if text:
+            observed.append(text)
+            font_families[text] = QFontInfo(child.font()).family()
+    missing = [text for text in required_texts if text not in observed and not any(text in item for item in observed)]
+    _assert(not missing, f"{surface} missing required readable text widgets: {missing}; observed={observed}")
+    bad_fonts = {text: family for text, family in font_families.items() if "segoe" not in family.casefold()}
+    _assert(not bad_fonts, f"{surface} readable text widgets resolved to non-Segoe UI fonts: {bad_fonts}")
+    return {
+        "surface": surface,
+        "status": "PASS",
+        "requiredTexts": list(required_texts),
+        "observedTexts": observed,
+        "fontFamilies": font_families,
+        "visualReviewRequired": "Human-reviewable screenshot/contact sheet remains required; this check prevents offscreen glyph-box font fallback and missing text widgets.",
+    }
 
 
 class _FakeTrayWindow:
@@ -221,6 +257,11 @@ def _render_tray_proof(log_dir: Path) -> dict[str, object]:
     tray.refresh_monitoring_hud_actions("option_c_proof")
     tray._show_tray_popup()
     QApplication.processEvents()
+    readability = _readable_text_contract(
+        tray.tray_popup,
+        surface="styled_tray_popup",
+        required_texts=("Global Settings", "Quick Access", "Command Overlay", "Create Task", "Saved Actions", "AI"),
+    )
     screenshot = _save_widget(tray.tray_popup, log_dir / "01_tray_styled_popup_focused.png")
 
     buttons = _button_texts(tray.tray_popup)
@@ -268,6 +309,7 @@ def _render_tray_proof(log_dir: Path) -> dict[str, object]:
         "nativeMenuPrimary": False,
         "globalSettingsRequests": fake_window.settings_requests,
         "openOverlayCount": fake_window.open_overlay_count,
+        "textReadability": readability,
     }
 
 
@@ -302,6 +344,11 @@ def _render_ncp_proof(log_dir: Path) -> dict[str, object]:
         },
         log_dir / "10_ncp_entry_typed_request.png",
     )
+    entry_readability = _readable_text_contract(
+        panel,
+        surface="ncp_command_overlay_entry",
+        required_texts=("O.R.I.N. Command Prompt", "Typed desktop interaction", "open nexus folder"),
+    )
     choose = _render_ncp_state(
         panel,
         {
@@ -326,6 +373,11 @@ def _render_ncp_proof(log_dir: Path) -> dict[str, object]:
         },
         log_dir / "11_ncp_choose_visible_choices.png",
     )
+    choose_readability = _readable_text_contract(
+        panel,
+        surface="ncp_command_overlay_choose",
+        required_texts=("Multiple actions matched.", "Open Nexus Root", "Open Nexus Docs", "Built-in action - folder"),
+    )
     confirm = _render_ncp_state(
         panel,
         {
@@ -339,6 +391,11 @@ def _render_ncp_proof(log_dir: Path) -> dict[str, object]:
         },
         log_dir / "12_ncp_confirm_selected_action.png",
     )
+    confirm_readability = _readable_text_contract(
+        panel,
+        surface="ncp_command_overlay_confirm",
+        required_texts=("Typed request", "open nexus folder", "Resolved action", "Open Nexus Docs"),
+    )
     result = _render_ncp_state(
         panel,
         {
@@ -350,6 +407,11 @@ def _render_ncp_proof(log_dir: Path) -> dict[str, object]:
         },
         log_dir / "13_ncp_result_launch_requested.png",
     )
+    result_readability = _readable_text_contract(
+        panel,
+        surface="ncp_command_overlay_result",
+        required_texts=("O.R.I.N. Command Prompt", "Launch request sent."),
+    )
     panel.close()
 
     for proof in (entry, choose, confirm, result):
@@ -358,6 +420,12 @@ def _render_ncp_proof(log_dir: Path) -> dict[str, object]:
         "status": "PASS",
         "screenshots": [entry, choose, confirm, result],
         "states": ["entry_typed", "choose", "confirm", "result"],
+        "textReadability": [
+            entry_readability,
+            choose_readability,
+            confirm_readability,
+            result_readability,
+        ],
     }
 
 
@@ -466,6 +534,7 @@ def main() -> int:
         "| --- | --- | --- |\n"
         "| F3-WS-PROOF-TRAY-001 | CLOSED_WITH_PROOF | Direct styled tray popup screenshots, native-not-primary source-path proof, route execution tied to visible styled buttons. |\n"
         "| F3-WS-PROOF-NCP-001 | CLOSED_WITH_PROOF | Direct NCP entry/choose/confirm/result screenshots plus overlay/callable/desktop-entrypoint helper reports copied into this proof root. |\n\n"
+        "| F3-WS-VIS-TEXT-001 | CLOSED_WITH_PROOF | Direct tray and NCP screenshots are captured with normal desktop Qt rendering, Segoe UI text contract checks, readable focused frames, and human-reviewable contact sheet evidence. |\n\n"
         "## Surface Verdicts\n\n"
         "| Surface | Verdict | Evidence |\n"
         "| --- | --- | --- |\n"
@@ -473,6 +542,7 @@ def main() -> int:
         "| Styled tray right-click presentation | PASS | `01_tray_styled_popup_focused.png`; `02_tray_popup_route_after_reopen.png`; native menu not primary in `_show_tray_popup`. |\n"
         "| Tray route/action execution | PASS | Global Settings and Command Overlay routes fired from visible styled popup buttons. |\n"
         "| NCP typed/choose/confirm/result | PASS | `10_ncp_entry_typed_request.png`; `11_ncp_choose_visible_choices.png`; `12_ncp_confirm_selected_action.png`; `13_ncp_result_launch_requested.png`. |\n"
+        "| Tray and NCP text readability | PASS | `F3-WS-VIS-TEXT-001`; normal desktop Qt capture; Segoe UI text contract; contact sheet and individual focused frames. |\n"
         "| NCP helper/report evidence | PASS | `overlayInputHelper.txt`; `callableGroupExecution.txt`; `desktopEntrypoint.txt`. |\n\n"
         "Issue Admission Result: `NO CURRENT GITHUB ISSUE CREATED`. Issue mutation remains blocked without explicit USER approval.\n",
         encoding="utf-8",
@@ -488,6 +558,12 @@ def main() -> int:
         "defects": {
             "F3-WS-PROOF-TRAY-001": "CLOSED_WITH_PROOF",
             "F3-WS-PROOF-NCP-001": "CLOSED_WITH_PROOF",
+            "F3-WS-VIS-TEXT-001": "CLOSED_WITH_PROOF",
+        },
+        "captureMode": {
+            "qtPlatformName": QApplication.platformName(),
+            "forcedOffscreenCapture": False,
+            "reason": "Tray and NCP text proof must use normal desktop Qt rendering; offscreen capture produced placeholder glyphs.",
         },
         "tray": tray,
         "ncp": ncp,

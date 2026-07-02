@@ -886,6 +886,21 @@ def validate_static_wiring(failures: list[str]):
         failures,
     )
     assert_true(
+        'os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")' not in option_c_proof_text
+        and "F3-WS-VIS-TEXT-001" in option_c_proof_text
+        and "forcedOffscreenCapture" in option_c_proof_text
+        and "readable text widgets" in option_c_proof_text,
+        "tray/NCP visual proof must reject forced-offscreen glyph-box capture and require readable text evidence",
+        failures,
+    )
+    assert_true(
+        "font-family: 'Segoe UI';" in tray_text
+        and 'font-family: "Segoe UI";' in renderer_text
+        and "' - '.join(metadata_bits)" in renderer_text,
+        "tray/NCP runtime surfaces must carry readable Segoe UI text and ASCII-safe NCP choice metadata",
+        failures,
+    )
+    assert_true(
         "self.resident_status_label = None" in tray_text,
         "tray menu must keep long resident status out of the right-click menu",
         failures,
