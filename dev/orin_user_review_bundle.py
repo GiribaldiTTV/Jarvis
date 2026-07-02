@@ -257,6 +257,8 @@ UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("shell-variable-origin-main", re.compile(r"(?<![A-Za-z0-9_])\$originMain\b")),
     ("shell-variable-packet", re.compile(r"(?<![A-Za-z0-9_])\$packet\b")),
     ("shell-variable-zip", re.compile(r"(?<![A-Za-z0-9_])\$zip\b")),
+    ("shell-variable-named", re.compile(r"(?<![A-Za-z0-9_])\$[A-Za-z_][A-Za-z0-9_]*\b")),
+    ("braced-template-variable", re.compile(r"\$\{[^}\n]+\}")),
     ("unevaluated-shell-expression", re.compile(r"\$\([^)\n]+\)")),
 )
 BUNDLE_COUNT_FIELDS: tuple[str, ...] = (
@@ -1026,11 +1028,7 @@ def _validate_export_zip(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
         )
-    generated_packet_files = {
-        name: text
-        for name, text in packet_files.items()
-        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
-    }
+    generated_packet_files = _generated_packet_files_for_placeholder_scan(packet_files)
     artifact_failures = [
         *_unresolved_template_placeholder_failures(generated_packet_files),
         *_packet_identity_failures(
@@ -2976,11 +2974,7 @@ def validate_local_user_packet(
     folder_packet_files = _packet_text_files(packet_dir)
     packet_files = zip_packet_files if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else (zip_packet_files or folder_packet_files)
     failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
-    generated_packet_files = {
-        name: text
-        for name, text in packet_files.items()
-        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
-    }
+    generated_packet_files = _generated_packet_files_for_placeholder_scan(packet_files)
     failures.extend(_unresolved_template_placeholder_failures(generated_packet_files))
     failures.extend(_packet_count_consistency_failures(packet_files, actual_file_count=len(folder_entries)))
     failures.extend(_generic_user_facing_technical_metadata_failures(packet_files))
@@ -3101,6 +3095,16 @@ def _unresolved_template_placeholder_failures(packet_files: Mapping[str, str]) -
                 joined = ", ".join(matches)
                 failures.append(f"{file_name}: unresolved template placeholder {reason}: {joined}")
     return failures
+
+
+def _generated_packet_files_for_placeholder_scan(
+    packet_files: Mapping[str, str],
+) -> dict[str, str]:
+    return {
+        name: text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    }
 
 
 def _packet_count_consistency_failures(
@@ -11941,7 +11945,8 @@ def _validate_workstream_entry_packet_decision_path(
     actual_file_count: int | None = None,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     failures: list[str] = []
-    failures.extend(_unresolved_template_placeholder_failures(packet_files))
+    generated_packet_files = _generated_packet_files_for_placeholder_scan(packet_files)
+    failures.extend(_unresolved_template_placeholder_failures(generated_packet_files))
     if enforce_identity:
         failures.extend(
             _packet_identity_failures(
@@ -12466,8 +12471,9 @@ def build_bundle(
         for path in bundle_paths
         if path.suffix.lower() in {".md", ".txt", ".json"}
     }
+    generated_packet_files = _generated_packet_files_for_placeholder_scan(packet_files)
     artifact_failures = [
-        *_unresolved_template_placeholder_failures(packet_files),
+        *_unresolved_template_placeholder_failures(generated_packet_files),
         *_packet_count_consistency_failures(
             packet_files,
             actual_file_count=len(bundle_paths),
