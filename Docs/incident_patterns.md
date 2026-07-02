@@ -60,9 +60,9 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   Codex treats each PR comment as an isolated bug, adds an exact fixture, pushes, and re-requests review without first building a comment-family threat model; the PR bot becomes the first adversarial fuzzer and exposes defects that Stage 1 should have caught. Resolved review-thread state can hide the upstream PR1 miss unless high-volume churn itself is treated as failed pre-PR prediction.
 - fix pattern:
-  stop PR continuation on `Review Churn Root-Cause Gate Active`, build a Review-Comment Pattern Matrix from all same-family comments, identify the missing source-truth rule, parser assumption, helper/validator seam, fixture family, generated mutation/adversarial case, and sibling-risk set, then repair the durable owner and validator harness before any further review request
+  stop PR continuation on `Review Churn Root-Cause Gate Active`, build a Review-Comment Pattern Matrix from all same-family comments, identify the missing source-truth rule, parser assumption, helper/validator seam, fixture family, generated mutation/adversarial case, and sibling-risk set, then repair the durable owner and validator harness before any further review request. After the repair, run the local pre-PR adversarial firewall so changed helper/validator/parser files, corpus comments, unknown-comment guardrails, generated mutation variants, and sibling replay variants are green before another `@codex` request.
 - validation pattern:
-  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, every GitHub review-thread page and every pull-review-comment page inspected, total/resolved/unresolved/outdated/unresolved-current thread counts reported, every Codex Connector review comment clustered into a covered family, changed helper/validator/parser file coverage proven, review-churn budget status reported, exact root-cause receipt proof when the budget is exceeded, current-head green/approval latch handling that includes Codex Connector thumbs-up reactions when that is the live approval proof, and a final local Codex Connector simulation digest listing remaining sibling risks as cleared, waived, routed, or blocked
+  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, every GitHub review-thread page and every pull-review-comment page inspected, total/resolved/unresolved/outdated/unresolved-current thread counts reported, every Codex Connector review comment clustered into a covered family, changed helper/validator/parser file coverage proven, review-churn budget status reported, exact root-cause receipt proof when the budget is exceeded, current-head green/approval latch handling that includes Codex Connector thumbs-up reactions when that is the live approval proof, a final local Codex Connector simulation digest listing remaining sibling risks as cleared, waived, routed, or blocked, and a pre-PR firewall result from `dev/orin_pr_review_churn_validation.py --pre-pr-firewall` before PR creation or another review request when helper/validator/parser-family files changed. Pre-PR firewall manifests must run nested Python validation through the portable `{python}` token so Windows-only or POSIX-only launcher assumptions cannot become the first PR-bot finding.
   budget and parser precision checks must also include sibling false-red coverage: total-comment budget overruns and same-family budget overruns are independent receipt triggers, and no-decision wording must not negate affirmative proof/receipt text unless the proof or receipt itself is pending, missing, unrecorded, or unverified
 - source references:
   - `Docs/phase_governance.md`
@@ -241,6 +241,26 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/branch_plans/README.md`
   - `Docs/ui_reference_catalog/README.md`
   - `Docs/validation_helper_registry.md`
+
+## Pattern: Visual Acceptance Reviewability Becomes Product Acceptance
+
+- symptom:
+  a branch produces a clean USER packet, screenshot/contact-sheet evidence, UIREF citations, helper output, validator output, or CSS-marker comparison and then treats the surface as visually accepted even though USER did not accept/revise/waive a Visual Acceptance Target, no row-by-row visual-family comparison exists, and implementation-match proof is missing or backfilled after code was already written
+- layer:
+  BP2/BP3, Workstream, Hardening, Live Validation, RAR, UTS, PR Readiness, USER packets, UIREF adoption, Product Experience Contract proof, and branch-local visual repair loops
+- root-cause pattern:
+  Visual Acceptance, RAR, UIREF, Vision-To-Proof, Product Experience, and packet validation existed as separate checks, but the phase gate did not force them into one enforceable proof chain. Codex could prove that a packet was reviewable, that a screenshot existed, or that a reference was cited while still missing the USER-facing proof that the new surface belonged to the accepted Nexus visual family and served the intended product role.
+- fix pattern:
+  require the Visual Acceptance proof chain: `Vision Contract -> UIREF / Accepted Reference Set -> Visual Acceptance Target -> Implementation Match Proof -> Pre-Live Visual Purpose Conformance -> Live Validation -> UTS / PR`. Material visible UI must classify implementation authority, compare each element group against the accepted reference set, record Visual Family Relation Proof, record a Functionality Role Contract for new/detached/child/domain surfaces, keep packet reviewability separate from product acceptance, and stop on `Reference-Derived Parity Unproven`, `Template Gap`, `Shared Primitive Gap`, `Role-Ambiguous Surface Unrouted`, issue candidate, waiver, or repair when proof is incomplete.
+- validation pattern:
+  helpers and fixtures should fail on `Visual Acceptance Target Missing`, `Implementation Started Before Visual Acceptance`, `Implementation Match Proof Missing`, `Accepted Reference Not Compared`, `Reference-Derived Parity Unproven`, `Template Claim Unsupported`, `Shared Primitive Claim Unsupported`, `One-Off Implementation Overclaimed`, `Functionality Role Contract Missing`, `Packet Reviewability Treated As Product Acceptance`, `Screenshot Path Treated As Visual Acceptance`, `Helper Green Treated As Visual Acceptance`, `CSS Similarity Treated As Visual Family Proof`, `Implementation-First Visual Target Backfill`, and `Pre-Live Visual Purpose Conformance Missing` when machine-checkable.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/nexus_vision.md`
+  - `Docs/ui_reference_catalog/README.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
 
 ## Pattern: Future-Proofing Becomes Screenshot-Tuned One-Off Repair
 

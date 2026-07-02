@@ -32,7 +32,7 @@ PR Readiness Stage 1 is the normal fold-down checkpoint for reference effectiven
 
 ## Reference, Template, Primitive, And Comparative Synthesis Model
 
-Nexus UI reuse has five distinct model terms. `Accepted Reference`, `Implementation Template`, and `Shared Primitive` are reusable reference or implementation authority levels. `Accepted Reference Set` and `Comparative Synthesis` are comparison/proof structures that determine how those authorities apply to a specific branch surface.
+Nexus UI reuse has five distinct model terms. `Accepted Reference` is reusable reference authority. `Implementation Template` and `Shared Primitive` are reusable implementation authority levels. `Accepted Reference Set` and `Comparative Synthesis` are comparison/proof structures that determine how those authorities apply to a specific branch surface.
 
 - `Accepted Reference`: a USER-promoted visual, behavior, or proof grammar record. It tells Codex what accepted output should resemble, but it is not reusable implementation code and does not prove a consuming branch adopted the grammar correctly.
 - `Implementation Template`: a USER-approved scaffold or starting implementation with a named source path, applicability, required states, known limitations, and proof artifacts. A template may be copied or instantiated, but the consuming branch must still prove the result and classify any differences.
@@ -42,17 +42,19 @@ Nexus UI reuse has five distinct model terms. `Accepted Reference`, `Implementat
 
 Codex must not collapse these terms. A UIREF record is not an Implementation Template by itself. A screenshot, branch packet, helper result, or attractive accepted window is not a Shared Primitive. A branch that says it "used the template" must name the actual template or primitive source. If no approved template or primitive exists, the branch must classify the work as `Reference-Derived Implementation` and prove element-by-element parity against the Accepted Reference Set.
 
-Required implementation classification values:
+Required `Implementation Authority Classification:` values:
 
 - `Shared Primitive Consumed`
 - `Implementation Template Instantiated`
 - `Reference-Derived Implementation`
-- `Accepted Reference Set Compared`
+- `One-Off Implementation`
 - `USER-Approved Exception`
 - `Reference Gap`
 - `Template Gap`
 - `Shared Primitive Gap`
 - `Source-Truth Gap`
+
+`Accepted Reference Set Compared` is not an implementation-authority classification. It is a comparative-synthesis / proof disposition that may appear in accepted-reference or visual-family proof rows after the branch names the implementation authority. When no approved template or primitive exists and the branch compares against the accepted reference set, the implementation-authority value is `Reference-Derived Implementation`.
 
 Same-class element work should follow this order:
 
