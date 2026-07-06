@@ -1969,7 +1969,7 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
             "External State Item Status: <post-zip-reconciled-item-status>",
         ),
         (
-            r"^Stage:\s*`?(?:Returned Workstream-exit proof-quality / visual-adjudication repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.|Proof-quality packet accepted for reviewability; bounded returned-Workstream runtime repair approved; Workstream-exit Visual Acceptance not accepted\.|Bounded returned-Workstream runtime repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.)`?\s*$",
+            r"^Stage:\s*`?(?:Returned Workstream-exit proof-quality / visual-adjudication repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.|Proof-quality packet accepted for reviewability; bounded returned-Workstream runtime repair approved; Workstream-exit Visual Acceptance not accepted\.|Bounded returned-Workstream runtime repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.|Bounded returned-Workstream runtime repair proved; repaired Workstream-exit Visual Acceptance proof packet regeneration in progress for current helper hardening commit; Workstream-exit Visual Acceptance not accepted\.)`?\s*$",
             "Stage: <post-zip-reconciled-stage>",
         ),
         (
