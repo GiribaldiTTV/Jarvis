@@ -1502,6 +1502,7 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             dataset: Object.assign({}, node.dataset || {})
           }));
           const workspaceNodes = [...document.querySelectorAll("[data-domain-workspace]")];
+          const controlWorkspace = document.querySelector("[data-domain-workspace='control-center']");
           const readinessWorkspace = document.querySelector("[data-domain-workspace='readiness-diagnostics']");
           const capabilityWorkspace = document.querySelector("[data-domain-workspace='capabilities-maintenance']");
           const controls = [...document.querySelectorAll("[data-domain-command='window-minimize'], [data-domain-command='window-close']")];
@@ -1510,7 +1511,8 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             text: button.textContent.trim(),
             command: button.dataset.domainCommand || "",
             disabled: Boolean(button.disabled),
-            ariaDisabled: button.getAttribute("aria-disabled") || ""
+            ariaDisabled: button.getAttribute("aria-disabled") || "",
+            ariaPressed: button.getAttribute("aria-pressed") || ""
           }));
           const textFor = (id) => document.getElementById(id)?.textContent.trim() || "";
           return JSON.stringify({
@@ -1614,6 +1616,20 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             reportBoundary: textFor("report-boundary"),
             copyDisabled: Boolean(document.getElementById("copy-report")?.disabled),
             copyAriaDisabled: document.getElementById("copy-report")?.getAttribute("aria-disabled") || "",
+            controlCenterOperationalContract: controlWorkspace?.dataset.controlCenterOperationalContract || "",
+            controlCenterMode: controlWorkspace?.dataset.controlCenterMode || "",
+            controlCenterGuardClosed: controlWorkspace?.dataset.controlCenterGuardClosed || "",
+            controlCenterProviderActionExecuted: controlWorkspace?.dataset.controlCenterProviderActionExecuted || "",
+            controlCenterProviderModelExecution: controlWorkspace?.dataset.controlCenterProviderModelExecution || "",
+            controlCenterPromptSendExecution: controlWorkspace?.dataset.controlCenterPromptSendExecution || "",
+            controlCenterNetworkEgress: controlWorkspace?.dataset.controlCenterNetworkEgress || "",
+            controlCenterMemoryIndexing: controlWorkspace?.dataset.controlCenterMemoryIndexing || "",
+            controlCenterProviderVisibleData: controlWorkspace?.dataset.controlCenterProviderVisibleData || "",
+            controlCenterModeText: textFor("control-center-mode"),
+            controlCenterReviewState: textFor("control-center-review-state"),
+            controlCenterReviewDetail: textFor("control-center-review-detail"),
+            controlCenterRecoveryRoute: textFor("control-center-recovery-route"),
+            controlCenterTaxonomy: textFor("control-center-taxonomy"),
             updateExecution: document.querySelector("[data-update-execution]")?.dataset.updateExecution || "",
             downloadExecution: document.querySelector("[data-download-execution]")?.dataset.downloadExecution || "",
             installExecution: document.querySelector("[data-install-execution]")?.dataset.installExecution || "",
@@ -1621,6 +1637,19 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             capabilityExecution: capabilityWorkspace?.dataset.capabilityExecution || "",
             packagingExecution: capabilityWorkspace?.dataset.packagingExecution || "",
             capabilitiesBoundaryContract: capabilityWorkspace?.dataset.capabilitiesBoundaryContract || "",
+            capabilitiesMaintenanceWorkflowContract: capabilityWorkspace?.dataset.capabilitiesMaintenanceWorkflowContract || "",
+            capabilitiesMaintenanceMode: capabilityWorkspace?.dataset.capabilitiesMaintenanceMode || "",
+            capabilitiesMaintenanceActionExecuted: capabilityWorkspace?.dataset.capabilitiesMaintenanceActionExecuted || "",
+            capabilitiesMaintenanceDownloadExecution: capabilityWorkspace?.dataset.capabilitiesMaintenanceDownloadExecution || "",
+            capabilitiesMaintenanceInstallExecution: capabilityWorkspace?.dataset.capabilitiesMaintenanceInstallExecution || "",
+            capabilitiesMaintenanceUpdateExecution: capabilityWorkspace?.dataset.capabilitiesMaintenanceUpdateExecution || "",
+            capabilitiesMaintenanceFetchExecution: capabilityWorkspace?.dataset.capabilitiesMaintenanceFetchExecution || "",
+            capabilitiesMaintenancePackagingExecution: capabilityWorkspace?.dataset.capabilitiesMaintenancePackagingExecution || "",
+            capabilitiesMaintenancePrivateSetup: capabilityWorkspace?.dataset.capabilitiesMaintenancePrivateSetup || "",
+            capabilitiesModeText: textFor("capabilities-mode"),
+            capabilitiesWorkflowState: textFor("capabilities-workflow-state"),
+            capabilitiesWorkflowDetail: textFor("capabilities-workflow-detail"),
+            capabilitiesWorkflowNext: textFor("capabilities-workflow-next"),
             capabilityPackLifecycleState: capabilityWorkspace?.dataset.capabilityPackLifecycleState || "",
             capabilityPackDownloadState: capabilityWorkspace?.dataset.capabilityPackDownloadState || "",
             installIntentState: capabilityWorkspace?.dataset.installIntentState || "",
@@ -1793,6 +1822,164 @@ def _exercise_readiness_child_window(app: QApplication, window, log_root: Path) 
         "copyClick": copy_click,
         "copyDomClickFallback": copy_fallback,
         "afterCopy": after_copy,
+    }
+
+
+def _click_child_button_with_dom_fallback(
+    app: QApplication,
+    window,
+    button_id: str,
+    *,
+    expected_field: str,
+    expected_value: str,
+) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+    click = _click_web_button(app, window, button_id)
+    _pump(app, 280)
+    after = _probe_child_window(app, window)
+    fallback = {"ok": False, "skipped": True, "reason": "os-cursor-click-updated-expected-state"}
+    if ((after.get("dom") or {}).get(expected_field) != expected_value):
+        raw = _run_child_js(
+            app,
+            window,
+            f"""
+            (() => {{
+              const button = document.getElementById({json.dumps(button_id)});
+              if (!button) return JSON.stringify({{ ok: false, reason: "missing-button" }});
+              button.click();
+              return JSON.stringify({{ ok: true, button: {json.dumps(button_id)}, clickMode: "dom-button-click-fallback" }});
+            }})();
+            """,
+        )
+        try:
+            fallback = json.loads(raw or "{}")
+        except Exception:
+            fallback = {"ok": False, "raw": str(raw or "")}
+        _pump(app, 320)
+        after = _probe_child_window(app, window)
+    return click, fallback, after
+
+
+def _exercise_control_center_child_window(app: QApplication, window, log_root: Path) -> dict[str, object]:
+    if window is None:
+        return {"ok": False, "reason": "missing-control-center-window"}
+    before = _probe_child_window(app, window)
+    visual_proof_screenshots: dict[str, dict[str, str]] = {
+        "beforeBoundary": _capture_window(app, window, log_root, "23_control_center_before_boundary_review"),
+    }
+    boundary_click, boundary_fallback, after_boundary = _click_child_button_with_dom_fallback(
+        app,
+        window,
+        "control-review-boundary",
+        expected_field="controlCenterMode",
+        expected_value="boundary",
+    )
+    visual_proof_screenshots["afterBoundaryReview"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "24_control_center_after_boundary_review",
+    )
+    recovery_click, recovery_fallback, after_recovery = _click_child_button_with_dom_fallback(
+        app,
+        window,
+        "control-review-recovery",
+        expected_field="controlCenterMode",
+        expected_value="recovery",
+    )
+    visual_proof_screenshots["afterRecoveryRoute"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "25_control_center_after_recovery_route",
+    )
+    taxonomy_click, taxonomy_fallback, after_taxonomy = _click_child_button_with_dom_fallback(
+        app,
+        window,
+        "control-review-taxonomy",
+        expected_field="controlCenterMode",
+        expected_value="taxonomy",
+    )
+    visual_proof_screenshots["afterStateTaxonomy"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "26_control_center_after_state_taxonomy",
+    )
+    return {
+        "ok": True,
+        "before": before,
+        "visualProofScreenshots": visual_proof_screenshots,
+        "boundaryClick": boundary_click,
+        "boundaryDomClickFallback": boundary_fallback,
+        "afterBoundary": after_boundary,
+        "recoveryClick": recovery_click,
+        "recoveryDomClickFallback": recovery_fallback,
+        "afterRecovery": after_recovery,
+        "taxonomyClick": taxonomy_click,
+        "taxonomyDomClickFallback": taxonomy_fallback,
+        "afterTaxonomy": after_taxonomy,
+    }
+
+
+def _exercise_capabilities_child_window(app: QApplication, window, log_root: Path) -> dict[str, object]:
+    if window is None:
+        return {"ok": False, "reason": "missing-capabilities-maintenance-window"}
+    before = _probe_child_window(app, window)
+    visual_proof_screenshots: dict[str, dict[str, str]] = {
+        "beforeLifecycle": _capture_window(app, window, log_root, "27_capabilities_before_lifecycle_review"),
+    }
+    lifecycle_click, lifecycle_fallback, after_lifecycle = _click_child_button_with_dom_fallback(
+        app,
+        window,
+        "capabilities-review-lifecycle",
+        expected_field="capabilitiesMaintenanceMode",
+        expected_value="lifecycle",
+    )
+    visual_proof_screenshots["afterLifecycleReview"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "28_capabilities_after_lifecycle_review",
+    )
+    lanes_click, lanes_fallback, after_lanes = _click_child_button_with_dom_fallback(
+        app,
+        window,
+        "capabilities-review-lanes",
+        expected_field="capabilitiesMaintenanceMode",
+        expected_value="lanes",
+    )
+    visual_proof_screenshots["afterEditionGates"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "29_capabilities_after_edition_gates",
+    )
+    maintenance_click, maintenance_fallback, after_maintenance = _click_child_button_with_dom_fallback(
+        app,
+        window,
+        "capabilities-review-maintenance",
+        expected_field="capabilitiesMaintenanceMode",
+        expected_value="maintenance",
+    )
+    visual_proof_screenshots["afterMaintenanceHold"] = _capture_window(
+        app,
+        window,
+        log_root,
+        "30_capabilities_after_maintenance_hold",
+    )
+    return {
+        "ok": True,
+        "before": before,
+        "visualProofScreenshots": visual_proof_screenshots,
+        "lifecycleClick": lifecycle_click,
+        "lifecycleDomClickFallback": lifecycle_fallback,
+        "afterLifecycle": after_lifecycle,
+        "lanesClick": lanes_click,
+        "lanesDomClickFallback": lanes_fallback,
+        "afterLanes": after_lanes,
+        "maintenanceClick": maintenance_click,
+        "maintenanceDomClickFallback": maintenance_fallback,
+        "afterMaintenance": after_maintenance,
     }
 
 
@@ -2893,7 +3080,9 @@ def main() -> int:
     child_chrome_probe = {}
     child_geometry_behavior = {}
     child_comparison_boards = {}
+    control_center_result = {}
     readiness_result = {}
+    capabilities_result = {}
     singleton_focus = {}
     child_control_behavior = {}
     opened_desktop_hashes = {}
@@ -3101,8 +3290,46 @@ def main() -> int:
             screenshot_paths = readiness_visual_screenshots.get(state_key)
             if isinstance(screenshot_paths, dict):
                 screenshots[screenshot_key] = screenshot_paths
+    control_window = dialog._domain_windows.get("control-center")
+    control_center_result = _exercise_control_center_child_window(app, control_window, log_root)
+    control_visual_state_names = {
+        "beforeBoundary": "control_before_boundary_review",
+        "afterBoundaryReview": "control_after_boundary_review",
+        "afterRecoveryRoute": "control_after_recovery_route",
+        "afterStateTaxonomy": "control_after_state_taxonomy",
+    }
+    control_visual_screenshots = (
+        control_center_result.get("visualProofScreenshots")
+        if isinstance(control_center_result, dict)
+        else {}
+    )
+    if isinstance(control_visual_screenshots, dict):
+        for state_key, screenshot_key in control_visual_state_names.items():
+            screenshot_paths = control_visual_screenshots.get(state_key)
+            if isinstance(screenshot_paths, dict):
+                screenshots[screenshot_key] = screenshot_paths
+    capabilities_window = dialog._domain_windows.get("capabilities-maintenance")
+    capabilities_result = _exercise_capabilities_child_window(app, capabilities_window, log_root)
+    capabilities_visual_state_names = {
+        "beforeLifecycle": "capabilities_before_lifecycle_review",
+        "afterLifecycleReview": "capabilities_after_lifecycle_review",
+        "afterEditionGates": "capabilities_after_edition_gates",
+        "afterMaintenanceHold": "capabilities_after_maintenance_hold",
+    }
+    capabilities_visual_screenshots = (
+        capabilities_result.get("visualProofScreenshots")
+        if isinstance(capabilities_result, dict)
+        else {}
+    )
+    if isinstance(capabilities_visual_screenshots, dict):
+        for state_key, screenshot_key in capabilities_visual_state_names.items():
+            screenshot_paths = capabilities_visual_screenshots.get(state_key)
+            if isinstance(screenshot_paths, dict):
+                screenshots[screenshot_key] = screenshot_paths
     child_control_behavior = {
+        "controlCenterLocalBoundaryReview": control_center_result,
         "readinessLocalCheckReportCopy": readiness_result,
+        "capabilitiesMaintenanceDisplayWorkflow": capabilities_result,
         "providerExecutionEvents": [
             event for event in events
             if "AI_DASHBOARD_DOMAIN_WINDOW_COMMAND" in event
@@ -3705,18 +3932,12 @@ def main() -> int:
             }
         )
 
-    def _readiness_after_action_visual_proof_ok(result: object) -> bool:
-        if not isinstance(result, dict) or result.get("ok") is not True:
+    def _visual_proof_screenshots_exist(result: object, required_states: tuple[str, ...]) -> bool:
+        if not isinstance(result, dict):
             return False
         screenshots_by_state = result.get("visualProofScreenshots")
         if not isinstance(screenshots_by_state, dict):
             return False
-        required_states = (
-            "beforeRun",
-            "afterLocalCheck",
-            "afterReportGeneration",
-            "afterCopyAction",
-        )
         for state_name in required_states:
             screenshots_for_state = screenshots_by_state.get(state_name)
             if not isinstance(screenshots_for_state, dict):
@@ -3725,7 +3946,126 @@ def main() -> int:
                 image_path = Path(str(screenshots_for_state.get(key) or ""))
                 if not image_path.is_file():
                     return False
-        return _readiness_actions_ok(result)
+        return True
+
+    def _control_center_actions_ok(result: object) -> bool:
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            return False
+        if not _visual_proof_screenshots_exist(
+            result,
+            ("beforeBoundary", "afterBoundaryReview", "afterRecoveryRoute", "afterStateTaxonomy"),
+        ):
+            return False
+        expected_active = {
+            "boundary": "show-control-boundary",
+            "recovery": "show-control-recovery",
+            "taxonomy": "show-control-taxonomy",
+        }
+        states = {
+            "boundary": result.get("afterBoundary"),
+            "recovery": result.get("afterRecovery"),
+            "taxonomy": result.get("afterTaxonomy"),
+        }
+        for mode, probe in states.items():
+            if not isinstance(probe, dict):
+                return False
+            dom = probe.get("dom") if isinstance(probe.get("dom"), dict) else {}
+            buttons = dom.get("actionButtons") if isinstance(dom.get("actionButtons"), list) else []
+            active_buttons = [
+                button for button in buttons
+                if isinstance(button, dict) and button.get("ariaPressed") == "true"
+            ]
+            if not (
+                dom.get("controlCenterOperationalContract") == "ai-control-center-local-boundary-control-v1"
+                and dom.get("controlCenterMode") == mode
+                and dom.get("controlCenterGuardClosed") == "true"
+                and dom.get("controlCenterProviderActionExecuted") == "false"
+                and dom.get("controlCenterProviderModelExecution") == "blocked"
+                and dom.get("controlCenterPromptSendExecution") == "blocked"
+                and dom.get("controlCenterNetworkEgress") == "network-egress-blocked"
+                and dom.get("controlCenterMemoryIndexing") == "memory-indexing-disabled"
+                and dom.get("controlCenterProviderVisibleData") == "none"
+                and dom.get("providerVisibleData") == "None"
+                and dom.get("providerModel") == "Disabled and blocked"
+                and dom.get("promptMemory") == "Not accepted, sent, stored, or indexed"
+                and dom.get("controlCenterModeText")
+                and dom.get("controlCenterReviewState")
+                and dom.get("controlCenterReviewDetail")
+                and dom.get("controlCenterRecoveryRoute")
+                and dom.get("controlCenterTaxonomy")
+                and len(active_buttons) == 1
+                and active_buttons[0].get("command") == expected_active[mode]
+            ):
+                return False
+        return True
+
+    def _capabilities_workflow_ok(result: object) -> bool:
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            return False
+        if not _visual_proof_screenshots_exist(
+            result,
+            ("beforeLifecycle", "afterLifecycleReview", "afterEditionGates", "afterMaintenanceHold"),
+        ):
+            return False
+        expected_active = {
+            "lifecycle": "show-capability-lifecycle",
+            "lanes": "show-capability-lanes",
+            "maintenance": "show-capability-maintenance",
+        }
+        states = {
+            "lifecycle": result.get("afterLifecycle"),
+            "lanes": result.get("afterLanes"),
+            "maintenance": result.get("afterMaintenance"),
+        }
+        for mode, probe in states.items():
+            if not isinstance(probe, dict):
+                return False
+            dom = probe.get("dom") if isinstance(probe.get("dom"), dict) else {}
+            buttons = dom.get("actionButtons") if isinstance(dom.get("actionButtons"), list) else []
+            active_buttons = [
+                button for button in buttons
+                if isinstance(button, dict) and button.get("ariaPressed") == "true"
+            ]
+            if not (
+                dom.get("capabilitiesBoundaryContract") == "capabilities-maintenance-developer-owner-boundary-v1"
+                and dom.get("capabilitiesMaintenanceWorkflowContract") == "capabilities-maintenance-display-workflow-v1"
+                and dom.get("capabilitiesMaintenanceMode") == mode
+                and dom.get("capabilitiesMaintenanceActionExecuted") == "false"
+                and dom.get("capabilitiesMaintenanceDownloadExecution") == "blocked"
+                and dom.get("capabilitiesMaintenanceInstallExecution") == "blocked"
+                and dom.get("capabilitiesMaintenanceUpdateExecution") == "blocked"
+                and dom.get("capabilitiesMaintenanceFetchExecution") == "blocked"
+                and dom.get("capabilitiesMaintenancePackagingExecution") == "blocked"
+                and dom.get("downloadExecution") == "blocked"
+                and dom.get("installExecution") == "blocked"
+                and dom.get("updateExecution") == "blocked"
+                and dom.get("fetchExecution") == "blocked"
+                and dom.get("capabilityExecution") == "blocked"
+                and dom.get("packagingExecution") == "blocked"
+                and dom.get("capabilityPacks") == "Install blocked; downloads disabled"
+                and dom.get("maintenanceUpdates") == "Lifecycle placement only; update execution blocked"
+                and dom.get("capabilitiesModeText")
+                and dom.get("capabilitiesWorkflowState")
+                and dom.get("capabilitiesWorkflowDetail")
+                and dom.get("capabilitiesWorkflowNext")
+                and len(active_buttons) == 1
+                and active_buttons[0].get("command") == expected_active[mode]
+            ):
+                return False
+        return True
+
+    def _readiness_after_action_visual_proof_ok(result: object) -> bool:
+        if not isinstance(result, dict) or result.get("ok") is not True:
+            return False
+        return _visual_proof_screenshots_exist(
+            result,
+            (
+            "beforeRun",
+            "afterLocalCheck",
+            "afterReportGeneration",
+            "afterCopyAction",
+            ),
+        ) and _readiness_actions_ok(result)
 
     def _dashboard_readiness_flow_contract_ok() -> bool:
         cards = dashboard_probe.get("stateTaxonomyCards") if isinstance(dashboard_probe.get("stateTaxonomyCards"), dict) else {}
@@ -3914,7 +4254,9 @@ def main() -> int:
             and provider_state.as_renderer_payload().get("networkEgressState") == "network-egress-blocked"
             and provider_state.as_renderer_payload().get("memoryIndexingState") == "memory-indexing-disabled"
         ),
+        "controlCenterLocalBoundaryControlProven": _control_center_actions_ok(control_center_result),
         "capabilitiesMaintenanceDeveloperOwnerBoundaryDisplayProven": _capabilities_boundary_ok(),
+        "capabilitiesMaintenanceDisplayWorkflowProven": _capabilities_workflow_ok(capabilities_result),
         "parentVisualMetrics": (
             dashboard_probe.get("defaultWindowWidth") == "471"
             and dashboard_probe.get("defaultWindowHeight") == "598"
@@ -4256,6 +4598,8 @@ def main() -> int:
         "childChromeProbe": child_chrome_probe,
         "childControlBehavior": child_control_behavior,
         "childPurposeMatchedContactSheets": child_comparison_boards,
+        "controlCenterResult": control_center_result,
+        "capabilitiesResult": capabilities_result,
         "fullDesktopHashes": opened_desktop_hashes,
         "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {

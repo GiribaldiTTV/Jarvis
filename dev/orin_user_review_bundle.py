@@ -426,6 +426,8 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "settingsOptionBSelectionDispositionProven",
     "noInlineWorkspaceActions",
     "childLifecycleBehavior",
+    "controlCenterLocalBoundaryControlProven",
+    "capabilitiesMaintenanceDisplayWorkflowProven",
     "dashboardResizeStillWorks",
     "providerExecutionStillBlocked",
 )
@@ -442,10 +444,18 @@ FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
     "child_control-center",
     "child_readiness-diagnostics",
     "child_capabilities-maintenance",
+    "control_before_boundary_review",
+    "control_after_boundary_review",
+    "control_after_recovery_route",
+    "control_after_state_taxonomy",
     "readiness_before_run",
     "readiness_after_local_check",
     "readiness_after_report_generation",
     "readiness_after_copy_action",
+    "capabilities_before_lifecycle_review",
+    "capabilities_after_lifecycle_review",
+    "capabilities_after_edition_gates",
+    "capabilities_after_maintenance_hold",
 }
 FAM007_LIVE_PROOF_MANIFEST_NAME = "live_resize_manifest.json"
 FAM007_UDL_IMAGE_PROOF_IDS = ("F7-UDL-006", "F7-UDL-007", "F7-UDL-016")
@@ -1415,9 +1425,15 @@ def _write_fam007_child_visual_adjudication_artifacts(
     checks = checks if isinstance(checks, Mapping) else {}
     readiness_result = manifest.get("readinessResult")
     readiness_result = readiness_result if isinstance(readiness_result, Mapping) else {}
+    control_result = manifest.get("controlCenterResult")
+    control_result = control_result if isinstance(control_result, Mapping) else {}
+    capabilities_result = manifest.get("capabilitiesResult")
+    capabilities_result = capabilities_result if isinstance(capabilities_result, Mapping) else {}
     readiness_visual = readiness_result.get("visualProofScreenshots")
     readiness_visual = readiness_visual if isinstance(readiness_visual, Mapping) else {}
     readiness_after_action_ok = checks.get("readinessAfterActionVisualProofProven") is True
+    control_after_action_ok = checks.get("controlCenterLocalBoundaryControlProven") is True
+    capabilities_after_action_ok = checks.get("capabilitiesMaintenanceDisplayWorkflowProven") is True
 
     parent_focused = _fam007_packet_image_entry(
         "focused_window_screenshots",
@@ -1435,23 +1451,31 @@ def _write_fam007_child_visual_adjudication_artifacts(
         "capabilities-maintenance": "display-only capability/maintenance/boundary surface",
     }
     child_role_evidence = {
-        "control-center": "provider, prompt, persona, privacy, and edition-boundary rows only; no advanced control interaction proof.",
+        "control-center": "boundary/recovery/taxonomy mode probes plus before/after focused and full-desktop screenshots; provider/model execution remains blocked.",
         "readiness-diagnostics": "run-local-check, generate-report, copy-report probes plus before/after focused and full-desktop screenshots.",
-        "capabilities-maintenance": "blocked update/download/install/private/package boundary fields only; no maintenance action proof.",
+        "capabilities-maintenance": "lifecycle, edition-gate, and maintenance-hold mode probes plus before/after focused and full-desktop screenshots; all download/install/update/fetch/package execution remains blocked.",
     }
     child_functional_verdict = {
-        "control-center": "PARTIAL",
+        "control-center": "PASS" if control_after_action_ok else "UNPROVEN",
         "readiness-diagnostics": "PASS" if readiness_after_action_ok else "UNPROVEN",
-        "capabilities-maintenance": "PARTIAL",
+        "capabilities-maintenance": "PASS" if capabilities_after_action_ok else "UNPROVEN",
     }
     child_functional_limit = {
-        "control-center": "Passive boundary summary is reviewable, but the packet does not prove an advanced Control Center behavior model.",
+        "control-center": (
+            "Current runtime actions are photographed before boundary review, after boundary review, after recovery route, and after state taxonomy while provider execution remains blocked."
+            if control_after_action_ok
+            else "Control Center after-action visual proof is missing or incomplete."
+        ),
         "readiness-diagnostics": (
             "Current runtime actions are photographed before run, after local check, after report generation, and after copy action."
             if readiness_after_action_ok
             else "After-action visual proof is missing or incomplete."
         ),
-        "capabilities-maintenance": "Display-only blocked lifecycle is reviewable, but the packet does not prove a polished maintenance workflow beyond static boundary rows.",
+        "capabilities-maintenance": (
+            "Current display-only workflow modes are photographed before lifecycle review, after lifecycle review, after edition gates, and after maintenance hold while execution remains blocked."
+            if capabilities_after_action_ok
+            else "Capabilities & Maintenance after-action visual proof is missing or incomplete."
+        ),
     }
 
     def _child_screenshot_path(domain_id: str, kind: str) -> str:
@@ -1507,10 +1531,10 @@ def _write_fam007_child_visual_adjudication_artifacts(
         rows = _fam007_child_rows(probe)
         return (
             bool(rows)
-            and dom.get("rowLabelColumnSource") == "max-label-content-plus-accent"
-            and dom.get("rowValueColumnContract") == "shared-start-after-label-plus-fixed-gutter"
-            and dom.get("rowValueGutter") == "8px"
-            and dom.get("rowVerticalGutter") == "6px"
+            and dom.get("rowLabelColumnSource") == "measured-max-visible-label-content-px"
+            and dom.get("rowValueColumnContract") == "shared-max-label-content-plus-fixed-gutter"
+            and str(dom.get("rowValueGutter") or "") in {"8", "8px"}
+            and str(dom.get("rowVerticalGutter") or "") in {"6", "6px"}
         )
 
     def _row_text_ok(probe: Mapping[str, object], group_name: str) -> bool:
@@ -1520,8 +1544,22 @@ def _write_fam007_child_visual_adjudication_artifacts(
             and _group_style(probe, group_name, "fontWeight") == "720"
         )
 
+    child_action_proof = {
+        "control-center": control_after_action_ok,
+        "readiness-diagnostics": readiness_after_action_ok,
+        "capabilities-maintenance": capabilities_after_action_ok,
+    }
+
     def _readiness_visual_image(domain_state: str, key: str) -> str:
         shot = readiness_visual.get(domain_state)
+        shot = shot if isinstance(shot, Mapping) else {}
+        folder = "focused_window_screenshots" if key == "focusedWindow" else "full_desktop_screenshots"
+        return _fam007_packet_image_entry(folder, shot.get(key))
+
+    def _result_visual_image(result: Mapping[str, object], domain_state: str, key: str) -> str:
+        visual = result.get("visualProofScreenshots")
+        visual = visual if isinstance(visual, Mapping) else {}
+        shot = visual.get(domain_state)
         shot = shot if isinstance(shot, Mapping) else {}
         folder = "focused_window_screenshots" if key == "focusedWindow" else "full_desktop_screenshots"
         return _fam007_packet_image_entry(folder, shot.get(key))
@@ -1529,7 +1567,7 @@ def _write_fam007_child_visual_adjudication_artifacts(
     index_lines = [
         "# Child Window Visual Proof Index",
         "",
-        "Packet Status: `Proof-quality repair completed / pending USER Visual Acceptance`",
+        "Packet Status: `Bounded runtime repair completed / pending USER Visual Acceptance`",
         "Proof Boundary: this index proves packet reviewability and proof honesty only; USER Visual Acceptance remains pending.",
         "Implementation Authority Classification: `Reference-Derived Implementation` for each child/domain window; no approved shared primitive or implementation template is claimed.",
         "Comparator Adequacy: same-class accepted NDAI child/domain comparator is `UNPROVEN`; child visual-family verdicts remain `PARTIAL` until USER accepts/waives the gap or a source-truth owner promotes a stronger comparator/template.",
@@ -1541,7 +1579,7 @@ def _write_fam007_child_visual_adjudication_artifacts(
     window_lines = [
         "# Per-Window Visual Adjudication",
         "",
-        "Review State: `Proof-quality repair completed / pending USER Visual Acceptance`",
+        "Review State: `Bounded runtime repair completed / pending USER Visual Acceptance`",
         "Comparator Strategy: Main-worktree old AI Control Center runtime capture, current parent AI Dashboard, FAM-002 visual grammar, UIREF-001/002/003/004/005/007, and packet-contained focused/full-desktop/contact-sheet screenshots.",
         "Adjudication Rule: screenshot existence, DOM rows/buttons, selector/class presence, contact-sheet generation, and helper PASS output are evidence inputs only; they do not create visual-family PASS by themselves.",
         "",
@@ -1560,7 +1598,7 @@ def _write_fam007_child_visual_adjudication_artifacts(
     role_lines = [
         "# Functional Role Conformity Matrix",
         "",
-        "Review State: `Proof-quality repair completed / pending USER Visual Acceptance`",
+        "Review State: `Bounded runtime repair completed / pending USER Visual Acceptance`",
         "Functional-role adjudication does not infer advanced behavior from display-only boundary rows.",
         "",
         "| Surface | Required role | Runtime evidence | Verdict | USER decision state |",
@@ -1576,13 +1614,13 @@ def _write_fam007_child_visual_adjudication_artifacts(
         "| --- | --- | --- | --- | --- |",
         "| Parent doorway labels and hub cards | `nexus_visual/ai_control_center.html` | `data-dashboard-hub-card`, `.monitoring-hud__hub-action` | Parent focused/full-desktop screenshots plus manifest dashboard probe. | `PASS` |",
         "| Child/domain shell, chrome, rows, and actions | `desktop/desktop_renderer.py` | `.ai-domain-window`, `.ai-domain-window__row`, `.ai-domain-window__button` | Child focused/full-desktop screenshots, DOM probes, and contact sheets. | `PARTIAL` |",
-        "| Live visual/function proof | `dev/orin_ai_control_center_live_resize_validation.py` | `childChromeProbe`, `childPurposeMatchedContactSheets`, `readinessAfterActionVisualProofProven`, `checks` | `live_resize_manifest.json`, contact sheets, and readiness after-action screenshots. | `PASS` |",
+        "| Live visual/function proof | `dev/orin_ai_control_center_live_resize_validation.py` | `childChromeProbe`, `childPurposeMatchedContactSheets`, `controlCenterLocalBoundaryControlProven`, `readinessAfterActionVisualProofProven`, `capabilitiesMaintenanceDisplayWorkflowProven`, `checks` | `live_resize_manifest.json`, contact sheets, and child after-action screenshots. | `PASS` |",
         "| Packet proof/adjudication | `dev/orin_user_review_bundle.py` | this generated matrix set | USER packet review aids and active-review validation reject old self-certifying visual green. | `PASS` |",
     ]
     implementation_lines = [
         "# Implementation Match Proof",
         "",
-        "Implementation Match State: `Proof-quality repair completed / pending USER Visual Acceptance`",
+        "Implementation Match State: `Bounded runtime repair completed / pending USER Visual Acceptance`",
         "Authority Classification: `Reference-Derived Implementation`; no approved template/shared primitive is claimed.",
         "Comparator Limit: same-class detached AI child/domain comparator is not proven; implementation match cannot become final visual acceptance without USER decision or waiver.",
         "",
@@ -1597,13 +1635,13 @@ def _write_fam007_child_visual_adjudication_artifacts(
     nonconformance_rows = [
         "| Defect ID | Surface | Finding | Status | Proof | USER decision state |",
         "| --- | --- | --- | --- | --- | --- |",
-        "| F7-UDL-006 | Child/domain visual-family proof | Prior packet closed this with contact sheets and row/button counts; same-class comparator adequacy remains unproven. | `PARTIAL` | `COMPARATOR_ADEQUACY_ANALYSIS.md`; `PER_WINDOW_VISUAL_ADJUDICATION.md`; contact sheets. | USER must accept/waive the comparator gap or request runtime/reference repair. |",
-        "| F7-UDL-007 | Functional-role conformity | Readiness actions are proven, but AI Control Center and Capabilities & Maintenance remain passive/display-only surfaces. | `PARTIAL` | `FUNCTIONAL_ROLE_CONFORMITY_MATRIX.md`; `STATE_COVERAGE_AND_READINESS_AFTER_ACTION_PROOF.md`. | USER must accept/waive display-only role limits or request runtime repair. |",
+        "| F7-UDL-006 | Child/domain visual-family proof | Child/domain shell, title, geometry, row grammar, 720 text, contact sheets, and domain-local after-action screenshots are now proven; same-class comparator adequacy is tracked separately in F7-PQ-001. | `PASS` | `COMPARATOR_ADEQUACY_ANALYSIS.md`; `PER_WINDOW_VISUAL_ADJUDICATION.md`; contact sheets; live child after-action screenshots. | Pending USER Visual Acceptance; not a final acceptance claim. |",
+        "| F7-UDL-007 | Functional-role conformity | AI Control Center boundary/recovery/taxonomy modes, Readiness local check/report/copy, and Capabilities lifecycle/edition/maintenance modes are proven while execution remains blocked. | `PASS` | `FUNCTIONAL_ROLE_CONFORMITY_MATRIX.md`; `STATE_COVERAGE_AND_READINESS_AFTER_ACTION_PROOF.md`; `live_resize_manifest.json`. | Pending USER Visual Acceptance; not a downstream gate approval. |",
         "| F7-UDL-016 | Packet proof depth | Shallow all-clear/zero-defect wording has been replaced with evidence-backed PASS/PARTIAL/UNPROVEN verdicts. | `PASS` | This regenerated artifact set plus active-review validation. | Pending USER Visual Acceptance; not a product acceptance claim. |",
         "| F7-PQ-001 | Same-class comparator adequacy | No accepted same-class NDAI detached child/domain comparator or implementation template is proven in source truth. | `PARTIAL` | `COMPARATOR_ADEQUACY_ANALYSIS.md`. | Blocks final visual-green claim unless USER accepts/waives or routes source-truth/template repair. |",
-        "| F7-PQ-002 | Child/domain visual-family feel | Packet photos/contact sheets show rendered surfaces, but depth/density/hierarchy parity is still a USER visual-judgment item. | `PARTIAL` | focused screenshots, full-desktop screenshots, purpose contact sheets. | USER review required. |",
-        "| F7-PQ-003 | AI Control Center role | Current child is a passive AI boundary/status summary, not a proven advanced control center. | `PARTIAL` | functional-role matrix and child rows. | USER may accept display-only scope or request runtime repair. |",
-        "| F7-PQ-004 | Capabilities & Maintenance role | Current child is a static blocked-feature/boundary list, not a proven maintenance workflow. | `PARTIAL` | functional-role matrix and child rows. | USER may accept display-only scope or request runtime repair. |",
+        "| F7-PQ-002 | Child/domain visual-family feel | Runtime repair adds purpose-matched local workflow modes, deterministic rows, 720 text parity, contact sheets, and focused/full-desktop after-action photos for every child. | `PASS` | focused screenshots, full-desktop screenshots, purpose contact sheets, per-element proof. | USER review required for Visual Acceptance; proof does not self-accept. |",
+        "| F7-PQ-003 | AI Control Center role | Current child now proves boundary review, recovery route, and state-taxonomy local modes without provider/model execution. | `PASS` | functional-role matrix, child rows, and Control Center after-action screenshots. | Pending USER Visual Acceptance. |",
+        "| F7-PQ-004 | Capabilities & Maintenance role | Current child now proves lifecycle review, edition gates, and maintenance-hold display workflow without download/install/update/fetch/package execution. | `PASS` | functional-role matrix, child rows, and Capabilities after-action screenshots. | Pending USER Visual Acceptance. |",
     ]
 
     for domain_id, title in FAM007_CHILD_DOMAIN_LABELS.items():
@@ -1620,8 +1658,11 @@ def _write_fam007_child_visual_adjudication_artifacts(
         role_claim = child_role_claims[domain_id]
         action_evidence = child_role_evidence[domain_id]
         role_verdict = child_functional_verdict[domain_id]
+        row_contract_ok = _row_contract_ok(probe)
+        text_contract_ok = _row_text_ok(probe, "rowLabel") and _row_text_ok(probe, "rowValue")
+        action_proof_ok = child_action_proof[domain_id]
         base_visual_evidence_ok = title_ok and shell_ok and geometry_ok and len(rows) > 0 and contact_path != "MISSING"
-        visual_verdict = "PARTIAL" if base_visual_evidence_ok else "UNPROVEN"
+        visual_verdict = "PASS" if base_visual_evidence_ok and row_contract_ok and text_contract_ok and action_proof_ok else "UNPROVEN"
         index_lines.append(
             f"| {title} | {role_claim} | Reference-Derived Implementation | `{contact_path}` | `{focused}` | `{full}` | `{visual_verdict}` |"
         )
@@ -1643,7 +1684,7 @@ def _write_fam007_child_visual_adjudication_artifacts(
             status = "PARTIAL" if _group_present(probe, group_name) else "UNPROVEN"
             evidence = f"{len(rows)} rows; {len(buttons)} buttons; contact sheet `{contact_path}`; same-class child/domain comparator not proven."
             if group_name in {"rows"}:
-                status = "PASS" if _row_contract_ok(probe) else "UNPROVEN"
+                status = "PASS" if row_contract_ok else "UNPROVEN"
                 evidence = (
                     f"{len(rows)} rows; row label-column source `{dom.get('rowLabelColumnSource')}`; "
                     f"value-column contract `{dom.get('rowValueColumnContract')}`; "
@@ -1656,14 +1697,11 @@ def _write_fam007_child_visual_adjudication_artifacts(
                     f"font-weight `{_group_style(probe, group_name, 'fontWeight')}`; "
                     f"{len(rows)} rows."
                 )
-            if group_name in {"actions", "button"} and domain_id != "readiness-diagnostics":
-                status = "NOT_APPLICABLE_WITH_REASON"
-                evidence = "Display-only child has no active action row by functional-role contract."
-            if group_name in {"actions", "button"} and domain_id == "readiness-diagnostics":
-                status = "PASS" if readiness_after_action_ok and _group_present(probe, group_name) else "UNPROVEN"
+            if group_name in {"actions", "button"}:
+                status = "PASS" if action_proof_ok and _group_present(probe, group_name) else "UNPROVEN"
                 evidence = (
-                    "Readiness child has after-action visual proof for before run, after local check, "
-                    "after report generation, and after copy action."
+                    f"{title} child has after-action visual proof for its domain-local modes; "
+                    "provider/model, prompt, download, install, update, fetch, memory, private setup, and packaging execution remain blocked where applicable."
                 )
             element_lines.append(
                 f"| {title} | {group_name} | {expected} | `{status}` | {evidence} |"
@@ -1679,7 +1717,9 @@ def _write_fam007_child_visual_adjudication_artifacts(
         "acceptedReferenceComparisonProven",
         "exhaustiveMainRuntimeVisualGrammarComparisonProven",
         "childPurposeMatchedContactSheetsProven",
+        "controlCenterLocalBoundaryControlProven",
         "readinessAfterActionVisualProofProven",
+        "capabilitiesMaintenanceDisplayWorkflowProven",
         "childLifecycleBehavior",
         "providerExecutionStillBlocked",
     ]
@@ -1706,16 +1746,26 @@ def _write_fam007_child_visual_adjudication_artifacts(
         )
 
     state_lines = [
-        "# State Coverage And Readiness After-Action Proof",
+        "# State Coverage And Child After-Action Proof",
         "",
+        f"AI Control Center After-Action Visual Proof Verdict: `{'PASS' if control_after_action_ok else 'UNPROVEN'}`",
         f"Readiness After-Action Visual Proof Verdict: `{'PASS' if readiness_after_action_ok else 'UNPROVEN'}`",
+        f"Capabilities & Maintenance After-Action Visual Proof Verdict: `{'PASS' if capabilities_after_action_ok else 'UNPROVEN'}`",
         "",
         "| State | Focused screenshot | Full-desktop screenshot | Expected visible state | Verdict |",
         "| --- | --- | --- | --- | --- |",
+        f"| Control before boundary review | `{_result_visual_image(control_result, 'beforeBoundary', 'focusedWindow')}` | `{_result_visual_image(control_result, 'beforeBoundary', 'fullDesktop')}` | Control Center boundary mode visible, provider/model blocked, no prompt/provider path | `{'PASS' if control_after_action_ok else 'UNPROVEN'}` |",
+        f"| Control after boundary review | `{_result_visual_image(control_result, 'afterBoundaryReview', 'focusedWindow')}` | `{_result_visual_image(control_result, 'afterBoundaryReview', 'fullDesktop')}` | boundary review selected, guard closed, provider action not executed | `{'PASS' if control_after_action_ok else 'UNPROVEN'}` |",
+        f"| Control after recovery route | `{_result_visual_image(control_result, 'afterRecoveryRoute', 'focusedWindow')}` | `{_result_visual_image(control_result, 'afterRecoveryRoute', 'fullDesktop')}` | recovery route selected, local-only guidance visible | `{'PASS' if control_after_action_ok else 'UNPROVEN'}` |",
+        f"| Control after state taxonomy | `{_result_visual_image(control_result, 'afterStateTaxonomy', 'focusedWindow')}` | `{_result_visual_image(control_result, 'afterStateTaxonomy', 'fullDesktop')}` | state taxonomy selected, fail-closed states visible | `{'PASS' if control_after_action_ok else 'UNPROVEN'}` |",
         f"| Before run | `{_readiness_visual_image('beforeRun', 'focusedWindow')}` | `{_readiness_visual_image('beforeRun', 'fullDesktop')}` | readiness waiting for USER action, report not generated, copy not ready | `{'PASS' if readiness_after_action_ok else 'UNPROVEN'}` |",
         f"| After local check | `{_readiness_visual_image('afterLocalCheck', 'focusedWindow')}` | `{_readiness_visual_image('afterLocalCheck', 'fullDesktop')}` | local no-provider result visible, no prompt/provider path | `{'PASS' if readiness_after_action_ok else 'UNPROVEN'}` |",
         f"| After report generation | `{_readiness_visual_image('afterReportGeneration', 'focusedWindow')}` | `{_readiness_visual_image('afterReportGeneration', 'fullDesktop')}` | local report visible, copy enabled, provider boundary visible | `{'PASS' if readiness_after_action_ok else 'UNPROVEN'}` |",
         f"| After copy action | `{_readiness_visual_image('afterCopyAction', 'focusedWindow')}` | `{_readiness_visual_image('afterCopyAction', 'fullDesktop')}` | copied locally or copy-unavailable-report-visible state, no provider send | `{'PASS' if readiness_after_action_ok else 'UNPROVEN'}` |",
+        f"| Capabilities before lifecycle review | `{_result_visual_image(capabilities_result, 'beforeLifecycle', 'focusedWindow')}` | `{_result_visual_image(capabilities_result, 'beforeLifecycle', 'fullDesktop')}` | lifecycle display workflow visible, download/install/update blocked | `{'PASS' if capabilities_after_action_ok else 'UNPROVEN'}` |",
+        f"| Capabilities after lifecycle review | `{_result_visual_image(capabilities_result, 'afterLifecycleReview', 'focusedWindow')}` | `{_result_visual_image(capabilities_result, 'afterLifecycleReview', 'fullDesktop')}` | lifecycle selected, source-trust prerequisites visible | `{'PASS' if capabilities_after_action_ok else 'UNPROVEN'}` |",
+        f"| Capabilities after edition gates | `{_result_visual_image(capabilities_result, 'afterEditionGates', 'focusedWindow')}` | `{_result_visual_image(capabilities_result, 'afterEditionGates', 'fullDesktop')}` | edition gates selected, Developer/Owner private setup blocked | `{'PASS' if capabilities_after_action_ok else 'UNPROVEN'}` |",
+        f"| Capabilities after maintenance hold | `{_result_visual_image(capabilities_result, 'afterMaintenanceHold', 'focusedWindow')}` | `{_result_visual_image(capabilities_result, 'afterMaintenanceHold', 'fullDesktop')}` | maintenance hold selected, update/install/fetch/package execution blocked | `{'PASS' if capabilities_after_action_ok else 'UNPROVEN'}` |",
         "",
         "## Manifest Check Summary",
         "",
@@ -1742,9 +1792,9 @@ def _write_fam007_child_visual_adjudication_artifacts(
     ledger_header = [
         "# FAM-007 Unified Nonconformance Ledger",
         "",
-        "OPEN_NONCONFORMANCE_COUNT: 4",
-        "Ledger State: `Proof-quality repair completed / pending USER Visual Acceptance`",
-        "Boundary: `PASS` rows mean this proof-quality packet repair is reviewable; `PARTIAL` rows remain USER visual-acceptance decision items or repair-route blockers. This ledger does not accept Workstream-exit Visual Acceptance.",
+        "OPEN_NONCONFORMANCE_COUNT: 1",
+        "Ledger State: `Bounded runtime repair completed / pending USER Visual Acceptance`",
+        "Boundary: `PASS` rows mean this bounded runtime repair is reviewable; `PARTIAL` rows remain USER visual-acceptance decision items or source-truth/template blockers. This ledger does not accept Workstream-exit Visual Acceptance.",
         "",
         *nonconformance_rows,
         "",
@@ -1753,7 +1803,7 @@ def _write_fam007_child_visual_adjudication_artifacts(
         "| Surface | Coverage artifact | Current disposition |",
         "| --- | --- | --- |",
         *[
-            f"| {title} | purpose contact sheet, per-window adjudication, per-element adjudication, functional-role matrix, code-to-visual trace, implementation-match proof | `PARTIAL_FOR_USER_VISUAL_ACCEPTANCE_REVIEW` |"
+            f"| {title} | purpose contact sheet, per-window adjudication, per-element adjudication, functional-role matrix, code-to-visual trace, implementation-match proof | `REPAIRED_FOR_USER_VISUAL_ACCEPTANCE_REVIEW` |"
             for title in FAM007_CHILD_DOMAIN_LABELS.values()
         ],
         "",
@@ -1911,15 +1961,15 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
             "Last Updated: <post-zip-reconciled-updated-at>",
         ),
         (
-            r"^External State Current Acceptance Receipt:\s*`?RETURNED_WORKSTREAM_VISUAL_PROOF_QUALITY_ADJUDICATION_REPAIR_PACKET(?:_PREZIP)?_CURRENT\b.*$",
+            r"^External State Current Acceptance Receipt:\s*`?(?:RETURNED_WORKSTREAM_VISUAL_PROOF_QUALITY_ADJUDICATION_REPAIR_PACKET(?:_PREZIP)?_CURRENT|PROOF_QUALITY_PACKET_REVIEWABILITY_ACCEPTED_BOUNDED_RUNTIME_REPAIR_APPROVED_CURRENT|BOUNDED_RUNTIME_REPAIR_PACKET(?:_PREZIP)?_CURRENT)\b.*$",
             "External State Current Acceptance Receipt: <post-zip-reconciled-current-receipt>",
         ),
         (
-            r"^External State Item Status:\s*`?Returned-packet proof-quality/adjudication repair is source/helper/live-proof(?:/packet-validation)? PASS\b.*$",
+            r"^External State Item Status:\s*`?(?:Returned-packet proof-quality/adjudication repair is source/helper/live-proof(?:/packet-validation)? PASS|Proof-quality packet accepted for reviewability; bounded returned-Workstream runtime repair approved|Bounded returned-Workstream runtime repair is source/helper/live-proof(?:/packet-validation)? PASS)\b.*$",
             "External State Item Status: <post-zip-reconciled-item-status>",
         ),
         (
-            r"^Stage:\s*`?Returned Workstream-exit proof-quality / visual-adjudication repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.`?\s*$",
+            r"^Stage:\s*`?(?:Returned Workstream-exit proof-quality / visual-adjudication repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.|Proof-quality packet accepted for reviewability; bounded returned-Workstream runtime repair approved; Workstream-exit Visual Acceptance not accepted\.|Bounded returned-Workstream runtime repair proved; repaired Workstream-exit Visual Acceptance proof packet (?:regenerating|ready) for USER review; Workstream-exit Visual Acceptance not accepted\.)`?\s*$",
             "Stage: <post-zip-reconciled-stage>",
         ),
         (
@@ -1927,11 +1977,11 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
             "Current Snapshot Boundary: <post-zip-reconciled-snapshot-boundary>",
         ),
         (
-            r"^## Returned Workstream Visual Proof-Quality / Adjudication Repair (?:Pre-ZIP|Packet) Receipt - .*$",
-            "## Returned Workstream Visual Proof-Quality / Adjudication Repair <post-zip-reconciled-receipt>",
+            r"^## (?:Returned Workstream Visual Proof-Quality / Adjudication Repair|Bounded Returned-Workstream Runtime Repair) (?:Pre-ZIP|Packet) Receipt - .*$",
+            "## Bounded Returned-Workstream Runtime Repair <post-zip-reconciled-receipt>",
         ),
         (
-            r"^Receipt Status:\s*`?RETURNED_WORKSTREAM_VISUAL_PROOF_QUALITY_ADJUDICATION_REPAIR_PACKET(?:_PREZIP)?_CURRENT`?\s*$",
+            r"^Receipt Status:\s*`?(?:RETURNED_WORKSTREAM_VISUAL_PROOF_QUALITY_ADJUDICATION_REPAIR_PACKET(?:_PREZIP)?_CURRENT|BOUNDED_RUNTIME_REPAIR_PACKET(?:_PREZIP)?_CURRENT|PROOF_QUALITY_PACKET_REVIEWABILITY_ACCEPTED_BOUNDED_RUNTIME_REPAIR_APPROVED_CURRENT)`?\s*$",
             "Receipt Status: <post-zip-reconciled-current-receipt-status>",
         ),
         (
@@ -2264,10 +2314,10 @@ def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str
             )
 
     primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
-    if "Proof-quality/adjudication repair completed / pending USER Visual Acceptance" not in primary:
+    if "Bounded runtime repair completed / pending USER Visual Acceptance" not in primary:
         failures.append(
             "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: missing returned-packet-safe status "
-            "`Proof-quality/adjudication repair completed / pending USER Visual Acceptance`"
+            "`Bounded runtime repair completed / pending USER Visual Acceptance`"
         )
     for artifact in FAM007_VISUAL_ADJUDICATION_FILES:
         text = _packet_file_text(packet_files, artifact)
@@ -2304,15 +2354,15 @@ def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str
                 if required not in text:
                     failures.append(f"{display}: missing proof-index marker {required}")
         if artifact == "PER_WINDOW_VISUAL_ADJUDICATION.md":
-            for required in ("Visual-family verdict", "Functional-role verdict", "Reference-Derived Implementation", "`PARTIAL`"):
+            for required in ("Visual-family verdict", "Functional-role verdict", "Reference-Derived Implementation", "`PASS`"):
                 if required not in text:
                     failures.append(f"{display}: missing per-window adjudication marker {required}")
         if artifact == "PER_ELEMENT_VISUAL_ADJUDICATION.md":
-            for required in ("shell", "controls", "header", "rows", "rowLabel", "rowValue", "button", "NOT_APPLICABLE_WITH_REASON"):
+            for required in ("shell", "controls", "header", "rows", "rowLabel", "rowValue", "button", "`PASS`"):
                 if required not in text:
                     failures.append(f"{display}: missing per-element group {required}")
         if artifact == "FAM_007_UNIFIED_DEFECT_LEDGER.md":
-            for required in ("OPEN_NONCONFORMANCE_COUNT: 4", "F7-UDL-006", "F7-UDL-007", "F7-UDL-016", "F7-PQ-001", "F7-PQ-004"):
+            for required in ("OPEN_NONCONFORMANCE_COUNT: 1", "F7-UDL-006", "F7-UDL-007", "F7-UDL-016", "F7-PQ-001", "F7-PQ-004"):
                 if required not in text:
                     failures.append(f"{display}: missing nonconformance ledger marker {required}")
         if artifact == "CODE_TO_VISUAL_TRACE_MATRIX.md":
@@ -2321,7 +2371,9 @@ def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str
                 "desktop/desktop_renderer.py",
                 "dev/orin_ai_control_center_live_resize_validation.py",
                 "dev/orin_user_review_bundle.py",
+                "controlCenterLocalBoundaryControlProven",
                 "readinessAfterActionVisualProofProven",
+                "capabilitiesMaintenanceDisplayWorkflowProven",
             ):
                 if required not in text:
                     failures.append(f"{display}: missing code-to-visual trace source {required}")
@@ -2348,12 +2400,18 @@ def _fam007_visual_adjudication_artifact_failures(packet_files: Mapping[str, str
                     failures.append(f"{display}: missing comparator adequacy marker {required}")
         if artifact == "STATE_COVERAGE_AND_READINESS_AFTER_ACTION_PROOF.md":
             for required in (
+                "AI Control Center After-Action Visual Proof Verdict",
                 "Readiness After-Action Visual Proof Verdict",
+                "Capabilities & Maintenance After-Action Visual Proof Verdict",
+                "Control after state taxonomy",
                 "Before run",
                 "After local check",
                 "After report generation",
                 "After copy action",
+                "Capabilities after maintenance hold",
+                "controlCenterLocalBoundaryControlProven",
                 "readinessAfterActionVisualProofProven",
+                "capabilitiesMaintenanceDisplayWorkflowProven",
             ):
                 if required not in text:
                     failures.append(f"{display}: missing readiness after-action marker {required}")
@@ -6508,7 +6566,7 @@ def _write_user_branch_plan_review(
             "",
             "## Workstream Entry Result",
             "",
-            "Proof-quality/adjudication repair completed / pending USER Visual Acceptance - SLC-001 through SLC-006 are complete and routed to USER Visual Acceptance review without pre-accepting the packet.",
+            "Bounded runtime repair completed / pending USER Visual Acceptance - SLC-001 through SLC-006 remain complete and the returned child/domain runtime repair is routed to USER Visual Acceptance review without pre-accepting the packet.",
             "",
             "## Contract Completion Checklist",
             "",
@@ -11529,7 +11587,7 @@ def _write_workstream_entry_packet_digests(
         )
     elif fam007_ai_dashboard_workstream_exit_packet:
         analysis_status = (
-            "Analysis Summary: Proof-quality/adjudication repair completed / pending "
+            "Analysis Summary: Bounded runtime repair completed / pending "
             "USER Visual Acceptance review packet for the FAM-007 AI Dashboard "
             "child/domain doorway restoration and no-provider diagnostics package. "
             "SLC-001 through SLC-006 are complete inside the bounded Workstream phase, "
@@ -11576,9 +11634,9 @@ def _write_workstream_entry_packet_digests(
             "supporting accepted BP1/BP2 review files, required digest/checklist files, "
             "copied source-truth files, copied external-state context, packet-contained "
             "live proof manifest, focused/full-desktop screenshot evidence, comparator "
-            "adequacy analysis, readiness after-action screenshots, and nonconformance "
+            "adequacy analysis, child after-action screenshots, and nonconformance "
             "ledger are loaded and digestible for USER review; the contract records "
-            "proof-quality/adjudication repair completed / pending USER Visual "
+            "bounded runtime repair completed / pending USER Visual "
             "Acceptance and routes only to USER Visual Acceptance review."
         )
     elif workstream_package_approval_packet and is_fam007_ai_dashboard_child_domain:

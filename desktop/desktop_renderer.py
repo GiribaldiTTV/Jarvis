@@ -3860,7 +3860,7 @@ class AIDashboardDomainWindow(QDialog):
             "description": "Persona, capabilities, provider/model readiness, Developer and Owner gates, and control-plane details live here.",
             "classification": "exclusive-child",
             "lifecycle": "closes-with-dashboard",
-            "actions": (),
+            "actions": ("show-control-boundary", "show-control-recovery", "show-control-taxonomy"),
         },
         "capabilities-maintenance": {
             "title": "Capabilities & Maintenance",
@@ -3868,7 +3868,7 @@ class AIDashboardDomainWindow(QDialog):
             "description": "Capability-pack, maintenance placement, and edition gates live here. Update, download, install, fetch, and capability execution are blocked.",
             "classification": "exclusive-child",
             "lifecycle": "closes-with-dashboard",
-            "actions": (),
+            "actions": ("show-capability-lifecycle", "show-capability-lanes", "show-capability-maintenance"),
         },
     }
 
@@ -3888,7 +3888,8 @@ class AIDashboardDomainWindow(QDialog):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowModality(Qt.NonModal)
         self.setMinimumSize(460, 420)
-        self.resize(620, 560 if self.domain_id == "readiness-diagnostics" else 460)
+        default_height = 560 if self.domain_id == "readiness-diagnostics" else 520
+        self.resize(620, default_height)
         self.setProperty("aiDashboardDomainWindow", self.domain_id)
         self.setProperty("aiDashboardDomainClassification", definition["classification"])
         self.setProperty("aiDashboardDomainLifecycle", definition["lifecycle"])
@@ -4313,6 +4314,11 @@ class AIDashboardDomainWindow(QDialog):
       cursor: default;
       box-shadow: none;
     }}
+    .ai-domain-window__button[aria-pressed="true"] {{
+      border-color: rgba(126, 248, 218, 0.68);
+      background: rgba(10, 58, 72, 0.82);
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.08) inset, 0 0 14px rgba(86, 236, 255, 0.22);
+    }}
   </style>
 </head>
 <body class="desktop-mode">
@@ -4349,8 +4355,9 @@ class AIDashboardDomainWindow(QDialog):
         rowLabelColumnSource: "measured-max-visible-label-content-px",
         rowLabelColumnWidth: String(maxLabelWidth),
         rowLabelColumnUnit: "px",
-        rowValueGutter: "8",
-        rowVerticalGutter: "6",
+        rowValueColumnContract: "shared-max-label-content-plus-fixed-gutter",
+        rowValueGutter: "8px",
+        rowVerticalGutter: "6px",
       }});
     }};
     const emit = (command) => console.info(prefix + command);
@@ -4475,6 +4482,117 @@ class AIDashboardDomainWindow(QDialog):
         viewModelOwnerMemoryAgentsBlocked: viewModel.disabledActions.ownerMemoryAgents ? "true" : "false",
       }});
     }};
+    const setPressedState = (commands, activeCommand) => {{
+      commands.forEach((command) => {{
+        document.querySelectorAll(`[data-domain-command="${{command}}"]`).forEach((button) => {{
+          button.setAttribute("aria-pressed", command === activeCommand ? "true" : "false");
+        }});
+      }});
+    }};
+    const applyControlCenterMode = (mode) => {{
+      const workspace = document.querySelector("[data-domain-workspace='control-center']");
+      if (!workspace) return false;
+      const closed = guardClosed();
+      const renderedStates = Array.isArray(providerState.aiControlCenterStateTaxonomy)
+        ? providerState.aiControlCenterStateTaxonomy
+            .map((item) => item && typeof item === "object" ? String(item.state || "").trim() : "")
+            .filter(Boolean)
+        : [];
+      const modes = {{
+        boundary: {{
+          command: "show-control-boundary",
+          label: "Boundary review",
+          state: closed ? "Provider/model blocked; local boundary active" : "Boundary mismatch; fail-closed",
+          detail: closed
+            ? "No provider data, prompt, memory, cache, network egress, or model path is available."
+            : "Review halted because the trust boundary is inconsistent.",
+          recovery: "Retry local check only; setup stays future-gated.",
+          taxonomy: `${{renderedStates.length}} fail-closed states rendered`,
+        }},
+        recovery: {{
+          command: "show-control-recovery",
+          label: "Recovery route",
+          state: "Local recovery only; provider setup remains unavailable",
+          detail: providerState.aiControlCenterRecoveryDetail || "Recovery guidance stays inside this window and does not open provider setup.",
+          recovery: providerState.aiControlCenterRecoveryLabel || "Retry local check only",
+          taxonomy: "Recovery state mapped to local-only diagnostics",
+        }},
+        taxonomy: {{
+          command: "show-control-taxonomy",
+          label: "State taxonomy",
+          state: "State taxonomy mapped from provider payload",
+          detail: renderedStates.length ? renderedStates.join("; ") : "No provider state taxonomy was supplied.",
+          recovery: "Blocked, unavailable, degraded, retry, and recovery states remain visible.",
+          taxonomy: renderedStates.length ? "Complete taxonomy rendered" : "Taxonomy missing; fail-closed",
+        }},
+      }};
+      const next = modes[mode] || modes.boundary;
+      Object.assign(workspace.dataset, {{
+        controlCenterOperationalContract: "ai-control-center-local-boundary-control-v1",
+        controlCenterMode: mode in modes ? mode : "boundary",
+        controlCenterGuardClosed: closed ? "true" : "false",
+        controlCenterProviderActionExecuted: "false",
+        controlCenterProviderModelExecution: "blocked",
+        controlCenterPromptSendExecution: "blocked",
+        controlCenterNetworkEgress: String(providerState.networkEgressState || "network-egress-blocked"),
+        controlCenterMemoryIndexing: String(providerState.memoryIndexingState || "memory-indexing-disabled"),
+        controlCenterProviderVisibleData: String(providerState.providerVisibleData || "none"),
+      }});
+      setText("control-center-mode", next.label);
+      setText("control-center-review-state", next.state);
+      setText("control-center-review-detail", next.detail);
+      setText("control-center-recovery-route", next.recovery);
+      setText("control-center-taxonomy", next.taxonomy);
+      setPressedState(["show-control-boundary", "show-control-recovery", "show-control-taxonomy"], next.command);
+      requestAnimationFrame(syncDomainRowLayout);
+      return closed;
+    }};
+    const applyCapabilitiesMode = (mode) => {{
+      const workspace = document.querySelector("[data-domain-workspace='capabilities-maintenance']");
+      if (!workspace) return false;
+      const modes = {{
+        lifecycle: {{
+          command: "show-capability-lifecycle",
+          label: "Lifecycle review",
+          state: "Capability packs remain planned; downloads disabled",
+          detail: "Manifest, checksum, signature, compatibility, install, update, and uninstall stay blocked.",
+          next: "Future carrier must prove source trust before any package action.",
+        }},
+        lanes: {{
+          command: "show-capability-lanes",
+          label: "Edition gates",
+          state: "Public lane only; Developer and Owner lanes gated",
+          detail: "Private setup, private material, Owner memory, and Owner agents are not visible or enabled.",
+          next: "FAM/private setup remains future-gated and outside this runtime repair.",
+        }},
+        maintenance: {{
+          command: "show-capability-maintenance",
+          label: "Maintenance hold",
+          state: "Update, install, fetch, and packaging execution blocked",
+          detail: "This window can inspect the maintenance posture but cannot run downloads, updates, installs, fetches, or packaging.",
+          next: "Keep display-only posture until an approved maintenance carrier exists.",
+        }},
+      }};
+      const next = modes[mode] || modes.lifecycle;
+      Object.assign(workspace.dataset, {{
+        capabilitiesMaintenanceWorkflowContract: "capabilities-maintenance-display-workflow-v1",
+        capabilitiesMaintenanceMode: mode in modes ? mode : "lifecycle",
+        capabilitiesMaintenanceActionExecuted: "false",
+        capabilitiesMaintenanceDownloadExecution: "blocked",
+        capabilitiesMaintenanceInstallExecution: "blocked",
+        capabilitiesMaintenanceUpdateExecution: "blocked",
+        capabilitiesMaintenanceFetchExecution: "blocked",
+        capabilitiesMaintenancePackagingExecution: "blocked",
+        capabilitiesMaintenancePrivateSetup: providerState.privateSetupAuthorized === false ? "blocked" : "blocked-review-required",
+      }});
+      setText("capabilities-mode", next.label);
+      setText("capabilities-workflow-state", next.state);
+      setText("capabilities-workflow-detail", next.detail);
+      setText("capabilities-workflow-next", next.next);
+      setPressedState(["show-capability-lifecycle", "show-capability-lanes", "show-capability-maintenance"], next.command);
+      requestAnimationFrame(syncDomainRowLayout);
+      return true;
+    }};
     const applyDomainViewModel = () => {{
       const viewModel = buildDomainViewModel();
       window.nexusAiDomainCurrentViewModel = viewModel;
@@ -4503,6 +4621,8 @@ class AIDashboardDomainWindow(QDialog):
       setText("local-result", viewModel.localResult);
       setText("local-detail", viewModel.localDetail);
       syncCapabilityBoundaryContract(viewModel);
+      applyControlCenterMode("boundary");
+      applyCapabilitiesMode("lifecycle");
       requestAnimationFrame(syncDomainRowLayout);
       return viewModel;
     }};
@@ -4554,6 +4674,8 @@ class AIDashboardDomainWindow(QDialog):
         noProviderFlowReportState: "not-generated",
         noProviderFlowCopyState: "not-ready",
       }});
+      applyControlCenterMode("boundary");
+      applyCapabilitiesMode("lifecycle");
       const body = byId("report-body");
       if (body) body.hidden = true;
       const copy = byId("copy-report");
@@ -4630,6 +4752,12 @@ class AIDashboardDomainWindow(QDialog):
       }});
       return copied;
     }};
+    window.nexusAiDomainShowControlBoundary = () => applyControlCenterMode("boundary");
+    window.nexusAiDomainShowControlRecovery = () => applyControlCenterMode("recovery");
+    window.nexusAiDomainShowControlTaxonomy = () => applyControlCenterMode("taxonomy");
+    window.nexusAiDomainShowCapabilitiesLifecycle = () => applyCapabilitiesMode("lifecycle");
+    window.nexusAiDomainShowCapabilitiesLanes = () => applyCapabilitiesMode("lanes");
+    window.nexusAiDomainShowCapabilitiesMaintenance = () => applyCapabilitiesMode("maintenance");
     document.addEventListener("click", (event) => {{
       const button = event.target.closest("[data-domain-command]");
       if (!button || button.disabled) return;
@@ -4650,6 +4778,21 @@ class AIDashboardDomainWindow(QDialog):
         }} else {{
           emit("copy-readiness-report-blocked");
         }}
+      }} else if (command === "show-control-boundary") {{
+        emit(window.nexusAiDomainShowControlBoundary() ? "show-control-boundary" : "show-control-boundary-blocked");
+      }} else if (command === "show-control-recovery") {{
+        emit(window.nexusAiDomainShowControlRecovery() ? "show-control-recovery" : "show-control-recovery-blocked");
+      }} else if (command === "show-control-taxonomy") {{
+        emit(window.nexusAiDomainShowControlTaxonomy() ? "show-control-taxonomy" : "show-control-taxonomy-blocked");
+      }} else if (command === "show-capability-lifecycle") {{
+        window.nexusAiDomainShowCapabilitiesLifecycle();
+        emit("show-capability-lifecycle");
+      }} else if (command === "show-capability-lanes") {{
+        window.nexusAiDomainShowCapabilitiesLanes();
+        emit("show-capability-lanes");
+      }} else if (command === "show-capability-maintenance") {{
+        window.nexusAiDomainShowCapabilitiesMaintenance();
+        emit("show-capability-maintenance");
       }}
     }});
     if (window.ResizeObserver) {{
@@ -4698,13 +4841,14 @@ class AIDashboardDomainWindow(QDialog):
       </section>"""
         if self.domain_id == "capabilities-maintenance":
             return """
-      <section class="ai-domain-window__card" data-domain-workspace="capabilities-maintenance" data-capabilities-boundary-contract="capabilities-maintenance-developer-owner-boundary-v1" data-capability-pack-lifecycle-state="capability-pack-lifecycle-planned" data-capability-pack-download-state="capability-pack-downloads-blocked" data-install-intent-state="install-intent-blocked" data-capability-pack-install-state="install-blocked" data-capability-pack-update-state="update-blocked" data-capability-pack-uninstall-state="uninstall-blocked" data-developer-lane-boundary-state="developer-lane-private-setup-blocked" data-owner-lane-boundary-state="owner-lane-private-setup-blocked" data-private-setup-boundary-state="private-setup-blocked" data-private-setup-authorized="false" data-private-material-visible="false" data-owner-memory-enabled="false" data-owner-agents-enabled="false" data-update-execution="blocked" data-download-execution="blocked" data-install-execution="blocked" data-fetch-execution="blocked" data-capability-execution="blocked" data-packaging-execution="blocked">
+      <section class="ai-domain-window__card" data-domain-workspace="capabilities-maintenance" data-capabilities-boundary-contract="capabilities-maintenance-developer-owner-boundary-v1" data-capabilities-maintenance-workflow-contract="capabilities-maintenance-display-workflow-v1" data-capabilities-maintenance-mode="lifecycle" data-capabilities-maintenance-action-executed="false" data-capabilities-maintenance-download-execution="blocked" data-capabilities-maintenance-install-execution="blocked" data-capabilities-maintenance-update-execution="blocked" data-capabilities-maintenance-fetch-execution="blocked" data-capabilities-maintenance-packaging-execution="blocked" data-capability-pack-lifecycle-state="capability-pack-lifecycle-planned" data-capability-pack-download-state="capability-pack-downloads-blocked" data-install-intent-state="install-intent-blocked" data-capability-pack-install-state="install-blocked" data-capability-pack-update-state="update-blocked" data-capability-pack-uninstall-state="uninstall-blocked" data-developer-lane-boundary-state="developer-lane-private-setup-blocked" data-owner-lane-boundary-state="owner-lane-private-setup-blocked" data-private-setup-boundary-state="private-setup-blocked" data-private-setup-authorized="false" data-private-material-visible="false" data-owner-memory-enabled="false" data-owner-agents-enabled="false" data-update-execution="blocked" data-download-execution="blocked" data-install-execution="blocked" data-fetch-execution="blocked" data-capability-execution="blocked" data-packaging-execution="blocked">
         <div class="ai-domain-window__card-heading">
           <span class="ai-domain-window__card-number">01</span>
           <strong class="ai-domain-window__card-title">Capability Boundary</strong>
-          <p class="ai-domain-window__card-description">Shows capability and maintenance posture without update, download, or install execution.</p>
+          <p class="ai-domain-window__card-description">Reviews capability lifecycle, edition gates, and maintenance hold without update, download, or install execution.</p>
         </div>
         <div class="ai-domain-window__rows" data-row-group="capabilities-maintenance">
+          <div class="ai-domain-window__row"><span>Mode</span><strong id="capabilities-mode">Lifecycle review</strong></div>
           <div class="ai-domain-window__row"><span>Capability packs</span><strong id="capability-packs">Install blocked; downloads disabled</strong></div>
           <div class="ai-domain-window__row"><span>Maintenance</span><strong id="maintenance-updates">Lifecycle placement only; update execution blocked</strong></div>
           <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Provider/model lifecycle remains unavailable</strong></div>
@@ -4712,21 +4856,39 @@ class AIDashboardDomainWindow(QDialog):
           <div class="ai-domain-window__row"><span>Owner</span><strong id="owner-lane-boundary">Owner lane: gated; private setup not configured</strong></div>
           <div class="ai-domain-window__row"><span>Private setup</span><strong id="private-setup-boundary">Private setup blocked; no private material visible</strong></div>
           <div class="ai-domain-window__row"><span>Execution</span><strong id="execution-boundary">No update, download, install, fetch, provider/model, private setup, packaging, or capability execution is approved.</strong></div>
+          <div class="ai-domain-window__row"><span>Review</span><strong id="capabilities-workflow-state">Capability packs remain planned; downloads disabled</strong></div>
+          <div class="ai-domain-window__row"><span>Detail</span><strong id="capabilities-workflow-detail">Manifest, checksum, signature, compatibility, install, update, and uninstall stay blocked.</strong></div>
+          <div class="ai-domain-window__row"><span>Next</span><strong id="capabilities-workflow-next">Future carrier must prove source trust before any package action.</strong></div>
+        </div>
+        <div class="ai-domain-window__actions" data-action-row-contract="separate-from-state-rows">
+          <button class="ai-domain-window__button" type="button" id="capabilities-review-lifecycle" data-domain-command="show-capability-lifecycle" aria-pressed="true">Lifecycle</button>
+          <button class="ai-domain-window__button" type="button" id="capabilities-review-lanes" data-domain-command="show-capability-lanes" aria-pressed="false">Edition Gates</button>
+          <button class="ai-domain-window__button" type="button" id="capabilities-review-maintenance" data-domain-command="show-capability-maintenance" aria-pressed="false">Maintenance Hold</button>
         </div>
       </section>"""
         return """
-      <section class="ai-domain-window__card" data-domain-workspace="control-center">
+      <section class="ai-domain-window__card" data-domain-workspace="control-center" data-control-center-operational-contract="ai-control-center-local-boundary-control-v1" data-control-center-mode="boundary" data-control-center-guard-closed="true" data-control-center-provider-action-executed="false" data-control-center-provider-model-execution="blocked" data-control-center-prompt-send-execution="blocked" data-control-center-network-egress="network-egress-blocked" data-control-center-memory-indexing="memory-indexing-disabled" data-control-center-provider-visible-data="none">
         <div class="ai-domain-window__card-heading">
           <span class="ai-domain-window__card-number">01</span>
-          <strong class="ai-domain-window__card-title">AI Control Boundary</strong>
-          <p class="ai-domain-window__card-description">Keeps provider, prompt, persona, and edition truth separate from future AI setup flows.</p>
+          <strong class="ai-domain-window__card-title">AI Control State</strong>
+          <p class="ai-domain-window__card-description">Reviews local AI boundary, recovery, and state taxonomy without provider/model execution.</p>
         </div>
         <div class="ai-domain-window__rows" data-row-group="control-center">
+          <div class="ai-domain-window__row"><span>Mode</span><strong id="control-center-mode">Boundary review</strong></div>
           <div class="ai-domain-window__row"><span>Provider data</span><strong id="provider-visible-data">None</strong></div>
           <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Disabled and blocked</strong></div>
           <div class="ai-domain-window__row"><span>Prompt / memory</span><strong id="prompt-memory">Not accepted, sent, stored, or indexed</strong></div>
           <div class="ai-domain-window__row"><span>Persona</span><strong>Future-gated; ORIN persona is not implemented</strong></div>
           <div class="ai-domain-window__row"><span>Developer / Owner</span><strong id="edition-lanes">Public only; Developer and Owner gated</strong></div>
+          <div class="ai-domain-window__row"><span>Review</span><strong id="control-center-review-state">Provider/model blocked; local boundary active</strong></div>
+          <div class="ai-domain-window__row"><span>Detail</span><strong id="control-center-review-detail">No provider data, prompt, memory, cache, network egress, or model path is available.</strong></div>
+          <div class="ai-domain-window__row"><span>Recovery</span><strong id="control-center-recovery-route">Retry local check only; setup stays future-gated.</strong></div>
+          <div class="ai-domain-window__row"><span>Taxonomy</span><strong id="control-center-taxonomy">Fail-closed states rendered from provider payload</strong></div>
+        </div>
+        <div class="ai-domain-window__actions" data-action-row-contract="separate-from-state-rows">
+          <button class="ai-domain-window__button" type="button" id="control-review-boundary" data-domain-command="show-control-boundary" aria-pressed="true">Boundary Review</button>
+          <button class="ai-domain-window__button" type="button" id="control-review-recovery" data-domain-command="show-control-recovery" aria-pressed="false">Recovery Route</button>
+          <button class="ai-domain-window__button" type="button" id="control-review-taxonomy" data-domain-command="show-control-taxonomy" aria-pressed="false">State Taxonomy</button>
         </div>
       </section>"""
 
