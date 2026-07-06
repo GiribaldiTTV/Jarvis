@@ -2690,6 +2690,25 @@ def validate_local_user_packet(
         for stale_zip in stale_siblings:
             if stale_zip.exists():
                 failures.append(f"Stale same-label USER packet ZIP remains: {stale_zip}")
+        loose_sidecars = sorted(
+            path
+            for pattern in (
+                f"{label}-*.zip.sha256.txt",
+                f"{label}-*.post_zip_receipt.md",
+                f"{label}-*.post_zip_validation_receipt.md",
+                f"{label}-*.post_zip_manifest.json",
+                f"{label}-*.post_zip_manifest.md",
+                f"{label}-*.packet_validation_receipt.md",
+                f"{label}-*.packet_validation_receipt.txt",
+            )
+            for path in review_root.glob(pattern)
+        )
+        for sidecar in loose_sidecars:
+            failures.append(
+                "Loose same-label USER packet sidecar remains in USER hub; "
+                "record final ZIP proof in external state and Codex return instead: "
+                f"{sidecar}"
+            )
 
     stable_zip = _legacy_stable_export_zip_path(review_root, label)
     if stable_zip.exists():
