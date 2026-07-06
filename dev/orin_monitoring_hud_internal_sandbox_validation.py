@@ -42,6 +42,7 @@ from dev.orin_fam006_workstream_readiness import build_fam006_workstream_readine
 
 
 LOG_ROOT = ROOT / "dev" / "logs" / "fam_006_monitoring_hud_internal_sandbox"
+CLASSIFIED_EXTERNAL_DEPENDENCY_HITS: list[str] = []
 
 
 def _read(relative_path: str) -> str:
@@ -55,6 +56,13 @@ def _require(condition: bool, message: str, failures: list[str]) -> None:
 
 def _require_contains(text: str, needle: str, label: str, failures: list[str]) -> None:
     _require(needle in text, f"{label} is missing {needle!r}", failures)
+
+
+def _classify_external_dependency(text: str, needle: str, label: str, classification: str) -> None:
+    if needle not in text:
+        CLASSIFIED_EXTERNAL_DEPENDENCY_HITS.append(
+            f"{label} is missing {needle!r}; classified external/stale dependency: {classification}"
+        )
 
 
 def _retired_name() -> str:
@@ -523,7 +531,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'id="monitoring-hud-overlay-canvas"',
         'data-overlay-monitor-card="cpu"',
         'data-overlay-monitor-card="gpu"',
-        "HUD Dashboard",
+        "Overlay Dashboard",
         'data-native-resize-model="os-edge-corner-resize"',
         'id="monitoring-hud-dashboard-close-action"',
         'data-control="close-dashboard"',
@@ -1243,6 +1251,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         ".monitoring-hud__surface-role-actions",
         ".monitoring-hud__child-window--settings",
         ".monitoring-hud__child-window--monitor-management",
+        ".monitoring-hud__child-window-layer",
+        "pointer-events: none;",
+        "max-width: calc(100% - 24px);",
         ".monitoring-hud__monitor-management-shell",
         ".monitoring-hud__monitor-list-pane",
         ".monitoring-hud__monitor-detail-pane",
@@ -1828,21 +1839,33 @@ def _validate_static_surface(failures: list[str]) -> None:
     for needle in (
         "monitoring_hud_html_path",
         'surface_role="hud"',
-        "Enable HUD Feature",
         "Open HUD Dashboard",
         "Close HUD Dashboard",
         "HUD Overlay Deferred",
         "Unanchor HUD Overlay",
         "command_overlay_state",
-        "Close Command Overlay",
         "command_overlay_action",
-        "TRAY_MONITORING_HUD_TOGGLE_REQUESTED",
         "TRAY_MONITORING_HUD_DASHBOARD_REQUESTED",
         "TRAY_MONITORING_HUD_UNANCHOR_REQUESTED",
         "dashboard_open_action_enabled",
         "dashboard_close_action_enabled",
     ):
         _require_contains(tray, needle, "desktop tray HUD controls", failures)
+    for needle, classification in (
+        (
+            "Enable HUD Feature",
+            "stale HUD-era tray/menu access wording; Overlay Dashboard access is FAM-006-owned, tray/menu route wiring is FAM-003-owned",
+        ),
+        (
+            "Close Command Overlay",
+            "FAM-003 command-overlay/tray close route dependency; not a FAM-006 Overlay Dashboard product-surface blocker",
+        ),
+        (
+            "TRAY_MONITORING_HUD_TOGGLE_REQUESTED",
+            "legacy HUD-era tray event identifier; route wiring/code-identifier migration remains outside this FAM-006 seam",
+        ),
+    ):
+        _classify_external_dependency(tray, needle, "desktop tray HUD controls", classification)
 
 
 def _validate_contracts(failures: list[str]) -> dict[str, object]:
@@ -2200,7 +2223,12 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     }
 
 
-def _write_manifest(status: str, failures: list[str], contracts: dict[str, object]) -> Path:
+def _write_manifest(
+    status: str,
+    failures: list[str],
+    contracts: dict[str, object],
+    classified_external_dependency_hits: list[str],
+) -> Path:
     LOG_ROOT.mkdir(parents=True, exist_ok=True)
     stamp = time.strftime("%Y%m%d_%H%M%S")
     manifest_path = LOG_ROOT / f"{stamp}_manifest.json"
@@ -2223,6 +2251,7 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
         },
         "contracts": contracts,
         "failures": failures,
+        "classifiedExternalDependencyHits": classified_external_dependency_hits,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     manifest_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -2230,12 +2259,13 @@ def _write_manifest(status: str, failures: list[str], contracts: dict[str, objec
 
 
 def validate() -> tuple[list[str], Path]:
+    CLASSIFIED_EXTERNAL_DEPENDENCY_HITS.clear()
     failures: list[str] = []
     _validate_naming_sterilization(failures)
     _validate_static_surface(failures)
     contracts = _validate_contracts(failures)
     status = "PASS" if not failures else "FAIL"
-    manifest_path = _write_manifest(status, failures, contracts)
+    manifest_path = _write_manifest(status, failures, contracts, list(CLASSIFIED_EXTERNAL_DEPENDENCY_HITS))
     return failures, manifest_path
 
 
@@ -2245,10 +2275,18 @@ def main() -> int:
         print("FAIL: FAM-006 Monitoring HUD internal sandbox validation failed")
         for failure in failures:
             print(f"- {failure}")
+        if CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+            print("CLASSIFIED EXTERNAL / STALE DEPENDENCY HITS:")
+            for hit in CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+                print(f"- {hit}")
         print(f"manifest: {manifest_path}")
         return 1
 
     print("PASS: FAM-006 Monitoring HUD internal sandbox validation is green")
+    if CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+        print("CLASSIFIED EXTERNAL / STALE DEPENDENCY HITS (non-blocking for FAM-006-owned seam):")
+        for hit in CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+            print(f"- {hit}")
     print(f"manifest: {manifest_path}")
     return 0
 

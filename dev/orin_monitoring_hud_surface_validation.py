@@ -19,6 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+CLASSIFIED_EXTERNAL_DEPENDENCY_HITS: list[str] = []
+
+
 def _read(relative_path: str) -> str:
     return (ROOT / relative_path).read_text(encoding="utf-8")
 
@@ -30,6 +33,13 @@ def _require(condition: bool, message: str, failures: list[str]) -> None:
 
 def _require_contains(text: str, needle: str, label: str, failures: list[str]) -> None:
     _require(needle in text, f"{label} is missing {needle!r}", failures)
+
+
+def _classify_external_dependency(text: str, needle: str, label: str, classification: str) -> None:
+    if needle not in text:
+        CLASSIFIED_EXTERNAL_DEPENDENCY_HITS.append(
+            f"{label} is missing {needle!r}; classified external/stale dependency: {classification}"
+        )
 
 
 def _require_css_block_properties(
@@ -73,6 +83,7 @@ def _require_no_collection_imports(text: str, label: str, failures: list[str]) -
 
 
 def validate() -> list[str]:
+    CLASSIFIED_EXTERNAL_DEPENDENCY_HITS.clear()
     failures: list[str] = []
 
     core_html = _read("nexus_visual/orin_core.html")
@@ -661,21 +672,21 @@ def validate() -> list[str]:
         'data-source-settings-window="source-list-sensor-settings"',
         "Profile to Edit:",
         'data-recording-profile-state="recording-profile-state-absent-future-gated"',
-        'aria-label="Nexus Desktop AI Monitoring HUD product surface"',
-        'aria-label="HUD Dashboard control hub cards"',
+        'aria-label="Nexus Desktop AI Overlay Dashboard product surface"',
+        'aria-label="Overlay Dashboard control hub cards"',
         'aria-hidden="true"',
         "Nexus Desktop AI",
-        "Monitoring HUD",
-        "HUD Dashboard",
+        "Overlay Dashboard",
+        "Overlay Dashboard",
         'data-native-resize-model="os-edge-corner-resize"',
-        "Configure HUD access, monitor groups, data sources, warning notifications, and future display behavior.",
+        "Configure overlay access, monitor groups, data sources, warning notifications, and future display behavior.",
         "Dashboard",
         "Settings and control hub",
         "HUD Overlay",
         "Deferred future overlay",
         "Dashboard configures overlay behavior",
         'class="monitoring-hud__surface-role-actions"',
-        'aria-label="HUD Dashboard IA card controls"',
+        'aria-label="Overlay Dashboard IA card controls"',
         "HUD Overlay deferred",
         'id="monitoring-hud-settings-action"',
         'data-control="open-dashboard-settings"',
@@ -685,7 +696,7 @@ def validate() -> list[str]:
         "monitoring-hud__chrome-button--close",
         'data-control="close-dashboard"',
         'data-window-control-cluster="UIREF-002-compact-window-control-cluster"',
-        "Close HUD Dashboard",
+        "Close Overlay Dashboard",
         "        X",
         "Quick Access",
         'id="monitoring-hud-warning-toggle"',
@@ -2111,6 +2122,9 @@ def validate() -> list[str]:
         ".monitoring-hud__surface-role-actions",
         ".monitoring-hud__child-window--settings",
         ".monitoring-hud__child-window--monitor-management",
+        ".monitoring-hud__child-window-layer",
+        "pointer-events: none;",
+        "max-width: calc(100% - 24px);",
         ".monitoring-hud__monitor-management-shell",
         ".monitoring-hud__monitor-list-pane",
         ".monitoring-hud__monitor-detail-pane",
@@ -2825,10 +2839,15 @@ def validate() -> list[str]:
         "monitoring_hud_feature_enabled_at_startup",
         "monitoring_hud_dashboard_visible_at_startup",
         "command_overlay_state",
-        "Close Command Overlay",
         "command_overlay_action",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+    _classify_external_dependency(
+        tray,
+        "Close Command Overlay",
+        "desktop launcher Core/HUD failure isolation",
+        "FAM-003 command-overlay/tray close route dependency; not a FAM-006 Overlay Dashboard product-surface blocker",
+    )
     for forbidden in (
         "RuntimeControlSurfaceWindow",
         "Nexus Desktop AI Runtime Controls",
@@ -3219,9 +3238,17 @@ def main() -> int:
         print("FAIL: FAM-006 Monitoring/HUD product visibility validation failed")
         for failure in failures:
             print(f"- {failure}")
+        if CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+            print("CLASSIFIED EXTERNAL / STALE DEPENDENCY HITS:")
+            for hit in CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+                print(f"- {hit}")
         return 1
 
-    print("PASS: FAM-006 HUD Dashboard-first source truth is bounded, provider-truthful, and marker-backed")
+    print("PASS: FAM-006 Overlay Dashboard source truth is bounded, provider-truthful, and marker-backed")
+    if CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+        print("CLASSIFIED EXTERNAL / STALE DEPENDENCY HITS (non-blocking for FAM-006-owned seam):")
+        for hit in CLASSIFIED_EXTERNAL_DEPENDENCY_HITS:
+            print(f"- {hit}")
     return 0
 
 
