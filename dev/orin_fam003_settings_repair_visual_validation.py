@@ -1606,7 +1606,7 @@ def _write_fail_capable_defect_ledger(
         "route selector is compact and bounded",
         "clean state has no redundant saved label",
         "dropdown/list state is not white/native-light",
-        "dropdown/list geometry is compact",
+        "dropdown/list geometry is compact and row-width deterministic",
         "stress rail supports 25+ main/sub categories",
         "stress content pane supports mixed control types",
         "stress window size matrix preserves anchored content",
