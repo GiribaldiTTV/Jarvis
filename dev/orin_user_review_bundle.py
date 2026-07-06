@@ -1977,6 +1977,10 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
             "Current Snapshot Boundary: <post-zip-reconciled-snapshot-boundary>",
         ),
         (
+            r"^Current Snapshot Boundary:\s*`?CURRENT authority is the header plus the Bounded Returned-Workstream Runtime Repair (?:Pre-ZIP|Packet) receipt\b.*$",
+            "Current Snapshot Boundary: <post-zip-reconciled-snapshot-boundary>",
+        ),
+        (
             r"^## (?:Returned Workstream Visual Proof-Quality / Adjudication Repair|Bounded Returned-Workstream Runtime Repair) (?:Pre-ZIP|Packet) Receipt - .*$",
             "## Bounded Returned-Workstream Runtime Repair <post-zip-reconciled-receipt>",
         ),
@@ -1991,6 +1995,14 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
         (
             r"^Validation:\s*`?(?:PRE-ZIP )?PASS - .*?(?:pending post-ZIP receipt\.|final ZIP SHA256 sidecar proof\.)`?\s*$",
             "Validation: <post-zip-reconciled-validation>",
+        ),
+        (
+            r"^Validation:\s*`?PRE-ZIP PASS - .*?Active-review packet validation and final ZIP SHA256 sidecar proof remain the next packet-generation step\.`?\s*$",
+            "Validation: <post-zip-reconciled-validation>",
+        ),
+        (
+            r"^Next Legal Phase:\s*`?(?:Regenerate and validate the repaired Workstream-exit Visual Acceptance USER packet for review, then await USER Visual Acceptance decision|USER review of the repaired Workstream-exit Visual Acceptance packet only); not H1/LV and not PR Readiness\.`?\s*$",
+            "Next Legal Phase: <post-zip-reconciled-next-legal-phase>",
         ),
     )
     for pattern, replacement in post_zip_receipt_normalizers:
