@@ -2341,6 +2341,32 @@ def _generic_user_facing_technical_metadata_failures(
     return failures
 
 
+def _user_packet_sidecar_review_artifact_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Reject generated packet text that makes sidecars part of normal review."""
+
+    failures: list[str] = []
+    sidecar_patterns = (
+        ("local-validation-sidecar-path", re.compile(r"\.local_packet_validation(?:\.txt)?", re.IGNORECASE)),
+        ("sidecar-upload-instruction", re.compile(r"\bupload/(?:read|review)\b[^\n]{0,120}\bsidecar\b", re.IGNORECASE)),
+        ("sidecar-with-zip-instruction", re.compile(r"\bsidecar\b[^\n]{0,120}\b(?:with|together with)\b[^\n]{0,120}\bzip\b", re.IGNORECASE)),
+        ("post-zip-sidecar-review", re.compile(r"\bpost[- ]ZIP\b[^\n]{0,120}\bsidecar\b", re.IGNORECASE)),
+        ("local-packet-sidecar-routing", re.compile(r"\bLocal USER Packet Validation Sidecar Routing\b", re.IGNORECASE)),
+        ("final-sidecar-required", re.compile(r"\bFinal local packet validation sidecar expected\b", re.IGNORECASE)),
+    )
+    for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if normalized.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            continue
+        for label, pattern in sidecar_patterns:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: generated USER packet text requires or routes a separate sidecar review artifact: {label}"
+                )
+    return failures
+
+
 def _local_user_packet_layout_failures(
     packet_dir: Path,
     folder_entries: set[str],
@@ -3373,6 +3399,7 @@ def validate_local_user_packet(
     failures.extend(_unresolved_template_placeholder_failures(generated_packet_files))
     failures.extend(_packet_count_consistency_failures(packet_files, actual_file_count=len(folder_entries)))
     failures.extend(_generic_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_user_packet_sidecar_review_artifact_failures(generated_packet_files))
     failures.extend(_user_facing_technical_metadata_failures(generated_packet_files))
     failures.extend(_user_branch_plan_stale_bp1_wording_failures(generated_packet_files))
     failures.extend(_fam007_bp2_plan_substantive_failures(generated_packet_files))

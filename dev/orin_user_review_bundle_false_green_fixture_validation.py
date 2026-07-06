@@ -200,6 +200,21 @@ def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_h
         f"Source Repo HEAD: `{plan_head}`\nPlanning Snapshot: `packet generation context`\n",
         encoding="utf-8",
     )
+    artifact_dir = packet / "Review Aids" / "Artifact Lifecycle Proof"
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    (artifact_dir / "FINAL_FOLDER_ZIP_PARITY_PROOF.md").write_text(
+        "\n".join(
+            [
+                "# Final Folder / ZIP Parity Proof",
+                "",
+                f"Final Export ZIP: {export_zip.name}",
+                "Folder/ZIP File List Parity: PASS",
+                "Folder/ZIP Content Hash Parity: PASS",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
 
 def _accepted_live_state(snapshot_head: str, live_head: str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"):
@@ -467,6 +482,20 @@ def main() -> int:
         lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=snapshot_head),
         validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
         external_state_files=_accepted_live_state(snapshot_head),
+    )
+    _assert_failure(
+        "sidecar-review-artifact-routing",
+        "requires or routes a separate sidecar review artifact",
+        lambda packet, export_zip: (
+            _snapshot_context(packet, export_zip, state_head=live_head),
+            (packet / "START_HERE.md").write_text(
+                "Upload/review this sidecar together with the ZIP: "
+                "`C:\\Nexus USER\\FAM-006-20260706-000000.local_packet_validation.txt`\n",
+                encoding="utf-8",
+            ),
+        ),
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        external_state_files=_fresh_live_state(live_head),
     )
     _assert_success(
         "accepted-packet-not-regenerated-for-live-byte-match",
