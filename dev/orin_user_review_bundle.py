@@ -1183,6 +1183,8 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_WORKSTREAM_IMPLEMENTATION_REVIEW.md"
     primary = packet_files.get(primary_path, "")
     combined = f"{start_here}\n{primary}".casefold()
+    if not primary and primary_path.casefold() not in start_here.casefold():
+        return []
     if (
         primary_path.casefold() not in start_here.casefold()
         and "workstream implementation review packet" not in combined
