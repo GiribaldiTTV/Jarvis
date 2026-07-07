@@ -969,7 +969,13 @@ def validate() -> list[str]:
         and ".monitoring-hud__overlay-profile-membership-tools" in css
         and ".monitoring-hud__monitor-overlay-profile-context--compact" in css
         and "data-overlay-profile-option" in html
+        and 'data-workstream-seam="fam006-issue-283-active-overlay-profile-dropdown"' in html
+        and 'data-overlay-profile-selector-state-matrix="collapsed-open-hover-focus-selected-disabled-error-keyboard"' in html
+        and 'data-overlay-profile-dropdown-layer-contract="overlay-owned-control-not-child-window"' in html
         and "data-child-window=\"overlay-profile-settings\"" in html
+        and 'data-workstream-seam="fam006-issue-282-overlay-profile-settings-child-window"' in html
+        and 'data-child-window-state-matrix="default-open-dirty-guard-delete-confirmation-empty-filtered-stress-keyboard"' in html
+        and 'data-uiref-007-surface-class="embedded-child-surface"' in html
         and 'data-overlay-profile-window="select-profile-to-edit-create-right-save-required"' in html
         and 'data-overlay-profile-visual-repair="manager-selector-same-row-compact-unclipped-proof"' in html
         and 'data-overlay-profile-manager-row="selector-dropdown-create-right-equal"' in html
@@ -992,6 +998,11 @@ def validate() -> list[str]:
         and "monitoringHudSetOverlayProfileDropdownOpen" in js
         and "monitoringHudSetOverlayProfileWindowDropdownOpen" in js
         and "monitoringHudSetOverlayProfileMonitorFilterValue" in js
+        and "overlayProfileSettingsStateMatrix" in js
+        and "activeOverlayProfileDropdownStateMatrix" in js
+        and "overlayProfileWorkstreamSeam" in js
+        and "uiref003ControlState" in js
+        and "uiref007SurfaceClass" in js
         and "monitoringHudToggleOverlayAssignment" in js
         and "monitoringHudOpenSourceSettings" in js
         and "windowSelectorReadable" in js

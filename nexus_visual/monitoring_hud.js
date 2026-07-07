@@ -2265,6 +2265,10 @@ function monitoringHudRenderOverlayProfileControls() {
   if (dashboardProfileSelector) {
     dashboardProfileSelector.dataset.selectedProfileId = activeProfileId;
     dashboardProfileSelector.dataset.overlayProfileSelector = "active-profile-selector";
+    dashboardProfileSelector.dataset.workstreamSeam = "fam006-issue-283-active-overlay-profile-dropdown";
+    dashboardProfileSelector.dataset.overlayProfileSelectorStateMatrix = "collapsed-open-hover-focus-selected-disabled-error-keyboard";
+    dashboardProfileSelector.dataset.overlayProfileDropdownLayerContract = "overlay-owned-control-not-child-window";
+    dashboardProfileSelector.dataset.uiref003ControlState = "normal-hover-focus-pressed-open-selected-disabled-error";
   }
   monitoringHudBindDashboardOverlayProfileActivation(monitoringHudCurrentOverlayProfileToggle());
   if (dashboardProfileLabel) {
@@ -2321,6 +2325,10 @@ function monitoringHudRenderOverlayProfileControls() {
       : "No profile";
   }
   if (monitoringHudOverlayProfileWindow) {
+    monitoringHudOverlayProfileWindow.dataset.workstreamSeam = "fam006-issue-282-overlay-profile-settings-child-window";
+    monitoringHudOverlayProfileWindow.dataset.childWindowStateMatrix = "default-open-dirty-guard-delete-confirmation-empty-filtered-stress-keyboard";
+    monitoringHudOverlayProfileWindow.dataset.uiref007SurfaceClass = "embedded-child-surface";
+    monitoringHudOverlayProfileWindow.dataset.uiref003ControlState = "normal-hover-focus-pressed-disabled-dirty-danger-empty-filtered";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileWindow = "select-profile-to-edit-create-right-save-required";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileWorkflow = "select-loads-edit-create-draft-save-required";
     monitoringHudOverlayProfileWindow.dataset.overlayProfileVisualRepair = "manager-selector-same-row-compact-unclipped-proof";
@@ -8294,6 +8302,22 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     semanticHoverColorPreserved: failures.every((failure) => String(failure).indexOf("semantic-hover-color-drift") < 0),
     buttonRoleColorUniformity: failures.every((failure) => String(failure).indexOf("semantic-hover-color-drift") < 0),
     buttonTextDeadSpacePass: failures.every((failure) => String(failure).indexOf("button-dead-space-missing") < 0 && String(failure).indexOf("button-text-clipping") < 0),
+    overlayProfileSettingsStateMatrix: Boolean(
+      monitoringHudOverlayProfileWindow
+      && monitoringHudOverlayProfileWindow.dataset.workstreamSeam === "fam006-issue-282-overlay-profile-settings-child-window"
+      && monitoringHudOverlayProfileWindow.dataset.childWindowStateMatrix === "default-open-dirty-guard-delete-confirmation-empty-filtered-stress-keyboard"
+      && monitoringHudOverlayProfileWindow.dataset.uiref007SurfaceClass === "embedded-child-surface"
+      && targets.some((target) => target.name === "overlay-window-frame" && target.visible === true)
+      && targets.some((target) => target.name === "overlay-delete-danger" && target.semanticRole === "danger")
+    ),
+    activeOverlayProfileDropdownStateMatrix: Boolean(
+      monitoringHudCurrentOverlayProfileSelector()
+      && monitoringHudCurrentOverlayProfileSelector().dataset.workstreamSeam === "fam006-issue-283-active-overlay-profile-dropdown"
+      && monitoringHudCurrentOverlayProfileSelector().dataset.overlayProfileSelectorStateMatrix === "collapsed-open-hover-focus-selected-disabled-error-keyboard"
+      && monitoringHudCurrentOverlayProfileSelector().dataset.overlayProfileDropdownLayerContract === "overlay-owned-control-not-child-window"
+      && targets.some((target) => target.name === "dashboard-overlay-profile-toggle" && target.visible === true)
+      && targets.some((target) => target.name === "dashboard-overlay-profile-option" && target.visible === true)
+    ),
     sourceRowHoverPersistence: Boolean(monitoringHudMonitorSensorAssignment && monitoringHudMonitorSensorAssignment.dataset.sourcePickerHoverPersistence),
     checkedControlHoverAffordance: surfaces.some((surface) => surface.name === "manage-checked-control-hover-affordance" && surface.sampled && surface.sampled.every((sample) => sample.hasHoverAffordance === true))
       && surfaces.some((surface) => surface.name === "source-settings-checked-control-hover-affordance" && surface.sampled && surface.sampled.every((sample) => sample.hasHoverAffordance === true)),
@@ -8314,6 +8338,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
       && surface.menuUnclipped === true
       && surface.responsiveCompact === true
     )),
+    overlayProfileWorkstreamSeam: "issue-282-overlay-profile-settings-and-issue-283-active-overlay-profile-dropdown",
     dividerGlowReduced50Percent: surfaces.filter((surface) => String(surface.name || "").indexOf("page-breaks") >= 0).every((surface) => surface.dividerGlowReduced === true),
     visualInspectionScopeCovered: targets.length >= 40 && surfaces.length >= 3
   };
@@ -8324,6 +8349,8 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     monitoringHud.dataset.semanticHoverColorPreserved = proof.semanticHoverColorPreserved ? "pass" : "fail";
     monitoringHud.dataset.buttonRoleColorUniformity = proof.buttonRoleColorUniformity ? "pass" : "fail";
     monitoringHud.dataset.buttonTextDeadSpacePass = proof.buttonTextDeadSpacePass ? "pass" : "fail";
+    monitoringHud.dataset.overlayProfileSettingsStateMatrix = proof.overlayProfileSettingsStateMatrix ? "pass" : "fail";
+    monitoringHud.dataset.activeOverlayProfileDropdownStateMatrix = proof.activeOverlayProfileDropdownStateMatrix ? "pass" : "fail";
     monitoringHud.dataset.perElementVisualInventory = proof.visualInspectionScopeCovered ? "pass" : "fail";
     monitoringHud.dataset.visualInspectionScope = proof.scope;
   }
