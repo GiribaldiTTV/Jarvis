@@ -1240,6 +1240,78 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _fam003_hardening_h1_review_state_failures(packet_files: Mapping[str, str]) -> list[str]:
+    """Block FAM-003 H1 review packets whose active copied state still names Workstream as current."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_HARDENING_H1_REVIEW.md"
+    primary = packet_files.get(primary_path, "")
+    combined = f"{start_here}\n{primary}".casefold()
+    if primary_path.casefold() not in start_here.casefold() and "hardening h1" not in combined:
+        return []
+    if "fam-003" not in combined and "feature/fam-003-settings-resize-proof" not in combined:
+        return []
+
+    failures: list[str] = []
+    copied_state_files = (
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/branch_plan.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/branch_state.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/worktree_state.md",
+    )
+    expected_markers = (
+        "hardening h1 review packet generated",
+        "user response pending",
+        "live validation lv1",
+        "remain blocked",
+    )
+    stale_active_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        (
+            "workstream-current-gate",
+            re.compile(r"current gate:\s*`?workstream implementation review packet generated", re.IGNORECASE),
+        ),
+        (
+            "workstream-reviewability-state",
+            re.compile(r"packet reviewability state:\s*`?reviewable\s*-\s*workstream implementation review packet", re.IGNORECASE),
+        ),
+        (
+            "workstream-next-legal-phase",
+            re.compile(r"next legal phase:\s*`?user review of workstream implementation packet", re.IGNORECASE),
+        ),
+        (
+            "h1-blocked-current-gate",
+            re.compile(r"current gate:[^\n]*hardening h1,\s*lv", re.IGNORECASE),
+        ),
+        (
+            "h1-remains-blocked-active-status",
+            re.compile(r"hardening h1 remains blocked pending user decision", re.IGNORECASE),
+        ),
+        (
+            "current-packet-workstream-evidence",
+            re.compile(r"current packet requests user review of implementation evidence", re.IGNORECASE),
+        ),
+    )
+
+    for file_name in copied_state_files:
+        text = packet_files.get(file_name, "")
+        if not text:
+            failures.append(f"{file_name}: FAM-003 H1 review packet is missing copied active state")
+            continue
+        active_text = "\n".join(text.splitlines()[:45])
+        active_lower = active_text.casefold()
+        for reason, pattern in stale_active_patterns:
+            if pattern.search(active_text):
+                failures.append(
+                    f"{file_name}: FAM-003 H1 active copied state contains stale current-gate wording {reason}"
+                )
+        missing = [marker for marker in expected_markers if marker not in active_lower]
+        if missing and file_name.endswith(("branch_plan.md", "worktree_state.md")):
+            failures.append(
+                f"{file_name}: FAM-003 H1 active copied state is missing current H1 review markers "
+                f"{missing}"
+            )
+    return failures
+
+
 def _current_branch_external_state_dir() -> Path | None:
     try:
         branch = subprocess.check_output(
@@ -2796,6 +2868,7 @@ def validate_local_user_packet(
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam003_workstream_review_state_failures(packet_files))
+    failures.extend(_fam003_hardening_h1_review_state_failures(packet_files))
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,
