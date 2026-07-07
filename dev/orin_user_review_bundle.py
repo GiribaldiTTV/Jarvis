@@ -1334,6 +1334,97 @@ def _fam003_hardening_h1_review_state_failures(packet_files: Mapping[str, str]) 
     return failures
 
 
+def _fam003_hardening_h1_traceability_failures(
+    packet_files: Mapping[str, str],
+    export_zip: Path,
+) -> list[str]:
+    """Block FAM-003 H1 packets with stale proof roots or polluted historical packet hashes."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_HARDENING_H1_REVIEW.md"
+    primary = packet_files.get(primary_path, "")
+    combined = f"{start_here}\n{primary}".casefold()
+    if primary_path.casefold() not in start_here.casefold() and "hardening h1" not in combined:
+        return []
+    if "fam-003" not in combined and "feature/fam-003-settings-resize-proof" not in combined:
+        return []
+
+    failures: list[str] = []
+    settings_root_pattern = re.compile(
+        r"fam003_settings_repair_visual_validation[\\/]+(?P<stamp>\d{8}-\d{6})",
+        re.IGNORECASE,
+    )
+    proof_artifact_text = "\n".join(
+        text
+        for name, text in sorted(packet_files.items())
+        if name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Proof Artifacts/Settings Visual Proof/")
+    )
+    artifact_roots = sorted(set(settings_root_pattern.findall(proof_artifact_text)))
+    primary_roots = sorted(set(settings_root_pattern.findall(primary)))
+    if artifact_roots:
+        current_artifact_root = artifact_roots[-1]
+        stale_primary_roots = [root for root in primary_roots if root != current_artifact_root]
+        if stale_primary_roots:
+            failures.append(
+                f"{primary_path}: stale Settings proof root(s) {stale_primary_roots} "
+                f"do not match packet-contained proof root {current_artifact_root}"
+            )
+        if current_artifact_root not in primary:
+            failures.append(
+                f"{primary_path}: missing current packet-contained Settings proof root {current_artifact_root}"
+            )
+
+    allowed_unverified_markers = {
+        "HISTORICAL_HASH_UNVERIFIED_NOT_CURRENT_PACKET",
+        "RECORDED_AFTER_ZIP_GENERATION_OUTSIDE_PACKET",
+        "Recorded only outside the ZIP after generation to avoid self-hash contradiction.",
+    }
+    current_zip = _normalize_windows_path_text(str(export_zip))
+    current_zip_hash = None
+    try:
+        current_zip_hash = hashlib.sha256(export_zip.read_bytes()).hexdigest().upper()
+    except OSError:
+        current_zip_hash = None
+
+    copied_state_files = (
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/branch_plan.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/branch_state.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/worktree_state.md",
+    )
+    concrete_hash_paths: dict[str, set[str]] = {}
+    pair_pattern = re.compile(
+        r"(?P<path_field>(?:Historical\s+)?USER Packet ZIP Path):\s*`?(?P<path>C:\\Nexus USER\\FAM-003-\d{8}-\d{6}\.zip)`?"
+        r"(?P<between>.{0,240}?)"
+        r"(?P<sha_field>(?:Historical\s+)?USER Packet ZIP SHA256):\s*`?(?P<sha>[A-Z0-9_ .-]+?)`?(?=\s|$)",
+        re.IGNORECASE | re.DOTALL,
+    )
+    for file_name in copied_state_files:
+        text = packet_files.get(file_name, "")
+        for match in pair_pattern.finditer(text):
+            path_value = match.group("path").strip()
+            normalized_path = _normalize_windows_path_text(path_value)
+            sha_value = match.group("sha").strip()
+            sha_upper = sha_value.upper()
+            if sha_value in allowed_unverified_markers:
+                continue
+            if not re.fullmatch(r"[A-F0-9]{64}", sha_upper):
+                continue
+            concrete_hash_paths.setdefault(sha_upper, set()).add(normalized_path)
+            if current_zip_hash and normalized_path != current_zip and sha_upper == current_zip_hash:
+                failures.append(
+                    f"{file_name}: historical packet path {path_value} is paired with current H1 ZIP SHA256"
+                )
+    for sha_value, paths in sorted(concrete_hash_paths.items()):
+        if len(paths) > 1:
+            display_paths = ", ".join(sorted(paths))
+            failures.append(
+                "FAM-003 H1 packet historical hash traceability failed: "
+                f"SHA256 {sha_value} is paired with multiple packet paths: {display_paths}"
+            )
+
+    return failures
+
+
 def _current_branch_external_state_dir() -> Path | None:
     try:
         branch = subprocess.check_output(
@@ -2891,6 +2982,7 @@ def validate_local_user_packet(
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam003_workstream_review_state_failures(packet_files))
     failures.extend(_fam003_hardening_h1_review_state_failures(packet_files))
+    failures.extend(_fam003_hardening_h1_traceability_failures(packet_files, export_zip))
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,
