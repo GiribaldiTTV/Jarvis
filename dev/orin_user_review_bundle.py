@@ -1240,6 +1240,26 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _fam003_active_state_excerpt(text: str) -> str:
+    """Return active state fields without adjacent historical receipts."""
+
+    chunks: list[str] = []
+    active_prefix = re.split(r"\n## FAM-003 ", text, maxsplit=1)[0]
+    if active_prefix.strip():
+        chunks.append(active_prefix)
+    for heading in (
+        "Branch Readiness Stage 2 Setup Summary",
+        "Current Active Gate",
+        "Current Phase",
+    ):
+        pattern = re.compile(
+            rf"^##\s+{re.escape(heading)}[^\n]*\n(?P<body>.*?)(?=^##\s+|\Z)",
+            re.IGNORECASE | re.MULTILINE | re.DOTALL,
+        )
+        chunks.extend(match.group(0) for match in pattern.finditer(text))
+    return "\n\n".join(dict.fromkeys(chunks))
+
+
 def _fam003_hardening_h1_review_state_failures(packet_files: Mapping[str, str]) -> list[str]:
     """Block FAM-003 H1 review packets whose active copied state still names Workstream as current."""
 
@@ -1296,7 +1316,7 @@ def _fam003_hardening_h1_review_state_failures(packet_files: Mapping[str, str]) 
         if not text:
             failures.append(f"{file_name}: FAM-003 H1 review packet is missing copied active state")
             continue
-        active_text = "\n".join(text.splitlines()[:45])
+        active_text = _fam003_active_state_excerpt(text)
         active_lower = active_text.casefold()
         for reason, pattern in stale_active_patterns:
             if pattern.search(active_text):
