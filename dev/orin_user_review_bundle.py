@@ -2318,6 +2318,26 @@ def _generic_user_facing_technical_metadata_failures(
     """Check only generated USER-facing surfaces, not copied source-truth context."""
 
     failures: list[str] = []
+    seam_evidence_primary = packet_files.get(
+        f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_SEAM_EVIDENCE_REVIEW.md",
+        "",
+    )
+    workstream_seam_evidence_packet = (
+        "Workstream Seam Evidence Review" in seam_evidence_primary
+        and "Seam Commit:" in seam_evidence_primary
+    )
+    seam_evidence_metadata_allowed = {
+        f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_SEAM_EVIDENCE_REVIEW.md",
+        f"{REVIEW_AIDS_DIR_NAME}/DIFF_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/ROLLBACK_FALLBACK_SUMMARY.md",
+        "START_HERE.md",
+    }
+    seam_evidence_allowed_labels = {
+        "head-token",
+        "origin-main",
+        "merge-base",
+        "sha-like-proof",
+    }
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
         if (
@@ -2337,6 +2357,12 @@ def _generic_user_facing_technical_metadata_failures(
             continue
         for label, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
             if pattern.search(text):
+                if (
+                    workstream_seam_evidence_packet
+                    and normalized in seam_evidence_metadata_allowed
+                    and label in seam_evidence_allowed_labels
+                ):
+                    continue
                 failures.append(f"{file_name}: USER-facing file contains technical metadata: {label}")
     return failures
 
