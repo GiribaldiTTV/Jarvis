@@ -2367,6 +2367,65 @@ def _generic_user_facing_technical_metadata_failures(
     return failures
 
 
+def _workstream_seam_evidence_packet_hygiene_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Fail closed on seam-evidence proof identifiers that are easy to corrupt."""
+
+    primary_name = f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_SEAM_EVIDENCE_REVIEW.md"
+    primary = packet_files.get(primary_name, "")
+    if not primary:
+        return []
+    if "Workstream Seam Evidence Review" not in primary or "Seam Commit:" not in primary:
+        return []
+
+    failures: list[str] = []
+    expected_proof_id = "runMonitoringHudVisualInspectionMatrixProof"
+    if expected_proof_id not in primary:
+        failures.append(
+            f"{primary_name}: missing intact proof identifier {expected_proof_id}"
+        )
+    malformed_proof_patterns = (
+        r"\\runMonitoringHudVisualInspectionMatrixProof",
+        r"\bunMonitoringHudVisualInspectionMatrixProof\b",
+        r"\br\s*[\r\n]+\s*unMonitoringHudVisualInspectionMatrixProof\b",
+        r"\brun\s*[\r\n]+\s*MonitoringHudVisualInspectionMatrixProof\b",
+    )
+    for pattern in malformed_proof_patterns:
+        if re.search(pattern, primary):
+            failures.append(
+                f"{primary_name}: malformed proof identifier artifact matched {pattern}"
+            )
+    return failures
+
+
+def _generated_packet_control_character_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Reject hidden control bytes in generated review prose."""
+
+    failures: list[str] = []
+    for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if normalized.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            continue
+        if normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Validation Outputs/"):
+            continue
+        for index, char in enumerate(text):
+            codepoint = ord(char)
+            if char == "\r":
+                if index + 1 >= len(text) or text[index + 1] != "\n":
+                    failures.append(f"{file_name}: isolated carriage-return control character at offset {index}")
+                    break
+                continue
+            if char in {"\n", "\t"}:
+                continue
+            if codepoint < 32:
+                failures.append(f"{file_name}: disallowed control character U+{codepoint:04X} at offset {index}")
+                break
+    return failures
+
+
 def _user_packet_sidecar_review_artifact_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
@@ -3425,6 +3484,8 @@ def validate_local_user_packet(
     failures.extend(_unresolved_template_placeholder_failures(generated_packet_files))
     failures.extend(_packet_count_consistency_failures(packet_files, actual_file_count=len(folder_entries)))
     failures.extend(_generic_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_generated_packet_control_character_failures(generated_packet_files))
+    failures.extend(_workstream_seam_evidence_packet_hygiene_failures(packet_files))
     failures.extend(_user_packet_sidecar_review_artifact_failures(generated_packet_files))
     failures.extend(_user_facing_technical_metadata_failures(generated_packet_files))
     failures.extend(_user_branch_plan_stale_bp1_wording_failures(generated_packet_files))
