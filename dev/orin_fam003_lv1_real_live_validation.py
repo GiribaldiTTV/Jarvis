@@ -40,6 +40,7 @@ FAM003_SETTINGS_LIVE_RESIZE_ROOT = (
     ROOT / "dev" / "logs" / "fam003_lv1_real_launcher_settings_resize"
 )
 FAM003_TRAY_LIVE_ROOT = ROOT / "dev" / "logs" / "fam003_lv1_real_launcher_tray"
+FAM003_VISIBLE_INPUT_ROOT = ROOT / "dev" / "logs" / "fam003_lv1_real_launcher_visible_input"
 NORMAL_WORKTREE_LAUNCHER = ROOT / "Nexus Desktop Launcher - FAM-003.lnk"
 UTS_PATH = Path(r"C:\Nexus USER\UTS - FAM-003.txt")
 
@@ -284,6 +285,22 @@ def _run_tray_launcher_precheck(log_dir: Path) -> dict[str, object]:
     )
 
 
+def _run_visible_input_launcher_proof(log_dir: Path) -> dict[str, object]:
+    scenario_root = FAM003_VISIBLE_INPUT_ROOT / log_dir.name
+    manifest_path = scenario_root / "fam003_lv_visible_input_manifest.json"
+    return _run_normal_launcher_manifest(
+        manifest_path=manifest_path,
+        scenario_root=scenario_root,
+        env_vars={
+            "NEXUS_FAM003_LV_VISIBLE_INPUT_MANIFEST": str(manifest_path),
+            "NEXUS_FAM003_LV_VISIBLE_INPUT_EXIT": "1",
+            "NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS": "1200",
+        },
+        frame_prefix="visible_input_frame",
+        timeout=65.0,
+    )
+
+
 def _copy_if_exists(source: Path | None, target_dir: Path, copied: list[dict[str, str]]) -> Path | None:
     if source is None or not source.exists() or not source.is_file():
         return None
@@ -298,6 +315,7 @@ def _copy_key_artifacts(
     *,
     tray_launcher_proof: dict[str, object],
     settings_live_proof: dict[str, object],
+    visible_input_proof: dict[str, object],
 ) -> tuple[list[dict[str, str]], list[str]]:
     artifacts_dir = log_dir / "artifacts"
     artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -356,6 +374,12 @@ def _copy_key_artifacts(
     for frame in settings_live_proof.get("orderedFrames") or []:
         if isinstance(frame, dict):
             _copy_if_exists(Path(str(frame.get("path") or "")), artifacts_dir, copied)
+    visible_manifest_path = Path(str(visible_input_proof.get("manifestPath") or ""))
+    if _copy_if_exists(visible_manifest_path, artifacts_dir, copied) is None:
+        missing.append("visible input exact-launcher manifest missing")
+    for frame in visible_input_proof.get("orderedFrames") or []:
+        if isinstance(frame, dict):
+            _copy_if_exists(Path(str(frame.get("path") or "")), artifacts_dir, copied)
 
     return copied, missing
 
@@ -395,6 +419,7 @@ def _make_status_rows(
     run_results: dict[str, dict[str, object]],
     tray_launcher_proof: dict[str, object],
     settings_live_proof: dict[str, object],
+    visible_input_proof: dict[str, object],
     missing_artifacts: list[str],
 ) -> list[dict[str, object]]:
     real_client_manifest = tray_launcher_proof.get("manifest")
@@ -411,6 +436,28 @@ def _make_status_rows(
         and int(tray_launcher_proof.get("orderedFrameCount") or 0) >= 4
     )
     real_tray_complete = real_user_tray not in {None, "", "USER_LV1_REQUIRED"}
+    visible_input_manifest = visible_input_proof.get("manifest")
+    visible_input_steps = visible_input_manifest.get("steps") if isinstance(visible_input_manifest, dict) else []
+    if not isinstance(visible_input_steps, list):
+        visible_input_steps = []
+    visible_step_map = {
+        str(step.get("id")): step
+        for step in visible_input_steps
+        if isinstance(step, dict)
+    }
+    tray_icon_step = visible_step_map.get("tray_icon_context_click_opens_popup") or {}
+    tray_button_step = visible_step_map.get("tray_visible_popup_button_click") or {}
+    ncp_step = visible_step_map.get("ncp_hotkey_keyboard_flow") or {}
+    visible_input_frame_count = int(visible_input_proof.get("orderedFrameCount") or 0)
+    codex_visible_tray_complete = (
+        tray_icon_step.get("codexPrecheck") == "PASS"
+        and tray_button_step.get("codexPrecheck") == "PASS"
+        and visible_input_frame_count >= 4
+    )
+    ncp_visible_input_complete = (
+        ncp_step.get("codexPrecheck") == "PASS"
+        and visible_input_frame_count >= 4
+    )
     settings_manifest = settings_live_proof.get("manifest")
     settings_steps = settings_manifest.get("steps") if isinstance(settings_manifest, dict) else []
     if not isinstance(settings_steps, list):
@@ -461,8 +508,12 @@ def _make_status_rows(
         },
         {
             "id": "codex_operated_visible_tray_control_surface",
-            "status": "PASS" if real_tray_complete else "BLOCKED",
-            "basis": real_user_tray or "missing realUserOperatedTrayProof field",
+            "status": "PASS" if codex_visible_tray_complete else "BLOCKED",
+            "basis": (
+                "exact normal FAM-003 launcher visible tray-icon context click plus visible tray popup button click frame sequence"
+                if codex_visible_tray_complete
+                else f"legacyRealUserTray={real_user_tray or 'missing'}; visibleInputTrayIcon={tray_icon_step.get('codexPrecheck')}; visibleInputButton={tray_button_step.get('codexPrecheck')}"
+            ),
             "requiredBeforeUts": True,
         },
         {
@@ -477,8 +528,12 @@ def _make_status_rows(
         },
         {
             "id": "ncp_interaction_frame_sequence",
-            "status": "BLOCKED",
-            "basis": "NCP typed/choose/confirm/result screenshots are supporting only; no exact-launcher visible input frame-sequence hook exists in current source truth",
+            "status": "PASS" if ncp_visible_input_complete else "BLOCKED",
+            "basis": (
+                "exact normal FAM-003 launcher NCP hotkey/keyboard visible input frame sequence"
+                if ncp_visible_input_complete
+                else f"visibleInputNcp={ncp_step.get('codexPrecheck')}; orderedFrames={visible_input_frame_count}"
+            ),
             "requiredBeforeUts": True,
         },
     ]
@@ -501,15 +556,18 @@ def main() -> int:
     run_reports = {name: str(_write_run_report(log_dir, name, result)) for name, result in runs.items()}
     tray_launcher_proof = _run_tray_launcher_precheck(log_dir)
     settings_live_proof = _run_settings_live_resize_launcher_proof(log_dir)
+    visible_input_proof = _run_visible_input_launcher_proof(log_dir)
     copied_artifacts, missing_artifacts = _copy_key_artifacts(
         log_dir,
         tray_launcher_proof=tray_launcher_proof,
         settings_live_proof=settings_live_proof,
+        visible_input_proof=visible_input_proof,
     )
     status_rows = _make_status_rows(
         run_results=runs,
         tray_launcher_proof=tray_launcher_proof,
         settings_live_proof=settings_live_proof,
+        visible_input_proof=visible_input_proof,
         missing_artifacts=missing_artifacts,
     )
     blocking_rows = [
@@ -535,6 +593,7 @@ def main() -> int:
         "runReports": run_reports,
         "trayLauncherProof": tray_launcher_proof,
         "settingsLiveResizeLauncherProof": settings_live_proof,
+        "visibleInputLauncherProof": visible_input_proof,
         "copiedArtifacts": copied_artifacts,
         "missingArtifacts": missing_artifacts,
         "statusRows": status_rows,

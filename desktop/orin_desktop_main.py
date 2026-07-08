@@ -53,6 +53,8 @@ REAL_CLIENT_TRAY_PRECHECK_MANIFEST_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_
 REAL_CLIENT_TRAY_PRECHECK_EXIT_ENV = "NEXUS_MONITORING_HUD_REAL_CLIENT_TRAY_PRECHECK_EXIT"
 FAM003_SETTINGS_LIVE_RESIZE_MANIFEST_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_MANIFEST"
 FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_EXIT"
+FAM003_LV_VISIBLE_INPUT_MANIFEST_ENV = "NEXUS_FAM003_LV_VISIBLE_INPUT_MANIFEST"
+FAM003_LV_VISIBLE_INPUT_EXIT_ENV = "NEXUS_FAM003_LV_VISIBLE_INPUT_EXIT"
 DESKTOP_VALIDATION_SHORTCUT_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
@@ -501,6 +503,15 @@ def fam003_settings_live_resize_manifest_path():
 
 def fam003_settings_live_resize_exits_after_run():
     value = (os.environ.get(FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV) or "").strip().casefold()
+    return value in {"1", "true", "yes", "on"}
+
+
+def fam003_lv_visible_input_manifest_path():
+    return (os.environ.get(FAM003_LV_VISIBLE_INPUT_MANIFEST_ENV) or "").strip()
+
+
+def fam003_lv_visible_input_exits_after_run():
+    value = (os.environ.get(FAM003_LV_VISIBLE_INPUT_EXIT_ENV) or "").strip().casefold()
     return value in {"1", "true", "yes", "on"}
 
 
@@ -958,6 +969,363 @@ def main():
             if real_client_tray_precheck_exits_after_run():
                 QTimer.singleShot(500, do_shutdown)
 
+    fam003_lv_visible_input_started = False
+
+    def run_fam003_lv_visible_input_precheck():
+        nonlocal fam003_lv_visible_input_started
+        manifest_path = fam003_lv_visible_input_manifest_path()
+        if not manifest_path or fam003_lv_visible_input_started or shutdown_started:
+            return
+        fam003_lv_visible_input_started = True
+        runtime_milestone("RENDERER_MAIN|FAM003_LV_VISIBLE_INPUT_PRECHECK_STARTED")
+        started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        steps = []
+
+        def pump(duration_ms=250):
+            deadline = time.time() + (max(0, duration_ms) / 1000.0)
+            while time.time() < deadline:
+                QApplication.processEvents()
+                time.sleep(0.025)
+
+        def record_step(step_id, title, ok, detail, evidence=None, proof_class="visible-user-level-input"):
+            steps.append(
+                {
+                    "id": step_id,
+                    "title": title,
+                    "codexPrecheck": "PASS" if ok else "FAIL",
+                    "proofClass": proof_class,
+                    "detail": detail,
+                    "evidence": evidence or {},
+                }
+            )
+
+        def write_manifest(status, failure=""):
+            payload = {
+                "schema": "fam003-lv-visible-input-precheck-v1",
+                "status": status,
+                "failure": failure,
+                "startedAt": started_at,
+                "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "surface": "FAM-003 LV1 visible tray/NCP control surfaces",
+                "shortcutPath": real_client_tray_precheck_shortcut_path(),
+                "normalLauncherProof": True,
+                "proofMethod": (
+                    "exact normal launcher plus Win32 visible cursor/mouse/keyboard input; "
+                    "tray icon geometry is attempted before fallback popup proof"
+                ),
+                "formalUtsTouched": False,
+                "proofClasses": {
+                    "trayIconContextClick": next(
+                        (
+                            step["codexPrecheck"]
+                            for step in steps
+                            if step["id"] == "tray_icon_context_click_opens_popup"
+                        ),
+                        "NOT_RUN",
+                    ),
+                    "trayVisiblePopupButtonClick": next(
+                        (
+                            step["codexPrecheck"]
+                            for step in steps
+                            if step["id"] == "tray_visible_popup_button_click"
+                        ),
+                        "NOT_RUN",
+                    ),
+                    "ncpHotkeyKeyboardFlow": next(
+                        (
+                            step["codexPrecheck"]
+                            for step in steps
+                            if step["id"] == "ncp_hotkey_keyboard_flow"
+                        ),
+                        "NOT_RUN",
+                    ),
+                },
+                "steps": steps,
+            }
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(manifest_path)), exist_ok=True)
+                with open(manifest_path, "w", encoding="utf-8") as handle:
+                    json.dump(payload, handle, indent=2, sort_keys=True)
+                runtime_milestone(
+                    "RENDERER_MAIN|FAM003_LV_VISIBLE_INPUT_PRECHECK_MANIFEST_WRITTEN"
+                    f"|status={status}|path={manifest_path}"
+                )
+            except Exception as exc:
+                runtime_milestone(
+                    "RENDERER_MAIN|FAM003_LV_VISIBLE_INPUT_PRECHECK_MANIFEST_FAILED"
+                    f"|reason={type(exc).__name__}"
+                )
+
+        if not hasattr(ctypes, "windll"):
+            record_step(
+                "win32_visible_input_available",
+                "Win32 visible input route is available",
+                False,
+                "ctypes.windll unavailable",
+            )
+            write_manifest("FAIL", "ctypes.windll unavailable")
+            return
+
+        user32 = ctypes.windll.user32
+        set_cursor_pos = user32.SetCursorPos
+        set_cursor_pos.argtypes = [ctypes.c_int, ctypes.c_int]
+        set_cursor_pos.restype = ctypes.c_bool
+        mouse_event = user32.mouse_event
+        mouse_event.argtypes = [
+            ctypes.wintypes.DWORD,
+            ctypes.c_long,
+            ctypes.c_long,
+            ctypes.wintypes.DWORD,
+            ctypes.c_ulong,
+        ]
+        mouse_event.restype = None
+        keybd_event = user32.keybd_event
+        keybd_event.argtypes = [
+            ctypes.wintypes.BYTE,
+            ctypes.wintypes.BYTE,
+            ctypes.wintypes.DWORD,
+            ctypes.c_ulong,
+        ]
+        keybd_event.restype = None
+        vk_key_scan = user32.VkKeyScanW
+        vk_key_scan.argtypes = [ctypes.wintypes.WCHAR]
+        vk_key_scan.restype = ctypes.c_short
+        set_foreground_window = user32.SetForegroundWindow
+        set_foreground_window.argtypes = [ctypes.wintypes.HWND]
+        set_foreground_window.restype = ctypes.c_bool
+
+        left_down = 0x0002
+        left_up = 0x0004
+        right_down = 0x0008
+        right_up = 0x0010
+        key_up = 0x0002
+        vk_shift = 0x10
+        vk_control = 0x11
+        vk_menu = 0x12
+        vk_return = 0x0D
+        vk_home = 0x24
+
+        def click_point(point, button="left"):
+            set_cursor_pos(int(point.x()), int(point.y()))
+            pump(80)
+            if button == "right":
+                mouse_event(right_down, 0, 0, 0, 0)
+                pump(45)
+                mouse_event(right_up, 0, 0, 0, 0)
+            else:
+                mouse_event(left_down, 0, 0, 0, 0)
+                pump(45)
+                mouse_event(left_up, 0, 0, 0, 0)
+            pump(260)
+
+        def press_vk(vk):
+            keybd_event(int(vk), 0, 0, 0)
+            pump(30)
+            keybd_event(int(vk), 0, key_up, 0)
+            pump(60)
+
+        def press_combo(*vks):
+            for vk in vks:
+                keybd_event(int(vk), 0, 0, 0)
+                pump(20)
+            for vk in reversed(vks):
+                keybd_event(int(vk), 0, key_up, 0)
+                pump(25)
+
+        def type_text(text):
+            typed = []
+            for char in text:
+                scan = int(vk_key_scan(char))
+                if scan == -1:
+                    continue
+                vk = scan & 0xFF
+                shift_state = (scan >> 8) & 0xFF
+                if shift_state & 1:
+                    keybd_event(vk_shift, 0, 0, 0)
+                    pump(8)
+                keybd_event(vk, 0, 0, 0)
+                pump(8)
+                keybd_event(vk, 0, key_up, 0)
+                if shift_state & 1:
+                    keybd_event(vk_shift, 0, key_up, 0)
+                typed.append(char)
+                pump(18)
+            return "".join(typed)
+
+        try:
+            tray_entry.refresh_resident_access_actions("fam003_lv_visible_input_initial")
+            tray_entry.refresh_monitoring_hud_actions("fam003_lv_visible_input_initial")
+            pump(250)
+            record_step(
+                "win32_visible_input_available",
+                "Win32 visible input route is available",
+                True,
+                "SetCursorPos, mouse_event, and keybd_event are available",
+            )
+
+            tray_geometry = None
+            tray_geometry_available = False
+            try:
+                tray_geometry = tray_entry.tray_icon.geometry()
+                tray_geometry_available = bool(
+                    tray_geometry is not None
+                    and tray_geometry.isValid()
+                    and not tray_geometry.isEmpty()
+                )
+            except Exception:
+                tray_geometry = None
+
+            tray_popup_method = "none"
+            if tray_geometry_available:
+                center = tray_geometry.center()
+                click_point(center, button="right")
+                tray_popup_method = "tray_icon_context_click"
+            popup_visible_after_icon_click = bool(
+                tray_entry.tray_popup is not None and tray_entry.tray_popup.isVisible()
+            )
+            record_step(
+                "tray_icon_context_click_opens_popup",
+                "Visible Windows tray icon context click opens the NDAI tray popup",
+                popup_visible_after_icon_click,
+                (
+                    f"trayGeometryAvailable={tray_geometry_available}; "
+                    f"popupVisible={popup_visible_after_icon_click}; method={tray_popup_method}"
+                ),
+                {
+                    "trayGeometryAvailable": tray_geometry_available,
+                    "trayGeometry": (
+                        {
+                            "x": tray_geometry.x(),
+                            "y": tray_geometry.y(),
+                            "width": tray_geometry.width(),
+                            "height": tray_geometry.height(),
+                        }
+                        if tray_geometry_available
+                        else None
+                    ),
+                    "popupGeometry": (
+                        {
+                            "x": tray_entry.tray_popup.geometry().x(),
+                            "y": tray_entry.tray_popup.geometry().y(),
+                            "width": tray_entry.tray_popup.geometry().width(),
+                            "height": tray_entry.tray_popup.geometry().height(),
+                        }
+                        if popup_visible_after_icon_click
+                        else None
+                    ),
+                },
+            )
+
+            if not popup_visible_after_icon_click:
+                fallback_point = QCursor.pos()
+                tray_entry._show_tray_popup()
+                pump(300)
+                tray_popup_method = "fallback_direct_popup_after_failed_icon_geometry"
+                popup_visible_after_icon_click = bool(
+                    tray_entry.tray_popup is not None and tray_entry.tray_popup.isVisible()
+                )
+                record_step(
+                    "tray_popup_visible_fallback",
+                    "NDAI tray popup can be made visible for button-surface proof after tray icon acquisition fails",
+                    popup_visible_after_icon_click,
+                    f"fallbackCursor={fallback_point.x()},{fallback_point.y()}; popupVisible={popup_visible_after_icon_click}",
+                    proof_class="visible-popup-fallback-not-tray-icon-acquisition",
+                )
+
+            button = getattr(tray_entry, "global_settings_button", None)
+            button_click_ok = False
+            dialog_visible = False
+            button_evidence = {
+                "popupMethod": tray_popup_method,
+                "hiddenHandlerOnly": False,
+            }
+            if popup_visible_after_icon_click and button is not None and button.isVisible() and button.isEnabled():
+                button_center = button.mapToGlobal(button.rect().center())
+                button_evidence["buttonText"] = button.text()
+                button_evidence["buttonCenter"] = {"x": button_center.x(), "y": button_center.y()}
+                click_point(button_center, button="left")
+                pump(600)
+                dialog = getattr(window, "_resident_access_settings_dialog", None)
+                dialog_visible = bool(dialog is not None and dialog.isVisible())
+                button_click_ok = dialog_visible
+                if dialog is not None and dialog.isVisible():
+                    dialog.close()
+                    pump(180)
+            record_step(
+                "tray_visible_popup_button_click",
+                "Visible NDAI tray popup button click routes to Global Settings",
+                button_click_ok,
+                f"buttonVisible={bool(button is not None and button.isVisible())}; dialogVisible={dialog_visible}; popupMethod={tray_popup_method}",
+                button_evidence,
+            )
+
+            ncp_activation = "hotkey"
+            try:
+                hwnd = int(window.winId())
+                set_foreground_window(ctypes.wintypes.HWND(hwnd))
+            except Exception:
+                pass
+            pump(180)
+            press_combo(vk_control, vk_menu, vk_home)
+            pump(700)
+            if not bool(window.command_overlay_state().get("visible")):
+                ncp_activation = "fallback_open_command_overlay"
+                window.open_command_overlay()
+                pump(500)
+            typed = type_text("open nexus folder")
+            press_vk(vk_return)
+            pump(750)
+            phase_after_submit = str(window.command_overlay_state().get("phase"))
+            if phase_after_submit == "choose":
+                type_text("2")
+                pump(300)
+                press_vk(vk_return)
+                pump(750)
+            elif phase_after_submit == "confirm":
+                press_vk(vk_return)
+                pump(750)
+            final_state = window.command_overlay_state()
+            ncp_ok = (
+                bool(final_state.get("visible"))
+                and str(final_state.get("phase")) in {"result", "confirm", "choose"}
+                and typed == "open nexus folder"
+                and ncp_activation == "hotkey"
+            )
+            record_step(
+                "ncp_hotkey_keyboard_flow",
+                "NCP opens from the normal runtime and advances through visible keyboard input",
+                ncp_ok,
+                (
+                    f"activation={ncp_activation}; typed={typed!r}; "
+                    f"phaseAfterSubmit={phase_after_submit}; finalPhase={final_state.get('phase')}"
+                ),
+                {
+                    "activationMethod": ncp_activation,
+                    "typedText": typed,
+                    "phaseAfterSubmit": phase_after_submit,
+                    "finalState": final_state,
+                    "fallbackUsed": ncp_activation != "hotkey",
+                },
+            )
+            try:
+                window.close_command_overlay()
+            except Exception:
+                pass
+            pump(120)
+            status = "PASS" if all(step["codexPrecheck"] == "PASS" for step in steps) else "FAIL"
+            write_manifest(status)
+        except Exception as exc:
+            record_step(
+                "fam003_lv_visible_input_exception",
+                "FAM-003 visible input precheck exception",
+                False,
+                f"{type(exc).__name__}: {exc}",
+            )
+            write_manifest("FAIL", f"{type(exc).__name__}: {exc}")
+        finally:
+            if fam003_lv_visible_input_exits_after_run():
+                QTimer.singleShot(500, do_shutdown)
+
     fam003_settings_live_resize_started = False
 
     def run_fam003_settings_live_resize_precheck():
@@ -1327,6 +1695,8 @@ def main():
             QTimer.singleShot(800, run_real_client_tray_precheck)
         if fam003_settings_live_resize_manifest_path():
             QTimer.singleShot(950, run_fam003_settings_live_resize_precheck)
+        if fam003_lv_visible_input_manifest_path():
+            QTimer.singleShot(1100, run_fam003_lv_visible_input_precheck)
 
     window_show_requested = False
 
