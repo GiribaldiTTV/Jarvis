@@ -2409,8 +2409,6 @@ def _generated_packet_control_character_failures(
         normalized = file_name.replace("\\", "/")
         if normalized.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
             continue
-        if normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Validation Outputs/"):
-            continue
         for index, char in enumerate(text):
             codepoint = ord(char)
             if char == "\r":
