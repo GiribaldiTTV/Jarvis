@@ -1778,6 +1778,19 @@ def _final_active_packet_lifecycle_proof_failures(
                 f"{final_parity_name}: final parity proof cannot rely on pre-final or sidecar-only proof"
             )
 
+    local_validation_receipt_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Artifact Lifecycle Proof/LOCAL_USER_PACKET_VALIDATION_RECEIPT.md"
+    )
+    local_validation_receipt_text = packet_files.get(local_validation_receipt_name, "")
+    if local_validation_receipt_text and re.search(
+        r"\bpending final rebuild\b|\bpending final parity proof\b",
+        local_validation_receipt_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            f"{local_validation_receipt_name}: local packet validation receipt still uses pending/soft final-rebuild wording"
+        )
+
     return failures
 
 
@@ -1982,6 +1995,25 @@ def _final_zip_active_metadata_failures(
                     f"USER Review ZIP {review_zip} does not match final ZIP {export_zip}"
                 )
                 source_truth_mismatch = True
+
+    if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        expected_zip = _normalize_windows_path_text(str(export_zip))
+        sha_field_pattern = re.compile(
+            r"(?im)^\s*(?:USER Review ZIP SHA256|ZIP SHA256|Packet SHA256|"
+            r"Packet SHA|Upload SHA256|Upload Hash)\s*:\s*`?\s*[0-9A-F]{64}\b"
+        )
+        for file_name, text in sorted(packet_files.items()):
+            normalized_name = file_name.replace("\\", "/")
+            if not normalized_name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+                continue
+            for section in re.split(r"(?m)(?=^##\s+)", text):
+                if expected_zip not in _normalize_windows_path_text(section):
+                    continue
+                if sha_field_pattern.search(section):
+                    failures.append(
+                        f"{file_name}: copied Source Truth Context contains a same-ZIP final SHA claim "
+                        f"for active export {export_zip.name}; final ZIP SHA must be reported outside the ZIP"
+                    )
 
     ledger_text = packet_files.get(f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md", "")
     if source_truth_mismatch and re.search(
