@@ -593,7 +593,21 @@ try {
     $hudParent = Find-VisibleElement -Name "HUD" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3
     $hudStatePath = Join-Path $env:LOCALAPPDATA "Nexus Desktop AI\monitoring_hud_state.json"
     $hudState = if (Test-Path $hudStatePath) { Get-Content $hudStatePath -Raw | ConvertFrom-Json } else { $null }
-    if ($hudParent) {
+    $hudStateKnown = (
+        $null -ne $hudState -and
+        $null -ne $hudState.PSObject.Properties["featureEnabled"]
+    )
+    $hudFeatureEnabled = $hudStateKnown -and [bool]$hudState.featureEnabled
+    if ($hudParent -and (-not $hudStateKnown -or -not $hudFeatureEnabled)) {
+        $hudFrame = Capture-Frame "tray_hud_doorway_invalid_for_current_state"
+        Add-Step "hud_dashboard_resident_doorway" "FAIL" "The resident HUD doorway must be hidden when owner state is disabled or unknown." @{
+            statePath = $hudStatePath; stateKnown = [bool]$hudStateKnown; featureEnabled = [bool]$hudFeatureEnabled
+            doorwayVisible = $true; visibilityDisposition = "invalid-visible-disabled-or-unknown"; frame = $hudFrame
+            currentRouteLabel = "HUD Dashboard"; futureNamingCandidate = "Overlay Dashboard"; futureNamingCandidateStatus = "not-admitted-current-carrier"
+            usedDirectHandler = $false; enabledRouteProofStatus = "not-evaluated-invalid-actual-state"
+            externalParentLauncherState = "invalid-visible-disabled-or-unknown"; externalIntegrationStatus = "not-completed"
+        }
+    } elseif ($hudParent) {
         $hud = Inspect-Submenu "HUD" "Open HUD Dashboard"
         if ($hud.status -ne "PASS") { $hud = Inspect-Submenu "HUD" "Close HUD Dashboard" }
         $hudFrame = Capture-Frame "tray_hud_submenu_open"
@@ -611,12 +625,26 @@ try {
         $hudAlreadyOpenFrame = Capture-Frame "hud_dashboard_already_open_menu_state"
         $hudStatus = if ($hud.status -eq "PASS" -and $hudWindow -and $closeState.status -eq "PASS") { "PASS" } else { "FAIL" }
         Add-Step "hud_dashboard_resident_doorway" $hudStatus "The visible resident HUD submenu must activate the FAM-006-owned HUD Dashboard and then expose deterministic already-open menu state. The current source-truth label is HUD Dashboard; Overlay Dashboard is not admitted on this carrier." @{
-            statePath = $hudStatePath; featureEnabled = [bool]$hudState.featureEnabled; submenu = $hud; submenuFrame = $hudFrame; actionClickPoint = $hudActionPoint; targetWindow = $hudWindowEvidence; openedFrame = $hudOpenedFrame; alreadyOpenState = $closeState; alreadyOpenFrame = $hudAlreadyOpenFrame; usedDirectHandler = $false; externalParentLauncherState = $(if ($hudStatus -eq "PASS") { "visible-route-activated" } elseif (-not $hudWindow) { "target-window-missing" } else { "already-open-state-missing" })
+            statePath = $hudStatePath; stateKnown = [bool]$hudStateKnown; featureEnabled = [bool]$hudFeatureEnabled
+            doorwayVisible = $true; visibilityDisposition = "visible-enabled"; submenu = $hud; submenuFrame = $hudFrame
+            actionClickPoint = $hudActionPoint; targetWindow = $hudWindowEvidence; openedFrame = $hudOpenedFrame
+            alreadyOpenState = $closeState; alreadyOpenFrame = $hudAlreadyOpenFrame; usedDirectHandler = $false
+            currentRouteLabel = "HUD Dashboard"; futureNamingCandidate = "Overlay Dashboard"; futureNamingCandidateStatus = "not-admitted-current-carrier"
+            enabledRouteProofStatus = $(if ($hudStatus -eq "PASS") { "actual-visible-route-pass" } else { "actual-visible-route-fail" })
+            externalParentLauncherState = $(if ($hudStatus -eq "PASS") { "visible-route-activated" } elseif (-not $hudWindow) { "target-window-missing" } else { "already-open-state-missing" })
+            externalIntegrationStatus = $(if ($hudStatus -eq "PASS") { "observed-current-enabled-session" } else { "failed-current-enabled-session" })
         }
     } else {
         $hudFrame = Capture-Frame "tray_hud_doorway_hidden_by_current_state"
-        Add-Step "hud_dashboard_resident_doorway" "BLOCKED_SOURCE_TRUTH" "Current USER state has featureEnabled=false, and FAM-003 source truth requires USER-disabled optional feature doorways to stay hidden." @{
-            statePath = $hudStatePath; featureEnabled = [bool]$hudState.featureEnabled; frame = $hudFrame; usedDirectHandler = $false; externalParentLauncherState = "not-exercisable-while-user-disabled"
+        $hudHiddenStatus = if ($hudStateKnown -and -not $hudFeatureEnabled) { "PASS" } else { "FAIL" }
+        Add-Step "hud_dashboard_resident_doorway" $hudHiddenStatus "Current owner state is disabled, so FAM-003 source truth requires the optional HUD doorway to stay hidden. This proves the actual disabled-state obligation only; it does not claim enabled-state external integration." @{
+            statePath = $hudStatePath; stateKnown = [bool]$hudStateKnown; featureEnabled = [bool]$hudFeatureEnabled
+            doorwayVisible = $false; visibilityDisposition = $(if ($hudHiddenStatus -eq "PASS") { "hidden-disabled" } else { "hidden-without-deterministic-owner-state" })
+            frame = $hudFrame; usedDirectHandler = $false; currentRouteLabel = "HUD Dashboard"
+            futureNamingCandidate = "Overlay Dashboard"; futureNamingCandidateStatus = "not-admitted-current-carrier"
+            enabledRouteProofStatus = "not-proven-by-current-disabled-session"
+            externalParentLauncherState = "not-applicable-current-disabled-state"
+            externalIntegrationStatus = "post-merge-owner-integration-required"
         }
     }
     [System.Windows.Forms.SendKeys]::SendWait("{ESC}")
