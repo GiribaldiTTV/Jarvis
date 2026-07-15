@@ -344,6 +344,48 @@ function Element-Evidence {
     }
 }
 
+function Get-TopLevelWindowElement {
+    param([object]$Element)
+    if (-not $Element) { return $null }
+    $walker = [System.Windows.Automation.TreeWalker]::RawViewWalker
+    $current = $Element
+    while ($current) {
+        try {
+            if ($current.Current.ControlType.ProgrammaticName -eq "ControlType.Window") { return $current }
+            $current = $walker.GetParent($current)
+        } catch {
+            return $null
+        }
+    }
+    return $null
+}
+
+function Find-VisibleDescendant {
+    param(
+        [object]$RootElement,
+        [string]$Name,
+        [int]$TimeoutMilliseconds = 1050
+    )
+    if (-not $RootElement) { return $null }
+    $deadline = (Get-Date).AddMilliseconds($TimeoutMilliseconds)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $all = $RootElement.FindAll(
+                [System.Windows.Automation.TreeScope]::Descendants,
+                [System.Windows.Automation.Condition]::TrueCondition
+            )
+            for ($i = 0; $i -lt $all.Count; $i++) {
+                $element = $all.Item($i)
+                $rect = $element.Current.BoundingRectangle
+                if (-not (Test-FiniteRectangle $rect) -or $rect.IsEmpty -or $element.Current.IsOffscreen) { continue }
+                if ([string]$element.Current.Name -eq $Name) { return $element }
+            }
+        } catch {}
+        Start-Sleep -Milliseconds 35
+    }
+    return $null
+}
+
 function Move-And-Click {
     param([object]$Element, [ValidateSet("left", "right", "double")][string]$Button = "left")
     if (-not $Element) { throw "Visible target is missing" }
@@ -394,6 +436,34 @@ function Close-NewFam003ExplorerWindows {
         } catch {}
     }
     return @($closed)
+}
+
+function Get-NewFam003ExplorerEffects {
+    $effects = @()
+    $shell = New-Object -ComObject Shell.Application
+    foreach ($window in @($shell.Windows())) {
+        try {
+            $signature = "{0}|{1}" -f $window.HWND, $window.LocationURL
+            if ($script:ExplorerBaseline -contains $signature) { continue }
+            if (-not $window.LocationURL) { continue }
+            $uri = [System.Uri]$window.LocationURL
+            $localPath = [System.Uri]::UnescapeDataString($uri.LocalPath).Replace('/', '\')
+            if (-not $localPath.StartsWith($Root, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+            $effects += @{ title = $window.LocationName; url = $window.LocationURL; hwnd = $window.HWND; localPath = $localPath }
+        } catch {}
+    }
+    return @($effects)
+}
+
+function Wait-NewFam003ExplorerEffect {
+    param([int]$TimeoutSeconds = 5)
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        $effects = @(Get-NewFam003ExplorerEffects)
+        if ($effects.Count -gt 0) { return @($effects) }
+        Start-Sleep -Milliseconds 150
+    }
+    return @()
 }
 
 function Open-TrayMenu {
@@ -601,6 +671,8 @@ try {
     $ncpEntry = Find-VisibleElement -Contains "O.R.I.N. Command Prompt" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
     if (-not $ncpEntry) { $ncpEntry = Find-VisibleElement -Contains "Typed desktop interaction" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 }
     $ncpEntryEvidence = Element-Evidence $ncpEntry
+    $ncpOverlay = Get-TopLevelWindowElement $ncpEntry
+    $ncpOverlayEvidence = Element-Evidence $ncpOverlay
     $ncpEntryFrame = Capture-Frame "ncp_entry_opened_from_tray"
     $ncpInput = if ($ncpEntry) { Find-VisibleElement -Type "ControlType.Edit" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 } else { $null }
     $ncpInputEvidence = Element-Evidence $ncpInput
@@ -622,18 +694,18 @@ try {
     $ncpConfirmFrame = Capture-Frame "ncp_confirm_selected_action"
     if ($ncpConfirm) {
         [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
-        Start-Sleep -Milliseconds 900
     }
-    $ncpResult = Find-VisibleElement -Contains "Launch request sent" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
+    $ncpResult = Find-VisibleDescendant -RootElement $ncpOverlay -Name "Launch request sent." -TimeoutMilliseconds 1050
     $ncpResultEvidence = Element-Evidence $ncpResult
     $ncpResultFrame = Capture-Frame "ncp_result_launch_requested"
+    $ncpTargetEffects = @(Wait-NewFam003ExplorerEffect -TimeoutSeconds 5)
     $ncpPass = (
-        $ncpEntryEvidence.visible -and $ncpInputEvidence.visible -and
+        $ncpOverlayEvidence.visible -and $ncpEntryEvidence.visible -and $ncpInputEvidence.visible -and
         $ncpChooseEvidence.visible -and $ncpConfirmEvidence.visible -and
-        $ncpResultEvidence.visible
+        $ncpResultEvidence.visible -and $ncpTargetEffects.Count -gt 0
     )
-    Add-Step "ncp_visible_keyboard_flow" $(if ($ncpPass) { "PASS" } else { "FAIL" }) "NCP must open from the visible tray icon and expose visible typed, choose, confirm, and result states without direct handler calls." @{
-        trayClickPoint = $ncpPoint; entry = $ncpEntryEvidence; input = $ncpInputEvidence; entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = $ncpChooseEvidence; chooseFrame = $ncpChooseFrame; confirm = $ncpConfirmEvidence; confirmFrame = $ncpConfirmFrame; result = $ncpResultEvidence; resultFrame = $ncpResultFrame; usedDirectHandler = $false
+    Add-Step "ncp_visible_keyboard_flow" $(if ($ncpPass) { "PASS" } else { "FAIL" }) "NCP must open from the visible tray icon, expose visible typed, choose, confirm, and result states, and produce the selected real target effect without direct handler calls." @{
+        trayClickPoint = $ncpPoint; overlay = $ncpOverlayEvidence; entry = $ncpEntryEvidence; input = $ncpInputEvidence; entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = $ncpChooseEvidence; chooseFrame = $ncpChooseFrame; confirm = $ncpConfirmEvidence; confirmFrame = $ncpConfirmFrame; result = $ncpResultEvidence; resultFrame = $ncpResultFrame; targetEffects = $ncpTargetEffects; usedDirectHandler = $false
     }
 } catch {
     $script:Failure = $_.Exception.Message
