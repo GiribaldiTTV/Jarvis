@@ -311,34 +311,38 @@ try {
     $script:Failure = $_.Exception.Message
     Add-Step "human_client_exception" "FAIL" $script:Failure @{ stack = $_.ScriptStackTrace }
 } finally {
-    $blocking = @($script:Steps | Where-Object { $_.status -ne "PASS" })
+    $stepRows = @($script:Steps | ForEach-Object { $_ })
+    $frameRows = @($script:Frames | ForEach-Object { $_ })
+    $blocking = @($stepRows | Where-Object { $_.status -ne "PASS" })
     $status = if ($blocking.Count -eq 0) { "PASS" } else { "BLOCKED" }
-    $payload = [ordered]@{
-        schema = "fam003-external-visible-human-client-v1"
-        status = $status
-        timestamp = $Stamp
-        worktree = $Root
-        branch = (& git -C $Root branch --show-current).Trim()
-        head = (& git -C $Root rev-parse HEAD).Trim()
-        formalLauncherPath = $Launcher
-        launcherActivationMethod = "visible-file-explorer-selected-item-double-click"
-        directHandlerBypass = $false
-        environmentInjectedRuntimeProof = $false
-        utsStatus = "NOT_REQUESTED"
-        steps = @($script:Steps)
-        blockingRows = $blocking
-        orderedFrames = @($script:Frames)
-        orderedFrameCount = $script:Frames.Count
-        proofRoot = $ProofRoot
-        failure = $script:Failure
-    }
-    $json = $payload | ConvertTo-Json -Depth 14
-    $json | Set-Content -LiteralPath $ManifestPath -Encoding UTF8
-    $json | Set-Content -LiteralPath $LatestManifestPath -Encoding UTF8
-
-    if (-not $KeepRuntimeOpenOnFailure -or $status -eq "PASS") {
-        foreach ($process in @(Find-RuntimeProcesses)) {
-            try { Stop-Process -Id $process.ProcessId -Force -ErrorAction Stop } catch {}
+    try {
+        $payload = [ordered]@{
+            schema = "fam003-external-visible-human-client-v1"
+            status = $status
+            timestamp = $Stamp
+            worktree = $Root
+            branch = (& git -C $Root branch --show-current).Trim()
+            head = (& git -C $Root rev-parse HEAD).Trim()
+            formalLauncherPath = $Launcher
+            launcherActivationMethod = "visible-file-explorer-selected-item-double-click"
+            directHandlerBypass = $false
+            environmentInjectedRuntimeProof = $false
+            utsStatus = "NOT_REQUESTED"
+            steps = $stepRows
+            blockingRows = $blocking
+            orderedFrames = $frameRows
+            orderedFrameCount = $frameRows.Count
+            proofRoot = $ProofRoot
+            failure = $script:Failure
+        }
+        $json = $payload | ConvertTo-Json -Depth 14
+        $json | Set-Content -LiteralPath $ManifestPath -Encoding UTF8
+        $json | Set-Content -LiteralPath $LatestManifestPath -Encoding UTF8
+    } finally {
+        if (-not $KeepRuntimeOpenOnFailure -or $status -eq "PASS") {
+            foreach ($process in @(Find-RuntimeProcesses)) {
+                try { Stop-Process -Id $process.ProcessId -Force -ErrorAction Stop } catch {}
+            }
         }
     }
     Write-Output "FAM-003 HUMAN CLIENT LV: $status"
