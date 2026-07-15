@@ -560,16 +560,36 @@ try {
     $settingsBefore = Element-Evidence $settings
     $settingsBeforeFrame = Capture-Frame "settings_before_live_resize"
     $rect = $settings.Current.BoundingRectangle
-    [Fam003VisibleInput]::Drag([int]($rect.Right - 2), [int]($rect.Bottom - 2), [int]($rect.Right + 150), [int]($rect.Bottom + 90), 8)
+    $rightEdgeX = [int]($rect.Right - 4)
+    $rightEdgeY = [int]($rect.Top + ($rect.Height / 2))
+    [Fam003VisibleInput]::Drag($rightEdgeX, $rightEdgeY, ($rightEdgeX - 80), $rightEdgeY, 8)
+    Start-Sleep -Milliseconds 700
+    $settingsMiddle = Find-VisibleElement -Name "Global Settings - Nexus Desktop AI" -Type "ControlType.Window" -ClassContains "ResidentAccessSettingsDialog" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
+    $settingsMiddleEvidence = Element-Evidence $settingsMiddle
+    $settingsMiddleFrame = Capture-Frame "settings_after_live_shrink"
+    $middleRect = $settingsMiddle.Current.BoundingRectangle
+    $middleRightEdgeX = [int]($middleRect.Right - 4)
+    $middleRightEdgeY = [int]($middleRect.Top + ($middleRect.Height / 2))
+    [Fam003VisibleInput]::Drag($middleRightEdgeX, $middleRightEdgeY, ($middleRightEdgeX + 100), $middleRightEdgeY, 8)
     Start-Sleep -Milliseconds 700
     $settingsAfter = Find-VisibleElement -Name "Global Settings - Nexus Desktop AI" -Type "ControlType.Window" -ClassContains "ResidentAccessSettingsDialog" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     $settingsAfterEvidence = Element-Evidence $settingsAfter
     $settingsAfterFrame = Capture-Frame "settings_after_live_resize"
     $widthBefore = $settingsBefore.rect[2] - $settingsBefore.rect[0]
+    $widthMiddle = $settingsMiddleEvidence.rect[2] - $settingsMiddleEvidence.rect[0]
     $widthAfter = $settingsAfterEvidence.rect[2] - $settingsAfterEvidence.rect[0]
-    $resizePass = $settingsAfterEvidence.visible -and ($widthAfter -gt ($widthBefore + 80))
-    Add-Step "settings_visible_route_and_live_resize" $(if ($resizePass) { "PASS" } else { "FAIL" }) "Global Settings must open from the visible tray action and resize through an external pointer drag." @{
-        buttonVisibleAtInput = $globalEvidence.visible; clickPoint = $globalPoint; before = $settingsBefore; after = $settingsAfterEvidence; beforeFrame = $settingsBeforeFrame; afterFrame = $settingsAfterFrame; usedDirectHandler = $false
+    $resizePass = (
+        $settingsMiddleEvidence.visible -and $settingsAfterEvidence.visible -and
+        $widthMiddle -le ($widthBefore - 60) -and
+        $widthAfter -ge ($widthMiddle + 80)
+    )
+    Add-Step "settings_visible_route_and_live_resize" $(if ($resizePass) { "PASS" } else { "FAIL" }) "Global Settings must open from the visible tray action and prove bidirectional resize through real right-edge pointer drags away from transparent rounded corners." @{
+        buttonVisibleAtInput = $globalEvidence.visible; clickPoint = $globalPoint
+        before = $settingsBefore; middle = $settingsMiddleEvidence; after = $settingsAfterEvidence
+        beforeFrame = $settingsBeforeFrame; middleFrame = $settingsMiddleFrame; afterFrame = $settingsAfterFrame
+        firstDrag = @{ start = @($rightEdgeX, $rightEdgeY); end = @(($rightEdgeX - 80), $rightEdgeY) }
+        secondDrag = @{ start = @($middleRightEdgeX, $middleRightEdgeY); end = @(($middleRightEdgeX + 100), $middleRightEdgeY) }
+        usedDirectHandler = $false
     }
     [System.Windows.Forms.SendKeys]::SendWait("%{F4}")
     Start-Sleep -Milliseconds 700
@@ -580,8 +600,10 @@ try {
     Start-Sleep -Milliseconds 800
     $ncpEntry = Find-VisibleElement -Contains "O.R.I.N. Command Prompt" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
     if (-not $ncpEntry) { $ncpEntry = Find-VisibleElement -Contains "Typed desktop interaction" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 }
+    $ncpEntryEvidence = Element-Evidence $ncpEntry
     $ncpEntryFrame = Capture-Frame "ncp_entry_opened_from_tray"
     $ncpInput = if ($ncpEntry) { Find-VisibleElement -Type "ControlType.Edit" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 } else { $null }
+    $ncpInputEvidence = Element-Evidence $ncpInput
     if ($ncpInput) {
         Move-And-Click $ncpInput | Out-Null
         [System.Windows.Forms.SendKeys]::SendWait("open nexus folder")
@@ -589,22 +611,29 @@ try {
     $ncpTypedFrame = Capture-Frame "ncp_typed_input"
     if ($ncpInput) { [System.Windows.Forms.SendKeys]::SendWait("{ENTER}"); Start-Sleep -Milliseconds 900 }
     $ncpChoose = Find-VisibleElement -Contains "Multiple actions matched" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
+    $ncpChooseEvidence = Element-Evidence $ncpChoose
     $ncpChooseFrame = Capture-Frame "ncp_choose_visible_choices"
     if ($ncpChoose) {
         [System.Windows.Forms.SendKeys]::SendWait("2")
         Start-Sleep -Milliseconds 500
     }
     $ncpConfirm = Find-VisibleElement -Contains "Resolved action" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
+    $ncpConfirmEvidence = Element-Evidence $ncpConfirm
     $ncpConfirmFrame = Capture-Frame "ncp_confirm_selected_action"
     if ($ncpConfirm) {
         [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
         Start-Sleep -Milliseconds 900
     }
     $ncpResult = Find-VisibleElement -Contains "Launch request sent" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
+    $ncpResultEvidence = Element-Evidence $ncpResult
     $ncpResultFrame = Capture-Frame "ncp_result_launch_requested"
-    $ncpPass = $ncpEntry -and $ncpInput -and $ncpChoose -and $ncpConfirm -and $ncpResult
+    $ncpPass = (
+        $ncpEntryEvidence.visible -and $ncpInputEvidence.visible -and
+        $ncpChooseEvidence.visible -and $ncpConfirmEvidence.visible -and
+        $ncpResultEvidence.visible
+    )
     Add-Step "ncp_visible_keyboard_flow" $(if ($ncpPass) { "PASS" } else { "FAIL" }) "NCP must open from the visible tray icon and expose visible typed, choose, confirm, and result states without direct handler calls." @{
-        trayClickPoint = $ncpPoint; entry = (Element-Evidence $ncpEntry); input = (Element-Evidence $ncpInput); entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = (Element-Evidence $ncpChoose); chooseFrame = $ncpChooseFrame; confirm = (Element-Evidence $ncpConfirm); confirmFrame = $ncpConfirmFrame; result = (Element-Evidence $ncpResult); resultFrame = $ncpResultFrame; usedDirectHandler = $false
+        trayClickPoint = $ncpPoint; entry = $ncpEntryEvidence; input = $ncpInputEvidence; entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = $ncpChooseEvidence; chooseFrame = $ncpChooseFrame; confirm = $ncpConfirmEvidence; confirmFrame = $ncpConfirmFrame; result = $ncpResultEvidence; resultFrame = $ncpResultFrame; usedDirectHandler = $false
     }
 } catch {
     $script:Failure = $_.Exception.Message
