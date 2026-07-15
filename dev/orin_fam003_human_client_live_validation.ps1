@@ -236,6 +236,7 @@ New-Item -ItemType Directory -Force -Path $FrameRoot | Out-Null
 $script:Steps = New-Object System.Collections.Generic.List[object]
 $script:Frames = New-Object System.Collections.Generic.List[object]
 $script:RuntimeProcesses = @()
+$script:RuntimeProcessIds = @()
 $script:Failure = ""
 $script:MinimizedCoveringWindows = New-Object System.Collections.Generic.List[long]
 
@@ -269,12 +270,21 @@ function Capture-Frame {
     }
 }
 
+function Test-FiniteRectangle {
+    param([object]$Rectangle)
+    foreach ($value in @($Rectangle.Left, $Rectangle.Top, $Rectangle.Width, $Rectangle.Height)) {
+        if ([double]::IsNaN([double]$value) -or [double]::IsInfinity([double]$value)) { return $false }
+    }
+    return $true
+}
+
 function Find-VisibleElement {
     param(
         [string]$Name = "",
         [string]$Contains = "",
         [string]$Type = "",
         [string]$ClassContains = "",
+        [int[]]$ProcessIds = @(),
         [int]$TimeoutSeconds = 8
     )
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
@@ -289,12 +299,14 @@ function Find-VisibleElement {
                 $currentName = [string]$element.Current.Name
                 $currentType = [string]$element.Current.ControlType.ProgrammaticName
                 $currentClass = [string]$element.Current.ClassName
+                $currentProcessId = [int]$element.Current.ProcessId
                 $rect = $element.Current.BoundingRectangle
-                if ($rect.IsEmpty -or $element.Current.IsOffscreen) { continue }
+                if (-not (Test-FiniteRectangle $rect) -or $rect.IsEmpty -or $element.Current.IsOffscreen) { continue }
                 if ($Name -and $currentName -ne $Name) { continue }
                 if ($Contains -and $currentName -notlike "*$Contains*") { continue }
                 if ($Type -and $currentType -ne $Type) { continue }
                 if ($ClassContains -and $currentClass -notlike "*$ClassContains*") { continue }
+                if ($ProcessIds.Count -gt 0 -and $ProcessIds -notcontains $currentProcessId) { continue }
                 return $element
             } catch {}
         }
@@ -306,13 +318,22 @@ function Find-VisibleElement {
 function Element-Evidence {
     param([object]$Element)
     if (-not $Element) { return @{ visible = $false } }
-    $rect = $Element.Current.BoundingRectangle
-    return @{
-        visible = (-not $rect.IsEmpty -and -not $Element.Current.IsOffscreen)
-        enabled = [bool]$Element.Current.IsEnabled
-        name = [string]$Element.Current.Name
-        controlType = [string]$Element.Current.ControlType.ProgrammaticName
-        rect = @([int]$rect.Left, [int]$rect.Top, [int]($rect.Left + $rect.Width), [int]($rect.Top + $rect.Height))
+    try {
+        $rect = $Element.Current.BoundingRectangle
+        if (-not (Test-FiniteRectangle $rect)) {
+            return @{ visible = $false; invalidRectangle = $true }
+        }
+        return @{
+            visible = (-not $rect.IsEmpty -and -not $Element.Current.IsOffscreen)
+            enabled = [bool]$Element.Current.IsEnabled
+            name = [string]$Element.Current.Name
+            controlType = [string]$Element.Current.ControlType.ProgrammaticName
+            className = [string]$Element.Current.ClassName
+            processId = [int]$Element.Current.ProcessId
+            rect = @([int]$rect.Left, [int]$rect.Top, [int]($rect.Left + $rect.Width), [int]($rect.Top + $rect.Height))
+        }
+    } catch {
+        return @{ visible = $false; staleElement = $true }
     }
 }
 
@@ -360,24 +381,24 @@ function Open-TrayMenu {
     if (-not $tray) { throw "Nexus Desktop AI tray icon is not visible through the notification area or hidden-icons overflow" }
     $evidence = Element-Evidence $tray
     $point = Move-And-Click $tray -Button right
-    $global = Find-VisibleElement -Name "Global Settings" -TimeoutSeconds 5
+    $global = Find-VisibleElement -Name "Global Settings" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
     if (-not $global) { throw "Visible tray right-click did not expose Global Settings" }
     return @{ tray = $evidence; clickPoint = $point; globalSettings = (Element-Evidence $global) }
 }
 
 function Inspect-Submenu {
     param([string]$Parent, [string]$Child)
-    $parentElement = Find-VisibleElement -Name $Parent -TimeoutSeconds 4
+    $parentElement = Find-VisibleElement -Name $Parent -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     if (-not $parentElement) { return @{ status = "MISSING"; parent = @{ visible = $false }; child = @{ visible = $false } } }
     $parentEvidence = Element-Evidence $parentElement
-    $rect = $parentElement.Current.BoundingRectangle
-    [Fam003VisibleInput]::SetCursorPos([int]($rect.Left + ($rect.Width / 2)), [int]($rect.Top + ($rect.Height / 2))) | Out-Null
+    $activationPoint = Move-And-Click $parentElement
     Start-Sleep -Milliseconds 700
-    $childElement = Find-VisibleElement -Name $Child -TimeoutSeconds 3
+    $childElement = Find-VisibleElement -Name $Child -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3
     return @{
         status = $(if ($childElement) { "PASS" } else { "FAIL" })
         parent = $parentEvidence
         child = (Element-Evidence $childElement)
+        activationPoint = $activationPoint
     }
 }
 
@@ -454,6 +475,7 @@ try {
 
     $script:RuntimeProcesses = Wait-For-Runtime
     if ($script:RuntimeProcesses.Count -eq 0) { throw "Exact Desktop shortcut did not start a FAM-003 runtime process" }
+    $script:RuntimeProcessIds = @($script:RuntimeProcesses | ForEach-Object { [int]$_.ProcessId })
     Add-Step "runtime_process_provenance" "PASS" "Runtime process command lines resolve to the active FAM-003 root." @{
         processes = @($script:RuntimeProcesses | ForEach-Object { @{ pid = $_.ProcessId; commandLine = $_.CommandLine } })
     }
@@ -473,14 +495,14 @@ try {
     }
 
     $null = Open-TrayMenu
-    $hudParent = Find-VisibleElement -Name "HUD" -TimeoutSeconds 3
+    $hudParent = Find-VisibleElement -Name "HUD" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3
     $hudStatePath = Join-Path $env:LOCALAPPDATA "Nexus Desktop AI\monitoring_hud_state.json"
     $hudState = if (Test-Path $hudStatePath) { Get-Content $hudStatePath -Raw | ConvertFrom-Json } else { $null }
     if ($hudParent) {
         $hud = Inspect-Submenu "HUD" "Open HUD Dashboard"
         if ($hud.status -ne "PASS") { $hud = Inspect-Submenu "HUD" "Close HUD Dashboard" }
         $hudFrame = Capture-Frame "tray_hud_submenu_open"
-        $hudAction = if ($hud.child.name) { Find-VisibleElement -Name ([string]$hud.child.name) -TimeoutSeconds 3 } else { $null }
+        $hudAction = if ($hud.child.name) { Find-VisibleElement -Name ([string]$hud.child.name) -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 } else { $null }
         $hudActionPoint = if ($hudAction) { Move-And-Click $hudAction } else { $null }
         Start-Sleep -Milliseconds 900
         $hudWindow = Find-VisibleElement -Name "HUD Dashboard" -TimeoutSeconds 6
@@ -505,17 +527,17 @@ try {
     [System.Windows.Forms.SendKeys]::SendWait("{ESC}")
 
     $null = Open-TrayMenu
-    $global = Find-VisibleElement -Name "Global Settings" -TimeoutSeconds 4
+    $global = Find-VisibleElement -Name "Global Settings" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     $globalEvidence = Element-Evidence $global
     $globalPoint = Move-And-Click $global
-    $settings = Find-VisibleElement -Name "Settings" -TimeoutSeconds 8
+    $settings = Find-VisibleElement -Name "Global Settings" -Type "ControlType.Window" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 8
     if (-not $settings) { throw "Visible Global Settings tray action did not open the Settings window" }
     $settingsBefore = Element-Evidence $settings
     $settingsBeforeFrame = Capture-Frame "settings_before_live_resize"
     $rect = $settings.Current.BoundingRectangle
     [Fam003VisibleInput]::Drag([int]($rect.Right - 2), [int]($rect.Bottom - 2), [int]($rect.Right + 150), [int]($rect.Bottom + 90), 8)
     Start-Sleep -Milliseconds 700
-    $settingsAfter = Find-VisibleElement -Name "Settings" -TimeoutSeconds 4
+    $settingsAfter = Find-VisibleElement -Name "Global Settings" -Type "ControlType.Window" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     $settingsAfterEvidence = Element-Evidence $settingsAfter
     $settingsAfterFrame = Capture-Frame "settings_after_live_resize"
     $widthBefore = $settingsBefore.rect[2] - $settingsBefore.rect[0]
@@ -531,30 +553,33 @@ try {
     if (-not $ncpTray) { throw "Tray icon missing before NCP visible-input proof" }
     $ncpPoint = Move-And-Click $ncpTray
     Start-Sleep -Milliseconds 800
-    $ncpEntry = Find-VisibleElement -Contains "O.R.I.N. Command Prompt" -TimeoutSeconds 5
-    if (-not $ncpEntry) { $ncpEntry = Find-VisibleElement -Contains "Typed desktop interaction" -TimeoutSeconds 3 }
+    $ncpEntry = Find-VisibleElement -Contains "O.R.I.N. Command Prompt" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
+    if (-not $ncpEntry) { $ncpEntry = Find-VisibleElement -Contains "Typed desktop interaction" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 }
     $ncpEntryFrame = Capture-Frame "ncp_entry_opened_from_tray"
-    [System.Windows.Forms.SendKeys]::SendWait("open nexus folder")
+    $ncpInput = if ($ncpEntry) { Find-VisibleElement -Type "ControlType.Edit" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 3 } else { $null }
+    if ($ncpInput) {
+        Move-And-Click $ncpInput | Out-Null
+        [System.Windows.Forms.SendKeys]::SendWait("open nexus folder")
+    }
     $ncpTypedFrame = Capture-Frame "ncp_typed_input"
-    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
-    Start-Sleep -Milliseconds 900
-    $ncpChoose = Find-VisibleElement -Contains "Multiple actions matched" -TimeoutSeconds 5
+    if ($ncpInput) { [System.Windows.Forms.SendKeys]::SendWait("{ENTER}"); Start-Sleep -Milliseconds 900 }
+    $ncpChoose = Find-VisibleElement -Contains "Multiple actions matched" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
     $ncpChooseFrame = Capture-Frame "ncp_choose_visible_choices"
     if ($ncpChoose) {
         [System.Windows.Forms.SendKeys]::SendWait("2")
         Start-Sleep -Milliseconds 500
     }
-    $ncpConfirm = Find-VisibleElement -Contains "Resolved action" -TimeoutSeconds 4
+    $ncpConfirm = Find-VisibleElement -Contains "Resolved action" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     $ncpConfirmFrame = Capture-Frame "ncp_confirm_selected_action"
     if ($ncpConfirm) {
         [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
         Start-Sleep -Milliseconds 900
     }
-    $ncpResult = Find-VisibleElement -Contains "Launch request sent" -TimeoutSeconds 5
+    $ncpResult = Find-VisibleElement -Contains "Launch request sent" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 5
     $ncpResultFrame = Capture-Frame "ncp_result_launch_requested"
-    $ncpPass = $ncpEntry -and $ncpChoose -and $ncpConfirm -and $ncpResult
+    $ncpPass = $ncpEntry -and $ncpInput -and $ncpChoose -and $ncpConfirm -and $ncpResult
     Add-Step "ncp_visible_keyboard_flow" $(if ($ncpPass) { "PASS" } else { "FAIL" }) "NCP must open from the visible tray icon and expose visible typed, choose, confirm, and result states without direct handler calls." @{
-        trayClickPoint = $ncpPoint; entry = (Element-Evidence $ncpEntry); entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = (Element-Evidence $ncpChoose); chooseFrame = $ncpChooseFrame; confirm = (Element-Evidence $ncpConfirm); confirmFrame = $ncpConfirmFrame; result = (Element-Evidence $ncpResult); resultFrame = $ncpResultFrame; usedDirectHandler = $false
+        trayClickPoint = $ncpPoint; entry = (Element-Evidence $ncpEntry); input = (Element-Evidence $ncpInput); entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = (Element-Evidence $ncpChoose); chooseFrame = $ncpChooseFrame; confirm = (Element-Evidence $ncpConfirm); confirmFrame = $ncpConfirmFrame; result = (Element-Evidence $ncpResult); resultFrame = $ncpResultFrame; usedDirectHandler = $false
     }
 } catch {
     $script:Failure = $_.Exception.Message
