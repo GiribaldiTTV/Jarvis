@@ -239,6 +239,13 @@ $script:RuntimeProcesses = @()
 $script:RuntimeProcessIds = @()
 $script:Failure = ""
 $script:MinimizedCoveringWindows = New-Object System.Collections.Generic.List[long]
+$script:ExplorerBaseline = @()
+$explorerShell = New-Object -ComObject Shell.Application
+foreach ($explorerWindow in @($explorerShell.Windows())) {
+    try {
+        $script:ExplorerBaseline += "{0}|{1}" -f $explorerWindow.HWND, $explorerWindow.LocationURL
+    } catch {}
+}
 
 function Add-Step {
     param([string]$Id, [string]$Status, [string]$Detail, [hashtable]$Evidence = @{})
@@ -369,6 +376,24 @@ function Wait-For-Runtime {
         Start-Sleep -Milliseconds 300
     }
     return @()
+}
+
+function Close-NewFam003ExplorerWindows {
+    $closed = @()
+    $shell = New-Object -ComObject Shell.Application
+    foreach ($window in @($shell.Windows())) {
+        try {
+            $signature = "{0}|{1}" -f $window.HWND, $window.LocationURL
+            if ($script:ExplorerBaseline -contains $signature) { continue }
+            if (-not $window.LocationURL) { continue }
+            $uri = [System.Uri]$window.LocationURL
+            $localPath = [System.Uri]::UnescapeDataString($uri.LocalPath).Replace('/', '\')
+            if (-not $localPath.StartsWith($Root, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+            $closed += @{ title = $window.LocationName; url = $window.LocationURL; hwnd = $window.HWND; localPath = $localPath }
+            $window.Quit()
+        } catch {}
+    }
+    return @($closed)
 }
 
 function Open-TrayMenu {
@@ -585,6 +610,10 @@ try {
     $script:Failure = $_.Exception.Message
     Add-Step "human_client_exception" "FAIL" $script:Failure @{ stack = $_.ScriptStackTrace }
 } finally {
+    $explorerCleanup = @(Close-NewFam003ExplorerWindows)
+    Add-Step "bounded_explorer_effect_cleanup" "PASS" "Any new Explorer tab created by the NCP functional effect was closed only when rooted inside the active FAM-003 worktree; baseline USER tabs were preserved." @{
+        baselineSignatures = @($script:ExplorerBaseline); closed = $explorerCleanup
+    }
     $stepRows = @($script:Steps | ForEach-Object { $_ })
     $frameRows = @($script:Frames | ForEach-Object { $_ })
     $blocking = @($stepRows | Where-Object { $_.status -ne "PASS" })
