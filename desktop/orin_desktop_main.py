@@ -809,11 +809,24 @@ def main():
 
         def visible_tray_action_texts():
             try:
-                return [
+                texts = [
                     action.text()
                     for action in tray_entry.tray_menu.actions()
                     if not action.isSeparator() and action.isVisible()
                 ]
+                for submenu in (
+                    tray_entry.quick_access_menu,
+                    tray_entry.ai_menu,
+                    tray_entry.hud_menu,
+                ):
+                    if submenu is None or not submenu.menuAction().isVisible():
+                        continue
+                    texts.extend(
+                        action.text()
+                        for action in submenu.actions()
+                        if not action.isSeparator() and action.isVisible()
+                    )
+                return texts
             except Exception:
                 return []
 
@@ -1216,23 +1229,7 @@ def main():
                 },
             )
 
-            if not popup_visible_after_icon_click:
-                fallback_point = QCursor.pos()
-                tray_entry._show_tray_popup()
-                pump(300)
-                tray_popup_method = "fallback_direct_popup_after_failed_icon_geometry"
-                popup_visible_after_icon_click = bool(
-                    tray_entry.tray_popup is not None and tray_entry.tray_popup.isVisible()
-                )
-                record_step(
-                    "tray_popup_visible_fallback",
-                    "NDAI tray popup can be made visible for button-surface proof after tray icon acquisition fails",
-                    popup_visible_after_icon_click,
-                    f"fallbackCursor={fallback_point.x()},{fallback_point.y()}; popupVisible={popup_visible_after_icon_click}",
-                    proof_class="visible-popup-fallback-not-tray-icon-acquisition",
-                )
-
-            button = getattr(tray_entry, "global_settings_button", None)
+            button = getattr(tray_entry, "global_settings_action", None)
             button_click_ok = False
             dialog_visible = False
             button_evidence = {
@@ -1240,7 +1237,8 @@ def main():
                 "hiddenHandlerOnly": False,
             }
             if popup_visible_after_icon_click and button is not None and button.isVisible() and button.isEnabled():
-                button_center = button.mapToGlobal(button.rect().center())
+                button_rect = tray_entry.tray_menu.actionGeometry(button)
+                button_center = tray_entry.tray_menu.mapToGlobal(button_rect.center())
                 button_evidence["buttonText"] = button.text()
                 button_evidence["buttonCenter"] = {"x": button_center.x(), "y": button_center.y()}
                 click_point(button_center, button="left")
@@ -1269,9 +1267,7 @@ def main():
             press_combo(vk_control, vk_menu, vk_home)
             pump(700)
             if not bool(window.command_overlay_state().get("visible")):
-                ncp_activation = "fallback_open_command_overlay"
-                window.open_command_overlay()
-                pump(500)
+                ncp_activation = "hotkey_failed_no_direct_fallback"
             typed = type_text("open nexus folder")
             press_vk(vk_return)
             pump(750)
@@ -1695,8 +1691,6 @@ def main():
             QTimer.singleShot(800, run_real_client_tray_precheck)
         if fam003_settings_live_resize_manifest_path():
             QTimer.singleShot(950, run_fam003_settings_live_resize_precheck)
-        if fam003_lv_visible_input_manifest_path():
-            QTimer.singleShot(1100, run_fam003_lv_visible_input_precheck)
 
     window_show_requested = False
 

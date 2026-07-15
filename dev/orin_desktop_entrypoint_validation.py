@@ -1348,6 +1348,7 @@ def validate_tray_monitoring_hud_route_state_actions():
                     "resident_route_reason": "HUD is off in settings",
                 }
                 self.dashboard_requests = []
+                self.fail_next_dashboard_request = False
 
             def monitoring_hud_feature_state(self):
                 return dict(self.state)
@@ -1363,6 +1364,9 @@ def validate_tray_monitoring_hud_route_state_actions():
 
             def request_monitoring_hud_dashboard_from_tray(self, source="", visible=True):
                 self.dashboard_requests.append((source, bool(visible)))
+                if self.fail_next_dashboard_request:
+                    self.fail_next_dashboard_request = False
+                    raise RuntimeError("simulated FAM-006 target request failure")
                 if self.state["feature_enabled"] and self.state["resident_route_state"] == "enabled_available":
                     self.state["dashboard_visible"] = bool(visible)
 
@@ -1400,37 +1404,37 @@ def validate_tray_monitoring_hud_route_state_actions():
                 for action in tray_entry.tray_menu.actions()
                 if not action.isSeparator() and action.isVisible()
             ]
-            popup_buttons = []
-            for button in (
-                tray_entry.monitoring_hud_primary_button,
-                tray_entry.monitoring_hud_dashboard_button,
-                tray_entry.monitoring_hud_unanchor_button,
-            ):
-                if button is not None and not button.isHidden():
-                    popup_buttons.append({"text": button.text(), "enabled": button.isEnabled()})
+            hud_actions = []
+            if tray_entry.hud_menu is not None and tray_entry.hud_menu.menuAction().isVisible():
+                hud_actions = [
+                    action
+                    for action in tray_entry.hud_menu.actions()
+                    if not action.isSeparator() and action.isVisible()
+                ]
+            all_actions = [*actions, *hud_actions]
             open_action_enabled = next(
-                (action.isEnabled() for action in actions if action.text() == "Open HUD Dashboard"),
+                (action.isEnabled() for action in all_actions if action.text() == "Open HUD Dashboard"),
                 False,
             )
             close_action_enabled = next(
-                (action.isEnabled() for action in actions if action.text() == "Close HUD Dashboard"),
+                (action.isEnabled() for action in all_actions if action.text() == "Close HUD Dashboard"),
                 False,
             )
             blocked_action_enabled = next(
                 (
                     action.isEnabled()
-                    for action in actions
-                    if action.text().startswith("Open HUD Dashboard - ")
+                    for action in all_actions
+                    if action.text() == "HUD Dashboard unavailable"
                 ),
                 None,
             )
             return {
-                "texts": [action.text() for action in actions],
+                "texts": [action.text() for action in all_actions],
                 "dashboard_enabled": bool(open_action_enabled or close_action_enabled),
                 "dashboard_open_enabled": open_action_enabled,
                 "dashboard_close_enabled": close_action_enabled,
                 "dashboard_blocked_enabled": blocked_action_enabled,
-                "fallback_buttons": popup_buttons,
+                "fallback_buttons": [],
             }
 
         original_tray_icon = tray_mod.QSystemTrayIcon
@@ -1462,6 +1466,12 @@ def validate_tray_monitoring_hud_route_state_actions():
             dashboard_opened = action_snapshot(tray_entry)
             tray_entry.request_monitoring_hud_dashboard_from_tray("validation")
             dashboard_closed = action_snapshot(tray_entry)
+            fake_window.fail_next_dashboard_request = True
+            failed_request_result = tray_entry.request_monitoring_hud_dashboard_from_tray("validation_fail_once")
+            failed_request_snapshot = action_snapshot(tray_entry)
+            retry_request_result = tray_entry.request_monitoring_hud_dashboard_from_tray("validation_retry")
+            retry_request_snapshot = action_snapshot(tray_entry)
+            tray_entry.request_monitoring_hud_dashboard_from_tray("validation_retry_cleanup")
             fake_window.set_hud_state(
                 feature_enabled=True,
                 dashboard_visible=False,
@@ -1489,6 +1499,10 @@ def validate_tray_monitoring_hud_route_state_actions():
             "enabled_available": enabled_available,
             "dashboard_closed": dashboard_closed,
             "dashboard_opened": dashboard_opened,
+            "failed_request_result": failed_request_result,
+            "failed_request_snapshot": failed_request_snapshot,
+            "retry_request_result": retry_request_result,
+            "retry_request_snapshot": retry_request_snapshot,
             "temporarily_blocked": temporarily_blocked,
             "blocked_after_click": blocked_after_click,
             "requests_before_blocked_click": requests_before_blocked_click,
@@ -7608,10 +7622,7 @@ def run_validation():
         ),
     )
     checks["fallback_hud_enabled_available_dashboard_button"] = line_status(
-        any(
-            button.get("text") == "Open HUD Dashboard" and button.get("enabled") is True
-            for button in tray_hud_result["enabled_available"].get("fallback_buttons", ())
-        ),
+        not tray_hud_result["enabled_available"].get("fallback_buttons"),
         f"enabled_available={tray_hud_result['enabled_available']}",
     )
     checks["tray_hud_dashboard_close_open_roundtrip"] = line_status(
@@ -7628,20 +7639,38 @@ def run_validation():
             f"dashboard_requests={tray_hud_result['dashboard_requests']}"
         ),
     )
+    checks["tray_hud_target_failure_is_bounded_and_retryable"] = line_status(
+        tray_hud_result["failed_request_result"] is False
+        and tray_hud_result["retry_request_result"] is True
+        and "Open HUD Dashboard" in tray_hud_result["failed_request_snapshot"].get("texts", ())
+        and "Close HUD Dashboard" in tray_hud_result["retry_request_snapshot"].get("texts", ())
+        and any(
+            "TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source=validation_fail_once|reason=target_request_failed|error=RuntimeError"
+            in event
+            for event in tray_hud_events
+        )
+        and any(
+            "TRAY_MONITORING_HUD_DASHBOARD_ROUTED|source=validation_retry|visible=true|owner=FAM-006"
+            in event
+            for event in tray_hud_events
+        ),
+        (
+            f"failed_result={tray_hud_result['failed_request_result']}; "
+            f"failed_snapshot={tray_hud_result['failed_request_snapshot']}; "
+            f"retry_result={tray_hud_result['retry_request_result']}; "
+            f"retry_snapshot={tray_hud_result['retry_request_snapshot']}"
+        ),
+    )
     checks["tray_hud_temporarily_blocked_disabled_with_reason"] = line_status(
         any(
-            text == "Open HUD Dashboard - Dashboard is warming up"
+            text == "HUD Dashboard unavailable"
             for text in tray_hud_result["temporarily_blocked"].get("texts", ())
         )
         and tray_hud_result["temporarily_blocked"].get("dashboard_blocked_enabled") is False,
         f"temporarily_blocked={tray_hud_result['temporarily_blocked']}",
     )
     checks["fallback_hud_temporarily_blocked_disabled_with_reason"] = line_status(
-        any(
-            button.get("text") == "Open HUD Dashboard - Dashboard is warming up"
-            and button.get("enabled") is False
-            for button in tray_hud_result["temporarily_blocked"].get("fallback_buttons", ())
-        ),
+        not tray_hud_result["temporarily_blocked"].get("fallback_buttons"),
         f"temporarily_blocked={tray_hud_result['temporarily_blocked']}",
     )
     checks["tray_hud_temporarily_blocked_does_not_route_dashboard"] = line_status(
@@ -7656,7 +7685,7 @@ def run_validation():
         all("Enable HUD Feature" not in snapshot.get("texts", ()) for snapshot in hidden_snapshots.values())
         and "HUD Overlay Deferred" not in tray_hud_result["temporarily_blocked"].get("texts", ())
         and any(
-            text.startswith("Open HUD Dashboard")
+            text in {"Open HUD Dashboard", "HUD Dashboard unavailable"}
             for text in tray_hud_result["temporarily_blocked"].get("texts", ())
         ),
         (
@@ -7667,6 +7696,8 @@ def run_validation():
     checks["tray_hud_route_state_markers"] = line_status(
         any("TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=validation|visible=true" in event for event in tray_hud_events)
         and any("TRAY_MONITORING_HUD_DASHBOARD_REQUESTED|source=validation|visible=false" in event for event in tray_hud_events)
+        and any("TRAY_MONITORING_HUD_DASHBOARD_ROUTED|source=validation|visible=true|owner=FAM-006" in event for event in tray_hud_events)
+        and any("TRAY_MONITORING_HUD_DASHBOARD_ROUTED|source=validation|visible=false|owner=FAM-006" in event for event in tray_hud_events)
         and any(
             "TRAY_MONITORING_HUD_ACTIONS_REFRESHED|source=validation_temporarily_blocked|route_state=enabled_temporarily_blocked|route_visible=true|route_enabled=false"
             in event

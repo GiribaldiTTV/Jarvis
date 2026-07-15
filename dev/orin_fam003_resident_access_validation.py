@@ -218,7 +218,8 @@ def validate_resident_model(failures: list[str]):
         failures,
     )
     assert_true(
-        tuple(menu_structure["topLevel"]) == ("Global Settings", "Quick Access", "AI", "Exit Nexus Desktop AI"),
+        tuple(menu_structure["topLevel"])
+        == ("Global Settings", "Quick Access", "AI", "HUD", "Exit Nexus Desktop AI"),
         f"native tray menu top-level structure drifted: {menu_structure['topLevel']}",
         failures,
     )
@@ -379,8 +380,10 @@ def validate_static_wiring(failures: list[str]):
         "_resident_menu_identity_text",
         "self.quick_access_menu = self.tray_menu.addMenu(\"Quick Access\")",
         "self.ai_menu = self.tray_menu.addMenu(\"AI\")",
+        "self.hud_menu = self.tray_menu.addMenu(\"HUD\")",
         "parent_menu=self.quick_access_menu",
         "parent_menu=self.ai_menu",
+        "parent_menu=self.hud_menu",
         "MF_POPUP",
         "UINT_PTR = getattr(ctypes.wintypes, \"UINT_PTR\", ctypes.c_size_t)",
         "user32.CreatePopupMenu.restype = HMENU",
@@ -388,9 +391,9 @@ def validate_static_wiring(failures: list[str]):
         "UINT_PTR(int(submenu))",
         "append_submenu(menu, quick_access_menu, \"Quick Access\", True)",
         "append_submenu(menu, ai_menu, \"AI\", True)",
-        "nexusDesktopTrayPopup",
-        "QLabel[traySection='true']",
-        "rgba(105, 224, 244, 0.48)",
+        "nexusDesktopTrayMenu",
+        "QMenu#nexusDesktopTrayMenu::item:selected",
+        "rgba(105, 224, 244, 0.58)",
     ):
         assert_true(token in tray_text, f"tray resident access token missing: {token}", failures)
     assert_true(
@@ -411,21 +414,20 @@ def validate_static_wiring(failures: list[str]):
         and tray_text.index('self.global_settings_action = self._add_button_action(')
         < tray_text.index('self.quick_access_menu = self.tray_menu.addMenu("Quick Access")')
         < tray_text.index('self.ai_menu = self.tray_menu.addMenu("AI")')
-        < tray_text.index('self.monitoring_hud_primary_action = self._add_button_action(')
+        < tray_text.index('self.hud_menu = self.tray_menu.addMenu("HUD")')
         and tray_text.index('append(menu, 110, "Global Settings", True)')
         < tray_text.index('append_submenu(menu, quick_access_menu, "Quick Access", True)')
         < tray_text.index('append_submenu(menu, ai_menu, "AI", True)')
         < tray_text.index('if hud_route_visible:'),
-        "Global Settings and Quick Access must lead the native tray/menu command order",
+        "Global Settings, Quick Access, AI, and HUD must preserve compact tray hierarchy order",
         failures,
     )
     assert_true(
-        'self.global_settings_button = self.tray_popup.add_button(' in tray_text
-        and tray_text.index('self.global_settings_button = self.tray_popup.add_button(')
-        < tray_text.index('self.quick_slot_buttons.append(button)')
-        < tray_text.index('self.ai_status_button = self.tray_popup.add_button(')
-        < tray_text.index('self.monitoring_hud_status_label = QLabel('),
-        "Global Settings and Quick Access must lead the resident fallback popup order",
+        "class TrayCommandPopup" not in tray_text
+        and "QWidgetAction" not in tray_text
+        and "button.setMinimumWidth(240)" not in tray_text
+        and "self.tray_popup = self.tray_menu" in tray_text,
+        "resident tray must use one compact styled QMenu hierarchy instead of a card-stack fallback",
         failures,
     )
     assert_true(
@@ -851,13 +853,14 @@ def validate_static_wiring(failures: list[str]):
         failures,
     )
     assert_true(
-        "self.tray_popup.add_section_label(\"Quick Access\")" in tray_text,
-        "styled tray popup must present Quick Access as a compact category",
+        "self.quick_access_menu = self.tray_menu.addMenu(\"Quick Access\")" in tray_text,
+        "styled tray popup must present Quick Access as a real submenu",
         failures,
     )
     assert_true(
-        "self.tray_popup.add_section_label(\"AI\")" in tray_text,
-        "styled tray popup must present AI as a compact category",
+        "self.ai_menu = self.tray_menu.addMenu(\"AI\")" in tray_text
+        and "self.hud_menu = self.tray_menu.addMenu(\"HUD\")" in tray_text,
+        "styled tray popup must present AI and admitted HUD routing as real submenus",
         failures,
     )
     option_c_proof_validator = ROOT / "dev" / "orin_fam003_option_c_workstream_proof_validation.py"
@@ -906,8 +909,10 @@ def validate_static_wiring(failures: list[str]):
         failures,
     )
     assert_true(
-        "button.setMinimumWidth(224)" in tray_text,
-        "tray resident action buttons must keep a compact stable readable hitbox",
+        "min-height: 20px" in tray_text
+        and "padding: 4px 26px 4px 10px" in tray_text
+        and "button.setMinimumWidth(224)" not in tray_text,
+        "tray resident menu actions must keep a compact stable readable hitbox without legacy full-width buttons",
         failures,
     )
     assert_true(

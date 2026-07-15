@@ -30,8 +30,8 @@ if os.environ.get("QT_QPA_PLATFORM", "").casefold() == "offscreen":
     os.environ.pop("QT_QPA_PLATFORM", None)
 
 from PySide6.QtCore import QRect, Qt
-from PySide6.QtGui import QAction, QColor, QFont, QFontInfo, QPainter, QPixmap
-from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton
+from PySide6.QtGui import QColor, QFont, QFontInfo, QPainter, QPixmap
+from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QMenu, QPushButton
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,6 +134,12 @@ def _readable_text_contract(widget, *, surface: str, required_texts: tuple[str, 
         if text:
             observed.append(text)
             font_families[text] = QFontInfo(child.font()).family()
+    if isinstance(widget, QMenu):
+        for row in _menu_action_rows(widget, recursive=True):
+            text = str(row["text"])
+            if text and text not in observed:
+                observed.append(text)
+                font_families[text] = QFontInfo(widget.font()).family()
     missing = [text for text in required_texts if text not in observed and not any(text in item for item in observed)]
     _assert(not missing, f"{surface} missing required readable text widgets: {missing}; observed={observed}")
     bad_fonts = {text: family for text, family in font_families.items() if "segoe" not in family.casefold()}
@@ -189,42 +195,74 @@ class _FakeTrayWindow:
 
     def monitoring_hud_feature_state(self):
         return {
-            "feature_enabled": False,
+            "feature_enabled": True,
             "dashboard_visible": False,
-            "resident_route_state": "disabled_by_user",
-            "resident_route_reason": "HUD disabled by USER",
-            "route_state": "disabled_by_user",
+            "resident_route_state": "enabled_available",
+            "resident_route_reason": "HUD Dashboard ready",
+            "route_state": "enabled_available",
             "overlay_deferred": True,
             "overlay_anchor_enabled": False,
         }
 
 
-def _button_texts(popup) -> list[dict[str, object]]:
+class _FakeSignal:
+    def __init__(self):
+        self.handlers = []
+
+    def connect(self, handler):
+        self.handlers.append(handler)
+
+
+class _FakeSystemTrayIcon:
+    class MessageIcon:
+        Information = 1
+
+    def __init__(self, icon, parent=None):
+        self.icon = icon
+        self.parent = parent
+        self.activated = _FakeSignal()
+        self.tooltip = ""
+        self.visible = False
+
+    @staticmethod
+    def isSystemTrayAvailable():
+        return True
+
+    @staticmethod
+    def supportsMessages():
+        return True
+
+    def setToolTip(self, text):
+        self.tooltip = str(text)
+
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
+
+    def showMessage(self, *_args, **_kwargs):
+        return None
+
+
+def _menu_action_rows(menu: QMenu, *, recursive: bool = False) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for button, handler in popup._command_buttons:
-        parent = button.parentWidget()
-        visible = bool(button.text()) and (
-            button.isVisible()
-            or (parent is not None and button.isVisibleTo(parent))
-        )
+    for action in menu.actions():
+        if action.isSeparator():
+            continue
+        child_menu = action.menu()
         rows.append(
             {
-                "text": button.text(),
-                "visible": visible,
-                "enabled": button.isEnabled(),
-                "accessibleName": button.accessibleName(),
-                "handler": getattr(handler, "__name__", repr(handler)),
+                "text": action.text(),
+                "visible": action.isVisible(),
+                "enabled": action.isEnabled(),
+                "submenu": child_menu is not None,
+                "parent": menu.title(),
             }
         )
+        if recursive and child_menu is not None:
+            rows.extend(_menu_action_rows(child_menu, recursive=True))
     return rows
-
-
-def _section_texts(popup) -> list[str]:
-    labels = []
-    for child in popup.findChildren(object):
-        if hasattr(child, "property") and child.property("traySection") is True and hasattr(child, "text"):
-            labels.append(child.text())
-    return labels
 
 
 def _function_block(text: str, name: str) -> str:
@@ -239,20 +277,22 @@ def _function_block(text: str, name: str) -> str:
 
 
 def _render_tray_proof(log_dir: Path) -> dict[str, object]:
-    from desktop.tray_controller import DesktopTrayEntry
+    import desktop.tray_controller as tray_module
 
     fake_window = _FakeTrayWindow()
     events: list[str] = []
-    tray = DesktopTrayEntry(
+    tray = tray_module.DesktopTrayEntry(
         QApplication.instance(),
         fake_window,
         event_logger=events.append,
         shutdown_confirmation_requester=lambda source: events.append(f"shutdown:{source}"),
     )
-    tray._initialize_popup()
-    tray.monitoring_hud_primary_action = QAction("", tray.tray_popup)
-    tray.monitoring_hud_dashboard_action = QAction("", tray.tray_popup)
-    tray.monitoring_hud_unanchor_action = QAction("", tray.tray_popup)
+    original_system_tray_icon = tray_module.QSystemTrayIcon
+    tray_module.QSystemTrayIcon = _FakeSystemTrayIcon
+    try:
+        _assert(tray.initialize(), "compact tray hierarchy did not initialize")
+    finally:
+        tray_module.QSystemTrayIcon = original_system_tray_icon
     tray.refresh_resident_access_actions("option_c_proof")
     tray.refresh_monitoring_hud_actions("option_c_proof")
     tray._show_tray_popup()
@@ -260,55 +300,80 @@ def _render_tray_proof(log_dir: Path) -> dict[str, object]:
     readability = _readable_text_contract(
         tray.tray_popup,
         surface="styled_tray_popup",
-        required_texts=("Global Settings", "Quick Access", "Command Overlay", "Create Task", "Saved Actions", "AI"),
+        required_texts=("Global Settings", "Quick Access", "AI", "HUD", "Exit Nexus Desktop AI"),
     )
     screenshot = _save_widget(tray.tray_popup, log_dir / "01_tray_styled_popup_focused.png")
+    quick_screenshot = _save_widget(
+        tray.quick_access_menu,
+        log_dir / "03_tray_quick_access_submenu_focused.png",
+    )
+    hud_screenshot = _save_widget(
+        tray.hud_menu,
+        log_dir / "04_tray_hud_submenu_focused.png",
+    )
 
-    buttons = _button_texts(tray.tray_popup)
-    visible_texts = [row["text"] for row in buttons if row["visible"]]
-    sections = _section_texts(tray.tray_popup)
+    top_rows = _menu_action_rows(tray.tray_menu)
+    quick_rows = _menu_action_rows(tray.quick_access_menu)
+    ai_rows = _menu_action_rows(tray.ai_menu)
+    hud_rows = _menu_action_rows(tray.hud_menu)
+    top_texts = [str(row["text"]) for row in top_rows if row["visible"]]
+    quick_texts = [str(row["text"]) for row in quick_rows if row["visible"]]
+    ai_texts = [str(row["text"]) for row in ai_rows if row["visible"]]
+    hud_texts = [str(row["text"]) for row in hud_rows if row["visible"]]
     tray_source = (ROOT / "desktop" / "tray_controller.py").read_text(encoding="utf-8")
     show_popup_block = _function_block(tray_source, "_show_tray_popup")
 
-    tray.global_settings_button.click()
+    tray.global_settings_action.trigger()
     QApplication.processEvents()
     tray._show_tray_popup()
     QApplication.processEvents()
-    if tray.open_overlay_button is not None:
-        tray.open_overlay_button.click()
-        QApplication.processEvents()
+    command_overlay_index = tray.quick_slot_route_ids.index("command_overlay")
+    tray.quick_slot_actions[command_overlay_index].trigger()
+    QApplication.processEvents()
+    tray.monitoring_hud_dashboard_action.trigger()
+    QApplication.processEvents()
     route_screenshot = _save_widget(tray.tray_popup, log_dir / "02_tray_popup_route_after_reopen.png")
 
     native_not_primary = (
         "TRAY_STYLED_POPUP_REQUESTED" in show_popup_block
         and "_show_native_tray_menu()" not in show_popup_block
     )
-    route_ok = fake_window.settings_requests and fake_window.open_overlay_count == 1
-    compact_ok = (
-        visible_texts[:1] == ["Global Settings"]
-        and {"Command Overlay", "Create Task", "Saved Actions"}.issubset(set(visible_texts))
-        and "Quick Access" in sections
-        and "AI" in sections
-        and all("Provider-visible data:" not in text for text in visible_texts)
-        and "HUD Feature Settings" not in visible_texts
-        and "Open HUD Dashboard" not in visible_texts
-        and "HUD Overlay Deferred" not in visible_texts
+    route_ok = (
+        bool(fake_window.settings_requests)
+        and fake_window.open_overlay_count == 1
+        and fake_window.dashboard_requests == [{"source": "menu", "visible": True}]
     )
-    styled_ok = screenshot["width"] >= 260 and screenshot["height"] >= 120
+    compact_ok = (
+        top_texts == ["Global Settings", "Quick Access", "AI", "HUD", "Exit Nexus Desktop AI"]
+        and {"Command Overlay", "Create Task", "Saved Actions"}.issubset(set(quick_texts))
+        and ai_texts == ["AI Status / Command Center"]
+        and hud_texts == ["Open HUD Dashboard"]
+        and all("Provider-visible data:" not in text for text in top_texts + quick_texts + ai_texts + hud_texts)
+        and "HUD Feature Settings" not in top_texts + quick_texts + ai_texts + hud_texts
+        and "HUD Overlay Deferred" not in top_texts + quick_texts + ai_texts + hud_texts
+    )
+    styled_ok = 180 <= screenshot["width"] <= 260 and 100 <= screenshot["height"] <= 220
     _assert(native_not_primary, "native Windows menu is still primary in _show_tray_popup")
-    _assert(route_ok, "visible styled tray buttons did not route Global Settings and Command Overlay")
-    _assert(compact_ok, f"styled tray popup compact text/category proof failed: {visible_texts}, sections={sections}")
+    _assert(route_ok, "tray QAction routes did not reach Global Settings, Command Overlay, and HUD request boundaries")
+    _assert(
+        compact_ok,
+        f"styled tray compact hierarchy failed: top={top_texts}, quick={quick_texts}, ai={ai_texts}, hud={hud_texts}",
+    )
     _assert(styled_ok, f"styled tray screenshot dimensions invalid: {screenshot}")
 
     return {
         "status": "PASS",
-        "screenshots": [screenshot, route_screenshot],
-        "visibleTexts": visible_texts,
-        "sections": sections,
+        "proofClass": "deterministic-enabled-state-fixture-supporting-only",
+        "screenshots": [screenshot, route_screenshot, quick_screenshot, hud_screenshot],
+        "topLevelTexts": top_texts,
+        "quickAccessTexts": quick_texts,
+        "aiTexts": ai_texts,
+        "hudTexts": hud_texts,
         "events": events,
         "nativeMenuPrimary": False,
         "globalSettingsRequests": fake_window.settings_requests,
         "openOverlayCount": fake_window.open_overlay_count,
+        "hudDashboardRequests": fake_window.dashboard_requests,
         "textReadability": readability,
     }
 
@@ -532,7 +597,7 @@ def main() -> int:
         "## Defects Admitted / Reclosed\n\n"
         "| Defect ID | Disposition | Closure Proof |\n"
         "| --- | --- | --- |\n"
-        "| F3-WS-PROOF-TRAY-001 | CLOSED_WITH_PROOF | Direct styled tray popup screenshots, native-not-primary source-path proof, route execution tied to visible styled buttons. |\n"
+        "| F3-WS-PROOF-TRAY-001 | CLOSED_WITH_PROOF | Supporting compact QMenu/submenu renders, native-not-primary source-path proof, and deterministic enabled-state QAction boundary execution. Actual USER tray-route proof remains an LV responsibility. |\n"
         "| F3-WS-PROOF-NCP-001 | CLOSED_WITH_PROOF | Direct NCP entry/choose/confirm/result screenshots plus overlay/callable/desktop-entrypoint helper reports copied into this proof root. |\n\n"
         "| F3-WS-VIS-TEXT-001 | CLOSED_WITH_PROOF | Direct tray and NCP screenshots are captured with normal desktop Qt rendering, Segoe UI text contract checks, readable focused frames, and human-reviewable contact sheet evidence. |\n\n"
         "## Surface Verdicts\n\n"
@@ -540,7 +605,7 @@ def main() -> int:
         "| --- | --- | --- |\n"
         f"| Settings resize/cursor | PASS | `{settings_default.name if settings_default else 'preserved latest settings proof root'}`; `{settings_contact.name if settings_contact else 'preserved latest contact sheet'}` |\n"
         "| Styled tray right-click presentation | PASS | `01_tray_styled_popup_focused.png`; `02_tray_popup_route_after_reopen.png`; native menu not primary in `_show_tray_popup`. |\n"
-        "| Tray route/action execution | PASS | Global Settings and Command Overlay routes fired from visible styled popup buttons. |\n"
+        "| Tray route/action execution | PASS (supporting fixture) | Global Settings, Command Overlay, and HUD Dashboard request boundaries fired from the deterministic enabled-state QAction fixture; this is not actual USER tray interaction proof. |\n"
         "| NCP typed/choose/confirm/result | PASS | `10_ncp_entry_typed_request.png`; `11_ncp_choose_visible_choices.png`; `12_ncp_confirm_selected_action.png`; `13_ncp_result_launch_requested.png`. |\n"
         "| Tray and NCP text readability | PASS | `F3-WS-VIS-TEXT-001`; normal desktop Qt capture; Segoe UI text contract; contact sheet and individual focused frames. |\n"
         "| NCP helper/report evidence | PASS | `overlayInputHelper.txt`; `callableGroupExecution.txt`; `desktopEntrypoint.txt`. |\n\n"
