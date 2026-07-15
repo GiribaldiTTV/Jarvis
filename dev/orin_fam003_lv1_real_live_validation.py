@@ -109,7 +109,7 @@ def adjudicate_human_client_manifest(
     add(
         "visible_launcher_activation",
         manifest.get("launcherActivationMethod")
-        == "visible-file-explorer-selected-item-double-click",
+        == "visible-windows-desktop-icon-pointer-double-click",
         f"activation={manifest.get('launcherActivationMethod') or 'missing'}",
     )
     add(
@@ -175,7 +175,7 @@ def run_negative_fixtures() -> list[dict[str, str]]:
         "status": "PASS",
         "head": head,
         "formalLauncherPath": str(FORMAL_USER_LAUNCHER),
-        "launcherActivationMethod": "visible-file-explorer-selected-item-double-click",
+        "launcherActivationMethod": "visible-windows-desktop-icon-pointer-double-click",
         "directHandlerBypass": False,
         "environmentInjectedRuntimeProof": False,
         "orderedFrameCount": 12,
@@ -210,6 +210,10 @@ def run_negative_fixtures() -> list[dict[str, str]]:
     wrong_launcher = copy.deepcopy(base)
     wrong_launcher["formalLauncherPath"] = str(ROOT / "Nexus Desktop Launcher - FAM-003.lnk")
     fixtures.append(("invalid_launcher_blocks", wrong_launcher))
+
+    explorer_activation = copy.deepcopy(base)
+    explorer_activation["launcherActivationMethod"] = "visible-file-explorer-selected-item-double-click"
+    fixtures.append(("file_explorer_launcher_fallback_blocks", explorer_activation))
 
     missing_hud = copy.deepcopy(base)
     missing_hud["steps"] = [step for step in missing_hud["steps"] if step["id"] != "hud_dashboard_resident_doorway"]
@@ -304,7 +308,7 @@ def main() -> int:
         "proofPolicy": {
             "runtimeEnvHooks": "supporting-only-not-consumed",
             "directHandlers": "forbidden",
-            "formalLauncher": "exact USER Desktop shortcut via visible File Explorer selection and pointer double-click",
+            "formalLauncher": "exact USER Desktop shortcut via visible Windows Desktop icon and pointer double-click",
         },
     }
     manifest_path = proof_root / "fam003_lv1_real_live_validation_manifest.json"

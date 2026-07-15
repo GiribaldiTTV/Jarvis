@@ -10,7 +10,9 @@ Add-Type -AssemblyName System.Drawing
 
 Add-Type @"
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 public static class Fam003VisibleInput {
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int X, int Y);
     [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extra);
@@ -28,6 +30,199 @@ public static class Fam003VisibleInput {
         mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero); System.Threading.Thread.Sleep(220);
     }
 }
+
+public sealed class Fam003DesktopIconInfo {
+    public int Index { get; set; }
+    public string Name { get; set; }
+    public int Left { get; set; }
+    public int Top { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
+}
+
+public static class Fam003DesktopShell {
+    const uint PROCESS_VM_OPERATION = 0x0008;
+    const uint PROCESS_VM_READ = 0x0010;
+    const uint PROCESS_VM_WRITE = 0x0020;
+    const uint PROCESS_QUERY_INFORMATION = 0x0400;
+    const uint MEM_COMMIT = 0x1000;
+    const uint MEM_RESERVE = 0x2000;
+    const uint MEM_RELEASE = 0x8000;
+    const uint PAGE_READWRITE = 0x04;
+    const int LVM_FIRST = 0x1000;
+    const int LVM_GETITEMCOUNT = LVM_FIRST + 4;
+    const int LVM_GETITEMRECT = LVM_FIRST + 14;
+    const int LVM_GETITEMTEXTW = LVM_FIRST + 115;
+
+    public delegate bool EnumWindowProc(IntPtr hWnd, IntPtr lParam);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct LVITEM {
+        public uint mask;
+        public int iItem;
+        public int iSubItem;
+        public uint state;
+        public uint stateMask;
+        public IntPtr pszText;
+        public int cchTextMax;
+        public int iImage;
+        public IntPtr lParam;
+        public int iIndent;
+        public int iGroupId;
+        public uint cColumns;
+        public IntPtr puColumns;
+        public IntPtr piColFmt;
+        public int iGroup;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct POINT { public int X; public int Y; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string className, string title);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string className, string title);
+    [DllImport("user32.dll")] static extern bool EnumWindows(EnumWindowProc callback, IntPtr lParam);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+    [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hWnd, int message, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] static extern bool ClientToScreen(IntPtr hWnd, ref POINT point);
+    [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(POINT point);
+    [DllImport("user32.dll")] static extern IntPtr GetAncestor(IntPtr hWnd, uint flags);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr hWnd, StringBuilder value, int maxCount);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr hWnd, StringBuilder value, int maxCount);
+    [DllImport("user32.dll")] static extern bool GetCursorPos(out POINT point);
+    [DllImport("user32.dll")] static extern bool ShowWindowAsync(IntPtr hWnd, int command);
+    [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(uint access, bool inherit, uint processId);
+    [DllImport("kernel32.dll")] static extern IntPtr VirtualAllocEx(IntPtr process, IntPtr address, UIntPtr size, uint allocationType, uint protect);
+    [DllImport("kernel32.dll")] static extern bool VirtualFreeEx(IntPtr process, IntPtr address, UIntPtr size, uint freeType);
+    [DllImport("kernel32.dll")] static extern bool WriteProcessMemory(IntPtr process, IntPtr address, byte[] buffer, int size, out IntPtr written);
+    [DllImport("kernel32.dll")] static extern bool ReadProcessMemory(IntPtr process, IntPtr address, byte[] buffer, int size, out IntPtr read);
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr handle);
+
+    static byte[] StructureBytes<T>(T value) {
+        int size = Marshal.SizeOf(typeof(T));
+        IntPtr local = Marshal.AllocHGlobal(size);
+        try {
+            Marshal.StructureToPtr(value, local, false);
+            byte[] bytes = new byte[size];
+            Marshal.Copy(local, bytes, 0, size);
+            return bytes;
+        } finally { Marshal.FreeHGlobal(local); }
+    }
+
+    static T ReadStructure<T>(byte[] bytes) {
+        IntPtr local = Marshal.AllocHGlobal(bytes.Length);
+        try {
+            Marshal.Copy(bytes, 0, local, bytes.Length);
+            return (T)Marshal.PtrToStructure(local, typeof(T));
+        } finally { Marshal.FreeHGlobal(local); }
+    }
+
+    public static IntPtr DesktopListView() {
+        IntPtr progman = FindWindow("Progman", "Program Manager");
+        IntPtr defView = FindWindowEx(progman, IntPtr.Zero, "SHELLDLL_DefView", null);
+        IntPtr listView = FindWindowEx(defView, IntPtr.Zero, "SysListView32", "FolderView");
+        if (listView != IntPtr.Zero) return listView;
+
+        EnumWindows(delegate(IntPtr window, IntPtr ignored) {
+            IntPtr childDefView = FindWindowEx(window, IntPtr.Zero, "SHELLDLL_DefView", null);
+            if (childDefView == IntPtr.Zero) return true;
+            listView = FindWindowEx(childDefView, IntPtr.Zero, "SysListView32", "FolderView");
+            return listView == IntPtr.Zero;
+        }, IntPtr.Zero);
+        return listView;
+    }
+
+    public static Fam003DesktopIconInfo FindIcon(string exactDisplayName) {
+        IntPtr listView = DesktopListView();
+        if (listView == IntPtr.Zero) throw new InvalidOperationException("Windows Desktop list view was not found");
+        uint processId;
+        GetWindowThreadProcessId(listView, out processId);
+        IntPtr process = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, false, processId);
+        if (process == IntPtr.Zero) throw new InvalidOperationException("Windows Desktop shell process could not be opened for read-only item inspection");
+
+        int textBytes = 1024;
+        int itemBytes = Marshal.SizeOf(typeof(LVITEM));
+        int rectBytes = Marshal.SizeOf(typeof(RECT));
+        IntPtr remoteText = VirtualAllocEx(process, IntPtr.Zero, (UIntPtr)textBytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        IntPtr remoteItem = VirtualAllocEx(process, IntPtr.Zero, (UIntPtr)itemBytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        IntPtr remoteRect = VirtualAllocEx(process, IntPtr.Zero, (UIntPtr)rectBytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        try {
+            int count = SendMessage(listView, LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero).ToInt32();
+            IntPtr transferred;
+            for (int index = 0; index < count; index++) {
+                LVITEM item = new LVITEM();
+                item.iSubItem = 0;
+                item.pszText = remoteText;
+                item.cchTextMax = textBytes / 2;
+                WriteProcessMemory(process, remoteItem, StructureBytes(item), itemBytes, out transferred);
+                SendMessage(listView, LVM_GETITEMTEXTW, (IntPtr)index, remoteItem);
+                byte[] textBuffer = new byte[textBytes];
+                ReadProcessMemory(process, remoteText, textBuffer, textBytes, out transferred);
+                string name = Encoding.Unicode.GetString(textBuffer).Split('\0')[0];
+                if (!String.Equals(name, exactDisplayName, StringComparison.OrdinalIgnoreCase)) continue;
+
+                RECT rect = new RECT();
+                rect.Left = 0;
+                WriteProcessMemory(process, remoteRect, StructureBytes(rect), rectBytes, out transferred);
+                if (SendMessage(listView, LVM_GETITEMRECT, (IntPtr)index, remoteRect) == IntPtr.Zero) {
+                    throw new InvalidOperationException("Windows Desktop icon rectangle could not be read");
+                }
+                byte[] rectBuffer = new byte[rectBytes];
+                ReadProcessMemory(process, remoteRect, rectBuffer, rectBytes, out transferred);
+                rect = ReadStructure<RECT>(rectBuffer);
+                POINT origin = new POINT();
+                origin.X = rect.Left;
+                origin.Y = rect.Top;
+                ClientToScreen(listView, ref origin);
+                Fam003DesktopIconInfo result = new Fam003DesktopIconInfo();
+                result.Index = index;
+                result.Name = name;
+                result.Left = origin.X;
+                result.Top = origin.Y;
+                result.Width = rect.Right - rect.Left;
+                result.Height = rect.Bottom - rect.Top;
+                return result;
+            }
+            return null;
+        } finally {
+            if (remoteText != IntPtr.Zero) VirtualFreeEx(process, remoteText, UIntPtr.Zero, MEM_RELEASE);
+            if (remoteItem != IntPtr.Zero) VirtualFreeEx(process, remoteItem, UIntPtr.Zero, MEM_RELEASE);
+            if (remoteRect != IntPtr.Zero) VirtualFreeEx(process, remoteRect, UIntPtr.Zero, MEM_RELEASE);
+            CloseHandle(process);
+        }
+    }
+
+    public static string HitClassAt(int x, int y) {
+        POINT point = new POINT(); point.X = x; point.Y = y;
+        IntPtr window = WindowFromPoint(point);
+        StringBuilder value = new StringBuilder(256);
+        GetClassName(window, value, value.Capacity);
+        return value.ToString();
+    }
+
+    public static long RootWindowAt(int x, int y) {
+        POINT point = new POINT(); point.X = x; point.Y = y;
+        return GetAncestor(WindowFromPoint(point), 2).ToInt64();
+    }
+
+    public static string WindowTitle(long handle) {
+        StringBuilder value = new StringBuilder(512);
+        GetWindowText((IntPtr)handle, value, value.Capacity);
+        return value.ToString();
+    }
+
+    public static bool RestoreWindow(long handle) {
+        return ShowWindowAsync((IntPtr)handle, 9);
+    }
+
+    public static int[] CursorPosition() {
+        POINT point;
+        GetCursorPos(out point);
+        return new int[] { point.X, point.Y };
+    }
+}
 "@
 
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -42,6 +237,7 @@ $script:Steps = New-Object System.Collections.Generic.List[object]
 $script:Frames = New-Object System.Collections.Generic.List[object]
 $script:RuntimeProcesses = @()
 $script:Failure = ""
+$script:MinimizedCoveringWindows = New-Object System.Collections.Generic.List[long]
 
 function Add-Step {
     param([string]$Id, [string]$Status, [string]$Detail, [hashtable]$Evidence = @{})
@@ -200,15 +396,60 @@ try {
     }
     if (-not $launcherValid) { throw "Exact USER Desktop launcher provenance is invalid" }
 
-    $beforeLaunch = Capture-Frame "before_exact_launcher_open"
-    Start-Process explorer.exe -ArgumentList "/select,`"$Launcher`""
-    $launcherItem = Find-VisibleElement -Contains "Nexus Desktop Launcher" -TimeoutSeconds 10
-    if (-not $launcherItem) { throw "File Explorer did not expose the exact USER Desktop launcher as a visible item" }
-    $launcherEvidence = Element-Evidence $launcherItem
-    $launchPoint = Move-And-Click $launcherItem -Button double
-    $afterLaunch = Capture-Frame "after_exact_launcher_double_click"
-    Add-Step "visible_exact_launcher_activation" "PASS" "The exact Desktop shortcut was selected in visible File Explorer and double-clicked with real pointer input." @{
-        before = $beforeLaunch; after = $afterLaunch; item = $launcherEvidence; clickPoint = $launchPoint; directProcessLaunch = $false; environmentInjection = $false
+    $beforeLaunch = Capture-Frame "before_exact_desktop_launcher_exposure"
+    $launcherDisplayName = [System.IO.Path]::GetFileNameWithoutExtension($Launcher)
+    $launcherItem = [Fam003DesktopShell]::FindIcon($launcherDisplayName)
+    if (-not $launcherItem) { throw "The exact USER launcher was not found in the actual Windows Desktop shell" }
+    $launchX = [int]($launcherItem.Left + ($launcherItem.Width / 2))
+    $launchY = [int]($launcherItem.Top + ($launcherItem.Height / 2))
+    $coveringWindows = @()
+    for ($attempt = 0; $attempt -lt 4; $attempt++) {
+        $hitClass = [Fam003DesktopShell]::HitClassAt($launchX, $launchY)
+        if ($hitClass -eq "SysListView32") { break }
+        $rootHandle = [Fam003DesktopShell]::RootWindowAt($launchX, $launchY)
+        if ($rootHandle -eq 0) { throw "The exact Desktop launcher is covered, but its covering window could not be identified" }
+        $rootElement = [System.Windows.Automation.AutomationElement]::FromHandle([IntPtr]$rootHandle)
+        $minimizeButton = $null
+        $windowChildren = $rootElement.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
+        for ($childIndex = 0; $childIndex -lt $windowChildren.Count; $childIndex++) {
+            $candidate = $windowChildren.Item($childIndex)
+            try {
+                $candidateRect = $candidate.Current.BoundingRectangle
+                if (
+                    $candidate.Current.ControlType.ProgrammaticName -eq "ControlType.Button" -and
+                    $candidate.Current.Name -eq "Minimize" -and
+                    -not $candidateRect.IsEmpty -and
+                    -not $candidate.Current.IsOffscreen -and
+                    $candidate.Current.IsEnabled
+                ) {
+                    $minimizeButton = $candidate
+                    break
+                }
+            } catch {}
+        }
+        if (-not $minimizeButton) { throw "The exact Desktop launcher is covered by a window without a visible Minimize control" }
+        $coveringTitle = [Fam003DesktopShell]::WindowTitle($rootHandle)
+        $minimizeEvidence = Element-Evidence $minimizeButton
+        $minimizePoint = Move-And-Click $minimizeButton
+        $script:MinimizedCoveringWindows.Add([long]$rootHandle) | Out-Null
+        $coveringWindows += @{ handle = $rootHandle; title = $coveringTitle; minimize = $minimizeEvidence; clickPoint = $minimizePoint }
+        Start-Sleep -Milliseconds 700
+    }
+    $hitClass = [Fam003DesktopShell]::HitClassAt($launchX, $launchY)
+    if ($hitClass -ne "SysListView32") { throw "The exact Desktop launcher remains covered after bounded visible window minimization; hit class was '$hitClass'" }
+    [Fam003VisibleInput]::SetCursorPos($launchX, $launchY) | Out-Null
+    Start-Sleep -Milliseconds 600
+    $cursorPosition = [Fam003DesktopShell]::CursorPosition()
+    if ($cursorPosition[0] -ne $launchX -or $cursorPosition[1] -ne $launchY) { throw "The real cursor did not reach the exact Desktop launcher" }
+    $cursorOnLauncherFrame = Capture-Frame "cursor_positioned_on_exact_windows_desktop_launcher"
+    [Fam003VisibleInput]::DoubleClick()
+    Start-Sleep -Milliseconds 700
+    $afterLaunch = Capture-Frame "after_exact_windows_desktop_launcher_double_click"
+    Add-Step "visible_exact_launcher_activation" "PASS" "The helper minimized only windows covering the exact icon through their visible Minimize controls, then moved the real pointer to and double-clicked the actual FAM-003 Windows Desktop shortcut." @{
+        before = $beforeLaunch; boundedCoveringWindows = @($coveringWindows); broadDesktopDisruption = $false
+        desktopItem = @{ index = $launcherItem.Index; name = $launcherItem.Name; rect = @($launcherItem.Left, $launcherItem.Top, ($launcherItem.Left + $launcherItem.Width), ($launcherItem.Top + $launcherItem.Height)); shellClass = $hitClass }
+        cursorPosition = @($cursorPosition); cursorFrame = $cursorOnLauncherFrame; after = $afterLaunch; clickPoint = @($launchX, $launchY)
+        directProcessLaunch = $false; environmentInjection = $false; fileExplorerFallback = $false
     }
 
     $script:RuntimeProcesses = Wait-For-Runtime
@@ -325,14 +566,14 @@ try {
     $status = if ($blocking.Count -eq 0) { "PASS" } else { "BLOCKED" }
     try {
         $payload = [ordered]@{
-            schema = "fam003-external-visible-human-client-v1"
+            schema = "fam003-external-visible-human-client-v2"
             status = $status
             timestamp = $Stamp
             worktree = $Root
             branch = (& git -C $Root branch --show-current).Trim()
             head = (& git -C $Root rev-parse HEAD).Trim()
             formalLauncherPath = $Launcher
-            launcherActivationMethod = "visible-file-explorer-selected-item-double-click"
+            launcherActivationMethod = "visible-windows-desktop-icon-pointer-double-click"
             directHandlerBypass = $false
             environmentInjectedRuntimeProof = $false
             utsStatus = "NOT_REQUESTED"
@@ -351,6 +592,9 @@ try {
             foreach ($process in @(Find-RuntimeProcesses)) {
                 try { Stop-Process -Id $process.ProcessId -Force -ErrorAction Stop } catch {}
             }
+        }
+        foreach ($coveringHandle in @($script:MinimizedCoveringWindows)) {
+            try { [Fam003DesktopShell]::RestoreWindow([long]$coveringHandle) | Out-Null } catch {}
         }
     }
     Write-Output "FAM-003 HUMAN CLIENT LV: $status"
