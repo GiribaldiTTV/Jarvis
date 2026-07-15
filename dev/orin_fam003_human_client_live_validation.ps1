@@ -74,7 +74,13 @@ function Capture-Frame {
 }
 
 function Find-VisibleElement {
-    param([string]$Name = "", [string]$Contains = "", [string]$Type = "", [int]$TimeoutSeconds = 8)
+    param(
+        [string]$Name = "",
+        [string]$Contains = "",
+        [string]$Type = "",
+        [string]$ClassContains = "",
+        [int]$TimeoutSeconds = 8
+    )
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
         $all = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
@@ -86,11 +92,13 @@ function Find-VisibleElement {
             try {
                 $currentName = [string]$element.Current.Name
                 $currentType = [string]$element.Current.ControlType.ProgrammaticName
+                $currentClass = [string]$element.Current.ClassName
                 $rect = $element.Current.BoundingRectangle
                 if ($rect.IsEmpty -or $element.Current.IsOffscreen) { continue }
                 if ($Name -and $currentName -ne $Name) { continue }
                 if ($Contains -and $currentName -notlike "*$Contains*") { continue }
                 if ($Type -and $currentType -ne $Type) { continue }
+                if ($ClassContains -and $currentClass -notlike "*$ClassContains*") { continue }
                 return $element
             } catch {}
         }
@@ -147,11 +155,11 @@ function Wait-For-Runtime {
 }
 
 function Open-TrayMenu {
-    $tray = Find-VisibleElement -Name "Nexus Desktop AI" -Type "ControlType.Button" -TimeoutSeconds 4
+    $tray = Find-VisibleElement -Contains "Nexus Desktop AI" -Type "ControlType.Button" -ClassContains "SystemTray" -TimeoutSeconds 4
     if (-not $tray) {
         $overflow = Find-VisibleElement -Contains "Hidden" -Type "ControlType.Button" -TimeoutSeconds 3
         if ($overflow) { Move-And-Click $overflow | Out-Null; Start-Sleep -Milliseconds 500 }
-        $tray = Find-VisibleElement -Name "Nexus Desktop AI" -Type "ControlType.Button" -TimeoutSeconds 6
+        $tray = Find-VisibleElement -Contains "Nexus Desktop AI" -Type "ControlType.Button" -ClassContains "SystemTray" -TimeoutSeconds 6
     }
     if (-not $tray) { throw "Nexus Desktop AI tray icon is not visible through the notification area or hidden-icons overflow" }
     $evidence = Element-Evidence $tray
@@ -278,7 +286,7 @@ try {
     [System.Windows.Forms.SendKeys]::SendWait("%{F4}")
     Start-Sleep -Milliseconds 700
 
-    $ncpTray = Find-VisibleElement -Name "Nexus Desktop AI" -Type "ControlType.Button" -TimeoutSeconds 5
+    $ncpTray = Find-VisibleElement -Contains "Nexus Desktop AI" -Type "ControlType.Button" -ClassContains "SystemTray" -TimeoutSeconds 5
     if (-not $ncpTray) { throw "Tray icon missing before NCP visible-input proof" }
     $ncpPoint = Move-And-Click $ncpTray
     Start-Sleep -Milliseconds 800
