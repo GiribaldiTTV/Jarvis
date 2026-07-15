@@ -555,14 +555,14 @@ try {
     $global = Find-VisibleElement -Name "Global Settings" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     $globalEvidence = Element-Evidence $global
     $globalPoint = Move-And-Click $global
-    $settings = Find-VisibleElement -Name "Global Settings" -Type "ControlType.Window" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 8
+    $settings = Find-VisibleElement -Name "Global Settings - Nexus Desktop AI" -Type "ControlType.Window" -ClassContains "ResidentAccessSettingsDialog" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 8
     if (-not $settings) { throw "Visible Global Settings tray action did not open the Settings window" }
     $settingsBefore = Element-Evidence $settings
     $settingsBeforeFrame = Capture-Frame "settings_before_live_resize"
     $rect = $settings.Current.BoundingRectangle
     [Fam003VisibleInput]::Drag([int]($rect.Right - 2), [int]($rect.Bottom - 2), [int]($rect.Right + 150), [int]($rect.Bottom + 90), 8)
     Start-Sleep -Milliseconds 700
-    $settingsAfter = Find-VisibleElement -Name "Global Settings" -Type "ControlType.Window" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
+    $settingsAfter = Find-VisibleElement -Name "Global Settings - Nexus Desktop AI" -Type "ControlType.Window" -ClassContains "ResidentAccessSettingsDialog" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
     $settingsAfterEvidence = Element-Evidence $settingsAfter
     $settingsAfterFrame = Capture-Frame "settings_after_live_resize"
     $widthBefore = $settingsBefore.rect[2] - $settingsBefore.rect[0]
