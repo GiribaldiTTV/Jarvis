@@ -33,14 +33,16 @@ from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QColor, QFont, QFontInfo, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QMenu, QPushButton
 
-
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_option_c_workstream_proof"
 SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
+HUD_SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_hud_settings_visual_validation"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+from desktop.monitoring_hud_access import MonitoringHudAccessAdapter
 
 
 def _run(command: list[str], *, timeout: int = 180, normal_qt_platform: bool = False) -> dict[str, object]:
@@ -93,10 +95,14 @@ def _save_widget(widget, path: Path) -> dict[str, object]:
 
 
 def _copy_latest_settings_artifact(log_dir: Path, filename: str) -> Path | None:
-    if not SETTINGS_LOG_ROOT.exists():
+    return _copy_latest_artifact(SETTINGS_LOG_ROOT, log_dir, filename)
+
+
+def _copy_latest_artifact(source_root: Path, log_dir: Path, filename: str) -> Path | None:
+    if not source_root.exists():
         return None
     candidates = sorted(
-        [path for path in SETTINGS_LOG_ROOT.iterdir() if path.is_dir()],
+        [path for path in source_root.iterdir() if path.is_dir()],
         key=lambda path: path.name,
         reverse=True,
     )
@@ -163,7 +169,14 @@ class _FakeTrayWindow:
         self.create_task_requests: list[str] = []
         self.saved_action_requests: list[str] = []
         self.dashboard_requests: list[dict[str, object]] = []
+        self.dashboard_visible = False
         self.command_visible = False
+        self._hud_access = MonitoringHudAccessAdapter(
+            query_state=self.monitoring_hud_feature_state,
+            persist_enabled=lambda _enabled, _source: True,
+            open_or_restore_dashboard=self._open_or_restore_hud_dashboard,
+            close_dashboard=self._close_hud_dashboard,
+        )
 
     def open_command_overlay(self):
         self.open_overlay_count += 1
@@ -190,13 +203,23 @@ class _FakeTrayWindow:
     def open_saved_actions(self, source="tray"):
         self.saved_action_requests.append(source)
 
-    def request_monitoring_hud_dashboard_from_tray(self, *, source="tray", visible=True):
-        self.dashboard_requests.append({"source": source, "visible": bool(visible)})
+    def monitoring_hud_access(self):
+        return self._hud_access
+
+    def _open_or_restore_hud_dashboard(self, source="tray"):
+        self.dashboard_requests.append({"source": source, "visible": True})
+        self.dashboard_visible = True
+        return True
+
+    def _close_hud_dashboard(self, source="tray"):
+        self.dashboard_requests.append({"source": source, "visible": False})
+        self.dashboard_visible = False
+        return True
 
     def monitoring_hud_feature_state(self):
         return {
             "feature_enabled": True,
-            "dashboard_visible": False,
+            "dashboard_visible": self.dashboard_visible,
             "resident_route_state": "enabled_available",
             "resident_route_reason": "HUD Dashboard ready",
             "route_state": "enabled_available",
@@ -550,10 +573,16 @@ def main() -> int:
 
     tray = _render_tray_proof(log_dir)
     ncp = _render_ncp_proof(log_dir)
-    settings_contact = _copy_latest_settings_artifact(log_dir, "16_defect_closure_contact_sheet.png")
-    settings_default = _copy_latest_settings_artifact(log_dir, "01_default_global_settings_shell.png")
-
     helper_runs = {
+        "hudAccessWorkstream": _run([sys.executable, "dev/orin_fam003_hud_access_workstream_validation.py"]),
+        "hudSettingsVisual": _run(
+            [sys.executable, "dev/orin_fam003_hud_settings_visual_validation.py"],
+            normal_qt_platform=True,
+        ),
+        "settingsVisualRegression": _run(
+            [sys.executable, "dev/orin_fam003_settings_repair_visual_validation.py"],
+            normal_qt_platform=True,
+        ),
         "overlayInputHelper": _run([sys.executable, "dev/orin_overlay_input_capture_helper.py"]),
         "callableGroupExecution": _run([sys.executable, "dev/orin_callable_group_execution_validation.py"]),
         "desktopEntrypoint": _run(
@@ -577,11 +606,28 @@ def main() -> int:
         )
         _assert(result["ok"], f"{name} failed; see {report}")
 
+    settings_contact = _copy_latest_settings_artifact(log_dir, "16_defect_closure_contact_sheet.png")
+    settings_default = _copy_latest_settings_artifact(log_dir, "01_default_global_settings_shell.png")
+    hud_contact = _copy_latest_artifact(
+        HUD_SETTINGS_LOG_ROOT,
+        log_dir,
+        "FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png",
+    )
+    hud_comparison = _copy_latest_artifact(
+        HUD_SETTINGS_LOG_ROOT,
+        log_dir,
+        "FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png",
+    )
+
     proof_images = [Path(item["path"]) for item in tray["screenshots"] + ncp["screenshots"]]
     if settings_contact is not None:
         proof_images.insert(0, settings_contact)
     if settings_default is not None:
         proof_images.insert(0, settings_default)
+    if hud_contact is not None:
+        proof_images.insert(0, hud_contact)
+    if hud_comparison is not None:
+        proof_images.insert(0, hud_comparison)
     contact_sheet = _write_contact_sheet(log_dir, proof_images, "00_option_c_workstream_contact_sheet.png")
 
     png_results = [_validate_png(path) for path in proof_images + [contact_sheet]]
@@ -604,6 +650,7 @@ def main() -> int:
         "| Surface | Verdict | Evidence |\n"
         "| --- | --- | --- |\n"
         f"| Settings resize/cursor | PASS | `{settings_default.name if settings_default else 'preserved latest settings proof root'}`; `{settings_contact.name if settings_contact else 'preserved latest contact sheet'}` |\n"
+        f"| HUD Settings implementation match | PASS | `{hud_comparison.name if hud_comparison else 'missing'}`; `{hud_contact.name if hud_contact else 'missing'}`; 26-state child validator is fail-closed. |\n"
         "| Styled tray right-click presentation | PASS | `01_tray_styled_popup_focused.png`; `02_tray_popup_route_after_reopen.png`; native menu not primary in `_show_tray_popup`. |\n"
         "| Tray route/action execution | PASS (supporting fixture) | Global Settings, Command Overlay, and HUD Dashboard request boundaries fired from the deterministic enabled-state QAction fixture; this is not actual USER tray interaction proof. |\n"
         "| NCP typed/choose/confirm/result | PASS | `10_ncp_entry_typed_request.png`; `11_ncp_choose_visible_choices.png`; `12_ncp_confirm_selected_action.png`; `13_ncp_result_launch_requested.png`. |\n"
@@ -633,6 +680,8 @@ def main() -> int:
         "tray": tray,
         "ncp": ncp,
         "settingsArtifacts": [str(path) for path in (settings_default, settings_contact) if path is not None],
+        "hudSettingsArtifacts": [str(path) for path in (hud_comparison, hud_contact) if path is not None],
+        "aggregatePolicy": "every required child return code must pass; any child failure aborts aggregate before PASS manifest write",
         "helperRuns": {
             name: {
                 "ok": result["ok"],

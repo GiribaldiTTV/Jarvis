@@ -483,7 +483,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "Open Quick Access Settings; Resize Global Settings navigation pane",
         "comparator": "dense settings navigation grammar",
         "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png",
-        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page;left navigation active child proof;focused child pill border no-clipping proof;child pill focus/pressed state proof;left navigation collapsed proof;left navigation expanded proof;left pane compressed width exposes horizontal overflow;left pane wide resize stays deterministic;left pane vertical overflow source-truth disposition",
+        "checks": "left navigation settings organizer;Tray and HUD parent-child settings IA;selectable Tray parent page;left navigation active child proof;focused child pill border no-clipping proof;child pill focus/pressed state proof;left navigation collapsed proof;left navigation expanded proof;left pane compressed width exposes horizontal overflow;left pane wide resize stays deterministic;left pane vertical overflow source-truth disposition",
     },
     {
         "id": "F3GS-008",
@@ -529,7 +529,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "change status propagated",
         "comparator": "AI Control Center dense state rows",
         "proof": "01_default_global_settings_shell.png; 06_dirty_quick_access.png",
-        "checks": "Tray parent plus Quick Access child settings IA;selectable Tray parent page;no fake overview/status strip;clean state has no redundant saved label;dirty guard state after dropdown edit",
+        "checks": "Tray and HUD parent-child settings IA;selectable Tray parent page;no fake overview/status strip;clean state has no redundant saved label;dirty guard state after dropdown edit",
     },
     {
         "id": "F3GS-010",
@@ -552,7 +552,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "heading label",
         "comparator": "settings section title hierarchy",
         "proof": "01_default_global_settings_shell.png",
-        "checks": "Tray parent plus Quick Access child settings IA;selectable Tray parent page",
+        "checks": "Tray and HUD parent-child settings IA;selectable Tray parent page",
     },
     {
         "id": "F3GS-011",
@@ -575,7 +575,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "Add Quick Access Slot; Restore Default Quick Access Shortcuts",
         "comparator": "NDAI settings control group",
         "proof": "01_default_global_settings_shell.png; 09_defaults_staged.png",
-        "checks": "Tray parent plus Quick Access child settings IA;default semantics stage defaults;max-slot budget rows are unclipped",
+        "checks": "Tray and HUD parent-child settings IA;default semantics stage defaults;max-slot budget rows are unclipped",
     },
     {
         "id": "F3GS-012",
@@ -874,7 +874,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "no inaccessible fake controls",
         "comparator": "accepted minimal settings foundation",
         "proof": "static text scan",
-        "checks": "Tray parent plus Quick Access child settings IA;selectable Tray parent page;product-facing copy is compact and non-internal",
+        "checks": "Tray and HUD parent-child settings IA;selectable Tray parent page;product-facing copy is compact and non-internal",
     },
     {
         "id": "F3GS-025",
@@ -1593,7 +1593,7 @@ def _write_fail_capable_defect_ledger(
         "left pane vertical overflow source-truth disposition",
         "selectable Tray parent page",
         "Tray parent contains no Quick Access overview or open row",
-        "Tray parent plus Quick Access child settings IA",
+        "Tray and HUD parent-child settings IA",
         "product-facing copy is compact and non-internal",
         "Nexus UI exposure contract honored",
         "no internal telemetry text",
@@ -1650,11 +1650,11 @@ def _write_fail_capable_defect_ledger(
         "| --- | --- | --- |",
         "| Structure exists | {result} | {detail} |".format(
             result="PASS"
-            if check_status.get("Tray parent plus Quick Access child settings IA", False)
+            if check_status.get("Tray and HUD parent-child settings IA", False)
             and check_status.get("selectable Tray parent page", False)
             else "REPAIR",
             detail=_md_cell(
-                check_detail.get("Tray parent plus Quick Access child settings IA", "")
+                check_detail.get("Tray and HUD parent-child settings IA", "")
                 + "; "
                 + check_detail.get("selectable Tray parent page", "")
             ),
@@ -2551,6 +2551,8 @@ def main() -> int:
     )
     parent_nav_origin = dialog.tray_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
     child_nav_origin = dialog.quick_access_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
+    hud_parent_nav_origin = dialog.hud_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
+    hud_child_nav_origin = dialog.hud_dashboard_nav_item.mapTo(dialog.nav_shell, QPoint(0, 0))
     rows.append(
         (
             "left navigation settings organizer",
@@ -2571,7 +2573,7 @@ def main() -> int:
             and dialog.tray_expand_button.property("glyphButton") == "chevron-down"
             and getattr(dialog.tray_nav_icon, "icon_kind", "") == "tray"
             and getattr(dialog.quick_access_nav_icon, "icon_kind", "") == "quick-access"
-            and set(dialog._nav_buttons) == {"tray", "quick_access"}
+            and set(dialog._nav_buttons) == {"tray", "quick_access", "hud", "hud_dashboard"}
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
@@ -2579,8 +2581,22 @@ def main() -> int:
             and child_nav_origin.x() - parent_nav_origin.x() == 14
             and dialog.tray_nav_item.width() == 118
             and dialog.quick_access_nav_item.width() == 112
+            and dialog.hud_nav_item.isVisible()
+            and dialog.hud_nav_item.property("settingsCategoryRole") == "persistent-owner-bounded-parent"
+            and dialog.hud_nav_button.text() == "HUD"
+            and dialog.hud_expand_button.property("glyphButton") == "chevron-down"
+            and getattr(dialog.hud_nav_icon, "icon_kind", "") == "hud"
+            and dialog.hud_dashboard_nav_item.isVisible()
+            and dialog.hud_dashboard_nav_button.text() == "HUD Dashboard"
+            and dialog.hud_dashboard_nav_item.property("settingsNavDensity") == "two-level-subpage-row"
+            and dialog.hud_dashboard_nav_item.property("settingsNavSizingPolicy")
+            == "font-metric-default-min-clamped-v39"
+            and hud_child_nav_origin.x() - hud_parent_nav_origin.x() == 14
+            and dialog.hud_nav_item.width() == dialog._settings_nav_pill_width("HUD", "parent")
+            and dialog.hud_dashboard_nav_item.width()
+            == dialog._settings_nav_pill_width("HUD Dashboard", "child")
             and not dialog.nav_boundary.isVisible(),
-            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.property('glyphButton')!r}; icons={getattr(dialog.tray_nav_icon, 'icon_kind', '')!r}/{getattr(dialog.quick_access_nav_icon, 'icon_kind', '')!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}",
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.property('glyphButton')!r}; icons={getattr(dialog.tray_nav_icon, 'icon_kind', '')!r}/{getattr(dialog.quick_access_nav_icon, 'icon_kind', '')!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}; parent_origin={parent_nav_origin.x()},{parent_nav_origin.y()}; child_origin={child_nav_origin.x()},{child_nav_origin.y()}; hud_parent_origin={hud_parent_nav_origin.x()},{hud_parent_nav_origin.y()}; hud_child_origin={hud_child_nav_origin.x()},{hud_child_nav_origin.y()}",
         )
     )
     tray_nav_height = dialog.tray_nav_item.height()
@@ -2699,7 +2715,13 @@ def main() -> int:
             and dialog.tray_nav_item.width() == 118
             and dialog.quick_access_nav_item.width() == 112
             and future_parent_width == dialog.SETTINGS_NAV_PARENT_MAX_WIDTH
-            and future_child_width == dialog.SETTINGS_NAV_CHILD_MAX_WIDTH
+            and future_child_width == dialog._settings_nav_pill_width("Recording Studio", "child")
+            and dialog.SETTINGS_NAV_CHILD_DEFAULT_WIDTH
+            <= future_child_width
+            <= dialog.SETTINGS_NAV_CHILD_MAX_WIDTH
+            and dialog.hud_nav_item.width() == dialog._settings_nav_pill_width("HUD", "parent")
+            and dialog.hud_dashboard_nav_item.width()
+            == dialog._settings_nav_pill_width("HUD Dashboard", "child")
             and dialog.SETTINGS_NAV_CATEGORY_GAP == 4,
             "current_parent={}/{}; current_child={}/{}; future_parent={}; future_child={}; text_widths={}/{}/{}; fixed_gap={}".format(
                 dialog.tray_nav_item.width(),
@@ -2898,9 +2920,9 @@ def main() -> int:
         (
             "left pane vertical overflow source-truth disposition",
             vbar_max == 0
-            and set(dialog._nav_buttons) == {"tray", "quick_access"}
+            and set(dialog._nav_buttons) == {"tray", "quick_access", "hud", "hud_dashboard"}
             and dialog.nav_content.height() <= dialog.nav_scroll_area.viewport().height(),
-            f"vbar_max={vbar_max}; current_real_nav={list(dialog._nav_buttons)}; nav_content_height={dialog.nav_content.height()}; viewport_height={dialog.nav_scroll_area.viewport().height()}; source_truth='current visible Global Settings hierarchy is Tray parent and Quick Access child only; no fake future categories admitted'",
+            f"vbar_max={vbar_max}; current_real_nav={list(dialog._nav_buttons)}; nav_content_height={dialog.nav_content.height()}; viewport_height={dialog.nav_scroll_area.viewport().height()}; source_truth='current visible Global Settings hierarchy contains persistent Tray and HUD parent/child routes only; no fake future categories admitted'",
         )
     )
 
@@ -2990,7 +3012,7 @@ def main() -> int:
     ]
     rows.append(
         (
-            "Tray parent plus Quick Access child settings IA",
+            "Tray and HUD parent-child settings IA",
             dialog.section_heading.text() == "Quick Access"
             and dialog.section_badge.text() == "Tray"
             and not dialog.section_badge.isVisible()
@@ -2998,7 +3020,8 @@ def main() -> int:
             and dialog.section_detail.text() == "Choose the shortcuts shown in the tray menu."
             and dialog.section_scope.isVisible()
             and dialog.section_scope.text() == "NEXUS TRAY / QUICK ACCESS"
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v22"
+            and dialog.property("settingsInformationArchitecture")
+            == "global-settings-shell-tray-and-hud-parent-child-deterministic-rail-r2"
             and dialog.property("settingsVisualRepair") == "lv1-global-settings-compact-ndai-grammar-close-intercept-v32"
             and dialog.property("referenceDerivedHeader") == "ndai-global-settings-centered-settings-chrome-v22"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
@@ -3014,7 +3037,7 @@ def main() -> int:
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "ui-reference-plus-product-grade-same-defect-comparator-v22"
-            and set(dialog._nav_buttons) == {"tray", "quick_access"}
+            and set(dialog._nav_buttons) == {"tray", "quick_access", "hud", "hud_dashboard"}
             and dialog.tray_nav_item.property("settingsCategoryRole") == "selectable-parent-page"
             and dialog.tray_nav_button.text() == "Tray"
             and getattr(dialog.tray_nav_icon, "icon_kind", "") == "tray"
@@ -3022,6 +3045,10 @@ def main() -> int:
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and getattr(dialog.quick_access_nav_icon, "icon_kind", "") == "quick-access"
             and dialog.quick_access_nav_button.isChecked()
+            and dialog.hud_nav_item.property("settingsCategoryRole") == "persistent-owner-bounded-parent"
+            and dialog.hud_nav_button.text() == "HUD"
+            and dialog.hud_dashboard_nav_button.text() == "HUD Dashboard"
+            and dialog.hud_subpage_nav_rail.isVisible()
             and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)} of {active_slot_limit}"
             and dialog.slot_count_badge.isVisible()
             and dialog.slot_count_badge.mapTo(dialog.add_slot_button.parentWidget(), QPoint(0, 0)).x()

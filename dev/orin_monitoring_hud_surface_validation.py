@@ -2825,7 +2825,7 @@ def validate() -> list[str]:
         "monitoring_hud_feature_enabled_at_startup",
         "monitoring_hud_dashboard_visible_at_startup",
         "command_overlay_state",
-        "Close Command Overlay",
+        "Command Overlay",
         "command_overlay_action",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)

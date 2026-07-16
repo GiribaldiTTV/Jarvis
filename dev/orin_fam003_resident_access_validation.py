@@ -331,11 +331,13 @@ def validate_static_wiring(failures: list[str]):
     tray_text = read("desktop/tray_controller.py")
     renderer_text = read("desktop/desktop_renderer.py")
     main_text = read("desktop/orin_desktop_main.py")
+    hud_access_text = read("desktop/monitoring_hud_access.py")
     registry_text = read("Docs/validation_helper_registry.md")
 
     ast.parse(tray_text, filename="desktop/tray_controller.py")
     ast.parse(renderer_text, filename="desktop/desktop_renderer.py")
     ast.parse(main_text, filename="desktop/orin_desktop_main.py")
+    ast.parse(hud_access_text, filename="desktop/monitoring_hud_access.py")
     validate_no_forced_arrow_release(renderer_text, failures)
     settings_dialog_start = renderer_text.index("class ResidentAccessSettingsDialog")
     settings_dialog_end = renderer_text.index("class AIControlCenterCommandPage")
@@ -362,6 +364,44 @@ def validate_static_wiring(failures: list[str]):
         and "self._focus_context = requested_focus" in settings_dialog_text
         and "SETTINGS_TRAY_CONTEXT_DETAILS" in settings_dialog_text,
         "route-only settings focus targets must preserve context on the Tray parent page instead of falling through to Quick Access",
+        failures,
+    )
+    assert_true(
+        '"hud": "hud_dashboard"' in settings_dialog_text
+        and '"hud_dashboard": "hud_dashboard"' in settings_dialog_text
+        and "residentAccessHudSettingsContainer" in settings_dialog_text
+        and "opens HUD Dashboard once as confirmation" in settings_dialog_text
+        and 'QPushButton("Open HUD Dashboard"' in settings_dialog_text,
+        "Global Settings must keep the persistent HUD parent/child recovery destination and accepted copy",
+        failures,
+    )
+    assert_true(
+        "monitoring_hud_state.json" not in settings_dialog_text
+        and "save_monitoring_hud_state" not in settings_dialog_text
+        and "_set_monitoring_hud_feature_enabled" not in settings_dialog_text
+        and "monitoring_hud_access" in settings_dialog_text,
+        "Global Settings HUD controls must use the public adapter without direct store or private runtime mutation",
+        failures,
+    )
+    assert_true(
+        all(
+            token in hud_access_text
+            for token in (
+                "def query_state(",
+                "def set_enabled(",
+                "def open_or_restore_dashboard(",
+                "def close_dashboard(",
+                "def retry_last_operation(",
+            )
+        ),
+        "MonitoringHudAccessAdapter public contract is incomplete",
+        failures,
+    )
+    assert_true(
+        'next_visible = True' in tray_text
+        and 'return "Close HUD Dashboard"' not in tray_text
+        and 'getattr(access, "open_or_restore_dashboard"' in tray_text,
+        "HUD tray activation must remain Open HUD Dashboard and never toggle an open Dashboard closed",
         failures,
     )
     for token in (
@@ -957,6 +997,12 @@ def validate_static_wiring(failures: list[str]):
     assert_true(
         "`dev/orin_fam003_resident_access_validation.py`" in registry_text,
         "FAM-003 resident access validator is not registered",
+        failures,
+    )
+    assert_true(
+        "`dev/orin_fam003_hud_access_workstream_validation.py`" in registry_text
+        and "`dev/orin_fam003_hud_settings_visual_validation.py`" in registry_text,
+        "FAM-003 R2 HUD Workstream validators are not registered",
         failures,
     )
 
