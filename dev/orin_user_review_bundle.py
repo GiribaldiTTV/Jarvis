@@ -46,6 +46,7 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
+PR_READINESS_STAGE1_REVIEW_FILE = "PR_READINESS_STAGE1_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
@@ -226,6 +227,7 @@ USER_FACING_GENERATED_FILES: tuple[str, ...] = (
     "START_HERE.md",
     USER_BRANCH_VISION_REVIEW_FILE,
     USER_BRANCH_PLAN_REVIEW_FILE,
+    PR_READINESS_STAGE1_REVIEW_FILE,
     "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
     "GOVERNANCE_REQUIRED_FILES_SCAN.md",
     "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
@@ -755,8 +757,13 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
     stage_patterns = (
         (
-            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            PR_READINESS_STAGE1_REVIEW_FILE,
             0,
+            (r"\bpr readiness stage 1\b",),
+        ),
+        (
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            1,
             (
                 r"\bbp3\b",
                 r"\borchestration\b",
@@ -767,8 +774,8 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
                 r"\bimplementation approval\b",
             ),
         ),
-        (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
-        (USER_BRANCH_VISION_REVIEW_FILE, 2, (r"\bbp1\b", r"\bbranch vision\b")),
+        (USER_BRANCH_PLAN_REVIEW_FILE, 2, (r"\bbp2\b", r"\bbranch plan\b")),
+        (USER_BRANCH_VISION_REVIEW_FILE, 3, (r"\bbp1\b", r"\bbranch vision\b")),
     )
     action_match = re.search(
         r"\b(?:approve|approves|approved|approval|green-light|greenlight)\b",
@@ -949,6 +956,7 @@ def _validate_export_zip(
         *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
+        *_pr_stage1_review_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -1128,6 +1136,48 @@ def _primary_review_substantive_failures(
                 f"{primary_path}: primary USER review file does not match START_HERE.md Current Gate "
                 f"(missing gate terms: {', '.join(missing_gate_words)})"
             )
+    return failures
+
+
+def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
+    """Validate the dedicated PR Readiness Stage 1 current-gate artifact."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    primary_marker = f"{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}"
+    if primary_marker not in start_here:
+        return []
+    text = _packet_file_text(packet_files, PR_READINESS_STAGE1_REVIEW_FILE)
+    display_name = _packet_file_path(packet_files, PR_READINESS_STAGE1_REVIEW_FILE)
+    if not text:
+        return [f"{display_name}: PR Readiness Stage 1 primary artifact is missing"]
+    failures: list[str] = []
+    for heading in (
+        "## Review Status",
+        "## Contract Status",
+        "## Packet Reviewability State",
+        "## USER Gate State",
+        "## Current-Gate Purpose",
+        "## Scope And Authority",
+        "## Transition-Safety Review",
+        "## Adversarial And False-Green Review",
+        "## Stage 1 Outcome",
+        "## Exact USER Decision Supported",
+    ):
+        if heading not in text:
+            failures.append(f"{display_name}: PR Stage 1 artifact is missing {heading}")
+    normalized = text.casefold()
+    if "pr readiness stage 1 repair required" not in normalized and "stage 1 ready for stage 2" not in normalized:
+        failures.append(
+            f"{display_name}: PR Stage 1 artifact is missing an allowed Stage 1 outcome"
+        )
+    if "bp2 branch plan contract" in normalized and "supporting planning context" not in normalized:
+        failures.append(
+            f"{display_name}: PR Stage 1 artifact presents BP2 as the current-gate contract"
+        )
+    if f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}" in start_here:
+        failures.append(
+            "START_HERE.md: PR Stage 1 packet still identifies the BP2 Branch Plan file as primary"
+        )
     return failures
 
 
@@ -4757,6 +4807,95 @@ def _write_user_branch_vision_review(
         "",
     ]
     review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+    review_path.write_text("\n".join(lines), encoding="utf-8")
+    return review_path.resolve()
+
+
+def _write_pr_readiness_stage1_review(
+    *,
+    target: Path,
+    title: str,
+    review_purpose: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+    copied: list[tuple[str, str]],
+) -> Path:
+    """Write the dedicated current-gate artifact for PR Readiness Stage 1."""
+
+    copied_sources = "\n".join(
+        f"- `{copied_rel}`" for _source_rel, copied_rel in copied
+    ) or "- No copied context files were supplied."
+    pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+    lines = [
+        f"# {title} - PR Readiness Stage 1 Review",
+        "",
+        "This is the primary current-gate review artifact for PR Readiness Stage 1. "
+        "BP1, BP2, and BP3 files remain supporting planning context; they are not this "
+        "gate's decision surface.",
+        "",
+        "## Review Status",
+        "",
+        "Reviewable - this packet presents the current PR Readiness Stage 1 analysis "
+        "and its repair posture for USER inspection.",
+        "",
+        "## Contract Status",
+        "",
+        "Complete - the current-gate artifact class is distinct from the BP2 Branch Plan "
+        "Contract and does not imply Stage 2 approval, PR creation, merge, or release.",
+        "",
+        "## Packet Reviewability State",
+        "",
+        "Reviewable - structural parity and current-gate content must still be validated "
+        "against the generated folder and timestamped upload artifact.",
+        "",
+        "## USER Gate State",
+        "",
+        "Pending USER Review - USER may accept, revise, waive, reject, or hold the Stage 1 "
+        "analysis. This state is not a USER acceptance receipt.",
+        "",
+        "## Current-Gate Purpose",
+        "",
+        review_purpose,
+        "",
+        "## Scope And Authority",
+        "",
+        "This review covers only the approved Governance repair. Durable phase law, "
+        "source ownership, transition rules, and validation contracts remain governed by "
+        "the routed repository owners. Live branch, packet, and external projection facts "
+        "remain evidence owned by the helper and external operational state.",
+        "",
+        "## Transition-Safety Review",
+        "",
+        "The Stage 1 decision must account for target-currentness, alias disagreement, "
+        "pre-write snapshots, no-loss recovery, atomic replacement, complete audit fields, "
+        "and the distinction between a target-scoped PASS and a root-wide PASS.",
+        "",
+        "## Adversarial And False-Green Review",
+        "",
+        "A green packet requires adversarial coverage for intervening target edits, stale or "
+        "wrong-root snapshots, missing target copies, conflicting field aliases, path aliases, "
+        "added and replaced fields, stale current-gate artifacts, and BP2-primary misclassification. "
+        "Structural ZIP parity alone is not PR Readiness proof.",
+        "",
+        "## Supporting Source-Truth Context",
+        "",
+        copied_sources,
+        "",
+        "## Remaining USER Decisions",
+        "",
+        pending,
+        "",
+        "## Stage 1 Outcome",
+        "",
+        "PR Readiness Stage 1 Repair Required - the current-gate review remains held until "
+        "the bounded repair, generated packet, external projections, and full validation are green.",
+        "",
+        "## Exact USER Decision Supported",
+        "",
+        exact_user_decision,
+        "",
+    ]
+    review_path = target / PR_READINESS_STAGE1_REVIEW_FILE
     review_path.write_text("\n".join(lines), encoding="utf-8")
     return review_path.resolve()
 
@@ -10613,7 +10752,11 @@ def _exact_decision_text(packet_files: Mapping[str, str]) -> str:
         for file_name, text in sorted(packet_files.items())
         if _packet_file_basename(file_name) in WORKSTREAM_ENTRY_PACKET_DECISION_FILES
         or _packet_file_basename(file_name)
-        in {USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE}
+        in {
+            USER_BRANCH_VISION_REVIEW_FILE,
+            USER_BRANCH_PLAN_REVIEW_FILE,
+            PR_READINESS_STAGE1_REVIEW_FILE,
+        }
     )
 
 
@@ -10776,6 +10919,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
     failures.extend(_fam006_bp3_support_context_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
+    failures.extend(_pr_stage1_review_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if not _packet_file_present(packet_files, required_file):
@@ -11115,6 +11259,16 @@ def build_bundle(
         pending_user_decisions=pending_user_decisions,
         copied=copied,
     )
+    pr_stage1_review_file = None
+    if primary_user_review_file_name == PR_READINESS_STAGE1_REVIEW_FILE:
+        pr_stage1_review_file = _write_pr_readiness_stage1_review(
+            target=review_aids_dir,
+            title=title,
+            review_purpose=review_purpose,
+            exact_user_decision=user_facing_decision,
+            pending_user_decisions=pending_user_decisions,
+            copied=copied,
+        )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
         custom_review_path_reason_value = custom_review_path_reason or "Not recorded"
@@ -11127,7 +11281,13 @@ def build_bundle(
         for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES
         if name != "START_HERE.md"
     }
-    expected_generated_paths = {user_vision_file.resolve(), user_review_file.resolve(), *digest_paths}
+    expected_generated_paths = {
+        user_vision_file.resolve(),
+        user_review_file.resolve(),
+        *digest_paths,
+    }
+    if pr_stage1_review_file is not None:
+        expected_generated_paths.add(pr_stage1_review_file.resolve())
     primary_source_path = (review_aids_dir / primary_user_review_file_name).resolve()
     primary_destination_path = (user_review_dir / primary_user_review_file_name).resolve()
     if primary_source_path in expected_generated_paths:
@@ -11175,6 +11335,14 @@ def build_bundle(
         primary_file_name=primary_user_review_file_name,
     )
 
+    effective_review_order = list(review_order)
+    if primary_user_review_file_name == PR_READINESS_STAGE1_REVIEW_FILE:
+        effective_review_order = [
+            f"Open `{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}` first; it is the current PR Readiness Stage 1 decision surface.",
+            f"Then inspect `{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}` for vision context.",
+            f"Then inspect `{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}` for BP2 engineering context.",
+            "Use the remaining Review Aids and Source Truth Context files only as supporting evidence.",
+        ]
     readme_lines: list[str] = [
         f"# {title}",
         "",
@@ -11199,7 +11367,7 @@ def build_bundle(
         "",
         "## Review Order",
         "",
-        *_markdown_lines(review_order),
+        *_markdown_lines(effective_review_order),
         "",
         "## Extra Bundle Files",
         "",
@@ -11262,6 +11430,7 @@ def build_bundle(
         *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
+        *_pr_stage1_review_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(

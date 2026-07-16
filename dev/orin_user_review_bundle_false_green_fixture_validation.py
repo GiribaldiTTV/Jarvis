@@ -518,6 +518,75 @@ def main() -> int:
         validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
         external_state_files=None,
     )
+
+    def _pr_stage1_primary(packet: Path) -> None:
+        old_primary = packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md"
+        new_primary = packet / "USER Review" / bundle.PR_READINESS_STAGE1_REVIEW_FILE
+        old_primary.rename(new_primary)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8").replace(
+                "Current Gate: `Systemic false-green regression fixture review`",
+                "Current Gate: `PR Readiness Stage 1 repair review`",
+            ).replace(
+                "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md",
+                f"USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}",
+            ),
+            encoding="utf-8",
+        )
+        new_primary.write_text(
+            "\n".join(
+                [
+                    "# PR Readiness Stage 1 Review",
+                    "",
+                    "## Review Status",
+                    "Reviewable.",
+                    "## Contract Status",
+                    "Complete - current-gate artifact, not BP2.",
+                    "## Packet Reviewability State",
+                    "Reviewable.",
+                    "## USER Gate State",
+                    "Pending USER Review.",
+                    "## Current-Gate Purpose",
+                    "PR Readiness Stage 1 repair review for systemic false-green regression coverage.",
+                    "## Scope And Authority",
+                    "Governance repair scope.",
+                    "## Transition-Safety Review",
+                    "Target and snapshot proof.",
+                    "## Adversarial And False-Green Review",
+                    "Mutation and packet-class coverage.",
+                    "## Stage 1 Outcome",
+                    "PR Readiness Stage 1 Repair Required.",
+                    "## Exact USER Decision Supported",
+                    "Review this Stage 1 repair. This current-gate artifact explains why structural packet parity, generated support files, and helper output are evidence rather than acceptance. It records the transition-safety checks, false-green regression classes, and remaining USER decision boundary so the packet cannot silently present BP2 planning context as PR Readiness. The review remains bounded to Governance source truth, reusable helper behavior, validator coverage, and adversarial fixtures. No implementation, PR creation, merge, release, issue mutation, or sibling worktree action is authorized by this review surface.",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "pr-stage1-dedicated-primary",
+        _pr_stage1_primary,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
+    def _pr_stage1_missing_primary(packet: Path) -> None:
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8").replace(
+                "Current Gate: `Systemic false-green regression fixture review`",
+                "Current Gate: `PR Readiness Stage 1 repair review`",
+            ).replace(
+                "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md",
+                f"USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}",
+            ),
+            encoding="utf-8",
+        )
+
+    _assert_failure(
+        "pr-stage1-primary-missing",
+        "does not identify the primary USER review file",
+        _pr_stage1_missing_primary,
+    )
     _assert_failure(
         "wrong-primary-reference",
         "stale primary/current decision file",

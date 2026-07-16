@@ -147,6 +147,45 @@ def _first_markdown_field(text: str, fields: tuple[str, ...]) -> str | None:
     return None
 
 
+def _live_header_text(text: str) -> str:
+    """Restrict currentness parsing to the live header before receipt sections."""
+
+    lines = text.splitlines(keepends=True)
+    live_end = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n").startswith("## ")
+        ),
+        len(lines),
+    )
+    return "".join(lines[:live_end])
+
+
+def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
+    values: list[tuple[str, str]] = []
+    for field in fields:
+        value = markdown_field_value(text, field)
+        if value:
+            values.append((field, value))
+    return values
+
+
+def _field_alias_failures(
+    relative: str,
+    text: str,
+    fields: tuple[str, ...],
+) -> list[str]:
+    values = _markdown_field_values(text, fields)
+    normalized = {value.strip().casefold() for _field, value in values}
+    if len(normalized) <= 1:
+        return []
+    rendered = ", ".join(f"{field}={value!r}" for field, value in values)
+    return [
+        f"Target Currentness: conflicting live aliases for {relative}: {rendered}"
+    ]
+
+
 def _has_reparse_point(path: Path) -> bool:
     try:
         if os.path.islink(path):
@@ -168,8 +207,14 @@ def _resolve_target_path(root: Path, raw_target: str) -> tuple[str | None, Path 
         failures.append(f"Target Path Security: absolute/off-root target is forbidden: {raw_target}")
         return None, None, failures
     normalized = raw.replace("\\", "/")
-    parts = [part for part in normalized.split("/") if part]
-    if not parts or any(part in {"..", "."} for part in parts):
+    parts = normalized.split("/")
+    if (
+        not parts
+        or any(part in {"", "..", "."} for part in parts)
+        or "/" in raw and "\\" in raw
+        or normalized.endswith("/")
+        or any(":" in part for part in parts)
+    ):
         failures.append(f"Target Path Security: traversal or alias segments are forbidden: {raw_target}")
         return None, None, failures
     relative = "/".join(parts)
@@ -260,12 +305,19 @@ def validate_target_currentness(
     if failures:
         return failures
 
-    schema = markdown_field_value(text, "External State Schema")
+    live_text = _live_header_text(text)
+    failures.extend(_field_alias_failures(relative, live_text, ("Branch", "Current Branch")))
+    failures.extend(_field_alias_failures(relative, live_text, ("Source Repo HEAD", "Current HEAD")))
+    failures.extend(_field_alias_failures(relative, live_text, ("Origin/Main", "Source origin/main")))
+    if failures:
+        return failures
+
+    schema = markdown_field_value(live_text, "External State Schema")
     if schema != expected_schema:
         failures.append(
             f"External State Schema Conflict: {relative}: expected {expected_schema}, found {schema or 'MISSING'}"
         )
-    record_class = _normalized_windows_value(markdown_field_value(text, "Record Class")).replace("\\", " ")
+    record_class = _normalized_windows_value(markdown_field_value(live_text, "Record Class")).replace("\\", " ")
     if record_class in TARGET_HISTORICAL_RECORD_CLASSES or "historical receipt" in record_class:
         failures.append(f"Target Currentness: historical receipt cannot be selected as live state: {relative}")
     elif record_class not in TARGET_LIVE_RECORD_CLASSES:
@@ -274,11 +326,11 @@ def validate_target_currentness(
             f"{record_class or 'MISSING'}"
         )
 
-    actual_branch = _first_markdown_field(text, ("Branch", "Current Branch"))
-    actual_head = _first_markdown_field(text, ("Source Repo HEAD", "Current HEAD"))
-    actual_origin = _first_markdown_field(text, ("Origin/Main", "Source origin/main"))
-    actual_worktree = markdown_field_value(text, "Worktree Path")
-    actual_slot = markdown_field_value(text, "Slot ID")
+    actual_branch = _first_markdown_field(live_text, ("Branch", "Current Branch"))
+    actual_head = _first_markdown_field(live_text, ("Source Repo HEAD", "Current HEAD"))
+    actual_origin = _first_markdown_field(live_text, ("Origin/Main", "Source origin/main"))
+    actual_worktree = markdown_field_value(live_text, "Worktree Path")
+    actual_slot = markdown_field_value(live_text, "Slot ID")
     for label, actual, expected, normalizer in (
         ("Branch", actual_branch, expected_branch, lambda value: (value or "").strip()),
         ("Source Repo HEAD", actual_head, expected_source_head, lambda value: (value or "").strip().casefold()),
@@ -293,9 +345,9 @@ def validate_target_currentness(
                 f"Target Currentness: {relative} {label} mismatch: expected {expected!r}, found {actual!r}"
             )
 
-    if markdown_field_value(text, "Record Role") is None:
+    if markdown_field_value(live_text, "Record Role") is None:
         failures.append(f"Target Currentness: {relative} is missing Record Role classification")
-    if markdown_field_value(text, "Historical Receipt Boundary") is None:
+    if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
     return failures
 

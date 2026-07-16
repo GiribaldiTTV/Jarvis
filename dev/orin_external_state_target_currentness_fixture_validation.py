@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import tempfile
+import time
 from pathlib import Path
 
 import orin_external_state_validation as validator
@@ -84,6 +86,46 @@ def _expectations(target: Path) -> dict[str, str]:
         "expected_worktree_slot": SLOT,
         "expected_target_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
     }
+
+
+def _snapshot(
+    root: Path,
+    target: Path,
+    name: str,
+    *,
+    include_target: bool = True,
+    snapshot_bytes: bytes | None = None,
+    manifest_root: str | None = None,
+    manifest_hash: str | None = None,
+) -> Path:
+    snapshot = root / "snapshots" / name
+    snapshot.mkdir(parents=True)
+    if include_target:
+        snapshot_target = snapshot / TARGET.replace("/", "\\")
+        snapshot_target.parent.mkdir(parents=True, exist_ok=True)
+        snapshot_target.write_bytes(snapshot_bytes if snapshot_bytes is not None else target.read_bytes())
+    target_hash = manifest_hash
+    if target_hash is None and include_target:
+        target_hash = hashlib.sha256(
+            (snapshot / TARGET.replace("/", "\\")).read_bytes()
+        ).hexdigest()
+    atomic_write_json(
+        snapshot / "snapshot_manifest.json",
+        {
+            "External State Schema": "external-state-v1",
+            "State Version": 1,
+            "Last Updated": "2026-01-01T00:00:00Z",
+            "Last Updated By": "fixture",
+            "Root": manifest_root or str(root.resolve()),
+            "Copied Files": [
+                {
+                    "path": TARGET,
+                    "sha256": target_hash or "",
+                }
+            ],
+        },
+    )
+    return snapshot
 
 
 def _run(root: Path, targets: list[str] | None = None, **overrides: str | None) -> list[str]:
@@ -170,6 +212,27 @@ def main() -> int:
             "exactly one explicit target",
             validator.validate_target_currentness(root, [TARGET, TARGET], **_expectations(target)),
         )
+        for alias_target, label in (
+            ("worktrees//Governance/worktree_state.md", "repeated separator"),
+            ("worktrees/Governance/worktree_state.md/", "trailing separator"),
+            ("worktrees\\Governance/worktree_state.md", "mixed separator"),
+            ("worktrees/Governance/worktree_state.md:stream", "alternate stream"),
+        ):
+            _assert_failure(
+                label,
+                "traversal or alias",
+                validator.validate_target_currentness(root, [alias_target], **_expectations(target)),
+            )
+
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "Branch: `feature/release-readiness-source-truth-intake`\nCurrent Branch: `feature/wrong-alias`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure("conflicting live aliases", "conflicting live aliases", _run(root))
+        _record(root)
 
         _record(root, record_class="Historical Receipt")
         _assert_failure("historical receipt selected as live", "historical receipt", _run(root))
@@ -211,8 +274,7 @@ def main() -> int:
             encoding="utf-8",
         )
         snapshot = root / "snapshots" / "fixture-snapshot"
-        snapshot.mkdir(parents=True)
-        (snapshot / "state_manifest.json").write_text("snapshot\n", encoding="utf-8")
+        _snapshot(root, target, snapshot.name)
         lock_id = "worktree-fixture-lock"
         atomic_write_json(
             root / "locks" / f"{lock_id}.json",
@@ -233,7 +295,7 @@ def main() -> int:
             lock_id=lock_id,
             snapshot="snapshots/fixture-snapshot",
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
-            additions=[],
+            additions=["Added Fixture Field=added"],
             apply=False,
             **expectations,
         )
@@ -244,7 +306,7 @@ def main() -> int:
             lock_id=lock_id,
             snapshot="snapshots/fixture-snapshot",
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
-            additions=[],
+            additions=["Added Fixture Field=added"],
             apply=True,
             **expectations,
         )
@@ -252,8 +314,154 @@ def main() -> int:
             raise AssertionError("target writer apply did not produce an audited transition:\n" + "\n".join(messages))
         if "2026-01-02T00:00:00Z" not in target.read_text(encoding="utf-8"):
             raise AssertionError("target writer apply reported success without changing the requested field")
+        audit_payload = json.loads(audit.read_text(encoding="utf-8"))
+        if "Added Fixture Field" not in audit_payload["Changed Fields"]:
+            raise AssertionError("target writer audit omitted an added field")
+        added_detail = next(
+            item
+            for item in audit_payload["Changed Field Details"]
+            if item["Field"] == "Added Fixture Field"
+        )
+        if added_detail["Before"] != "MISSING":
+            raise AssertionError("target writer audit did not preserve MISSING before-state for an added field")
         if "historical-receipt-head" not in target.read_text(encoding="utf-8"):
             raise AssertionError("target writer changed a historical receipt while updating the live header")
+
+        historical_only_field = "Historical-Only Fixture Field"
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + f"\n## Historical Receipt\n{historical_only_field}: `historical-value`\n",
+            encoding="utf-8",
+        )
+        historical_lock_id = "worktree-fixture-historical-field"
+        atomic_write_json(
+            root / "locks" / f"{historical_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": historical_lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        historical_snapshot = _snapshot(root, target, "fixture-historical-only-field")
+        historical_expectations = _expectations(target)
+        historical_expectations["expected_source_head"] = HEAD
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=historical_lock_id,
+            snapshot=historical_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-02T00:00:01Z"],
+            additions=[f"{historical_only_field}=new-live-value"],
+            apply=True,
+            **historical_expectations,
+        )
+        if not ok or audit is None:
+            raise AssertionError("target writer could not add a field shadowed only by historical state:\n" + "\n".join(messages))
+        historical_payload = json.loads(audit.read_text(encoding="utf-8"))
+        historical_detail = next(
+            item for item in historical_payload["Changed Field Details"]
+            if item["Field"] == historical_only_field
+        )
+        if historical_detail["Before"] != "MISSING" or historical_detail["After"] != "new-live-value":
+            raise AssertionError("target writer audit treated a historical field as live state")
+
+        negative_cases = [
+            (
+                "missing snapshot target",
+                _snapshot(root, target, "fixture-missing-target", include_target=False),
+                "snapshot does not contain target",
+            ),
+            (
+                "wrong snapshot target hash",
+                _snapshot(root, target, "fixture-wrong-target-hash", snapshot_bytes=b"wrong snapshot bytes"),
+                "snapshot target hash mismatch",
+            ),
+            (
+                "snapshot from another root",
+                _snapshot(root, target, "fixture-wrong-root", manifest_root=str(root / "other-root")),
+                "snapshot root mismatch",
+            ),
+        ]
+        for label, invalid_snapshot, needle in negative_cases:
+            invalid_expectations = _expectations(target)
+            ok, invalid_messages, _ = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot=invalid_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-05T00:00:00Z"],
+                additions=[],
+                apply=False,
+                **invalid_expectations,
+            )
+            if ok or not any(needle in item for item in invalid_messages):
+                raise AssertionError(f"{label} was accepted:\n" + "\n".join(invalid_messages))
+
+        future_snapshot = _snapshot(root, target, "fixture-future-snapshot")
+        future_time = time.time() + 60
+        os.utime(future_snapshot / "snapshot_manifest.json", (future_time, future_time))
+        future_expectations = _expectations(target)
+        ok, future_messages, _ = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=future_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-06T00:00:00Z"],
+            additions=[],
+            apply=False,
+            **future_expectations,
+        )
+        if ok or not any("snapshot was created after the transition began" in item for item in future_messages):
+            raise AssertionError("future snapshot was accepted:\n" + "\n".join(future_messages))
+
+        valid_alias_snapshot = _snapshot(root, target, "fixture-snapshot-alias")
+        for alias in ("snapshots//fixture-snapshot-alias", "snapshots\\fixture-snapshot-alias\\"):
+            alias_expectations = _expectations(target)
+            ok, alias_messages, _ = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot=alias,
+                assignments=["Last Updated=2026-01-07T00:00:00Z"],
+                additions=[],
+                apply=False,
+                **alias_expectations,
+            )
+            if ok or not any("Snapshot path must remain relative" in item for item in alias_messages):
+                raise AssertionError(f"snapshot path alias was accepted ({alias}):\n" + "\n".join(alias_messages))
+
+        rollback_lock_id = "worktree-fixture-rollback"
+        atomic_write_json(
+            root / "locks" / f"{rollback_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": rollback_lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        rollback_snapshot = _snapshot(root, target, "fixture-rollback")
+        rollback_before = target.read_bytes()
+        rollback_expectations = _expectations(target)
+        rollback_expectations["expected_source_head"] = HEAD
+        ok, rollback_messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=rollback_lock_id,
+            snapshot=rollback_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-08T00:00:00Z"],
+            additions=[],
+            apply=True,
+            post_expected_source_head="f" * 40,
+            **rollback_expectations,
+        )
+        if ok or audit is not None or target.read_bytes() != rollback_before or not any("Post-write target validation" in item for item in rollback_messages):
+            raise AssertionError("post-write validation failure did not roll back without audit:\n" + "\n".join(rollback_messages))
         released, release_messages = lock_release.release_lock(
             root, lock_id, "fixture transition complete", apply=True
         )
@@ -273,11 +481,12 @@ def main() -> int:
             },
         )
         new_head = "d" * 40
+        transition_snapshot = _snapshot(root, target, "fixture-head-transition-snapshot")
         ok, messages, _ = reconciler.reconcile_target(
             root=root,
             target=TARGET,
             lock_id=transition_lock_id,
-            snapshot="snapshots/fixture-snapshot",
+            snapshot=transition_snapshot.relative_to(root).as_posix(),
             assignments=[f"Source Repo HEAD={new_head}"],
             additions=[],
             apply=True,
@@ -291,6 +500,43 @@ def main() -> int:
         )
         if not released:
             raise AssertionError("head-transition lock release fixture failed:\n" + "\n".join(release_messages))
+
+        adversarial_lock_id = "worktree-fixture-adversarial"
+        atomic_write_json(
+            root / "locks" / f"{adversarial_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": adversarial_lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        adversarial_snapshot = _snapshot(root, target, "fixture-adversarial-snapshot")
+        original_hook = reconciler._before_atomic_replacement_check
+
+        def mutate_before_final_reread(path: Path, _expected_hash: str) -> None:
+            path.write_text(path.read_text(encoding="utf-8") + "intervening edit\n", encoding="utf-8")
+
+        reconciler._before_atomic_replacement_check = mutate_before_final_reread
+        try:
+            adversarial_expectations = _expectations(target)
+            adversarial_expectations["expected_source_head"] = "d" * 40
+            ok, messages, audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=adversarial_lock_id,
+                snapshot=adversarial_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-04T00:00:00Z"],
+                additions=[],
+                apply=True,
+                **adversarial_expectations,
+            )
+        finally:
+            reconciler._before_atomic_replacement_check = original_hook
+        if ok or audit is not None or not any("changed between validation and atomic replacement" in item for item in messages):
+            raise AssertionError("target writer accepted an intervening target edit: " + " | ".join(messages))
 
         missing_lock_ok, missing_lock_messages, _ = reconciler.reconcile_target(
             root=root,

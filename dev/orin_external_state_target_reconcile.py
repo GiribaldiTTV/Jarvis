@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
+import time
 from pathlib import Path
 from pathlib import PureWindowsPath
 
@@ -68,14 +69,19 @@ def _safe_relative_path(root: Path, raw: str, label: str) -> tuple[Path | None, 
     failures: list[str] = []
     windows = PureWindowsPath(raw)
     candidate = resolve_path(root / raw)
-    parts = [part for part in raw.replace("\\", "/").split("/") if part]
+    normalized = raw.replace("\\", "/")
+    parts = normalized.split("/")
     if (
         not raw
         or Path(raw).is_absolute()
         or windows.is_absolute()
         or windows.drive
         or windows.root
+        or any(part == "" for part in parts)
         or any(part in {".", ".."} for part in parts)
+        or ("/" in raw and "\\" in raw)
+        or normalized.endswith("/")
+        or any(":" in part for part in parts)
         or not is_relative_to(candidate, root.resolve())
     ):
         failures.append(f"{label} must remain relative and confined to the external root: {raw!r}")
@@ -153,7 +159,6 @@ def _replace_existing_fields(
             index
             for index, line in enumerate(lines)
             if line.rstrip("\r\n").startswith("## ")
-            and "receipt" in line.rstrip("\r\n").casefold()
         ),
         len(lines),
     )
@@ -186,6 +191,86 @@ def _replace_existing_fields(
     return "".join(lines), failures
 
 
+def _snapshot_failures(
+    *,
+    root: Path,
+    snapshot_path: Path,
+    relative: str,
+    expected_target_sha256: str,
+    transition_started_ns: int,
+) -> list[str]:
+    failures: list[str] = []
+    manifest_path = snapshot_path / "snapshot_manifest.json"
+    if not manifest_path.is_file():
+        return [f"Transition Snapshot Contract: snapshot manifest is missing: {manifest_path}"]
+    try:
+        manifest = load_json(manifest_path)
+    except Exception as exc:  # noqa: BLE001 - malformed recovery evidence must block
+        return [f"Transition Snapshot Contract: snapshot manifest is unreadable: {exc}"]
+    manifest_root = str(manifest.get("Root", "")).replace("/", "\\").rstrip("\\").casefold()
+    expected_root = str(root.resolve()).replace("/", "\\").rstrip("\\").casefold()
+    if manifest_root != expected_root:
+        failures.append(
+            f"Transition Snapshot Contract: snapshot root mismatch: expected {root}, found {manifest.get('Root', 'MISSING')}"
+        )
+    if manifest_path.stat().st_mtime_ns > transition_started_ns:
+        failures.append("Transition Snapshot Contract: snapshot was created after the transition began")
+    snapshot_target = snapshot_path / Path(*relative.split("/"))
+    if not snapshot_target.is_file():
+        failures.append(f"Transition Snapshot Contract: snapshot does not contain target: {relative}")
+    else:
+        snapshot_hash = sha256_file(snapshot_target)
+        if snapshot_hash.casefold() != expected_target_sha256.casefold():
+            failures.append(
+                f"Transition Snapshot Contract: snapshot target hash mismatch for {relative}: "
+                f"expected {expected_target_sha256}, found {snapshot_hash}"
+            )
+    copied = manifest.get("Copied Files", [])
+    copied_hash = None
+    if isinstance(copied, list):
+        for entry in copied:
+            if isinstance(entry, dict) and str(entry.get("path", "")).replace("\\", "/") == relative:
+                copied_hash = str(entry.get("sha256", ""))
+                break
+    if copied_hash is None:
+        failures.append(f"Transition Snapshot Contract: manifest omits target copy: {relative}")
+    elif copied_hash.casefold() != expected_target_sha256.casefold():
+        failures.append(
+            f"Transition Snapshot Contract: manifest target hash mismatch for {relative}: "
+            f"expected {expected_target_sha256}, found {copied_hash}"
+        )
+    return failures
+
+
+def _before_atomic_replacement_check(_target_path: Path, _expected_hash: str) -> None:
+    """Test seam for adversarial mutation between preparation and the final reread."""
+
+
+def _live_header_text(text: str) -> str:
+    """Restrict audit field lookup to live fields before historical receipts."""
+
+    lines = text.splitlines(keepends=True)
+    live_end = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n").startswith("## ")
+        ),
+        len(lines),
+    )
+    return "".join(lines[:live_end])
+
+
+def _live_field_value(text: str, field: str) -> str:
+    for line in _live_header_text(text).splitlines():
+        if re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", line):
+            value = re.sub(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", "", line).strip()
+            if value.startswith("`") and value.endswith("`"):
+                return value[1:-1]
+            return value
+    return "MISSING"
+
+
 def _non_updated_lines(text: str, fields: set[str]) -> list[str]:
     result: list[str] = []
     for line in text.splitlines(keepends=True):
@@ -214,6 +299,7 @@ def reconcile_target(
     post_expected_source_head: str | None = None,
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
+    transition_started_ns = time.time_ns()
     failures = validate_canonical_root(root)
     failures.extend(validate_initialized_root(root))
     if failures:
@@ -240,6 +326,18 @@ def reconcile_target(
     if failures:
         return False, failures, None
 
+    failures.extend(
+        _snapshot_failures(
+            root=root,
+            snapshot_path=snapshot_path,
+            relative=relative,
+            expected_target_sha256=expected_target_sha256,
+            transition_started_ns=transition_started_ns,
+        )
+    )
+    if failures:
+        return False, failures, None
+
     pre_validation = validate_target_currentness(
         root,
         [target],
@@ -263,13 +361,18 @@ def reconcile_target(
         return False, [f"Pre-write target validation: {item}" for item in pre_validation], None
 
     before_text = target_path.read_text(encoding="utf-8")
+    before_hash = sha256_file(target_path)
+    if before_hash.casefold() != expected_target_sha256.casefold():
+        return False, [
+            "Pre-write target bytes changed after validation; no replacement performed: "
+            f"expected {expected_target_sha256}, found {before_hash}"
+        ], None
     after_text, replacement_failures = _replace_existing_fields(before_text, updates, additions_map)
     if replacement_failures:
         return False, replacement_failures, None
     changed_fields = set(updates) | set(additions_map)
     if _non_updated_lines(before_text, changed_fields) != _non_updated_lines(after_text, changed_fields):
         return False, ["No-loss comparison failed: an unselected target line changed"], None
-    before_hash = sha256_file(target_path)
     after_hash = hashlib.sha256(after_text.encode("utf-8")).hexdigest()
 
     if not apply:
@@ -280,6 +383,14 @@ def reconcile_target(
             "No write performed; omit --apply was honored",
         ], None
 
+    _before_atomic_replacement_check(target_path, before_hash)
+    final_before_text = target_path.read_text(encoding="utf-8")
+    final_before_hash = sha256_file(target_path)
+    if final_before_hash.casefold() != before_hash.casefold() or final_before_text != before_text:
+        return False, [
+            "Target changed between validation and atomic replacement; no replacement performed: "
+            f"expected {before_hash}, found {final_before_hash}"
+        ], None
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)
     post_source_head = post_expected_source_head or expected_source_head
@@ -298,6 +409,14 @@ def reconcile_target(
         return False, [f"Post-write target validation: {item}" for item in post_validation], None
 
     audit_path = root / "audit_log" / f"target-currentness-{new_lock_id('audit')}.json"
+    changed_field_details = [
+        {
+            "Field": field,
+            "Before": _live_field_value(before_text, field),
+            "After": _live_field_value(after_text, field),
+        }
+        for field in sorted(changed_fields)
+    ]
     audit_payload = {
         "External State Schema": DEFAULT_SCHEMA_VERSION,
         "Transition": "Target-scoped live projection reconciliation",
@@ -306,7 +425,18 @@ def reconcile_target(
         "Snapshot": snapshot,
         "Before SHA256": before_hash,
         "After SHA256": actual_after_hash,
-        "Changed Fields": sorted(updates),
+        "Changed Fields": sorted(changed_fields),
+        "Replaced Fields": sorted(updates),
+        "Added Fields": sorted(additions_map),
+        "Changed Field Details": changed_field_details,
+        "Source Identity": {
+            "Branch": expected_branch,
+            "Before Source Repo HEAD": expected_source_head,
+            "After Source Repo HEAD": post_source_head,
+            "Origin/Main": expected_origin_main,
+            "Worktree Path": expected_worktree_path,
+            "Slot ID": expected_worktree_slot,
+        },
         "Branch": expected_branch,
         "Before Source Repo HEAD": expected_source_head,
         "After Source Repo HEAD": post_source_head,

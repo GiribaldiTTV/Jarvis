@@ -890,3 +890,16 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/phase_governance.md`
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
+## Incident Pattern: False-Green Transition And Current-Gate Misclassification
+
+When a target-scoped external-state writer validates a record, prepares a
+replacement, or reports a structurally valid packet without proving the final
+target bytes, recovery snapshot, alias agreement, changed-field audit, and
+current-gate artifact class, the result is a false green. The same pattern
+appears when a BP2 Branch Plan file is promoted as the primary PR Readiness
+Stage 1 decision surface. Prevention requires immediate pre-replacement hash
+and byte checks, a same-root snapshot containing the exact pre-write target,
+fail-closed path and alias handling, audit details for every added or replaced
+field, adversarial mutation fixtures, and a dedicated
+`PR_READINESS_STAGE1_REVIEW.md` primary packet artifact. ZIP parity or helper
+green alone does not clear this incident class.

@@ -1848,6 +1848,16 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Stage 2 Green-Light Decision Needed:
 ```
 
+For a PR Readiness Stage 1 packet, `USER Review/PR_READINESS_STAGE1_REVIEW.md` is the
+primary current-gate USER artifact. `USER_BRANCH_VISION_REVIEW.md` and
+`USER_BRANCH_PLAN_REVIEW.md` remain supporting BP1/BP2 context and must not be
+selected as the primary Stage 1 decision file. The Stage 1 artifact must state
+the current outcome, repair posture, transition-safety proof, adversarial or
+false-green coverage, USER Gate State, and exact USER decision supported. A
+packet that is structurally valid but promotes a BP2 file as the Stage 1
+primary is `PR Readiness Stage 1 Repair Required` and cannot advance on ZIP
+parity alone.
+
 Selected-next fields in this packet are validation/status fields, not a request for PR Readiness to create successor truth. `Optional Next Branch Block:` must be `Not in scope` unless USER explicitly requested PR-time successor selection, selected-next truth already exists, or Branch Readiness is the next legal phase.
 
 Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
