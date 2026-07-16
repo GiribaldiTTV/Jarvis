@@ -500,6 +500,24 @@ def main() -> int:
             encoding="utf-8",
         ),
     )
+    def _pending_stage1_packet(packet: Path) -> None:
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\nDecision Path Summary: PR Readiness Stage 1 analysis remains pending USER approval; PR creation remains pending USER approval.\n"
+            + "USER Decision: I approve or reject fresh PR Readiness Stage 1 analysis. This does not authorize PR Stage 2, PR creation, merge, or release.\n",
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "USER_BRANCH_PLAN_REVIEW.md").write_text(
+            "Option A - Approve PR Readiness Stage 1 analysis as recommended.\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "pending-stage1-posture-allows-stage1-language",
+        _pending_stage1_packet,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
     _assert_failure(
         "wrong-primary-reference",
         "stale primary/current decision file",
