@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "fam003-r2-scope-audit-negative-cases-v1",
+  "cases": [
+    {
+      "id": "missing_changed_file",
+      "expectedFailure": "Git-to-ledger path mismatch"
+    },
+    {
+      "id": "grouped_path_label",
+      "expectedFailure": "grouped changed-file label is forbidden"
+    },
+    {
+      "id": "missing_commit_mapping",
+      "expectedFailure": "required field commits is missing or empty"
+    },
+    {
+      "id": "missing_shared_owner_classification",
+      "expectedFailure": "shared validator row lacks sharedValidatorAudit"
+    },
+    {
+      "id": "full_workstream_range_conflation",
+      "expectedFailure": "Workstream/full-branch delta conflation"
+    },
+    {
+      "id": "missing_slice_slc_seam_traceability",
+      "expectedFailure": "required field sliceSlcSeamTraceability is missing or empty"
+    },
+    {
+      "id": "silent_rename_delete_omission",
+      "expectedFailure": "renamed/copied row lacks previousPath"
+    },
+    {
+      "id": "wrong_final_head",
+      "expectedFailure": "head mismatch"
+    }
+  ]
+}

@@ -1242,6 +1242,209 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _fam003_r2_workstream_completion_scope_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Reject grouped or Git-incoherent FAM-003 R2 completion ledgers."""
+
+    primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md"
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = packet_files.get(primary_path, "")
+    if not primary and primary_path.casefold() not in start_here.casefold():
+        return []
+
+    failures: list[str] = []
+    required_files = (
+        f"{REVIEW_AIDS_DIR_NAME}/EXACT_CHANGED_FILE_LEDGER.json",
+        f"{REVIEW_AIDS_DIR_NAME}/FULL_BRANCH_CHANGED_FILE_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/WORKSTREAM_CHANGED_FILE_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/COMMIT_BY_COMMIT_AUDIT.md",
+        f"{REVIEW_AIDS_DIR_NAME}/SHARED_VALIDATOR_OWNERSHIP_AUDIT.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Git Audit/full_branch_delta.json",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Git Audit/workstream_delta.json",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Git Audit/commit_by_commit.json",
+    )
+    for file_name in required_files:
+        if not packet_files.get(file_name):
+            failures.append(f"{file_name}: required FAM-003 R2 scope-audit artifact is missing")
+    if failures:
+        return failures
+
+    def load_json(file_name: str) -> dict[str, object] | None:
+        try:
+            value = json.loads(packet_files[file_name])
+        except (json.JSONDecodeError, TypeError) as exc:
+            failures.append(f"{file_name}: invalid JSON: {exc}")
+            return None
+        if not isinstance(value, dict):
+            failures.append(f"{file_name}: expected a JSON object")
+            return None
+        return value
+
+    ledger_name = f"{REVIEW_AIDS_DIR_NAME}/EXACT_CHANGED_FILE_LEDGER.json"
+    full_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Git Audit/full_branch_delta.json"
+    workstream_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Git Audit/workstream_delta.json"
+    commits_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Git Audit/commit_by_commit.json"
+    ledger = load_json(ledger_name)
+    full_delta = load_json(full_name)
+    workstream_delta = load_json(workstream_name)
+    commit_audit = load_json(commits_name)
+    if None in (ledger, full_delta, workstream_delta, commit_audit):
+        return failures
+    assert ledger is not None
+    assert full_delta is not None
+    assert workstream_delta is not None
+    assert commit_audit is not None
+
+    rows = ledger.get("files")
+    full_changed = full_delta.get("changedFiles")
+    workstream_changed = workstream_delta.get("changedFiles")
+    full_commits = full_delta.get("commits")
+    workstream_commits = workstream_delta.get("commits")
+    if not isinstance(rows, list):
+        failures.append(f"{ledger_name}: files must be a list")
+        return failures
+    if not isinstance(full_changed, list) or not isinstance(workstream_changed, list):
+        failures.append("Git Audit delta JSON must contain changedFiles lists")
+        return failures
+    if not isinstance(full_commits, list) or not isinstance(workstream_commits, list):
+        failures.append("Git Audit delta JSON must contain commit-by-commit lists")
+        return failures
+
+    required_row_fields = (
+        "path",
+        "status",
+        "commits",
+        "changeCategory",
+        "sourceTruthOwner",
+        "legalCarrierBasis",
+        "whyChanged",
+        "sliceSlcSeamTraceability",
+        "behaviorAffected",
+        "overlapRisk",
+        "validationPerformed",
+        "rollbackConsideration",
+        "deltaMembership",
+        "disposition",
+    )
+    shared_fields = (
+        "legalCarrier",
+        "repairsStaleFam003Only",
+        "altersFam006Expectation",
+        "weakensFailure",
+        "crossFamilyDrift",
+        "falseGreenPrevention",
+        "fam006Carryforward",
+    )
+    grouped_markers = (
+        "shared validators",
+        "existing helpers",
+        "runtime files",
+        "proof artifacts",
+        "etc.",
+    )
+    row_by_path: dict[str, dict[str, object]] = {}
+    for index, value in enumerate(rows):
+        if not isinstance(value, dict):
+            failures.append(f"{ledger_name}: files[{index}] must be an object")
+            continue
+        path = value.get("path")
+        if not isinstance(path, str) or not path:
+            failures.append(f"{ledger_name}: files[{index}] lacks an exact path")
+            continue
+        if path in row_by_path:
+            failures.append(f"{ledger_name}: duplicate changed-file row {path}")
+        row_by_path[path] = value
+        if any(marker in path.casefold() for marker in grouped_markers):
+            failures.append(f"{ledger_name}: grouped changed-file label is forbidden: {path}")
+        for field in required_row_fields:
+            field_value = value.get(field)
+            if field_value is None or field_value == "" or field_value == []:
+                failures.append(f"{ledger_name}: {path} lacks required field {field}")
+        if value.get("status") in {"renamed", "copied"} and not value.get("previousPath"):
+            failures.append(f"{ledger_name}: {path} renamed/copied row lacks previousPath")
+        if value.get("changeCategory") == "shared validator":
+            shared = value.get("sharedValidatorAudit")
+            if not isinstance(shared, dict):
+                failures.append(f"{ledger_name}: {path} shared validator lacks owner/scope audit")
+            else:
+                for field in shared_fields:
+                    if not shared.get(field):
+                        failures.append(
+                            f"{ledger_name}: {path} sharedValidatorAudit.{field} is missing"
+                        )
+
+    def changed_map(values: list[object], label: str) -> dict[str, dict[str, object]]:
+        result: dict[str, dict[str, object]] = {}
+        for index, value in enumerate(values):
+            if not isinstance(value, dict) or not isinstance(value.get("path"), str):
+                failures.append(f"{label}: changedFiles[{index}] lacks an exact path")
+                continue
+            result[value["path"]] = value
+        return result
+
+    full_map = changed_map(full_changed, full_name)
+    workstream_map = changed_map(workstream_changed, workstream_name)
+    if set(row_by_path) != set(full_map):
+        failures.append(
+            "FAM-003 R2 packet Git-to-ledger path mismatch: "
+            f"missing={sorted(set(full_map) - set(row_by_path))} "
+            f"extra={sorted(set(row_by_path) - set(full_map))}"
+        )
+    ledger_workstream_paths = {
+        path for path, row in row_by_path.items() if row.get("inWorkstreamDelta") is True
+    }
+    if ledger_workstream_paths != set(workstream_map):
+        failures.append(
+            "FAM-003 R2 packet conflates full-branch and Workstream deltas: "
+            f"missing={sorted(set(workstream_map) - ledger_workstream_paths)} "
+            f"extra={sorted(ledger_workstream_paths - set(workstream_map))}"
+        )
+    if ledger.get("fullBranchChangedFileCount") != len(full_map):
+        failures.append(f"{ledger_name}: fullBranchChangedFileCount differs from Git Audit")
+    if ledger.get("workstreamChangedFileCount") != len(workstream_map):
+        failures.append(f"{ledger_name}: workstreamChangedFileCount differs from Git Audit")
+
+    full_commit_hashes = {
+        value.get("hash") for value in full_commits if isinstance(value, dict)
+    }
+    workstream_commit_hashes = {
+        value.get("hash") for value in workstream_commits if isinstance(value, dict)
+    }
+    for path in sorted(set(row_by_path) & set(full_map)):
+        row = row_by_path[path]
+        git_row = full_map[path]
+        if row.get("statusCode") != git_row.get("code"):
+            failures.append(f"{ledger_name}: {path} status differs from Git Audit")
+        row_commits = row.get("commits")
+        if not isinstance(row_commits, list) or not row_commits:
+            failures.append(f"{ledger_name}: {path} commit mapping is missing")
+        elif any(commit not in full_commit_hashes for commit in row_commits):
+            failures.append(f"{ledger_name}: {path} references a commit outside the full branch audit")
+        if path in workstream_map and not any(
+            commit in workstream_commit_hashes for commit in (row_commits or [])
+        ):
+            failures.append(f"{ledger_name}: {path} lacks a Workstream commit mapping")
+
+    if commit_audit.get("fullBranchCommits") != full_commits:
+        failures.append(f"{commits_name}: full branch commit inventory differs from full_branch_delta.json")
+    if commit_audit.get("workstreamCommits") != workstream_commits:
+        failures.append(f"{commits_name}: Workstream commit inventory differs from workstream_delta.json")
+    head_values = {
+        value
+        for value in (
+            ledger.get("head"),
+            full_delta.get("head"),
+            workstream_delta.get("head"),
+            commit_audit.get("head"),
+        )
+        if value
+    }
+    if len(head_values) != 1:
+        failures.append(f"FAM-003 R2 packet final pushed HEAD mismatch: {sorted(head_values)}")
+    return failures
+
+
 def _fam003_active_state_excerpt(text: str) -> str:
     """Return active state fields without adjacent historical receipts."""
 
@@ -2981,6 +3184,7 @@ def validate_local_user_packet(
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam003_workstream_review_state_failures(packet_files))
+    failures.extend(_fam003_r2_workstream_completion_scope_failures(packet_files))
     failures.extend(_fam003_hardening_h1_review_state_failures(packet_files))
     failures.extend(_fam003_hardening_h1_traceability_failures(packet_files, export_zip))
     failures.extend(
