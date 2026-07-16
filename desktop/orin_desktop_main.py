@@ -19,6 +19,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 from desktop.core_visualization_renderer import CoreVisualizationWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
+from desktop.monitoring_hud_access import MonitoringHudAccessAdapter
 from desktop.monitoring_hud_state import load_monitoring_hud_state
 from desktop.resident_access import build_resident_access_menu_plan
 from desktop.single_instance import NamedSignal
@@ -79,6 +80,13 @@ class DesktopRuntimeUnavailable(QObject):
         super().__init__()
         self.event_logger = event_logger or (lambda _event: None)
         self.reason = str(reason or "desktop runtime unavailable")
+        self._monitoring_hud_access_adapter = MonitoringHudAccessAdapter(
+            query_state=self.monitoring_hud_feature_state,
+            persist_enabled=lambda _enabled, _source: False,
+            open_or_restore_dashboard=lambda _source: False,
+            close_dashboard=lambda _source: False,
+            event_logger=self._emit,
+        )
         self._emit("RENDERER_MAIN|DESKTOP_RUNTIME_UNAVAILABLE|reason=" + self.reason.replace("|", "/"))
 
     def _emit(self, event):
@@ -150,9 +158,17 @@ class DesktopRuntimeUnavailable(QObject):
         return {
             "feature_enabled": False,
             "dashboard_visible": False,
+            "runtime_available": False,
+            "dashboard_available": False,
+            "resident_route_state": "not_installed",
+            "resident_route_reason": "HUD runtime is unavailable.",
             "overlay_deferred": True,
             "overlay_anchor_enabled": False,
+            "source": "desktop_runtime_unavailable",
         }
+
+    def monitoring_hud_access(self):
+        return self._monitoring_hud_access_adapter
 
     def request_monitoring_hud_toggle_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_ABORTED|source={source}|reason=desktop_runtime_unavailable")
@@ -161,6 +177,11 @@ class DesktopRuntimeUnavailable(QObject):
         self._emit(
             "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED"
             f"|source={source}|visible={str(bool(visible)).lower()}|reason=desktop_runtime_unavailable"
+        )
+        return (
+            self._monitoring_hud_access_adapter.open_or_restore_dashboard(source)
+            if visible
+            else self._monitoring_hud_access_adapter.close_dashboard(source)
         )
 
     def request_monitoring_hud_unanchor_from_tray(self, source="tray"):
@@ -891,9 +912,11 @@ def main():
                 ),
             )
 
-            settings_setup = getattr(window, "_set_monitoring_hud_feature_enabled", None)
+            access_provider = getattr(window, "monitoring_hud_access", None)
+            hud_access = access_provider() if callable(access_provider) else None
+            settings_setup = getattr(hud_access, "set_enabled", None)
             if callable(settings_setup):
-                settings_setup(True, source="real_client_precheck_settings_setup")
+                settings_setup(True, "real_client_precheck_settings_setup")
             tray_entry.refresh_monitoring_hud_actions("real_client_precheck_settings_setup")
             pump(700)
             enabled_state = current_state()
@@ -901,10 +924,8 @@ def main():
                 "settings_setup_admits_hud_route",
                 "Settings/setup-owned HUD admission makes the dashboard route available for tray proof",
                 bool(enabled_state.get("feature_enabled"))
-                and (
-                    "Open HUD Dashboard" in visible_tray_action_texts()
-                    or "Close HUD Dashboard" in visible_tray_action_texts()
-                ),
+                and "Open HUD Dashboard" in visible_tray_action_texts()
+                and "Close HUD Dashboard" not in visible_tray_action_texts(),
                 (
                     f"feature_enabled={enabled_state.get('feature_enabled')} "
                     f"dashboard_visible={enabled_state.get('dashboard_visible')} "
@@ -912,12 +933,14 @@ def main():
                 ),
             )
 
-            tray_entry.request_monitoring_hud_dashboard_from_tray("real_client_precheck_close")
+            close_dashboard = getattr(hud_access, "close_dashboard", None)
+            if callable(close_dashboard):
+                close_dashboard("real_client_precheck_owner_close")
             pump(350)
             closed_state = current_state()
             record_step(
-                "close_dashboard_from_tray",
-                "Tray Close HUD Dashboard hides the real Dashboard without disabling the feature",
+                "owner_bounded_close_keeps_feature_enabled",
+                "Owner-bounded close hides HUD Dashboard without changing enabled resident access",
                 bool(closed_state.get("feature_enabled"))
                 and not bool(closed_state.get("dashboard_visible"))
                 and not bool(window.isVisible()),
@@ -936,8 +959,22 @@ def main():
                 f"feature_enabled={reopened_state.get('feature_enabled')} dashboard_visible={reopened_state.get('dashboard_visible')} window_visible={window.isVisible()}",
             )
 
+            tray_entry.request_monitoring_hud_dashboard_from_tray("real_client_precheck_restore")
+            pump(250)
+            restored_state = current_state()
+            record_step(
+                "restore_dashboard_from_tray",
+                "Repeated tray activation restores or focuses HUD Dashboard and never closes it",
+                bool(restored_state.get("feature_enabled"))
+                and bool(restored_state.get("dashboard_visible"))
+                and bool(window.isVisible())
+                and "Open HUD Dashboard" in visible_tray_action_texts()
+                and "Close HUD Dashboard" not in visible_tray_action_texts(),
+                f"feature_enabled={restored_state.get('feature_enabled')} dashboard_visible={restored_state.get('dashboard_visible')} window_visible={window.isVisible()}",
+            )
+
             if callable(settings_setup):
-                settings_setup(False, source="real_client_precheck_settings_disable")
+                settings_setup(False, "real_client_precheck_settings_disable")
             tray_entry.refresh_monitoring_hud_actions("real_client_precheck_settings_disable")
             pump(500)
             disabled_state = current_state()

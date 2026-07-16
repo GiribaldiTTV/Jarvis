@@ -175,6 +175,15 @@ class DesktopTrayEntry:
                 self.request_shutdown_from_tray,
             )
             self.tray_popup = self.tray_menu
+            access_provider = getattr(self.window, "monitoring_hud_access", None)
+            if callable(access_provider):
+                try:
+                    access = access_provider()
+                    bind_refresh = getattr(access, "bind_tray_refresh", None)
+                    if callable(bind_refresh):
+                        bind_refresh(self._refresh_monitoring_hud_from_adapter)
+                except Exception:
+                    pass
             self.refresh_resident_access_actions("initialize")
             self.refresh_monitoring_hud_actions("initialize")
 
@@ -663,15 +672,20 @@ class DesktopTrayEntry:
         return build_monitoring_hud_route_model(state if isinstance(state, dict) else self._monitoring_hud_state())
 
     def _monitoring_hud_dashboard_menu_text(self, state, route_model, *, compact=False):
-        dashboard_visible = bool(state.get("dashboard_visible")) and bool(route_model.get("enabledInActiveMenu"))
-        if dashboard_visible:
-            return "Close HUD Dashboard"
         if bool(route_model.get("disabledWithReason")):
             if compact:
                 return "HUD Dashboard unavailable"
             reason = str(route_model.get("ownerBoundedReason") or "HUD is not ready yet").strip()
             return f"Open HUD Dashboard - {reason}"
         return "Open HUD Dashboard"
+
+    def _refresh_monitoring_hud_from_adapter(self, source="adapter"):
+        try:
+            self.refresh_resident_access_actions(source)
+            self.refresh_monitoring_hud_actions(source)
+            return True
+        except Exception:
+            return False
 
     def _monitoring_hud_status_text(self, state, route_model):
         if not bool(route_model.get("visibleInActiveMenu")):
@@ -802,8 +816,8 @@ class DesktopTrayEntry:
         hud_route_state = str(hud_route.get("routeState") or "unknown")
         feature_enabled = bool(state.get("feature_enabled"))
         dashboard_visible = bool(state.get("dashboard_visible")) and hud_route_enabled
-        open_enabled = hud_route_enabled and not dashboard_visible
-        close_enabled = hud_route_enabled and dashboard_visible
+        open_enabled = hud_route_enabled
+        close_enabled = False
         command_overlay_visible = self._command_overlay_visible()
         command_overlay_text = self._command_overlay_action_text()
 
@@ -853,7 +867,9 @@ class DesktopTrayEntry:
             "RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REDIRECTED"
             f"|source={source}|reason=settings_owned_optional_feature_configuration"
         )
-        self.request_global_settings_from_tray(source)
+        handler = getattr(self.window, "open_resident_access_settings", None)
+        if callable(handler):
+            handler(source=source, focus="hud_dashboard")
         self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
 
@@ -861,10 +877,11 @@ class DesktopTrayEntry:
         state = self._monitoring_hud_state()
         hud_route = self._monitoring_hud_route_model(state)
         if not bool(hud_route.get("enabledInActiveMenu")):
-            self.request_global_settings_from_tray(source)
+            handler = getattr(self.window, "open_resident_access_settings", None)
+            if callable(handler):
+                handler(source=source, focus="hud_dashboard")
             return
-        dashboard_visible = bool(state.get("dashboard_visible"))
-        self.request_monitoring_hud_dashboard_from_tray(source, visible=not dashboard_visible)
+        self.request_monitoring_hud_dashboard_from_tray(source, visible=True)
 
     def request_monitoring_hud_dashboard_from_tray(self, source, visible=None):
         state = self._monitoring_hud_state()
@@ -890,12 +907,19 @@ class DesktopTrayEntry:
             self.refresh_resident_access_actions(source)
             self.refresh_monitoring_hud_actions(source)
             return
-        next_visible = (not dashboard_visible) if visible is None else bool(visible)
+        next_visible = True
         self._emit(
             "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_REQUESTED"
             f"|source={source}|visible={str(next_visible).lower()}"
         )
-        handler = getattr(self.window, "request_monitoring_hud_dashboard_from_tray", None)
+        access_provider = getattr(self.window, "monitoring_hud_access", None)
+        access = None
+        if callable(access_provider):
+            try:
+                access = access_provider()
+            except Exception:
+                access = None
+        handler = getattr(access, "open_or_restore_dashboard", None)
         if not callable(handler):
             self._emit(
                 f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=handler_unavailable"
@@ -904,7 +928,7 @@ class DesktopTrayEntry:
             self.refresh_monitoring_hud_actions(source)
             return False
         try:
-            handler(source=source, visible=next_visible)
+            result = handler(source)
         except Exception as exc:
             self._emit(
                 "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED"
@@ -915,11 +939,18 @@ class DesktopTrayEntry:
             return False
         self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
+        if not bool(getattr(result, "succeeded", False)):
+            self._emit(
+                "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED"
+                f"|source={source}|reason=target_request_failed"
+                f"|result_status={getattr(result, 'status', 'failed')}"
+            )
+            return False
         self._emit(
             "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ROUTED"
             f"|source={source}|visible={str(next_visible).lower()}|owner=FAM-006"
         )
-        return True
+        return bool(getattr(result, "succeeded", False))
 
     def request_monitoring_hud_unanchor_from_tray(self, source):
         state = self._monitoring_hud_state()
