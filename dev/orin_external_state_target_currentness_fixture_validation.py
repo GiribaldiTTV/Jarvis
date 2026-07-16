@@ -205,6 +205,11 @@ def main() -> int:
         root = Path(temp_dir)
         _manifest(root)
         target = _record(root)
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + "## Historical Receipts\nSource Repo HEAD: `historical-receipt-head`\n",
+            encoding="utf-8",
+        )
         snapshot = root / "snapshots" / "fixture-snapshot"
         snapshot.mkdir(parents=True)
         (snapshot / "state_manifest.json").write_text("snapshot\n", encoding="utf-8")
@@ -247,6 +252,8 @@ def main() -> int:
             raise AssertionError("target writer apply did not produce an audited transition:\n" + "\n".join(messages))
         if "2026-01-02T00:00:00Z" not in target.read_text(encoding="utf-8"):
             raise AssertionError("target writer apply reported success without changing the requested field")
+        if "historical-receipt-head" not in target.read_text(encoding="utf-8"):
+            raise AssertionError("target writer changed a historical receipt while updating the live header")
         released, release_messages = lock_release.release_lock(
             root, lock_id, "fixture transition complete", apply=True
         )

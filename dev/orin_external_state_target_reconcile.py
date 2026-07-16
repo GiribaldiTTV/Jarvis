@@ -148,7 +148,11 @@ def _replace_existing_fields(
     failures: list[str] = []
     found: dict[str, int] = {field: 0 for field in {**updates, **additions}}
     replaced: list[str] = []
-    for index, line in enumerate(lines):
+    header_end = next(
+        (index for index, line in enumerate(lines) if line.rstrip("\r\n").startswith("## ")),
+        len(lines),
+    )
+    for index, line in enumerate(lines[:header_end]):
         content = line.rstrip("\r\n")
         newline = line[len(content) :]
         replacement = None
