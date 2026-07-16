@@ -14,14 +14,14 @@ This branch is the single standing governance lane for Release Readiness source-
 
 ## Current Phase
 
-- Phase: `Hardening`
+- Phase: `PR Readiness`
 
 ## Phase Status
 
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Next Active Seam: `Hardening - integrated Defect A/B repair: active USER-packet identity, target-scoped external currentness, adversarial proof, external projection, and packet revalidation`
+- Next Active Seam: `PR Readiness Stage 1 - integrated Defect A/B repair readiness analysis`
 - Intake State: `External operational state only - current RRI cycle identity, PR posture, active release-window state, return-digest progress, and in-flight candidate anchor/target commit facts live in C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md, C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\pr_readiness_state.md, and C:\Nexus Governance State\release_windows\current_release_window_state.md. This repo record preserves durable standing-lane law and receipt pointers only.`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
@@ -270,9 +270,9 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `Hardening H1 - Future-Proof / RAR / UIREF / Reference Candidate Synchronization integration hardening`
+Active seam: `PR Readiness Stage 1 - integrated Defect A/B repair readiness analysis`
 
-Seam Goal: `Pressure-test the integrated Future-Proof / RAR / UIREF / Reference Candidate Synchronization source-truth surfaces for owner placement, phase carrydown, repo/external-state split compatibility, Hardening evidence completeness, stale seam wording, and validator/fixture guidance gaps before PR Readiness.`
+Seam Goal: `Evaluate the completed Defect A active USER-packet identity enforcement and Defect B target-scoped external-state currentness repair against the approved scope, source-truth ownership, adversarial fixtures, governed external projections, packet identity, and full validation evidence before any PR Stage 2 decision.`
 
 Seam Scope: `Docs/Main.md, Docs/governance_efficiency_operating_model.md, Docs/external_operational_state_store_reform_plan.md, Docs/phase_governance.md, Docs/branch_plans/README.md, Docs/ui_reference_catalog/README.md, Docs/user_test_summary_guidance.md, Docs/validation_helper_registry.md, Docs/incident_patterns.md, dev/orin_user_review_bundle.py, dev/orin_external_state_validation.py, current adversarial fixture validators, generated Docs inventory/index surfaces, governed Governance external projections, and this standing authority record.`
 
@@ -290,15 +290,15 @@ Waiver Status: `None`
 
 Continue Decision: `Stop`
 
-Continuation Execution Latch: `Inactive - Hardening H1 Green; final response permitted after validation, commit, and push because phase execution stops at the phase boundary until USER admits PR Readiness Stage 1.`
+Continuation Execution Latch: `Inactive - integrated Defect A/B repair green; PR Readiness Stage 1 analysis is now the legal next gate and PR Stage 2 remains separately USER-gated.`
 
-Stop Basis: `Hardening H1 Green`
+Stop Basis: `Integrated Defect A/B repair green; awaiting PR Readiness Stage 1 analysis result`
 
-Next Active Seam: `Hardening - integrated Defect A/B repair and fresh proof before PR Readiness Stage 1`
+Next Active Seam: `PR Readiness Stage 1 - integrated Defect A/B repair readiness analysis`
 
-Stop Condition: `Hardening H1 integration repair complete with validation green.`
+Stop Condition: `PR Readiness Stage 1 must confirm scope, currentness, packet identity, full validation, and the absence of unresolved repair blockers before any PR Stage 2 consideration.`
 
-Continuation Action: `Stop at phase boundary until USER admits PR Readiness Stage 1 analysis for the integrated Governance branch.`
+Continuation Action: `Stop at the PR Readiness Stage 1 boundary. Do not create a PR, enter PR Stage 2, merge, release, mutate issues, or mutate sibling worktrees.`
 
 Template / Reference Plan Phase Entry Addendum: `USER approved analysis/planning entry for the blocked Template / Reference plan after Governance rebaseline to origin/main@7c26748bb6d04433a52b19d41dcacadebeb82c8e. PR #269 merged FAM-007 AI Control Center boundary flow evidence and H4 visual/resize/template-first proof into main. Governance may treat that merged evidence as candidate input for template/reference planning alongside accepted HUD/FAM-006 surfaces, FAM-002 component grammar, Project UI Vision, Vision-To-Proof requirements, and USER proof hierarchy. This addendum does not promote the AI Control Center, HUD Dashboard, control cluster, button set, dialog, status panel, tray menu, design token, shared primitive, helper, validator, or fixture as golden reference proof. The later planning-completion receipt records how candidate references are compared and which promotion criteria apply; USER later clarified that current PR Readiness remains blocked until planned template/reference work is admitted and completed on this branch or explicitly reclassified.`
 
@@ -514,4 +514,4 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 
 - `Hardening`
 
-Next Legal Phase Detail: The prior PR Readiness posture is superseded by the USER-approved integrated repair. Complete active USER-packet identity enforcement, target-scoped external-state currentness, adversarial fixtures, governed current-projection reconciliation, current packet regeneration, and full validation first. Only then may a fresh PR Readiness Stage 1 analysis be considered. PR creation, PR Stage 2, merge, release, FAM worktree adoption, runtime UI implementation, code-level design-token/shared-primitive implementation, issue mutation, and cleanup remain separate USER decisions.
+Next Legal Phase Detail: The USER-approved integrated Defect A/B repair is implemented, externally reconciled, packet-regenerated, and ready for fresh PR Readiness Stage 1 analysis. Stage 1 must independently verify scope, source-truth ownership, target-scoped currentness, active packet identity, folder/ZIP parity, adversarial fixture coverage, and full validation before any PR Stage 2 request. PR creation, PR Stage 2, merge, release, FAM worktree adoption, runtime UI implementation, code-level design-token/shared-primitive implementation, issue mutation, and cleanup remain separate USER decisions.

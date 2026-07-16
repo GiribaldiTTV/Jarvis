@@ -1264,7 +1264,7 @@ def main() -> int:
             expected_schema=args.schema,
         )
         print("Validation Scope: TARGET_SCOPED_CURRENTNESS")
-        print(f"Selected Target: {args.target or 'MISSING'}")
+        print(f"Selected Target: {args.target[0] if args.target else 'MISSING'}")
         print("Root Manifest Posture: STRUCTURAL_ONLY - root initialization/index posture is reported separately and is not asserted current for this target")
         if target_issues:
             print("Target Currentness Validation: BLOCKED")
