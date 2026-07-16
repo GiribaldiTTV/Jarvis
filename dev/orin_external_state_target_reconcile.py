@@ -61,6 +61,13 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="FIELD=VALUE",
         help="Add one missing top-level Markdown field; repeat for multiple fields",
     )
+    parser.add_argument(
+        "--rename-section",
+        action="append",
+        default=[],
+        metavar="OLD=NEW",
+        help="Rename one existing Markdown section heading; repeat for multiple sections",
+    )
     parser.add_argument("--apply", action="store_true", help="Apply the atomic transition")
     return parser
 
@@ -105,6 +112,27 @@ def _parse_assignments(raw_assignments: list[str]) -> tuple[dict[str, str], list
         values[field] = value
     if not values:
         failures.append("At least one --set-field assignment is required")
+    return values, failures
+
+
+def _parse_section_renames(raw_renames: list[str]) -> tuple[dict[str, str], list[str]]:
+    values: dict[str, str] = {}
+    failures: list[str] = []
+    for raw in raw_renames:
+        old, separator, new = raw.partition("=")
+        old = old.strip()
+        new = new.strip()
+        if (
+            not separator
+            or not old
+            or not new
+            or "`" in old
+            or "`" in new
+            or old in values
+        ):
+            failures.append(f"Invalid --rename-section assignment: {raw!r}")
+            continue
+        values[old] = new
     return values, failures
 
 
@@ -189,6 +217,28 @@ def _replace_existing_fields(
         additions_text = [f"{field}: `{value}`\n" for field, value in additions.items()]
         lines[insert_at:insert_at] = additions_text
     return "".join(lines), failures
+
+
+def _rename_sections(
+    text: str,
+    renames: dict[str, str],
+) -> tuple[str, list[str], list[tuple[str, str]]]:
+    failures: list[str] = []
+    renamed: list[tuple[str, str]] = []
+    result = text
+    for old, new in renames.items():
+        old_heading = old if old.startswith("## ") else f"## {old}"
+        new_heading = new if new.startswith("## ") else f"## {new}"
+        pattern = re.compile(rf"(?m)^{re.escape(old_heading)}[ \t]*$")
+        matches = list(pattern.finditer(result))
+        if len(matches) != 1:
+            failures.append(
+                f"Target transition requires exactly one section {old_heading!r}: found {len(matches)}"
+            )
+            continue
+        result = pattern.sub(new_heading, result, count=1)
+        renamed.append((old_heading, new_heading))
+    return result, failures, renamed
 
 
 def _snapshot_failures(
@@ -281,6 +331,22 @@ def _non_updated_lines(text: str, fields: set[str]) -> list[str]:
     return result
 
 
+def _non_updated_lines_with_sections(
+    text: str,
+    fields: set[str],
+    section_headings: set[str],
+) -> list[str]:
+    result: list[str] = []
+    for line in text.splitlines(keepends=True):
+        content = line.rstrip("\r\n")
+        if content in section_headings:
+            continue
+        if any(re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", content) for field in fields):
+            continue
+        result.append(line)
+    return result
+
+
 def reconcile_target(
     *,
     root: Path,
@@ -296,6 +362,7 @@ def reconcile_target(
     assignments: list[str],
     additions: list[str],
     apply: bool,
+    section_renames: list[str] | None = None,
     post_expected_source_head: str | None = None,
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
@@ -307,10 +374,12 @@ def reconcile_target(
 
     updates, assignment_failures = _parse_assignments(assignments)
     additions_map, addition_failures = _parse_assignments(additions) if additions else ({}, [])
+    section_renames_map, section_rename_failures = _parse_section_renames(section_renames or [])
     if set(updates) & set(additions_map):
         assignment_failures.append("A field cannot be both --set-field and --add-field: " + ", ".join(sorted(set(updates) & set(additions_map))))
     failures.extend(assignment_failures)
     failures.extend(addition_failures)
+    failures.extend(section_rename_failures)
     snapshot_path, snapshot_failures = _safe_relative_path(root, snapshot, "Snapshot path")
     failures.extend(snapshot_failures)
     if snapshot_path is None or not snapshot_path.is_dir():
@@ -370,8 +439,12 @@ def reconcile_target(
     after_text, replacement_failures = _replace_existing_fields(before_text, updates, additions_map)
     if replacement_failures:
         return False, replacement_failures, None
+    after_text, section_failures, renamed_sections = _rename_sections(after_text, section_renames_map)
+    if section_failures:
+        return False, section_failures, None
     changed_fields = set(updates) | set(additions_map)
-    if _non_updated_lines(before_text, changed_fields) != _non_updated_lines(after_text, changed_fields):
+    allowed_section_lines = {heading for pair in renamed_sections for heading in pair}
+    if _non_updated_lines_with_sections(before_text, changed_fields, allowed_section_lines) != _non_updated_lines_with_sections(after_text, changed_fields, allowed_section_lines):
         return False, ["No-loss comparison failed: an unselected target line changed"], None
     after_hash = hashlib.sha256(after_text.encode("utf-8")).hexdigest()
 
@@ -428,6 +501,10 @@ def reconcile_target(
         "Changed Fields": sorted(changed_fields),
         "Replaced Fields": sorted(updates),
         "Added Fields": sorted(additions_map),
+        "Renamed Sections": [
+            {"Before": old, "After": new}
+            for old, new in renamed_sections
+        ],
         "Changed Field Details": changed_field_details,
         "Source Identity": {
             "Branch": expected_branch,
@@ -475,6 +552,7 @@ def main() -> int:
         expected_target_sha256=args.expected_target_sha256,
         assignments=args.set_field,
         additions=args.add_field,
+        section_renames=args.rename_section,
         apply=args.apply,
     )
     print("External State Target Reconciliation")

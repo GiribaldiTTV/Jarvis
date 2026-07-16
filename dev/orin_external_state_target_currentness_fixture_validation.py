@@ -308,6 +308,7 @@ def main() -> int:
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
             additions=["Added Fixture Field=added"],
             apply=True,
+            section_renames=["Historical Receipts=Historical Receipt"],
             **expectations,
         )
         if not ok or audit is None or not list((root / "audit_log").glob("target-currentness-*.json")):
@@ -326,6 +327,12 @@ def main() -> int:
             raise AssertionError("target writer audit did not preserve MISSING before-state for an added field")
         if "historical-receipt-head" not in target.read_text(encoding="utf-8"):
             raise AssertionError("target writer changed a historical receipt while updating the live header")
+        if "## Historical Receipt\n" not in target.read_text(encoding="utf-8"):
+            raise AssertionError("target writer did not apply the audited historical-section rename")
+        if audit_payload.get("Renamed Sections") != [
+            {"Before": "## Historical Receipts", "After": "## Historical Receipt"}
+        ]:
+            raise AssertionError("target writer audit omitted the section rename")
 
         historical_only_field = "Historical-Only Fixture Field"
         target.write_text(
