@@ -21644,6 +21644,8 @@ def main() -> int:
     phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
     branch_plans_readme_text = _read_text(Path("Docs/branch_plans/README.md"))
     validation_helper_registry_text = _read_text(Path("Docs/validation_helper_registry.md"))
+    governance_efficiency_text = _read_text(Path("Docs/governance_efficiency_operating_model.md"))
+    user_test_summary_guidance_text = _read_text(Path("Docs/user_test_summary_guidance.md"))
     main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
     compact_source_truth_reform = _docs_source_truth_reform_active(backlog_text, roadmap_text)
 
@@ -21652,6 +21654,42 @@ def main() -> int:
         checks += 1
         if not condition:
             errors.append(message)
+
+    computer_use_prohibition_owners = {
+        Path("Docs/Main.md"): (main_text, "Computer Use is prohibited"),
+        Path("Docs/development_rules.md"): (development_rules_text, "Computer Use is prohibited"),
+        Path("Docs/phase_governance.md"): (phase_governance_text, "Computer Use is an excluded tool class"),
+        Path("Docs/validation_helper_registry.md"): (
+            validation_helper_registry_text,
+            "Computer Use is prohibited",
+        ),
+        Path("Docs/governance_efficiency_operating_model.md"): (
+            governance_efficiency_text,
+            "Computer Use must not be invoked",
+        ),
+        Path("Docs/user_test_summary_guidance.md"): (
+            user_test_summary_guidance_text,
+            "Computer Use is prohibited",
+        ),
+    }
+    forbidden_computer_use_allowances = (
+        "Computer Use may support",
+        "Computer Use output may support",
+        "Computer Use is optional",
+        "Computer Use output is inspection",
+        "Computer Use remains non-gating",
+        "Computer Use is not authorized as validation proof",
+    )
+    for owner_path, (owner_text, required_phrase) in computer_use_prohibition_owners.items():
+        require(
+            required_phrase in owner_text,
+            f"{owner_path}: Computer Use prohibition contract is missing '{required_phrase}'",
+        )
+        for forbidden_phrase in forbidden_computer_use_allowances:
+            require(
+                forbidden_phrase not in owner_text,
+                f"{owner_path}: Computer Use prohibition drift retained weaker allowance '{forbidden_phrase}'",
+            )
 
     current_git_branch = _git_current_branch()
     outside_lane_merge_stable_findings: list[str] = []

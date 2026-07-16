@@ -187,7 +187,7 @@ Rule Name: `Codex Plugin / Connector Evidence Split Compatibility Contract`
 
 Owner: `Docs/governance_efficiency_operating_model.md`
 
-Applies To: Codex app plugins, Codex connectors, GitHub connector use, Browser / Chrome / Computer Use evidence, OpenAI Docs lookups, OpenAI Developers tooling, Documents / Spreadsheets / Presentations review aids, plugin-generated screenshots, connector outputs, plugin run logs, connector authentication state, plugin capability selection, and any future Codex tool integration used to support Nexus governance, development, validation, review, PR, release, or planning work.
+Applies To: Codex app plugins, Codex connectors, GitHub connector use, Browser / Chrome evidence, OpenAI Docs lookups, OpenAI Developers tooling, Documents / Spreadsheets / Presentations review aids, plugin-generated screenshots, connector outputs, plugin run logs, connector authentication state, plugin capability selection, and any future Codex tool integration used to support Nexus governance, development, validation, review, PR, release, or planning work. Computer Use is excluded from the allowed Nexus repo tool set and is governed by the prohibition below rather than by the evidence-use allowances in this contract.
 
 Required State:
 
@@ -197,6 +197,7 @@ Required State:
 - Git, GitHub, official provider/tool surfaces, approved helpers, Codex digests, USER review packets, and local external operational state own live evidence according to fact class and phase.
 - `C:\Nexus Governance State` may own plugin/connector operational evidence only after an explicit USER-approved external-state schema or active workflow need admits that evidence. Until then, plugin/connector outputs stay in Codex digest, helper output, USER review packets, local artifacts, or the live tool surface.
 - Product/runtime plugin integration for Nexus itself remains separate from Codex app plugin/connector evidence. Product plugin runtime work routes through the owning family/workstream and does not become authorized by this Codex evidence contract.
+- Computer Use must not be invoked for Nexus repo validation or runtime-control work, including inspection, capture, target discovery, control assistance, launcher activation, UI interaction, evidence generation, or cleanup. No `Plugin / Connector Use Plan:`, USER waiver, or independent evidence can authorize or rehabilitate a Computer Use-involved validation run. Record `Computer Use Validation Path Prohibited`, discard that run's gating artifacts, and restart through the governed human-client path.
 
 Allowed Durable Repo Facts:
 
@@ -215,7 +216,7 @@ Invalid Durable Repo Facts:
 - current GitHub PR mergeability, reaction, unresolved-thread count, bot-review status, or live watcher state except as explicitly labeled historical receipt evidence
 - raw OpenAI Docs lookup output treated as permanent source truth without digest and USER-approved owner update
 - OpenAI Developers/API key setup state, plaintext key material, provider setup state, model/provider runtime readiness, or private setup evidence
-- Browser / Chrome / Computer Use screenshots, DOM snapshots, window state, or desktop session state treated as durable current truth by inertia
+- Browser / Chrome screenshots, DOM snapshots, window state, or desktop session state treated as durable current truth by inertia; Computer Use output must not be generated or consumed for Nexus validation/runtime-control work at all
 - Documents / Spreadsheets / Presentations outputs treated as repo source truth without explicit promotion
 - per-run plugin logs, generated temp files, temporary review aid status, or plugin evidence manifests committed as active ledgers
 

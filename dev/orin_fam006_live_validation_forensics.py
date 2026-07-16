@@ -1111,7 +1111,7 @@ def supplemental_findings(summary: dict[str, object]) -> list[Finding]:
             "UI/window behavior failure",
             "Log Viewer Studio focus/open behavior after start/stop",
             "After Log Viewer Studio has been opened, later recording start/stop state changes should not repeatedly focus or reopen it unless the accepted UX explicitly requires that behavior.",
-            "USER personally confirmed that after Log Viewer Studio has been opened once, later Start/Stop recording actions cause it to open or steal focus depending on state. Codex could not complete the normal close/minimize/focus sequence because the Windows Computer Use channel reported `Computer Use native pipe path is unavailable`; code lineage shows MonitoringHudLogViewerStudioWindow.update_product_state calls show(), raise_(), and activateWindow() whenever the requested log-viewer signature changes.",
+            "USER personally confirmed that after Log Viewer Studio has been opened once, later Start/Stop recording actions cause it to open or steal focus depending on state. Codex did not complete the normal close/minimize/focus sequence because governed visible real-cursor human-client evidence was unavailable for that run; code lineage shows MonitoringHudLogViewerStudioWindow.update_product_state calls show(), raise_(), and activateWindow() whenever the requested log-viewer signature changes.",
             "desktop/desktop_renderer.py:6000",
             "USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
             "Workstream / Live Validation",
@@ -1262,7 +1262,7 @@ def supplemental_issue_map_md(summary: dict[str, object]) -> str:
     rows = []
     fixed_observed = {
         "A": "USER personally confirmed the visible Recording Studio button does not open Recording Studio through the normal USER path. Helper foreground proof remains separate and does not disprove the USER-confirmed failure.",
-        "C": "USER personally confirmed Log Viewer Studio opens or steals focus after it has been opened once and recording Start/Stop state changes occur. Codex normal-user sequence reproduction is blocked when Computer Use is unavailable; code lineage supports the finding.",
+        "C": "USER personally confirmed Log Viewer Studio opens or steals focus after it has been opened once and recording Start/Stop state changes occur. Codex normal-user sequence reproduction lacked governed visible real-cursor human-client evidence; code lineage supports the finding.",
     }
     fixed_confidence = {
         "A": "USER Confirmed + Codex Reproduction Blocked + helper foreground path separately verified when helper evidence passes",
@@ -1321,7 +1321,7 @@ def user_confirmed_ac_supplement_md(summary: dict[str, object]) -> str:
         [
             "This supplement preserves USER confirmation as direct evidence. Helper foreground proof and native-window existence are evidence layers, not a substitute for USER normal-path proof.",
             "",
-            "Codex normal-user automation attempt: `Computer Use native pipe path is unavailable`.",
+            "Codex normal-user automation attempt lacked the required governed visible real-cursor human-client evidence.",
             "",
             table(["Issue", "Finding ID", "Surface", "Confidence", "Supplement result", "Evidence path"], rows),
         ]
@@ -1335,19 +1335,19 @@ def issue_c_sequence_matrix_md() -> str:
             [
                 "C1: open Log Viewer, close, start, stop",
                 "Start/Stop must not reopen Log Viewer or steal focus merely because the shell was previously opened.",
-                "Blocked - supported Computer Use normal-user automation channel unavailable.",
+                "Blocked - governed visible real-cursor human-client proof unavailable.",
                 "USER Confirmed + Inferred Code Lineage from desktop/desktop_renderer.py update_product_state show/raise/activateWindow.",
             ],
             [
                 "C2: open Log Viewer, minimize, start, stop",
                 "Start/Stop must not restore/minimize-state-break or focus the Log Viewer unless USER accepted that behavior.",
-                "Blocked - supported Computer Use normal-user automation channel unavailable.",
+                "Blocked - governed visible real-cursor human-client proof unavailable.",
                 "USER Confirmed + Inferred Code Lineage from the same native-window activation path.",
             ],
             [
                 "C3: open Log Viewer, leave open unfocused, start, stop",
                 "Start/Stop must not steal focus from the USER's current foreground work.",
-                "Blocked - supported Computer Use normal-user automation channel unavailable.",
+                "Blocked - governed visible real-cursor human-client proof unavailable.",
                 "USER Confirmed + Inferred Code Lineage from show(), raise_(), and activateWindow().",
             ],
         ],

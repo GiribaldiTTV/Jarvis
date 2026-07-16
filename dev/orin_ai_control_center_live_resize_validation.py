@@ -57,7 +57,11 @@ PROOF_CLASSIFICATION_FIXTURE = (
     / "fam007_ai_dashboard_lv_proof_contract"
     / "proof_classification_cases.json"
 )
-PHYSICAL_GATING_INPUTS = {"physical-user-mouse", "physical-user-keyboard"}
+GATING_INPUTS_BY_ACTOR = {
+    "CODEX_GOVERNED_HUMAN_CLIENT": {"governed-real-os-mouse", "governed-real-os-keyboard"},
+    "PHYSICAL_USER": {"physical-user-mouse", "physical-user-keyboard"},
+}
+BANNED_VALIDATION_INPUTS = {"computer-use"}
 REPAIR_DEFECT_IDS = (
     "F7-LV1-001",
     "F7-LV1-002",
@@ -87,8 +91,9 @@ def _proof_classification_fixture_probe() -> dict[str, object]:
         actor = str(case.get("actor") or "")
         input_source = str(case.get("inputSource") or "")
         may_set_gating = bool(case.get("maySetGatingPass"))
-        policy_allows_gating = actor == "PHYSICAL_USER" and input_source in PHYSICAL_GATING_INPUTS
-        actual_valid = may_set_gating == policy_allows_gating
+        policy_allows_gating = input_source in GATING_INPUTS_BY_ACTOR.get(actor, set())
+        input_prohibited = input_source in BANNED_VALIDATION_INPUTS
+        actual_valid = not input_prohibited and may_set_gating == policy_allows_gating
         expected_valid = bool(case.get("expectedValid"))
         results.append(
             {
@@ -97,6 +102,7 @@ def _proof_classification_fixture_probe() -> dict[str, object]:
                 "inputSource": input_source,
                 "maySetGatingPass": may_set_gating,
                 "policyAllowsGating": policy_allows_gating,
+                "inputProhibited": input_prohibited,
                 "actualValid": actual_valid,
                 "expectedValid": expected_valid,
                 "matchedExpected": actual_valid == expected_valid,
@@ -205,7 +211,7 @@ def _read_only_exact_launcher_preflight() -> dict[str, object]:
         "foreignRuntimeProcesses": foreign,
         "unknownOwnerProcesses": unknown,
         "stopRequired": classification != "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE",
-        "nextAction": "Physical USER directly activates the already-visible exact shortcut only after a no-foreign-runtime precondition. Stop on foreign or unknown ownership.",
+        "nextAction": "Codex governed human-client directly activates the already-visible exact shortcut through real OS mouse/keyboard input only after a no-foreign-runtime precondition. Stop on foreign or unknown ownership; never use Computer Use.",
         "excludedFutureCandidate": "F7-LV1-006-B shared runtime owner attribution; not implemented here",
     }
 
@@ -233,8 +239,8 @@ def _physical_interaction_matrix() -> list[dict[str, object]]:
         {
             "surface": surface,
             "claim": claim,
-            "requiredActor": "PHYSICAL_USER",
-            "requiredInputSource": "physical-user-mouse-or-keyboard",
+            "requiredActor": "CODEX_GOVERNED_HUMAN_CLIENT",
+            "requiredInputSource": "governed-human-client-real-os-mouse-or-keyboard",
             "status": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
             "syntheticSubstituteAllowed": False,
         }
@@ -5023,25 +5029,27 @@ def main() -> int:
         "stamp": stamp,
         "helper": "dev/orin_ai_control_center_live_resize_validation.py",
         "proofClass": "supporting-only FAM-007 implementation diagnostic; not Live Validation proof",
-        "gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_PHYSICAL_USER_FOCUSED_CLOSURE_VERIFICATION",
+        "gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_GOVERNED_HUMAN_CLIENT_FOCUSED_CLOSURE_VERIFICATION",
         "liveValidationStatus": "LV_BLOCKED_REPAIR_FIRST_NOT_GREEN",
         "utsStatus": "BLOCKED_NOT_CREATED",
         "defectImplementationStatus": "REPAIR_IMPLEMENTED_PENDING_FOCUSED_CLOSURE_PROOF",
         "defectsRemainOpen": list(REPAIR_DEFECT_IDS),
         "syntheticEvidencePolicy": {
-            "contract": "fam007-physical-user-gating-proof-classification-v1",
+            "contract": "fam007-governed-human-client-computer-use-prohibited-proof-classification-v3",
             "allHelperGeneratedInteraction": "SUPPORTING_ONLY",
             "qtest": "SUPPORTING_ONLY",
             "directGeometry": "SUPPORTING_ONLY",
             "domJavascript": "SUPPORTING_ONLY",
             "setCursorPosMouseEvent": "SUPPORTING_ONLY",
-            "computerUse": "SUPPORTING_ONLY_NOT_VALIDATION",
+            "computerUse": "PROHIBITED_NOT_INVOKED",
+            "governedHumanClientMouseKeyboard": "GATING_CANDIDATE_DURING_SEPARATELY_APPROVED_CLOSURE_GATE",
             "physicalUserMouseKeyboard": "GATING_CANDIDATE_ONLY_DURING_SEPARATELY_APPROVED_CLOSURE_GATE",
             "unknownActor": "STOP_NOT_GATING_VALID",
         },
         "proofClassificationFixture": proof_classification_fixture_probe,
         "exactLauncherReadOnlyPreflight": exact_launcher_preflight,
         "focusedPhysicalInteractionMatrix": physical_interaction_matrix,
+        "focusedHumanClientInteractionMatrix": physical_interaction_matrix,
         "dualContrastPerimeterMatrix": dual_contrast_matrix,
         "workspacePreservationContract": {
             "status": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
@@ -5183,7 +5191,7 @@ def main() -> int:
         print(f"SUPPORTING_DIAGNOSTIC_FAIL: FAM-007 implementation diagnostics failed. Manifest: {manifest_path}")
         return 1
     print(f"SUPPORTING_DIAGNOSTIC_PASS: FAM-007 implementation diagnostics passed. Manifest: {manifest_path}")
-    print("GATING_DECISION: NOT_EVALUATED; physical USER focused closure verification remains pending and unapproved.")
+    print("GATING_DECISION: NOT_EVALUATED; governed human-client focused closure verification remains pending and unapproved.")
     print(f"USER_EVIDENCE_ROOT: {user_evidence_root}")
     return 0
 

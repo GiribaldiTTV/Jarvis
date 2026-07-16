@@ -613,7 +613,7 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
         generatedAt = (Get-Date).ToUniversalTime().ToString("o")
         noRetroactiveEvidenceLaundering = $true
         helperPathAndUserPathSeparated = $true
-        normalUserAutomationStatus = "Blocked when Computer Use native pipe path is unavailable; USER-confirmed findings are not disproven by helper proof."
+        normalUserAutomationStatus = "Computer Use is prohibited; governed visible real-cursor human-client input is required, and USER-confirmed findings are not disproven by helper proof."
         issueFolders = $issueResults
     }
     $manifest | ConvertTo-Json -Depth 7 | Set-Content -LiteralPath $manifestPath -Encoding utf8

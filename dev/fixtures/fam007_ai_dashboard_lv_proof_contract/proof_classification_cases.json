@@ -1,6 +1,20 @@
 {
-  "contract": "fam007-physical-user-gating-proof-classification-v1",
+  "contract": "fam007-governed-human-client-computer-use-prohibited-proof-classification-v3",
   "cases": [
+    {
+      "id": "governed-human-client-mouse-may-be-gating-candidate",
+      "actor": "CODEX_GOVERNED_HUMAN_CLIENT",
+      "inputSource": "governed-real-os-mouse",
+      "maySetGatingPass": true,
+      "expectedValid": true
+    },
+    {
+      "id": "governed-human-client-keyboard-may-be-gating-candidate",
+      "actor": "CODEX_GOVERNED_HUMAN_CLIENT",
+      "inputSource": "governed-real-os-keyboard",
+      "maySetGatingPass": true,
+      "expectedValid": true
+    },
     {
       "id": "physical-user-mouse-may-be-gating-candidate",
       "actor": "PHYSICAL_USER",
@@ -44,11 +58,11 @@
       "expectedValid": true
     },
     {
-      "id": "computer-use-is-supporting-only",
+      "id": "computer-use-is-prohibited",
       "actor": "CODEX_AUTOMATION",
       "inputSource": "computer-use",
       "maySetGatingPass": false,
-      "expectedValid": true
+      "expectedValid": false
     },
     {
       "id": "unknown-actor-cannot-be-gating",

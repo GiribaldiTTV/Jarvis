@@ -9456,7 +9456,7 @@ def validate() -> list[str]:
         '"childNativeHitTestSupportingDiagnosticImplemented"',
         '"childMinimumGeometryScrollSupportingDiagnosticImplemented"',
         '"proofClassificationFalseGreenFixture"',
-        '"gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_PHYSICAL_USER_FOCUSED_CLOSURE_VERIFICATION"',
+        '"gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_GOVERNED_HUMAN_CLIENT_FOCUSED_CLOSURE_VERIFICATION"',
         '"proofClass": "SUPPORTING_ONLY_SYNTHETIC_DIAGNOSTIC"',
         '"gatingValid": False',
         '"maySetGatingPass": False',
