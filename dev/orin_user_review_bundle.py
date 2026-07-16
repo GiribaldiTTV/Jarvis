@@ -935,8 +935,13 @@ def _validate_export_zip(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
         )
+    generated_packet_files = {
+        name: text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    }
     artifact_failures = [
-        *_unresolved_template_placeholder_failures(packet_files),
+        *_unresolved_template_placeholder_failures(generated_packet_files),
         *_packet_identity_failures(
             packet_files,
             expected_branch=source_branch,
@@ -947,16 +952,16 @@ def _validate_export_zip(
             packet_files,
             actual_file_count=len(entries),
         ),
-        *_user_facing_technical_metadata_failures(packet_files),
-        *_user_branch_plan_stale_bp1_wording_failures(packet_files),
-        *_fam007_dev_owner_lv1_substantive_failures(packet_files),
-        *_fam007_bp2_plan_substantive_failures(packet_files),
-        *_fam007_bp2_support_bp1_context_failures(packet_files),
-        *_bp1_packet_phase_language_failures(packet_files),
-        *_fam006_bp3_support_context_failures(packet_files),
-        *_user_branch_vision_substantive_failures(packet_files),
-        *_branch_planning_review_gate_state_failures(packet_files),
-        *_pr_stage1_review_failures(packet_files),
+        *_user_facing_technical_metadata_failures(generated_packet_files),
+        *_user_branch_plan_stale_bp1_wording_failures(generated_packet_files),
+        *_fam007_dev_owner_lv1_substantive_failures(generated_packet_files),
+        *_fam007_bp2_plan_substantive_failures(generated_packet_files),
+        *_fam007_bp2_support_bp1_context_failures(generated_packet_files),
+        *_bp1_packet_phase_language_failures(generated_packet_files),
+        *_fam006_bp3_support_context_failures(generated_packet_files),
+        *_user_branch_vision_substantive_failures(generated_packet_files),
+        *_branch_planning_review_gate_state_failures(generated_packet_files),
+        *_pr_stage1_review_failures(generated_packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -11416,21 +11421,26 @@ def build_bundle(
         for path in bundle_paths
         if path.suffix.lower() in {".md", ".txt", ".json"}
     }
+    generated_packet_files = {
+        name: text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    }
     artifact_failures = [
-        *_unresolved_template_placeholder_failures(packet_files),
+        *_unresolved_template_placeholder_failures(generated_packet_files),
         *_packet_count_consistency_failures(
             packet_files,
             actual_file_count=len(bundle_paths),
         ),
-        *_user_facing_technical_metadata_failures(packet_files),
-        *_user_branch_plan_stale_bp1_wording_failures(packet_files),
-        *_fam007_bp2_plan_substantive_failures(packet_files),
-        *_fam007_bp2_support_bp1_context_failures(packet_files),
-        *_bp1_packet_phase_language_failures(packet_files),
-        *_fam006_bp3_support_context_failures(packet_files),
-        *_user_branch_vision_substantive_failures(packet_files),
-        *_branch_planning_review_gate_state_failures(packet_files),
-        *_pr_stage1_review_failures(packet_files),
+        *_user_facing_technical_metadata_failures(generated_packet_files),
+        *_user_branch_plan_stale_bp1_wording_failures(generated_packet_files),
+        *_fam007_bp2_plan_substantive_failures(generated_packet_files),
+        *_fam007_bp2_support_bp1_context_failures(generated_packet_files),
+        *_bp1_packet_phase_language_failures(generated_packet_files),
+        *_fam006_bp3_support_context_failures(generated_packet_files),
+        *_user_branch_vision_substantive_failures(generated_packet_files),
+        *_branch_planning_review_gate_state_failures(generated_packet_files),
+        *_pr_stage1_review_failures(generated_packet_files),
     ]
     if artifact_failures:
         raise ValueError(

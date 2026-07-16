@@ -570,6 +570,19 @@ def main() -> int:
         external_state_files=None,
     )
 
+    def _legitimate_source_context_shell_tokens(packet: Path) -> None:
+        (packet / "Source Truth Context" / "helper_source.py").write_text(
+            "branch = '$branch'\nhead = '$head'\norigin = '$originMain'\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "source-context-code-is-not-user-facing-template-shell",
+        _legitimate_source_context_shell_tokens,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
     def _pr_stage1_missing_primary(packet: Path) -> None:
         (packet / "START_HERE.md").write_text(
             (packet / "START_HERE.md").read_text(encoding="utf-8").replace(
