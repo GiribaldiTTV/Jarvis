@@ -43,6 +43,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--post-expected-source-head",
         help="Expected Source Repo HEAD after this transition; defaults to the pre-write expectation",
     )
+    parser.add_argument(
+        "--post-expected-origin-main",
+        help="Expected origin/main after this transition; defaults to the pre-write expectation",
+    )
     parser.add_argument("--expected-origin-main", required=True)
     parser.add_argument("--expected-worktree-path", required=True)
     parser.add_argument("--expected-worktree-slot", required=True)
@@ -364,6 +368,7 @@ def reconcile_target(
     apply: bool,
     section_renames: list[str] | None = None,
     post_expected_source_head: str | None = None,
+    post_expected_origin_main: str | None = None,
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
     transition_started_ns = time.time_ns()
@@ -417,14 +422,29 @@ def reconcile_target(
         expected_worktree_slot=expected_worktree_slot,
         expected_target_sha256=expected_target_sha256,
     )
+    addable_identity_fields = set(additions_map)
     allowed_pre_additions = {
         f"{relative} is missing required field {field}"
-        for field in additions_map
+        for field in addable_identity_fields
     }
     pre_validation = [
         item
         for item in pre_validation
-        if not any(item.endswith(allowed) for allowed in allowed_pre_additions)
+        if not (
+            any(item.endswith(allowed) for allowed in allowed_pre_additions)
+            or (
+                "unsupported or missing live Record Class" in item
+                and "Record Class" in addable_identity_fields
+            )
+            or (
+                item.endswith("is missing Record Role classification")
+                and "Record Role" in addable_identity_fields
+            )
+            or (
+                item.endswith("is missing Historical Receipt Boundary")
+                and "Historical Receipt Boundary" in addable_identity_fields
+            )
+        )
     ]
     if pre_validation:
         return False, [f"Pre-write target validation: {item}" for item in pre_validation], None
@@ -467,12 +487,13 @@ def reconcile_target(
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)
     post_source_head = post_expected_source_head or expected_source_head
+    post_origin_main = post_expected_origin_main or expected_origin_main
     post_validation = validate_target_currentness(
         root,
         [target],
         expected_branch=expected_branch,
         expected_source_head=post_source_head,
-        expected_origin_main=expected_origin_main,
+        expected_origin_main=post_origin_main,
         expected_worktree_path=expected_worktree_path,
         expected_worktree_slot=expected_worktree_slot,
         expected_target_sha256=actual_after_hash,
@@ -510,14 +531,14 @@ def reconcile_target(
             "Branch": expected_branch,
             "Before Source Repo HEAD": expected_source_head,
             "After Source Repo HEAD": post_source_head,
-            "Origin/Main": expected_origin_main,
+            "Origin/Main": post_origin_main,
             "Worktree Path": expected_worktree_path,
             "Slot ID": expected_worktree_slot,
         },
         "Branch": expected_branch,
         "Before Source Repo HEAD": expected_source_head,
         "After Source Repo HEAD": post_source_head,
-        "Origin/Main": expected_origin_main,
+        "Origin/Main": post_origin_main,
         "Worktree Path": expected_worktree_path,
         "Slot ID": expected_worktree_slot,
         "Last Updated": utc_now(),
@@ -546,6 +567,7 @@ def main() -> int:
         expected_branch=args.expected_branch,
         expected_source_head=args.expected_source_head,
         post_expected_source_head=args.post_expected_source_head,
+        post_expected_origin_main=args.post_expected_origin_main,
         expected_origin_main=args.expected_origin_main,
         expected_worktree_path=args.expected_worktree_path,
         expected_worktree_slot=args.expected_worktree_slot,
