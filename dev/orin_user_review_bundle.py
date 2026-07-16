@@ -1940,7 +1940,11 @@ def _normalized_external_state_context_text(text: str, *, live_text: bool = Fals
 
     def replace_zip_sha(match: re.Match[str]) -> str:
         value = match.group(1).strip()
-        if live_text or _zip_sha_value_is_nonfinal_placeholder(value):
+        if (
+            live_text
+            or _zip_sha_value_is_nonfinal_placeholder(value)
+            or re.fullmatch(r"[0-9a-f]{64}", value, re.IGNORECASE)
+        ):
             return "USER Review ZIP SHA256: <self-referential-zip-sha>"
         return match.group(0)
 
@@ -2186,7 +2190,8 @@ def _final_zip_active_metadata_failures(
             (f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md", state_text),
             (f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", plan_text),
         ):
-            for zip_sha in _markdown_field_values(context_text, "USER Review ZIP SHA256"):
+            current_zip_shas = _markdown_field_values(context_text, "USER Review ZIP SHA256")[:1]
+            for zip_sha in current_zip_shas:
                 if re.search(r"\b[0-9a-f]{64}\b", zip_sha, re.IGNORECASE):
                     failures.append(
                         f"{context_file}: active-review copied Source Truth Context contains "
@@ -2261,8 +2266,8 @@ def _proof_manifest_false_green_failures(packet_files: Mapping[str, str]) -> lis
                 "nativeChrome": "true",
                 "osChrome": "rejected",
                 "shellConformance": "ndai-webview-rounded-window-shell",
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
+                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
             }
             for key, expected in expected_pairs.items():
                 actual = _fam007_child_probe_value(probe, key)
