@@ -1233,6 +1233,14 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
             re.IGNORECASE,
         )
     )
+    stage1_current_posture = stage1_pending_posture or bool(
+        primary_name == PR_READINESS_STAGE1_REVIEW_FILE
+        and re.search(
+            r"Stage\s+1\s+Ready\s+For\s+Stage\s+2",
+            _packet_file_text(packet_files, PR_READINESS_STAGE1_REVIEW_FILE),
+            re.IGNORECASE,
+        )
+    )
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
         if not (
@@ -1245,7 +1253,7 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
             if reason in {
                 "stale-governance-pr-readiness-stage-1",
                 "stale-approve-pr-readiness",
-            } and stage1_pending_posture:
+            } and stage1_current_posture:
                 continue
             if pattern.search(text):
                 failures.append(f"{file_name}: active USER packet text contains stale false-green marker {reason}")

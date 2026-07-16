@@ -263,6 +263,28 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         )
 
 
+def _assert_current_stage1_terms_are_not_stale() -> None:
+    packet_files = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+            "Current Gate: Stage 1 Ready For Stage 2\n"
+        ),
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md": (
+            "PR Readiness Stage 1 analysis is complete.\n"
+            "Stage 1 Ready For Stage 2\n"
+        ),
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "Option A - Approve PR Readiness Stage 1 analysis as recommended.\n"
+        ),
+    }
+    failures = bundle._active_review_aid_false_green_failures(packet_files)
+    if failures:
+        raise AssertionError(
+            "Current Stage 1 packet wording was incorrectly classified as stale:\n"
+            + "\n".join(failures)
+        )
+
+
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
     plan_head = plan_head or state_head
     (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
@@ -479,6 +501,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 def main() -> int:
     _assert_stage1_primary_for_stage2_decision()
+    _assert_current_stage1_terms_are_not_stale()
     _assert_active_identity_arguments_required()
     _assert_failure(
         "active-review-wrong-branch",
