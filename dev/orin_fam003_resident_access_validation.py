@@ -518,7 +518,7 @@ def validate_static_wiring(failures: list[str]):
         "setMinimumSize(*self.BASE_MINIMUM_SIZE)",
         "setMaximumSize(*self.MAXIMUM_SIZE)",
         "surfaceClassification\", \"Nexus-Owned Product Surface",
-        "settingsInformationArchitecture\", \"global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v22",
+        "settingsInformationArchitecture\",\n            \"global-settings-shell-tray-and-hud-parent-child-deterministic-rail-r2",
         "settingsVisualRepair\", \"lv1-global-settings-compact-ndai-grammar-close-intercept-v32",
         "referenceDerivedHeader\", \"ndai-global-settings-centered-settings-chrome-v22",
         "dirtyGuardReference\", \"manage-monitors-modal-save-discard-cancel",

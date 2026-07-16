@@ -209,7 +209,10 @@ def main():
     parser.add_argument("--output-dir", default="")
     parser.add_argument(
         "--accepted-target",
-        default=r"C:\Nexus USER\FAM-003\Review Aids\Visual Acceptance Target\HUD_PAGE_VISUAL_TARGET_BOARD.png",
+        default=(
+            r"C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof"
+            r"\bp2_hud_page_visual_target_board_20260716.png"
+        ),
     )
     args = parser.parse_args()
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -364,21 +367,6 @@ def main():
         {"id": "HUD-IM-11", "element": "Quick Access regression surface", "artifacts": ["11_quick_access_regression"], "status": "PASS"},
         {"id": "HUD-IM-12", "element": "accepted-target side-by-side adjudication", "artifacts": ["target_implementation_comparison"], "status": "PASS"},
     ]
-    comparison_review = output_dir / "HUD_IMPLEMENTATION_MATCH_REVIEW.md"
-    comparison_review.write_text(
-        "# FAM-003 HUD Settings Implementation-Match Review\n\n"
-        "Status: `PASS` for Workstream implementation evidence only. This is not formal H1, Live Validation, or UTS proof.\n\n"
-        "Implementation source: `desktop/desktop_renderer.py` (`ResidentAccessSettingsDialog`, `NexusToggle`).\n\n"
-        "Behavior source: `desktop/monitoring_hud_access.py` and the owner-backed runtime callbacks in `desktop/desktop_renderer.py`.\n\n"
-        "| ID | Element group | Evidence | Result |\n| --- | --- | --- | --- |\n"
-        + "\n".join(
-            f"| {row['id']} | {row['element']} | {', '.join(row['artifacts'])} | {row['status']} |"
-            for row in element_proof
-        )
-        + "\n\nMaterial interpretation: the accepted target is a high-fidelity guide. The current implementation preserves its compact hierarchy, control meaning, confirmed-state model, progress/failure/retry states, and exact open-label contract while inheriting the accepted current Global Settings shell.\n",
-        encoding="utf-8",
-    )
-
     required_ids = {
         "01_disabled_default",
         "02_enabled_default",
@@ -404,6 +392,20 @@ def main():
         for artifact in artifacts
     )
     status = "PASS" if required_ids <= actual_ids and all_images_valid else "FAIL"
+    comparison_review = output_dir / "HUD_IMPLEMENTATION_MATCH_REVIEW.md"
+    comparison_review.write_text(
+        "# FAM-003 HUD Settings Implementation-Match Review\n\n"
+        f"Status: `{status}` for Workstream implementation evidence only. This is not formal H1, Live Validation, or UTS proof.\n\n"
+        "Implementation source: `desktop/desktop_renderer.py` (`ResidentAccessSettingsDialog`, `NexusToggle`).\n\n"
+        "Behavior source: `desktop/monitoring_hud_access.py` and the owner-backed runtime callbacks in `desktop/desktop_renderer.py`.\n\n"
+        "| ID | Element group | Evidence | Result |\n| --- | --- | --- | --- |\n"
+        + "\n".join(
+            f"| {row['id']} | {row['element']} | {', '.join(row['artifacts'])} | {row['status']} |"
+            for row in element_proof
+        )
+        + "\n\nMaterial interpretation: the accepted target is a high-fidelity guide. The current implementation preserves its compact hierarchy, control meaning, confirmed-state model, progress/failure/retry states, and exact open-label contract while inheriting the accepted current Global Settings shell.\n",
+        encoding="utf-8",
+    )
     manifest = {
         "schemaVersion": 1,
         "helperStatus": "Workstream-scoped",
