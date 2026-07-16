@@ -21691,6 +21691,38 @@ def main() -> int:
                 f"{owner_path}: Computer Use prohibition drift retained weaker allowance '{forbidden_phrase}'",
             )
 
+    codex_owned_validation_operation_owners = {
+        Path("Docs/Main.md"): (
+            main_text,
+            "transferring operation of the validation step to the USER",
+        ),
+        Path("Docs/development_rules.md"): (
+            development_rules_text,
+            "do not transfer the interaction step to the USER",
+        ),
+        Path("Docs/phase_governance.md"): (
+            phase_governance_text,
+            "must not convert the blocked interaction into a USER-operated validation step",
+        ),
+        Path("Docs/validation_helper_registry.md"): (
+            validation_helper_registry_text,
+            "must not transfer operation of the validation step to the USER",
+        ),
+        Path("Docs/governance_efficiency_operating_model.md"): (
+            governance_efficiency_text,
+            "must not be converted into a USER-operated validation step",
+        ),
+        Path("Docs/user_test_summary_guidance.md"): (
+            user_test_summary_guidance_text,
+            "does not make the USER responsible for performing blocked interaction steps",
+        ),
+    }
+    for owner_path, (owner_text, required_phrase) in codex_owned_validation_operation_owners.items():
+        require(
+            required_phrase in owner_text,
+            f"{owner_path}: Codex-owned validation operation contract is missing '{required_phrase}'",
+        )
+
     current_git_branch = _git_current_branch()
     outside_lane_merge_stable_findings: list[str] = []
 
