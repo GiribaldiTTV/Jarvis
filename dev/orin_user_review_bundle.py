@@ -47,6 +47,8 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 PR_READINESS_STAGE1_REVIEW_FILE = "PR_READINESS_STAGE1_REVIEW.md"
+PR_STAGE1_OUTCOME_REPAIR = "PR Readiness Stage 1 Repair Required"
+PR_STAGE1_OUTCOME_READY = "Stage 1 Ready For Stage 2"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
@@ -4824,6 +4826,7 @@ def _write_pr_readiness_stage1_review(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
+    stage1_outcome: str,
 ) -> Path:
     """Write the dedicated current-gate artifact for PR Readiness Stage 1."""
 
@@ -4892,8 +4895,13 @@ def _write_pr_readiness_stage1_review(
         "",
         "## Stage 1 Outcome",
         "",
-        "PR Readiness Stage 1 Repair Required - the current-gate review remains held until "
-        "the bounded repair, generated packet, external projections, and full validation are green.",
+        (
+            f"{stage1_outcome} - all bounded repair, generated packet, external projection, "
+            "and validation prerequisites are recorded in the current Stage 1 digest."
+            if stage1_outcome == PR_STAGE1_OUTCOME_READY
+            else f"{stage1_outcome} - the current-gate review remains held until the bounded "
+            "repair, generated packet, external projections, and full validation are green."
+        ),
         "",
         "## Exact USER Decision Supported",
         "",
@@ -11013,6 +11021,7 @@ def build_bundle(
     pending_user_decisions: list[str],
     expected_file_count: int | None,
     review_export_zip: Path | None,
+    stage1_outcome: str,
 ) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
@@ -11273,6 +11282,7 @@ def build_bundle(
             exact_user_decision=user_facing_decision,
             pending_user_decisions=pending_user_decisions,
             copied=copied,
+            stage1_outcome=stage1_outcome,
         )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
@@ -11569,6 +11579,12 @@ def main() -> int:
         action="store_true",
         help="Fail if the packet is branch-correct but still blocks Workstream implementation approval.",
     )
+    parser.add_argument(
+        "--stage1-outcome",
+        choices=(PR_STAGE1_OUTCOME_REPAIR, PR_STAGE1_OUTCOME_READY),
+        default=PR_STAGE1_OUTCOME_REPAIR,
+        help="Current PR Readiness Stage 1 outcome for the dedicated primary artifact.",
+    )
     parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the local USER hub packet.")
     args = parser.parse_args()
 
@@ -11633,6 +11649,7 @@ def main() -> int:
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
         review_export_zip=args.review_export_zip,
+        stage1_outcome=args.stage1_outcome,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
