@@ -3834,6 +3834,146 @@ def _bp3_active_state_consistency_failures(
     return failures
 
 
+def _fam003_bp3_r2_orchestration_consistency_failures(
+    packet_files: Mapping[str, str],
+    *,
+    status: str,
+) -> list[str]:
+    """Reject FAM-003 BP3 packets that cross phase or visual-decision boundaries."""
+
+    if status != DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        return []
+
+    identity_text = "\n".join(
+        (
+            packet_files.get("START_HERE.md", ""),
+            _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"),
+            _packet_file_text(packet_files, "WORKSTREAM_EXECUTION_AND_USER_DECISIONS.md"),
+        )
+    ).casefold()
+    if "feature/fam-003-settings-resize-proof" not in identity_text:
+        return []
+
+    failures: list[str] = []
+    orchestration_paths = (
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        "Review Aids/WORKSTREAM_EXECUTION_AND_USER_DECISIONS.md",
+        (
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/External Operational State/"
+            "bp3_workstream_entry_revision_20260716.md"
+        ),
+    )
+    orchestration_texts = {
+        path: packet_files.get(path, "") for path in orchestration_paths
+    }
+    orchestration_combined = "\n".join(orchestration_texts.values()).casefold()
+
+    required_boundary_markers = (
+        "r2-ws10 whole-package completion / downstream readiness",
+        "phase boundary stop required",
+        "workstream completion packet",
+        "h1 helper readiness",
+        "does not execute hardening h1, live validation, or uts",
+    )
+    for marker in required_boundary_markers:
+        if marker not in orchestration_combined:
+            failures.append(
+                "FAM-003 BP3 phase boundary: required orchestration marker is missing: "
+                f"{marker}"
+            )
+
+    forbidden_execution_patterns = (
+        re.compile(r"r2-ws10\s+(?:h1|hardening|live validation|lv|uts)", re.IGNORECASE),
+        re.compile(r"fresh h1\s*;", re.IGNORECASE),
+        re.compile(r"exact normal-launch visible-input lv", re.IGNORECASE),
+        re.compile(r"(?:then|before)\s+export uts", re.IGNORECASE),
+        re.compile(r"exit requires fresh h1", re.IGNORECASE),
+    )
+    for path, text in orchestration_texts.items():
+        for pattern in forbidden_execution_patterns:
+            if pattern.search(text):
+                failures.append(
+                    "FAM-003 BP3 phase boundary: Workstream orchestration attempts "
+                    "downstream H1/LV/UTS execution in "
+                    f"{path}: {pattern.pattern}"
+                )
+
+    if "does not authorize h1, live validation, uts" not in orchestration_combined:
+        failures.append(
+            "FAM-003 BP3 phase boundary: bounded Workstream approval does not "
+            "explicitly exclude H1, Live Validation, and UTS"
+        )
+
+    visual_ledger = _packet_file_text(
+        packet_files,
+        "HUD_PAGE_VISUAL_SELECTION_LEDGER.md",
+    )
+    if not visual_ledger:
+        failures.append(
+            "FAM-003 BP3 visual decision: HUD_PAGE_VISUAL_SELECTION_LEDGER.md is missing"
+        )
+    else:
+        normalized_ledger = visual_ledger.casefold()
+        required_visual_markers = (
+            "user visual target decision state: `user accepted`",
+            "successful enablement opens the dashboard once as confirmation",
+            "open hud dashboard",
+            "high-fidelity guide",
+            "not a literal final screenshot",
+        )
+        for marker in required_visual_markers:
+            if marker not in normalized_ledger:
+                failures.append(
+                    "FAM-003 BP3 visual decision: accepted HUD ledger marker is "
+                    f"missing: {marker}"
+                )
+        stale_visual_patterns = (
+            "user visual target decision state: `pending user review`",
+            "visual acceptance target plan: `design candidates reviewable`",
+        )
+        for marker in stale_visual_patterns:
+            if marker in normalized_ledger:
+                failures.append(
+                    "FAM-003 BP3 visual decision: HUD ledger retains stale pending "
+                    f"state: {marker}"
+                )
+        visual_rows = [
+            line
+            for line in visual_ledger.splitlines()
+            if line.strip().startswith("| `HUD-VAT-")
+        ]
+        if len(visual_rows) != 10:
+            failures.append(
+                "FAM-003 BP3 visual decision: HUD ledger must contain exactly ten "
+                f"HUD-VAT rows; found {len(visual_rows)}"
+            )
+        for row in visual_rows:
+            if not re.search(r"\|\s*USER Accepted\s*\|\s*$", row, re.IGNORECASE):
+                failures.append(
+                    "FAM-003 BP3 visual decision: HUD-VAT row is not USER Accepted: "
+                    f"{row.strip()}"
+                )
+
+    accepted_bp2 = _packet_file_text(packet_files, "ACCEPTED_BP2_R2_BRANCH_PLAN.md")
+    if accepted_bp2:
+        normalized_bp2 = accepted_bp2.casefold()
+        stale_accepted_plan_markers = (
+            "new hud page supplement is pending user selection",
+            "user visual target decision state: pending user review",
+            "hud page supplement is not accepted",
+            "hud visual target and bp2 contract remain unaccepted",
+            "user target decision pending",
+        )
+        for marker in stale_accepted_plan_markers:
+            if marker in normalized_bp2:
+                failures.append(
+                    "FAM-003 BP3 visual decision: accepted BP2 context retains stale "
+                    f"visual-decision wording: {marker}"
+                )
+
+    return failures
+
+
 def _user_facing_decision_text(exact_user_decision: str) -> str:
     """Keep USER files decision-focused while chat/helper output carries byte proof."""
 
@@ -11107,6 +11247,12 @@ def _validate_workstream_entry_packet_decision_path(
             status=status,
         )
     )
+    failures.extend(
+        _fam003_bp3_r2_orchestration_consistency_failures(
+            packet_files,
+            status=status,
+        )
+    )
 
     if require_implementation_ready and status != DECISION_STATUS_IMPLEMENTATION_READY:
         joined = ", ".join(f"{file_name}={status_value}" for file_name, status_value in sorted(file_statuses.items()))
@@ -11559,6 +11705,14 @@ def build_bundle(
         *_fam007_bp2_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
         *_fam006_bp3_support_context_failures(packet_files),
+        *_fam003_bp3_r2_orchestration_consistency_failures(
+            packet_files,
+            status=(
+                DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
+                if bp3_packet
+                else DECISION_STATUS_UNKNOWN
+            ),
+        ),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]

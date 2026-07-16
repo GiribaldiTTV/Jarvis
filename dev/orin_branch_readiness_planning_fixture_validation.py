@@ -35,6 +35,9 @@ PR_REVIEW_CHURN_MATRIX_FIXTURE = (
     / "pr_276_rar_review_churn_matrix.json"
 )
 UI_REFERENCE_CATALOG_README = ROOT / "Docs" / "ui_reference_catalog" / "README.md"
+FAM003_BP3_CONSISTENCY_FIXTURE = (
+    FIXTURE_DIR / "fam003_bp3_orchestration_consistency.json"
+)
 
 
 def _pr_review_churn_receipt_exceeds_budget(
@@ -7888,6 +7891,47 @@ def _validate_fam006_workstream_approval_review_packet_guard() -> list[str]:
     return failures
 
 
+def _validate_fam003_bp3_orchestration_consistency_guard() -> list[str]:
+    failures: list[str] = []
+    fixture = json.loads(FAM003_BP3_CONSISTENCY_FIXTURE.read_text(encoding="utf-8"))
+
+    valid_failures = review_bundle._fam003_bp3_r2_orchestration_consistency_failures(
+        fixture["valid"],
+        status=review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if valid_failures:
+        failures.append(
+            "Valid FAM-003 BP3 phase/visual consistency fixture failed: "
+            + "; ".join(valid_failures)
+        )
+
+    phase_failures = review_bundle._fam003_bp3_r2_orchestration_consistency_failures(
+        fixture["invalid_phase_boundary"],
+        status=review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if not any("attempts downstream H1/LV/UTS execution" in item for item in phase_failures):
+        failures.append(
+            "Invalid FAM-003 BP3 phase-boundary fixture did not reject H1/LV/UTS "
+            "execution inside Workstream"
+        )
+
+    visual_failures = review_bundle._fam003_bp3_r2_orchestration_consistency_failures(
+        fixture["invalid_visual_pending"],
+        status=review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if not any("stale pending state" in item for item in visual_failures):
+        failures.append(
+            "Invalid FAM-003 BP3 visual fixture did not reject a pending HUD target "
+            "ledger after BP2 acceptance"
+        )
+    if not any("row is not USER Accepted" in item for item in visual_failures):
+        failures.append(
+            "Invalid FAM-003 BP3 visual fixture did not reject pending HUD-VAT rows"
+        )
+
+    return failures
+
+
 def _validate_primary_user_review_file_stage_priority() -> list[str]:
     failures: list[str] = []
     bp3_trace_decision = (
@@ -13918,6 +13962,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_fam006_bp3_packet_generation_guard())
     failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
     failures.extend(_validate_fam006_workstream_approval_review_packet_guard())
+    failures.extend(_validate_fam003_bp3_orchestration_consistency_guard())
 
     return failures
 
