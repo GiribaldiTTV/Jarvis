@@ -38,6 +38,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--snapshot", required=True, help="Snapshot directory relative to the external root")
     parser.add_argument("--expected-branch", required=True)
     parser.add_argument("--expected-source-head", required=True)
+    parser.add_argument(
+        "--post-expected-source-head",
+        help="Expected Source Repo HEAD after this transition; defaults to the pre-write expectation",
+    )
     parser.add_argument("--expected-origin-main", required=True)
     parser.add_argument("--expected-worktree-path", required=True)
     parser.add_argument("--expected-worktree-slot", required=True)
@@ -201,6 +205,7 @@ def reconcile_target(
     assignments: list[str],
     additions: list[str],
     apply: bool,
+    post_expected_source_head: str | None = None,
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
     failures = validate_canonical_root(root)
@@ -271,11 +276,12 @@ def reconcile_target(
 
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)
+    post_source_head = post_expected_source_head or expected_source_head
     post_validation = validate_target_currentness(
         root,
         [target],
         expected_branch=expected_branch,
-        expected_source_head=expected_source_head,
+        expected_source_head=post_source_head,
         expected_origin_main=expected_origin_main,
         expected_worktree_path=expected_worktree_path,
         expected_worktree_slot=expected_worktree_slot,
@@ -296,7 +302,8 @@ def reconcile_target(
         "After SHA256": actual_after_hash,
         "Changed Fields": sorted(updates),
         "Branch": expected_branch,
-        "Source Repo HEAD": expected_source_head,
+        "Before Source Repo HEAD": expected_source_head,
+        "After Source Repo HEAD": post_source_head,
         "Origin/Main": expected_origin_main,
         "Worktree Path": expected_worktree_path,
         "Slot ID": expected_worktree_slot,
@@ -325,6 +332,7 @@ def main() -> int:
         snapshot=args.snapshot,
         expected_branch=args.expected_branch,
         expected_source_head=args.expected_source_head,
+        post_expected_source_head=args.post_expected_source_head,
         expected_origin_main=args.expected_origin_main,
         expected_worktree_path=args.expected_worktree_path,
         expected_worktree_slot=args.expected_worktree_slot,

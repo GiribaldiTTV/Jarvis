@@ -252,6 +252,39 @@ def main() -> int:
         )
         if not released or json.loads((root / "locks" / f"{lock_id}.json").read_text(encoding="utf-8"))["Lock State"] != "Released":
             raise AssertionError("lock release fixture failed:\n" + "\n".join(release_messages))
+
+        transition_lock_id = "worktree-fixture-head-transition"
+        atomic_write_json(
+            root / "locks" / f"{transition_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": transition_lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        new_head = "d" * 40
+        ok, messages, _ = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=transition_lock_id,
+            snapshot="snapshots/fixture-snapshot",
+            assignments=[f"Source Repo HEAD={new_head}"],
+            additions=[],
+            apply=True,
+            post_expected_source_head=new_head,
+            **_expectations(target),
+        )
+        if not ok or new_head not in target.read_text(encoding="utf-8"):
+            raise AssertionError("target writer did not prove an atomic head transition:\n" + "\n".join(messages))
+        released, release_messages = lock_release.release_lock(
+            root, transition_lock_id, "fixture head transition complete", apply=True
+        )
+        if not released:
+            raise AssertionError("head-transition lock release fixture failed:\n" + "\n".join(release_messages))
+
         missing_lock_ok, missing_lock_messages, _ = reconciler.reconcile_target(
             root=root,
             target=TARGET,
