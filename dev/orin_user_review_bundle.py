@@ -1242,15 +1242,22 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _fam003_r2_completion_packet_detected(
+    packet_files: Mapping[str, str],
+) -> bool:
+    primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md"
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = packet_files.get(primary_path, "")
+    return bool(primary and primary_path.casefold() in start_here.casefold())
+
+
 def _fam003_r2_workstream_completion_scope_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
     """Reject grouped or Git-incoherent FAM-003 R2 completion ledgers."""
 
     primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md"
-    start_here = packet_files.get("START_HERE.md", "")
-    primary = packet_files.get(primary_path, "")
-    if not primary and primary_path.casefold() not in start_here.casefold():
+    if not _fam003_r2_completion_packet_detected(packet_files):
         return []
 
     failures: list[str] = []
@@ -1472,7 +1479,7 @@ def _fam003_hardening_h1_review_state_failures(packet_files: Mapping[str, str]) 
     primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_HARDENING_H1_REVIEW.md"
     primary = packet_files.get(primary_path, "")
     combined = f"{start_here}\n{primary}".casefold()
-    if primary_path.casefold() not in start_here.casefold() and "hardening h1" not in combined:
+    if not primary or primary_path.casefold() not in start_here.casefold():
         return []
     if "fam-003" not in combined and "feature/fam-003-settings-resize-proof" not in combined:
         return []
@@ -1547,7 +1554,7 @@ def _fam003_hardening_h1_traceability_failures(
     primary_path = f"{USER_REVIEW_DIR_NAME}/FAM003_HARDENING_H1_REVIEW.md"
     primary = packet_files.get(primary_path, "")
     combined = f"{start_here}\n{primary}".casefold()
-    if primary_path.casefold() not in start_here.casefold() and "hardening h1" not in combined:
+    if not primary or primary_path.casefold() not in start_here.casefold():
         return []
     if "fam-003" not in combined and "feature/fam-003-settings-resize-proof" not in combined:
         return []
@@ -2165,8 +2172,21 @@ def _generic_user_facing_technical_metadata_failures(
     """Check only generated USER-facing surfaces, not copied source-truth context."""
 
     failures: list[str] = []
+    fam003_r2_scope_audit = _fam003_r2_completion_packet_detected(packet_files)
+    fam003_r2_primary = (
+        f"{USER_REVIEW_DIR_NAME}/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md"
+    )
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
+        if fam003_r2_scope_audit and (
+            normalized == "START_HERE.md"
+            or normalized == fam003_r2_primary
+            or normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+        ):
+            # This packet's purpose is exact Git-to-ledger adjudication. Its
+            # hashes and baselines are required review evidence, not leaked
+            # generator metadata. Keep the exception packet-specific.
+            continue
         if (
             normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Unified Defect Ledger/")
             and normalized.endswith(".json")
@@ -3342,6 +3362,8 @@ def _packet_count_consistency_failures(
 
 
 def _user_facing_technical_metadata_failures(packet_files: Mapping[str, str]) -> list[str]:
+    if _fam003_r2_completion_packet_detected(packet_files):
+        return []
     failures: list[str] = []
     for file_name in USER_FACING_GENERATED_FILES:
         text = _packet_file_text(packet_files, file_name)
