@@ -755,8 +755,20 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
     return bool(_packet_file_text(packet_files, file_name))
 
 
-def _primary_user_review_file(exact_user_decision: str) -> str:
+def _primary_user_review_file(
+    exact_user_decision: str,
+    *,
+    stage1_outcome: str | None = None,
+) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
+    # A green Stage 1 packet normally carries the exact Stage 2 approval text
+    # as its next USER decision. Keep the current-gate artifact primary rather
+    # than letting the later-stage wording fall through to the BP2 selector.
+    if (
+        stage1_outcome == PR_STAGE1_OUTCOME_READY
+        and re.search(r"\bpr readiness stage 2\b", normalized)
+    ):
+        return PR_READINESS_STAGE1_REVIEW_FILE
     stage_patterns = (
         (
             PR_READINESS_STAGE1_REVIEW_FILE,
@@ -11252,7 +11264,10 @@ def build_bundle(
         )
     )
     user_facing_decision = _user_facing_decision_text(exact_user_decision)
-    primary_user_review_file_name = _primary_user_review_file(exact_user_decision)
+    primary_user_review_file_name = _primary_user_review_file(
+        exact_user_decision,
+        stage1_outcome=stage1_outcome,
+    )
     user_vision_file = _write_user_branch_vision_review(
         target=review_aids_dir,
         title=title,

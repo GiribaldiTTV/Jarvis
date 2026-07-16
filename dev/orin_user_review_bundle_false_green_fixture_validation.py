@@ -247,6 +247,22 @@ def _assert_active_identity_arguments_required() -> None:
         )
 
 
+def _assert_stage1_primary_for_stage2_decision() -> None:
+    decision = (
+        "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
+        "/ feature/release-readiness-source-truth-intake."
+    )
+    primary = bundle._primary_user_review_file(
+        decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    )
+    if primary != bundle.PR_READINESS_STAGE1_REVIEW_FILE:
+        raise AssertionError(
+            "A green Stage 1 packet carrying the Stage 2 approval text must keep "
+            f"{bundle.PR_READINESS_STAGE1_REVIEW_FILE} primary; found {primary!r}."
+        )
+
+
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
     plan_head = plan_head or state_head
     (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
@@ -462,6 +478,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 
 def main() -> int:
+    _assert_stage1_primary_for_stage2_decision()
     _assert_active_identity_arguments_required()
     _assert_failure(
         "active-review-wrong-branch",
