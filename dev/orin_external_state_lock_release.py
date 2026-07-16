@@ -1,0 +1,67 @@
+"""Release one external-state lock through an auditable atomic transition."""
+
+from __future__ import annotations
+
+import argparse
+import re
+from pathlib import Path
+
+from orin_external_state_common import (
+    DEFAULT_EXTERNAL_STATE_ROOT,
+    atomic_write_json,
+    load_json,
+    resolve_path,
+    utc_now,
+    validate_canonical_root,
+    validate_initialized_root,
+)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Release one External Governance State lock.")
+    parser.add_argument("--root", default=str(DEFAULT_EXTERNAL_STATE_ROOT))
+    parser.add_argument("--lock-id", required=True)
+    parser.add_argument("--reason", required=True)
+    parser.add_argument("--apply", action="store_true")
+    return parser
+
+
+def release_lock(root: Path, lock_id: str, reason: str, apply: bool) -> tuple[bool, list[str]]:
+    root = resolve_path(root)
+    failures = validate_canonical_root(root)
+    failures.extend(validate_initialized_root(root))
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_id):
+        failures.append(f"Lock ID is not a safe filename: {lock_id!r}")
+    lock_path = root / "locks" / f"{lock_id}.json"
+    if not lock_path.is_file():
+        failures.append(f"Lock is missing: {lock_path}")
+    if failures:
+        return False, failures
+    try:
+        payload = load_json(lock_path)
+    except Exception as exc:  # noqa: BLE001 - corrupt operational state blocks release
+        return False, [f"Lock is unreadable: {lock_path}: {exc}"]
+    if payload.get("Lock State") not in {"Locked", "Expired"}:
+        return False, [f"Lock is already released or invalid: {lock_path}"]
+    payload["Lock State"] = "Released"
+    payload["Released At"] = utc_now()
+    payload["Release Reason"] = reason
+    payload["Last Updated"] = utc_now()
+    if not apply:
+        return True, [f"READY: {lock_path}", "No write performed; omit --apply was honored"]
+    atomic_write_json(lock_path, payload)
+    return True, [f"RELEASED: {lock_path}"]
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    ok, messages = release_lock(Path(args.root), args.lock_id, args.reason, args.apply)
+    print("External State Lock Release")
+    for message in messages:
+        print(message)
+    print(f"Release Result: {'PASS' if ok else 'BLOCKED'}")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -107,6 +107,45 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/validation_helper_registry.md`
   - `dev/orin_user_review_bundle.py`
 
+## Pattern: Active Packet Identity Can Be Masked By Structural PASS
+
+- symptom:
+  an existing USER packet passes folder layout, ZIP readability, substantive-content, or folder/ZIP parity checks while its active branch, HEAD, origin/main, or copied source context belongs to an older checkout
+- layer:
+  USER packet generation, active-review validation, accepted-historical evidence, and PR Readiness packet proof
+- root-cause pattern:
+  the validation-only path accepted identity as contextual text and did not require explicit expected branch/HEAD/baseline inputs, so structural PASS was mistaken for current active-review proof
+- fix pattern:
+  active-review validation fails closed without expected identity arguments and independently validates both folder and ZIP identity; accepted-historical mode preserves its recorded historical identity without requiring current Git equality
+- validation pattern:
+  run active-review positive, wrong-branch, wrong-HEAD, wrong-baseline, missing-argument, stale-folder, stale-ZIP, and folder/ZIP-disagreement fixtures, then run accepted-historical preservation fixtures
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+
+## Pattern: One External Root HEAD Cannot Prove Every Target Current
+
+- symptom:
+  a strict external-state validator reports many unrelated records as stale because it applies one expected source HEAD to multiple worktrees, or a target-scoped PASS is interpreted as proof that the complete external root is current
+- layer:
+  External Operational State Store, worktree/branch projections, root manifest, target reconciliation, and local governance validation
+- root-cause pattern:
+  the root manifest and global strict validator were used without a target-currentness contract that distinguishes live projections from historical receipts, names the selected target, and records per-target identity expectations
+- fix pattern:
+  preserve global modes, add target-scoped validation with one relative target, per-target branch/head/baseline/worktree/slot values, hash precondition, path security, TOCTOU detection, record-class checks, and explicit scoped-PASS output; reconcile records only through `dev/orin_external_state_target_reconcile.py`, then release locks through `dev/orin_external_state_lock_release.py`
+- validation pattern:
+  run valid, wrong-identity, stale-hash, missing/duplicate/alias, traversal/off-root, reparse/symlink, malformed, historical, multi-head, stale-manifest, TOCTOU, global-regression, and scoped-PASS fixture families
+- source references:
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_external_state_validation.py`
+  - `dev/orin_external_state_common.py`
+  - `dev/orin_external_state_target_reconcile.py`
+  - `dev/orin_external_state_lock_release.py`
+
 ## Pattern: Backend Runtime Truth Hidden Behind UI Green
 
 - symptom:

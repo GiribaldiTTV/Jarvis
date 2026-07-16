@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import inspect
 import json
+import subprocess
 import tempfile
 import zipfile
 from pathlib import Path, PureWindowsPath
@@ -53,6 +54,11 @@ def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
     (root / "Review Aids").mkdir(parents=True)
     (root / "Source Truth Context").mkdir(parents=True)
     primary_path = "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md"
+    copied_source_path = "Source Truth Context/Docs__Main.md"
+    (root / copied_source_path).write_text(
+        (ROOT / "Docs" / "Main.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
     (root / "START_HERE.md").write_text(
         "\n".join(
             [
@@ -62,6 +68,12 @@ def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
                 f"Primary USER Review File: `{primary_path}`",
                 "",
                 "Open the primary review file. Packet validation is not USER acceptance.",
+                "",
+                "## Files",
+                "",
+                "| Source path | Copied path |",
+                "| --- | --- |",
+                f"| `Docs/Main.md` | `{copied_source_path}` |",
             ]
         ),
         encoding="utf-8",
@@ -97,6 +109,18 @@ def _current_head() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
 
+def _current_branch() -> str:
+    return subprocess.check_output(
+        ["git", "branch", "--show-current"], cwd=ROOT, text=True
+    ).strip()
+
+
+def _current_origin_main() -> str:
+    return subprocess.check_output(
+        ["git", "rev-parse", "origin/main"], cwd=ROOT, text=True
+    ).strip()
+
+
 def _run_fixture(
     name: str,
     mutate,
@@ -106,6 +130,10 @@ def _run_fixture(
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     external_state_files=None,
     extra_zip_names: tuple[str, ...] = (),
+    expected_branch: str | None = None,
+    expected_head: str | None = None,
+    expected_origin_main: str | None = None,
+    omit_identity_arguments: bool = False,
 ) -> list[str]:
     with tempfile.TemporaryDirectory(prefix=f"ndai-{name}-") as temp_dir:
         review_root = Path(temp_dir)
@@ -134,6 +162,21 @@ def _run_fixture(
                 export_zip=export_zip,
                 worktree_label="FAM-007",
                 validation_mode=validation_mode,
+                expected_branch=(
+                    None
+                    if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+                    else expected_branch or _current_branch()
+                ),
+                expected_head=(
+                    None
+                    if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+                    else expected_head or _current_head()
+                ),
+                expected_origin_main=(
+                    None
+                    if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+                    else expected_origin_main or _current_origin_main()
+                ),
             ).failures
         finally:
             bundle._current_branch_external_state_dir = original_external_state_dir
@@ -149,6 +192,10 @@ def _assert_failure(
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     external_state_files=None,
     extra_zip_names: tuple[str, ...] = (),
+    expected_branch: str | None = None,
+    expected_head: str | None = None,
+    expected_origin_main: str | None = None,
+    omit_identity_arguments: bool = False,
 ) -> None:
     failures = _run_fixture(
         name,
@@ -158,6 +205,10 @@ def _assert_failure(
         validation_mode=validation_mode,
         external_state_files=external_state_files,
         extra_zip_names=extra_zip_names,
+        expected_branch=expected_branch,
+        expected_head=expected_head,
+        expected_origin_main=expected_origin_main,
+        omit_identity_arguments=omit_identity_arguments,
     )
     joined = "\n".join(failures)
     if needle not in joined:
@@ -181,6 +232,19 @@ def _assert_success(
     )
     if failures:
         raise AssertionError(f"{name} failed unexpectedly:\n" + "\n".join(failures))
+
+
+def _assert_active_identity_arguments_required() -> None:
+    failures = _run_fixture(
+        "missing-active-identity-arguments",
+        lambda _packet: None,
+        omit_identity_arguments=True,
+    )
+    if not any("requires explicit identity expectations" in failure for failure in failures):
+        raise AssertionError(
+            "missing-active-identity-arguments did not fail closed:\n"
+            + "\n".join(failures)
+        )
 
 
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
@@ -398,6 +462,31 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 
 def main() -> int:
+    _assert_active_identity_arguments_required()
+    _assert_failure(
+        "active-review-wrong-branch",
+        "Folder active-review identity: Packet identity: expected branch",
+        lambda _packet: None,
+        expected_branch="feature/wrong-branch",
+    )
+    _assert_failure(
+        "active-review-wrong-head",
+        "Folder active-review identity: Packet identity: expected HEAD",
+        lambda _packet: None,
+        expected_head="1" * 40,
+    )
+    _assert_failure(
+        "active-review-wrong-origin-main",
+        "Folder active-review identity: Packet identity: expected origin/main",
+        lambda _packet: None,
+        expected_origin_main="2" * 40,
+    )
+    _assert_success(
+        "active-review-identity-positive",
+        lambda _packet: None,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
     _assert_failure(
         "empty-primary",
         "primary USER review file is empty",

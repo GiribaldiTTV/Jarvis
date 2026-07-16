@@ -2575,6 +2575,9 @@ def validate_local_user_packet(
     export_zip: Path,
     worktree_label: str | None = None,
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    expected_branch: str | None = None,
+    expected_head: str | None = None,
+    expected_origin_main: str | None = None,
 ) -> LocalUserPacketValidationResult:
     if validation_mode not in PACKET_VALIDATION_MODES:
         raise ValueError(
@@ -2585,6 +2588,22 @@ def validate_local_user_packet(
     packet_dir = packet_dir.resolve()
     export_zip = export_zip.resolve()
     failures: list[str] = []
+
+    if validation_mode == PACKET_VALIDATION_MODE_ACTIVE_REVIEW:
+        missing_identity = [
+            name
+            for name, value in (
+                ("expected branch", expected_branch),
+                ("expected HEAD", expected_head),
+                ("expected origin/main", expected_origin_main),
+            )
+            if not value
+        ]
+        if missing_identity:
+            failures.append(
+                "Active-review packet validation requires explicit identity expectations: "
+                + ", ".join(missing_identity)
+            )
 
     if not packet_dir.is_dir():
         failures.append(f"Local USER packet folder is missing: {packet_dir}")
@@ -2687,6 +2706,23 @@ def validate_local_user_packet(
 
     folder_packet_files = _packet_text_files(packet_dir)
     packet_files = zip_packet_files if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else (zip_packet_files or folder_packet_files)
+    if validation_mode == PACKET_VALIDATION_MODE_ACTIVE_REVIEW and not any(
+        "requires explicit identity expectations" in failure for failure in failures
+    ):
+        identity_kwargs = {
+            "expected_branch": expected_branch or "",
+            "expected_head": expected_head or "",
+            "expected_origin_main": expected_origin_main or "",
+        }
+        failures.extend(
+            f"Folder active-review identity: {failure}"
+            for failure in _packet_identity_failures(folder_packet_files, **identity_kwargs)
+        )
+        if zip_packet_files:
+            failures.extend(
+                f"ZIP active-review identity: {failure}"
+                for failure in _packet_identity_failures(zip_packet_files, **identity_kwargs)
+            )
     failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
     generated_packet_files = {
         name: text
@@ -11304,9 +11340,27 @@ def main() -> int:
             "accepted packet snapshot against its copied context and live acceptance receipt."
         ),
     )
-    parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
-    parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
-    parser.add_argument("--expected-origin-main", help="Expected main baseline for Workstream Entry packet validation.")
+    parser.add_argument(
+        "--expected-branch",
+        help=(
+            "Expected source branch for active-review packet identity validation. "
+            "Required with active-review local packet validation."
+        ),
+    )
+    parser.add_argument(
+        "--expected-head",
+        help=(
+            "Expected source HEAD for active-review packet identity validation. "
+            "Required with active-review local packet validation."
+        ),
+    )
+    parser.add_argument(
+        "--expected-origin-main",
+        help=(
+            "Expected origin/main for active-review packet identity validation. "
+            "Required with active-review local packet validation."
+        ),
+    )
     parser.add_argument(
         "--require-implementation-ready",
         action="store_true",
@@ -11323,6 +11377,9 @@ def main() -> int:
             export_zip=args.review_export_zip,
             worktree_label=args.worktree_label or args.folder_name,
             validation_mode=args.packet_validation_mode,
+            expected_branch=args.expected_branch,
+            expected_head=args.expected_head,
+            expected_origin_main=args.expected_origin_main,
         )
         print(_format_local_user_packet_validation_result(result))
         return 1 if result.failures else 0

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
+import stat
 import re
+from pathlib import PureWindowsPath
 
 from orin_external_state_common import (
     DEFAULT_EXTERNAL_STATE_ROOT,
@@ -11,6 +14,7 @@ from orin_external_state_common import (
     iter_state_files,
     load_json,
     resolve_path,
+    sha256_file,
     validate_canonical_root,
 )
 
@@ -56,6 +60,28 @@ def build_parser() -> argparse.ArgumentParser:
         "--expected-source-head",
         help="Expected Source Repo HEAD for the manifest and required migrated markdown records.",
     )
+    parser.add_argument(
+        "--target-currentness",
+        action="store_true",
+        help=(
+            "Run additive target-scoped currentness validation. This mode requires one explicit "
+            "relative target and per-target identity expectations; it does not claim root-wide currentness."
+        ),
+    )
+    parser.add_argument(
+        "--target",
+        action="append",
+        default=[],
+        help="Relative external-state record path for --target-currentness. Repeat only to prove duplicate-target rejection.",
+    )
+    parser.add_argument("--expected-branch", help="Expected Branch value for the selected target record.")
+    parser.add_argument("--expected-origin-main", help="Expected origin/main value for the selected target record.")
+    parser.add_argument("--expected-worktree-path", help="Expected Worktree Path value for the selected target record.")
+    parser.add_argument("--expected-worktree-slot", help="Expected Slot ID value for the selected target record.")
+    parser.add_argument(
+        "--expected-target-sha256",
+        help="Expected SHA256 of the selected target record before validation (TOCTOU precondition).",
+    )
     return parser
 
 
@@ -88,6 +114,190 @@ def markdown_field_value(text: str, field: str) -> str | None:
     if value.startswith("`") and value.endswith("`") and value.count("`") == 2:
         return value[1:-1].strip()
     return value
+
+
+TARGET_LIVE_RECORD_CLASSES = {
+    "live worktree projection",
+    "live branch projection",
+    "live branch plan",
+    "live branch plan projection",
+    "live central authority projection",
+    "live selected-next projection",
+    "live release-window projection",
+    "live review-bundle projection",
+}
+TARGET_HISTORICAL_RECORD_CLASSES = {
+    "historical receipt",
+    "historical projection",
+    "accepted historical receipt",
+}
+
+
+def _normalized_windows_value(value: str | None) -> str:
+    if value is None:
+        return ""
+    return value.strip().strip("`").replace("/", "\\").rstrip("\\").casefold()
+
+
+def _first_markdown_field(text: str, fields: tuple[str, ...]) -> str | None:
+    for field in fields:
+        value = markdown_field_value(text, field)
+        if value:
+            return value
+    return None
+
+
+def _has_reparse_point(path: Path) -> bool:
+    try:
+        if os.path.islink(path):
+            return True
+        metadata = os.stat(path, follow_symlinks=False)
+        attributes = getattr(metadata, "st_file_attributes", 0)
+        return bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400))
+    except OSError:
+        return False
+
+
+def _resolve_target_path(root: Path, raw_target: str) -> tuple[str | None, Path | None, list[str]]:
+    failures: list[str] = []
+    if not isinstance(raw_target, str) or not raw_target.strip():
+        return None, None, ["Target Currentness Contract: target path is missing"]
+    raw = raw_target.strip()
+    windows = PureWindowsPath(raw)
+    if Path(raw).is_absolute() or windows.is_absolute() or windows.drive or windows.root:
+        failures.append(f"Target Path Security: absolute/off-root target is forbidden: {raw_target}")
+        return None, None, failures
+    normalized = raw.replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part]
+    if not parts or any(part in {"..", "."} for part in parts):
+        failures.append(f"Target Path Security: traversal or alias segments are forbidden: {raw_target}")
+        return None, None, failures
+    relative = "/".join(parts)
+    root_resolved = root.resolve(strict=False)
+    candidate = (root / Path(*parts)).resolve(strict=False)
+    try:
+        candidate.relative_to(root_resolved)
+    except ValueError:
+        failures.append(f"Target Path Security: resolved target escapes external root: {raw_target}")
+        return None, None, failures
+    cursor = root_resolved
+    for part in parts:
+        cursor = cursor / part
+        if cursor.exists() and _has_reparse_point(cursor):
+            failures.append(f"Target Path Security: reparse/symlink escape is forbidden: {relative}")
+            return relative, None, failures
+    if not candidate.is_file():
+        failures.append(f"Target Currentness: selected target is missing or not a file: {relative}")
+        return relative, None, failures
+    return relative, candidate, failures
+
+
+def validate_target_currentness(
+    root: Path,
+    targets: list[str],
+    *,
+    expected_branch: str | None,
+    expected_source_head: str | None,
+    expected_origin_main: str | None,
+    expected_worktree_path: str | None,
+    expected_worktree_slot: str | None,
+    expected_target_sha256: str | None,
+    expected_schema: str = DEFAULT_SCHEMA_VERSION,
+) -> list[str]:
+    """Validate exactly one selected live external record without claiming root-wide freshness."""
+
+    failures = validate_canonical_root(root)
+    root = resolve_path(root)
+    if not root.is_dir():
+        failures.append(f"External State Missing: target-scoped validation root is absent: {root}")
+        return failures
+    if len(targets) != 1:
+        failures.append(
+            "Target Currentness Contract: exactly one explicit target is required; "
+            f"received {len(targets)} (duplicate/ambiguous target selection is rejected)"
+        )
+        return failures
+    required_expectations = {
+        "expected branch": expected_branch,
+        "expected source HEAD": expected_source_head,
+        "expected origin/main": expected_origin_main,
+        "expected worktree path": expected_worktree_path,
+        "expected worktree slot": expected_worktree_slot,
+        "expected target SHA256": expected_target_sha256,
+    }
+    missing = [name for name, value in required_expectations.items() if not value]
+    if missing:
+        failures.append(
+            "Target Currentness Contract: fail closed; missing explicit expectations: "
+            + ", ".join(missing)
+        )
+        return failures
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", expected_target_sha256 or ""):
+        failures.append("Target Currentness Contract: expected target SHA256 must be 64 hexadecimal characters")
+        return failures
+
+    relative, target_path, path_failures = _resolve_target_path(root, targets[0])
+    failures.extend(path_failures)
+    if target_path is None or relative is None:
+        return failures
+
+    try:
+        before_hash = sha256_file(target_path)
+        target_bytes = target_path.read_bytes()
+        text = target_bytes.decode("utf-8")
+        after_hash = sha256_file(target_path)
+    except (OSError, UnicodeDecodeError) as exc:
+        failures.append(f"Target Currentness: selected target is malformed or unreadable: {relative}: {exc}")
+        return failures
+
+    if before_hash != after_hash:
+        failures.append(f"Target Currentness: selected target changed during validation (TOCTOU): {relative}")
+    if before_hash.casefold() != (expected_target_sha256 or "").casefold():
+        failures.append(
+            f"Target Currentness: target hash precondition failed for {relative}: "
+            f"expected {expected_target_sha256}, found {before_hash}"
+        )
+    if failures:
+        return failures
+
+    schema = markdown_field_value(text, "External State Schema")
+    if schema != expected_schema:
+        failures.append(
+            f"External State Schema Conflict: {relative}: expected {expected_schema}, found {schema or 'MISSING'}"
+        )
+    record_class = _normalized_windows_value(markdown_field_value(text, "Record Class")).replace("\\", " ")
+    if record_class in TARGET_HISTORICAL_RECORD_CLASSES or "historical receipt" in record_class:
+        failures.append(f"Target Currentness: historical receipt cannot be selected as live state: {relative}")
+    elif record_class not in TARGET_LIVE_RECORD_CLASSES:
+        failures.append(
+            f"Target Currentness: unsupported or missing live Record Class in {relative}: "
+            f"{record_class or 'MISSING'}"
+        )
+
+    actual_branch = _first_markdown_field(text, ("Branch", "Current Branch"))
+    actual_head = _first_markdown_field(text, ("Source Repo HEAD", "Current HEAD"))
+    actual_origin = _first_markdown_field(text, ("Origin/Main", "Source origin/main"))
+    actual_worktree = markdown_field_value(text, "Worktree Path")
+    actual_slot = markdown_field_value(text, "Slot ID")
+    for label, actual, expected, normalizer in (
+        ("Branch", actual_branch, expected_branch, lambda value: (value or "").strip()),
+        ("Source Repo HEAD", actual_head, expected_source_head, lambda value: (value or "").strip().casefold()),
+        ("Origin/Main", actual_origin, expected_origin_main, lambda value: (value or "").strip().casefold()),
+        ("Worktree Path", actual_worktree, expected_worktree_path, _normalized_windows_value),
+        ("Slot ID", actual_slot, expected_worktree_slot, lambda value: (value or "").strip().casefold()),
+    ):
+        if not actual:
+            failures.append(f"Target Currentness: {relative} is missing required field {label}")
+        elif normalizer(actual) != normalizer(expected):
+            failures.append(
+                f"Target Currentness: {relative} {label} mismatch: expected {expected!r}, found {actual!r}"
+            )
+
+    if markdown_field_value(text, "Record Role") is None:
+        failures.append(f"Target Currentness: {relative} is missing Record Role classification")
+    if markdown_field_value(text, "Historical Receipt Boundary") is None:
+        failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
+    return failures
 
 
 def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
@@ -1035,6 +1245,34 @@ def main() -> int:
             print("Clean Clone Boundary: BLOCKED - required local external-state validation needs the root")
             return 1
         print("Clean Clone Boundary: PASS - missing root is not a repo validation failure")
+        return 0
+
+    if args.target_currentness:
+        if args.require_stage4_records:
+            print("Validation Result: BLOCKED")
+            print("Target-scoped currentness cannot be combined with global Stage 4 record validation")
+            return 1
+        target_issues = validate_target_currentness(
+            root,
+            args.target,
+            expected_branch=args.expected_branch,
+            expected_source_head=args.expected_source_head,
+            expected_origin_main=args.expected_origin_main,
+            expected_worktree_path=args.expected_worktree_path,
+            expected_worktree_slot=args.expected_worktree_slot,
+            expected_target_sha256=args.expected_target_sha256,
+            expected_schema=args.schema,
+        )
+        print("Validation Scope: TARGET_SCOPED_CURRENTNESS")
+        print(f"Selected Target: {args.target or 'MISSING'}")
+        print("Root Manifest Posture: STRUCTURAL_ONLY - root initialization/index posture is reported separately and is not asserted current for this target")
+        if target_issues:
+            print("Target Currentness Validation: BLOCKED")
+            for issue in target_issues:
+                print(issue)
+            return 1
+        print("Target Currentness Validation: PASS")
+        print("Target PASS Is Root-Wide PASS: NO")
         return 0
 
     manifest_path = root / "state_manifest.json"

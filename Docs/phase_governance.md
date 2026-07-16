@@ -2523,6 +2523,36 @@ If a branch treats external-state helper/bootstrap/root/migration work as approv
 
 Repo validators running in GitHub Actions or clean clones must not require `C:\Nexus Governance State`. Local governance workflows may require external state only after USER-approved initialization or an explicit local analysis/migration/validator-transition approval, and those checks must report `External State Missing`, `External State Version Conflict`, `External State Schema Conflict`, or `Stale Lock Recovery Required` instead of inferring state from stale repo Docs.
 
+### Target-Scoped External-State Currentness Gate
+
+When a local governance workflow must prove one external record is current,
+use the additive `TARGET_SCOPED_CURRENTNESS` validator mode. This mode is not
+a replacement for global structural or global strict validation and cannot
+claim that the complete external root is current.
+
+The gate requires exactly one explicit relative target, a target SHA256
+precondition, and expected branch, source HEAD, origin/main, worktree path,
+and slot identity. It fails closed for missing expectations, duplicate or
+ambiguous targets, absolute/off-root/traversal/alias paths, reparse or
+symlink escapes, missing targets, malformed records, unsupported or historical
+record classes, identity mismatches, stale hashes, and target changes during
+validation. Windows path comparison is case-insensitive and slash-normalized.
+
+`state_manifest.json` remains a root initialization/index anchor. Its source
+HEAD is reported separately and must not be applied as one expected HEAD to
+unrelated worktrees. A target PASS means only `Selected Target: <relative
+path>` passed; `Target PASS Is Root-Wide PASS: NO` is mandatory output.
+
+The currentness gate does not authorize external mutation. Any writer must
+first be admitted by the External State Transition Gate and use
+`dev/orin_external_state_target_reconcile.py` (or a later explicitly admitted
+record-specific equivalent) with the accepted record-specific lock, snapshot,
+atomic replacement, audit, rollback/no-loss, and post-write validation
+procedure. Release the lock through
+`dev/orin_external_state_lock_release.py`; a target transition is incomplete
+while its lock remains held. Historical receipts remain preserved and must not
+be rewritten to satisfy a current target check.
+
 ### Governance Drift Escalation Rule
 
 If governance drift is discovered in any earlier phase:

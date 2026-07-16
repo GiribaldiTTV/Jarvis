@@ -136,6 +136,64 @@ Final ZIP visual-proof validation must also treat the uploaded ZIP as the artifa
 
 Review-bundle hygiene fixtures must cover packet false-green classes after each admitted incident. Current required false-green fixture classes include empty primary review files, stale active Review Aids, wrong primary/current decision-file references, pending copied external-state packet pointers, active-review stale copied Source Truth Context, accepted-historical packet post-acceptance drift pass, accepted-historical packet stale-at-generation failure, next-gate stale copied Source Truth Context failure, wrong packet-validation-mode failure, accepted packet no-regeneration-for-live-byte-match proof, new next-gate fresh copied context pass, active/next-gate rejection of recorded and unrecorded accepted-historical same-label sibling ZIPs, generation cleanup removal of recorded accepted-historical same-label sibling ZIPs, stale final-ZIP Source Truth Context, branch-state/branch-plan copied metadata disagreement, UDL false closure over stale ZIP context, folder-green/ZIP-stale copied context, cropped-only proof, duplicate full-desktop proof, missing required live-proof manifest checks, final ZIP with zero images despite screenshot manifest claims, manifest JSON with no screenshots included, proof index references to images missing from the final ZIP, local proof-folder images omitted from the final ZIP, UDL `CLOSED_WITH_PROOF` while ZIP closure screenshots are absent, and image openability that incorrectly opens local files instead of ZIP bytes.
 
+## Integrated Repair Validation Families
+
+### Active USER-Packet Identity Enforcement
+
+`dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) owns active-review
+packet identity enforcement. Active-review validation must fail closed unless
+the caller supplies expected branch, expected HEAD, and expected `origin/main`.
+The helper must prove those values against the live checkout and against both
+the packet folder and the timestamped ZIP independently. Folder/ZIP parity,
+layout, or substantive reviewability PASS cannot mask a stale branch, HEAD,
+baseline, copied Source Truth Context, or mismatched ZIP identity.
+
+`accepted-historical` remains a separate mode: historical branch and commit
+identity are preserved and internally consistent, but later Git advancement is
+not a failure. Fixtures must cover positive active identity, wrong branch,
+wrong HEAD, wrong baseline, omitted identity arguments, stale folder context,
+stale ZIP context, folder/ZIP disagreement, and accepted-historical
+preservation.
+
+### Target-Scoped External-State Currentness
+
+`dev/orin_external_state_validation.py` (`Helper Status: Reusable`) owns the
+additive `--target-currentness` mode. The mode requires one explicit relative
+target plus expected branch, source HEAD, origin/main, worktree path, slot ID,
+and target SHA256. It must reject missing/duplicate/ambiguous targets,
+absolute/off-root/traversal/alias paths, reparse or symlink escapes, missing or
+malformed records, unsupported or historical record classes, identity
+mismatches, stale hashes, and target changes during validation.
+
+Target output must identify the selected target and state explicitly that
+`Target PASS Is Root-Wide PASS: NO`. The root manifest is reported as a
+structural initialization/index anchor, not treated as a universal current
+head. Existing global structural and strict modes retain their existing
+semantics.
+
+The only approved current-projection writer is
+`dev/orin_external_state_target_reconcile.py` (`Helper Status: Reusable`). It
+must require the target pre-write hash, a matching locked write set, a
+pre-write snapshot, explicit field assignments, atomic replacement, no-loss
+comparison, post-write target validation, and an audit entry. Lock release is
+owned by `dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`);
+a currentness transition with a remaining lock is incomplete and must fail
+closeout. These helpers must not rewrite historical receipts or the structural
+root manifest.
+
+`dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`) owns
+atomic release of the exact admitted lock, and
+`dev/orin_external_state_target_currentness_fixture_validation.py` (`Helper Status: Reusable Fixture Validator`) owns the positive, negative,
+malformed, stale, path-security, TOCTOU, writer, audit, and lock-release
+regression suite for this contract.
+
+Required target fixtures include valid live projections; branch/head/baseline,
+worktree/slot, hash, missing-target, duplicate/alias, traversal,
+absolute/off-root, reparse/symlink, malformed, unsupported-record,
+historical-receipt, multiple-source-head, stale-root-manifest,
+changed-during-validation, unchanged-global-mode, and scoped-PASS-versus-root-
+PASS cases.
+
 ## Branch Planning Review Gate Validation Invariant
 
 Branch Planning helpers and validators must distinguish packet reviewability from USER acceptance. `dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) may report a BP1, BP2, or BP3 packet as generated, structurally valid, and reviewable while the USER gate remains pending. That reviewability state is evidence only and must not be converted into `USER Accepted`, `USER Approved`, `USER Waived`, Workstream implementation readiness, or implementation approval.

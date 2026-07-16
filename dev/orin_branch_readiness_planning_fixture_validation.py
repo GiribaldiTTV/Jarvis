@@ -19,6 +19,7 @@ from pathlib import Path
 
 import orin_branch_governance_validation as governance
 import orin_external_state_validation as external_state
+import orin_external_state_target_currentness_fixture_validation as target_currentness_fixture
 from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT
 import orin_rar_issue_candidate_durability_validation as rar_issue_durability
 import orin_user_review_bundle as review_bundle
@@ -7001,9 +7002,12 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
         "Review Order: open USER Review/FIXTURE_REVIEW.md first.\n"
         "USER Decision This Packet Supports: fixture review only.\n"
         "Pending USER Decisions: none for fixture.\n"
-        "Bundle File Count: 5\n"
-        "Expected File Count: 2\n"
-        "Copied File Count: 2\n"
+        "## Source Truth File Map\n\n"
+        "| Source Path | Copied Path |\n"
+        "| `Docs/Main.md` | `Source Truth Context/Docs__Main.md` |\n\n"
+        "Bundle File Count: 6\n"
+        "Expected File Count: 3\n"
+        "Copied File Count: 3\n"
         "Extra Bundle File Count: 2\n",
         encoding="utf-8",
     )
@@ -7037,6 +7041,14 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
     (
         packet_dir
         / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
+        / "Docs__Main.md"
+    ).write_text(
+        (ROOT / "Docs" / "Main.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (
+        packet_dir
+        / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
         / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
     ).write_text(
         "# Historical Branch Plan Review Context\n\n"
@@ -7061,7 +7073,17 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         _write_local_user_packet_fixture(packet_dir)
         _zip_local_user_packet_fixture(packet_dir, export_zip)
 
-        result = review_bundle.validate_local_user_packet(
+        identity_kwargs = {
+            "expected_branch": review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD"),
+            "expected_head": review_bundle._git_output("rev-parse", "HEAD"),
+            "expected_origin_main": review_bundle._git_output("rev-parse", "origin/main"),
+        }
+
+        def validate_packet(*args: object, **kwargs: object):
+            kwargs.update(identity_kwargs)
+            return review_bundle.validate_local_user_packet(*args, **kwargs)
+
+        result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7078,7 +7100,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             encoding="utf-8",
         )
         _zip_local_user_packet_fixture(packet_dir, export_zip)
-        bad_metadata_result = review_bundle.validate_local_user_packet(
+        bad_metadata_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7097,7 +7119,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             encoding="utf-8",
         )
         _zip_local_user_packet_fixture(packet_dir, export_zip)
-        bad_validation_result = review_bundle.validate_local_user_packet(
+        bad_validation_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7115,7 +7137,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             "# Fixture Aid\n\nChanged after ZIP creation; same filename, stale ZIP content.\n",
             encoding="utf-8",
         )
-        stale_content_result = review_bundle.validate_local_user_packet(
+        stale_content_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7132,7 +7154,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         copied_zip_dir.mkdir()
         copied_zip = copied_zip_dir / export_zip.name
         copied_zip.write_bytes(export_zip.read_bytes())
-        copied_zip_result = review_bundle.validate_local_user_packet(
+        copied_zip_result = validate_packet(
             packet_dir,
             export_zip=copied_zip,
             worktree_label="Governance",
@@ -7147,7 +7169,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
                     f"{review_bundle.REVIEW_AIDS_DIR_NAME}/FIXTURE_AID.md",
                     "# Fixture Aid\n\nDuplicate ZIP member fixture.\n",
                 )
-        duplicate_zip_result = review_bundle.validate_local_user_packet(
+        duplicate_zip_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7158,7 +7180,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
 
         stale_zip = review_root / "Governance-20260617-101010.zip"
         stale_zip.write_text("stale fixture", encoding="utf-8")
-        stale_result = review_bundle.validate_local_user_packet(
+        stale_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7169,7 +7191,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
 
         stable_zip = review_root / "Governance.zip"
         stable_zip.write_text("legacy stable fixture", encoding="utf-8")
-        stable_result = review_bundle.validate_local_user_packet(
+        stable_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7181,7 +7203,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         embedded_zip = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "NESTED_PACKET.zip"
         embedded_zip.write_bytes(export_zip.read_bytes())
         _zip_local_user_packet_fixture(packet_dir, export_zip)
-        embedded_zip_result = review_bundle.validate_local_user_packet(
+        embedded_zip_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7193,7 +7215,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         extra_primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "SECOND_REVIEW.md"
         extra_primary.write_text("# Second Review\n\nInvalid extra primary file.\n", encoding="utf-8")
         _zip_local_user_packet_fixture(packet_dir, export_zip)
-        multi_primary_result = review_bundle.validate_local_user_packet(
+        multi_primary_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -7207,7 +7229,7 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             "# ZIP Mismatch\n\nThis file was added after ZIP creation.\n",
             encoding="utf-8",
         )
-        mismatch_result = review_bundle.validate_local_user_packet(
+        mismatch_result = validate_packet(
             packet_dir,
             export_zip=export_zip,
             worktree_label="Governance",
@@ -13918,6 +13940,12 @@ line item, not a seam or separate branch.
     failures.extend(_validate_fam006_bp3_packet_generation_guard())
     failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
     failures.extend(_validate_fam006_workstream_approval_review_packet_guard())
+
+    try:
+        if target_currentness_fixture.main() != 0:
+            failures.append("Target-scoped external-state currentness fixture helper returned failure")
+    except Exception as exc:  # noqa: BLE001 - fixture failures must become a validation result
+        failures.append(f"Target-scoped external-state currentness fixture raised: {exc}")
 
     return failures
 
