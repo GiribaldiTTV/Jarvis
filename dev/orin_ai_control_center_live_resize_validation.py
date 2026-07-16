@@ -1,7 +1,7 @@
 # Helper Status: Workstream-scoped
 # Owner Workstream: FAM-007 AI Dashboard domain-doorway Workstream repair
-# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific; this helper proves FAM-007 AI Dashboard visual/function acceptance plus active detached domain doorway lifecycle.
-# Consolidation Target: future reusable Nexus product-window visual and functional acceptance validator
+# Reason Reusable Helper Was Not Extended: the HUD validator is FAM-006-specific; this helper supplies FAM-007 implementation diagnostics and cannot make a physical-human gating decision.
+# Consolidation Target: future reusable Nexus product-window supporting diagnostic helper
 # Promotion Decision Point: before PR Readiness fold-down
 
 from __future__ import annotations
@@ -46,6 +46,215 @@ REQUIRED_STATE_TAXONOMY_STATES = {
     "unavailable-capability",
     "degraded-no-provider",
 }
+
+EXACT_FAM007_SHORTCUT = Path(
+    os.environ.get("OneDrive", str(Path.home() / "OneDrive"))
+) / "Desktop" / "FAM-007 BLUE AI - Nexus Desktop AI Launcher.lnk"
+PROOF_CLASSIFICATION_FIXTURE = (
+    REPO_ROOT
+    / "dev"
+    / "fixtures"
+    / "fam007_ai_dashboard_lv_proof_contract"
+    / "proof_classification_cases.json"
+)
+PHYSICAL_GATING_INPUTS = {"physical-user-mouse", "physical-user-keyboard"}
+REPAIR_DEFECT_IDS = (
+    "F7-LV1-001",
+    "F7-LV1-002",
+    "F7-LV1-003-A",
+    "F7-LV1-003-B",
+    "F7-LV1-003-C",
+    "F7-LV1-003-D",
+    "F7-LV1-004",
+    "F7-LV1-005",
+    "F7-LV1-006-A",
+    "F7-LV1-007",
+    "F7-LV1-008",
+    "F7-LV1-009",
+)
+WINDOW_SURFACES = (
+    "AI Dashboard",
+    "AI Control Center",
+    "AI Readiness & Diagnostics",
+    "Capabilities & Maintenance",
+)
+
+
+def _proof_classification_fixture_probe() -> dict[str, object]:
+    payload = json.loads(PROOF_CLASSIFICATION_FIXTURE.read_text(encoding="utf-8"))
+    results = []
+    for case in payload.get("cases", []):
+        actor = str(case.get("actor") or "")
+        input_source = str(case.get("inputSource") or "")
+        may_set_gating = bool(case.get("maySetGatingPass"))
+        policy_allows_gating = actor == "PHYSICAL_USER" and input_source in PHYSICAL_GATING_INPUTS
+        actual_valid = may_set_gating == policy_allows_gating
+        expected_valid = bool(case.get("expectedValid"))
+        results.append(
+            {
+                "id": str(case.get("id") or ""),
+                "actor": actor,
+                "inputSource": input_source,
+                "maySetGatingPass": may_set_gating,
+                "policyAllowsGating": policy_allows_gating,
+                "actualValid": actual_valid,
+                "expectedValid": expected_valid,
+                "matchedExpected": actual_valid == expected_valid,
+            }
+        )
+    known_bad = [item for item in results if item["expectedValid"] is False]
+    return {
+        "ok": bool(results)
+        and all(item["matchedExpected"] for item in results)
+        and bool(known_bad)
+        and all(item["actualValid"] is False for item in known_bad),
+        "contract": str(payload.get("contract") or ""),
+        "fixture": str(PROOF_CLASSIFICATION_FIXTURE),
+        "cases": results,
+        "knownBadRejected": bool(known_bad) and all(item["actualValid"] is False for item in known_bad),
+    }
+
+
+def _powershell_json(script: str) -> object:
+    completed = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return {"error": completed.stderr.strip() or completed.stdout.strip(), "returnCode": completed.returncode}
+    output = completed.stdout.strip()
+    if not output:
+        return []
+    try:
+        return json.loads(output)
+    except json.JSONDecodeError:
+        return {"error": "invalid-json", "raw": output}
+
+
+def _read_only_exact_launcher_preflight() -> dict[str, object]:
+    shortcut_literal = str(EXACT_FAM007_SHORTCUT).replace("'", "''")
+    shortcut = _powershell_json(
+        "$ErrorActionPreference='Stop';"
+        f"$path='{shortcut_literal}';"
+        "if(-not (Test-Path -LiteralPath $path)){[pscustomobject]@{exists=$false;path=$path}|ConvertTo-Json -Compress;exit};"
+        "$shell=New-Object -ComObject WScript.Shell;"
+        "$link=$shell.CreateShortcut($path);"
+        "[pscustomobject]@{exists=$true;path=$path;target=$link.TargetPath;arguments=$link.Arguments;workingDirectory=$link.WorkingDirectory}|ConvertTo-Json -Compress"
+    )
+    processes = _powershell_json(
+        "$items=Get-CimInstance Win32_Process | Where-Object {"
+        "($_.Name -match '^(pythonw?|wscript|cscript)(\\.exe)?$') -and "
+        "($_.CommandLine -match 'orin_desktop_launcher\\.pyw|launch_orin_desktop\\.vbs')"
+        "} | Select-Object ProcessId,Name,CommandLine,CreationDate;"
+        "@($items)|ConvertTo-Json -Compress"
+    )
+    if isinstance(processes, list):
+        process_rows = processes
+    elif isinstance(processes, dict) and "ProcessId" in processes:
+        process_rows = [processes]
+    else:
+        process_rows = []
+    selected = []
+    foreign = []
+    unknown = []
+    for item in process_rows:
+        command = str(item.get("CommandLine") or "")
+        row = {
+            "pid": int(item.get("ProcessId") or 0),
+            "name": str(item.get("Name") or ""),
+            "commandLine": command,
+            "creationDate": str(item.get("CreationDate") or ""),
+        }
+        if str(REPO_ROOT).lower() in command.lower():
+            selected.append(row)
+        elif "nexus" in command.lower():
+            foreign.append(row)
+        else:
+            unknown.append(row)
+    shortcut_ok = (
+        isinstance(shortcut, dict)
+        and shortcut.get("exists") is True
+        and str(REPO_ROOT).lower() in " ".join(
+            str(shortcut.get(key) or "") for key in ("target", "arguments", "workingDirectory")
+        ).lower()
+    )
+    if not shortcut_ok:
+        classification = "EXACT_SHORTCUT_MISSING_OR_WRONG_TARGET_STOP"
+    elif foreign:
+        classification = "FOREIGN_RUNTIME_DETECTED_STOP_USER_ACTION_REQUIRED"
+    elif unknown:
+        classification = "UNKNOWN_OWNER_STOP"
+    elif selected:
+        classification = "FAM007_RUNTIME_ALREADY_ACTIVE_STOP_BEFORE_RELAUNCH"
+    else:
+        classification = "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE"
+    return {
+        "classification": classification,
+        "readOnly": True,
+        "processTerminationAttempted": False,
+        "launcherActivationAttempted": False,
+        "fileExplorerUsed": False,
+        "computerUseUsed": False,
+        "shortcut": shortcut,
+        "processQuery": processes,
+        "selectedRuntimeProcesses": selected,
+        "foreignRuntimeProcesses": foreign,
+        "unknownOwnerProcesses": unknown,
+        "stopRequired": classification != "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE",
+        "nextAction": "Physical USER directly activates the already-visible exact shortcut only after a no-foreign-runtime precondition. Stop on foreign or unknown ownership.",
+        "excludedFutureCandidate": "F7-LV1-006-B shared runtime owner attribution; not implemented here",
+    }
+
+
+def _physical_interaction_matrix() -> list[dict[str, object]]:
+    claims = [
+        ("AI Dashboard", "exact visible Desktop shortcut activation"),
+        ("AI Dashboard", "tray/menu route and parent open"),
+        ("AI Dashboard", "doorway click for each child"),
+        ("AI Dashboard", "all-edge and all-corner resize with cursor mapping"),
+        ("AI Dashboard", "deliberate in-scope minimize and restore"),
+        ("AI Dashboard", "close and normal-route reopen"),
+    ]
+    for surface in WINDOW_SURFACES[1:]:
+        claims.extend(
+            [
+                (surface, "three repeated visible-header move cycles"),
+                (surface, "negative content and control drag exclusions"),
+                (surface, "all-edge and all-corner resize with cursor mapping"),
+                (surface, "minimize and restore using only the in-scope control"),
+                (surface, "close, return, reopen, focus, and singleton lifecycle"),
+            ]
+        )
+    return [
+        {
+            "surface": surface,
+            "claim": claim,
+            "requiredActor": "PHYSICAL_USER",
+            "requiredInputSource": "physical-user-mouse-or-keyboard",
+            "status": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
+            "syntheticSubstituteAllowed": False,
+        }
+        for surface, claim in claims
+    ]
+
+
+def _dual_contrast_matrix() -> list[dict[str, object]]:
+    return [
+        {
+            "surface": surface,
+            "background": background,
+            "backgroundHex": color,
+            "requiredState": "identical-geometry-state-scale-crop-per-pair",
+            "edgeCornerAdjudication": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
+            "interactionProofSuppliedByImage": False,
+        }
+        for surface in WINDOW_SURFACES
+        for background, color in (("solid-black", "#000000"), ("solid-white", "#FFFFFF"))
+    ]
 
 
 _VISUAL_GRAMMAR_PROBE_SCRIPT = r"""
@@ -1346,7 +1555,7 @@ def _hover_web_button(app: QApplication, web_window, button_id: str) -> dict[str
     }
 
 
-def _drag_child_window(app: QApplication, window, dx: int = 36, dy: int = 24) -> dict[str, object]:
+def _supporting_qtest_drag_child_window(app: QApplication, window, dx: int = 36, dy: int = 24) -> dict[str, object]:
     _foreground_window(app, window)
     before = _rect(int(window.winId()))
     start = QPoint(min(176, max(80, window.webview.width() // 3)), 46)
@@ -1364,11 +1573,17 @@ def _drag_child_window(app: QApplication, window, dx: int = 36, dy: int = 24) ->
         "deltaLeft": after["left"] - before["left"],
         "deltaTop": after["top"] - before["top"],
         "moved": abs(after["left"] - before["left"]) >= 16 and abs(after["top"] - before["top"]) >= 12,
-        "mode": "webview-header-drag",
+        "mode": "synthetic-qtest-webview-header-drag",
+        "actor": "CODEX_AUTOMATION",
+        "inputSource": "qt-qtest-direct-widget-event",
+        "proofClass": "SUPPORTING_ONLY_SYNTHETIC_DIAGNOSTIC",
+        "gatingValid": False,
+        "maySetGatingPass": False,
+        "closesDefect": False,
     }
 
 
-def _resize_child_window(app: QApplication, window, dx: int = 44, dy: int = 34) -> dict[str, object]:
+def _supporting_qtest_resize_child_window(app: QApplication, window, dx: int = 44, dy: int = 34) -> dict[str, object]:
     _foreground_window(app, window)
     before = _rect(int(window.winId()))
     start = QPoint(max(2, window.webview.width() - 4), max(2, window.webview.height() - 4))
@@ -1386,7 +1601,121 @@ def _resize_child_window(app: QApplication, window, dx: int = 44, dy: int = 34) 
         "widthDelta": after["width"] - before["width"],
         "heightDelta": after["height"] - before["height"],
         "resized": after["width"] - before["width"] >= 22 and after["height"] - before["height"] >= 16,
-        "mode": "webview-bottom-right-edge-resize",
+        "mode": "synthetic-qtest-webview-bottom-right-edge-resize",
+        "actor": "CODEX_AUTOMATION",
+        "inputSource": "qt-qtest-direct-widget-event",
+        "proofClass": "SUPPORTING_ONLY_SYNTHETIC_DIAGNOSTIC",
+        "gatingValid": False,
+        "maySetGatingPass": False,
+        "closesDefect": False,
+    }
+
+
+def _supporting_native_hit_test_contract(window) -> dict[str, object]:
+    width = window.width()
+    height = window.height()
+    local_cases = {
+        "caption": (QPoint(100, 64), 2),
+        "controlExclusion": (QPoint(max(1, width - 48), 30), 1),
+        "content": (QPoint(width // 2, min(height - 24, 180)), 1),
+        "left": (QPoint(2, height // 2), 10),
+        "right": (QPoint(max(0, width - 2), height // 2), 11),
+        "top": (QPoint(width // 2, 2), 12),
+        "topLeft": (QPoint(8, 8), 13),
+        "topRight": (QPoint(max(0, width - 8), 8), 14),
+        "bottom": (QPoint(width // 2, max(0, height - 2)), 15),
+        "bottomLeft": (QPoint(8, max(0, height - 8)), 16),
+        "bottomRight": (QPoint(max(0, width - 8), max(0, height - 8)), 17),
+    }
+    results = {}
+    for name, (local_point, expected) in local_cases.items():
+        actual = int(window._native_hit_test(window.mapToGlobal(local_point)))
+        results[name] = {
+            "localPoint": {"x": local_point.x(), "y": local_point.y()},
+            "expected": expected,
+            "actual": actual,
+            "matches": actual == expected,
+        }
+    return {
+        "status": "SUPPORTING_DIAGNOSTIC_PASS"
+        if all(item["matches"] for item in results.values())
+        else "SUPPORTING_DIAGNOSTIC_FAIL",
+        "actor": "CODEX_AUTOMATION",
+        "inputSource": "direct-native-hit-test-contract-call",
+        "proofClass": "SUPPORTING_ONLY_CODE_PATH_DIAGNOSTIC",
+        "gatingValid": False,
+        "maySetGatingPass": False,
+        "closesDefect": False,
+        "cases": results,
+    }
+
+
+def _supporting_minimum_geometry_scroll_probe(app: QApplication, window) -> dict[str, object]:
+    before = QRect(window.geometry())
+    window.resize(window.minimumWidth(), window.minimumHeight())
+    _pump(app, 300)
+    probe_script = """
+        (() => {
+          const chrome = document.querySelector('.ai-domain-window__chrome');
+          const actions = document.querySelector('.ai-domain-window__actions');
+          if (!chrome || !actions) return JSON.stringify({ok:false});
+          const chromeRect = chrome.getBoundingClientRect();
+          const actionRect = actions.getBoundingClientRect();
+          return JSON.stringify({
+            ok: true,
+            clientHeight: Math.round(chrome.clientHeight),
+            scrollHeight: Math.round(chrome.scrollHeight),
+            scrollTop: Math.round(chrome.scrollTop),
+            actionsFullyVisible: actionRect.top >= chromeRect.top && actionRect.bottom <= chromeRect.bottom
+          });
+        })();
+    """
+    before_scroll = _run_js(app, window, probe_script)
+    _run_js(
+        app,
+        window,
+        """
+        (() => {
+          const chrome = document.querySelector('.ai-domain-window__chrome');
+          if (!chrome) return false;
+          chrome.scrollTop = chrome.scrollHeight;
+          return true;
+        })();
+        """,
+    )
+    _pump(app, 240)
+    after_scroll = _run_js(app, window, probe_script)
+    _run_js(
+        app,
+        window,
+        "document.querySelector('.ai-domain-window__chrome') && "
+        "(document.querySelector('.ai-domain-window__chrome').scrollTop = 0);",
+    )
+    window.setGeometry(before)
+    _pump(app, 260)
+    try:
+        before_data = json.loads(before_scroll or "{}")
+        after_data = json.loads(after_scroll or "{}")
+    except json.JSONDecodeError:
+        before_data = {"ok": False, "raw": str(before_scroll or "")}
+        after_data = {"ok": False, "raw": str(after_scroll or "")}
+    overflow_expected = int(before_data.get("scrollHeight") or 0) > int(before_data.get("clientHeight") or 0)
+    reachable = before_data.get("actionsFullyVisible") is True or after_data.get("actionsFullyVisible") is True
+    return {
+        "status": "SUPPORTING_DIAGNOSTIC_PASS"
+        if before_data.get("ok") is True and after_data.get("ok") is True and reachable
+        else "SUPPORTING_DIAGNOSTIC_FAIL",
+        "actor": "CODEX_AUTOMATION",
+        "inputSource": "direct-window-geometry-api-plus-dom-javascript",
+        "proofClass": "SUPPORTING_ONLY_SYNTHETIC_DIAGNOSTIC",
+        "gatingValid": False,
+        "maySetGatingPass": False,
+        "closesDefect": False,
+        "minimumSize": {"width": window.minimumWidth(), "height": window.minimumHeight()},
+        "overflowExpected": overflow_expected,
+        "beforeScroll": before_data,
+        "afterScroll": after_data,
+        "actionsReachable": reachable,
     }
 
 
@@ -1522,8 +1851,14 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             nativeChrome: surface?.dataset.ndaiNativeChrome || "",
             genericOsChrome: surface?.dataset.genericOsChrome || "",
             shellConformance: surface?.dataset.shellConformance || "",
+            boundaryContract: surface?.dataset.windowBoundaryContract || "",
             move: surface?.dataset.windowMove || "",
             resize: surface?.dataset.windowResize || "",
+            defaultGeometryContract: surface?.dataset.windowDefaultGeometryContract || "",
+            initialContentFitApplied: surface?.dataset.initialContentFitApplied || "",
+            measuredContentHeight: surface?.dataset.measuredContentHeight || "",
+            defaultContentFitHeight: surface?.dataset.defaultContentFitHeight || "",
+            defaultOverflowContract: surface?.dataset.defaultOverflowContract || "",
             controlCluster: surface?.dataset.windowControlCluster || "",
             stateTaxonomyContract: surface?.dataset.stateTaxonomyContract || "",
             stateTaxonomySource: surface?.dataset.stateTaxonomySource || "",
@@ -1693,8 +2028,14 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
         "propertyClassification": str(window.property("aiDashboardDomainClassification") or ""),
         "propertyLifecycle": str(window.property("aiDashboardDomainLifecycle") or ""),
         "propertyShellConformance": str(window.property("ndaiShellConformance") or ""),
+        "propertyBoundaryContract": str(window.property("windowBoundaryContract") or ""),
         "propertyMoveBehavior": str(window.property("windowMoveBehavior") or ""),
         "propertyResizeBehavior": str(window.property("windowResizeBehavior") or ""),
+        "propertyDefaultGeometryContract": str(window.property("windowDefaultGeometryContract") or ""),
+        "propertyInitialContentFitApplied": str(window.property("windowInitialContentFitApplied") or ""),
+        "propertyMeasuredContentHeight": str(window.property("windowMeasuredContentHeight") or ""),
+        "propertyDefaultContentFitHeight": str(window.property("windowDefaultContentFitHeight") or ""),
+        "propertyDefaultOverflowContract": str(window.property("windowDefaultOverflowContract") or ""),
         "propertyProviderVisibleData": str(window.property("providerVisibleData") or ""),
         "propertyProviderModelExecution": str(window.property("providerModelExecution") or ""),
         "propertyPromptSend": str(window.property("promptSend") or ""),
@@ -2367,6 +2708,10 @@ def main() -> int:
     stamp = _timestamp()
     log_root = REPO_ROOT / "dev" / "logs" / "fam_007_ai_control_center_live_resize" / stamp
     log_root.mkdir(parents=True, exist_ok=True)
+    proof_classification_fixture_probe = _proof_classification_fixture_probe()
+    exact_launcher_preflight = _read_only_exact_launcher_preflight()
+    physical_interaction_matrix = _physical_interaction_matrix()
+    dual_contrast_matrix = _dual_contrast_matrix()
     isolated_state_path = log_root / "isolated_ai_dashboard_window_state.json"
     os.environ["NEXUS_AI_CONTROL_CENTER_STATE_PATH"] = str(isolated_state_path)
     os.environ.pop("NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY", None)
@@ -3079,6 +3424,8 @@ def main() -> int:
     }
     child_chrome_probe = {}
     child_geometry_behavior = {}
+    child_native_hit_test_diagnostic = {}
+    child_minimum_geometry_scroll_diagnostic = {}
     child_comparison_boards = {}
     control_center_result = {}
     readiness_result = {}
@@ -3206,9 +3553,14 @@ def main() -> int:
         probe = _probe_child_window(app, window)
         child_chrome_probe[domain_id] = probe
         if window is not None:
+            child_native_hit_test_diagnostic[domain_id] = _supporting_native_hit_test_contract(window)
+            child_minimum_geometry_scroll_diagnostic[domain_id] = _supporting_minimum_geometry_scroll_probe(
+                app,
+                window,
+            )
             child_geometry_behavior[domain_id] = {
-                "move": _drag_child_window(app, window),
-                "resize": _resize_child_window(app, window),
+                "move": _supporting_qtest_drag_child_window(app, window),
+                "resize": _supporting_qtest_resize_child_window(app, window),
             }
             screenshots[f"child_{domain_id}"] = _capture_window(
                 app,
@@ -3820,8 +4172,14 @@ def main() -> int:
             and probe.get("propertyClassification") == classification
             and probe.get("propertyLifecycle") == lifecycle
             and probe.get("propertyShellConformance") == "ndai-webview-rounded-window-shell"
-            and probe.get("propertyMoveBehavior") == "header-drag"
-            and probe.get("propertyResizeBehavior") == "edge-corner-resize"
+            and probe.get("propertyBoundaryContract") == "visible-native-interactive-coincident-v1"
+            and probe.get("propertyMoveBehavior") == "windows-native-caption-hit-test-with-webview-fallback"
+            and probe.get("propertyResizeBehavior") == "windows-native-edge-corner-hit-test-with-webview-fallback"
+            and probe.get("propertyDefaultGeometryContract") == "dom-content-measured-screen-bounded-v1"
+            and probe.get("propertyInitialContentFitApplied") == "true"
+            and int(probe.get("propertyMeasuredContentHeight") or 0) >= 420
+            and int(probe.get("propertyDefaultContentFitHeight") or 0) >= 420
+            and probe.get("propertyDefaultOverflowContract") in {"content-fit", "screen-bounded-scroll"}
             and probe.get("propertyProviderVisibleData") == "none"
             and probe.get("propertyProviderModelExecution") == "blocked"
             and probe.get("propertyPromptSend") == "prompt-send-disabled"
@@ -3839,8 +4197,12 @@ def main() -> int:
             and dom.get("nativeChrome") == "true"
             and dom.get("genericOsChrome") == "rejected"
             and dom.get("shellConformance") == "ndai-webview-rounded-window-shell"
-            and dom.get("move") == "header-drag"
-            and dom.get("resize") == "edge-corner-resize"
+            and dom.get("boundaryContract") == "visible-native-interactive-coincident-v1"
+            and dom.get("move") == "windows-native-caption-hit-test-with-webview-fallback"
+            and dom.get("resize") == "windows-native-edge-corner-hit-test-with-webview-fallback"
+            and dom.get("defaultGeometryContract") == "dom-content-measured-screen-bounded-v1"
+            and dom.get("initialContentFitApplied") == "true"
+            and dom.get("defaultOverflowContract") in {"content-fit", "screen-bounded-scroll"}
             and dom.get("controlCluster") == "compact-minimize-close"
             and dom.get("stateTaxonomyContract") == STATE_TAXONOMY_CONTRACT
             and dom.get("stateTaxonomySource") == "AIProviderStateSnapshot.aiControlCenterStateTaxonomy"
@@ -3865,13 +4227,39 @@ def main() -> int:
             and domain_id in (dom.get("workspaces") or [])
         )
 
-    def _child_geometry_ok(domain_id: str) -> bool:
+    def _child_geometry_supporting_diagnostic_ok(domain_id: str) -> bool:
         behavior = child_geometry_behavior.get(domain_id)
         if not isinstance(behavior, dict):
             return False
         move = behavior.get("move") if isinstance(behavior.get("move"), dict) else {}
         resize = behavior.get("resize") if isinstance(behavior.get("resize"), dict) else {}
         return move.get("moved") is True and resize.get("resized") is True
+
+    def _child_boundary_content_fit_ok(domain_id: str) -> bool:
+        probe = child_chrome_probe.get(domain_id)
+        if not isinstance(probe, dict):
+            return False
+        dom = probe.get("dom") if isinstance(probe.get("dom"), dict) else {}
+        groups = dom.get("materialGroups") if isinstance(dom.get("materialGroups"), dict) else {}
+        shell = groups.get("shell") if isinstance(groups.get("shell"), dict) else {}
+        chrome = groups.get("chrome") if isinstance(groups.get("chrome"), dict) else {}
+        actions = groups.get("actions") if isinstance(groups.get("actions"), dict) else {}
+        shell_rect = shell.get("rect") if isinstance(shell.get("rect"), dict) else {}
+        chrome_rect = chrome.get("rect") if isinstance(chrome.get("rect"), dict) else {}
+        actions_rect = actions.get("rect") if isinstance(actions.get("rect"), dict) else {}
+        chrome_style = chrome.get("style") if isinstance(chrome.get("style"), dict) else {}
+        window_rect = probe.get("rect") if isinstance(probe.get("rect"), dict) else {}
+        return (
+            shell_rect == chrome_rect
+            and int(chrome_rect.get("left", -1)) == 0
+            and int(chrome_rect.get("top", -1)) == 0
+            and int(chrome_rect.get("width") or 0) == int(window_rect.get("width") or -1)
+            and int(chrome_rect.get("height") or 0) == int(window_rect.get("height") or -1)
+            and int(actions_rect.get("bottom") or 99999) <= int(chrome_rect.get("bottom") or -1)
+            and "inset" in str(chrome_style.get("boxShadow") or "")
+            and str(chrome_style.get("boxShadow") or "").count("rgba(") == 1
+            and int(probe.get("propertyDefaultContentFitHeight") or 0) == int(window_rect.get("height") or -1)
+        )
 
     def _readiness_actions_ok(result: object) -> bool:
         if not isinstance(result, dict) or result.get("ok") is not True:
@@ -4159,6 +4547,56 @@ def main() -> int:
         )
 
     checks = {
+        "proofClassificationFalseGreenFixture": (
+            proof_classification_fixture_probe.get("ok") is True
+            and proof_classification_fixture_probe.get("knownBadRejected") is True
+        ),
+        "exactLauncherReadOnlyPreflightProtocolImplemented": (
+            exact_launcher_preflight.get("readOnly") is True
+            and exact_launcher_preflight.get("processTerminationAttempted") is False
+            and exact_launcher_preflight.get("launcherActivationAttempted") is False
+            and exact_launcher_preflight.get("fileExplorerUsed") is False
+            and exact_launcher_preflight.get("computerUseUsed") is False
+            and exact_launcher_preflight.get("classification") in {
+                "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE",
+                "FAM007_RUNTIME_ALREADY_ACTIVE_STOP_BEFORE_RELAUNCH",
+                "FOREIGN_RUNTIME_DETECTED_STOP_USER_ACTION_REQUIRED",
+                "UNKNOWN_OWNER_STOP",
+                "EXACT_SHORTCUT_MISSING_OR_WRONG_TARGET_STOP",
+            }
+            and exact_launcher_preflight.get("excludedFutureCandidate")
+            == "F7-LV1-006-B shared runtime owner attribution; not implemented here"
+        ),
+        "returnedDefectCoverageContractComplete": (
+            len(REPAIR_DEFECT_IDS) == 12
+            and len(physical_interaction_matrix) == 21
+            and len(dual_contrast_matrix) == 8
+            and all(row.get("status") == "PENDING_FOCUSED_CLOSURE_VERIFICATION" for row in physical_interaction_matrix)
+            and all(row.get("interactionProofSuppliedByImage") is False for row in dual_contrast_matrix)
+        ),
+        "childVisibleNativeBoundaryAndDefaultContentFitImplemented": (
+            set(child_chrome_probe) == set(expected_doorway_buttons)
+            and all(_child_boundary_content_fit_ok(domain_id) for domain_id in expected_doorway_buttons)
+        ),
+        "childNativeHitTestSupportingDiagnosticImplemented": (
+            set(child_native_hit_test_diagnostic) == set(expected_doorway_buttons)
+            and all(
+                child_native_hit_test_diagnostic[domain_id].get("status") == "SUPPORTING_DIAGNOSTIC_PASS"
+                and child_native_hit_test_diagnostic[domain_id].get("gatingValid") is False
+                and child_native_hit_test_diagnostic[domain_id].get("closesDefect") is False
+                for domain_id in expected_doorway_buttons
+            )
+        ),
+        "childMinimumGeometryScrollSupportingDiagnosticImplemented": (
+            set(child_minimum_geometry_scroll_diagnostic) == set(expected_doorway_buttons)
+            and all(
+                child_minimum_geometry_scroll_diagnostic[domain_id].get("status") == "SUPPORTING_DIAGNOSTIC_PASS"
+                and child_minimum_geometry_scroll_diagnostic[domain_id].get("actionsReachable") is True
+                and child_minimum_geometry_scroll_diagnostic[domain_id].get("gatingValid") is False
+                and child_minimum_geometry_scroll_diagnostic[domain_id].get("closesDefect") is False
+                for domain_id in expected_doorway_buttons
+            )
+        ),
         "dashboardHubActiveDoorwayLifecycle": (
             dashboard_probe.get("title") == "AI Dashboard"
             and dashboard_probe.get("dashboardIaModel") == "ai-dashboard-parent-global-strip-category-cards-detached-domain-windows-active"
@@ -4215,7 +4653,7 @@ def main() -> int:
             and domain_launch_probe.get("domainWindowCountAfterLaunch") == 3
             and set(domain_launch_probe.get("domainWindowKeysAfterLaunch") or []) == set(expected_doorway_buttons.keys())
         ),
-        "activeDomainWindowLaunchChromeAndGeometry": (
+        "activeDomainWindowLaunchChromeStructure": (
             all(_domain_launch_ok(domain_id) for domain_id in expected_doorway_buttons)
             and _child_probe_ok(
                 "control-center",
@@ -4235,7 +4673,6 @@ def main() -> int:
                 classification="exclusive-child",
                 lifecycle="closes-with-dashboard",
             )
-            and all(_child_geometry_ok(domain_id) for domain_id in expected_doorway_buttons)
             and _singleton_focus_ok(singleton_focus)
         ),
         "readinessDiagnosticsLocalActionsStayInsideChild": (
@@ -4564,13 +5001,59 @@ def main() -> int:
         ),
     }
 
-    status = "PASS" if all(checks.values()) else "FAIL"
+    implementation_checks_status = "PASS" if all(checks.values()) else "FAIL"
+    status = (
+        "SUPPORTING_DIAGNOSTIC_PASS"
+        if implementation_checks_status == "PASS"
+        else "SUPPORTING_DIAGNOSTIC_FAIL"
+    )
+    synthetic_child_geometry_diagnostic = {
+        "status": "SUPPORTING_DIAGNOSTIC_PASS"
+        if all(_child_geometry_supporting_diagnostic_ok(domain_id) for domain_id in expected_doorway_buttons)
+        else "SUPPORTING_DIAGNOSTIC_FAIL",
+        "gatingValid": False,
+        "maySetGatingPass": False,
+        "closesDefect": False,
+        "results": child_geometry_behavior,
+    }
     user_evidence_root = _copy_user_evidence(log_root, stamp)
     manifest = {
         "status": status,
+        "implementationChecksStatus": implementation_checks_status,
         "stamp": stamp,
         "helper": "dev/orin_ai_control_center_live_resize_validation.py",
-        "proofClass": "live AI Dashboard active domain-doorway visual and functional proof",
+        "proofClass": "supporting-only FAM-007 implementation diagnostic; not Live Validation proof",
+        "gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_PHYSICAL_USER_FOCUSED_CLOSURE_VERIFICATION",
+        "liveValidationStatus": "LV_BLOCKED_REPAIR_FIRST_NOT_GREEN",
+        "utsStatus": "BLOCKED_NOT_CREATED",
+        "defectImplementationStatus": "REPAIR_IMPLEMENTED_PENDING_FOCUSED_CLOSURE_PROOF",
+        "defectsRemainOpen": list(REPAIR_DEFECT_IDS),
+        "syntheticEvidencePolicy": {
+            "contract": "fam007-physical-user-gating-proof-classification-v1",
+            "allHelperGeneratedInteraction": "SUPPORTING_ONLY",
+            "qtest": "SUPPORTING_ONLY",
+            "directGeometry": "SUPPORTING_ONLY",
+            "domJavascript": "SUPPORTING_ONLY",
+            "setCursorPosMouseEvent": "SUPPORTING_ONLY",
+            "computerUse": "SUPPORTING_ONLY_NOT_VALIDATION",
+            "physicalUserMouseKeyboard": "GATING_CANDIDATE_ONLY_DURING_SEPARATELY_APPROVED_CLOSURE_GATE",
+            "unknownActor": "STOP_NOT_GATING_VALID",
+        },
+        "proofClassificationFixture": proof_classification_fixture_probe,
+        "exactLauncherReadOnlyPreflight": exact_launcher_preflight,
+        "focusedPhysicalInteractionMatrix": physical_interaction_matrix,
+        "dualContrastPerimeterMatrix": dual_contrast_matrix,
+        "workspacePreservationContract": {
+            "status": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
+            "beforeAfterInventoryRequired": True,
+            "unrelatedWindowsMustRemainUntouched": True,
+            "showDesktopForbidden": True,
+            "minimizeAllForbidden": True,
+            "fileExplorerLauncherFallbackForbidden": True,
+            "desktopFolderLauncherFallbackForbidden": True,
+            "nexusFolderLauncherFallbackForbidden": True,
+            "onlyNamedInScopeMinimizeRestoreMayChangeWindowState": True,
+        },
         "worktree": str(REPO_ROOT),
         "window": "AI Dashboard",
         "dashboardProbe": dashboard_probe,
@@ -4596,6 +5079,8 @@ def main() -> int:
         "settingsOptionBDisposition": settings_option_b_disposition,
         "defaultScrollIntentProbe": scrolled_probe,
         "childChromeProbe": child_chrome_probe,
+        "childNativeHitTestDiagnostic": child_native_hit_test_diagnostic,
+        "childMinimumGeometryScrollDiagnostic": child_minimum_geometry_scroll_diagnostic,
         "childControlBehavior": child_control_behavior,
         "childPurposeMatchedContactSheets": child_comparison_boards,
         "controlCenterResult": control_center_result,
@@ -4609,8 +5094,9 @@ def main() -> int:
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
+                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
+                "boundaryContract": "visible-native-interactive-coincident-v1",
                 "shellConformance": "ndai-webview-rounded-window-shell",
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
@@ -4620,8 +5106,9 @@ def main() -> int:
                 "classification": "external-unique",
                 "remainsOpenIfDashboardCloses": True,
                 "singleton": True,
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
+                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
+                "boundaryContract": "visible-native-interactive-coincident-v1",
                 "shellConformance": "ndai-webview-rounded-window-shell",
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
@@ -4631,8 +5118,9 @@ def main() -> int:
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
-                "moveBehavior": "header-drag",
-                "resizeBehavior": "edge-corner-resize",
+                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
+                "boundaryContract": "visible-native-interactive-coincident-v1",
                 "shellConformance": "ndai-webview-rounded-window-shell",
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
@@ -4644,6 +5132,7 @@ def main() -> int:
         "lifecycleAfterDashboardClose": lifecycle_after_dashboard_close,
         "childWindowsVisibleBeforeDashboardClose": child_windows_visible_before_close,
         "childGeometryBehavior": child_geometry_behavior,
+        "syntheticChildGeometryDiagnostic": synthetic_child_geometry_diagnostic,
         "providerBoundary": {
             "sentToProvider": provider_payload.get("sentToProvider"),
             "canAcceptPrompts": provider_payload.get("canAcceptPrompts"),
@@ -4690,13 +5179,18 @@ def main() -> int:
     if settings_disposition_json.exists():
         (user_evidence_root / settings_disposition_json.name).write_bytes(settings_disposition_json.read_bytes())
 
-    if status != "PASS":
-        print(f"FAIL: FAM-007 AI Dashboard active domain-doorway validation failed. Manifest: {manifest_path}")
+    if implementation_checks_status != "PASS":
+        print(f"SUPPORTING_DIAGNOSTIC_FAIL: FAM-007 implementation diagnostics failed. Manifest: {manifest_path}")
         return 1
-    print(f"PASS: FAM-007 AI Dashboard active domain-doorway validation passed. Manifest: {manifest_path}")
+    print(f"SUPPORTING_DIAGNOSTIC_PASS: FAM-007 implementation diagnostics passed. Manifest: {manifest_path}")
+    print("GATING_DECISION: NOT_EVALUATED; physical USER focused closure verification remains pending and unapproved.")
     print(f"USER_EVIDENCE_ROOT: {user_evidence_root}")
     return 0
 
 
 if __name__ == "__main__":
+    if "--launcher-preflight-only" in sys.argv:
+        preflight = _read_only_exact_launcher_preflight()
+        print(json.dumps(preflight, indent=2, sort_keys=True))
+        raise SystemExit(0 if preflight.get("stopRequired") is False else 2)
     raise SystemExit(main())

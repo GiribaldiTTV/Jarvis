@@ -3829,8 +3829,13 @@ class AIDashboardDomainCommandPage(QWebEnginePage):
 
 
 class AIDashboardDomainWindow(QDialog):
-    RESIZE_MARGIN = 12
+    RESIZE_EDGE_MARGIN = 8
+    RESIZE_CORNER_MARGIN = 12
     SHELL_RADIUS = 24
+    DRAG_HEADER_HEIGHT = 112
+    CONTROL_ZONE_WIDTH = 96
+    CONTROL_ZONE_HEIGHT = 68
+    AVAILABLE_DESKTOP_GUTTER = 18
     STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
     VIEW_MODEL_CONTRACT = "ai-dashboard-provider-state-view-model-v1"
     REQUIRED_STATE_TAXONOMY_STATES = (
@@ -3884,12 +3889,11 @@ class AIDashboardDomainWindow(QDialog):
         self.definition = definition
         self.setObjectName(f"fam007AiDashboardDomainWindow_{self.domain_id.replace('-', '_')}")
         self.setWindowTitle(definition["title"])
-        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowModality(Qt.NonModal)
         self.setMinimumSize(460, 420)
-        default_height = 560 if self.domain_id == "readiness-diagnostics" else 520
-        self.resize(620, default_height)
+        self.resize(620, 520)
         self.setProperty("aiDashboardDomainWindow", self.domain_id)
         self.setProperty("aiDashboardDomainClassification", definition["classification"])
         self.setProperty("aiDashboardDomainLifecycle", definition["lifecycle"])
@@ -3908,8 +3912,11 @@ class AIDashboardDomainWindow(QDialog):
         self.setProperty("aiDashboardProviderStateViewModelContract", self.VIEW_MODEL_CONTRACT)
         self.setProperty("aiDashboardProviderStateViewModelApplied", "false")
         self.setProperty("ndaiShellConformance", "ndai-webview-rounded-window-shell")
-        self.setProperty("windowMoveBehavior", "header-drag")
-        self.setProperty("windowResizeBehavior", "edge-corner-resize")
+        self.setProperty("windowBoundaryContract", "visible-native-interactive-coincident-v1")
+        self.setProperty("windowMoveBehavior", "windows-native-caption-hit-test-with-webview-fallback")
+        self.setProperty("windowResizeBehavior", "windows-native-edge-corner-hit-test-with-webview-fallback")
+        self.setProperty("windowDefaultGeometryContract", "dom-content-measured-screen-bounded-v1")
+        self.setProperty("windowInitialContentFitApplied", "false")
         self._drag_start_global = QPoint()
         self._drag_window_origin = QPoint()
         self._dragging_header = False
@@ -3917,6 +3924,7 @@ class AIDashboardDomainWindow(QDialog):
         self._resize_start_geometry = QRect()
         self._resize_edges = Qt.Edges()
         self._resizing_window = False
+        self._initial_content_fit_pending = True
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -3950,7 +3958,10 @@ class AIDashboardDomainWindow(QDialog):
                     self._resize_start_geometry = QRect(self.geometry())
                     event.accept()
                     return True
-                if 14 <= local.y() <= 92 and local.x() < max(0, self.webview.width() - 118):
+                if (
+                    0 <= local.y() <= self.DRAG_HEADER_HEIGHT
+                    and not self._control_cluster_zone().contains(local)
+                ):
                     self._dragging_header = True
                     self._drag_start_global = event.globalPosition().toPoint()
                     self._drag_window_origin = self.frameGeometry().topLeft()
@@ -3993,17 +4004,112 @@ class AIDashboardDomainWindow(QDialog):
         self.setMask(QRegion(path.toFillPolygon().toPolygon()))
 
     def _resize_edges_for_point(self, point: QPoint):
+        width = self.width()
+        height = self.height()
+        if width <= 0 or height <= 0:
+            return Qt.Edges()
+        edge_margin = self.RESIZE_EDGE_MARGIN
+        corner_margin = self.RESIZE_CORNER_MARGIN
+        near_top_corner = point.y() <= corner_margin
+        near_bottom_corner = point.y() >= height - corner_margin
         edges = Qt.Edges()
-        margin = self.RESIZE_MARGIN
-        if point.x() <= margin:
+        if point.x() <= (corner_margin if near_top_corner or near_bottom_corner else edge_margin):
             edges |= Qt.LeftEdge
-        elif point.x() >= self.webview.width() - margin:
+        elif point.x() >= width - (corner_margin if near_top_corner or near_bottom_corner else edge_margin):
             edges |= Qt.RightEdge
-        if point.y() <= margin:
+        near_left_corner = point.x() <= corner_margin
+        near_right_corner = point.x() >= width - corner_margin
+        if point.y() <= (corner_margin if near_left_corner or near_right_corner else edge_margin):
             edges |= Qt.TopEdge
-        elif point.y() >= self.webview.height() - margin:
+        elif point.y() >= height - (corner_margin if near_left_corner or near_right_corner else edge_margin):
             edges |= Qt.BottomEdge
         return edges
+
+    @staticmethod
+    def _hit_test_for_resize_edges(edges) -> int:
+        if edges == (Qt.LeftEdge | Qt.TopEdge):
+            return HTTOPLEFT
+        if edges == (Qt.RightEdge | Qt.TopEdge):
+            return HTTOPRIGHT
+        if edges == (Qt.LeftEdge | Qt.BottomEdge):
+            return HTBOTTOMLEFT
+        if edges == (Qt.RightEdge | Qt.BottomEdge):
+            return HTBOTTOMRIGHT
+        if edges & Qt.LeftEdge:
+            return HTLEFT
+        if edges & Qt.RightEdge:
+            return HTRIGHT
+        if edges & Qt.TopEdge:
+            return HTTOP
+        if edges & Qt.BottomEdge:
+            return HTBOTTOM
+        return HTCLIENT
+
+    @staticmethod
+    def _resize_edges_for_hit_test(hit_test: int):
+        return {
+            HTLEFT: Qt.LeftEdge,
+            HTRIGHT: Qt.RightEdge,
+            HTTOP: Qt.TopEdge,
+            HTBOTTOM: Qt.BottomEdge,
+            HTTOPLEFT: Qt.TopEdge | Qt.LeftEdge,
+            HTTOPRIGHT: Qt.TopEdge | Qt.RightEdge,
+            HTBOTTOMLEFT: Qt.BottomEdge | Qt.LeftEdge,
+            HTBOTTOMRIGHT: Qt.BottomEdge | Qt.RightEdge,
+        }.get(int(hit_test), Qt.Edges())
+
+    def _control_cluster_zone(self) -> QRect:
+        return QRect(
+            max(0, self.width() - self.CONTROL_ZONE_WIDTH),
+            0,
+            self.CONTROL_ZONE_WIDTH,
+            self.CONTROL_ZONE_HEIGHT,
+        )
+
+    def _native_hit_test(self, screen_point: QPoint) -> int:
+        local = self.mapFromGlobal(screen_point)
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return 0
+        edges = self._resize_edges_for_point(local)
+        if edges:
+            return self._hit_test_for_resize_edges(edges)
+        if self._control_cluster_zone().contains(local):
+            return HTCLIENT
+        if local.y() <= self.DRAG_HEADER_HEIGHT:
+            return HTCAPTION
+        return HTCLIENT
+
+    def nativeEvent(self, eventType, message):
+        if eventType in ("windows_generic_MSG", "windows_dispatcher_MSG"):
+            try:
+                msg = ctypes.wintypes.MSG.from_address(int(message))
+            except Exception:
+                msg = None
+            if msg is not None:
+                message_id = int(msg.message)
+                if message_id == WM_NCHITTEST:
+                    x = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
+                    return True, self._native_hit_test(QPoint(x, y))
+                if message_id == WM_NCLBUTTONDBLCLK:
+                    if self._native_hit_test(QCursor.pos()) == HTCAPTION:
+                        return True, 0
+                if message_id == WM_NCLBUTTONDOWN:
+                    hit_test = int(msg.wParam)
+                    handle = self.windowHandle()
+                    if handle is not None and hit_test == HTCAPTION and handle.startSystemMove():
+                        return True, 0
+                    resize_edges = self._resize_edges_for_hit_test(hit_test)
+                    if handle is not None and resize_edges and handle.startSystemResize(resize_edges):
+                        return True, 0
+                if message_id == WM_SETCURSOR and not self._resizing_window:
+                    hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    cursor_edges = self._resize_edges_for_hit_test(hit_test)
+                    if cursor_edges:
+                        self._set_resize_cursor(cursor_edges)
+                        return True, 1
+                    self.unsetCursor()
+        return super().nativeEvent(eventType, message)
 
     def _set_resize_cursor(self, edges) -> None:
         if edges in (Qt.LeftEdge | Qt.TopEdge, Qt.RightEdge | Qt.BottomEdge):
@@ -4033,6 +4139,51 @@ class AIDashboardDomainWindow(QDialog):
         self.setGeometry(rect)
         self._apply_shell_mask()
 
+    def _apply_initial_content_fit(self, metrics: dict[str, object]) -> None:
+        if not self._initial_content_fit_pending:
+            return
+        try:
+            content_height = int(round(float(metrics.get("contentHeight") or 0)))
+        except (TypeError, ValueError):
+            return
+        if content_height <= 0:
+            return
+        screen = self.screen_ref or QApplication.primaryScreen()
+        available = screen.availableGeometry() if screen is not None else QRect()
+        max_height = max(
+            self.minimumHeight(),
+            available.height() - (self.AVAILABLE_DESKTOP_GUTTER * 2),
+        ) if available.isValid() else max(self.minimumHeight(), content_height)
+        target_height = min(max(self.minimumHeight(), content_height), max_height)
+        self._initial_content_fit_pending = False
+        if self.height() != target_height:
+            self.resize(self.width(), target_height)
+        self.setProperty("windowInitialContentFitApplied", "true")
+        self.setProperty("windowMeasuredContentHeight", str(content_height))
+        self.setProperty("windowDefaultContentFitHeight", str(target_height))
+        self.setProperty(
+            "windowDefaultOverflowContract",
+            "content-fit" if target_height >= content_height else "screen-bounded-scroll",
+        )
+        self.webview.page().runJavaScript(
+            "(() => {"
+            "const surface = document.querySelector('[data-ai-dashboard-child-window]');"
+            "if (!surface) return;"
+            "surface.dataset.initialContentFitApplied = 'true';"
+            f"surface.dataset.measuredContentHeight = {json.dumps(str(content_height))};"
+            f"surface.dataset.defaultContentFitHeight = {json.dumps(str(target_height))};"
+            f"surface.dataset.defaultOverflowContract = {json.dumps(str(self.property('windowDefaultOverflowContract') or ''))};"
+            "})();"
+        )
+        if self.isVisible():
+            _schedule_window_clamp(self, padding=self.AVAILABLE_DESKTOP_GUTTER)
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_CONTENT_FIT_READY"
+                f"|domain={self.domain_id}|content_h={content_height}|window_h={target_height}"
+                f"|overflow={self.property('windowDefaultOverflowContract')}"
+            )
+
     def _asset_base_dir(self) -> Path:
         return Path(__file__).resolve().parents[1] / "nexus_visual"
 
@@ -4047,11 +4198,12 @@ class AIDashboardDomainWindow(QDialog):
   <title>{escape(definition["title"])}</title>
   <link rel="stylesheet" href="monitoring_hud.css" />
   <style>
-    html, body {{ margin: 0; min-height: 100%; background: transparent; }}
+    html, body {{ margin: 0; width: 100%; height: 100%; background: transparent; }}
     body.desktop-mode {{ overflow: hidden; }}
     .ai-domain-window {{
-      min-height: 100vh;
-      padding: 12px;
+      width: 100%;
+      height: 100vh;
+      padding: 0;
       --ai-domain-row-gutter: 8px;
       --ai-domain-row-vertical-gutter: 6px;
       --ai-domain-row-label-width: 0px;
@@ -4062,7 +4214,8 @@ class AIDashboardDomainWindow(QDialog):
     }}
     .ai-domain-window__chrome {{
       position: relative;
-      height: calc(100vh - 24px);
+      width: 100%;
+      height: 100vh;
       overflow: auto;
       scrollbar-width: thin;
       scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
@@ -4074,9 +4227,10 @@ class AIDashboardDomainWindow(QDialog):
         radial-gradient(circle at 20% 4%, rgba(94, 212, 235, 0.11), transparent 34%),
         linear-gradient(180deg, rgba(4, 16, 28, 0.985), rgba(2, 8, 16, 0.985));
       box-shadow:
-        0 18px 46px rgba(0, 0, 0, 0.46),
-        0 0 24px rgba(86, 236, 255, 0.08),
         inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    }}
+    .ai-domain-window__content {{
+      min-width: 0;
     }}
     .ai-domain-window__chrome::-webkit-scrollbar {{
       width: 8px;
@@ -4110,6 +4264,8 @@ class AIDashboardDomainWindow(QDialog):
     .ai-domain-window__header {{
       display: grid;
       gap: 6px;
+      min-height: {self.DRAG_HEADER_HEIGHT}px;
+      box-sizing: border-box;
       padding: 10px 118px 14px 10px;
       border-bottom: 1px solid rgba(94, 207, 229, 0.24);
       margin-bottom: 12px;
@@ -4322,18 +4478,20 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-view-model-contract="{escape(self.VIEW_MODEL_CONTRACT)}" data-view-model-source="AIProviderStateSnapshot.as_renderer_payload" data-view-model-state="pending-provider-payload" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-boundary-contract="visible-native-interactive-coincident-v1" data-window-move="windows-native-caption-hit-test-with-webview-fallback" data-window-resize="windows-native-edge-corner-hit-test-with-webview-fallback" data-window-default-geometry-contract="dom-content-measured-screen-bounded-v1" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-view-model-contract="{escape(self.VIEW_MODEL_CONTRACT)}" data-view-model-source="AIProviderStateSnapshot.as_renderer_payload" data-view-model-state="pending-provider-payload" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
     <section class="ai-domain-window__chrome">
       <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
         <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
         <button class="ai-domain-window__control ai-domain-window__control--close" type="button" data-domain-command="window-close" aria-label="Close {escape(definition["title"])}"></button>
       </div>
-      <header class="ai-domain-window__header">
-        <div class="ai-domain-window__kicker">{escape(definition["kicker"])}</div>
-        <div class="ai-domain-window__title">{escape(definition["title"])}</div>
-        <p class="ai-domain-window__description">{escape(definition["description"])}</p>
-      </header>
-      {body}
+      <div class="ai-domain-window__content">
+        <header class="ai-domain-window__header">
+          <div class="ai-domain-window__kicker">{escape(definition["kicker"])}</div>
+          <div class="ai-domain-window__title">{escape(definition["title"])}</div>
+          <p class="ai-domain-window__description">{escape(definition["description"])}</p>
+        </header>
+        {body}
+      </div>
     </section>
   </main>
   <script>
@@ -4345,6 +4503,32 @@ class AIDashboardDomainWindow(QDialog):
     let reportText = "";
     const byId = (id) => document.getElementById(id);
     const setText = (id, value) => {{ const target = byId(id); if (target) target.textContent = String(value || ""); }};
+    const emit = (command) => console.info(prefix + command);
+    const reportWindowContentMetrics = () => {{
+      const surface = document.querySelector("[data-ai-dashboard-child-window]");
+      const chrome = document.querySelector(".ai-domain-window__chrome");
+      const content = document.querySelector(".ai-domain-window__content");
+      if (!surface || !chrome || !content) return;
+      const chromeStyle = getComputedStyle(chrome);
+      const contentHeight = Math.ceil(
+        content.getBoundingClientRect().height
+        + parseFloat(chromeStyle.paddingTop || "0")
+        + parseFloat(chromeStyle.paddingBottom || "0")
+        + parseFloat(chromeStyle.borderTopWidth || "0")
+        + parseFloat(chromeStyle.borderBottomWidth || "0")
+      );
+      Object.assign(surface.dataset, {{
+        contentMeasuredHeight: String(contentHeight),
+        contentViewportHeight: String(Math.round(chrome.clientHeight || 0)),
+        contentScrollHeight: String(Math.round(chrome.scrollHeight || 0)),
+        windowDefaultGeometryContract: "dom-content-measured-screen-bounded-v1",
+      }});
+      emit("window-content-metrics:" + encodeURIComponent(JSON.stringify({{
+        contentHeight,
+        viewportHeight: Math.round(chrome.clientHeight || 0),
+        scrollHeight: Math.round(chrome.scrollHeight || 0),
+      }})));
+    }};
     const syncDomainRowLayout = () => {{
       const surface = document.querySelector("[data-ai-dashboard-child-window]");
       const labels = [...document.querySelectorAll(".ai-domain-window__row > span")];
@@ -4359,8 +4543,8 @@ class AIDashboardDomainWindow(QDialog):
         rowValueGutter: "8px",
         rowVerticalGutter: "6px",
       }});
+      requestAnimationFrame(reportWindowContentMetrics);
     }};
-    const emit = (command) => console.info(prefix + command);
     const formatItems = (items, keys = ["label"]) => {{
       const list = Array.isArray(items) ? items : [];
       if (!list.length) return "None";
@@ -4797,14 +4981,14 @@ class AIDashboardDomainWindow(QDialog):
     }});
     if (window.ResizeObserver) {{
       const rowObserver = new ResizeObserver(() => requestAnimationFrame(syncDomainRowLayout));
-      document.querySelectorAll(".ai-domain-window__row > span, .ai-domain-window__chrome").forEach((node) => rowObserver.observe(node));
+      document.querySelectorAll(".ai-domain-window__row > span, .ai-domain-window__content").forEach((node) => rowObserver.observe(node));
     }}
     if (document.fonts && document.fonts.ready) {{
       document.fonts.ready.then(() => requestAnimationFrame(syncDomainRowLayout)).catch(() => {{}});
     }}
     window.addEventListener("resize", syncDomainRowLayout);
     syncDomainRowLayout();
-    requestAnimationFrame(syncDomainRowLayout);
+    requestAnimationFrame(() => {{ syncDomainRowLayout(); reportWindowContentMetrics(); }});
   </script>
 </body>
 </html>"""
@@ -4903,6 +5087,15 @@ class AIDashboardDomainWindow(QDialog):
             )
 
     def _handle_domain_command(self, domain_id: str, command: str) -> None:
+        if domain_id == self.domain_id and command.startswith("window-content-metrics:"):
+            encoded_metrics = command.split(":", 1)[1]
+            try:
+                metrics = json.loads(urllib.parse.unquote(encoded_metrics))
+            except (TypeError, ValueError, json.JSONDecodeError):
+                metrics = {}
+            if isinstance(metrics, dict):
+                self._apply_initial_content_fit(metrics)
+            return
         if (
             domain_id == "readiness-diagnostics"
             and command.startswith("copy-readiness-report-native:")

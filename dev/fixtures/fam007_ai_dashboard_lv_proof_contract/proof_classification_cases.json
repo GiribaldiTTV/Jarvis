@@ -1,0 +1,75 @@
+{
+  "contract": "fam007-physical-user-gating-proof-classification-v1",
+  "cases": [
+    {
+      "id": "physical-user-mouse-may-be-gating-candidate",
+      "actor": "PHYSICAL_USER",
+      "inputSource": "physical-user-mouse",
+      "maySetGatingPass": true,
+      "expectedValid": true
+    },
+    {
+      "id": "physical-user-keyboard-may-be-gating-candidate",
+      "actor": "PHYSICAL_USER",
+      "inputSource": "physical-user-keyboard",
+      "maySetGatingPass": true,
+      "expectedValid": true
+    },
+    {
+      "id": "qtest-is-supporting-only",
+      "actor": "CODEX_AUTOMATION",
+      "inputSource": "qt-qtest-direct-widget-event",
+      "maySetGatingPass": false,
+      "expectedValid": true
+    },
+    {
+      "id": "direct-geometry-is-supporting-only",
+      "actor": "CODEX_AUTOMATION",
+      "inputSource": "direct-window-geometry-api",
+      "maySetGatingPass": false,
+      "expectedValid": true
+    },
+    {
+      "id": "dom-dispatch-is-supporting-only",
+      "actor": "CODEX_AUTOMATION",
+      "inputSource": "dom-javascript-dispatch",
+      "maySetGatingPass": false,
+      "expectedValid": true
+    },
+    {
+      "id": "helper-controlled-windows-pointer-is-supporting-only",
+      "actor": "CODEX_AUTOMATION",
+      "inputSource": "setcursorpos-mouse-event",
+      "maySetGatingPass": false,
+      "expectedValid": true
+    },
+    {
+      "id": "computer-use-is-supporting-only",
+      "actor": "CODEX_AUTOMATION",
+      "inputSource": "computer-use",
+      "maySetGatingPass": false,
+      "expectedValid": true
+    },
+    {
+      "id": "unknown-actor-cannot-be-gating",
+      "actor": "UNKNOWN",
+      "inputSource": "unknown",
+      "maySetGatingPass": false,
+      "expectedValid": true
+    },
+    {
+      "id": "known-bad-qtest-false-green-rejected",
+      "actor": "CODEX_AUTOMATION",
+      "inputSource": "qt-qtest-direct-widget-event",
+      "maySetGatingPass": true,
+      "expectedValid": false
+    },
+    {
+      "id": "known-bad-unknown-actor-false-green-rejected",
+      "actor": "UNKNOWN",
+      "inputSource": "unknown",
+      "maySetGatingPass": true,
+      "expectedValid": false
+    }
+  ]
+}
