@@ -148,11 +148,16 @@ def _replace_existing_fields(
     failures: list[str] = []
     found: dict[str, int] = {field: 0 for field in {**updates, **additions}}
     replaced: list[str] = []
-    header_end = next(
-        (index for index, line in enumerate(lines) if line.rstrip("\r\n").startswith("## ")),
+    live_end = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n").startswith("## ")
+            and "receipt" in line.rstrip("\r\n").casefold()
+        ),
         len(lines),
     )
-    for index, line in enumerate(lines[:header_end]):
+    for index, line in enumerate(lines[:live_end]):
         content = line.rstrip("\r\n")
         newline = line[len(content) :]
         replacement = None
@@ -175,10 +180,7 @@ def _replace_existing_fields(
         elif field in updates and count != 1:
             failures.append(f"Target transition requires exactly one existing field {field}: found {count}")
     if not failures and additions:
-        insert_at = next(
-            (index for index, line in enumerate(lines) if line.startswith("## ")),
-            len(lines),
-        )
+        insert_at = live_end
         additions_text = [f"{field}: `{value}`\n" for field, value in additions.items()]
         lines[insert_at:insert_at] = additions_text
     return "".join(lines), failures
