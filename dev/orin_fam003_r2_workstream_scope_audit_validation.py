@@ -456,6 +456,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Scope-audit self-test, packet active-review validation, compileall, governance, and final parity.",
         "supersession": "Supersedes the grouped changed-file ledger in the prior completion packet.",
     },
+    "Fix FAM-003 R2 packet classification": {
+        "reason": "Kept exact Git evidence legal in the R2 completion packet, prevented next-phase H1 wording from misclassifying the packet, and restored referenced comparator-image parity.",
+        "traceability": "R2-WS10 / SLC-R2-010 completion packet validation repair.",
+        "coherent": "YES - packet classifier and proof-integrity repair only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Packet-specific classifier probes and active-review folder/ZIP validation.",
+        "supersession": "Extends the R2 completion scope-audit packet guard without weakening other packet classes.",
+    },
 }
 
 
