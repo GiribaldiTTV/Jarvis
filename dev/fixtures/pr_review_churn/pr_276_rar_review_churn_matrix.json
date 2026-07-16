@@ -434,6 +434,15 @@
     ],
     "dev/orin_user_review_bundle.py": [
       "visual-acceptance-proof-chain-parser"
+    ],
+    "dev/orin_external_state_validation.py": [
+      "repo-live-state-boundary-parser"
+    ],
+    "dev/orin_external_state_target_currentness_fixture_validation.py": [
+      "repo-live-state-boundary-parser"
+    ],
+    "dev/orin_user_review_bundle_false_green_fixture_validation.py": [
+      "visual-acceptance-proof-chain-parser"
     ]
   },
   "families": [
@@ -723,7 +732,8 @@
       "implementation": [
         "dev/orin_branch_readiness_planning_fixture_validation.py",
         "dev/orin_pr_review_churn_validation.py",
-        "dev/orin_user_review_bundle.py"
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py"
       ],
       "fixture_coverage": [
         "dev/fixtures/branch_readiness_planning/valid_visual_acceptance_enforcement_chain.md",
@@ -733,7 +743,8 @@
         "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_template_claim.md",
         "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_packet_reviewability_acceptance.md",
         "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_role_ambiguous.md",
-        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_reference_set_as_authority.md"
+        "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_reference_set_as_authority.md",
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py"
       ],
       "generated_mutation_coverage": [
         "shared primitive claim without source path",
@@ -958,12 +969,14 @@
         "dev/orin_branch_governance_validation.py",
         "dev/orin_branch_readiness_planning_fixture_validation.py",
         "dev/orin_repo_live_state_leakage_scan.py",
-        "dev/orin_pr_review_churn_validation.py"
+        "dev/orin_pr_review_churn_validation.py",
+        "dev/orin_external_state_validation.py"
       ],
       "fixture_coverage": [
         "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_repo_live_state_tracking.md",
         "dev/fixtures/branch_record_live_state_leakage/invalid_unindexed_branch_record_live_state.md",
-        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_review.md"
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_review.md",
+        "dev/orin_external_state_target_currentness_fixture_validation.py"
       ],
       "generated_mutation_coverage": [
         "repo live-state ledger text with external-state mention",
