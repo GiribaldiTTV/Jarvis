@@ -3099,21 +3099,29 @@ def validate_local_user_packet(
 
     folder_packet_files = _packet_text_files(packet_dir)
     packet_files = zip_packet_files if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else (zip_packet_files or folder_packet_files)
-    if validation_mode == PACKET_VALIDATION_MODE_ACTIVE_REVIEW and not any(
+    if validation_mode in {
+        PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        PACKET_VALIDATION_MODE_NEXT_GATE,
+    } and not any(
         "requires explicit identity expectations" in failure for failure in failures
     ):
+        identity_mode_label = (
+            "active-review"
+            if validation_mode == PACKET_VALIDATION_MODE_ACTIVE_REVIEW
+            else "next-gate"
+        )
         identity_kwargs = {
             "expected_branch": expected_branch or "",
             "expected_head": expected_head or "",
             "expected_origin_main": expected_origin_main or "",
         }
         failures.extend(
-            f"Folder active-review identity: {failure}"
+            f"Folder {identity_mode_label} identity: {failure}"
             for failure in _packet_identity_failures(folder_packet_files, **identity_kwargs)
         )
         if zip_packet_files:
             failures.extend(
-                f"ZIP active-review identity: {failure}"
+                f"ZIP {identity_mode_label} identity: {failure}"
                 for failure in _packet_identity_failures(zip_packet_files, **identity_kwargs)
             )
     failures.extend(_primary_review_substantive_failures(packet_files, primary_files))

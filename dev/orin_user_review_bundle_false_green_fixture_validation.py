@@ -809,6 +809,13 @@ def main() -> int:
         lambda _packet: None,
         expected_origin_main="2" * 40,
     )
+    _assert_failure(
+        "next-gate-wrong-head",
+        "Folder next-gate identity: Packet identity: expected HEAD",
+        lambda _packet: None,
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        expected_head="1" * 40,
+    )
     _assert_success(
         "active-review-identity-positive",
         lambda _packet: None,
