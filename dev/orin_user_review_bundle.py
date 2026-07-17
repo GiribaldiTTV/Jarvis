@@ -1002,7 +1002,7 @@ def _validate_export_zip(
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
         *_pr_stage1_packet_coherence_failures(generated_packet_files),
-        *_pr_stage1_source_coverage_failures(generated_packet_files),
+        *_pr_stage1_source_coverage_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -11472,7 +11472,7 @@ def build_bundle(
         )
     )
     machine_readable_packet_status = (
-        "pr readiness stage1 approval review - PR Readiness Stage 1 is complete; "
+        "pr readiness stage1 approval review - Stage 1 Ready For Stage 2; "
         "PR Readiness Stage 2 remains pending separate USER approval."
         if pr_stage1_packet and stage1_outcome == PR_STAGE1_OUTCOME_READY
         else
