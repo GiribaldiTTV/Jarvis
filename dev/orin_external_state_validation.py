@@ -17,6 +17,7 @@ from orin_external_state_common import (
     resolve_path,
     sha256_file,
     validate_canonical_root,
+    validate_initialized_root,
 )
 
 
@@ -1318,6 +1319,14 @@ def main() -> int:
         if args.require_stage4_records:
             print("Validation Result: BLOCKED")
             print("Target-scoped currentness cannot be combined with global Stage 4 record validation")
+            return 1
+        initialization_issues = validate_initialized_root(root, args.schema)
+        if initialization_issues:
+            print("Validation Scope: TARGET_SCOPED_CURRENTNESS")
+            print("Root Manifest Posture: BLOCKED - target currentness requires an initialized external-state root")
+            print("Target Currentness Validation: BLOCKED")
+            for issue in initialization_issues:
+                print(issue)
             return 1
         target_issues = validate_target_currentness(
             root,

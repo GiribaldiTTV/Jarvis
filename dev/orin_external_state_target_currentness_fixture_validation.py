@@ -1098,6 +1098,29 @@ def main() -> int:
                 + cli_result.stderr
             )
 
+        uninitialized_root = root / "uninitialized-external-state-root"
+        _record(uninitialized_root)
+        cli_result = subprocess.run(
+            [
+                sys.executable,
+                str(Path(validator.__file__).resolve()),
+                "--root",
+                str(uninitialized_root),
+                "--target-currentness",
+                "--target",
+                TARGET,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if cli_result.returncode == 0 or "state_manifest.json missing" not in cli_result.stdout:
+            raise AssertionError(
+                "target-currentness CLI accepted an uninitialized external-state root:\n"
+                + cli_result.stdout
+                + cli_result.stderr
+            )
+
     with tempfile.TemporaryDirectory(prefix="ndai-target-crlf-") as temp_dir:
         root = Path(temp_dir)
         _manifest(root)
@@ -1120,6 +1143,39 @@ def main() -> int:
                 "Intended Write Set": TARGET,
             },
         )
+        with target.open("r", encoding="utf-8", newline="") as handle:
+            before_text = handle.read()
+        projected_text, projected_failures = reconciler._replace_existing_fields(
+            before_text,
+            {"Last Updated": "2026-01-02T00:00:00Z"},
+            {"Added CRLF Fixture Field": "added"},
+        )
+        projected_text, section_failures, _ = reconciler._rename_sections(
+            projected_text,
+            {"CRLF Historical Receipts": "CRLF Historical Receipt"},
+        )
+        if projected_failures or section_failures:
+            raise AssertionError(
+                "CRLF projection fixture could not construct expected bytes:\n"
+                + "\n".join(projected_failures + section_failures)
+            )
+        projected_hash = hashlib.sha256(projected_text.encode("utf-8")).hexdigest()
+        dry_ok, dry_messages, dry_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-02T00:00:00Z"],
+            additions=["Added CRLF Fixture Field=added"],
+            apply=False,
+            section_renames=["CRLF Historical Receipts=CRLF Historical Receipt"],
+            **_expectations(target),
+        )
+        if not dry_ok or dry_audit is not None or f"After SHA256: {projected_hash}" not in dry_messages:
+            raise AssertionError(
+                "CRLF dry-run did not report the exact projected byte hash:\n"
+                + "\n".join(dry_messages)
+            )
         ok, messages, audit = reconciler.reconcile_target(
             root=root,
             target=TARGET,

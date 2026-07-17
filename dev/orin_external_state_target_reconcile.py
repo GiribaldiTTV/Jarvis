@@ -335,7 +335,7 @@ def _projected_target_validation(
         projected_root = Path(temp_dir)
         projected_target = projected_root.joinpath(*relative.split("/"))
         projected_target.parent.mkdir(parents=True, exist_ok=True)
-        projected_target.write_text(projected_text, encoding="utf-8")
+        projected_target.write_bytes(projected_text.encode("utf-8"))
         projected_hash = sha256_file(projected_target)
         return validate_target_currentness(
             projected_root,
