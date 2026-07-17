@@ -513,7 +513,7 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 
 ## Next Legal Phase
 
-- `PR Readiness Stage 2 USER decision`
+- `PR Readiness`
 
 Next Legal Phase Detail: The USER-approved integrated Defect A/B repair and current-gate packet-coherence repair are implemented, externally reconciled, and validated. The current packet records Stage 1 Ready For Stage 2; only the separate USER Stage 2 decision can authorize PR Stage 2 work. PR creation, merge, release, FAM worktree adoption, runtime UI implementation, code-level design-token/shared-primitive implementation, issue mutation, and cleanup remain separate USER decisions.
 
