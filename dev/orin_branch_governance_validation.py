@@ -20421,9 +20421,13 @@ def _run_merge_target_authority_projection_gate(
     if remaining_active_record_paths:
         return
 
-    if active_branch_record_path == STANDING_GOVERNANCE_INTAKE_RECORD.as_posix():
+    if (
+        active_branch_record_path == STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+        and not merge_stable_branch_record_text
+    ):
         # The standing Governance intake is the explicit merged-main exception:
         # it remains the sole active authority while no product branch is active.
+        # If a merge-stable projection is supplied, validate that projection below.
         return
 
     phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")

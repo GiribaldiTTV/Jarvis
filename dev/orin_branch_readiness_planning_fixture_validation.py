@@ -5681,6 +5681,63 @@ def _validate_merge_stable_projection_helpers() -> list[str]:
             "from adjacent merge-status blocks"
         ),
     )
+
+    standing_path = governance.STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+    active_standing_record = (
+        "## Branch Identity\n"
+        "Branch: `feature/release-readiness-source-truth-intake`\n\n"
+        "## Post-Merge State\n"
+        "No Active Branch\n"
+    )
+    invalid_merge_stable_record = (
+        "## Branch Identity\n"
+        "Branch: `feature/example-merged-branch`\n\n"
+        "## Current Phase\n"
+        "Phase: `PR Readiness`\n\n"
+        "## Phase Status\n"
+        "`Active Branch`\n\n"
+        "## Post-Merge State\n"
+        "No Active Branch\n"
+    )
+    invalid_failures: list[str] = []
+    governance._run_merge_target_authority_projection_gate(
+        lambda condition, message: invalid_failures.append(message) if not condition else None,
+        active_branch_record_paths={standing_path},
+        active_branch_record_path=standing_path,
+        active_branch_record_text=active_standing_record,
+        merge_stable_branch_record_path=(
+            "Docs/branch_records/feature_example_merged_branch.md"
+        ),
+        merge_stable_branch_record_text=invalid_merge_stable_record,
+    )
+    require(
+        any("Historical Traceability" in failure for failure in invalid_failures),
+        "Standing Governance intake must not bypass malformed merge-stable phase validation",
+    )
+    require(
+        any("still declares `Active Branch`" in failure for failure in invalid_failures),
+        "Standing Governance intake must not bypass malformed merge-stable phase-status validation",
+    )
+
+    valid_merge_stable_record = invalid_merge_stable_record.replace(
+        "Phase: `PR Readiness`", "Phase: `Historical Traceability`"
+    ).replace("`Active Branch`", "Historical merged-unreleased projection")
+    valid_failures: list[str] = []
+    governance._run_merge_target_authority_projection_gate(
+        lambda condition, message: valid_failures.append(message) if not condition else None,
+        active_branch_record_paths={standing_path},
+        active_branch_record_path=standing_path,
+        active_branch_record_text=active_standing_record,
+        merge_stable_branch_record_path=(
+            "Docs/branch_records/feature_example_merged_branch.md"
+        ),
+        merge_stable_branch_record_text=valid_merge_stable_record,
+    )
+    require(
+        not valid_failures,
+        "Valid historical merge-stable projection unexpectedly failed with standing intake active: "
+        + "; ".join(valid_failures[:3]),
+    )
     return failures
 
 
