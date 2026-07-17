@@ -469,6 +469,14 @@ def _assert_stage1_coherence_guards() -> None:
         "Review Aids/PR_READINESS_STAGE1_CONTRADICTION_CHECKLIST.md": (
             "PASS: no active Workstream Entry decision path is emitted.\n"
         ),
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md": (
+            "Context Complete - no new BP1 response requested by this packet; "
+            "PR Readiness Stage 1 analysis remains the next USER decision.\n"
+        ),
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "Context Complete - no new BP1 response requested by this packet; "
+            "PR Readiness Stage 1 analysis remains the next USER decision.\n"
+        ),
         "Source Truth Context/Docs__Main.md": "# Main\n",
     }
     failures = bundle._pr_stage1_packet_coherence_failures(coherent)

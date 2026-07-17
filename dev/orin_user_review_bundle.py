@@ -1377,6 +1377,10 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
         for name, text in packet_files.items()
         if name.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
     }
+    stage1_planning_support_files = {
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
+    }
     for file_name, text in sorted(support_files.items()):
         normalized = re.sub(r"\s+", " ", text).casefold()
         if re.search(r"decision path\s*:\s*workstream\s+entry", normalized):
@@ -1400,9 +1404,13 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
             failures.append(
                 f"{file_name}: presents a BP gate as the active pending gate in a Stage 1 packet"
             )
-        if stage1_ready and re.search(
-            r"(?:approve|begin|start|request).{0,80}pr\s+readiness\s+stage\s*1",
-            normalized,
+        if (
+            stage1_ready
+            and file_name not in stage1_planning_support_files
+            and re.search(
+                r"(?:approve|begin|start|request).{0,80}pr\s+readiness\s+stage\s*1",
+                normalized,
+            )
         ):
             failures.append(
                 f"{file_name}: requests or recommends Stage 1 after Stage 1 completion"
