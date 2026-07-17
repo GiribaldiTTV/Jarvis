@@ -649,6 +649,29 @@ def main() -> int:
                 + "\n".join(intermediate_messages)
             )
 
+        nested_snapshot = _snapshot(root, target, "fixture-nested-reparse")
+        nested_reparse_component = _target_path(nested_snapshot).parent
+        original_reparse_hook = reconciler._has_reparse_point
+        reconciler._has_reparse_point = lambda path: path == nested_reparse_component
+        try:
+            ok, nested_messages, _ = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot=nested_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-06T00:00:03Z"],
+                additions=[],
+                apply=False,
+                **_expectations(target),
+            )
+        finally:
+            reconciler._has_reparse_point = original_reparse_hook
+        if ok or not any("reparse/symlink target is forbidden" in item for item in nested_messages):
+            raise AssertionError(
+                "nested reparse snapshot component was accepted:\n"
+                + "\n".join(nested_messages)
+            )
+
         valid_alias_snapshot = _snapshot(root, target, "fixture-snapshot-alias")
         for alias in ("snapshots//fixture-snapshot-alias", "snapshots\\fixture-snapshot-alias\\"):
             alias_expectations = _expectations(target)

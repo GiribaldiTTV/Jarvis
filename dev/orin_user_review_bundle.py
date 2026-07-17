@@ -1019,6 +1019,7 @@ def _validate_export_zip(
             + "\n".join(f"- {failure}" for failure in name_failures)
         )
     packet_files: dict[str, str] = {}
+    packet_binary_files: dict[str, bytes] = {}
     with zipfile.ZipFile(export_zip, "r") as archive:
         entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
         try:
@@ -1026,8 +1027,9 @@ def _validate_export_zip(
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
         for entry in sorted(entries):
+            packet_binary_files[entry] = archive.read(entry)
             try:
-                packet_files[entry] = archive.read(entry).decode("utf-8")
+                packet_files[entry] = packet_binary_files[entry].decode("utf-8")
             except UnicodeDecodeError:
                 continue
     stage1_packet = (
@@ -1073,6 +1075,7 @@ def _validate_export_zip(
         *_unresolved_template_placeholder_failures(generated_packet_files),
         *_packet_identity_failures(
             packet_files,
+            packet_binary_files=packet_binary_files,
             expected_branch=source_branch,
             expected_head=source_head,
             expected_origin_main=origin_main,
@@ -1092,7 +1095,10 @@ def _validate_export_zip(
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
         *_pr_stage1_packet_coherence_failures(generated_packet_files),
-        *_pr_stage1_source_coverage_failures(packet_files),
+        *_pr_stage1_source_coverage_failures(
+            packet_files,
+            packet_entries=entries,
+        ),
     ]
     if artifact_failures:
         raise ValueError(

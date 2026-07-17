@@ -334,7 +334,14 @@ def _snapshot_failures(
     if manifest_path.stat().st_mtime_ns > transition_started_ns:
         failures.append("Transition Snapshot Contract: snapshot was created after the transition began")
     snapshot_target = snapshot_path / Path(*relative.split("/"))
-    if _has_reparse_point(snapshot_target):
+    snapshot_cursor = snapshot_path
+    snapshot_target_has_reparse_component = _has_reparse_point(snapshot_cursor)
+    for part in relative.split("/"):
+        snapshot_cursor = snapshot_cursor / part
+        if _has_reparse_point(snapshot_cursor):
+            snapshot_target_has_reparse_component = True
+            break
+    if snapshot_target_has_reparse_component:
         failures.append(
             "Transition Snapshot Contract: snapshot target must be an independent regular file; "
             f"reparse/symlink target is forbidden: {relative}"
