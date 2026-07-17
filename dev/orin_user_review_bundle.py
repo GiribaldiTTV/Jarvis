@@ -76,12 +76,27 @@ def _is_pr_readiness_stage2_packet(
     *,
     source_branch: str,
     normalized_decision: str,
+    stage1_outcome: str | None = None,
 ) -> bool:
     """Classify an actual Stage 2 approval before the Stage 1 fallback."""
 
     return (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve pr readiness stage 2" in normalized_decision
+        and stage1_outcome != PR_STAGE1_OUTCOME_READY
+    )
+
+
+def _is_fam007_breakpoint2_live_validation_lv1_packet(
+    *,
+    source_branch: str,
+    normalized_decision: str,
+) -> bool:
+    """Keep the legacy FAM-007 LV1-green route out of PR Stage 1."""
+
+    return (
+        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
     )
 
 
@@ -95,8 +110,16 @@ def _is_pr_readiness_stage1_packet(
 
     return (
         stage1_outcome in {PR_STAGE1_OUTCOME_READY, PR_STAGE1_OUTCOME_REPAIR}
-        and "pr readiness stage 1" in normalized_decision
+        and (
+            "pr readiness stage 1" in normalized_decision
+            or "pr readiness stage 2" in normalized_decision
+        )
         and not _is_pr_readiness_stage2_packet(
+            source_branch=source_branch,
+            normalized_decision=normalized_decision,
+            stage1_outcome=stage1_outcome,
+        )
+        and not _is_fam007_breakpoint2_live_validation_lv1_packet(
             source_branch=source_branch,
             normalized_decision=normalized_decision,
         )
@@ -9287,13 +9310,14 @@ def _write_workstream_entry_packet_digests(
         is_fam007_breakpoint_2
         and "approve bounded live validation lv1" in exact_user_decision.casefold()
     )
-    lv1_green_packet = (
-        is_fam007_breakpoint_2
-        and "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
+    lv1_green_packet = _is_fam007_breakpoint2_live_validation_lv1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
     )
     pr_stage2_packet = _is_pr_readiness_stage2_packet(
         source_branch=source_branch,
         normalized_decision=normalized_decision,
+        stage1_outcome=stage1_outcome,
     )
     pr_stage1_packet = _is_pr_readiness_stage1_packet(
         source_branch=source_branch,
@@ -11474,13 +11498,14 @@ def build_bundle(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded live validation lv1" in exact_user_decision.casefold()
     )
-    lv1_green_packet = (
-        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
-        and "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
+    lv1_green_packet = _is_fam007_breakpoint2_live_validation_lv1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
     )
     pr_stage2_packet = _is_pr_readiness_stage2_packet(
         source_branch=source_branch,
         normalized_decision=normalized_decision,
+        stage1_outcome=stage1_outcome,
     )
     pr_stage1_packet = _is_pr_readiness_stage1_packet(
         source_branch=source_branch,

@@ -271,7 +271,7 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
     if bundle._is_pr_readiness_stage1_packet(
         source_branch=source_branch,
         normalized_decision=normalized_decision,
-        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
     ):
         raise AssertionError(
             "An actual FAM-007 Stage 2 decision was misclassified as Stage 1"
@@ -307,7 +307,7 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
             copied_count=0,
             exact_user_decision=decision,
             pending_user_decisions=["Merge remains pending USER approval."],
-            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
         )
         generated_names = {path.name for path in generated}
         if bundle.PR_READINESS_STAGE1_REVIEW_FILE in generated_names:
@@ -318,6 +318,15 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
             raise AssertionError(
                 "Actual FAM-007 Stage 2 packet generation did not emit its Stage 2 digest"
             )
+
+    if not bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "A green Stage 1 packet carrying the Stage 2 next decision lost its Stage 1 classification"
+        )
 
 
 def _assert_non_stage1_live_validation_packet_classification() -> None:
@@ -363,6 +372,27 @@ def _assert_non_stage1_live_validation_packet_classification() -> None:
             raise AssertionError(
                 "Non-Stage-1 FAM-007 packet generation emitted Stage 1-only digest files"
             )
+
+    legacy_source_branch = (
+        "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+    )
+    legacy_lv1_decision = (
+        "I approve bounded PR Readiness Stage 1 analysis for the FAM-007 Breakpoint 2 carrier."
+    )
+    legacy_normalized_decision = legacy_lv1_decision.casefold()
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=legacy_source_branch,
+        normalized_decision=legacy_normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "Legacy FAM-007 LV1-green packet was misclassified as PR Readiness Stage 1"
+        )
+    if not bundle._is_fam007_breakpoint2_live_validation_lv1_packet(
+        source_branch=legacy_source_branch,
+        normalized_decision=legacy_normalized_decision,
+    ):
+        raise AssertionError("Legacy FAM-007 LV1-green packet was not recognized")
 
 
 def _assert_current_stage1_terms_are_not_stale() -> None:
