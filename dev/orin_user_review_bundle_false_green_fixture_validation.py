@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import inspect
 import json
+import subprocess
 import tempfile
 import zipfile
 from pathlib import Path, PureWindowsPath
@@ -47,12 +48,19 @@ Packet validation is not USER acceptance. This fixture should fail only because
 the scenario-specific false-green defect is present.
 """
 
+FIXTURE_ORIGIN_MAIN = "b" * 40
+
 
 def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
     (root / "USER Review").mkdir(parents=True)
     (root / "Review Aids").mkdir(parents=True)
     (root / "Source Truth Context").mkdir(parents=True)
     primary_path = "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md"
+    copied_source_path = "Source Truth Context/Docs__Main.md"
+    (root / copied_source_path).write_text(
+        (ROOT / "Docs" / "Main.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
     (root / "START_HERE.md").write_text(
         "\n".join(
             [
@@ -62,6 +70,12 @@ def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
                 f"Primary USER Review File: `{primary_path}`",
                 "",
                 "Open the primary review file. Packet validation is not USER acceptance.",
+                "",
+                "## Files",
+                "",
+                "| Source path | Copied path |",
+                "| --- | --- |",
+                f"| `Docs/Main.md` | `{copied_source_path}` |",
             ]
         ),
         encoding="utf-8",
@@ -97,6 +111,32 @@ def _current_head() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
 
+def _current_branch() -> str:
+    return subprocess.check_output(
+        ["git", "branch", "--show-current"], cwd=ROOT, text=True
+    ).strip()
+
+
+def _current_origin_main() -> str:
+    return bundle._git_output("rev-parse", "origin/main")
+
+
+def _assert_origin_main_fallback() -> None:
+    original_git_output = bundle._git_output
+
+    def missing_origin_main(*args: str) -> str:
+        if args == ("rev-parse", "origin/main"):
+            return "UNKNOWN"
+        return original_git_output(*args)
+
+    bundle._git_output = missing_origin_main
+    try:
+        if _current_origin_main() != "UNKNOWN":
+            raise AssertionError("missing origin/main fixture did not use the UNKNOWN fallback")
+    finally:
+        bundle._git_output = original_git_output
+
+
 def _run_fixture(
     name: str,
     mutate,
@@ -106,6 +146,10 @@ def _run_fixture(
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     external_state_files=None,
     extra_zip_names: tuple[str, ...] = (),
+    expected_branch: str | None = None,
+    expected_head: str | None = None,
+    expected_origin_main: str | None = None,
+    omit_identity_arguments: bool = False,
 ) -> list[str]:
     with tempfile.TemporaryDirectory(prefix=f"ndai-{name}-") as temp_dir:
         review_root = Path(temp_dir)
@@ -117,6 +161,27 @@ def _run_fixture(
             mutate(packet, export_zip)
         else:
             mutate(packet)
+        parity_path = (
+            packet
+            / "Review Aids"
+            / "Artifact Lifecycle Proof"
+            / "FINAL_FOLDER_ZIP_PARITY_PROOF.md"
+        )
+        if not parity_path.is_file():
+            parity_path.parent.mkdir(parents=True, exist_ok=True)
+            parity_path.write_text(
+                "\n".join(
+                    [
+                        "# Final Folder / ZIP Parity Proof",
+                        "",
+                        f"Final Export ZIP: {export_zip.name}",
+                        "Folder/ZIP File List Parity: PASS",
+                        "Folder/ZIP Content Hash Parity: PASS",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
         external_state_dir = review_root / "external_state"
         if external_state_files is not None:
             external_state_dir.mkdir()
@@ -125,6 +190,18 @@ def _run_fixture(
         original_external_state_dir = bundle._current_branch_external_state_dir
         if external_state_files is not None:
             bundle._current_branch_external_state_dir = lambda: external_state_dir
+        original_git_output = bundle._git_output
+        live_origin_main = _current_origin_main()
+        fixture_origin_main = expected_origin_main or live_origin_main
+        if expected_origin_main is None and fixture_origin_main == "UNKNOWN":
+            fixture_origin_main = FIXTURE_ORIGIN_MAIN
+
+            def fixture_git_output(*args: str) -> str:
+                if args == ("rev-parse", "origin/main"):
+                    return fixture_origin_main
+                return original_git_output(*args)
+
+            bundle._git_output = fixture_git_output
         try:
             _zip_packet(packet, export_zip, overrides=zip_overrides, omit=zip_omit)
             for extra_zip_name in extra_zip_names:
@@ -134,8 +211,24 @@ def _run_fixture(
                 export_zip=export_zip,
                 worktree_label="FAM-007",
                 validation_mode=validation_mode,
+                expected_branch=(
+                    None
+                    if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+                    else expected_branch or _current_branch()
+                ),
+                expected_head=(
+                    None
+                    if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+                    else expected_head or _current_head()
+                ),
+                expected_origin_main=(
+                    None
+                    if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+                    else fixture_origin_main
+                ),
             ).failures
         finally:
+            bundle._git_output = original_git_output
             bundle._current_branch_external_state_dir = original_external_state_dir
 
 
@@ -149,6 +242,10 @@ def _assert_failure(
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     external_state_files=None,
     extra_zip_names: tuple[str, ...] = (),
+    expected_branch: str | None = None,
+    expected_head: str | None = None,
+    expected_origin_main: str | None = None,
+    omit_identity_arguments: bool = False,
 ) -> None:
     failures = _run_fixture(
         name,
@@ -158,6 +255,10 @@ def _assert_failure(
         validation_mode=validation_mode,
         external_state_files=external_state_files,
         extra_zip_names=extra_zip_names,
+        expected_branch=expected_branch,
+        expected_head=expected_head,
+        expected_origin_main=expected_origin_main,
+        omit_identity_arguments=omit_identity_arguments,
     )
     joined = "\n".join(failures)
     if needle not in joined:
@@ -181,6 +282,499 @@ def _assert_success(
     )
     if failures:
         raise AssertionError(f"{name} failed unexpectedly:\n" + "\n".join(failures))
+
+
+def _assert_active_identity_arguments_required() -> None:
+    failures = _run_fixture(
+        "missing-active-identity-arguments",
+        lambda _packet: None,
+        omit_identity_arguments=True,
+    )
+    if not any("requires explicit identity expectations" in failure for failure in failures):
+        raise AssertionError(
+            "missing-active-identity-arguments did not fail closed:\n"
+            + "\n".join(failures)
+        )
+
+
+def _assert_stage1_primary_for_stage2_decision() -> None:
+    decision = (
+        "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
+        "/ feature/release-readiness-source-truth-intake."
+    )
+    source_branch = "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+    normalized_decision = decision.casefold()
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "An actual FAM-007 Stage 2 decision was misclassified as Stage 1"
+        )
+    if not bundle._is_pr_readiness_stage2_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError("The FAM-007 Stage 2 decision was not classified as Stage 2")
+    if bundle._is_pr_readiness_stage2_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "A repair-required Stage 1 outcome bypassed the Stage 2 readiness gate"
+        )
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "An actual FAM-007 Stage 2 decision after Stage 1 readiness was misclassified as Stage 1"
+        )
+    primary = bundle._primary_user_review_file(
+        decision,
+        source_branch=source_branch,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    )
+    if primary != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md":
+        raise AssertionError(
+            "An actual FAM-007 Stage 2 packet after Stage 1 readiness must keep "
+            f"WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md primary; found {primary!r}."
+        )
+    with tempfile.TemporaryDirectory(prefix="ndai-stage2-packet-") as temp_dir:
+        target = Path(temp_dir) / "packet"
+        target.mkdir()
+        generated = bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch=source_branch,
+            source_head="a" * 40,
+            origin_main="b" * 40,
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260717-000000.zip",
+            copied=[],
+            extra_bundle_files=[],
+            bundle_file_count=0,
+            expected_count=0,
+            copied_count=0,
+            exact_user_decision=decision,
+            pending_user_decisions=["Merge remains pending USER approval."],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        generated_names = {path.name for path in generated}
+        if bundle.PR_READINESS_STAGE1_REVIEW_FILE in generated_names:
+            raise AssertionError(
+                "Actual FAM-007 Stage 2 packet generation emitted a Stage 1 primary artifact"
+            )
+        if "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" not in generated_names:
+            raise AssertionError(
+                "Actual FAM-007 Stage 2 packet generation did not emit its Stage 2 digest"
+            )
+
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-stage1-support-context-") as temp_dir:
+        target = Path(temp_dir) / "Review Aids"
+        target.mkdir(parents=True)
+        support = bundle._write_user_branch_plan_review(
+            target=target,
+            title="Governance Stage 1 Ready Support Context",
+            review_purpose="PR Readiness Stage 1 ready support context.",
+            source_branch="feature/release-readiness-source-truth-intake",
+            source_head="a" * 40,
+            upstream="origin/feature/release-readiness-source-truth-intake",
+            origin_main="b" * 40,
+            exact_user_decision=decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=[],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        support_text = support.read_text(encoding="utf-8").casefold()
+        for forbidden in (
+            "does user approve pr readiness stage 1 analysis",
+            "pending user response - bp2 gate remains open",
+            "accept the bp2 engineering plan as written",
+        ):
+            if forbidden in support_text:
+                raise AssertionError(
+                    "Governance Stage 1-ready support context retained stale gate wording: "
+                    + forbidden
+                )
+        for required in (
+            "context only",
+            "stage 1 is ready for the separate stage 2 user decision",
+            "stage 2 remains pending",
+        ):
+            if required not in support_text:
+                raise AssertionError(
+                    "Governance Stage 1-ready support context omitted required wording: "
+                    + required
+                )
+
+
+def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:
+    decision = (
+        "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
+        "/ feature/release-readiness-source-truth-intake."
+    )
+    normalized_decision = decision.casefold()
+    source_branch = "feature/release-readiness-source-truth-intake"
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "Stage 2 wording with a repair-required Stage 1 outcome was misclassified as Stage 1"
+        )
+    if not bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "Stage 2 wording with a ready Stage 1 outcome did not retain Stage 1 packet classification"
+        )
+
+
+def _assert_stage1_repair_status_is_machine_readable() -> None:
+    text = (
+        "Decision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n"
+        "PR Readiness Stage 2 is not supported."
+    )
+    status = bundle._packet_text_status(text)
+    if status != bundle.DECISION_STATUS_PR_READINESS_STAGE1_REVIEW:
+        raise AssertionError(
+            "generator-emitted Stage 1 repair status was not classified as the Stage 1 review status: "
+            + status
+        )
+
+
+def _assert_non_stage1_live_validation_packet_classification() -> None:
+    decision = (
+        "I approve bounded PR Readiness Stage 1 analysis for the FAM-007 "
+        "Dev/Owner Skeleton Readiness package."
+    )
+    normalized_decision = decision.casefold()
+    source_branch = "feature/fam-007-dev-owner-skeleton-readiness"
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "FAM-007 Live Validation LV1 decision was misclassified as a Stage 1 packet"
+        )
+    if not bundle._is_dev_owner_live_validation_lv1_packet(
+        source_branch,
+        normalized_decision,
+    ):
+        raise AssertionError("FAM-007 Live Validation LV1 packet classification was not recognized")
+    with tempfile.TemporaryDirectory(prefix="ndai-non-stage1-packet-") as temp_dir:
+        target = Path(temp_dir) / "packet"
+        target.mkdir()
+        generated = bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch=source_branch,
+            source_head="a" * 40,
+            origin_main="b" * 40,
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260717-000000.zip",
+            copied=[],
+            extra_bundle_files=[],
+            bundle_file_count=0,
+            expected_count=0,
+            copied_count=0,
+            exact_user_decision=decision,
+            pending_user_decisions=["PR Readiness Stage 1 remains pending USER response."],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        if bundle.PR_READINESS_STAGE1_REVIEW_FILE in {path.name for path in generated}:
+            raise AssertionError(
+                "Non-Stage-1 FAM-007 packet generation emitted Stage 1-only digest files"
+            )
+
+    legacy_source_branch = (
+        "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+    )
+    legacy_lv1_decision = (
+        "I approve bounded PR Readiness Stage 1 analysis for the FAM-007 Breakpoint 2 carrier."
+    )
+    legacy_normalized_decision = legacy_lv1_decision.casefold()
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=legacy_source_branch,
+        normalized_decision=legacy_normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "Legacy FAM-007 LV1-green packet was misclassified as PR Readiness Stage 1"
+        )
+    if not bundle._is_fam007_breakpoint2_live_validation_lv1_packet(
+        source_branch=legacy_source_branch,
+        normalized_decision=legacy_normalized_decision,
+    ):
+        raise AssertionError("Legacy FAM-007 LV1-green packet was not recognized")
+    if bundle._primary_user_review_file(
+        legacy_lv1_decision,
+        source_branch=legacy_source_branch,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ) != bundle.USER_BRANCH_PLAN_REVIEW_FILE:
+        raise AssertionError(
+            "Legacy FAM-007 LV1-green packet did not retain the LV1/plan primary artifact"
+        )
+
+
+def _assert_current_stage1_terms_are_not_stale() -> None:
+    packet_files = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+            "Current Gate: Stage 1 Ready For Stage 2\n"
+        ),
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md": (
+            "PR Readiness Stage 1 analysis is complete.\n"
+            "Stage 1 Ready For Stage 2\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md": (
+            "Current Gate: PR Readiness Stage 1\n"
+            "Stage 1 is complete; Stage 2 remains pending separate USER approval.\n"
+        ),
+    }
+    failures = bundle._active_review_aid_false_green_failures(packet_files)
+    if failures:
+        raise AssertionError(
+            "Current Stage 1 packet wording was incorrectly classified as stale:\n"
+            + "\n".join(failures)
+        )
+
+
+def _assert_stage1_coherence_guards() -> None:
+    coherent = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+            "Decision Path Summary: pr readiness stage1 approval review - Stage 1 Ready For Stage 2.\n"
+        ),
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md": (
+            "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md": (
+            "Current Gate: PR Readiness Stage 1\nStage 2 remains pending.\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md": (
+            "`Source Truth Context/Docs__Main.md`\nCopied Source Count: `1`\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_CONTRADICTION_CHECKLIST.md": (
+            "PASS: no active Workstream Entry decision path is emitted.\n"
+        ),
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md": (
+            "Context Complete - no new BP1 response requested by this packet; "
+            "PR Readiness Stage 1 analysis remains the next USER decision.\n"
+        ),
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "Context Complete - no new BP1 response requested by this packet; "
+            "PR Readiness Stage 1 analysis remains the next USER decision.\n"
+        ),
+        "Source Truth Context/Docs__Main.md": "# Main\n",
+    }
+    failures = bundle._pr_stage1_packet_coherence_failures(coherent)
+    failures.extend(bundle._pr_stage1_source_coverage_failures(coherent))
+    if failures:
+        raise AssertionError("coherent Stage 1 packet failed:\n" + "\n".join(failures))
+
+    workstream = dict(coherent)
+    workstream["START_HERE.md"] = (
+        "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+        "Decision Path Summary: workstream entry final decision review.\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(workstream)
+    if not any("Decision Path Summary" in failure for failure in failures):
+        raise AssertionError("Workstream summary did not fail Stage 1 coherence validation")
+
+    pending_bp = dict(coherent)
+    pending_bp["Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md"] = (
+        "BP2 USER Branch Plan Review remains pending USER acceptance.\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(pending_bp)
+    if not any("BP gate" in failure for failure in failures):
+        raise AssertionError("active BP pending language did not fail Stage 1 coherence validation")
+
+    false_coverage = dict(coherent)
+    false_coverage["Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md"] = (
+        "`Source Truth Context/feature_backlog.md`\nCopied Source Count: `1`\n"
+    )
+    failures = bundle._pr_stage1_source_coverage_failures(false_coverage)
+    if not any("absent files" in failure or "missing from coverage" in failure for failure in failures):
+        raise AssertionError("false source coverage did not fail Stage 1 coverage validation")
+
+    binary_coverage = {
+        "START_HERE.md": (
+            "Primary USER Review File: `USER Review/PR_READINESS_STAGE1_REVIEW.md`\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md": (
+            "`Source Truth Context/Docs__Main.md`\n"
+            "`Source Truth Context/dev__orin_user_review_bundle.py`\n"
+            "Copied Source Count: `2`\n"
+        ),
+    }
+    binary_coverage_failures = bundle._pr_stage1_source_coverage_failures(
+        binary_coverage,
+        packet_entries=set(binary_coverage)
+        | {"Source Truth Context/Docs__Main.md"}
+        | {"Source Truth Context/dev__orin_user_review_bundle.py"},
+    )
+    if binary_coverage_failures:
+        raise AssertionError(
+            "binary source coverage was not counted from packet entries: "
+            + "; ".join(binary_coverage_failures)
+        )
+
+    repair = dict(coherent)
+    repair["START_HERE.md"] = (
+        "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+        "Decision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n"
+    )
+    repair["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        "## Stage 1 Outcome\nPR Readiness Stage 1 Repair Required\n"
+    )
+    repair["Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md"] = (
+        "USER Decision: I approve PR Readiness Stage 1 analysis for the bounded repair.\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(repair)
+    if failures:
+        raise AssertionError(
+            "repair-required Stage 1 packet was rejected as non-approval posture:\n"
+            + "\n".join(failures)
+        )
+
+    ready = dict(repair)
+    ready["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(ready)
+    if not any("requests or recommends Stage 1" in failure for failure in failures):
+        raise AssertionError(
+            "ready Stage 1 packet did not reject a stale Stage 1 request in a review aid"
+        )
+
+
+def _assert_stale_primary_aid_is_not_skipped() -> None:
+    packet_files = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/FALSE_GREEN_FIXTURE_REVIEW.md\n"
+            "Current Gate: Systemic false-green regression fixture review\n"
+        ),
+        "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md": "Current review.\n",
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "USER_BRANCH_PLAN_REVIEW.md is the primary active decision file.\n"
+        ),
+    }
+    failures = bundle._active_review_aid_false_green_failures(packet_files)
+    if not any("stale primary/current decision file" in failure for failure in failures):
+        raise AssertionError(
+            "non-Stage-1 stale primary aid was skipped:\n" + "\n".join(failures)
+        )
+
+
+def _assert_misrouted_stage1_primary_runs_all_guards() -> None:
+    packet_files = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/USER_BRANCH_PLAN_REVIEW.md\n"
+            "Current Gate: PR Readiness Stage 1\n"
+            "Decision Path Summary: pr readiness stage1 approval review - Stage 1 remains held.\n"
+        ),
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "BP2 planning context is not the current PR Readiness Stage 1 decision surface.\n"
+        ),
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md": (
+            "Supporting BP1 context only.\n"
+        ),
+        "Source Truth Context/Docs__Main.md": "# Main\n",
+        "Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md": (
+            "Copied Source Count: `0`\n"
+        ),
+    }
+    review_failures = bundle._pr_stage1_review_failures(packet_files)
+    coherence_failures = bundle._pr_stage1_packet_coherence_failures(packet_files)
+    coverage_failures = bundle._pr_stage1_source_coverage_failures(
+        packet_files,
+        packet_entries=set(packet_files),
+    )
+    failures = review_failures + coherence_failures + coverage_failures
+    if not any("PR Stage 1 packet must identify" in failure for failure in failures):
+        raise AssertionError(
+            "misrouted Stage 1 primary did not fail primary routing:\n"
+            + "\n".join(failures)
+        )
+    if not any("PR Readiness Stage 1 primary artifact is missing" in failure for failure in failures):
+        raise AssertionError(
+            "misrouted Stage 1 primary skipped the dedicated artifact guard:\n"
+            + "\n".join(failures)
+        )
+    if not any("copied source files missing from coverage list" in failure for failure in failures):
+        raise AssertionError(
+            "misrouted Stage 1 primary skipped source coverage validation:\n"
+            + "\n".join(failures)
+        )
+
+
+def _assert_stage1_zip_start_here_contract() -> None:
+    valid = (
+        "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+        "Current Gate: PR Readiness Stage 1\n"
+        "Review Purpose: Current PR Readiness Stage 1 review.\n"
+        "USER Decision This Packet Supports: Stage 1 decision.\n"
+    )
+    for missing, needle in (
+        ("Review Purpose:", "missing Review Purpose"),
+        (
+            "USER Decision This Packet Supports:",
+            "missing USER Decision This Packet Supports",
+        ),
+    ):
+        failures = bundle._start_here_contract_failures(valid.replace(missing, ""))
+        if not any(needle in failure for failure in failures):
+            raise AssertionError(
+                f"Stage 1 ZIP START_HERE guard did not reject {missing!r}: {failures}"
+            )
+    if bundle._start_here_contract_failures(valid):
+        raise AssertionError("complete Stage 1 ZIP START_HERE contract failed")
+
+
+def _assert_local_stage1_validation_replays_stage1_checks() -> None:
+    def stale_stage1_packet(packet: Path) -> None:
+        (packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md").unlink()
+        start_here = (packet / "START_HERE.md").read_text(encoding="utf-8")
+        start_here = start_here.replace(
+            "Primary USER Review File: `USER Review/FALSE_GREEN_FIXTURE_REVIEW.md`",
+            f"Primary USER Review File: `USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}`",
+        )
+        (packet / "START_HERE.md").write_text(
+            start_here
+            + "\nDecision Path Summary: workstream entry final decision review.\n",
+            encoding="utf-8",
+        )
+        (packet / "USER Review" / bundle.PR_READINESS_STAGE1_REVIEW_FILE).write_text(
+            "Stage 1 Ready For Stage 2\n",
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "PR_READINESS_STAGE1_SOURCE_COVERAGE.md").write_text(
+            "Copied Source Count: `999`\n`Source Truth Context/Docs__Main.md`\n",
+            encoding="utf-8",
+        )
+
+    failures = _run_fixture(
+        "local-stage1-validation-replays-stage1-checks",
+        stale_stage1_packet,
+    )
+    if not any(
+        "PR Stage 1 artifact is missing" in failure
+        or "Decision Path Summary" in failure
+        or "Copied Source Count does not match" in failure
+        for failure in failures
+    ):
+        raise AssertionError(
+            "local packet validation did not replay Stage 1 checks:\n"
+            + "\n".join(failures)
+        )
 
 
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
@@ -413,6 +1007,72 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 
 def main() -> int:
+    _assert_origin_main_fallback()
+    _assert_failure(
+        "unknown-origin-main-identity",
+        "requires explicit identity expectations",
+        lambda _packet: None,
+        expected_origin_main="UNKNOWN",
+    )
+    _assert_stage1_primary_for_stage2_decision()
+    _assert_misrouted_stage1_primary_runs_all_guards()
+    _assert_stage1_zip_start_here_contract()
+    _assert_stale_primary_aid_is_not_skipped()
+    _assert_non_fam007_stage2_wording_requires_ready_stage1()
+    _assert_stage1_repair_status_is_machine_readable()
+    _assert_non_stage1_live_validation_packet_classification()
+    _assert_current_stage1_terms_are_not_stale()
+    _assert_stage1_coherence_guards()
+    _assert_local_stage1_validation_replays_stage1_checks()
+    _assert_active_identity_arguments_required()
+    _assert_failure(
+        "active-review-wrong-branch",
+        "Folder active-review identity: Packet identity: expected branch",
+        lambda _packet: None,
+        expected_branch="feature/wrong-branch",
+    )
+    _assert_failure(
+        "active-review-wrong-head",
+        "Folder active-review identity: Packet identity: expected HEAD",
+        lambda _packet: None,
+        expected_head="1" * 40,
+    )
+    _assert_failure(
+        "active-review-wrong-origin-main",
+        "Folder active-review identity: Packet identity: expected origin/main",
+        lambda _packet: None,
+        expected_origin_main="2" * 40,
+    )
+    _assert_failure(
+        "next-gate-wrong-head",
+        "Folder next-gate identity: Packet identity: expected HEAD",
+        lambda _packet: None,
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        expected_head="1" * 40,
+    )
+    _assert_success(
+        "active-review-identity-positive",
+        lambda _packet: None,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+    _assert_failure(
+        "active-review-mapped-binary-copy-missing",
+        "mapped copied source path is missing from packet",
+        lambda packet: (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | `Source Truth Context/dev__orin_user_review_bundle.py` |\n",
+            encoding="utf-8",
+        ),
+    )
+    _assert_failure(
+        "active-review-unmapped-source-context",
+        "copied Source Truth Context file is not mapped in START_HERE.md",
+        lambda packet: (packet / "Source Truth Context" / "Docs__phase_governance.md").write_text(
+            "# stale unmapped source context\n",
+            encoding="utf-8",
+        ),
+    )
     _assert_failure(
         "empty-primary",
         "primary USER review file is empty",
@@ -425,6 +1085,188 @@ def main() -> int:
             "Option A - Approve PR Readiness Stage 1 analysis as recommended.",
             encoding="utf-8",
         ),
+    )
+    def _pending_stage1_packet(packet: Path) -> None:
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\nDecision Path Summary: PR Readiness Stage 1 analysis remains pending USER approval; PR creation remains pending USER approval.\n"
+            + "USER Decision: I approve or reject fresh PR Readiness Stage 1 analysis. This does not authorize PR Stage 2, PR creation, merge, or release.\n",
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "USER_BRANCH_PLAN_REVIEW.md").write_text(
+            "Option A - Approve PR Readiness Stage 1 analysis as recommended.\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "pending-stage1-posture-allows-stage1-language",
+        _pending_stage1_packet,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
+    def _pr_stage1_primary(packet: Path) -> None:
+        old_primary = packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md"
+        new_primary = packet / "USER Review" / bundle.PR_READINESS_STAGE1_REVIEW_FILE
+        old_primary.rename(new_primary)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8").replace(
+                "Current Gate: `Systemic false-green regression fixture review`",
+                "Current Gate: `PR Readiness Stage 1 repair review`",
+            ).replace(
+                "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md",
+                f"USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}",
+            )
+            + "\nDecision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n",
+            encoding="utf-8",
+        )
+        support_decision = "I approve bounded PR Readiness Stage 1 analysis for the Governance repair."
+        support_sources = [("Docs/Main.md", "Source Truth Context/Docs__Main.md")]
+        bundle._write_user_branch_vision_review(
+            target=packet / "Review Aids",
+            title="False-Green Fixture",
+            review_purpose="PR Readiness Stage 1 repair review context.",
+            exact_user_decision=support_decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=support_sources,
+        )
+        bundle._write_user_branch_plan_review(
+            target=packet / "Review Aids",
+            title="False-Green Fixture",
+            review_purpose="PR Readiness Stage 1 repair review context.",
+            source_branch=_current_branch(),
+            source_head=_current_head(),
+            upstream="origin/feature/fixture",
+            origin_main=_current_origin_main(),
+            exact_user_decision=support_decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=support_sources,
+        )
+        new_primary.write_text(
+            "\n".join(
+                [
+                    "# PR Readiness Stage 1 Review",
+                    "",
+                    "## Review Status",
+                    "Reviewable.",
+                    "## Contract Status",
+                    "Complete - current-gate artifact, not BP2.",
+                    "## Packet Reviewability State",
+                    "Reviewable.",
+                    "## USER Gate State",
+                    "Pending USER Review.",
+                    "## Current-Gate Purpose",
+                    "PR Readiness Stage 1 repair review for systemic false-green regression coverage.",
+                    "## Scope And Authority",
+                    "Governance repair scope.",
+                    "## Transition-Safety Review",
+                    "Target and snapshot proof.",
+                    "## Adversarial And False-Green Review",
+                    "Mutation and packet-class coverage.",
+                    "## Stage 1 Outcome",
+                    "PR Readiness Stage 1 Repair Required.",
+                    "## Exact USER Decision Supported",
+                    "Review this Stage 1 repair. This current-gate artifact explains why structural packet parity, generated support files, and helper output are evidence rather than acceptance. It records the transition-safety checks, false-green regression classes, and remaining USER decision boundary so the packet cannot silently present BP2 planning context as PR Readiness. The review remains bounded to Governance source truth, reusable helper behavior, validator coverage, and adversarial fixtures. No implementation, PR creation, merge, release, issue mutation, or sibling worktree action is authorized by this review surface.",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "PR_READINESS_STAGE1_SOURCE_COVERAGE.md").write_text(
+            "`Source Truth Context/Docs__Main.md`\nCopied Source Count: `1`\n",
+            encoding="utf-8",
+        )
+
+    def _pr_stage1_repair_posture(packet: Path) -> None:
+        _pr_stage1_primary(packet)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\nStage 1 remains in repair-required posture; Stage 2 is not supported.\n",
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "PR_READINESS_STAGE1_COVERAGE_DIGEST.md").write_text(
+            "Current Gate: PR Readiness Stage 1\n"
+            "PR Readiness Stage 1 analysis remains held while repair is required.\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "pr-stage1-repair-posture-allows-stage1-language",
+        _pr_stage1_repair_posture,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
+    _assert_success(
+        "pr-stage1-dedicated-primary",
+        _pr_stage1_primary,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
+    def _missing_stage1_support(packet: Path) -> None:
+        _pr_stage1_primary(packet)
+        (packet / "Review Aids" / bundle.USER_BRANCH_PLAN_REVIEW_FILE).unlink()
+
+    _assert_failure(
+        "pr-stage1-supporting-context-missing",
+        "Stage 1 supporting planning context is missing",
+        _missing_stage1_support,
+    )
+
+    def _legitimate_source_context_shell_tokens(packet: Path) -> None:
+        copied_source = "Source Truth Context/helper_source.py"
+        source_bytes = bundle._git_file_bytes(
+            _current_head(), "dev/orin_user_review_bundle.py"
+        )
+        if source_bytes is None:
+            raise AssertionError("fixture source file is missing at the expected HEAD")
+        (packet / copied_source).write_bytes(source_bytes)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | "
+            + f"`{copied_source}` |\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "source-context-code-is-not-user-facing-template-shell",
+        _legitimate_source_context_shell_tokens,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
+    def _stale_binary_source_context(packet: Path) -> None:
+        copied_source = "Source Truth Context/dev__orin_user_review_bundle.py"
+        (packet / copied_source).write_bytes(b"# stale copied helper source\n")
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | "
+            f"`{copied_source}` |\n",
+            encoding="utf-8",
+        )
+
+    _assert_failure(
+        "stale-binary-source-context-copy",
+        "copied file does not match expected HEAD content",
+        _stale_binary_source_context,
+    )
+
+    def _pr_stage1_missing_primary(packet: Path) -> None:
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8").replace(
+                "Current Gate: `Systemic false-green regression fixture review`",
+                "Current Gate: `PR Readiness Stage 1 repair review`",
+            ).replace(
+                "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md",
+                f"USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}",
+            ),
+            encoding="utf-8",
+        )
+
+    _assert_failure(
+        "pr-stage1-primary-missing",
+        "does not identify the primary USER review file",
+        _pr_stage1_missing_primary,
     )
     _assert_failure(
         "wrong-primary-reference",
