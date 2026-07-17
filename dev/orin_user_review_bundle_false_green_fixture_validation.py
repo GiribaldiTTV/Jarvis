@@ -632,6 +632,29 @@ def _assert_misrouted_stage1_primary_runs_all_guards() -> None:
         )
 
 
+def _assert_stage1_zip_start_here_contract() -> None:
+    valid = (
+        "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+        "Current Gate: PR Readiness Stage 1\n"
+        "Review Purpose: Current PR Readiness Stage 1 review.\n"
+        "USER Decision This Packet Supports: Stage 1 decision.\n"
+    )
+    for missing, needle in (
+        ("Review Purpose:", "missing Review Purpose"),
+        (
+            "USER Decision This Packet Supports:",
+            "missing USER Decision This Packet Supports",
+        ),
+    ):
+        failures = bundle._start_here_contract_failures(valid.replace(missing, ""))
+        if not any(needle in failure for failure in failures):
+            raise AssertionError(
+                f"Stage 1 ZIP START_HERE guard did not reject {missing!r}: {failures}"
+            )
+    if bundle._start_here_contract_failures(valid):
+        raise AssertionError("complete Stage 1 ZIP START_HERE contract failed")
+
+
 def _assert_local_stage1_validation_replays_stage1_checks() -> None:
     def stale_stage1_packet(packet: Path) -> None:
         (packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md").unlink()
@@ -888,6 +911,7 @@ def main() -> int:
     _assert_origin_main_fallback()
     _assert_stage1_primary_for_stage2_decision()
     _assert_misrouted_stage1_primary_runs_all_guards()
+    _assert_stage1_zip_start_here_contract()
     _assert_non_fam007_stage2_wording_requires_ready_stage1()
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()

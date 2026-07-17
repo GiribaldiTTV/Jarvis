@@ -1003,6 +1003,15 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         raise
 
 
+def _start_here_contract_failures(start_here: str) -> list[str]:
+    failures: list[str] = []
+    if "Review Purpose:" not in start_here:
+        failures.append("Review export zip is missing Review Purpose in START_HERE.md")
+    if "USER Decision This Packet Supports:" not in start_here:
+        failures.append("Review export zip is missing USER Decision This Packet Supports in START_HERE.md")
+    return failures
+
+
 def _validate_export_zip(
     export_zip: Path,
     *,
@@ -1105,12 +1114,14 @@ def _validate_export_zip(
             "Review export zip artifact validation failed:\n"
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
+    start_here_contract_failures = _start_here_contract_failures(start_here)
+    if start_here_contract_failures:
+        raise ValueError(
+            "Review export zip START_HERE contract validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in start_here_contract_failures)
+        )
     if stage1_packet:
         return
-    if "Review Purpose:" not in start_here:
-        raise ValueError("Review export zip is missing Review Purpose in START_HERE.md")
-    if "USER Decision This Packet Supports:" not in start_here:
-        raise ValueError("Review export zip is missing USER decision text in START_HERE.md")
     for required_heading in (
         "## Review Status",
         "## Contract Status",
