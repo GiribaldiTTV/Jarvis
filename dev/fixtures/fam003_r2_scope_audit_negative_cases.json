@@ -32,6 +32,14 @@
     {
       "id": "wrong_final_head",
       "expectedFailure": "head mismatch"
+    },
+    {
+      "id": "duplicate_active_external_state_snapshot",
+      "expectedFailure": "duplicate active external-state owner conflict"
+    },
+    {
+      "id": "historical_snapshot_with_active_completion_head",
+      "expectedFailure": "historical external-state snapshot uses active-state field"
     }
   ]
 }

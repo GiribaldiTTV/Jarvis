@@ -1944,6 +1944,154 @@ def _fam003_r2_workstream_completion_scope_failures(
     }
     if len(head_values) != 1:
         failures.append(f"FAM-003 R2 packet final pushed HEAD mismatch: {sorted(head_values)}")
+    failures.extend(
+        _fam003_r2_completion_external_state_identity_failures(
+            packet_files,
+            expected_head=next(iter(head_values)) if len(head_values) == 1 else None,
+            expected_full_commits=len(full_commits),
+            expected_workstream_commits=len(workstream_commits),
+        )
+    )
+    return failures
+
+
+def _fam003_r2_identity_markers(text: str) -> dict[str, set[str]]:
+    markers: dict[str, set[str]] = {
+        "head": set(),
+        "gate": set(),
+        "ahead_behind": set(),
+        "full_commits": set(),
+        "workstream_commits": set(),
+    }
+    for field in ("Source Repo HEAD", "Accepted Reconciliation HEAD"):
+        markers["head"].update(_markdown_field_values(text, field))
+    completion_values = _markdown_field_values(text, "Completion HEAD")
+    if completion_values and not re.search(r"\bHISTORICAL\b|\bSUPERSEDED\b", text[:600], re.IGNORECASE):
+        markers["head"].update(completion_values[:1])
+    markers["gate"].update(_markdown_field_values(text, "Current Gate"))
+    markers["ahead_behind"].update(_markdown_field_values(text, "Ahead / Behind vs origin/main"))
+    for match in re.finditer(r"\bFull Branch(?: Audit)?:[^\n`]*`?[^`\n]*?\b(\d+)\s+commits?\b", text, re.IGNORECASE):
+        markers["full_commits"].add(match.group(1))
+    for match in re.finditer(r"\bFull branch:\s*`?[^`\n]*?\b(\d+)\s+commits?\b", text, re.IGNORECASE):
+        markers["full_commits"].add(match.group(1))
+    for match in re.finditer(r"\bR2 Workstream(?: Audit)?:[^\n`]*`?[^`\n]*?\b(\d+)\s+(?:Workstream\s+)?commits?\b", text, re.IGNORECASE):
+        markers["workstream_commits"].add(match.group(1))
+    for match in re.finditer(r"\bR2 Workstream:\s*`?[^`\n]*?\b(\d+)\s+commits?\b", text, re.IGNORECASE):
+        markers["workstream_commits"].add(match.group(1))
+    return markers
+
+
+def _fam003_r2_completion_external_state_identity_failures(
+    packet_files: Mapping[str, str],
+    *,
+    expected_head: str | None,
+    expected_full_commits: int,
+    expected_workstream_commits: int,
+) -> list[str]:
+    """Reject duplicate active external-state owners with conflicting R2 identity."""
+
+    if not _fam003_r2_completion_packet_detected(packet_files):
+        return []
+
+    failures: list[str] = []
+    owner_basenames = {
+        "branch_plan.md",
+        "branch_state.md",
+        "worktree_state.md",
+        "r2_workstream_execution_ledger_20260716.md",
+        "current_external_branch_plan.md",
+        "current_external_branch_state.md",
+        "current_external_worktree_state.md",
+    }
+    context_prefix = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"
+    owner_entries = {
+        path: text
+        for path, text in packet_files.items()
+        if path.startswith(context_prefix)
+        and PurePosixPath(path).name in owner_basenames
+    }
+
+    duplicate_active_by_basename: dict[str, list[str]] = {}
+    for path, text in owner_entries.items():
+        basename = PurePosixPath(path).name
+        historical = bool(re.search(r"\bHISTORICAL\b|\bSUPERSEDED\b", text[:900], re.IGNORECASE))
+        ambiguous_external_folder = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/External Operational State/"
+        if path.startswith(ambiguous_external_folder) and not historical:
+            failures.append(
+                f"{path}: ambiguous External Operational State copy is active-looking; "
+                "use a single current external snapshot or an explicitly historical/superseded path"
+            )
+        if historical:
+            active_terms = (
+                r"^Current Gate:",
+                r"^Completion HEAD:",
+                r"^Current Legal Carrier:",
+            )
+            for pattern in active_terms:
+                if re.search(pattern, text, re.IGNORECASE | re.MULTILINE):
+                    failures.append(
+                        f"{path}: historical external-state snapshot uses active-state field {pattern}"
+                    )
+            continue
+        duplicate_active_by_basename.setdefault(basename, []).append(path)
+
+    for basename, paths in sorted(duplicate_active_by_basename.items()):
+        if len(paths) <= 1:
+            continue
+        marker_sets = {
+            path: _fam003_r2_identity_markers(owner_entries[path])
+            for path in paths
+        }
+        for marker_name in ("head", "gate", "ahead_behind", "full_commits", "workstream_commits"):
+            values_by_path = {
+                path: tuple(sorted(markers[marker_name]))
+                for path, markers in marker_sets.items()
+                if markers[marker_name]
+            }
+            if len(set(values_by_path.values())) > 1:
+                failures.append(
+                    "FAM-003 R2 packet duplicate active external-state owner conflict: "
+                    f"{basename} {marker_name} values differ {values_by_path}"
+                )
+
+    expected_head_values = {expected_head} if expected_head else set()
+    expected_full = str(expected_full_commits)
+    expected_workstream = str(expected_workstream_commits)
+    for path, text in sorted(owner_entries.items()):
+        if "External Operational State/" in path:
+            continue
+        markers = _fam003_r2_identity_markers(text)
+        if expected_head_values and markers["head"] and not markers["head"].issubset(expected_head_values):
+            failures.append(
+                f"{path}: active external-state head {sorted(markers['head'])} "
+                f"does not match packet Git audit head {expected_head}"
+            )
+        if markers["full_commits"] and expected_full not in markers["full_commits"]:
+            failures.append(
+                f"{path}: active full-branch commit count {sorted(markers['full_commits'])} "
+                f"does not include packet Git audit count {expected_full}"
+            )
+        if markers["workstream_commits"] and expected_workstream not in markers["workstream_commits"]:
+            failures.append(
+                f"{path}: active Workstream commit count {sorted(markers['workstream_commits'])} "
+                f"does not include packet Git audit count {expected_workstream}"
+            )
+
+    manifest_text = packet_files.get(f"{REVIEW_AIDS_DIR_NAME}/PACKET_MANIFEST.md", "")
+    if "External Operational State" in manifest_text and "historical" not in manifest_text.casefold():
+        failures.append(
+            f"{REVIEW_AIDS_DIR_NAME}/PACKET_MANIFEST.md: External Operational State copies are "
+            "described without explicit historical/superseded classification"
+        )
+    findings_text = packet_files.get(f"{REVIEW_AIDS_DIR_NAME}/FILES_LOADED_AND_AUTHORITY_FINDINGS.md", "")
+    if (
+        "Conflicting current authority: `NONE" in findings_text
+        and any("duplicate active external-state owner conflict" in failure for failure in failures)
+    ):
+        failures.append(
+            f"{REVIEW_AIDS_DIR_NAME}/FILES_LOADED_AND_AUTHORITY_FINDINGS.md: claims no conflicting "
+            "current authority while duplicate active external-state records disagree"
+        )
     return failures
 
 

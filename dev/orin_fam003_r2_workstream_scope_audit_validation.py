@@ -511,10 +511,23 @@ def _status_name(code: str) -> str:
     }.get(code[0], "modified")
 
 
-def _range_inventory(range_spec: str, *, diff_spec: str) -> dict[str, Any]:
+def _range_inventory(
+    range_spec: str,
+    *,
+    diff_spec: str,
+    exclude_ref: str | None = None,
+    no_merges: bool = False,
+    changed_files_from_commits: bool = False,
+) -> dict[str, Any]:
     name_status_text = _run_git("diff", "--name-status", "-M", "-C", diff_spec)
+    log_args = ["log", "--reverse", "--format=%H%x1f%s"]
+    if no_merges:
+        log_args.append("--no-merges")
+    log_args.append(range_spec)
+    if exclude_ref:
+        log_args.extend(["--not", exclude_ref])
     changed_files = _parse_name_status(name_status_text)
-    log_text = _run_git("log", "--reverse", "--format=%H%x1f%s", range_spec)
+    log_text = _run_git(*log_args)
     commits: list[dict[str, Any]] = []
     for line in log_text.splitlines():
         if not line:
@@ -528,13 +541,43 @@ def _range_inventory(range_spec: str, *, diff_spec: str) -> dict[str, Any]:
                 "files": _parse_name_status(show_text),
             }
         )
+    if changed_files_from_commits:
+        by_path: dict[str, dict[str, str]] = {}
+        for commit in commits:
+            for item in commit["files"]:
+                path = item.get("path")
+                if path:
+                    by_path[path] = item
+        changed_files = [by_path[path] for path in sorted(by_path)]
+        name_status_text = "\n".join(
+            "\t".join(
+                value
+                for value in (item.get("code", ""), item.get("previousPath", ""), item.get("path", ""))
+                if value
+            )
+            for item in changed_files
+        )
     return {
         "range": range_spec,
         "diffSpec": diff_spec,
+        "excludeRef": exclude_ref,
+        "noMerges": no_merges,
+        "changedFilesFromCommits": changed_files_from_commits,
         "changedFiles": changed_files,
         "changedFileCount": len(changed_files),
         "stat": _run_git("diff", "--stat", diff_spec),
-        "logFuller": _run_git("log", "--reverse", "--format=fuller", range_spec),
+        "logFuller": _run_git(
+            *(
+                [
+                    "log",
+                    "--reverse",
+                    *(["--no-merges"] if no_merges else []),
+                    "--format=fuller",
+                    range_spec,
+                    *(["--not", exclude_ref] if exclude_ref else []),
+                ]
+            )
+        ),
         "nameStatusText": name_status_text,
         "commits": commits,
         "commitCount": len(commits),
@@ -570,6 +613,9 @@ def build_ledger(*, full_base: str, workstream_base: str, expected_head: str | N
     workstream = _range_inventory(
         f"{workstream_base}..HEAD",
         diff_spec=f"{workstream_base}..HEAD",
+        exclude_ref=full_base,
+        no_merges=True,
+        changed_files_from_commits=True,
     )
     full["head"] = head
     workstream["head"] = head
@@ -938,14 +984,36 @@ def _write_outputs(output_dir: Path, ledger: dict[str, Any], failures: list[str]
 
 
 def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
+    full_commits = ledger["fullBranch"]["commitCount"]
+    workstream_commits = ledger["workstream"]["commitCount"]
     return {
         "START_HERE.md": "Primary USER Review File: `USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md`",
-        "USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md": "# FAM-003 R2 Workstream Completion Review",
+        "USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md": "\n".join(
+            [
+                "# FAM-003 R2 Workstream Completion Review",
+                "",
+                f"| HEAD | `{ledger['head']}` |",
+                f"| origin/main...HEAD | `{full_commits}` branch commits |",
+                f"| Workstream range | `{workstream_commits}` Workstream commits |",
+            ]
+        ),
+        "Review Aids/PACKET_MANIFEST.md": "Packet Purpose: `FAM-003 R2 Workstream completion exact-scope USER review`",
+        "Review Aids/FILES_LOADED_AND_AUTHORITY_FINDINGS.md": "Conflicting current authority: `NONE after repair`",
         "Review Aids/EXACT_CHANGED_FILE_LEDGER.json": json.dumps(ledger),
         "Review Aids/FULL_BRANCH_CHANGED_FILE_LEDGER.md": _ledger_markdown(ledger, workstream_only=False),
         "Review Aids/WORKSTREAM_CHANGED_FILE_LEDGER.md": _ledger_markdown(ledger, workstream_only=True),
         "Review Aids/COMMIT_BY_COMMIT_AUDIT.md": _commit_audit_markdown(ledger),
         "Review Aids/SHARED_VALIDATOR_OWNERSHIP_AUDIT.md": _shared_audit_markdown(ledger),
+        "Source Truth Context/branch_state.md": "\n".join(
+            [
+                "## FAM-003 R2 Workstream Completion Scope Audit Repair",
+                "",
+                "Current Gate: `R2 Workstream completion USER review pending`",
+                f"Source Repo HEAD: `{ledger['head']}`",
+                f"Full Branch Audit: `26 exact changed files / {full_commits} commits for origin/main...HEAD`",
+                f"R2 Workstream Audit: `17 exact changed files / {workstream_commits} commits for 1806927765013f0c7d1a13335af2ca5cfce5325e..HEAD`",
+            ]
+        ),
         "Source Truth Context/Git Audit/full_branch_delta.json": json.dumps(ledger["fullBranch"]),
         "Source Truth Context/Git Audit/workstream_delta.json": json.dumps(ledger["workstream"]),
         "Source Truth Context/Git Audit/commit_by_commit.json": json.dumps(
@@ -983,8 +1051,43 @@ def _apply_negative_case(ledger: dict[str, Any], case_id: str) -> dict[str, Any]
         mutated["files"][0].pop("previousPath", None)
     elif case_id == "wrong_final_head":
         mutated["head"] = "0" * 40
+    elif case_id in {
+        "duplicate_active_external_state_snapshot",
+        "historical_snapshot_with_active_completion_head",
+    }:
+        return mutated
     else:
         raise ValueError(f"Unknown negative case: {case_id}")
+    return mutated
+
+
+def _apply_packet_negative_case(packet_files: dict[str, str], case_id: str) -> dict[str, str]:
+    mutated = copy.deepcopy(packet_files)
+    if case_id == "duplicate_active_external_state_snapshot":
+        mutated[
+            "Source Truth Context/External Operational State/branch_state.md"
+        ] = "\n".join(
+            [
+                "## FAM-003 R2 Workstream Completion Scope Audit Repair",
+                "",
+                "Current Gate: `R2 Workstream completion USER review pending`",
+                "Source Repo HEAD: `0000000000000000000000000000000000000000`",
+                "Ahead / Behind vs origin/main: `38 / 0`",
+                "Full Branch Audit: `26 exact changed files / 38 commits for origin/main...HEAD`",
+                "R2 Workstream Audit: `17 exact changed files / 4 commits for 1806927765013f0c7d1a13335af2ca5cfce5325e..HEAD`",
+            ]
+        )
+    elif case_id == "historical_snapshot_with_active_completion_head":
+        mutated[
+            "Source Truth Context/External Operational State/r2_workstream_execution_ledger_20260716.md"
+        ] = "\n".join(
+            [
+                "HISTORICAL MILESTONE - SUPERSEDED",
+                "",
+                "Completion HEAD: `0000000000000000000000000000000000000000`",
+                "Current Gate: `Workstream completion USER review pending`",
+            ]
+        )
     return mutated
 
 
@@ -1012,9 +1115,16 @@ def run_self_test(*, full_base: str, workstream_base: str) -> list[str]:
             full_base=full_base,
             workstream_base=workstream_base,
         )
-        packet_files = _packet_files_for_self_test(mutated)
+        packet_files = _apply_packet_negative_case(
+            _packet_files_for_self_test(mutated),
+            case_id,
+        )
         packet_case_failures = review_bundle._fam003_r2_workstream_completion_scope_failures(packet_files)
-        if not direct_failures:
+        packet_only_case = case_id in {
+            "duplicate_active_external_state_snapshot",
+            "historical_snapshot_with_active_completion_head",
+        }
+        if not direct_failures and not packet_only_case:
             failures.append(f"negative case {case_id} did not fail direct validation")
         if not packet_case_failures:
             failures.append(f"negative case {case_id} did not fail packet validation")
