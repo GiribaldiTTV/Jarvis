@@ -329,6 +329,31 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         )
 
 
+def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:
+    decision = (
+        "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
+        "/ feature/release-readiness-source-truth-intake."
+    )
+    normalized_decision = decision.casefold()
+    source_branch = "feature/release-readiness-source-truth-intake"
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "Stage 2 wording with a repair-required Stage 1 outcome was misclassified as Stage 1"
+        )
+    if not bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "Stage 2 wording with a ready Stage 1 outcome did not retain Stage 1 packet classification"
+        )
+
+
 def _assert_non_stage1_live_validation_packet_classification() -> None:
     decision = (
         "I approve bounded PR Readiness Stage 1 analysis for the FAM-007 "
@@ -484,11 +509,24 @@ def _assert_stage1_coherence_guards() -> None:
     repair["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
         "## Stage 1 Outcome\nPR Readiness Stage 1 Repair Required\n"
     )
+    repair["Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md"] = (
+        "USER Decision: I approve PR Readiness Stage 1 analysis for the bounded repair.\n"
+    )
     failures = bundle._pr_stage1_packet_coherence_failures(repair)
     if failures:
         raise AssertionError(
             "repair-required Stage 1 packet was rejected as non-approval posture:\n"
             + "\n".join(failures)
+        )
+
+    ready = dict(repair)
+    ready["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(ready)
+    if not any("requests or recommends Stage 1" in failure for failure in failures):
+        raise AssertionError(
+            "ready Stage 1 packet did not reject a stale Stage 1 request in a review aid"
         )
 
 
@@ -709,6 +747,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 def main() -> int:
     _assert_origin_main_fallback()
     _assert_stage1_primary_for_stage2_decision()
+    _assert_non_fam007_stage2_wording_requires_ready_stage1()
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()
     _assert_stage1_coherence_guards()

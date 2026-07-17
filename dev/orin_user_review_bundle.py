@@ -108,6 +108,9 @@ def _is_pr_readiness_stage1_packet(
 ) -> bool:
     """Classify Stage 1 packets without stealing later-gate packet flows."""
 
+    has_stage2_wording = "pr readiness stage 2" in normalized_decision
+    if has_stage2_wording and stage1_outcome != PR_STAGE1_OUTCOME_READY:
+        return False
     return (
         stage1_outcome in {PR_STAGE1_OUTCOME_READY, PR_STAGE1_OUTCOME_REPAIR}
         and (
@@ -1323,6 +1326,7 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
         if "pr readiness stage 1 repair required" in normalized_primary
         else "pr readiness stage1 approval review"
     )
+    stage1_ready = "stage 1 ready for stage 2" in normalized_primary
     if expected_summary_phrase not in normalized_summary:
         failures.append(
             "START_HERE.md: Stage 1 packet Decision Path Summary must identify the "
@@ -1378,7 +1382,7 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
             failures.append(
                 f"{file_name}: presents a BP gate as the active pending gate in a Stage 1 packet"
             )
-        if re.search(
+        if stage1_ready and re.search(
             r"(?:approve|begin|start|request).{0,80}pr\s+readiness\s+stage\s*1",
             normalized,
         ):
