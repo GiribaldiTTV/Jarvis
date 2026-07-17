@@ -7006,9 +7006,9 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
         "## Source Truth File Map\n\n"
         "| Source Path | Copied Path |\n"
         "| `Docs/Main.md` | `Source Truth Context/Docs__Main.md` |\n\n"
-        "Bundle File Count: 6\n"
-        "Expected File Count: 3\n"
-        "Copied File Count: 3\n"
+        "Bundle File Count: 4\n"
+        "Expected File Count: 1\n"
+        "Copied File Count: 1\n"
         "Extra Bundle File Count: 2\n",
         encoding="utf-8",
     )
@@ -7035,25 +7035,12 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
         "# Fixture Aid\n\nSupporting review aid.\n",
         encoding="utf-8",
     )
-    (packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME / "Main.md").write_text(
-        "# Fixture Source Truth Context\n\nCopied context only.\n",
-        encoding="utf-8",
-    )
     (
         packet_dir
         / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
         / "Docs__Main.md"
     ).write_text(
         (ROOT / "Docs" / "Main.md").read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
-    (
-        packet_dir
-        / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
-        / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
-    ).write_text(
-        "# Historical Branch Plan Review Context\n\n"
-        "Source HEAD: 0123456789012345678901234567890123456789\n",
         encoding="utf-8",
     )
 

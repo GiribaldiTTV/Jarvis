@@ -83,6 +83,7 @@ def _is_pr_readiness_stage2_packet(
     return (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve pr readiness stage 2" in normalized_decision
+        and stage1_outcome == PR_STAGE1_OUTCOME_READY
     )
 
 
@@ -3990,6 +3991,24 @@ def _normalized_packet_text(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
+def _requires_source_context_mapping(path: str) -> bool:
+    """Distinguish copied repo files from generated evidence context."""
+
+    prefix = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"
+    if not path.startswith(prefix):
+        return False
+    relative = path[len(prefix) :]
+    if relative.startswith("current_external_"):
+        return False
+    if relative.startswith("Proof Artifacts/"):
+        return False
+    if relative.startswith("UTS Context/"):
+        return False
+    if relative == "MISSING_SOURCE_FILES.md":
+        return False
+    return True
+
+
 def _packet_identity_failures(
     packet_files: Mapping[str, str],
     *,
@@ -4024,6 +4043,22 @@ def _packet_identity_failures(
     if not file_mappings:
         failures.append("START_HERE.md: source/copy file mapping table is missing")
         return failures
+
+    mapped_paths = set(file_mappings.values())
+    packet_paths = set(packet_files)
+    if packet_binary_files is not None:
+        packet_paths.update(packet_binary_files)
+    unmapped_source_context = sorted(
+        path
+        for path in packet_paths
+        if _requires_source_context_mapping(path)
+        and path not in mapped_paths
+    )
+    failures.extend(
+        "Packet identity: copied Source Truth Context file is not mapped in START_HERE.md: "
+        f"{path}"
+        for path in unmapped_source_context
+    )
 
     for source_path, copied_path in file_mappings.items():
         if (

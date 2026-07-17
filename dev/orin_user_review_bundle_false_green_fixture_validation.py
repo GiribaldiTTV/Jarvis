@@ -297,6 +297,14 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
     ):
         raise AssertionError("The FAM-007 Stage 2 decision was not classified as Stage 2")
+    if bundle._is_pr_readiness_stage2_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ):
+        raise AssertionError(
+            "A repair-required Stage 1 outcome bypassed the Stage 2 readiness gate"
+        )
     if bundle._is_pr_readiness_stage1_packet(
         source_branch=source_branch,
         normalized_decision=normalized_decision,
@@ -1022,6 +1030,14 @@ def main() -> int:
         ),
     )
     _assert_failure(
+        "active-review-unmapped-source-context",
+        "copied Source Truth Context file is not mapped in START_HERE.md",
+        lambda packet: (packet / "Source Truth Context" / "Docs__phase_governance.md").write_text(
+            "# stale unmapped source context\n",
+            encoding="utf-8",
+        ),
+    )
+    _assert_failure(
         "empty-primary",
         "primary USER review file is empty",
         lambda packet: (packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md").write_text("", encoding="utf-8"),
@@ -1162,8 +1178,17 @@ def main() -> int:
     )
 
     def _legitimate_source_context_shell_tokens(packet: Path) -> None:
-        (packet / "Source Truth Context" / "helper_source.py").write_text(
-            "branch = '$branch'\nhead = '$head'\norigin = '$originMain'\n",
+        copied_source = "Source Truth Context/helper_source.py"
+        source_bytes = bundle._git_file_bytes(
+            _current_head(), "dev/orin_user_review_bundle.py"
+        )
+        if source_bytes is None:
+            raise AssertionError("fixture source file is missing at the expected HEAD")
+        (packet / copied_source).write_bytes(source_bytes)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | "
+            + f"`{copied_source}` |\n",
             encoding="utf-8",
         )
 
