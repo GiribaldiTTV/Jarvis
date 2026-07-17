@@ -317,6 +317,8 @@ def validate_target_currentness(
     failures.extend(_field_alias_failures(relative, live_text, ("Branch", "Current Branch")))
     failures.extend(_field_alias_failures(relative, live_text, ("Source Repo HEAD", "Current HEAD")))
     failures.extend(_field_alias_failures(relative, live_text, ("Origin/Main", "Source origin/main")))
+    failures.extend(_field_alias_failures(relative, live_text, ("Worktree Path",)))
+    failures.extend(_field_alias_failures(relative, live_text, ("Slot ID",)))
     if failures:
         return failures
 

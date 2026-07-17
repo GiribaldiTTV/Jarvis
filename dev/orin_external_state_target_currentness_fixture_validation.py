@@ -262,6 +262,32 @@ def main() -> int:
         )
         _record(root)
 
+        for field, replacement in (
+            (
+                "Worktree Path",
+                "Worktree Path: `C:\\Nexus Worktrees\\Governance`\n"
+                "Worktree Path: `C:\\Nexus Worktrees\\FAM-007`",
+            ),
+            (
+                "Slot ID",
+                "Slot ID: `governance-standing`\nSlot ID: `runtime-active-1`",
+            ),
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8").replace(
+                    f"{field}: `{WORKTREE_PATH if field == 'Worktree Path' else SLOT}`",
+                    replacement,
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_failure(
+                f"duplicate {field}",
+                "duplicate or conflicting live identity fields",
+                _run(root),
+            )
+            _record(root)
+
         _record(root, record_class="Historical Receipt")
         _assert_failure("historical receipt selected as live", "historical receipt", _run(root))
         _record(root)
