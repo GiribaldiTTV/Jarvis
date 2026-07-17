@@ -1063,6 +1063,49 @@ def main() -> int:
                 + "\n".join(messages)
             )
 
+        snapshot_race_id = "worktree-fixture-snapshot-race"
+        atomic_write_json(
+            root / "locks" / f"{snapshot_race_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": snapshot_race_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        snapshot_race_snapshot = _snapshot(root, target, "fixture-snapshot-race")
+        snapshot_race_before = target.read_bytes()
+        original_snapshot_hook = reconciler._before_final_snapshot_check
+
+        def corrupt_snapshot_before_final_check(snapshot_path: Path) -> None:
+            (snapshot_path / "snapshot_manifest.json").write_text("{}", encoding="utf-8")
+
+        reconciler._before_final_snapshot_check = corrupt_snapshot_before_final_check
+        try:
+            snapshot_race_expectations = _expectations(target)
+            snapshot_race_expectations["expected_source_head"] = "d" * 40
+            ok, messages, audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=snapshot_race_id,
+                snapshot=snapshot_race_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-04T00:00:02Z"],
+                additions=[],
+                apply=True,
+                **snapshot_race_expectations,
+            )
+        finally:
+            reconciler._before_final_snapshot_check = original_snapshot_hook
+        if ok or audit is not None or target.read_bytes() != snapshot_race_before or not any(
+            "Final snapshot validation" in item for item in messages
+        ):
+            raise AssertionError(
+                "target writer accepted an intervening snapshot edit:\n"
+                + "\n".join(messages)
+            )
+
         missing_lock_ok, missing_lock_messages, _ = reconciler.reconcile_target(
             root=root,
             target=TARGET,

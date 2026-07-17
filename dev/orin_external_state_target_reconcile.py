@@ -425,6 +425,10 @@ def _before_final_lock_check(_root: Path, _lock_id: str) -> None:
     """Test seam for lock mutation immediately before atomic replacement."""
 
 
+def _before_final_snapshot_check(_snapshot_path: Path) -> None:
+    """Test seam for recovery-snapshot mutation before final validation."""
+
+
 def _live_header_text(text: str) -> str:
     """Restrict audit field lookup to live fields before historical receipts."""
 
@@ -638,6 +642,18 @@ def reconcile_target(
     if final_lock_payload != initial_lock_payload:
         return False, [
             "Lock changed between validation and atomic replacement; no replacement performed"
+        ], None
+    _before_final_snapshot_check(snapshot_path)
+    final_snapshot_failures = _snapshot_failures(
+        root=root,
+        snapshot_path=snapshot_path,
+        relative=relative,
+        expected_target_sha256=expected_target_sha256,
+        transition_started_ns=transition_started_ns,
+    )
+    if final_snapshot_failures:
+        return False, [
+            f"Final snapshot validation: {item}" for item in final_snapshot_failures
         ], None
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)
