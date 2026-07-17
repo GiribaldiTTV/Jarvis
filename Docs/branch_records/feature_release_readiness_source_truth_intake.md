@@ -21,7 +21,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Next Active Seam: `PR Readiness Stage 1 - integrated Defect A/B repair readiness analysis`
+- Next Active Seam: `PR Readiness Stage 2 USER decision - Stage 1 analysis is complete and the separate Stage 2 approval remains pending; live gate details remain owned by external operational state.`
 - Intake State: `External operational state only - current RRI cycle identity, PR posture, active release-window state, return-digest progress, and in-flight candidate anchor/target commit facts live in C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md, C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\pr_readiness_state.md, and C:\Nexus Governance State\release_windows\current_release_window_state.md. This repo record preserves durable standing-lane law and receipt pointers only.`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
@@ -513,9 +513,9 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 
 ## Next Legal Phase
 
-- `Hardening`
+- `PR Readiness Stage 2 USER decision`
 
-Next Legal Phase Detail: The USER-approved integrated Defect A/B repair is implemented, externally reconciled, packet-regenerated, and ready for fresh PR Readiness Stage 1 analysis. Stage 1 must independently verify scope, source-truth ownership, target-scoped currentness, active packet identity, folder/ZIP parity, adversarial fixture coverage, and full validation before any PR Stage 2 request. PR creation, PR Stage 2, merge, release, FAM worktree adoption, runtime UI implementation, code-level design-token/shared-primitive implementation, issue mutation, and cleanup remain separate USER decisions.
+Next Legal Phase Detail: The USER-approved integrated Defect A/B repair and current-gate packet-coherence repair are implemented, externally reconciled, and validated. The current packet records Stage 1 Ready For Stage 2; only the separate USER Stage 2 decision can authorize PR Stage 2 work. PR creation, merge, release, FAM worktree adoption, runtime UI implementation, code-level design-token/shared-primitive implementation, issue mutation, and cleanup remain separate USER decisions.
 
 ## Origin/Main Freshness Check
 
