@@ -3097,6 +3097,9 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(_pr_stage1_review_failures(packet_files))
+    failures.extend(_pr_stage1_packet_coherence_failures(packet_files))
+    failures.extend(_pr_stage1_source_coverage_failures(packet_files))
     failures.extend(
         _fam003_lv1_visual_retest_semantic_failures(
             packet_files,

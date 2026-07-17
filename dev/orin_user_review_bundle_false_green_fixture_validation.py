@@ -530,6 +530,44 @@ def _assert_stage1_coherence_guards() -> None:
         )
 
 
+def _assert_local_stage1_validation_replays_stage1_checks() -> None:
+    def stale_stage1_packet(packet: Path) -> None:
+        (packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md").unlink()
+        start_here = (packet / "START_HERE.md").read_text(encoding="utf-8")
+        start_here = start_here.replace(
+            "Primary USER Review File: `USER Review/FALSE_GREEN_FIXTURE_REVIEW.md`",
+            f"Primary USER Review File: `USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}`",
+        )
+        (packet / "START_HERE.md").write_text(
+            start_here
+            + "\nDecision Path Summary: workstream entry final decision review.\n",
+            encoding="utf-8",
+        )
+        (packet / "USER Review" / bundle.PR_READINESS_STAGE1_REVIEW_FILE).write_text(
+            "Stage 1 Ready For Stage 2\n",
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "PR_READINESS_STAGE1_SOURCE_COVERAGE.md").write_text(
+            "Copied Source Count: `999`\n`Source Truth Context/Docs__Main.md`\n",
+            encoding="utf-8",
+        )
+
+    failures = _run_fixture(
+        "local-stage1-validation-replays-stage1-checks",
+        stale_stage1_packet,
+    )
+    if not any(
+        "PR Stage 1 artifact is missing" in failure
+        or "Decision Path Summary" in failure
+        or "Copied Source Count does not match" in failure
+        for failure in failures
+    ):
+        raise AssertionError(
+            "local packet validation did not replay Stage 1 checks:\n"
+            + "\n".join(failures)
+        )
+
+
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
     plan_head = plan_head or state_head
     (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
@@ -751,6 +789,7 @@ def main() -> int:
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()
     _assert_stage1_coherence_guards()
+    _assert_local_stage1_validation_replays_stage1_checks()
     _assert_active_identity_arguments_required()
     _assert_failure(
         "active-review-wrong-branch",
@@ -819,7 +858,8 @@ def main() -> int:
             ).replace(
                 "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md",
                 f"USER Review/{bundle.PR_READINESS_STAGE1_REVIEW_FILE}",
-            ),
+            )
+            + "\nDecision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n",
             encoding="utf-8",
         )
         new_primary.write_text(
@@ -849,6 +889,10 @@ def main() -> int:
                     "Review this Stage 1 repair. This current-gate artifact explains why structural packet parity, generated support files, and helper output are evidence rather than acceptance. It records the transition-safety checks, false-green regression classes, and remaining USER decision boundary so the packet cannot silently present BP2 planning context as PR Readiness. The review remains bounded to Governance source truth, reusable helper behavior, validator coverage, and adversarial fixtures. No implementation, PR creation, merge, release, issue mutation, or sibling worktree action is authorized by this review surface.",
                 ]
             ),
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "PR_READINESS_STAGE1_SOURCE_COVERAGE.md").write_text(
+            "`Source Truth Context/Docs__Main.md`\nCopied Source Count: `1`\n",
             encoding="utf-8",
         )
 
