@@ -522,6 +522,27 @@ def main() -> int:
         if not ok or audit is not None or target.read_bytes() != rename_only_before:
             raise AssertionError("rename-only target writer dry run was rejected or mutated the target:\n" + "\n".join(messages))
 
+        collision_snapshot = _snapshot(root, target, "fixture-rename-collision")
+        collision_before = target.read_bytes()
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=collision_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=[],
+            section_renames=["Rename Me=Historical Receipt"],
+            apply=False,
+            **_expectations(target),
+        )
+        if ok or audit is not None or target.read_bytes() != collision_before or not any(
+            "section rename destination already exists" in item for item in messages
+        ):
+            raise AssertionError(
+                "section rename collision was accepted or mutated the target:\n"
+                + "\n".join(messages)
+            )
+
         historical_only_field = "Historical-Only Fixture Field"
         target.write_text(
             target.read_text(encoding="utf-8")
@@ -884,6 +905,52 @@ def main() -> int:
             reconciler._before_atomic_replacement_check = original_hook
         if ok or audit is not None or not any("changed between validation and atomic replacement" in item for item in messages):
             raise AssertionError("target writer accepted an intervening target edit: " + " | ".join(messages))
+
+        lock_race_id = "worktree-fixture-lock-race"
+        atomic_write_json(
+            root / "locks" / f"{lock_race_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_race_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        lock_race_snapshot = _snapshot(root, target, "fixture-lock-race")
+        lock_race_before = target.read_bytes()
+        original_lock_hook = reconciler._before_final_lock_check
+
+        def release_lock_before_final_check(lock_root: Path, lock_name: str) -> None:
+            lock_path = lock_root / "locks" / f"{lock_name}.json"
+            payload = json.loads(lock_path.read_text(encoding="utf-8"))
+            payload["Lock State"] = "Released"
+            atomic_write_json(lock_path, payload)
+
+        reconciler._before_final_lock_check = release_lock_before_final_check
+        try:
+            lock_race_expectations = _expectations(target)
+            lock_race_expectations["expected_source_head"] = "d" * 40
+            ok, messages, audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_race_id,
+                snapshot=lock_race_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-04T00:00:01Z"],
+                additions=[],
+                apply=True,
+                **lock_race_expectations,
+            )
+        finally:
+            reconciler._before_final_lock_check = original_lock_hook
+        if ok or audit is not None or target.read_bytes() != lock_race_before or not any(
+            "Final lock validation" in item for item in messages
+        ):
+            raise AssertionError(
+                "target writer accepted a lock change before atomic replacement:\n"
+                + "\n".join(messages)
+            )
 
         missing_lock_ok, missing_lock_messages, _ = reconciler.reconcile_target(
             root=root,

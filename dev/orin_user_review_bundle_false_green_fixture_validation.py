@@ -883,6 +883,15 @@ def main() -> int:
         external_state_files=None,
     )
     _assert_failure(
+        "active-review-mapped-binary-copy-missing",
+        "mapped copied source path is missing from packet",
+        lambda packet: (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | `Source Truth Context/dev__orin_user_review_bundle.py` |\n",
+            encoding="utf-8",
+        ),
+    )
+    _assert_failure(
         "empty-primary",
         "primary USER review file is empty",
         lambda packet: (packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md").write_text("", encoding="utf-8"),

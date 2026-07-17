@@ -300,6 +300,13 @@ def _rename_sections(
                 f"Target transition requires exactly one section {old_heading!r}: found {len(matches)}"
             )
             continue
+        destination_pattern = re.compile(rf"(?m)^{re.escape(new_heading)}[ \t]*(\r\n|\n|\r|$)")
+        destination_matches = list(destination_pattern.finditer(result))
+        if any(match.start() != matches[0].start() for match in destination_matches):
+            failures.append(
+                f"Target transition section rename destination already exists: {new_heading!r}"
+            )
+            continue
         result = pattern.sub(lambda match: f"{new_heading}{match.group(1)}", result, count=1)
         renamed.append((old_heading, new_heading))
     return result, failures, renamed
@@ -407,6 +414,10 @@ def _before_atomic_replacement_check(_target_path: Path, _expected_hash: str) ->
     """Test seam for adversarial mutation between preparation and the final reread."""
 
 
+def _before_final_lock_check(_root: Path, _lock_id: str) -> None:
+    """Test seam for lock mutation immediately before atomic replacement."""
+
+
 def _live_header_text(text: str) -> str:
     """Restrict audit field lookup to live fields before historical receipts."""
 
@@ -499,7 +510,7 @@ def reconcile_target(
     failures.extend(snapshot_failures)
     if snapshot_path is None or not snapshot_path.is_dir():
         failures.append(f"Snapshot directory is missing: {snapshot_path or snapshot}")
-    _, lock_failures = _lock_failures(
+    initial_lock_payload, lock_failures = _lock_failures(
         root, lock_id, target, expected_branch, expected_worktree_path
     )
     failures.extend(lock_failures)
@@ -610,6 +621,16 @@ def reconcile_target(
         return False, [
             "Target changed between validation and atomic replacement; no replacement performed: "
             f"expected {before_hash}, found {final_before_hash}"
+        ], None
+    _before_final_lock_check(root, lock_id)
+    final_lock_payload, final_lock_failures = _lock_failures(
+        root, lock_id, target, expected_branch, expected_worktree_path
+    )
+    if final_lock_failures:
+        return False, [f"Final lock validation: {item}" for item in final_lock_failures], None
+    if final_lock_payload != initial_lock_payload:
+        return False, [
+            "Lock changed between validation and atomic replacement; no replacement performed"
         ], None
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)

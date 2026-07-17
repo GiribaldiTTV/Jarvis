@@ -3979,6 +3979,11 @@ def _packet_identity_failures(
             continue
         packet_text = packet_files.get(copied_path)
         if packet_text is None:
+            if packet_binary_files is not None:
+                failures.append(
+                    "Packet identity: mapped copied source path is missing from packet: "
+                    f"{copied_path} from {source_path}"
+                )
             continue
         expected_text = _git_file_text(expected_head, source_path)
         if expected_text is None:
