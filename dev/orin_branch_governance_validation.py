@@ -3137,6 +3137,10 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_external_state_report.py",
     "dev/orin_external_state_snapshot.py",
     "dev/orin_external_state_validation.py",
+    "dev/orin_external_state_lock_release.py",
+    "dev/orin_external_state_target_reconcile.py",
+    "dev/orin_external_state_target_currentness_fixture_validation.py",
+    "dev/orin_user_review_bundle_false_green_fixture_validation.py",
     "dev/orin_repo_live_state_leakage_scan.py",
     "dev/orin_state_fold_down_preview.py",
     "dev/automation_observability_report.py",
@@ -13165,13 +13169,17 @@ def _validate_release_window_audit(require, source_path: str, text: str) -> None
     if not audit_section:
         return
 
-    audit_state = _extract_marker_value(audit_section, "Release Window Audit")
-    remaining_blockers = _extract_marker_value(audit_section, "Remaining Known Release Blockers")
-    another_repair_pr = _extract_marker_value(
+    audit_state = _extract_exact_marker_value(audit_section, "Release Window Audit")
+    remaining_blockers = _extract_exact_marker_value(
+        audit_section, "Remaining Known Release Blockers"
+    )
+    another_repair_pr = _extract_exact_marker_value(
         audit_section, "Another Pre-Release Repair PR Required"
     )
-    split_waiver = _extract_marker_value(audit_section, "Release Window Split Waiver")
-    split_waiver_reason = _extract_marker_value(
+    split_waiver = _extract_exact_marker_value(
+        audit_section, "Release Window Split Waiver"
+    )
+    split_waiver_reason = _extract_exact_marker_value(
         audit_section, "Release Window Split Waiver Reason"
     )
 
@@ -20418,6 +20426,15 @@ def _run_merge_target_authority_projection_gate(
         ),
     )
     if remaining_active_record_paths:
+        return
+
+    if (
+        active_branch_record_path == STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
+        and not merge_stable_branch_record_text
+    ):
+        # The standing Governance intake is the explicit merged-main exception:
+        # it remains the sole active authority while no product branch is active.
+        # If a merge-stable projection is supplied, validate that projection below.
         return
 
     phase = _extract_marker_value(_section(branch_record_text, "Current Phase"), "Phase")

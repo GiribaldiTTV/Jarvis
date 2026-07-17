@@ -393,6 +393,93 @@ Validation Owner: repo durable-truth validation remains owned by repo validators
 
 Final Disposition: external operational state may remain external-only, be folded into repo source truth as a durable receipt, be archived, expire, be rejected, or require USER decision. Governance law becomes binding only after USER-approved repo source-truth update and merge.
 
+## Target-Scoped External-State Currentness Contract
+
+Rule Name: `Target-Scoped External-State Currentness Contract`
+
+Owner: `Docs/governance_efficiency_operating_model.md` for record semantics and
+repo/external placement; `Docs/phase_governance.md` for phase gates; and
+`Docs/validation_helper_registry.md` for validator and fixture implementation
+requirements.
+
+Purpose: validate one explicitly selected external record without pretending
+that every record in `C:\Nexus Governance State` shares one branch head or one
+currentness boundary.
+
+Record classes:
+
+- `Live Worktree Projection`: current assignment and acknowledgement fields for one worktree.
+- `Live Branch Projection`: current active branch phase, blocker, and next legal phase fields.
+- `Live Branch Plan`: current active branch engineering plan fields.
+- `Live Central Authority Projection`: current central authority or selected-next projection.
+- `Live Release-Window Projection`: current release-window coordination fields.
+- `Live Review-Bundle Projection`: current active packet pointer and review state.
+- `Historical Receipt`: immutable historical evidence; it may not be selected as live state.
+
+Live projections may contain historical receipt sections. Those sections must
+be separated by `Historical Receipt Boundary:` and must not redefine the live
+header fields. A target validator must require `Record Class:` and `Record
+Role:` before accepting a projection.
+
+Manifest semantics: `state_manifest.json` is the external-root initialization
+and generated-index anchor. Its `Source Repo HEAD` is not a universal current
+head for unrelated worktrees. Target-scoped validation reports manifest
+posture separately and does not convert one root-manifest head into a
+root-wide currentness claim.
+
+Permitted live projection fields include the target's branch, source HEAD,
+origin/main, worktree path, slot ID, state version, and transition status.
+Historical narrative, receipt hashes, prior PR records, and migration history
+remain immutable evidence and are not rewritten merely to satisfy a newer
+target check.
+
+Writer and transition boundary: only `dev/orin_external_state_target_reconcile.py`
+or a later explicitly admitted record-specific equivalent may update a live
+projection. `dev/orin_external_state_lock_release.py` is the matching lock
+release path. Generic copy/promote/snapshot helpers are not proof of currentness
+and may not be treated as the writer contract. An applied transition requires
+the target's expected pre-write hash, the appropriate lock, a pre-write
+snapshot, atomic replacement, schema validation, an audit entry, a no-loss
+comparison, post-write target validation, and lock release. Manual editing is
+not a legal substitute unless the current phase explicitly admits it.
+
+Target-scoped validation contract:
+
+- exactly one explicit relative target is required;
+- absolute, off-root, traversal, alias, duplicate, reparse-point, and symlink-escape targets fail closed;
+- the target must exist, be a supported live record class, and be UTF-8 parseable;
+- expected branch, source HEAD, origin/main, worktree path, slot ID, and target SHA256 are required inputs;
+- target bytes are hashed before and after parsing to detect changes during validation;
+- Windows path comparisons are case-insensitive and slash-normalized;
+- a target PASS means only that selected target passed; it is never a root-wide PASS;
+- global structural and global strict validation remain separate modes;
+- missing target selection or missing identity expectations is a blocker;
+- a historical receipt, unsupported record, malformed record, stale hash, or mismatched identity is a blocker.
+
+Required proof families include valid live projections, wrong branch/head/baseline,
+wrong worktree/slot, stale target hash, missing target, duplicate/alias target,
+traversal, absolute/off-root path, reparse/symlink escape, malformed record,
+unsupported record class, historical receipt selected as live state, multiple
+valid targets with different source heads, stale root manifest, target change
+during validation, unchanged global behavior, and scoped PASS not represented
+as root-wide PASS.
+
+Blocking Conditions:
+
+- `Target Currentness Selection Missing`
+- `Target Currentness Expectation Missing`
+- `Target Currentness Path Security Failure`
+- `Target Currentness Record Class Unsupported`
+- `Target Currentness Historical Receipt Selected`
+- `Target Currentness Hash Precondition Failed`
+- `Target Currentness Changed During Validation`
+- `Target Currentness Identity Mismatch`
+- `Target Currentness Scoped PASS Misreported As Root PASS`
+
+This contract is additive. It does not make external state mandatory for
+clean-clone validation, does not rewrite the root manifest, and does not
+change the existing global validator's meaning.
+
 ## Reference Candidate / Collision External Coordination Model
 
 Rule Name: `Reference Candidate Synchronization Model`
