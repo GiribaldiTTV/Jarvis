@@ -4645,6 +4645,8 @@ def _requires_source_context_mapping(path: str) -> bool:
     relative = path[len(prefix) :]
     if relative.startswith("current_external_"):
         return False
+    if relative.startswith("Active External Snapshot/"):
+        return False
     if relative.startswith("Git Audit/"):
         return False
     if relative.startswith("Proof Artifacts/"):
