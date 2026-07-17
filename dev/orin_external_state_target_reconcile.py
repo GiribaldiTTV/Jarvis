@@ -140,6 +140,22 @@ def _parse_section_renames(raw_renames: list[str]) -> tuple[dict[str, str], list
     return values, failures
 
 
+def _parse_intended_write_set(raw: object) -> set[str]:
+    """Return exact normalized entries from a semicolon-delimited write set."""
+
+    if isinstance(raw, str):
+        values = raw.split(";")
+    elif isinstance(raw, (list, tuple, set)):
+        values = [str(value) for value in raw]
+    else:
+        values = []
+    return {
+        value.strip().replace("\\", "/")
+        for value in values
+        if value.strip()
+    }
+
+
 def _lock_failures(
     root: Path,
     lock_id: str,
@@ -165,14 +181,8 @@ def _lock_failures(
         failures.append(
             f"Lock worktree mismatch: expected {expected_worktree_path!r}, found {payload.get('Worktree')!r}"
         )
-    intended = str(payload.get("Intended Write Set", ""))
-    target_parts = target.rstrip("/").rsplit("/", 1)
-    compound_target_allowed = (
-        len(target_parts) == 2
-        and target_parts[0] in intended
-        and target_parts[1] in intended
-    )
-    if target not in intended and "Governance projection" not in intended and not compound_target_allowed:
+    intended_entries = _parse_intended_write_set(payload.get("Intended Write Set", ""))
+    if target.replace("\\", "/") not in intended_entries:
         failures.append(f"Lock write set does not admit target projection: {target}")
     return payload, failures
 

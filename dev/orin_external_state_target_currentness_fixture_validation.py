@@ -22,6 +22,12 @@ WORKTREE_PATH = r"C:\Nexus Worktrees\Governance"
 SLOT = "governance-standing"
 
 
+def _target_path(root: Path) -> Path:
+    """Build fixture targets with the host platform's path semantics."""
+
+    return root.joinpath(*TARGET.split("/"))
+
+
 def _manifest(root: Path, source_head: str = "c" * 40) -> None:
     (root / "state_manifest.json").write_text(
         json.dumps(
@@ -50,7 +56,7 @@ def _record(
     worktree_path: str = WORKTREE_PATH,
     slot: str = SLOT,
 ) -> Path:
-    target = root / TARGET.replace("/", "\\")
+    target = _target_path(root)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
         "\n".join(
@@ -101,13 +107,13 @@ def _snapshot(
     snapshot = root / "snapshots" / name
     snapshot.mkdir(parents=True)
     if include_target:
-        snapshot_target = snapshot / TARGET.replace("/", "\\")
+        snapshot_target = _target_path(snapshot)
         snapshot_target.parent.mkdir(parents=True, exist_ok=True)
         snapshot_target.write_bytes(snapshot_bytes if snapshot_bytes is not None else target.read_bytes())
     target_hash = manifest_hash
     if target_hash is None and include_target:
         target_hash = hashlib.sha256(
-            (snapshot / TARGET.replace("/", "\\")).read_bytes()
+            _target_path(snapshot).read_bytes()
         ).hexdigest()
     atomic_write_json(
         snapshot / "snapshot_manifest.json",
@@ -129,7 +135,7 @@ def _snapshot(
 
 
 def _run(root: Path, targets: list[str] | None = None, **overrides: str | None) -> list[str]:
-    target = root / TARGET.replace("/", "\\")
+    target = _target_path(root)
     values = _expectations(target)
     values.update(overrides)
     return validator.validate_target_currentness(
@@ -406,6 +412,32 @@ def main() -> int:
             )
             if ok or not any(needle in item for item in invalid_messages):
                 raise AssertionError(f"{label} was accepted:\n" + "\n".join(invalid_messages))
+
+        prefix_lock_id = "worktree-fixture-prefix-write-set"
+        atomic_write_json(
+            root / "locks" / f"{prefix_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": prefix_lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": f"{TARGET}.backup",
+            },
+        )
+        prefix_snapshot = _snapshot(root, target, "fixture-prefix-write-set")
+        prefix_ok, prefix_messages, _ = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=prefix_lock_id,
+            snapshot=prefix_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-08T00:00:02Z"],
+            additions=[],
+            apply=False,
+            **_expectations(target),
+        )
+        if prefix_ok or not any("Lock write set does not admit target projection" in item for item in prefix_messages):
+            raise AssertionError("a longer write-set prefix was incorrectly accepted:\n" + "\n".join(prefix_messages))
 
         future_snapshot = _snapshot(root, target, "fixture-future-snapshot")
         future_time = time.time() + 60

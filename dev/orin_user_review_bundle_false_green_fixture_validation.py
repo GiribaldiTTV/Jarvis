@@ -116,9 +116,23 @@ def _current_branch() -> str:
 
 
 def _current_origin_main() -> str:
-    return subprocess.check_output(
-        ["git", "rev-parse", "origin/main"], cwd=ROOT, text=True
-    ).strip()
+    return bundle._git_output("rev-parse", "origin/main")
+
+
+def _assert_origin_main_fallback() -> None:
+    original_git_output = bundle._git_output
+
+    def missing_origin_main(*args: str) -> str:
+        if args == ("rev-parse", "origin/main"):
+            return "UNKNOWN"
+        return original_git_output(*args)
+
+    bundle._git_output = missing_origin_main
+    try:
+        if _current_origin_main() != "UNKNOWN":
+            raise AssertionError("missing origin/main fixture did not use the UNKNOWN fallback")
+    finally:
+        bundle._git_output = original_git_output
 
 
 def _run_fixture(
@@ -552,6 +566,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 
 def main() -> int:
+    _assert_origin_main_fallback()
     _assert_stage1_primary_for_stage2_decision()
     _assert_current_stage1_terms_are_not_stale()
     _assert_stage1_coherence_guards()
