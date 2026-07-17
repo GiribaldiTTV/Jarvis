@@ -509,6 +509,28 @@ def _assert_stage1_coherence_guards() -> None:
     if not any("absent files" in failure or "missing from coverage" in failure for failure in failures):
         raise AssertionError("false source coverage did not fail Stage 1 coverage validation")
 
+    binary_coverage = {
+        "START_HERE.md": (
+            "Primary USER Review File: `USER Review/PR_READINESS_STAGE1_REVIEW.md`\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md": (
+            "`Source Truth Context/Docs__Main.md`\n"
+            "`Source Truth Context/dev__orin_user_review_bundle.py`\n"
+            "Copied Source Count: `2`\n"
+        ),
+    }
+    binary_coverage_failures = bundle._pr_stage1_source_coverage_failures(
+        binary_coverage,
+        packet_entries=set(binary_coverage)
+        | {"Source Truth Context/Docs__Main.md"}
+        | {"Source Truth Context/dev__orin_user_review_bundle.py"},
+    )
+    if binary_coverage_failures:
+        raise AssertionError(
+            "binary source coverage was not counted from packet entries: "
+            + "; ".join(binary_coverage_failures)
+        )
+
     repair = dict(coherent)
     repair["START_HERE.md"] = (
         "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"

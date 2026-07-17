@@ -1434,7 +1434,11 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
     return failures
 
 
-def _pr_stage1_source_coverage_failures(packet_files: Mapping[str, str]) -> list[str]:
+def _pr_stage1_source_coverage_failures(
+    packet_files: Mapping[str, str],
+    *,
+    packet_entries: set[str] | None = None,
+) -> list[str]:
     """Ensure the Stage 1 source-coverage aid matches the copied file set."""
 
     start_here = packet_files.get("START_HERE.md", "")
@@ -1448,7 +1452,7 @@ def _pr_stage1_source_coverage_failures(packet_files: Mapping[str, str]) -> list
         return [f"{coverage_name}: Stage 1 source-coverage aid is missing"]
     actual = {
         name
-        for name in packet_files
+        for name in (packet_entries if packet_entries is not None else packet_files)
         if name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
     }
     listed = set(
@@ -3177,7 +3181,12 @@ def validate_local_user_packet(
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_pr_stage1_review_failures(packet_files))
     failures.extend(_pr_stage1_packet_coherence_failures(packet_files))
-    failures.extend(_pr_stage1_source_coverage_failures(packet_files))
+    failures.extend(
+        _pr_stage1_source_coverage_failures(
+            packet_files,
+            packet_entries=layout_entries,
+        )
+    )
     failures.extend(
         _fam003_lv1_visual_retest_semantic_failures(
             packet_files,
