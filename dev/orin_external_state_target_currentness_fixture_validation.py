@@ -237,7 +237,27 @@ def main() -> int:
             ),
             encoding="utf-8",
         )
-        _assert_failure("conflicting live aliases", "conflicting live aliases", _run(root))
+        _assert_failure(
+            "conflicting live aliases",
+            "duplicate or conflicting live identity fields",
+            _run(root),
+        )
+        _record(root)
+
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "Branch: `feature/release-readiness-source-truth-intake`\n"
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "duplicate live identity field",
+            "duplicate or conflicting live identity fields",
+            _run(root),
+        )
         _record(root)
 
         _record(root, record_class="Historical Receipt")

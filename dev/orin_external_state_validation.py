@@ -165,9 +165,16 @@ def _live_header_text(text: str) -> str:
 def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
     values: list[tuple[str, str]] = []
     for field in fields:
-        value = markdown_field_value(text, field)
-        if value:
-            values.append((field, value))
+        pattern = re.compile(
+            rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$",
+            re.MULTILINE,
+        )
+        for match in pattern.finditer(text):
+            value = match.group(1).strip()
+            if value.startswith("`") and value.endswith("`") and value.count("`") == 2:
+                value = value[1:-1].strip()
+            if value:
+                values.append((field, value))
     return values
 
 
@@ -177,12 +184,11 @@ def _field_alias_failures(
     fields: tuple[str, ...],
 ) -> list[str]:
     values = _markdown_field_values(text, fields)
-    normalized = {value.strip().casefold() for _field, value in values}
-    if len(normalized) <= 1:
+    if len(values) <= 1:
         return []
     rendered = ", ".join(f"{field}={value!r}" for field, value in values)
     return [
-        f"Target Currentness: conflicting live aliases for {relative}: {rendered}"
+        f"Target Currentness: duplicate or conflicting live identity fields for {relative}: {rendered}"
     ]
 
 
