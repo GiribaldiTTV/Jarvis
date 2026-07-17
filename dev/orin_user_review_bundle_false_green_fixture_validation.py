@@ -327,6 +327,36 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         raise AssertionError(
             "A green Stage 1 packet carrying the Stage 2 next decision lost its Stage 1 classification"
         )
+    with tempfile.TemporaryDirectory(prefix="ndai-stage1-support-context-") as temp_dir:
+        target = Path(temp_dir) / "Review Aids"
+        target.mkdir(parents=True)
+        support = bundle._write_user_branch_plan_review(
+            target=target,
+            title="Stage 1 Ready Support Context",
+            review_purpose="PR Readiness Stage 1 ready support context.",
+            source_branch=source_branch,
+            source_head="a" * 40,
+            upstream="origin/feature/fixture",
+            origin_main="b" * 40,
+            exact_user_decision=decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=[],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+                "Decision Path Summary: pr readiness stage1 approval review - Stage 1 Ready For Stage 2.\n"
+            ),
+            "USER Review/PR_READINESS_STAGE1_REVIEW.md": "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n",
+            "Review Aids/USER_BRANCH_PLAN_REVIEW.md": support.read_text(encoding="utf-8"),
+        }
+        failures = bundle._pr_stage1_packet_coherence_failures(packet_files)
+        if failures:
+            raise AssertionError(
+                "Stage 1-ready BP2 support context retained active BP2 wording:\n"
+                + "\n".join(failures)
+            )
 
 
 def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:

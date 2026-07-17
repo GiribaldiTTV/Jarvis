@@ -5411,6 +5411,7 @@ def _write_user_branch_plan_review(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
+    stage1_outcome: str | None = None,
 ) -> Path:
     is_active_overlay_recording = any(
         "active_overlay_recording_runtime_foundation" in source_rel
@@ -5518,8 +5519,16 @@ def _write_user_branch_plan_review(
         and "approve bounded pr readiness stage 1" in normalized_decision
     )
     pr_readiness_stage1_packet = (
-        "pr readiness stage 1 analysis" in normalized_decision
-        and not dev_owner_live_validation_lv1_packet
+        _is_pr_readiness_stage1_packet(
+            source_branch=source_branch,
+            normalized_decision=normalized_decision,
+            stage1_outcome=stage1_outcome,
+        )
+        if stage1_outcome is not None
+        else (
+            "pr readiness stage 1 analysis" in normalized_decision
+            and not dev_owner_live_validation_lv1_packet
+        )
     )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
@@ -11779,6 +11788,7 @@ def build_bundle(
         exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
         copied=copied,
+        stage1_outcome=stage1_outcome,
     )
     user_review_file = _write_user_branch_plan_review(
         target=review_aids_dir,
