@@ -40,6 +40,22 @@
     {
       "id": "historical_snapshot_with_active_completion_head",
       "expectedFailure": "historical external-state snapshot uses active-state field"
+    },
+    {
+      "id": "control_character_in_external_snapshot",
+      "expectedFailure": "prohibited control character"
+    },
+    {
+      "id": "stale_workstream_entry_review_aid",
+      "expectedFailure": "stale BP/Workstream Entry artifact"
+    },
+    {
+      "id": "missing_self_contained_evidence",
+      "expectedFailure": "not self-contained"
+    },
+    {
+      "id": "packet_repair_commit_mislabeled_historical",
+      "expectedFailure": "post-Workstream packet audit commits are relabeled"
     }
   ]
 }

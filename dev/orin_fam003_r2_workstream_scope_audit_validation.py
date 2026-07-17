@@ -1004,7 +1004,7 @@ def _write_outputs(output_dir: Path, ledger: dict[str, Any], failures: list[str]
 def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
     full_commits = ledger["fullBranch"]["commitCount"]
     workstream_commits = ledger["workstream"]["commitCount"]
-    return {
+    packet = {
         "START_HERE.md": "Primary USER Review File: `USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md`",
         "USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md": "\n".join(
             [
@@ -1021,7 +1021,59 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/FULL_BRANCH_CHANGED_FILE_LEDGER.md": _ledger_markdown(ledger, workstream_only=False),
         "Review Aids/WORKSTREAM_CHANGED_FILE_LEDGER.md": _ledger_markdown(ledger, workstream_only=True),
         "Review Aids/COMMIT_BY_COMMIT_AUDIT.md": _commit_audit_markdown(ledger),
+        "Review Aids/COMMIT_CLASSIFICATION_LEDGER.md": "\n".join(
+            [
+                "# Commit Classification Ledger",
+                "",
+                "## R2 product implementation commits",
+                "",
+                "- Implement product behavior.",
+                "",
+                "## R2 Workstream proof/completion-audit commits",
+                "",
+                "- Prove Workstream completion.",
+                "",
+                "## Post-Workstream packet and validator repair commits",
+                "",
+                "- Repair packet and validator traceability.",
+                "",
+                "## Rebaseline or merge commits",
+                "",
+                "- Reconcile origin/main.",
+                "",
+                "## Historical pre-R2 branch commits",
+                "",
+                "- Branch setup and earlier gated history.",
+            ]
+        ),
+        "Review Aids/CONTROL_CHARACTER_SCAN.md": "Control-character scan result: PASS.",
+        "Review Aids/CURRENT_GATE_CONSISTENCY_REPORT.md": "Current Gate: R2 Workstream completion USER review pending.",
+        "Review Aids/DEFECT_LEDGER.md": "All packet-integrity defects are CLOSED_WITH_PROOF.",
+        "Review Aids/PACKET_CONTENT_MANIFEST.md": "Packet content manifest: all required evidence classes present.",
+        "Review Aids/VALIDATION_RESULTS.md": "Validation result: PASS.",
         "Review Aids/SHARED_VALIDATOR_OWNERSHIP_AUDIT.md": _shared_audit_markdown(ledger),
+        "Review Aids/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json": "{}",
+        "Review Aids/Evidence/Option C Workstream Proof/00_option_c_workstream_contact_sheet.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/01_tray_styled_popup_focused.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/03_tray_quick_access_submenu_focused.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/04_tray_hud_submenu_focused.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/10_ncp_entry_typed_request.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/11_ncp_choose_visible_choices.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/12_ncp_confirm_selected_action.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/13_ncp_result_launch_requested.png": "png",
+        "Review Aids/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json": "{}",
+        "Review Aids/Evidence/HUD Settings Visual Proof/01_disabled_default.png": "png",
+        "Review Aids/Evidence/HUD Settings Visual Proof/02_enabled_default.png": "png",
+        "Review Aids/Evidence/HUD Settings Visual Proof/06_partial_retry.png": "png",
+        "Review Aids/Evidence/HUD Settings Visual Proof/07_failure_retry.png": "png",
+        "Review Aids/Evidence/HUD Settings Visual Proof/FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png": "png",
+        "Review Aids/Evidence/HUD Settings Visual Proof/FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png": "png",
+        "Review Aids/Evidence/Settings Visual Proof/fam003_settings_visual_fail_repair_manifest.json": "{}",
+        "Review Aids/Evidence/Settings Visual Proof/03e_live_user_drag_resized.png": "png",
+        "Review Aids/Evidence/Settings Visual Proof/07_dropdown_list_state.png": "png",
+        "Review Aids/Evidence/Settings Visual Proof/08_close_guard.png": "png",
+        "Review Aids/Evidence/Settings Visual Proof/16_defect_closure_contact_sheet.png": "png",
+        "Review Aids/Evidence/Settings Visual Proof/17_red_team_review_sheet.png": "png",
         "Source Truth Context/branch_state.md": "\n".join(
             [
                 "## FAM-003 R2 Workstream Completion Scope Audit Repair",
@@ -1044,6 +1096,7 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
             }
         ),
     }
+    return packet
 
 
 def _apply_negative_case(ledger: dict[str, Any], case_id: str) -> dict[str, Any]:
@@ -1072,6 +1125,10 @@ def _apply_negative_case(ledger: dict[str, Any], case_id: str) -> dict[str, Any]
     elif case_id in {
         "duplicate_active_external_state_snapshot",
         "historical_snapshot_with_active_completion_head",
+        "control_character_in_external_snapshot",
+        "stale_workstream_entry_review_aid",
+        "missing_self_contained_evidence",
+        "packet_repair_commit_mislabeled_historical",
     }:
         return mutated
     else:
@@ -1104,6 +1161,37 @@ def _apply_packet_negative_case(packet_files: dict[str, str], case_id: str) -> d
                 "",
                 "Completion HEAD: `0000000000000000000000000000000000000000`",
                 "Current Gate: `Workstream completion USER review pending`",
+            ]
+        )
+    elif case_id == "control_character_in_external_snapshot":
+        mutated[
+            "Source Truth Context/Active External Snapshot/r2_workstream_execution_ledger_20260716.md"
+        ] = "Current Branch HEAD: \f1e9d76bf98394aa40d009a14ccbf14a89cca378\n"
+    elif case_id == "stale_workstream_entry_review_aid":
+        mutated[
+            "Review Aids/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ] = "Decision Path: Workstream Entry final decision review - Workstream implementation remains pending USER approval.\n"
+    elif case_id == "missing_self_contained_evidence":
+        mutated.pop(
+            "Review Aids/Evidence/Option C Workstream Proof/00_option_c_workstream_contact_sheet.png",
+            None,
+        )
+    elif case_id == "packet_repair_commit_mislabeled_historical":
+        mutated["Review Aids/COMMIT_CLASSIFICATION_LEDGER.md"] = "\n".join(
+            [
+                "# Commit Classification Ledger",
+                "",
+                "## R2 product implementation commits",
+                "",
+                "## R2 Workstream proof/completion-audit commits",
+                "",
+                "## Post-Workstream packet and validator repair commits",
+                "",
+                "## Rebaseline or merge commits",
+                "",
+                "## Historical pre-R2 branch commits",
+                "",
+                "- Packet audit meta: allow active external snapshot context.",
             ]
         )
     return mutated
@@ -1141,6 +1229,10 @@ def run_self_test(*, full_base: str, workstream_base: str) -> list[str]:
         packet_only_case = case_id in {
             "duplicate_active_external_state_snapshot",
             "historical_snapshot_with_active_completion_head",
+            "control_character_in_external_snapshot",
+            "stale_workstream_entry_review_aid",
+            "missing_self_contained_evidence",
+            "packet_repair_commit_mislabeled_historical",
         }
         if not direct_failures and not packet_only_case:
             failures.append(f"negative case {case_id} did not fail direct validation")

@@ -1748,6 +1748,7 @@ def _fam003_r2_completion_packet_detected(
 
 def _fam003_r2_workstream_completion_scope_failures(
     packet_files: Mapping[str, str],
+    packet_binary_files: Mapping[str, bytes] | None = None,
 ) -> list[str]:
     """Reject grouped or Git-incoherent FAM-003 R2 completion ledgers."""
 
@@ -1756,6 +1757,134 @@ def _fam003_r2_workstream_completion_scope_failures(
         return []
 
     failures: list[str] = []
+    packet_entries = set(packet_files)
+    if packet_binary_files is not None:
+        packet_entries.update(packet_binary_files)
+    text_suffixes = {".md", ".txt", ".json", ".csv"}
+    for file_name, text in sorted(packet_files.items()):
+        if PurePosixPath(file_name).suffix.lower() not in text_suffixes:
+            continue
+        for offset, char in enumerate(text):
+            codepoint = ord(char)
+            if codepoint < 32 and char not in "\t\n\r":
+                failures.append(
+                    f"{file_name}: prohibited control character U+{codepoint:04X} at text offset {offset}"
+                )
+                break
+
+    stale_current_gate_aids = {
+        f"{REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        f"{REVIEW_AIDS_DIR_NAME}/BRANCH_VISION_VALIDATION_CHECKLIST.md",
+        f"{REVIEW_AIDS_DIR_NAME}/GOVERNANCE_REQUIRED_FILES_SCAN.md",
+        f"{REVIEW_AIDS_DIR_NAME}/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
+    }
+    for file_name in sorted(stale_current_gate_aids & packet_entries):
+        failures.append(
+            f"{file_name}: stale BP/Workstream Entry artifact is packaged as a current R2 Workstream completion aid"
+        )
+
+    stale_text_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        ("workstream-entry-active-gate", re.compile(r"\bWorkstream Entry\b", re.IGNORECASE)),
+        (
+            "implementation-still-pending-after-completion",
+            re.compile(r"Workstream implementation remains pending USER approval", re.IGNORECASE),
+        ),
+        ("stage-2-setup-green", re.compile(r"Stage 2 setup is green", re.IGNORECASE)),
+        ("stale-zip-121255", re.compile(r"FAM-003-20260717-121255\.zip", re.IGNORECASE)),
+        ("false-plan-primary", re.compile(r"USER_BRANCH_PLAN_REVIEW\.md", re.IGNORECASE)),
+        ("wrong-family-active-focus", re.compile(r"\bFAM-007\b|AI Runtime And Trust Architecture", re.IGNORECASE)),
+    )
+    generated_prefixes = ("START_HERE.md", f"{USER_REVIEW_DIR_NAME}/", f"{REVIEW_AIDS_DIR_NAME}/")
+    r2_historical_audit_aids = {
+        f"{REVIEW_AIDS_DIR_NAME}/EXACT_CHANGED_FILE_LEDGER.json",
+        f"{REVIEW_AIDS_DIR_NAME}/FULL_BRANCH_CHANGED_FILE_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/WORKSTREAM_CHANGED_FILE_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/COMMIT_BY_COMMIT_AUDIT.md",
+        f"{REVIEW_AIDS_DIR_NAME}/SHARED_VALIDATOR_OWNERSHIP_AUDIT.md",
+    }
+    for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if not (
+            normalized == generated_prefixes[0]
+            or normalized.startswith(generated_prefixes[1])
+            or normalized.startswith(generated_prefixes[2])
+        ):
+            continue
+        if normalized in r2_historical_audit_aids:
+            continue
+        if "HISTORICAL / SUPERSEDED - NOT CURRENT AUTHORITY" in text:
+            continue
+        for reason, pattern in stale_text_patterns:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: stale or wrong-focus current-gate wording remains ({reason})"
+                )
+
+    required_evidence_entries = {
+        f"{REVIEW_AIDS_DIR_NAME}/CONTROL_CHARACTER_SCAN.md",
+        f"{REVIEW_AIDS_DIR_NAME}/CURRENT_GATE_CONSISTENCY_REPORT.md",
+        f"{REVIEW_AIDS_DIR_NAME}/DEFECT_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/PACKET_CONTENT_MANIFEST.md",
+        f"{REVIEW_AIDS_DIR_NAME}/VALIDATION_RESULTS.md",
+        f"{REVIEW_AIDS_DIR_NAME}/COMMIT_CLASSIFICATION_LEDGER.md",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/00_option_c_workstream_contact_sheet.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/01_tray_styled_popup_focused.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/03_tray_quick_access_submenu_focused.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/04_tray_hud_submenu_focused.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/10_ncp_entry_typed_request.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/11_ncp_choose_visible_choices.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/12_ncp_confirm_selected_action.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/13_ncp_result_launch_requested.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/01_disabled_default.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/02_enabled_default.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/06_partial_retry.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/07_failure_retry.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/fam003_settings_visual_fail_repair_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/03e_live_user_drag_resized.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/07_dropdown_list_state.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/08_close_guard.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/16_defect_closure_contact_sheet.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/17_red_team_review_sheet.png",
+    }
+    missing_evidence = sorted(required_evidence_entries - packet_entries)
+    if missing_evidence:
+        failures.append(
+            "FAM-003 R2 Workstream completion packet is not self-contained; "
+            f"missing evidence entries={missing_evidence}"
+        )
+
+    commit_classification = packet_files.get(f"{REVIEW_AIDS_DIR_NAME}/COMMIT_CLASSIFICATION_LEDGER.md", "")
+    required_commit_classes = (
+        "R2 product implementation commits",
+        "R2 Workstream proof/completion-audit commits",
+        "Post-Workstream packet and validator repair commits",
+        "Rebaseline or merge commits",
+        "Historical pre-R2 branch commits",
+    )
+    missing_classes = [
+        commit_class for commit_class in required_commit_classes
+        if commit_class not in commit_classification
+    ]
+    if missing_classes:
+        failures.append(
+            f"{REVIEW_AIDS_DIR_NAME}/COMMIT_CLASSIFICATION_LEDGER.md: missing commit classes {missing_classes}"
+        )
+    if re.search(
+        r"Historical pre-R2 branch commits[\s\S]{0,500}Packet audit meta:",
+        commit_classification,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            f"{REVIEW_AIDS_DIR_NAME}/COMMIT_CLASSIFICATION_LEDGER.md: post-Workstream packet audit commits "
+            "are relabeled as historical pre-R2 branch commits"
+        )
+
     required_files = (
         f"{REVIEW_AIDS_DIR_NAME}/EXACT_CHANGED_FILE_LEDGER.json",
         f"{REVIEW_AIDS_DIR_NAME}/FULL_BRANCH_CHANGED_FILE_LEDGER.md",
@@ -3910,7 +4039,12 @@ def validate_local_user_packet(
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam003_workstream_review_state_failures(packet_files))
-    failures.extend(_fam003_r2_workstream_completion_scope_failures(packet_files))
+    failures.extend(
+        _fam003_r2_workstream_completion_scope_failures(
+            packet_files,
+            packet_binary_files=zip_binary_files or folder_binary_files,
+        )
+    )
     failures.extend(_fam003_hardening_h1_review_state_failures(packet_files))
     failures.extend(_fam003_hardening_h1_traceability_failures(packet_files, export_zip))
     failures.extend(
