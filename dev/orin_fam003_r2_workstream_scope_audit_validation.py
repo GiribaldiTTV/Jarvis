@@ -472,6 +472,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Scope-audit self-test, old-packet negative validation, packet active-review validation, and final parity.",
         "supersession": "Supersedes the stale duplicate External Operational State snapshot shape in the 20260716-112604 packet.",
     },
+    "Harden FAM-003 R2 completion packet integrity": {
+        "reason": "Repaired current-gate packet integrity false-green paths for stale review aids, control characters, missing self-contained evidence, and commit-classification ambiguity.",
+        "traceability": "R2 Workstream completion packet integrity repair / SLC-R2-010 packet reviewability repair.",
+        "coherent": "YES - packet validator, negative fixtures, and scope-audit helper only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Scope-audit negative fixtures, old-packet negative validation, packet active-review validation, and final parity.",
+        "supersession": "Supersedes the stale, non-self-contained 20260717-122104 completion packet shape.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
