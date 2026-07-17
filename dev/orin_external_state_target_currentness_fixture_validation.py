@@ -306,6 +306,45 @@ def main() -> int:
             **expectations,
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
+
+        dry_run_head = "d" * 40
+        dry_run_snapshot = _snapshot(root, target, "fixture-dry-run-head-transition")
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=dry_run_snapshot.relative_to(root).as_posix(),
+            assignments=[f"Source Repo HEAD={dry_run_head}"],
+            additions=[],
+            apply=False,
+            post_expected_source_head=dry_run_head,
+            **expectations,
+        )
+        if not ok or audit is not None or target.read_bytes() != before:
+            raise AssertionError(
+                "target writer dry run did not validate the projected post-state:\n"
+                + "\n".join(messages)
+            )
+
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=dry_run_snapshot.relative_to(root).as_posix(),
+            assignments=[f"Source Repo HEAD={dry_run_head}"],
+            additions=[],
+            apply=False,
+            post_expected_source_head="f" * 40,
+            **expectations,
+        )
+        if ok or audit is not None or target.read_bytes() != before or not any(
+            "Projected post-write target validation" in item for item in messages
+        ):
+            raise AssertionError(
+                "target writer dry run accepted a mismatched projected post-state:\n"
+                + "\n".join(messages)
+            )
+
         ok, messages, audit = reconciler.reconcile_target(
             root=root,
             target=TARGET,

@@ -842,9 +842,18 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
 def _primary_user_review_file(
     exact_user_decision: str,
     *,
+    source_branch: str | None = None,
     stage1_outcome: str | None = None,
 ) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
+    if source_branch and (
+        _is_dev_owner_live_validation_lv1_packet(source_branch, normalized)
+        or _is_fam007_breakpoint2_live_validation_lv1_packet(
+            source_branch=source_branch,
+            normalized_decision=normalized,
+        )
+    ):
+        return USER_BRANCH_PLAN_REVIEW_FILE
     # A green Stage 1 packet normally carries the exact Stage 2 approval text
     # as its next USER decision. Keep the current-gate artifact primary rather
     # than letting the later-stage wording fall through to the BP2 selector.
@@ -11635,6 +11644,7 @@ def build_bundle(
     user_facing_decision = _user_facing_decision_text(exact_user_decision)
     primary_user_review_file_name = _primary_user_review_file(
         exact_user_decision,
+        source_branch=source_branch,
         stage1_outcome=stage1_outcome,
     )
     user_vision_file: Path | None = None
@@ -12051,6 +12061,7 @@ def main() -> int:
     print(f"Review export zip: {export_zip}")
     primary_file = _primary_user_review_file(
         args.exact_user_decision,
+        source_branch=_git_output("branch", "--show-current"),
         stage1_outcome=args.stage1_outcome,
     )
     if primary_file == PR_READINESS_STAGE1_REVIEW_FILE:

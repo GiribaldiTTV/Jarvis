@@ -393,6 +393,14 @@ def _assert_non_stage1_live_validation_packet_classification() -> None:
         normalized_decision=legacy_normalized_decision,
     ):
         raise AssertionError("Legacy FAM-007 LV1-green packet was not recognized")
+    if bundle._primary_user_review_file(
+        legacy_lv1_decision,
+        source_branch=legacy_source_branch,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+    ) != bundle.USER_BRANCH_PLAN_REVIEW_FILE:
+        raise AssertionError(
+            "Legacy FAM-007 LV1-green packet did not retain the LV1/plan primary artifact"
+        )
 
 
 def _assert_current_stage1_terms_are_not_stale() -> None:

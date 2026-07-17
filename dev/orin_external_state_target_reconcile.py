@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
+import tempfile
 import time
 from pathlib import Path
 from pathlib import PureWindowsPath
@@ -255,6 +256,36 @@ def _rename_sections(
     return result, failures, renamed
 
 
+def _projected_target_validation(
+    *,
+    relative: str,
+    projected_text: str,
+    expected_branch: str,
+    expected_source_head: str,
+    expected_origin_main: str,
+    expected_worktree_path: str,
+    expected_worktree_slot: str,
+) -> list[str]:
+    """Validate a dry-run projection without mutating the live external root."""
+
+    with tempfile.TemporaryDirectory(prefix="ndai-target-projection-") as temp_dir:
+        projected_root = Path(temp_dir)
+        projected_target = projected_root.joinpath(*relative.split("/"))
+        projected_target.parent.mkdir(parents=True, exist_ok=True)
+        projected_target.write_text(projected_text, encoding="utf-8")
+        projected_hash = sha256_file(projected_target)
+        return validate_target_currentness(
+            projected_root,
+            [relative],
+            expected_branch=expected_branch,
+            expected_source_head=expected_source_head,
+            expected_origin_main=expected_origin_main,
+            expected_worktree_path=expected_worktree_path,
+            expected_worktree_slot=expected_worktree_slot,
+            expected_target_sha256=projected_hash,
+        )
+
+
 def _snapshot_failures(
     *,
     root: Path,
@@ -478,7 +509,24 @@ def reconcile_target(
         return False, ["No-loss comparison failed: an unselected target line changed"], None
     after_hash = hashlib.sha256(after_text.encode("utf-8")).hexdigest()
 
+    post_source_head = post_expected_source_head or expected_source_head
+    post_origin_main = post_expected_origin_main or expected_origin_main
+
     if not apply:
+        projected_validation = _projected_target_validation(
+            relative=relative,
+            projected_text=after_text,
+            expected_branch=expected_branch,
+            expected_source_head=post_source_head,
+            expected_origin_main=post_origin_main,
+            expected_worktree_path=expected_worktree_path,
+            expected_worktree_slot=expected_worktree_slot,
+        )
+        if projected_validation:
+            return False, [
+                f"Projected post-write target validation: {item}"
+                for item in projected_validation
+            ], None
         return True, [
             f"READY: {relative}",
             f"Before SHA256: {before_hash}",
@@ -496,8 +544,6 @@ def reconcile_target(
         ], None
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)
-    post_source_head = post_expected_source_head or expected_source_head
-    post_origin_main = post_expected_origin_main or expected_origin_main
     post_validation = validate_target_currentness(
         root,
         [target],
