@@ -948,16 +948,25 @@ def _validate_export_zip(
                 packet_files[entry] = archive.read(entry).decode("utf-8")
             except UnicodeDecodeError:
                 continue
-    user_vision = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
-    if not user_vision:
-        raise ValueError(
-            f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
-        )
-    user_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
-    if not user_review:
-        raise ValueError(
-            f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
-        )
+    stage1_packet = (
+        f"{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}" in start_here
+    )
+    if stage1_packet:
+        if not _packet_file_text(packet_files, PR_READINESS_STAGE1_REVIEW_FILE):
+            raise ValueError(
+                f"Review export zip is missing {PR_READINESS_STAGE1_REVIEW_FILE}: {export_zip}"
+            )
+    else:
+        user_vision = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+        if not user_vision:
+            raise ValueError(
+                f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
+            )
+        user_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+        if not user_review:
+            raise ValueError(
+                f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
+            )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
