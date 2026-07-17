@@ -122,7 +122,14 @@ def _parse_assignments(
         field, separator, value = raw.partition("=")
         field = field.strip()
         value = value.strip()
-        if not separator or not field or not value or "`" in value:
+        if (
+            not separator
+            or not field
+            or not value
+            or "`" in value
+            or "\r" in value
+            or "\n" in value
+        ):
             failures.append(f"Invalid --set-field assignment: {raw!r}")
             continue
         if field in values:

@@ -387,6 +387,35 @@ def main() -> int:
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
 
+        for label, assignments, additions in (
+            (
+                "newline assignment",
+                ["Last Updated=2026-01-02T00:00:00Z\nInjected Field: injected"],
+                [],
+            ),
+            (
+                "newline addition",
+                [],
+                ["Added Fixture Field=added\nInjected Field: injected"],
+            ),
+        ):
+            ok, messages, audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot="snapshots/fixture-snapshot",
+                assignments=assignments,
+                additions=additions,
+                apply=False,
+                **expectations,
+            )
+            if ok or audit is not None or not any(
+                "Invalid --set-field assignment" in item for item in messages
+            ):
+                raise AssertionError(
+                    f"{label} was accepted or mutated the target:\n" + "\n".join(messages)
+                )
+
         mismatched_lock_id = "worktree-fixture-mismatched-payload"
         atomic_write_json(
             root / "locks" / f"{mismatched_lock_id}.json",
@@ -861,6 +890,43 @@ def main() -> int:
         )
         if released or not any("Lock payload ID mismatch" in item for item in release_messages):
             raise AssertionError("lock release accepted a mismatched payload ID:\n" + "\n".join(release_messages))
+
+        release_race_id = "worktree-fixture-release-race"
+        atomic_write_json(
+            root / "locks" / f"{release_race_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": release_race_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        original_release_hook = lock_release._before_release_atomic_replacement
+
+        def mutate_lock_before_release(lock_path: Path, _expected_bytes: bytes) -> None:
+            payload = json.loads(lock_path.read_text(encoding="utf-8"))
+            payload["Intended Write Set"] = "worktrees/Other/other_state.md"
+            atomic_write_json(lock_path, payload)
+
+        lock_release._before_release_atomic_replacement = mutate_lock_before_release
+        try:
+            released, release_messages = lock_release.release_lock(
+                root, release_race_id, "fixture release race", apply=True
+            )
+        finally:
+            lock_release._before_release_atomic_replacement = original_release_hook
+        release_race_payload = json.loads(
+            (root / "locks" / f"{release_race_id}.json").read_text(encoding="utf-8")
+        )
+        if released or release_race_payload.get("Lock State") != "Locked" or not any(
+            "Lock changed during release validation" in item for item in release_messages
+        ):
+            raise AssertionError(
+                "lock release accepted an intervening lock edit:\n"
+                + "\n".join(release_messages)
+            )
 
         transition_lock_id = "worktree-fixture-head-transition"
         atomic_write_json(

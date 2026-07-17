@@ -26,6 +26,10 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _before_release_atomic_replacement(_lock_path: Path, _expected_bytes: bytes) -> None:
+    """Test seam for adversarial lock mutation before final release validation."""
+
+
 def release_lock(root: Path, lock_id: str, reason: str, apply: bool) -> tuple[bool, list[str]]:
     root = resolve_path(root)
     failures = validate_canonical_root(root)
@@ -37,6 +41,10 @@ def release_lock(root: Path, lock_id: str, reason: str, apply: bool) -> tuple[bo
         failures.append(f"Lock is missing: {lock_path}")
     if failures:
         return False, failures
+    try:
+        initial_lock_bytes = lock_path.read_bytes()
+    except OSError as exc:
+        return False, [f"Lock is unreadable: {lock_path}: {exc}"]
     try:
         payload = load_json(lock_path)
     except Exception as exc:  # noqa: BLE001 - corrupt operational state blocks release
@@ -53,6 +61,13 @@ def release_lock(root: Path, lock_id: str, reason: str, apply: bool) -> tuple[bo
     payload["Last Updated"] = utc_now()
     if not apply:
         return True, [f"READY: {lock_path}", "No write performed; omit --apply was honored"]
+    _before_release_atomic_replacement(lock_path, initial_lock_bytes)
+    try:
+        final_lock_bytes = lock_path.read_bytes()
+    except OSError as exc:
+        return False, [f"Lock changed during release validation; no write performed: {exc}"]
+    if final_lock_bytes != initial_lock_bytes:
+        return False, ["Lock changed during release validation; no write performed"]
     atomic_write_json(lock_path, payload)
     return True, [f"RELEASED: {lock_path}"]
 
