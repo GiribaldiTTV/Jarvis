@@ -882,7 +882,10 @@ def main() -> int:
         root = Path(temp_dir)
         _manifest(root)
         target = _record(root)
-        target.write_bytes(target.read_bytes().replace(b"\n", b"\r\n"))
+        crlf_bytes = target.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        target.write_bytes(crlf_bytes.replace(b"\n", b"\r\n"))
+        with target.open("ab") as handle:
+            handle.write(b"## CRLF Historical Receipts\r\nSource Repo HEAD: `crlf-history`\r\n")
         before_bytes = target.read_bytes()
         snapshot = _snapshot(root, target, "fixture-crlf")
         lock_id = "worktree-fixture-crlf"
@@ -903,8 +906,9 @@ def main() -> int:
             lock_id=lock_id,
             snapshot=snapshot.relative_to(root).as_posix(),
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
-            additions=[],
+            additions=["Added CRLF Fixture Field=added"],
             apply=True,
+            section_renames=["CRLF Historical Receipts=CRLF Historical Receipt"],
             **_expectations(target),
         )
         after_bytes = target.read_bytes()
@@ -914,7 +918,7 @@ def main() -> int:
             raise AssertionError("CRLF target transition did not update the selected field")
         if b"\n" in after_bytes.replace(b"\r\n", b""):
             raise AssertionError("CRLF target transition introduced a lone LF newline")
-        if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n"):
+        if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n") + 1:
             raise AssertionError("CRLF target transition changed untouched newline structure")
 
     print("Target-scoped external-state currentness fixture validation: PASS")

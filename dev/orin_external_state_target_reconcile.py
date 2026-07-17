@@ -170,6 +170,14 @@ def _parse_intended_write_set(raw: object) -> set[str]:
     }
 
 
+def _line_ending(line: str) -> str:
+    if line.endswith("\r\n"):
+        return "\r\n"
+    if line.endswith(("\n", "\r")):
+        return line[-1]
+    return ""
+
+
 def _read_text_preserve_newlines(path: Path) -> str:
     """Read UTF-8 text without translating source-record newline bytes."""
 
@@ -259,7 +267,11 @@ def _replace_existing_fields(
             failures.append(f"Target transition requires exactly one existing field {field}: found {count}")
     if not failures and additions:
         insert_at = live_end
-        additions_text = [f"{field}: `{value}`\n" for field, value in additions.items()]
+        newline = next(
+            (_line_ending(line) for line in lines[:live_end] if _line_ending(line)),
+            "\n",
+        )
+        additions_text = [f"{field}: `{value}`{newline}" for field, value in additions.items()]
         lines[insert_at:insert_at] = additions_text
     return "".join(lines), failures
 
@@ -274,14 +286,14 @@ def _rename_sections(
     for old, new in renames.items():
         old_heading = old if old.startswith("## ") else f"## {old}"
         new_heading = new if new.startswith("## ") else f"## {new}"
-        pattern = re.compile(rf"(?m)^{re.escape(old_heading)}[ \t]*\r?$")
+        pattern = re.compile(rf"(?m)^{re.escape(old_heading)}[ \t]*(\r\n|\n|\r|$)")
         matches = list(pattern.finditer(result))
         if len(matches) != 1:
             failures.append(
                 f"Target transition requires exactly one section {old_heading!r}: found {len(matches)}"
             )
             continue
-        result = pattern.sub(new_heading, result, count=1)
+        result = pattern.sub(lambda match: f"{new_heading}{match.group(1)}", result, count=1)
         renamed.append((old_heading, new_heading))
     return result, failures, renamed
 
