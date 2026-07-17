@@ -1450,18 +1450,23 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
         f"{REVIEW_AIDS_DIR_NAME}/",
     )
     start_here = packet_files.get("START_HERE.md", "")
+    stage1_pending_marker = re.search(
+        r"(?:PR\s+Readiness\s+Stage\s+1\s+analysis\s+remains\s+pending\s+USER\s+approval|"
+        r"Stage\s+1\s+remains\s+in\s+repair-required\s+posture|"
+        r"Stage\s+1\s+Outcome\s*:\s*PR\s+Readiness\s+Stage\s+1\s+Repair\s+Required)",
+        start_here,
+        re.IGNORECASE,
+    )
+    stage1_blocked_transition = re.search(
+        r"(?:does\s+not\s+authorize|remains\s+separately\s+gated).*"
+        r"(?:PR\s+Stage\s+2|PR\s+creation|merge|release)|"
+        r"Stage\s+2\s+is\s+not\s+supported",
+        start_here,
+        re.IGNORECASE | re.DOTALL,
+    )
     stage1_pending_posture = bool(
-        re.search(
-            r"PR\s+Readiness\s+Stage\s+1\s+analysis\s+remains\s+pending\s+USER\s+approval",
-            start_here,
-            re.IGNORECASE,
-        )
-        and re.search(
-            r"(?:does\s+not\s+authorize|remains\s+separately\s+gated).*"
-            r"(?:PR\s+Stage\s+2|PR\s+creation|merge|release)",
-            start_here,
-            re.IGNORECASE | re.DOTALL,
-        )
+        stage1_pending_marker
+        and stage1_blocked_transition
         and not re.search(
             r"PR\s+Readiness\s+Stage\s+1\s+(?:accepted|approved|complete|green)",
             start_here,

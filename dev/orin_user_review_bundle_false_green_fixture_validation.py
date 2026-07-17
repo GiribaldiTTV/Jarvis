@@ -896,6 +896,26 @@ def main() -> int:
             encoding="utf-8",
         )
 
+    def _pr_stage1_repair_posture(packet: Path) -> None:
+        _pr_stage1_primary(packet)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\nStage 1 remains in repair-required posture; Stage 2 is not supported.\n",
+            encoding="utf-8",
+        )
+        (packet / "Review Aids" / "PR_READINESS_STAGE1_COVERAGE_DIGEST.md").write_text(
+            "Current Gate: PR Readiness Stage 1\n"
+            "PR Readiness Stage 1 analysis remains held while repair is required.\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "pr-stage1-repair-posture-allows-stage1-language",
+        _pr_stage1_repair_posture,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
     _assert_success(
         "pr-stage1-dedicated-primary",
         _pr_stage1_primary,
