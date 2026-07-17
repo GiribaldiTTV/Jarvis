@@ -590,6 +590,24 @@ def _assert_stage1_coherence_guards() -> None:
         )
 
 
+def _assert_stale_primary_aid_is_not_skipped() -> None:
+    packet_files = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/FALSE_GREEN_FIXTURE_REVIEW.md\n"
+            "Current Gate: Systemic false-green regression fixture review\n"
+        ),
+        "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md": "Current review.\n",
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "USER_BRANCH_PLAN_REVIEW.md is the primary active decision file.\n"
+        ),
+    }
+    failures = bundle._active_review_aid_false_green_failures(packet_files)
+    if not any("stale primary/current decision file" in failure for failure in failures):
+        raise AssertionError(
+            "non-Stage-1 stale primary aid was skipped:\n" + "\n".join(failures)
+        )
+
+
 def _assert_misrouted_stage1_primary_runs_all_guards() -> None:
     packet_files = {
         "START_HERE.md": (
@@ -912,6 +930,7 @@ def main() -> int:
     _assert_stage1_primary_for_stage2_decision()
     _assert_misrouted_stage1_primary_runs_all_guards()
     _assert_stage1_zip_start_here_contract()
+    _assert_stale_primary_aid_is_not_skipped()
     _assert_non_fam007_stage2_wording_requires_ready_stage1()
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()

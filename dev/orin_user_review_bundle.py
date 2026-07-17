@@ -1640,7 +1640,20 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
                 if stale_primary == primary_name:
                     continue
                 if normalized == f"{REVIEW_AIDS_DIR_NAME}/{stale_primary}":
-                    continue
+                    stage1_support_context = (
+                        stage1_current_posture
+                        and normalized in {
+                            f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
+                            f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
+                        }
+                        and re.search(
+                            r"\b(?:context\s+complete|support(?:ing|[- ]only)?\s+context)\b",
+                            text,
+                            re.IGNORECASE,
+                        )
+                    )
+                    if stage1_support_context:
+                        continue
                 if re.search(
                     rf"{re.escape(stale_primary)}[^\n]{{0,80}}\b(?:primary|active|decision)\b|"
                     rf"\b(?:primary|active|decision)[^\n]{{0,80}}{re.escape(stale_primary)}",
