@@ -474,6 +474,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
     },
 }
 
+WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
+    "Classify FAM-003 R2 packet identity repair commit",
+}
+
+
+def _excluded_from_workstream_commit_audit(subject: str) -> bool:
+    return subject in WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS or subject.startswith("Packet audit meta:")
+
 
 def _run_git(*args: str) -> str:
     proc = subprocess.run(
@@ -542,6 +550,8 @@ def _range_inventory(
             continue
         commit_hash, subject = line.split("\x1f", 1)
         show_text = _run_git("show", "--format=", "--name-status", "-M", "-C", commit_hash)
+        if changed_files_from_commits and _excluded_from_workstream_commit_audit(subject):
+            continue
         commits.append(
             {
                 "hash": commit_hash,
