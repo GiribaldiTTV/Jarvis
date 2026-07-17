@@ -11788,7 +11788,6 @@ def build_bundle(
         exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
         copied=copied,
-        stage1_outcome=stage1_outcome,
     )
     user_review_file = _write_user_branch_plan_review(
         target=review_aids_dir,
@@ -11801,6 +11800,7 @@ def build_bundle(
         exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
         copied=copied,
+        stage1_outcome=stage1_outcome,
     )
     pr_stage1_review_file = None
     if primary_user_review_file_name == PR_READINESS_STAGE1_REVIEW_FILE:
