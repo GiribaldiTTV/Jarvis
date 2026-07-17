@@ -48,6 +48,8 @@ Packet validation is not USER acceptance. This fixture should fail only because
 the scenario-specific false-green defect is present.
 """
 
+FIXTURE_ORIGIN_MAIN = "b" * 40
+
 
 def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
     (root / "USER Review").mkdir(parents=True)
@@ -167,6 +169,18 @@ def _run_fixture(
         original_external_state_dir = bundle._current_branch_external_state_dir
         if external_state_files is not None:
             bundle._current_branch_external_state_dir = lambda: external_state_dir
+        original_git_output = bundle._git_output
+        live_origin_main = _current_origin_main()
+        fixture_origin_main = expected_origin_main or live_origin_main
+        if expected_origin_main is None and fixture_origin_main == "UNKNOWN":
+            fixture_origin_main = FIXTURE_ORIGIN_MAIN
+
+            def fixture_git_output(*args: str) -> str:
+                if args == ("rev-parse", "origin/main"):
+                    return fixture_origin_main
+                return original_git_output(*args)
+
+            bundle._git_output = fixture_git_output
         try:
             _zip_packet(packet, export_zip, overrides=zip_overrides, omit=zip_omit)
             for extra_zip_name in extra_zip_names:
@@ -189,10 +203,11 @@ def _run_fixture(
                 expected_origin_main=(
                     None
                     if omit_identity_arguments or validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
-                    else expected_origin_main or _current_origin_main()
+                    else fixture_origin_main
                 ),
             ).failures
         finally:
+            bundle._git_output = original_git_output
             bundle._current_branch_external_state_dir = original_external_state_dir
 
 

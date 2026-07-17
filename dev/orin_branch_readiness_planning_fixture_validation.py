@@ -36,6 +36,7 @@ PR_REVIEW_CHURN_MATRIX_FIXTURE = (
     / "pr_276_rar_review_churn_matrix.json"
 )
 UI_REFERENCE_CATALOG_README = ROOT / "Docs" / "ui_reference_catalog" / "README.md"
+FIXTURE_ORIGIN_MAIN = "b" * 40
 
 
 def _pr_review_churn_receipt_exceeds_budget(
@@ -7073,15 +7074,31 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         _write_local_user_packet_fixture(packet_dir)
         _zip_local_user_packet_fixture(packet_dir, export_zip)
 
+        live_origin_main = review_bundle._git_output("rev-parse", "origin/main")
+        fixture_origin_main = (
+            FIXTURE_ORIGIN_MAIN if live_origin_main == "UNKNOWN" else live_origin_main
+        )
+        original_git_output = review_bundle._git_output
         identity_kwargs = {
-            "expected_branch": review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD"),
-            "expected_head": review_bundle._git_output("rev-parse", "HEAD"),
-            "expected_origin_main": review_bundle._git_output("rev-parse", "origin/main"),
+            "expected_branch": original_git_output("rev-parse", "--abbrev-ref", "HEAD"),
+            "expected_head": original_git_output("rev-parse", "HEAD"),
+            "expected_origin_main": fixture_origin_main,
         }
 
         def validate_packet(*args: object, **kwargs: object):
             kwargs.update(identity_kwargs)
-            return review_bundle.validate_local_user_packet(*args, **kwargs)
+            original = review_bundle._git_output
+            if live_origin_main == "UNKNOWN":
+                def fixture_git_output(*git_args: str) -> str:
+                    if git_args == ("rev-parse", "origin/main"):
+                        return fixture_origin_main
+                    return original(*git_args)
+
+                review_bundle._git_output = fixture_git_output
+            try:
+                return review_bundle.validate_local_user_packet(*args, **kwargs)
+            finally:
+                review_bundle._git_output = original
 
         result = validate_packet(
             packet_dir,
