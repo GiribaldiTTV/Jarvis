@@ -927,6 +927,12 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 def main() -> int:
     _assert_origin_main_fallback()
+    _assert_failure(
+        "unknown-origin-main-identity",
+        "requires explicit identity expectations",
+        lambda _packet: None,
+        expected_origin_main="UNKNOWN",
+    )
     _assert_stage1_primary_for_stage2_decision()
     _assert_misrouted_stage1_primary_runs_all_guards()
     _assert_stage1_zip_start_here_contract()

@@ -3087,7 +3087,7 @@ def validate_local_user_packet(
                 ("expected HEAD", expected_head),
                 ("expected origin/main", expected_origin_main),
             )
-            if not value
+            if not value or value.strip().upper() == "UNKNOWN"
         ]
         if missing_identity:
             failures.append(
