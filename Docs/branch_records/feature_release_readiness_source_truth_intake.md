@@ -550,7 +550,7 @@ Stale Active Branch Wording Scan: `PASS - current summary posture is PR Readines
 Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - pending Stage 1 and later PR decisions are intentionally current pre-merge posture, not post-merge release truth.`
 Merged-Unreleased Scope Posture: `NOT APPLICABLE - no PR or merge exists and release execution is not in scope.`
 Release Execution Gate: `PASS - release, tag, GitHub Release, and artifact publication remain blocked and were not performed.`
-Watcher / Live PR State Projection: `PASS - no PR exists; live GitHub PR state is not represented as repo canon.`
+Watcher / Live PR State Projection: `PASS - live PR and watcher facts are direct-verification operator evidence only; they are not projected into merged-main current-state truth.`
 Branch Cleanup Plan: `PASS - no cleanup, branch deletion, or worktree removal is authorized in this cycle.`
 FAM Overlap Routing: `PASS - no sibling FAM worktree was mutated; future adoption routes through each owning carrier.`
 Release Candidate Anchor Projection: `PASS - no release candidate is being assembled by this Governance repair.`
