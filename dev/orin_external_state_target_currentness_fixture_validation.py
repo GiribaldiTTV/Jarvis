@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -327,6 +329,22 @@ def main() -> int:
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
 
+        add_only_snapshot = _snapshot(root, target, "fixture-add-only")
+        add_only_expectations = _expectations(target)
+        add_only_before = target.read_bytes()
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=add_only_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=["Add Only Fixture Field=added"],
+            apply=False,
+            **add_only_expectations,
+        )
+        if not ok or audit is not None or target.read_bytes() != add_only_before:
+            raise AssertionError("add-only target writer dry run was rejected or mutated the target:\n" + "\n".join(messages))
+
         dry_run_head = "d" * 40
         dry_run_snapshot = _snapshot(root, target, "fixture-dry-run-head-transition")
         ok, messages, audit = reconciler.reconcile_target(
@@ -398,6 +416,27 @@ def main() -> int:
             {"Before": "## Historical Receipts", "After": "## Historical Receipt"}
         ]:
             raise AssertionError("target writer audit omitted the section rename")
+
+        target.write_text(
+            target.read_text(encoding="utf-8") + "\n## Rename Me\nfixture section\n",
+            encoding="utf-8",
+        )
+        rename_only_snapshot = _snapshot(root, target, "fixture-rename-only")
+        rename_only_expectations = _expectations(target)
+        rename_only_before = target.read_bytes()
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=rename_only_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=[],
+            section_renames=["Rename Me=Renamed"],
+            apply=False,
+            **rename_only_expectations,
+        )
+        if not ok or audit is not None or target.read_bytes() != rename_only_before:
+            raise AssertionError("rename-only target writer dry run was rejected or mutated the target:\n" + "\n".join(messages))
 
         historical_only_field = "Historical-Only Fixture Field"
         target.write_text(
@@ -648,6 +687,28 @@ def main() -> int:
         )
         if missing_lock_ok or not any("Required lock is missing" in item for item in missing_lock_messages):
             raise AssertionError("target writer did not reject a missing lock")
+
+        missing_root = root / "missing-external-state-root"
+        cli_result = subprocess.run(
+            [
+                sys.executable,
+                str(Path(validator.__file__).resolve()),
+                "--root",
+                str(missing_root),
+                "--target-currentness",
+                "--target",
+                TARGET,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if cli_result.returncode == 0 or "Clean Clone Boundary: BLOCKED" not in cli_result.stdout:
+            raise AssertionError(
+                "target-currentness CLI accepted a missing external-state root:\n"
+                + cli_result.stdout
+                + cli_result.stderr
+            )
 
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0

@@ -101,7 +101,11 @@ def _safe_relative_path(root: Path, raw: str, label: str) -> tuple[Path | None, 
     return candidate, failures
 
 
-def _parse_assignments(raw_assignments: list[str]) -> tuple[dict[str, str], list[str]]:
+def _parse_assignments(
+    raw_assignments: list[str],
+    *,
+    required: bool = True,
+) -> tuple[dict[str, str], list[str]]:
     values: dict[str, str] = {}
     failures: list[str] = []
     for raw in raw_assignments:
@@ -115,7 +119,7 @@ def _parse_assignments(raw_assignments: list[str]) -> tuple[dict[str, str], list
             failures.append(f"Duplicate --set-field assignment: {field}")
             continue
         values[field] = value
-    if not values:
+    if required and not values:
         failures.append("At least one --set-field assignment is required")
     return values, failures
 
@@ -418,9 +422,12 @@ def reconcile_target(
     if failures:
         return False, failures, None
 
-    updates, assignment_failures = _parse_assignments(assignments)
-    additions_map, addition_failures = _parse_assignments(additions) if additions else ({}, [])
     section_renames_map, section_rename_failures = _parse_section_renames(section_renames or [])
+    updates, assignment_failures = _parse_assignments(
+        assignments,
+        required=not additions and not section_renames_map,
+    )
+    additions_map, addition_failures = _parse_assignments(additions) if additions else ({}, [])
     if set(updates) & set(additions_map):
         assignment_failures.append("A field cannot be both --set-field and --add-field: " + ", ".join(sorted(set(updates) & set(additions_map))))
     failures.extend(assignment_failures)
