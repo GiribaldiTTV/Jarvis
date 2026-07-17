@@ -82,9 +82,9 @@ def build_parser() -> argparse.ArgumentParser:
 def _safe_relative_path(root: Path, raw: str, label: str) -> tuple[Path | None, list[str]]:
     failures: list[str] = []
     windows = PureWindowsPath(raw)
-    candidate = resolve_path(root / raw)
     normalized = raw.replace("\\", "/")
     parts = normalized.split("/")
+    candidate = resolve_path(root.joinpath(*parts))
     if (
         not raw
         or Path(raw).is_absolute()

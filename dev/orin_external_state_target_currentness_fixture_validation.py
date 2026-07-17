@@ -838,6 +838,25 @@ def main() -> int:
             if ok or not any("Snapshot path must remain relative" in item for item in alias_messages):
                 raise AssertionError(f"snapshot path alias was accepted ({alias}):\n" + "\n".join(alias_messages))
 
+        backslash_snapshot = _snapshot(root, target, "fixture-backslash-path")
+        backslash_snapshot_name = backslash_snapshot.relative_to(root).as_posix().replace("/", "\\")
+        backslash_expectations = _expectations(target)
+        ok, backslash_messages, _ = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=backslash_snapshot_name,
+            assignments=["Last Updated=2026-01-07T00:00:01Z"],
+            additions=[],
+            apply=False,
+            **backslash_expectations,
+        )
+        if not ok:
+            raise AssertionError(
+                "valid backslash-form snapshot path was rejected:\n"
+                + "\n".join(backslash_messages)
+            )
+
         rollback_lock_id = "worktree-fixture-rollback"
         atomic_write_json(
             root / "locks" / f"{rollback_lock_id}.json",
