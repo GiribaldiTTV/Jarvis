@@ -83,7 +83,6 @@ def _is_pr_readiness_stage2_packet(
     return (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve pr readiness stage 2" in normalized_decision
-        and stage1_outcome != PR_STAGE1_OUTCOME_READY
     )
 
 
@@ -859,6 +858,11 @@ def _primary_user_review_file(
         )
     ):
         return USER_BRANCH_PLAN_REVIEW_FILE
+    if (
+        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+        and re.search(r"\bpr readiness stage 2\b", normalized)
+    ):
+        return "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
     # A green Stage 1 packet normally carries the exact Stage 2 approval text
     # as its next USER decision. Keep the current-gate artifact primary rather
     # than letting the later-stage wording fall through to the BP2 selector.

@@ -294,16 +294,26 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
     if not bundle._is_pr_readiness_stage2_packet(
         source_branch=source_branch,
         normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
     ):
         raise AssertionError("The FAM-007 Stage 2 decision was not classified as Stage 2")
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "An actual FAM-007 Stage 2 decision after Stage 1 readiness was misclassified as Stage 1"
+        )
     primary = bundle._primary_user_review_file(
         decision,
+        source_branch=source_branch,
         stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
     )
-    if primary != bundle.PR_READINESS_STAGE1_REVIEW_FILE:
+    if primary != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md":
         raise AssertionError(
-            "A green Stage 1 packet carrying the Stage 2 approval text must keep "
-            f"{bundle.PR_READINESS_STAGE1_REVIEW_FILE} primary; found {primary!r}."
+            "An actual FAM-007 Stage 2 packet after Stage 1 readiness must keep "
+            f"WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md primary; found {primary!r}."
         )
     with tempfile.TemporaryDirectory(prefix="ndai-stage2-packet-") as temp_dir:
         target = Path(temp_dir) / "packet"
@@ -322,7 +332,7 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
             copied_count=0,
             exact_user_decision=decision,
             pending_user_decisions=["Merge remains pending USER approval."],
-            stage1_outcome=bundle.PR_STAGE1_OUTCOME_REPAIR,
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
         )
         generated_names = {path.name for path in generated}
         if bundle.PR_READINESS_STAGE1_REVIEW_FILE in generated_names:
@@ -332,45 +342,6 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         if "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" not in generated_names:
             raise AssertionError(
                 "Actual FAM-007 Stage 2 packet generation did not emit its Stage 2 digest"
-            )
-
-    if not bundle._is_pr_readiness_stage1_packet(
-        source_branch=source_branch,
-        normalized_decision=normalized_decision,
-        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
-    ):
-        raise AssertionError(
-            "A green Stage 1 packet carrying the Stage 2 next decision lost its Stage 1 classification"
-        )
-    with tempfile.TemporaryDirectory(prefix="ndai-stage1-support-context-") as temp_dir:
-        target = Path(temp_dir) / "Review Aids"
-        target.mkdir(parents=True)
-        support = bundle._write_user_branch_plan_review(
-            target=target,
-            title="Stage 1 Ready Support Context",
-            review_purpose="PR Readiness Stage 1 ready support context.",
-            source_branch=source_branch,
-            source_head="a" * 40,
-            upstream="origin/feature/fixture",
-            origin_main="b" * 40,
-            exact_user_decision=decision,
-            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
-            copied=[],
-            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
-        )
-        packet_files = {
-            "START_HERE.md": (
-                "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
-                "Decision Path Summary: pr readiness stage1 approval review - Stage 1 Ready For Stage 2.\n"
-            ),
-            "USER Review/PR_READINESS_STAGE1_REVIEW.md": "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n",
-            "Review Aids/USER_BRANCH_PLAN_REVIEW.md": support.read_text(encoding="utf-8"),
-        }
-        failures = bundle._pr_stage1_packet_coherence_failures(packet_files)
-        if failures:
-            raise AssertionError(
-                "Stage 1-ready BP2 support context retained active BP2 wording:\n"
-                + "\n".join(failures)
             )
 
     with tempfile.TemporaryDirectory(prefix="ndai-governance-stage1-support-context-") as temp_dir:
