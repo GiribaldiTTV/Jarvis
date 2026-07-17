@@ -11976,11 +11976,23 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
-    print(
-        "USER Review Packet Finding: PASS - START_HERE.md, "
-        f"{USER_BRANCH_VISION_REVIEW_FILE}, {USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
-        "validated against current source-truth snapshot."
+    primary_file = _primary_user_review_file(
+        args.exact_user_decision,
+        stage1_outcome=args.stage1_outcome,
     )
+    if primary_file == PR_READINESS_STAGE1_REVIEW_FILE:
+        print(
+            "USER Review Packet Finding: PASS - START_HERE.md, "
+            f"{PR_READINESS_STAGE1_REVIEW_FILE}, Stage 1-specific coverage/"
+            "contradiction aids, and the timestamped export zip were generated "
+            "and validated against the current source-truth snapshot."
+        )
+    else:
+        print(
+            "USER Review Packet Finding: PASS - START_HERE.md, "
+            f"{USER_BRANCH_VISION_REVIEW_FILE}, {USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
+            "validated against current source-truth snapshot."
+        )
     return 0
 
 
