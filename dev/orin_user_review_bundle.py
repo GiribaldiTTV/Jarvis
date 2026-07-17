@@ -72,6 +72,19 @@ def _is_dev_owner_live_validation_lv1_packet(
     )
 
 
+def _is_pr_readiness_stage2_packet(
+    *,
+    source_branch: str,
+    normalized_decision: str,
+) -> bool:
+    """Classify an actual Stage 2 approval before the Stage 1 fallback."""
+
+    return (
+        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+        and "approve pr readiness stage 2" in normalized_decision
+    )
+
+
 def _is_pr_readiness_stage1_packet(
     *,
     source_branch: str,
@@ -82,9 +95,10 @@ def _is_pr_readiness_stage1_packet(
 
     return (
         stage1_outcome in {PR_STAGE1_OUTCOME_READY, PR_STAGE1_OUTCOME_REPAIR}
-        and (
-            "pr readiness stage 1" in normalized_decision
-            or "pr readiness stage 2" in normalized_decision
+        and "pr readiness stage 1" in normalized_decision
+        and not _is_pr_readiness_stage2_packet(
+            source_branch=source_branch,
+            normalized_decision=normalized_decision,
         )
         and not _is_dev_owner_live_validation_lv1_packet(
             source_branch,
@@ -1272,10 +1286,15 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
     summary = _field_value(start_here, "Decision Path Summary")
     normalized_summary = re.sub(r"\s+", " ", summary).casefold()
     normalized_primary = re.sub(r"\s+", " ", primary).casefold()
-    if "pr readiness stage1 approval review" not in normalized_summary:
+    expected_summary_phrase = (
+        "pr readiness stage1 repair review"
+        if "pr readiness stage 1 repair required" in normalized_primary
+        else "pr readiness stage1 approval review"
+    )
+    if expected_summary_phrase not in normalized_summary:
         failures.append(
-            "START_HERE.md: Stage 1 packet Decision Path Summary must identify "
-            "PR Readiness Stage 1 / Stage 2 decision review"
+            "START_HERE.md: Stage 1 packet Decision Path Summary must identify the "
+            f"current Stage 1 posture ({expected_summary_phrase})"
         )
     if "stage 1 ready for stage 2" in normalized_primary:
         if "stage 1 ready for stage 2" not in normalized_summary:
@@ -9272,9 +9291,9 @@ def _write_workstream_entry_packet_digests(
         is_fam007_breakpoint_2
         and "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
     )
-    pr_stage2_packet = (
-        is_fam007_breakpoint_2
-        and "approve pr readiness stage 2" in exact_user_decision.casefold()
+    pr_stage2_packet = _is_pr_readiness_stage2_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
     )
     pr_stage1_packet = _is_pr_readiness_stage1_packet(
         source_branch=source_branch,
@@ -11459,9 +11478,9 @@ def build_bundle(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
     )
-    pr_stage2_packet = (
-        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
-        and "approve pr readiness stage 2" in exact_user_decision.casefold()
+    pr_stage2_packet = _is_pr_readiness_stage2_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
     )
     pr_stage1_packet = _is_pr_readiness_stage1_packet(
         source_branch=source_branch,

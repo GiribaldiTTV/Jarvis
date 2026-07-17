@@ -266,6 +266,21 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
         "/ feature/release-readiness-source-truth-intake."
     )
+    source_branch = "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+    normalized_decision = decision.casefold()
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "An actual FAM-007 Stage 2 decision was misclassified as Stage 1"
+        )
+    if not bundle._is_pr_readiness_stage2_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+    ):
+        raise AssertionError("The FAM-007 Stage 2 decision was not classified as Stage 2")
     primary = bundle._primary_user_review_file(
         decision,
         stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
@@ -275,6 +290,34 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
             "A green Stage 1 packet carrying the Stage 2 approval text must keep "
             f"{bundle.PR_READINESS_STAGE1_REVIEW_FILE} primary; found {primary!r}."
         )
+    with tempfile.TemporaryDirectory(prefix="ndai-stage2-packet-") as temp_dir:
+        target = Path(temp_dir) / "packet"
+        target.mkdir()
+        generated = bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch=source_branch,
+            source_head="a" * 40,
+            origin_main="b" * 40,
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260717-000000.zip",
+            copied=[],
+            extra_bundle_files=[],
+            bundle_file_count=0,
+            expected_count=0,
+            copied_count=0,
+            exact_user_decision=decision,
+            pending_user_decisions=["Merge remains pending USER approval."],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        generated_names = {path.name for path in generated}
+        if bundle.PR_READINESS_STAGE1_REVIEW_FILE in generated_names:
+            raise AssertionError(
+                "Actual FAM-007 Stage 2 packet generation emitted a Stage 1 primary artifact"
+            )
+        if "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" not in generated_names:
+            raise AssertionError(
+                "Actual FAM-007 Stage 2 packet generation did not emit its Stage 2 digest"
+            )
 
 
 def _assert_non_stage1_live_validation_packet_classification() -> None:
@@ -394,6 +437,21 @@ def _assert_stage1_coherence_guards() -> None:
     failures = bundle._pr_stage1_source_coverage_failures(false_coverage)
     if not any("absent files" in failure or "missing from coverage" in failure for failure in failures):
         raise AssertionError("false source coverage did not fail Stage 1 coverage validation")
+
+    repair = dict(coherent)
+    repair["START_HERE.md"] = (
+        "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+        "Decision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n"
+    )
+    repair["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        "## Stage 1 Outcome\nPR Readiness Stage 1 Repair Required\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(repair)
+    if failures:
+        raise AssertionError(
+            "repair-required Stage 1 packet was rejected as non-approval posture:\n"
+            + "\n".join(failures)
+        )
 
 
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
