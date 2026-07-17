@@ -983,6 +983,22 @@ def main() -> int:
         external_state_files=None,
     )
 
+    def _stale_binary_source_context(packet: Path) -> None:
+        copied_source = "Source Truth Context/dev__orin_user_review_bundle.py"
+        (packet / copied_source).write_bytes(b"# stale copied helper source\n")
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | "
+            f"`{copied_source}` |\n",
+            encoding="utf-8",
+        )
+
+    _assert_failure(
+        "stale-binary-source-context-copy",
+        "copied file does not match expected HEAD content",
+        _stale_binary_source_context,
+    )
+
     def _pr_stage1_missing_primary(packet: Path) -> None:
         (packet / "START_HERE.md").write_text(
             (packet / "START_HERE.md").read_text(encoding="utf-8").replace(

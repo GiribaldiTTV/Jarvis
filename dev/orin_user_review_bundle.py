@@ -1235,6 +1235,22 @@ def _zip_text_files(export_zip: Path) -> dict[str, str]:
     return packet_files
 
 
+def _packet_binary_files(packet_dir: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(packet_dir).as_posix(): path.read_bytes()
+        for path in sorted(_bundle_files(packet_dir))
+    }
+
+
+def _zip_binary_files(export_zip: Path) -> dict[str, bytes]:
+    with zipfile.ZipFile(export_zip) as archive:
+        return {
+            info.filename.replace("\\", "/"): archive.read(info)
+            for info in archive.infolist()
+            if not info.is_dir()
+        }
+
+
 def _primary_review_substantive_failures(
     packet_files: Mapping[str, str],
     primary_files: tuple[str, ...],
@@ -3053,11 +3069,14 @@ def validate_local_user_packet(
 
     folder_hashes = _folder_file_hashes(packet_dir)
     folder_entries = set(folder_hashes)
+    folder_binary_files = _packet_binary_files(packet_dir)
     zip_packet_files: dict[str, str] = {}
+    zip_binary_files: dict[str, bytes] = {}
     try:
         zip_hashes, duplicate_zip_entries = _zip_file_hashes(export_zip)
         zip_entries = set(zip_hashes)
         zip_packet_files = _zip_text_files(export_zip)
+        zip_binary_files = _zip_binary_files(export_zip)
     except zipfile.BadZipFile as exc:
         failures.append(f"Review export ZIP is not readable: {export_zip}: {exc}")
         zip_hashes = {}
@@ -3125,12 +3144,20 @@ def validate_local_user_packet(
         }
         failures.extend(
             f"Folder {identity_mode_label} identity: {failure}"
-            for failure in _packet_identity_failures(folder_packet_files, **identity_kwargs)
+            for failure in _packet_identity_failures(
+                folder_packet_files,
+                packet_binary_files=folder_binary_files,
+                **identity_kwargs,
+            )
         )
         if zip_packet_files:
             failures.extend(
                 f"ZIP {identity_mode_label} identity: {failure}"
-                for failure in _packet_identity_failures(zip_packet_files, **identity_kwargs)
+                for failure in _packet_identity_failures(
+                    zip_packet_files,
+                    packet_binary_files=zip_binary_files,
+                    **identity_kwargs,
+                )
             )
     failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
     generated_packet_files = {
@@ -3862,15 +3889,19 @@ def _start_here_file_mappings(start_here: str) -> dict[str, str]:
 
 
 def _git_file_text(ref: str, source_path: str) -> str | None:
+    data = _git_file_bytes(ref, source_path)
+    return data.decode("utf-8", errors="replace") if data is not None else None
+
+
+def _git_file_bytes(ref: str, source_path: str) -> bytes | None:
     try:
-        data = subprocess.check_output(
+        return subprocess.check_output(
             ["git", "show", f"{ref}:{source_path}"],
             cwd=ROOT,
             stderr=subprocess.DEVNULL,
         )
     except Exception:
         return None
-    return data.decode("utf-8", errors="replace")
 
 
 def _normalized_packet_text(text: str) -> str:
@@ -3880,6 +3911,7 @@ def _normalized_packet_text(text: str) -> str:
 def _packet_identity_failures(
     packet_files: Mapping[str, str],
     *,
+    packet_binary_files: Mapping[str, bytes] | None = None,
     expected_branch: str,
     expected_head: str,
     expected_origin_main: str,
@@ -3912,6 +3944,24 @@ def _packet_identity_failures(
         return failures
 
     for source_path, copied_path in file_mappings.items():
+        if (
+            packet_binary_files is not None
+            and copied_path in packet_binary_files
+            and PurePosixPath(copied_path).suffix.lower() not in {".md", ".txt", ".json"}
+        ):
+            expected_bytes = _git_file_bytes(expected_head, source_path)
+            if expected_bytes is None:
+                failures.append(
+                    "Packet identity: copied source path is not present at expected HEAD: "
+                    f"{source_path}"
+                )
+                continue
+            if packet_binary_files[copied_path] != expected_bytes:
+                failures.append(
+                    "Packet identity: copied file does not match expected HEAD content: "
+                    f"{copied_path} from {source_path}"
+                )
+            continue
         packet_text = packet_files.get(copied_path)
         if packet_text is None:
             continue
