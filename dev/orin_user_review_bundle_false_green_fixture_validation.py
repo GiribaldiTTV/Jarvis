@@ -373,6 +373,44 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
                 + "\n".join(failures)
             )
 
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-stage1-support-context-") as temp_dir:
+        target = Path(temp_dir) / "Review Aids"
+        target.mkdir(parents=True)
+        support = bundle._write_user_branch_plan_review(
+            target=target,
+            title="Governance Stage 1 Ready Support Context",
+            review_purpose="PR Readiness Stage 1 ready support context.",
+            source_branch="feature/release-readiness-source-truth-intake",
+            source_head="a" * 40,
+            upstream="origin/feature/release-readiness-source-truth-intake",
+            origin_main="b" * 40,
+            exact_user_decision=decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=[],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        support_text = support.read_text(encoding="utf-8").casefold()
+        for forbidden in (
+            "does user approve pr readiness stage 1 analysis",
+            "pending user response - bp2 gate remains open",
+            "accept the bp2 engineering plan as written",
+        ):
+            if forbidden in support_text:
+                raise AssertionError(
+                    "Governance Stage 1-ready support context retained stale gate wording: "
+                    + forbidden
+                )
+        for required in (
+            "context only",
+            "stage 1 is ready for the separate stage 2 user decision",
+            "stage 2 remains pending",
+        ):
+            if required not in support_text:
+                raise AssertionError(
+                    "Governance Stage 1-ready support context omitted required wording: "
+                    + required
+                )
+
 
 def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:
     decision = (

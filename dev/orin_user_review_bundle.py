@@ -5598,6 +5598,11 @@ def _write_user_branch_plan_review(
             and not dev_owner_live_validation_lv1_packet
         )
     )
+    stage1_ready_support_context = (
+        pr_readiness_stage1_packet
+        and stage1_outcome == PR_STAGE1_OUTCOME_READY
+        and not is_fam007_breakpoint_2
+    )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
         and any(
@@ -9162,8 +9167,129 @@ def _write_user_branch_plan_review(
             "| Backup/import execution | Pending USER approval. |",
             "| Provider/model/runtime/cache/memory behavior | Pending USER approval. |",
         ]
+    if stage1_ready_support_context:
+        contract_status = (
+            "Context Only - PR Readiness Stage 1 is ready for the separate Stage 2 USER "
+            "decision; this BP2-named file is supporting context, not a current gate."
+        )
+        contract_version = "v3 - Generated Stage 1-ready support context."
+        what_user_sees = (
+            "USER sees supporting context for the completed Stage 1 review, the remaining "
+            "Stage 2 PR-creation decision, and the still-pending merge, release, cleanup, "
+            "runtime, and private boundaries."
+        )
+        why_nexus = (
+            "This keeps the dedicated Stage 1 artifact authoritative while preserving useful "
+            "BP2 context without reopening or duplicating the Stage 1 USER gate."
+        )
+        design_ballot = [
+            "Review the Stage 1 support context and the separate Stage 2 decision artifact.",
+            "Request a repair to the Stage 1 packet or its support context.",
+            "Pause before Stage 2 PR creation.",
+            "Reject the proposed Stage 2 path and request a narrower closeout.",
+        ]
+        response_structure = [
+            "Stage 2 decision: approve, revise, pause, or reject.",
+            "Required changes to PR creation or review expectations, if any.",
+            "Must-have Stage 2 proof.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            "Stage 1 readiness result.",
+            "Stage 2 approval or concerns.",
+            "Implementation constraints created from USER response.",
+            "Next USER decision needed.",
+        ]
+        implementation_constraints = [
+            "PR Readiness Stage 1 is ready; this support file does not reopen Stage 1 or authorize Stage 2.",
+            "PR Readiness Stage 2 remains pending the separate primary USER decision.",
+            "Merge, release, cleanup, runtime, provider/model/cache/memory, private setup, and sibling mutation remain pending.",
+        ]
+        rejected_deferred = [
+            "Deferred: PR creation until the separate Stage 2 USER decision.",
+            "Deferred: merge, release, cleanup, runtime/private actions, and sibling-worktree mutation.",
+        ]
+        source_truth_impact = [
+            "The dedicated PR_READINESS_STAGE1_REVIEW.md remains the only Stage 1 decision surface.",
+            "This USER_BRANCH_PLAN_REVIEW.md file is supporting context only and must not claim BP2 acceptance.",
+            "Live technical freshness remains helper, validator, GitHub, or external-state evidence rather than USER-facing canon.",
+        ]
+        contract_change_log = [
+            "v3 - Stage 1-ready support context is rendered without reopening Stage 1 or presenting BP2 as the current gate.",
+        ]
+        completion_checklist = [
+            "The dedicated Stage 1 primary artifact remains the only current decision file.",
+            "This support context routes USER to the separate Stage 2 decision.",
+            "No stale Stage 1 approval request or BP2 acceptance request is emitted.",
+            "Merge, release, cleanup, runtime, private, and sibling boundaries remain explicit.",
+        ]
+        plain_english_summary = (
+            "This file is supporting context for a completed PR Readiness Stage 1 review. "
+            "It does not ask USER to accept Stage 1 again or accept BP2; it points to the "
+            "separate Stage 2 PR-creation decision."
+        )
+        end_state_vision = (
+            "The packet presents one authoritative Stage 1 decision surface, one supporting "
+            "context aid, and a clear separate Stage 2 decision without reopening earlier gates."
+        )
+        walkthrough = [
+            "Open the dedicated PR_READINESS_STAGE1_REVIEW.md primary artifact first.",
+            "Use this file only for supporting BP2/lifecycle context.",
+            "Review the separate Stage 2 PR-creation decision before any PR mutation.",
+        ]
+        implementation_options = [
+            "Approve Stage 2 through the dedicated primary decision artifact.",
+            "Revise the Stage 2 PR creation or review expectations.",
+            "Pause at Stage 1 Ready For Stage 2.",
+            "Reject and request a narrower closeout.",
+        ]
+        recommended_direction = (
+            "Keep the dedicated Stage 1 artifact authoritative and use this file only as "
+            "supporting context while Stage 2 remains pending USER approval."
+        )
+        current_scope = [
+            "Stage 1 analysis and bounded repair are complete and represented by the dedicated primary artifact.",
+            "This file preserves supporting lifecycle, source-truth, and proof context only.",
+        ]
+        future_scope = [
+            "Stage 2 PR creation and review remain pending the separate USER decision.",
+            "Merge, release, cleanup, runtime/private actions, and sibling mutation remain future-gated.",
+        ]
+        slc_package_plan = [
+            "No implementation seam is authorized by this supporting context file.",
+            "Stage 2 may proceed only from the dedicated primary decision artifact after USER approval.",
+        ]
+        accepted_user_response = (
+            "Stage 1-ready context is preserved; no new BP2 acceptance is recorded here."
+        )
+        user_response_text = None
+        codex_response_digest = (
+            "Stage 1 is ready for the separate Stage 2 USER decision. This support context "
+            "does not reopen Stage 1, accept BP2, authorize implementation, or authorize merge/release."
+        )
+        workstream_entry_result = (
+            "Status: Context Only - Workstream implementation is not requested by this support file."
+        )
+        user_decisions = [
+            "Does USER approve PR Readiness Stage 2 PR creation through the dedicated primary artifact?",
+            "Does USER require changes to PR body, review, or proof expectations before Stage 2?",
+            "Does USER confirm merge, release, cleanup, runtime/private, and sibling gates remain pending?",
+        ]
+
     normalized_contract_status = contract_status.casefold()
-    if normalized_contract_status.startswith("waived by user"):
+    if stage1_ready_support_context:
+        user_gate_state = (
+            "Context Only - Stage 1 is ready for the separate Stage 2 USER decision; "
+            "this support file is not a USER gate."
+        )
+        user_response_proof = (
+            "Context preserved - Stage 1 readiness is represented by the dedicated primary artifact."
+        )
+        user_response_digested = (
+            "Context only - no new BP2 acceptance or Stage 1 acceptance is recorded here."
+        )
+    elif normalized_contract_status.startswith("waived by user"):
         user_gate_state = "USER Waived - explicit USER waiver recorded for this BP2 gate."
         user_response_proof = "Waived by USER - BP2 gate has explicit USER waiver proof."
         user_response_digested = "Digested - waiver preserved as implementation constraint."
