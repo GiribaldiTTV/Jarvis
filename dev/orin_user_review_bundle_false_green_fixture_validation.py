@@ -277,6 +277,51 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
         )
 
 
+def _assert_non_stage1_live_validation_packet_classification() -> None:
+    decision = (
+        "I approve bounded PR Readiness Stage 1 analysis for the FAM-007 "
+        "Dev/Owner Skeleton Readiness package."
+    )
+    normalized_decision = decision.casefold()
+    source_branch = "feature/fam-007-dev-owner-skeleton-readiness"
+    if bundle._is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+    ):
+        raise AssertionError(
+            "FAM-007 Live Validation LV1 decision was misclassified as a Stage 1 packet"
+        )
+    if not bundle._is_dev_owner_live_validation_lv1_packet(
+        source_branch,
+        normalized_decision,
+    ):
+        raise AssertionError("FAM-007 Live Validation LV1 packet classification was not recognized")
+    with tempfile.TemporaryDirectory(prefix="ndai-non-stage1-packet-") as temp_dir:
+        target = Path(temp_dir) / "packet"
+        target.mkdir()
+        generated = bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch=source_branch,
+            source_head="a" * 40,
+            origin_main="b" * 40,
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260717-000000.zip",
+            copied=[],
+            extra_bundle_files=[],
+            bundle_file_count=0,
+            expected_count=0,
+            copied_count=0,
+            exact_user_decision=decision,
+            pending_user_decisions=["PR Readiness Stage 1 remains pending USER response."],
+            stage1_outcome=bundle.PR_STAGE1_OUTCOME_READY,
+        )
+        if bundle.PR_READINESS_STAGE1_REVIEW_FILE in {path.name for path in generated}:
+            raise AssertionError(
+                "Non-Stage-1 FAM-007 packet generation emitted Stage 1-only digest files"
+            )
+
+
 def _assert_current_stage1_terms_are_not_stale() -> None:
     packet_files = {
         "START_HERE.md": (
@@ -568,6 +613,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 def main() -> int:
     _assert_origin_main_fallback()
     _assert_stage1_primary_for_stage2_decision()
+    _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()
     _assert_stage1_coherence_guards()
     _assert_active_identity_arguments_required()

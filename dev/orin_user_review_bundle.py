@@ -60,6 +60,37 @@ PACKET_VALIDATION_MODES = (
     PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
     PACKET_VALIDATION_MODE_NEXT_GATE,
 )
+
+
+def _is_dev_owner_live_validation_lv1_packet(
+    source_branch: str,
+    normalized_decision: str,
+) -> bool:
+    return (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
+
+
+def _is_pr_readiness_stage1_packet(
+    *,
+    source_branch: str,
+    normalized_decision: str,
+    stage1_outcome: str | None,
+) -> bool:
+    """Classify Stage 1 packets without stealing later-gate packet flows."""
+
+    return (
+        stage1_outcome in {PR_STAGE1_OUTCOME_READY, PR_STAGE1_OUTCOME_REPAIR}
+        and (
+            "pr readiness stage 1" in normalized_decision
+            or "pr readiness stage 2" in normalized_decision
+        )
+        and not _is_dev_owner_live_validation_lv1_packet(
+            source_branch,
+            normalized_decision,
+        )
+    )
 LOCAL_USER_PACKET_ROOT_FILES = {"START_HERE.md"}
 LOCAL_USER_PACKET_REQUIRED_DIRS = (
     USER_REVIEW_DIR_NAME,
@@ -9202,13 +9233,12 @@ def _write_workstream_entry_packet_digests(
     stage1_outcome: str | None = None,
 ) -> list[Path]:
     normalized_decision = exact_user_decision.casefold()
-    if (
-        stage1_outcome in {PR_STAGE1_OUTCOME_READY, PR_STAGE1_OUTCOME_REPAIR}
-        and (
-            "pr readiness stage 1" in normalized_decision
-            or "pr readiness stage 2" in normalized_decision
-        )
-    ):
+    pr_stage1_packet = _is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=stage1_outcome,
+    )
+    if pr_stage1_packet:
         return _write_pr_readiness_stage1_packet_digests(
             target=target,
             stage1_outcome=stage1_outcome,
@@ -9246,8 +9276,10 @@ def _write_workstream_entry_packet_digests(
         is_fam007_breakpoint_2
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
-    pr_stage1_packet = (
-        "pr readiness stage 1 analysis" in normalized_decision
+    pr_stage1_packet = _is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=stage1_outcome,
     )
     workstream_package_approval_packet = (
         source_branch in FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES
@@ -9292,9 +9324,9 @@ def _write_workstream_entry_packet_digests(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded live validation lv1" in normalized_decision
     )
-    dev_owner_live_validation_lv1_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
-        and "approve bounded pr readiness stage 1" in normalized_decision
+    dev_owner_live_validation_lv1_packet = _is_dev_owner_live_validation_lv1_packet(
+        source_branch,
+        normalized_decision,
     )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
@@ -11415,9 +11447,9 @@ def build_bundle(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded live validation lv1" in normalized_decision
     )
-    dev_owner_live_validation_lv1_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
-        and "approve bounded pr readiness stage 1" in normalized_decision
+    dev_owner_live_validation_lv1_packet = _is_dev_owner_live_validation_lv1_packet(
+        source_branch,
+        normalized_decision,
     )
     hardening_h1_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
@@ -11431,13 +11463,10 @@ def build_bundle(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
-    pr_stage1_packet = (
-        stage1_outcome in {PR_STAGE1_OUTCOME_READY, PR_STAGE1_OUTCOME_REPAIR}
-        and (
-            "pr readiness stage 1" in normalized_decision
-            or "pr readiness stage 2" in normalized_decision
-        )
-        and not dev_owner_live_validation_lv1_packet
+    pr_stage1_packet = _is_pr_readiness_stage1_packet(
+        source_branch=source_branch,
+        normalized_decision=normalized_decision,
+        stage1_outcome=stage1_outcome,
     )
     bp3_packet = (
         source_branch
