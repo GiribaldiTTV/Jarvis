@@ -98,14 +98,53 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - root-cause pattern:
   Codex manually assembled or regenerated a packet without running the same deterministic cleanup and validation path as `dev/orin_user_review_bundle.py`, so folder readability, timestamped filename, or successful upload was mistaken for proof that stale same-label artifacts and wrong-stage surfaces were gone
 - fix pattern:
-  treat `C:\Nexus USER\<worktree-label>` as a clean-regenerated packet root, not an incremental folder. Before USER review or PR Readiness, prove root `START_HERE.md`, `USER Review` / `Review Aids` / `Source Truth Context` layout, exactly one current-gate primary file under `USER Review`, mandatory timestamped ZIP `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`, no legacy stable `C:\Nexus USER\<worktree-label>.zip`, no previous same-label timestamped ZIPs, ZIP-beside-folder placement, duplicate ZIP entry rejection, folder/ZIP file-list plus content-hash parity, unresolved-placeholder absence, stale-stage scan, and final packet proof reporting. If a packet was assembled outside the normal build path, run `dev/orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip>` before treating it as current.
+  treat `C:\Nexus USER\<worktree-label>` as a clean-regenerated packet root, not an incremental folder. Before USER review or PR Readiness, prove root `START_HERE.md`, `USER Review` / `Review Aids` / `Source Truth Context` layout, exactly one current-gate primary file under `USER Review`, mandatory timestamped ZIP `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`, no legacy stable `C:\Nexus USER\<worktree-label>.zip`, no previous same-label timestamped ZIPs, ZIP-beside-folder placement, duplicate ZIP entry rejection, folder/ZIP file-list plus content-hash parity, unresolved-placeholder absence, stale-stage scan, and final packet proof reporting. If a packet was assembled outside the normal build path, run `dev/orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip> --worktree-label <label> --packet-validation-mode active-review --expected-branch <branch> --expected-head <HEAD> --expected-origin-main <origin-main>` before treating it as current.
 - validation pattern:
-  run `python dev\orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip> --worktree-label <label>` for existing local packets, `python dev\orin_branch_readiness_planning_fixture_validation.py` for regression fixtures, and the normal governance-efficiency validation. Any stale same-label ZIP, stable-name ZIP, copied ZIP outside the packet folder parent, duplicate ZIP entry, layout drift, primary-file count drift, folder/ZIP file-list mismatch, or folder/ZIP content-hash mismatch blocks on `USER Review Packet Stale`.
+  run `python dev\orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip> --worktree-label <label> --packet-validation-mode active-review --expected-branch <branch> --expected-head <HEAD> --expected-origin-main <origin-main>` for existing current local packets. Active-review validation requires all three explicit identity values; do not omit them or treat a structural PASS as currentness proof. Run `python dev\orin_branch_readiness_planning_fixture_validation.py` for regression fixtures and the normal governance-efficiency validation. Any stale same-label ZIP, stable-name ZIP, copied ZIP outside the packet folder parent, duplicate ZIP entry, layout drift, primary-file count drift, folder/ZIP file-list mismatch, or folder/ZIP content-hash mismatch blocks on `USER Review Packet Stale`.
 - source references:
   - `Docs/governance_efficiency_operating_model.md`
   - `Docs/development_rules.md`
   - `Docs/validation_helper_registry.md`
   - `dev/orin_user_review_bundle.py`
+
+## Pattern: Active Packet Identity Can Be Masked By Structural PASS
+
+- symptom:
+  an existing USER packet passes folder layout, ZIP readability, substantive-content, or folder/ZIP parity checks while its active branch, HEAD, origin/main, or copied source context belongs to an older checkout
+- layer:
+  USER packet generation, active-review validation, accepted-historical evidence, and PR Readiness packet proof
+- root-cause pattern:
+  the validation-only path accepted identity as contextual text and did not require explicit expected branch/HEAD/baseline inputs, so structural PASS was mistaken for current active-review proof
+- fix pattern:
+  active-review validation fails closed without expected identity arguments and independently validates both folder and ZIP identity; accepted-historical mode preserves its recorded historical identity without requiring current Git equality
+- validation pattern:
+  run active-review positive, wrong-branch, wrong-HEAD, wrong-baseline, missing-argument, stale-folder, stale-ZIP, and folder/ZIP-disagreement fixtures, then run accepted-historical preservation fixtures
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+
+## Pattern: One External Root HEAD Cannot Prove Every Target Current
+
+- symptom:
+  a strict external-state validator reports many unrelated records as stale because it applies one expected source HEAD to multiple worktrees, or a target-scoped PASS is interpreted as proof that the complete external root is current
+- layer:
+  External Operational State Store, worktree/branch projections, root manifest, target reconciliation, and local governance validation
+- root-cause pattern:
+  the root manifest and global strict validator were used without a target-currentness contract that distinguishes live projections from historical receipts, names the selected target, and records per-target identity expectations
+- fix pattern:
+  preserve global modes, add target-scoped validation with one relative target, per-target branch/head/baseline/worktree/slot values, hash precondition, path security, TOCTOU detection, record-class checks, and explicit scoped-PASS output; reconcile records only through `dev/orin_external_state_target_reconcile.py`, then release locks through `dev/orin_external_state_lock_release.py`
+- validation pattern:
+  run valid, wrong-identity, stale-hash, missing/duplicate/alias, traversal/off-root, reparse/symlink, malformed, historical, multi-head, stale-manifest, TOCTOU, global-regression, and scoped-PASS fixture families
+- source references:
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_external_state_validation.py`
+  - `dev/orin_external_state_common.py`
+  - `dev/orin_external_state_target_reconcile.py`
+  - `dev/orin_external_state_lock_release.py`
 
 ## Pattern: Backend Runtime Truth Hidden Behind UI Green
 
@@ -851,3 +890,16 @@ Follow-up hardening: the executable durability gate must test packet, ledger, an
   - `Docs/phase_governance.md`
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
+## Incident Pattern: False-Green Transition And Current-Gate Misclassification
+
+When a target-scoped external-state writer validates a record, prepares a
+replacement, or reports a structurally valid packet without proving the final
+target bytes, recovery snapshot, alias agreement, changed-field audit, and
+current-gate artifact class, the result is a false green. The same pattern
+appears when a BP2 Branch Plan file is promoted as the primary PR Readiness
+Stage 1 decision surface. Prevention requires immediate pre-replacement hash
+and byte checks, a same-root snapshot containing the exact pre-write target,
+fail-closed path and alias handling, audit details for every added or replaced
+field, adversarial mutation fixtures, and a dedicated
+`PR_READINESS_STAGE1_REVIEW.md` primary packet artifact. ZIP parity or helper
+green alone does not clear this incident class.

@@ -63,6 +63,7 @@ def main() -> int:
         "State Version": 1,
         "Last Updated": utc_now(),
         "Last Updated By": args.created_by,
+        "Root": str(root.resolve()),
         "Worktree": args.worktree,
         "Branch": args.branch,
         "Source Repo HEAD": "not captured by snapshot scaffold",
