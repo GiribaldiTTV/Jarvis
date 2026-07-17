@@ -292,6 +292,38 @@ def main() -> int:
         finally:
             validator.sha256_file = original_hash
 
+        expected_values = _expectations(target)
+        original_read_bytes = Path.read_bytes
+        original_bytes = original_read_bytes(target)
+        tampered_bytes = original_bytes.replace(
+            b"Source Repo HEAD:",
+            b"Source Repo HEAD: tampered\nSource Repo HEAD:",
+            1,
+        )
+        validator_read_calls = 0
+
+        def changing_bytes(path: Path) -> bytes:
+            nonlocal validator_read_calls
+            if path == target:
+                validator_read_calls += 1
+                return tampered_bytes
+            return original_read_bytes(path)
+
+        Path.read_bytes = changing_bytes
+        try:
+            byte_race_messages = validator.validate_target_currentness(
+                root,
+                [TARGET],
+                **expected_values,
+            )
+        finally:
+            Path.read_bytes = original_read_bytes
+        if not any("changed during validation" in item for item in byte_race_messages):
+            raise AssertionError(
+                "target bytes changed between hash and parse without a TOCTOU failure:\n"
+                + "\n".join(byte_race_messages)
+            )
+
     with tempfile.TemporaryDirectory(prefix="ndai-target-writer-") as temp_dir:
         root = Path(temp_dir)
         _manifest(root)

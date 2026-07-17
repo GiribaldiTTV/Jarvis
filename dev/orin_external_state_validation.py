@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 from pathlib import Path
 import stat
@@ -295,13 +296,14 @@ def validate_target_currentness(
     try:
         before_hash = sha256_file(target_path)
         target_bytes = target_path.read_bytes()
+        target_bytes_hash = hashlib.sha256(target_bytes).hexdigest()
         text = target_bytes.decode("utf-8")
         after_hash = sha256_file(target_path)
     except (OSError, UnicodeDecodeError) as exc:
         failures.append(f"Target Currentness: selected target is malformed or unreadable: {relative}: {exc}")
         return failures
 
-    if before_hash != after_hash:
+    if before_hash != after_hash or target_bytes_hash != before_hash or target_bytes_hash != after_hash:
         failures.append(f"Target Currentness: selected target changed during validation (TOCTOU): {relative}")
     if before_hash.casefold() != (expected_target_sha256 or "").casefold():
         failures.append(
