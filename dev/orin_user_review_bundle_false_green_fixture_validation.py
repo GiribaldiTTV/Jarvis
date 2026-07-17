@@ -273,8 +273,9 @@ def _assert_current_stage1_terms_are_not_stale() -> None:
             "PR Readiness Stage 1 analysis is complete.\n"
             "Stage 1 Ready For Stage 2\n"
         ),
-        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
-            "Option A - Approve PR Readiness Stage 1 analysis as recommended.\n"
+        "Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md": (
+            "Current Gate: PR Readiness Stage 1\n"
+            "Stage 1 is complete; Stage 2 remains pending separate USER approval.\n"
         ),
     }
     failures = bundle._active_review_aid_false_green_failures(packet_files)
@@ -283,6 +284,57 @@ def _assert_current_stage1_terms_are_not_stale() -> None:
             "Current Stage 1 packet wording was incorrectly classified as stale:\n"
             + "\n".join(failures)
         )
+
+
+def _assert_stage1_coherence_guards() -> None:
+    coherent = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+            "Decision Path Summary: pr readiness stage1 approval review - Stage 1 Ready For Stage 2.\n"
+        ),
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md": (
+            "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md": (
+            "Current Gate: PR Readiness Stage 1\nStage 2 remains pending.\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md": (
+            "`Source Truth Context/Docs__Main.md`\nCopied Source Count: `1`\n"
+        ),
+        "Review Aids/PR_READINESS_STAGE1_CONTRADICTION_CHECKLIST.md": (
+            "PASS: no active Workstream Entry decision path is emitted.\n"
+        ),
+        "Source Truth Context/Docs__Main.md": "# Main\n",
+    }
+    failures = bundle._pr_stage1_packet_coherence_failures(coherent)
+    failures.extend(bundle._pr_stage1_source_coverage_failures(coherent))
+    if failures:
+        raise AssertionError("coherent Stage 1 packet failed:\n" + "\n".join(failures))
+
+    workstream = dict(coherent)
+    workstream["START_HERE.md"] = (
+        "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+        "Decision Path Summary: workstream entry final decision review.\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(workstream)
+    if not any("Decision Path Summary" in failure for failure in failures):
+        raise AssertionError("Workstream summary did not fail Stage 1 coherence validation")
+
+    pending_bp = dict(coherent)
+    pending_bp["Review Aids/PR_READINESS_STAGE1_COVERAGE_DIGEST.md"] = (
+        "BP2 USER Branch Plan Review remains pending USER acceptance.\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(pending_bp)
+    if not any("BP gate" in failure for failure in failures):
+        raise AssertionError("active BP pending language did not fail Stage 1 coherence validation")
+
+    false_coverage = dict(coherent)
+    false_coverage["Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md"] = (
+        "`Source Truth Context/feature_backlog.md`\nCopied Source Count: `1`\n"
+    )
+    failures = bundle._pr_stage1_source_coverage_failures(false_coverage)
+    if not any("absent files" in failure or "missing from coverage" in failure for failure in failures):
+        raise AssertionError("false source coverage did not fail Stage 1 coverage validation")
 
 
 def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
@@ -502,6 +554,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 def main() -> int:
     _assert_stage1_primary_for_stage2_decision()
     _assert_current_stage1_terms_are_not_stale()
+    _assert_stage1_coherence_guards()
     _assert_active_identity_arguments_required()
     _assert_failure(
         "active-review-wrong-branch",
