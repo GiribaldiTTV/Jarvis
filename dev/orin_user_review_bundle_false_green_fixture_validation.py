@@ -862,6 +862,28 @@ def main() -> int:
             + "\nDecision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n",
             encoding="utf-8",
         )
+        support_decision = "I approve bounded PR Readiness Stage 1 analysis for the Governance repair."
+        support_sources = [("Docs/Main.md", "Source Truth Context/Docs__Main.md")]
+        bundle._write_user_branch_vision_review(
+            target=packet / "Review Aids",
+            title="False-Green Fixture",
+            review_purpose="PR Readiness Stage 1 repair review context.",
+            exact_user_decision=support_decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=support_sources,
+        )
+        bundle._write_user_branch_plan_review(
+            target=packet / "Review Aids",
+            title="False-Green Fixture",
+            review_purpose="PR Readiness Stage 1 repair review context.",
+            source_branch=_current_branch(),
+            source_head=_current_head(),
+            upstream="origin/feature/fixture",
+            origin_main=_current_origin_main(),
+            exact_user_decision=support_decision,
+            pending_user_decisions=["PR Readiness Stage 2 remains pending USER approval."],
+            copied=support_sources,
+        )
         new_primary.write_text(
             "\n".join(
                 [
@@ -921,6 +943,16 @@ def main() -> int:
         _pr_stage1_primary,
         validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
         external_state_files=None,
+    )
+
+    def _missing_stage1_support(packet: Path) -> None:
+        _pr_stage1_primary(packet)
+        (packet / "Review Aids" / bundle.USER_BRANCH_PLAN_REVIEW_FILE).unlink()
+
+    _assert_failure(
+        "pr-stage1-supporting-context-missing",
+        "Stage 1 supporting planning context is missing",
+        _missing_stage1_support,
     )
 
     def _legitimate_source_context_shell_tokens(packet: Path) -> None:

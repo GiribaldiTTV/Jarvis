@@ -192,6 +192,8 @@ WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
 
 PR_READINESS_STAGE1_PACKET_REQUIRED_FILES: tuple[str, ...] = (
     "START_HERE.md",
+    USER_BRANCH_VISION_REVIEW_FILE,
+    USER_BRANCH_PLAN_REVIEW_FILE,
     "PR_READINESS_STAGE1_COVERAGE_DIGEST.md",
     "PR_READINESS_STAGE1_SOURCE_COVERAGE.md",
     "PR_READINESS_STAGE1_CONTRADICTION_CHECKLIST.md",
@@ -1036,6 +1038,14 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip is missing {PR_READINESS_STAGE1_REVIEW_FILE}: {export_zip}"
             )
+        for support_file in (
+            f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
+            f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
+        ):
+            if support_file not in packet_files or not packet_files[support_file].strip():
+                raise ValueError(
+                    f"Review export zip is missing Stage 1 supporting planning context: {support_file}"
+                )
     else:
         user_vision = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
         if not user_vision:
@@ -1293,6 +1303,14 @@ def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
     ):
         if heading not in text:
             failures.append(f"{display_name}: PR Stage 1 artifact is missing {heading}")
+    for support_file in (
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
+    ):
+        if not packet_files.get(support_file, "").strip():
+            failures.append(
+                f"{support_file}: Stage 1 supporting planning context is missing"
+            )
     normalized = text.casefold()
     if "pr readiness stage 1 repair required" not in normalized and "stage 1 ready for stage 2" not in normalized:
         failures.append(
@@ -1464,6 +1482,14 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
         start_here,
         re.IGNORECASE | re.DOTALL,
     )
+    stage1_repair_primary = bool(
+        primary_name == PR_READINESS_STAGE1_REVIEW_FILE
+        and re.search(
+            r"PR\s+Readiness\s+Stage\s+1\s+Repair\s+Required",
+            _packet_file_text(packet_files, PR_READINESS_STAGE1_REVIEW_FILE),
+            re.IGNORECASE,
+        )
+    )
     stage1_pending_posture = bool(
         stage1_pending_marker
         and stage1_blocked_transition
@@ -1472,7 +1498,7 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
             start_here,
             re.IGNORECASE,
         )
-    )
+    ) or stage1_repair_primary
     stage1_current_posture = stage1_pending_posture or bool(
         primary_name == PR_READINESS_STAGE1_REVIEW_FILE
         and re.search(
@@ -1487,6 +1513,8 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
         f"{REVIEW_AIDS_DIR_NAME}/PR_READINESS_STAGE1_COVERAGE_DIGEST.md",
         f"{REVIEW_AIDS_DIR_NAME}/PR_READINESS_STAGE1_SOURCE_COVERAGE.md",
         f"{REVIEW_AIDS_DIR_NAME}/PR_READINESS_STAGE1_CONTRADICTION_CHECKLIST.md",
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
+        f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
     }
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
@@ -1526,6 +1554,8 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
                 "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
             ):
                 if stale_primary == primary_name:
+                    continue
+                if normalized == f"{REVIEW_AIDS_DIR_NAME}/{stale_primary}":
                     continue
                 if re.search(
                     rf"{re.escape(stale_primary)}[^\n]{{0,80}}\b(?:primary|active|decision)\b|"
@@ -11661,27 +11691,26 @@ def build_bundle(
     )
     user_vision_file: Path | None = None
     user_review_file: Path | None = None
-    if not pr_stage1_packet:
-        user_vision_file = _write_user_branch_vision_review(
-            target=review_aids_dir,
-            title=title,
-            review_purpose=review_purpose,
-            exact_user_decision=user_facing_decision,
-            pending_user_decisions=pending_user_decisions,
-            copied=copied,
-        )
-        user_review_file = _write_user_branch_plan_review(
-            target=review_aids_dir,
-            title=title,
-            review_purpose=review_purpose,
-            source_branch=source_branch,
-            source_head=source_head,
-            upstream=upstream,
-            origin_main=origin_main,
-            exact_user_decision=user_facing_decision,
-            pending_user_decisions=pending_user_decisions,
-            copied=copied,
-        )
+    user_vision_file = _write_user_branch_vision_review(
+        target=review_aids_dir,
+        title=title,
+        review_purpose=review_purpose,
+        exact_user_decision=user_facing_decision,
+        pending_user_decisions=pending_user_decisions,
+        copied=copied,
+    )
+    user_review_file = _write_user_branch_plan_review(
+        target=review_aids_dir,
+        title=title,
+        review_purpose=review_purpose,
+        source_branch=source_branch,
+        source_head=source_head,
+        upstream=upstream,
+        origin_main=origin_main,
+        exact_user_decision=user_facing_decision,
+        pending_user_decisions=pending_user_decisions,
+        copied=copied,
+    )
     pr_stage1_review_file = None
     if primary_user_review_file_name == PR_READINESS_STAGE1_REVIEW_FILE:
         pr_stage1_review_file = _write_pr_readiness_stage1_review(

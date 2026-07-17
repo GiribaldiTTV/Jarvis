@@ -25,6 +25,7 @@ from orin_external_state_common import (
     validate_initialized_root,
 )
 from orin_external_state_validation import (
+    _has_reparse_point,
     _resolve_target_path,
     validate_target_currentness,
 )
@@ -178,6 +179,10 @@ def _lock_failures(
         payload = load_json(lock_path)
     except Exception as exc:  # noqa: BLE001 - corrupt operational state is a blocking result
         return None, [f"Required lock is unreadable: {lock_path}: {exc}"]
+    if payload.get("Lock ID") != lock_id:
+        failures.append(
+            f"Lock payload ID mismatch: expected {lock_id!r}, found {payload.get('Lock ID')!r}"
+        )
     if payload.get("Lock State") != "Locked":
         failures.append(f"Required lock is not held: {lock_path}")
     if payload.get("Branch") != expected_branch:
@@ -321,7 +326,12 @@ def _snapshot_failures(
     if manifest_path.stat().st_mtime_ns > transition_started_ns:
         failures.append("Transition Snapshot Contract: snapshot was created after the transition began")
     snapshot_target = snapshot_path / Path(*relative.split("/"))
-    if not snapshot_target.is_file():
+    if _has_reparse_point(snapshot_target):
+        failures.append(
+            "Transition Snapshot Contract: snapshot target must be an independent regular file; "
+            f"reparse/symlink target is forbidden: {relative}"
+        )
+    elif not snapshot_target.is_file():
         failures.append(f"Transition Snapshot Contract: snapshot does not contain target: {relative}")
     else:
         snapshot_hash = sha256_file(snapshot_target)

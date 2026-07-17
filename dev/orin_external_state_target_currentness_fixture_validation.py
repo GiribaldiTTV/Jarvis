@@ -329,6 +329,31 @@ def main() -> int:
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
 
+        mismatched_lock_id = "worktree-fixture-mismatched-payload"
+        atomic_write_json(
+            root / "locks" / f"{mismatched_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": "different-lock-id",
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        mismatch_ok, mismatch_messages, _ = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=mismatched_lock_id,
+            snapshot="snapshots/fixture-snapshot",
+            assignments=["Last Updated=2026-01-02T00:00:01Z"],
+            additions=[],
+            apply=False,
+            **expectations,
+        )
+        if mismatch_ok or not any("Lock payload ID mismatch" in item for item in mismatch_messages):
+            raise AssertionError("target writer accepted a mismatched lock payload ID:\n" + "\n".join(mismatch_messages))
+
         label_lock_id = "worktree-fixture-label-lock"
         atomic_write_json(
             root / "locks" / f"{label_lock_id}.json",
@@ -581,6 +606,26 @@ def main() -> int:
         if ok or not any("snapshot was created after the transition began" in item for item in future_messages):
             raise AssertionError("future snapshot was accepted:\n" + "\n".join(future_messages))
 
+        reparse_snapshot = _snapshot(root, target, "fixture-reparse-snapshot")
+        reparse_target = _target_path(reparse_snapshot)
+        original_reparse_hook = reconciler._has_reparse_point
+        reconciler._has_reparse_point = lambda path: path == reparse_target
+        try:
+            ok, reparse_messages, _ = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot=reparse_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-06T00:00:01Z"],
+                additions=[],
+                apply=False,
+                **_expectations(target),
+            )
+        finally:
+            reconciler._has_reparse_point = original_reparse_hook
+        if ok or not any("reparse/symlink target is forbidden" in item for item in reparse_messages):
+            raise AssertionError("reparse/symlink snapshot target was accepted:\n" + "\n".join(reparse_messages))
+
         valid_alias_snapshot = _snapshot(root, target, "fixture-snapshot-alias")
         for alias in ("snapshots//fixture-snapshot-alias", "snapshots\\fixture-snapshot-alias\\"):
             alias_expectations = _expectations(target)
@@ -631,6 +676,24 @@ def main() -> int:
         )
         if not released or json.loads((root / "locks" / f"{lock_id}.json").read_text(encoding="utf-8"))["Lock State"] != "Released":
             raise AssertionError("lock release fixture failed:\n" + "\n".join(release_messages))
+
+        release_mismatch_id = "worktree-fixture-release-mismatched-payload"
+        atomic_write_json(
+            root / "locks" / f"{release_mismatch_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": "different-release-lock-id",
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        released, release_messages = lock_release.release_lock(
+            root, release_mismatch_id, "fixture mismatched payload", apply=False
+        )
+        if released or not any("Lock payload ID mismatch" in item for item in release_messages):
+            raise AssertionError("lock release accepted a mismatched payload ID:\n" + "\n".join(release_messages))
 
         transition_lock_id = "worktree-fixture-head-transition"
         atomic_write_json(

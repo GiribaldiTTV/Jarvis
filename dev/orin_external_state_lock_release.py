@@ -41,6 +41,10 @@ def release_lock(root: Path, lock_id: str, reason: str, apply: bool) -> tuple[bo
         payload = load_json(lock_path)
     except Exception as exc:  # noqa: BLE001 - corrupt operational state blocks release
         return False, [f"Lock is unreadable: {lock_path}: {exc}"]
+    if payload.get("Lock ID") != lock_id:
+        return False, [
+            f"Lock payload ID mismatch: expected {lock_id!r}, found {payload.get('Lock ID')!r}"
+        ]
     if payload.get("Lock State") not in {"Locked", "Expired"}:
         return False, [f"Lock is already released or invalid: {lock_path}"]
     payload["Lock State"] = "Released"
