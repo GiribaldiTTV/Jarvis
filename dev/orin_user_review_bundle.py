@@ -11503,6 +11503,7 @@ def _packet_text_status(text: str) -> str:
 
     pr_stage1_review_markers = (
         "pr readiness stage1 approval review",
+        "pr readiness stage1 repair review",
         "pr readiness stage 1 analysis remains pending user approval",
         "pr readiness stage 1 analysis approval",
     )

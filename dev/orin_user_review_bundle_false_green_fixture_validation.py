@@ -437,6 +437,19 @@ def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:
         )
 
 
+def _assert_stage1_repair_status_is_machine_readable() -> None:
+    text = (
+        "Decision Path Summary: pr readiness stage1 repair review - Stage 1 remains held.\n"
+        "PR Readiness Stage 2 is not supported."
+    )
+    status = bundle._packet_text_status(text)
+    if status != bundle.DECISION_STATUS_PR_READINESS_STAGE1_REVIEW:
+        raise AssertionError(
+            "generator-emitted Stage 1 repair status was not classified as the Stage 1 review status: "
+            + status
+        )
+
+
 def _assert_non_stage1_live_validation_packet_classification() -> None:
     decision = (
         "I approve bounded PR Readiness Stage 1 analysis for the FAM-007 "
@@ -991,6 +1004,7 @@ def main() -> int:
     _assert_stage1_zip_start_here_contract()
     _assert_stale_primary_aid_is_not_skipped()
     _assert_non_fam007_stage2_wording_requires_ready_stage1()
+    _assert_stage1_repair_status_is_machine_readable()
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()
     _assert_stage1_coherence_guards()
