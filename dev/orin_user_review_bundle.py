@@ -1299,18 +1299,52 @@ def _primary_review_substantive_failures(
     return failures
 
 
+def _is_pr_stage1_packet_posture(packet_files: Mapping[str, str]) -> bool:
+    """Detect Stage 1 from the current-gate route, not only the primary file."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    primary_marker = f"{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}"
+    if primary_marker in start_here:
+        return True
+    current_gate = re.sub(
+        r"\s+",
+        " ",
+        _field_value(start_here, "Current Gate"),
+    ).casefold()
+    decision_path = re.sub(
+        r"\s+",
+        " ",
+        _field_value(start_here, "Decision Path Summary"),
+    ).casefold()
+    current_gate_is_stage1 = bool(
+        re.search(r"\bpr readiness stage\s*1\b", current_gate)
+        or re.search(r"\bstage\s*1 ready for stage\s*2\b", current_gate)
+    )
+    decision_path_is_stage1 = bool(
+        re.search(r"\bpr readiness stage\s*1\b", decision_path)
+        and re.search(r"\b(?:approval|repair) review\b", decision_path)
+    )
+    return current_gate_is_stage1 or decision_path_is_stage1
+
+
 def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
     """Validate the dedicated PR Readiness Stage 1 current-gate artifact."""
 
     start_here = packet_files.get("START_HERE.md", "")
     primary_marker = f"{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}"
-    if primary_marker not in start_here:
+    if not _is_pr_stage1_packet_posture(packet_files):
         return []
+    failures: list[str] = []
+    if primary_marker not in start_here:
+        failures.append(
+            "START_HERE.md: PR Stage 1 packet must identify "
+            f"{primary_marker} as the primary USER review file"
+        )
     text = _packet_file_text(packet_files, PR_READINESS_STAGE1_REVIEW_FILE)
     display_name = _packet_file_path(packet_files, PR_READINESS_STAGE1_REVIEW_FILE)
     if not text:
-        return [f"{display_name}: PR Readiness Stage 1 primary artifact is missing"]
-    failures: list[str] = []
+        failures.append(f"{display_name}: PR Readiness Stage 1 primary artifact is missing")
+        return failures
     for heading in (
         "## Review Status",
         "## Contract Status",
@@ -1354,10 +1388,17 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
 
     start_here = packet_files.get("START_HERE.md", "")
     primary_marker = f"{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}"
-    if primary_marker not in start_here:
+    if not _is_pr_stage1_packet_posture(packet_files):
         return []
     failures: list[str] = []
+    if primary_marker not in start_here:
+        failures.append(
+            "PR Stage 1 packet: START_HERE.md identifies a different primary "
+            f"USER review file; expected {primary_marker}"
+        )
     primary = _packet_file_text(packet_files, PR_READINESS_STAGE1_REVIEW_FILE)
+    if not primary:
+        return failures
     summary = _field_value(start_here, "Decision Path Summary")
     normalized_summary = re.sub(r"\s+", " ", summary).casefold()
     normalized_primary = re.sub(r"\s+", " ", primary).casefold()
@@ -1447,9 +1488,7 @@ def _pr_stage1_source_coverage_failures(
 ) -> list[str]:
     """Ensure the Stage 1 source-coverage aid matches the copied file set."""
 
-    start_here = packet_files.get("START_HERE.md", "")
-    primary_marker = f"{USER_REVIEW_DIR_NAME}/{PR_READINESS_STAGE1_REVIEW_FILE}"
-    if primary_marker not in start_here:
+    if not _is_pr_stage1_packet_posture(packet_files):
         return []
     failures: list[str] = []
     coverage_name = f"{REVIEW_AIDS_DIR_NAME}/PR_READINESS_STAGE1_SOURCE_COVERAGE.md"

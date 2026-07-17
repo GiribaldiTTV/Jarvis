@@ -590,6 +590,48 @@ def _assert_stage1_coherence_guards() -> None:
         )
 
 
+def _assert_misrouted_stage1_primary_runs_all_guards() -> None:
+    packet_files = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/USER_BRANCH_PLAN_REVIEW.md\n"
+            "Current Gate: PR Readiness Stage 1\n"
+            "Decision Path Summary: pr readiness stage1 approval review - Stage 1 remains held.\n"
+        ),
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "BP2 planning context is not the current PR Readiness Stage 1 decision surface.\n"
+        ),
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md": (
+            "Supporting BP1 context only.\n"
+        ),
+        "Source Truth Context/Docs__Main.md": "# Main\n",
+        "Review Aids/PR_READINESS_STAGE1_SOURCE_COVERAGE.md": (
+            "Copied Source Count: `0`\n"
+        ),
+    }
+    review_failures = bundle._pr_stage1_review_failures(packet_files)
+    coherence_failures = bundle._pr_stage1_packet_coherence_failures(packet_files)
+    coverage_failures = bundle._pr_stage1_source_coverage_failures(
+        packet_files,
+        packet_entries=set(packet_files),
+    )
+    failures = review_failures + coherence_failures + coverage_failures
+    if not any("PR Stage 1 packet must identify" in failure for failure in failures):
+        raise AssertionError(
+            "misrouted Stage 1 primary did not fail primary routing:\n"
+            + "\n".join(failures)
+        )
+    if not any("PR Readiness Stage 1 primary artifact is missing" in failure for failure in failures):
+        raise AssertionError(
+            "misrouted Stage 1 primary skipped the dedicated artifact guard:\n"
+            + "\n".join(failures)
+        )
+    if not any("copied source files missing from coverage list" in failure for failure in failures):
+        raise AssertionError(
+            "misrouted Stage 1 primary skipped source coverage validation:\n"
+            + "\n".join(failures)
+        )
+
+
 def _assert_local_stage1_validation_replays_stage1_checks() -> None:
     def stale_stage1_packet(packet: Path) -> None:
         (packet / "USER Review" / "FALSE_GREEN_FIXTURE_REVIEW.md").unlink()
@@ -845,6 +887,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 def main() -> int:
     _assert_origin_main_fallback()
     _assert_stage1_primary_for_stage2_decision()
+    _assert_misrouted_stage1_primary_runs_all_guards()
     _assert_non_fam007_stage2_wording_requires_ready_stage1()
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()
