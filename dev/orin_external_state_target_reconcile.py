@@ -99,6 +99,14 @@ def _safe_relative_path(root: Path, raw: str, label: str) -> tuple[Path | None, 
     ):
         failures.append(f"{label} must remain relative and confined to the external root: {raw!r}")
         return None, failures
+    cursor = root.resolve(strict=False)
+    for part in parts:
+        cursor = cursor / part
+        if _has_reparse_point(cursor):
+            failures.append(
+                f"{label} must not traverse a reparse/symlink component: {raw!r}"
+            )
+            return None, failures
     return candidate, failures
 
 
