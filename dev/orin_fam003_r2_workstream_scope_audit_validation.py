@@ -464,6 +464,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Packet-specific classifier probes and active-review folder/ZIP validation.",
         "supersession": "Extends the R2 completion scope-audit packet guard without weakening other packet classes.",
     },
+    "Harden FAM-003 R2 packet identity validation": {
+        "reason": "Repaired the duplicate active external-state snapshot false-green path and made the Workstream scope audit merge-aware after rebaseline.",
+        "traceability": "R2 Workstream completion packet identity reconciliation / SLC-R2-010 packet traceability repair.",
+        "coherent": "YES - packet validator, scope-audit helper, and negative fixtures only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Scope-audit self-test, old-packet negative validation, packet active-review validation, and final parity.",
+        "supersession": "Supersedes the stale duplicate External Operational State snapshot shape in the 20260716-112604 packet.",
+    },
 }
 
 
