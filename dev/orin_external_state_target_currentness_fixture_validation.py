@@ -329,6 +329,33 @@ def main() -> int:
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
 
+        label_lock_id = "worktree-fixture-label-lock"
+        atomic_write_json(
+            root / "locks" / f"{label_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": label_lock_id,
+                "Lock State": "Locked",
+                "Worktree": "Governance",
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        label_snapshot = _snapshot(root, target, "fixture-label-lock")
+        label_expectations = _expectations(target)
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=label_lock_id,
+            snapshot=label_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-02T00:00:00Z"],
+            additions=[],
+            apply=False,
+            **label_expectations,
+        )
+        if not ok or audit is not None or target.read_bytes() != before:
+            raise AssertionError("label-style worktree lock was rejected or mutated the target:\n" + "\n".join(messages))
+
         add_only_snapshot = _snapshot(root, target, "fixture-add-only")
         add_only_expectations = _expectations(target)
         add_only_before = target.read_bytes()

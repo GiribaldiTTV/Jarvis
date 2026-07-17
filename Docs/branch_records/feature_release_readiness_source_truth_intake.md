@@ -271,13 +271,13 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 1 - integrated Defect A/B repair readiness analysis`
+Active seam: `PR Readiness Stage 2 - direct PR verification and Codex review approval latch`
 
-Seam Goal: `Evaluate the completed Defect A active USER-packet identity enforcement and Defect B target-scoped external-state currentness repair against the approved scope, source-truth ownership, adversarial fixtures, governed external projections, packet identity, and full validation evidence before any PR Stage 2 decision.`
+Seam Goal: `Verify the current Governance PR through direct PR verification, resolve only current in-scope Codex findings with local adversarial reproof, and hold the bounded lane until the current PR head receives Codex thumbs-up/green approval; merge remains separately excluded.`
 
-Seam Scope: `Docs/Main.md, Docs/governance_efficiency_operating_model.md, Docs/external_operational_state_store_reform_plan.md, Docs/phase_governance.md, Docs/branch_plans/README.md, Docs/ui_reference_catalog/README.md, Docs/user_test_summary_guidance.md, Docs/validation_helper_registry.md, Docs/incident_patterns.md, dev/orin_user_review_bundle.py, dev/orin_external_state_validation.py, current adversarial fixture validators, generated Docs inventory/index surfaces, governed Governance external projections, and this standing authority record.`
+Seam Scope: `Current Governance PR review state, all paginated Codex review threads, current helper/validator/fixture findings, dev/orin_user_review_bundle.py, dev/orin_external_state_validation.py, dev/orin_external_state_target_reconcile.py, current adversarial fixture validators, this standing authority record, and required local Governance validation/firewall reproof.`
 
-Seam Non-Includes: `FAM-006 mutation, FAM-007 mutation, FAM-003 mutation, neutral-main mutation, external-state mutation, GitHub issue mutation, shortcut mutation, troubleshooting launcher creation, installer/packaging work, runtime/provider/model/prompt/cache/memory/learning/personalization/voice/Core work, speculative future feature implementation, template/shared primitive implementation, helper code mutation, validator code mutation, fixture mutation, renaming/moving/deleting/archiving files, PR Readiness Stage 1 execution, PR creation, draft PR creation, merge, release execution, tag/GitHub Release/artifact work, branch deletion, or worktree cleanup.`
+Seam Non-Includes: `FAM-006 mutation, FAM-007 mutation, FAM-003 mutation, neutral-main mutation, external-state mutation, GitHub issue mutation, shortcut mutation, troubleshooting launcher creation, installer/packaging work, runtime/provider/model/prompt/cache/memory/learning/personalization/voice/Core work, speculative future feature implementation, template/shared primitive implementation, unrelated helper/validator/fixture mutation, renaming/moving/deleting/archiving files, PR Readiness Stage 1 re-analysis, new PR creation, draft PR creation, merge, release execution, tag/GitHub Release/artifact work, branch deletion, or worktree cleanup.`
 
 ## Seam Continuation Decision
 
@@ -289,17 +289,17 @@ Completion Status: `Green`
 
 Waiver Status: `None`
 
-Continue Decision: `Stop`
+Continue Decision: `Continue`
 
-Continuation Execution Latch: `Inactive - integrated Defect A/B repair green; PR Readiness Stage 1 analysis is now the legal next gate and PR Stage 2 remains separately USER-gated.`
+Continuation Execution Latch: `Active - bounded direct PR verification continues until all current Codex findings are resolved and the current PR head receives Codex thumbs-up/green approval; merge remains outside this approval.`
 
-Stop Basis: `Integrated Defect A/B repair green; awaiting PR Readiness Stage 1 analysis result`
+Stop Basis: `Do not stop before the current-head Codex thumbs-up/green approval latch; do not merge under the current approval.`
 
-Next Active Seam: `PR Readiness Stage 1 - integrated Defect A/B repair readiness analysis`
+Next Active Seam: `PR Readiness Stage 2 - direct PR verification and Codex review approval latch`
 
-Stop Condition: `PR Readiness Stage 1 must confirm scope, currentness, packet identity, full validation, and the absence of unresolved repair blockers before any PR Stage 2 consideration.`
+Stop Condition: `Stop only after the current PR head has no unresolved current review threads, mergeability is green, and Codex has returned an explicit thumbs-up/green approval; merge, release, cleanup, and sibling mutation remain separately gated.`
 
-Continuation Action: `Stop at the PR Readiness Stage 1 boundary. Do not create a PR, enter PR Stage 2, merge, release, mutate issues, or mutate sibling worktrees.`
+Continuation Action: `Continue direct PR verification. For each current finding, repair only the approved Governance scope, run the focused and full validation/firewall set, push the same branch, reply without narrowing review to a commit, resolve the repaired thread, and request one complete Codex review. Do not merge.`
 
 Template / Reference Plan Phase Entry Addendum: `USER approved analysis/planning entry for the blocked Template / Reference plan after Governance rebaseline to origin/main@7c26748bb6d04433a52b19d41dcacadebeb82c8e. PR #269 merged FAM-007 AI Control Center boundary flow evidence and H4 visual/resize/template-first proof into main. Governance may treat that merged evidence as candidate input for template/reference planning alongside accepted HUD/FAM-006 surfaces, FAM-002 component grammar, Project UI Vision, Vision-To-Proof requirements, and USER proof hierarchy. This addendum does not promote the AI Control Center, HUD Dashboard, control cluster, button set, dialog, status panel, tray menu, design token, shared primitive, helper, validator, or fixture as golden reference proof. The later planning-completion receipt records how candidate references are compared and which promotion criteria apply; USER later clarified that current PR Readiness remains blocked until planned template/reference work is admitted and completed on this branch or explicitly reclassified.`
 

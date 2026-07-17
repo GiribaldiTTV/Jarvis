@@ -182,9 +182,15 @@ def _lock_failures(
         failures.append(f"Required lock is not held: {lock_path}")
     if payload.get("Branch") != expected_branch:
         failures.append(f"Lock branch mismatch: expected {expected_branch!r}, found {payload.get('Branch')!r}")
-    if payload.get("Worktree") != expected_worktree_path:
+    lock_worktree = str(payload.get("Worktree", ""))
+    accepted_worktree_values = {
+        expected_worktree_path,
+        PureWindowsPath(expected_worktree_path).name,
+    }
+    if lock_worktree not in accepted_worktree_values:
         failures.append(
-            f"Lock worktree mismatch: expected {expected_worktree_path!r}, found {payload.get('Worktree')!r}"
+            "Lock worktree mismatch: expected one of "
+            f"{sorted(accepted_worktree_values)!r}, found {lock_worktree!r}"
         )
     intended_entries = _parse_intended_write_set(payload.get("Intended Write Set", ""))
     if target.replace("\\", "/") not in intended_entries:
