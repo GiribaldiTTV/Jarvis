@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import re
 import tempfile
 import time
@@ -178,6 +179,12 @@ def _line_ending(line: str) -> str:
     return ""
 
 
+def _path_compare_key(value: object) -> str:
+    """Normalize paths without imposing case-insensitivity on POSIX hosts."""
+
+    return os.path.normcase(os.path.normpath(str(value)))
+
+
 def _read_text_preserve_newlines(path: Path) -> str:
     """Read UTF-8 text without translating source-record newline bytes."""
 
@@ -344,8 +351,8 @@ def _snapshot_failures(
         manifest = load_json(manifest_path)
     except Exception as exc:  # noqa: BLE001 - malformed recovery evidence must block
         return [f"Transition Snapshot Contract: snapshot manifest is unreadable: {exc}"]
-    manifest_root = str(manifest.get("Root", "")).replace("/", "\\").rstrip("\\").casefold()
-    expected_root = str(root.resolve()).replace("/", "\\").rstrip("\\").casefold()
+    manifest_root = _path_compare_key(manifest.get("Root", ""))
+    expected_root = _path_compare_key(root.resolve())
     if manifest_root != expected_root:
         failures.append(
             f"Transition Snapshot Contract: snapshot root mismatch: expected {root}, found {manifest.get('Root', 'MISSING')}"
@@ -368,12 +375,17 @@ def _snapshot_failures(
     elif not snapshot_target.is_file():
         failures.append(f"Transition Snapshot Contract: snapshot does not contain target: {relative}")
     else:
-        snapshot_hash = sha256_file(snapshot_target)
-        if snapshot_hash.casefold() != expected_target_sha256.casefold():
+        if snapshot_target.stat().st_mtime_ns > transition_started_ns:
             failures.append(
-                f"Transition Snapshot Contract: snapshot target hash mismatch for {relative}: "
-                f"expected {expected_target_sha256}, found {snapshot_hash}"
+                "Transition Snapshot Contract: snapshot target was created after the transition began"
             )
+        else:
+            snapshot_hash = sha256_file(snapshot_target)
+            if snapshot_hash.casefold() != expected_target_sha256.casefold():
+                failures.append(
+                    f"Transition Snapshot Contract: snapshot target hash mismatch for {relative}: "
+                    f"expected {expected_target_sha256}, found {snapshot_hash}"
+                )
     copied = manifest.get("Copied Files", [])
     copied_hash = None
     if isinstance(copied, list):

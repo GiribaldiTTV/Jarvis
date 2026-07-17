@@ -580,6 +580,29 @@ def main() -> int:
                 "snapshot root mismatch",
             ),
         ]
+        if os.path.normcase(os.path.normpath(str(root))) == os.path.normpath(str(root)):
+            case_snapshot = _snapshot(
+                root,
+                target,
+                "fixture-case-sensitive-root",
+                manifest_root=str(root).swapcase(),
+            )
+            case_expectations = _expectations(target)
+            ok, case_messages, _ = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot=case_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-05T00:00:01Z"],
+                additions=[],
+                apply=False,
+                **case_expectations,
+            )
+            if ok or not any("snapshot root mismatch" in item for item in case_messages):
+                raise AssertionError(
+                    "case-sensitive snapshot root mismatch was accepted:\n"
+                    + "\n".join(case_messages)
+                )
         for label, invalid_snapshot, needle in negative_cases:
             invalid_expectations = _expectations(target)
             ok, invalid_messages, _ = reconciler.reconcile_target(
@@ -637,6 +660,25 @@ def main() -> int:
         )
         if ok or not any("snapshot was created after the transition began" in item for item in future_messages):
             raise AssertionError("future snapshot was accepted:\n" + "\n".join(future_messages))
+
+        late_target_snapshot = _snapshot(root, target, "fixture-late-target")
+        os.utime(_target_path(late_target_snapshot), (future_time, future_time))
+        late_target_expectations = _expectations(target)
+        ok, late_target_messages, _ = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=late_target_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-06T00:00:00Z"],
+            additions=[],
+            apply=False,
+            **late_target_expectations,
+        )
+        if ok or not any("snapshot target was created after the transition began" in item for item in late_target_messages):
+            raise AssertionError(
+                "late-created snapshot target was accepted:\n"
+                + "\n".join(late_target_messages)
+            )
 
         reparse_snapshot = _snapshot(root, target, "fixture-reparse-snapshot")
         reparse_target = _target_path(reparse_snapshot)
