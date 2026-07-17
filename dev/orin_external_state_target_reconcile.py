@@ -170,6 +170,13 @@ def _parse_intended_write_set(raw: object) -> set[str]:
     }
 
 
+def _read_text_preserve_newlines(path: Path) -> str:
+    """Read UTF-8 text without translating source-record newline bytes."""
+
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return handle.read()
+
+
 def _lock_failures(
     root: Path,
     lock_id: str,
@@ -267,7 +274,7 @@ def _rename_sections(
     for old, new in renames.items():
         old_heading = old if old.startswith("## ") else f"## {old}"
         new_heading = new if new.startswith("## ") else f"## {new}"
-        pattern = re.compile(rf"(?m)^{re.escape(old_heading)}[ \t]*$")
+        pattern = re.compile(rf"(?m)^{re.escape(old_heading)}[ \t]*\r?$")
         matches = list(pattern.finditer(result))
         if len(matches) != 1:
             failures.append(
@@ -528,7 +535,7 @@ def reconcile_target(
     if pre_validation:
         return False, [f"Pre-write target validation: {item}" for item in pre_validation], None
 
-    before_text = target_path.read_text(encoding="utf-8")
+    before_text = _read_text_preserve_newlines(target_path)
     before_hash = sha256_file(target_path)
     if before_hash.casefold() != expected_target_sha256.casefold():
         return False, [
@@ -573,7 +580,7 @@ def reconcile_target(
         ], None
 
     _before_atomic_replacement_check(target_path, before_hash)
-    final_before_text = target_path.read_text(encoding="utf-8")
+    final_before_text = _read_text_preserve_newlines(target_path)
     final_before_hash = sha256_file(target_path)
     if final_before_hash.casefold() != before_hash.casefold() or final_before_text != before_text:
         return False, [

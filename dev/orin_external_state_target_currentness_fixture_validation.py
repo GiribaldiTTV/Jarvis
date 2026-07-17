@@ -878,6 +878,45 @@ def main() -> int:
                 + cli_result.stderr
             )
 
+    with tempfile.TemporaryDirectory(prefix="ndai-target-crlf-") as temp_dir:
+        root = Path(temp_dir)
+        _manifest(root)
+        target = _record(root)
+        target.write_bytes(target.read_bytes().replace(b"\n", b"\r\n"))
+        before_bytes = target.read_bytes()
+        snapshot = _snapshot(root, target, "fixture-crlf")
+        lock_id = "worktree-fixture-crlf"
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-02T00:00:00Z"],
+            additions=[],
+            apply=True,
+            **_expectations(target),
+        )
+        after_bytes = target.read_bytes()
+        if not ok or audit is None:
+            raise AssertionError("CRLF target transition was rejected:\n" + "\n".join(messages))
+        if b"2026-01-02T00:00:00Z" not in after_bytes:
+            raise AssertionError("CRLF target transition did not update the selected field")
+        if b"\n" in after_bytes.replace(b"\r\n", b""):
+            raise AssertionError("CRLF target transition introduced a lone LF newline")
+        if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n"):
+            raise AssertionError("CRLF target transition changed untouched newline structure")
+
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0
 
