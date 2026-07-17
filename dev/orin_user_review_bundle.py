@@ -1009,6 +1009,8 @@ def _validate_export_zip(
             "Review export zip artifact validation failed:\n"
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
+    if stage1_packet:
+        return
     if "Review Purpose:" not in start_here:
         raise ValueError("Review export zip is missing Review Purpose in START_HERE.md")
     if "USER Decision This Packet Supports:" not in start_here:
