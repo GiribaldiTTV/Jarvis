@@ -5467,6 +5467,87 @@ def _write_pr_readiness_stage1_packet_digests(
     return written
 
 
+def _write_stage1_ready_support_context(
+    *,
+    target: Path,
+    title: str,
+    review_purpose: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+    copied: list[tuple[str, str]],
+) -> Path:
+    """Write BP2-named context without reopening a completed Stage 1 gate."""
+
+    copied_sources = "\n".join(
+        f"- `{source_rel}` copied as `{copied_rel}`"
+        for source_rel, copied_rel in copied
+    ) or "- No copied context files were supplied."
+    pending = "\n".join(
+        f"- {decision}" for decision in pending_user_decisions
+    ) or "- None recorded."
+    lines = [
+        f"# USER Branch Plan Review - {title}",
+        "",
+        "## Contract Status",
+        "",
+        "Context Only - PR Readiness Stage 1 is ready for the separate Stage 2 USER decision; "
+        "this BP2-named file is supporting context, not a current gate.",
+        "",
+        "## Packet Reviewability State",
+        "",
+        "Reviewable - this file supports the dedicated Stage 1 primary review artifact.",
+        "",
+        "## USER Gate State",
+        "",
+        "Context Only - this file is not a USER gate and records no new BP2 acceptance.",
+        "",
+        "## Review Purpose",
+        "",
+        review_purpose,
+        "",
+        "## Stage 1 / Stage 2 Boundary",
+        "",
+        "Stage 1 is ready for the separate Stage 2 USER decision. Open "
+        f"`{PR_READINESS_STAGE1_REVIEW_FILE}` as the only Stage 1 decision artifact.",
+        "",
+        "Stage 2 remains pending USER approval. This support context does not authorize "
+        "PR creation, implementation, merge, release, cleanup, runtime, private, or sibling work.",
+        "",
+        "## BP2 Context",
+        "",
+        "This file preserves lifecycle, engineering-plan, proof, rollback, and source-truth "
+        "context for the completed Stage 1 review. It does not ask USER to accept BP2 or "
+        "re-accept Stage 1.",
+        "",
+        "## Review Order",
+        "",
+        f"1. Open `{PR_READINESS_STAGE1_REVIEW_FILE}` first.",
+        "2. Use this file only as supporting context.",
+        "3. Use the separate Stage 2 decision before any PR mutation.",
+        "",
+        "## Supporting Source-Truth Files",
+        "",
+        copied_sources,
+        "",
+        "## Future-Gated Boundaries",
+        "",
+        "- PR Readiness Stage 2, PR creation, merge, release, cleanup, runtime, provider/model, cache/memory, private setup, and sibling mutation remain separately gated.",
+        "- No implementation seam is authorized by this supporting context file.",
+        "",
+        "## Pending USER Decisions",
+        "",
+        pending,
+        "",
+        "## Exact USER Decision Supported",
+        "",
+        exact_user_decision,
+        "",
+    ]
+    review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+    review_path.write_text("\n".join(lines), encoding="utf-8")
+    return review_path.resolve()
+
+
 def _write_user_branch_plan_review(
     *,
     target: Path,
@@ -5603,6 +5684,15 @@ def _write_user_branch_plan_review(
         and stage1_outcome == PR_STAGE1_OUTCOME_READY
         and not is_fam007_breakpoint_2
     )
+    if stage1_ready_support_context:
+        return _write_stage1_ready_support_context(
+            target=target,
+            title=title,
+            review_purpose=review_purpose,
+            exact_user_decision=exact_user_decision,
+            pending_user_decisions=pending_user_decisions,
+            copied=copied,
+        )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
         and any(
