@@ -300,7 +300,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "FAM-003 validator",
         "FAM-003 R2 HUD access Workstream",
         "New fail-capable validator admitted by BP2-R2/BP3-R2",
-        "Validates 26 states, owner persistence, retries, generations, concurrency, shutdown, accessibility, and direct-bypass negatives.",
+        "Validates 26 states, owner persistence, retries, generations, concurrency, shutdown, accessibility, and direct-bypass negatives, then emits complete row-level JSON/Markdown evidence with current-HEAD provenance.",
         "Slices A-E / SLC-R2-001 through 010 / R2-WS01 through 10.",
         "Adapter/state behavior and static consumer-boundary proof.",
         "None; fake owner fixtures isolate FAM-003 integration behavior.",
@@ -311,7 +311,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "FAM-003 validator",
         "FAM-003 Settings visual proof consuming the accepted target",
         "BP3-R2 visual implementation-match obligation",
-        "Renders disabled, enabled, progress, unavailable, partial, failure/retry, minimum, wide, focus, and Quick Access regression states.",
+        "Renders disabled, enabled, progress, unavailable, partial, failure/retry, minimum, wide, focus, and Quick Access regression states with source-HEAD/timestamp/proof-root provenance.",
         "Slices B/E / SLC-R2-003,004,009,010 / R2-WS03,04,09,10.",
         "Settings HUD element/state visual evidence and accepted-target comparison.",
         "None; target/runtime proof does not transfer FAM-006 ownership.",
@@ -345,7 +345,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "proof helper",
         "FAM-003 Option C/R2 aggregate proof",
         "Accepted existing aggregate extension point in BP3-R2",
-        "Made HUD access, HUD visual, Settings, resident-adjacent, NCP, and entrypoint children fail closed, selected the exact current Settings child root, and packaged the current pushed-HEAD ordered visible-cursor frames.",
+        "Made HUD access, HUD visual, Settings, resident-adjacent, NCP, and entrypoint children fail closed; selected exact current child roots; copied complete 26-state artifacts; recorded active child roles; and packaged current pushed-HEAD ordered visible-cursor frames.",
         "Slice E / SLC-R2-009,010 / R2-WS09,10.",
         "Whole-package cumulative proof and required-child propagation.",
         "Low; shared HUD children remain regression evidence, not FAM-006 product authority.",
@@ -367,7 +367,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "packet helper",
         "FAM-003 R2 completion scope audit",
         "Current USER-approved exact changed-file and packet false-green repair",
-        "Adds deterministic Git inventories, one-row-per-file ledger generation, commit audit, shared-validator review, parity validation, and negative self-tests.",
+        "Adds deterministic Git inventories, one-row-per-file ledger generation, commit audit, shared-validator review, parity validation, 26-state/root-currentness packet guards, and negative self-tests.",
         "Slice E / SLC-R2-010 / R2-WS10 completion packet audit repair.",
         "Completion packet scope truth and Git-to-ledger parity.",
         "None; read-only Git and packet evidence generation.",
@@ -419,7 +419,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "packet helper",
         "Reusable USER packet helper with FAM-003 completion-packet guard",
         "Current USER-approved repair of a packet false-green admitted on this FAM-003 carrier",
-        "Adds exact full-branch/Workstream ledger checks plus current Settings, Option C, and actual-cursor-composited proof requirements so stale or telemetry-only evidence cannot carry completion.",
+        "Adds exact full-branch/Workstream ledger checks plus current Settings, Option C, complete 26-state, unambiguous HUD child-root, and actual-cursor-composited proof requirements so stale, summary-only, ambiguous, or telemetry-only evidence cannot carry completion.",
         "Slice E / SLC-R2-010 / R2-WS10 completion packet audit repair; earlier changes are historical packet guards.",
         "USER packet reviewability and false-green rejection.",
         "None; the new branch-specific guard does not change other packet families.",
@@ -1084,6 +1084,54 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "sourceHead": ledger["head"],
         "visibleCursorProofPass": True,
     }
+    hud_access_root = "C:/proof/fam003-hud-access-final"
+    hud_settings_root = "C:/proof/fam003-hud-settings-final"
+    hud_state_rows = [
+        {
+            "stateId": state_id,
+            "title": f"state {state_id:02d}",
+            "entryCondition": "fixture entry condition",
+            "expectedAdapterBehavior": "fixture expected behavior",
+            "actualAdapterResult": "fixture observed behavior",
+            "persistenceResult": "fixture persistence result",
+            "globalSettingsState": "fixture Settings state",
+            "trayState": "fixture tray state",
+            "dashboardState": "fixture Dashboard state",
+            "userFacingState": "fixture USER-facing state",
+            "retryOrRollbackResult": "fixture recovery result",
+            "automatedEvidence": "fixture assertion",
+            "workstreamVisualEvidence": ["fixture_visual"],
+            "finalVerdict": "PASS",
+            "evidencePaths": ["fixture.json"],
+            "head": ledger["head"],
+            "timestamp": "20260721-120000",
+            "proofRoot": hud_access_root,
+        }
+        for state_id in range(1, 27)
+    ]
+    hud_state_manifest = {
+        "schema": "fam003-hud-access-26-state-results-v2",
+        "status": "PASS",
+        "sourceHead": ledger["head"],
+        "timestamp": "20260721-120000",
+        "proofRoot": hud_access_root,
+        "stateCount": 26,
+        "states": hud_state_rows,
+    }
+    hud_access_manifest = {
+        "schemaVersion": 2,
+        "status": "PASS",
+        "sourceHead": ledger["head"],
+        "proofRoot": hud_access_root,
+        "stateCount": 26,
+        "stateResults": hud_state_rows,
+    }
+    hud_settings_manifest = {
+        "schemaVersion": 2,
+        "status": "PASS",
+        "sourceHead": ledger["head"],
+        "proofRoot": hud_settings_root,
+    }
     option_manifest = {
         "status": "PASS",
         "head": ledger["head"],
@@ -1091,6 +1139,14 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "visibleCursorProof": cursor_manifest,
         "visibleCursorArtifacts": ["cursor-proof.png"],
         "visibleCursorFocusedArtifacts": ["focus-cursor-proof.png"],
+        "hudAccessManifest": hud_access_manifest,
+        "hudSettingsManifest": hud_settings_manifest,
+        "childProofRoots": {
+            "hudAccessWorkstream": {"root": hud_access_root, "role": "CURRENT_AGGREGATE_CHILD", "head": ledger["head"]},
+            "hudSettingsVisual": {"root": hud_settings_root, "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": ledger["head"]},
+            "settingsVisualRegression": {"root": "C:/proof/settings-final", "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": ledger["head"]},
+            "resizeCursor": {"root": "C:/proof/cursor-final", "role": "CURRENT_AGGREGATE_DEPENDENCY", "head": ledger["head"]},
+        },
         "helperRuns": {"settingsVisualRegression": {"ok": True, "returncode": 0}},
     }
     packet = {
@@ -1102,6 +1158,8 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
                 f"| HEAD | `{ledger['head']}` |",
                 f"| origin/main...HEAD | `{full_commits}` branch commits |",
                 f"| Workstream range | `{workstream_commits}` Workstream commits |",
+                "Complete 26-state row artifact: `PASS`.",
+                "Final aggregate child-root matrix: `PASS`.",
             ]
         ),
         "Review Aids/PACKET_MANIFEST.md": "Packet Purpose: `FAM-003 R2 Workstream completion exact-scope USER review`",
@@ -1142,6 +1200,15 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/VALIDATION_RESULTS.md": "Validation result: PASS.",
         "Review Aids/SHARED_VALIDATOR_OWNERSHIP_AUDIT.md": _shared_audit_markdown(ledger),
         "Review Aids/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json": json.dumps(option_manifest),
+        "Review Aids/Evidence/Option C Workstream Proof/fam003_hud_access_workstream_manifest.json": json.dumps(hud_access_manifest),
+        "Review Aids/Evidence/Option C Workstream Proof/fam003_hud_access_26_state_results.json": json.dumps(hud_state_manifest),
+        "Review Aids/Evidence/Option C Workstream Proof/fam003_hud_access_26_state_results.md": "26 state rows PASS.",
+        "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_workstream_manifest.json": json.dumps(hud_access_manifest),
+        "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.json": json.dumps(hud_state_manifest),
+        "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.md": "26 state rows PASS.",
+        "Review Aids/HUD_PROOF_ROOT_RECONCILIATION.md": "20260721-053038 HISTORICAL_SUPPORTING_SUPERSEDED; 20260721-054537 HISTORICAL_SUPPORTING_SUPERSEDED; final root FINAL_CURRENT_AGGREGATE_CHILD; roots are not both current.",
+        "Review Aids/ACTIVE_CHILD_PROOF_ROOT_MATRIX.md": "All final roots have exactly one current role.",
+        "Review Aids/STATE_TO_EVIDENCE_MATRIX.md": "All 26 state rows map to evidence.",
         "Review Aids/Evidence/Option C Workstream Proof/fam003_resize_cursor_workstream_proof_manifest.json": json.dumps(cursor_manifest),
         "Review Aids/Evidence/Option C Workstream Proof/00_option_c_workstream_contact_sheet.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/01_tray_styled_popup_focused.png": "png",
@@ -1163,7 +1230,7 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_007_held_drag_mid_resize.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_008_mouse_up_completed_resize.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_009_pointer_left_resize_zone_normal_cursor.png": "png",
-        "Review Aids/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json": "{}",
+        "Review Aids/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json": json.dumps(hud_settings_manifest),
         "Review Aids/Evidence/HUD Settings Visual Proof/01_disabled_default.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/02_enabled_default.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/06_partial_retry.png": "png",
@@ -1235,6 +1302,11 @@ def _apply_negative_case(ledger: dict[str, Any], case_id: str) -> dict[str, Any]
         "telemetry_only_cursor_false_green",
         "stale_settings_evidence_selected",
         "child_failure_hidden_by_top_level_pass",
+        "missing_26_state_artifact",
+        "missing_26_state_row",
+        "non_green_26_state_row",
+        "ambiguous_hud_root_roles",
+        "aggregate_packet_hud_root_mismatch",
     }:
         return mutated
     else:
@@ -1321,6 +1393,31 @@ def _apply_packet_negative_case(packet_files: dict[str, str], case_id: str) -> d
         payload = json.loads(mutated[path])
         payload["helperRuns"]["settingsVisualRegression"] = {"ok": False, "returncode": 1}
         mutated[path] = json.dumps(payload)
+    elif case_id == "missing_26_state_artifact":
+        mutated.pop(
+            "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.json",
+            None,
+        )
+    elif case_id == "missing_26_state_row":
+        path = "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.json"
+        payload = json.loads(mutated[path])
+        payload["states"].pop()
+        payload["stateCount"] = 25
+        mutated[path] = json.dumps(payload)
+    elif case_id == "non_green_26_state_row":
+        path = "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.json"
+        payload = json.loads(mutated[path])
+        payload["states"][10]["finalVerdict"] = "FAIL"
+        mutated[path] = json.dumps(payload)
+    elif case_id == "ambiguous_hud_root_roles":
+        mutated["Review Aids/HUD_PROOF_ROOT_RECONCILIATION.md"] = (
+            "20260721-053038 current; 20260721-054537 current."
+        )
+    elif case_id == "aggregate_packet_hud_root_mismatch":
+        path = "Review Aids/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json"
+        payload = json.loads(mutated[path])
+        payload["proofRoot"] = "C:/proof/unconsumed-later-rerun"
+        mutated[path] = json.dumps(payload)
     return mutated
 
 
@@ -1364,6 +1461,11 @@ def run_self_test(*, full_base: str, workstream_base: str) -> list[str]:
             "telemetry_only_cursor_false_green",
             "stale_settings_evidence_selected",
             "child_failure_hidden_by_top_level_pass",
+            "missing_26_state_artifact",
+            "missing_26_state_row",
+            "non_green_26_state_row",
+            "ambiguous_hud_root_roles",
+            "aggregate_packet_hud_root_mismatch",
         }
         if not direct_failures and not packet_only_case:
             failures.append(f"negative case {case_id} did not fail direct validation")

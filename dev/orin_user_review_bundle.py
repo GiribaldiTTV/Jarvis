@@ -1830,6 +1830,15 @@ def _fam003_r2_workstream_completion_scope_failures(
         f"{REVIEW_AIDS_DIR_NAME}/VALIDATION_RESULTS.md",
         f"{REVIEW_AIDS_DIR_NAME}/COMMIT_CLASSIFICATION_LEDGER.md",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_hud_access_workstream_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_hud_access_26_state_results.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_hud_access_26_state_results.md",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Access 26-State Proof/fam003_hud_access_workstream_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.md",
+        f"{REVIEW_AIDS_DIR_NAME}/HUD_PROOF_ROOT_RECONCILIATION.md",
+        f"{REVIEW_AIDS_DIR_NAME}/ACTIVE_CHILD_PROOF_ROOT_MATRIX.md",
+        f"{REVIEW_AIDS_DIR_NAME}/STATE_TO_EVIDENCE_MATRIX.md",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/00_option_c_workstream_contact_sheet.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/01_tray_styled_popup_focused.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/03_tray_quick_access_submenu_focused.png",
@@ -2100,9 +2109,64 @@ def _fam003_r2_workstream_completion_scope_failures(
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/"
         "fam003_settings_visual_fail_repair_manifest.json"
     )
+    hud_state_manifest_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Access 26-State Proof/"
+        "fam003_hud_access_26_state_results.json"
+    )
+    hud_access_manifest_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Access 26-State Proof/"
+        "fam003_hud_access_workstream_manifest.json"
+    )
+    hud_settings_manifest_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/"
+        "fam003_hud_settings_visual_manifest.json"
+    )
     option_manifest = load_json(option_manifest_name)
     cursor_manifest = load_json(cursor_manifest_name)
     settings_manifest = load_json(settings_manifest_name)
+    hud_state_manifest = load_json(hud_state_manifest_name)
+    hud_access_manifest = load_json(hud_access_manifest_name)
+    hud_settings_manifest = load_json(hud_settings_manifest_name)
+    required_state_fields = {
+        "stateId", "title", "entryCondition", "expectedAdapterBehavior",
+        "actualAdapterResult", "persistenceResult", "globalSettingsState",
+        "trayState", "dashboardState", "userFacingState",
+        "retryOrRollbackResult", "automatedEvidence", "workstreamVisualEvidence",
+        "finalVerdict", "evidencePaths", "head", "timestamp", "proofRoot",
+    }
+    if hud_state_manifest is not None:
+        state_rows = hud_state_manifest.get("states")
+        if hud_state_manifest.get("schema") != "fam003-hud-access-26-state-results-v2":
+            failures.append(f"{hud_state_manifest_name}: complete state artifact schema is missing or stale")
+        if hud_state_manifest.get("status") != "PASS":
+            failures.append(f"{hud_state_manifest_name}: complete state artifact is not PASS")
+        if expected_head and hud_state_manifest.get("sourceHead") != expected_head:
+            failures.append(f"{hud_state_manifest_name}: complete state artifact HEAD is stale")
+        if not isinstance(state_rows, list) or len(state_rows) != 26:
+            failures.append(f"{hud_state_manifest_name}: complete state artifact must contain exactly 26 rows")
+        else:
+            if [row.get("stateId") for row in state_rows if isinstance(row, dict)] != list(range(1, 27)):
+                failures.append(f"{hud_state_manifest_name}: state IDs are missing, duplicated, or out of order")
+            for index, row in enumerate(state_rows, start=1):
+                if not isinstance(row, dict) or not required_state_fields <= set(row):
+                    failures.append(f"{hud_state_manifest_name}: state {index:02d} lacks required row-level evidence fields")
+                    continue
+                if row.get("finalVerdict") != "PASS":
+                    failures.append(f"{hud_state_manifest_name}: state {index:02d} is not PASS")
+                if expected_head and row.get("head") != expected_head:
+                    failures.append(f"{hud_state_manifest_name}: state {index:02d} HEAD is stale")
+                if not row.get("timestamp") or not row.get("proofRoot") or not row.get("evidencePaths"):
+                    failures.append(f"{hud_state_manifest_name}: state {index:02d} lacks provenance or evidence paths")
+    if hud_access_manifest is not None:
+        if hud_access_manifest.get("status") != "PASS" or hud_access_manifest.get("stateCount") != 26:
+            failures.append(f"{hud_access_manifest_name}: HUD access helper manifest is incomplete or non-green")
+        if expected_head and hud_access_manifest.get("sourceHead") != expected_head:
+            failures.append(f"{hud_access_manifest_name}: HUD access helper HEAD is stale")
+    if hud_settings_manifest is not None:
+        if hud_settings_manifest.get("status") != "PASS":
+            failures.append(f"{hud_settings_manifest_name}: HUD Settings visual proof is not PASS")
+        if expected_head and hud_settings_manifest.get("sourceHead") != expected_head:
+            failures.append(f"{hud_settings_manifest_name}: HUD Settings visual proof HEAD is stale")
     if option_manifest is not None:
         if option_manifest.get("status") != "PASS":
             failures.append(f"{option_manifest_name}: aggregate status is not PASS")
@@ -2131,6 +2195,50 @@ def _fam003_r2_workstream_completion_scope_failures(
             for result in helper_runs.values()
         ):
             failures.append(f"{option_manifest_name}: a required child is absent, failed, or hidden by top-level PASS")
+        child_roots = option_manifest.get("childProofRoots")
+        required_child_roles = {
+            "hudAccessWorkstream": "CURRENT_AGGREGATE_CHILD",
+            "hudSettingsVisual": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE",
+            "settingsVisualRegression": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE",
+            "resizeCursor": "CURRENT_AGGREGATE_DEPENDENCY",
+        }
+        if not isinstance(child_roots, dict):
+            failures.append(f"{option_manifest_name}: active child-proof-root matrix is missing")
+        else:
+            for child_name, role in required_child_roles.items():
+                child = child_roots.get(child_name)
+                if not isinstance(child, dict) or child.get("role") != role or not child.get("root"):
+                    failures.append(f"{option_manifest_name}: {child_name} lacks one unambiguous active proof-root role")
+                elif expected_head and child.get("head") != expected_head:
+                    failures.append(f"{option_manifest_name}: {child_name} child root HEAD is stale")
+            if hud_state_manifest is not None and child_roots.get("hudAccessWorkstream", {}).get("root") != hud_state_manifest.get("proofRoot"):
+                failures.append(f"{option_manifest_name}: packet-selected HUD access root differs from aggregate child")
+            if hud_settings_manifest is not None and child_roots.get("hudSettingsVisual", {}).get("root") != hud_settings_manifest.get("proofRoot"):
+                failures.append(f"{option_manifest_name}: packet-selected HUD Settings root differs from aggregate child")
+        embedded_hud_access = option_manifest.get("hudAccessManifest")
+        if not isinstance(embedded_hud_access, dict) or embedded_hud_access.get("stateCount") != 26 or embedded_hud_access.get("status") != "PASS":
+            failures.append(f"{option_manifest_name}: aggregate lacks the complete green HUD access child manifest")
+        embedded_hud_settings = option_manifest.get("hudSettingsManifest")
+        if not isinstance(embedded_hud_settings, dict) or embedded_hud_settings.get("status") != "PASS":
+            failures.append(f"{option_manifest_name}: aggregate lacks the current green HUD Settings child manifest")
+
+    reconciliation_name = f"{REVIEW_AIDS_DIR_NAME}/HUD_PROOF_ROOT_RECONCILIATION.md"
+    reconciliation = packet_files.get(reconciliation_name, "")
+    reconciliation_markers = (
+        "20260721-053038",
+        "20260721-054537",
+        "HISTORICAL_SUPPORTING_SUPERSEDED",
+        "FINAL_CURRENT_AGGREGATE_CHILD",
+        "not both current",
+    )
+    missing_reconciliation = [marker for marker in reconciliation_markers if marker not in reconciliation]
+    if missing_reconciliation:
+        failures.append(f"{reconciliation_name}: proof-root classification is incomplete {missing_reconciliation}")
+
+    primary = packet_files.get(primary_path, "")
+    for marker in ("complete 26-state row artifact", "final aggregate child-root matrix"):
+        if marker not in primary.casefold():
+            failures.append(f"{primary_path}: missing active completion evidence marker {marker}")
     if settings_manifest is not None:
         if settings_manifest.get("allChecksPass") is not True:
             failures.append(f"{settings_manifest_name}: current Settings proof is not green")

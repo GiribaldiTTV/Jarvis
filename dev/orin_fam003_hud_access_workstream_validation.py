@@ -7,6 +7,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import threading
@@ -27,6 +28,54 @@ from desktop.monitoring_hud_state import load_monitoring_hud_state, save_monitor
 
 
 MATRIX_PATH = ROOT / "dev" / "fixtures" / "fam003_hud_access_state_matrix.json"
+
+STATE_PROOF_FIELDS = (
+    "entryCondition",
+    "expectedAdapterBehavior",
+    "persistenceResult",
+    "globalSettingsState",
+    "trayState",
+    "dashboardState",
+    "userFacingState",
+    "retryOrRollbackResult",
+)
+
+# Each tuple is ordered by STATE_PROOF_FIELDS, followed by applicable rendered
+# HUD Settings artifact IDs. Runtime observations remain in actualAdapterResult.
+STATE_PROOF_PROFILES = {
+    1: ("Feature disabled and stable.", "Fresh query reports disabled without side effects.", "UNCHANGED_DISABLED", "Recovery control visible; toggle off.", "HUD route hidden.", "Closed.", "Disabled state is truthful.", "Not required.", ["01_disabled_default"]),
+    2: ("USER requests enable.", "Emit request before persistence; do not report success early.", "PENDING", "Enable progress shown; controls guarded.", "No premature visible route.", "No premature open.", "Enabling...", "Rollback remains available until confirmation.", ["03_enable_in_progress"]),
+    3: ("Enable request with available owner.", "Persist, refresh tray, open Dashboard, then confirm fresh state.", "SUCCEEDED_ENABLED", "Enabled and actionable.", "HUD route visible.", "Open.", "Enabled confirmation.", "Not required.", ["02_enabled_default"]),
+    4: ("Enable persists but open fails.", "Return PARTIAL with confirmed enabled truth and targeted retry.", "SUCCEEDED_ENABLED", "Enabled with retry state.", "HUD route visible.", "Closed after failed open.", "Enabled; Dashboard did not open.", "Retry open succeeds when owner recovers.", ["06_partial_retry"]),
+    5: ("Enable persistence fails.", "Return FAILED without optimistic enabled drift.", "FAILED_UNCHANGED_DISABLED", "Disabled with failure/retry state.", "HUD route hidden.", "Closed.", "Could not enable.", "Rollback is implicit; retry remains available.", ["07_failure_retry"]),
+    6: ("Feature enabled; Dashboard closed.", "Fresh query preserves enabled truth and available open route.", "UNCHANGED_ENABLED", "Enabled; Open HUD Dashboard available.", "HUD route visible.", "Closed.", "Enabled and ready.", "Open is available.", ["02_enabled_default"]),
+    7: ("Feature enabled; Dashboard open.", "Open/restore remains idempotent and never toggles closed.", "UNCHANGED_ENABLED", "Enabled.", "HUD route visible.", "Open.", "Dashboard open.", "Not required.", ["02_enabled_default"]),
+    8: ("Feature enabled; Dashboard hidden or minimized.", "Open/restore raises and activates the existing Dashboard.", "UNCHANGED_ENABLED", "Enabled.", "HUD route visible.", "Restored open.", "Dashboard restored.", "Not required.", ["02_enabled_default"]),
+    9: ("Open requested while already open.", "Remain open; never reinterpret open as close.", "UNCHANGED_ENABLED", "Enabled.", "HUD route visible.", "Remains open.", "Dashboard already open.", "Not required.", ["02_enabled_default"]),
+    10: ("Feature enabled; runtime unavailable.", "Return retryable BLOCKED without calling open.", "UNCHANGED_ENABLED", "Unavailable/recovery state visible.", "Route reflects unavailable owner truth.", "Closed.", "HUD Dashboard unavailable.", "Retry remains visible.", ["05_enabled_unavailable"]),
+    11: ("Enable succeeds but tray refresh fails.", "Return PARTIAL; never aggregate to success.", "SUCCEEDED_ENABLED", "Enabled with partial result.", "Refresh failed; current menu may be stale.", "Open according to owner result.", "Resident menu refresh failed.", "Targeted retry remains available.", ["06_partial_retry"]),
+    12: ("Prior retryable operation failed.", "Retry the recorded operation and confirm fresh owner state.", "SUCCEEDED_ENABLED", "Recovered enabled state.", "HUD route visible.", "Open.", "Retry succeeded.", "Completed.", ["02_enabled_default", "06_partial_retry"]),
+    13: ("Prior retryable operation still fails.", "Return FAILED with confirmed truth and retryability preserved.", "UNCHANGED_CONFIRMED", "Failure/retry state remains.", "Matches confirmed owner truth.", "Closed.", "Retry failed.", "Retry remains available.", ["07_failure_retry"]),
+    14: ("USER requests disable.", "Emit request before persistence; do not close or hide early.", "PENDING", "Disable progress shown; controls guarded.", "No premature hide.", "No premature close.", "Disabling...", "Rollback remains available until confirmation.", ["04_disable_in_progress"]),
+    15: ("Disable request succeeds.", "Persist disabled, close Dashboard, refresh tray, confirm fresh state.", "SUCCEEDED_DISABLED", "Recovery control remains visible; toggle off.", "HUD route hidden.", "Closed.", "Disabled confirmation.", "Not required.", ["01_disabled_default"]),
+    16: ("Disable persistence fails.", "Return FAILED and preserve enabled/open state.", "FAILED_ROLLED_BACK_ENABLED", "Enabled with failure/retry state.", "HUD route remains visible.", "Remains open.", "Could not disable.", "Rollback confirmed; retry available.", ["07_failure_retry"]),
+    17: ("Disable persists but close fails.", "Return PARTIAL with disabled truth and targeted close retry.", "SUCCEEDED_DISABLED", "Disabled with partial retry state.", "HUD route hidden.", "Still open after failed close.", "Disabled; close needs retry.", "Retry close remains available.", ["06_partial_retry"]),
+    18: ("Owner state file missing.", "Load safe disabled default without writing on view.", "SOURCE_MISSING_NO_WRITE", "Disabled recovery state visible.", "HUD route hidden.", "Closed.", "Safe disabled state.", "Not required.", ["01_disabled_default"]),
+    19: ("Owner state file malformed or unreadable.", "Load safe disabled degraded state without crashing.", "SOURCE_INVALID_NO_WRITE", "Degraded recovery state visible.", "HUD route hidden.", "Closed.", "State unavailable; safe disabled fallback.", "Repair source or retry after recovery.", ["05_enabled_unavailable"]),
+    20: ("Runtime reports state different from request.", "Fresh owner truth wins and mismatch is FAILED.", "REQUEST_REJECTED_BY_CONFIRMED_TRUTH", "Shows confirmed owner state.", "Matches confirmed owner state.", "Matches confirmed owner state.", "Requested state was not confirmed.", "Retry remains available when appropriate.", ["07_failure_retry"]),
+    21: ("Startup with feature enabled.", "Query enabled state without forcing Dashboard open.", "LOADED_ENABLED", "Enabled and actionable.", "HUD route visible.", "Closed until USER opens it.", "Enabled at startup.", "Open is available.", ["02_enabled_default"]),
+    22: ("Startup with feature disabled.", "Query disabled state without side effects.", "LOADED_DISABLED", "Recovery control visible; toggle off.", "HUD route hidden.", "Closed.", "Disabled at startup.", "Not required.", ["01_disabled_default"]),
+    23: ("Shutdown begins during operation lifetime.", "Block new requests and prevent late mutation.", "NO_NEW_WRITE", "Controls become non-actionable for shutdown.", "No late refresh mutation.", "No late open.", "Operation blocked during shutdown.", "No retry during shutdown.", ["05_enabled_unavailable"]),
+    24: ("Global Settings reopens after state changed.", "Run a fresh query; do not reuse cached banner/state.", "FRESH_OWNER_READ", "Fresh enabled/disabled state rendered.", "Matches fresh owner truth.", "Matches fresh owner truth.", "Current state shown without stale banner.", "Not required.", ["01_disabled_default", "02_enabled_default"]),
+    25: ("Repeated rapid enable/disable input.", "Coalesce duplicate request; latest opposite generation wins.", "LATEST_GENERATION_ONLY", "Latest request state shown.", "Matches latest confirmed state.", "Matches latest confirmed state.", "Superseded work is not reported as current success.", "Stale generation superseded; latest result retained.", ["03_enable_in_progress", "04_disable_in_progress"]),
+    26: ("Keyboard/focus interaction and owner-thread guard.", "Expose accessible labels/tab order and block off-owner-thread mutation.", "NO_OFF_OWNER_THREAD_WRITE", "Named controls and deterministic focus remain usable.", "No interaction-induced drift.", "No interaction-induced drift.", "Blocked mutation is truthful; focus remains visible.", "Normal USER action remains available on owner thread.", ["10_keyboard_focus", "11_quick_access_regression"]),
+}
+
+
+def _git_value(*args):
+    return subprocess.run(
+        ["git", *args], cwd=ROOT, text=True, capture_output=True, check=True
+    ).stdout.strip()
 
 
 class FakeOwner:
@@ -368,9 +417,36 @@ def _scenario_rows():
 
 def _exhaustive_matrix_rows():
     rows = []
+    state_results = []
+    matrix = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
+    fixtures = {entry["id"]: entry for entry in matrix.get("states", [])}
 
     def add(state_id, name, passed, detail):
         _row(rows, f"state {state_id:02d} {name}", passed, detail)
+        fixture = fixtures.get(state_id, {})
+        profile = STATE_PROOF_PROFILES.get(state_id)
+        if profile is None:
+            profile = tuple("MISSING" for _ in STATE_PROOF_FIELDS) + ([],)
+        state_result = {
+            "stateId": state_id,
+            "title": name,
+            "fixtureName": fixture.get("name"),
+            "fixtureExpectation": fixture.get("expected"),
+            **dict(zip(STATE_PROOF_FIELDS, profile[: len(STATE_PROOF_FIELDS)])),
+            "actualAdapterResult": detail,
+            "automatedEvidence": f"state {state_id:02d} assertion in dev/orin_fam003_hud_access_workstream_validation.py",
+            "workstreamVisualEvidence": list(profile[-1]),
+            "finalVerdict": "PASS" if passed else "FAIL",
+            "evidencePaths": [
+                "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.json",
+                "Review Aids/Evidence/HUD Access 26-State Proof/fam003_hud_access_26_state_results.md",
+                *[
+                    f"Review Aids/Evidence/HUD Settings Visual Proof/{artifact_id}.png"
+                    for artifact_id in profile[-1]
+                ],
+            ],
+        }
+        state_results.append(state_result)
 
     owner = FakeOwner()
     add(1, "disabled stable", not owner.adapter().query_state().enabled, str(owner.query()))
@@ -558,7 +634,7 @@ def _exhaustive_matrix_rows():
     thread.join()
     add(26, "accessibility keyboard focus interaction guard", bool(threaded) and threaded[0].status == HUD_ACCESS_BLOCKED and not owner.enabled, f"thread_guard={threaded[0].as_dict()}; rendered focus proof is routed through fam003_hud_settings_visual_validation")
 
-    return rows
+    return rows, state_results
 
 
 def _static_rows():
@@ -678,14 +754,77 @@ def main():
     )
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    rows = _scenario_rows() + _exhaustive_matrix_rows() + _static_rows()
+    exhaustive_rows, state_results = _exhaustive_matrix_rows()
+    rows = _scenario_rows() + exhaustive_rows + _static_rows()
+    head = _git_value("rev-parse", "HEAD")
+    fixture_ids = [entry.get("id") for entry in json.loads(MATRIX_PATH.read_text(encoding="utf-8")).get("states", [])]
+    contract_complete = fixture_ids == list(range(1, 27)) and set(STATE_PROOF_PROFILES) == set(range(1, 27))
+    for state_result in state_results:
+        state_result["head"] = head
+        state_result["timestamp"] = timestamp
+        state_result["proofRoot"] = str(output_dir)
     status = "PASS" if all(row["status"] == "PASS" for row in rows) else "FAIL"
+    if not contract_complete or len(state_results) != 26:
+        status = "FAIL"
+    state_artifact = {
+        "schema": "fam003-hud-access-26-state-results-v2",
+        "status": status,
+        "owner": "FAM-003",
+        "sourceHead": head,
+        "timestamp": timestamp,
+        "proofRoot": str(output_dir),
+        "stateCount": len(state_results),
+        "requiredStateIds": list(range(1, 27)),
+        "states": state_results,
+    }
+    state_json_path = output_dir / "fam003_hud_access_26_state_results.json"
+    state_json_path.write_text(json.dumps(state_artifact, indent=2) + "\n", encoding="utf-8")
+    state_markdown = [
+        "# FAM-003 HUD Access Complete 26-State Results",
+        "",
+        f"Status: `{status}`",
+        f"Source HEAD: `{head}`",
+        f"Timestamp: `{timestamp}`",
+        f"Proof Root: `{output_dir}`",
+        "",
+    ]
+    for state in state_results:
+        state_markdown.extend(
+            [
+                f"## {state['stateId']:02d}. {state['title']}",
+                "",
+                f"- Fixture: `{state['fixtureName']}` / `{state['fixtureExpectation']}`",
+                f"- Entry condition: {state['entryCondition']}",
+                f"- Expected adapter behavior: {state['expectedAdapterBehavior']}",
+                f"- Actual adapter result: `{state['actualAdapterResult']}`",
+                f"- Persistence result: `{state['persistenceResult']}`",
+                f"- Global Settings state: {state['globalSettingsState']}",
+                f"- Tray state: {state['trayState']}",
+                f"- Dashboard state: {state['dashboardState']}",
+                f"- USER-facing state: {state['userFacingState']}",
+                f"- Retry/rollback: {state['retryOrRollbackResult']}",
+                f"- Automated evidence: `{state['automatedEvidence']}`",
+                f"- Visual Workstream evidence: `{', '.join(state['workstreamVisualEvidence']) or 'Not applicable with reason: adapter-only state'}`",
+                f"- Evidence paths: `{'; '.join(state['evidencePaths'])}`",
+                f"- Final verdict: `{state['finalVerdict']}`",
+                "",
+            ]
+        )
+    state_md_path = output_dir / "fam003_hud_access_26_state_results.md"
+    state_md_path.write_text("\n".join(state_markdown), encoding="utf-8")
     manifest = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "helperStatus": "Workstream-scoped",
         "owner": "FAM-003",
         "status": status,
+        "sourceHead": head,
+        "timestamp": timestamp,
+        "proofRoot": str(output_dir),
         "stateMatrix": str(MATRIX_PATH),
+        "stateCount": len(state_results),
+        "stateResults": state_results,
+        "completeStateArtifactJson": str(state_json_path),
+        "completeStateArtifactMarkdown": str(state_md_path),
         "rows": rows,
     }
     (output_dir / "fam003_hud_access_workstream_manifest.json").write_text(

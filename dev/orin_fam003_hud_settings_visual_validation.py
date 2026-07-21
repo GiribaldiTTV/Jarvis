@@ -8,6 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 
 
@@ -21,6 +22,12 @@ from PySide6.QtWidgets import QApplication
 
 from desktop.desktop_renderer import ResidentAccessSettingsDialog
 from desktop.monitoring_hud_access import MonitoringHudAccessAdapter, MonitoringHudAccessResult
+
+
+def _git_value(*args):
+    return subprocess.run(
+        ["git", *args], cwd=ROOT, text=True, capture_output=True, check=True
+    ).stdout.strip()
 
 
 class ProofOwner:
@@ -216,6 +223,7 @@ def main():
     )
     args = parser.parse_args()
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    head = _git_value("rev-parse", "HEAD")
     output_dir = Path(args.output_dir) if args.output_dir else (
         ROOT / "dev" / "logs" / "fam003_hud_settings_visual_validation" / timestamp
     )
@@ -407,10 +415,13 @@ def main():
         encoding="utf-8",
     )
     manifest = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "helperStatus": "Workstream-scoped",
         "owner": "FAM-003",
         "status": status,
+        "sourceHead": head,
+        "timestamp": timestamp,
+        "proofRoot": str(output_dir),
         "formalLiveValidation": False,
         "formalUts": False,
         "implementationTarget": "USER-accepted HUD-VAT-01 through HUD-VAT-10",

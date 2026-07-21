@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_option_c_workstream_proof"
 SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
 HUD_SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_hud_settings_visual_validation"
+HUD_ACCESS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_hud_access_workstream_validation"
 CURSOR_PROOF_LATEST = ROOT / "dev" / "logs" / "fam003_resize_cursor_workstream_proof" / "latest_manifest.json"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
@@ -148,6 +149,72 @@ def _copy_current_settings_proof(
     ):
         source = source_root / filename
         _assert(source.exists(), f"current Settings proof artifact is missing: {source}")
+        target = log_dir / filename
+        shutil.copy2(source, target)
+        copied.append(target)
+    return source_root, payload, copied
+
+
+def _copy_current_hud_access_proof(
+    log_dir: Path,
+    result: dict[str, object],
+    expected_head: str,
+) -> tuple[Path, dict[str, object], list[Path]]:
+    source_root = _reported_path(result, "Evidence:").resolve()
+    _assert(HUD_ACCESS_LOG_ROOT.resolve() in source_root.parents, "HUD access child reported a proof root outside its registered log root")
+    manifest_source = source_root / "fam003_hud_access_workstream_manifest.json"
+    state_json_source = source_root / "fam003_hud_access_26_state_results.json"
+    state_md_source = source_root / "fam003_hud_access_26_state_results.md"
+    report_source = source_root / "fam003_hud_access_workstream_report.md"
+    for source in (manifest_source, state_json_source, state_md_source, report_source):
+        _assert(source.exists(), f"HUD access child artifact is missing: {source}")
+    payload = json.loads(manifest_source.read_text(encoding="utf-8-sig"))
+    state_payload = json.loads(state_json_source.read_text(encoding="utf-8-sig"))
+    state_rows = state_payload.get("states")
+    required_fields = {
+        "stateId", "title", "entryCondition", "expectedAdapterBehavior",
+        "actualAdapterResult", "persistenceResult", "globalSettingsState",
+        "trayState", "dashboardState", "userFacingState",
+        "retryOrRollbackResult", "automatedEvidence", "workstreamVisualEvidence",
+        "finalVerdict", "evidencePaths", "head", "timestamp", "proofRoot",
+    }
+    _assert(payload.get("status") == "PASS", "HUD access child is not PASS")
+    _assert(payload.get("sourceHead") == expected_head, "HUD access child HEAD is stale")
+    _assert(state_payload.get("status") == "PASS" and state_payload.get("sourceHead") == expected_head, "HUD access 26-state artifact is stale or non-green")
+    _assert(isinstance(state_rows, list) and len(state_rows) == 26, "HUD access artifact does not contain exactly 26 state rows")
+    _assert([row.get("stateId") for row in state_rows] == list(range(1, 27)), "HUD access state IDs are incomplete or out of order")
+    _assert(all(required_fields <= set(row) and row.get("finalVerdict") == "PASS" for row in state_rows), "HUD access state row is incomplete or non-green")
+
+    copied = []
+    for source in (manifest_source, state_json_source, state_md_source, report_source):
+        target = log_dir / source.name
+        shutil.copy2(source, target)
+        copied.append(target)
+    return source_root, payload, copied
+
+
+def _copy_current_hud_settings_proof(
+    log_dir: Path,
+    result: dict[str, object],
+    expected_head: str,
+) -> tuple[Path, dict[str, object], list[Path]]:
+    source_root = _reported_path(result, "Evidence:").resolve()
+    _assert(HUD_SETTINGS_LOG_ROOT.resolve() in source_root.parents, "HUD Settings child reported a proof root outside its registered log root")
+    manifest_source = source_root / "fam003_hud_settings_visual_manifest.json"
+    _assert(manifest_source.exists(), "HUD Settings child manifest is missing")
+    payload = json.loads(manifest_source.read_text(encoding="utf-8-sig"))
+    _assert(payload.get("status") == "PASS", "HUD Settings child is not PASS")
+    _assert(payload.get("sourceHead") == expected_head, "HUD Settings child HEAD is stale")
+    _assert(Path(str(payload.get("proofRoot", ""))).resolve() == source_root, "HUD Settings manifest proof root disagrees with child output")
+    copied = []
+    for filename in (
+        "fam003_hud_settings_visual_manifest.json",
+        "FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png",
+        "FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png",
+        "HUD_IMPLEMENTATION_MATCH_REVIEW.md",
+    ):
+        source = source_root / filename
+        _assert(source.exists(), f"HUD Settings child artifact is missing: {source}")
         target = log_dir / filename
         shutil.copy2(source, target)
         copied.append(target)
@@ -705,6 +772,16 @@ def main() -> int:
         )
         _assert(result["ok"], f"{name} failed; see {report}")
 
+    hud_access_root, hud_access_manifest, hud_access_copies = _copy_current_hud_access_proof(
+        log_dir,
+        helper_runs["hudAccessWorkstream"],
+        head,
+    )
+    hud_settings_root, hud_settings_manifest, hud_settings_copies = _copy_current_hud_settings_proof(
+        log_dir,
+        helper_runs["hudSettingsVisual"],
+        head,
+    )
     settings_root, settings_manifest, settings_copies = _copy_current_settings_proof(
         log_dir,
         helper_runs["settingsVisualRegression"],
@@ -713,16 +790,8 @@ def main() -> int:
     settings_contact = log_dir / "16_defect_closure_contact_sheet.png"
     settings_default = log_dir / "01_default_global_settings_shell.png"
     cursor_manifest, cursor_manifest_copy, cursor_frames, cursor_focused_frames = _copy_current_cursor_proof(log_dir, head)
-    hud_contact = _copy_latest_artifact(
-        HUD_SETTINGS_LOG_ROOT,
-        log_dir,
-        "FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png",
-    )
-    hud_comparison = _copy_latest_artifact(
-        HUD_SETTINGS_LOG_ROOT,
-        log_dir,
-        "FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png",
-    )
+    hud_contact = log_dir / "FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png"
+    hud_comparison = log_dir / "FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png"
 
     proof_images = [Path(item["path"]) for item in tray["screenshots"] + ncp["screenshots"]]
     proof_images[0:0] = cursor_focused_frames
@@ -757,7 +826,8 @@ def main() -> int:
         "| Surface | Verdict | Evidence |\n"
         "| --- | --- | --- |\n"
         f"| Settings resize/cursor | PASS | Current child root `{settings_root}`; `{settings_default.name}`; `{settings_contact.name}`; `{cursor_manifest_copy.name}`; {len(cursor_frames)} ordered full-screen frames and {len(cursor_focused_frames)} focused review frames. |\n"
-        f"| HUD Settings implementation match | PASS | `{hud_comparison.name if hud_comparison else 'missing'}`; `{hud_contact.name if hud_contact else 'missing'}`; 26-state child validator is fail-closed. |\n"
+        f"| HUD access 26-state model | PASS | Current child root `{hud_access_root}`; complete JSON/Markdown row artifacts copied into this aggregate. |\n"
+        f"| HUD Settings implementation match | PASS | Current child root `{hud_settings_root}`; `{hud_comparison.name}`; `{hud_contact.name}`. |\n"
         "| Styled tray right-click presentation | PASS | `01_tray_styled_popup_focused.png`; `02_tray_popup_route_after_reopen.png`; native menu not primary in `_show_tray_popup`. |\n"
         "| Tray route/action execution | PASS (supporting fixture) | Global Settings, Command Overlay, and HUD Dashboard request boundaries fired from the deterministic enabled-state QAction fixture; this is not actual USER tray interaction proof. |\n"
         "| NCP typed/choose/confirm/result | PASS | `10_ncp_entry_typed_request.png`; `11_ncp_choose_visible_choices.png`; `12_ncp_confirm_selected_action.png`; `13_ncp_result_launch_requested.png`. |\n"
@@ -794,7 +864,18 @@ def main() -> int:
         "visibleCursorManifest": str(cursor_manifest_copy),
         "visibleCursorArtifacts": [str(path) for path in cursor_frames],
         "visibleCursorFocusedArtifacts": [str(path) for path in cursor_focused_frames],
-        "hudSettingsArtifacts": [str(path) for path in (hud_comparison, hud_contact) if path is not None],
+        "hudAccessProofRoot": str(hud_access_root),
+        "hudAccessManifest": hud_access_manifest,
+        "hudAccessArtifacts": [str(path) for path in hud_access_copies],
+        "hudSettingsProofRoot": str(hud_settings_root),
+        "hudSettingsManifest": hud_settings_manifest,
+        "hudSettingsArtifacts": [str(path) for path in hud_settings_copies],
+        "childProofRoots": {
+            "hudAccessWorkstream": {"root": str(hud_access_root), "role": "CURRENT_AGGREGATE_CHILD", "head": head},
+            "hudSettingsVisual": {"root": str(hud_settings_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
+            "settingsVisualRegression": {"root": str(settings_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
+            "resizeCursor": {"root": str(Path(str(cursor_manifest.get("proofRoot", "")))), "role": "CURRENT_AGGREGATE_DEPENDENCY", "head": head},
+        },
         "aggregatePolicy": "every required child return code must pass; any child failure aborts aggregate before PASS manifest write",
         "helperRuns": {
             name: {
