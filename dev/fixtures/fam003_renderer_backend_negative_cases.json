@@ -20,6 +20,8 @@
     {"id": "RB-NEG-017", "mutation": "hud_resize_no_geometry_change", "expectedFailure": "hud-resize-geometry-unproven"},
     {"id": "RB-NEG-018", "mutation": "recording_initial_frame_unpainted", "expectedFailure": "available-surface-visual-population-missing"},
     {"id": "RB-NEG-019", "mutation": "javascript_callback_exhaustion_ignored", "expectedFailure": "javascript-callback-exhaustion-ignored"},
-    {"id": "RB-NEG-020", "mutation": "omit_javascript_callback_retry_fixture", "expectedFailure": "javascript-callback-retry-path-unproven"}
+    {"id": "RB-NEG-020", "mutation": "omit_javascript_callback_retry_fixture", "expectedFailure": "javascript-callback-retry-path-unproven"},
+    {"id": "RB-NEG-021", "mutation": "hud_restore_partial_black_region", "expectedFailure": "hud-dashboard-restored-visual-coverage-failed"},
+    {"id": "RB-NEG-022", "mutation": "ai_restore_partial_black_region", "expectedFailure": "ai-status-command-center-restored-visual-coverage-failed"}
   ]
 }

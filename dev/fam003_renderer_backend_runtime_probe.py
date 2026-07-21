@@ -432,6 +432,40 @@ def run_option_d_workstream_probe(
         captures.append(result)
         return result
 
+    def add_capture_matching_baseline(
+        widget,
+        label: str,
+        surface_id: str,
+        baseline: dict[str, Any],
+    ) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for comparison_attempt in range(1, 4):
+            result = _capture(widget, evidence_root, label, surface_id)
+            unique_ratio = float(result.get("uniqueSampleColors") or 0) / max(
+                1.0, float(baseline.get("uniqueSampleColors") or 0)
+            )
+            byte_ratio = float(result.get("bytes") or 0) / max(1.0, float(baseline.get("bytes") or 0))
+            dominant_limit = max(0.18, float(baseline.get("dominantColorRatio") or 0) * 2.5)
+            comparison_pass = bool(
+                unique_ratio >= 0.85
+                and byte_ratio >= 0.75
+                and float(result.get("dominantColorRatio") or 1.0) <= dominant_limit
+            )
+            result["baselineComparison"] = {
+                "status": "PASS" if comparison_pass else "FAIL",
+                "attempt": comparison_attempt,
+                "maximumAttempts": 3,
+                "uniqueColorRatio": round(unique_ratio, 4),
+                "byteRatio": round(byte_ratio, 4),
+                "dominantColorRatio": result.get("dominantColorRatio"),
+                "dominantColorLimit": round(dominant_limit, 4),
+            }
+            if comparison_pass:
+                captures.append(result)
+                return result
+            _pump(520)
+        raise ProbeFailure(f"{surface_id} restored capture failed baseline visual coverage: {result}")
+
     def surface_result(
         surface_id: str,
         widget,
@@ -625,15 +659,27 @@ def run_option_d_workstream_probe(
         _wait_for(lambda: recording.isMinimized(), "Recording Suite minimize")
         _dom_click(window.webview, "#monitoring-hud-recording-studio-open")
         _wait_for(lambda: recording.isVisible() and not recording.isMinimized(), "Recording Suite restore")
-        recording_restore = add_capture(recording, "10_nexus-recording-suite_restored", "nexus-recording-suite")
+        recording_restore = add_capture_matching_baseline(
+            recording,
+            "10_nexus-recording-suite_restored",
+            "nexus-recording-suite",
+            surfaces["nexus-recording-suite"]["initialCapture"],
+        )
         surfaces["nexus-recording-suite"]["evidence"].append(recording_restore["path"])
+        surfaces["nexus-recording-suite"]["restoreProof"] = recording_restore["baselineComparison"]
 
         _dom_click(log_viewer.webview, "#monitoring-hud-studio-close-action")
         _wait_for(lambda: not log_viewer.isVisible(), "Log Viewer close")
         _dom_click(window.webview, "#monitoring-hud-recording-open-folder")
         _wait_for(lambda: log_viewer.isVisible(), "Log Viewer reopen from HUD")
-        log_reopen = add_capture(log_viewer, "11_nexus-log-viewer_reopened", "nexus-log-viewer")
+        log_reopen = add_capture_matching_baseline(
+            log_viewer,
+            "11_nexus-log-viewer_reopened",
+            "nexus-log-viewer",
+            surfaces["nexus-log-viewer"]["initialCapture"],
+        )
         surfaces["nexus-log-viewer"]["evidence"].append(log_reopen["path"])
+        surfaces["nexus-log-viewer"]["restoreProof"] = log_reopen["baselineComparison"]
 
         ai_open_started = time.perf_counter()
         tray_entry.ai_status_action.trigger()
@@ -676,8 +722,14 @@ def run_option_d_workstream_probe(
         _wait_for(lambda: ai_dashboard.isMinimized(), "AI Dashboard minimize")
         tray_entry.ai_status_action.trigger()
         _wait_for(lambda: ai_dashboard.isVisible() and not ai_dashboard.isMinimized(), "AI Dashboard restore")
-        ai_restore = add_capture(ai_dashboard, "14_ai-status-command-center_restored", "ai-status-command-center")
+        ai_restore = add_capture_matching_baseline(
+            ai_dashboard,
+            "14_ai-status-command-center_restored",
+            "ai-status-command-center",
+            surfaces["ai-status-command-center"]["initialCapture"],
+        )
         surfaces["ai-status-command-center"]["evidence"].append(ai_restore["path"])
+        surfaces["ai-status-command-center"]["restoreProof"] = ai_restore["baselineComparison"]
         _dom_click(ai_dashboard.webview, "#ai-control-center-close-action")
         _wait_for(lambda: not ai_dashboard.isVisible(), "AI Dashboard close")
         tray_entry.ai_status_action.trigger()
@@ -697,8 +749,14 @@ def run_option_d_workstream_probe(
             window.isVisible() and bool(window.monitoring_hud_feature_state().get("dashboard_visible")),
             window.monitoring_hud_feature_state(),
         )
-        hud_restore = add_capture(window, "15_hud-dashboard_tray_restored", "hud-dashboard")
+        hud_restore = add_capture_matching_baseline(
+            window,
+            "15_hud-dashboard_tray_restored",
+            "hud-dashboard",
+            surfaces["hud-dashboard"]["initialCapture"],
+        )
         surfaces["hud-dashboard"]["evidence"].append(hud_restore["path"])
+        surfaces["hud-dashboard"]["restoreProof"] = hud_restore["baselineComparison"]
 
         active_webviews = [core_window.webview, window.webview, recording.webview, log_viewer.webview, ai_dashboard.webview]
         metrics["activeProcess"] = _process_snapshot("representative-active", 700)

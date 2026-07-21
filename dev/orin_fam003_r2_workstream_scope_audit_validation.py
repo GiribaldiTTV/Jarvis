@@ -671,6 +671,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "PowerShell parse, ten cursor negative fixtures, exact Desktop-launcher cursor proof, Settings child, Option C aggregate, scope audit, and governance.",
         "supersession": "Supersedes the unanchored gap between pre-drag cursor proof and mouse-down; product resize behavior is unchanged.",
     },
+    "Harden FAM-003 restored WebEngine visual proof": {
+        "reason": "Added surface-relative restored-frame coverage and bounded recapture after tray-restored HUD and AI Command Center screenshots exposed large partial-black WebEngine regions that generic nonblank checks accepted.",
+        "traceability": "R2-WS10 / SLC-R2-010 affected-surface visual proof closure.",
+        "coherent": "YES - restored and reopened WebEngine evidence plus fail-capable fixture repair.",
+        "unrelatedChanges": "NO.",
+        "validation": "Three exact normal-launcher surface sessions, 22 renderer negative fixtures, visual contact-sheet adjudication, Option C aggregate, scope audit, and governance.",
+        "supersession": "Supersedes generic nonblank acceptance for restored and reopened WebEngine evidence; product behavior is unchanged.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {

@@ -3,7 +3,7 @@
 Helper Status: Workstream-scoped
 Owner Workstream: FAM-003 R2 Settings/tray/NCP completion proof
 Reason Reusable Helper Was Not Extended: The temporary Option D policy, current
-    carrier surface inventory, and 15 negative fixtures are branch-specific.
+    carrier surface inventory, and 22 negative fixtures are branch-specific.
 Consolidation Target: Shared renderer-backend proof after a second branch needs
     the same normal-launcher all-surface contract.
 Promotion Decision Point: Before a permanent renderer architecture decision.
@@ -64,6 +64,13 @@ REQUIRED_WEBENGINE_SURFACES = (
 
 AVAILABLE_PROOF_SURFACES = (
     "orin-core-visualization",
+    "hud-dashboard",
+    "nexus-recording-suite",
+    "nexus-log-viewer",
+    "ai-status-command-center",
+)
+
+RESTORED_PROOF_SURFACES = (
     "hud-dashboard",
     "nexus-recording-suite",
     "nexus-log-viewer",
@@ -531,6 +538,13 @@ def _base_validation_manifest() -> dict[str, Any]:
                 "original": {"width": 780, "height": 1060},
                 "actual": {"width": 660, "height": 940},
             } if surface_id == "hud-dashboard" else {},
+            "restoreProof": {
+                "status": "PASS",
+                "uniqueColorRatio": 1.0,
+                "byteRatio": 1.0,
+                "dominantColorRatio": 0.08,
+                "dominantColorLimit": 0.18,
+            } if surface_id in RESTORED_PROOF_SURFACES else {},
         }
         for surface_id in REQUIRED_WEBENGINE_SURFACES
     }
@@ -596,6 +610,15 @@ def validate_manifest(payload: dict[str, Any]) -> list[str]:
     hud_resize = hud_surface.get("resizeProof") or {}
     if hud_resize.get("changed") is not True or hud_resize.get("original") == hud_resize.get("actual"):
         failures.append("hud-resize-geometry-unproven")
+    for surface_id in RESTORED_PROOF_SURFACES:
+        restore = (results.get(surface_id) or {}).get("restoreProof") or {}
+        if (
+            restore.get("status") != "PASS"
+            or float(restore.get("uniqueColorRatio") or 0) < 0.85
+            or float(restore.get("byteRatio") or 0) < 0.75
+            or float(restore.get("dominantColorRatio") or 1) > float(restore.get("dominantColorLimit") or 0)
+        ):
+            failures.append(f"{surface_id}-restored-visual-coverage-failed")
     if backend.get("actualFlags") != backend.get("reportedFlags"):
         failures.append("effective-flags-mismatch")
     if backend.get("hardwareAccelerationDisabled") is not True or backend.get("softwareCompositionActive") is not True:
@@ -678,6 +701,12 @@ def _mutate(payload: dict[str, Any], mutation: str) -> dict[str, Any]:
         result["javascriptCallbackResilience"]["sessions"][0]["exhausted"] = True
     elif mutation == "omit_javascript_callback_retry_fixture":
         result["javascriptCallbackRetryUnitFixture"] = {"status": "MISSING"}
+    elif mutation == "hud_restore_partial_black_region":
+        restore = result["surfaceResults"]["hud-dashboard"]["restoreProof"]
+        restore.update({"status": "FAIL", "uniqueColorRatio": 0.7939, "byteRatio": 0.6566, "dominantColorRatio": 0.3622})
+    elif mutation == "ai_restore_partial_black_region":
+        restore = result["surfaceResults"]["ai-status-command-center"]["restoreProof"]
+        restore.update({"status": "FAIL", "uniqueColorRatio": 0.7939, "byteRatio": 0.3741, "dominantColorRatio": 0.4812})
     else:
         raise AssertionError(f"unknown fixture mutation: {mutation}")
     return result
@@ -872,6 +901,8 @@ def main() -> int:
         "RB-HUD-RESIZE-001": "generic Qt resize did not exercise the HUD bounded geometry contract",
         "RB-CAPTURE-003": "Recording Suite DOM readiness preceded a populated first WebEngine paint",
         "RB-JS-CALLBACK-001": "a ready WebEngine surface failed to return one JavaScript callback",
+        "RB-HUD-RESTORE-001": "one tray-restored HUD frame contained a large partial-black WebEngine region",
+        "RB-AI-RESTORE-001": "one restored AI Command Center frame contained a large partial-black WebEngine region",
     }
     defect_path.write_text(
         "# FAM-003 Option D Defect Ledger\n\n"
