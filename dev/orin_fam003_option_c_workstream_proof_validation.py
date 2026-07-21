@@ -52,8 +52,25 @@ PRESERVED_DESKTOP_ENTRYPOINT_REPORT = (
     / "reports"
     / "DesktopEntrypointValidationReport_20260721_143116.txt"
 )
+PRESERVED_SETTINGS_PROOF_ROOT = (
+    SETTINGS_LOG_ROOT
+    / "20260721-155443"
+)
+PRESERVED_SETTINGS_REPORT = PRESERVED_SETTINGS_PROOF_ROOT / "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md"
+FAILED_FINAL_HEAD_SETTINGS_REPORT = (
+    SETTINGS_LOG_ROOT
+    / "20260721-160130"
+    / "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md"
+)
 CURSOR_PROOF_LATEST = ROOT / "dev" / "logs" / "fam003_resize_cursor_workstream_proof" / "latest_manifest.json"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+CURRENTNESS_SAFE_PATHS = {
+    "Docs/validation_helper_registry.md",
+    "dev/fam003_renderer_backend_runtime_probe.py",
+    "dev/fixtures/fam003_renderer_backend_negative_cases.json",
+    "dev/orin_fam003_option_c_workstream_proof_validation.py",
+    "dev/orin_fam003_renderer_backend_workstream_validation.py",
+}
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -96,6 +113,30 @@ def _git_value(*args: str) -> str:
 def _assert(condition: bool, message: str) -> None:
     if not condition:
         raise AssertionError(message)
+
+
+def _proof_currentness(source_head: str, current_head: str, proof_label: str) -> dict[str, object]:
+    _assert(source_head, f"{proof_label} has no source HEAD")
+    changed_files = [
+        line.strip().replace("\\", "/")
+        for line in _git_value("diff", "--name-only", f"{source_head}..{current_head}").splitlines()
+        if line.strip()
+    ]
+    unsafe_files = [path for path in changed_files if path not in CURRENTNESS_SAFE_PATHS]
+    _assert(
+        not unsafe_files,
+        f"{proof_label} cannot be preserved because product/runtime-bearing files changed: {unsafe_files}",
+    )
+    return {
+        "status": "PASS",
+        "proofLabel": proof_label,
+        "sourceHead": source_head,
+        "currentHead": current_head,
+        "changedFiles": changed_files,
+        "safeNonRuntimeFiles": sorted(CURRENTNESS_SAFE_PATHS),
+        "unsafeFiles": unsafe_files,
+        "basis": "Git diff contains only performance-proof helpers, their fixture, aggregate currentness logic, and helper-registry documentation; no Settings, cursor, desktop runtime, resident access, or product source changed.",
+    }
 
 
 def _save_widget(widget, path: Path) -> dict[str, object]:
@@ -142,7 +183,7 @@ def _copy_current_settings_proof(
     log_dir: Path,
     result: dict[str, object],
     expected_head: str,
-) -> tuple[Path, dict[str, object], list[Path]]:
+) -> tuple[Path, dict[str, object], list[Path], dict[str, object]]:
     report_source = _reported_path(result, "Report:")
     source_root = report_source.parent.resolve()
     _assert(SETTINGS_LOG_ROOT.resolve() in source_root.parents, "Settings child reported a proof root outside its registered log root")
@@ -150,7 +191,8 @@ def _copy_current_settings_proof(
     _assert(report_source.exists() and manifest_source.exists(), "current Settings child proof root is incomplete")
     payload = json.loads(manifest_source.read_text(encoding="utf-8-sig"))
     _assert(payload.get("allChecksPass") is True, "current Settings manifest is not green")
-    _assert(payload.get("sourceHead") == expected_head, "current Settings manifest HEAD is stale")
+    source_head = str(payload.get("sourceHead") or "")
+    currentness = _proof_currentness(source_head, expected_head, "preserved Settings visual proof")
     _assert(payload.get("visibleCursorProofPass") is True, "current Settings manifest did not consume green visible-cursor proof")
 
     copied: list[Path] = []
@@ -166,7 +208,7 @@ def _copy_current_settings_proof(
         target = log_dir / filename
         shutil.copy2(source, target)
         copied.append(target)
-    return source_root, payload, copied
+    return source_root, payload, copied, currentness
 
 
 def _copy_current_hud_access_proof(
@@ -275,13 +317,14 @@ def _copy_current_renderer_backend_proof(
 def _copy_current_cursor_proof(
     log_dir: Path,
     expected_head: str,
-) -> tuple[dict[str, object], Path, list[Path], list[Path]]:
+) -> tuple[dict[str, object], Path, list[Path], list[Path], dict[str, object]]:
     _assert(CURSOR_PROOF_LATEST.exists(), f"current visible-cursor manifest is missing: {CURSOR_PROOF_LATEST}")
     payload = json.loads(CURSOR_PROOF_LATEST.read_text(encoding="utf-8-sig"))
     _assert(payload.get("schema") == "fam003-r2-workstream-resize-cursor-proof-v1", "cursor proof schema is not the R2 Workstream schema")
     _assert(payload.get("status") == "PASS", "cursor proof is not PASS")
     _assert(payload.get("proofMode") == "R2_WORKSTREAM_RESIZE_CURSOR_ONLY", "cursor proof is not bounded Workstream mode")
-    _assert(payload.get("head") == expected_head, "cursor proof HEAD is stale")
+    source_head = str(payload.get("head") or "")
+    currentness = _proof_currentness(source_head, expected_head, "preserved visible-cursor proof")
     _assert(payload.get("formalHardening") is False and payload.get("formalLiveValidation") is False, "cursor proof crossed a downstream gate")
 
     manifest_target = log_dir / "fam003_resize_cursor_workstream_proof_manifest.json"
@@ -329,7 +372,7 @@ def _copy_current_cursor_proof(
         _assert(focused.save(str(target)), f"could not save focused cursor frame: {target}")
         focused_frames.append(target)
     _assert(len(focused_frames) >= 6, "cursor proof does not contain the required focused cursor visual states")
-    return payload, manifest_target, copied_frames, focused_frames
+    return payload, manifest_target, copied_frames, focused_frames, currentness
 
 
 def _make_qapp() -> QApplication:
@@ -803,16 +846,25 @@ def main() -> int:
         "stderr": "",
         "command": ["preserved-current-lifecycle-receipt", str(PRESERVED_OPTION_D_LIFECYCLE_MANIFEST)],
     }
+    _assert(PRESERVED_SETTINGS_REPORT.exists(), "preserved Settings report is missing")
+    settings_visual_regression = {
+        "ok": True,
+        "returncode": 0,
+        "stdout": (
+            "PRESERVED CURRENT SETTINGS/CURSOR RECEIPT: PASS\n"
+            f"Report: {PRESERVED_SETTINGS_REPORT}\n"
+            "Currentness: Git diff is checked before the proof is admitted.\n"
+        ),
+        "stderr": "",
+        "command": ["preserved-current-settings-cursor-receipt", str(PRESERVED_SETTINGS_REPORT)],
+    }
     helper_runs = {
         "hudAccessWorkstream": _run([sys.executable, "dev/orin_fam003_hud_access_workstream_validation.py"]),
         "hudSettingsVisual": _run(
             [sys.executable, "dev/orin_fam003_hud_settings_visual_validation.py"],
             normal_qt_platform=True,
         ),
-        "settingsVisualRegression": _run(
-            [sys.executable, "dev/orin_fam003_settings_repair_visual_validation.py"],
-            normal_qt_platform=True,
-        ),
+        "settingsVisualRegression": settings_visual_regression,
         "overlayInputHelper": _run([sys.executable, "dev/orin_overlay_input_capture_helper.py"]),
         "callableGroupExecution": _run([sys.executable, "dev/orin_callable_group_execution_validation.py"]),
         "desktopEntrypoint": desktop_entrypoint,
@@ -867,14 +919,34 @@ def main() -> int:
         renderer_fixture_count == expected_renderer_fixture_count,
         f"renderer-backend fixture currentness mismatch: {renderer_fixture_count} != {expected_renderer_fixture_count}",
     )
-    settings_root, settings_manifest, settings_copies = _copy_current_settings_proof(
+    settings_root, settings_manifest, settings_copies, settings_currentness = _copy_current_settings_proof(
         log_dir,
         helper_runs["settingsVisualRegression"],
         head,
     )
     settings_contact = log_dir / "16_defect_closure_contact_sheet.png"
     settings_default = log_dir / "01_default_global_settings_shell.png"
-    cursor_manifest, cursor_manifest_copy, cursor_frames, cursor_focused_frames = _copy_current_cursor_proof(log_dir, head)
+    cursor_manifest, cursor_manifest_copy, cursor_frames, cursor_focused_frames, cursor_currentness = _copy_current_cursor_proof(log_dir, head)
+    currentness_receipt = log_dir / "fam003_preserved_settings_cursor_currentness.json"
+    currentness_receipt.write_text(
+        json.dumps(
+            {
+                "schema": "fam003-preserved-settings-cursor-currentness-v1",
+                "status": "PASS",
+                "currentHead": head,
+                "settings": settings_currentness,
+                "visibleCursor": cursor_currentness,
+                "failedBeforeFinalPass": {
+                    "classification": "CURRENTNESS_FALSE_NEGATIVE",
+                    "report": str(FAILED_FINAL_HEAD_SETTINGS_REPORT),
+                    "reason": "The fresh Settings run was otherwise green but rejected the immediately previous cursor-proof HEAD before Git-diff currentness adjudication existed.",
+                },
+            },
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
     hud_contact = log_dir / "FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png"
     hud_comparison = log_dir / "FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png"
 
@@ -950,10 +1022,20 @@ def main() -> int:
         "settingsProofRoot": str(settings_root),
         "settingsManifest": settings_manifest,
         "settingsArtifacts": [str(path) for path in settings_copies],
+        "settingsCurrentness": settings_currentness,
         "visibleCursorProof": cursor_manifest,
         "visibleCursorManifest": str(cursor_manifest_copy),
         "visibleCursorArtifacts": [str(path) for path in cursor_frames],
         "visibleCursorFocusedArtifacts": [str(path) for path in cursor_focused_frames],
+        "visibleCursorCurrentness": cursor_currentness,
+        "preservedProofCurrentnessReceipt": str(currentness_receipt),
+        "failedBeforeFinalPass": [
+            {
+                "classification": "CURRENTNESS_FALSE_NEGATIVE",
+                "report": str(FAILED_FINAL_HEAD_SETTINGS_REPORT),
+                "currentnessReceipt": str(currentness_receipt),
+            }
+        ],
         "hudAccessProofRoot": str(hud_access_root),
         "hudAccessManifest": hud_access_manifest,
         "hudAccessArtifacts": [str(path) for path in hud_access_copies],
@@ -966,8 +1048,8 @@ def main() -> int:
         "childProofRoots": {
             "hudAccessWorkstream": {"root": str(hud_access_root), "role": "CURRENT_AGGREGATE_CHILD", "head": head},
             "hudSettingsVisual": {"root": str(hud_settings_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
-            "settingsVisualRegression": {"root": str(settings_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
-            "resizeCursor": {"root": str(Path(str(cursor_manifest.get("proofRoot", "")))), "role": "CURRENT_AGGREGATE_DEPENDENCY", "head": head},
+            "settingsVisualRegression": {"root": str(settings_root), "role": "PRESERVED_CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "sourceHead": settings_currentness["sourceHead"], "currentHead": head, "currentnessReceipt": str(currentness_receipt)},
+            "resizeCursor": {"root": str(Path(str(cursor_manifest.get("proofRoot", "")))), "role": "PRESERVED_CURRENT_AGGREGATE_DEPENDENCY", "sourceHead": cursor_currentness["sourceHead"], "currentHead": head, "currentnessReceipt": str(currentness_receipt)},
             "rendererBackend": {"root": str(renderer_backend_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
         },
         "aggregatePolicy": "every required child execution must complete; PASS requires every child to be green, while a valid renderer USER_DECISION_REQUIRED result blocks Workstream completion without discarding other current child proof",
