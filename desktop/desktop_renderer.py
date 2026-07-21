@@ -3832,10 +3832,14 @@ class AIDashboardDomainWindow(QDialog):
     RESIZE_EDGE_MARGIN = 8
     RESIZE_CORNER_MARGIN = 12
     SHELL_RADIUS = 24
-    DRAG_HEADER_HEIGHT = 112
+    DRAG_REGION_FALLBACK_BOTTOM = 74
     CONTROL_ZONE_WIDTH = 96
     CONTROL_ZONE_HEIGHT = 68
     AVAILABLE_DESKTOP_GUTTER = 18
+    MAXIMUM_USEFUL_WIDTH = 920
+    MAXIMUM_USEFUL_HEIGHT = 840
+    CONTENT_FIT_SETTLE_MS = 140
+    CONTENT_FIT_SAFETY_PX = 2
     STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
     VIEW_MODEL_CONTRACT = "ai-dashboard-provider-state-view-model-v1"
     REQUIRED_STATE_TAXONOMY_STATES = (
@@ -3892,8 +3896,16 @@ class AIDashboardDomainWindow(QDialog):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowModality(Qt.NonModal)
-        self.setMinimumSize(460, 420)
-        self.resize(620, 520)
+        self.setMinimumSize(460, 360)
+        available = screen.availableGeometry() if screen is not None else QRect()
+        if available.isValid():
+            self.setMaximumSize(
+                max(self.minimumWidth(), min(self.MAXIMUM_USEFUL_WIDTH, available.width() - (self.AVAILABLE_DESKTOP_GUTTER * 2))),
+                max(self.minimumHeight(), min(self.MAXIMUM_USEFUL_HEIGHT, available.height() - (self.AVAILABLE_DESKTOP_GUTTER * 2))),
+            )
+        else:
+            self.setMaximumSize(self.MAXIMUM_USEFUL_WIDTH, self.MAXIMUM_USEFUL_HEIGHT)
+        self.resize(620, 420)
         self.setProperty("aiDashboardDomainWindow", self.domain_id)
         self.setProperty("aiDashboardDomainClassification", definition["classification"])
         self.setProperty("aiDashboardDomainLifecycle", definition["lifecycle"])
@@ -3912,10 +3924,19 @@ class AIDashboardDomainWindow(QDialog):
         self.setProperty("aiDashboardProviderStateViewModelContract", self.VIEW_MODEL_CONTRACT)
         self.setProperty("aiDashboardProviderStateViewModelApplied", "false")
         self.setProperty("ndaiShellConformance", "ndai-webview-rounded-window-shell")
-        self.setProperty("windowBoundaryContract", "visible-native-interactive-coincident-v1")
-        self.setProperty("windowMoveBehavior", "windows-native-caption-hit-test-with-webview-fallback")
+        self.setProperty("windowBoundaryContract", "single-rounded-shell-mask-hit-rails-coincident-v2")
+        self.setProperty("windowBoundaryInset", "0")
+        self.setProperty("windowResizeRailLocation", "inside-visible-rounded-shell")
+        self.setProperty("windowOutsideHitBehavior", "noninteractive")
+        self.setProperty("windowMoveBehavior", "measured-visible-title-strip-native-and-fallback-v2")
         self.setProperty("windowResizeBehavior", "windows-native-edge-corner-hit-test-with-webview-fallback")
-        self.setProperty("windowDefaultGeometryContract", "dom-content-measured-screen-bounded-v1")
+        self.setProperty("windowDefaultGeometryContract", "settled-dom-content-measured-screen-bounded-v2")
+        self.setProperty("windowSupportedGeometryContract", "minimum-default-intermediate-useful-large-screen-bounded")
+        self.setProperty("windowMaximumUsefulSize", f"{self.maximumWidth()}x{self.maximumHeight()}")
+        self.setProperty("windowMaximizeFullscreenPolicy", "not-offered-compact-detached-window")
+        self.setProperty("windowReopenGeometryContract", "preserve-last-user-geometry-until-destroyed")
+        self.setProperty("windowShellVisualContract", "single-border-no-outer-halo")
+        self.setProperty("windowDescriptionDragBehavior", "client-content-never-caption")
         self.setProperty("windowInitialContentFitApplied", "false")
         self._drag_start_global = QPoint()
         self._drag_window_origin = QPoint()
@@ -3925,6 +3946,14 @@ class AIDashboardDomainWindow(QDialog):
         self._resize_edges = Qt.Edges()
         self._resizing_window = False
         self._initial_content_fit_pending = True
+        self._pending_content_metrics: dict[str, object] = {}
+        self._drag_region_bottom = self.DRAG_REGION_FALLBACK_BOTTOM
+        self._description_region_top = self.DRAG_REGION_FALLBACK_BOTTOM
+        self._visible_shell_region_cache = QRegion()
+        self._visible_shell_region_size = (-1, -1)
+        self._content_fit_timer = QTimer(self)
+        self._content_fit_timer.setSingleShot(True)
+        self._content_fit_timer.timeout.connect(self._apply_pending_initial_content_fit)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -3958,10 +3987,7 @@ class AIDashboardDomainWindow(QDialog):
                     self._resize_start_geometry = QRect(self.geometry())
                     event.accept()
                     return True
-                if (
-                    0 <= local.y() <= self.DRAG_HEADER_HEIGHT
-                    and not self._control_cluster_zone().contains(local)
-                ):
+                if self._is_drag_point(local):
                     self._dragging_header = True
                     self._drag_start_global = event.globalPosition().toPoint()
                     self._drag_window_origin = self.frameGeometry().topLeft()
@@ -3999,14 +4025,86 @@ class AIDashboardDomainWindow(QDialog):
     def _apply_shell_mask(self) -> None:
         if self.width() <= 0 or self.height() <= 0:
             return
+        self.setMask(self._visible_shell_region())
+
+    def _window_bounds_rect(self) -> QRect:
+        return QRect(0, 0, max(0, self.width()), max(0, self.height()))
+
+    def _visible_shell_region(self) -> QRegion:
+        if self.width() <= 0 or self.height() <= 0:
+            return QRegion()
+        current_size = (self.width(), self.height())
+        if getattr(self, "_visible_shell_region_size", None) == current_size:
+            return self._visible_shell_region_cache
         path = QPainterPath()
-        path.addRoundedRect(QRectF(self.rect()), self.SHELL_RADIUS, self.SHELL_RADIUS)
-        self.setMask(QRegion(path.toFillPolygon().toPolygon()))
+        path.addRoundedRect(
+            QRectF(0.0, 0.0, float(self.width()), float(self.height())),
+            self.SHELL_RADIUS,
+            self.SHELL_RADIUS,
+        )
+        self._visible_shell_region_cache = QRegion(path.toFillPolygon().toPolygon())
+        self._visible_shell_region_size = current_size
+        return self._visible_shell_region_cache
+
+    def _point_in_visible_shell(self, point: QPoint) -> bool:
+        return self._window_bounds_rect().contains(point) and self._visible_shell_region().contains(point)
+
+    def _drag_region(self) -> QRect:
+        bottom = min(max(0, int(self._drag_region_bottom)), self.height())
+        return QRect(0, 0, max(0, self.width()), bottom)
+
+    def _is_drag_point(self, point: QPoint) -> bool:
+        return (
+            self._point_in_visible_shell(point)
+            and self._drag_region().contains(point)
+            and not self._control_cluster_zone().contains(point)
+        )
+
+    @staticmethod
+    def _rect_snapshot(rect: QRect) -> dict[str, int]:
+        return {
+            "left": rect.left(),
+            "top": rect.top(),
+            "width": rect.width(),
+            "height": rect.height(),
+        }
+
+    def _boundary_contract_snapshot(self) -> dict[str, object]:
+        bounds = self._window_bounds_rect()
+        sample_y = max(0, self.height() // 2)
+        samples = {
+            "outsideLeft": QPoint(-1, sample_y),
+            "outsideRight": QPoint(self.width(), sample_y),
+            "outsideTop": QPoint(max(0, self.width() // 2), -1),
+            "outsideBottom": QPoint(max(0, self.width() // 2), self.height()),
+            "transparentTopLeft": QPoint(0, 0),
+            "visibleTopLeftRail": QPoint(
+                self.RESIZE_CORNER_MARGIN - 4,
+                self.RESIZE_CORNER_MARGIN - 4,
+            ),
+        }
+        return {
+            "contract": str(self.property("windowBoundaryContract") or ""),
+            "windowBounds": self._rect_snapshot(bounds),
+            "visibleShellBounds": self._rect_snapshot(self._visible_shell_region().boundingRect()),
+            "maskBounds": self._rect_snapshot(self.mask().boundingRect()),
+            "boundaryInset": 0,
+            "resizeRailsInsideVisibleShell": True,
+            "outsideHitBehavior": "noninteractive",
+            "samples": {
+                name: {
+                    "point": {"x": point.x(), "y": point.y()},
+                    "visibleShell": self._point_in_visible_shell(point),
+                    "resizeEdges": int(getattr(self._resize_edges_for_point(point), "value", 0)),
+                }
+                for name, point in samples.items()
+            },
+        }
 
     def _resize_edges_for_point(self, point: QPoint):
         width = self.width()
         height = self.height()
-        if width <= 0 or height <= 0:
+        if width <= 0 or height <= 0 or not self._point_in_visible_shell(point):
             return Qt.Edges()
         edge_margin = self.RESIZE_EDGE_MARGIN
         corner_margin = self.RESIZE_CORNER_MARGIN
@@ -4068,14 +4166,12 @@ class AIDashboardDomainWindow(QDialog):
 
     def _native_hit_test(self, screen_point: QPoint) -> int:
         local = self.mapFromGlobal(screen_point)
-        if not QRect(0, 0, self.width(), self.height()).contains(local):
+        if not self._point_in_visible_shell(local):
             return 0
         edges = self._resize_edges_for_point(local)
         if edges:
             return self._hit_test_for_resize_edges(edges)
-        if self._control_cluster_zone().contains(local):
-            return HTCLIENT
-        if local.y() <= self.DRAG_HEADER_HEIGHT:
+        if self._is_drag_point(local):
             return HTCAPTION
         return HTCLIENT
 
@@ -4139,27 +4235,55 @@ class AIDashboardDomainWindow(QDialog):
         self.setGeometry(rect)
         self._apply_shell_mask()
 
+    def _update_interaction_metrics(self, metrics: dict[str, object]) -> None:
+        try:
+            drag_bottom = int(math.ceil(float(metrics.get("dragRegionBottom") or 0)))
+            description_top = int(math.floor(float(metrics.get("descriptionTop") or drag_bottom)))
+        except (TypeError, ValueError):
+            return
+        if drag_bottom <= 0:
+            return
+        drag_bottom = min(max(self.RESIZE_EDGE_MARGIN + 1, drag_bottom), max(1, self.height()))
+        description_top = min(max(drag_bottom, description_top), max(drag_bottom, self.height()))
+        self._drag_region_bottom = drag_bottom
+        self._description_region_top = description_top
+        self.setProperty("windowMeasuredDragRegionBottom", str(drag_bottom))
+        self.setProperty("windowMeasuredDescriptionTop", str(description_top))
+
+    def _queue_initial_content_fit(self, metrics: dict[str, object]) -> None:
+        self._update_interaction_metrics(metrics)
+        if not self._initial_content_fit_pending:
+            return
+        self._pending_content_metrics = dict(metrics)
+        self._content_fit_timer.start(self.CONTENT_FIT_SETTLE_MS)
+
+    def _apply_pending_initial_content_fit(self) -> None:
+        if self._pending_content_metrics:
+            self._apply_initial_content_fit(self._pending_content_metrics)
+
     def _apply_initial_content_fit(self, metrics: dict[str, object]) -> None:
         if not self._initial_content_fit_pending:
             return
         try:
-            content_height = int(round(float(metrics.get("contentHeight") or 0)))
+            measured_content_height = int(math.ceil(float(metrics.get("contentHeight") or 0)))
         except (TypeError, ValueError):
             return
-        if content_height <= 0:
+        if measured_content_height <= 0:
             return
+        content_height = measured_content_height + self.CONTENT_FIT_SAFETY_PX
         screen = self.screen_ref or QApplication.primaryScreen()
         available = screen.availableGeometry() if screen is not None else QRect()
         max_height = max(
             self.minimumHeight(),
-            available.height() - (self.AVAILABLE_DESKTOP_GUTTER * 2),
-        ) if available.isValid() else max(self.minimumHeight(), content_height)
+            min(self.maximumHeight(), available.height() - (self.AVAILABLE_DESKTOP_GUTTER * 2)),
+        ) if available.isValid() else min(self.maximumHeight(), max(self.minimumHeight(), content_height))
         target_height = min(max(self.minimumHeight(), content_height), max_height)
         self._initial_content_fit_pending = False
+        self._pending_content_metrics = {}
         if self.height() != target_height:
             self.resize(self.width(), target_height)
         self.setProperty("windowInitialContentFitApplied", "true")
-        self.setProperty("windowMeasuredContentHeight", str(content_height))
+        self.setProperty("windowMeasuredContentHeight", str(measured_content_height))
         self.setProperty("windowDefaultContentFitHeight", str(target_height))
         self.setProperty(
             "windowDefaultOverflowContract",
@@ -4170,7 +4294,7 @@ class AIDashboardDomainWindow(QDialog):
             "const surface = document.querySelector('[data-ai-dashboard-child-window]');"
             "if (!surface) return;"
             "surface.dataset.initialContentFitApplied = 'true';"
-            f"surface.dataset.measuredContentHeight = {json.dumps(str(content_height))};"
+            f"surface.dataset.measuredContentHeight = {json.dumps(str(measured_content_height))};"
             f"surface.dataset.defaultContentFitHeight = {json.dumps(str(target_height))};"
             f"surface.dataset.defaultOverflowContract = {json.dumps(str(self.property('windowDefaultOverflowContract') or ''))};"
             "})();"
@@ -4180,7 +4304,7 @@ class AIDashboardDomainWindow(QDialog):
         if callable(self.event_logger):
             self.event_logger(
                 "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_CONTENT_FIT_READY"
-                f"|domain={self.domain_id}|content_h={content_height}|window_h={target_height}"
+                f"|domain={self.domain_id}|content_h={measured_content_height}|window_h={target_height}"
                 f"|overflow={self.property('windowDefaultOverflowContract')}"
             )
 
@@ -4223,11 +4347,8 @@ class AIDashboardDomainWindow(QDialog):
       border-radius: 24px;
       padding: 14px;
       box-sizing: border-box;
-      background:
-        radial-gradient(circle at 20% 4%, rgba(94, 212, 235, 0.11), transparent 34%),
-        linear-gradient(180deg, rgba(4, 16, 28, 0.985), rgba(2, 8, 16, 0.985));
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+      background: linear-gradient(180deg, rgba(4, 16, 28, 0.985), rgba(2, 8, 16, 0.985));
+      box-shadow: none;
     }}
     .ai-domain-window__content {{
       min-width: 0;
@@ -4262,13 +4383,16 @@ class AIDashboardDomainWindow(QDialog):
       background: transparent;
     }}
     .ai-domain-window__header {{
-      display: grid;
-      gap: 6px;
-      min-height: {self.DRAG_HEADER_HEIGHT}px;
       box-sizing: border-box;
-      padding: 10px 118px 14px 10px;
       border-bottom: 1px solid rgba(94, 207, 229, 0.24);
       margin-bottom: 12px;
+      cursor: default;
+    }}
+    .ai-domain-window__drag-region {{
+      display: grid;
+      gap: 6px;
+      padding: 10px 118px 6px 10px;
+      box-sizing: border-box;
       cursor: move;
       user-select: none;
     }}
@@ -4357,10 +4481,12 @@ class AIDashboardDomainWindow(QDialog):
     }}
     .ai-domain-window__description {{
       margin: 0;
+      padding: 0 118px 14px 10px;
       color: rgba(181, 218, 229, 0.88);
       font-size: 12px;
       font-weight: 720;
       line-height: 1.35;
+      cursor: default;
     }}
     .ai-domain-window__card {{
       display: grid;
@@ -4478,16 +4604,18 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-boundary-contract="visible-native-interactive-coincident-v1" data-window-move="windows-native-caption-hit-test-with-webview-fallback" data-window-resize="windows-native-edge-corner-hit-test-with-webview-fallback" data-window-default-geometry-contract="dom-content-measured-screen-bounded-v1" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-view-model-contract="{escape(self.VIEW_MODEL_CONTRACT)}" data-view-model-source="AIProviderStateSnapshot.as_renderer_payload" data-view-model-state="pending-provider-payload" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-boundary-contract="single-rounded-shell-mask-hit-rails-coincident-v2" data-window-boundary-inset="0" data-window-resize-rail-location="inside-visible-rounded-shell" data-window-outside-hit-behavior="noninteractive" data-window-move="measured-visible-title-strip-native-and-fallback-v2" data-window-description-drag="client-content-never-caption" data-window-resize="windows-native-edge-corner-hit-test-with-webview-fallback" data-window-default-geometry-contract="settled-dom-content-measured-screen-bounded-v2" data-window-supported-geometry-contract="minimum-default-intermediate-useful-large-screen-bounded" data-window-maximum-useful-size="{self.maximumWidth()}x{self.maximumHeight()}" data-window-maximize-fullscreen-policy="not-offered-compact-detached-window" data-window-reopen-geometry-contract="preserve-last-user-geometry-until-destroyed" data-window-shell-visual-contract="single-border-no-outer-halo" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar" data-state-taxonomy-contract="{escape(self.STATE_TAXONOMY_CONTRACT)}" data-state-taxonomy-source="AIProviderStateSnapshot.aiControlCenterStateTaxonomy" data-state-taxonomy-scope="{escape(self.domain_id)}" data-state-taxonomy-required-states="{escape(" ".join(self.REQUIRED_STATE_TAXONOMY_STATES))}" data-view-model-contract="{escape(self.VIEW_MODEL_CONTRACT)}" data-view-model-source="AIProviderStateSnapshot.as_renderer_payload" data-view-model-state="pending-provider-payload" data-provider-visible-data-state="none" data-no-provider-state="no-provider-fail-closed" data-prompt-execution-state="prompt-send-disabled" data-provider-model-runtime-state="blocked-no-model-path" data-trust-boundary-state="local-only-no-egress-no-memory-no-cache">
     <section class="ai-domain-window__chrome">
       <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
-        <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
-        <button class="ai-domain-window__control ai-domain-window__control--close" type="button" data-domain-command="window-close" aria-label="Close {escape(definition["title"])}"></button>
+        <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}" title="Minimize"></button>
+        <button class="ai-domain-window__control ai-domain-window__control--close" type="button" data-domain-command="window-close" aria-label="Close {escape(definition["title"])}" title="Close"></button>
       </div>
       <div class="ai-domain-window__content">
         <header class="ai-domain-window__header">
-          <div class="ai-domain-window__kicker">{escape(definition["kicker"])}</div>
-          <div class="ai-domain-window__title">{escape(definition["title"])}</div>
+          <div class="ai-domain-window__drag-region" data-window-drag-region="visible-title-strip">
+            <div class="ai-domain-window__kicker">{escape(definition["kicker"])}</div>
+            <div class="ai-domain-window__title">{escape(definition["title"])}</div>
+          </div>
           <p class="ai-domain-window__description">{escape(definition["description"])}</p>
         </header>
         {body}
@@ -4508,25 +4636,33 @@ class AIDashboardDomainWindow(QDialog):
       const surface = document.querySelector("[data-ai-dashboard-child-window]");
       const chrome = document.querySelector(".ai-domain-window__chrome");
       const content = document.querySelector(".ai-domain-window__content");
-      if (!surface || !chrome || !content) return;
+      const dragRegion = document.querySelector(".ai-domain-window__drag-region");
+      const description = document.querySelector(".ai-domain-window__description");
+      if (!surface || !chrome || !content || !dragRegion || !description) return;
       const chromeStyle = getComputedStyle(chrome);
       const contentHeight = Math.ceil(
-        content.getBoundingClientRect().height
+        Math.max(content.scrollHeight, content.getBoundingClientRect().height)
         + parseFloat(chromeStyle.paddingTop || "0")
         + parseFloat(chromeStyle.paddingBottom || "0")
         + parseFloat(chromeStyle.borderTopWidth || "0")
         + parseFloat(chromeStyle.borderBottomWidth || "0")
       );
+      const dragRegionBottom = Math.ceil(dragRegion.getBoundingClientRect().bottom);
+      const descriptionTop = Math.ceil(description.getBoundingClientRect().top);
       Object.assign(surface.dataset, {{
         contentMeasuredHeight: String(contentHeight),
         contentViewportHeight: String(Math.round(chrome.clientHeight || 0)),
         contentScrollHeight: String(Math.round(chrome.scrollHeight || 0)),
-        windowDefaultGeometryContract: "dom-content-measured-screen-bounded-v1",
+        windowDefaultGeometryContract: "settled-dom-content-measured-screen-bounded-v2",
+        measuredDragRegionBottom: String(dragRegionBottom),
+        measuredDescriptionTop: String(descriptionTop),
       }});
       emit("window-content-metrics:" + encodeURIComponent(JSON.stringify({{
         contentHeight,
         viewportHeight: Math.round(chrome.clientHeight || 0),
         scrollHeight: Math.round(chrome.scrollHeight || 0),
+        dragRegionBottom,
+        descriptionTop,
       }})));
     }};
     const syncDomainRowLayout = () => {{
@@ -5094,7 +5230,7 @@ class AIDashboardDomainWindow(QDialog):
             except (TypeError, ValueError, json.JSONDecodeError):
                 metrics = {}
             if isinstance(metrics, dict):
-                self._apply_initial_content_fit(metrics)
+                self._queue_initial_content_fit(metrics)
             return
         if (
             domain_id == "readiness-diagnostics"

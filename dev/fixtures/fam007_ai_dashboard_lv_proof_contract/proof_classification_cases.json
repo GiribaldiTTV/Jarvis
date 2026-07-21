@@ -1,5 +1,5 @@
 {
-  "contract": "fam007-governed-human-client-computer-use-prohibited-proof-classification-v3",
+  "contract": "fam007-codex-owned-governed-visible-input-computer-use-prohibited-proof-classification-v4",
   "cases": [
     {
       "id": "governed-human-client-mouse-may-be-gating-candidate",
@@ -16,18 +16,18 @@
       "expectedValid": true
     },
     {
-      "id": "physical-user-mouse-may-be-gating-candidate",
+      "id": "physical-user-mouse-is-historical-only-not-current-gating",
       "actor": "PHYSICAL_USER",
       "inputSource": "physical-user-mouse",
       "maySetGatingPass": true,
-      "expectedValid": true
+      "expectedValid": false
     },
     {
-      "id": "physical-user-keyboard-may-be-gating-candidate",
+      "id": "physical-user-keyboard-is-historical-only-not-current-gating",
       "actor": "PHYSICAL_USER",
       "inputSource": "physical-user-keyboard",
       "maySetGatingPass": true,
-      "expectedValid": true
+      "expectedValid": false
     },
     {
       "id": "qtest-is-supporting-only",

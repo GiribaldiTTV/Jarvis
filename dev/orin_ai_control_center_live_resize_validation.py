@@ -1,6 +1,6 @@
 # Helper Status: Workstream-scoped
 # Owner Workstream: FAM-007 AI Dashboard domain-doorway Workstream repair
-# Reason Reusable Helper Was Not Extended: the HUD validator is FAM-006-specific; this helper supplies FAM-007 implementation diagnostics and cannot make a physical-human gating decision.
+# Reason Reusable Helper Was Not Extended: the HUD validator is FAM-006-specific; this helper supplies FAM-007 implementation diagnostics and cannot make a governed visible-input gating decision.
 # Consolidation Target: future reusable Nexus product-window supporting diagnostic helper
 # Promotion Decision Point: before PR Readiness fold-down
 
@@ -59,7 +59,6 @@ PROOF_CLASSIFICATION_FIXTURE = (
 )
 GATING_INPUTS_BY_ACTOR = {
     "CODEX_GOVERNED_HUMAN_CLIENT": {"governed-real-os-mouse", "governed-real-os-keyboard"},
-    "PHYSICAL_USER": {"physical-user-mouse", "physical-user-keyboard"},
 }
 BANNED_VALIDATION_INPUTS = {"computer-use"}
 REPAIR_DEFECT_IDS = (
@@ -82,6 +81,13 @@ WINDOW_SURFACES = (
     "AI Readiness & Diagnostics",
     "Capabilities & Maintenance",
 )
+CHILD_WINDOW_SURFACES = WINDOW_SURFACES[1:]
+SUPPORTED_GEOMETRY_STATES = ("minimum", "default", "intermediate", "useful-large")
+RESIZE_EDGE_NAMES = ("left", "right", "top", "bottom")
+RESIZE_CORNER_NAMES = ("top-left", "top-right", "bottom-left", "bottom-right")
+CHILD_NEGATIVE_DRAG_GROUPS = ("description", "controls", "cards", "rows", "actions", "scrollbar")
+FAM007_GATING_ACTOR = "CODEX_GOVERNED_HUMAN_CLIENT"
+FAM007_GATING_INPUTS = ("governed-real-os-mouse", "governed-real-os-keyboard")
 
 
 def _proof_classification_fixture_probe() -> dict[str, object]:
@@ -191,14 +197,16 @@ def _read_only_exact_launcher_preflight() -> dict[str, object]:
     if not shortcut_ok:
         classification = "EXACT_SHORTCUT_MISSING_OR_WRONG_TARGET_STOP"
     elif foreign:
-        classification = "FOREIGN_RUNTIME_DETECTED_STOP_USER_ACTION_REQUIRED"
+        classification = "FOREIGN_RUNTIME_DETECTED_STOP_ROUTE_REQUIRED"
     elif unknown:
         classification = "UNKNOWN_OWNER_STOP"
     elif selected:
         classification = "FAM007_RUNTIME_ALREADY_ACTIVE_STOP_BEFORE_RELAUNCH"
     else:
         classification = "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE"
+    activation_permitted = classification == "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE"
     return {
+        "protocol": "fam007-exact-launcher-read-only-owner-safe-preflight-v2",
         "classification": classification,
         "readOnly": True,
         "processTerminationAttempted": False,
@@ -210,57 +218,266 @@ def _read_only_exact_launcher_preflight() -> dict[str, object]:
         "selectedRuntimeProcesses": selected,
         "foreignRuntimeProcesses": foreign,
         "unknownOwnerProcesses": unknown,
-        "stopRequired": classification != "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE",
-        "nextAction": "Codex governed human-client directly activates the already-visible exact shortcut through real OS mouse/keyboard input only after a no-foreign-runtime precondition. Stop on foreign or unknown ownership; never use Computer Use.",
+        "stopRequired": not activation_permitted,
+        "activationPermitted": activation_permitted,
+        "requiredActor": FAM007_GATING_ACTOR,
+        "allowedInputSources": list(FAM007_GATING_INPUTS),
+        "operationTransferToUserAllowed": False,
+        "processMutationAllowed": False,
+        "foreignOrUnknownReuseAllowed": False,
+        "ownerGuessingAllowed": False,
+        "fileExplorerFallbackAllowed": False,
+        "directLaunchSubstitutionAllowed": False,
+        "computerUseAllowed": False,
+        "oneRuntimePerUserSessionPreserved": True,
+        "requiredActivationRepetitions": 3,
+        "requiredPostActivationEvidence": [
+            "exact-shortcut-visible-target-frame",
+            "launcher-target-and-working-directory-identity",
+            "fam007-runtime-pid-and-command-line-root",
+            "stable-process-owner-samples",
+            "full-desktop-before-during-after-frames",
+        ],
+        "nextAction": (
+            "Codex may activate the already-visible exact shortcut through the governed real-OS mouse/keyboard path; record FAM-007 PID/root stabilization and ordered visible evidence."
+            if activation_permitted
+            else "STOP and route the ownership or launcher-identity failure; do not terminate, alter, reuse, activate, or transfer the operation to the USER."
+        ),
         "excludedFutureCandidate": "F7-LV1-006-B shared runtime owner attribution; not implemented here",
+        "unresolvedSharedOwnerRoute": "F7-LV1-006-B / Issue #301 / future FAM-001 shared-runtime owner",
     }
 
 
 def _physical_interaction_matrix() -> list[dict[str, object]]:
-    claims = [
-        ("AI Dashboard", "exact visible Desktop shortcut activation"),
-        ("AI Dashboard", "tray/menu route and parent open"),
-        ("AI Dashboard", "doorway click for each child"),
-        ("AI Dashboard", "all-edge and all-corner resize with cursor mapping"),
-        ("AI Dashboard", "deliberate in-scope minimize and restore"),
-        ("AI Dashboard", "close and normal-route reopen"),
-    ]
-    for surface in WINDOW_SURFACES[1:]:
-        claims.extend(
-            [
-                (surface, "three repeated visible-header move cycles"),
-                (surface, "negative content and control drag exclusions"),
-                (surface, "all-edge and all-corner resize with cursor mapping"),
-                (surface, "minimize and restore using only the in-scope control"),
-                (surface, "close, return, reopen, focus, and singleton lifecycle"),
-            ]
+    rows: list[dict[str, object]] = []
+
+    def add(
+        row_id: str,
+        surface: str,
+        element_group: str,
+        claim: str,
+        defect_ids: tuple[str, ...],
+        *,
+        repetitions: int = 1,
+        negative_check: bool = False,
+    ) -> None:
+        rows.append(
+            {
+                "id": row_id,
+                "surface": surface,
+                "elementGroup": element_group,
+                "claim": claim,
+                "defectIds": list(defect_ids),
+                "requiredActor": FAM007_GATING_ACTOR,
+                "allowedInputSources": list(FAM007_GATING_INPUTS),
+                "targetAcquisition": "visible-onscreen-target-before-input",
+                "requiredRepetitions": repetitions,
+                "negativeCheck": negative_check,
+                "requiredEvidence": [
+                    "full-desktop-before-frame",
+                    "visible-cursor-during-frame",
+                    "full-desktop-after-frame",
+                    "window-geometry-or-visible-state-trace",
+                    "claim-linked-adjudication",
+                ],
+                "workspaceInventoryRequired": True,
+                "unrelatedWindowsMustRemainUntouched": True,
+                "computerUseAllowed": False,
+                "operationTransferToUserAllowed": False,
+                "apiAcceptedByName": False,
+                "helperSelfCertificationAllowed": False,
+                "prohibitedGatingSubstitutes": [
+                    "computer-use",
+                    "qt-qtest",
+                    "dom-or-direct-handler",
+                    "direct-widget-call",
+                    "direct-geometry-mutation",
+                    "hidden-activation",
+                    "helper-only-pass",
+                ],
+                "legacyEvidenceDisposition": "historical-supporting-only-never-retroactively-promoted",
+                "syntheticSubstituteAllowed": False,
+                "status": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
+            }
         )
-    return [
-        {
-            "surface": surface,
-            "claim": claim,
-            "requiredActor": "CODEX_GOVERNED_HUMAN_CLIENT",
-            "requiredInputSource": "governed-human-client-real-os-mouse-or-keyboard",
-            "status": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
-            "syntheticSubstituteAllowed": False,
-        }
-        for surface, claim in claims
-    ]
+
+    add("PARENT-001", WINDOW_SURFACES[0], "launcher-preflight", "read-only exact-launcher ownership preflight", ("F7-LV1-006-A",))
+    add("PARENT-002", WINDOW_SURFACES[0], "launcher", "exact visible Desktop shortcut activation and FAM-007 PID/root stabilization", ("F7-LV1-006-A", "F7-LV1-007"), repetitions=3)
+    add("PARENT-003", WINDOW_SURFACES[0], "tray-menu", "notification-area route opens the AI Dashboard parent", ("F7-LV1-005", "F7-LV1-007"))
+    add("PARENT-004", WINDOW_SURFACES[0], "workspace", "before-run workspace inventory proves no unrelated window state changes", ("F7-LV1-005", "F7-LV1-007"))
+    add("PARENT-005", WINDOW_SURFACES[0], "drag-header", "three valid visible-header move cycles", ("F7-LV1-005", "F7-LV1-007"), repetitions=3)
+    for index, group in enumerate(("window-controls", "title-description", "cards", "rows", "buttons", "scrollbar"), start=6):
+        add(f"PARENT-{index:03d}", WINDOW_SURFACES[0], group, f"negative drag over parent {group}", ("F7-LV1-005", "F7-LV1-007"), negative_check=True)
+    parent_sequence = len(rows) + 1
+    for edge in RESIZE_EDGE_NAMES:
+        add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], f"resize-edge-{edge}", f"{edge} edge cursor transition, resize delta, release, and immediate outside negative sample", ("F7-LV1-005", "F7-LV1-007"), repetitions=2, negative_check=True)
+        parent_sequence += 1
+    for corner in RESIZE_CORNER_NAMES:
+        add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], f"resize-corner-{corner}", f"{corner} corner cursor transition, resize delta, release, and immediate outside negative sample", ("F7-LV1-005", "F7-LV1-007"), repetitions=2, negative_check=True)
+        parent_sequence += 1
+    add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], "window-controls", "deliberate in-scope minimize and restore only", ("F7-LV1-005", "F7-LV1-007")); parent_sequence += 1
+    add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], "lifecycle", "close and normal tray/menu-route reopen", ("F7-LV1-005", "F7-LV1-007")); parent_sequence += 1
+    for domain in ("control-center", "readiness-diagnostics", "capabilities-maintenance"):
+        add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], f"doorway-{domain}", f"activate {domain} doorway and verify the named detached window", ("F7-LV1-005", "F7-LV1-007"))
+        parent_sequence += 1
+    add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], "doorway-buttons", "hover, keyboard focus, pressed, enabled, and returned-focus states", ("F7-LV1-005", "F7-LV1-007")); parent_sequence += 1
+    add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], "workspace", "after-run workspace inventory matches the before inventory except named in-scope windows", ("F7-LV1-005", "F7-LV1-007")); parent_sequence += 1
+    for geometry in SUPPORTED_GEOMETRY_STATES:
+        add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], f"geometry-{geometry}", f"{geometry} parent geometry has intentional composition, stable reflow, and owned scrolling", ("F7-LV1-005", "F7-LV1-007"))
+        parent_sequence += 1
+    for environment, claim in (
+        ("display-scale", "100, 125, 150, and 200 percent display-scale inspection"),
+        ("multi-monitor", "monitor transfer and missing-monitor recovery remain onscreen"),
+        ("portrait-narrow-monitor", "portrait or narrow-monitor screen-bounded composition"),
+        ("restored-state", "restored geometry and controls remain coherent"),
+        ("content-overflow", "screen-bounded overflow remains reachable through the owned scrollbar"),
+        ("maximize-fullscreen-policy", "maximize and fullscreen are not offered and do not appear as hidden controls"),
+    ):
+        add(f"PARENT-{parent_sequence:03d}", WINDOW_SURFACES[0], environment, claim, ("F7-LV1-005", "F7-LV1-007"))
+        parent_sequence += 1
+
+    for surface_index, surface in enumerate(CHILD_WINDOW_SURFACES, start=1):
+        prefix = f"CHILD-{surface_index}"
+        sequence = 1
+        add(f"{prefix}-{sequence:03d}", surface, "doorway", "open from the matching AI Dashboard doorway and verify title/focus", ("F7-LV1-005", "F7-LV1-007")); sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "visible-title-drag-strip", "three valid title-strip move cycles with exact pointer/window deltas", ("F7-LV1-001", "F7-LV1-005", "F7-LV1-007"), repetitions=3); sequence += 1
+        for group in CHILD_NEGATIVE_DRAG_GROUPS:
+            add(f"{prefix}-{sequence:03d}", surface, group, f"negative drag over child {group}", ("F7-LV1-001", "F7-LV1-005", "F7-LV1-007"), repetitions=2, negative_check=True)
+            sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "rounded-shell-boundary", "visible border, mask, inside rail, transparent corner, and immediate outside samples coincide", ("F7-LV1-002", "F7-LV1-003-A", "F7-LV1-005", "F7-LV1-007"), repetitions=2, negative_check=True); sequence += 1
+        for edge in RESIZE_EDGE_NAMES:
+            add(f"{prefix}-{sequence:03d}", surface, f"resize-edge-{edge}", f"{edge} edge cursor transition, legal resize delta, release, and outside negative sample", ("F7-LV1-002", "F7-LV1-005", "F7-LV1-007"), repetitions=2, negative_check=True)
+            sequence += 1
+        for corner in RESIZE_CORNER_NAMES:
+            add(f"{prefix}-{sequence:03d}", surface, f"resize-corner-{corner}", f"{corner} corner cursor transition, legal resize delta, release, and outside negative sample", ("F7-LV1-002", "F7-LV1-005", "F7-LV1-007"), repetitions=2, negative_check=True)
+            sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "window-controls", "minimize and restore through the named child control only", ("F7-LV1-005", "F7-LV1-007")); sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "window-controls", "close, return to parent, and normal-doorway reopen", ("F7-LV1-005", "F7-LV1-007")); sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "singleton-focus", "second doorway activation refocuses the same child object", ("F7-LV1-005", "F7-LV1-007")); sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "parent-child-lifecycle", "parent close obeys the declared exclusive-child or external-unique lifecycle", ("F7-LV1-005", "F7-LV1-007")); sequence += 1
+        for geometry in SUPPORTED_GEOMETRY_STATES:
+            add(f"{prefix}-{sequence:03d}", surface, f"geometry-{geometry}", f"{geometry} geometry has intentional composition, stable reflow, and owned scrolling", ("F7-LV1-003-B", "F7-LV1-003-C", "F7-LV1-003-D", "F7-LV1-005", "F7-LV1-007"))
+            sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "scroll-and-actions", "scroll to every lower content row and action, activate only admitted display/local actions, and return to top", ("F7-LV1-003-B", "F7-LV1-003-C", "F7-LV1-003-D", "F7-LV1-005", "F7-LV1-007")); sequence += 1
+        add(f"{prefix}-{sequence:03d}", surface, "control-and-action-states", "hover, tooltip, focus, pressed, disabled, and aria-pressed states remain clear and stable", ("F7-LV1-003-A", "F7-LV1-005", "F7-LV1-007")); sequence += 1
+        for environment, claim in (
+            ("display-scale", "100, 125, 150, and 200 percent display-scale inspection"),
+            ("multi-monitor", "monitor transfer and missing-monitor recovery remain onscreen"),
+            ("portrait-narrow-monitor", "portrait or narrow-monitor screen-bounded composition"),
+            ("restored-state", "restored geometry and controls remain coherent"),
+            ("content-overflow", "screen-bounded overflow keeps all rows and actions reachable"),
+            ("maximize-fullscreen-policy", "maximize and fullscreen are not offered and do not appear as hidden controls"),
+        ):
+            add(f"{prefix}-{sequence:03d}", surface, environment, claim, ("F7-LV1-003-B", "F7-LV1-003-C", "F7-LV1-003-D", "F7-LV1-005", "F7-LV1-007"))
+            sequence += 1
+    return rows
+
+
+def _interaction_matrix_contract_ok(rows: list[dict[str, object]]) -> bool:
+    ids = [str(row.get("id") or "") for row in rows]
+    if len(rows) < 100 or len(ids) != len(set(ids)) or not all(ids):
+        return False
+    if {str(row.get("surface") or "") for row in rows} != set(WINDOW_SURFACES):
+        return False
+    if not all(
+        row.get("requiredActor") == FAM007_GATING_ACTOR
+        and tuple(row.get("allowedInputSources") or ()) == FAM007_GATING_INPUTS
+        and row.get("computerUseAllowed") is False
+        and row.get("operationTransferToUserAllowed") is False
+        and row.get("apiAcceptedByName") is False
+        and row.get("helperSelfCertificationAllowed") is False
+        and len(row.get("prohibitedGatingSubstitutes") or []) == 7
+        and row.get("legacyEvidenceDisposition") == "historical-supporting-only-never-retroactively-promoted"
+        and row.get("syntheticSubstituteAllowed") is False
+        and row.get("status") == "PENDING_FOCUSED_CLOSURE_VERIFICATION"
+        and len(row.get("requiredEvidence") or []) == 5
+        for row in rows
+    ):
+        return False
+    for surface in WINDOW_SURFACES:
+        groups = {str(row.get("elementGroup") or "") for row in rows if row.get("surface") == surface}
+        if not {f"resize-edge-{name}" for name in RESIZE_EDGE_NAMES}.issubset(groups):
+            return False
+        if not {f"resize-corner-{name}" for name in RESIZE_CORNER_NAMES}.issubset(groups):
+            return False
+        if not {f"geometry-{state}" for state in SUPPORTED_GEOMETRY_STATES}.issubset(groups):
+            return False
+        if not {
+            "display-scale",
+            "multi-monitor",
+            "portrait-narrow-monitor",
+            "restored-state",
+            "content-overflow",
+            "maximize-fullscreen-policy",
+        }.issubset(groups):
+            return False
+    for surface in CHILD_WINDOW_SURFACES:
+        groups = {str(row.get("elementGroup") or "") for row in rows if row.get("surface") == surface}
+        if not set(CHILD_NEGATIVE_DRAG_GROUPS).issubset(groups):
+            return False
+    return True
 
 
 def _dual_contrast_matrix() -> list[dict[str, object]]:
     return [
         {
+            "id": f"DUAL-{surface_index:02d}-{geometry_index:02d}-{background_index:02d}",
+            "pairId": f"DUAL-{surface_index:02d}-{geometry_index:02d}",
             "surface": surface,
+            "geometryState": geometry,
             "background": background,
             "backgroundHex": color,
             "requiredState": "identical-geometry-state-scale-crop-per-pair",
+            "requiredCaptures": ["full-desktop", "full-window", "four-corner-and-four-edge-crops"],
+            "requiredAdjudication": [
+                "border",
+                "rounded-corners",
+                "transparency",
+                "native-mask",
+                "shadow",
+                "halo",
+                "gaps",
+                "clipping",
+                "bleed-through",
+                "native-frame-exposure",
+                "visual-interactive-boundary-alignment",
+                "controls",
+                "scrollbar",
+                "focus",
+            ],
+            "computerUseAllowed": False,
+            "operationTransferToUserAllowed": False,
             "edgeCornerAdjudication": "PENDING_FOCUSED_CLOSURE_VERIFICATION",
             "interactionProofSuppliedByImage": False,
         }
-        for surface in WINDOW_SURFACES
-        for background, color in (("solid-black", "#000000"), ("solid-white", "#FFFFFF"))
+        for surface_index, surface in enumerate(WINDOW_SURFACES, start=1)
+        for geometry_index, geometry in enumerate(SUPPORTED_GEOMETRY_STATES, start=1)
+        for background_index, (background, color) in enumerate((("solid-black", "#000000"), ("solid-white", "#FFFFFF")), start=1)
     ]
+
+
+def _dual_contrast_matrix_contract_ok(rows: list[dict[str, object]]) -> bool:
+    expected_pairs = {
+        (surface, geometry)
+        for surface in WINDOW_SURFACES
+        for geometry in SUPPORTED_GEOMETRY_STATES
+    }
+    actual_pairs: dict[tuple[str, str], set[str]] = {}
+    for row in rows:
+        key = (str(row.get("surface") or ""), str(row.get("geometryState") or ""))
+        actual_pairs.setdefault(key, set()).add(str(row.get("background") or ""))
+        if (
+            row.get("computerUseAllowed") is not False
+            or row.get("operationTransferToUserAllowed") is not False
+            or row.get("interactionProofSuppliedByImage") is not False
+            or len(row.get("requiredCaptures") or []) != 3
+            or len(row.get("requiredAdjudication") or []) != 14
+        ):
+            return False
+    return set(actual_pairs) == expected_pairs and all(
+        backgrounds == {"solid-black", "solid-white"}
+        for backgrounds in actual_pairs.values()
+    )
 
 
 _VISUAL_GRAMMAR_PROBE_SCRIPT = r"""
@@ -1332,7 +1549,7 @@ probe_raw = run_js(
       const surface = document.getElementById("monitoring-hud");
       return JSON.stringify({{
         title: document.querySelector(".monitoring-hud__title")?.textContent.trim() || "",
-        subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.replace(/\\s+/g, " ").trim() || "",
+        subtitle: document.querySelector(".monitoring-hud__subtitle")?.textContent.replace(/\\\\s+/g, " ").trim() || "",
         surfaceId: surface?.dataset.surfaceId || "",
         productSurfaceRole: surface?.dataset.productSurfaceRole || "",
         defaultWindowWidth: surface?.dataset.defaultWindowWidth || "",
@@ -1620,10 +1837,19 @@ def _supporting_qtest_resize_child_window(app: QApplication, window, dx: int = 4
 def _supporting_native_hit_test_contract(window) -> dict[str, object]:
     width = window.width()
     height = window.height()
+    drag_region = window._drag_region()
+    drag_y = max(16, min(drag_region.bottom() - 2, 46))
+    description_y = min(height - 24, max(drag_region.bottom() + 3, int(window._description_region_top) + 3))
     local_cases = {
-        "caption": (QPoint(100, 64), 2),
+        "caption": (QPoint(100, drag_y), 2),
+        "descriptionExclusion": (QPoint(100, description_y), 1),
         "controlExclusion": (QPoint(max(1, width - 48), 30), 1),
         "content": (QPoint(width // 2, min(height - 24, 180)), 1),
+        "transparentTopLeft": (QPoint(0, 0), 0),
+        "outsideLeft": (QPoint(-1, height // 2), 0),
+        "outsideRight": (QPoint(width, height // 2), 0),
+        "outsideTop": (QPoint(width // 2, -1), 0),
+        "outsideBottom": (QPoint(width // 2, height), 0),
         "left": (QPoint(2, height // 2), 10),
         "right": (QPoint(max(0, width - 2), height // 2), 11),
         "top": (QPoint(width // 2, 2), 12),
@@ -1642,9 +1868,26 @@ def _supporting_native_hit_test_contract(window) -> dict[str, object]:
             "actual": actual,
             "matches": actual == expected,
         }
+    boundary = window._boundary_contract_snapshot()
+    boundary_samples = boundary.get("samples") if isinstance(boundary.get("samples"), dict) else {}
+    boundary_ok = (
+        boundary.get("contract") == "single-rounded-shell-mask-hit-rails-coincident-v2"
+        and boundary.get("windowBounds") == boundary.get("visibleShellBounds")
+        and boundary.get("windowBounds") == boundary.get("maskBounds")
+        and boundary.get("boundaryInset") == 0
+        and boundary.get("resizeRailsInsideVisibleShell") is True
+        and boundary.get("outsideHitBehavior") == "noninteractive"
+        and all(
+            (boundary_samples.get(name) or {}).get("visibleShell") is False
+            and int((boundary_samples.get(name) or {}).get("resizeEdges") or 0) == 0
+            for name in ("outsideLeft", "outsideRight", "outsideTop", "outsideBottom", "transparentTopLeft")
+        )
+        and (boundary_samples.get("visibleTopLeftRail") or {}).get("visibleShell") is True
+        and int((boundary_samples.get("visibleTopLeftRail") or {}).get("resizeEdges") or 0) != 0
+    )
     return {
         "status": "SUPPORTING_DIAGNOSTIC_PASS"
-        if all(item["matches"] for item in results.values())
+        if all(item["matches"] for item in results.values()) and boundary_ok
         else "SUPPORTING_DIAGNOSTIC_FAIL",
         "actor": "CODEX_AUTOMATION",
         "inputSource": "direct-native-hit-test-contract-call",
@@ -1652,6 +1895,12 @@ def _supporting_native_hit_test_contract(window) -> dict[str, object]:
         "gatingValid": False,
         "maySetGatingPass": False,
         "closesDefect": False,
+        "boundaryContract": boundary,
+        "boundaryContractMatches": boundary_ok,
+        "dragRegion": {
+            "bottom": drag_region.bottom(),
+            "descriptionTop": int(window._description_region_top),
+        },
         "cases": results,
     }
 
@@ -1808,6 +2057,7 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
               letterSpacing: style.letterSpacing,
               color: style.color,
               backgroundColor: style.backgroundColor,
+              backgroundImage: style.backgroundImage,
               borderRadius: style.borderRadius,
               borderTopWidth: style.borderTopWidth,
               borderTopColor: style.borderTopColor,
@@ -1858,13 +2108,24 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
             genericOsChrome: surface?.dataset.genericOsChrome || "",
             shellConformance: surface?.dataset.shellConformance || "",
             boundaryContract: surface?.dataset.windowBoundaryContract || "",
+            boundaryInset: surface?.dataset.windowBoundaryInset || "",
+            resizeRailLocation: surface?.dataset.windowResizeRailLocation || "",
+            outsideHitBehavior: surface?.dataset.windowOutsideHitBehavior || "",
             move: surface?.dataset.windowMove || "",
+            descriptionDrag: surface?.dataset.windowDescriptionDrag || "",
             resize: surface?.dataset.windowResize || "",
             defaultGeometryContract: surface?.dataset.windowDefaultGeometryContract || "",
+            supportedGeometryContract: surface?.dataset.windowSupportedGeometryContract || "",
+            maximumUsefulSize: surface?.dataset.windowMaximumUsefulSize || "",
+            maximizeFullscreenPolicy: surface?.dataset.windowMaximizeFullscreenPolicy || "",
+            reopenGeometryContract: surface?.dataset.windowReopenGeometryContract || "",
+            shellVisualContract: surface?.dataset.windowShellVisualContract || "",
             initialContentFitApplied: surface?.dataset.initialContentFitApplied || "",
             measuredContentHeight: surface?.dataset.measuredContentHeight || "",
             defaultContentFitHeight: surface?.dataset.defaultContentFitHeight || "",
             defaultOverflowContract: surface?.dataset.defaultOverflowContract || "",
+            measuredDragRegionBottom: surface?.dataset.measuredDragRegionBottom || "",
+            measuredDescriptionTop: surface?.dataset.measuredDescriptionTop || "",
             controlCluster: surface?.dataset.windowControlCluster || "",
             stateTaxonomyContract: surface?.dataset.stateTaxonomyContract || "",
             stateTaxonomySource: surface?.dataset.stateTaxonomySource || "",
@@ -1882,6 +2143,7 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
               controls: group("controls", ".ai-domain-window__controls"),
               controlButton: group("controlButton", ".ai-domain-window__control"),
               header: group("header", ".ai-domain-window__header"),
+              dragRegion: group("dragRegion", ".ai-domain-window__drag-region"),
               kicker: group("kicker", ".ai-domain-window__kicker"),
               title: group("title", ".ai-domain-window__title"),
               description: group("description", ".ai-domain-window__description"),
@@ -2035,9 +2297,20 @@ def _probe_child_window(app: QApplication, window) -> dict[str, object]:
         "propertyLifecycle": str(window.property("aiDashboardDomainLifecycle") or ""),
         "propertyShellConformance": str(window.property("ndaiShellConformance") or ""),
         "propertyBoundaryContract": str(window.property("windowBoundaryContract") or ""),
+        "propertyBoundaryInset": str(window.property("windowBoundaryInset") or ""),
+        "propertyResizeRailLocation": str(window.property("windowResizeRailLocation") or ""),
+        "propertyOutsideHitBehavior": str(window.property("windowOutsideHitBehavior") or ""),
         "propertyMoveBehavior": str(window.property("windowMoveBehavior") or ""),
         "propertyResizeBehavior": str(window.property("windowResizeBehavior") or ""),
         "propertyDefaultGeometryContract": str(window.property("windowDefaultGeometryContract") or ""),
+        "propertySupportedGeometryContract": str(window.property("windowSupportedGeometryContract") or ""),
+        "propertyMaximumUsefulSize": str(window.property("windowMaximumUsefulSize") or ""),
+        "propertyMaximizeFullscreenPolicy": str(window.property("windowMaximizeFullscreenPolicy") or ""),
+        "propertyReopenGeometryContract": str(window.property("windowReopenGeometryContract") or ""),
+        "propertyShellVisualContract": str(window.property("windowShellVisualContract") or ""),
+        "propertyDescriptionDragBehavior": str(window.property("windowDescriptionDragBehavior") or ""),
+        "propertyMeasuredDragRegionBottom": str(window.property("windowMeasuredDragRegionBottom") or ""),
+        "propertyMeasuredDescriptionTop": str(window.property("windowMeasuredDescriptionTop") or ""),
         "propertyInitialContentFitApplied": str(window.property("windowInitialContentFitApplied") or ""),
         "propertyMeasuredContentHeight": str(window.property("windowMeasuredContentHeight") or ""),
         "propertyDefaultContentFitHeight": str(window.property("windowDefaultContentFitHeight") or ""),
@@ -4178,13 +4451,25 @@ def main() -> int:
             and probe.get("propertyClassification") == classification
             and probe.get("propertyLifecycle") == lifecycle
             and probe.get("propertyShellConformance") == "ndai-webview-rounded-window-shell"
-            and probe.get("propertyBoundaryContract") == "visible-native-interactive-coincident-v1"
-            and probe.get("propertyMoveBehavior") == "windows-native-caption-hit-test-with-webview-fallback"
+            and probe.get("propertyBoundaryContract") == "single-rounded-shell-mask-hit-rails-coincident-v2"
+            and probe.get("propertyBoundaryInset") == "0"
+            and probe.get("propertyResizeRailLocation") == "inside-visible-rounded-shell"
+            and probe.get("propertyOutsideHitBehavior") == "noninteractive"
+            and probe.get("propertyMoveBehavior") == "measured-visible-title-strip-native-and-fallback-v2"
             and probe.get("propertyResizeBehavior") == "windows-native-edge-corner-hit-test-with-webview-fallback"
-            and probe.get("propertyDefaultGeometryContract") == "dom-content-measured-screen-bounded-v1"
+            and probe.get("propertyDefaultGeometryContract") == "settled-dom-content-measured-screen-bounded-v2"
+            and probe.get("propertySupportedGeometryContract") == "minimum-default-intermediate-useful-large-screen-bounded"
+            and "x" in str(probe.get("propertyMaximumUsefulSize") or "")
+            and probe.get("propertyMaximizeFullscreenPolicy") == "not-offered-compact-detached-window"
+            and probe.get("propertyReopenGeometryContract") == "preserve-last-user-geometry-until-destroyed"
+            and probe.get("propertyShellVisualContract") == "single-border-no-outer-halo"
+            and probe.get("propertyDescriptionDragBehavior") == "client-content-never-caption"
             and probe.get("propertyInitialContentFitApplied") == "true"
-            and int(probe.get("propertyMeasuredContentHeight") or 0) >= 420
-            and int(probe.get("propertyDefaultContentFitHeight") or 0) >= 420
+            and int(probe.get("propertyMeasuredContentHeight") or 0) > 0
+            and int(probe.get("propertyDefaultContentFitHeight") or 0) >= 360
+            and int(probe.get("propertyMeasuredDragRegionBottom") or 0) > 0
+            and int(probe.get("propertyMeasuredDescriptionTop") or 0)
+            >= int(probe.get("propertyMeasuredDragRegionBottom") or 0)
             and probe.get("propertyDefaultOverflowContract") in {"content-fit", "screen-bounded-scroll"}
             and probe.get("propertyProviderVisibleData") == "none"
             and probe.get("propertyProviderModelExecution") == "blocked"
@@ -4203,11 +4488,22 @@ def main() -> int:
             and dom.get("nativeChrome") == "true"
             and dom.get("genericOsChrome") == "rejected"
             and dom.get("shellConformance") == "ndai-webview-rounded-window-shell"
-            and dom.get("boundaryContract") == "visible-native-interactive-coincident-v1"
-            and dom.get("move") == "windows-native-caption-hit-test-with-webview-fallback"
+            and dom.get("boundaryContract") == "single-rounded-shell-mask-hit-rails-coincident-v2"
+            and dom.get("boundaryInset") == "0"
+            and dom.get("resizeRailLocation") == "inside-visible-rounded-shell"
+            and dom.get("outsideHitBehavior") == "noninteractive"
+            and dom.get("move") == "measured-visible-title-strip-native-and-fallback-v2"
+            and dom.get("descriptionDrag") == "client-content-never-caption"
             and dom.get("resize") == "windows-native-edge-corner-hit-test-with-webview-fallback"
-            and dom.get("defaultGeometryContract") == "dom-content-measured-screen-bounded-v1"
+            and dom.get("defaultGeometryContract") == "settled-dom-content-measured-screen-bounded-v2"
+            and dom.get("supportedGeometryContract") == "minimum-default-intermediate-useful-large-screen-bounded"
+            and dom.get("maximumUsefulSize") == probe.get("propertyMaximumUsefulSize")
+            and dom.get("maximizeFullscreenPolicy") == "not-offered-compact-detached-window"
+            and dom.get("reopenGeometryContract") == "preserve-last-user-geometry-until-destroyed"
+            and dom.get("shellVisualContract") == "single-border-no-outer-halo"
             and dom.get("initialContentFitApplied") == "true"
+            and int(dom.get("measuredDragRegionBottom") or 0) > 0
+            and int(dom.get("measuredDescriptionTop") or 0) >= int(dom.get("measuredDragRegionBottom") or 0)
             and dom.get("defaultOverflowContract") in {"content-fit", "screen-bounded-scroll"}
             and dom.get("controlCluster") == "compact-minimize-close"
             and dom.get("stateTaxonomyContract") == STATE_TAXONOMY_CONTRACT
@@ -4250,9 +4546,13 @@ def main() -> int:
         shell = groups.get("shell") if isinstance(groups.get("shell"), dict) else {}
         chrome = groups.get("chrome") if isinstance(groups.get("chrome"), dict) else {}
         actions = groups.get("actions") if isinstance(groups.get("actions"), dict) else {}
+        drag_region = groups.get("dragRegion") if isinstance(groups.get("dragRegion"), dict) else {}
+        description = groups.get("description") if isinstance(groups.get("description"), dict) else {}
         shell_rect = shell.get("rect") if isinstance(shell.get("rect"), dict) else {}
         chrome_rect = chrome.get("rect") if isinstance(chrome.get("rect"), dict) else {}
         actions_rect = actions.get("rect") if isinstance(actions.get("rect"), dict) else {}
+        drag_rect = drag_region.get("rect") if isinstance(drag_region.get("rect"), dict) else {}
+        description_rect = description.get("rect") if isinstance(description.get("rect"), dict) else {}
         chrome_style = chrome.get("style") if isinstance(chrome.get("style"), dict) else {}
         window_rect = probe.get("rect") if isinstance(probe.get("rect"), dict) else {}
         return (
@@ -4262,8 +4562,10 @@ def main() -> int:
             and int(chrome_rect.get("width") or 0) == int(window_rect.get("width") or -1)
             and int(chrome_rect.get("height") or 0) == int(window_rect.get("height") or -1)
             and int(actions_rect.get("bottom") or 99999) <= int(chrome_rect.get("bottom") or -1)
-            and "inset" in str(chrome_style.get("boxShadow") or "")
-            and str(chrome_style.get("boxShadow") or "").count("rgba(") == 1
+            and int(drag_rect.get("bottom") or 0) <= int(description_rect.get("top") or -1)
+            and str(chrome_style.get("boxShadow") or "") == "none"
+            and "radial-gradient" not in str(chrome_style.get("backgroundImage") or "")
+            and "linear-gradient" in str(chrome_style.get("backgroundImage") or "")
             and int(probe.get("propertyDefaultContentFitHeight") or 0) == int(window_rect.get("height") or -1)
         )
 
@@ -4558,27 +4860,40 @@ def main() -> int:
             and proof_classification_fixture_probe.get("knownBadRejected") is True
         ),
         "exactLauncherReadOnlyPreflightProtocolImplemented": (
-            exact_launcher_preflight.get("readOnly") is True
+            exact_launcher_preflight.get("protocol") == "fam007-exact-launcher-read-only-owner-safe-preflight-v2"
+            and exact_launcher_preflight.get("readOnly") is True
             and exact_launcher_preflight.get("processTerminationAttempted") is False
             and exact_launcher_preflight.get("launcherActivationAttempted") is False
             and exact_launcher_preflight.get("fileExplorerUsed") is False
             and exact_launcher_preflight.get("computerUseUsed") is False
+            and exact_launcher_preflight.get("operationTransferToUserAllowed") is False
+            and exact_launcher_preflight.get("processMutationAllowed") is False
+            and exact_launcher_preflight.get("foreignOrUnknownReuseAllowed") is False
+            and exact_launcher_preflight.get("ownerGuessingAllowed") is False
+            and exact_launcher_preflight.get("fileExplorerFallbackAllowed") is False
+            and exact_launcher_preflight.get("directLaunchSubstitutionAllowed") is False
+            and exact_launcher_preflight.get("computerUseAllowed") is False
+            and exact_launcher_preflight.get("oneRuntimePerUserSessionPreserved") is True
+            and exact_launcher_preflight.get("requiredActor") == FAM007_GATING_ACTOR
+            and tuple(exact_launcher_preflight.get("allowedInputSources") or ()) == FAM007_GATING_INPUTS
+            and exact_launcher_preflight.get("requiredActivationRepetitions") == 3
+            and len(exact_launcher_preflight.get("requiredPostActivationEvidence") or []) == 5
             and exact_launcher_preflight.get("classification") in {
                 "NO_RELEVANT_RUNTIME_DETECTED_SETUP_PRECONDITION_AVAILABLE",
                 "FAM007_RUNTIME_ALREADY_ACTIVE_STOP_BEFORE_RELAUNCH",
-                "FOREIGN_RUNTIME_DETECTED_STOP_USER_ACTION_REQUIRED",
+                "FOREIGN_RUNTIME_DETECTED_STOP_ROUTE_REQUIRED",
                 "UNKNOWN_OWNER_STOP",
                 "EXACT_SHORTCUT_MISSING_OR_WRONG_TARGET_STOP",
             }
             and exact_launcher_preflight.get("excludedFutureCandidate")
             == "F7-LV1-006-B shared runtime owner attribution; not implemented here"
+            and exact_launcher_preflight.get("unresolvedSharedOwnerRoute")
+            == "F7-LV1-006-B / Issue #301 / future FAM-001 shared-runtime owner"
         ),
         "returnedDefectCoverageContractComplete": (
             len(REPAIR_DEFECT_IDS) == 12
-            and len(physical_interaction_matrix) == 21
-            and len(dual_contrast_matrix) == 8
-            and all(row.get("status") == "PENDING_FOCUSED_CLOSURE_VERIFICATION" for row in physical_interaction_matrix)
-            and all(row.get("interactionProofSuppliedByImage") is False for row in dual_contrast_matrix)
+            and _interaction_matrix_contract_ok(physical_interaction_matrix)
+            and _dual_contrast_matrix_contract_ok(dual_contrast_matrix)
         ),
         "childVisibleNativeBoundaryAndDefaultContentFitImplemented": (
             set(child_chrome_probe) == set(expected_doorway_buttons)
@@ -5029,13 +5344,13 @@ def main() -> int:
         "stamp": stamp,
         "helper": "dev/orin_ai_control_center_live_resize_validation.py",
         "proofClass": "supporting-only FAM-007 implementation diagnostic; not Live Validation proof",
-        "gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_GOVERNED_HUMAN_CLIENT_FOCUSED_CLOSURE_VERIFICATION",
+        "gatingDecision": "NOT_EVALUATED_REQUIRES_SEPARATELY_APPROVED_CODEX_OWNED_GOVERNED_VISIBLE_INPUT_FOCUSED_CLOSURE_VERIFICATION",
         "liveValidationStatus": "LV_BLOCKED_REPAIR_FIRST_NOT_GREEN",
         "utsStatus": "BLOCKED_NOT_CREATED",
         "defectImplementationStatus": "REPAIR_IMPLEMENTED_PENDING_FOCUSED_CLOSURE_PROOF",
         "defectsRemainOpen": list(REPAIR_DEFECT_IDS),
         "syntheticEvidencePolicy": {
-            "contract": "fam007-governed-human-client-computer-use-prohibited-proof-classification-v3",
+            "contract": "fam007-codex-owned-governed-visible-input-computer-use-prohibited-proof-classification-v4",
             "allHelperGeneratedInteraction": "SUPPORTING_ONLY",
             "qtest": "SUPPORTING_ONLY",
             "directGeometry": "SUPPORTING_ONLY",
@@ -5043,12 +5358,12 @@ def main() -> int:
             "setCursorPosMouseEvent": "SUPPORTING_ONLY",
             "computerUse": "PROHIBITED_NOT_INVOKED",
             "governedHumanClientMouseKeyboard": "GATING_CANDIDATE_DURING_SEPARATELY_APPROVED_CLOSURE_GATE",
-            "physicalUserMouseKeyboard": "GATING_CANDIDATE_ONLY_DURING_SEPARATELY_APPROVED_CLOSURE_GATE",
+            "physicalUserMouseKeyboard": "HISTORICAL_ONLY_NOT_CURRENT_FAM007_GATING",
             "unknownActor": "STOP_NOT_GATING_VALID",
         },
         "proofClassificationFixture": proof_classification_fixture_probe,
         "exactLauncherReadOnlyPreflight": exact_launcher_preflight,
-        "focusedPhysicalInteractionMatrix": physical_interaction_matrix,
+        "focusedGovernedVisibleInputMatrix": physical_interaction_matrix,
         "focusedHumanClientInteractionMatrix": physical_interaction_matrix,
         "dualContrastPerimeterMatrix": dual_contrast_matrix,
         "workspacePreservationContract": {
@@ -5102,9 +5417,9 @@ def main() -> int:
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
-                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "moveBehavior": "measured-visible-title-strip-native-and-fallback-v2",
                 "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
-                "boundaryContract": "visible-native-interactive-coincident-v1",
+                "boundaryContract": "single-rounded-shell-mask-hit-rails-coincident-v2",
                 "shellConformance": "ndai-webview-rounded-window-shell",
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
@@ -5114,9 +5429,9 @@ def main() -> int:
                 "classification": "external-unique",
                 "remainsOpenIfDashboardCloses": True,
                 "singleton": True,
-                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "moveBehavior": "measured-visible-title-strip-native-and-fallback-v2",
                 "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
-                "boundaryContract": "visible-native-interactive-coincident-v1",
+                "boundaryContract": "single-rounded-shell-mask-hit-rails-coincident-v2",
                 "shellConformance": "ndai-webview-rounded-window-shell",
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
@@ -5126,9 +5441,9 @@ def main() -> int:
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
-                "moveBehavior": "windows-native-caption-hit-test-with-webview-fallback",
+                "moveBehavior": "measured-visible-title-strip-native-and-fallback-v2",
                 "resizeBehavior": "windows-native-edge-corner-hit-test-with-webview-fallback",
-                "boundaryContract": "visible-native-interactive-coincident-v1",
+                "boundaryContract": "single-rounded-shell-mask-hit-rails-coincident-v2",
                 "shellConformance": "ndai-webview-rounded-window-shell",
                 "focusBehavior": "bring-to-front-existing-singleton",
             },
@@ -5191,7 +5506,7 @@ def main() -> int:
         print(f"SUPPORTING_DIAGNOSTIC_FAIL: FAM-007 implementation diagnostics failed. Manifest: {manifest_path}")
         return 1
     print(f"SUPPORTING_DIAGNOSTIC_PASS: FAM-007 implementation diagnostics passed. Manifest: {manifest_path}")
-    print("GATING_DECISION: NOT_EVALUATED; governed human-client focused closure verification remains pending and unapproved.")
+    print("GATING_DECISION: NOT_EVALUATED; Codex-owned governed-visible-input focused closure verification remains pending and unapproved.")
     print(f"USER_EVIDENCE_ROOT: {user_evidence_root}")
     return 0
 
