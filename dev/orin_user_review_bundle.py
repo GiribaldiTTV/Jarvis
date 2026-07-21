@@ -1839,12 +1839,18 @@ def _fam003_r2_workstream_completion_scope_failures(
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/12_ncp_confirm_selected_action.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/13_ncp_result_launch_requested.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_resize_cursor_workstream_proof_manifest.json",
-        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_001_pointer_outside_resize_zone_normal.png",
-        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_002_pointer_right_edge_visible_resize_cursor_pre_drag.png",
-        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_003_mouse_down_with_visible_resize_cursor.png",
-        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_004_held_drag_mid_resize.png",
-        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_005_mouse_up_completed_resize.png",
-        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_006_pointer_left_resize_zone_normal_cursor.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_004_pointer_outside_resize_zone_normal.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_005_pointer_right_edge_visible_resize_cursor_pre_drag.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_006_mouse_down_with_visible_resize_cursor.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_007_held_drag_mid_resize.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_008_mouse_up_completed_resize.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_009_pointer_left_resize_zone_normal_cursor.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/focus_cursor_004_pointer_outside_resize_zone_normal.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/focus_cursor_005_pointer_right_edge_visible_resize_cursor_pre_drag.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/focus_cursor_006_mouse_down_with_visible_resize_cursor.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/focus_cursor_007_held_drag_mid_resize.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/focus_cursor_008_mouse_up_completed_resize.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/focus_cursor_009_pointer_left_resize_zone_normal_cursor.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/01_disabled_default.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/02_enabled_default.png",
@@ -2104,6 +2110,8 @@ def _fam003_r2_workstream_completion_scope_failures(
             failures.append(f"{option_manifest_name}: aggregate HEAD is stale")
         if not option_manifest.get("visibleCursorArtifacts"):
             failures.append(f"{option_manifest_name}: packet-visible cursor artifacts are absent")
+        if not option_manifest.get("visibleCursorFocusedArtifacts"):
+            failures.append(f"{option_manifest_name}: focused cursor review artifacts are absent")
         embedded_settings = option_manifest.get("settingsManifest")
         if (
             not isinstance(embedded_settings, dict)
@@ -2172,9 +2180,14 @@ def _fam003_r2_workstream_completion_scope_failures(
         ):
             failures.append(f"{cursor_manifest_name}: telemetry-only cursor state was promoted as visible proof")
         ordered_frames = cursor_manifest.get("orderedFrames")
-        if not isinstance(ordered_frames, list) or len(ordered_frames) < 6 or any(
-            not isinstance(frame, dict) or frame.get("cursorComposited") is not True
-            for frame in ordered_frames
+        requested_cursor_frames = (
+            [frame for frame in ordered_frames if isinstance(frame, dict) and frame.get("cursorRequested") is True]
+            if isinstance(ordered_frames, list)
+            else []
+        )
+        if len(requested_cursor_frames) < 6 or any(
+            frame.get("cursorComposited") is not True or not frame.get("virtualBounds")
+            for frame in requested_cursor_frames
         ):
             failures.append(f"{cursor_manifest_name}: ordered actual-cursor-composited frame set is incomplete")
     failures.extend(

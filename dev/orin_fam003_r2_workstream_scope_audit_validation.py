@@ -490,6 +490,30 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Scope-audit negative fixtures, old-packet negative validation, packet active-review validation, and final parity.",
         "supersession": "Supersedes the stale, non-self-contained 20260717-122104 completion packet shape.",
     },
+    "Harden FAM-003 resize cursor proof": {
+        "reason": "Repaired geometry-only and telemetry-only cursor false greens with real normal-launcher pointer capture, current-child aggregation, and packet fail-closed checks.",
+        "traceability": "R2-WS10 / SLC-R2-010 resize-cursor completion proof repair.",
+        "coherent": "YES - bounded proof helper, validators, fixtures, registry, and packet guard only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Cursor negative fixtures, Settings/Option C fail-closed paths, packet guard, compileall, and PowerShell parse.",
+        "supersession": "Supersedes the telemetry-promoted 122222 cursor proof and omitted 165501 non-green result.",
+    },
+    "Fix cursor proof compiler reference": {
+        "reason": "Added the explicit Windows PowerShell System.Drawing compiler reference required by the actual-cursor renderer.",
+        "traceability": "R2-WS10 / SLC-R2-010 resize-cursor proof-helper finalization.",
+        "coherent": "YES - one proof-helper compiler repair.",
+        "unrelatedChanges": "NO.",
+        "validation": "PowerShell parse and bounded normal-launcher cursor proof.",
+        "supersession": "Completes the prior proof-helper commit without changing product behavior.",
+    },
+    "Make FAM-003 cursor proof reviewable": {
+        "reason": "Aligned packet filenames to actual ordered frame indices, separated launcher frames from cursor-requested frames, and added focused crops for human review.",
+        "traceability": "R2-WS10 / SLC-R2-010 cursor-proof packet reviewability repair.",
+        "coherent": "YES - proof/packet readability and exact audit metadata only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Cursor proof rerun, Settings/Option C aggregate, scope-audit self-test, active-review packet validation, and image integrity.",
+        "supersession": "Final reviewable cursor evidence shape for the replacement Workstream packet.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
@@ -1050,7 +1074,10 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "formalLiveValidation": False,
         "cursorFabrication": False,
         "steps": cursor_steps,
-        "orderedFrames": [{"cursorComposited": True} for _ in range(6)],
+        "orderedFrames": [
+            {"cursorRequested": True, "cursorComposited": True, "virtualBounds": [0, 0, 1920, 1080]}
+            for _ in range(6)
+        ],
     }
     settings_manifest = {
         "allChecksPass": True,
@@ -1063,6 +1090,7 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "settingsManifest": settings_manifest,
         "visibleCursorProof": cursor_manifest,
         "visibleCursorArtifacts": ["cursor-proof.png"],
+        "visibleCursorFocusedArtifacts": ["focus-cursor-proof.png"],
         "helperRuns": {"settingsVisualRegression": {"ok": True, "returncode": 0}},
     }
     packet = {
@@ -1123,12 +1151,18 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/Evidence/Option C Workstream Proof/11_ncp_choose_visible_choices.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/12_ncp_confirm_selected_action.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/13_ncp_result_launch_requested.png": "png",
-        "Review Aids/Evidence/Option C Workstream Proof/cursor_001_pointer_outside_resize_zone_normal.png": "png",
-        "Review Aids/Evidence/Option C Workstream Proof/cursor_002_pointer_right_edge_visible_resize_cursor_pre_drag.png": "png",
-        "Review Aids/Evidence/Option C Workstream Proof/cursor_003_mouse_down_with_visible_resize_cursor.png": "png",
-        "Review Aids/Evidence/Option C Workstream Proof/cursor_004_held_drag_mid_resize.png": "png",
-        "Review Aids/Evidence/Option C Workstream Proof/cursor_005_mouse_up_completed_resize.png": "png",
-        "Review Aids/Evidence/Option C Workstream Proof/cursor_006_pointer_left_resize_zone_normal_cursor.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_004_pointer_outside_resize_zone_normal.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_005_pointer_right_edge_visible_resize_cursor_pre_drag.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_006_mouse_down_with_visible_resize_cursor.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_007_held_drag_mid_resize.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_008_mouse_up_completed_resize.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_009_pointer_left_resize_zone_normal_cursor.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_004_pointer_outside_resize_zone_normal.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_005_pointer_right_edge_visible_resize_cursor_pre_drag.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_006_mouse_down_with_visible_resize_cursor.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_007_held_drag_mid_resize.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_008_mouse_up_completed_resize.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/focus_cursor_009_pointer_left_resize_zone_normal_cursor.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json": "{}",
         "Review Aids/Evidence/HUD Settings Visual Proof/01_disabled_default.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/02_enabled_default.png": "png",

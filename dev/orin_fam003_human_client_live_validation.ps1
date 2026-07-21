@@ -400,6 +400,7 @@ function Capture-Frame {
             path = $path
             bytes = (Get-Item $path).Length
             capturedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+            virtualBounds = @($bounds.Left, $bounds.Top, $bounds.Right, $bounds.Bottom)
             cursorRequested = [bool]$IncludeCursor
             cursorComposited = [bool]$cursorComposited
             cursor = @{
