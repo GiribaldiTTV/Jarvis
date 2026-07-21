@@ -530,6 +530,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Scope-audit self-test and final Git-to-ledger parity.",
         "supersession": "Completes the prior evidence repair without changing product or proof semantics.",
     },
+    "Classify FAM-003 evidence helper references": {
+        "reason": "Repeated existing Helper Status classifications in the HUD evidence addendum so reusable governance validation can classify every helper reference deterministically.",
+        "traceability": "R2-WS10 / SLC-R2-010 Workstream completion evidence audit repair.",
+        "coherent": "YES - registry helper-classification markers only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Branch governance modes, scope-audit self-test, and final Git-to-ledger parity.",
+        "supersession": "Completes the registry classification repair without changing product or proof semantics.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
