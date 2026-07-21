@@ -38,6 +38,7 @@ LOG_ROOT = ROOT / "dev" / "logs" / "fam003_option_c_workstream_proof"
 SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
 HUD_SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_hud_settings_visual_validation"
 HUD_ACCESS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_hud_access_workstream_validation"
+RENDERER_BACKEND_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_renderer_backend_workstream"
 CURSOR_PROOF_LATEST = ROOT / "dev" / "logs" / "fam003_resize_cursor_workstream_proof" / "latest_manifest.json"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
@@ -219,6 +220,38 @@ def _copy_current_hud_settings_proof(
         shutil.copy2(source, target)
         copied.append(target)
     return source_root, payload, copied
+
+
+def _copy_current_renderer_backend_proof(
+    log_dir: Path,
+    result: dict[str, object],
+    expected_head: str,
+) -> tuple[Path, dict[str, object], Path]:
+    manifest_source = _reported_path(result, "Manifest:").resolve()
+    source_root = manifest_source.parent
+    _assert(
+        RENDERER_BACKEND_LOG_ROOT.resolve() in source_root.parents,
+        "renderer-backend child reported a proof root outside its registered log root",
+    )
+    payload = json.loads(manifest_source.read_text(encoding="utf-8-sig"))
+    _assert(payload.get("status") == "PASS", "renderer-backend child is not PASS")
+    _assert(payload.get("sourceHead") == expected_head, "renderer-backend child HEAD is stale")
+    _assert(
+        payload.get("proofMode") == "R2_WORKSTREAM_ONLY_NOT_H1_NOT_LV_NOT_UTS",
+        "renderer-backend child crossed the Workstream proof boundary",
+    )
+    _assert(
+        (payload.get("materialRegression") or {}).get("detected") is False,
+        "renderer-backend child detected a material regression",
+    )
+    _assert(len(payload.get("affectedSurfaceInventory") or []) == 8, "renderer-backend inventory is incomplete")
+    _assert(
+        (payload.get("lifecycle") or {}).get("abnormalNativeExit") == "ABSENT",
+        "renderer-backend lifecycle proof is not clean",
+    )
+    target_root = log_dir / "renderer_backend"
+    shutil.copytree(source_root, target_root)
+    return source_root, payload, target_root
 
 
 def _copy_current_cursor_proof(
@@ -739,6 +772,12 @@ def main() -> int:
 
     tray = _render_tray_proof(log_dir)
     ncp = _render_ncp_proof(log_dir)
+    desktop_entrypoint = _run(
+        [sys.executable, "dev/orin_desktop_entrypoint_validation.py"],
+        timeout=420,
+        normal_qt_platform=True,
+    )
+    desktop_entrypoint_report = _reported_path(desktop_entrypoint, "Report:") if desktop_entrypoint["ok"] else None
     helper_runs = {
         "hudAccessWorkstream": _run([sys.executable, "dev/orin_fam003_hud_access_workstream_validation.py"]),
         "hudSettingsVisual": _run(
@@ -751,9 +790,15 @@ def main() -> int:
         ),
         "overlayInputHelper": _run([sys.executable, "dev/orin_overlay_input_capture_helper.py"]),
         "callableGroupExecution": _run([sys.executable, "dev/orin_callable_group_execution_validation.py"]),
-        "desktopEntrypoint": _run(
-            [sys.executable, "dev/orin_desktop_entrypoint_validation.py"],
-            timeout=420,
+        "desktopEntrypoint": desktop_entrypoint,
+        "rendererBackend": _run(
+            [
+                sys.executable,
+                "dev/orin_fam003_renderer_backend_workstream_validation.py",
+                "--desktop-entrypoint-report",
+                str(desktop_entrypoint_report or "MISSING_DESKTOP_ENTRYPOINT_REPORT"),
+            ],
+            timeout=720,
             normal_qt_platform=True,
         ),
     }
@@ -782,6 +827,19 @@ def main() -> int:
         helper_runs["hudSettingsVisual"],
         head,
     )
+    renderer_backend_root, renderer_backend_manifest, renderer_backend_copy = _copy_current_renderer_backend_proof(
+        log_dir,
+        helper_runs["rendererBackend"],
+        head,
+    )
+    expected_renderer_fixture_count = len(
+        json.loads((ROOT / "dev" / "fixtures" / "fam003_renderer_backend_negative_cases.json").read_text(encoding="utf-8-sig"))["cases"]
+    )
+    renderer_fixture_count = len(renderer_backend_manifest.get("negativeFixtures") or [])
+    _assert(
+        renderer_fixture_count == expected_renderer_fixture_count,
+        f"renderer-backend fixture currentness mismatch: {renderer_fixture_count} != {expected_renderer_fixture_count}",
+    )
     settings_root, settings_manifest, settings_copies = _copy_current_settings_proof(
         log_dir,
         helper_runs["settingsVisualRegression"],
@@ -803,6 +861,9 @@ def main() -> int:
         proof_images.insert(0, hud_contact)
     if hud_comparison is not None:
         proof_images.insert(0, hud_comparison)
+    renderer_backend_contact = renderer_backend_copy / "FAM003_OPTION_D_AFFECTED_SURFACE_CONTACT_SHEET.png"
+    _assert(renderer_backend_contact.exists(), "renderer-backend contact sheet is missing from copied child proof")
+    proof_images.insert(0, renderer_backend_contact)
     contact_sheet = _write_contact_sheet(log_dir, proof_images, "00_option_c_workstream_contact_sheet.png")
 
     png_results = [_validate_png(path) for path in proof_images + [contact_sheet]]
@@ -828,6 +889,7 @@ def main() -> int:
         f"| Settings resize/cursor | PASS | Current child root `{settings_root}`; `{settings_default.name}`; `{settings_contact.name}`; `{cursor_manifest_copy.name}`; {len(cursor_frames)} ordered full-screen frames and {len(cursor_focused_frames)} focused review frames. |\n"
         f"| HUD access 26-state model | PASS | Current child root `{hud_access_root}`; complete JSON/Markdown row artifacts copied into this aggregate. |\n"
         f"| HUD Settings implementation match | PASS | Current child root `{hud_settings_root}`; `{hud_comparison.name}`; `{hud_contact.name}`. |\n"
+        f"| Shared WebEngine renderer backend | PASS | Current child root `{renderer_backend_root}`; exact normal-launcher all-surface, lifecycle, performance, rollback, and {renderer_fixture_count}-fixture proof copied under `{renderer_backend_copy.name}`. |\n"
         "| Styled tray right-click presentation | PASS | `01_tray_styled_popup_focused.png`; `02_tray_popup_route_after_reopen.png`; native menu not primary in `_show_tray_popup`. |\n"
         "| Tray route/action execution | PASS (supporting fixture) | Global Settings, Command Overlay, and HUD Dashboard request boundaries fired from the deterministic enabled-state QAction fixture; this is not actual USER tray interaction proof. |\n"
         "| NCP typed/choose/confirm/result | PASS | `10_ncp_entry_typed_request.png`; `11_ncp_choose_visible_choices.png`; `12_ncp_confirm_selected_action.png`; `13_ncp_result_launch_requested.png`. |\n"
@@ -870,11 +932,15 @@ def main() -> int:
         "hudSettingsProofRoot": str(hud_settings_root),
         "hudSettingsManifest": hud_settings_manifest,
         "hudSettingsArtifacts": [str(path) for path in hud_settings_copies],
+        "rendererBackendProofRoot": str(renderer_backend_root),
+        "rendererBackendManifest": renderer_backend_manifest,
+        "rendererBackendArtifacts": [str(path) for path in renderer_backend_copy.rglob("*") if path.is_file()],
         "childProofRoots": {
             "hudAccessWorkstream": {"root": str(hud_access_root), "role": "CURRENT_AGGREGATE_CHILD", "head": head},
             "hudSettingsVisual": {"root": str(hud_settings_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
             "settingsVisualRegression": {"root": str(settings_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
             "resizeCursor": {"root": str(Path(str(cursor_manifest.get("proofRoot", "")))), "role": "CURRENT_AGGREGATE_DEPENDENCY", "head": head},
+            "rendererBackend": {"root": str(renderer_backend_root), "role": "CURRENT_AGGREGATE_CHILD_AND_PACKET_EVIDENCE", "head": head},
         },
         "aggregatePolicy": "every required child return code must pass; any child failure aborts aggregate before PASS manifest write",
         "helperRuns": {

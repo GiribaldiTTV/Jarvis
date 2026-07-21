@@ -1,0 +1,23 @@
+{
+  "schema": "fam003-renderer-backend-negative-fixtures-v1",
+  "cases": [
+    {"id": "RB-NEG-001", "mutation": "omit_scope_ledger_flag", "expectedFailure": "scope-ledger-flag-missing"},
+    {"id": "RB-NEG-002", "mutation": "label_fam003_only", "expectedFailure": "process-wide-setting-mislabeled"},
+    {"id": "RB-NEG-003", "mutation": "remove_affected_surface", "expectedFailure": "affected-surface-omitted"},
+    {"id": "RB-NEG-004", "mutation": "remove_available_surface_evidence", "expectedFailure": "available-surface-proof-missing"},
+    {"id": "RB-NEG-005", "mutation": "hud_telemetry_only", "expectedFailure": "hud-direct-visual-proof-missing"},
+    {"id": "RB-NEG-006", "mutation": "mismatch_effective_flags", "expectedFailure": "effective-flags-mismatch"},
+    {"id": "RB-NEG-007", "mutation": "claim_hardware_option_d", "expectedFailure": "wrong-backend-presented"},
+    {"id": "RB-NEG-008", "mutation": "remove_performance_metrics", "expectedFailure": "performance-evidence-missing"},
+    {"id": "RB-NEG-009", "mutation": "ignore_material_regression", "expectedFailure": "material-regression-ignored"},
+    {"id": "RB-NEG-010", "mutation": "abnormal_native_exit", "expectedFailure": "abnormal-native-exit"},
+    {"id": "RB-NEG-011", "mutation": "mask_original_failure", "expectedFailure": "original-failure-masked"},
+    {"id": "RB-NEG-012", "mutation": "reuse_historical_backend_evidence", "expectedFailure": "historical-backend-evidence-reused"},
+    {"id": "RB-NEG-013", "mutation": "claim_unmerged_sibling_test", "expectedFailure": "unmerged-sibling-state-claimed"},
+    {"id": "RB-NEG-014", "mutation": "classify_policy_permanent", "expectedFailure": "temporary-policy-made-permanent"},
+    {"id": "RB-NEG-015", "mutation": "aggregate_omits_backend_child", "expectedFailure": "option-c-child-not-consumed"},
+    {"id": "RB-NEG-016", "mutation": "hud_wrong_surface_capture", "expectedFailure": "hud-surface-identity-missing"},
+    {"id": "RB-NEG-017", "mutation": "hud_resize_no_geometry_change", "expectedFailure": "hud-resize-geometry-unproven"},
+    {"id": "RB-NEG-018", "mutation": "recording_initial_frame_unpainted", "expectedFailure": "available-surface-visual-population-missing"}
+  ]
+}

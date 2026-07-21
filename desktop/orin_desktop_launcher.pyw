@@ -19,6 +19,12 @@ from single_instance import (
     acquire_or_prompt_replace,
     show_already_running_dialog,
 )
+from renderer_backend import (
+    RENDERER_BACKEND_CLASSIFICATION,
+    RENDERER_BACKEND_POLICY,
+    WEBENGINE_SOFTWARE_COMPOSITOR_FLAG,
+    build_renderer_environment,
+)
 
 
 def env_flag(name):
@@ -78,7 +84,6 @@ HISTORY_STATE_DIRNAME = "Nexus Desktop AI"
 HISTORY_STATE_SUBDIR = "state"
 ADVISORY_CONFIDENCE_DIRECT_EVIDENCE = "direct_evidence"
 ADVISORY_CONFIDENCE_PATTERN_EVIDENCE = "pattern_evidence"
-WEBENGINE_SOFTWARE_COMPOSITOR_FLAG = "--disable-gpu"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -1151,13 +1156,7 @@ def classify_post_settled_exit(exit_code, startup_observation, log_start_offset)
 
 
 def renderer_environment():
-    env = os.environ.copy()
-    flags = (env.get("QTWEBENGINE_CHROMIUM_FLAGS") or "").strip()
-    flag_tokens = flags.split()
-    if WEBENGINE_SOFTWARE_COMPOSITOR_FLAG not in flag_tokens:
-        flags = f"{flags} {WEBENGINE_SOFTWARE_COMPOSITOR_FLAG}".strip()
-    env["QTWEBENGINE_CHROMIUM_FLAGS"] = flags
-    return env
+    return build_renderer_environment(os.environ)
 
 
 def extract_renderer_failure_cause(stderr_text, stdout_text):
@@ -1521,12 +1520,23 @@ def run_renderer():
     runtime_event("STATUS", "START", "RENDERER_PROCESS")
     log_start_offset = os.path.getsize(RUNTIME_FILE) if os.path.exists(RUNTIME_FILE) else 0
     renderer_env = renderer_environment()
+    effective_webengine_flags = renderer_env.get("QTWEBENGINE_CHROMIUM_FLAGS", "")
+    parent_webengine_flags = renderer_env.get(
+        "NEXUS_RENDERER_PARENT_QTWEBENGINE_CHROMIUM_FLAGS",
+        "",
+    )
     runtime_event(
         "STATUS",
         "TRACE",
         "RENDERER_PROCESS",
         "WEBENGINE_RENDERING_BACKEND=software_compositor",
         "REASON=windows_native_shutdown_stability",
+        f"POLICY={RENDERER_BACKEND_POLICY}",
+        f"CLASSIFICATION={RENDERER_BACKEND_CLASSIFICATION}",
+        "TEMPORARY_SHARED_RUNTIME_SAFETY_POLICY=true",
+        f"PARENT_QTWEBENGINE_CHROMIUM_FLAGS={parent_webengine_flags or '<empty>'}",
+        f"QTWEBENGINE_CHROMIUM_FLAGS={effective_webengine_flags}",
+        f"DISABLE_GPU_COUNT={effective_webengine_flags.split().count(WEBENGINE_SOFTWARE_COMPOSITOR_FLAG)}",
     )
     proc = subprocess.Popen(
         [

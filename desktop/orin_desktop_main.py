@@ -56,6 +56,7 @@ FAM003_SETTINGS_LIVE_RESIZE_MANIFEST_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_MA
 FAM003_SETTINGS_LIVE_RESIZE_EXIT_ENV = "NEXUS_FAM003_SETTINGS_LIVE_RESIZE_EXIT"
 FAM003_LV_VISIBLE_INPUT_MANIFEST_ENV = "NEXUS_FAM003_LV_VISIBLE_INPUT_MANIFEST"
 FAM003_LV_VISIBLE_INPUT_EXIT_ENV = "NEXUS_FAM003_LV_VISIBLE_INPUT_EXIT"
+FAM003_RENDERER_BACKEND_WORKSTREAM_MANIFEST_ENV = "NEXUS_FAM003_RENDERER_BACKEND_WORKSTREAM_MANIFEST"
 DESKTOP_VALIDATION_SHORTCUT_ENV = "NEXUS_DESKTOP_VALIDATION_SHORTCUT_PATH"
 SHUTDOWN_CONFIRMATION_ACCEPTED = "accepted"
 SHUTDOWN_CONFIRMATION_CANCELLED = "cancelled"
@@ -1770,6 +1771,32 @@ def main():
             QTimer.singleShot(800, run_real_client_tray_precheck)
         if fam003_settings_live_resize_manifest_path():
             QTimer.singleShot(950, run_fam003_settings_live_resize_precheck)
+        renderer_backend_manifest = (
+            os.environ.get(FAM003_RENDERER_BACKEND_WORKSTREAM_MANIFEST_ENV) or ""
+        ).strip()
+        if renderer_backend_manifest:
+            def run_renderer_backend_workstream_probe():
+                try:
+                    from dev.fam003_renderer_backend_runtime_probe import (
+                        run_option_d_workstream_probe,
+                    )
+
+                    run_option_d_workstream_probe(
+                        window=window,
+                        core_window=core_window,
+                        tray_entry=tray_entry,
+                        runtime_log_path=RUNTIME_LOG_FILE,
+                        do_shutdown=do_shutdown,
+                        runtime_milestone=runtime_milestone,
+                    )
+                except Exception as exc:
+                    runtime_milestone(
+                        "RENDERER_MAIN|FAM003_OPTION_D_WORKSTREAM_PROBE_IMPORT_FAILED"
+                        f"|reason={type(exc).__name__}|formal_lv=false"
+                    )
+                    QTimer.singleShot(0, do_shutdown)
+
+            QTimer.singleShot(1100, run_renderer_backend_workstream_probe)
 
     window_show_requested = False
 
