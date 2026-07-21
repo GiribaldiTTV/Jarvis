@@ -27459,6 +27459,8 @@ class DesktopRuntimeWindow(QWidget):
         )
 
     def _on_load_finished(self, ok):
+        if self._is_shutting_down:
+            return
         if not ok:
             self._log_event("RENDERER_MAIN|VISUAL_PAGE_LOAD_FAILED")
             return
@@ -29390,12 +29392,36 @@ class DesktopRuntimeWindow(QWidget):
             self._monitoring_hud_recording_studio_window.close()
         if self._monitoring_hud_log_viewer_studio_window is not None:
             self._monitoring_hud_log_viewer_studio_window.close()
-        self.webview.stop()
+        if self._resident_access_settings_dialog is not None:
+            self._resident_access_settings_dialog.close()
+        try:
+            self.webview.stop()
+            self.webview.hide()
+            self.webview.loadFinished.connect(self._complete_webengine_shutdown)
+            self.webview.setUrl(QUrl("about:blank"))
+        except RuntimeError:
+            self._complete_webengine_shutdown()
+            return True
         self.hide()
-        self.close()
-
-        app = QApplication.instance()
-
-        if app is not None:
-            QTimer.singleShot(0, app.quit)
+        QTimer.singleShot(1000, self._complete_webengine_shutdown)
         return True
+
+    def _complete_webengine_shutdown(self, *_args):
+        if getattr(self, "_shutdown_release_completed", False):
+            return
+        self._shutdown_release_completed = True
+        self._log_event("RENDERER_MAIN|DESKTOP_RUNTIME_WEBENGINE_RELEASE_READY")
+        try:
+            self.webview.loadFinished.disconnect(self._complete_webengine_shutdown)
+        except (RuntimeError, TypeError):
+            pass
+        try:
+            self.webview.stop()
+            self.webview.deleteLater()
+        except RuntimeError:
+            pass
+        try:
+            self.close()
+            QTimer.singleShot(0, self.deleteLater)
+        except RuntimeError:
+            pass

@@ -63,6 +63,16 @@ POST_SETTLED_RUNTIME_EXIT_MARKER = "POST_SETTLED_RUNTIME_EXIT"
 POST_SETTLED_RECOVERABLE_COMPLETE_MARKER = (
     "STATUS|SUCCESS|LAUNCHER_RUNTIME|POST_SETTLED_RECOVERABLE_COMPLETE"
 )
+POST_SETTLED_ABNORMAL_TERMINATION_MARKER = (
+    "STATUS|FAIL|LAUNCHER_RUNTIME|POST_SETTLED_ABNORMAL_TERMINATION"
+)
+NATIVE_SURFACES_RELEASED_MARKER = "RENDERER_MAIN|NATIVE_SURFACES_RELEASED"
+RELAUNCH_LIFECYCLE_FIXTURE_PATH = os.path.join(
+    ROOT_DIR,
+    "dev",
+    "fixtures",
+    "desktop_relaunch_lifecycle_cases.json",
+)
 RELAUNCH_REPLACEMENT_SESSION_ACTIVE_MARKER = (
     "STATUS|TRACE|LAUNCHER_RUNTIME|RELAUNCH_REPLACEMENT_SESSION_ACTIVE"
 )
@@ -185,6 +195,108 @@ def first_marker_index(lines, marker):
         if marker in line:
             return index
     return -1
+
+
+def renderer_process_exit_code(lines):
+    patterns = (
+        re.compile(r"Renderer exit code:\s*(-?\d+)"),
+        re.compile(r"STATUS\|END\|RENDERER_PROCESS\|EXIT=(-?\d+)"),
+    )
+    for line in reversed(lines):
+        for pattern in patterns:
+            match = pattern.search(line)
+            if match:
+                return int(match.group(1))
+    return None
+
+
+def relaunch_lifecycle_case_passes(case):
+    mode = str(case.get("mode") or "transfer")
+    if mode == "decline_only":
+        return bool(
+            case.get("decline_preserved")
+            and case.get("original_session_healthy")
+            and case.get("first_process_exit_code") is None
+            and not case.get("replacement_settled")
+            and not case.get("owner_overlap")
+        )
+
+    clean_transfer = bool(
+        case.get("decline_preserved")
+        and case.get("later_accept_is_fresh")
+        and case.get("native_surfaces_released")
+        and case.get("event_loop_exit_code") == 0
+        and case.get("first_process_exit_code") == 0
+        and case.get("guard_release_count") == 1
+        and case.get("guard_released_after_clean_exit")
+        and case.get("replacement_acquired_after_release")
+        and case.get("replacement_settled")
+        and not case.get("owner_overlap")
+        and not case.get("forced_kill")
+        and not case.get("replacement_masks_first_failure")
+    )
+    if mode == "repeated_mixed":
+        return bool(clean_transfer and case.get("cycle_count", 0) >= 2 and case.get("all_cycles_clean"))
+    return clean_transfer
+
+
+def run_relaunch_lifecycle_fixture_validation():
+    cases = json.loads(read_text(RELAUNCH_LIFECYCLE_FIXTURE_PATH) or "[]")
+    checks = {
+        "fixture_file_exists": line_status(
+            os.path.isfile(RELAUNCH_LIFECYCLE_FIXTURE_PATH),
+            RELAUNCH_LIFECYCLE_FIXTURE_PATH,
+        ),
+        "ten_cases_present": line_status(len(cases) == 10, f"count={len(cases)}"),
+    }
+    results = []
+    for case in cases:
+        actual = relaunch_lifecycle_case_passes(case)
+        expected = bool(case.get("expected_pass"))
+        case_id = str(case.get("id") or "missing-id")
+        checks[f"case::{case_id}"] = line_status(
+            actual == expected,
+            f"expected_pass={expected}; actual_pass={actual}",
+        )
+        results.append({"id": case_id, "expected_pass": expected, "actual_pass": actual})
+    return {
+        "scenario_name": "desktop_relaunch_lifecycle_negative_fixtures",
+        "fixture_path": RELAUNCH_LIFECYCLE_FIXTURE_PATH,
+        "results": results,
+        "checks": checks,
+        "stdout": "",
+        "stderr": "",
+    }
+
+
+def add_real_lifecycle_exit_checks(checks, scenario_results):
+    for scenario_result in scenario_results:
+        scenario_name = str(scenario_result.get("scenario_name") or "unnamed")
+        log_root = scenario_result.get("log_root") or ""
+        for runtime_log in files_matching_sorted(log_root, "Runtime_"):
+            lines = read_lines(runtime_log)
+            if not any(f"Renderer target: {DEFAULT_TARGET_SCRIPT}" in line for line in lines):
+                continue
+            if not any("RENDERER_MAIN|SHUTDOWN_REQUESTED" in line for line in lines):
+                continue
+            label = f"{scenario_name}::{os.path.basename(runtime_log)}"
+            process_code = renderer_process_exit_code(lines)
+            checks[f"{label}::native_surfaces_released"] = line_status(
+                any(NATIVE_SURFACES_RELEASED_MARKER in line for line in lines),
+                NATIVE_SURFACES_RELEASED_MARKER,
+            )
+            checks[f"{label}::event_loop_exit_zero"] = line_status(
+                any("RENDERER_MAIN|EVENT_LOOP_EXIT|code=0" in line for line in lines),
+                "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0",
+            )
+            checks[f"{label}::actual_renderer_process_exit_zero"] = line_status(
+                process_code == 0,
+                f"renderer_process_exit_code={process_code}",
+            )
+            checks[f"{label}::abnormal_post_settled_termination_absent"] = line_status(
+                not any(POST_SETTLED_ABNORMAL_TERMINATION_MARKER in line for line in lines),
+                POST_SETTLED_ABNORMAL_TERMINATION_MARKER,
+            )
 
 
 def latest_file_matching(folder_path, prefix):
@@ -1731,6 +1843,8 @@ def run_launch_chain_scenario(
     normal_exit_complete_seen = False
     failure_flow_seen = False
     post_settled_recoverable_seen = False
+    post_settled_abnormal_seen = False
+    renderer_process_code = None
 
     if launch_attempted:
         ready_deadline = time.time() + 25.0
@@ -1762,6 +1876,10 @@ def run_launch_chain_scenario(
             post_settled_recoverable_seen = any(
                 POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines
             )
+            post_settled_abnormal_seen = any(
+                POST_SETTLED_ABNORMAL_TERMINATION_MARKER in line for line in runtime_lines
+            )
+            renderer_process_code = renderer_process_exit_code(runtime_lines)
             failure_flow_seen = any(
                 "STATUS|SUCCESS|LAUNCHER_RUNTIME|FAILURE_FLOW_COMPLETE" in line for line in runtime_lines
             )
@@ -1770,7 +1888,9 @@ def run_launch_chain_scenario(
                 shutdown_requested_seen
                 and renderer_exit_seen
                 and launcher_settled_observed_seen
-            ) or post_settled_recoverable_seen:
+                and renderer_process_code == 0
+                and normal_exit_complete_seen
+            ) or post_settled_abnormal_seen:
                 break
 
             if settled_seen and not shutdown_requested_seen and hotkey_sent and hotkey_attempts < 2:
@@ -1810,40 +1930,40 @@ def run_launch_chain_scenario(
             AUTHORITATIVE_DESKTOP_SETTLED_MARKER,
         ),
         "shutdown_hotkey_sent": line_status(
-            hotkey_sent or post_settled_recoverable_seen,
-            hotkey_detail if hotkey_sent else f"{hotkey_detail}; post-settled cleanup path classified",
+            hotkey_sent,
+            hotkey_detail,
         ),
         "shutdown_hotkey_direct_shutdown_marker": line_status(
-            shutdown_requested_seen or (not hotkey_sent and post_settled_recoverable_seen),
-            "RENDERER_MAIN|SHUTDOWN_REQUESTED" if hotkey_sent else "hotkey unavailable; post-settled cleanup path classified",
+            shutdown_requested_seen,
+            "RENDERER_MAIN|SHUTDOWN_REQUESTED",
         ),
         "shutdown_hotkey_confirmation_absent": line_status(
             not any("RENDERER_MAIN|SHUTDOWN_CONFIRMATION_REQUESTED|source=hotkey" in line for line in runtime_lines),
             "Ctrl+Alt+End must not open confirmation; tray exit owns confirmation",
         ),
         "completion_path_classified": line_status(
-            (shutdown_requested_seen and renderer_exit_seen) or post_settled_recoverable_seen,
-            "clean shutdown markers or POST_SETTLED_RECOVERABLE_COMPLETE",
+            shutdown_requested_seen
+            and renderer_exit_seen
+            and renderer_process_code == 0
+            and normal_exit_complete_seen
+            and not post_settled_abnormal_seen,
+            f"clean shutdown; renderer_process_exit_code={renderer_process_code}",
         ),
-        "clean_shutdown_markers_optional": line_status(
-            True,
-            "seen"
-            if shutdown_requested_seen and renderer_exit_seen
-            else "not seen before validator cleanup",
+        "clean_shutdown_markers_required": line_status(
+            shutdown_requested_seen and renderer_exit_seen and normal_exit_complete_seen,
+            "shutdown, event-loop exit, and normal launcher completion required",
         ),
-        "post_settled_recoverable_complete_optional": line_status(
-            True,
-            "seen" if post_settled_recoverable_seen else "not seen",
+        "actual_renderer_process_exit_zero": line_status(
+            renderer_process_code == 0,
+            f"renderer_process_exit_code={renderer_process_code}",
         ),
-        "post_settled_runtime_exit_marker_optional": line_status(
-            True,
-            "seen"
-            if any(POST_SETTLED_RUNTIME_EXIT_MARKER in line for line in runtime_lines)
-            else "not seen",
+        "abnormal_or_recoverable_post_settled_completion_absent": line_status(
+            not post_settled_abnormal_seen and not post_settled_recoverable_seen,
+            "no abnormal or legacy recoverable completion marker",
         ),
-        "launcher_normal_exit_complete_optional": line_status(
-            True,
-            "seen" if normal_exit_complete_seen else "not seen before validator cleanup",
+        "launcher_normal_exit_complete": line_status(
+            normal_exit_complete_seen,
+            "seen" if normal_exit_complete_seen else "missing",
         ),
         "traceback_absent": line_status(
             "Traceback" not in shim_result.stdout and "Traceback" not in shim_result.stderr,
@@ -2414,8 +2534,8 @@ def run_accepted_relaunch_cycle_scenario(
     }
 
 
-def run_relaunch_after_recoverable_exit_scenario():
-    scenario_name = "vbs_relaunch_after_recoverable_exit"
+def run_relaunch_after_abnormal_exit_scenario():
+    scenario_name = "vbs_relaunch_after_abnormal_exit"
     scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
     preexisting_processes_before, preexisting_processes_killed, preexisting_processes_after = (
         cleanup_launch_chain_processes_for_log_root(BASE_LOG_ROOT)
@@ -2548,9 +2668,9 @@ def run_relaunch_after_recoverable_exit_scenario():
     )
 
     first_settled_index = first_marker_index(first_runtime_lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
-    first_recoverable_complete_index = first_marker_index(
+    first_abnormal_termination_index = first_marker_index(
         first_runtime_lines,
-        POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
+        POST_SETTLED_ABNORMAL_TERMINATION_MARKER,
     )
     first_release_index = first_marker_index(first_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
 
@@ -2569,7 +2689,7 @@ def run_relaunch_after_recoverable_exit_scenario():
     second_release_index = first_marker_index(second_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
 
     ordering_detail = (
-        f"first_settled={first_settled_index}, first_recoverable_complete={first_recoverable_complete_index}, "
+        f"first_settled={first_settled_index}, first_abnormal_termination={first_abnormal_termination_index}, "
         f"first_release={first_release_index}, second_conflict={second_conflict_index}, "
         f"second_settled={second_settled_index}, second_launcher_settled_observed={second_launcher_settled_observed_index}, "
         f"second_shutdown={second_shutdown_index}, second_exit={second_exit_index}, "
@@ -2589,12 +2709,13 @@ def run_relaunch_after_recoverable_exit_scenario():
             bool(first_runtime_log),
             first_runtime_log or "missing first runtime log",
         ),
-        "first_session_recoverable_complete_present": line_status(
-            first_recoverable_complete_index > first_settled_index >= 0,
+        "first_session_abnormal_termination_is_non_green": line_status(
+            first_result.returncode == 1
+            and first_abnormal_termination_index > first_settled_index >= 0,
             ordering_detail,
         ),
-        "first_session_released_after_recoverable_complete": line_status(
-            first_release_index > first_recoverable_complete_index >= 0,
+        "first_session_released_after_abnormal_record": line_status(
+            first_release_index > first_abnormal_termination_index >= 0,
             ordering_detail,
         ),
         "first_session_failure_flow_absent": line_status(
@@ -2603,7 +2724,7 @@ def run_relaunch_after_recoverable_exit_scenario():
         ),
         "second_launch_started": line_status(
             second_launch_attempted,
-            "post-recoverable relaunch started" if second_launch_attempted else "post-recoverable relaunch not started",
+            "post-abnormal independent launch started" if second_launch_attempted else "post-abnormal independent launch not started",
         ),
         "second_runtime_log_created": line_status(
             bool(second_runtime_log) and second_runtime_log != first_runtime_log,
@@ -2613,7 +2734,7 @@ def run_relaunch_after_recoverable_exit_scenario():
             second_conflict_index < 0,
             ordering_detail,
         ),
-        "second_session_settled_after_recoverable_exit": line_status(
+        "second_session_settled_after_abnormal_exit": line_status(
             second_settled_index >= 0 and second_launcher_settled_observed_index >= second_settled_index,
             ordering_detail,
         ),
@@ -4852,8 +4973,12 @@ finally:
     first_settled_index = first_marker_index(first_runtime_lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
     first_relaunch_request_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
     first_shutdown_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    first_native_release_index = first_marker_index(first_runtime_lines, NATIVE_SURFACES_RELEASED_MARKER)
     first_exit_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    first_process_exit_code = renderer_process_exit_code(first_runtime_lines)
+    first_process_exit_index = first_marker_index(first_runtime_lines, "Renderer exit code: 0")
     first_release_index = first_marker_index(first_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+    first_abnormal_index = first_marker_index(first_runtime_lines, POST_SETTLED_ABNORMAL_TERMINATION_MARKER)
 
     failure_conflict_index = first_marker_index(failure_runtime_lines, "SINGLE_INSTANCE_CONFLICT_DETECTED")
     failure_prompt_accept_index = max(
@@ -4915,12 +5040,18 @@ finally:
         POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
     )
     accept_shutdown_index = first_marker_index(accept_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    accept_native_release_index = first_marker_index(accept_runtime_lines, NATIVE_SURFACES_RELEASED_MARKER)
     accept_exit_index = first_marker_index(accept_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    accept_process_exit_code = renderer_process_exit_code(accept_runtime_lines)
+    accept_process_exit_index = first_marker_index(accept_runtime_lines, "Renderer exit code: 0")
     accept_release_index = first_marker_index(accept_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+    accept_abnormal_index = first_marker_index(accept_runtime_lines, POST_SETTLED_ABNORMAL_TERMINATION_MARKER)
 
     ordering_detail = (
         f"first_settled={first_settled_index}, first_relaunch_request={first_relaunch_request_index}, "
-        f"first_shutdown={first_shutdown_index}, first_exit={first_exit_index}, first_release={first_release_index}, "
+        f"first_shutdown={first_shutdown_index}, first_native_release={first_native_release_index}, "
+        f"first_event_loop_exit={first_exit_index}, first_process_exit={first_process_exit_code}, "
+        f"first_process_exit_marker={first_process_exit_index}, first_release={first_release_index}, "
         f"failure_conflict={failure_conflict_index}, failure_prompt_accept={failure_prompt_accept_index}, "
         f"failure_signal_failed={failure_signal_failed_index}, failure_outcome={failure_outcome_index}, "
         f"failure_runtime_start={failure_runtime_start_index}, failure_signal_sent={failure_signal_sent_index}, "
@@ -4990,16 +5121,23 @@ finally:
             and accept_replacement_settled_index > accept_settled_index,
             ordering_detail,
         ),
+        "first_session_cleanly_released_for_accept": line_status(
+            first_shutdown_index > first_relaunch_request_index >= 0
+            and first_exit_index > first_shutdown_index
+            and first_process_exit_code == 0
+            and first_process_exit_index > first_exit_index
+            and first_release_index > first_process_exit_index
+            and first_abnormal_index < 0,
+            ordering_detail,
+        ),
         "accept_launch_lifecycle_completed_after_settled": line_status(
-            (
-                accept_shutdown_index > accept_settled_index >= 0
-                and accept_exit_index > accept_shutdown_index
-                and accept_release_index > accept_exit_index
-            )
-            or (
-                accept_recoverable_complete_index > accept_settled_index >= 0
-                and accept_release_index > accept_recoverable_complete_index
-            ),
+            accept_shutdown_index > accept_settled_index >= 0
+            and accept_exit_index > accept_shutdown_index
+            and accept_process_exit_code == 0
+            and accept_process_exit_index > accept_exit_index
+            and accept_release_index > accept_process_exit_index
+            and accept_recoverable_complete_index < 0
+            and accept_abnormal_index < 0,
             ordering_detail,
         ),
         "accept_launch_shutdown_hotkey_optional": line_status(
@@ -5280,8 +5418,12 @@ def run_mixed_decline_then_accept_relaunch_scenario():
     first_settled_index = first_marker_index(first_runtime_lines, AUTHORITATIVE_DESKTOP_SETTLED_MARKER)
     first_relaunch_request_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|RELAUNCH_REQUEST_RECEIVED")
     first_shutdown_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    first_native_release_index = first_marker_index(first_runtime_lines, NATIVE_SURFACES_RELEASED_MARKER)
     first_exit_index = first_marker_index(first_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    first_process_exit_code = renderer_process_exit_code(first_runtime_lines)
+    first_process_exit_index = first_marker_index(first_runtime_lines, "Renderer exit code: 0")
     first_release_index = first_marker_index(first_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+    first_abnormal_index = first_marker_index(first_runtime_lines, POST_SETTLED_ABNORMAL_TERMINATION_MARKER)
 
     decline_conflict_index = first_marker_index(decline_runtime_lines, "SINGLE_INSTANCE_CONFLICT_DETECTED")
     decline_prompt_decline_index = max(
@@ -5346,8 +5488,12 @@ def run_mixed_decline_then_accept_relaunch_scenario():
         POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
     )
     accept_shutdown_index = first_marker_index(accept_runtime_lines, "RENDERER_MAIN|SHUTDOWN_REQUESTED")
+    accept_native_release_index = first_marker_index(accept_runtime_lines, NATIVE_SURFACES_RELEASED_MARKER)
     accept_exit_index = first_marker_index(accept_runtime_lines, "RENDERER_MAIN|EVENT_LOOP_EXIT|code=0")
+    accept_process_exit_code = renderer_process_exit_code(accept_runtime_lines)
+    accept_process_exit_index = first_marker_index(accept_runtime_lines, "Renderer exit code: 0")
     accept_release_index = first_marker_index(accept_runtime_lines, SINGLE_INSTANCE_RELEASED_MARKER)
+    accept_abnormal_index = first_marker_index(accept_runtime_lines, POST_SETTLED_ABNORMAL_TERMINATION_MARKER)
     accept_decline_index = max(
         first_marker_index(accept_runtime_lines, "REPLACE_PROMPT_DECLINED"),
         first_marker_index(accept_runtime_lines, "REPLACE_PROMPT_AUTO_DECLINED"),
@@ -5359,7 +5505,9 @@ def run_mixed_decline_then_accept_relaunch_scenario():
 
     ordering_detail = (
         f"first_settled={first_settled_index}, first_relaunch_request={first_relaunch_request_index}, "
-        f"first_shutdown={first_shutdown_index}, first_exit={first_exit_index}, first_release={first_release_index}, "
+        f"first_shutdown={first_shutdown_index}, first_native_release={first_native_release_index}, "
+        f"first_event_loop_exit={first_exit_index}, first_process_exit={first_process_exit_code}, "
+        f"first_process_exit_marker={first_process_exit_index}, first_release={first_release_index}, "
         f"decline_conflict={decline_conflict_index}, decline_prompt_decline={decline_prompt_decline_index}, "
         f"decline_success={decline_success_index}, decline_runtime_start={decline_runtime_start_index}, "
         f"decline_signal_sent={decline_signal_sent_index}, decline_reacquire={decline_reacquire_index}, "
@@ -5368,7 +5516,9 @@ def run_mixed_decline_then_accept_relaunch_scenario():
         f"accept_signal_sent={accept_signal_sent_index}, accept_reacquire={accept_reacquire_index}, "
         f"accept_replacement_confirmed={accept_replacement_confirmed_index}, accept_replacement_active={accept_replacement_active_index}, "
         f"accept_settled={accept_settled_index}, accept_replacement_settled={accept_replacement_settled_index}, "
-        f"accept_shutdown={accept_shutdown_index}, accept_exit={accept_exit_index}, "
+        f"accept_shutdown={accept_shutdown_index}, accept_native_release={accept_native_release_index}, "
+        f"accept_event_loop_exit={accept_exit_index}, accept_process_exit={accept_process_exit_code}, "
+        f"accept_process_exit_marker={accept_process_exit_index}, "
         f"accept_recoverable_complete={accept_recoverable_complete_index}, accept_release={accept_release_index}"
     )
 
@@ -5423,9 +5573,17 @@ def run_mixed_decline_then_accept_relaunch_scenario():
         ),
         "active_session_released_for_accept_phase": line_status(
             first_shutdown_index > first_relaunch_request_index >= 0
-            and first_exit_index > first_shutdown_index
-            and first_release_index > first_exit_index,
+            and first_native_release_index > first_shutdown_index
+            and first_exit_index > first_native_release_index
+            and first_process_exit_code == 0
+            and first_process_exit_index > first_exit_index
+            and first_release_index > first_process_exit_index
+            and first_abnormal_index < 0,
             ordering_detail,
+        ),
+        "active_session_actual_process_exit_is_clean": line_status(
+            first_process_exit_code == 0,
+            f"first_process_exit_code={first_process_exit_code}",
         ),
         "accepted_incoming_launch_conflict_and_accept": line_status(
             accept_conflict_index >= 0 and accept_prompt_accept_index > accept_conflict_index >= 0,
@@ -5461,22 +5619,25 @@ def run_mixed_decline_then_accept_relaunch_scenario():
             accept_shutdown_hotkey_detail if accept_shutdown_hotkey_sent else "not needed before lifecycle completion",
         ),
         "accepted_session_lifecycle_completed_after_settled": line_status(
-            (
-                accept_shutdown_index > accept_settled_index >= 0
-                and accept_exit_index > accept_shutdown_index
-                and accept_release_index > accept_exit_index
-            )
-            or (
-                accept_recoverable_complete_index > accept_settled_index >= 0
-                and accept_release_index > accept_recoverable_complete_index
-            ),
+            accept_shutdown_index > accept_settled_index >= 0
+            and accept_native_release_index > accept_shutdown_index
+            and accept_exit_index > accept_native_release_index
+            and accept_process_exit_code == 0
+            and accept_process_exit_index > accept_exit_index
+            and accept_release_index > accept_process_exit_index
+            and accept_recoverable_complete_index < 0
+            and accept_abnormal_index < 0,
             ordering_detail,
+        ),
+        "accepted_session_actual_process_exit_is_clean": line_status(
+            accept_process_exit_code == 0,
+            f"accept_process_exit_code={accept_process_exit_code}",
         ),
         "single_instance_guard_transfers_only_in_accept_phase": line_status(
             decline_reacquire_index < 0
             and decline_release_index < 0
             and accept_reacquire_index >= 0
-            and first_release_index > first_exit_index >= 0,
+            and first_release_index > first_process_exit_index > first_exit_index >= 0,
             ordering_detail,
         ),
         "no_failure_flow_in_mixed_decline_accept_incoming_launches": line_status(
@@ -7162,8 +7323,8 @@ def run_post_settled_clean_exit_precedence_scenario():
     }
 
 
-def run_post_settled_recoverable_exit_scenario(
-    scenario_name="launcher_post_settled_recoverable_exit",
+def run_post_settled_abnormal_exit_scenario(
+    scenario_name="launcher_post_settled_abnormal_exit",
     settle_delay_seconds=0.25,
 ):
     scenario_root = os.path.join(BASE_LOG_ROOT, scenario_name)
@@ -7237,12 +7398,16 @@ def run_post_settled_recoverable_exit_scenario(
             any(LAUNCHER_SETTLED_OBSERVED_MARKER in line for line in runtime_lines),
             LAUNCHER_SETTLED_OBSERVED_MARKER,
         ),
-        "post_settled_runtime_exit_warning_present": line_status(
-            any(POST_SETTLED_RUNTIME_EXIT_MARKER in line for line in runtime_lines),
-            POST_SETTLED_RUNTIME_EXIT_MARKER,
+        "launcher_returns_failure": line_status(
+            result.returncode == 1,
+            f"returncode={result.returncode}",
         ),
-        "post_settled_recoverable_complete_present": line_status(
-            any(POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines),
+        "post_settled_abnormal_termination_present": line_status(
+            any(POST_SETTLED_ABNORMAL_TERMINATION_MARKER in line for line in runtime_lines),
+            POST_SETTLED_ABNORMAL_TERMINATION_MARKER,
+        ),
+        "legacy_recoverable_complete_absent": line_status(
+            not any(POST_SETTLED_RECOVERABLE_COMPLETE_MARKER in line for line in runtime_lines),
             POST_SETTLED_RECOVERABLE_COMPLETE_MARKER,
         ),
         "clean_shutdown_markers_absent": line_status(
@@ -7816,6 +7981,10 @@ def run_validation():
             marker,
         )
 
+    relaunch_lifecycle_fixture_result = run_relaunch_lifecycle_fixture_validation()
+    for check_name, check_result in relaunch_lifecycle_fixture_result["checks"].items():
+        checks[f"{relaunch_lifecycle_fixture_result['scenario_name']}::{check_name}"] = check_result
+
     default_launch_result = run_entrypoint_launch_scenario("vbs_default")
     fallback_launch_result = run_entrypoint_launch_scenario(
         "vbs_fallback",
@@ -7840,7 +8009,7 @@ def run_validation():
     mixed_failure_decline_accept_failure_result = (
         run_mixed_failure_decline_accept_failure_relaunch_scenario()
     )
-    relaunch_after_recoverable_result = run_relaunch_after_recoverable_exit_scenario()
+    relaunch_after_abnormal_result = run_relaunch_after_abnormal_exit_scenario()
     consecutive_relaunch_cycles_result = run_rapid_consecutive_accepted_relaunch_cycles_scenario()
     main_invalid_argument_result = run_main_invalid_argument_scenario()
     rapid_pre_settled_result = run_rapid_pre_settled_exit_scenario()
@@ -7849,9 +8018,9 @@ def run_validation():
     active_owner_file_conflict_result = run_active_owner_file_conflict_scenario()
     stale_active_owner_pid_reuse_result = run_stale_active_owner_pid_reuse_scenario()
     post_settled_clean_exit_result = run_post_settled_clean_exit_precedence_scenario()
-    post_settled_recoverable_result = run_post_settled_recoverable_exit_scenario()
-    post_settled_recoverable_immediate_result = run_post_settled_recoverable_exit_scenario(
-        "launcher_post_settled_recoverable_exit_immediate",
+    post_settled_abnormal_result = run_post_settled_abnormal_exit_scenario()
+    post_settled_abnormal_immediate_result = run_post_settled_abnormal_exit_scenario(
+        "launcher_post_settled_abnormal_exit_immediate",
         0.0,
     )
 
@@ -7895,8 +8064,8 @@ def run_validation():
         checks[f"{mixed_decline_accept_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in mixed_failure_decline_accept_failure_result["checks"].items():
         checks[f"{mixed_failure_decline_accept_failure_result['scenario_name']}::{check_name}"] = check_result
-    for check_name, check_result in relaunch_after_recoverable_result["checks"].items():
-        checks[f"{relaunch_after_recoverable_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in relaunch_after_abnormal_result["checks"].items():
+        checks[f"{relaunch_after_abnormal_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in consecutive_relaunch_cycles_result["checks"].items():
         checks[f"{consecutive_relaunch_cycles_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in rapid_pre_settled_result["checks"].items():
@@ -7911,10 +8080,26 @@ def run_validation():
         checks[f"{stale_active_owner_pid_reuse_result['scenario_name']}::{check_name}"] = check_result
     for check_name, check_result in post_settled_clean_exit_result["checks"].items():
         checks[f"{post_settled_clean_exit_result['scenario_name']}::{check_name}"] = check_result
-    for check_name, check_result in post_settled_recoverable_result["checks"].items():
-        checks[f"{post_settled_recoverable_result['scenario_name']}::{check_name}"] = check_result
-    for check_name, check_result in post_settled_recoverable_immediate_result["checks"].items():
-        checks[f"{post_settled_recoverable_immediate_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in post_settled_abnormal_result["checks"].items():
+        checks[f"{post_settled_abnormal_result['scenario_name']}::{check_name}"] = check_result
+    for check_name, check_result in post_settled_abnormal_immediate_result["checks"].items():
+        checks[f"{post_settled_abnormal_immediate_result['scenario_name']}::{check_name}"] = check_result
+
+    add_real_lifecycle_exit_checks(
+        checks,
+        (
+            default_launch_result,
+            fallback_launch_result,
+            main_handoff_result,
+            main_explicit_handoff_result,
+            accepted_relaunch_result,
+            accepted_relaunch_slow_shutdown_result,
+            declined_relaunch_result,
+            rapid_declined_relaunch_result,
+            mixed_decline_accept_result,
+            consecutive_relaunch_cycles_result,
+        ),
+    )
 
     return {
         "branch_state": detect_branch_state(),
@@ -7930,6 +8115,7 @@ def run_validation():
             main_explicit_handoff_result,
         ],
         "nonlaunch_scenarios": [
+            relaunch_lifecycle_fixture_result,
             repeated_entrypoint_result,
             single_instance_wait_boundary_result,
             pre_settled_conflict_result,
@@ -7942,7 +8128,7 @@ def run_validation():
             mixed_signal_failure_accept_result,
             mixed_decline_accept_result,
             mixed_failure_decline_accept_failure_result,
-            relaunch_after_recoverable_result,
+            relaunch_after_abnormal_result,
             consecutive_relaunch_cycles_result,
             main_invalid_argument_result,
             rapid_pre_settled_result,
@@ -7951,8 +8137,8 @@ def run_validation():
             active_owner_file_conflict_result,
             stale_active_owner_pid_reuse_result,
             post_settled_clean_exit_result,
-            post_settled_recoverable_result,
-            post_settled_recoverable_immediate_result,
+            post_settled_abnormal_result,
+            post_settled_abnormal_immediate_result,
         ],
         "tray_route_events": tray_events,
         "tray_identity_events": tray_identity_events,

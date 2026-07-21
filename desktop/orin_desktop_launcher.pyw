@@ -78,6 +78,7 @@ HISTORY_STATE_DIRNAME = "Nexus Desktop AI"
 HISTORY_STATE_SUBDIR = "state"
 ADVISORY_CONFIDENCE_DIRECT_EVIDENCE = "direct_evidence"
 ADVISORY_CONFIDENCE_PATTERN_EVIDENCE = "pattern_evidence"
+WEBENGINE_SOFTWARE_COMPOSITOR_FLAG = "--disable-gpu"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -1146,7 +1147,17 @@ def classify_post_settled_exit(exit_code, startup_observation, log_start_offset)
     if startup_observation != "settled":
         return "", exit_markers
 
-    return "recoverable_condition", exit_markers
+    return "abnormal_termination", exit_markers
+
+
+def renderer_environment():
+    env = os.environ.copy()
+    flags = (env.get("QTWEBENGINE_CHROMIUM_FLAGS") or "").strip()
+    flag_tokens = flags.split()
+    if WEBENGINE_SOFTWARE_COMPOSITOR_FLAG not in flag_tokens:
+        flags = f"{flags} {WEBENGINE_SOFTWARE_COMPOSITOR_FLAG}".strip()
+    env["QTWEBENGINE_CHROMIUM_FLAGS"] = flags
+    return env
 
 
 def extract_renderer_failure_cause(stderr_text, stdout_text):
@@ -1509,6 +1520,14 @@ def run_renderer():
     runtime(f"Starting renderer: {TARGET_SCRIPT}")
     runtime_event("STATUS", "START", "RENDERER_PROCESS")
     log_start_offset = os.path.getsize(RUNTIME_FILE) if os.path.exists(RUNTIME_FILE) else 0
+    renderer_env = renderer_environment()
+    runtime_event(
+        "STATUS",
+        "TRACE",
+        "RENDERER_PROCESS",
+        "WEBENGINE_RENDERING_BACKEND=software_compositor",
+        "REASON=windows_native_shutdown_stability",
+    )
     proc = subprocess.Popen(
         [
             pythonw(),
@@ -1521,6 +1540,7 @@ def run_renderer():
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=renderer_env,
         **hidden_window_kwargs(),
     )
     runtime(f"Renderer PID: {proc.pid}")
@@ -1898,29 +1918,29 @@ def main():
                 or "Failure origin: launcher startup observation ended before the authoritative desktop-settled signal."
             )
 
-        if startup_observation == "settled" and post_settled_classification == "recoverable_condition":
-            record_relaunch_replacement_settled()
+        if startup_observation == "settled" and post_settled_classification == "abnormal_termination":
             marker_details = [
                 f"EXIT={last_code}",
                 f"RELAUNCH_REQUESTED={'true' if post_settled_exit_markers['relaunch_requested'] else 'false'}",
                 f"SHUTDOWN_REQUESTED={'true' if post_settled_exit_markers['shutdown_requested'] else 'false'}",
+                f"EVENT_LOOP_EXIT_ZERO={'true' if post_settled_exit_markers['event_loop_exit_zero'] else 'false'}",
             ]
             runtime(
                 "Renderer exited after the authoritative desktop-settled state was already reached; "
-                "classifying as a recoverable post-settled runtime exit"
+                "classifying as an abnormal post-settled termination"
             )
             runtime_event(
                 "STATUS",
-                "WARNING",
+                "FAIL",
                 "RECOVERY_ATTEMPT",
                 f"INDEX={attempt}",
-                "POST_SETTLED_RUNTIME_EXIT",
+                "POST_SETTLED_ABNORMAL_TERMINATION",
                 f"EXIT={last_code}",
             )
             write_status(
                 "TRACE",
                 "Renderer exited after authoritative desktop-settled proof; "
-                "classified as recoverable post-settled runtime exit.",
+                "classified as abnormal and non-green.",
             )
             if failure_cause:
                 runtime(f"Post-settled exit cause: {failure_cause}")
@@ -1928,25 +1948,26 @@ def main():
             if failure_origin:
                 runtime(f"Post-settled exit origin: {failure_origin}")
                 write_status("TRACE", failure_origin)
-            delete_file(STOP_SIGNAL_FILE, "post-settled recoverable exit")
-            delete_file(STARTUP_ABORT_SIGNAL_FILE, "post-settled recoverable exit")
-            delete_file(STATUS_FILE, "post-settled recoverable exit")
+            delete_file(STOP_SIGNAL_FILE, "post-settled abnormal termination")
+            delete_file(STARTUP_ABORT_SIGNAL_FILE, "post-settled abnormal termination")
             runtime_event(
                 "STATUS",
-                "SUCCESS",
+                "FAIL",
                 "LAUNCHER_RUNTIME",
-                "POST_SETTLED_RECOVERABLE_COMPLETE",
+                "POST_SETTLED_ABNORMAL_TERMINATION",
                 *marker_details,
             )
             record_finalized_history(
                 run_id,
-                "SUCCESS",
-                "POST_SETTLED_RECOVERABLE_RUNTIME_EXIT",
-                "POST_SETTLED_RECOVERABLE_COMPLETE",
+                "FAILURE",
+                "POST_SETTLED_ABNORMAL_TERMINATION",
+                "POST_SETTLED_ABNORMAL_TERMINATION",
                 attempt,
+                failure_cause=failure_cause or f"Renderer exited with native code {last_code}.",
+                failure_origin=failure_origin,
             )
             release_single_instance_resources()
-            return 0
+            return 1
 
         if last_code == STARTUP_ABORT_CONTROL_FLOW_RESULT:
             consecutive_startup_abort_count += 1
@@ -2199,4 +2220,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main() or 0)
