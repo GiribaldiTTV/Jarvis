@@ -595,6 +595,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Scope-audit self-test, packet active-review validation, and Git-to-ledger parity.",
         "supersession": "Completes lifecycle-repair packet traceability without changing runtime or proof semantics.",
     },
+    "Scope FAM-003 packet focus checks to decision aids": {
+        "reason": "Prevented legitimate dependency-owner and accepted-reference text inside current proof evidence from being misclassified as a wrong-family active packet focus while preserving the check on decision aids.",
+        "traceability": "R2 Workstream completion packet validation / SLC-R2-010 false-blocker repair.",
+        "coherent": "YES - packet classifier and exact audit metadata only.",
+        "unrelatedChanges": "NO.",
+        "validation": "FAM-003 packet scope guard, negative self-test, active-review folder/ZIP validation, and Git-to-ledger parity.",
+        "supersession": "Narrows one over-broad stale-focus scan without weakening active decision-surface family checks.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {

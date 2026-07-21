@@ -1817,6 +1817,11 @@ def _fam003_r2_workstream_completion_scope_failures(
         if "HISTORICAL / SUPERSEDED - NOT CURRENT AUTHORITY" in text:
             continue
         for reason, pattern in stale_text_patterns:
+            if (
+                reason == "wrong-family-active-focus"
+                and normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Evidence/")
+            ):
+                continue
             if pattern.search(text):
                 failures.append(
                     f"{file_name}: stale or wrong-focus current-gate wording remains ({reason})"
