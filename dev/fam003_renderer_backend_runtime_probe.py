@@ -25,6 +25,8 @@ LAUNCH_STARTED_NS_ENV = "NEXUS_FAM003_RENDERER_BACKEND_LAUNCH_STARTED_NS"
 EXPECTED_POLICY = "temporary-shared-runtime-safety-policy"
 EXPECTED_CLASSIFICATION = "shared-desktop-runtime-not-fam003-only"
 EXPECTED_FLAG = "--disable-gpu"
+JAVASCRIPT_CALLBACK_MAX_ATTEMPTS = 3
+_JAVASCRIPT_RETRY_EVENTS: list[dict[str, Any]] = []
 
 
 class ProbeFailure(RuntimeError):
@@ -134,15 +136,31 @@ def _restore_monitoring_hud_geometry(widget, rect: QRect) -> None:
 
 
 def _javascript(webview, script: str, timeout_s: float = 6.0) -> Any:
-    result: dict[str, Any] = {"done": False, "value": None}
+    value: Any = None
+    for attempt in range(1, JAVASCRIPT_CALLBACK_MAX_ATTEMPTS + 1):
+        result: dict[str, Any] = {"done": False, "value": None}
 
-    def complete(value: Any) -> None:
-        result["value"] = value
-        result["done"] = True
+        def complete(callback_value: Any, target: dict[str, Any] = result) -> None:
+            target["value"] = callback_value
+            target["done"] = True
 
-    webview.page().runJavaScript(script, complete)
-    _wait_for(lambda: bool(result["done"]), "JavaScript callback", timeout_s)
-    value = result["value"]
+        webview.page().runJavaScript(script, complete)
+        try:
+            _wait_for(lambda: bool(result["done"]), "JavaScript callback", timeout_s)
+            value = result["value"]
+            if attempt > 1:
+                _JAVASCRIPT_RETRY_EVENTS.append(
+                    {"attempt": attempt, "recovered": True, "exhausted": False}
+                )
+            break
+        except ProbeFailure:
+            exhausted = attempt == JAVASCRIPT_CALLBACK_MAX_ATTEMPTS
+            _JAVASCRIPT_RETRY_EVENTS.append(
+                {"attempt": attempt, "recovered": False, "exhausted": exhausted}
+            )
+            if exhausted:
+                raise
+            _pump(240)
     if isinstance(value, str):
         try:
             return json.loads(value)
@@ -788,6 +806,11 @@ def run_option_d_workstream_probe(
                 "classification": os.environ.get("NEXUS_RENDERER_BACKEND_CLASSIFICATION", ""),
                 "hardwareAccelerationDisabled": EXPECTED_FLAG in (os.environ.get("QTWEBENGINE_CHROMIUM_FLAGS") or "").split(),
                 "softwareCompositionActive": EXPECTED_FLAG in (os.environ.get("QTWEBENGINE_CHROMIUM_FLAGS") or "").split(),
+            },
+            "javascriptCallbackPolicy": {
+                "maxAttempts": JAVASCRIPT_CALLBACK_MAX_ATTEMPTS,
+                "retryEvents": list(_JAVASCRIPT_RETRY_EVENTS),
+                "exhausted": any(event.get("exhausted") for event in _JAVASCRIPT_RETRY_EVENTS),
             },
             "steps": steps,
             "surfaces": surfaces,

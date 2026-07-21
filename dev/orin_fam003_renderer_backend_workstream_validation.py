@@ -557,6 +557,12 @@ def _base_validation_manifest() -> dict[str, Any]:
         "lifecycle": {"status": "PASS", "abnormalNativeExit": "ABSENT", "originalReplacementMasking": "ABSENT"},
         "backendEvidenceCurrentness": "CURRENT_FINAL_BACKEND",
         "aggregateConsumption": {"optionCConsumesRendererBackendChild": True},
+        "javascriptCallbackResilience": {
+            "maxAttempts": 3,
+            "exhausted": False,
+            "sessions": [{"maxAttempts": 3, "exhausted": False}],
+        },
+        "javascriptCallbackRetryUnitFixture": {"status": "PASS", "callCount": 2, "recoveredOnAttempt": 2},
     }
 
 
@@ -613,6 +619,14 @@ def validate_manifest(payload: dict[str, Any]) -> list[str]:
         failures.append("temporary-policy-made-permanent")
     if (payload.get("aggregateConsumption") or {}).get("optionCConsumesRendererBackendChild") is not True:
         failures.append("option-c-child-not-consumed")
+    callback = payload.get("javascriptCallbackResilience") or {}
+    if callback.get("maxAttempts") != 3 or callback.get("exhausted") is True:
+        failures.append("javascript-callback-exhaustion-ignored")
+    if not callback.get("sessions") or any(row.get("exhausted") is True for row in callback.get("sessions") or []):
+        failures.append("javascript-callback-exhaustion-ignored")
+    callback_unit = payload.get("javascriptCallbackRetryUnitFixture") or {}
+    if callback_unit.get("status") != "PASS" or callback_unit.get("recoveredOnAttempt") != 2:
+        failures.append("javascript-callback-retry-path-unproven")
     return sorted(set(failures))
 
 
@@ -659,6 +673,11 @@ def _mutate(payload: dict[str, Any], mutation: str) -> dict[str, Any]:
         capture["visuallyPopulated"] = False
         capture["uniqueSampleColors"] = 9
         capture["dominantColorRatio"] = 0.9556
+    elif mutation == "javascript_callback_exhaustion_ignored":
+        result["javascriptCallbackResilience"]["exhausted"] = True
+        result["javascriptCallbackResilience"]["sessions"][0]["exhausted"] = True
+    elif mutation == "omit_javascript_callback_retry_fixture":
+        result["javascriptCallbackRetryUnitFixture"] = {"status": "MISSING"}
     else:
         raise AssertionError(f"unknown fixture mutation: {mutation}")
     return result
@@ -675,6 +694,40 @@ def _run_negative_fixtures() -> list[dict[str, Any]]:
         rows.append({"id": case["id"], "status": "PASS" if passed else "FAIL", "expectedFailure": case["expectedFailure"], "actualFailures": failures})
     _assert(all(row["status"] == "PASS" for row in rows), f"negative fixture failure: {rows}")
     return rows
+
+
+def _run_callback_retry_unit_fixture() -> dict[str, Any]:
+    import fam003_renderer_backend_runtime_probe as runtime_probe
+
+    class FakePage:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def runJavaScript(self, script: str, callback) -> None:
+            del script
+            self.calls += 1
+            if self.calls == 2:
+                callback({"recovered": True})
+
+    class FakeWebView:
+        def __init__(self) -> None:
+            self.fake_page = FakePage()
+
+        def page(self) -> FakePage:
+            return self.fake_page
+
+    runtime_probe._JAVASCRIPT_RETRY_EVENTS.clear()
+    view = FakeWebView()
+    value = runtime_probe._javascript(view, "({})", timeout_s=0.02)
+    events = list(runtime_probe._JAVASCRIPT_RETRY_EVENTS)
+    runtime_probe._JAVASCRIPT_RETRY_EVENTS.clear()
+    _assert(value == {"recovered": True}, f"callback retry returned wrong value: {value}")
+    _assert(view.fake_page.calls == 2, f"callback retry call count was {view.fake_page.calls}")
+    _assert(
+        any(event.get("attempt") == 2 and event.get("recovered") is True for event in events),
+        f"callback recovery event missing: {events}",
+    )
+    return {"status": "PASS", "callCount": view.fake_page.calls, "recoveredOnAttempt": 2, "events": events}
 
 
 def _markdown_inventory(rows: list[dict[str, Any]]) -> str:
@@ -710,9 +763,11 @@ def main() -> int:
     args = parser.parse_args()
 
     negative_fixtures = _run_negative_fixtures()
+    callback_retry_unit_fixture = _run_callback_retry_unit_fixture()
     if args.self_test:
         print("FAM-003 RENDERER BACKEND NEGATIVE FIXTURES: PASS")
         print(f"Cases: {len(negative_fixtures)} / {len(negative_fixtures)}")
+        print("JavaScript callback retry path: PASS / recovered on attempt 2")
         return 0
 
     _assert(args.desktop_entrypoint_report is not None, "--desktop-entrypoint-report is required for final Option D proof")
@@ -816,6 +871,7 @@ def main() -> int:
         "RB-HUD-VISUAL-001": "HUD evidence initially captured an occluding surface instead of the Dashboard",
         "RB-HUD-RESIZE-001": "generic Qt resize did not exercise the HUD bounded geometry contract",
         "RB-CAPTURE-003": "Recording Suite DOM readiness preceded a populated first WebEngine paint",
+        "RB-JS-CALLBACK-001": "a ready WebEngine surface failed to return one JavaScript callback",
     }
     defect_path.write_text(
         "# FAM-003 Option D Defect Ledger\n\n"
@@ -831,6 +887,7 @@ def main() -> int:
 
     surface_results = sessions[0]["surfaces"]
     hud_images = surface_results["hud-dashboard"]["evidence"]
+    callback_sessions = [session.get("javascriptCallbackPolicy") or {} for session in sessions]
     manifest = _base_validation_manifest()
     manifest.update(
         {
@@ -869,6 +926,12 @@ def main() -> int:
             "lifecycle": lifecycle,
             "backendEvidenceCurrentness": "CURRENT_FINAL_BACKEND",
             "aggregateConsumption": {"optionCConsumesRendererBackendChild": True},
+            "javascriptCallbackResilience": {
+                "maxAttempts": 3,
+                "exhausted": any(row.get("exhausted") is True for row in callback_sessions),
+                "sessions": callback_sessions,
+            },
+            "javascriptCallbackRetryUnitFixture": callback_retry_unit_fixture,
             "normalLauncherSessions": sessions,
             "shortcutResolution": shortcut_resolution,
             "negativeFixtures": negative_fixtures,

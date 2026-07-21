@@ -652,8 +652,16 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "traceability": "R2-WS09 and R2-WS10 / SLC-R2-009 and 010 renderer-backend completion proof.",
         "coherent": "YES - one temporary shared-backend execution and proof package.",
         "unrelatedChanges": "NO.",
-        "validation": "Renderer contract and 15 negative fixtures, three exact normal-launcher sessions, desktop lifecycle suite, affected-surface proof, Option C aggregate, scope audit, governance, compileall, and packet parity.",
+        "validation": "Renderer contract and 18 negative fixtures, three exact normal-launcher sessions, desktop lifecycle suite, affected-surface proof, Option C aggregate, scope audit, governance, compileall, and packet parity.",
         "supersession": "Current temporary Option D proof baseline; permanent renderer architecture remains unapproved and open.",
+    },
+    "Harden FAM-003 WebEngine proof callbacks": {
+        "reason": "Added bounded retry and explicit exhaustion evidence after one of three exact normal-launcher sessions reached WebEngine readiness but failed to return a JavaScript callback.",
+        "traceability": "R2-WS10 / SLC-R2-010 renderer-backend false-green closure.",
+        "coherent": "YES - one Workstream probe reliability and fail-capable validation repair.",
+        "unrelatedChanges": "NO.",
+        "validation": "Renderer contract, callback-2 recovery unit fixture, and 20 negative fixtures; three exact normal-launcher sessions; affected-surface proof; Option C aggregate; scope audit; governance; and compileall.",
+        "supersession": "Supersedes single-attempt JavaScript callback proof behavior; it does not change product runtime behavior outside the dormant Workstream probe.",
     },
 }
 
