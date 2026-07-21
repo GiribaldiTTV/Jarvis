@@ -3,7 +3,7 @@
 Helper Status: Workstream-scoped
 Owner Workstream: FAM-003 R2 Settings/tray/NCP completion proof
 Reason Reusable Helper Was Not Extended: The temporary Option D policy, current
-    carrier surface inventory, and 22 negative fixtures are branch-specific.
+    carrier surface inventory, and fail-capable performance fixtures are branch-specific.
 Consolidation Target: Shared renderer-backend proof after a second branch needs
     the same normal-launcher all-surface contract.
 Promotion Decision Point: Before a permanent renderer architecture decision.
@@ -45,6 +45,12 @@ if str(ROOT) not in sys.path:
 from desktop.renderer_backend import (  # noqa: E402
     build_renderer_environment,
     renderer_backend_contract,
+)
+from dev.fam003_renderer_backend_runtime_probe import (  # noqa: E402
+    PERFORMANCE_METHODOLOGY_VERSION,
+    PERFORMANCE_SAMPLE_DURATION_MS,
+    PERFORMANCE_SAMPLE_INTERVAL_MS,
+    PERFORMANCE_SETTLE_DURATION_MS,
 )
 from dev.orin_desktop_entrypoint_validation import (  # noqa: E402
     resolve_desktop_shortcut_for_current_root,
@@ -433,6 +439,73 @@ def _lifecycle_proof(report_path: Path, output_root: Path) -> dict[str, Any]:
     }
 
 
+def _preserved_lifecycle_proof(
+    manifest_path: Path,
+    output_root: Path,
+    current_head: str,
+) -> dict[str, Any]:
+    _assert(manifest_path.exists(), f"preserved lifecycle manifest is missing: {manifest_path}")
+    payload = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    source_head = str(payload.get("sourceHead") or "")
+    lifecycle = copy.deepcopy(payload.get("lifecycle") or {})
+    _assert(source_head, "preserved lifecycle manifest has no source HEAD")
+    _assert(lifecycle.get("status") == "PASS", "preserved lifecycle receipt is not PASS")
+    _assert(lifecycle.get("abnormalNativeExit") == "ABSENT", "preserved lifecycle receipt contains an abnormal native exit")
+    _assert(lifecycle.get("originalReplacementMasking") == "ABSENT", "preserved lifecycle receipt masked the original session")
+    changed = [
+        row.strip()
+        for row in _git("diff", "--name-only", f"{source_head}..{current_head}").splitlines()
+        if row.strip()
+    ] if source_head != current_head else []
+    lifecycle_bearing_prefixes = (
+        "desktop/",
+        "main.py",
+        "launch_orin_desktop.vbs",
+        "dev/orin_desktop_entrypoint_validation.py",
+        "dev/fixtures/desktop_relaunch_lifecycle_cases.json",
+    )
+    invalidating = [
+        row for row in changed
+        if row == "main.py" or any(row.startswith(prefix) for prefix in lifecycle_bearing_prefixes)
+    ]
+    _assert(not invalidating, f"preserved lifecycle proof was invalidated by product/lifecycle changes: {invalidating}")
+
+    source_root = manifest_path.parent
+    copied: list[str] = []
+    for name in (
+        "FAM003_OPTION_D_LIFECYCLE_TIMELINES.md",
+        "DesktopEntrypointValidationReport_20260721_143116.txt",
+        "DesktopEntrypointValidationReport_20260721_143116.json",
+    ):
+        source = source_root / name
+        if source.exists():
+            target = output_root / name
+            shutil.copy2(source, target)
+            copied.append(str(target))
+    lifecycle.update(
+        {
+            "status": "PASS",
+            "currentnessDisposition": "PRESERVED_CURRENT_HELPER_ONLY_DIFF",
+            "preservedFromManifest": str(manifest_path),
+            "preservedSourceHead": source_head,
+            "currentHead": current_head,
+            "changedSincePreservedProof": changed,
+            "invalidatingLifecycleChanges": invalidating,
+            "copiedReceiptArtifacts": copied,
+            "freshRerunAttempt": "FAILED_BEFORE_FINAL_PASS_OUTER_TIMEOUT_AND_PARTIAL_REPORT",
+            "freshRerunReport": str(
+                ROOT
+                / "dev"
+                / "logs"
+                / "desktop_entrypoint_validation"
+                / "reports"
+                / "DesktopEntrypointValidationReport_20260721_154253.json"
+            ),
+        }
+    )
+    return lifecycle
+
+
 def _summary(values: list[float]) -> dict[str, float | int]:
     return {
         "runs": len(values),
@@ -444,19 +517,26 @@ def _summary(values: list[float]) -> dict[str, float | int]:
 
 def _performance(sessions: list[dict[str, Any]]) -> dict[str, Any]:
     metric_paths = {
-        "normalDesktopStartupMs": lambda m: m["startupReadyMs"],
-        "rendererReadyMs": lambda m: m["rendererReadyMs"],
-        "firstWebEngineRenderMs": lambda m: m["firstWebEngineRenderMs"],
+        "normalDesktopFirstVisiblePaintSignalMs": lambda m: m["startupTimeline"]["firstVisiblePaintSignalMs"],
+        "rendererProcessStartMs": lambda m: m["startupTimeline"]["rendererProcessStartMs"],
         "hudAutomaticOpenMs": lambda m: m["hudAutomaticOpenMs"],
         "hudTrayRestoreMs": lambda m: m["hudTrayRestoreMs"],
-        "recordingSuiteOpenMs": lambda m: m["surfaceOpenMs"]["recordingSuite"],
-        "logViewerOpenMs": lambda m: m["surfaceOpenMs"]["logViewer"],
-        "aiDashboardOpenMs": lambda m: m["surfaceOpenMs"]["aiDashboard"],
-        "activeCpuPercentSum": lambda m: m["activeProcess"]["cpuPercentSum"],
-        "idleCpuPercentSum": lambda m: m["idleProcess"]["cpuPercentSum"],
-        "activeRssMiB": lambda m: m["activeProcess"]["rssMiB"],
-        "idleRssMiB": lambda m: m["idleProcess"]["rssMiB"],
-        "webEngineSubprocessCount": lambda m: m["idleProcess"]["webEngineSubprocessCount"],
+        "recordingSuiteInteractiveReadyMs": lambda m: m["surfaceTimelines"]["recordingSuite"]["interactiveReadyMs"],
+        "logViewerInteractiveReadyMs": lambda m: m["surfaceTimelines"]["logViewer"]["interactiveReadyMs"],
+        "aiDashboardInteractiveReadyMs": lambda m: m["surfaceTimelines"]["aiDashboard"]["interactiveReadyMs"],
+        "startupResidentCpuCoreEquivalentPercent": lambda m: m["startupResidentIdle"]["totalRendererTree"]["cpuCoreEquivalentPercent"],
+        "startupResidentCpuWholeMachinePercent": lambda m: m["startupResidentIdle"]["totalRendererTree"]["cpuWholeMachinePercent"],
+        "startupResidentRssMedianMiB": lambda m: m["startupResidentIdle"]["totalRendererTree"]["rssMedianMiB"],
+        "startupResidentRssMaxMiB": lambda m: m["startupResidentIdle"]["totalRendererTree"]["rssMaxMiB"],
+        "representativeActiveCpuCoreEquivalentPercent": lambda m: m["representativeActive"]["totalRendererTree"]["cpuCoreEquivalentPercent"],
+        "representativeActiveCpuWholeMachinePercent": lambda m: m["representativeActive"]["totalRendererTree"]["cpuWholeMachinePercent"],
+        "representativeActiveRssMedianMiB": lambda m: m["representativeActive"]["totalRendererTree"]["rssMedianMiB"],
+        "representativeActiveRssMaxMiB": lambda m: m["representativeActive"]["totalRendererTree"]["rssMaxMiB"],
+        "postUseResidentCpuCoreEquivalentPercent": lambda m: m["postUseResidentIdle"]["totalRendererTree"]["cpuCoreEquivalentPercent"],
+        "postUseResidentCpuWholeMachinePercent": lambda m: m["postUseResidentIdle"]["totalRendererTree"]["cpuWholeMachinePercent"],
+        "postUseResidentRssMedianMiB": lambda m: m["postUseResidentIdle"]["totalRendererTree"]["rssMedianMiB"],
+        "postUseResidentRssMaxMiB": lambda m: m["postUseResidentIdle"]["totalRendererTree"]["rssMaxMiB"],
+        "postUseWebEngineSubprocessCount": lambda m: m["postUseResidentIdle"]["totalRendererTree"]["webEngineSubprocessCount"],
         "p95DispatchGapMs": lambda m: m["responsiveness"]["p95DispatchGapMs"],
         "maxDispatchGapMs": lambda m: m["responsiveness"]["maxDispatchGapMs"],
     }
@@ -465,24 +545,60 @@ def _performance(sessions: list[dict[str, Any]]) -> dict[str, Any]:
         values = [float(getter(session["metrics"])) for session in sessions]
         summaries[name] = _summary(values)
     return {
-        "status": "PASS",
+        "status": "MEASUREMENT_PASS",
+        "methodologyVersion": PERFORMANCE_METHODOLOGY_VERSION,
         "configuration": "temporary process-wide --disable-gpu software composition",
         "runCount": len(sessions),
         "machineContext": sessions[0]["metrics"]["machine"],
+        "samplingContract": {
+            "settleDurationMs": PERFORMANCE_SETTLE_DURATION_MS,
+            "sampleDurationMs": PERFORMANCE_SAMPLE_DURATION_MS,
+            "sampleIntervalMs": PERFORMANCE_SAMPLE_INTERVAL_MS,
+            "states": ["startup-resident-idle", "representative-active", "post-use-resident-idle"],
+        },
         "summaries": summaries,
-        "visibleStutterOrJank": "NOT_OBSERVED_IN_CAPTURE_OR_DISPATCH_GAP_EVIDENCE",
+        "rawSessionEvidence": [
+            {
+                "sessionIndex": session["sessionIndex"],
+                "sourceHead": session["sourceHead"],
+                "manifest": session.get("manifestPath", "embedded in normalLauncherSessions"),
+            }
+            for session in sessions
+        ],
+        "visibleStutterOrJank": "NO_UNRESPONSIVE_INTERVAL_OVER_1000MS_IN_SUSTAINED_ACTIVE_DISPATCH_EVIDENCE",
         "unresponsiveIntervals": "ABSENT",
         "hardwareDefaultComparison": {
-            "status": "NOT_REEXECUTED_WITH_REASON",
+            "status": "NO_SAFE_EQUIVALENT_BASELINE",
+            "comparable": False,
             "reason": "hardware-default teardown is a known nondeterministic 0xC0000409 path; current approval forbids unsafe repetition merely to obtain a benchmark",
-            "historicalCurrentMachineProvenance": [
-                "DesktopEntrypointValidationReport_20260721_113504.txt",
-                "DesktopEntrypointValidationReport_20260721_114110.txt",
-            ],
-            "observedDelta": "not computable from a safe equivalent hardware baseline",
+            "historicalCurrentMachineProvenance": "NOT_COMPARABLE_WITH_REASON: earlier runs used different metric definitions, sub-second intervals, and no process attribution",
+            "observedDelta": None,
         },
-        "thresholdDisposition": "No repo-defined numeric threshold exists; measured min/median/max and visual evidence are preserved for USER review without inventing one.",
-        "acceptanceDisposition": "NO_MATERIAL_REGRESSION_OBSERVED",
+        "intraOptionDStateDeltas": {
+            "postUseMinusStartupCpuCoreEquivalentMedian": round(
+                float(summaries["postUseResidentCpuCoreEquivalentPercent"]["median"])
+                - float(summaries["startupResidentCpuCoreEquivalentPercent"]["median"]),
+                2,
+            ),
+            "postUseMinusStartupRssMedianMiB": round(
+                float(summaries["postUseResidentRssMedianMiB"]["median"])
+                - float(summaries["startupResidentRssMedianMiB"]["median"]),
+                2,
+            ),
+        },
+        "requiredMetricAdjudication": {
+            "startup": "MEASURED",
+            "firstVisiblePaint": "MEASURED_FROM_PRODUCT_FIRST_VISIBLE_SIGNAL",
+            "surfaceOpening": "MEASURED_TO_VISIBLE_AND_PAGE_READY_WITH_PAINT_LIMITATION_EXPLICIT",
+            "cpu": "MEASURED_PER_PROCESS_AND_RENDERER_TREE",
+            "memory": "MEASURED_PER_PROCESS_AND_RENDERER_TREE",
+            "residentIdle": "MEASURED_AT_STARTUP_AND_POST_USE",
+            "activeWorkload": "MEASURED",
+            "responsiveness": "MEASURED",
+            "baseline": "NO_SAFE_EQUIVALENT_BASELINE",
+        },
+        "thresholdDisposition": "No repo-defined numeric threshold exists; no threshold was invented.",
+        "acceptanceDisposition": "USER_DECISION_REQUIRED",
     }
 
 
@@ -517,6 +633,172 @@ def _write_contact_sheet(paths: list[Path], output: Path) -> None:
     _assert(sheet.save(str(output), "PNG"), f"could not save contact sheet {output}")
 
 
+def _base_surface_inventory(state: str, on_demand_visible: bool) -> dict[str, Any]:
+    return {
+        "stateLabel": state,
+        "surfaces": [
+            {"surfaceId": "orin-core-visualization", "visible": True, "intentionallyPersistent": True},
+            {"surfaceId": "resident-tray-native", "visible": True, "intentionallyPersistent": True},
+            {"surfaceId": "hud-dashboard", "visible": on_demand_visible, "intentionallyPersistent": False},
+        ],
+        "onDemandVisible": ["hud-dashboard"] if on_demand_visible else [],
+        "persistentResidentVisible": ["orin-core-visualization", "resident-tray-native"],
+    }
+
+
+def _base_performance_sample(label: str, *, active: bool) -> dict[str, Any]:
+    inventory = _base_surface_inventory(label, active)
+    process = {
+        "pid": 100,
+        "parentPid": 1,
+        "name": "pythonw.exe",
+        "role": "desktop-python-parent",
+        "commandLine": "pythonw desktop/orin_desktop_main.py",
+        "cpuTimeSeconds": 1.0,
+        "cpuCoreEquivalentPercent": 10.0,
+        "cpuWholeMachinePercent": 0.625,
+        "rssMedianMiB": 400.0,
+        "rssMaxMiB": 410.0,
+        "rssFinalMiB": 405.0,
+        "sampleCount": 40,
+    }
+    return {
+        "methodologyVersion": PERFORMANCE_METHODOLOGY_VERSION,
+        "label": label,
+        "classification": "REPRESENTATIVE_ACTIVE_WORKLOAD" if active else "IDLE",
+        "settleDurationMs": PERFORMANCE_SETTLE_DURATION_MS,
+        "sampleDurationMs": PERFORMANCE_SAMPLE_DURATION_MS,
+        "requiredMinimumDurationMs": PERFORMANCE_SAMPLE_DURATION_MS,
+        "sampleIntervalMs": PERFORMANCE_SAMPLE_INTERVAL_MS,
+        "rawSampleCount": 40,
+        "logicalProcessorCount": 16,
+        "cpuNormalization": {
+            "coreEquivalentPercent": "100 percent equals one logical processor fully occupied over the measured wall interval; renderer-tree totals may exceed 100 percent",
+            "wholeMachinePercent": "core-equivalent percent divided by logical processor count",
+        },
+        "surfaceInventoryBefore": inventory,
+        "surfaceInventoryAfter": inventory,
+        "expectedOnDemandVisible": active,
+        "surfaceStateMatchesMethodology": True,
+        "validationActivity": {
+            "domInspection": False,
+            "screenshotOrFileCapture": False,
+            "evidenceGeneration": False,
+            "eventLoopPump": True,
+            "definedProductWorkload": active,
+            "contaminationDisposition": "EXPECTED_DEFINED_ACTIVE_WORKLOAD" if active else "NONE",
+        },
+        "workload": {
+            "interactionCount": 40 if active else 0,
+            "interactionTargets": ["hud-dashboard"] * 40 if active else [],
+            "inputRatePerSecond": 4.0 if active else 0.0,
+            "operation": "rotating asynchronous 8px down/up WebEngine scroll pulse" if active else "none",
+        },
+        "perProcess": [process],
+        "totalRendererTree": {
+            "processCount": 1,
+            "webEngineSubprocessCount": 0,
+            "cpuTimeSeconds": 1.0,
+            "cpuCoreEquivalentPercent": 10.0,
+            "cpuWholeMachinePercent": 0.625,
+            "rssMedianMiB": 400.0,
+            "rssMaxMiB": 410.0,
+            "rssFinalMiB": 405.0,
+        },
+        "responsiveness": {
+            "iterationCount": 800,
+            "medianDispatchGapMs": 12.5,
+            "p95DispatchGapMs": 14.0,
+            "maxDispatchGapMs": 20.0,
+            "unresponsiveIntervalOver1000Ms": False,
+        },
+        "rawSamples": [
+            {
+                "sampleIndex": index,
+                "offsetMs": index * PERFORMANCE_SAMPLE_INTERVAL_MS,
+                "durationMs": PERFORMANCE_SAMPLE_INTERVAL_MS,
+                "processes": [
+                    {
+                        "pid": 100,
+                        "parentPid": 1,
+                        "name": "pythonw.exe",
+                        "role": "desktop-python-parent",
+                        "cpuTimeSeconds": 0.025,
+                        "cpuCoreEquivalentPercent": 10.0,
+                        "cpuWholeMachinePercent": 0.625,
+                        "rssBytes": 424673280,
+                        "rssMiB": 405.0,
+                    }
+                ],
+                "interactionTargets": ["hud-dashboard"] if active else [],
+            }
+            for index in range(40)
+        ],
+    }
+
+
+def _base_runtime_session() -> dict[str, Any]:
+    timeline = {
+        "definition": "high-resolution launcher invocation to the product CORE_VISUALIZATION_FIRST_VISIBLE callback that schedules this probe",
+        "launcherInvocationMs": 0.0,
+        "rendererProcessStartMs": 500.0,
+        "qApplicationCreatedMs": None,
+        "qApplicationCreatedDisposition": "EVENT_EXISTS_IN_RUNTIME_LOG_WITH_SECOND_RESOLUTION_ONLY_NOT_USED_AS_A_PRECISION_METRIC",
+        "webEngineViewCreationMs": None,
+        "webEngineViewCreationDisposition": "NOT_INSTRUMENTED_BY_CURRENT_ARCHITECTURE",
+        "pageLoadStartMs": None,
+        "pageLoadStartDisposition": "NOT_INSTRUMENTED_BY_CURRENT_ARCHITECTURE",
+        "domContentReadyMs": None,
+        "domContentReadyDisposition": "PAGE_READY_PRECEDES_FIRST_VISIBLE_SIGNAL_BUT_HAS_NO_HIGH_RESOLUTION_LAUNCH_RELATIVE_EVENT",
+        "firstVisiblePaintSignalMs": 3000.0,
+        "stableResidentReadyMs": 3000.0,
+        "observerOverheadIncluded": False,
+        "screenshotOrDomInspectionIncluded": False,
+        "eventProvenance": "DesktopRuntimeWindow.core_visualization_visible / CORE_VISUALIZATION_FIRST_VISIBLE",
+    }
+    surface_timeline = {
+        "routeActivationToVisibleMs": 250.0,
+        "interactiveReadyMs": 250.0,
+        "firstVisiblePaintMs": None,
+        "firstVisiblePaintDisposition": "CURRENT_CHILD_WINDOW_EXPOSES_PAGE_READY_WITHOUT_A_ROUTE_RELATIVE_PAINT_EVENT",
+        "evidenceCollectionIncluded": False,
+    }
+    metrics = {
+        "startupReadyMs": 3000.0,
+        "startupTimeline": timeline,
+        "machine": {"logicalCpuCount": 16, "physicalMemoryGiB": 64.0, "platform": "Windows", "python": "3", "qt": "6"},
+        "startupResidentIdle": _base_performance_sample("startup-resident-idle", active=False),
+        "representativeActive": _base_performance_sample("representative-active", active=True),
+        "postUseResidentIdle": _base_performance_sample("post-use-resident-idle", active=False),
+        "surfaceTimelines": {
+            "globalSettings": dict(surface_timeline),
+            "hudDashboard": dict(surface_timeline),
+            "recordingSuite": dict(surface_timeline),
+            "logViewer": dict(surface_timeline),
+            "aiDashboard": dict(surface_timeline),
+            "hudDashboardRestore": dict(surface_timeline),
+        },
+        "hudAutomaticOpenMs": 250.0,
+        "hudTrayRestoreMs": 40.0,
+        "responsiveness": _base_performance_sample("representative-active", active=True)["responsiveness"],
+    }
+    return {
+        "status": "PASS",
+        "sourceHead": "TEST_HEAD",
+        "sessionIndex": 1,
+        "effectiveBackend": {"effectiveFlags": EXPECTED_FLAG, "childInheritedFlags": EXPECTED_FLAG},
+        "metrics": metrics,
+        "materialRegression": {
+            "detected": None,
+            "disposition": "USER_DECISION_REQUIRED",
+            "visualCorruption": False,
+            "unresponsiveInterval": False,
+            "requiredMetricsAdjudicated": True,
+            "baselineComparable": False,
+        },
+    }
+
+
 def _base_validation_manifest() -> dict[str, Any]:
     surfaces = {
         surface_id: {
@@ -548,8 +830,15 @@ def _base_validation_manifest() -> dict[str, Any]:
         }
         for surface_id in REQUIRED_WEBENGINE_SURFACES
     }
+    sessions = []
+    for index in range(1, 4):
+        session = _base_runtime_session()
+        session["sessionIndex"] = index
+        sessions.append(session)
+    performance = _performance(sessions)
     return {
-        "status": "PASS",
+        "status": "USER_DECISION_REQUIRED",
+        "sourceHead": "TEST_HEAD",
         "scopeLedger": {
             "sharedRuntimeFlagRecorded": True,
             "classification": EXPECTED_CLASSIFICATION,
@@ -566,8 +855,15 @@ def _base_validation_manifest() -> dict[str, Any]:
         "affectedSurfaceInventory": _inventory(),
         "surfaceResults": surfaces,
         "hudDirectProof": {"fullWindowImages": ["hud.png"], "telemetryOnly": False, "status": "PASS"},
-        "performance": {"status": "PASS", "summaries": {"startup": {"runs": 3}}},
-        "materialRegression": {"detected": False, "ignored": False},
+        "performance": performance,
+        "materialRegression": {
+            "detected": None,
+            "ignored": False,
+            "disposition": "USER_DECISION_REQUIRED",
+            "requiredMetricsAdjudicated": True,
+            "baselineComparable": False,
+        },
+        "normalLauncherSessions": sessions,
         "lifecycle": {"status": "PASS", "abnormalNativeExit": "ABSENT", "originalReplacementMasking": "ABSENT"},
         "backendEvidenceCurrentness": "CURRENT_FINAL_BACKEND",
         "aggregateConsumption": {"optionCConsumesRendererBackendChild": True},
@@ -624,11 +920,183 @@ def validate_manifest(payload: dict[str, Any]) -> list[str]:
     if backend.get("hardwareAccelerationDisabled") is not True or backend.get("softwareCompositionActive") is not True:
         failures.append("wrong-backend-presented")
     performance = payload.get("performance") or {}
-    if performance.get("status") != "PASS" or not performance.get("summaries"):
+    sessions = payload.get("normalLauncherSessions") or []
+    if performance.get("status") != "MEASUREMENT_PASS" or not performance.get("summaries") or len(sessions) < 3:
         failures.append("performance-evidence-missing")
+    if performance.get("methodologyVersion") != PERFORMANCE_METHODOLOGY_VERSION:
+        failures.append("performance-currentness-invalid")
+    required_summary_names = {
+        "normalDesktopFirstVisiblePaintSignalMs",
+        "rendererProcessStartMs",
+        "recordingSuiteInteractiveReadyMs",
+        "logViewerInteractiveReadyMs",
+        "aiDashboardInteractiveReadyMs",
+        "startupResidentCpuCoreEquivalentPercent",
+        "startupResidentCpuWholeMachinePercent",
+        "startupResidentRssMedianMiB",
+        "representativeActiveCpuCoreEquivalentPercent",
+        "representativeActiveCpuWholeMachinePercent",
+        "representativeActiveRssMedianMiB",
+        "postUseResidentCpuCoreEquivalentPercent",
+        "postUseResidentCpuWholeMachinePercent",
+        "postUseResidentRssMedianMiB",
+        "p95DispatchGapMs",
+        "maxDispatchGapMs",
+    }
+    if required_summary_names - set((performance.get("summaries") or {}).keys()):
+        failures.append("material-measurement-omitted")
+    required_adjudication = {
+        "startup",
+        "firstVisiblePaint",
+        "surfaceOpening",
+        "cpu",
+        "memory",
+        "residentIdle",
+        "activeWorkload",
+        "responsiveness",
+        "baseline",
+    }
+    if required_adjudication - set((performance.get("requiredMetricAdjudication") or {}).keys()):
+        failures.append("performance-adjudication-incomplete")
+    baseline = performance.get("hardwareDefaultComparison") or {}
+    no_comparable_baseline = baseline.get("comparable") is False
+    if no_comparable_baseline and performance.get("acceptanceDisposition") in {
+        "PASS",
+        "NO_MATERIAL_REGRESSION_OBSERVED",
+        "EQUIVALENT",
+        "IMPROVED",
+    }:
+        failures.append("unsupported-performance-equivalence")
+    sampling = performance.get("samplingContract") or {}
+    if (
+        sampling.get("settleDurationMs") != PERFORMANCE_SETTLE_DURATION_MS
+        or sampling.get("sampleDurationMs") != PERFORMANCE_SAMPLE_DURATION_MS
+        or sampling.get("sampleIntervalMs") != PERFORMANCE_SAMPLE_INTERVAL_MS
+    ):
+        failures.append("performance-methodology-contract-missing")
+
+    for session in sessions:
+        if session.get("sourceHead") != payload.get("sourceHead"):
+            failures.append("performance-currentness-invalid")
+        session_backend = session.get("effectiveBackend") or {}
+        if (
+            session_backend.get("effectiveFlags") != EXPECTED_FLAG
+            or session_backend.get("childInheritedFlags") != EXPECTED_FLAG
+            or backend.get("actualFlags") != session_backend.get("effectiveFlags")
+        ):
+            failures.append("effective-flags-mismatch")
+        metrics = session.get("metrics") or {}
+        if "firstWebEngineRenderMs" in metrics:
+            failures.append("first-visible-timing-invalid")
+        timeline = metrics.get("startupTimeline") or {}
+        if (
+            timeline.get("firstVisiblePaintSignalMs") is None
+            or timeline.get("eventProvenance") != "DesktopRuntimeWindow.core_visualization_visible / CORE_VISUALIZATION_FIRST_VISIBLE"
+            or "CORE_VISUALIZATION_FIRST_VISIBLE" not in str(timeline.get("definition") or "")
+        ):
+            failures.append("first-visible-timing-invalid")
+        if timeline.get("observerOverheadIncluded") is not False or timeline.get("screenshotOrDomInspectionIncluded") is not False:
+            failures.append("first-visible-timing-contaminated")
+        surface_timelines = metrics.get("surfaceTimelines") or {}
+        for surface_name in ("globalSettings", "hudDashboard", "recordingSuite", "logViewer", "aiDashboard", "hudDashboardRestore"):
+            timeline_row = surface_timelines.get(surface_name) or {}
+            if timeline_row.get("routeActivationToVisibleMs") is None or timeline_row.get("interactiveReadyMs") is None:
+                failures.append("surface-opening-timing-missing")
+                break
+            if timeline_row.get("evidenceCollectionIncluded") is not False:
+                failures.append("surface-opening-timing-contaminated")
+                break
+        for sample_name, expected_visible, expected_active in (
+            ("startupResidentIdle", False, False),
+            ("representativeActive", True, True),
+            ("postUseResidentIdle", False, False),
+        ):
+            sample = metrics.get(sample_name) or {}
+            if sample.get("methodologyVersion") != PERFORMANCE_METHODOLOGY_VERSION:
+                failures.append("performance-currentness-invalid")
+            if float(sample.get("sampleDurationMs") or 0) < PERFORMANCE_SAMPLE_DURATION_MS:
+                failures.append("performance-sample-duration-insufficient")
+            if sample.get("sampleIntervalMs") != PERFORMANCE_SAMPLE_INTERVAL_MS:
+                failures.append("performance-methodology-contract-missing")
+            before = sample.get("surfaceInventoryBefore") or {}
+            after = sample.get("surfaceInventoryAfter") or {}
+            if not before.get("surfaces") or not after.get("surfaces") or sample.get("surfaceStateMatchesMethodology") is not True:
+                failures.append("surface-process-inventory-missing")
+            observed_visible = bool(before.get("onDemandVisible") or after.get("onDemandVisible"))
+            if observed_visible is not expected_visible or sample.get("expectedOnDemandVisible") is not expected_visible:
+                failures.append("idle-surface-inventory-invalid" if not expected_visible else "active-surface-inventory-invalid")
+            activity = sample.get("validationActivity") or {}
+            if not expected_active and (
+                activity.get("domInspection") is not False
+                or activity.get("screenshotOrFileCapture") is not False
+                or activity.get("evidenceGeneration") is not False
+                or activity.get("definedProductWorkload") is not False
+                or activity.get("contaminationDisposition") != "NONE"
+            ):
+                failures.append("idle-sample-contaminated")
+            workload = sample.get("workload") or {}
+            if expected_active and (
+                activity.get("definedProductWorkload") is not True
+                or int(workload.get("interactionCount") or 0) <= 0
+                or float(workload.get("inputRatePerSecond") or 0) <= 0
+            ):
+                failures.append("active-workload-definition-missing")
+            processes = sample.get("perProcess") or []
+            total = sample.get("totalRendererTree") or {}
+            normalization = sample.get("cpuNormalization") or {}
+            if (
+                not processes
+                or not normalization.get("coreEquivalentPercent")
+                or not normalization.get("wholeMachinePercent")
+                or sample.get("logicalProcessorCount") is None
+                or any(
+                    row.get("pid") is None
+                    or row.get("parentPid") is None
+                    or not row.get("role")
+                    or row.get("cpuTimeSeconds") is None
+                    or row.get("cpuCoreEquivalentPercent") is None
+                    or row.get("cpuWholeMachinePercent") is None
+                    for row in processes
+                )
+                or total.get("cpuCoreEquivalentPercent") is None
+                or total.get("cpuWholeMachinePercent") is None
+            ):
+                failures.append("cpu-attribution-missing")
+            if (
+                any(
+                    row.get("rssMedianMiB") is None
+                    or row.get("rssMaxMiB") is None
+                    or row.get("rssFinalMiB") is None
+                    for row in processes
+                )
+                or total.get("rssMedianMiB") is None
+                or total.get("rssMaxMiB") is None
+                or total.get("rssFinalMiB") is None
+            ):
+                failures.append("memory-attribution-missing")
+            raw_samples = sample.get("rawSamples") or []
+            if not raw_samples or len(raw_samples) != int(sample.get("rawSampleCount") or -1):
+                failures.append("raw-performance-data-missing")
+            if raw_samples and any(not row.get("processes") for row in raw_samples):
+                failures.append("raw-performance-data-missing")
+    if sessions:
+        try:
+            reproduced = _performance(sessions)
+            if reproduced.get("summaries") != performance.get("summaries"):
+                failures.append("raw-summary-parity-failed")
+        except (KeyError, TypeError, ValueError):
+            failures.append("raw-summary-parity-failed")
     regression = payload.get("materialRegression") or {}
     if regression.get("detected") is True and regression.get("ignored") is True:
         failures.append("material-regression-ignored")
+    if (
+        regression.get("requiredMetricsAdjudicated") is not True
+        or regression.get("baselineComparable") is not False
+        or regression.get("disposition") != "USER_DECISION_REQUIRED"
+        or performance.get("acceptanceDisposition") != "USER_DECISION_REQUIRED"
+        or payload.get("status") != "USER_DECISION_REQUIRED"
+    ):
+        failures.append("performance-adjudication-incomplete")
     lifecycle = payload.get("lifecycle") or {}
     if lifecycle.get("abnormalNativeExit") != "ABSENT":
         failures.append("abnormal-native-exit")
@@ -707,6 +1175,62 @@ def _mutate(payload: dict[str, Any], mutation: str) -> dict[str, Any]:
     elif mutation == "ai_restore_partial_black_region":
         restore = result["surfaceResults"]["ai-status-command-center"]["restoreProof"]
         restore.update({"status": "FAIL", "uniqueColorRatio": 0.7939, "byteRatio": 0.3741, "dominantColorRatio": 0.4812})
+    elif mutation == "idle_on_demand_surface_active":
+        sample = result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]
+        sample["surfaceInventoryBefore"]["onDemandVisible"] = ["hud-dashboard"]
+        sample["surfaceStateMatchesMethodology"] = False
+    elif mutation == "insufficient_sample_duration":
+        result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]["sampleDurationMs"] = 900
+    elif mutation == "remove_cpu_attribution":
+        sample = result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]
+        sample["cpuNormalization"] = {}
+        sample["perProcess"] = []
+    elif mutation == "remove_surface_inventory":
+        sample = result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]
+        sample["surfaceInventoryBefore"] = {}
+    elif mutation == "first_render_starts_after_ready":
+        timeline = result["normalLauncherSessions"][0]["metrics"]["startupTimeline"]
+        timeline["definition"] = "timer starts after WebEngine readiness and DOM inspection"
+        timeline["eventProvenance"] = "post-ready helper timer"
+    elif mutation == "first_render_includes_capture_overhead":
+        timeline = result["normalLauncherSessions"][0]["metrics"]["startupTimeline"]
+        timeline["observerOverheadIncluded"] = True
+        timeline["screenshotOrDomInspectionIncluded"] = True
+    elif mutation == "omit_metric_adjudication":
+        result["performance"]["requiredMetricAdjudication"].pop("cpu", None)
+        result["materialRegression"]["requiredMetricsAdjudicated"] = False
+    elif mutation == "claim_equivalence_without_baseline":
+        result["performance"]["acceptanceDisposition"] = "NO_MATERIAL_REGRESSION_OBSERVED"
+    elif mutation == "omit_post_use_measurement":
+        result["normalLauncherSessions"][0]["metrics"].pop("postUseResidentIdle", None)
+        result["performance"]["summaries"].pop("postUseResidentCpuCoreEquivalentPercent", None)
+    elif mutation == "normal_launcher_flag_mismatch":
+        result["normalLauncherSessions"][0]["effectiveBackend"]["childInheritedFlags"] = ""
+        result["effectiveBackend"]["reportedFlags"] = ""
+    elif mutation == "remove_raw_performance_data":
+        sample = result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]
+        sample["rawSamples"] = []
+    elif mutation == "tamper_performance_summary":
+        result["performance"]["summaries"]["startupResidentRssMedianMiB"]["median"] = 9999.0
+    elif mutation == "post_use_on_demand_surface_active":
+        sample = result["normalLauncherSessions"][0]["metrics"]["postUseResidentIdle"]
+        sample["surfaceInventoryAfter"]["onDemandVisible"] = ["ai-status-command-center"]
+        sample["surfaceStateMatchesMethodology"] = False
+    elif mutation == "contaminate_idle_sample":
+        activity = result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]["validationActivity"]
+        activity["screenshotOrFileCapture"] = True
+        activity["contaminationDisposition"] = "UNCLASSIFIED"
+    elif mutation == "reuse_stale_performance_methodology":
+        result["performance"]["methodologyVersion"] = "fam003-option-d-performance-v1"
+        result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]["methodologyVersion"] = "fam003-option-d-performance-v1"
+    elif mutation == "remove_memory_attribution":
+        sample = result["normalLauncherSessions"][0]["metrics"]["startupResidentIdle"]
+        sample["perProcess"][0].pop("rssMedianMiB", None)
+        sample["totalRendererTree"].pop("rssMedianMiB", None)
+    elif mutation == "remove_active_workload_definition":
+        sample = result["normalLauncherSessions"][0]["metrics"]["representativeActive"]
+        sample["workload"] = {"interactionCount": 0, "inputRatePerSecond": 0}
+        sample["validationActivity"]["definedProductWorkload"] = False
     else:
         raise AssertionError(f"unknown fixture mutation: {mutation}")
     return result
@@ -788,6 +1312,8 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--runs", type=int, default=3)
     parser.add_argument("--desktop-entrypoint-report", type=Path)
+    parser.add_argument("--preserved-lifecycle-manifest", type=Path)
+    parser.add_argument("--reuse-session-root", type=Path)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
 
@@ -799,7 +1325,10 @@ def main() -> int:
         print("JavaScript callback retry path: PASS / recovered on attempt 2")
         return 0
 
-    _assert(args.desktop_entrypoint_report is not None, "--desktop-entrypoint-report is required for final Option D proof")
+    _assert(
+        args.desktop_entrypoint_report is not None or args.preserved_lifecycle_manifest is not None,
+        "--desktop-entrypoint-report or --preserved-lifecycle-manifest is required for final Option D proof",
+    )
     _assert(args.runs >= 3, "Option D performance proof requires at least three normal-launcher runs")
     foreign = [
         row for row in _runtime_processes()
@@ -830,7 +1359,17 @@ def main() -> int:
     _assert(all(row["disableGpuCount"] == 1 for row in contract_cases.values()), "software flag is not normalized to exactly one token")
     _assert(build_renderer_environment({})["NEXUS_RENDERER_BACKEND_POLICY"] == EXPECTED_POLICY, "renderer policy provenance missing")
 
-    sessions = [_launch_session(shortcut, output_root, head, index) for index in range(1, args.runs + 1)]
+    if args.reuse_session_root is not None:
+        reuse_root = args.reuse_session_root.resolve()
+        sessions = []
+        for index in range(1, args.runs + 1):
+            source = reuse_root / f"session_{index:02d}" / "fam003_option_d_runtime_session.json"
+            _assert(source.exists(), f"reused performance session is missing: {source}")
+            session = json.loads(source.read_text(encoding="utf-8-sig"))
+            session["manifestPath"] = str(source)
+            sessions.append(session)
+    else:
+        sessions = [_launch_session(shortcut, output_root, head, index) for index in range(1, args.runs + 1)]
     for session in sessions:
         _assert(session.get("status") == "PASS", f"normal-launcher surface session failed: {session.get('failure')}")
         _assert(session.get("sourceHead") == head, "normal-launcher session HEAD provenance is stale")
@@ -839,9 +1378,16 @@ def main() -> int:
         for surface_id in AVAILABLE_PROOF_SURFACES:
             row = (session.get("surfaces") or {}).get(surface_id) or {}
             _assert(row.get("visualVerdict") == "PASS" and row.get("functionalVerdict") == "PASS" and row.get("evidence"), f"surface proof missing for {surface_id}")
-        _assert((session.get("materialRegression") or {}).get("detected") is False, "material regression detected in session")
+        regression = session.get("materialRegression") or {}
+        _assert(regression.get("detected") is None, "session made an unsupported binary regression claim")
+        _assert(regression.get("disposition") == "USER_DECISION_REQUIRED", "session did not preserve the no-baseline decision gate")
+        _assert(regression.get("requiredMetricsAdjudicated") is True, "session omitted required performance adjudication")
 
-    lifecycle = _lifecycle_proof(args.desktop_entrypoint_report.resolve(), output_root)
+    lifecycle = (
+        _preserved_lifecycle_proof(args.preserved_lifecycle_manifest.resolve(), output_root, head)
+        if args.preserved_lifecycle_manifest is not None
+        else _lifecycle_proof(args.desktop_entrypoint_report.resolve(), output_root)
+    )
     performance = _performance(sessions)
     inventory = _inventory()
 
@@ -860,7 +1406,8 @@ def main() -> int:
         "# FAM-003 Option D Performance And Responsiveness\n\n"
         f"Configuration: `{performance['configuration']}`\n\n"
         f"Runs: `{performance['runCount']}`\n\n"
-        "No repo-defined numeric threshold exists. These measured values are review evidence, not an invented release threshold.\n\n"
+        f"Methodology: `{performance['methodologyVersion']}` / {PERFORMANCE_SETTLE_DURATION_MS} ms settle / {PERFORMANCE_SAMPLE_DURATION_MS} ms sustained sample / {PERFORMANCE_SAMPLE_INTERVAL_MS} ms raw interval.\n\n"
+        "Disposition: `USER_DECISION_REQUIRED`. No repo-defined numeric threshold or safe equivalent baseline exists, so these measurements do not prove equivalence or no material regression.\n\n"
         "```json\n" + json.dumps(performance, indent=2, sort_keys=True) + "\n```\n",
         encoding="utf-8",
     )
@@ -903,6 +1450,11 @@ def main() -> int:
         "RB-JS-CALLBACK-001": "a ready WebEngine surface failed to return one JavaScript callback",
         "RB-HUD-RESTORE-001": "one tray-restored HUD frame contained a large partial-black WebEngine region",
         "RB-AI-RESTORE-001": "one restored AI Command Center frame contained a large partial-black WebEngine region",
+        "RB-PERF-IDLE-002": "the prior settled-idle sample retained active on-demand surfaces and was not resident idle",
+        "RB-PERF-CPU-003": "the prior aggregate CPU percentage lacked PID/role attribution and a defined denominator",
+        "RB-PERF-TIMING-004": "the prior firstWebEngineRenderMs timer began after readiness and included DOM/capture work",
+        "RB-PERF-ADJUDICATION-005": "the prior no-material-regression result ignored required CPU, memory, startup, opening, and resident-state metrics",
+        "RB-PERF-VALIDATOR-006": "the prior validator accepted sub-second, contaminated, unattributed, non-comparable performance evidence",
     }
     defect_path.write_text(
         "# FAM-003 Option D Defect Ledger\n\n"
@@ -922,8 +1474,8 @@ def main() -> int:
     manifest = _base_validation_manifest()
     manifest.update(
         {
-            "schema": "fam003-option-d-renderer-backend-workstream-v1",
-            "status": "PASS",
+            "schema": "fam003-option-d-renderer-backend-workstream-v2",
+            "status": "USER_DECISION_REQUIRED",
             "sourceHead": head,
             "branch": _git("branch", "--show-current"),
             "originMain": _git("rev-parse", "origin/main"),
@@ -953,7 +1505,14 @@ def main() -> int:
                 "sequence": "normal launcher -> tray Global Settings -> HUD Dashboard enable/auto-open -> close -> tray restore -> repeated open -> disable -> tray hide -> Settings recovery",
             },
             "performance": performance,
-            "materialRegression": {"detected": False, "ignored": False, "disposition": "NO_MATERIAL_REGRESSION_OBSERVED"},
+            "materialRegression": {
+                "detected": None,
+                "ignored": False,
+                "disposition": "USER_DECISION_REQUIRED",
+                "requiredMetricsAdjudicated": True,
+                "baselineComparable": False,
+                "basis": "sustained absolute Option D measurements are current and reproducible; no safe equivalent baseline or governing threshold exists",
+            },
             "lifecycle": lifecycle,
             "backendEvidenceCurrentness": "CURRENT_FINAL_BACKEND",
             "aggregateConsumption": {"optionCConsumesRendererBackendChild": True},
@@ -994,19 +1553,19 @@ def main() -> int:
     report_path = output_root / "FAM003_OPTION_D_RENDERER_BACKEND_WORKSTREAM_REPORT.md"
     report_path.write_text(
         "# FAM-003 Option D Renderer-Backend Workstream Report\n\n"
-        f"Status: `PASS`\n\nSource HEAD: `{head}`\n\n"
+        f"Status: `USER_DECISION_REQUIRED`\n\nSource HEAD: `{head}`\n\n"
         f"Effective flags: `{EXPECTED_FLAG}`\n\n"
         f"Policy: `{EXPECTED_POLICY}` (`{EXPECTED_CLASSIFICATION}`)\n\n"
         f"Normal-launcher runs: `{len(sessions)}`\n\n"
         f"Affected WebEngine inventory: `{len(inventory)} / {len(REQUIRED_WEBENGINE_SURFACES)}` rows\n\n"
         f"Directly proofed current routes: `{len(AVAILABLE_PROOF_SURFACES)} / {len(AVAILABLE_PROOF_SURFACES)}`\n\n"
         f"Negative fixtures: `{len(negative_fixtures)} / {len(negative_fixtures)}`\n\n"
-        "Material regression: `NOT OBSERVED`\n\n"
-        "Hardware-default comparison was not re-executed because the known teardown path is unsafe; no performance-equivalence claim is made.\n\n"
+        "Material regression: `UNRESOLVED - USER_DECISION_REQUIRED`\n\n"
+        "Hardware-default comparison was not re-executed because the known teardown path is unsafe; no performance-equivalence or no-regression claim is made.\n\n"
         "This is Workstream proof only. It does not enter H1, formal Live Validation, or UTS, and it does not make Option D permanent architecture.\n",
         encoding="utf-8",
     )
-    print("FAM-003 RENDERER BACKEND WORKSTREAM: PASS")
+    print("FAM-003 RENDERER BACKEND WORKSTREAM: USER_DECISION_REQUIRED")
     print(f"Proof Root: {output_root}")
     print(f"Manifest: {manifest_path}")
     print(f"Report: {report_path}")

@@ -26,6 +26,10 @@ EXPECTED_POLICY = "temporary-shared-runtime-safety-policy"
 EXPECTED_CLASSIFICATION = "shared-desktop-runtime-not-fam003-only"
 EXPECTED_FLAG = "--disable-gpu"
 JAVASCRIPT_CALLBACK_MAX_ATTEMPTS = 3
+PERFORMANCE_METHODOLOGY_VERSION = "fam003-option-d-sustained-performance-v2"
+PERFORMANCE_SETTLE_DURATION_MS = 5_000
+PERFORMANCE_SAMPLE_DURATION_MS = 10_000
+PERFORMANCE_SAMPLE_INTERVAL_MS = 250
 _JAVASCRIPT_RETRY_EVENTS: list[dict[str, Any]] = []
 
 
@@ -341,63 +345,221 @@ def _capture(widget, root: Path, label: str, surface_id: str) -> dict[str, Any]:
     return analysis
 
 
-def _process_snapshot(label: str, sample_ms: int = 650) -> dict[str, Any]:
-    root = psutil.Process(os.getpid())
-    processes = [root, *root.children(recursive=True)]
-    for process in processes:
-        try:
-            process.cpu_percent(None)
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
-    _pump(sample_ms)
-    cpu = 0.0
-    rss = 0
-    alive = []
-    for process in processes:
-        try:
-            cpu += process.cpu_percent(None)
-            memory = process.memory_info().rss
-            rss += memory
-            alive.append({"pid": process.pid, "name": process.name(), "rssBytes": memory})
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
-    chromium_children = [row for row in alive if "QtWebEngineProcess" in row["name"]]
-    return {
-        "label": label,
-        "sampleDurationMs": sample_ms,
-        "processCount": len(alive),
-        "webEngineSubprocessCount": len(chromium_children),
-        "cpuPercentSum": round(cpu, 2),
-        "rssBytes": rss,
-        "rssMiB": round(rss / (1024 * 1024), 2),
-        "processes": alive,
-    }
+def _process_role(process: psutil.Process, root_pid: int) -> tuple[str, str]:
+    try:
+        command_line = " ".join(process.cmdline())
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        command_line = ""
+    if process.pid == root_pid:
+        return "desktop-python-parent", command_line
+    lowered = command_line.casefold()
+    if "qtwebengineprocess" not in lowered:
+        return "desktop-child-other", command_line
+    if "--type=renderer" in lowered:
+        return "webengine-renderer", command_line
+    if "--type=gpu-process" in lowered:
+        return "webengine-gpu-process-software-policy", command_line
+    if "--type=utility" in lowered:
+        return "webengine-utility", command_line
+    if "--type=zygote" in lowered:
+        return "webengine-zygote", command_line
+    return "webengine-other", command_line
 
 
-def _responsiveness_sample(webviews: list[Any], duration_ms: int = 900) -> dict[str, Any]:
+def _process_tree(root: psutil.Process) -> list[psutil.Process]:
+    try:
+        return [root, *root.children(recursive=True)]
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return []
+
+
+def _cpu_time_seconds(process: psutil.Process) -> float:
+    cpu_times = process.cpu_times()
+    return float(cpu_times.user + cpu_times.system)
+
+
+def _pump_sample_interval(
+    duration_ms: int,
+    workload_callback: Callable[[], str | None] | None,
+) -> tuple[list[float], list[str]]:
+    deadline = time.perf_counter() + max(0, duration_ms) / 1000.0
+    previous = time.perf_counter()
     gaps: list[float] = []
-    start = time.perf_counter()
-    previous = start
-    iteration = 0
-    while (time.perf_counter() - start) * 1000.0 < duration_ms:
+    interactions: list[str] = []
+    if workload_callback is not None:
+        interaction = workload_callback()
+        if interaction:
+            interactions.append(interaction)
+    while time.perf_counter() < deadline:
         QApplication.processEvents()
         now = time.perf_counter()
         gaps.append((now - previous) * 1000.0)
         previous = now
-        if webviews and iteration % 6 == 0:
-            view = webviews[(iteration // 6) % len(webviews)]
-            view.page().runJavaScript("window.scrollBy(0, 8); window.scrollBy(0, -8);")
-        iteration += 1
         time.sleep(0.012)
-    ordered = sorted(gaps)
-    p95_index = min(len(ordered) - 1, max(0, int(len(ordered) * 0.95)))
+    return gaps, interactions
+
+
+def _sustained_process_sample(
+    label: str,
+    inventory_provider: Callable[[str], dict[str, Any]],
+    *,
+    expected_on_demand_visible: bool,
+    workload_callback: Callable[[], str | None] | None = None,
+) -> dict[str, Any]:
+    root = psutil.Process(os.getpid())
+    logical_cpu_count = max(1, int(psutil.cpu_count(logical=True) or 1))
+    inventory_before = inventory_provider(f"{label}-before")
+    raw_samples: list[dict[str, Any]] = []
+    process_totals: dict[int, dict[str, Any]] = {}
+    all_dispatch_gaps: list[float] = []
+    interactions: list[str] = []
+    started = time.perf_counter()
+    sample_index = 0
+
+    while (time.perf_counter() - started) * 1000.0 < PERFORMANCE_SAMPLE_DURATION_MS:
+        remaining_ms = PERFORMANCE_SAMPLE_DURATION_MS - int((time.perf_counter() - started) * 1000.0)
+        interval_ms = min(PERFORMANCE_SAMPLE_INTERVAL_MS, max(1, remaining_ms))
+        before_processes = _process_tree(root)
+        before_cpu: dict[int, float] = {}
+        for process in before_processes:
+            try:
+                before_cpu[process.pid] = _cpu_time_seconds(process)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+        interval_started = time.perf_counter()
+        gaps, interval_interactions = _pump_sample_interval(interval_ms, workload_callback)
+        interval_duration_s = max(0.001, time.perf_counter() - interval_started)
+        all_dispatch_gaps.extend(gaps)
+        interactions.extend(interval_interactions)
+        rows: list[dict[str, Any]] = []
+        for process in _process_tree(root):
+            try:
+                end_cpu = _cpu_time_seconds(process)
+                cpu_delta = max(0.0, end_cpu - before_cpu.get(process.pid, end_cpu))
+                rss_bytes = int(process.memory_info().rss)
+                role, command_line = _process_role(process, root.pid)
+                parent_pid = process.ppid()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+            core_equivalent = (cpu_delta / interval_duration_s) * 100.0
+            row = {
+                "pid": process.pid,
+                "parentPid": parent_pid,
+                "name": process.name(),
+                "role": role,
+                "commandLine": command_line,
+                "cpuTimeSeconds": round(cpu_delta, 6),
+                "cpuCoreEquivalentPercent": round(core_equivalent, 3),
+                "cpuWholeMachinePercent": round(core_equivalent / logical_cpu_count, 3),
+                "rssBytes": rss_bytes,
+                "rssMiB": round(rss_bytes / (1024 * 1024), 3),
+            }
+            rows.append(row)
+            aggregate = process_totals.setdefault(
+                process.pid,
+                {
+                    "pid": process.pid,
+                    "parentPid": parent_pid,
+                    "name": process.name(),
+                    "role": role,
+                    "commandLine": command_line,
+                    "cpuTimeSeconds": 0.0,
+                    "rssSamplesBytes": [],
+                },
+            )
+            aggregate["cpuTimeSeconds"] += cpu_delta
+            aggregate["rssSamplesBytes"].append(rss_bytes)
+        raw_samples.append(
+            {
+                "sampleIndex": sample_index,
+                "offsetMs": round((interval_started - started) * 1000.0, 3),
+                "durationMs": round(interval_duration_s * 1000.0, 3),
+                "processes": rows,
+                "interactionTargets": interval_interactions,
+            }
+        )
+        sample_index += 1
+
+    duration_ms = (time.perf_counter() - started) * 1000.0
+    duration_s = max(0.001, duration_ms / 1000.0)
+    per_process: list[dict[str, Any]] = []
+    for aggregate in sorted(process_totals.values(), key=lambda row: (row["role"], row["pid"])):
+        cpu_seconds = float(aggregate.pop("cpuTimeSeconds"))
+        rss_samples = list(aggregate.pop("rssSamplesBytes"))
+        core_equivalent = (cpu_seconds / duration_s) * 100.0
+        per_process.append(
+            {
+                **aggregate,
+                "cpuTimeSeconds": round(cpu_seconds, 6),
+                "cpuCoreEquivalentPercent": round(core_equivalent, 3),
+                "cpuWholeMachinePercent": round(core_equivalent / logical_cpu_count, 3),
+                "rssMedianMiB": round(statistics.median(rss_samples) / (1024 * 1024), 3),
+                "rssMaxMiB": round(max(rss_samples) / (1024 * 1024), 3),
+                "rssFinalMiB": round(rss_samples[-1] / (1024 * 1024), 3),
+                "sampleCount": len(rss_samples),
+            }
+        )
+    total_cpu_seconds = sum(float(row["cpuTimeSeconds"]) for row in per_process)
+    tree_core_equivalent = (total_cpu_seconds / duration_s) * 100.0
+    interval_rss_totals = [sum(int(row["rssBytes"]) for row in sample["processes"]) for sample in raw_samples]
+    ordered_gaps = sorted(all_dispatch_gaps)
+    p95_index = min(len(ordered_gaps) - 1, max(0, int(len(ordered_gaps) * 0.95)))
+    inventory_after = inventory_provider(f"{label}-after")
+    on_demand_visible = bool(inventory_before["onDemandVisible"] or inventory_after["onDemandVisible"])
+    state_matches = on_demand_visible is expected_on_demand_visible
+    idle_sample = workload_callback is None
     return {
-        "durationMs": round((time.perf_counter() - start) * 1000.0, 2),
-        "iterationCount": len(gaps),
-        "medianDispatchGapMs": round(statistics.median(gaps), 3) if gaps else 0.0,
-        "p95DispatchGapMs": round(ordered[p95_index], 3) if ordered else 0.0,
-        "maxDispatchGapMs": round(max(gaps), 3) if gaps else 0.0,
-        "unresponsiveIntervalOver1000Ms": any(gap > 1000.0 for gap in gaps),
+        "methodologyVersion": PERFORMANCE_METHODOLOGY_VERSION,
+        "label": label,
+        "classification": "IDLE" if idle_sample else "REPRESENTATIVE_ACTIVE_WORKLOAD",
+        "settleDurationMs": PERFORMANCE_SETTLE_DURATION_MS,
+        "sampleDurationMs": round(duration_ms, 3),
+        "requiredMinimumDurationMs": PERFORMANCE_SAMPLE_DURATION_MS,
+        "sampleIntervalMs": PERFORMANCE_SAMPLE_INTERVAL_MS,
+        "rawSampleCount": len(raw_samples),
+        "logicalProcessorCount": logical_cpu_count,
+        "cpuNormalization": {
+            "coreEquivalentPercent": "100 percent equals one logical processor fully occupied over the measured wall interval; renderer-tree totals may exceed 100 percent",
+            "wholeMachinePercent": "core-equivalent percent divided by logical processor count",
+        },
+        "surfaceInventoryBefore": inventory_before,
+        "surfaceInventoryAfter": inventory_after,
+        "expectedOnDemandVisible": expected_on_demand_visible,
+        "surfaceStateMatchesMethodology": state_matches,
+        "validationActivity": {
+            "domInspection": False,
+            "screenshotOrFileCapture": False,
+            "evidenceGeneration": False,
+            "eventLoopPump": True,
+            "definedProductWorkload": not idle_sample,
+            "contaminationDisposition": "NONE" if idle_sample else "EXPECTED_DEFINED_ACTIVE_WORKLOAD",
+        },
+        "workload": {
+            "interactionCount": len(interactions),
+            "interactionTargets": interactions,
+            "inputRatePerSecond": round(len(interactions) / duration_s, 3),
+            "operation": "rotating asynchronous 8px down/up WebEngine scroll pulse" if interactions else "none",
+        },
+        "perProcess": per_process,
+        "totalRendererTree": {
+            "processCount": len(per_process),
+            "webEngineSubprocessCount": sum(1 for row in per_process if str(row["role"]).startswith("webengine-")),
+            "cpuTimeSeconds": round(total_cpu_seconds, 6),
+            "cpuCoreEquivalentPercent": round(tree_core_equivalent, 3),
+            "cpuWholeMachinePercent": round(tree_core_equivalent / logical_cpu_count, 3),
+            "rssMedianMiB": round(statistics.median(interval_rss_totals) / (1024 * 1024), 3),
+            "rssMaxMiB": round(max(interval_rss_totals) / (1024 * 1024), 3),
+            "rssFinalMiB": round(interval_rss_totals[-1] / (1024 * 1024), 3),
+        },
+        "responsiveness": {
+            "iterationCount": len(all_dispatch_gaps),
+            "medianDispatchGapMs": round(statistics.median(all_dispatch_gaps), 3),
+            "p95DispatchGapMs": round(ordered_gaps[p95_index], 3),
+            "maxDispatchGapMs": round(max(all_dispatch_gaps), 3),
+            "unresponsiveIntervalOver1000Ms": any(gap > 1000.0 for gap in all_dispatch_gaps),
+        },
+        "rawSamples": raw_samples,
     }
 
 
@@ -426,6 +588,67 @@ def run_option_d_workstream_probe(
     metrics: dict[str, Any] = {}
     original_geometries: dict[str, QRect] = {}
     failure = ""
+
+    def current_surface_inventory(state_label: str) -> dict[str, Any]:
+        candidates = (
+            ("orin-core-visualization", core_window, "startup-resident-webengine", True),
+            ("hud-dashboard", window, "on-demand-webengine", False),
+            ("global-settings-native", getattr(window, "_resident_access_settings_dialog", None), "on-demand-native", False),
+            ("nexus-recording-suite", getattr(window, "_monitoring_hud_recording_studio_window", None), "on-demand-webengine", False),
+            ("nexus-log-viewer", getattr(window, "_monitoring_hud_log_viewer_studio_window", None), "on-demand-webengine", False),
+            ("ai-status-command-center", getattr(window, "_ai_control_center_dialog", None), "on-demand-webengine", False),
+        )
+        rows: list[dict[str, Any]] = []
+        for surface_id, widget, classification_name, intentionally_persistent in candidates:
+            exists = widget is not None
+            try:
+                visible = bool(exists and widget.isVisible())
+                minimized = bool(exists and widget.isMinimized())
+                page_ready = getattr(widget, "_page_ready", None) if exists else None
+            except RuntimeError:
+                exists = False
+                visible = False
+                minimized = False
+                page_ready = None
+            rows.append(
+                {
+                    "surfaceId": surface_id,
+                    "classification": classification_name,
+                    "exists": exists,
+                    "visible": visible,
+                    "hidden": bool(exists and not visible),
+                    "minimized": minimized,
+                    "pageReady": page_ready,
+                    "intentionallyPersistent": intentionally_persistent,
+                }
+            )
+        tray_icon = getattr(tray_entry, "tray_icon", None)
+        rows.append(
+            {
+                "surfaceId": "resident-tray-native",
+                "classification": "startup-resident-native",
+                "exists": tray_icon is not None,
+                "visible": bool(tray_icon is not None and tray_icon.isVisible()),
+                "hidden": False,
+                "minimized": False,
+                "pageReady": None,
+                "intentionallyPersistent": True,
+            }
+        )
+        on_demand_visible = [
+            row["surfaceId"]
+            for row in rows
+            if not row["intentionallyPersistent"] and (row["visible"] or row["minimized"])
+        ]
+        return {
+            "stateLabel": state_label,
+            "capturedAtEpoch": time.time(),
+            "surfaces": rows,
+            "onDemandVisible": on_demand_visible,
+            "persistentResidentVisible": [
+                row["surfaceId"] for row in rows if row["intentionallyPersistent"] and row["visible"]
+            ],
+        }
 
     def add_capture(widget, label: str, surface_id: str) -> dict[str, Any]:
         result = _capture(widget, evidence_root, label, surface_id)
@@ -544,8 +767,36 @@ def run_option_d_workstream_probe(
         )
 
         launch_started_ns = int(os.environ.get(LAUNCH_STARTED_NS_ENV, "0") or 0)
-        metrics["startupReadyMs"] = round((time.time_ns() - launch_started_ns) / 1_000_000, 2) if launch_started_ns else None
-        metrics["rendererReadyMs"] = metrics["startupReadyMs"]
+        probe_started_ns = time.time_ns()
+        first_visible_signal_ms = (
+            round((probe_started_ns - launch_started_ns) / 1_000_000, 2)
+            if launch_started_ns
+            else None
+        )
+        renderer_process_start_ms = (
+            round((psutil.Process(os.getpid()).create_time() * 1_000_000_000 - launch_started_ns) / 1_000_000, 2)
+            if launch_started_ns
+            else None
+        )
+        metrics["startupReadyMs"] = first_visible_signal_ms
+        metrics["startupTimeline"] = {
+            "definition": "high-resolution launcher invocation to the product CORE_VISUALIZATION_FIRST_VISIBLE callback that schedules this probe",
+            "launcherInvocationMs": 0.0,
+            "rendererProcessStartMs": renderer_process_start_ms,
+            "qApplicationCreatedMs": None,
+            "qApplicationCreatedDisposition": "EVENT_EXISTS_IN_RUNTIME_LOG_WITH_SECOND_RESOLUTION_ONLY_NOT_USED_AS_A_PRECISION_METRIC",
+            "webEngineViewCreationMs": None,
+            "webEngineViewCreationDisposition": "NOT_INSTRUMENTED_BY_CURRENT_ARCHITECTURE",
+            "pageLoadStartMs": None,
+            "pageLoadStartDisposition": "NOT_INSTRUMENTED_BY_CURRENT_ARCHITECTURE",
+            "domContentReadyMs": None,
+            "domContentReadyDisposition": "PAGE_READY_PRECEDES_FIRST_VISIBLE_SIGNAL_BUT_HAS_NO_HIGH_RESOLUTION_LAUNCH_RELATIVE_EVENT",
+            "firstVisiblePaintSignalMs": first_visible_signal_ms,
+            "stableResidentReadyMs": first_visible_signal_ms,
+            "observerOverheadIncluded": False,
+            "screenshotOrDomInspectionIncluded": False,
+            "eventProvenance": "DesktopRuntimeWindow.core_visualization_visible / CORE_VISUALIZATION_FIRST_VISIBLE",
+        }
         metrics["machine"] = {
             "platform": platform.platform(),
             "python": platform.python_version(),
@@ -555,7 +806,22 @@ def run_option_d_workstream_probe(
         }
 
         _wait_for(lambda: bool(core_window.is_core_visualization_ready()), "ORIN Core ready")
-        core_capture_started = time.perf_counter()
+        _pump(PERFORMANCE_SETTLE_DURATION_MS)
+        metrics["startupResidentIdle"] = _sustained_process_sample(
+            "startup-resident-idle",
+            current_surface_inventory,
+            expected_on_demand_visible=False,
+        )
+        _record(
+            steps,
+            "startup-resident-idle-methodology",
+            metrics["startupResidentIdle"]["surfaceStateMatchesMethodology"]
+            and metrics["startupResidentIdle"]["sampleDurationMs"] >= PERFORMANCE_SAMPLE_DURATION_MS,
+            {
+                "onDemandVisible": metrics["startupResidentIdle"]["surfaceInventoryBefore"]["onDemandVisible"],
+                "sampleDurationMs": metrics["startupResidentIdle"]["sampleDurationMs"],
+            },
+        )
         surface_result(
             "orin-core-visualization",
             core_window,
@@ -567,7 +833,7 @@ def run_option_d_workstream_probe(
         _pump(420)
         second_core = add_capture(core_window, "02_orin-core-visualization_animation_followup", "orin-core-visualization")
         surfaces["orin-core-visualization"]["evidence"].append(second_core["path"])
-        metrics["firstWebEngineRenderMs"] = round((time.perf_counter() - core_capture_started) * 1000.0, 2)
+        metrics["surfaceTimelines"] = {}
 
         tray_entry.global_settings_action.trigger()
         settings_open_ms = _wait_for(
@@ -575,6 +841,13 @@ def run_option_d_workstream_probe(
             "Global Settings from tray",
         )
         dialog = window._resident_access_settings_dialog
+        metrics["surfaceTimelines"]["globalSettings"] = {
+            "routeActivationToVisibleMs": round(settings_open_ms, 2),
+            "interactiveReadyMs": round(settings_open_ms, 2),
+            "firstVisiblePaintMs": None,
+            "firstVisiblePaintDisposition": "NATIVE_QT_SURFACE_NO_SEPARATE_PAINT_EVENT_IN_CURRENT_ARCHITECTURE",
+            "evidenceCollectionIncluded": False,
+        }
         dialog.set_focus("hud_dashboard")
         _pump(250)
         add_capture(dialog, "03_global_settings_hud_disabled", "global-settings-native")
@@ -591,6 +864,13 @@ def run_option_d_workstream_probe(
             12.0,
         )
         metrics["hudAutomaticOpenMs"] = round((time.perf_counter() - enable_started) * 1000.0, 2)
+        metrics["surfaceTimelines"]["hudDashboard"] = {
+            "routeActivationToVisibleMs": metrics["hudAutomaticOpenMs"],
+            "interactiveReadyMs": metrics["hudAutomaticOpenMs"],
+            "firstVisiblePaintMs": None,
+            "firstVisiblePaintDisposition": "VIEW_IS_PRELOADED_AND_CURRENT_ARCHITECTURE_EXPOSES_VISIBILITY_AND_PAGE_READY_WITHOUT_A_ROUTE_RELATIVE_PAINT_EVENT",
+            "evidenceCollectionIncluded": False,
+        }
         _record(
             steps,
             "hud-enable-auto-open",
@@ -621,7 +901,14 @@ def run_option_d_workstream_probe(
         _dom_click(window.webview, "#monitoring-hud-recording-studio-open")
         recording = window._monitoring_hud_recording_studio_window
         _wait_for(lambda: bool(recording and recording.isVisible() and recording._page_ready), "Recording Suite normal HUD route")
-        metrics["surfaceOpenMs"] = {"recordingSuite": round((time.perf_counter() - recording_open_started) * 1000.0, 2)}
+        recording_open_ms = round((time.perf_counter() - recording_open_started) * 1000.0, 2)
+        metrics["surfaceTimelines"]["recordingSuite"] = {
+            "routeActivationToVisibleMs": recording_open_ms,
+            "interactiveReadyMs": recording_open_ms,
+            "firstVisiblePaintMs": None,
+            "firstVisiblePaintDisposition": "CURRENT_CHILD_WINDOW_EXPOSES_PAGE_READY_WITHOUT_A_ROUTE_RELATIVE_PAINT_EVENT",
+            "evidenceCollectionIncluded": False,
+        }
         original_geometries["recording-suite"] = QRect(recording.geometry())
         surface_result(
             "nexus-recording-suite",
@@ -637,7 +924,14 @@ def run_option_d_workstream_probe(
         _dom_click(recording.webview, "#monitoring-hud-studio-open-log-viewer-action")
         log_viewer = window._monitoring_hud_log_viewer_studio_window
         _wait_for(lambda: bool(log_viewer and log_viewer.isVisible() and log_viewer._page_ready), "Log Viewer from Recording Suite")
-        metrics["surfaceOpenMs"]["logViewer"] = round((time.perf_counter() - log_open_started) * 1000.0, 2)
+        log_open_ms = round((time.perf_counter() - log_open_started) * 1000.0, 2)
+        metrics["surfaceTimelines"]["logViewer"] = {
+            "routeActivationToVisibleMs": log_open_ms,
+            "interactiveReadyMs": log_open_ms,
+            "firstVisiblePaintMs": None,
+            "firstVisiblePaintDisposition": "CURRENT_CHILD_WINDOW_EXPOSES_PAGE_READY_WITHOUT_A_ROUTE_RELATIVE_PAINT_EVENT",
+            "evidenceCollectionIncluded": False,
+        }
         original_geometries["log-viewer"] = QRect(log_viewer.geometry())
         surface_result(
             "nexus-log-viewer",
@@ -689,7 +983,14 @@ def run_option_d_workstream_probe(
         )
         ai_dashboard = window._ai_control_center_dialog
         _wait_for(lambda: bool(ai_dashboard._page_ready), "AI Dashboard WebEngine ready")
-        metrics["surfaceOpenMs"]["aiDashboard"] = round((time.perf_counter() - ai_open_started) * 1000.0, 2)
+        ai_open_ms = round((time.perf_counter() - ai_open_started) * 1000.0, 2)
+        metrics["surfaceTimelines"]["aiDashboard"] = {
+            "routeActivationToVisibleMs": ai_open_ms,
+            "interactiveReadyMs": ai_open_ms,
+            "firstVisiblePaintMs": None,
+            "firstVisiblePaintDisposition": "CURRENT_CHILD_WINDOW_EXPOSES_PAGE_READY_WITHOUT_A_ROUTE_RELATIVE_PAINT_EVENT",
+            "evidenceCollectionIncluded": False,
+        }
         original_geometries["ai-dashboard"] = QRect(ai_dashboard.geometry())
         surface_result(
             "ai-status-command-center",
@@ -741,6 +1042,13 @@ def run_option_d_workstream_probe(
         tray_entry.monitoring_hud_dashboard_action.trigger()
         _wait_for(lambda: window.isVisible(), "HUD tray restore")
         metrics["hudTrayRestoreMs"] = round((time.perf_counter() - restore_started) * 1000.0, 2)
+        metrics["surfaceTimelines"]["hudDashboardRestore"] = {
+            "routeActivationToVisibleMs": metrics["hudTrayRestoreMs"],
+            "interactiveReadyMs": metrics["hudTrayRestoreMs"],
+            "firstVisiblePaintMs": None,
+            "firstVisiblePaintDisposition": "RESTORED_PRELOADED_SINGLETON_HAS_NO_SEPARATE_ROUTE_RELATIVE_PAINT_EVENT",
+            "evidenceCollectionIncluded": False,
+        }
         tray_entry.monitoring_hud_dashboard_action.trigger()
         _pump(220)
         _record(
@@ -758,16 +1066,39 @@ def run_option_d_workstream_probe(
         surfaces["hud-dashboard"]["evidence"].append(hud_restore["path"])
         surfaces["hud-dashboard"]["restoreProof"] = hud_restore["baselineComparison"]
 
-        active_webviews = [core_window.webview, window.webview, recording.webview, log_viewer.webview, ai_dashboard.webview]
-        metrics["activeProcess"] = _process_snapshot("representative-active", 700)
-        metrics["responsiveness"] = _responsiveness_sample(active_webviews)
-        _pump(500)
-        metrics["idleProcess"] = _process_snapshot("settled-idle", 900)
+        active_webviews = [
+            ("orin-core-visualization", core_window.webview),
+            ("hud-dashboard", window.webview),
+            ("nexus-recording-suite", recording.webview),
+            ("nexus-log-viewer", log_viewer.webview),
+            ("ai-status-command-center", ai_dashboard.webview),
+        ]
+        active_index = 0
+
+        def active_workload_pulse() -> str:
+            nonlocal active_index
+            surface_id, view = active_webviews[active_index % len(active_webviews)]
+            view.page().runJavaScript("window.scrollBy(0, 8); window.scrollBy(0, -8);")
+            active_index += 1
+            return surface_id
+
+        _pump(PERFORMANCE_SETTLE_DURATION_MS)
+        metrics["representativeActive"] = _sustained_process_sample(
+            "representative-active",
+            current_surface_inventory,
+            expected_on_demand_visible=True,
+            workload_callback=active_workload_pulse,
+        )
+        metrics["responsiveness"] = metrics["representativeActive"]["responsiveness"]
         _record(
             steps,
             "responsiveness-no-freeze",
-            not metrics["responsiveness"]["unresponsiveIntervalOver1000Ms"],
-            metrics["responsiveness"],
+            metrics["representativeActive"]["surfaceStateMatchesMethodology"]
+            and not metrics["responsiveness"]["unresponsiveIntervalOver1000Ms"],
+            {
+                "surfaceStateMatchesMethodology": metrics["representativeActive"]["surfaceStateMatchesMethodology"],
+                "responsiveness": metrics["responsiveness"],
+            },
         )
 
         dialog.show()
@@ -794,6 +1125,33 @@ def run_option_d_workstream_probe(
             },
         )
         add_capture(dialog, "16_global_settings_hud_disabled_recovery", "global-settings-native")
+
+        for target in (recording, log_viewer, ai_dashboard, dialog):
+            try:
+                target.close()
+            except RuntimeError:
+                pass
+        _wait_for(
+            lambda: not current_surface_inventory("post-use-close-check")["onDemandVisible"],
+            "all on-demand surfaces closed or hidden before post-use resident idle",
+            10.0,
+        )
+        _pump(PERFORMANCE_SETTLE_DURATION_MS)
+        metrics["postUseResidentIdle"] = _sustained_process_sample(
+            "post-use-resident-idle",
+            current_surface_inventory,
+            expected_on_demand_visible=False,
+        )
+        _record(
+            steps,
+            "post-use-resident-idle-methodology",
+            metrics["postUseResidentIdle"]["surfaceStateMatchesMethodology"]
+            and metrics["postUseResidentIdle"]["sampleDurationMs"] >= PERFORMANCE_SAMPLE_DURATION_MS,
+            {
+                "onDemandVisible": metrics["postUseResidentIdle"]["surfaceInventoryAfter"]["onDemandVisible"],
+                "sampleDurationMs": metrics["postUseResidentIdle"]["sampleDurationMs"],
+            },
+        )
 
         surfaces["global-settings-native"] = {
             "classification": "native-qt-shared-process-not-webengine",
@@ -875,10 +1233,20 @@ def run_option_d_workstream_probe(
             "captures": captures,
             "metrics": metrics,
             "materialRegression": {
-                "detected": status != "PASS",
+                "detected": True if status != "PASS" else None,
+                "disposition": "REPAIR_REQUIRED" if status != "PASS" else "USER_DECISION_REQUIRED",
                 "visualCorruption": any(not item.get("nonBlank") for item in captures),
                 "unresponsiveInterval": bool(metrics.get("responsiveness", {}).get("unresponsiveIntervalOver1000Ms")),
-                "thresholdSource": "no repo-defined quantitative threshold; measured evidence is preserved for USER review",
+                "requiredMetricsAdjudicated": bool(
+                    metrics.get("startupTimeline")
+                    and metrics.get("startupResidentIdle")
+                    and metrics.get("representativeActive")
+                    and metrics.get("postUseResidentIdle")
+                    and metrics.get("surfaceTimelines")
+                ),
+                "baselineComparable": False,
+                "thresholdSource": "no repo-defined quantitative threshold and no safe equivalent hardware-default baseline",
+                "decisionReason": "absolute sustained measurements are auditable, but regression magnitude cannot be adjudicated without an equivalent safe baseline or a USER performance decision",
             },
         }
         try:
