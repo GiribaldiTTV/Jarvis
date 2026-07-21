@@ -514,6 +514,22 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Cursor proof rerun, Settings/Option C aggregate, scope-audit self-test, active-review packet validation, and image integrity.",
         "supersession": "Final reviewable cursor evidence shape for the replacement Workstream packet.",
     },
+    "Make FAM-003 HUD completion evidence self-contained": {
+        "reason": "Added complete 26-state row artifacts, exact aggregate child-root provenance, packet false-green guards, and routed registry ownership.",
+        "traceability": "R2-WS10 / SLC-R2-010 Workstream completion evidence repair.",
+        "coherent": "YES - Workstream evidence helpers, packet guard, fixture cases, and registry only.",
+        "unrelatedChanges": "NO.",
+        "validation": "26-state direct helper, HUD visual helper, Option C aggregate, scope-audit self-test, packet validation, and final parity.",
+        "supersession": "Supersedes the summary-only 26-state packet shape and ambiguous 053038/054537 HUD root selection.",
+    },
+    "Classify FAM-003 HUD evidence repair": {
+        "reason": "Added exact audit metadata for the self-contained HUD evidence repair commit and this bounded classifier follow-up.",
+        "traceability": "R2-WS10 / SLC-R2-010 Workstream completion evidence audit repair.",
+        "coherent": "YES - exact commit-classification metadata only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Scope-audit self-test and final Git-to-ledger parity.",
+        "supersession": "Completes the prior evidence repair without changing product or proof semantics.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
