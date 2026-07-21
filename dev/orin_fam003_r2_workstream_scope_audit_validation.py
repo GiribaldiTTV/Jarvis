@@ -695,6 +695,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Python compile, preserved-proof Git currentness receipt, final Option C aggregate, scope audit, governance, and packet parity.",
         "supersession": "Supersedes strict same-HEAD rejection for proof whose product/runtime inputs are Git-proven unchanged; any product/runtime delta still fails preservation.",
     },
+    "Classify FAM-003 performance proof registry": {
+        "reason": "Added exact Helper Status markers to the sustained-performance addendum, updated the canonical renderer helper row from 22 to 39 negative fixtures, and classified this source-truth follow-up in the exact commit audit.",
+        "traceability": "R2-WS10 / SLC-R2-010 performance-helper ownership and exact-scope repair.",
+        "coherent": "YES - helper registry and exact audit metadata only.",
+        "unrelatedChanges": "NO.",
+        "validation": "Branch governance modes, source-owner validation, scope audit, final aggregate, and packet parity.",
+        "supersession": "Supersedes stale duplicate helper prose and the prior 22-fixture registry description without changing product/runtime behavior.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
