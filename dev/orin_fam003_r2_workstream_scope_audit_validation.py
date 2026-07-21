@@ -663,6 +663,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "Renderer contract, callback-2 recovery unit fixture, and 20 negative fixtures; three exact normal-launcher sessions; affected-surface proof; Option C aggregate; scope audit; governance; and compileall.",
         "supersession": "Supersedes single-attempt JavaScript callback proof behavior; it does not change product runtime behavior outside the dormant Workstream probe.",
     },
+    "Harden FAM-003 cursor mouse-down anchoring": {
+        "reason": "Re-established and verified the real pointer edge coordinate and resize-cursor fingerprint immediately before mouse-down after a current-HEAD proof showed pointer displacement between the pre-drag frame and mouse-down.",
+        "traceability": "R2-WS10 / SLC-R2-010 exact normal-launcher resize-cursor closure.",
+        "coherent": "YES - one visible pointer proof reliability and fail-capable fixture repair.",
+        "unrelatedChanges": "NO.",
+        "validation": "PowerShell parse, ten cursor negative fixtures, exact Desktop-launcher cursor proof, Settings child, Option C aggregate, scope audit, and governance.",
+        "supersession": "Supersedes the unanchored gap between pre-drag cursor proof and mouse-down; product resize behavior is unchanged.",
+    },
 }
 
 WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {

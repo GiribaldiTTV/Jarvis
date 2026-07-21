@@ -2,6 +2,10 @@
   "schema": "fam003-resize-cursor-proof-negative-fixtures-v1",
   "cases": [
     {
+      "id": "desktop_launcher_pointer_moved",
+      "expected": "The exact Desktop launcher path is unproven when the real pointer does not remain anchored on its icon."
+    },
+    {
       "id": "geometry_only_without_visible_cursor",
       "expected": "Completed geometry resize cannot satisfy visible cursor conformance."
     },
@@ -16,6 +20,10 @@
     {
       "id": "predrag_after_mousedown",
       "expected": "A cursor frame captured after mouse-down cannot satisfy the pre-drag requirement."
+    },
+    {
+      "id": "pointer_moved_before_mousedown",
+      "expected": "Pointer displacement after pre-drag proof must fail unless the edge and resize cursor are re-established immediately before mouse-down."
     },
     {
       "id": "missing_cursor_frame",

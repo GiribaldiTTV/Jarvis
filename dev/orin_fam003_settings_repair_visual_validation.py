@@ -1923,9 +1923,11 @@ def _visible_cursor_manifest_failures(
         if isinstance(step, dict) and step.get("id")
     }
     required_steps = (
+        "pointer_anchored_on_exact_desktop_launcher",
         "settings_open_current_runtime",
         "pointer_outside_resize_zone",
         "visible_cursor_transition_pre_drag",
+        "pointer_reanchored_before_mouse_down",
         "mouse_down_with_visible_resize_cursor",
         "held_drag_and_completed_resize",
         "pointer_leaves_resize_zone",
@@ -1951,10 +1953,17 @@ def _visible_cursor_manifest_failures(
 
     outside = evidence("pointer_outside_resize_zone")
     pre_drag = evidence("visible_cursor_transition_pre_drag")
+    anchor = evidence("pointer_reanchored_before_mouse_down")
     mouse_down = evidence("mouse_down_with_visible_resize_cursor")
     drag = evidence("held_drag_and_completed_resize")
     leave = evidence("pointer_leaves_resize_zone")
     overall = evidence("resize_cursor_workstream_proof")
+    launcher_anchor = evidence("pointer_anchored_on_exact_desktop_launcher")
+
+    if launcher_anchor.get("pointMatches") is not True:
+        failures.append("pointer was not anchored on the exact Desktop launcher")
+    if int(launcher_anchor.get("maximumAttempts", 0) or 0) != 3 or len(launcher_anchor.get("attempts") or []) > 3:
+        failures.append("Desktop-launcher pointer anchor retry boundary is missing or exceeded")
 
     if outside.get("hitZone") is not False:
         failures.append("normal-pointer frame is not proven outside the resize hit zone")
@@ -1979,6 +1988,15 @@ def _visible_cursor_manifest_failures(
 
     if mouse_down.get("preDragRequirementSatisfied") is not True:
         failures.append("mouse-down did not follow established pre-drag cursor proof")
+    if anchor.get("immediatelyBeforeMouseDown") is not True or anchor.get("pointMatches") is not True:
+        failures.append("pointer was not re-anchored at the resize edge immediately before mouse-down")
+    if int(anchor.get("maximumAttempts", 0) or 0) != 3 or len(anchor.get("attempts") or []) > 3:
+        failures.append("mouse-down anchor retry boundary is missing or exceeded")
+    anchor_cursor = anchor.get("cursor", {})
+    if not isinstance(anchor_cursor, dict) or anchor_cursor.get("fingerprint") != anchor.get("expectedResizeFingerprint"):
+        failures.append("mouse-down anchor cursor is not the expected resize shape")
+    if mouse_down.get("anchorRequirementSatisfied") is not True:
+        failures.append("mouse-down did not follow immediate edge-anchor proof")
     if drag.get("classification") != "GEOMETRY_RESIZE_PROVEN":
         failures.append("geometry resize is not proven")
     if int(drag.get("widthDelta", 0) or 0) > -60:
@@ -1993,6 +2011,8 @@ def _visible_cursor_manifest_failures(
         failures.append("overall hit-zone proof is missing")
     if overall.get("mouseDownAfterPreDrag") is not True:
         failures.append("overall event ordering does not prove pre-drag before mouse-down")
+    if overall.get("mouseDownAnchorProven") is not True:
+        failures.append("overall proof does not preserve immediate mouse-down edge anchoring")
     if overall.get("completedResize") is not True:
         failures.append("overall completed-resize proof is missing")
     if overall.get("postDragNormalCursor") is not True:
@@ -2082,13 +2102,15 @@ def _synthetic_visible_cursor_manifest(frame_root: Path, expected_head: str) -> 
         )
     base_time = dt.datetime(2026, 7, 21, tzinfo=dt.timezone.utc)
     steps = [
+        {"id": "pointer_anchored_on_exact_desktop_launcher", "status": "PASS", "timestamp": (base_time - dt.timedelta(seconds=1)).isoformat(), "evidence": {"pointMatches": True, "maximumAttempts": 3, "attempts": [{"attempt": 1, "pointMatched": True}]}},
         {"id": "settings_open_current_runtime", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=0)).isoformat(), "evidence": {}},
         {"id": "pointer_outside_resize_zone", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=1)).isoformat(), "evidence": {"hitZone": False, "cursor": {"visible": True, "fingerprint": "ARROW"}, "expectedArrowFingerprint": "ARROW", "frame": paths["outside"]}},
         {"id": "visible_cursor_transition_pre_drag", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=2)).isoformat(), "evidence": {"classification": "VISIBLE_CURSOR_TRANSITION_PROVEN", "hitZone": True, "cursor": {"visible": True, "fingerprint": "RESIZE"}, "expectedResizeFingerprint": "RESIZE", "expectedArrowFingerprint": "ARROW", "frame": paths["pre_drag"]}},
-        {"id": "mouse_down_with_visible_resize_cursor", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=3)).isoformat(), "evidence": {"preDragRequirementSatisfied": True, "mouseDownFrame": paths["mouse_down"]}},
+        {"id": "pointer_reanchored_before_mouse_down", "status": "PASS", "timestamp": (base_time + dt.timedelta(milliseconds=2500)).isoformat(), "evidence": {"immediatelyBeforeMouseDown": True, "pointMatches": True, "maximumAttempts": 3, "attempts": [{"attempt": 1, "pointMatched": True, "cursorMatched": True}], "cursor": {"visible": True, "fingerprint": "RESIZE"}, "expectedResizeFingerprint": "RESIZE"}},
+        {"id": "mouse_down_with_visible_resize_cursor", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=3)).isoformat(), "evidence": {"preDragRequirementSatisfied": True, "anchorRequirementSatisfied": True, "mouseDownFrame": paths["mouse_down"]}},
         {"id": "held_drag_and_completed_resize", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=4)).isoformat(), "evidence": {"classification": "GEOMETRY_RESIZE_PROVEN", "widthDelta": -80, "midDragFrame": paths["mid_drag"], "mouseUpFrame": paths["mouse_up"]}},
         {"id": "pointer_leaves_resize_zone", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=5)).isoformat(), "evidence": {"frame": paths["leave"]}},
-        {"id": "resize_cursor_workstream_proof", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=6)).isoformat(), "evidence": {"geometryClassification": "GEOMETRY_RESIZE_PROVEN", "visibleCursorClassification": "VISIBLE_CURSOR_TRANSITION_PROVEN", "internalCursorClassification": "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY", "hitZoneProven": True, "mouseDownAfterPreDrag": True, "completedResize": True, "postDragNormalCursor": True}},
+        {"id": "resize_cursor_workstream_proof", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=6)).isoformat(), "evidence": {"geometryClassification": "GEOMETRY_RESIZE_PROVEN", "visibleCursorClassification": "VISIBLE_CURSOR_TRANSITION_PROVEN", "internalCursorClassification": "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY", "hitZoneProven": True, "mouseDownAfterPreDrag": True, "mouseDownAnchorProven": True, "completedResize": True, "postDragNormalCursor": True}},
     ]
     return {
         "schema": "fam003-r2-workstream-resize-cursor-proof-v1",
@@ -2127,6 +2149,12 @@ def _run_visible_cursor_negative_fixtures(expected_head: str) -> tuple[bool, str
                 steps["visible_cursor_transition_pre_drag"]["evidence"]["hitZone"] = False
             elif case_id == "predrag_after_mousedown":
                 steps["visible_cursor_transition_pre_drag"]["timestamp"] = (dt.datetime(2026, 7, 21, 0, 0, 4, tzinfo=dt.timezone.utc)).isoformat()
+            elif case_id == "pointer_moved_before_mousedown":
+                steps["pointer_reanchored_before_mouse_down"]["evidence"]["pointMatches"] = False
+                steps["mouse_down_with_visible_resize_cursor"]["evidence"]["anchorRequirementSatisfied"] = False
+                steps["resize_cursor_workstream_proof"]["evidence"]["mouseDownAnchorProven"] = False
+            elif case_id == "desktop_launcher_pointer_moved":
+                steps["pointer_anchored_on_exact_desktop_launcher"]["evidence"]["pointMatches"] = False
             elif case_id == "missing_cursor_frame":
                 mutated["orderedFrames"] = [frame for frame in mutated["orderedFrames"] if frame is not frames["pre_drag"]]
             elif case_id == "cursor_not_composited":

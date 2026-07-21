@@ -763,6 +763,47 @@ function Invoke-ResizeCursorWorkstreamProof {
         captureMethod = "GDI CopyFromScreen plus DrawIconEx of the GetCursorInfo hCursor at the sampled GetCursorInfo screen position"
     }
 
+    $mouseDownAnchorAttempts = @()
+    $mouseDownAnchorProven = $false
+    $mouseDownAnchorCursor = $null
+    $mouseDownAnchorCursorEvidence = $null
+    for ($anchorAttempt = 1; $anchorAttempt -le 3; $anchorAttempt++) {
+        [Fam003VisibleInput]::SetCursorPos($edgeX, $edgeY) | Out-Null
+        Start-Sleep -Milliseconds 140
+        $mouseDownAnchorCursor = [Fam003CursorProof]::Snapshot()
+        $positionMatched = (
+            [Math]::Abs([int]$mouseDownAnchorCursor.X - $edgeX) -le 2 -and
+            [Math]::Abs([int]$mouseDownAnchorCursor.Y - $edgeY) -le 2
+        )
+        $cursorMatched = (
+            [bool]$mouseDownAnchorCursor.Visible -and
+            [string]$mouseDownAnchorCursor.Fingerprint -eq $rightResizeFingerprint
+        )
+        $mouseDownAnchorCursorEvidence = @{
+            querySucceeded = [bool]$mouseDownAnchorCursor.QuerySucceeded
+            visible = [bool]$mouseDownAnchorCursor.Visible
+            handle = [long]$mouseDownAnchorCursor.Handle
+            x = [int]$mouseDownAnchorCursor.X; y = [int]$mouseDownAnchorCursor.Y
+            hotspotX = [int]$mouseDownAnchorCursor.HotspotX; hotspotY = [int]$mouseDownAnchorCursor.HotspotY
+            fingerprint = [string]$mouseDownAnchorCursor.Fingerprint
+        }
+        $mouseDownAnchorAttempts += @{
+            attempt = $anchorAttempt; pointMatched = [bool]$positionMatched
+            cursorMatched = [bool]$cursorMatched; cursor = $mouseDownAnchorCursorEvidence
+        }
+        if ($positionMatched -and $cursorMatched) {
+            $mouseDownAnchorProven = $true
+            break
+        }
+    }
+    Add-Step "pointer_reanchored_before_mouse_down" $(if ($mouseDownAnchorProven) { "PASS" } else { "FAIL" }) "The real pointer must be re-anchored at the proven resize edge and retain the resize cursor immediately before mouse-down." @{
+        point = @($edgeX, $edgeY); pointMatches = [bool]$mouseDownAnchorProven
+        expectedResizeFingerprint = $rightResizeFingerprint
+        cursor = $mouseDownAnchorCursorEvidence; attempts = @($mouseDownAnchorAttempts)
+        immediatelyBeforeMouseDown = $true; maximumAttempts = 3
+    }
+    if (-not $mouseDownAnchorProven) { throw "Pointer could not be anchored at the resize edge immediately before mouse-down" }
+
     [Fam003VisibleInput]::LeftDown()
     Start-Sleep -Milliseconds 140
     $mouseDownFrame = Capture-Frame "mouse_down_with_visible_resize_cursor" -IncludeCursor
@@ -771,7 +812,9 @@ function Invoke-ResizeCursorWorkstreamProof {
     $mouseDownResize = (
         $mouseDownComposited -and
         [bool]$mouseDownCursor.visible -and
-        [string]$mouseDownCursor.fingerprint -eq $rightResizeFingerprint
+        [string]$mouseDownCursor.fingerprint -eq $rightResizeFingerprint -and
+        [Math]::Abs([int]$mouseDownCursor.x - $edgeX) -le 8 -and
+        [Math]::Abs([int]$mouseDownCursor.y - $edgeY) -le 8
     )
     Add-Step "mouse_down_with_visible_resize_cursor" $(if ($mouseDownResize -and $preDragResize) { "PASS" } else { "FAIL" }) "Mouse-down must begin only after the pre-drag resize cursor and hit-zone proof are established." @{
         point = @($edgeX, $edgeY)
@@ -779,6 +822,7 @@ function Invoke-ResizeCursorWorkstreamProof {
         mouseDownFrame = $mouseDownFrame
         cursor = $mouseDownCursor
         preDragRequirementSatisfied = [bool]$preDragResize
+        anchorRequirementSatisfied = [bool]$mouseDownAnchorProven
     }
 
     $targetX = $edgeX - 80
@@ -844,6 +888,7 @@ function Invoke-ResizeCursorWorkstreamProof {
         preDragCursorFrame = $preDragFrame
         hitZoneProven = [bool]$edgeHitZone
         mouseDownAfterPreDrag = [bool]($preDragResize -and $mouseDownResize)
+        mouseDownAnchorProven = [bool]$mouseDownAnchorProven
         completedResize = [bool]$geometryPass
         postDragNormalCursor = [bool]$leaveNormal
     }
@@ -924,18 +969,35 @@ try {
     }
     $hitClass = [Fam003DesktopShell]::HitClassAt($launchX, $launchY)
     if ($hitClass -ne "SysListView32") { throw "The exact Desktop launcher remains covered after bounded visible window minimization; hit class was '$hitClass'" }
-    [Fam003VisibleInput]::SetCursorPos($launchX, $launchY) | Out-Null
-    Start-Sleep -Milliseconds 600
-    $cursorPosition = [Fam003DesktopShell]::CursorPosition()
-    if ($cursorPosition[0] -ne $launchX -or $cursorPosition[1] -ne $launchY) { throw "The real cursor did not reach the exact Desktop launcher" }
+    $launcherAnchorAttempts = @()
+    $launcherAnchorProven = $false
+    $cursorPosition = @()
+    for ($launcherAnchorAttempt = 1; $launcherAnchorAttempt -le 3; $launcherAnchorAttempt++) {
+        [Fam003VisibleInput]::SetCursorPos($launchX, $launchY) | Out-Null
+        Start-Sleep -Milliseconds 140
+        $cursorPosition = [Fam003DesktopShell]::CursorPosition()
+        $pointMatched = ($cursorPosition[0] -eq $launchX -and $cursorPosition[1] -eq $launchY)
+        $launcherAnchorAttempts += @{ attempt = $launcherAnchorAttempt; point = @($cursorPosition); pointMatched = [bool]$pointMatched }
+        if ($pointMatched) { $launcherAnchorProven = $true; break }
+    }
+    Add-Step "pointer_anchored_on_exact_desktop_launcher" $(if ($launcherAnchorProven) { "PASS" } else { "FAIL" }) "The real pointer must be anchored on the exact FAM-003 Desktop icon before visible activation." @{
+        expectedPoint = @($launchX, $launchY); actualPoint = @($cursorPosition)
+        pointMatches = [bool]$launcherAnchorProven; attempts = @($launcherAnchorAttempts); maximumAttempts = 3
+    }
+    if (-not $launcherAnchorProven) { throw "The real cursor did not reach the exact Desktop launcher" }
     $cursorOnLauncherFrame = Capture-Frame "cursor_positioned_on_exact_windows_desktop_launcher"
+    [Fam003VisibleInput]::SetCursorPos($launchX, $launchY) | Out-Null
+    Start-Sleep -Milliseconds 100
+    $activationCursorPosition = [Fam003DesktopShell]::CursorPosition()
+    if ($activationCursorPosition[0] -ne $launchX -or $activationCursorPosition[1] -ne $launchY) { throw "The real cursor left the exact Desktop launcher before activation" }
     [Fam003VisibleInput]::DoubleClick()
     Start-Sleep -Milliseconds 700
     $afterLaunch = Capture-Frame "after_exact_windows_desktop_launcher_double_click"
     Add-Step "visible_exact_launcher_activation" "PASS" "The helper minimized only windows covering the exact icon through their visible Minimize controls, then moved the real pointer to and double-clicked the actual FAM-003 Windows Desktop shortcut." @{
         before = $beforeLaunch; boundedCoveringWindows = @($coveringWindows); broadDesktopDisruption = $false
         desktopItem = @{ index = $launcherItem.Index; name = $launcherItem.Name; rect = @($launcherItem.Left, $launcherItem.Top, ($launcherItem.Left + $launcherItem.Width), ($launcherItem.Top + $launcherItem.Height)); shellClass = $hitClass }
-        cursorPosition = @($cursorPosition); cursorFrame = $cursorOnLauncherFrame; after = $afterLaunch; clickPoint = @($launchX, $launchY)
+        cursorPosition = @($cursorPosition); activationCursorPosition = @($activationCursorPosition); cursorFrame = $cursorOnLauncherFrame; after = $afterLaunch; clickPoint = @($launchX, $launchY)
+        launcherAnchorProven = [bool]$launcherAnchorProven; launcherAnchorAttempts = @($launcherAnchorAttempts)
         directProcessLaunch = $false; environmentInjection = $false; fileExplorerFallback = $false
     }
 
