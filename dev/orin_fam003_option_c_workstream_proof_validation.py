@@ -69,6 +69,7 @@ CURRENTNESS_SAFE_PATHS = {
     "dev/fam003_renderer_backend_runtime_probe.py",
     "dev/fixtures/fam003_renderer_backend_negative_cases.json",
     "dev/orin_fam003_option_c_workstream_proof_validation.py",
+    "dev/orin_fam003_r2_workstream_scope_audit_validation.py",
     "dev/orin_fam003_renderer_backend_workstream_validation.py",
 }
 
