@@ -440,9 +440,59 @@ function Find-VisibleElement {
     )
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
+        $conditions = New-Object System.Collections.Generic.List[System.Windows.Automation.Condition]
+        if ($Name) {
+            $conditions.Add(
+                (New-Object System.Windows.Automation.PropertyCondition(
+                    [System.Windows.Automation.AutomationElement]::NameProperty,
+                    $Name
+                ))
+            ) | Out-Null
+        }
+        if ($Type) {
+            $controlType = switch ($Type) {
+                "ControlType.Button" { [System.Windows.Automation.ControlType]::Button }
+                "ControlType.Edit" { [System.Windows.Automation.ControlType]::Edit }
+                "ControlType.Window" { [System.Windows.Automation.ControlType]::Window }
+                "ControlType.MenuItem" { [System.Windows.Automation.ControlType]::MenuItem }
+                default { $null }
+            }
+            if ($controlType) {
+                $conditions.Add(
+                    (New-Object System.Windows.Automation.PropertyCondition(
+                        [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+                        $controlType
+                    ))
+                ) | Out-Null
+            }
+        }
+        if ($ProcessIds.Count -gt 0) {
+            $processConditions = @(
+                $ProcessIds | ForEach-Object {
+                    New-Object System.Windows.Automation.PropertyCondition(
+                        [System.Windows.Automation.AutomationElement]::ProcessIdProperty,
+                        [int]$_
+                    )
+                }
+            )
+            $conditions.Add(
+                $(if ($processConditions.Count -eq 1) {
+                    $processConditions[0]
+                } else {
+                    New-Object System.Windows.Automation.OrCondition($processConditions)
+                })
+            ) | Out-Null
+        }
+        $condition = if ($conditions.Count -eq 0) {
+            [System.Windows.Automation.Condition]::TrueCondition
+        } elseif ($conditions.Count -eq 1) {
+            $conditions[0]
+        } else {
+            New-Object System.Windows.Automation.AndCondition($conditions.ToArray())
+        }
         $all = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
             [System.Windows.Automation.TreeScope]::Descendants,
-            [System.Windows.Automation.Condition]::TrueCondition
+            $condition
         )
         for ($i = 0; $i -lt $all.Count; $i++) {
             $element = $all.Item($i)
