@@ -1,6 +1,7 @@
 param(
     [int]$StartupTimeoutSeconds = 45,
-    [switch]$KeepRuntimeOpenOnFailure
+    [switch]$KeepRuntimeOpenOnFailure,
+    [switch]$ResizeCursorProofOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,13 +12,19 @@ Add-Type -AssemblyName System.Drawing
 Add-Type @"
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 public static class Fam003VisibleInput {
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int X, int Y);
     [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extra);
     [DllImport("user32.dll")] public static extern void keybd_event(byte key, byte scan, uint flags, UIntPtr extra);
     public static void LeftClick() { mouse_event(0x0002, 0, 0, 0, UIntPtr.Zero); mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero); }
+    public static void LeftDown() { mouse_event(0x0002, 0, 0, 0, UIntPtr.Zero); }
+    public static void LeftUp() { mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero); }
     public static void RightClick() { mouse_event(0x0008, 0, 0, 0, UIntPtr.Zero); mouse_event(0x0010, 0, 0, 0, UIntPtr.Zero); }
     public static void DoubleClick() { LeftClick(); System.Threading.Thread.Sleep(110); LeftClick(); }
     public static void Drag(int startX, int startY, int endX, int endY, int frames) {
@@ -28,6 +35,116 @@ public static class Fam003VisibleInput {
             SetCursorPos(x, y); System.Threading.Thread.Sleep(70);
         }
         mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero); System.Threading.Thread.Sleep(220);
+    }
+}
+
+public sealed class Fam003CursorSnapshot {
+    public bool QuerySucceeded { get; set; }
+    public bool Visible { get; set; }
+    public long Handle { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int HotspotX { get; set; }
+    public int HotspotY { get; set; }
+    public string Fingerprint { get; set; }
+}
+
+public static class Fam003CursorProof {
+    const int CURSOR_SHOWING = 0x00000001;
+    const int DI_NORMAL = 0x0003;
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct POINT { public int X; public int Y; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct CURSORINFO {
+        public int cbSize;
+        public int flags;
+        public IntPtr hCursor;
+        public POINT ptScreenPos;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct ICONINFO {
+        [MarshalAs(UnmanagedType.Bool)] public bool fIcon;
+        public int xHotspot;
+        public int yHotspot;
+        public IntPtr hbmMask;
+        public IntPtr hbmColor;
+    }
+
+    [DllImport("user32.dll")] static extern bool GetCursorInfo(ref CURSORINFO info);
+    [DllImport("user32.dll")] static extern bool GetIconInfo(IntPtr hIcon, out ICONINFO info);
+    [DllImport("user32.dll")] static extern bool DrawIconEx(IntPtr hdc, int x, int y, IntPtr hIcon, int cx, int cy, int step, IntPtr brush, int flags);
+    [DllImport("user32.dll")] static extern IntPtr LoadCursor(IntPtr instance, IntPtr cursorName);
+    [DllImport("gdi32.dll")] static extern bool DeleteObject(IntPtr value);
+
+    static string Fingerprint(IntPtr handle) {
+        if (handle == IntPtr.Zero) return "";
+        using (Bitmap bitmap = new Bitmap(64, 64, PixelFormat.Format32bppArgb)) {
+            using (Graphics graphics = Graphics.FromImage(bitmap)) {
+                graphics.Clear(Color.Transparent);
+                IntPtr hdc = graphics.GetHdc();
+                try { DrawIconEx(hdc, 0, 0, handle, 0, 0, 0, IntPtr.Zero, DI_NORMAL); }
+                finally { graphics.ReleaseHdc(hdc); }
+            }
+            using (MemoryStream stream = new MemoryStream()) {
+                bitmap.Save(stream, ImageFormat.Png);
+                using (SHA256 sha = SHA256.Create()) {
+                    byte[] hash = sha.ComputeHash(stream.ToArray());
+                    return BitConverter.ToString(hash).Replace("-", "");
+                }
+            }
+        }
+    }
+
+    public static Fam003CursorSnapshot Snapshot() {
+        CURSORINFO info = new CURSORINFO();
+        info.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
+        if (!GetCursorInfo(ref info)) return new Fam003CursorSnapshot { QuerySucceeded = false, Fingerprint = "" };
+        int hotX = 0;
+        int hotY = 0;
+        ICONINFO icon;
+        if (info.hCursor != IntPtr.Zero && GetIconInfo(info.hCursor, out icon)) {
+            hotX = icon.xHotspot;
+            hotY = icon.yHotspot;
+            if (icon.hbmMask != IntPtr.Zero) DeleteObject(icon.hbmMask);
+            if (icon.hbmColor != IntPtr.Zero) DeleteObject(icon.hbmColor);
+        }
+        return new Fam003CursorSnapshot {
+            QuerySucceeded = true,
+            Visible = (info.flags & CURSOR_SHOWING) != 0,
+            Handle = info.hCursor.ToInt64(),
+            X = info.ptScreenPos.X,
+            Y = info.ptScreenPos.Y,
+            HotspotX = hotX,
+            HotspotY = hotY,
+            Fingerprint = Fingerprint(info.hCursor)
+        };
+    }
+
+    public static string SystemCursorFingerprint(int cursorId) {
+        return Fingerprint(LoadCursor(IntPtr.Zero, new IntPtr(cursorId)));
+    }
+
+    public static bool DrawSnapshot(Graphics graphics, Fam003CursorSnapshot snapshot, int virtualLeft, int virtualTop) {
+        if (snapshot == null || !snapshot.QuerySucceeded || !snapshot.Visible || snapshot.Handle == 0) return false;
+        IntPtr hdc = graphics.GetHdc();
+        try {
+            return DrawIconEx(
+                hdc,
+                snapshot.X - snapshot.HotspotX - virtualLeft,
+                snapshot.Y - snapshot.HotspotY - virtualTop,
+                new IntPtr(snapshot.Handle),
+                0,
+                0,
+                0,
+                IntPtr.Zero,
+                DI_NORMAL
+            );
+        } finally {
+            graphics.ReleaseHdc(hdc);
+        }
     }
 }
 
@@ -228,10 +345,12 @@ public static class Fam003DesktopShell {
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $Launcher = Join-Path $env:USERPROFILE "OneDrive\Desktop\Nexus Desktop Launcher.lnk"
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$ProofRoot = Join-Path $Root "dev\logs\fam003_human_client_live_validation\$Stamp"
+$ProofLane = if ($ResizeCursorProofOnly) { "fam003_resize_cursor_workstream_proof" } else { "fam003_human_client_live_validation" }
+$ProofRoot = Join-Path $Root "dev\logs\$ProofLane\$Stamp"
 $FrameRoot = Join-Path $ProofRoot "ordered_frames"
-$ManifestPath = Join-Path $ProofRoot "fam003_human_client_live_validation_manifest.json"
-$LatestManifestPath = Join-Path $Root "dev\logs\fam003_human_client_live_validation\latest_manifest.json"
+$ManifestName = if ($ResizeCursorProofOnly) { "fam003_resize_cursor_workstream_proof_manifest.json" } else { "fam003_human_client_live_validation_manifest.json" }
+$ManifestPath = Join-Path $ProofRoot $ManifestName
+$LatestManifestPath = Join-Path $Root "dev\logs\$ProofLane\latest_manifest.json"
 New-Item -ItemType Directory -Force -Path $FrameRoot | Out-Null
 $script:Steps = New-Object System.Collections.Generic.List[object]
 $script:Frames = New-Object System.Collections.Generic.List[object]
@@ -261,15 +380,38 @@ function Add-Step {
 }
 
 function Capture-Frame {
-    param([string]$Name)
+    param([string]$Name, [switch]$IncludeCursor)
     $bounds = [System.Windows.Forms.SystemInformation]::VirtualScreen
     $bitmap = New-Object System.Drawing.Bitmap($bounds.Width, $bounds.Height)
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     try {
         $graphics.CopyFromScreen($bounds.Left, $bounds.Top, 0, 0, $bitmap.Size)
+        $cursor = [Fam003CursorProof]::Snapshot()
+        $cursorComposited = if ($IncludeCursor) {
+            [Fam003CursorProof]::DrawSnapshot($graphics, $cursor, $bounds.Left, $bounds.Top)
+        } else {
+            $false
+        }
         $path = Join-Path $FrameRoot ("{0:D3}_{1}.png" -f $script:Frames.Count, $Name)
         $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
-        $script:Frames.Add([ordered]@{ index = $script:Frames.Count; path = $path; bytes = (Get-Item $path).Length }) | Out-Null
+        $script:Frames.Add([ordered]@{
+            index = $script:Frames.Count
+            path = $path
+            bytes = (Get-Item $path).Length
+            capturedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+            cursorRequested = [bool]$IncludeCursor
+            cursorComposited = [bool]$cursorComposited
+            cursor = @{
+                querySucceeded = [bool]$cursor.QuerySucceeded
+                visible = [bool]$cursor.Visible
+                handle = [long]$cursor.Handle
+                x = [int]$cursor.X
+                y = [int]$cursor.Y
+                hotspotX = [int]$cursor.HotspotX
+                hotspotY = [int]$cursor.HotspotY
+                fingerprint = [string]$cursor.Fingerprint
+            }
+        }) | Out-Null
         return $path
     } finally {
         $graphics.Dispose()
@@ -481,6 +623,183 @@ function Open-TrayMenu {
     return @{ tray = $evidence; clickPoint = $point; globalSettings = (Element-Evidence $global) }
 }
 
+function Invoke-ResizeCursorWorkstreamProof {
+    $trayOpen = Open-TrayMenu
+    $global = Find-VisibleElement -Name "Global Settings" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
+    if (-not $global) { throw "Visible tray right-click did not expose Global Settings" }
+    $globalEvidence = Element-Evidence $global
+    $globalPoint = Move-And-Click $global
+    $settings = Find-VisibleElement -Name "Global Settings - Nexus Desktop AI" -Type "ControlType.Window" -ClassContains "ResidentAccessSettingsDialog" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 8
+    if (-not $settings) { throw "Visible Global Settings tray action did not open the Settings window" }
+
+    $settingsBefore = Element-Evidence $settings
+    $settingsOpenFrame = Capture-Frame "settings_open_current_runtime" -IncludeCursor
+    Add-Step "settings_open_current_runtime" "PASS" "The exact FAM-003 Desktop launcher started the current pushed runtime, and the visible resident tray action opened the top-level Global Settings window." @{
+        tray = $trayOpen.tray
+        trayClickPoint = $trayOpen.clickPoint
+        globalSettingsAction = $globalEvidence
+        globalSettingsClickPoint = $globalPoint
+        settingsWindow = $settingsBefore
+        frame = $settingsOpenFrame
+    }
+
+    $rect = $settings.Current.BoundingRectangle
+    $arrowFingerprint = [Fam003CursorProof]::SystemCursorFingerprint(32512)
+    $rightResizeFingerprint = [Fam003CursorProof]::SystemCursorFingerprint(32644)
+
+    $outsideX = [int]($rect.Left + ($rect.Width / 2))
+    $outsideY = [int]($rect.Top + [Math]::Min(110, $rect.Height / 3))
+    [Fam003VisibleInput]::SetCursorPos($outsideX, $outsideY) | Out-Null
+    Start-Sleep -Milliseconds 420
+    $outsideFrame = Capture-Frame "pointer_outside_resize_zone_normal" -IncludeCursor
+    $outsideCursor = $script:Frames[$script:Frames.Count - 1].cursor
+    $outsideComposited = [bool]$script:Frames[$script:Frames.Count - 1].cursorComposited
+    $outsideHitZone = ($outsideX -ge [int]($rect.Right - 8))
+    $outsideNormal = (
+        $outsideComposited -and
+        [bool]$outsideCursor.visible -and
+        [string]$outsideCursor.fingerprint -eq $arrowFingerprint -and
+        -not $outsideHitZone
+    )
+    Add-Step "pointer_outside_resize_zone" $(if ($outsideNormal) { "PASS" } else { "FAIL" }) "The real pointer must be visibly embedded with the normal arrow shape outside the resize hit zone before the transition sequence begins." @{
+        point = @($outsideX, $outsideY)
+        hitZone = [bool]$outsideHitZone
+        cursor = $outsideCursor
+        expectedArrowFingerprint = $arrowFingerprint
+        frame = $outsideFrame
+        captureMethod = "GDI CopyFromScreen plus DrawIconEx of the GetCursorInfo hCursor at the sampled GetCursorInfo screen position"
+    }
+
+    $edgeX = [int]($rect.Right - 4)
+    $edgeY = [int]($rect.Top + ($rect.Height / 2))
+    [Fam003VisibleInput]::SetCursorPos(($edgeX - 24), $edgeY) | Out-Null
+    Start-Sleep -Milliseconds 120
+    [Fam003VisibleInput]::SetCursorPos($edgeX, $edgeY) | Out-Null
+    Start-Sleep -Milliseconds 520
+    $preDragFrame = Capture-Frame "pointer_right_edge_visible_resize_cursor_pre_drag" -IncludeCursor
+    $preDragCursor = $script:Frames[$script:Frames.Count - 1].cursor
+    $preDragComposited = [bool]$script:Frames[$script:Frames.Count - 1].cursorComposited
+    $edgeDistance = [int]$rect.Right - $edgeX
+    $edgeHitZone = (
+        $edgeDistance -ge 0 -and $edgeDistance -le 8 -and
+        $edgeY -gt ([int]$rect.Top + 12) -and
+        $edgeY -lt ([int]$rect.Bottom - 12)
+    )
+    $preDragResize = (
+        $preDragComposited -and
+        [bool]$preDragCursor.visible -and
+        [string]$preDragCursor.fingerprint -eq $rightResizeFingerprint -and
+        [string]$preDragCursor.fingerprint -ne $arrowFingerprint -and
+        $edgeHitZone
+    )
+    $cursorClassification = if ($preDragResize) {
+        "VISIBLE_CURSOR_TRANSITION_PROVEN"
+    } elseif ($preDragComposited -and [bool]$preDragCursor.visible -and $edgeHitZone -and [string]$preDragCursor.fingerprint -eq $arrowFingerprint) {
+        "PRODUCT_CURSOR_FAILURE"
+    } else {
+        "CURSOR_CAPTURE_UNPROVEN"
+    }
+    Add-Step "visible_cursor_transition_pre_drag" $(if ($preDragResize) { "PASS" } else { "FAIL" }) "The real USER-visible pointer must change from the normal arrow to the horizontal resize cursor inside the right-edge hit zone before mouse-down." @{
+        point = @($edgeX, $edgeY)
+        rightEdgeDistance = $edgeDistance
+        hitZone = [bool]$edgeHitZone
+        cursor = $preDragCursor
+        expectedResizeFingerprint = $rightResizeFingerprint
+        expectedArrowFingerprint = $arrowFingerprint
+        classification = $cursorClassification
+        frame = $preDragFrame
+        captureMethod = "GDI CopyFromScreen plus DrawIconEx of the GetCursorInfo hCursor at the sampled GetCursorInfo screen position"
+    }
+
+    [Fam003VisibleInput]::LeftDown()
+    Start-Sleep -Milliseconds 140
+    $mouseDownFrame = Capture-Frame "mouse_down_with_visible_resize_cursor" -IncludeCursor
+    $mouseDownCursor = $script:Frames[$script:Frames.Count - 1].cursor
+    $mouseDownComposited = [bool]$script:Frames[$script:Frames.Count - 1].cursorComposited
+    $mouseDownResize = (
+        $mouseDownComposited -and
+        [bool]$mouseDownCursor.visible -and
+        [string]$mouseDownCursor.fingerprint -eq $rightResizeFingerprint
+    )
+    Add-Step "mouse_down_with_visible_resize_cursor" $(if ($mouseDownResize -and $preDragResize) { "PASS" } else { "FAIL" }) "Mouse-down must begin only after the pre-drag resize cursor and hit-zone proof are established." @{
+        point = @($edgeX, $edgeY)
+        preDragFrame = $preDragFrame
+        mouseDownFrame = $mouseDownFrame
+        cursor = $mouseDownCursor
+        preDragRequirementSatisfied = [bool]$preDragResize
+    }
+
+    $targetX = $edgeX - 80
+    $midDragFrame = $null
+    try {
+        for ($step = 1; $step -le 8; $step++) {
+            $x = [int]($edgeX + (($targetX - $edgeX) * $step / 8))
+            [Fam003VisibleInput]::SetCursorPos($x, $edgeY) | Out-Null
+            Start-Sleep -Milliseconds 80
+            if ($step -eq 4) {
+                $midDragFrame = Capture-Frame "held_drag_mid_resize" -IncludeCursor
+            }
+        }
+    } finally {
+        [Fam003VisibleInput]::LeftUp()
+    }
+    Start-Sleep -Milliseconds 650
+    $settingsAfter = Find-VisibleElement -Name "Global Settings - Nexus Desktop AI" -Type "ControlType.Window" -ClassContains "ResidentAccessSettingsDialog" -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
+    $settingsAfterEvidence = Element-Evidence $settingsAfter
+    $mouseUpFrame = Capture-Frame "mouse_up_completed_resize" -IncludeCursor
+    $widthBefore = $settingsBefore.rect[2] - $settingsBefore.rect[0]
+    $widthAfter = $settingsAfterEvidence.rect[2] - $settingsAfterEvidence.rect[0]
+    $geometryDelta = $widthAfter - $widthBefore
+    $geometryPass = $settingsAfterEvidence.visible -and $geometryDelta -le -60
+    Add-Step "held_drag_and_completed_resize" $(if ($geometryPass -and $mouseDownResize) { "PASS" } else { "FAIL" }) "A held real-pointer drag must change the top-level Settings window geometry, and mouse-up must leave a valid visibly different window." @{
+        before = $settingsBefore
+        after = $settingsAfterEvidence
+        widthBefore = $widthBefore
+        widthAfter = $widthAfter
+        widthDelta = $geometryDelta
+        start = @($edgeX, $edgeY)
+        end = @($targetX, $edgeY)
+        midDragFrame = $midDragFrame
+        mouseUpFrame = $mouseUpFrame
+        classification = $(if ($geometryPass) { "GEOMETRY_RESIZE_PROVEN" } else { "GEOMETRY_RESIZE_UNPROVEN" })
+    }
+
+    $afterRect = if ($settingsAfter) { $settingsAfter.Current.BoundingRectangle } else { $rect }
+    $leaveX = [int]($afterRect.Left + ($afterRect.Width / 2))
+    $leaveY = [int]($afterRect.Top + [Math]::Min(110, $afterRect.Height / 3))
+    [Fam003VisibleInput]::SetCursorPos($leaveX, $leaveY) | Out-Null
+    Start-Sleep -Milliseconds 420
+    $leaveFrame = Capture-Frame "pointer_left_resize_zone_normal_cursor" -IncludeCursor
+    $leaveCursor = $script:Frames[$script:Frames.Count - 1].cursor
+    $leaveComposited = [bool]$script:Frames[$script:Frames.Count - 1].cursorComposited
+    $leaveNormal = (
+        $leaveComposited -and
+        [bool]$leaveCursor.visible -and
+        [string]$leaveCursor.fingerprint -eq $arrowFingerprint
+    )
+    Add-Step "pointer_leaves_resize_zone" $(if ($leaveNormal) { "PASS" } else { "FAIL" }) "After mouse-up, moving the real pointer away from the resize edge must visibly restore the normal arrow cursor." @{
+        point = @($leaveX, $leaveY)
+        cursor = $leaveCursor
+        expectedArrowFingerprint = $arrowFingerprint
+        frame = $leaveFrame
+    }
+
+    $overall = $outsideNormal -and $preDragResize -and $mouseDownResize -and $geometryPass -and $leaveNormal
+    Add-Step "resize_cursor_workstream_proof" $(if ($overall) { "PASS" } else { "FAIL" }) "Workstream proof requires both completed geometry resize and a current ordered visible cursor transition; internal Qt cursor state remains supporting evidence only." @{
+        geometryClassification = $(if ($geometryPass) { "GEOMETRY_RESIZE_PROVEN" } else { "GEOMETRY_RESIZE_UNPROVEN" })
+        visibleCursorClassification = $cursorClassification
+        internalCursorClassification = "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY"
+        preDragCursorFrame = $preDragFrame
+        hitZoneProven = [bool]$edgeHitZone
+        mouseDownAfterPreDrag = [bool]($preDragResize -and $mouseDownResize)
+        completedResize = [bool]$geometryPass
+        postDragNormalCursor = [bool]$leaveNormal
+    }
+
+    [System.Windows.Forms.SendKeys]::SendWait("%{F4}")
+    Start-Sleep -Milliseconds 400
+}
+
 function Inspect-Submenu {
     param([string]$Parent, [string]$Child)
     $parentElement = Find-VisibleElement -Name $Parent -ProcessIds $script:RuntimeProcessIds -TimeoutSeconds 4
@@ -576,6 +895,9 @@ try {
     }
     Start-Sleep -Seconds 4
 
+    if ($ResizeCursorProofOnly) {
+        Invoke-ResizeCursorWorkstreamProof
+    } else {
     $trayOpen = Open-TrayMenu
     $trayFrame = Capture-Frame "tray_compact_menu_open"
     $quick = Inspect-Submenu "Quick Access" "Command Overlay"
@@ -735,6 +1057,7 @@ try {
     Add-Step "ncp_visible_keyboard_flow" $(if ($ncpPass) { "PASS" } else { "FAIL" }) "NCP must open from the visible tray icon, expose visible typed, choose, confirm, and result states, and produce the selected real target effect without direct handler calls." @{
         trayClickPoint = $ncpPoint; overlay = $ncpOverlayEvidence; entry = $ncpEntryEvidence; input = $ncpInputEvidence; entryFrame = $ncpEntryFrame; typedText = "open nexus folder"; typedFrame = $ncpTypedFrame; choose = $ncpChooseEvidence; chooseFrame = $ncpChooseFrame; confirm = $ncpConfirmEvidence; confirmFrame = $ncpConfirmFrame; result = $ncpResultEvidence; resultFrame = $ncpResultFrame; targetEffects = $ncpTargetEffects; usedDirectHandler = $false
     }
+    }
 } catch {
     $script:Failure = $_.Exception.Message
     Add-Step "human_client_exception" "FAIL" $script:Failure @{ stack = $_.ScriptStackTrace }
@@ -749,8 +1072,9 @@ try {
     $status = if ($blocking.Count -eq 0) { "PASS" } else { "BLOCKED" }
     try {
         $payload = [ordered]@{
-            schema = "fam003-external-visible-human-client-v2"
+            schema = $(if ($ResizeCursorProofOnly) { "fam003-r2-workstream-resize-cursor-proof-v1" } else { "fam003-external-visible-human-client-v2" })
             status = $status
+            proofMode = $(if ($ResizeCursorProofOnly) { "R2_WORKSTREAM_RESIZE_CURSOR_ONLY" } else { "FORMAL_LV_HUMAN_CLIENT" })
             timestamp = $Stamp
             worktree = $Root
             branch = (& git -C $Root branch --show-current).Trim()
@@ -759,7 +1083,11 @@ try {
             launcherActivationMethod = "visible-windows-desktop-icon-pointer-double-click"
             directHandlerBypass = $false
             environmentInjectedRuntimeProof = $false
+            formalHardening = $false
+            formalLiveValidation = (-not $ResizeCursorProofOnly)
             utsStatus = "NOT_REQUESTED"
+            cursorCaptureMethod = $(if ($ResizeCursorProofOnly) { "GDI CopyFromScreen plus DrawIconEx of the actual GetCursorInfo hCursor at the sampled GetCursorInfo screen position" } else { "not-required-for-non-cursor-frames" })
+            cursorFabrication = $false
             steps = $stepRows
             blockingRows = $blocking
             orderedFrames = $frameRows
@@ -780,7 +1108,7 @@ try {
             try { [Fam003DesktopShell]::RestoreWindow([long]$coveringHandle) | Out-Null } catch {}
         }
     }
-    Write-Output "FAM-003 HUMAN CLIENT LV: $status"
+    Write-Output $(if ($ResizeCursorProofOnly) { "FAM-003 R2 RESIZE CURSOR WORKSTREAM PROOF: $status" } else { "FAM-003 HUMAN CLIENT LV: $status" })
     Write-Output "Proof Root: $ProofRoot"
     Write-Output "Manifest: $ManifestPath"
 }

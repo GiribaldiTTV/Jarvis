@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_option_c_workstream_proof"
 SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
 HUD_SETTINGS_LOG_ROOT = ROOT / "dev" / "logs" / "fam003_hud_settings_visual_validation"
+CURSOR_PROOF_LATEST = ROOT / "dev" / "logs" / "fam003_resize_cursor_workstream_proof" / "latest_manifest.json"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 if str(ROOT) not in sys.path:
@@ -113,6 +114,71 @@ def _copy_latest_artifact(source_root: Path, log_dir: Path, filename: str) -> Pa
             shutil.copy2(source, target)
             return target
     return None
+
+
+def _reported_path(result: dict[str, object], label: str) -> Path:
+    for line in reversed(str(result.get("stdout", "")).splitlines()):
+        if line.startswith(label):
+            return Path(line.removeprefix(label).strip())
+    raise AssertionError(f"child output did not report {label}")
+
+
+def _copy_current_settings_proof(
+    log_dir: Path,
+    result: dict[str, object],
+    expected_head: str,
+) -> tuple[Path, dict[str, object], list[Path]]:
+    report_source = _reported_path(result, "Report:")
+    source_root = report_source.parent.resolve()
+    _assert(SETTINGS_LOG_ROOT.resolve() in source_root.parents, "Settings child reported a proof root outside its registered log root")
+    manifest_source = source_root / "fam003_settings_visual_fail_repair_manifest.json"
+    _assert(report_source.exists() and manifest_source.exists(), "current Settings child proof root is incomplete")
+    payload = json.loads(manifest_source.read_text(encoding="utf-8-sig"))
+    _assert(payload.get("allChecksPass") is True, "current Settings manifest is not green")
+    _assert(payload.get("sourceHead") == expected_head, "current Settings manifest HEAD is stale")
+    _assert(payload.get("visibleCursorProofPass") is True, "current Settings manifest did not consume green visible-cursor proof")
+
+    copied: list[Path] = []
+    for filename in (
+        report_source.name,
+        manifest_source.name,
+        "01_default_global_settings_shell.png",
+        "16_defect_closure_contact_sheet.png",
+        "17_red_team_review_sheet.png",
+    ):
+        source = source_root / filename
+        _assert(source.exists(), f"current Settings proof artifact is missing: {source}")
+        target = log_dir / filename
+        shutil.copy2(source, target)
+        copied.append(target)
+    return source_root, payload, copied
+
+
+def _copy_current_cursor_proof(
+    log_dir: Path,
+    expected_head: str,
+) -> tuple[dict[str, object], Path, list[Path]]:
+    _assert(CURSOR_PROOF_LATEST.exists(), f"current visible-cursor manifest is missing: {CURSOR_PROOF_LATEST}")
+    payload = json.loads(CURSOR_PROOF_LATEST.read_text(encoding="utf-8-sig"))
+    _assert(payload.get("schema") == "fam003-r2-workstream-resize-cursor-proof-v1", "cursor proof schema is not the R2 Workstream schema")
+    _assert(payload.get("status") == "PASS", "cursor proof is not PASS")
+    _assert(payload.get("proofMode") == "R2_WORKSTREAM_RESIZE_CURSOR_ONLY", "cursor proof is not bounded Workstream mode")
+    _assert(payload.get("head") == expected_head, "cursor proof HEAD is stale")
+    _assert(payload.get("formalHardening") is False and payload.get("formalLiveValidation") is False, "cursor proof crossed a downstream gate")
+
+    manifest_target = log_dir / "fam003_resize_cursor_workstream_proof_manifest.json"
+    shutil.copy2(CURSOR_PROOF_LATEST, manifest_target)
+    copied_frames: list[Path] = []
+    for frame in payload.get("orderedFrames", []):
+        _assert(isinstance(frame, dict), "cursor proof ordered frame is malformed")
+        source = Path(str(frame.get("path", "")))
+        _assert(source.exists(), f"cursor proof frame is missing: {source}")
+        _assert(frame.get("cursorComposited") is True, f"cursor was not composited into frame: {source}")
+        target = log_dir / f"cursor_{source.name}"
+        shutil.copy2(source, target)
+        copied_frames.append(target)
+    _assert(len(copied_frames) >= 6, "cursor proof does not contain the required ordered visual states")
+    return payload, manifest_target, copied_frames
 
 
 def _make_qapp() -> QApplication:
@@ -606,8 +672,14 @@ def main() -> int:
         )
         _assert(result["ok"], f"{name} failed; see {report}")
 
-    settings_contact = _copy_latest_settings_artifact(log_dir, "16_defect_closure_contact_sheet.png")
-    settings_default = _copy_latest_settings_artifact(log_dir, "01_default_global_settings_shell.png")
+    settings_root, settings_manifest, settings_copies = _copy_current_settings_proof(
+        log_dir,
+        helper_runs["settingsVisualRegression"],
+        head,
+    )
+    settings_contact = log_dir / "16_defect_closure_contact_sheet.png"
+    settings_default = log_dir / "01_default_global_settings_shell.png"
+    cursor_manifest, cursor_manifest_copy, cursor_frames = _copy_current_cursor_proof(log_dir, head)
     hud_contact = _copy_latest_artifact(
         HUD_SETTINGS_LOG_ROOT,
         log_dir,
@@ -620,6 +692,7 @@ def main() -> int:
     )
 
     proof_images = [Path(item["path"]) for item in tray["screenshots"] + ncp["screenshots"]]
+    proof_images[0:0] = cursor_frames
     if settings_contact is not None:
         proof_images.insert(0, settings_contact)
     if settings_default is not None:
@@ -646,10 +719,11 @@ def main() -> int:
         "| F3-WS-PROOF-TRAY-001 | CLOSED_WITH_PROOF | Supporting compact QMenu/submenu renders, native-not-primary source-path proof, and deterministic enabled-state QAction boundary execution. Actual USER tray-route proof remains an LV responsibility. |\n"
         "| F3-WS-PROOF-NCP-001 | CLOSED_WITH_PROOF | Direct NCP entry/choose/confirm/result screenshots plus overlay/callable/desktop-entrypoint helper reports copied into this proof root. |\n\n"
         "| F3-WS-VIS-TEXT-001 | CLOSED_WITH_PROOF | Direct tray and NCP screenshots are captured with normal desktop Qt rendering, Segoe UI text contract checks, readable focused frames, and human-reviewable contact sheet evidence. |\n\n"
+        "| F3-WS-PROOF-CURSOR-001 | CLOSED_WITH_PROOF | Exact normal-launcher right-edge cursor transition is captured before mouse-down with the actual GetCursorInfo cursor composited by DrawIconEx; held-drag geometry and post-edge arrow recovery are ordered and packet-contained. |\n\n"
         "## Surface Verdicts\n\n"
         "| Surface | Verdict | Evidence |\n"
         "| --- | --- | --- |\n"
-        f"| Settings resize/cursor | PASS | `{settings_default.name if settings_default else 'preserved latest settings proof root'}`; `{settings_contact.name if settings_contact else 'preserved latest contact sheet'}` |\n"
+        f"| Settings resize/cursor | PASS | Current child root `{settings_root}`; `{settings_default.name}`; `{settings_contact.name}`; `{cursor_manifest_copy.name}`; {len(cursor_frames)} ordered visible-cursor frames. |\n"
         f"| HUD Settings implementation match | PASS | `{hud_comparison.name if hud_comparison else 'missing'}`; `{hud_contact.name if hud_contact else 'missing'}`; 26-state child validator is fail-closed. |\n"
         "| Styled tray right-click presentation | PASS | `01_tray_styled_popup_focused.png`; `02_tray_popup_route_after_reopen.png`; native menu not primary in `_show_tray_popup`. |\n"
         "| Tray route/action execution | PASS (supporting fixture) | Global Settings, Command Overlay, and HUD Dashboard request boundaries fired from the deterministic enabled-state QAction fixture; this is not actual USER tray interaction proof. |\n"
@@ -671,6 +745,7 @@ def main() -> int:
             "F3-WS-PROOF-TRAY-001": "CLOSED_WITH_PROOF",
             "F3-WS-PROOF-NCP-001": "CLOSED_WITH_PROOF",
             "F3-WS-VIS-TEXT-001": "CLOSED_WITH_PROOF",
+            "F3-WS-PROOF-CURSOR-001": "CLOSED_WITH_PROOF",
         },
         "captureMode": {
             "qtPlatformName": QApplication.platformName(),
@@ -679,7 +754,12 @@ def main() -> int:
         },
         "tray": tray,
         "ncp": ncp,
-        "settingsArtifacts": [str(path) for path in (settings_default, settings_contact) if path is not None],
+        "settingsProofRoot": str(settings_root),
+        "settingsManifest": settings_manifest,
+        "settingsArtifacts": [str(path) for path in settings_copies],
+        "visibleCursorProof": cursor_manifest,
+        "visibleCursorManifest": str(cursor_manifest_copy),
+        "visibleCursorArtifacts": [str(path) for path in cursor_frames],
         "hudSettingsArtifacts": [str(path) for path in (hud_comparison, hud_contact) if path is not None],
         "aggregatePolicy": "every required child return code must pass; any child failure aborts aggregate before PASS manifest write",
         "helperRuns": {

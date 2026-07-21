@@ -254,6 +254,17 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "Scope-audit validator self-test and USER packet guard self-test.",
         "Remove only with the scope-audit helper and replacement equivalent negative coverage.",
     ),
+    "dev/fixtures/fam003_resize_cursor_proof_negative_cases.json": _meta(
+        "fixture",
+        "FAM-003 R2 resize-cursor Workstream proof",
+        "Current USER-approved cursor-proof false-green repair",
+        "Adds geometry-only, telemetry-only, hit-zone, event-order, missing-frame, non-composited-frame, stale-HEAD, and hidden-child-failure cases.",
+        "Slice E / SLC-R2-010 / R2-WS10 completion proof repair.",
+        "Proves visible cursor evidence cannot be replaced by internal diagnostics or geometry-only success.",
+        "None; evidence-gate fixture only.",
+        "Settings cursor self-test, aggregate proof, and packet active-review validation.",
+        "Remove only with a replacement that preserves the same fail-closed cursor-proof cases.",
+    ),
     "dev/orin_branch_readiness_planning_fixture_validation.py": _meta(
         "shared validator",
         "Reusable branch-planning fixture validator; FAM-003 owns its added case",
@@ -310,14 +321,13 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
     "dev/orin_fam003_human_client_live_validation.ps1": _meta(
         "proof helper",
         "FAM-003 normal USER-path live helper",
-        "Historical Option C LV readiness work retained as downstream helper availability",
-        "Added exact launcher/tray/Settings/NCP visible-control proof support without executing formal LV in R2.",
-        "Slice E / SLC-R2-010 / R2-WS10 helper-readiness input; historical pre-R2 delta.",
-        "Future normal USER-path evidence production only.",
+        "Accepted existing helper extended by the current bounded R2 cursor-proof repair",
+        "Added an isolated non-LV cursor-proof mode that uses the exact Desktop launcher, real Windows pointer input, GetCursorInfo, DrawIconEx, and ordered pre-drag/held-drag/post-edge frames.",
+        "Slice E / SLC-R2-010 / R2-WS10 completion proof repair.",
+        "Current Settings resize-cursor evidence plus future normal USER-path evidence production.",
         "Low; optional FAM-006 integration remains explicitly separate and owner-bound.",
-        "PowerShell parser and historical helper validation; formal LV not run in this task.",
-        "Retain for later separately approved LV or remove with an approved replacement.",
-        disposition="ADJACENT_REQUIRED",
+        "PowerShell parser, focused normal-launcher cursor run, Settings/Option C aggregate, and packet proof; formal LV not run.",
+        "Retain bounded cursor mode with the Settings proof gate and preserve full LV mode for later separate approval.",
     ),
     "dev/orin_fam003_lv1_real_live_validation.py": _meta(
         "FAM-003 validator",
@@ -335,7 +345,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "proof helper",
         "FAM-003 Option C/R2 aggregate proof",
         "Accepted existing aggregate extension point in BP3-R2",
-        "Made HUD access, HUD visual, Settings, resident-adjacent, NCP, and entrypoint children fail closed and emitted current packet evidence.",
+        "Made HUD access, HUD visual, Settings, resident-adjacent, NCP, and entrypoint children fail closed, selected the exact current Settings child root, and packaged the current pushed-HEAD ordered visible-cursor frames.",
         "Slice E / SLC-R2-009,010 / R2-WS09,10.",
         "Whole-package cumulative proof and required-child propagation.",
         "Low; shared HUD children remain regression evidence, not FAM-006 product authority.",
@@ -368,12 +378,12 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "FAM-003 validator",
         "FAM-003 Settings visual regression proof",
         "Accepted existing Settings validator extension point",
-        "Added the persistent HUD parent/child to IA, stress, geometry, state, and visual regression expectations.",
+        "Added the persistent HUD parent/child to IA/stress/geometry/state expectations and now requires current-HEAD normal-launcher cursor frames before closing resize/cursor rows.",
         "Slices B/E / SLC-R2-003,004,009 / R2-WS03,04,09.",
         "Global Settings rail, content, responsive geometry, dirty guard, and Quick Access regression behavior.",
         "None; no FAM-006 surface internals are rendered or changed.",
-        "Direct Settings regression and aggregate required child.",
-        "Remove only HUD-specific expectations if the HUD page is rolled back.",
+        "Direct Settings regression, eight fail-closed cursor fixtures, and aggregate required child.",
+        "Remove only HUD-specific expectations if the HUD page is rolled back; retain cursor proof unless replaced equivalently.",
     ),
     "dev/orin_monitoring_hud_internal_sandbox_validation.py": _meta(
         "shared validator",
@@ -409,7 +419,7 @@ FILE_METADATA: dict[str, dict[str, Any]] = {
         "packet helper",
         "Reusable USER packet helper with FAM-003 completion-packet guard",
         "Current USER-approved repair of a packet false-green admitted on this FAM-003 carrier",
-        "Adds exact full-branch/Workstream ledger, commit, owner, traceability, and pushed-HEAD consistency checks for this packet class.",
+        "Adds exact full-branch/Workstream ledger checks plus current Settings, Option C, and actual-cursor-composited proof requirements so stale or telemetry-only evidence cannot carry completion.",
         "Slice E / SLC-R2-010 / R2-WS10 completion packet audit repair; earlier changes are historical packet guards.",
         "USER packet reviewability and false-green rejection.",
         "None; the new branch-specific guard does not change other packet families.",
@@ -1012,6 +1022,49 @@ def _write_outputs(output_dir: Path, ledger: dict[str, Any], failures: list[str]
 def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
     full_commits = ledger["fullBranch"]["commitCount"]
     workstream_commits = ledger["workstream"]["commitCount"]
+    cursor_steps = [
+        {"id": "pointer_outside_resize_zone", "status": "PASS", "evidence": {}},
+        {
+            "id": "visible_cursor_transition_pre_drag",
+            "status": "PASS",
+            "evidence": {"classification": "VISIBLE_CURSOR_TRANSITION_PROVEN"},
+        },
+        {"id": "mouse_down_with_visible_resize_cursor", "status": "PASS", "evidence": {}},
+        {"id": "held_drag_and_completed_resize", "status": "PASS", "evidence": {}},
+        {"id": "pointer_leaves_resize_zone", "status": "PASS", "evidence": {}},
+        {
+            "id": "resize_cursor_workstream_proof",
+            "status": "PASS",
+            "evidence": {
+                "visibleCursorClassification": "VISIBLE_CURSOR_TRANSITION_PROVEN",
+                "internalCursorClassification": "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY",
+            },
+        },
+    ]
+    cursor_manifest = {
+        "schema": "fam003-r2-workstream-resize-cursor-proof-v1",
+        "status": "PASS",
+        "proofMode": "R2_WORKSTREAM_RESIZE_CURSOR_ONLY",
+        "head": ledger["head"],
+        "formalHardening": False,
+        "formalLiveValidation": False,
+        "cursorFabrication": False,
+        "steps": cursor_steps,
+        "orderedFrames": [{"cursorComposited": True} for _ in range(6)],
+    }
+    settings_manifest = {
+        "allChecksPass": True,
+        "sourceHead": ledger["head"],
+        "visibleCursorProofPass": True,
+    }
+    option_manifest = {
+        "status": "PASS",
+        "head": ledger["head"],
+        "settingsManifest": settings_manifest,
+        "visibleCursorProof": cursor_manifest,
+        "visibleCursorArtifacts": ["cursor-proof.png"],
+        "helperRuns": {"settingsVisualRegression": {"ok": True, "returncode": 0}},
+    }
     packet = {
         "START_HERE.md": "Primary USER Review File: `USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md`",
         "USER Review/FAM003_R2_WORKSTREAM_COMPLETION_REVIEW.md": "\n".join(
@@ -1060,7 +1113,8 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/PACKET_CONTENT_MANIFEST.md": "Packet content manifest: all required evidence classes present.",
         "Review Aids/VALIDATION_RESULTS.md": "Validation result: PASS.",
         "Review Aids/SHARED_VALIDATOR_OWNERSHIP_AUDIT.md": _shared_audit_markdown(ledger),
-        "Review Aids/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json": "{}",
+        "Review Aids/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json": json.dumps(option_manifest),
+        "Review Aids/Evidence/Option C Workstream Proof/fam003_resize_cursor_workstream_proof_manifest.json": json.dumps(cursor_manifest),
         "Review Aids/Evidence/Option C Workstream Proof/00_option_c_workstream_contact_sheet.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/01_tray_styled_popup_focused.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/03_tray_quick_access_submenu_focused.png": "png",
@@ -1069,6 +1123,12 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/Evidence/Option C Workstream Proof/11_ncp_choose_visible_choices.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/12_ncp_confirm_selected_action.png": "png",
         "Review Aids/Evidence/Option C Workstream Proof/13_ncp_result_launch_requested.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_001_pointer_outside_resize_zone_normal.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_002_pointer_right_edge_visible_resize_cursor_pre_drag.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_003_mouse_down_with_visible_resize_cursor.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_004_held_drag_mid_resize.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_005_mouse_up_completed_resize.png": "png",
+        "Review Aids/Evidence/Option C Workstream Proof/cursor_006_pointer_left_resize_zone_normal_cursor.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json": "{}",
         "Review Aids/Evidence/HUD Settings Visual Proof/01_disabled_default.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/02_enabled_default.png": "png",
@@ -1076,7 +1136,7 @@ def _packet_files_for_self_test(ledger: dict[str, Any]) -> dict[str, str]:
         "Review Aids/Evidence/HUD Settings Visual Proof/07_failure_retry.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/FAM003_HUD_SETTINGS_IMPLEMENTATION_CONTACT_SHEET.png": "png",
         "Review Aids/Evidence/HUD Settings Visual Proof/FAM003_HUD_TARGET_IMPLEMENTATION_COMPARISON.png": "png",
-        "Review Aids/Evidence/Settings Visual Proof/fam003_settings_visual_fail_repair_manifest.json": "{}",
+        "Review Aids/Evidence/Settings Visual Proof/fam003_settings_visual_fail_repair_manifest.json": json.dumps(settings_manifest),
         "Review Aids/Evidence/Settings Visual Proof/03e_live_user_drag_resized.png": "png",
         "Review Aids/Evidence/Settings Visual Proof/07_dropdown_list_state.png": "png",
         "Review Aids/Evidence/Settings Visual Proof/08_close_guard.png": "png",
@@ -1137,6 +1197,10 @@ def _apply_negative_case(ledger: dict[str, Any], case_id: str) -> dict[str, Any]
         "stale_workstream_entry_review_aid",
         "missing_self_contained_evidence",
         "packet_repair_commit_mislabeled_historical",
+        "newer_non_green_settings_omitted",
+        "telemetry_only_cursor_false_green",
+        "stale_settings_evidence_selected",
+        "child_failure_hidden_by_top_level_pass",
     }:
         return mutated
     else:
@@ -1202,6 +1266,27 @@ def _apply_packet_negative_case(packet_files: dict[str, str], case_id: str) -> d
                 "- Packet audit meta: allow active external snapshot context.",
             ]
         )
+    elif case_id == "newer_non_green_settings_omitted":
+        path = "Review Aids/Evidence/Settings Visual Proof/fam003_settings_visual_fail_repair_manifest.json"
+        payload = json.loads(mutated[path])
+        payload["allChecksPass"] = False
+        mutated[path] = json.dumps(payload)
+    elif case_id == "telemetry_only_cursor_false_green":
+        path = "Review Aids/Evidence/Option C Workstream Proof/fam003_resize_cursor_workstream_proof_manifest.json"
+        payload = json.loads(mutated[path])
+        step = next(item for item in payload["steps"] if item["id"] == "resize_cursor_workstream_proof")
+        step["evidence"]["visibleCursorClassification"] = "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY"
+        mutated[path] = json.dumps(payload)
+    elif case_id == "stale_settings_evidence_selected":
+        path = "Review Aids/Evidence/Settings Visual Proof/fam003_settings_visual_fail_repair_manifest.json"
+        payload = json.loads(mutated[path])
+        payload["sourceHead"] = "0" * 40
+        mutated[path] = json.dumps(payload)
+    elif case_id == "child_failure_hidden_by_top_level_pass":
+        path = "Review Aids/Evidence/Option C Workstream Proof/fam003_option_c_workstream_proof_manifest.json"
+        payload = json.loads(mutated[path])
+        payload["helperRuns"]["settingsVisualRegression"] = {"ok": False, "returncode": 1}
+        mutated[path] = json.dumps(payload)
     return mutated
 
 
@@ -1241,6 +1326,10 @@ def run_self_test(*, full_base: str, workstream_base: str) -> list[str]:
             "stale_workstream_entry_review_aid",
             "missing_self_contained_evidence",
             "packet_repair_commit_mislabeled_historical",
+            "newer_non_green_settings_omitted",
+            "telemetry_only_cursor_false_green",
+            "stale_settings_evidence_selected",
+            "child_failure_hidden_by_top_level_pass",
         }
         if not direct_failures and not packet_only_case:
             failures.append(f"negative case {case_id} did not fail direct validation")

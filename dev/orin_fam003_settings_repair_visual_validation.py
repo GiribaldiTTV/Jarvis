@@ -8,6 +8,8 @@ final visual acceptance.
 
 from __future__ import annotations
 
+import argparse
+import copy
 import datetime as dt
 import ctypes
 import ctypes.wintypes
@@ -16,13 +18,23 @@ import os
 import re
 import shutil
 import struct
+import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
+VISIBLE_CURSOR_PROOF_LATEST = (
+    ROOT
+    / "dev"
+    / "logs"
+    / "fam003_resize_cursor_workstream_proof"
+    / "latest_manifest.json"
+)
+VISIBLE_CURSOR_FIXTURE = ROOT / "dev" / "fixtures" / "fam003_resize_cursor_proof_negative_cases.json"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 VISUAL_UDL_PATH = Path(
     r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
@@ -1518,7 +1530,6 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
     ok = (
         (width_delta >= min_width_delta or width_reaches_legal_bound)
         and height_delta >= 80
-        and cursor_resize_signal
         and not dialog._settings_resize_active
     )
     detail = (
@@ -1535,7 +1546,10 @@ def _drive_win32_user_resize_drag(app, dialog, start_local, delta):
         f"cursor_override_matches={cursor_override_matches}; "
         f"min_width_delta={min_width_delta}; width_reaches_legal_bound={width_reaches_legal_bound}; "
         f"fallback_used={fallback_used}; fallback_started={fallback_started}; "
-        f"active={dialog._settings_resize_active}; method=SetCursorPos hover proof, held Win32 left mouse button, and app-owned fallback resize loop when native mouse messages do not begin"
+        f"active={dialog._settings_resize_active}; geometryClassification={'GEOMETRY_RESIZE_PROVEN' if ok else 'GEOMETRY_RESIZE_UNPROVEN'}; "
+        "internalCursorClassification=INTERNAL_CURSOR_STATE_SUPPORTING_ONLY; "
+        "method=SetCursorPos held Win32 left mouse button and app-owned fallback resize loop; "
+        "visible cursor conformance is adjudicated only from the separate normal-runtime cursor-composited manifest"
     )
     return ok, detail
 
@@ -1866,7 +1880,294 @@ def _write_image_integrity_receipt(log_dir: Path) -> tuple[Path, bool, str]:
     return receipt_path, all_ok, f"{len(png_paths)} PNG files checked"
 
 
+def _iso_timestamp(value: object) -> dt.datetime | None:
+    try:
+        parsed = dt.datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=dt.timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def _visible_cursor_manifest_failures(
+    manifest: dict[str, object],
+    *,
+    expected_head: str,
+    require_files: bool = True,
+) -> list[str]:
+    failures: list[str] = []
+    if manifest.get("schema") != "fam003-r2-workstream-resize-cursor-proof-v1":
+        failures.append("schema is not the R2 Workstream resize-cursor proof schema")
+    if manifest.get("status") != "PASS":
+        failures.append("top-level status is not PASS")
+    if manifest.get("proofMode") != "R2_WORKSTREAM_RESIZE_CURSOR_ONLY":
+        failures.append("proof mode is not bounded R2 Workstream resize-cursor-only")
+    if manifest.get("branch") != "feature/fam-003-settings-resize-proof":
+        failures.append("branch provenance is not the legal FAM-003 carrier")
+    if manifest.get("head") != expected_head:
+        failures.append("manifest HEAD is stale or does not match the current validation HEAD")
+    if manifest.get("formalHardening") is not False:
+        failures.append("formal Hardening must remain false")
+    if manifest.get("formalLiveValidation") is not False:
+        failures.append("formal Live Validation must remain false")
+    if manifest.get("utsStatus") != "NOT_REQUESTED":
+        failures.append("UTS status must remain NOT_REQUESTED")
+    if manifest.get("cursorFabrication") is not False:
+        failures.append("cursor fabrication flag is not false")
+    capture_method = str(manifest.get("cursorCaptureMethod", ""))
+    if "GetCursorInfo" not in capture_method or "DrawIconEx" not in capture_method:
+        failures.append("cursor capture provenance does not bind GetCursorInfo to DrawIconEx")
+
+    steps = {
+        str(step.get("id")): step
+        for step in manifest.get("steps", [])
+        if isinstance(step, dict) and step.get("id")
+    }
+    required_steps = (
+        "settings_open_current_runtime",
+        "pointer_outside_resize_zone",
+        "visible_cursor_transition_pre_drag",
+        "mouse_down_with_visible_resize_cursor",
+        "held_drag_and_completed_resize",
+        "pointer_leaves_resize_zone",
+        "resize_cursor_workstream_proof",
+    )
+    for step_id in required_steps:
+        step = steps.get(step_id)
+        if not step:
+            failures.append(f"required step missing: {step_id}")
+        elif step.get("status") != "PASS":
+            failures.append(f"required step is not PASS: {step_id}")
+
+    frames = {
+        str(frame.get("path")): frame
+        for frame in manifest.get("orderedFrames", [])
+        if isinstance(frame, dict) and frame.get("path")
+    }
+
+    def evidence(step_id: str) -> dict[str, object]:
+        step = steps.get(step_id, {})
+        value = step.get("evidence", {}) if isinstance(step, dict) else {}
+        return value if isinstance(value, dict) else {}
+
+    outside = evidence("pointer_outside_resize_zone")
+    pre_drag = evidence("visible_cursor_transition_pre_drag")
+    mouse_down = evidence("mouse_down_with_visible_resize_cursor")
+    drag = evidence("held_drag_and_completed_resize")
+    leave = evidence("pointer_leaves_resize_zone")
+    overall = evidence("resize_cursor_workstream_proof")
+
+    if outside.get("hitZone") is not False:
+        failures.append("normal-pointer frame is not proven outside the resize hit zone")
+    outside_cursor = outside.get("cursor", {})
+    if not isinstance(outside_cursor, dict) or not outside_cursor.get("visible"):
+        failures.append("normal-pointer cursor is missing or invisible")
+    elif outside_cursor.get("fingerprint") != outside.get("expectedArrowFingerprint"):
+        failures.append("outside cursor is not the proven normal arrow")
+
+    if pre_drag.get("classification") != "VISIBLE_CURSOR_TRANSITION_PROVEN":
+        failures.append("visible pre-drag cursor classification is not proven")
+    if pre_drag.get("hitZone") is not True:
+        failures.append("pre-drag pointer is outside the proven resize hit zone")
+    pre_cursor = pre_drag.get("cursor", {})
+    if not isinstance(pre_cursor, dict) or not pre_cursor.get("visible"):
+        failures.append("pre-drag cursor is missing or invisible")
+    elif (
+        pre_cursor.get("fingerprint") != pre_drag.get("expectedResizeFingerprint")
+        or pre_cursor.get("fingerprint") == pre_drag.get("expectedArrowFingerprint")
+    ):
+        failures.append("pre-drag visible cursor is not the expected resize shape")
+
+    if mouse_down.get("preDragRequirementSatisfied") is not True:
+        failures.append("mouse-down did not follow established pre-drag cursor proof")
+    if drag.get("classification") != "GEOMETRY_RESIZE_PROVEN":
+        failures.append("geometry resize is not proven")
+    if int(drag.get("widthDelta", 0) or 0) > -60:
+        failures.append("geometry delta is below the required resize threshold")
+    if overall.get("geometryClassification") != "GEOMETRY_RESIZE_PROVEN":
+        failures.append("overall geometry classification is not proven")
+    if overall.get("visibleCursorClassification") != "VISIBLE_CURSOR_TRANSITION_PROVEN":
+        failures.append("overall visible cursor classification is not proven")
+    if overall.get("internalCursorClassification") != "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY":
+        failures.append("internal cursor state is not labeled supporting-only")
+    if overall.get("hitZoneProven") is not True:
+        failures.append("overall hit-zone proof is missing")
+    if overall.get("mouseDownAfterPreDrag") is not True:
+        failures.append("overall event ordering does not prove pre-drag before mouse-down")
+    if overall.get("completedResize") is not True:
+        failures.append("overall completed-resize proof is missing")
+    if overall.get("postDragNormalCursor") is not True:
+        failures.append("overall post-drag normal-cursor proof is missing")
+
+    frame_paths = {
+        "outside": str(outside.get("frame", "")),
+        "pre_drag": str(pre_drag.get("frame", "")),
+        "mouse_down": str(mouse_down.get("mouseDownFrame", "")),
+        "mid_drag": str(drag.get("midDragFrame", "")),
+        "mouse_up": str(drag.get("mouseUpFrame", "")),
+        "leave": str(leave.get("frame", "")),
+    }
+    ordered_indices: list[int] = []
+    for label, path_value in frame_paths.items():
+        frame = frames.get(path_value)
+        if not frame:
+            failures.append(f"ordered cursor frame missing from manifest: {label}")
+            continue
+        if frame.get("cursorComposited") is not True:
+            failures.append(f"actual cursor was not composited in frame: {label}")
+        cursor = frame.get("cursor", {})
+        if not isinstance(cursor, dict) or not cursor.get("visible"):
+            failures.append(f"cursor is not visible in ordered frame: {label}")
+        try:
+            ordered_indices.append(int(frame.get("index")))
+        except (TypeError, ValueError):
+            failures.append(f"ordered frame index missing: {label}")
+        if require_files:
+            path = Path(path_value)
+            if not path.exists():
+                failures.append(f"ordered frame file missing: {label}")
+            elif not path.read_bytes().startswith(PNG_SIGNATURE):
+                failures.append(f"ordered frame is not a valid PNG: {label}")
+    if len(ordered_indices) == len(frame_paths) and ordered_indices != sorted(ordered_indices):
+        failures.append("cursor proof frames are not in required event order")
+    if len(set(ordered_indices)) != len(ordered_indices):
+        failures.append("cursor proof frame indices are duplicated")
+
+    pre_time = _iso_timestamp(steps.get("visible_cursor_transition_pre_drag", {}).get("timestamp"))
+    down_time = _iso_timestamp(steps.get("mouse_down_with_visible_resize_cursor", {}).get("timestamp"))
+    if pre_time is None or down_time is None or pre_time >= down_time:
+        failures.append("pre-drag cursor proof timestamp is not before mouse-down")
+    return failures
+
+
+def _load_visible_cursor_proof(path: Path, expected_head: str) -> tuple[bool, str, list[Path]]:
+    if not path.exists():
+        return False, f"CURSOR_CAPTURE_UNPROVEN: manifest missing: {path}", []
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"CURSOR_CAPTURE_UNPROVEN: manifest unreadable: {exc}", []
+    failures = _visible_cursor_manifest_failures(manifest, expected_head=expected_head)
+    frame_paths = [
+        Path(str(frame.get("path")))
+        for frame in manifest.get("orderedFrames", [])
+        if isinstance(frame, dict) and frame.get("path")
+    ]
+    if failures:
+        return False, "CURSOR_CAPTURE_UNPROVEN: " + "; ".join(failures), frame_paths
+    return (
+        True,
+        "VISIBLE_CURSOR_TRANSITION_PROVEN; GEOMETRY_RESIZE_PROVEN; "
+        "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY; "
+        f"manifest={path}; proofRoot={manifest.get('proofRoot')}",
+        frame_paths,
+    )
+
+
+def _synthetic_visible_cursor_manifest(frame_root: Path, expected_head: str) -> dict[str, object]:
+    frame_root.mkdir(parents=True, exist_ok=True)
+    names = ("outside", "pre_drag", "mouse_down", "mid_drag", "mouse_up", "leave")
+    frames: list[dict[str, object]] = []
+    paths: dict[str, str] = {}
+    for index, name in enumerate(names):
+        path = frame_root / f"{index:03d}_{name}.png"
+        path.write_bytes(PNG_SIGNATURE + b"fixture")
+        paths[name] = str(path)
+        frames.append(
+            {
+                "index": index,
+                "path": str(path),
+                "cursorComposited": True,
+                "cursor": {"visible": True, "fingerprint": "RESIZE" if name in {"pre_drag", "mouse_down", "mid_drag", "mouse_up"} else "ARROW"},
+            }
+        )
+    base_time = dt.datetime(2026, 7, 21, tzinfo=dt.timezone.utc)
+    steps = [
+        {"id": "settings_open_current_runtime", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=0)).isoformat(), "evidence": {}},
+        {"id": "pointer_outside_resize_zone", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=1)).isoformat(), "evidence": {"hitZone": False, "cursor": {"visible": True, "fingerprint": "ARROW"}, "expectedArrowFingerprint": "ARROW", "frame": paths["outside"]}},
+        {"id": "visible_cursor_transition_pre_drag", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=2)).isoformat(), "evidence": {"classification": "VISIBLE_CURSOR_TRANSITION_PROVEN", "hitZone": True, "cursor": {"visible": True, "fingerprint": "RESIZE"}, "expectedResizeFingerprint": "RESIZE", "expectedArrowFingerprint": "ARROW", "frame": paths["pre_drag"]}},
+        {"id": "mouse_down_with_visible_resize_cursor", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=3)).isoformat(), "evidence": {"preDragRequirementSatisfied": True, "mouseDownFrame": paths["mouse_down"]}},
+        {"id": "held_drag_and_completed_resize", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=4)).isoformat(), "evidence": {"classification": "GEOMETRY_RESIZE_PROVEN", "widthDelta": -80, "midDragFrame": paths["mid_drag"], "mouseUpFrame": paths["mouse_up"]}},
+        {"id": "pointer_leaves_resize_zone", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=5)).isoformat(), "evidence": {"frame": paths["leave"]}},
+        {"id": "resize_cursor_workstream_proof", "status": "PASS", "timestamp": (base_time + dt.timedelta(seconds=6)).isoformat(), "evidence": {"geometryClassification": "GEOMETRY_RESIZE_PROVEN", "visibleCursorClassification": "VISIBLE_CURSOR_TRANSITION_PROVEN", "internalCursorClassification": "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY", "hitZoneProven": True, "mouseDownAfterPreDrag": True, "completedResize": True, "postDragNormalCursor": True}},
+    ]
+    return {
+        "schema": "fam003-r2-workstream-resize-cursor-proof-v1",
+        "status": "PASS",
+        "proofMode": "R2_WORKSTREAM_RESIZE_CURSOR_ONLY",
+        "branch": "feature/fam-003-settings-resize-proof",
+        "head": expected_head,
+        "formalHardening": False,
+        "formalLiveValidation": False,
+        "utsStatus": "NOT_REQUESTED",
+        "cursorFabrication": False,
+        "cursorCaptureMethod": "GDI CopyFromScreen plus DrawIconEx of the actual GetCursorInfo hCursor",
+        "steps": steps,
+        "orderedFrames": frames,
+        "proofRoot": str(frame_root),
+    }
+
+
+def _run_visible_cursor_negative_fixtures(expected_head: str) -> tuple[bool, str]:
+    fixture = json.loads(VISIBLE_CURSOR_FIXTURE.read_text(encoding="utf-8"))
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory(prefix="fam003-cursor-fixture-") as temp_dir:
+        valid = _synthetic_visible_cursor_manifest(Path(temp_dir), expected_head)
+        if _visible_cursor_manifest_failures(valid, expected_head=expected_head):
+            failures.append("valid visible-cursor fixture did not pass")
+        for case in fixture.get("cases", []):
+            case_id = str(case.get("id"))
+            mutated = copy.deepcopy(valid)
+            steps = {step["id"]: step for step in mutated["steps"]}
+            frames = {Path(frame["path"]).stem.split("_", 1)[1]: frame for frame in mutated["orderedFrames"]}
+            if case_id == "geometry_only_without_visible_cursor":
+                steps["visible_cursor_transition_pre_drag"]["evidence"]["classification"] = "CURSOR_CAPTURE_UNPROVEN"
+            elif case_id == "telemetry_only_cursor_promotion":
+                steps["resize_cursor_workstream_proof"]["evidence"]["visibleCursorClassification"] = "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY"
+            elif case_id == "pointer_outside_hit_zone":
+                steps["visible_cursor_transition_pre_drag"]["evidence"]["hitZone"] = False
+            elif case_id == "predrag_after_mousedown":
+                steps["visible_cursor_transition_pre_drag"]["timestamp"] = (dt.datetime(2026, 7, 21, 0, 0, 4, tzinfo=dt.timezone.utc)).isoformat()
+            elif case_id == "missing_cursor_frame":
+                mutated["orderedFrames"] = [frame for frame in mutated["orderedFrames"] if frame is not frames["pre_drag"]]
+            elif case_id == "cursor_not_composited":
+                frames["pre_drag"]["cursorComposited"] = False
+            elif case_id == "stale_head":
+                mutated["head"] = "0" * 40
+            elif case_id == "child_failure_top_level_pass":
+                steps["visible_cursor_transition_pre_drag"]["status"] = "FAIL"
+            else:
+                failures.append(f"unknown negative fixture: {case_id}")
+                continue
+            if not _visible_cursor_manifest_failures(mutated, expected_head=expected_head):
+                failures.append(f"negative fixture did not fail closed: {case_id}")
+    if failures:
+        return False, "; ".join(failures)
+    return True, f"{len(fixture.get('cases', []))} visible-cursor negative fixtures failed closed"
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--visible-cursor-manifest",
+        type=Path,
+        default=VISIBLE_CURSOR_PROOF_LATEST,
+        help="Current normal-runtime R2 Workstream visible-cursor proof manifest.",
+    )
+    parser.add_argument(
+        "--self-test-cursor-proof",
+        action="store_true",
+        help="Run fail-closed visible-cursor negative fixtures and exit.",
+    )
+    args = parser.parse_args()
+    current_head = subprocess.check_output(
+        ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    if args.self_test_cursor_proof:
+        ok, detail = _run_visible_cursor_negative_fixtures(current_head)
+        print(("PASS" if ok else "FAIL") + f": {detail}")
+        return 0 if ok else 1
+
     stamp = os.environ.get("FAM003_SETTINGS_VISUAL_PROOF_STAMP") or dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = LOG_ROOT / stamp
     if log_dir.exists():
@@ -1917,6 +2218,24 @@ def main() -> int:
     app = QApplication.instance() or QApplication([])
     rows: list[tuple[str, bool, str]] = []
     artifacts: list[dict[str, str]] = []
+    visible_cursor_ok, visible_cursor_detail, visible_cursor_frames = _load_visible_cursor_proof(
+        args.visible_cursor_manifest,
+        current_head,
+    )
+    rows.append(("visible USER-facing resize cursor proof", visible_cursor_ok, visible_cursor_detail))
+    cursor_fixture_ok, cursor_fixture_detail = _run_visible_cursor_negative_fixtures(current_head)
+    rows.append(("visible resize cursor negative fixtures", cursor_fixture_ok, cursor_fixture_detail))
+    for cursor_frame in visible_cursor_frames:
+        artifacts.append(
+            {
+                "path": str(cursor_frame),
+                "surface": "normal-runtime Global Settings resize cursor",
+                "state": "ordered real-input visible cursor proof",
+                "width": "virtual desktop",
+                "height": "virtual desktop",
+                "saved": str(cursor_frame.exists()),
+            }
+        )
     rows.extend(_copy_reference_artifacts(log_dir, artifacts))
     manage_guard_rows, manage_guard_reference_path, manage_guard_ledger_path = _write_manage_monitors_guard_reference(log_dir, artifacts)
     rows.extend(manage_guard_rows)
@@ -2509,7 +2828,7 @@ def main() -> int:
     for _ in range(18):
         app.processEvents()
         time.sleep(0.01)
-    live_drag_ok, live_drag_detail = _drive_win32_user_resize_drag(
+    live_drag_geometry_ok, live_drag_detail = _drive_win32_user_resize_drag(
         app,
         drag_probe,
         drag_probe.rect().bottomRight() - QPoint(8, 8),
@@ -2526,7 +2845,8 @@ def main() -> int:
     rows.append(
         (
             "live-style user drag resize proof",
-            live_drag_ok
+            live_drag_geometry_ok
+            and visible_cursor_ok
             and live_drag_capture_ok
             and live_drag_width >= 810
             and live_drag_height >= 470
@@ -2534,7 +2854,8 @@ def main() -> int:
             and hasattr(drag_probe, "_finish_settings_resize")
             and drag_probe.property("windowResizeBehavior")
             == "uiref-007-frameless-top-level-hover-polled-edge-corner-cursor-app-owned-fallback-8px-edge-12px-corner-no-visible-grip-splitter-travel-76-270-horizontal-overflow-minimum-684x388-dynamic-content-minimum-maximum-840x610-close-intercept-no-forced-arrow-hysteresis-v43",
-            f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}",
+            f"{live_drag_path}; {live_drag_detail}; captured={live_drag_width}x{live_drag_height}; "
+            f"externalVisibleCursorProof={visible_cursor_detail}",
         )
     )
     drag_probe.close()
@@ -4423,7 +4744,7 @@ def main() -> int:
     closure_rows = [
         ("F3-LV1-UI-001", "USER / ChatGPT", "20260624-123116/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 12_reference_conformance_contact_sheet.png", "settings-specific single-row title row plus broad NDAI comparator", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-015", "USER", "20260624-123116/04_left_settings_organizer.png", "15_left_pane_resize_affordance_closeup.png; 15_normal_splitter_resize_affordance.png; 15_hover_splitter_resize_affordance.png; 15_active_splitter_resize_affordance.png", "subtle 1px visible left-pane resize affordance inside a 9px hit zone", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-016", "USER", "corner-grip-only v15/v20 proof and stale minimum-size floors", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "684x388 base minimum with active-content minimum growth, 840x610 max, 8px edge / 12px corner hover-polled resize with Windows cursor-before-drag proof and no visible bottom-right grip", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-016", "USER", "corner-grip-only v15/v20 proof and stale minimum-size floors", f"03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png; {args.visible_cursor_manifest}", "684x388 base minimum with active-content minimum growth, 840x610 max, plus separate normal-runtime ordered cursor-composited right-edge proof and no visible bottom-right grip", "CLOSED_WITH_PROOF" if visible_cursor_ok else "FIXED_PENDING_PROOF"),
         ("F3-LV1-UI-017", "USER", "20260624-123116/01_default_global_settings_shell.png", "01_default_global_settings_shell.png; 05_row_action_default_disabled_state.png; 20_stress_left_rail_28_categories.png; 21_stress_content_mixed_controls.png; 22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png", "780x460 deterministic shell with control-pill scale matched row grouping, unclipped Quick Access rows, and useful settings copy", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-018", "USER", "v15 ^ / v / x text buttons", "14_glyph_control_closeup.png", "UIREF-003 polished control state grammar", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-019", "USER", "plain utility caption title", "02_top_level_chrome_control_cluster.png", "settings-specific seamless single-row title grammar", "CLOSED_WITH_PROOF"),
@@ -4443,7 +4764,7 @@ def main() -> int:
         ("F3-LV1-UI-033", "USER / ChatGPT", "v21/v24 wide state still risked footer/action detachment from active settings content", "01_default_global_settings_shell.png; 03d_window_wide_size.png; DEFECT_CLOSURE_PROOF_LEDGER.md", "footer remains within the active settings page at default, medium, and splitter-attached wide sizes", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-034", "USER / ChatGPT", "Global Settings standard-window path needed renewed proof after title/layout repair", "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md; 02_top_level_chrome_control_cluster.png", "PySide DialogChromeBar remains legal reference-derived settings window; no WebView/shared-primitive migration claim", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-035", "USER / ChatGPT", "bottom-right resize grip must remain removed", "01_default_global_settings_shell.png; 03d_window_wide_size.png; 03c_window_minimum_size.png", "no resize_grip attribute, no residentAccessSettingsResizeGrip widget, no QSizeGrip for this surface", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-036", "USER / ChatGPT", "resize parity required after max-size repair", "03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png", "8px edge and 12px corner hit zones, hover-polled Windows cursor handoff, dynamic row-count minimum clamp, 840x610 max clamp, no visible grip", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-036", "USER / ChatGPT", "resize parity required after max-size repair", f"03b_window_resized.png; 03d_window_wide_size.png; 03c_window_minimum_size.png; 03e_live_user_drag_resized.png; {args.visible_cursor_manifest}", "8px edge and 12px corner hit zones, normal-runtime USER-visible cursor handoff, dynamic row-count minimum clamp, 840x610 max clamp, no visible grip", "CLOSED_WITH_PROOF" if visible_cursor_ok else "FIXED_PENDING_PROOF"),
         ("F3-LV1-UI-037", "USER / ChatGPT", "v21 visible title row still included NEXUS DESKTOP AI branding", "02_top_level_chrome_control_cluster.png", "visible title row contains only centered Settings; hidden kicker is empty and no visible NDAI branding appears in the title row", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-038", "USER / ChatGPT", "future centered Global Settings watermark concept was requested but must not be faked into runtime UI", "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md; fam003_settings_visual_fail_repair_manifest.json", "branch-local deferred watermark property recorded; runtimeWatermarkVisible=false and no visible watermark widget/text exists", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-043", "USER / ChatGPT", "current packet proof showed 3rd/4th Quick Access rows clipping, squashing, or colliding with the footer", "22_row_count_1_of_4.png; 22_row_count_2_of_4.png; 22_row_count_3_of_4.png; 22_row_count_4_of_4.png; 10_max_slots_unclipped.png", "1/2/3/4 row matrix with equal 36px row heights, content-driven balanced-gutter card/window growth, and footer separation", "CLOSED_WITH_PROOF"),
@@ -4466,7 +4787,7 @@ def main() -> int:
         ("F3-LV1-UI-060", "USER", "do not let the indent of the sub catagory be affected. the indent needs to be fixed and standardized. now you can visually see that the distinguished difference in main categories and sub categories is gone.", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "fixed 14px subcategory indent remains the hierarchy rule; compressed state is an intentional splitter stress state with horizontal scroll recovery", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-061", "USER", "the border of the wuick acces is clipping again, and the indent needs to be more obvious. and fix the clipping", "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04a1_quick_access_child_pill_no_clip_focus.png; 04a2_quick_access_child_pill_focus_pressed_state.png; 04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "border-safe normal/wide left rail with fixed 14px subcategory indent, 112px child pill, 88px child label budget, stable selected/hover border, and compressed horizontal-overflow stress proof", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-062", "USER", "splitter could not compress the rail far enough to show half of the main category or force horizontal scroll", "04d_left_pane_compressed_horizontal_overflow.png; 04e_left_pane_wide.png", "76-270px splitter travel with AsNeeded horizontal scroll; compressed rail shows partial parent category and scroll recovery while normal/wide states remain readable", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-063", "USER", "Settings window resize-edge cursor flickered between pointer and resize cursor while other windows were stable", "fam003_settings_visual_fail_repair_manifest.json; 03e_live_user_drag_resized.png", "Settings resize cursor path keeps the no-forced-arrow Windows cursor release and adds a 2px release hysteresis so edge hover is not cleared by tiny no-edge samples", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-063", "USER", "Settings window resize-edge cursor flickered between pointer and resize cursor while other windows were stable", f"fam003_settings_visual_fail_repair_manifest.json; 03e_live_user_drag_resized.png; {args.visible_cursor_manifest}", "Settings resize cursor path is closed only by ordered normal-arrow, right-edge resize, mouse-down, held-drag, mouse-up, and post-edge normal-arrow proof with the actual OS cursor composited from GetCursorInfo", "CLOSED_WITH_PROOF" if visible_cursor_ok else "FIXED_PENDING_PROOF"),
         ("F3-LV1-UI-064", "USER", "Quick Access row button cluster looked visually out of place and non-immersive", "05_row_action_default_disabled_state.png; 14_glyph_control_closeup.png", "row actions render as two separate pills: a 25/1/25 up/down reorder pill and a separate 28px X pill", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-065", "USER", "Quick Access row glyphs were acceptable, but visible gray mini-button pills and button hover highlights inside the capsule broke immersion", "14_glyph_control_closeup.png; 14a_two_pill_reorder_hover_edge_fill.png", "superseded single-capsule approach replaced by two-pill grammar; reorder hover/disabled feedback fills the individual half inside the pill border, and X owns a separate pill", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-066", "USER", "Desired action grammar clarified as two separate pills: one X pill and one up/down pill with a perfect internal split", "14_glyph_control_closeup.png; 14a_two_pill_reorder_hover_edge_fill.png", "quickSlotActionControlPolicy two-pill-reorder-delete-parent-painted-segment-fill-v47 with quickSlotReorderSplitPolicy parent-painted-25-1-25-exact-segment-fill-v47", "CLOSED_WITH_PROOF"),
@@ -4558,6 +4879,19 @@ def main() -> int:
         manage_guard_reference_path=manage_guard_reference_path,
         manage_guard_ledger_path=manage_guard_ledger_path,
         manage_guard_side_by_side=manage_guard_side_by_side,
+    )
+    manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest_payload.update(
+        {
+            "sourceHead": current_head,
+            "visibleCursorProofManifest": str(args.visible_cursor_manifest),
+            "visibleCursorProofPass": visible_cursor_ok,
+            "visibleCursorProofDetail": visible_cursor_detail,
+        }
+    )
+    manifest_path.write_text(
+        json.dumps(manifest_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
     rows.append(
         (

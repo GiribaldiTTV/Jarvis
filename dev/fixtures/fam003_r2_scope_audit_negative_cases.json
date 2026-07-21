@@ -56,6 +56,22 @@
     {
       "id": "packet_repair_commit_mislabeled_historical",
       "expectedFailure": "post-Workstream packet audit commits are relabeled"
+    },
+    {
+      "id": "newer_non_green_settings_omitted",
+      "expectedFailure": "current Settings proof is not green"
+    },
+    {
+      "id": "telemetry_only_cursor_false_green",
+      "expectedFailure": "telemetry-only cursor state was promoted"
+    },
+    {
+      "id": "stale_settings_evidence_selected",
+      "expectedFailure": "Settings proof HEAD is stale"
+    },
+    {
+      "id": "child_failure_hidden_by_top_level_pass",
+      "expectedFailure": "required child is absent, failed, or hidden"
     }
   ]
 }

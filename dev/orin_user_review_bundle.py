@@ -1838,6 +1838,13 @@ def _fam003_r2_workstream_completion_scope_failures(
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/11_ncp_choose_visible_choices.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/12_ncp_confirm_selected_action.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/13_ncp_result_launch_requested.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/fam003_resize_cursor_workstream_proof_manifest.json",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_001_pointer_outside_resize_zone_normal.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_002_pointer_right_edge_visible_resize_cursor_pre_drag.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_003_mouse_down_with_visible_resize_cursor.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_004_held_drag_mid_resize.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_005_mouse_up_completed_resize.png",
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/cursor_006_pointer_left_resize_zone_normal_cursor.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/fam003_hud_settings_visual_manifest.json",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/01_disabled_default.png",
         f"{REVIEW_AIDS_DIR_NAME}/Evidence/HUD Settings Visual Proof/02_enabled_default.png",
@@ -2073,10 +2080,107 @@ def _fam003_r2_workstream_completion_scope_failures(
     }
     if len(head_values) != 1:
         failures.append(f"FAM-003 R2 packet final pushed HEAD mismatch: {sorted(head_values)}")
+    expected_head = next(iter(head_values)) if len(head_values) == 1 else None
+
+    option_manifest_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/"
+        "fam003_option_c_workstream_proof_manifest.json"
+    )
+    cursor_manifest_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Option C Workstream Proof/"
+        "fam003_resize_cursor_workstream_proof_manifest.json"
+    )
+    settings_manifest_name = (
+        f"{REVIEW_AIDS_DIR_NAME}/Evidence/Settings Visual Proof/"
+        "fam003_settings_visual_fail_repair_manifest.json"
+    )
+    option_manifest = load_json(option_manifest_name)
+    cursor_manifest = load_json(cursor_manifest_name)
+    settings_manifest = load_json(settings_manifest_name)
+    if option_manifest is not None:
+        if option_manifest.get("status") != "PASS":
+            failures.append(f"{option_manifest_name}: aggregate status is not PASS")
+        if expected_head and option_manifest.get("head") != expected_head:
+            failures.append(f"{option_manifest_name}: aggregate HEAD is stale")
+        if not option_manifest.get("visibleCursorArtifacts"):
+            failures.append(f"{option_manifest_name}: packet-visible cursor artifacts are absent")
+        embedded_settings = option_manifest.get("settingsManifest")
+        if (
+            not isinstance(embedded_settings, dict)
+            or embedded_settings.get("allChecksPass") is not True
+            or embedded_settings.get("visibleCursorProofPass") is not True
+            or (expected_head and embedded_settings.get("sourceHead") != expected_head)
+        ):
+            failures.append(f"{option_manifest_name}: current Settings child is stale, non-green, or lacks visible-cursor proof")
+        embedded_cursor = option_manifest.get("visibleCursorProof")
+        if not isinstance(embedded_cursor, dict) or embedded_cursor.get("status") != "PASS":
+            failures.append(f"{option_manifest_name}: aggregate did not preserve the current green cursor manifest")
+        helper_runs = option_manifest.get("helperRuns")
+        if not isinstance(helper_runs, dict) or any(
+            not isinstance(result, dict)
+            or result.get("ok") is not True
+            or result.get("returncode") != 0
+            for result in helper_runs.values()
+        ):
+            failures.append(f"{option_manifest_name}: a required child is absent, failed, or hidden by top-level PASS")
+    if settings_manifest is not None:
+        if settings_manifest.get("allChecksPass") is not True:
+            failures.append(f"{settings_manifest_name}: current Settings proof is not green")
+        if expected_head and settings_manifest.get("sourceHead") != expected_head:
+            failures.append(f"{settings_manifest_name}: Settings proof HEAD is stale")
+        if settings_manifest.get("visibleCursorProofPass") is not True:
+            failures.append(f"{settings_manifest_name}: visible cursor proof is missing or non-green")
+    if cursor_manifest is not None:
+        if cursor_manifest.get("status") != "PASS":
+            failures.append(f"{cursor_manifest_name}: cursor proof is not PASS")
+        if cursor_manifest.get("proofMode") != "R2_WORKSTREAM_RESIZE_CURSOR_ONLY":
+            failures.append(f"{cursor_manifest_name}: cursor proof is not bounded Workstream mode")
+        if expected_head and cursor_manifest.get("head") != expected_head:
+            failures.append(f"{cursor_manifest_name}: cursor proof HEAD is stale")
+        if cursor_manifest.get("formalHardening") is not False or cursor_manifest.get("formalLiveValidation") is not False:
+            failures.append(f"{cursor_manifest_name}: cursor proof crossed a downstream gate")
+        if cursor_manifest.get("cursorFabrication") is not False:
+            failures.append(f"{cursor_manifest_name}: cursor evidence is marked fabricated")
+        required_cursor_steps = {
+            "pointer_outside_resize_zone",
+            "visible_cursor_transition_pre_drag",
+            "mouse_down_with_visible_resize_cursor",
+            "held_drag_and_completed_resize",
+            "pointer_leaves_resize_zone",
+            "resize_cursor_workstream_proof",
+        }
+        cursor_steps = {
+            str(step.get("id")): step
+            for step in cursor_manifest.get("steps", [])
+            if isinstance(step, dict)
+        }
+        missing_or_failed = sorted(
+            step_id
+            for step_id in required_cursor_steps
+            if cursor_steps.get(step_id, {}).get("status") != "PASS"
+        )
+        if missing_or_failed:
+            failures.append(f"{cursor_manifest_name}: required cursor steps are missing or failed {missing_or_failed}")
+        pre_drag = cursor_steps.get("visible_cursor_transition_pre_drag", {}).get("evidence", {})
+        overall_cursor = cursor_steps.get("resize_cursor_workstream_proof", {}).get("evidence", {})
+        if not isinstance(pre_drag, dict) or pre_drag.get("classification") != "VISIBLE_CURSOR_TRANSITION_PROVEN":
+            failures.append(f"{cursor_manifest_name}: pre-drag visible cursor transition is unproven")
+        if (
+            not isinstance(overall_cursor, dict)
+            or overall_cursor.get("visibleCursorClassification") != "VISIBLE_CURSOR_TRANSITION_PROVEN"
+            or overall_cursor.get("internalCursorClassification") != "INTERNAL_CURSOR_STATE_SUPPORTING_ONLY"
+        ):
+            failures.append(f"{cursor_manifest_name}: telemetry-only cursor state was promoted as visible proof")
+        ordered_frames = cursor_manifest.get("orderedFrames")
+        if not isinstance(ordered_frames, list) or len(ordered_frames) < 6 or any(
+            not isinstance(frame, dict) or frame.get("cursorComposited") is not True
+            for frame in ordered_frames
+        ):
+            failures.append(f"{cursor_manifest_name}: ordered actual-cursor-composited frame set is incomplete")
     failures.extend(
         _fam003_r2_completion_external_state_identity_failures(
             packet_files,
-            expected_head=next(iter(head_values)) if len(head_values) == 1 else None,
+            expected_head=expected_head,
             expected_full_commits=len(full_commits),
             expected_workstream_commits=len(workstream_commits),
         )
