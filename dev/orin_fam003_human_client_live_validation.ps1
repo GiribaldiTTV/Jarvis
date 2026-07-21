@@ -9,7 +9,7 @@ Add-Type -AssemblyName UIAutomationClient
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-Add-Type @"
+$Fam003VisibleInputSource = @"
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -341,6 +341,7 @@ public static class Fam003DesktopShell {
     }
 }
 "@
+Add-Type -TypeDefinition $Fam003VisibleInputSource -ReferencedAssemblies @("System.Drawing.dll")
 
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $Launcher = Join-Path $env:USERPROFILE "OneDrive\Desktop\Nexus Desktop Launcher.lnk"
