@@ -31,7 +31,11 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_readiness_config,
     build_provider_setup_completion_foundation_state,
 )
-from desktop.desktop_renderer import AIControlCenterDialog  # noqa: E402
+from desktop.desktop_renderer import (  # noqa: E402
+    AIDashboardDomainWindow,
+    AIControlCenterDialog,
+    classify_ai_dashboard_iconic_artifact,
+)
 
 STATE_TAXONOMY_CONTRACT = "ai-dashboard-ai-control-center-state-taxonomy-v1"
 VIEW_MODEL_CONTRACT = "ai-dashboard-provider-state-view-model-v1"
@@ -105,13 +109,24 @@ def _evaluate_lifecycle_contract_record(record: dict[str, object]) -> list[str]:
         "requestedRoute",
         "requestedAction",
         "qtMethodInvoked",
+        "closeResult",
         "requestedHwnd",
         "hwnd",
         "nativeOwnerHwnd",
         "taskbarEligible",
         "showCmd",
+        "registeredObjectCount",
+        "liveObjectCount",
+        "liveSameDomainHwndCount",
+        "pendingClosingCount",
+        "staleRegistryCount",
+        "duplicateObjectCount",
+        "duplicateHwndCount",
         "duplicateCount",
-        "unexpectedIconicArtifactDetected",
+        "objectIdentities",
+        "hwndIdentities",
+        "iconicArtifactNativeFacts",
+        "iconicArtifactStatus",
     )
     for field in required:
         if field not in record or record.get(field) is None:
@@ -130,6 +145,14 @@ def _evaluate_lifecycle_contract_record(record: dict[str, object]) -> list[str]:
         errors.append("launcher-preflight-owner-remapped")
     if record.get("workspacePreservationOwner") != "F7-LV1-009/#304":
         errors.append("workspace-preservation-owner-remapped")
+    if record.get("mappedIssueState") != "OPEN_BLOCKING":
+        errors.append("mapped-issue-state-drift")
+    if record.get("directImplementationDefects") != ["F7-LV1-010/#307"]:
+        errors.append("direct-defect-scope-expanded")
+    if record.get("launcherPreflightIssueState") != "OPEN_BLOCKING":
+        errors.append("launcher-preflight-issue-state-drift")
+    if record.get("workspacePreservationIssueState") != "CLOSED_COMPLETED":
+        errors.append("workspace-preservation-issue-state-drift")
     if record.get("nativeOwnerHwnd") != 0:
         errors.append("native-owner-not-cleared")
     if record.get("taskbarGroupingAllowed") is not True:
@@ -140,15 +163,98 @@ def _evaluate_lifecycle_contract_record(record: dict[str, object]) -> list[str]:
         errors.append("ungrouped-taskbar-icon-requirement-introduced")
     if record.get("appUserModelIdCustomization") is not False:
         errors.append("appusermodelid-customization-introduced")
-    if int(record.get("duplicateCount") or 0) != 0:
+    if record.get("inventoryContract") != "fam007-production-live-object-hwnd-inventory-v2":
+        errors.append("production-inventory-contract-missing")
+    if record.get("inventorySource") != "production-live-runtime-inventory":
+        errors.append("production-live-inventory-source-missing")
+    required_inventory_sources = {
+        "dashboard-domain-registry",
+        "class-weak-instance-registry",
+        "qt-top-level-widget-enumeration",
+        "win32-current-process-top-level-hwnd-enumeration-by-domain-title",
+    }
+    if not required_inventory_sources.issubset(set(record.get("inventorySources") or [])):
+        errors.append("inventory-source-coverage-incomplete")
+    completeness = record.get("inventoryCompleteness")
+    if not isinstance(completeness, dict) or set(completeness) != {
+        "registeredObjects",
+        "liveQtObjects",
+        "liveNativeHwnds",
+    }:
+        errors.append("inventory-completeness-missing")
+    if record.get("inventoryInjectedFieldsUsed") is not False:
+        errors.append("synthetic-inventory-injection-detected")
+
+    object_identities = record.get("objectIdentities")
+    hwnd_identities = record.get("hwndIdentities")
+    if not isinstance(object_identities, list) or len(object_identities) != int(record.get("liveObjectCount") or 0):
+        errors.append("live-object-identity-count-mismatch")
+    if not isinstance(hwnd_identities, list) or len(hwnd_identities) != int(record.get("liveSameDomainHwndCount") or 0):
+        errors.append("live-hwnd-identity-count-mismatch")
+    duplicate_object_count = max(0, int(record.get("liveObjectCount") or 0) - 1)
+    duplicate_hwnd_count = max(0, int(record.get("liveSameDomainHwndCount") or 0) - 1)
+    derived_duplicate_count = max(duplicate_object_count, duplicate_hwnd_count)
+    if int(record.get("duplicateObjectCount") or 0) != duplicate_object_count:
+        errors.append("duplicate-object-count-not-derived-from-live-inventory")
+    if int(record.get("duplicateHwndCount") or 0) != duplicate_hwnd_count:
+        errors.append("duplicate-hwnd-count-not-derived-from-live-inventory")
+    if int(record.get("duplicateCount") or 0) != derived_duplicate_count:
+        errors.append("duplicate-count-not-derived-from-live-inventory")
+    if derived_duplicate_count:
         errors.append("duplicate-window-detected")
-    if record.get("unexpectedIconicArtifactObservationComplete") is not True:
-        errors.append("iconic-artifact-observation-incomplete")
-    if record.get("unexpectedIconicArtifactDetected") is not False:
-        errors.append("iconic-artifact-detected")
+    if int(record.get("staleRegistryCount") or 0):
+        errors.append("stale-registry-entry-detected")
+    if int(record.get("registeredObjectCount") or 0) > int(record.get("liveObjectCount") or 0) and not int(record.get("staleRegistryCount") or 0):
+        errors.append("registered-live-object-count-incoherent")
+
+    native_facts = record.get("iconicArtifactNativeFacts")
+    if not isinstance(native_facts, dict):
+        errors.append("iconic-artifact-native-facts-missing")
+        native_facts = {}
+    visible_proof = record.get("iconicArtifactVisibleProof")
+    expected_artifact_status = classify_ai_dashboard_iconic_artifact(
+        native_facts,
+        visible_proof=str(visible_proof) if visible_proof is not None else None,
+    )
+    if record.get("iconicArtifactStatus") != expected_artifact_status:
+        errors.append("iconic-artifact-production-classifier-mismatch")
+    if record.get("visualEvidenceScope") == "component-no-visible-proof":
+        if record.get("iconicArtifactStatus") != "VISUAL_ADJUDICATION_REQUIRED":
+            errors.append("component-evidence-claimed-visual-pass")
+        if record.get("unexpectedIconicArtifactDetected") is not None:
+            errors.append("component-evidence-forced-visual-boolean")
+        if record.get("unexpectedIconicArtifactObservationComplete") is not False:
+            errors.append("component-evidence-claimed-observation-complete")
+
+    record_origin = str(record.get("recordOrigin") or "")
+    if record_origin not in {"fixture-contract-case", "production-component-harness"}:
+        errors.append("record-origin-invalid")
+    if record_origin == "fixture-contract-case" and record.get("runtimeEvidenceEligible") is not False:
+        errors.append("fixture-runtime-evidence-bypass")
+    if record_origin == "production-component-harness" and record.get("runtimeEvidenceEligible") is not True:
+        errors.append("production-harness-runtime-evidence-disabled")
+    if record.get("componentHarnessCommandPresent") is not True:
+        errors.append("component-harness-command-missing")
+    if record.get("componentHarnessHeadMatches") is not True:
+        errors.append("component-harness-head-stale")
+    if record.get("componentHarnessImportsProductionLogic") is not True:
+        errors.append("component-harness-production-import-missing")
+    if record.get("componentHarnessOutputContract") != "current-head-json-and-markdown-v1":
+        errors.append("component-harness-output-contract-missing")
 
     action = str(record.get("requestedAction") or "")
     lifecycle_class = str(record.get("lifecycleClass") or "")
+    close_result = str(record.get("closeResult") or "")
+    pending_closing_count = int(record.get("pendingClosingCount") or 0)
+    if close_result == "accepted-destroy-pending" and pending_closing_count < 1:
+        errors.append("pending-close-inventory-omitted")
+    if pending_closing_count and action in {"open", "reopen", "focus-existing"}:
+        errors.append("doorway-replacement-created-during-close")
+    if record.get("childDestroyed") is True and any(
+        int(record.get(field) or 0)
+        for field in ("registeredObjectCount", "liveObjectCount", "liveSameDomainHwndCount")
+    ):
+        errors.append("destroyed-child-still-live-in-inventory")
     if action in {"open", "reopen", "focus-existing", "restore", "minimize"} and record.get("taskbarEligible") is not True:
         errors.append("taskbar-eligibility-missing")
     if action == "minimize":
@@ -211,7 +317,8 @@ def _lifecycle_supporting_contract_probe() -> dict[str, object]:
         "self.showMinimized()",
         "self.showNormal()",
         "windows-taskbar-or-thumbnail",
-        "unexpectedIconicArtifactDetected",
+        "runtime_lifecycle_inventory",
+        "classify_ai_dashboard_iconic_artifact",
         "orphanTaskbarVisibleHwndDetected",
         "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
         "def lifecycle_debug_state",
@@ -222,6 +329,16 @@ def _lifecycle_supporting_contract_probe() -> dict[str, object]:
         "PKEY_AppUserModel_ID",
     )
     required_missing = [marker for marker in required_source_markers if marker not in domain_source]
+    required_missing.extend(
+        marker
+        for marker in (
+            "VISUAL_ADJUDICATION_REQUIRED",
+            "_domain_pending_reopen",
+            "close-in-progress-reopen-deferred",
+            "deferred-doorway-after-destruction",
+        )
+        if marker not in renderer
+    )
     forbidden_present = [marker for marker in forbidden_source_markers if marker in domain_source]
     negative_cases = [item for item in cases if item["expectedValid"] is False]
     valid_surfaces = {
@@ -235,7 +352,7 @@ def _lifecycle_supporting_contract_probe() -> dict[str, object]:
         "Capabilities & Maintenance",
     }
     return {
-        "schemaVersion": "fam007-option-a-supporting-contract-probe-v1",
+        "schemaVersion": "fam007-option-a-supporting-contract-probe-v2",
         "classification": "SUPPORTING_STATIC_COMPONENT_DIAGNOSTIC_ONLY",
         "gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
         "fixture": str(LIFECYCLE_CONTRACT_FIXTURE),
@@ -252,7 +369,7 @@ def _lifecycle_supporting_contract_probe() -> dict[str, object]:
         "focusedClosurePerformed": False,
         "h1OrLiveValidationPerformed": False,
         "ok": bool(cases)
-        and len(negative_cases) >= 17
+        and len(negative_cases) >= 29
         and valid_surfaces == expected_surfaces
         and all(item["matchedExpected"] for item in cases)
         and not required_missing

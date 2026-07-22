@@ -3720,6 +3720,7 @@ def validate() -> list[str]:
     lifecycle_contract_fixture = _read(
         "dev/fixtures/fam007_ai_dashboard_lifecycle_contract/lifecycle_cases.json"
     )
+    lifecycle_component_harness = _read("dev/orin_fam007_lifecycle_component_harness.py")
     monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
     ai_control_renderer = "\n".join(
         (
@@ -9424,6 +9425,14 @@ def validate() -> list[str]:
         "def minimize_domain_window",
         "def _complete_taskbar_restore_transition",
         "def close_domain_window",
+        "def runtime_lifecycle_inventory",
+        "def classify_ai_dashboard_iconic_artifact",
+        '"inventorySource": "production-live-runtime-inventory"',
+        '"iconicArtifactStatus": iconic_artifact_status',
+        '"unexpectedIconicArtifactDetected": None',
+        '"unexpectedIconicArtifactObservationComplete": False',
+        '"close-in-progress-reopen-deferred"',
+        '"deferred-doorway-after-destruction"',
         '"gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE"',
         'self.setProperty("ndaiNativeChrome", True)',
         'self.setProperty("genericOsChromeRejected", True)',
@@ -9570,7 +9579,10 @@ def validate() -> list[str]:
         "_lifecycle_supporting_contract_probe",
         "_evaluate_lifecycle_contract_record",
         "--supporting-lifecycle-contract-only",
-        "fam007-option-a-supporting-contract-probe-v1",
+        "fam007-option-a-supporting-contract-probe-v2",
+        "duplicate-count-not-derived-from-live-inventory",
+        "component-evidence-claimed-visual-pass",
+        "fixture-runtime-evidence-bypass",
         "stale-instrumentation-root",
     ):
         _require(
@@ -9582,7 +9594,6 @@ def validate() -> list[str]:
     for needle in (
         "missing-native-show-state",
         "taskbar-restore-changed-hwnd",
-        "dashboard-restore-created-duplicate",
         "missing-prior-normal-geometry",
         "wrong-restored-geometry",
         "restore-has-no-focus-result",
@@ -9592,8 +9603,24 @@ def validate() -> list[str]:
         "ordinary-grouping-treated-as-failure",
         "ungrouped-icon-requirement-introduced",
         "appusermodelid-requirement-introduced",
-        "iconic-artifact-observation-missing",
-        "iconic-artifact-detected-but-accepted",
+        "dictionary-only-duplicate-detection",
+        "live-object-hwnd-outside-registry",
+        "pending-close-omission",
+        "doorway-replacement-during-closing",
+        "stale-registry-entry",
+        "surviving-native-window-after-registry-removal",
+        "structurally-zero-duplicate-count",
+        "taskbar-eligibility-suppresses-artifact",
+        "showcmd-two-claimed-as-visual-pass",
+        "icon-geometry-claimed-safe-without-proof",
+        "artifact-absent-without-visible-proof",
+        "fixture-bypass-claims-runtime-evidence",
+        "missing-component-harness-command",
+        "stale-component-harness-head",
+        "closure-overclaim",
+        "issue-307-closed",
+        "issue-300-pulled-into-direct-implementation",
+        "issue-304-reopened",
         "stale-instrumentation-root",
         "mismatched-head",
         "supporting-diagnostic-misclassified-as-lv",
@@ -9603,6 +9630,29 @@ def validate() -> list[str]:
         _require(
             needle in lifecycle_contract_fixture,
             f"AI Dashboard lifecycle fixture is missing required false-green case {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "fam007-production-lifecycle-component-harness-v1",
+        "SUPPORTING_DIRECT_COMPONENT_EVIDENCE_ONLY",
+        "--output-root",
+        "--expected-head",
+        "runtime_lifecycle_inventory",
+        "production-inventory-detects-outside-registry-duplicate",
+        "production-close-doorway-deferred-one-shot-reopen",
+        "production-parent-close-class-lifetimes",
+        "current-head-json-and-markdown-v1",
+        '"exactLauncherOperated": False',
+        '"taskbarClicked": False',
+        '"generatedUserInputUsed": False',
+        '"computerUseUsed": False',
+        '"focusedClosurePerformed": False',
+        '"h1OrLiveValidationPerformed": False',
+    ):
+        _require(
+            needle in lifecycle_component_harness,
+            f"AI Dashboard lifecycle component harness is missing required reproducibility marker {needle!r}",
             failures,
         )
 

@@ -197,6 +197,9 @@ WindowFromPoint.restype = ctypes.wintypes.HWND
 EnumChildWindows = user32.EnumChildWindows
 EnumChildWindows.argtypes = [ctypes.wintypes.HWND, WNDENUMPROC, ctypes.wintypes.LPARAM]
 EnumChildWindows.restype = ctypes.wintypes.BOOL
+EnumWindows = user32.EnumWindows
+EnumWindows.argtypes = [WNDENUMPROC, ctypes.wintypes.LPARAM]
+EnumWindows.restype = ctypes.wintypes.BOOL
 mouse_event = user32.mouse_event
 mouse_event.argtypes = [
     ctypes.wintypes.DWORD,
@@ -343,6 +346,22 @@ VK_MENU = 0x12
 VK_A = 0x41
 WHEEL_DELTA = 120
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def classify_ai_dashboard_iconic_artifact(
+    native_facts: dict[str, object],
+    *,
+    visible_proof: str | None = None,
+) -> str:
+    """Keep native window facts separate from visual artifact adjudication."""
+    proof = str(visible_proof or "").strip().upper()
+    if proof == "DETECTED":
+        return "DETECTED"
+    if proof == "NOT_DETECTED":
+        return "NOT_DETECTED_WITH_VISIBLE_PROOF"
+    if proof == "NOT_APPLICABLE":
+        return "N/A"
+    return "VISUAL_ADJUDICATION_REQUIRED"
 
 
 class MOUSEINPUT(ctypes.Structure):
@@ -3892,6 +3911,7 @@ class AIDashboardDomainWindow(QDialog):
         "unavailable-capability",
         "degraded-no-provider",
     )
+    _instance_refs_by_domain: dict[str, dict[int, weakref.ReferenceType]] = {}
 
     DOMAIN_DEFINITIONS = {
         "readiness-diagnostics": {
@@ -3938,6 +3958,8 @@ class AIDashboardDomainWindow(QDialog):
         self._last_minimized_normal_geometry = QRect()
         self._lifecycle_generation = 1
         self._ever_shown = False
+        self._close_state = "open"
+        self._last_known_native_hwnd = 0
         definition = self.DOMAIN_DEFINITIONS.get(self.domain_id, self.DOMAIN_DEFINITIONS["control-center"])
         self.definition = definition
         self.setObjectName(f"fam007AiDashboardDomainWindow_{self.domain_id.replace('-', '_')}")
@@ -4029,6 +4051,187 @@ class AIDashboardDomainWindow(QDialog):
         self.webview.setHtml(self._domain_html(), QUrl.fromLocalFile(str(self._asset_base_dir()) + os.sep))
         _apply_windows_dark_title_bar(self)
         self._apply_shell_mask()
+        self._register_runtime_instance()
+
+    def _register_runtime_instance(self) -> None:
+        domain_refs = self._instance_refs_by_domain.setdefault(self.domain_id, {})
+        identity = id(self)
+
+        def forget(_ref, *, domain=self.domain_id, object_identity=identity) -> None:
+            refs = self._instance_refs_by_domain.get(domain)
+            if refs is None:
+                return
+            refs.pop(object_identity, None)
+            if not refs:
+                self._instance_refs_by_domain.pop(domain, None)
+
+        domain_refs[identity] = weakref.ref(self, forget)
+
+    @staticmethod
+    def _qt_object_is_live(window) -> bool:
+        try:
+            window.objectName()
+            return True
+        except RuntimeError:
+            return False
+
+    @classmethod
+    def _live_domain_objects(cls, domain_id: str) -> list["AIDashboardDomainWindow"]:
+        objects: dict[int, AIDashboardDomainWindow] = {}
+        for reference in cls._instance_refs_by_domain.get(domain_id, {}).values():
+            window = reference()
+            if window is not None and cls._qt_object_is_live(window):
+                objects[id(window)] = window
+        app = QApplication.instance()
+        if app is not None:
+            for window in QApplication.topLevelWidgets():
+                if (
+                    isinstance(window, cls)
+                    and getattr(window, "domain_id", None) == domain_id
+                    and cls._qt_object_is_live(window)
+                ):
+                    objects[id(window)] = window
+        return list(objects.values())
+
+    @classmethod
+    def _process_domain_hwnds(cls, domain_id: str) -> list[int]:
+        definition = cls.DOMAIN_DEFINITIONS.get(domain_id, {})
+        expected_title = str(definition.get("title") or "")
+        if not expected_title:
+            return []
+        current_pid = os.getpid()
+        matches: list[int] = []
+
+        @WNDENUMPROC
+        def collect(hwnd, _lparam):
+            pid = ctypes.wintypes.DWORD()
+            GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+            if int(pid.value) != current_pid:
+                return True
+            length = int(GetWindowTextLengthW(hwnd) or 0)
+            if length <= 0:
+                return True
+            buffer = ctypes.create_unicode_buffer(length + 1)
+            GetWindowTextW(hwnd, buffer, length + 1)
+            if buffer.value == expected_title and IsWindow(hwnd):
+                matches.append(int(hwnd))
+            return True
+
+        EnumWindows(collect, 0)
+        return sorted(set(matches))
+
+    @classmethod
+    def runtime_lifecycle_inventory(cls, domain_id: str, dashboard=None) -> dict[str, object]:
+        registry = getattr(dashboard, "_domain_windows", {}) if dashboard is not None else {}
+        registered_objects: list[object] = []
+        if isinstance(registry, dict):
+            for key, window in registry.items():
+                if key == domain_id or getattr(window, "domain_id", None) == domain_id:
+                    registered_objects.append(window)
+
+        live_by_identity: dict[int, AIDashboardDomainWindow] = {}
+        object_sources: dict[int, set[str]] = {}
+        for reference in cls._instance_refs_by_domain.get(domain_id, {}).values():
+            window = reference()
+            if window is not None and cls._qt_object_is_live(window):
+                identity = id(window)
+                live_by_identity[identity] = window
+                object_sources.setdefault(identity, set()).add("class-weak-instance-registry")
+        app = QApplication.instance()
+        if app is not None:
+            for window in QApplication.topLevelWidgets():
+                if (
+                    isinstance(window, cls)
+                    and getattr(window, "domain_id", None) == domain_id
+                    and cls._qt_object_is_live(window)
+                ):
+                    identity = id(window)
+                    live_by_identity[identity] = window
+                    object_sources.setdefault(identity, set()).add("qt-top-level-widget-enumeration")
+        for window in registered_objects:
+            if window is not None and cls._qt_object_is_live(window):
+                identity = id(window)
+                live_by_identity[identity] = window
+                object_sources.setdefault(identity, set()).add("dashboard-domain-registry")
+        identities: list[dict[str, object]] = []
+        object_hwnds: set[int] = set()
+        pending_object_ids: set[int] = set()
+        for identity, window in sorted(live_by_identity.items()):
+            hwnd = 0
+            try:
+                hwnd = int(window._native_domain_hwnd())
+            except RuntimeError:
+                hwnd = 0
+            if hwnd and IsWindow(ctypes.wintypes.HWND(hwnd)):
+                object_hwnds.add(hwnd)
+            close_state = str(getattr(window, "_close_state", "unknown"))
+            if close_state == "close-requested":
+                pending_object_ids.add(identity)
+            sources = sorted(object_sources.get(identity, set()))
+            identities.append(
+                {
+                    "objectIdentity": identity,
+                    "hwnd": hwnd,
+                    "qtObjectAlive": True,
+                    "nativeHwndAlive": bool(hwnd and IsWindow(ctypes.wintypes.HWND(hwnd))),
+                    "registered": "dashboard-domain-registry" in sources,
+                    "closeState": close_state,
+                    "sources": sources,
+                }
+            )
+
+        process_hwnds = set(cls._process_domain_hwnds(domain_id))
+        live_hwnds = sorted(process_hwnds | object_hwnds)
+        closing_hwnds = getattr(dashboard, "_domain_closing_hwnds", {}) if dashboard is not None else {}
+        closing_identities = getattr(dashboard, "_domain_closing_identities", {}) if dashboard is not None else {}
+        pending_hwnd = int(closing_hwnds.get(domain_id, 0) or 0) if isinstance(closing_hwnds, dict) else 0
+        pending_identity = int(closing_identities.get(domain_id, 0) or 0) if isinstance(closing_identities, dict) else 0
+        if pending_identity:
+            pending_object_ids.add(pending_identity)
+
+        stale_registry_identities: list[int] = []
+        for window in registered_objects:
+            if window is None or not cls._qt_object_is_live(window):
+                stale_registry_identities.append(id(window))
+                continue
+            known_hwnd = int(getattr(window, "_last_known_native_hwnd", 0) or 0)
+            if known_hwnd and known_hwnd not in process_hwnds and getattr(window, "_close_state", "") != "open":
+                stale_registry_identities.append(id(window))
+
+        registered_count = len(registered_objects)
+        live_object_count = len(live_by_identity)
+        live_hwnd_count = len(live_hwnds)
+        duplicate_object_count = max(0, live_object_count - 1)
+        duplicate_hwnd_count = max(0, live_hwnd_count - 1)
+        return {
+            "inventoryContract": "fam007-production-live-object-hwnd-inventory-v2",
+            "inventorySource": "production-live-runtime-inventory",
+            "inventorySources": [
+                "dashboard-domain-registry",
+                "class-weak-instance-registry",
+                "qt-top-level-widget-enumeration",
+                "win32-current-process-top-level-hwnd-enumeration-by-domain-title",
+            ],
+            "inventoryCompleteness": {
+                "registeredObjects": "complete-for-dashboard-domain-registry",
+                "liveQtObjects": "complete-for-current-process-qt-top-level-widgets-plus-class-weak-registry",
+                "liveNativeHwnds": "complete-for-current-process-top-level-windows-with-exact-domain-title",
+            },
+            "inventoryInjectedFieldsUsed": False,
+            "registeredObjectCount": registered_count,
+            "liveObjectCount": live_object_count,
+            "liveSameDomainHwndCount": live_hwnd_count,
+            "pendingClosingCount": len(pending_object_ids) if pending_object_ids else int(bool(pending_hwnd)),
+            "staleRegistryCount": len(set(stale_registry_identities)),
+            "duplicateObjectCount": duplicate_object_count,
+            "duplicateHwndCount": duplicate_hwnd_count,
+            "duplicateCount": max(duplicate_object_count, duplicate_hwnd_count),
+            "objectIdentities": identities,
+            "hwndIdentities": live_hwnds,
+            "pendingClosingObjectIdentities": sorted(pending_object_ids),
+            "pendingClosingHwnd": pending_hwnd,
+            "staleRegistryObjectIdentities": sorted(set(stale_registry_identities)),
+        }
 
     def eventFilter(self, obj, event):
         if obj is self.webview:
@@ -4099,18 +4302,18 @@ class AIDashboardDomainWindow(QDialog):
             )
         dashboard = self._dashboard()
         if dashboard is not None:
-            closing_hwnds = getattr(dashboard, "_domain_closing_hwnds", None)
-            if isinstance(closing_hwnds, dict):
-                closing_hwnds[self.domain_id] = self._native_domain_hwnd()
-            closing_contexts = getattr(dashboard, "_domain_closing_contexts", None)
-            if isinstance(closing_contexts, dict):
-                closing_contexts[self.domain_id] = dict(context)
+            mark_closing = getattr(dashboard, "_mark_ai_dashboard_domain_window_closing", None)
+            if callable(mark_closing):
+                mark_closing(self, context)
+        self._close_state = "close-requested"
         super().closeEvent(event)
         accepted = bool(event.isAccepted())
-        if accepted and dashboard is not None:
-            registry = getattr(dashboard, "_domain_windows", None)
-            if isinstance(registry, dict) and registry.get(self.domain_id) is self:
-                registry.pop(self.domain_id, None)
+        if not accepted:
+            self._close_state = "open"
+            if dashboard is not None:
+                cancel_closing = getattr(dashboard, "_cancel_ai_dashboard_domain_window_closing", None)
+                if callable(cancel_closing):
+                    cancel_closing(self.domain_id, id(self))
         self._record_lifecycle_transition(
             context,
             method_result=accepted,
@@ -4175,28 +4378,28 @@ class AIDashboardDomainWindow(QDialog):
 
     def _native_domain_hwnd(self) -> int:
         try:
-            return int(self.winId())
+            hwnd = int(self.winId())
+            if hwnd:
+                self._last_known_native_hwnd = hwnd
+            return hwnd
         except (RuntimeError, TypeError, ValueError):
-            return 0
+            return int(getattr(self, "_last_known_native_hwnd", 0) or 0)
 
     def _registry_lifecycle_snapshot(self) -> dict[str, object]:
         dashboard = self._dashboard()
-        registry = getattr(dashboard, "_domain_windows", {}) if dashboard is not None else {}
-        registered = registry.get(self.domain_id) is self if isinstance(registry, dict) else False
-        matching = [
-            window
-            for key, window in registry.items()
-            if key == self.domain_id and window is not None
-        ] if isinstance(registry, dict) else []
-        hwnd = self._native_domain_hwnd()
-        native_alive = bool(hwnd and IsWindow(ctypes.wintypes.HWND(hwnd)))
+        inventory = self.runtime_lifecycle_inventory(self.domain_id, dashboard)
+        registered = any(
+            item.get("objectIdentity") == id(self) and item.get("registered") is True
+            for item in inventory["objectIdentities"]
+        )
         return {
             "identity": id(self),
             "registered": registered,
-            "registryCount": len(registry) if isinstance(registry, dict) else 0,
-            "domainEntryCount": len(matching),
-            "duplicateCount": max(0, len(matching) - 1),
-            "staleEntryDetected": bool(registered and hwnd and not native_alive),
+            "registryCount": inventory["registeredObjectCount"],
+            "domainEntryCount": inventory["registeredObjectCount"],
+            "duplicateCount": inventory["duplicateCount"],
+            "staleEntryDetected": bool(inventory["staleRegistryCount"]),
+            **inventory,
         }
 
     def _parent_lifecycle_snapshot(self) -> dict[str, object]:
@@ -4259,6 +4462,17 @@ class AIDashboardDomainWindow(QDialog):
         minimized = bool(hwnd and IsIconic(native_hwnd)) or bool(self.isMinimized())
         icon_sized_rect = bool(current.isValid() and current.width() <= 200 and current.height() <= 60)
         foreground_hwnd = int(GetForegroundWindow() or 0)
+        iconic_artifact_native_facts = {
+            "nativeMinimized": minimized,
+            "iconSizedRectangle": icon_sized_rect,
+            "showCmd": show_cmd,
+            "currentRectangle": self._qrect_lifecycle_snapshot(current),
+            "taskbarEligible": taskbar_eligible,
+        }
+        iconic_artifact_status = classify_ai_dashboard_iconic_artifact(
+            iconic_artifact_native_facts,
+            visible_proof=None,
+        )
         return {
             "hwnd": hwnd,
             "pid": int(pid.value) if hwnd else os.getpid(),
@@ -4288,9 +4502,11 @@ class AIDashboardDomainWindow(QDialog):
             "foregroundHwnd": foreground_hwnd,
             "foregroundResult": bool(hwnd and foreground_hwnd == hwnd),
             "focusResult": bool(self.isActiveWindow() or (hwnd and foreground_hwnd == hwnd)),
-            "unexpectedIconicArtifactDetected": bool(
-                minimized and icon_sized_rect and not taskbar_eligible
-            ),
+            "iconicArtifactNativeFacts": iconic_artifact_native_facts,
+            "iconicArtifactStatus": iconic_artifact_status,
+            "iconicArtifactVisualEvidenceScope": "none-component-or-runtime-state-only",
+            "unexpectedIconicArtifactDetected": None,
+            "unexpectedIconicArtifactObservationComplete": False,
             "unexpectedIconicArtifactVisualProofRequired": True,
         }
 
@@ -4395,6 +4611,11 @@ class AIDashboardDomainWindow(QDialog):
             "registryDomainEntryCount": registry["domainEntryCount"],
             "duplicateCount": registry["duplicateCount"],
             "staleRegistryEntryDetected": registry["staleEntryDetected"],
+            "lifecycleInventory": {
+                key: value
+                for key, value in registry.items()
+                if key not in {"identity", "registered", "registryCount", "domainEntryCount", "staleEntryDetected"}
+            },
             "parentState": self._parent_lifecycle_snapshot(),
             "childState": (
                 "minimized"
@@ -4491,6 +4712,8 @@ class AIDashboardDomainWindow(QDialog):
         return {"sequenceId": context["sequenceId"], "hwnd": self._native_domain_hwnd()}
 
     def close_domain_window(self, requested_route: str) -> bool:
+        if self._close_state == "close-requested":
+            return False
         requested_action = "parent-close" if requested_route == "dashboard-parent-close" else "close"
         context = self._begin_lifecycle_action(
             requested_route=requested_route,
@@ -12699,7 +12922,10 @@ class AIControlCenterDialog(QDialog):
         self._domain_windows: dict[str, AIDashboardDomainWindow] = {}
         self._domain_generation_counts: dict[str, int] = {}
         self._domain_closing_hwnds: dict[str, int] = {}
+        self._domain_closing_identities: dict[str, int] = {}
         self._domain_closing_contexts: dict[str, dict[str, object]] = {}
+        self._domain_pending_reopen: dict[str, bool] = {}
+        self._domain_close_completion_timers: dict[str, QTimer] = {}
         self._closing_domain_children = False
         self._drag_offset = None
         self._resize_active = False
@@ -12850,40 +13076,111 @@ class AIControlCenterDialog(QDialog):
     def _ai_dashboard_domain_parent_for(self, domain_id: str):
         return self
 
-    def _on_ai_dashboard_domain_window_destroyed(self, domain_id: str, object_identity: int) -> None:
+    def _mark_ai_dashboard_domain_window_closing(
+        self,
+        window: AIDashboardDomainWindow,
+        context: dict[str, object],
+    ) -> None:
+        domain_id = window.domain_id
+        self._domain_closing_hwnds[domain_id] = window._native_domain_hwnd()
+        self._domain_closing_identities[domain_id] = id(window)
+        self._domain_closing_contexts[domain_id] = dict(context)
+
+    def _cancel_ai_dashboard_domain_window_closing(self, domain_id: str, object_identity: int) -> None:
+        if self._domain_closing_identities.get(domain_id) != object_identity:
+            return
+        self._domain_closing_hwnds.pop(domain_id, None)
+        self._domain_closing_identities.pop(domain_id, None)
+        self._domain_closing_contexts.pop(domain_id, None)
+        self._domain_pending_reopen.pop(domain_id, None)
+
+    def _schedule_ai_dashboard_domain_close_completion(
+        self,
+        domain_id: str,
+        object_identity: int,
+    ) -> None:
+        timer = self._domain_close_completion_timers.get(domain_id)
+        if timer is None:
+            timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.setInterval(12)
+            timer.timeout.connect(
+                lambda key=domain_id, identity=object_identity: (
+                    self._complete_ai_dashboard_domain_window_destruction(key, identity)
+                )
+            )
+            self._domain_close_completion_timers[domain_id] = timer
+        if not timer.isActive():
+            timer.start()
+
+    def _complete_ai_dashboard_domain_window_destruction(
+        self,
+        domain_id: str,
+        object_identity: int,
+    ) -> None:
+        if self._domain_closing_identities.get(domain_id) not in {None, object_identity}:
+            return
+        hwnd = int(self._domain_closing_hwnds.get(domain_id, 0) or 0)
+        if hwnd and hwnd in AIDashboardDomainWindow._process_domain_hwnds(domain_id):
+            self._schedule_ai_dashboard_domain_close_completion(domain_id, object_identity)
+            return
+
         current = self._domain_windows.get(domain_id)
         if current is None or id(current) == object_identity:
             self._domain_windows.pop(domain_id, None)
-        hwnd = int(self._domain_closing_hwnds.pop(domain_id, 0) or 0)
         context = self._domain_closing_contexts.pop(domain_id, {})
+        self._domain_closing_hwnds.pop(domain_id, None)
+        self._domain_closing_identities.pop(domain_id, None)
+        timer = self._domain_close_completion_timers.pop(domain_id, None)
+        if timer is not None:
+            timer.stop()
+            timer.deleteLater()
 
-        def record_cleanup() -> None:
-            hwnd_alive = bool(hwnd and IsWindow(ctypes.wintypes.HWND(hwnd)))
-            record = {
-                **context,
-                "resultTimestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                "hwnd": hwnd,
-                "registryIdentity": object_identity,
-                "registryCount": len(self._domain_windows),
-                "registryRegistered": domain_id in self._domain_windows,
-                "childDestroyed": not hwnd_alive,
-                "closeResult": "destroyed" if not hwnd_alive else "native-hwnd-still-alive",
-                "orphanTaskbarVisibleHwndDetected": hwnd_alive,
-                "supportingDiagnosticOnly": True,
-                "gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
-            }
-            if callable(self.event_logger):
-                encoded = urllib.parse.quote(json.dumps(record, sort_keys=True, separators=(",", ":")))
-                self.event_logger(
-                    "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_DESTROYED"
-                    f"|domain={domain_id}|object_identity={object_identity}|hwnd={hwnd}"
-                    f"|hwnd_alive={str(hwnd_alive).lower()}|orphan_taskbar_visible_hwnd={str(hwnd_alive).lower()}"
-                    f"|registry_count={len(self._domain_windows)}|record={encoded}"
-                )
+        inventory = AIDashboardDomainWindow.runtime_lifecycle_inventory(domain_id, self)
+        parent_close = context.get("requestedAction") == "parent-close"
+        reopen_requested = bool(self._domain_pending_reopen.pop(domain_id, False))
+        record = {
+            **context,
+            "resultTimestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "hwnd": hwnd,
+            "registryIdentity": object_identity,
+            "registryCount": inventory["registeredObjectCount"],
+            "registryRegistered": bool(inventory["registeredObjectCount"]),
+            "childDestroyed": True,
+            "closeResult": "destroyed",
+            "orphanTaskbarVisibleHwndDetected": False,
+            "deferredReopenRequested": reopen_requested,
+            "deferredReopenSuppressedByParentClose": bool(parent_close and reopen_requested),
+            "lifecycleInventory": inventory,
+            "supportingDiagnosticOnly": True,
+            "gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
+        }
+        if callable(self.event_logger):
+            encoded = urllib.parse.quote(json.dumps(record, sort_keys=True, separators=(",", ":")))
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_DESTROYED"
+                f"|domain={domain_id}|object_identity={object_identity}|hwnd={hwnd}"
+                "|hwnd_alive=false|orphan_taskbar_visible_hwnd=false"
+                f"|registry_count={inventory['registeredObjectCount']}|record={encoded}"
+            )
+        if reopen_requested and not parent_close and not self._closing_domain_children:
+            QTimer.singleShot(
+                0,
+                lambda key=domain_id: self._show_ai_dashboard_domain_window(
+                    key,
+                    requested_route="deferred-doorway-after-destruction",
+                ),
+            )
 
-        QTimer.singleShot(0, record_cleanup)
+    def _on_ai_dashboard_domain_window_destroyed(self, domain_id: str, object_identity: int) -> None:
+        self._schedule_ai_dashboard_domain_close_completion(domain_id, object_identity)
 
-    def _show_ai_dashboard_domain_window(self, domain_id: str) -> dict[str, object]:
+    def _show_ai_dashboard_domain_window(
+        self,
+        domain_id: str,
+        *,
+        requested_route: str = "ai-dashboard-doorway",
+    ) -> dict[str, object]:
         if domain_id not in AIDashboardDomainWindow.DOMAIN_DEFINITIONS:
             if callable(self.event_logger):
                 self.event_logger(
@@ -12891,13 +13188,69 @@ class AIControlCenterDialog(QDialog):
                     f"|domain={domain_id}|reason=unknown_domain"
                 )
             return {"visible": False, "reason": "unknown_domain"}
+        closing_identity = int(self._domain_closing_identities.get(domain_id, 0) or 0)
+        if closing_identity:
+            context = self._domain_closing_contexts.get(domain_id, {})
+            parent_close = context.get("requestedAction") == "parent-close"
+            if not parent_close and not self._closing_domain_children:
+                self._domain_pending_reopen[domain_id] = True
+            return {
+                "visible": False,
+                "reason": "parent-close-in-progress" if parent_close else "close-in-progress-reopen-deferred",
+                "domain": domain_id,
+                "hwnd": int(self._domain_closing_hwnds.get(domain_id, 0) or 0),
+                "closingObjectIdentity": closing_identity,
+                "deferredReopenRequested": bool(self._domain_pending_reopen.get(domain_id, False)),
+            }
         window = self._domain_windows.get(domain_id)
         if window is not None:
+            if getattr(window, "_close_state", "open") == "close-requested":
+                self._domain_pending_reopen[domain_id] = True
+                return {
+                    "visible": False,
+                    "reason": "close-in-progress-reopen-deferred",
+                    "domain": domain_id,
+                    "hwnd": int(getattr(window, "_last_known_native_hwnd", 0) or 0),
+                    "closingObjectIdentity": id(window),
+                    "deferredReopenRequested": True,
+                }
             try:
                 window.lifecycle_debug_state()
             except RuntimeError:
-                self._domain_windows.pop(domain_id, None)
+                inventory = AIDashboardDomainWindow.runtime_lifecycle_inventory(domain_id, self)
+                if inventory["liveSameDomainHwndCount"]:
+                    return {
+                        "visible": False,
+                        "reason": "stale-registry-live-hwnd-stop",
+                        "domain": domain_id,
+                        "lifecycleInventory": inventory,
+                    }
+                if self._domain_windows.get(domain_id) is window:
+                    self._domain_windows.pop(domain_id, None)
                 window = None
+        if window is None:
+            inventory = AIDashboardDomainWindow.runtime_lifecycle_inventory(domain_id, self)
+            live_objects = AIDashboardDomainWindow._live_domain_objects(domain_id)
+            owned_live_objects = [
+                candidate for candidate in live_objects if candidate._dashboard() is self
+            ]
+            if inventory["duplicateCount"]:
+                return {
+                    "visible": False,
+                    "reason": "duplicate-live-domain-window-stop",
+                    "domain": domain_id,
+                    "lifecycleInventory": inventory,
+                }
+            if len(owned_live_objects) == 1:
+                window = owned_live_objects[0]
+                self._domain_windows[domain_id] = window
+            elif inventory["liveSameDomainHwndCount"]:
+                return {
+                    "visible": False,
+                    "reason": "unowned-live-domain-hwnd-stop",
+                    "domain": domain_id,
+                    "lifecycleInventory": inventory,
+                }
         if window is None:
             generation = self._domain_generation_counts.get(domain_id, 0) + 1
             self._domain_generation_counts[domain_id] = generation
@@ -12916,7 +13269,7 @@ class AIControlCenterDialog(QDialog):
             )
             self._domain_windows[domain_id] = window
         window.update_provider_state(self._provider_payload)
-        result = window.show_domain_window(self.geometry())
+        result = window.show_domain_window(self.geometry(), requested_route=requested_route)
         if callable(self.event_logger):
             self.event_logger(
                 "RENDERER_MAIN|AI_DASHBOARD_CATEGORY_LAUNCHER_OPENED_WINDOW"
@@ -13685,7 +14038,18 @@ class AIControlCenterDialog(QDialog):
             for domain_id, window in list(self._domain_windows.items()):
                 definition = AIDashboardDomainWindow.DOMAIN_DEFINITIONS.get(domain_id, {})
                 if definition.get("classification") == "exclusive-child":
-                    window.close_domain_window("dashboard-parent-close")
+                    self._domain_pending_reopen.pop(domain_id, None)
+                    if self._domain_closing_identities.get(domain_id) == id(window):
+                        context = self._domain_closing_contexts.setdefault(domain_id, {})
+                        context.update(
+                            {
+                                "requestedRoute": "dashboard-parent-close",
+                                "requestedAction": "parent-close",
+                                "qtMethodInvoked": "close-already-pending-parent-suppressed",
+                            }
+                        )
+                    else:
+                        window.close_domain_window("dashboard-parent-close")
                 elif definition.get("classification") == "external-unique":
                     window.record_dashboard_parent_close_survival()
         finally:
