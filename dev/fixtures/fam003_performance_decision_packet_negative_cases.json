@@ -1,0 +1,55 @@
+{
+  "schema": "fam003-performance-decision-packet-negative-fixtures-v1",
+  "cases": [
+    {
+      "id": "F3-PERF-PACKET-NEG-001",
+      "mutation": "root_pass_final",
+      "expectedFailure": "root-current-result-misreported"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-002",
+      "mutation": "historical_pass_as_final",
+      "expectedFailure": "historical-pass-currentness-missing"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-003",
+      "mutation": "direct_planning_from_blocked_target",
+      "expectedFailure": "blocked-target-routes-directly-to-planning"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-004",
+      "mutation": "planning_before_migration_green",
+      "expectedFailure": "migration-planning-order-invalid"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-005",
+      "mutation": "ambiguous_studio_scope",
+      "expectedFailure": "ambiguous-studio-scope"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-006",
+      "mutation": "open_ended_hud_authority",
+      "expectedFailure": "hud-authority-open-ended"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-007",
+      "mutation": "carrier_access_claims_ownership",
+      "expectedFailure": "carrier-access-treated-as-ownership"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-008",
+      "mutation": "orin_core_routing_omitted",
+      "expectedFailure": "orin-core-routing-missing"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-009",
+      "mutation": "foreign_lock_omitted",
+      "expectedFailure": "foreign-lock-identity-missing"
+    },
+    {
+      "id": "F3-PERF-PACKET-NEG-010",
+      "mutation": "raw_count_573",
+      "expectedFailure": "raw-evidence-count-mismatch"
+    }
+  ]
+}
