@@ -739,6 +739,14 @@ WORKSTREAM_COMMIT_AUDIT_BY_SUBJECT = {
         "validation": "59 negative fixtures, Python compile, three exact Desktop-launcher sessions, Option C aggregate, scope audit, governance, external-state validation, release-health supporting gate, and packet parity.",
         "supersession": "Supersedes contaminated v2 CPU, memory, and timing conclusions; preserved non-performance evidence remains current only through exact Git-diff proof. Option D remains temporary and performance disposition remains USER_DECISION_REQUIRED unless source truth supports another result.",
     },
+    "Repair FAM-003 Option D shortcut resolution": {
+        "reason": "Aligned the nonintrusive adjudicator with the current exact-Desktop-shortcut resolver schema after the first proof attempt stopped before product launch on a stale dictionary key.",
+        "traceability": "R2-WS10 / SLC-R2-010 Option D nonintrusive normal-launcher proof repair.",
+        "coherent": "YES - one resolver-consumption fix plus exact commit-audit metadata.",
+        "unrelatedChanges": "NO.",
+        "validation": "Python compile, 59 negative fixtures, exact Desktop-shortcut resolution, three normal-launcher sessions, Option C aggregate, and scope audit.",
+        "supersession": "Supersedes the failed-before-launch attempt; no runtime measurement was emitted by that attempt.",
+    },
     "Preserve FAM-003 proof currentness after performance repair": {
         "reason": "Prevented a performance-helper-only HEAD change from forcing unrelated Settings/cursor recapture while retaining a fail-closed exact Git-diff currentness receipt and the failed-before-final-pass report.",
         "traceability": "R2-WS10 / SLC-R2-010 aggregate currentness and exact-scope repair.",

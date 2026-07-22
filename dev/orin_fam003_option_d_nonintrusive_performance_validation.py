@@ -660,7 +660,7 @@ def main() -> int:
 
     shortcut_resolution = resolve_desktop_shortcut_for_current_root(ROOT)
     _assert(shortcut_resolution.get("mode") == "actual-desktop-shortcut-current-root", f"exact current-root Desktop shortcut unavailable: {shortcut_resolution}")
-    shortcut = str(shortcut_resolution["shortcut"])
+    shortcut = str(shortcut_resolution["path"])
     output_root = LOG_ROOT / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     output_root.mkdir(parents=True, exist_ok=False)
     if args.reuse_session_root is not None:
