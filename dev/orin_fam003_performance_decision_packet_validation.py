@@ -809,7 +809,7 @@ def _semantic_document() -> str:
         (
             f"Final Root-Wide Result: `{ROOT_RESULT}`",
             f"Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`",
-            "Prior packet final root result: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.",
+            "Prior packet final root/Stage 4 validation: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.",
             "A foreign lock is never cleared, recovered, adopted, bypassed, or mutated by this execution.",
             f"Target Currentness Result: `{TARGET_RESULT}`",
             "Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`",
@@ -851,10 +851,11 @@ def _semantic_document() -> str:
 
 def _semantic_failures(text: str) -> list[str]:
     failures: list[str] = []
+    normalized_text = re.sub(r"\s+", " ", text)
     required = {
         "root-current-result-misreported": f"Final Root-Wide Result: `{ROOT_RESULT}`",
         "foreign-lock-result-missing": f"Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`",
-        "historical-foreign-lock-currentness-missing": "Prior packet final root result: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.",
+        "historical-foreign-lock-currentness-missing": "Prior packet final root/Stage 4 validation",
         "foreign-lock-write-precondition-missing": "foreign lock is never cleared, recovered, adopted, bypassed, or mutated",
         "target-currentness-blocker-missing": f"Target Currentness Result: `{TARGET_RESULT}`",
         "blocked-target-routes-directly-to-planning": "Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`",
@@ -887,7 +888,7 @@ def _semantic_failures(text: str) -> list[str]:
         "stage-state-drift": f"H1 / LV / UTS: `{STAGE_STATES}`",
     }
     for code, marker in required.items():
-        if marker.casefold() not in text.casefold():
+        if re.sub(r"\s+", " ", marker).casefold() not in normalized_text.casefold():
             failures.append(code)
     union_fields = (
         "External State Schema", "State Version", "Record Class", "Record Role",
@@ -1113,7 +1114,7 @@ def self_test() -> dict[str, Any]:
     details: list[dict[str, str]] = []
     replacements = {
         "root_not_pass": ("Final Root-Wide Result: `PASS`", "Final Root-Wide Result: `BLOCKED`"),
-        "historical_foreign_blocker_omitted": ("Prior packet final root result: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.", ""),
+        "historical_foreign_blocker_omitted": ("Prior packet final root/Stage 4 validation: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.", ""),
         "direct_planning_from_blocked_target": ("Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`", "Planning Route While Blocked: `BP2 REVISION`"),
         "planning_before_migration_green": ("Decision 1 migration approval -> FAM-003-local migration -> target-currentness green -> root-wide validation green -> Decision 2 planning-revision preparation", "Decision 2 planning-revision preparation -> Decision 1 migration approval"),
         "ambiguous_studio_scope": ("Log Viewer Studio resize-hover polling", "resizable Studio native polling"),
