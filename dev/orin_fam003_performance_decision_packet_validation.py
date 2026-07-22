@@ -200,7 +200,9 @@ def _refresh_repo_context(packet_folder: Path) -> dict[str, str]:
                 raise PacketValidationError(
                     f"repo source mapping is ambiguous or missing for {copied_relative}"
                 )
-            shutil.copy2(ROOT / source, copied)
+            copied.write_bytes(
+                subprocess.check_output(["git", "show", f"HEAD:{source}"], cwd=ROOT)
+            )
             mappings[source] = copied_relative
     return mappings
 
