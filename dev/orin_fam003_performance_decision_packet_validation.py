@@ -108,6 +108,24 @@ def _safe_seed_members(seed_zip: Path) -> dict[str, bytes]:
     return retained
 
 
+def _safe_seed_folder(seed_folder: Path) -> dict[str, bytes]:
+    retained: dict[str, bytes] = {}
+    for source in sorted(seed_folder.rglob("*")):
+        if not source.is_file():
+            continue
+        key = source.relative_to(seed_folder).as_posix()
+        if key == "START_HERE.md":
+            continue
+        if key.startswith("USER Review/") or key.startswith("Review Aids/"):
+            continue
+        if key.startswith("Source Truth Context/External State Snapshots/"):
+            continue
+        if key.startswith("Source Truth Context/Validation Outputs/"):
+            continue
+        retained[key] = source.read_bytes()
+    return retained
+
+
 def _extract_seed(seed_members: dict[str, bytes], packet_folder: Path) -> None:
     for relative, payload in seed_members.items():
         destination = packet_folder / Path(*PurePosixPath(relative).parts)
@@ -254,7 +272,7 @@ Recommendation: `OPTION G / MIGRATION FIRST / PLANNING REVISION SECOND`
 * sibling-worktree mutation.
 
 The exact Studio row is limited to `Log Viewer Studio resize-hover polling`.
-The phrase `resizable Studio native polling` is rejected as ambiguous.
+Broader generic Studio polling wording is rejected as ambiguous.
 """
 
 
@@ -699,7 +717,8 @@ outside the ZIP to avoid self-hash contradiction.
 
 
 def generate_packet(
-    seed_zip: Path,
+    seed_zip: Path | None,
+    seed_folder: Path | None,
     packet_folder: Path,
     output_zip: Path,
     head: str,
@@ -708,9 +727,16 @@ def generate_packet(
     lock_owner: str,
     lock_updated: str,
 ) -> dict[str, Any]:
-    if not seed_zip.is_file():
-        raise PacketValidationError(f"seed packet missing: {seed_zip}")
-    seed_members = _safe_seed_members(seed_zip)
+    if seed_zip is not None:
+        if not seed_zip.is_file():
+            raise PacketValidationError(f"seed packet missing: {seed_zip}")
+        seed_members = _safe_seed_members(seed_zip)
+    elif seed_folder is not None:
+        if not seed_folder.is_dir():
+            raise PacketValidationError(f"seed packet folder missing: {seed_folder}")
+        seed_members = _safe_seed_folder(seed_folder)
+    else:
+        raise PacketValidationError("one seed packet source is required")
     if packet_folder.exists():
         shutil.rmtree(packet_folder)
     packet_folder.mkdir(parents=True)
@@ -835,6 +861,7 @@ def main() -> int:
     mode.add_argument("--validate", action="store_true")
     mode.add_argument("--self-test", action="store_true")
     parser.add_argument("--seed-zip", type=Path)
+    parser.add_argument("--seed-folder", type=Path)
     parser.add_argument("--packet-folder", type=Path, default=PACKET_FOLDER)
     parser.add_argument("--packet-zip", type=Path)
     parser.add_argument("--head")
@@ -848,17 +875,19 @@ def main() -> int:
             result = self_test()
         elif args.generate:
             required = {
-                "--seed-zip": args.seed_zip,
                 "--head": args.head,
                 "--origin-main": args.origin_main,
                 "--lock-id": args.lock_id,
             }
             missing = [name for name, value in required.items() if not value]
+            if bool(args.seed_zip) == bool(args.seed_folder):
+                missing.append("exactly one of --seed-zip or --seed-folder")
             if missing:
                 raise PacketValidationError(f"generate arguments missing: {missing}")
             output_zip = args.packet_zip or _default_zip()
             result = generate_packet(
                 args.seed_zip,
+                args.seed_folder,
                 args.packet_folder,
                 output_zip,
                 args.head,
