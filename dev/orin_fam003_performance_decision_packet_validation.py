@@ -61,6 +61,7 @@ CORE_RELATIVES = (
     Path("Review Aids") / "08_DECISION_SEQUENCE_AND_BOUNDARIES.md",
     Path("Review Aids") / "09_VALIDATION_PROOF_ROLLBACK_AND_STALENESS.md",
     Path("Review Aids") / "11_ARTIFACT_MANIFEST.md",
+    Path("Source Truth Context") / "Git Audit" / "TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md",
 )
 
 MIGRATION_TARGETS = (
@@ -287,6 +288,52 @@ def _target_hash_rows(target_hashes: dict[str, str]) -> str:
         f"| `{name}` | `{target_hashes[name]}` | Must match before any lock-backed staging or write. |"
         for name, _path, _record_class, _record_role in MIGRATION_TARGETS
     )
+
+
+def _migration_review_aid() -> str:
+    return f"""# Target Currentness And FAM-003-Local Migration Review Aid
+
+Target Currentness Result: `{TARGET_RESULT}`
+Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`
+
+This review aid summarizes the decision in USER-readable form. The complete
+execution contract, exact source/base identities, and approved three-target byte
+digests are under
+`Source Truth Context/Git Audit/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md`.
+
+## Exact Targets And Roles
+
+| Target | Record Class | Record Role |
+| --- | --- | --- |
+| `branch_plan.md` | `Live Branch Plan` | `Current active branch engineering plan fields` |
+| `branch_state.md` | `Live Branch Projection` | `Current active branch phase, blocker, and next legal phase fields` |
+| `worktree_state.md` | `Live Worktree Projection` | `Current assignment and acknowledgement fields for one worktree` |
+
+The complete live header includes schema/version, class/role, branch and source
+identity, worktree label and canonical path, slot, one transition timestamp and
+updater, current gate/stage posture, transition status, and the historical
+receipt boundary. `Worktree` means label `{WORKTREE_LABEL}`; `Worktree Path`
+means `{WORKTREE_PATH}`. The first migrated version is `1` because the legacy
+targets have no version field.
+
+The historical boundary is the final live-header field before the existing
+first section heading. Every existing byte below it remains historical evidence
+and cannot satisfy current live-header validation.
+
+No write begins unless fresh external-state validation has no foreign or
+conflicting lock, identity and approval remain current, all three target bytes
+match the approved context, all routed locks are available, and a verified
+snapshot plus rollback path exists. Lock order is `state-root -> migration ->
+worktree -> branch`; release is reversed. FAM-003 never clears a foreign lock.
+
+All three candidates are staged and validated first. Each file replacement is
+atomic; completion is logical all-or-none, with one transaction audit and
+restoration of every replaced target on failure. Migration completes only after
+all three target checks, FAM-003-scoped validation, and root validation pass.
+Central, sibling, Governance, selected-next, repo, and other targets are not
+admitted. Decision 2 planning preparation remains separately USER-gated after
+green migration completion; Decision 3 Core routing remains separate.
+"""
 
 
 def _migration_spec(
@@ -1070,9 +1117,7 @@ def generate_packet(
         PRIMARY_RELATIVE: _primary(),
         Path("Review Aids/01_CURRENT_PERFORMANCE_EVIDENCE.md"): _performance_facts(),
         Path("Review Aids/02_FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(),
-        Path("Review Aids/03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_spec(
-            head, origin_main, target_hashes
-        ),
+        Path("Review Aids/03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_review_aid(),
         Path("Review Aids/04_REFINED_OPTION_G_SCOPE.md"): _option_g_scope(),
         Path("Review Aids/05_HUD_FAIL_CLOSED_ENVELOPE.md"): _hud_envelope(),
         Path("Review Aids/06_ORIN_CORE_OWNER_VISION_CARRYFORWARD.md"): _core_carryforward(),
