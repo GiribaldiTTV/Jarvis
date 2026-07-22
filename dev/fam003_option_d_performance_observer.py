@@ -14,8 +14,9 @@ from typing import Any
 import psutil
 
 
-METHODOLOGY_VERSION = "fam003-option-d-nonintrusive-performance-v3"
+METHODOLOGY_VERSION = "fam003-option-d-nonintrusive-performance-v4"
 DEFAULT_TIMEOUT_SECONDS = 420
+USS_SAMPLE_EVERY_N_INTERVALS = 8
 
 
 def _atomic_json(path: Path, payload: dict[str, Any]) -> None:
@@ -30,12 +31,13 @@ def _cpu_seconds(process: psutil.Process) -> float:
     return float(values.user + values.system)
 
 
-def _memory(process: psutil.Process) -> dict[str, int | str | None]:
+def _memory(process: psutil.Process, *, include_uss: bool) -> dict[str, int | str | None]:
     basic = process.memory_info()
-    full = process.memory_full_info()
     rss = int(getattr(basic, "rss", 0))
-    private_commit = int(getattr(full, "private", getattr(basic, "private", 0)) or 0)
-    uss_value = getattr(full, "uss", None)
+    basic_private = getattr(basic, "private", None)
+    full = process.memory_full_info() if include_uss or basic_private is None else None
+    private_commit = int((basic_private if basic_private is not None else getattr(full, "private", 0)) or 0)
+    uss_value = getattr(full, "uss", None) if full is not None else None
     uss = int(uss_value) if uss_value is not None else None
     shared_estimate = max(0, rss - uss) if uss is not None else None
     return {
@@ -44,7 +46,8 @@ def _memory(process: psutil.Process) -> dict[str, int | str | None]:
         "privateCommitBytes": private_commit,
         "ussBytes": uss,
         "sharedWorkingSetEstimateBytes": shared_estimate,
-        "privateMetricSource": "psutil.memory_full_info.uss",
+        "privateMetricSource": "psutil.memory_info.private",
+        "ussMetricSource": "psutil.memory_full_info.uss" if include_uss else "NOT_SAMPLED_THIS_INTERVAL",
         "sharedMetricDisposition": "DERIVED_RSS_MINUS_USS_ESTIMATE" if uss is not None else "UNAVAILABLE",
     }
 
@@ -102,7 +105,7 @@ def _launcher_ancestors(root_pid: int) -> list[dict[str, Any]]:
                     "commandLine": command,
                     "role": "normal-desktop-launcher",
                     "creationTimeEpoch": process.create_time(),
-                    **_memory(process),
+                    **_memory(process, include_uss=True),
                 }
             )
         except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -110,18 +113,30 @@ def _launcher_ancestors(root_pid: int) -> list[dict[str, Any]]:
     return rows
 
 
-def _process_snapshot(process: psutil.Process, root_pid: int) -> dict[str, Any] | None:
+def _process_snapshot(
+    process: psutil.Process,
+    root_pid: int,
+    *,
+    include_uss: bool,
+    metadata_cache: dict[int, dict[str, Any]],
+) -> dict[str, Any] | None:
     try:
+        metadata = metadata_cache.get(process.pid)
+        if metadata is None:
+            metadata = {
+                "pid": process.pid,
+                "parentPid": process.ppid(),
+                "executable": process.exe(),
+                "name": process.name(),
+                "commandLine": _command_line(process),
+                "role": _role(process, root_pid),
+                "creationTimeEpoch": process.create_time(),
+            }
+            metadata_cache[process.pid] = metadata
         return {
-            "pid": process.pid,
-            "parentPid": process.ppid(),
-            "executable": process.exe(),
-            "name": process.name(),
-            "commandLine": _command_line(process),
-            "role": _role(process, root_pid),
-            "creationTimeEpoch": process.create_time(),
+            **metadata,
             "cpuTimeSeconds": _cpu_seconds(process),
-            **_memory(process),
+            **_memory(process, include_uss=include_uss),
         }
     except (psutil.NoSuchProcess, psutil.AccessDenied):
         return None
@@ -149,6 +164,7 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
     initial_pids = {process.pid for process in _product_tree(root_pid)}
     started = time.perf_counter()
     previous_cpu: dict[int, float] = {}
+    metadata_cache: dict[int, dict[str, Any]] = {}
     for process in _product_tree(root_pid):
         try:
             previous_cpu[process.pid] = _cpu_seconds(process)
@@ -161,11 +177,17 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
         remaining = duration_ms - int((interval_started - started) * 1000.0)
         time.sleep(max(0.001, min(interval_ms, remaining) / 1000.0))
         interval_duration = max(0.001, time.perf_counter() - interval_started)
+        include_uss = sample_index % USS_SAMPLE_EVERY_N_INTERVALS == 0 or remaining <= interval_ms
         rows: list[dict[str, Any]] = []
         current_processes = _product_tree(root_pid)
         current_pids = {process.pid for process in current_processes}
         for process in current_processes:
-            snapshot = _process_snapshot(process, root_pid)
+            snapshot = _process_snapshot(
+                process,
+                root_pid,
+                include_uss=include_uss,
+                metadata_cache=metadata_cache,
+            )
             if snapshot is None:
                 continue
             end_cpu = float(snapshot.pop("cpuTimeSeconds"))
@@ -204,7 +226,7 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
                 value = row.get(field)
                 if value is not None:
                     aggregate[field].append(int(value))
-        observer_memory_samples.append(_memory(observer))
+        observer_memory_samples.append(_memory(observer, include_uss=include_uss))
         raw_samples.append(
             {
                 "sampleIndex": sample_index,
@@ -212,6 +234,7 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
                 "durationMs": round(interval_duration * 1000.0, 3),
                 "productProcesses": rows,
                 "productProcessCount": len(current_pids),
+                "ussSampledThisInterval": include_uss,
             }
         )
         sample_index += 1
@@ -277,6 +300,7 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
         "sampleDurationMs": round(duration_seconds * 1000.0, 3),
         "requiredMinimumDurationMs": duration_ms,
         "sampleIntervalMs": interval_ms,
+        "ussSampleIntervalMs": interval_ms * USS_SAMPLE_EVERY_N_INTERVALS,
         "rawSampleCount": len(raw_samples),
         "logicalProcessorCount": logical_cpu_count,
         "cpuNormalization": {
@@ -287,6 +311,7 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
             "rss": "Windows resident working set; may include shared Chromium pages",
             "privateCommit": "Windows process private committed bytes",
             "uss": "psutil unique set size; closest available private resident measure",
+            "ussSamplingCadence": f"every {USS_SAMPLE_EVERY_N_INTERVALS} raw intervals plus the final interval",
             "sharedWorkingSetEstimate": "derived RSS minus USS; labeled estimate and not summed as private memory",
         },
         "surfaceInventoryBefore": request["surfaceInventoryBefore"],

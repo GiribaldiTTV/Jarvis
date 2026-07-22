@@ -20,6 +20,7 @@
     {"id": "RB-PERF-NEG-056", "mutation": "root_blocked_report_pass", "expectedFailure": "external-state-result-misreported"},
     {"id": "RB-PERF-NEG-057", "mutation": "foreign_lock_mutated", "expectedFailure": "foreign-lock-boundary-violated"},
     {"id": "RB-PERF-NEG-058", "mutation": "invent_release_helper", "expectedFailure": "release-health-owner-invalid"},
-    {"id": "RB-PERF-NEG-059", "mutation": "tamper_raw_summary", "expectedFailure": "raw-summary-parity-failed"}
+    {"id": "RB-PERF-NEG-059", "mutation": "tamper_raw_summary", "expectedFailure": "raw-summary-parity-failed"},
+    {"id": "RB-PERF-NEG-060", "mutation": "material_observer_overhead", "expectedFailure": "observer-overhead-material"}
   ]
 }

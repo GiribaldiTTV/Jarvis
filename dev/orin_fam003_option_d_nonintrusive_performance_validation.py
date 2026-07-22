@@ -43,6 +43,7 @@ EXPECTED_POLICY = "temporary-shared-runtime-safety-policy"
 EXPECTED_CLASSIFICATION = "shared-desktop-runtime-not-fam003-only"
 PROOF_MODE = "R2_WORKSTREAM_ONLY_NOT_H1_NOT_LV_NOT_UTS"
 RELEASE_HEALTH_COMMAND = "py -3 dev/orin_branch_governance_validation.py --release-readiness-health-gate"
+OBSERVER_CONTAMINATION_CEILING_PERCENT_OF_PRODUCT = 5.0
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -263,6 +264,13 @@ def _performance_payload(sessions: list[dict[str, Any]]) -> dict[str, Any]:
     active = _observation_rows(sessions, "representative-active")
     post = _observation_rows(sessions, "post-use-resident-idle")
     all_rows = [*startup, *active, *post]
+    product_cpu_values = [float(row["totalProductTree"]["cpuCoreEquivalentPercent"]) for row in all_rows]
+    observer_cpu_values = [float(row["observerOverhead"]["cpuCoreEquivalentPercent"]) for row in all_rows]
+    observer_relative_percent = (
+        statistics.median(observer_cpu_values) / statistics.median(product_cpu_values) * 100.0
+        if product_cpu_values and statistics.median(product_cpu_values) > 0
+        else None
+    )
     by_role: dict[str, list[float]] = defaultdict(list)
     for row in all_rows:
         for role in row.get("perRole") or []:
@@ -300,6 +308,18 @@ def _performance_payload(sessions: list[dict[str, Any]]) -> dict[str, Any]:
             "cpuCoreEquivalentPercent": _numbers_summary([float(row["observerOverhead"]["cpuCoreEquivalentPercent"]) for row in all_rows]),
             "rssMiB": _numbers_summary([float(row["observerOverhead"]["rssMiB"]["median"]) for row in all_rows]),
             "ussMiB": _numbers_summary([float(row["observerOverhead"]["ussMiB"]["median"]) for row in all_rows]),
+            "contaminationAssessment": {
+                "basis": "observer median one-core utilization divided by product-tree median one-core utilization",
+                "relativeToProductMedianPercent": round(observer_relative_percent, 3) if observer_relative_percent is not None else None,
+                "methodologyCeilingPercentOfProduct": OBSERVER_CONTAMINATION_CEILING_PERCENT_OF_PRODUCT,
+                "ceilingRole": "validation-methodology contamination ceiling, not a product-performance threshold",
+                "status": (
+                    "PASS_NEGLIGIBLE_RELATIVE_OVERHEAD"
+                    if observer_relative_percent is not None
+                    and observer_relative_percent <= OBSERVER_CONTAMINATION_CEILING_PERCENT_OF_PRODUCT
+                    else "FAIL_MATERIAL_OBSERVER_OVERHEAD"
+                ),
+            },
         },
         "cpuNormalization": all_rows[0]["cpuNormalization"] if all_rows else {},
         "memoryMethodology": all_rows[0]["memoryMethodology"] if all_rows else {},
@@ -405,6 +425,9 @@ def validate_performance_evidence(payload: dict[str, Any]) -> list[str]:
         failures.append("sampling-occupies-gui-thread")
     if not observer or observer.get("cpuCoreEquivalentPercent") is None or observer.get("rssMiB") is None:
         failures.append("observer-overhead-missing")
+    assessment = observer.get("contaminationAssessment") or {}
+    if assessment.get("status") != "PASS_NEGLIGIBLE_RELATIVE_OVERHEAD" or float(assessment.get("relativeToProductMedianPercent") or 1e9) > float(assessment.get("methodologyCeilingPercentOfProduct") or 0):
+        failures.append("observer-overhead-material")
     if observer.get("includedInProductTotals") is not False or any((row.get("observerOverhead") or {}).get("includedInProductTotals") is not False for row in rows):
         failures.append("observer-included-in-product-totals")
     if not rows or any(not row.get("perProcess") or any(item.get("pid") is None or not item.get("role") for item in row.get("perProcess") or []) for row in rows):
@@ -534,6 +557,12 @@ def _mutate_performance(payload: dict[str, Any], mutation: str) -> dict[str, Any
         result["releaseReadinessHealth"]["command"] = "py -3 dev/orin_release_readiness_health_gate.py"
     elif mutation == "tamper_raw_summary":
         result["rawReproduction"]["rawSampleCount"] += 1
+    elif mutation == "material_observer_overhead":
+        result["observer"]["contaminationAssessment"] = {
+            "relativeToProductMedianPercent": 16.0,
+            "methodologyCeilingPercentOfProduct": OBSERVER_CONTAMINATION_CEILING_PERCENT_OF_PRODUCT,
+            "status": "FAIL_MATERIAL_OBSERVER_OVERHEAD",
+        }
     else:
         raise AssertionError(f"unknown performance fixture mutation: {mutation}")
     return result
