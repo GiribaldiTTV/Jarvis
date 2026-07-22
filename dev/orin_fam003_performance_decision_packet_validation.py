@@ -17,6 +17,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -38,7 +39,14 @@ CURRENT_GATE = "R2 Workstream completion USER review pending - performance decis
 WORKSTREAM_RESULT = "USER_DECISION_REQUIRED"
 STAGE_STATES = "NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED"
 TARGET_RESULT = "BLOCKED_LEGACY_SCHEMA"
-ROOT_RESULT = "BLOCKED_BY_FOREIGN_LIVE_LOCK"
+ROOT_RESULT = "PASS"
+FOREIGN_LOCK_RESULT = "ABSENT / ROOT PREFLIGHT PASS"
+SCHEMA_VALUE = "external-state-v1"
+STATE_VERSION = "1"
+WORKTREE_LABEL = "FAM-003"
+WORKTREE_PATH = r"C:\Nexus Worktrees\FAM-003"
+SLOT_ID = "runtime-active-3"
+BRANCH_NAME = "feature/fam-003-settings-resize-proof"
 RAW_SAMPLE_COUNT = 780
 PRIMARY_RELATIVE = Path("USER Review") / "FAM003_OPTION_D_PERFORMANCE_FINAL_DECISION_REVIEW.md"
 CORE_RELATIVES = (
@@ -53,6 +61,27 @@ CORE_RELATIVES = (
     Path("Review Aids") / "08_DECISION_SEQUENCE_AND_BOUNDARIES.md",
     Path("Review Aids") / "09_VALIDATION_PROOF_ROLLBACK_AND_STALENESS.md",
     Path("Review Aids") / "11_ARTIFACT_MANIFEST.md",
+)
+
+MIGRATION_TARGETS = (
+    (
+        "branch_plan.md",
+        BRANCH_EXTERNAL / "branch_plan.md",
+        "Live Branch Plan",
+        "Current active branch engineering plan fields",
+    ),
+    (
+        "branch_state.md",
+        BRANCH_EXTERNAL / "branch_state.md",
+        "Live Branch Projection",
+        "Current active branch phase, blocker, and next legal phase fields",
+    ),
+    (
+        "worktree_state.md",
+        WORKTREE_EXTERNAL,
+        "Live Worktree Projection",
+        "Current assignment and acknowledgement fields for one worktree",
+    ),
 )
 
 EXTERNAL_FILES = (
@@ -229,31 +258,43 @@ asserted. Workstream completion therefore remains `USER_DECISION_REQUIRED`.
 """
 
 
-def _chronology(lock_id: str, lock_owner: str, lock_updated: str) -> str:
+def _chronology() -> str:
     return f"""# Final External Validation Chronology
 
 Final Root-Wide Result: `{ROOT_RESULT}`
-Foreign Lock ID: `{lock_id}`
-Foreign Lock Owner Label: `{lock_owner}`
-Foreign Lock Last Updated: `{lock_updated}`
+Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`
 Foreign Lock Mutation: `NONE`
 
 | Order | Validation class | Result | Role |
 | --- | --- | --- | --- |
-| 1 | Historical FAM-003 evidence-time root validation | `PASS` | Historical supporting attempt only; it is not the final current result. |
-| 2 | Initial current root/Stage 4 validation | `{ROOT_RESULT}` | Current task start; blocked by the live foreign lock above. |
-| 3 | FAM-003 target-currentness, branch plan | `{TARGET_RESULT}` | Current blocker; nine required live-record fields are absent. |
-| 4 | FAM-003 target-currentness, branch state | `{TARGET_RESULT}` | Current blocker; same missing-field class. |
-| 5 | FAM-003 target-currentness, worktree state | `{TARGET_RESULT}` | Current blocker; same missing-field class. |
-| 6 | Final current root/Stage 4 validation | `{ROOT_RESULT}` | Final current result; the foreign lock remained live at finalization. |
+| 1 | Historical evidence-time root validation | `PASS` | Historical supporting evidence only. |
+| 2 | Prior packet final root/Stage 4 validation | `BLOCKED_BY_FOREIGN_LIVE_LOCK` | Superseded currentness result; preserved to explain the earlier blocker. |
+| 3 | Initial current root/Stage 4 validation | `{ROOT_RESULT}` | Fresh task-start attempt; the prior foreign lock cleared naturally. |
+| 4 | FAM-003 target-currentness, branch plan | `{TARGET_RESULT}` | Current blocker; complete live-header migration remains unexecuted. |
+| 5 | FAM-003 target-currentness, branch state | `{TARGET_RESULT}` | Current blocker; complete live-header migration remains unexecuted. |
+| 6 | FAM-003 target-currentness, worktree state | `{TARGET_RESULT}` | Current blocker; complete live-header migration remains unexecuted. |
+| 7 | Final current root/Stage 4 validation | `{ROOT_RESULT}` | Final post-repair attempt; no foreign lock was active. |
 
-The packet remains reviewable for a migration decision because it makes no root
-green claim and authorizes no migration or downstream phase. Root validation is
-not complete. No foreign lock was cleared, edited, bypassed, adopted, or mutated.
+The root result is green now, but target currentness remains blocked. The prior
+foreign lock was not cleared, edited, bypassed, adopted, or mutated by FAM-003.
+Any foreign or conflicting live lock observed at future migration preflight is
+a no-write blocker, not permission to recover or clear that lock.
 """
 
 
-def _migration_spec() -> str:
+def _target_hash_rows(target_hashes: dict[str, str]) -> str:
+    return "\n".join(
+        f"| `{name}` | `{target_hashes[name]}` | Must match before any lock-backed staging or write. |"
+        for name, _path, _record_class, _record_role in MIGRATION_TARGETS
+    )
+
+
+def _migration_spec(
+    head: str,
+    origin_main: str,
+    target_hashes: dict[str, str],
+) -> str:
+    hash_rows = _target_hash_rows(target_hashes)
     return f"""# Target Currentness And FAM-003-Local Migration Specification
 
 Target Currentness Result: `{TARGET_RESULT}`
@@ -265,42 +306,158 @@ Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKS
 2. `C:\\Nexus Governance State\\branches\\{BRANCH_KEY}\\branch_state.md`
 3. `C:\\Nexus Governance State\\worktrees\\FAM-003\\worktree_state.md`
 
-## Exact Missing Live-Record Fields
+## Complete Live-Header Field Union
 
-Nine exact validator fields are missing: schema identity, live-record class,
-branch identity, source revision identity, base-branch identity, worktree path,
-slot identity, record role, and historical receipt boundary. Their literal
-field names and current technical identity values are preserved under
-`Source Truth Context/Git Audit/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md`.
+| Exact label | Exact value or derivation | Applies to | Update / validation / rollback rule |
+| --- | --- | --- | --- |
+| `External State Schema` | `{SCHEMA_VALUE}` | all three | Immutable during this migration; target and root validators must accept it; rollback restores field absence. |
+| `State Version` | `{STATE_VERSION}` | all three | Legacy pre-state is `ABSENT`; first migrated projection initializes at 1. All three commit at version 1. A later successful write increments only its target by one; read/write drift is `External State Version Conflict`; rollback restores absence. |
+| `Record Class` | target-specific table below | all three | Exact governed class; placeholders and historical classes fail. |
+| `Record Role` | target-specific source phrase below | all three | Exact semantic role; placeholders fail. |
+| `Branch` | `{BRANCH_NAME}` | all three | Derived from proven Git identity; exact match required; rollback restores absence. |
+| `Source Repo HEAD` | `{head}` | all three | Frozen pushed migration-source commit; all three must agree. Newer HEAD requires reconciliation and a replacement decision packet. |
+| `Origin/Main` | `{origin_main}` | all three | Frozen fetched base commit and merge base; newer origin/main triggers pre-rebaseline impact audit and packet reconciliation. |
+| `Worktree` | `{WORKTREE_LABEL}` | all three | Stable worktree label, not a filesystem path. |
+| `Worktree Path` | `{WORKTREE_PATH}` | all three | Absolute canonical Git worktree path; compared case-insensitively and slash-normalized. |
+| `Slot ID` | `{SLOT_ID}` | all three | USER-approved reusable runtime slot from current FAM-003 receipt. |
+| `Last Updated` | one transition-wide UTC timestamp captured immediately before staging, RFC 3339 seconds such as `2026-07-22T20:15:30+00:00` | all three | Identical in all three migrated headers; packet timestamps may differ; rollback restores absence. |
+| `Last Updated By` | `Codex` | all three | Exact migration writer identity used by the routed helper/audit contract; rollback restores absence. |
+| `Current Gate` | `{CURRENT_GATE}` | all three | Copied from current FAM-003 external decision authority; all three must agree. |
+| `Workstream Result` | `{WORKSTREAM_RESULT}` | all three | Remains unaccepted; all three must agree. |
+| `H1 / LV / UTS` | `{STAGE_STATES}` | all three | No downstream phase advancement; all three must agree. |
+| `Next Legal Phase` | `USER Decision 1 on this bounded migration; after green completion, Decision 2 preparation only if separately approved` | all three | Must not imply automatic BP2/BP3/Workstream preparation. |
+| `Transition Status` | `MIGRATED_CURRENT_PENDING_USER_PERFORMANCE_DECISION` | all three | Written only by approved execution; completion still requires all validation. |
+| `Historical Receipt Boundary` | `Existing record body below this boundary is immutable historical receipt evidence and does not redefine the live header.` | all three | Final live-header field immediately before the first existing `##` heading. |
 
-Expected identity values are the current FAM-003 branch, its synchronized source
-commit and upstream, the current base-branch commit, worktree
-`C:\\Nexus Worktrees\\FAM-003`, and slot `runtime-active-3`. Exact technical
-identity is preserved under packet proof context rather than the USER review.
+`Worktree` and `Worktree Path` are both required: the first is the stable label;
+the second is the canonical absolute path. They must never be collapsed into one
+field or populated with the same path value.
 
-## Future Migration Procedure
+## Exact Per-Target Assignments
 
-1. Obtain explicit USER approval for these three FAM-003 targets only.
-2. Acquire a FAM-003 migration lock with an exact noncentral write set.
-3. Create a full external-state snapshot and record its identity.
-4. Preserve all existing receipts below an explicit historical boundary.
-5. Use `dev/orin_external_state_target_reconcile.py` for each target with its
-   pre-write content digest, expected branch/source/base/worktree/slot, and the exact
-   missing fields above.
-6. Require atomic replacement, transition audit receipt, UTF-8 readback, and
-   post-write target validation after every target.
-7. Run all three target-currentness checks, FAM-003-scoped validation, then
-   root/Stage 4 validation. Both target-currentness and root-wide validation
-   must be green before planning-revision preparation can begin.
-8. On any failure, stop, preserve the failed audit, and restore only through the
-   routed snapshot/rollback protocol while still owning the migration lock.
-9. Release only the FAM-003 migration lock after final validation and record the
-   final receipt outside packet bytes.
-10. Regenerate a migration-result packet with copied post-transition records.
+| Target | Record Class | Record Role | Live purpose / current gate source | Historical boundary placement |
+| --- | --- | --- | --- | --- |
+| `branch_plan.md` | `Live Branch Plan` | `Current active branch engineering plan fields` | Active performance-decision and future Option G planning route; current gate comes from the latest FAM-003 decision receipt. | After all live fields and immediately before the existing first heading. |
+| `branch_state.md` | `Live Branch Projection` | `Current active branch phase, blocker, and next legal phase fields` | Active branch gate, blockers, and next legal phase; current gate comes from the latest FAM-003 decision receipt. | After all live fields and immediately before the existing first heading. |
+| `worktree_state.md` | `Live Worktree Projection` | `Current assignment and acknowledgement fields for one worktree` | FAM-003 assignment, acknowledgement, and gate projection; current gate comes from the latest FAM-003 decision receipt. | After all live fields and immediately before the existing first heading. |
+
+Common identity values are exactly `{BRANCH_NAME}`, `{WORKTREE_LABEL}` (`Worktree`),
+`{WORKTREE_PATH}` (`Worktree Path`), and `{SLOT_ID}`. No additional FAM-003
+record is required: the plan, branch projection, and worktree projection are the
+complete bounded target set.
+
+## Live Versus Historical Content Map
+
+For every target, the new live header begins at byte 0 and ends with the
+`Historical Receipt Boundary` field. The complete pre-migration file body,
+starting with its existing first `##` heading and including every prior current-
+looking receipt, remains byte-for-byte below that boundary as historical
+evidence. None of those older fields may satisfy live-header validation or
+redefine HEAD, base, gate, version, or role. No old heading is deleted, moved,
+or promoted; the boundary supersedes old currentness semantics without erasing
+chronology. The live header contains exactly one current gate.
+
+## Approved Pre-Write Hash Model
+
+| Target | Approved decision-packet SHA256 | Rule |
+| --- | --- | --- |
+{hash_rows}
+
+The later execution rereads and hashes all three files before lock-backed
+staging. A mismatch requires a reconciled current snapshot and replacement USER
+decision packet; it may not be accepted silently. Encoding remains strict UTF-8
+and source newline bytes are preserved. The snapshot must preserve file bytes,
+relative paths, hashes, and ordinary file metadata needed for restoration.
+
+## No-Write Preconditions
+
+No mutation, temp-file staging, or later lock acquisition may begin until all
+earlier checks pass:
+
+1. fresh root/Stage 4 validation is PASS and no foreign, stale, expired-unrecovered, or conflicting live lock exists;
+2. worktree, Git root, branch, upstream, HEAD, origin/main, merge base, cleanliness, ahead/behind, carrier, approval, and RAR posture match this packet;
+3. target-currentness still selects exactly these three legacy targets and no additional target is required;
+4. all three approved SHA256 values above match current bytes;
+5. the routed helper versions equal the pushed packet copies and the complete field union validates in dry-run projections;
+6. state-root, migration, worktree, and branch locks can be acquired legally by `Codex` for `{WORKTREE_LABEL}` / `{BRANCH_NAME}`;
+7. a complete pre-migration snapshot and manifest cover all three exact targets with matching file count and hashes;
+8. rollback temp paths, snapshot bytes, release commands, and receipt location are ready;
+9. no central, sibling, Governance, selected-next, issue, PR, release, or repo source mutation is required;
+10. no newer origin/main, overlap, approval, carrier, or RAR trigger invalidates the packet.
+
+Failure of any item means no write, no later lock acquisition, reverse release
+of every legally acquired FAM-003 lock, and a blocker packet. A foreign lock is
+never cleared, recovered, adopted, bypassed, or mutated by this execution.
+
+## Exact Lock Sequence
+
+Preflight first checks the root and every current lock read-only. The Stage 4C
+state-root requirement is the outer prerequisite to the ordered concurrency
+contract. Acquire in this exact order: `state-root -> migration -> worktree ->
+branch`. `Codex` owns all four under `{WORKTREE_LABEL}` / `{BRANCH_NAME}`. The
+state-root and migration intended write sets name all three targets; the
+worktree lock names only `worktrees/FAM-003/worktree_state.md`; the branch lock
+names only the two branch targets. Stop on timeout, expiry, changed payload,
+owner mismatch, missing intended-write entry, or stale-lock state. Stale-lock
+recovery requires its own USER-reviewed recovery packet. Release only after
+completion or verified rollback, in reverse order: `branch -> worktree ->
+migration -> state-root`.
+
+## Snapshot And Transaction Contract
+
+After all locks are held, create
+`C:\\Nexus Governance State\\snapshots\\snapshot-<UTC-id>` with
+`dev/orin_external_state_snapshot.py`. Its manifest must name `{SCHEMA_VALUE}`,
+the reason, root, `{WORKTREE_LABEL}`, `{BRANCH_NAME}`, creator `Codex`, timestamp,
+every copied relative path, file count, and SHA256. Verify the three target
+copies against the approved hashes before staging.
+Snapshot contract covers all three exact target bytes, relative paths, file
+count, and hashes.
+
+Build all three UTF-8 temporary candidates first, preserve source newline bytes,
+validate every complete live header, boundary, class/role, common identity,
+version, timestamp, gate, and unchanged historical body, then dry-run the routed
+target reconcile contract. Individual replacement is atomic; Windows does not
+provide one physical three-file rename transaction. The governed all-three
+contract is therefore logical all-or-none completion: no completion audit or
+lock release may occur until all three replacements and rereads pass, and any
+failure restores every target already replaced from the same snapshot via
+atomic per-file restoration. A transaction journal/audit must record all three
+before/after hashes and may declare success only once, for the complete set.
+
+## Post-Write Validation And Rollback
+
+After replacement, reread and hash all three, compare headers and historical
+bodies, run each target-currentness check, FAM-003-scoped external validation,
+then root/Stage 4 validation. Record completion only if every result is PASS.
+Planning revision remains blocked until that completion receipt exists.
+
+Rollback triggers are write/partial-write failure, hash drift, schema/header or
+boundary failure, cross-file identity/gate mismatch, target/scoped validation
+failure, migration-caused root failure, lock loss/change, or audit failure.
+Restore all three approved snapshot bytes atomically per file, verify original
+hashes and legacy target-currentness posture, run scoped/root validation, write
+a rollback receipt, and reverse-release locks. Successful rollback returns to
+this unchanged performance-decision gate with migration unexecuted. Failed
+rollback is `External State Corrupt / USER recovery decision required` and
+locks remain held or explicitly marked for recovery.
+
+If all migrated records pass but a new unrelated foreign lock appears before
+the final root check, preserve migrated bytes and all locks, record
+`POST_WRITE_ROOT_BLOCKED_BY_NEW_FOREIGN_LOCK`, and stop for USER adjudication;
+do not label migration complete and do not roll back otherwise valid FAM-003
+bytes merely because unrelated root validation is temporarily blocked.
+
+## Completion Criteria And Mutation Boundary
+
+Completion requires all three complete version-1 headers, exact classes/roles,
+valid boundaries, current identities/gate, all-three audit, preserved snapshot
+and rollback evidence, three target PASS results, FAM-003-scoped PASS, root PASS,
+no relevant foreign lock, packet/external-state agreement, and proof that no
+central, sibling, Governance, selected-next, repo, or other target changed.
 
 Migration Ownership / Carrier: `FAM-003 external operational state only`.
-Central selected/authority records, sibling records, repo Governance files, and
-sibling worktrees are excluded. This packet does not perform the migration.
+This packet specifies but does not perform the migration.
 """
 
 
@@ -390,10 +547,10 @@ def _ownership_matrix() -> str:
 """
 
 
-def _decision_sequence(lock_id: str) -> str:
+def _decision_sequence() -> str:
     return f"""# Decision Sequence And Approval Boundaries
 
-Foreign Lock Identity Required: `{lock_id}`
+Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`
 
 ## Decision 1 - FAM-003-Local External-State Schema Migration
 
@@ -401,10 +558,14 @@ Exact future approval text:
 
 > I approve the bounded FAM-003-local external-state schema migration for
 > `branch_plan.md`, `branch_state.md`, and `worktree_state.md` on
-> `feature/fam-003-settings-resize-proof`, using the routed FAM-003 migration
-> lock, full snapshot, target reconcile helper, atomic transition/audit,
-> historical-boundary preservation, rollback protocol, and target/scoped/root
-> validation. This approval excludes central or sibling records, repo
+> `{BRANCH_NAME}`, subject to every no-write precondition in
+> `03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md`, using the exact
+> `state-root -> migration -> worktree -> branch` lock order, the approved
+> three-target pre-write hashes, one verified snapshot, complete version-1 live
+> headers, logical all-three completion with atomic per-file replacement and
+> mandatory rollback, historical-boundary preservation, one all-three audit,
+> and target/scoped/root validation. Any foreign or conflicting lock blocks all
+> writes and is not cleared by FAM-003. This approval excludes central or sibling records, repo
 > Governance mutation, product/runtime work, BP2/BP3/Workstream revision,
 > implementation, H1, LV, UTS, issue, PR, merge, release, and cleanup.
 
@@ -444,11 +605,12 @@ into implementation authority.
 """
 
 
-def _validation_and_staleness(lock_id: str) -> str:
+def _validation_and_staleness() -> str:
     return f"""# Validation, Proof, Rollback, And Staleness
 
-Current final root result: `{ROOT_RESULT}` under foreign lock `{lock_id}`.
-Historical root PASS is supporting evidence only and is not the final result.
+Current initial and final root result: `{ROOT_RESULT}`.
+Current foreign lock result: `{FOREIGN_LOCK_RESULT}`.
+The prior packet's foreign-lock blocker is historical supporting evidence only.
 Target currentness remains `{TARGET_RESULT}` for all three FAM-003 projections.
 
 Evidence currentness:
@@ -462,8 +624,8 @@ Evidence currentness:
 * Workstream is not accepted;
 * H1/LV/UTS remain `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`.
 
-The final archive digest is recorded outside the archive after generation. A blocked root
-result cannot be relabeled PASS. Any later lock clearance, source revision change,
+The final archive digest is recorded outside the archive after generation. Any
+later foreign/conflicting lock, source revision change,
 base-branch advance, target migration, performance-bearing code change, or
 evidence replacement makes the applicable packet claim stale and requires a
 fresh validation/packet cycle.
@@ -495,6 +657,7 @@ def _authority() -> str:
         "dev/orin_external_state_validation.py",
         "dev/orin_external_state_target_reconcile.py",
         "dev/orin_external_state_lock.py",
+        "dev/orin_external_state_lock_release.py",
         "dev/orin_external_state_snapshot.py",
         "dev/orin_external_state_report.py",
         "dev/orin_user_review_bundle.py",
@@ -512,29 +675,35 @@ excluded ChatGPT continuity/bootstrap authority.
 
 ## Missing / Stale / Conflicting / Superseded Authority
 
-* The three live FAM-003 external projections are legacy records and miss nine
-  current target fields; they remain authority for their historical content but
-  fail current target validation.
-* The old packet's unqualified root PASS and combined migration/planning
-  approval are superseded by this packet.
-* The earlier foreign lock `branch-20260722T182752Z-eda0405f` is superseded as
-  current lock identity by the validator-observed lock in this packet.
+* The three live FAM-003 external projections are legacy records and lack the
+  complete governed live-header union; they remain authority for their
+  historical content but fail current target validation.
+* The old packet's nine-field-only migration sketch and combined migration /
+  planning language are superseded by this specification.
+* The prior foreign-lock result is historical. Fresh initial and final root
+  validation pass because that lock cleared naturally; FAM-003 did not mutate it.
 * Historical performance/root PASS receipts remain evidence only.
 * Durable ORIN Core animation-policy ownership is not explicit enough for
   mutation and is routed as a source-truth/owner decision gap.
+* Source truth defines the state-root prerequisite and then lists migration as
+  the first ordered concurrency lock. This packet reconciles them as
+  `state-root -> migration -> worktree -> branch`; no competing order remains.
+* Current source truth defines per-target atomic replacement, not a physical
+  three-file filesystem transaction. This packet requires logical all-or-none
+  completion, one transaction audit, and mandatory snapshot rollback.
 """
 
 
-def _primary(lock_id: str) -> str:
+def _primary() -> str:
     return f"""# FAM-003 Option D Performance Final Decision Review
 
-Packet Status: `READY_FOR_USER_DECISION_WITH_DISCLOSED_EXTERNAL_VALIDATION_BLOCKER`
+Packet Status: `READY_FOR_USER_DECISION`
 
 Current Gate: `{CURRENT_GATE}`
 Workstream Result: `{WORKSTREAM_RESULT}`
 H1 / LV / UTS: `{STAGE_STATES}`
 Final Root-Wide Result: `{ROOT_RESULT}`
-Foreign Lock ID: `{lock_id}`
+Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`
 Target Currentness: `{TARGET_RESULT}`
 
 ## Decision Summary
@@ -573,19 +742,19 @@ Governance mutation, issue, PR, merge, release, or cleanup occurred.
 """
 
 
-def _start_here(lock_id: str, mappings: dict[str, str]) -> str:
+def _start_here(mappings: dict[str, str]) -> str:
     mapping_rows = "\n".join(
         f"| `{source}` | `{copied}` |" for source, copied in sorted(mappings.items())
     )
     return f"""# FAM-003 Option D Performance Final Decision Packet
 
-Packet Reviewability State: `READY_FOR_USER_DECISION_WITH_DISCLOSED_EXTERNAL_VALIDATION_BLOCKER`
+Packet Reviewability State: `READY_FOR_USER_DECISION`
 
 Current Gate: `{CURRENT_GATE}`
 Workstream Result: `{WORKSTREAM_RESULT}`
 H1 / LV / UTS: `{STAGE_STATES}`
 Final Root-Wide Result: `{ROOT_RESULT}`
-Foreign Lock ID: `{lock_id}`
+Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`
 Target Currentness: `{TARGET_RESULT}`
 
 Primary USER Review: `USER Review/FAM003_OPTION_D_PERFORMANCE_FINAL_DECISION_REVIEW.md`
@@ -600,7 +769,8 @@ Primary USER Review: `USER Review/FAM003_OPTION_D_PERFORMANCE_FINAL_DECISION_REV
 
 The final archive path and digest are recorded outside the archive after generation.
 This is not a migration, planning-revision, implementation, H1, LV, or UTS
-packet. Root-wide validation is not green.
+packet. Root validation is green, but all three target-currentness checks remain
+blocked until a separately approved migration is executed.
 
 ## Source / Copy File Mapping
 
@@ -610,14 +780,14 @@ packet. Root-wide validation is not green.
 """
 
 
-def _identity_context(head: str, origin_main: str, lock_id: str) -> str:
+def _identity_context(head: str, origin_main: str) -> str:
     return f"""# Packet Identity And Final Validation Context
 
 Source Branch: `feature/fam-003-settings-resize-proof`
 Source HEAD / Upstream: `{head}`
 origin/main / Merge Base: `{origin_main}`
 Final Root-Wide Result: `{ROOT_RESULT}`
-Foreign Lock ID: `{lock_id}`
+Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`
 Target Currentness Result: `{TARGET_RESULT}`
 
 This generated proof-context file owns technical Git and validation identity.
@@ -626,44 +796,21 @@ generator metadata.
 """
 
 
-def _technical_migration_context(head: str, origin_main: str) -> str:
-    return f"""# Target Currentness And FAM-003-Local Migration Specification
-
-Target Currentness Result: `{TARGET_RESULT}`
-
-Exact missing fields for each of `branch_plan.md`, `branch_state.md`, and
-`worktree_state.md`:
-
-* `External State Schema`
-* `Record Class`
-* `Branch`
-* `Source Repo HEAD`
-* `Origin/Main`
-* `Worktree Path`
-* `Slot ID`
-* `Record Role`
-* `Historical Receipt Boundary`
-
-Expected Source Repo HEAD: `{head}`
-Expected Origin/Main: `{origin_main}`
-Expected Branch: `feature/fam-003-settings-resize-proof`
-Expected Worktree Path: `C:\\Nexus Worktrees\\FAM-003`
-Expected Slot ID: `runtime-active-3`
-
-Future mutation requires a FAM-003 migration lock, full snapshot, historical
-boundary preservation, one target-reconcile atomic transition per file using
-the pre-write SHA256, transition audit, target/scoped/root validation, rollback
-on failure, and lock release only after the final receipt. No central or sibling
-target is admitted.
-"""
+def _technical_migration_context(
+    head: str,
+    origin_main: str,
+    target_hashes: dict[str, str],
+) -> str:
+    return _migration_spec(head, origin_main, target_hashes)
 
 
-def _semantic_document(lock_id: str) -> str:
+def _semantic_document() -> str:
     return "\n".join(
         (
             f"Final Root-Wide Result: `{ROOT_RESULT}`",
-            "Historical root PASS is supporting evidence only and is not the final result.",
-            f"Foreign Lock ID: `{lock_id}`",
+            f"Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`",
+            "Prior packet final root result: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.",
+            "A foreign lock is never cleared, recovered, adopted, bypassed, or mutated by this execution.",
             f"Target Currentness Result: `{TARGET_RESULT}`",
             "Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`",
             "Decision 1 - FAM-003-Local External-State Schema Migration",
@@ -675,6 +822,25 @@ def _semantic_document(lock_id: str) -> str:
             "Mandatory Stop Boundary: `STOP_AND_RETURN_FOR_USER_DECISION`",
             "Current carrier access does not transfer ownership.",
             "Carryforward Status: `SEPARATE_OWNER_VISION_DECISION_PACKET_REQUIRED`",
+            "## Complete Live-Header Field Union",
+            "`External State Schema` `State Version` `Record Class` `Record Role` `Branch` `Source Repo HEAD` `Origin/Main` `Worktree` `Worktree Path` `Slot ID` `Last Updated` `Last Updated By` `Historical Receipt Boundary`",
+            "Legacy pre-state is `ABSENT`; first migrated projection initializes at 1. All three commit at version 1.",
+            "`Last Updated` uses one transition-wide UTC timestamp in RFC 3339 seconds and `Last Updated By` is `Codex`.",
+            "`Worktree` and `Worktree Path` are both required: `FAM-003` and `C:\\Nexus Worktrees\\FAM-003`.",
+            "| `branch_plan.md` | `Live Branch Plan` | `Current active branch engineering plan fields` |",
+            "| `branch_state.md` | `Live Branch Projection` | `Current active branch phase, blocker, and next legal phase fields` |",
+            "| `worktree_state.md` | `Live Worktree Projection` | `Current assignment and acknowledgement fields for one worktree` |",
+            "None of those older fields may satisfy live-header validation.",
+            "The `Historical Receipt Boundary` is the final live-header field immediately before the first existing `##` heading.",
+            "Lock order: `state-root -> migration -> worktree -> branch`; release is `branch -> worktree -> migration -> state-root`.",
+            "Foreign-lock no-write rule: any foreign or conflicting live lock blocks mutation.",
+            "| `branch_plan.md` | `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA` | Must match before any lock-backed staging or write. |",
+            "| `branch_state.md` | `BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB` | Must match before any lock-backed staging or write. |",
+            "| `worktree_state.md` | `CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC` | Must match before any lock-backed staging or write. |",
+            "Snapshot contract covers all three exact target bytes, relative paths, file count, and hashes; logical all-or-none completion applies.",
+            "Logical all-or-none completion requires all three replacements; any failure restores every target already replaced.",
+            "Root/Stage 4 validation must reach root PASS before migration completion.",
+            "Completion proves no central, sibling, Governance, selected-next, repo, or other target changed.",
             f"Evidence volume: `{RAW_SAMPLE_COUNT}` raw samples.",
             f"Current Gate: `{CURRENT_GATE}`",
             f"Workstream Result: `{WORKSTREAM_RESULT}`",
@@ -683,12 +849,13 @@ def _semantic_document(lock_id: str) -> str:
     )
 
 
-def _semantic_failures(text: str, expected_lock_id: str) -> list[str]:
+def _semantic_failures(text: str) -> list[str]:
     failures: list[str] = []
     required = {
         "root-current-result-misreported": f"Final Root-Wide Result: `{ROOT_RESULT}`",
-        "historical-pass-currentness-missing": "Historical root PASS is supporting evidence only and is not the final result.",
-        "foreign-lock-identity-missing": f"Foreign Lock ID: `{expected_lock_id}`",
+        "foreign-lock-result-missing": f"Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`",
+        "historical-foreign-lock-currentness-missing": "Prior packet final root result: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.",
+        "foreign-lock-write-precondition-missing": "foreign lock is never cleared, recovered, adopted, bypassed, or mutated",
         "target-currentness-blocker-missing": f"Target Currentness Result: `{TARGET_RESULT}`",
         "blocked-target-routes-directly-to-planning": "Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`",
         "decision-1-missing": "Decision 1 - FAM-003-Local External-State Schema Migration",
@@ -700,16 +867,49 @@ def _semantic_failures(text: str, expected_lock_id: str) -> list[str]:
         "hud-authority-open-ended": "Mandatory Stop Boundary: `STOP_AND_RETURN_FOR_USER_DECISION`",
         "carrier-access-treated-as-ownership": "Current carrier access does not transfer ownership.",
         "orin-core-routing-missing": "Carryforward Status: `SEPARATE_OWNER_VISION_DECISION_PACKET_REQUIRED`",
+        "live-schema-union-missing": "## Complete Live-Header Field Union",
+        "state-version-transition-missing": "Legacy pre-state is `ABSENT`; first migrated projection initializes at 1. All three commit at version 1.",
+        "timestamp-updater-rule-missing": "one transition-wide UTC timestamp",
+        "worktree-label-path-rule-missing": "`Worktree` and `Worktree Path` are both required",
+        "branch-plan-assignment-missing": "| `branch_plan.md` | `Live Branch Plan` | `Current active branch engineering plan fields` |",
+        "branch-state-assignment-missing": "| `branch_state.md` | `Live Branch Projection` | `Current active branch phase, blocker, and next legal phase fields` |",
+        "worktree-state-assignment-missing": "| `worktree_state.md` | `Live Worktree Projection` | `Current assignment and acknowledgement fields for one worktree` |",
+        "historical-live-separation-missing": "None of those older fields may satisfy live-header validation",
+        "historical-boundary-placement-missing": "final live-header field immediately before the first existing `##` heading",
+        "lock-order-missing": "state-root -> migration -> worktree -> branch",
+        "snapshot-rollback-incomplete": "Snapshot contract covers all three exact target bytes, relative paths, file count, and hashes",
+        "atomic-all-three-missing": "any failure restores every target already replaced",
+        "root-completion-gate-missing": "root PASS",
+        "mutation-boundary-ambiguous": "no central, sibling, Governance, selected-next, repo, or other target changed",
         "raw-evidence-count-mismatch": f"`{RAW_SAMPLE_COUNT}` raw samples",
         "gate-drift": f"Current Gate: `{CURRENT_GATE}`",
         "workstream-result-drift": f"Workstream Result: `{WORKSTREAM_RESULT}`",
         "stage-state-drift": f"H1 / LV / UTS: `{STAGE_STATES}`",
     }
     for code, marker in required.items():
-        if marker not in text:
+        if marker.casefold() not in text.casefold():
             failures.append(code)
-    if "Final Root-Wide Result: `PASS`" in text:
-        failures.append("root-current-result-misreported")
+    union_fields = (
+        "External State Schema", "State Version", "Record Class", "Record Role",
+        "Branch", "Source Repo HEAD", "Origin/Main", "Worktree", "Worktree Path",
+        "Slot ID", "Last Updated", "Last Updated By", "Historical Receipt Boundary",
+    )
+    if any(f"`{field}`" not in text for field in union_fields):
+        failures.append("live-schema-union-missing")
+    hash_rows = re.findall(
+        r"\| `(branch_plan\.md|branch_state\.md|worktree_state\.md)` \| `([A-Fa-f0-9]{64})` \|",
+        text,
+    )
+    if {name for name, _digest in hash_rows} != {
+        "branch_plan.md", "branch_state.md", "worktree_state.md"
+    }:
+        failures.append("pre-write-hashes-missing")
+    if re.search(
+        r"(?:Record (?:Class|Role)[^\n]{0,40}|\| `Live [^`]+` \| `?)(?:TBD|appropriate|current value|as routed)",
+        text,
+        re.IGNORECASE,
+    ):
+        failures.append("record-class-role-placeholder")
     if "resizable Studio native polling" in text:
         failures.append("ambiguous-studio-scope")
     if "`573` raw samples" in text or "573 raw samples" in text:
@@ -753,7 +953,7 @@ def _zip_hashes(packet_zip: Path) -> dict[str, str]:
     return hashes
 
 
-def validate_packet(packet_folder: Path, packet_zip: Path | None, lock_id: str) -> dict[str, Any]:
+def validate_packet(packet_folder: Path, packet_zip: Path | None) -> dict[str, Any]:
     if not packet_folder.is_dir():
         raise PacketValidationError(f"packet folder missing: {packet_folder}")
     primary_files = sorted((packet_folder / "USER Review").glob("*.md"))
@@ -767,7 +967,7 @@ def validate_packet(packet_folder: Path, packet_zip: Path | None, lock_id: str) 
     active_text = "\n".join(
         (packet_folder / path).read_text(encoding="utf-8") for path in CORE_RELATIVES
     )
-    failures = _semantic_failures(active_text, lock_id)
+    failures = _semantic_failures(active_text)
     if failures:
         raise PacketValidationError("semantic validation failed: " + ", ".join(failures))
     raw_count = _raw_sample_count(packet_folder)
@@ -795,11 +995,11 @@ def validate_packet(packet_folder: Path, packet_zip: Path | None, lock_id: str) 
         "rawSampleCount": raw_count,
         "rootWideResult": ROOT_RESULT,
         "targetCurrentness": TARGET_RESULT,
-        "foreignLockId": lock_id,
+        "foreignLockResult": FOREIGN_LOCK_RESULT,
     }
 
 
-def _manifest(packet_folder: Path, lock_id: str) -> str:
+def _manifest(packet_folder: Path) -> str:
     files = sorted(
         path.relative_to(packet_folder).as_posix()
         for path in packet_folder.rglob("*")
@@ -816,7 +1016,7 @@ def _manifest(packet_folder: Path, lock_id: str) -> str:
 
 Manifest Status: `CURRENT_DECISION_PACKET`
 Final Root-Wide Result: `{ROOT_RESULT}`
-Foreign Lock ID: `{lock_id}`
+Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`
 Target Currentness Result: `{TARGET_RESULT}`
 Raw Evidence: `{RAW_SAMPLE_COUNT}` raw samples across 21 intervals and three sessions.
 
@@ -837,9 +1037,6 @@ def generate_packet(
     output_zip: Path,
     head: str,
     origin_main: str,
-    lock_id: str,
-    lock_owner: str,
-    lock_updated: str,
 ) -> dict[str, Any]:
     if seed_zip is not None:
         if not seed_zip.is_file():
@@ -862,47 +1059,47 @@ def generate_packet(
     _extract_seed(seed_members, packet_folder)
     _copy_external_snapshots(packet_folder)
     mappings = _refresh_repo_context(packet_folder)
+    target_hashes = {
+        name: _sha256(path)
+        for name, path, _record_class, _record_role in MIGRATION_TARGETS
+    }
 
     documents = {
-        Path("START_HERE.md"): _start_here(lock_id, mappings),
-        PRIMARY_RELATIVE: _primary(lock_id),
+        Path("START_HERE.md"): _start_here(mappings),
+        PRIMARY_RELATIVE: _primary(),
         Path("Review Aids/01_CURRENT_PERFORMANCE_EVIDENCE.md"): _performance_facts(),
-        Path("Review Aids/02_FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(
-            lock_id, lock_owner, lock_updated
+        Path("Review Aids/02_FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(),
+        Path("Review Aids/03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_spec(
+            head, origin_main, target_hashes
         ),
-        Path("Review Aids/03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_spec(),
         Path("Review Aids/04_REFINED_OPTION_G_SCOPE.md"): _option_g_scope(),
         Path("Review Aids/05_HUD_FAIL_CLOSED_ENVELOPE.md"): _hud_envelope(),
         Path("Review Aids/06_ORIN_CORE_OWNER_VISION_CARRYFORWARD.md"): _core_carryforward(),
         Path("Review Aids/07_OWNERSHIP_AND_CARRIER_MATRIX.md"): _ownership_matrix(),
-        Path("Review Aids/08_DECISION_SEQUENCE_AND_BOUNDARIES.md"): _decision_sequence(lock_id),
-        Path("Review Aids/09_VALIDATION_PROOF_ROLLBACK_AND_STALENESS.md"): _validation_and_staleness(
-            lock_id
-        ),
+        Path("Review Aids/08_DECISION_SEQUENCE_AND_BOUNDARIES.md"): _decision_sequence(),
+        Path("Review Aids/09_VALIDATION_PROOF_ROLLBACK_AND_STALENESS.md"): _validation_and_staleness(),
         Path("Review Aids/10_FILES_LOADED_AND_AUTHORITY.md"): _authority(),
         Path("Source Truth Context/Git Audit/PACKET_IDENTITY.md"): _identity_context(
-            head, origin_main, lock_id
-        ),
-        Path("Source Truth Context/Git Audit/FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(
-            lock_id, lock_owner, lock_updated
-        ),
-        Path("Source Truth Context/Git Audit/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _technical_migration_context(
             head, origin_main
+        ),
+        Path("Source Truth Context/Git Audit/FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(),
+        Path("Source Truth Context/Git Audit/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _technical_migration_context(
+            head, origin_main, target_hashes
         ),
     }
     for relative, content in documents.items():
         _write_text(packet_folder / relative, content)
     _write_text(
         packet_folder / "Review Aids/11_ARTIFACT_MANIFEST.md",
-        _manifest(packet_folder, lock_id),
+        _manifest(packet_folder),
     )
 
-    pre_zip = validate_packet(packet_folder, None, lock_id)
+    pre_zip = validate_packet(packet_folder, None)
     with zipfile.ZipFile(output_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(packet_folder.rglob("*")):
             if path.is_file():
                 archive.write(path, path.relative_to(packet_folder).as_posix())
-    final = validate_packet(packet_folder, output_zip, lock_id)
+    final = validate_packet(packet_folder, output_zip)
     final["zipPath"] = str(output_zip)
     final["zipSha256"] = _sha256(output_zip)
     final["preZipValidation"] = pre_zip["status"]
@@ -911,50 +1108,51 @@ def generate_packet(
 
 def self_test() -> dict[str, Any]:
     fixtures = json.loads(FIXTURES.read_text(encoding="utf-8"))
-    base = _semantic_document("branch-test-lock")
+    base = _semantic_document()
     passed = 0
     details: list[dict[str, str]] = []
+    replacements = {
+        "root_not_pass": ("Final Root-Wide Result: `PASS`", "Final Root-Wide Result: `BLOCKED`"),
+        "historical_foreign_blocker_omitted": ("Prior packet final root result: `BLOCKED_BY_FOREIGN_LIVE_LOCK` is historical evidence only.", ""),
+        "direct_planning_from_blocked_target": ("Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`", "Planning Route While Blocked: `BP2 REVISION`"),
+        "planning_before_migration_green": ("Decision 1 migration approval -> FAM-003-local migration -> target-currentness green -> root-wide validation green -> Decision 2 planning-revision preparation", "Decision 2 planning-revision preparation -> Decision 1 migration approval"),
+        "ambiguous_studio_scope": ("Log Viewer Studio resize-hover polling", "resizable Studio native polling"),
+        "open_ended_hud_authority": ("Mandatory Stop Boundary: `STOP_AND_RETURN_FOR_USER_DECISION`", ""),
+        "carrier_access_claims_ownership": ("Current carrier access does not transfer ownership.", "Current carrier access transfers ownership."),
+        "orin_core_routing_omitted": ("Carryforward Status: `SEPARATE_OWNER_VISION_DECISION_PACKET_REQUIRED`", ""),
+        "foreign_lock_result_omitted": (f"Current Foreign Lock Result: `{FOREIGN_LOCK_RESULT}`", ""),
+        "raw_count_573": ("`780` raw samples", "`573` raw samples"),
+        "live_schema_union_omitted": ("## Complete Live-Header Field Union", "## Partial Target Fields"),
+        "state_metadata_omitted": ("`Last Updated` uses one transition-wide UTC timestamp in RFC 3339 seconds and `Last Updated By` is `Codex`.", ""),
+        "per_target_values_absent": ("| `branch_plan.md` | `Live Branch Plan` | `Current active branch engineering plan fields` |", ""),
+        "placeholder_record_role": ("Current active branch engineering plan fields", "TBD"),
+        "historical_fields_treated_live": ("None of those older fields may satisfy live-header validation.", "Historical fields may satisfy live-header validation."),
+        "historical_boundary_unspecified": ("The `Historical Receipt Boundary` is the final live-header field immediately before the first existing `##` heading.", ""),
+        "state_version_transition_unspecified": ("Legacy pre-state is `ABSENT`; first migrated projection initializes at 1. All three commit at version 1.", ""),
+        "lock_order_unspecified": ("Lock order: `state-root -> migration -> worktree -> branch`; release is `branch -> worktree -> migration -> state-root`.", ""),
+        "foreign_lock_allows_write": ("A foreign lock is never cleared, recovered, adopted, bypassed, or mutated by this execution.", "A foreign lock may be cleared so the write can continue."),
+        "snapshot_rollback_incomplete": ("Snapshot contract covers all three exact target bytes, relative paths, file count, and hashes; logical all-or-none completion applies.", "Snapshot contract is unspecified."),
+        "atomic_all_three_not_required": ("Logical all-or-none completion requires all three replacements; any failure restores every target already replaced.", "Individual target success may be accepted."),
+        "planning_authorized_before_green": ("Decision 1 migration approval -> FAM-003-local migration -> target-currentness green -> root-wide validation green -> Decision 2 planning-revision preparation", "Decision 2 planning-revision preparation is immediately authorized"),
+        "root_completion_omitted": ("Root/Stage 4 validation must reach root PASS before migration completion.", "Root validation is optional."),
+        "mutation_boundaries_ambiguous": ("Completion proves no central, sibling, Governance, selected-next, repo, or other target changed.", "Mutation scope is flexible."),
+    }
     for case in fixtures["cases"]:
         mutation = case["mutation"]
         text = base
-        if mutation == "root_pass_final":
-            text = text.replace(
-                f"Final Root-Wide Result: `{ROOT_RESULT}`", "Final Root-Wide Result: `PASS`"
+        if mutation == "prewrite_hashes_unspecified":
+            text = re.sub(
+                r"^\| `(branch_plan\.md|branch_state\.md|worktree_state\.md)` \| `[A-Fa-f0-9]{64}` \|.*$",
+                "",
+                text,
+                flags=re.MULTILINE,
             )
-        elif mutation == "historical_pass_as_final":
-            text = text.replace(
-                "Historical root PASS is supporting evidence only and is not the final result.", ""
-            )
-        elif mutation == "direct_planning_from_blocked_target":
-            text = text.replace(
-                "Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKSTREAM_REVISION`",
-                "Planning Route While Blocked: `BP2 REVISION`",
-            )
-        elif mutation == "planning_before_migration_green":
-            text = text.replace(
-                "Decision 1 migration approval -> FAM-003-local migration -> target-currentness green -> root-wide validation green -> Decision 2 planning-revision preparation",
-                "Decision 2 planning-revision preparation -> Decision 1 migration approval",
-            )
-        elif mutation == "ambiguous_studio_scope":
-            text = text.replace("Log Viewer Studio resize-hover polling", "resizable Studio native polling")
-        elif mutation == "open_ended_hud_authority":
-            text = text.replace("Mandatory Stop Boundary: `STOP_AND_RETURN_FOR_USER_DECISION`", "")
-        elif mutation == "carrier_access_claims_ownership":
-            text = text.replace(
-                "Current carrier access does not transfer ownership.",
-                "Current carrier access transfers ownership.",
-            )
-        elif mutation == "orin_core_routing_omitted":
-            text = text.replace(
-                "Carryforward Status: `SEPARATE_OWNER_VISION_DECISION_PACKET_REQUIRED`", ""
-            )
-        elif mutation == "foreign_lock_omitted":
-            text = text.replace("Foreign Lock ID: `branch-test-lock`", "")
-        elif mutation == "raw_count_573":
-            text = text.replace("`780` raw samples", "`573` raw samples")
+        elif mutation in replacements:
+            old, new = replacements[mutation]
+            text = text.replace(old, new)
         else:
             raise PacketValidationError(f"unknown negative fixture mutation: {mutation}")
-        failures = _semantic_failures(text, "branch-test-lock")
+        failures = _semantic_failures(text)
         expected = case["expectedFailure"]
         if expected not in failures:
             raise PacketValidationError(
@@ -982,9 +1180,6 @@ def main() -> int:
     parser.add_argument("--packet-zip", type=Path)
     parser.add_argument("--head")
     parser.add_argument("--origin-main")
-    parser.add_argument("--lock-id", default="branch-test-lock")
-    parser.add_argument("--lock-owner", default="foreign-worktree-owner")
-    parser.add_argument("--lock-updated", default="not-reported")
     args = parser.parse_args()
     try:
         if args.self_test:
@@ -993,7 +1188,6 @@ def main() -> int:
             required = {
                 "--head": args.head,
                 "--origin-main": args.origin_main,
-                "--lock-id": args.lock_id,
             }
             missing = [name for name, value in required.items() if not value]
             if bool(args.seed_zip) == bool(args.seed_folder):
@@ -1008,14 +1202,11 @@ def main() -> int:
                 output_zip,
                 args.head,
                 args.origin_main,
-                args.lock_id,
-                args.lock_owner,
-                args.lock_updated,
             )
         else:
             if not args.packet_zip:
                 raise PacketValidationError("--packet-zip is required with --validate")
-            result = validate_packet(args.packet_folder, args.packet_zip, args.lock_id)
+            result = validate_packet(args.packet_folder, args.packet_zip)
             result["zipPath"] = str(args.packet_zip)
             result["zipSha256"] = _sha256(args.packet_zip)
     except (OSError, ValueError, KeyError, json.JSONDecodeError, PacketValidationError) as exc:
