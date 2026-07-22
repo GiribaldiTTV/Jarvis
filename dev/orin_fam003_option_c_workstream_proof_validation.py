@@ -67,8 +67,12 @@ PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 CURRENTNESS_SAFE_PATHS = {
     "Docs/validation_helper_registry.md",
     "dev/fam003_renderer_backend_runtime_probe.py",
+    "dev/fam003_option_d_performance_controller.py",
+    "dev/fam003_option_d_performance_observer.py",
     "dev/fixtures/fam003_renderer_backend_negative_cases.json",
+    "dev/fixtures/fam003_option_d_nonintrusive_performance_negative_cases.json",
     "dev/orin_fam003_option_c_workstream_proof_validation.py",
+    "dev/orin_fam003_option_d_nonintrusive_performance_validation.py",
     "dev/orin_fam003_r2_workstream_scope_audit_validation.py",
     "dev/orin_fam003_renderer_backend_workstream_validation.py",
 }
@@ -910,8 +914,12 @@ def main() -> int:
         helper_runs["rendererBackend"],
         head,
     )
-    expected_renderer_fixture_count = len(
-        json.loads((ROOT / "dev" / "fixtures" / "fam003_renderer_backend_negative_cases.json").read_text(encoding="utf-8-sig"))["cases"]
+    expected_renderer_fixture_count = sum(
+        len(json.loads(path.read_text(encoding="utf-8-sig"))["cases"])
+        for path in (
+            ROOT / "dev" / "fixtures" / "fam003_renderer_backend_negative_cases.json",
+            ROOT / "dev" / "fixtures" / "fam003_option_d_nonintrusive_performance_negative_cases.json",
+        )
     )
     renderer_fixture_count = len(renderer_backend_manifest.get("negativeFixtures") or [])
     renderer_decision_required = renderer_backend_manifest.get("status") == "USER_DECISION_REQUIRED"

@@ -26,7 +26,7 @@ EXPECTED_POLICY = "temporary-shared-runtime-safety-policy"
 EXPECTED_CLASSIFICATION = "shared-desktop-runtime-not-fam003-only"
 EXPECTED_FLAG = "--disable-gpu"
 JAVASCRIPT_CALLBACK_MAX_ATTEMPTS = 3
-PERFORMANCE_METHODOLOGY_VERSION = "fam003-option-d-sustained-performance-v2"
+PERFORMANCE_METHODOLOGY_VERSION = "fam003-option-d-nonintrusive-performance-v3"
 PERFORMANCE_SETTLE_DURATION_MS = 5_000
 PERFORMANCE_SAMPLE_DURATION_MS = 10_000
 PERFORMANCE_SAMPLE_INTERVAL_MS = 250
@@ -569,7 +569,7 @@ def _record(steps: list[dict[str, Any]], step_id: str, passed: bool, detail: Any
         raise ProbeFailure(f"{step_id} failed: {detail}")
 
 
-def run_option_d_workstream_probe(
+def _run_legacy_intrusive_option_d_probe(
     *,
     window,
     core_window,
@@ -1258,3 +1258,33 @@ def run_option_d_workstream_probe(
                 f"|status={status}|manifest={manifest_path}|formal_lv=false"
             )
             QtCore.QTimer.singleShot(300, do_shutdown)
+
+
+_ACTIVE_NONINTRUSIVE_CONTROLLER = None
+
+
+def run_option_d_workstream_probe(
+    *,
+    window,
+    core_window,
+    tray_entry,
+    runtime_log_path: str,
+    do_shutdown: Callable[[], None],
+    runtime_milestone: Callable[[str], None],
+) -> None:
+    """Start the nonblocking controller and return to the normal Qt event loop."""
+
+    global _ACTIVE_NONINTRUSIVE_CONTROLLER
+    from dev.fam003_option_d_performance_controller import (
+        NonintrusivePerformanceController,
+    )
+
+    _ACTIVE_NONINTRUSIVE_CONTROLLER = NonintrusivePerformanceController(
+        window=window,
+        core_window=core_window,
+        tray_entry=tray_entry,
+        runtime_log_path=runtime_log_path,
+        do_shutdown=do_shutdown,
+        runtime_milestone=runtime_milestone,
+    )
+    _ACTIVE_NONINTRUSIVE_CONTROLLER.start()

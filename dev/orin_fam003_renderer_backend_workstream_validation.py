@@ -1307,7 +1307,7 @@ def _markdown_inventory(rows: list[dict[str, Any]]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def main() -> int:
+def _legacy_intrusive_main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--runs", type=int, default=3)
@@ -1570,6 +1570,16 @@ def main() -> int:
     print(f"Manifest: {manifest_path}")
     print(f"Report: {report_path}")
     return 0
+
+
+def main() -> int:
+    """Route the active Workstream proof through the nonintrusive v3 adjudicator."""
+
+    from dev.orin_fam003_option_d_nonintrusive_performance_validation import (
+        main as nonintrusive_main,
+    )
+
+    return nonintrusive_main()
 
 
 if __name__ == "__main__":
