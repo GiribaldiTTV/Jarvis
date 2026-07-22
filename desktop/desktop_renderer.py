@@ -10,6 +10,7 @@ import datetime
 import time
 import urllib.parse
 import webbrowser
+import weakref
 from html import escape
 from pathlib import Path
 from typing import Iterable, Optional
@@ -251,6 +252,37 @@ IsWindowVisible.restype = ctypes.c_bool
 GetParentW = user32.GetParent
 GetParentW.argtypes = [ctypes.wintypes.HWND]
 GetParentW.restype = ctypes.wintypes.HWND
+GetWindowW = user32.GetWindow
+GetWindowW.argtypes = [ctypes.wintypes.HWND, ctypes.c_uint]
+GetWindowW.restype = ctypes.wintypes.HWND
+IsWindow = user32.IsWindow
+IsWindow.argtypes = [ctypes.wintypes.HWND]
+IsWindow.restype = ctypes.c_bool
+IsIconic = user32.IsIconic
+IsIconic.argtypes = [ctypes.wintypes.HWND]
+IsIconic.restype = ctypes.c_bool
+GetWindowLongPtrW = getattr(user32, "GetWindowLongPtrW", user32.GetWindowLongW)
+GetWindowLongPtrW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
+GetWindowLongPtrW.restype = ctypes.c_ssize_t
+SetWindowLongPtrW = getattr(user32, "SetWindowLongPtrW", user32.SetWindowLongW)
+SetWindowLongPtrW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+SetWindowLongPtrW.restype = ctypes.c_ssize_t
+
+
+class WINDOWPLACEMENT(ctypes.Structure):
+    _fields_ = [
+        ("length", ctypes.wintypes.UINT),
+        ("flags", ctypes.wintypes.UINT),
+        ("showCmd", ctypes.wintypes.UINT),
+        ("ptMinPosition", ctypes.wintypes.POINT),
+        ("ptMaxPosition", ctypes.wintypes.POINT),
+        ("rcNormalPosition", ctypes.wintypes.RECT),
+    ]
+
+
+GetWindowPlacement = user32.GetWindowPlacement
+GetWindowPlacement.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(WINDOWPLACEMENT)]
+GetWindowPlacement.restype = ctypes.c_bool
 HRGN = getattr(ctypes.wintypes, "HRGN", ctypes.wintypes.HANDLE)
 HGDIOBJ = getattr(ctypes.wintypes, "HGDIOBJ", ctypes.wintypes.HANDLE)
 CreateRoundRectRgn = gdi32.CreateRoundRectRgn
@@ -275,9 +307,16 @@ SW_SHOW = 5
 SW_RESTORE = 9
 HWND_TOP = ctypes.wintypes.HWND(0)
 SWP_NOZORDER = 0x0004
+SWP_NOMOVE = 0x0002
+SWP_NOSIZE = 0x0001
+SWP_NOACTIVATE = 0x0010
+SWP_FRAMECHANGED = 0x0020
 SWP_SHOWWINDOW = 0x0040
 SWP_NOOWNERZORDER = 0x0200
+GW_OWNER = 4
+GWL_STYLE = -16
 GWL_EXSTYLE = -20
+GWLP_HWNDPARENT = -8
 WS_EX_TRANSPARENT = 0x00000020
 WS_EX_TOOLWINDOW = 0x00000080
 WS_EX_APPWINDOW = 0x00040000
@@ -3882,19 +3921,30 @@ class AIDashboardDomainWindow(QDialog):
     }
 
     def __init__(self, domain_id: str, screen, *, parent=None, event_logger=None):
-        super().__init__(parent)
+        # Logical Dashboard ownership is deliberately separate from native HWND ownership.
+        super().__init__(None)
         self.domain_id = str(domain_id or "")
         self.screen_ref = screen
         self.event_logger = event_logger
+        self._dashboard_ref = weakref.ref(parent) if parent is not None else None
         self._provider_payload: dict[str, object] = {}
         self._page_ready = False
         self._current_report_text = ""
+        self._lifecycle_sequence = 0
+        self._lifecycle_records: list[dict[str, object]] = []
+        self._pending_lifecycle_transition: dict[str, object] | None = None
+        self._last_valid_normal_geometry = QRect()
+        self._last_minimized_hwnd = 0
+        self._last_minimized_normal_geometry = QRect()
+        self._lifecycle_generation = 1
+        self._ever_shown = False
         definition = self.DOMAIN_DEFINITIONS.get(self.domain_id, self.DOMAIN_DEFINITIONS["control-center"])
         self.definition = definition
         self.setObjectName(f"fam007AiDashboardDomainWindow_{self.domain_id.replace('-', '_')}")
         self.setWindowTitle(definition["title"])
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setWindowModality(Qt.NonModal)
         self.setMinimumSize(460, 360)
         available = screen.availableGeometry() if screen is not None else QRect()
@@ -3906,6 +3956,7 @@ class AIDashboardDomainWindow(QDialog):
         else:
             self.setMaximumSize(self.MAXIMUM_USEFUL_WIDTH, self.MAXIMUM_USEFUL_HEIGHT)
         self.resize(620, 420)
+        self._last_valid_normal_geometry = QRect(self.geometry())
         self.setProperty("aiDashboardDomainWindow", self.domain_id)
         self.setProperty("aiDashboardDomainClassification", definition["classification"])
         self.setProperty("aiDashboardDomainLifecycle", definition["lifecycle"])
@@ -3935,6 +3986,11 @@ class AIDashboardDomainWindow(QDialog):
         self.setProperty("windowMaximumUsefulSize", f"{self.maximumWidth()}x{self.maximumHeight()}")
         self.setProperty("windowMaximizeFullscreenPolicy", "not-offered-compact-detached-window")
         self.setProperty("windowReopenGeometryContract", "preserve-last-user-geometry-until-destroyed")
+        self.setProperty("windowNativeOwnerContract", "native-parentless-logical-dashboard-lifecycle")
+        self.setProperty("windowTaskbarContract", "individual-title-thumbnail-grouping-allowed-no-appusermodelid")
+        self.setProperty("windowMinimizeContract", "standard-windows-taskbar-managed-same-hwnd")
+        self.setProperty("windowRestoreContract", "taskbar-or-dashboard-doorway-same-hwnd-prior-normal-geometry")
+        self.setProperty("windowAppUserModelIdCustomization", "not-used")
         self.setProperty("windowShellVisualContract", "single-border-no-outer-halo")
         self.setProperty("windowDescriptionDragBehavior", "client-content-never-caption")
         self.setProperty("windowInitialContentFitApplied", "false")
@@ -4016,6 +4072,451 @@ class AIDashboardDomainWindow(QDialog):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._apply_shell_mask()
+        self._remember_normal_geometry()
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._remember_normal_geometry()
+
+    def changeEvent(self, event):
+        old_state = event.oldState() if event.type() == QEvent.WindowStateChange else Qt.WindowNoState
+        super().changeEvent(event)
+        if (
+            event.type() == QEvent.WindowStateChange
+            and bool(old_state & Qt.WindowMinimized)
+            and not self.isMinimized()
+            and self._pending_lifecycle_transition is None
+        ):
+            QTimer.singleShot(0, self._complete_taskbar_restore_transition)
+
+    def closeEvent(self, event):
+        context = self._pending_lifecycle_transition
+        if not isinstance(context, dict) or context.get("requestedAction") not in {"close", "parent-close"}:
+            context = self._begin_lifecycle_action(
+                requested_route="windows-close-or-system-menu",
+                requested_action="close",
+                qt_method="closeEvent",
+            )
+        dashboard = self._dashboard()
+        if dashboard is not None:
+            closing_hwnds = getattr(dashboard, "_domain_closing_hwnds", None)
+            if isinstance(closing_hwnds, dict):
+                closing_hwnds[self.domain_id] = self._native_domain_hwnd()
+            closing_contexts = getattr(dashboard, "_domain_closing_contexts", None)
+            if isinstance(closing_contexts, dict):
+                closing_contexts[self.domain_id] = dict(context)
+        super().closeEvent(event)
+        accepted = bool(event.isAccepted())
+        if accepted and dashboard is not None:
+            registry = getattr(dashboard, "_domain_windows", None)
+            if isinstance(registry, dict) and registry.get(self.domain_id) is self:
+                registry.pop(self.domain_id, None)
+        self._record_lifecycle_transition(
+            context,
+            method_result=accepted,
+            close_result="accepted-destroy-pending" if accepted else "rejected",
+            restore_route="not-applicable",
+        )
+        self._pending_lifecycle_transition = None
+
+    @staticmethod
+    def _qrect_lifecycle_snapshot(rect: QRect) -> dict[str, int] | None:
+        if not isinstance(rect, QRect) or not rect.isValid():
+            return None
+        return {
+            "x": int(rect.x()),
+            "y": int(rect.y()),
+            "width": int(rect.width()),
+            "height": int(rect.height()),
+        }
+
+    @staticmethod
+    def _qt_enum_value(value) -> int:
+        return int(getattr(value, "value", value))
+
+    def _dashboard(self):
+        return self._dashboard_ref() if self._dashboard_ref is not None else None
+
+    def _remember_normal_geometry(self) -> None:
+        pending_action = (
+            self._pending_lifecycle_transition.get("requestedAction")
+            if isinstance(self._pending_lifecycle_transition, dict)
+            else ""
+        )
+        if pending_action == "minimize" or self.isMinimized() or self.isMaximized() or self.isFullScreen():
+            return
+        geometry = self.geometry()
+        if geometry.isValid() and geometry.width() >= self.minimumWidth() and geometry.height() >= self.minimumHeight():
+            self._last_valid_normal_geometry = QRect(geometry)
+
+    def _bounded_domain_geometry(self, candidate: QRect) -> QRect:
+        rect = QRect(candidate) if isinstance(candidate, QRect) and candidate.isValid() else QRect(self.geometry())
+        screen = QApplication.screenAt(rect.center()) if rect.isValid() else None
+        if screen is None:
+            screen = self.screen_ref or QApplication.primaryScreen()
+        if screen is None:
+            return rect
+        available = screen.availableGeometry()
+        gutter = self.AVAILABLE_DESKTOP_GUTTER
+        max_width = max(self.minimumWidth(), min(self.maximumWidth(), available.width() - (gutter * 2)))
+        max_height = max(self.minimumHeight(), min(self.maximumHeight(), available.height() - (gutter * 2)))
+        width = max(self.minimumWidth(), min(rect.width(), max_width))
+        height = max(self.minimumHeight(), min(rect.height(), max_height))
+        min_x = available.x() + gutter
+        min_y = available.y() + gutter
+        max_x = max(min_x, available.x() + available.width() - width - gutter)
+        max_y = max(min_y, available.y() + available.height() - height - gutter)
+        return QRect(
+            max(min_x, min(rect.x(), max_x)),
+            max(min_y, min(rect.y(), max_y)),
+            width,
+            height,
+        )
+
+    def _native_domain_hwnd(self) -> int:
+        try:
+            return int(self.winId())
+        except (RuntimeError, TypeError, ValueError):
+            return 0
+
+    def _registry_lifecycle_snapshot(self) -> dict[str, object]:
+        dashboard = self._dashboard()
+        registry = getattr(dashboard, "_domain_windows", {}) if dashboard is not None else {}
+        registered = registry.get(self.domain_id) is self if isinstance(registry, dict) else False
+        matching = [
+            window
+            for key, window in registry.items()
+            if key == self.domain_id and window is not None
+        ] if isinstance(registry, dict) else []
+        hwnd = self._native_domain_hwnd()
+        native_alive = bool(hwnd and IsWindow(ctypes.wintypes.HWND(hwnd)))
+        return {
+            "identity": id(self),
+            "registered": registered,
+            "registryCount": len(registry) if isinstance(registry, dict) else 0,
+            "domainEntryCount": len(matching),
+            "duplicateCount": max(0, len(matching) - 1),
+            "staleEntryDetected": bool(registered and hwnd and not native_alive),
+        }
+
+    def _parent_lifecycle_snapshot(self) -> dict[str, object]:
+        dashboard = self._dashboard()
+        if dashboard is None:
+            return {
+                "present": False,
+                "visible": False,
+                "minimized": False,
+                "closingExclusiveChildren": False,
+            }
+        return {
+            "present": True,
+            "visible": bool(dashboard.isVisible()),
+            "minimized": bool(dashboard.isMinimized()),
+            "closingExclusiveChildren": bool(getattr(dashboard, "_closing_domain_children", False)),
+        }
+
+    def _native_lifecycle_snapshot(self) -> dict[str, object]:
+        hwnd = self._native_domain_hwnd()
+        native_hwnd = ctypes.wintypes.HWND(hwnd) if hwnd else ctypes.wintypes.HWND()
+        current_rect = ctypes.wintypes.RECT()
+        current_rect_ok = bool(hwnd and GetWindowRect(native_hwnd, ctypes.byref(current_rect)))
+        placement = WINDOWPLACEMENT()
+        placement.length = ctypes.sizeof(WINDOWPLACEMENT)
+        placement_ok = bool(hwnd and GetWindowPlacement(native_hwnd, ctypes.byref(placement)))
+        owner_hwnd = int(GetWindowW(native_hwnd, GW_OWNER) or 0) if hwnd else 0
+        style = (int(GetWindowLongPtrW(native_hwnd, GWL_STYLE)) & 0xFFFFFFFF) if hwnd else 0
+        extended_style = (int(GetWindowLongPtrW(native_hwnd, GWL_EXSTYLE)) & 0xFFFFFFFF) if hwnd else 0
+        pid = ctypes.wintypes.DWORD()
+        if hwnd:
+            GetWindowThreadProcessId(native_hwnd, ctypes.byref(pid))
+        taskbar_eligible = bool(
+            hwnd
+            and owner_hwnd == 0
+            and extended_style & WS_EX_APPWINDOW
+            and not extended_style & WS_EX_TOOLWINDOW
+            and not extended_style & WS_EX_NOACTIVATE
+        )
+        if current_rect_ok:
+            current = QRect(
+                current_rect.left,
+                current_rect.top,
+                max(0, current_rect.right - current_rect.left),
+                max(0, current_rect.bottom - current_rect.top),
+            )
+        else:
+            current = QRect(self.geometry())
+        if placement_ok:
+            native_normal = QRect(
+                placement.rcNormalPosition.left,
+                placement.rcNormalPosition.top,
+                max(0, placement.rcNormalPosition.right - placement.rcNormalPosition.left),
+                max(0, placement.rcNormalPosition.bottom - placement.rcNormalPosition.top),
+            )
+            show_cmd = int(placement.showCmd)
+        else:
+            native_normal = QRect(self._last_valid_normal_geometry)
+            show_cmd = 0
+        minimized = bool(hwnd and IsIconic(native_hwnd)) or bool(self.isMinimized())
+        icon_sized_rect = bool(current.isValid() and current.width() <= 200 and current.height() <= 60)
+        foreground_hwnd = int(GetForegroundWindow() or 0)
+        return {
+            "hwnd": hwnd,
+            "pid": int(pid.value) if hwnd else os.getpid(),
+            "title": self.windowTitle(),
+            "nativeOwnerHwnd": owner_hwnd,
+            "logicalDashboardOwner": self.definition["classification"] == "exclusive-child",
+            "qtFlags": self._qt_enum_value(self.windowFlags()),
+            "style": style,
+            "extendedStyle": extended_style,
+            "taskbarEligible": taskbar_eligible,
+            "taskbarRepresentationState": (
+                "individual-title-thumbnail-grouping-allowed"
+                if taskbar_eligible
+                else "ineligible-stop"
+            ),
+            "taskbarGroupingAllowed": True,
+            "ungroupedTaskbarIconRequired": False,
+            "appUserModelIdCustomization": False,
+            "showCmd": show_cmd,
+            "qtVisible": bool(self.isVisible()),
+            "nativeVisible": bool(hwnd and IsWindowVisible(native_hwnd)),
+            "qtMinimized": bool(self.isMinimized()),
+            "nativeMinimized": minimized,
+            "normalRectangle": self._qrect_lifecycle_snapshot(native_normal),
+            "rememberedNormalRectangle": self._qrect_lifecycle_snapshot(self._last_valid_normal_geometry),
+            "currentRectangle": self._qrect_lifecycle_snapshot(current),
+            "foregroundHwnd": foreground_hwnd,
+            "foregroundResult": bool(hwnd and foreground_hwnd == hwnd),
+            "focusResult": bool(self.isActiveWindow() or (hwnd and foreground_hwnd == hwnd)),
+            "unexpectedIconicArtifactDetected": bool(
+                minimized and icon_sized_rect and not taskbar_eligible
+            ),
+            "unexpectedIconicArtifactVisualProofRequired": True,
+        }
+
+    def _normalize_native_taskbar_contract(self) -> dict[str, object]:
+        hwnd = self._native_domain_hwnd()
+        if not hwnd:
+            return self._native_lifecycle_snapshot()
+        native_hwnd = ctypes.wintypes.HWND(hwnd)
+        SetWindowLongPtrW(native_hwnd, GWLP_HWNDPARENT, 0)
+        extended_style = int(GetWindowLongPtrW(native_hwnd, GWL_EXSTYLE))
+        extended_style = (
+            extended_style
+            & ~WS_EX_TOOLWINDOW
+            & ~WS_EX_NOACTIVATE
+        ) | WS_EX_APPWINDOW
+        SetWindowLongPtrW(native_hwnd, GWL_EXSTYLE, extended_style)
+        SetWindowPos(
+            native_hwnd,
+            HWND_TOP,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED,
+        )
+        return self._native_lifecycle_snapshot()
+
+    def _activate_domain_window(self) -> dict[str, object]:
+        self.raise_()
+        self.activateWindow()
+        handle = self.windowHandle() if hasattr(self, "windowHandle") else None
+        if handle is not None:
+            handle.requestActivate()
+        hwnd = self._native_domain_hwnd()
+        if hwnd:
+            native_hwnd = ctypes.wintypes.HWND(hwnd)
+            BringWindowToTop(native_hwnd)
+            SetActiveWindow(native_hwnd)
+            SetForegroundWindow(native_hwnd)
+        QApplication.processEvents()
+        return self._native_lifecycle_snapshot()
+
+    def _begin_lifecycle_action(
+        self,
+        *,
+        requested_route: str,
+        requested_action: str,
+        qt_method: str,
+    ) -> dict[str, object]:
+        self._lifecycle_sequence += 1
+        requested_native = self._native_lifecycle_snapshot()
+        requested_registry = self._registry_lifecycle_snapshot()
+        context = {
+            "sequenceId": (
+                f"{self.domain_id}:g{self._lifecycle_generation}:{self._lifecycle_sequence:04d}"
+            ),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "lifecycleClass": self.definition["classification"],
+            "lifecyclePolicy": self.definition["lifecycle"],
+            "childSurface": self.definition["title"],
+            "domain": self.domain_id,
+            "lifecycleGeneration": self._lifecycle_generation,
+            "requestedRoute": requested_route,
+            "requestedAction": requested_action,
+            "qtMethodInvoked": qt_method,
+            "requestedHwnd": requested_native["hwnd"],
+            "requestedShowCmd": requested_native["showCmd"],
+            "priorNormalRectangle": requested_native["rememberedNormalRectangle"],
+            "requestedRegistryIdentity": requested_registry["identity"],
+            "requestedRegistryCount": requested_registry["registryCount"],
+            "requestedDuplicateCount": requested_registry["duplicateCount"],
+        }
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_LIFECYCLE_ACTION_REQUESTED"
+                f"|sequence_id={context['sequenceId']}|domain={self.domain_id}"
+                f"|route={requested_route}|action={requested_action}|qt_method={qt_method}"
+            )
+        return context
+
+    def _record_lifecycle_transition(
+        self,
+        context: dict[str, object],
+        *,
+        method_result,
+        close_result: str = "not-applicable",
+        restore_route: str = "not-applicable",
+        restored_rectangle: QRect | None = None,
+    ) -> dict[str, object]:
+        native = self._native_lifecycle_snapshot()
+        registry = self._registry_lifecycle_snapshot()
+        record = {
+            **context,
+            "resultTimestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "methodResult": method_result,
+            **native,
+            "restoredRectangle": self._qrect_lifecycle_snapshot(restored_rectangle) if restored_rectangle else None,
+            "restoreRoute": restore_route,
+            "registryIdentity": registry["identity"],
+            "registryRegistered": registry["registered"],
+            "registryCount": registry["registryCount"],
+            "registryDomainEntryCount": registry["domainEntryCount"],
+            "duplicateCount": registry["duplicateCount"],
+            "staleRegistryEntryDetected": registry["staleEntryDetected"],
+            "parentState": self._parent_lifecycle_snapshot(),
+            "childState": (
+                "minimized"
+                if native["nativeMinimized"]
+                else "visible-normal"
+                if native["nativeVisible"]
+                else "closing-or-hidden"
+            ),
+            "childDestroyed": close_result == "destroyed",
+            "closeResult": close_result,
+            "orphanTaskbarVisibleHwndDetected": False,
+            "supportingDiagnosticOnly": True,
+            "gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
+        }
+        self._lifecycle_records.append(record)
+        self._lifecycle_records = self._lifecycle_records[-128:]
+        self.setProperty("aiDashboardDomainLifecycleLastSequence", context["sequenceId"])
+        self.setProperty("aiDashboardDomainLifecycleLastAction", context["requestedAction"])
+        if callable(self.event_logger):
+            encoded = urllib.parse.quote(json.dumps(record, sort_keys=True, separators=(",", ":")))
+            self.event_logger(
+                "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_LIFECYCLE_TRANSITION"
+                f"|sequence_id={context['sequenceId']}|domain={self.domain_id}|record={encoded}"
+            )
+        return record
+
+    def lifecycle_debug_state(self) -> dict[str, object]:
+        return {
+            "contract": "fam007-option-a-taskbar-managed-child-lifecycle-v1",
+            "domain": self.domain_id,
+            "classification": self.definition["classification"],
+            "lifecycle": self.definition["lifecycle"],
+            "native": self._native_lifecycle_snapshot(),
+            "registry": self._registry_lifecycle_snapshot(),
+            "parent": self._parent_lifecycle_snapshot(),
+            "records": list(self._lifecycle_records),
+        }
+
+    def _restore_remembered_normal_geometry(self) -> QRect:
+        candidate = self._last_valid_normal_geometry
+        if not isinstance(candidate, QRect) or not candidate.isValid():
+            candidate = self.normalGeometry()
+        bounded = self._bounded_domain_geometry(candidate)
+        if bounded.isValid():
+            self.setGeometry(bounded)
+            self._last_valid_normal_geometry = QRect(bounded)
+        return bounded
+
+    def _complete_taskbar_restore_transition(self) -> None:
+        context = self._begin_lifecycle_action(
+            requested_route="windows-taskbar-or-thumbnail",
+            requested_action="restore",
+            qt_method="windows-shell-restore",
+        )
+        context["requestedHwnd"] = self._last_minimized_hwnd
+        context["requestedShowCmd"] = 2
+        context["priorNormalRectangle"] = self._qrect_lifecycle_snapshot(
+            self._last_minimized_normal_geometry
+        )
+        restored = self._restore_remembered_normal_geometry()
+        self._normalize_native_taskbar_contract()
+        state = self._activate_domain_window()
+        self._record_lifecycle_transition(
+            context,
+            method_result=bool(state["nativeVisible"] and not state["nativeMinimized"]),
+            restore_route="windows-taskbar-or-thumbnail",
+            restored_rectangle=restored,
+        )
+
+    def _finalize_minimize_transition(self, sequence_id: str) -> None:
+        context = self._pending_lifecycle_transition
+        if not isinstance(context, dict) or context.get("sequenceId") != sequence_id:
+            return
+        state = self._native_lifecycle_snapshot()
+        self._record_lifecycle_transition(
+            context,
+            method_result=bool(state["nativeMinimized"] and state["taskbarEligible"]),
+        )
+        self._pending_lifecycle_transition = None
+
+    def minimize_domain_window(self, requested_route: str = "visible-minimize-control") -> dict[str, object]:
+        self._remember_normal_geometry()
+        context = self._begin_lifecycle_action(
+            requested_route=requested_route,
+            requested_action="minimize",
+            qt_method="showMinimized",
+        )
+        self._last_minimized_hwnd = int(context["requestedHwnd"] or 0)
+        self._last_minimized_normal_geometry = QRect(self._last_valid_normal_geometry)
+        self._pending_lifecycle_transition = context
+        self._normalize_native_taskbar_contract()
+        self.showMinimized()
+        QTimer.singleShot(0, lambda sequence=context["sequenceId"]: self._finalize_minimize_transition(sequence))
+        return {"sequenceId": context["sequenceId"], "hwnd": self._native_domain_hwnd()}
+
+    def close_domain_window(self, requested_route: str) -> bool:
+        requested_action = "parent-close" if requested_route == "dashboard-parent-close" else "close"
+        context = self._begin_lifecycle_action(
+            requested_route=requested_route,
+            requested_action=requested_action,
+            qt_method="close",
+        )
+        self._pending_lifecycle_transition = context
+        return bool(self.close())
+
+    def record_dashboard_parent_close_survival(self) -> dict[str, object]:
+        context = self._begin_lifecycle_action(
+            requested_route="dashboard-parent-close",
+            requested_action="parent-close",
+            qt_method="no-close-stays-open",
+        )
+        state = self._native_lifecycle_snapshot()
+        return self._record_lifecycle_transition(
+            context,
+            method_result=bool(
+                self.definition["classification"] == "external-unique"
+                and state["taskbarEligible"]
+                and state["hwnd"]
+                and IsWindow(ctypes.wintypes.HWND(int(state["hwnd"])))
+            ),
+            close_result="not-closed-by-external-unique-lifecycle",
+        )
 
     def leaveEvent(self, event):
         if not self._resizing_window:
@@ -5259,9 +5760,9 @@ class AIDashboardDomainWindow(QDialog):
                 f"|domain={domain_id}|command={command}"
             )
         if command == "window-minimize":
-            self.showMinimized()
+            self.minimize_domain_window("visible-minimize-control")
         elif command == "window-close":
-            self.close()
+            self.close_domain_window("visible-close-control")
 
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
@@ -5290,48 +5791,94 @@ class AIDashboardDomainWindow(QDialog):
             f"window.nexusAiDomainApplyProviderState({json.dumps(self._provider_payload, sort_keys=True)});"
         )
 
-    def show_domain_window(self, origin: QRect | None = None) -> dict[str, object]:
-        if not self.isVisible():
-            if origin is not None and origin.isValid():
-                available = self.screen_ref.availableGeometry() if self.screen_ref is not None else QApplication.primaryScreen().availableGeometry()
-                target_x = origin.x() - self.width() - 24
-                if target_x < available.x() + 12:
-                    right_x = origin.x() + origin.width() + 24
-                    if right_x + self.width() <= available.right() - 12:
-                        target_x = right_x
-                    else:
-                        target_x = min(origin.x() + 44, available.right() - self.width() - 12)
-                domain_offset = {
-                    "control-center": 0,
-                    "readiness-diagnostics": 34,
-                    "capabilities-maintenance": 68,
-                }.get(self.domain_id, 0)
-                target_y = min(
-                    max(available.y() + 12, origin.y() + domain_offset),
-                    available.bottom() - self.height() - 12,
-                )
-                self.move(target_x, target_y)
-            _schedule_window_clamp(self, padding=18)
+    def show_domain_window(
+        self,
+        origin: QRect | None = None,
+        *,
+        requested_route: str = "ai-dashboard-doorway",
+    ) -> dict[str, object]:
+        hwnd_before = self._native_domain_hwnd()
+        minimized = bool(self.isMinimized() or (hwnd_before and IsIconic(ctypes.wintypes.HWND(hwnd_before))))
+        context = self._begin_lifecycle_action(
+            requested_route=requested_route,
+            requested_action=(
+                "restore"
+                if minimized
+                else "focus-existing"
+                if self._ever_shown
+                else "reopen"
+                if self._lifecycle_generation > 1
+                else "open"
+            ),
+            qt_method=(
+                "showNormal+show+raise+activateWindow+requestActivate"
+                if minimized
+                else "show+raise+activateWindow+requestActivate"
+            ),
+        )
+        restored = None
+        if minimized:
+            self._pending_lifecycle_transition = context
+            self.showNormal()
+            restored = self._restore_remembered_normal_geometry()
+        elif not self._ever_shown and origin is not None and origin.isValid():
+            available = self.screen_ref.availableGeometry() if self.screen_ref is not None else QApplication.primaryScreen().availableGeometry()
+            target_x = origin.x() - self.width() - 24
+            if target_x < available.x() + 12:
+                right_x = origin.x() + origin.width() + 24
+                if right_x + self.width() <= available.right() - 12:
+                    target_x = right_x
+                else:
+                    target_x = min(origin.x() + 44, available.right() - self.width() - 12)
+            domain_offset = {
+                "control-center": 0,
+                "readiness-diagnostics": 34,
+                "capabilities-maintenance": 68,
+            }.get(self.domain_id, 0)
+            target_y = min(
+                max(available.y() + 12, origin.y() + domain_offset),
+                available.bottom() - self.height() - 12,
+            )
+            self.setGeometry(self._bounded_domain_geometry(QRect(target_x, target_y, self.width(), self.height())))
+            self._remember_normal_geometry()
+        self._normalize_native_taskbar_contract()
         self.show()
-        self.raise_()
-        self.activateWindow()
-        if hasattr(self, "windowHandle"):
-            handle = self.windowHandle()
-            if handle is not None:
-                handle.requestActivate()
-        QApplication.processEvents()
+        self._normalize_native_taskbar_contract()
+        state = self._activate_domain_window()
+        hwnd_after = int(state["hwnd"] or 0)
+        self._ever_shown = True
+        self._pending_lifecycle_transition = None
+        lifecycle_record = self._record_lifecycle_transition(
+            context,
+            method_result=bool(
+                state["nativeVisible"]
+                and not state["nativeMinimized"]
+                and state["taskbarEligible"]
+                and state["focusResult"]
+                and (not hwnd_before or hwnd_before == hwnd_after)
+            ),
+            restore_route=requested_route if minimized else "not-applicable",
+            restored_rectangle=restored,
+        )
         if callable(self.event_logger):
             self.event_logger(
                 "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_VISIBLE"
                 f"|domain={self.domain_id}|classification={self.definition['classification']}"
                 f"|lifecycle={self.definition['lifecycle']}|singleton=true"
+                f"|taskbar_eligible={str(state['taskbarEligible']).lower()}"
+                f"|native_owner_hwnd={state['nativeOwnerHwnd']}"
             )
         return {
             "domain": self.domain_id,
-            "visible": bool(self.isVisible()),
+            "visible": bool(state["nativeVisible"]),
             "classification": self.definition["classification"],
             "lifecycle": self.definition["lifecycle"],
-            "hwnd": int(self.winId()) if self.winId() else 0,
+            "hwnd": hwnd_after,
+            "sameHwnd": bool(not hwnd_before or hwnd_before == hwnd_after),
+            "taskbarEligible": bool(state["taskbarEligible"]),
+            "nativeOwnerHwnd": int(state["nativeOwnerHwnd"]),
+            "focusResult": bool(state["focusResult"]),
+            "lifecycleSequenceId": lifecycle_record["sequenceId"],
         }
 
 
@@ -12150,6 +12697,10 @@ class AIControlCenterDialog(QDialog):
         self._page_ready = False
         self._pending_provider_payload = {}
         self._domain_windows: dict[str, AIDashboardDomainWindow] = {}
+        self._domain_generation_counts: dict[str, int] = {}
+        self._domain_closing_hwnds: dict[str, int] = {}
+        self._domain_closing_contexts: dict[str, dict[str, object]] = {}
+        self._closing_domain_children = False
         self._drag_offset = None
         self._resize_active = False
         self._resize_edges = Qt.Edges()
@@ -12297,8 +12848,40 @@ class AIControlCenterDialog(QDialog):
             return
 
     def _ai_dashboard_domain_parent_for(self, domain_id: str):
-        definition = AIDashboardDomainWindow.DOMAIN_DEFINITIONS.get(domain_id, {})
-        return None if definition.get("classification") == "external-unique" else self
+        return self
+
+    def _on_ai_dashboard_domain_window_destroyed(self, domain_id: str, object_identity: int) -> None:
+        current = self._domain_windows.get(domain_id)
+        if current is None or id(current) == object_identity:
+            self._domain_windows.pop(domain_id, None)
+        hwnd = int(self._domain_closing_hwnds.pop(domain_id, 0) or 0)
+        context = self._domain_closing_contexts.pop(domain_id, {})
+
+        def record_cleanup() -> None:
+            hwnd_alive = bool(hwnd and IsWindow(ctypes.wintypes.HWND(hwnd)))
+            record = {
+                **context,
+                "resultTimestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "hwnd": hwnd,
+                "registryIdentity": object_identity,
+                "registryCount": len(self._domain_windows),
+                "registryRegistered": domain_id in self._domain_windows,
+                "childDestroyed": not hwnd_alive,
+                "closeResult": "destroyed" if not hwnd_alive else "native-hwnd-still-alive",
+                "orphanTaskbarVisibleHwndDetected": hwnd_alive,
+                "supportingDiagnosticOnly": True,
+                "gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
+            }
+            if callable(self.event_logger):
+                encoded = urllib.parse.quote(json.dumps(record, sort_keys=True, separators=(",", ":")))
+                self.event_logger(
+                    "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_DESTROYED"
+                    f"|domain={domain_id}|object_identity={object_identity}|hwnd={hwnd}"
+                    f"|hwnd_alive={str(hwnd_alive).lower()}|orphan_taskbar_visible_hwnd={str(hwnd_alive).lower()}"
+                    f"|registry_count={len(self._domain_windows)}|record={encoded}"
+                )
+
+        QTimer.singleShot(0, record_cleanup)
 
     def _show_ai_dashboard_domain_window(self, domain_id: str) -> dict[str, object]:
         if domain_id not in AIDashboardDomainWindow.DOMAIN_DEFINITIONS:
@@ -12309,14 +12892,28 @@ class AIControlCenterDialog(QDialog):
                 )
             return {"visible": False, "reason": "unknown_domain"}
         window = self._domain_windows.get(domain_id)
+        if window is not None:
+            try:
+                window.lifecycle_debug_state()
+            except RuntimeError:
+                self._domain_windows.pop(domain_id, None)
+                window = None
         if window is None:
+            generation = self._domain_generation_counts.get(domain_id, 0) + 1
+            self._domain_generation_counts[domain_id] = generation
             window = AIDashboardDomainWindow(
                 domain_id,
                 self.screen_ref,
                 parent=self._ai_dashboard_domain_parent_for(domain_id),
                 event_logger=self.event_logger,
             )
-            window.destroyed.connect(lambda _obj=None, key=domain_id: self._domain_windows.pop(key, None))
+            window._lifecycle_generation = generation
+            object_identity = id(window)
+            window.destroyed.connect(
+                lambda _obj=None, key=domain_id, identity=object_identity: (
+                    self._on_ai_dashboard_domain_window_destroyed(key, identity)
+                )
+            )
             self._domain_windows[domain_id] = window
         window.update_provider_state(self._provider_payload)
         result = window.show_domain_window(self.geometry())
@@ -13083,10 +13680,16 @@ class AIControlCenterDialog(QDialog):
             self._finish_ai_control_center_resize(self._ai_control_center_cursor_screen_point())
         else:
             self._reset_ai_control_center_resize_cursor()
-        for domain_id, window in list(self._domain_windows.items()):
-            definition = AIDashboardDomainWindow.DOMAIN_DEFINITIONS.get(domain_id, {})
-            if definition.get("classification") == "exclusive-child":
-                window.close()
+        self._closing_domain_children = True
+        try:
+            for domain_id, window in list(self._domain_windows.items()):
+                definition = AIDashboardDomainWindow.DOMAIN_DEFINITIONS.get(domain_id, {})
+                if definition.get("classification") == "exclusive-child":
+                    window.close_domain_window("dashboard-parent-close")
+                elif definition.get("classification") == "external-unique":
+                    window.record_dashboard_parent_close_survival()
+        finally:
+            self._closing_domain_children = False
         self._geometry_persist_timer.stop()
         self._persist_window_geometry()
         super().closeEvent(event)

@@ -425,6 +425,8 @@ FAM-007 setup completion foundation extension: `feature/fam-007-local-ai-provide
 | `dev/orin_launcher_live_window_audit.ps1` | Helper Status: Reusable | live window audit helper | Extend or parameterize for launcher/window live validation before creating another launcher live audit helper. |
 | `dev/orin_overlay_input_capture_helper.py` | Helper Status: Reusable | overlay input helper | Reuse for overlay input-capture support instead of duplicating low-level input helpers. |
 
+FAM-007 Option A lifecycle supporting-mode addendum: `dev/orin_ai_control_center_live_resize_validation.py --supporting-lifecycle-contract-only` is a Workstream-scoped static/component diagnostic for the branch-local detached-child taskbar lifecycle. It parses `dev/fixtures/fam007_ai_dashboard_lifecycle_contract/lifecycle_cases.json`, checks the native-owner/taskbar/minimize/restore/close instrumentation canaries, and rejects the approved false-green cases. This mode does not execute `--launcher-preflight-only`, create a `QApplication`, operate the normal USER launcher, generate user input, use Computer Use, click the taskbar, perform focused closure/H1/LV, or set a gating decision. Its only allowed decision is `UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE`; `F7-LV1-006-A/#300` remains the launcher-preflight owner and `F7-LV1-009/#304` remains the closed workspace-preservation owner.
+
 ### Monitoring And HUD
 
 | Path | Helper Status | Family | Reuse / Consolidation |

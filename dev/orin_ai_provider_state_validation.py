@@ -3717,6 +3717,9 @@ def validate() -> list[str]:
     ai_control_html = _read("nexus_visual/ai_control_center.html")
     ai_control_js = _read("nexus_visual/ai_control_center.js")
     live_resize_helper = _read("dev/orin_ai_control_center_live_resize_validation.py")
+    lifecycle_contract_fixture = _read(
+        "dev/fixtures/fam007_ai_dashboard_lifecycle_contract/lifecycle_cases.json"
+    )
     monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
     ai_control_renderer = "\n".join(
         (
@@ -9412,6 +9415,16 @@ def validate() -> list[str]:
     for needle in (
         "self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)",
         "self.setAttribute(Qt.WA_TranslucentBackground, True)",
+        "self.setAttribute(Qt.WA_DeleteOnClose, True)",
+        'self.setProperty("windowNativeOwnerContract", "native-parentless-logical-dashboard-lifecycle")',
+        'self.setProperty("windowTaskbarContract", "individual-title-thumbnail-grouping-allowed-no-appusermodelid")',
+        'self.setProperty("windowMinimizeContract", "standard-windows-taskbar-managed-same-hwnd")',
+        'self.setProperty("windowRestoreContract", "taskbar-or-dashboard-doorway-same-hwnd-prior-normal-geometry")',
+        "SetWindowLongPtrW(native_hwnd, GWLP_HWNDPARENT, 0)",
+        "def minimize_domain_window",
+        "def _complete_taskbar_restore_transition",
+        "def close_domain_window",
+        '"gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE"',
         'self.setProperty("ndaiNativeChrome", True)',
         'self.setProperty("genericOsChromeRejected", True)',
         'data-ndai-native-chrome="true"',
@@ -9553,10 +9566,43 @@ def validate() -> list[str]:
         "ownerLaneBoundaryState",
         "privateSetupAuthorized",
         "ownerMemoryEnabled",
+        "LIFECYCLE_CONTRACT_FIXTURE",
+        "_lifecycle_supporting_contract_probe",
+        "_evaluate_lifecycle_contract_record",
+        "--supporting-lifecycle-contract-only",
+        "fam007-option-a-supporting-contract-probe-v1",
+        "stale-instrumentation-root",
     ):
         _require(
             needle in live_resize_helper,
             f"AI Dashboard live active-domain helper is missing proof-hardening check {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "missing-native-show-state",
+        "taskbar-restore-changed-hwnd",
+        "dashboard-restore-created-duplicate",
+        "missing-prior-normal-geometry",
+        "wrong-restored-geometry",
+        "restore-has-no-focus-result",
+        "exclusive-survives-dashboard-close",
+        "readiness-destroyed-by-dashboard-close",
+        "orphan-taskbar-after-close",
+        "ordinary-grouping-treated-as-failure",
+        "ungrouped-icon-requirement-introduced",
+        "appusermodelid-requirement-introduced",
+        "iconic-artifact-observation-missing",
+        "iconic-artifact-detected-but-accepted",
+        "stale-instrumentation-root",
+        "mismatched-head",
+        "supporting-diagnostic-misclassified-as-lv",
+        "launcher-preflight-remapped",
+        "workspace-preservation-remapped",
+    ):
+        _require(
+            needle in lifecycle_contract_fixture,
+            f"AI Dashboard lifecycle fixture is missing required false-green case {needle!r}",
             failures,
         )
 

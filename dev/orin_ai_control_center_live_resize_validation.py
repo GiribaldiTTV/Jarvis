@@ -57,6 +57,13 @@ PROOF_CLASSIFICATION_FIXTURE = (
     / "fam007_ai_dashboard_lv_proof_contract"
     / "proof_classification_cases.json"
 )
+LIFECYCLE_CONTRACT_FIXTURE = (
+    REPO_ROOT
+    / "dev"
+    / "fixtures"
+    / "fam007_ai_dashboard_lifecycle_contract"
+    / "lifecycle_cases.json"
+)
 GATING_INPUTS_BY_ACTOR = {
     "CODEX_GOVERNED_HUMAN_CLIENT": {"governed-real-os-mouse", "governed-real-os-keyboard"},
 }
@@ -88,6 +95,169 @@ RESIZE_CORNER_NAMES = ("top-left", "top-right", "bottom-left", "bottom-right")
 CHILD_NEGATIVE_DRAG_GROUPS = ("description", "controls", "cards", "rows", "actions", "scrollbar")
 FAM007_GATING_ACTOR = "CODEX_GOVERNED_HUMAN_CLIENT"
 FAM007_GATING_INPUTS = ("governed-real-os-mouse", "governed-real-os-keyboard")
+
+
+def _evaluate_lifecycle_contract_record(record: dict[str, object]) -> list[str]:
+    errors: list[str] = []
+    required = (
+        "childSurface",
+        "lifecycleClass",
+        "requestedRoute",
+        "requestedAction",
+        "qtMethodInvoked",
+        "requestedHwnd",
+        "hwnd",
+        "nativeOwnerHwnd",
+        "taskbarEligible",
+        "showCmd",
+        "duplicateCount",
+        "unexpectedIconicArtifactDetected",
+    )
+    for field in required:
+        if field not in record or record.get(field) is None:
+            errors.append(f"missing-{field}")
+    if record.get("instrumentationRootCurrent") is not True:
+        errors.append("stale-instrumentation-root")
+    if record.get("headMatches") is not True:
+        errors.append("mismatched-head")
+    if record.get("supportingDiagnosticOnly") is not True:
+        errors.append("supporting-diagnostic-classification-drift")
+    if record.get("gatingDecision") != "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE":
+        errors.append("gating-overclaim")
+    if record.get("mappedDefect") != "F7-LV1-010/#307":
+        errors.append("direct-defect-owner-drift")
+    if record.get("launcherPreflightOwner") != "F7-LV1-006-A/#300":
+        errors.append("launcher-preflight-owner-remapped")
+    if record.get("workspacePreservationOwner") != "F7-LV1-009/#304":
+        errors.append("workspace-preservation-owner-remapped")
+    if record.get("nativeOwnerHwnd") != 0:
+        errors.append("native-owner-not-cleared")
+    if record.get("taskbarGroupingAllowed") is not True:
+        errors.append("taskbar-grouping-not-allowed")
+    if record.get("taskbarGroupingAccepted") is not True:
+        errors.append("ordinary-taskbar-grouping-treated-as-failure")
+    if record.get("ungroupedTaskbarIconRequired") is not False:
+        errors.append("ungrouped-taskbar-icon-requirement-introduced")
+    if record.get("appUserModelIdCustomization") is not False:
+        errors.append("appusermodelid-customization-introduced")
+    if int(record.get("duplicateCount") or 0) != 0:
+        errors.append("duplicate-window-detected")
+    if record.get("unexpectedIconicArtifactObservationComplete") is not True:
+        errors.append("iconic-artifact-observation-incomplete")
+    if record.get("unexpectedIconicArtifactDetected") is not False:
+        errors.append("iconic-artifact-detected")
+
+    action = str(record.get("requestedAction") or "")
+    lifecycle_class = str(record.get("lifecycleClass") or "")
+    if action in {"open", "reopen", "focus-existing", "restore", "minimize"} and record.get("taskbarEligible") is not True:
+        errors.append("taskbar-eligibility-missing")
+    if action == "minimize":
+        if record.get("showCmd") != 2:
+            errors.append("minimize-show-state-invalid")
+        if not isinstance(record.get("priorNormalRectangle"), dict):
+            errors.append("minimize-prior-normal-geometry-missing")
+    if action == "restore":
+        if record.get("requestedHwnd") != record.get("hwnd"):
+            errors.append("restore-changed-hwnd")
+        prior = record.get("priorNormalRectangle")
+        restored = record.get("restoredRectangle")
+        if not isinstance(prior, dict):
+            errors.append("restore-prior-normal-geometry-missing")
+        elif restored != prior:
+            errors.append("restored-geometry-mismatch")
+        if record.get("focusResult") is not True:
+            errors.append("restore-focus-missing")
+    if action == "parent-close":
+        if lifecycle_class == "exclusive-child" and record.get("childDestroyed") is not True:
+            errors.append("exclusive-child-survived-dashboard-close")
+        if lifecycle_class == "external-unique" and record.get("childDestroyed") is not False:
+            errors.append("external-unique-destroyed-by-dashboard-close")
+    if action in {"close", "parent-close"} and record.get("childDestroyed") is True:
+        if record.get("orphanTaskbarVisibleHwndDetected") is not False:
+            errors.append("orphan-taskbar-hwnd-after-close")
+    return sorted(set(errors))
+
+
+def _lifecycle_supporting_contract_probe() -> dict[str, object]:
+    fixture = json.loads(LIFECYCLE_CONTRACT_FIXTURE.read_text(encoding="utf-8"))
+    base_record = fixture.get("baseRecord") if isinstance(fixture.get("baseRecord"), dict) else {}
+    cases = []
+    for case in fixture.get("cases", []):
+        record = dict(base_record)
+        record.update(case.get("overrides") or {})
+        errors = _evaluate_lifecycle_contract_record(record)
+        actual_valid = not errors
+        expected_valid = bool(case.get("expectedValid"))
+        cases.append(
+            {
+                "id": str(case.get("id") or ""),
+                "childSurface": str(record.get("childSurface") or ""),
+                "expectedValid": expected_valid,
+                "actualValid": actual_valid,
+                "matchedExpected": actual_valid == expected_valid,
+                "errors": errors,
+            }
+        )
+
+    renderer = (REPO_ROOT / "desktop" / "desktop_renderer.py").read_text(encoding="utf-8")
+    start = renderer.find("class AIDashboardDomainWindow")
+    end = renderer.find("class QuickCreateGroupDialog", start)
+    domain_source = renderer[start:end] if start >= 0 and end > start else ""
+    required_source_markers = (
+        "super().__init__(None)",
+        "self.setAttribute(Qt.WA_DeleteOnClose, True)",
+        "SetWindowLongPtrW(native_hwnd, GWLP_HWNDPARENT, 0)",
+        "WS_EX_APPWINDOW",
+        "self.showMinimized()",
+        "self.showNormal()",
+        "windows-taskbar-or-thumbnail",
+        "unexpectedIconicArtifactDetected",
+        "orphanTaskbarVisibleHwndDetected",
+        "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
+        "def lifecycle_debug_state",
+        "def close_domain_window",
+    )
+    forbidden_source_markers = (
+        "SetCurrentProcessExplicitAppUserModelID",
+        "PKEY_AppUserModel_ID",
+    )
+    required_missing = [marker for marker in required_source_markers if marker not in domain_source]
+    forbidden_present = [marker for marker in forbidden_source_markers if marker in domain_source]
+    negative_cases = [item for item in cases if item["expectedValid"] is False]
+    valid_surfaces = {
+        item["childSurface"]
+        for item in cases
+        if item["expectedValid"] is True and item["actualValid"] is True
+    }
+    expected_surfaces = {
+        "AI Control Center",
+        "AI Readiness & Diagnostics",
+        "Capabilities & Maintenance",
+    }
+    return {
+        "schemaVersion": "fam007-option-a-supporting-contract-probe-v1",
+        "classification": "SUPPORTING_STATIC_COMPONENT_DIAGNOSTIC_ONLY",
+        "gatingDecision": "UNEVALUATED_REQUIRES_SEPARATE_FOCUSED_CLOSURE",
+        "fixture": str(LIFECYCLE_CONTRACT_FIXTURE),
+        "caseCount": len(cases),
+        "negativeCaseCount": len(negative_cases),
+        "validSurfaces": sorted(valid_surfaces),
+        "cases": cases,
+        "requiredSourceMarkersMissing": required_missing,
+        "forbiddenSourceMarkersPresent": forbidden_present,
+        "exactLauncherPreflightExecuted": False,
+        "normalUserLauncherOperated": False,
+        "generatedUserInputUsed": False,
+        "computerUseUsed": False,
+        "focusedClosurePerformed": False,
+        "h1OrLiveValidationPerformed": False,
+        "ok": bool(cases)
+        and len(negative_cases) >= 17
+        and valid_surfaces == expected_surfaces
+        and all(item["matchedExpected"] for item in cases)
+        and not required_missing
+        and not forbidden_present,
+    }
 
 
 def _proof_classification_fixture_probe() -> dict[str, object]:
@@ -5512,6 +5682,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if "--supporting-lifecycle-contract-only" in sys.argv:
+        lifecycle_probe = _lifecycle_supporting_contract_probe()
+        print(json.dumps(lifecycle_probe, indent=2, sort_keys=True))
+        raise SystemExit(0 if lifecycle_probe.get("ok") is True else 1)
     if "--launcher-preflight-only" in sys.argv:
         preflight = _read_only_exact_launcher_preflight()
         print(json.dumps(preflight, indent=2, sort_keys=True))
