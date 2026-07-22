@@ -18,6 +18,7 @@ import datetime as dt
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -102,7 +103,11 @@ def _safe_seed_members(seed_zip: Path) -> dict[str, bytes]:
                 continue
             if key.startswith("Source Truth Context/External State Snapshots/"):
                 continue
+            if key.startswith("Source Truth Context/Active External Snapshot/"):
+                continue
             if key.startswith("Source Truth Context/Validation Outputs/"):
+                continue
+            if key.startswith("Source Truth Context/Git Audit/"):
                 continue
             retained[key] = archive.read(info)
     return retained
@@ -120,7 +125,11 @@ def _safe_seed_folder(seed_folder: Path) -> dict[str, bytes]:
             continue
         if key.startswith("Source Truth Context/External State Snapshots/"):
             continue
+        if key.startswith("Source Truth Context/Active External Snapshot/"):
+            continue
         if key.startswith("Source Truth Context/Validation Outputs/"):
+            continue
+        if key.startswith("Source Truth Context/Git Audit/"):
             continue
         retained[key] = source.read_bytes()
     return retained
@@ -134,12 +143,66 @@ def _extract_seed(seed_members: dict[str, bytes], packet_folder: Path) -> None:
 
 
 def _copy_external_snapshots(packet_folder: Path) -> None:
-    destination = packet_folder / "Source Truth Context" / "External State Snapshots"
+    destination = packet_folder / "Source Truth Context" / "Active External Snapshot"
     destination.mkdir(parents=True, exist_ok=True)
     for source in EXTERNAL_FILES:
         if not source.is_file():
             raise PacketValidationError(f"required external record missing: {source}")
         shutil.copy2(source, destination / source.name)
+
+
+def _refresh_repo_context(packet_folder: Path) -> dict[str, str]:
+    context_root = packet_folder / "Source Truth Context"
+    implementation = context_root / "Implementation Snapshots"
+    implementation.mkdir(parents=True, exist_ok=True)
+    additions = {
+        "dev/orin_fam003_performance_decision_packet_validation.py": (
+            implementation / "orin_fam003_performance_decision_packet_validation.py"
+        ),
+        "dev/fixtures/fam003_performance_decision_packet_negative_cases.json": (
+            implementation / "fam003_performance_decision_packet_negative_cases.json"
+        ),
+    }
+    for source, destination in additions.items():
+        shutil.copy2(ROOT / source, destination)
+
+    tracked = subprocess.check_output(
+        ["git", "ls-files"], cwd=ROOT, text=True
+    ).splitlines()
+    by_name: dict[str, list[str]] = {}
+    for source in tracked:
+        by_name.setdefault(PurePosixPath(source).name, []).append(source)
+    special = {
+        "Source Truth Context/Repo Owners/branch_plans_README.md": "Docs/branch_plans/README.md",
+        "Source Truth Context/Repo Owners/workstreams_index.md": "Docs/workstreams/index.md",
+    }
+    mappings: dict[str, str] = {}
+    for area in (context_root / "Repo Owners", implementation):
+        for copied in sorted(area.rglob("*")):
+            if not copied.is_file():
+                continue
+            copied_relative = copied.relative_to(packet_folder).as_posix()
+            source = special.get(copied_relative)
+            if source is None:
+                candidates = by_name.get(copied.name, [])
+                if len(candidates) == 1:
+                    source = candidates[0]
+                else:
+                    matching = [
+                        candidate
+                        for candidate in candidates
+                        if (ROOT / candidate).is_file()
+                        and (ROOT / candidate).read_bytes() == copied.read_bytes()
+                    ]
+                    if len(matching) == 1:
+                        source = matching[0]
+            if source is None or not (ROOT / source).is_file():
+                raise PacketValidationError(
+                    f"repo source mapping is ambiguous or missing for {copied_relative}"
+                )
+            shutil.copy2(ROOT / source, copied)
+            mappings[source] = copied_relative
+    return mappings
 
 
 def _performance_facts() -> str:
@@ -188,7 +251,7 @@ not complete. No foreign lock was cleared, edited, bypassed, adopted, or mutated
 """
 
 
-def _migration_spec(head: str, origin_main: str) -> str:
+def _migration_spec() -> str:
     return f"""# Target Currentness And FAM-003-Local Migration Specification
 
 Target Currentness Result: `{TARGET_RESULT}`
@@ -202,19 +265,16 @@ Planning Route While Blocked: `SCHEMA_MIGRATION_DECISION_ONLY / NO BP2_BP3_WORKS
 
 ## Exact Missing Live-Record Fields
 
-* `External State Schema`
-* `Record Class`
-* `Branch`
-* `Source Repo HEAD`
-* `Origin/Main`
-* `Worktree Path`
-* `Slot ID`
-* `Record Role`
-* `Historical Receipt Boundary`
+Nine exact validator fields are missing: schema identity, live-record class,
+branch identity, source revision identity, base-branch identity, worktree path,
+slot identity, record role, and historical receipt boundary. Their literal
+field names and current technical identity values are preserved under
+`Source Truth Context/Git Audit/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md`.
 
-Expected identity values are branch `feature/fam-003-settings-resize-proof`,
-source HEAD `{head}`, origin/main `{origin_main}`, worktree
-`C:\\Nexus Worktrees\\FAM-003`, and slot `runtime-active-3`.
+Expected identity values are the current FAM-003 branch, its synchronized source
+commit and upstream, the current base-branch commit, worktree
+`C:\\Nexus Worktrees\\FAM-003`, and slot `runtime-active-3`. Exact technical
+identity is preserved under packet proof context rather than the USER review.
 
 ## Future Migration Procedure
 
@@ -223,7 +283,7 @@ source HEAD `{head}`, origin/main `{origin_main}`, worktree
 3. Create a full external-state snapshot and record its identity.
 4. Preserve all existing receipts below an explicit historical boundary.
 5. Use `dev/orin_external_state_target_reconcile.py` for each target with its
-   pre-write SHA256, expected branch/HEAD/origin/worktree/slot, and the exact
+   pre-write content digest, expected branch/source/base/worktree/slot, and the exact
    missing fields above.
 6. Require atomic replacement, transition audit receipt, UTF-8 readback, and
    post-write target validation after every target.
@@ -391,18 +451,18 @@ Target currentness remains `{TARGET_RESULT}` for all three FAM-003 projections.
 
 Evidence currentness:
 
-* source HEAD and upstream are identical;
-* origin/main equals the merge base;
+* the source commit and upstream are identical;
+* the base branch equals the branch point;
 * tracked files were clean before this packet-only validator repair;
-* preserved untracked launcher remains outside Git;
+* the preserved local launcher remains outside tracked source;
 * v4 performance evidence has three sessions, 21 intervals, and 780 raw samples;
 * Option D remains temporary;
 * Workstream is not accepted;
 * H1/LV/UTS remain `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`.
 
-The final ZIP hash is recorded outside the ZIP after generation. A blocked root
-result cannot be relabeled PASS. Any later lock clearance, source HEAD change,
-origin/main advance, target migration, performance-bearing code change, or
+The final archive digest is recorded outside the archive after generation. A blocked root
+result cannot be relabeled PASS. Any later lock clearance, source revision change,
+base-branch advance, target migration, performance-bearing code change, or
 evidence replacement makes the applicable packet claim stale and requires a
 fresh validation/packet cycle.
 """
@@ -463,7 +523,7 @@ excluded ChatGPT continuity/bootstrap authority.
 """
 
 
-def _primary(head: str, origin_main: str, lock_id: str) -> str:
+def _primary(lock_id: str) -> str:
     return f"""# FAM-003 Option D Performance Final Decision Review
 
 Packet Status: `READY_FOR_USER_DECISION_WITH_DISCLOSED_EXTERNAL_VALIDATION_BLOCKER`
@@ -471,9 +531,6 @@ Packet Status: `READY_FOR_USER_DECISION_WITH_DISCLOSED_EXTERNAL_VALIDATION_BLOCK
 Current Gate: `{CURRENT_GATE}`
 Workstream Result: `{WORKSTREAM_RESULT}`
 H1 / LV / UTS: `{STAGE_STATES}`
-Source Branch: `feature/fam-003-settings-resize-proof`
-Source HEAD / Upstream: `{head}`
-origin/main / Merge Base: `{origin_main}`
 Final Root-Wide Result: `{ROOT_RESULT}`
 Foreign Lock ID: `{lock_id}`
 Target Currentness: `{TARGET_RESULT}`
@@ -514,7 +571,10 @@ Governance mutation, issue, PR, merge, release, or cleanup occurred.
 """
 
 
-def _start_here(head: str, origin_main: str, lock_id: str) -> str:
+def _start_here(lock_id: str, mappings: dict[str, str]) -> str:
+    mapping_rows = "\n".join(
+        f"| `{source}` | `{copied}` |" for source, copied in sorted(mappings.items())
+    )
     return f"""# FAM-003 Option D Performance Final Decision Packet
 
 Packet Reviewability State: `READY_FOR_USER_DECISION_WITH_DISCLOSED_EXTERNAL_VALIDATION_BLOCKER`
@@ -522,8 +582,6 @@ Packet Reviewability State: `READY_FOR_USER_DECISION_WITH_DISCLOSED_EXTERNAL_VAL
 Current Gate: `{CURRENT_GATE}`
 Workstream Result: `{WORKSTREAM_RESULT}`
 H1 / LV / UTS: `{STAGE_STATES}`
-Source HEAD / Upstream: `{head}`
-origin/main / Merge Base: `{origin_main}`
 Final Root-Wide Result: `{ROOT_RESULT}`
 Foreign Lock ID: `{lock_id}`
 Target Currentness: `{TARGET_RESULT}`
@@ -538,9 +596,63 @@ Primary USER Review: `USER Review/FAM003_OPTION_D_PERFORMANCE_FINAL_DECISION_REV
 3. Inspect the loaded-authority and artifact manifests.
 4. Treat Decision 1, Decision 2, and Decision 3 as separate gates.
 
-The final ZIP path and SHA256 are recorded outside the ZIP after generation.
+The final archive path and digest are recorded outside the archive after generation.
 This is not a migration, planning-revision, implementation, H1, LV, or UTS
 packet. Root-wide validation is not green.
+
+## Source / Copy File Mapping
+
+| Repo source | Packet copy |
+| --- | --- |
+{mapping_rows}
+"""
+
+
+def _identity_context(head: str, origin_main: str, lock_id: str) -> str:
+    return f"""# Packet Identity And Final Validation Context
+
+Source Branch: `feature/fam-003-settings-resize-proof`
+Source HEAD / Upstream: `{head}`
+origin/main / Merge Base: `{origin_main}`
+Final Root-Wide Result: `{ROOT_RESULT}`
+Foreign Lock ID: `{lock_id}`
+Target Currentness Result: `{TARGET_RESULT}`
+
+This generated proof-context file owns technical Git and validation identity.
+The USER-facing files intentionally contain decision substance rather than
+generator metadata.
+"""
+
+
+def _technical_migration_context(head: str, origin_main: str) -> str:
+    return f"""# Target Currentness And FAM-003-Local Migration Specification
+
+Target Currentness Result: `{TARGET_RESULT}`
+
+Exact missing fields for each of `branch_plan.md`, `branch_state.md`, and
+`worktree_state.md`:
+
+* `External State Schema`
+* `Record Class`
+* `Branch`
+* `Source Repo HEAD`
+* `Origin/Main`
+* `Worktree Path`
+* `Slot ID`
+* `Record Role`
+* `Historical Receipt Boundary`
+
+Expected Source Repo HEAD: `{head}`
+Expected Origin/Main: `{origin_main}`
+Expected Branch: `feature/fam-003-settings-resize-proof`
+Expected Worktree Path: `C:\\Nexus Worktrees\\FAM-003`
+Expected Slot ID: `runtime-active-3`
+
+Future mutation requires a FAM-003 migration lock, full snapshot, historical
+boundary preservation, one target-reconcile atomic transition per file using
+the pre-write SHA256, transition audit, target/scoped/root validation, rollback
+on failure, and lock release only after the final receipt. No central or sibling
+target is admitted.
 """
 
 
@@ -710,8 +822,8 @@ Raw Evidence: `{RAW_SAMPLE_COUNT}` raw samples across 21 intervals and three ses
 | --- | ---: |
 {rows}
 
-The final exact folder/ZIP file count and archive SHA256 are computed after all
-packet files, including this manifest, are written. The final ZIP hash remains
+The final exact folder/archive file count and archive digest are computed after all
+packet files, including this manifest, are written. The final archive digest remains
 outside the ZIP to avoid self-hash contradiction.
 """
 
@@ -747,17 +859,16 @@ def generate_packet(
 
     _extract_seed(seed_members, packet_folder)
     _copy_external_snapshots(packet_folder)
+    mappings = _refresh_repo_context(packet_folder)
 
     documents = {
-        Path("START_HERE.md"): _start_here(head, origin_main, lock_id),
-        PRIMARY_RELATIVE: _primary(head, origin_main, lock_id),
+        Path("START_HERE.md"): _start_here(lock_id, mappings),
+        PRIMARY_RELATIVE: _primary(lock_id),
         Path("Review Aids/01_CURRENT_PERFORMANCE_EVIDENCE.md"): _performance_facts(),
         Path("Review Aids/02_FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(
             lock_id, lock_owner, lock_updated
         ),
-        Path("Review Aids/03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_spec(
-            head, origin_main
-        ),
+        Path("Review Aids/03_TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_spec(),
         Path("Review Aids/04_REFINED_OPTION_G_SCOPE.md"): _option_g_scope(),
         Path("Review Aids/05_HUD_FAIL_CLOSED_ENVELOPE.md"): _hud_envelope(),
         Path("Review Aids/06_ORIN_CORE_OWNER_VISION_CARRYFORWARD.md"): _core_carryforward(),
@@ -767,10 +878,13 @@ def generate_packet(
             lock_id
         ),
         Path("Review Aids/10_FILES_LOADED_AND_AUTHORITY.md"): _authority(),
-        Path("Source Truth Context/Validation Outputs/FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(
+        Path("Source Truth Context/Git Audit/PACKET_IDENTITY.md"): _identity_context(
+            head, origin_main, lock_id
+        ),
+        Path("Source Truth Context/Git Audit/FINAL_EXTERNAL_VALIDATION_CHRONOLOGY.md"): _chronology(
             lock_id, lock_owner, lock_updated
         ),
-        Path("Source Truth Context/Validation Outputs/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _migration_spec(
+        Path("Source Truth Context/Git Audit/TARGET_CURRENTNESS_AND_MIGRATION_SPEC.md"): _technical_migration_context(
             head, origin_main
         ),
     }
