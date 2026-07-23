@@ -14,7 +14,7 @@ from pathlib import Path
 import orin_external_state_validation as validator
 import orin_external_state_lock_release as lock_release
 import orin_external_state_target_reconcile as reconciler
-from orin_external_state_common import atomic_write_json
+from orin_external_state_common import atomic_write_json, sha256_file
 
 
 TARGET = "worktrees/Governance/worktree_state.md"
@@ -101,6 +101,7 @@ def _snapshot(
     target: Path,
     name: str,
     *,
+    relative_target: str = TARGET,
     include_target: bool = True,
     snapshot_bytes: bytes | None = None,
     manifest_root: str | None = None,
@@ -109,13 +110,13 @@ def _snapshot(
     snapshot = root / "snapshots" / name
     snapshot.mkdir(parents=True)
     if include_target:
-        snapshot_target = _target_path(snapshot)
+        snapshot_target = snapshot.joinpath(*relative_target.split("/"))
         snapshot_target.parent.mkdir(parents=True, exist_ok=True)
         snapshot_target.write_bytes(snapshot_bytes if snapshot_bytes is not None else target.read_bytes())
     target_hash = manifest_hash
     if target_hash is None and include_target:
         target_hash = hashlib.sha256(
-            _target_path(snapshot).read_bytes()
+            snapshot.joinpath(*relative_target.split("/")).read_bytes()
         ).hexdigest()
     atomic_write_json(
         snapshot / "snapshot_manifest.json",
@@ -127,7 +128,7 @@ def _snapshot(
             "Root": manifest_root or str(root.resolve()),
             "Copied Files": [
                 {
-                    "path": TARGET,
+                    "path": relative_target,
                     "sha256": target_hash or "",
                 }
             ],
@@ -483,6 +484,84 @@ def main() -> int:
         )
         if not ok or audit is not None or target.read_bytes() != add_only_before:
             raise AssertionError("add-only target writer dry run was rejected or mutated the target:\n" + "\n".join(messages))
+
+        legacy_relative = "branches/legacy-schema-fixture/branch_state.md"
+        legacy_target = root.joinpath(*legacy_relative.split("/"))
+        legacy_target.parent.mkdir(parents=True, exist_ok=True)
+        legacy_body = b"## Legacy Branch State\nCurrent Gate: `historical-only`\n"
+        legacy_target.write_bytes(legacy_body)
+        legacy_lock_id = "branch-fixture-legacy-schema-lock"
+        atomic_write_json(
+            root / "locks" / f"{legacy_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": legacy_lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": legacy_relative,
+            },
+        )
+        legacy_snapshot = _snapshot(
+            root,
+            legacy_target,
+            "fixture-legacy-schema-addition",
+            relative_target=legacy_relative,
+        )
+        legacy_expectations = {
+            "expected_branch": "feature/release-readiness-source-truth-intake",
+            "expected_source_head": HEAD,
+            "expected_origin_main": ORIGIN_MAIN,
+            "expected_worktree_path": WORKTREE_PATH,
+            "expected_worktree_slot": SLOT,
+            "expected_target_sha256": sha256_file(legacy_target),
+        }
+        legacy_additions = [
+            "External State Schema=external-state-v1",
+            "State Version=1",
+            "Record Class=Live Branch Projection",
+            "Record Role=Current active branch phase, blocker, and next legal phase fields",
+            "Branch=feature/release-readiness-source-truth-intake",
+            f"Source Repo HEAD={HEAD}",
+            f"Origin/Main={ORIGIN_MAIN}",
+            "Worktree=Governance",
+            f"Worktree Path={WORKTREE_PATH}",
+            f"Slot ID={SLOT}",
+            "Last Updated=2026-01-02T00:00:00+00:00",
+            "Last Updated By=Codex",
+            "Historical Receipt Boundary=Existing record body below this boundary is immutable historical receipt evidence.",
+        ]
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=legacy_relative,
+            lock_id=legacy_lock_id,
+            snapshot=legacy_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=legacy_additions,
+            apply=False,
+            **legacy_expectations,
+        )
+        if not ok or audit is not None or legacy_target.read_bytes() != legacy_body:
+            raise AssertionError(
+                "legacy-schema target writer dry run was rejected or mutated the target:\n"
+                + "\n".join(messages)
+            )
+
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=legacy_relative,
+            lock_id=legacy_lock_id,
+            snapshot=legacy_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=[item for item in legacy_additions if not item.startswith("External State Schema=")],
+            apply=False,
+            **legacy_expectations,
+        )
+        if ok or audit is not None or not any("External State Schema Conflict" in item for item in messages):
+            raise AssertionError(
+                "legacy-schema target writer accepted a projection without the schema addition:\n"
+                + "\n".join(messages)
+            )
 
         dry_run_head = "d" * 40
         dry_run_snapshot = _snapshot(root, target, "fixture-dry-run-head-transition")

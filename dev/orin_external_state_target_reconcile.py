@@ -565,6 +565,11 @@ def reconcile_target(
         if not (
             any(item.endswith(allowed) for allowed in allowed_pre_additions)
             or (
+                item.startswith(f"External State Schema Conflict: {relative}:")
+                and item.endswith("found MISSING")
+                and "External State Schema" in addable_identity_fields
+            )
+            or (
                 "unsupported or missing live Record Class" in item
                 and "Record Class" in addable_identity_fields
             )
