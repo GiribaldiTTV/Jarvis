@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import hashlib
+import json
 import os
 from pathlib import Path
 import stat
@@ -71,6 +73,14 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--projection-set-semantic-coherence",
+        action="store_true",
+        help=(
+            "Validate a selected set of live projections as one semantic transition. This mode "
+            "requires explicit target hashes, prior snapshot, completion audit, and primary review."
+        ),
+    )
+    parser.add_argument(
         "--target",
         action="append",
         default=[],
@@ -84,6 +94,26 @@ def build_parser() -> argparse.ArgumentParser:
         "--expected-target-sha256",
         help="Expected SHA256 of the selected target record before validation (TOCTOU precondition).",
     )
+    parser.add_argument(
+        "--expected-target-hash",
+        action="append",
+        default=[],
+        metavar="TARGET=SHA256",
+        help="Expected target/hash pair for projection-set semantic validation. Repeat per target.",
+    )
+    parser.add_argument("--expected-current-gate")
+    parser.add_argument("--expected-workstream-result")
+    parser.add_argument("--expected-stage-states")
+    parser.add_argument("--expected-next-legal-phase")
+    parser.add_argument("--expected-transition-status")
+    parser.add_argument("--expected-state-version", type=int)
+    parser.add_argument("--expected-last-updated-by")
+    parser.add_argument("--previous-snapshot")
+    parser.add_argument("--completion-audit")
+    parser.add_argument("--primary-review")
+    parser.add_argument("--expected-decision-1")
+    parser.add_argument("--expected-decision-2")
+    parser.add_argument("--expected-decision-3")
     return parser
 
 
@@ -358,6 +388,322 @@ def validate_target_currentness(
         failures.append(f"Target Currentness: {relative} is missing Record Role classification")
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
+    return failures
+
+
+PROJECTION_SET_FIELDS = (
+    "State Version",
+    "Last Updated",
+    "Last Updated By",
+    "Worktree",
+    "Worktree Path",
+    "Branch",
+    "Source Repo HEAD",
+    "Origin/Main",
+    "Slot ID",
+    "Current Gate",
+    "Workstream Result",
+    "H1 / LV / UTS",
+    "Next Legal Phase",
+    "Transition Status",
+)
+
+
+def _parse_target_hash_pairs(values: list[str]) -> tuple[dict[str, str], list[str]]:
+    pairs: dict[str, str] = {}
+    failures: list[str] = []
+    for value in values:
+        if "=" not in value:
+            failures.append(f"Projection Set Contract: expected TARGET=SHA256, found {value!r}")
+            continue
+        target, digest = (item.strip() for item in value.split("=", 1))
+        normalized = target.replace("\\", "/")
+        if normalized in pairs:
+            failures.append(f"Projection Set Contract: duplicate target hash supplied: {normalized}")
+        elif not re.fullmatch(r"[0-9a-fA-F]{64}", digest):
+            failures.append(f"Projection Set Contract: invalid SHA256 for {normalized}: {digest!r}")
+        else:
+            pairs[normalized] = digest
+    return pairs, failures
+
+
+def _parse_timestamp(value: str, label: str, failures: list[str]) -> datetime | None:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        failures.append(f"Projection Set Semantics: malformed timestamp for {label}: {value!r}")
+        return None
+    if parsed.tzinfo is None:
+        failures.append(f"Projection Set Semantics: timestamp is not timezone-aware for {label}: {value!r}")
+        return None
+    return parsed
+
+
+def _historical_receipt_bytes(data: bytes, label: str, failures: list[str]) -> bytes | None:
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        failures.append(f"Projection Set Semantics: malformed UTF-8 in {label}: {exc}")
+        return None
+    match = re.search(
+        r"^\s*(?:-\s*)?Historical Receipt Boundary:\s*.*?(?:\r\n|\n|\r|$)",
+        text,
+        re.MULTILINE,
+    )
+    if not match:
+        failures.append(f"Projection Set Semantics: Historical Receipt Boundary is missing in {label}")
+        return None
+    return text[match.end() :].encode("utf-8")
+
+
+def _load_semantic_json(path: Path, label: str, failures: list[str]) -> dict[str, object] | None:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        failures.append(f"Projection Set Semantics: {label} is missing or unreadable: {path}: {exc}")
+        return None
+    if not isinstance(payload, dict):
+        failures.append(f"Projection Set Semantics: {label} must be a JSON object: {path}")
+        return None
+    return payload
+
+
+def validate_projection_set_semantic_coherence(
+    root: Path,
+    targets: list[str],
+    *,
+    expected_target_hashes: dict[str, str],
+    expected_branch: str | None,
+    expected_source_head: str | None,
+    expected_origin_main: str | None,
+    expected_worktree_path: str | None,
+    expected_worktree_slot: str | None,
+    expected_current_gate: str | None,
+    expected_workstream_result: str | None,
+    expected_stage_states: str | None,
+    expected_next_legal_phase: str | None,
+    expected_transition_status: str | None,
+    expected_state_version: int | None,
+    expected_last_updated_by: str | None,
+    previous_snapshot: str | None,
+    completion_audit: str | None,
+    primary_review: str | None,
+    expected_decision_1: str | None,
+    expected_decision_2: str | None,
+    expected_decision_3: str | None,
+    expected_schema: str = DEFAULT_SCHEMA_VERSION,
+) -> list[str]:
+    """Validate cross-projection phase semantics without treating historical receipts as live state."""
+
+    failures = validate_canonical_root(root)
+    root = resolve_path(root)
+    required = {
+        "expected branch": expected_branch,
+        "expected source HEAD": expected_source_head,
+        "expected origin/main": expected_origin_main,
+        "expected worktree path": expected_worktree_path,
+        "expected worktree slot": expected_worktree_slot,
+        "expected current gate": expected_current_gate,
+        "expected workstream result": expected_workstream_result,
+        "expected H1 / LV / UTS": expected_stage_states,
+        "expected next legal phase": expected_next_legal_phase,
+        "expected transition status": expected_transition_status,
+        "expected state version": expected_state_version,
+        "expected last updated by": expected_last_updated_by,
+        "previous snapshot": previous_snapshot,
+        "completion audit": completion_audit,
+        "primary review": primary_review,
+        "expected Decision 1": expected_decision_1,
+        "expected Decision 2": expected_decision_2,
+        "expected Decision 3": expected_decision_3,
+    }
+    missing = [name for name, value in required.items() if value is None or value == ""]
+    if missing:
+        failures.append(
+            "Projection Set Contract: fail closed; missing explicit expectations: " + ", ".join(missing)
+        )
+    normalized_targets = [target.replace("\\", "/") for target in targets]
+    if len(normalized_targets) < 2 or len(set(normalized_targets)) != len(normalized_targets):
+        failures.append(
+            "Projection Set Contract: at least two distinct explicit targets are required; "
+            f"received {len(targets)}"
+        )
+    if set(normalized_targets) != set(expected_target_hashes):
+        failures.append(
+            "Projection Set Contract: target/hash selection mismatch; targets="
+            + repr(sorted(normalized_targets))
+            + ", hashes="
+            + repr(sorted(expected_target_hashes))
+        )
+    if failures:
+        return failures
+
+    records: dict[str, tuple[Path, bytes, str, dict[str, str | None]]] = {}
+    for target in normalized_targets:
+        target_failures = validate_target_currentness(
+            root,
+            [target],
+            expected_branch=expected_branch,
+            expected_source_head=expected_source_head,
+            expected_origin_main=expected_origin_main,
+            expected_worktree_path=expected_worktree_path,
+            expected_worktree_slot=expected_worktree_slot,
+            expected_target_sha256=expected_target_hashes[target],
+            expected_schema=expected_schema,
+        )
+        failures.extend(target_failures)
+        relative, path, path_failures = _resolve_target_path(root, target)
+        failures.extend(path_failures)
+        if target_failures or path is None or relative is None:
+            continue
+        data = path.read_bytes()
+        text = data.decode("utf-8")
+        live_text = _live_header_text(text)
+        fields = {field: markdown_field_value(live_text, field) for field in PROJECTION_SET_FIELDS}
+        records[relative] = (path, data, live_text, fields)
+    if failures:
+        return failures
+
+    reference_target = normalized_targets[0]
+    reference_fields = records[reference_target][3]
+    for field in PROJECTION_SET_FIELDS:
+        reference = reference_fields[field]
+        if reference is None:
+            failures.append(f"Projection Set Semantics: {reference_target} is missing live field {field}")
+            continue
+        for target in normalized_targets[1:]:
+            actual = records[target][3][field]
+            if actual != reference:
+                failures.append(
+                    f"Projection Set Semantics: cross-target {field} mismatch: "
+                    f"{reference_target}={reference!r}; {target}={actual!r}"
+                )
+
+    expected_fields: dict[str, object] = {
+        "State Version": expected_state_version,
+        "Last Updated By": expected_last_updated_by,
+        "Current Gate": expected_current_gate,
+        "Workstream Result": expected_workstream_result,
+        "H1 / LV / UTS": expected_stage_states,
+        "Next Legal Phase": expected_next_legal_phase,
+        "Transition Status": expected_transition_status,
+    }
+    for field, expected in expected_fields.items():
+        actual = reference_fields[field]
+        if field == "State Version":
+            try:
+                actual_value: object = int(actual or "")
+            except ValueError:
+                actual_value = actual
+        else:
+            actual_value = actual
+        if actual_value != expected:
+            failures.append(
+                f"Projection Set Semantics: live {field} mismatch: expected {expected!r}, found {actual!r}"
+            )
+
+    snapshot_path = (root / Path(*(previous_snapshot or "").replace("\\", "/").split("/"))).resolve()
+    try:
+        snapshot_path.relative_to(root.resolve())
+    except ValueError:
+        failures.append(f"Projection Set Contract: previous snapshot escapes external root: {previous_snapshot}")
+        snapshot_path = root / "__invalid_snapshot__"
+    if not snapshot_path.is_dir():
+        failures.append(f"Projection Set Semantics: previous snapshot is missing: {snapshot_path}")
+    else:
+        for target in normalized_targets:
+            snapshot_target = snapshot_path.joinpath(*target.split("/"))
+            if not snapshot_target.is_file():
+                failures.append(f"Projection Set Semantics: snapshot target is missing: {snapshot_target}")
+                continue
+            current_data = records[target][1]
+            snapshot_data = snapshot_target.read_bytes()
+            current_tail = _historical_receipt_bytes(current_data, target, failures)
+            snapshot_tail = _historical_receipt_bytes(snapshot_data, f"snapshot/{target}", failures)
+            if current_tail is not None and snapshot_tail is not None and current_tail != snapshot_tail:
+                failures.append(f"Projection Set Semantics: historical receipt bytes changed for {target}")
+            snapshot_live = _live_header_text(snapshot_data.decode("utf-8"))
+            previous_version = markdown_field_value(snapshot_live, "State Version")
+            current_version = records[target][3]["State Version"]
+            try:
+                if int(current_version or "") != int(previous_version or "") + 1:
+                    failures.append(
+                        f"Projection Set Semantics: State Version did not advance by one for {target}: "
+                        f"previous={previous_version!r}, current={current_version!r}"
+                    )
+            except ValueError:
+                failures.append(
+                    f"Projection Set Semantics: non-integer State Version for {target}: "
+                    f"previous={previous_version!r}, current={current_version!r}"
+                )
+            previous_updated = markdown_field_value(snapshot_live, "Last Updated")
+            current_updated = records[target][3]["Last Updated"]
+            previous_time = _parse_timestamp(previous_updated or "", f"snapshot/{target}", failures)
+            current_time = _parse_timestamp(current_updated or "", target, failures)
+            if previous_time is not None and current_time is not None and current_time <= previous_time:
+                failures.append(
+                    f"Projection Set Semantics: Last Updated did not advance for {target}: "
+                    f"previous={previous_updated!r}, current={current_updated!r}"
+                )
+
+    audit_path = Path(completion_audit or "")
+    if not audit_path.is_absolute():
+        audit_path = root / audit_path
+    audit = _load_semantic_json(audit_path, "completion audit", failures)
+    if audit is not None:
+        audit_expectations = {
+            "Transition Status": "MIGRATION_COMPLETE",
+            "Decision 1": expected_decision_1,
+            "Decision 2": expected_decision_2,
+            "Decision 3": expected_decision_3,
+            "Workstream": expected_workstream_result,
+            "H1 / LV / UTS": expected_stage_states,
+            "Next Legal Phase": expected_next_legal_phase,
+        }
+        for field, expected in audit_expectations.items():
+            if audit.get(field) != expected:
+                failures.append(
+                    f"Projection Set Semantics: completion audit {field} mismatch: "
+                    f"expected {expected!r}, found {audit.get(field)!r}"
+                )
+
+    review_path = Path(primary_review or "")
+    if not review_path.is_absolute():
+        review_path = root / review_path
+    try:
+        review_text = review_path.read_text(encoding="utf-8-sig")
+    except (OSError, UnicodeDecodeError) as exc:
+        failures.append(f"Projection Set Semantics: primary review is missing or unreadable: {review_path}: {exc}")
+        review_text = ""
+    review_folded = review_text.casefold()
+    for label, needles in (
+        ("Decision 1 completion", ("decision 1", "complete")),
+        ("Decision 2 separate approval", ("decision 2", "separate", "approval")),
+        ("Decision 3 future gate", ("decision 3", "future")),
+    ):
+        if not all(needle in review_folded for needle in needles):
+            failures.append(f"Projection Set Semantics: primary review lacks {label} semantics")
+
+    next_phase = (reference_fields["Next Legal Phase"] or "").casefold()
+    if expected_decision_1 == "COMPLETE" and "decision 1" in next_phase:
+        failures.append("Projection Set Semantics: Decision 1 is complete but live Next Legal Phase asks for Decision 1")
+    if expected_decision_2 == "ELIGIBLE_FOR_SEPARATE_USER_APPROVAL_ONLY":
+        if "decision 2" not in next_phase or not any(
+            marker in next_phase for marker in ("user decision", "user approval")
+        ):
+            failures.append(
+                "Projection Set Semantics: Decision 2 is eligible for separate USER approval but live Next Legal Phase does not route a USER decision"
+            )
+        if re.search(r"\b(?:approved|started|in progress|underway)\b", next_phase):
+            failures.append(
+                "Projection Set Semantics: Decision 2 is only eligible but live Next Legal Phase claims it is approved or started"
+            )
+    if expected_decision_3 == "SEPARATE_FUTURE_GATE" and "decision 3" in next_phase:
+        failures.append("Projection Set Semantics: Decision 3 was merged into the active Decision 2 route")
+    if "decision 1" in next_phase and "decision 1" not in review_folded:
+        failures.append("Projection Set Semantics: packet/live route disagreement about Decision 1")
+    if "decision 1" in next_phase and "decision 1 is complete" in review_folded:
+        failures.append("Projection Set Semantics: packet says Decision 1 is complete while live state routes Decision 1")
     return failures
 
 
@@ -1307,11 +1653,17 @@ def main() -> int:
             or args.require_stage4_records
             or args.expected_source_head
             or args.target_currentness
+            or args.projection_set_semantic_coherence
         ):
             print("Clean Clone Boundary: BLOCKED - required local external-state validation needs the root")
             return 1
         print("Clean Clone Boundary: PASS - missing root is not a repo validation failure")
         return 0
+
+    if args.target_currentness and args.projection_set_semantic_coherence:
+        print("Validation Result: BLOCKED")
+        print("Target-scoped currentness and projection-set semantic coherence are mutually exclusive modes")
+        return 1
 
     if args.target_currentness:
         if args.require_stage4_records:
@@ -1347,6 +1699,57 @@ def main() -> int:
             return 1
         print("Target Currentness Validation: PASS")
         print("Target PASS Is Root-Wide PASS: NO")
+        return 0
+
+    if args.projection_set_semantic_coherence:
+        if args.require_stage4_records:
+            print("Validation Result: BLOCKED")
+            print("Projection-set semantic coherence cannot be combined with global Stage 4 record validation")
+            return 1
+        initialization_issues = validate_initialized_root(root, args.schema)
+        if initialization_issues:
+            print("Validation Scope: PROJECTION_SET_SEMANTIC_COHERENCE")
+            print("Root Manifest Posture: BLOCKED - semantic coherence requires an initialized external-state root")
+            print("Projection Set Semantic Coherence: BLOCKED")
+            for issue in initialization_issues:
+                print(issue)
+            return 1
+        target_hashes, hash_failures = _parse_target_hash_pairs(args.expected_target_hash)
+        semantic_issues = hash_failures + validate_projection_set_semantic_coherence(
+            root,
+            args.target,
+            expected_target_hashes=target_hashes,
+            expected_branch=args.expected_branch,
+            expected_source_head=args.expected_source_head,
+            expected_origin_main=args.expected_origin_main,
+            expected_worktree_path=args.expected_worktree_path,
+            expected_worktree_slot=args.expected_worktree_slot,
+            expected_current_gate=args.expected_current_gate,
+            expected_workstream_result=args.expected_workstream_result,
+            expected_stage_states=args.expected_stage_states,
+            expected_next_legal_phase=args.expected_next_legal_phase,
+            expected_transition_status=args.expected_transition_status,
+            expected_state_version=args.expected_state_version,
+            expected_last_updated_by=args.expected_last_updated_by,
+            previous_snapshot=args.previous_snapshot,
+            completion_audit=args.completion_audit,
+            primary_review=args.primary_review,
+            expected_decision_1=args.expected_decision_1,
+            expected_decision_2=args.expected_decision_2,
+            expected_decision_3=args.expected_decision_3,
+            expected_schema=args.schema,
+        )
+        print("Validation Scope: PROJECTION_SET_SEMANTIC_COHERENCE")
+        print("Selected Targets: " + (", ".join(args.target) if args.target else "MISSING"))
+        print("Root Manifest Posture: STRUCTURAL_ONLY - selected projection semantics do not assert root-wide currentness")
+        if semantic_issues:
+            print("Projection Set Semantic Coherence: BLOCKED")
+            for issue in semantic_issues:
+                print(issue)
+            return 1
+        print("Projection Set Semantic Coherence: PASS")
+        print("Historical Receipt Text Defines Current State: NO")
+        print("Projection Set PASS Is Root-Wide PASS: NO")
         return 0
 
     manifest_path = root / "state_manifest.json"

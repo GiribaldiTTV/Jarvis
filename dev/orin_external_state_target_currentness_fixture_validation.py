@@ -159,6 +159,253 @@ def _assert_failure(name: str, needle: str, failures: list[str]) -> None:
         raise AssertionError(f"{name} did not fail on {needle!r}:\n" + "\n".join(failures))
 
 
+SEMANTIC_TARGETS = (
+    "branches/feature_fixture/branch_plan.md",
+    "branches/feature_fixture/branch_state.md",
+    "worktrees/FAM-003/worktree_state.md",
+)
+SEMANTIC_BRANCH = "feature/fixture"
+SEMANTIC_WORKTREE_PATH = r"C:\Nexus Worktrees\FAM-003"
+SEMANTIC_SLOT = "runtime-active-3"
+SEMANTIC_GATE = "R2 Workstream completion USER review pending - performance decision required"
+SEMANTIC_WORKSTREAM = "USER_DECISION_REQUIRED"
+SEMANTIC_STAGES = "NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED"
+SEMANTIC_NEXT = "USER decision on Decision 2 Option G planning-revision preparation only, if USER chooses to proceed"
+SEMANTIC_TRANSITION = "MIGRATION_COMPLETE_CURRENT_PENDING_USER_PERFORMANCE_DECISION"
+
+
+def _write_semantic_record(
+    root: Path,
+    relative: str,
+    *,
+    state_version: int = 2,
+    last_updated: str = "2026-01-02T00:00:00+00:00",
+    next_phase: str = SEMANTIC_NEXT,
+    transition: str = SEMANTIC_TRANSITION,
+) -> Path:
+    record_class = {
+        SEMANTIC_TARGETS[0]: "Live Branch Plan",
+        SEMANTIC_TARGETS[1]: "Live Branch Projection",
+        SEMANTIC_TARGETS[2]: "Live Worktree Projection",
+    }[relative]
+    path = root.joinpath(*relative.split("/"))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            [
+                "# Projection Set Semantic Fixture",
+                "External State Schema: `external-state-v1`",
+                f"State Version: `{state_version}`",
+                f"Last Updated: `{last_updated}`",
+                "Last Updated By: `Codex`",
+                f"Record Class: `{record_class}`",
+                "Record Role: `Current fixture projection`",
+                "Worktree: `FAM-003`",
+                f"Worktree Path: `{SEMANTIC_WORKTREE_PATH}`",
+                f"Branch: `{SEMANTIC_BRANCH}`",
+                f"Source Repo HEAD: `{HEAD}`",
+                f"Origin/Main: `{ORIGIN_MAIN}`",
+                f"Slot ID: `{SEMANTIC_SLOT}`",
+                f"Current Gate: `{SEMANTIC_GATE}`",
+                f"Workstream Result: `{SEMANTIC_WORKSTREAM}`",
+                f"H1 / LV / UTS: `{SEMANTIC_STAGES}`",
+                f"Next Legal Phase: `{next_phase}`",
+                f"Transition Status: `{transition}`",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "",
+                "\ufeff## Historical Receipt",
+                "Next Legal Phase: `USER Decision 1 on this bounded migration`",
+                "Decision 1: `PENDING_HISTORICAL_ONLY`",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _semantic_fixture(root: Path) -> tuple[Path, Path]:
+    _manifest(root, source_head=HEAD)
+    snapshot = root / "snapshots" / "semantic-before"
+    for target in SEMANTIC_TARGETS:
+        snapshot_target = _write_semantic_record(
+            snapshot,
+            target,
+            state_version=1,
+            last_updated="2026-01-01T00:00:00+00:00",
+        )
+        current_target = root.joinpath(*target.split("/"))
+        current_target.parent.mkdir(parents=True, exist_ok=True)
+        current_target.write_bytes(snapshot_target.read_bytes())
+        _write_semantic_record(root, target)
+    audit = root / "audit_log" / "migration-completion.json"
+    audit.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write_json(
+        audit,
+        {
+            "Transition Status": "MIGRATION_COMPLETE",
+            "Decision 1": "COMPLETE",
+            "Decision 2": "ELIGIBLE_FOR_SEPARATE_USER_APPROVAL_ONLY",
+            "Decision 3": "SEPARATE_FUTURE_GATE",
+            "Workstream": SEMANTIC_WORKSTREAM,
+            "H1 / LV / UTS": SEMANTIC_STAGES,
+            "Next Legal Phase": SEMANTIC_NEXT,
+            "Source Repo HEAD": HEAD,
+            "Origin/Main": ORIGIN_MAIN,
+        },
+    )
+    review = root / "review" / "primary.md"
+    review.parent.mkdir(parents=True, exist_ok=True)
+    review.write_text(
+        "Decision 1 is complete. Decision 2 is eligible for a separate USER approval only. "
+        "Decision 3 remains a future gate.\n",
+        encoding="utf-8",
+    )
+    return audit, review
+
+
+def _semantic_run(root: Path) -> list[str]:
+    return validator.validate_projection_set_semantic_coherence(
+        root,
+        list(SEMANTIC_TARGETS),
+        expected_target_hashes={
+            target: sha256_file(root.joinpath(*target.split("/"))) for target in SEMANTIC_TARGETS
+        },
+        expected_branch=SEMANTIC_BRANCH,
+        expected_source_head=HEAD,
+        expected_origin_main=ORIGIN_MAIN,
+        expected_worktree_path=SEMANTIC_WORKTREE_PATH,
+        expected_worktree_slot=SEMANTIC_SLOT,
+        expected_current_gate=SEMANTIC_GATE,
+        expected_workstream_result=SEMANTIC_WORKSTREAM,
+        expected_stage_states=SEMANTIC_STAGES,
+        expected_next_legal_phase=SEMANTIC_NEXT,
+        expected_transition_status=SEMANTIC_TRANSITION,
+        expected_state_version=2,
+        expected_last_updated_by="Codex",
+        previous_snapshot="snapshots/semantic-before",
+        completion_audit="audit_log/migration-completion.json",
+        primary_review="review/primary.md",
+        expected_decision_1="COMPLETE",
+        expected_decision_2="ELIGIBLE_FOR_SEPARATE_USER_APPROVAL_ONLY",
+        expected_decision_3="SEPARATE_FUTURE_GATE",
+    )
+
+
+def _run_projection_set_semantic_fixtures(parent: Path) -> None:
+    def case(name: str) -> Path:
+        root = parent / name
+        root.mkdir(parents=True, exist_ok=True)
+        _semantic_fixture(root)
+        return root
+
+    root = case("semantic-valid-historical-text")
+    _assert_pass("historical Decision 1 receipt is not live state", _semantic_run(root))
+
+    root = case("semantic-decision1-stale-route")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, next_phase="USER Decision 1 on this bounded migration")
+    _assert_failure(
+        "Decision 1 complete but next route asks for Decision 1",
+        "Decision 1 is complete",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-migration-pending")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, transition="MIGRATION_PENDING")
+    _assert_failure(
+        "migration complete audit but live transition remains pending",
+        "live Transition Status mismatch",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-decision2-started")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, next_phase="Decision 2 approved and started")
+    _assert_failure(
+        "Decision 2 eligible but live state says started",
+        "claims it is approved or started",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-decision3-merged")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(
+            root,
+            target,
+            next_phase="USER approval for Decision 2 and Decision 3 planning",
+        )
+    _assert_failure(
+        "Decision 3 merged into Decision 2",
+        "Decision 3 was merged",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-cross-target-mismatch")
+    _write_semantic_record(root, SEMANTIC_TARGETS[2], next_phase="USER Decision 1 on this bounded migration")
+    _assert_failure(
+        "cross-target next legal phase mismatch",
+        "cross-target Next Legal Phase mismatch",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-audit-review-live-disagreement")
+    audit = root / "audit_log" / "migration-completion.json"
+    payload = json.loads(audit.read_text(encoding="utf-8"))
+    payload["Decision 1"] = "PENDING"
+    atomic_write_json(audit, payload)
+    _assert_failure(
+        "audit review and live state disagree",
+        "completion audit Decision 1 mismatch",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-stale-version-timestamp")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(
+            root,
+            target,
+            state_version=1,
+            last_updated="2026-01-01T00:00:00+00:00",
+        )
+    failures = _semantic_run(root)
+    _assert_failure("state version did not advance", "State Version did not advance", failures)
+    _assert_failure("timestamp did not advance", "Last Updated did not advance", failures)
+
+    root = case("semantic-packet-eligibility-live-decision1")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, next_phase="USER Decision 1 on this bounded migration")
+    _assert_failure(
+        "packet says eligibility while active state routes Decision 1",
+        "packet says Decision 1 is complete",
+        _semantic_run(root),
+    )
+
+    root = case("semantic-target-only-false-green")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, next_phase="USER Decision 1 on this bounded migration")
+    selected = root.joinpath(*SEMANTIC_TARGETS[0].split("/"))
+    _assert_pass(
+        "legacy target-currentness intentionally does not adjudicate phase semantics",
+        validator.validate_target_currentness(
+            root,
+            [SEMANTIC_TARGETS[0]],
+            expected_branch=SEMANTIC_BRANCH,
+            expected_source_head=HEAD,
+            expected_origin_main=ORIGIN_MAIN,
+            expected_worktree_path=SEMANTIC_WORKTREE_PATH,
+            expected_worktree_slot=SEMANTIC_SLOT,
+            expected_target_sha256=sha256_file(selected),
+        ),
+    )
+    _assert_failure(
+        "projection-set semantic mode closes target-only false green",
+        "Decision 1 is complete",
+        _semantic_run(root),
+    )
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-target-currentness-") as temp_dir:
         root = Path(temp_dir)
@@ -1357,6 +1604,9 @@ def main() -> int:
             raise AssertionError("CRLF target transition introduced a lone LF newline")
         if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n") + 1:
             raise AssertionError("CRLF target transition changed untouched newline structure")
+
+    with tempfile.TemporaryDirectory(prefix="ndai-projection-set-semantics-") as temp_dir:
+        _run_projection_set_semantic_fixtures(Path(temp_dir))
 
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0
