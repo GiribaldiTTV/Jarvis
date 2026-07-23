@@ -70,13 +70,13 @@ def _record(
                 "Last Updated By: `fixture`",
                 "Record Class: `" + record_class + "`",
                 "Record Role: `Current worktree assignment projection`",
-                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Worktree: `Governance`",
                 "Worktree Path: `" + worktree_path + "`",
                 "Branch: `" + branch + "`",
                 "Source Repo HEAD: `" + head + "`",
                 "Origin/Main: `" + origin_main + "`",
                 "Slot ID: `" + slot + "`",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "",
             ]
         ),
@@ -488,7 +488,12 @@ def main() -> int:
         legacy_relative = "branches/legacy-schema-fixture/branch_state.md"
         legacy_target = root.joinpath(*legacy_relative.split("/"))
         legacy_target.parent.mkdir(parents=True, exist_ok=True)
-        legacy_body = b"## Legacy Branch State\nCurrent Gate: `historical-only`\n"
+        legacy_body = (
+            b"\xef\xbb\xbf## Legacy Branch State\n"
+            b"Branch: `historical-wrong-branch`\n"
+            b"Source Repo HEAD: `historical-wrong-head`\n"
+            b"Current Gate: `historical-only`\n"
+        )
         legacy_target.write_bytes(legacy_body)
         legacy_lock_id = "branch-fixture-legacy-schema-lock"
         atomic_write_json(
@@ -561,6 +566,40 @@ def main() -> int:
             raise AssertionError(
                 "legacy-schema target writer accepted a projection without the schema addition:\n"
                 + "\n".join(messages)
+            )
+
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=legacy_relative,
+            lock_id=legacy_lock_id,
+            snapshot=legacy_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=legacy_additions,
+            apply=True,
+            **legacy_expectations,
+        )
+        migrated_legacy = legacy_target.read_bytes()
+        if not ok or audit is None:
+            raise AssertionError(
+                "legacy-schema target writer apply was rejected:\n" + "\n".join(messages)
+            )
+        if not migrated_legacy.startswith(b"External State Schema: `external-state-v1`\n"):
+            raise AssertionError("legacy-schema target writer did not place the live header at byte zero")
+        if not migrated_legacy.endswith(legacy_body):
+            raise AssertionError("legacy-schema target writer did not preserve the BOM-prefixed historical bytes")
+        if migrated_legacy.index(b"Historical Receipt Boundary:") > migrated_legacy.index(b"\xef\xbb\xbf##"):
+            raise AssertionError("legacy-schema target writer placed the boundary after historical bytes")
+        post_failures = validator.validate_target_currentness(
+            root,
+            [legacy_relative],
+            expected_target_sha256=sha256_file(legacy_target),
+            expected_schema="external-state-v1",
+            **{key: value for key, value in legacy_expectations.items() if key != "expected_target_sha256"},
+        )
+        if post_failures:
+            raise AssertionError(
+                "BOM-safe migrated target did not pass currentness validation:\n"
+                + "\n".join(post_failures)
             )
 
         dry_run_head = "d" * 40

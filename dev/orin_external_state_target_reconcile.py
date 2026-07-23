@@ -249,14 +249,31 @@ def _replace_existing_fields(
     failures: list[str] = []
     found: dict[str, int] = {field: 0 for field in {**updates, **additions}}
     replaced: list[str] = []
-    live_end = next(
+    boundary_index = next(
         (
             index
             for index, line in enumerate(lines)
-            if line.rstrip("\r\n").startswith("## ")
+            if re.match(
+                r"^\s*(?:-\s*)?Historical Receipt Boundary:\s*",
+                line.rstrip("\r\n"),
+            )
+        ),
+        None,
+    )
+    heading_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n").lstrip("\ufeff").startswith("## ")
         ),
         len(lines),
     )
+    if boundary_index is not None and boundary_index < heading_index:
+        live_end = boundary_index + 1
+        insert_at = boundary_index
+    else:
+        live_end = heading_index
+        insert_at = heading_index
     for index, line in enumerate(lines[:live_end]):
         content = line.rstrip("\r\n")
         newline = line[len(content) :]
@@ -280,7 +297,6 @@ def _replace_existing_fields(
         elif field in updates and count != 1:
             failures.append(f"Target transition requires exactly one existing field {field}: found {count}")
     if not failures and additions:
-        insert_at = live_end
         newline = next(
             (_line_ending(line) for line in lines[:live_end] if _line_ending(line)),
             "\n",
@@ -433,15 +449,13 @@ def _live_header_text(text: str) -> str:
     """Restrict audit field lookup to live fields before historical receipts."""
 
     lines = text.splitlines(keepends=True)
-    live_end = next(
-        (
-            index
-            for index, line in enumerate(lines)
-            if line.rstrip("\r\n").startswith("## ")
-        ),
-        len(lines),
-    )
-    return "".join(lines[:live_end])
+    for index, line in enumerate(lines):
+        content = line.rstrip("\r\n")
+        if re.match(r"^\s*(?:-\s*)?Historical Receipt Boundary:\s*", content):
+            return "".join(lines[: index + 1])
+        if content.lstrip("\ufeff").startswith("## "):
+            return "".join(lines[:index])
+    return "".join(lines)
 
 
 def _live_field_value(text: str, field: str) -> str:

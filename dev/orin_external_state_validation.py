@@ -153,15 +153,13 @@ def _live_header_text(text: str) -> str:
     """Restrict currentness parsing to the live header before receipt sections."""
 
     lines = text.splitlines(keepends=True)
-    live_end = next(
-        (
-            index
-            for index, line in enumerate(lines)
-            if line.rstrip("\r\n").startswith("## ")
-        ),
-        len(lines),
-    )
-    return "".join(lines[:live_end])
+    for index, line in enumerate(lines):
+        content = line.rstrip("\r\n")
+        if re.match(r"^\s*(?:-\s*)?Historical Receipt Boundary:\s*", content):
+            return "".join(lines[: index + 1])
+        if content.lstrip("\ufeff").startswith("## "):
+            return "".join(lines[:index])
+    return "".join(lines)
 
 
 def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
