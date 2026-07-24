@@ -5145,23 +5145,32 @@ def _bp3_active_state_consistency_failures(
     branch_state_text = packet_files.get(branch_state_name, "")
     current_phase = _section(branch_state_text, "Current Phase")
     if not current_phase:
-        failures.append(f"{branch_state_name}: top-level Current Phase section is missing")
+        current_phase = re.split(
+            r"^Historical Receipt Boundary:",
+            branch_state_text,
+            maxsplit=1,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )[0]
+    if not current_phase.strip():
+        failures.append(
+            f"{branch_state_name}: active external-state-v1 header / Current Phase section is missing"
+        )
     else:
         normalized_phase = re.sub(r"\s+", " ", current_phase).casefold()
         if not all(term in normalized_phase for term in expected_terms):
             failures.append(
-                f"{branch_state_name}: top-level Current Phase does not report BP3 "
+                f"{branch_state_name}: active header / Current Phase does not report BP3 "
                 "Workstream Entry / Orchestration Validation as the active gate"
             )
         if not any(term in normalized_phase for term in blocked_terms):
             failures.append(
-                f"{branch_state_name}: top-level Current Phase does not state that "
+                f"{branch_state_name}: active header / Current Phase does not state that "
                 "Workstream implementation remains blocked"
             )
         for pattern in stale_active_patterns:
             if pattern.search(current_phase):
                 failures.append(
-                    f"{branch_state_name}: top-level Current Phase contains stale "
+                    f"{branch_state_name}: active header / Current Phase contains stale "
                     "BP1/BP2 active-gate wording"
                 )
                 break

@@ -1219,6 +1219,18 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "LV remains `NOT_ENTERED`\n"
         "UTS remains `NOT_REQUESTED`\n"
     )
+    active_header = (
+        "External State Schema: `external-state-v1`\n"
+        "State Version: `7`\n"
+        "Branch: `feature/fam-003-settings-resize-proof`\n"
+        "Source Repo HEAD: `0123456789abcdef0123456789abcdef01234567`\n"
+        "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
+        "pending; Workstream implementation remains blocked`\n"
+        "Workstream Result: `USER_DECISION_REQUIRED`\n"
+        "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
+        "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
+        "Historical Receipt Boundary: `Historical content follows.`\n"
+    )
     orchestration_text = (
         f"{seams}\n"
         "Bounded continuation remains active through `OPTG-WS07` until Workstream "
@@ -1248,6 +1260,9 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md": orchestration_text,
         "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md": boundary_text,
         "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md": fixture_text,
+        "Source Truth Context/current_external_branch_plan.md": active_header,
+        "Source Truth Context/current_external_branch_state.md": active_header,
+        "Source Truth Context/current_external_worktree_state.md": active_header,
     }
     valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
         valid,
@@ -1257,6 +1272,15 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         raise AssertionError(
             "Valid FAM-003 Option G BP3 orchestration fixture failed:\n"
             + "\n".join(valid_failures)
+        )
+    active_state_failures = bundle._bp3_active_state_consistency_failures(
+        valid,
+        status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if active_state_failures:
+        raise AssertionError(
+            "Valid external-state-v1 BP3 live header failed active-state validation:\n"
+            + "\n".join(active_state_failures)
         )
 
     cases = (
