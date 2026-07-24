@@ -1167,8 +1167,182 @@ def _assert_fam003_option_g_bp2_planning_guards() -> None:
             )
 
 
+def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
+    seams = "\n".join(
+        f"| `OPTG-WS{index:02d}` | Seam {index} | `READY` |"
+        for index in range(1, 8)
+    )
+    allowlist = "\n".join(
+        f"| `OPTG-ALLOW-{index:02d}` | `desktop/desktop_renderer.py` | Exact region {index} |"
+        for index in range(1, 9)
+    )
+    recording = "\n".join(
+        f"| `OPTG-RS-FG-{index:02d}` | Recording invariant {index} |"
+        for index in range(1, 11)
+    )
+    workstream = "\n".join(
+        f"| `OPTG-WS-FG-{index:02d}` | Workstream false-green {index} |"
+        for index in range(1, 21)
+    )
+    packet = "\n".join(
+        f"| `OPTG-PKT-FG-{index:02d}` | Packet false-green {index} |"
+        for index in range(1, 16)
+    )
+    exact_entrypoints = "\n".join(
+        (
+            "`NonintrusivePerformanceController._surface_inventory`",
+            "`NonintrusivePerformanceController._request_observation`",
+            "`NonintrusivePerformanceController._open_active_surfaces`",
+            "`NonintrusivePerformanceController._close_active_surfaces`",
+            "`NonintrusivePerformanceController._request_post_use_idle`",
+            "`_role`",
+            "`_product_tree`",
+            "`_process_snapshot`",
+            "`_observe`",
+        )
+    )
+    primary = (
+        "# FAM-003 Option G BP3\n"
+        "Primary Review Type: `BP3 Workstream Entry / Orchestration Validation`\n"
+        "Branch: `feature/fam-003-settings-resize-proof`\n"
+        "Packet Reviewability State: `Reviewable`\n"
+        "USER Gate State: Pending USER Review\n"
+        "BP1 Status: `USER Accepted`\n"
+        "BP2 Status: `USER Accepted`\n"
+        "BP3 Status: `Pending USER Review`\n"
+        "Workstream Implementation: `UNAPPROVED`\n"
+        "Whole-Package Result: `READY_FOR_USER_BP3_REVIEW`\n"
+        "Entry Seam: `OPTG-WS01`\n"
+        "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
+        "pending; Workstream implementation remains blocked`\n"
+        "H1 remains `NOT_ENTERED`\n"
+        "LV remains `NOT_ENTERED`\n"
+        "UTS remains `NOT_REQUESTED`\n"
+    )
+    orchestration_text = (
+        f"{seams}\n"
+        "Bounded continuation remains active through `OPTG-WS07` until Workstream "
+        "Green, a real blocker, or an explicit USER waiver.\n"
+        "If attribution identifies a path, object, resource, or owner not explicitly "
+        "enumerated in the accepted conditional repair matrix, Workstream must return "
+        "`BLOCKED / USER decision required` before mutation.\n"
+        "Current-carrier access does not establish ownership or self-admit repair scope.\n"
+        "FAM-006/shared-owner stop\n"
+    )
+    boundary_text = (
+        f"{allowlist}\n{exact_entrypoints}\n"
+        "`STUDIO_RESIZABLE = False`\n"
+        "`Start / Pause / Stop`\n"
+    )
+    fixture_text = f"{recording}\n{workstream}\n{packet}\n"
+    valid = {
+        "START_HERE.md": (
+            "# FAM-003 Option G BP3\n"
+            "Branch: `feature/fam-003-settings-resize-proof`\n"
+            "Primary USER Review File: `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
+            "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
+            "pending; Workstream implementation remains blocked`\n"
+        ),
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
+        "Review Aids/USER_DECISIONS.md": "USER Decision: approve Option G BP3 only.\n",
+        "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md": orchestration_text,
+        "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md": boundary_text,
+        "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md": fixture_text,
+    }
+    valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
+        valid,
+        status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if valid_failures:
+        raise AssertionError(
+            "Valid FAM-003 Option G BP3 orchestration fixture failed:\n"
+            + "\n".join(valid_failures)
+        )
+
+    cases = (
+        (
+            "OPTG-BP3-FG-01",
+            "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            "BP2 Status: `USER Accepted`",
+            "BP2 Status: `Pending USER Review`",
+            "required accepted BP2",
+        ),
+        (
+            "OPTG-BP3-FG-02",
+            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
+            "| `OPTG-WS07` | Seam 7 | `READY` |",
+            "",
+            "seven OPTG-WS seam rows",
+        ),
+        (
+            "OPTG-BP3-FG-03",
+            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
+            "| `OPTG-WS04` | Seam 4 | `READY` |",
+            "| `OPTG-WS04` | Seam 4 | `BLOCKED` |",
+            "every seam must be READY",
+        ),
+        (
+            "OPTG-BP3-FG-04",
+            "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md",
+            "| `OPTG-ALLOW-08` | `desktop/desktop_renderer.py` | Exact region 8 |",
+            "",
+            "eight OPTG-ALLOW rows",
+        ),
+        (
+            "OPTG-BP3-FG-05",
+            "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md",
+            "`NonintrusivePerformanceController._request_observation`",
+            "measurement request",
+            "exact measurement entrypoint",
+        ),
+        (
+            "OPTG-BP3-FG-06",
+            "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md",
+            "`STUDIO_RESIZABLE = False`",
+            "`STUDIO_RESIZABLE = True`",
+            "required Recording fixed invariant",
+        ),
+        (
+            "OPTG-BP3-FG-07",
+            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
+            "FAM-006/shared-owner stop",
+            "Shared-owner work may continue.",
+            "required FAM-006 stop",
+        ),
+        (
+            "OPTG-BP3-FG-08",
+            "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            "Workstream Implementation: `UNAPPROVED`",
+            "Workstream Implementation: `APPROVED`",
+            "required implementation unapproved",
+        ),
+    )
+    for case_id, file_name, old, new, expected in cases:
+        mutated = dict(valid)
+        mutated[file_name] = mutated[file_name].replace(old, new, 1)
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {failures}"
+            )
+
+    r2_failures = bundle._fam003_bp3_r2_orchestration_consistency_failures(
+        valid,
+        status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if r2_failures:
+        raise AssertionError(
+            "Option G BP3 incorrectly triggered the historical R2-only guard:\n"
+            + "\n".join(r2_failures)
+        )
+
+
 def main() -> int:
     _assert_fam003_option_g_bp2_planning_guards()
+    _assert_fam003_option_g_bp3_orchestration_guards()
     _assert_origin_main_fallback()
     _assert_failure(
         "unknown-origin-main-identity",

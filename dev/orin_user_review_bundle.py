@@ -5216,6 +5216,15 @@ def _fam003_bp3_r2_orchestration_consistency_failures(
     ).casefold()
     if "feature/fam-003-settings-resize-proof" not in identity_text:
         return []
+    if not any(
+        marker in identity_text
+        for marker in (
+            "bp3-r2",
+            "r2-ws10",
+            "complete hud baseline",
+        )
+    ):
+        return []
 
     failures: list[str] = []
     orchestration_paths = (
@@ -5545,6 +5554,145 @@ def _fam003_option_g_bp2_planning_failures(
                 "FAM-003 Option G BP2: conditional allowlist row contains an "
                 f"unbounded token: {row.strip()}"
             )
+
+    return failures
+
+
+def _fam003_option_g_bp3_orchestration_failures(
+    packet_files: Mapping[str, str],
+    *,
+    status: str,
+) -> list[str]:
+    """Reject Option G BP3 packets that omit whole-package or stop-boundary proof."""
+
+    if status != DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        return []
+
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    identity = f"{start_here}\n{primary}".casefold()
+    if (
+        "feature/fam-003-settings-resize-proof" not in identity
+        or "option g" not in identity
+        or "bp3" not in identity
+    ):
+        return []
+
+    decisions = _packet_file_text(packet_files, "USER_DECISIONS.md")
+    orchestration = _packet_file_text(packet_files, "OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md")
+    boundary = _packet_file_text(packet_files, "OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md")
+    fixtures = _packet_file_text(packet_files, "OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md")
+    active_text = "\n".join((start_here, primary, decisions, orchestration, boundary, fixtures))
+    normalized = re.sub(r"\s+", " ", active_text).casefold()
+    failures: list[str] = []
+
+    required_markers = {
+        "primary review type": "Primary Review Type: `BP3 Workstream Entry / Orchestration Validation`",
+        "accepted BP1": "BP1 Status: `USER Accepted`",
+        "accepted BP2": "BP2 Status: `USER Accepted`",
+        "pending BP3": "BP3 Status: `Pending USER Review`",
+        "implementation unapproved": "Workstream Implementation: `UNAPPROVED`",
+        "whole-package result": "Whole-Package Result: `READY_FOR_USER_BP3_REVIEW`",
+        "entry seam": "Entry Seam: `OPTG-WS01`",
+        "bounded continuation": (
+            "Bounded continuation remains active through `OPTG-WS07` until "
+            "Workstream Green, a real blocker, or an explicit USER waiver."
+        ),
+        "unknown attribution stop": (
+            "If attribution identifies a path, object, resource, or owner not "
+            "explicitly enumerated in the accepted conditional repair matrix, "
+            "Workstream must return `BLOCKED / USER decision required` before mutation."
+        ),
+        "current carrier not ownership": (
+            "Current-carrier access does not establish ownership or self-admit repair scope."
+        ),
+        "FAM-006 stop": "FAM-006/shared-owner stop",
+        "Recording fixed invariant": "`STUDIO_RESIZABLE = False`",
+        "Recording controls invariant": "`Start / Pause / Stop`",
+        "H1 boundary": "H1 remains `NOT_ENTERED`",
+        "LV boundary": "LV remains `NOT_ENTERED`",
+        "UTS boundary": "UTS remains `NOT_REQUESTED`",
+    }
+    for label, marker in required_markers.items():
+        if marker.casefold() not in normalized:
+            failures.append(f"FAM-003 Option G BP3: required {label} marker is missing")
+
+    exact_measurement_markers = (
+        "`NonintrusivePerformanceController._surface_inventory`",
+        "`NonintrusivePerformanceController._request_observation`",
+        "`NonintrusivePerformanceController._open_active_surfaces`",
+        "`NonintrusivePerformanceController._close_active_surfaces`",
+        "`NonintrusivePerformanceController._request_post_use_idle`",
+        "`_role`",
+        "`_product_tree`",
+        "`_process_snapshot`",
+        "`_observe`",
+    )
+    for marker in exact_measurement_markers:
+        if marker.casefold() not in normalized:
+            failures.append(
+                "FAM-003 Option G BP3: exact measurement entrypoint is missing: "
+                f"{marker}"
+            )
+
+    row_requirements = (
+        ("OPTG-WS", 7, "seven OPTG-WS seam rows"),
+        ("OPTG-ALLOW-", 8, "eight OPTG-ALLOW rows"),
+        ("OPTG-RS-FG-", 10, "ten OPTG-RS-FG Recording fixtures"),
+        ("OPTG-WS-FG-", 20, "twenty OPTG-WS-FG Workstream fixtures"),
+        ("OPTG-PKT-FG-", 15, "fifteen OPTG-PKT-FG packet fixtures"),
+    )
+    for prefix, expected, label in row_requirements:
+        if prefix == "OPTG-WS":
+            rows = [
+                line
+                for line in active_text.splitlines()
+                if re.match(r"^\|\s*`OPTG-WS\d{2}`\s*\|", line.strip())
+            ]
+        else:
+            rows = [
+                line
+                for line in active_text.splitlines()
+                if line.strip().startswith(f"| `{prefix}")
+            ]
+        if len(rows) != expected:
+            failures.append(
+                f"FAM-003 Option G BP3: expected {label}; found {len(rows)}"
+            )
+
+    seam_rows = [
+        line
+        for line in orchestration.splitlines()
+        if line.strip().startswith("| `OPTG-WS")
+    ]
+    for row in seam_rows:
+        if "| `READY` |" not in row:
+            failures.append(
+                "FAM-003 Option G BP3: every seam must be READY or the packet must "
+                f"return repair/blocked: {row.strip()}"
+            )
+
+    forbidden_patterns = {
+        "combined BP3 and implementation approval": re.compile(
+            r"approve\s+(?:bp3|option g bp3).{0,120}approve\s+(?:workstream|runtime)\s+implementation",
+            re.IGNORECASE | re.DOTALL,
+        ),
+        "implementation already authorized": re.compile(
+            r"workstream implementation:\s*`?(?:approved|authorized|green)",
+            re.IGNORECASE,
+        ),
+        "Recording product mutation": re.compile(
+            r"(?:change|modify|repair)\s+(?:recording studio|start\s*/\s*pause\s*/\s*stop)",
+            re.IGNORECASE,
+        ),
+        "downstream execution": re.compile(
+            r"(?:execute|perform|start)\s+(?:hardening h1|live validation|lv1|uts)",
+            re.IGNORECASE,
+        ),
+    }
+    for label, pattern in forbidden_patterns.items():
+        if pattern.search(active_text):
+            failures.append(f"FAM-003 Option G BP3: forbidden {label} wording is present")
 
     return failures
 
@@ -13261,6 +13409,12 @@ def _validate_workstream_entry_packet_decision_path(
             status=status,
         )
     )
+    failures.extend(
+        _fam003_option_g_bp3_orchestration_failures(
+            packet_files,
+            status=status,
+        )
+    )
 
     if require_implementation_ready and status != DECISION_STATUS_IMPLEMENTATION_READY:
         joined = ", ".join(f"{file_name}={status_value}" for file_name, status_value in sorted(file_statuses.items()))
@@ -13771,6 +13925,14 @@ def build_bundle(
         *_bp1_packet_phase_language_failures(generated_packet_files),
         *_fam006_bp3_support_context_failures(generated_packet_files),
         *_fam003_bp3_r2_orchestration_consistency_failures(
+            generated_packet_files,
+            status=(
+                DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
+                if bp3_packet
+                else DECISION_STATUS_UNKNOWN
+            ),
+        ),
+        *_fam003_option_g_bp3_orchestration_failures(
             generated_packet_files,
             status=(
                 DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
