@@ -190,6 +190,24 @@ WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
 )
 
+NORMALIZED_SOURCE_CONTEXT_TEXT_SUFFIXES: frozenset[str] = frozenset(
+    {
+        ".cfg",
+        ".css",
+        ".csv",
+        ".html",
+        ".ini",
+        ".js",
+        ".ps1",
+        ".py",
+        ".svg",
+        ".toml",
+        ".xml",
+        ".yaml",
+        ".yml",
+    }
+)
+
 PR_READINESS_STAGE1_PACKET_REQUIRED_FILES: tuple[str, ...] = (
     "START_HERE.md",
     USER_BRANCH_VISION_REVIEW_FILE,
@@ -2786,6 +2804,20 @@ def _normalize_windows_path_text(text: str) -> str:
     return text.strip().strip("`").replace("/", "\\").casefold()
 
 
+def _active_external_state_text(text: str) -> str:
+    if (
+        "External State Schema: `external-state-v1`" in text
+        and "Historical Receipt Boundary:" in text
+    ):
+        return re.split(
+            r"^Historical Receipt Boundary:",
+            text,
+            maxsplit=1,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )[0]
+    return text
+
+
 def _final_zip_active_metadata_failures(
     packet_files: Mapping[str, str],
     export_zip: Path,
@@ -2804,7 +2836,10 @@ def _final_zip_active_metadata_failures(
         text = packet_files.get(context_file)
         if text is None:
             continue
-        source_heads = _markdown_field_values(text, "Source Repo HEAD")
+        source_heads = _markdown_field_values(
+            _active_external_state_text(text),
+            "Source Repo HEAD",
+        )
         if context_file.endswith("current_external_branch_state.md") and not source_heads:
             failures.append(f"{context_file}: copied current Source Truth Context is missing Source Repo HEAD")
             source_truth_mismatch = True
@@ -2817,8 +2852,18 @@ def _final_zip_active_metadata_failures(
                     )
                     source_truth_mismatch = True
 
-    state_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md", "")
-    plan_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", "")
+    state_text = _active_external_state_text(
+        packet_files.get(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md",
+            "",
+        )
+    )
+    plan_text = _active_external_state_text(
+        packet_files.get(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md",
+            "",
+        )
+    )
     state_heads = _markdown_field_values(state_text, "Source Repo HEAD")
     plan_heads = _markdown_field_values(plan_text, "Source Repo HEAD")
     if state_heads and plan_heads and state_heads[0] != plan_heads[0]:
@@ -5001,6 +5046,10 @@ def _normalized_packet_text(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
+def _normalized_source_context_text_bytes(data: bytes) -> str:
+    return _normalized_packet_text(data.decode("utf-8-sig"))
+
+
 def _requires_source_context_mapping(path: str) -> bool:
     """Distinguish copied repo files from generated evidence context."""
 
@@ -5075,6 +5124,36 @@ def _packet_identity_failures(
     )
 
     for source_path, copied_path in file_mappings.items():
+        suffix = PurePosixPath(copied_path).suffix.lower()
+        if (
+            packet_binary_files is not None
+            and copied_path in packet_binary_files
+            and suffix in NORMALIZED_SOURCE_CONTEXT_TEXT_SUFFIXES
+        ):
+            expected_bytes = _git_file_bytes(expected_head, source_path)
+            if expected_bytes is None:
+                failures.append(
+                    "Packet identity: copied source path is not present at expected HEAD: "
+                    f"{source_path}"
+                )
+                continue
+            try:
+                copied_text = _normalized_source_context_text_bytes(
+                    packet_binary_files[copied_path]
+                )
+                expected_text = _normalized_source_context_text_bytes(expected_bytes)
+            except UnicodeDecodeError:
+                failures.append(
+                    "Packet identity: mapped text source is not valid UTF-8: "
+                    f"{copied_path} from {source_path}"
+                )
+                continue
+            if copied_text != expected_text:
+                failures.append(
+                    "Packet identity: copied file does not match expected HEAD content: "
+                    f"{copied_path} from {source_path}"
+                )
+            continue
         if (
             packet_binary_files is not None
             and copied_path in packet_binary_files

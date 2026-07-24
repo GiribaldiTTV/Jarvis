@@ -867,6 +867,55 @@ def _fresh_live_state_with_historical_zip(head: str, historical_zip_name: str):
     return _files
 
 
+def _assert_migrated_live_header_ignores_historical_receipt_metadata() -> None:
+    live_head = bundle._git_text("rev-parse", "HEAD")
+    if not live_head:
+        raise AssertionError("fixture requires current Git HEAD")
+    export_zip = Path(r"C:\Nexus USER\FAM-003-20990101-000000.zip")
+    active_header = (
+        "External State Schema: `external-state-v1`\n"
+        f"Source Repo HEAD: `{live_head}`\n"
+        "Historical Receipt Boundary: `Historical content follows.`\n"
+    )
+    packet_files = {
+        "Source Truth Context/current_external_branch_state.md": (
+            active_header
+            + "Source Repo HEAD: `1111111111111111111111111111111111111111`\n"
+            + "USER Review ZIP: `C:\\Nexus USER\\FAM-003-19990101-000000.zip`\n"
+        ),
+        "Source Truth Context/current_external_branch_plan.md": (
+            active_header
+            + "Source Repo HEAD: `2222222222222222222222222222222222222222`\n"
+        ),
+    }
+    failures = bundle._final_zip_active_metadata_failures(
+        packet_files,
+        export_zip,
+        validation_mode=bundle.PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    )
+    if failures:
+        raise AssertionError(
+            "migrated live-header metadata was polluted by historical receipts:\n"
+            + "\n".join(failures)
+        )
+
+
+def _assert_source_context_text_normalization() -> None:
+    lf = b"line one\nline two\n"
+    crlf = b"\xef\xbb\xbfline one\r\nline two\r\n"
+    changed = b"line one\nline three\n"
+    if (
+        bundle._normalized_source_context_text_bytes(lf)
+        != bundle._normalized_source_context_text_bytes(crlf)
+    ):
+        raise AssertionError("source-context UTF-8 BOM/line-ending normalization failed")
+    if (
+        bundle._normalized_source_context_text_bytes(lf)
+        == bundle._normalized_source_context_text_bytes(changed)
+    ):
+        raise AssertionError("source-context normalization masked a content change")
+
+
 def _assert_generation_cleanup_removes_recorded_historical_zip() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-same-label-cleanup-") as temp_dir:
         review_root = Path(temp_dir)
@@ -1370,6 +1419,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
 def main() -> int:
     _assert_fam003_option_g_bp2_planning_guards()
     _assert_fam003_option_g_bp3_orchestration_guards()
+    _assert_migrated_live_header_ignores_historical_receipt_metadata()
+    _assert_source_context_text_normalization()
     _assert_origin_main_fallback()
     _assert_failure(
         "unknown-origin-main-identity",
