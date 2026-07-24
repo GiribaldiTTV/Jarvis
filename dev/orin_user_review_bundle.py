@@ -5668,7 +5668,7 @@ def _fam003_option_g_bp3_orchestration_failures(
     *,
     status: str,
 ) -> list[str]:
-    """Reject Option G BP3 packets that omit whole-package or stop-boundary proof."""
+    """Reject Option G BP3 packets that omit accepted proof-contract carrydown."""
 
     if status != DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
         return []
@@ -5687,9 +5687,39 @@ def _fam003_option_g_bp3_orchestration_failures(
     orchestration = _packet_file_text(packet_files, "OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md")
     boundary = _packet_file_text(packet_files, "OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md")
     fixtures = _packet_file_text(packet_files, "OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md")
-    active_text = "\n".join((start_here, primary, decisions, orchestration, boundary, fixtures))
+    required_aids = {
+        "UFD ledger": "OPTION_G_UFD_AND_FOLD_DOWN.md",
+        "BP2 acceptance reconciliation": "OPTION_G_BP2_ACCEPTANCE_RECONCILIATION.md",
+        "BP2 proof-contract carrydown": "OPTION_G_BP2_PROOF_CONTRACT_CARRYDOWN.md",
+        "launcher and proof classification": "OPTION_G_LAUNCHER_AND_PROOF_CLASSIFICATION.md",
+        "runtime observability decision matrix": "OPTION_G_RUNTIME_OBSERVABILITY_DECISION_MATRIX.md",
+        "visual, manual, and raw-evidence plan": "OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
+        "Element-to-Phase matrix": "OPTION_G_ELEMENT_TO_PHASE_MATRIX.md",
+        "defect ledger": "OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md",
+    }
+    aid_text = {
+        label: _packet_file_text(packet_files, file_name)
+        for label, file_name in required_aids.items()
+    }
+    active_text = "\n".join(
+        (
+            start_here,
+            primary,
+            decisions,
+            orchestration,
+            boundary,
+            fixtures,
+            *aid_text.values(),
+        )
+    )
     normalized = re.sub(r"\s+", " ", active_text).casefold()
     failures: list[str] = []
+
+    for label, file_name in required_aids.items():
+        if not aid_text[label].strip():
+            failures.append(
+                f"FAM-003 Option G BP3: required {label} aid is missing: {file_name}"
+            )
 
     required_markers = {
         "primary review type": "Primary Review Type: `BP3 Workstream Entry / Orchestration Validation`",
@@ -5717,10 +5747,158 @@ def _fam003_option_g_bp3_orchestration_failures(
         "H1 boundary": "H1 remains `NOT_ENTERED`",
         "LV boundary": "LV remains `NOT_ENTERED`",
         "UTS boundary": "UTS remains `NOT_REQUESTED`",
+        "UFD required": "USER Feedback Disposition Required: `Yes`",
+        "UFD heading": "# Option G UFD And Fold-Down",
+        "UFD ledger": "UFD Ledger Status: `Complete`",
+        "UFD owner": (
+            "UFD Ledger Owner: "
+            "`C:\\Nexus Governance State\\branches\\"
+            "feature_fam_003_settings_resize_proof\\branch_plan.md`"
+        ),
+        "UFD open count": "Open UFD Count: `0`",
+        "UFD blocking count": "Blocking UFD Count: `0`",
+        "UFD fold-down": "Fold-Down Status: `Pending`",
+        "BP2 authority reconciled": "Accepted BP2 Authority: `RECONCILED`",
+        "historical BP2 ZIP not reconstructed": (
+            "Historical BP2 ZIP Disposition: `ABSENT / NOT RECONSTRUCTED`"
+        ),
+        "stale BP2 copy classified": (
+            "Stale BP2 Primary Disposition: `HISTORICAL PRE-ACCEPTANCE COPY`"
+        ),
+        "formal normal launcher": (
+            "Exact Formal Launcher Path: "
+            "`C:\\Users\\anden\\OneDrive\\Desktop\\Nexus Desktop Launcher.lnk`"
+        ),
+        "formal launcher target": (
+            "Shortcut Target: "
+            "`C:\\Nexus Worktrees\\FAM-003\\launch_orin_desktop.vbs`"
+        ),
+        "formal launcher working directory": (
+            "Working Directory: `C:\\Nexus Worktrees\\FAM-003`"
+        ),
+        "formal launcher arguments": "Arguments: `NONE`",
+        "launcher parity": "Launcher Parity Result: `PASS`",
+        "troubleshooting not formal": (
+            "Troubleshooting / Helper Formal-Proof Substitution: `PROHIBITED`"
+        ),
+        "observability complete": "Runtime Observability Decision Matrix Status: `COMPLETE`",
+        "time-dependent still rejection": (
+            "Still-Image-Only Time-Dependent Proof: `REJECTED`"
+        ),
+        "manual validation routed": "Manual USER Validation / Waiver Routing: `COMPLETE`",
+        "raw evidence complete": "Raw-Evidence Plan Status: `COMPLETE`",
+        "external pointers insufficient": (
+            "External-Pointer-Only Closure: `PROHIBITED`"
+        ),
+        "element-to-phase complete": "Element-to-Phase Proof Matrix Status: `COMPLETE`",
+        "ORIN Core unresolved": "ORIN Core CPU Contribution: `UNRESOLVED / DECISION 3`",
     }
     for label, marker in required_markers.items():
         if marker.casefold() not in normalized:
             failures.append(f"FAM-003 Option G BP3: required {label} marker is missing")
+
+    ufd_text = aid_text["UFD ledger"]
+    ufd_item_matches = list(
+        re.finditer(
+            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n(.*?)(?=^### UFD Item:|\Z)",
+            ufd_text,
+        )
+    )
+    if len(ufd_item_matches) < 18:
+        failures.append(
+            "FAM-003 Option G BP3: active UFD ledger must contain at least "
+            f"18 atomic UFD rows; found {len(ufd_item_matches)}"
+        )
+    ufd_item_markers = (
+        "Feedback ID:",
+        "Feedback Summary:",
+        "Feedback Source:",
+        "Feedback Phase:",
+        "Disposition Type:",
+        "USER Decision State:",
+        "Owner Class:",
+        "Canonical Owner File:",
+        "Workstream Severity:",
+        "Status:",
+        "Fold-Down Target:",
+        "Pointer Locations:",
+        "Source / Date:",
+        "USER Direction Or Finding:",
+        "Affected Scope:",
+        "Affected Artifact:",
+        "Classification:",
+        "Owner:",
+        "Carrier:",
+        "Planning Or Implementation Effect:",
+        "Proof / Closure Requirement:",
+        "Remaining USER Decision:",
+    )
+    open_ufd_rows = 0
+    blocking_ufd_rows = 0
+    for item_match in ufd_item_matches:
+        item_id = item_match.group(1).strip()
+        item_text = item_match.group(2)
+        for marker in ufd_item_markers:
+            if marker not in item_text:
+                failures.append(
+                    f"FAM-003 Option G BP3: {item_id} is missing UFD field {marker}"
+                )
+        status_match = re.search(r"(?m)^Status:\s*`?([^`\n]+)", item_text)
+        item_status = status_match.group(1).strip().casefold() if status_match else ""
+        if any(term in item_status for term in ("open", "queued", "blocking", "deferred")):
+            open_ufd_rows += 1
+        if "blocking" in item_status:
+            blocking_ufd_rows += 1
+
+    def _declared_ufd_count(marker: str) -> int | None:
+        match = re.search(rf"(?m)^{re.escape(marker)}\s*`?(\d+)", ufd_text)
+        return int(match.group(1)) if match else None
+
+    declared_open = _declared_ufd_count("Open UFD Count:")
+    declared_blocking = _declared_ufd_count("Blocking UFD Count:")
+    if declared_open is None or declared_open != open_ufd_rows:
+        failures.append(
+            "FAM-003 Option G BP3: UFD Open count disagrees with atomic rows; "
+            f"declared {declared_open}, rows {open_ufd_rows}"
+        )
+    if declared_blocking is None or declared_blocking != blocking_ufd_rows:
+        failures.append(
+            "FAM-003 Option G BP3: UFD Blocking count disagrees with atomic rows; "
+            f"declared {declared_blocking}, rows {blocking_ufd_rows}"
+        )
+
+    required_ufd_topics = (
+        "premature workstream completion",
+        "nonintrusive performance measurement",
+        "option g selection",
+        "migration-first sequencing",
+        "hidden hud native-polling lifecycle",
+        "log viewer studio resize-hover polling",
+        "recording studio exclusion",
+        "recording studio direct behavior invariants",
+        "attribution before conditional repair",
+        "eight exact conditional repair allowlist regions",
+        "unknown path/resource/object/owner stop",
+        "fam-006/shared-owner stop boundary",
+        "current-carrier access does not transfer ownership",
+        "orin core decision 3 deferral",
+        "temporary-only option d status",
+        "bp2/bp3 separate user gates",
+        "workstream/h1/lv/uts phase separation",
+        "proof-carrydown and validator false-green repair",
+    )
+    normalized_ufd = re.sub(r"\s+", " ", ufd_text).casefold()
+    for topic in required_ufd_topics:
+        if topic not in normalized_ufd:
+            failures.append(
+                "FAM-003 Option G BP3: material USER direction is absent from "
+                f"the UFD ledger: {topic}"
+            )
+    if "deferred / future-gated scope admission: `none`" not in normalized_ufd:
+        failures.append(
+            "FAM-003 Option G BP3: UFD must prove deferred/future-gated "
+            "feedback did not enter current implementation scope"
+        )
 
     exact_measurement_markers = (
         "`NonintrusivePerformanceController._surface_inventory`",
@@ -5745,7 +5923,7 @@ def _fam003_option_g_bp3_orchestration_failures(
         ("OPTG-ALLOW-", 8, "eight OPTG-ALLOW rows"),
         ("OPTG-RS-FG-", 10, "ten OPTG-RS-FG Recording fixtures"),
         ("OPTG-WS-FG-", 20, "twenty OPTG-WS-FG Workstream fixtures"),
-        ("OPTG-PKT-FG-", 15, "fifteen OPTG-PKT-FG packet fixtures"),
+        ("OPTG-PKT-FG-", 22, "twenty-two OPTG-PKT-FG packet fixtures"),
     )
     for prefix, expected, label in row_requirements:
         if prefix == "OPTG-WS":
@@ -5776,6 +5954,93 @@ def _fam003_option_g_bp3_orchestration_failures(
                 "FAM-003 Option G BP3: every seam must be READY or the packet must "
                 f"return repair/blocked: {row.strip()}"
             )
+        normalized_row = row.casefold()
+        seam_carrydown_terms = (
+            "ufd-",
+            "formal normal user launch",
+            "observability",
+            "ordered",
+            "raw evidence",
+            "manual user",
+            "workstream proof",
+            "h1 proof",
+            "lv proof",
+            "uts proof",
+            "rollback",
+            "stop",
+        )
+        for term in seam_carrydown_terms:
+            if term not in normalized_row:
+                failures.append(
+                    "FAM-003 Option G BP3: seam omits proof-contract carrydown "
+                    f"term {term!r}: {row.strip()}"
+                )
+
+    observability_text = aid_text["runtime observability decision matrix"].casefold()
+    required_observability_claims = (
+        "hidden hud polling stopping",
+        "hud polling resuming",
+        "hud click-bridge lifecycle",
+        "log viewer resize-hover polling state",
+        "recording studio non-resizable behavior",
+        "recording studio start / pause / stop",
+        "repeated retention cycles",
+        "pid and process-role attribution",
+        "allowlisted repair attribution",
+        "unknown-owner stop",
+        "clean shutdown/relaunch",
+        "option d effective flags",
+        "performance evidence",
+        "stale-ui avoidance after reopening",
+    )
+    for claim in required_observability_claims:
+        if claim not in observability_text:
+            failures.append(
+                "FAM-003 Option G BP3: accepted BP2 observability obligation "
+                f"is missing: {claim}"
+            )
+
+    visual_text = aid_text["visual, manual, and raw-evidence plan"].casefold()
+    required_visual_claims = (
+        "hud visible/hidden transitions",
+        "hud reopen/resume behavior",
+        "log viewer visible/hidden/resize-hover transitions",
+        "resize cursor and hit-zone behavior",
+        "active resize",
+        "recording studio resize rejection",
+        "recording studio start / pause / stop",
+        "studio reopen behavior",
+        "no stale ui",
+        "no blank, black, partial, or corrupted webengine content",
+        "conditional repair before/after behavior",
+        "clean relaunch",
+    )
+    for claim in required_visual_claims:
+        if claim not in visual_text:
+            failures.append(
+                "FAM-003 Option G BP3: visual/video/ordered-frame plan is "
+                f"missing claim {claim}"
+            )
+
+    element_text = aid_text["Element-to-Phase matrix"]
+    element_rows = [
+        line
+        for line in element_text.splitlines()
+        if line.strip().startswith("| `OPTG-ELEM-")
+    ]
+    if len(element_rows) < 11:
+        failures.append(
+            "FAM-003 Option G BP3: Element-to-Phase mapping must contain at "
+            f"least eleven current/deferred elements; found {len(element_rows)}"
+        )
+    for row in element_rows:
+        normalized_row = row.casefold()
+        for term in ("workstream", "h1", "live validation", "uts"):
+            if term not in normalized_row:
+                failures.append(
+                    "FAM-003 Option G BP3: Element-to-Phase row omits "
+                    f"{term!r}: {row.strip()}"
+                )
 
     forbidden_patterns = {
         "combined BP3 and implementation approval": re.compile(
@@ -5792,6 +6057,17 @@ def _fam003_option_g_bp3_orchestration_failures(
         ),
         "downstream execution": re.compile(
             r"(?:execute|perform|start)\s+(?:hardening h1|live validation|lv1|uts)",
+            re.IGNORECASE,
+        ),
+        "missing BP2 ZIP silently reconstructed": re.compile(
+            r"(?:reconstructed|recreated|regenerated)\s+(?:the\s+)?"
+            r"(?:accepted|historical)\s+bp2\s+(?:packet|zip)",
+            re.IGNORECASE,
+        ),
+        "helper promoted to formal proof": re.compile(
+            r"(?:helper|synthetic|direct process|test harness|troubleshooting)"
+            r"[^\n]{0,100}(?:is|as|equals|satisfies)\s+(?:the\s+)?"
+            r"(?:formal|exact normal user)\s+(?:launcher|proof)",
             re.IGNORECASE,
         ),
     }

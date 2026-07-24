@@ -1217,8 +1217,13 @@ def _assert_fam003_option_g_bp2_planning_guards() -> None:
 
 
 def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
+    seam_proof = (
+        "UFD-FAM003-20260724-001; formal normal USER launch; observability; "
+        "ordered frames/video; raw evidence; manual USER validation; Workstream "
+        "proof; H1 proof; LV proof; UTS proof; rollback; stop conditions"
+    )
     seams = "\n".join(
-        f"| `OPTG-WS{index:02d}` | Seam {index} | `READY` |"
+        f"| `OPTG-WS{index:02d}` | `READY` | Seam {index} | {seam_proof} |"
         for index in range(1, 8)
     )
     allowlist = "\n".join(
@@ -1235,7 +1240,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     )
     packet = "\n".join(
         f"| `OPTG-PKT-FG-{index:02d}` | Packet false-green {index} |"
-        for index in range(1, 16)
+        for index in range(1, 23)
     )
     exact_entrypoints = "\n".join(
         (
@@ -1267,6 +1272,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "H1 remains `NOT_ENTERED`\n"
         "LV remains `NOT_ENTERED`\n"
         "UTS remains `NOT_REQUESTED`\n"
+        "ORIN Core CPU Contribution: `UNRESOLVED / DECISION 3`\n"
     )
     active_header = (
         "External State Schema: `external-state-v1`\n"
@@ -1299,6 +1305,145 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "`Start / Pause / Stop`\n"
     )
     fixture_text = f"{recording}\n{workstream}\n{packet}\n"
+    ufd_topics = (
+        "premature Workstream completion",
+        "nonintrusive performance measurement",
+        "Option G selection",
+        "migration-first sequencing",
+        "hidden HUD native-polling lifecycle",
+        "Log Viewer Studio resize-hover polling",
+        "Recording Studio exclusion",
+        "Recording Studio direct behavior invariants",
+        "attribution before conditional repair",
+        "eight exact conditional repair allowlist regions",
+        "unknown path/resource/object/owner stop",
+        "FAM-006/shared-owner stop boundary",
+        "current-carrier access does not transfer ownership",
+        "ORIN Core Decision 3 deferral",
+        "temporary-only Option D status",
+        "BP2/BP3 separate USER gates",
+        "Workstream/H1/LV/UTS phase separation",
+        "proof-carrydown and validator false-green repair",
+    )
+    ufd_rows = []
+    for index, topic in enumerate(ufd_topics, start=1):
+        item_id = f"UFD-FAM003-20260724-{index:03d}"
+        ufd_rows.append(
+            f"### UFD Item: {item_id}\n"
+            f"Feedback ID: `{item_id}`\n"
+            f"Feedback Summary: `{topic}`\n"
+            "Feedback Source: `USER direction`\n"
+            "Feedback Phase: `BP3 repair`\n"
+            "Disposition Type: `Current Branch Requirement`\n"
+            "USER Decision State: `Accepted by USER`\n"
+            "Owner Class: `Branch Record`\n"
+            "Canonical Owner File: `Docs/branch_records/feature_fam_003_settings_resize_proof.md`\n"
+            "Workstream Severity: `Level 2 seam-blocking`\n"
+            "Status: `Closed`\n"
+            "Fold-Down Target: `Branch record`\n"
+            "Pointer Locations: `Active branch plan compact pointer`\n"
+            "Source / Date: `USER / 2026-07-24`\n"
+            f"USER Direction Or Finding: `Accepted Option G direction {index}`\n"
+            "Affected Scope: `Option G`\n"
+            "Affected Artifact: `BP3 packet`\n"
+            "Classification: `Incorporated`\n"
+            "Owner: `FAM-003`\n"
+            "Carrier: `feature/fam-003-settings-resize-proof`\n"
+            "Planning Or Implementation Effect: `Planning carrydown only`\n"
+            "Proof / Closure Requirement: `Packet and fixture proof`\n"
+            "Remaining USER Decision: `BP3 acceptance only`\n"
+        )
+    ufd_text = (
+        "# Option G UFD And Fold-Down\n"
+        "USER Feedback Disposition Required: `Yes`\n"
+        "UFD Ledger Status: `Complete`\n"
+        "UFD Ledger Owner: `C:\\Nexus Governance State\\branches\\"
+        "feature_fam_003_settings_resize_proof\\branch_plan.md`\n"
+        "Open UFD Count: `0`\n"
+        "Blocking UFD Count: `0`\n"
+        "Fold-Down Status: `Pending`\n"
+        "Deferred / Future-Gated Scope Admission: `NONE`\n\n"
+        + "\n".join(ufd_rows)
+    )
+    observability_claims = (
+        "hidden HUD polling stopping",
+        "HUD polling resuming",
+        "HUD click-bridge lifecycle",
+        "Log Viewer resize-hover polling state",
+        "Recording Studio non-resizable behavior",
+        "Recording Studio Start / Pause / Stop",
+        "repeated retention cycles",
+        "PID and process-role attribution",
+        "allowlisted repair attribution",
+        "unknown-owner stop",
+        "clean shutdown/relaunch",
+        "Option D effective flags",
+        "performance evidence",
+        "stale-UI avoidance after reopening",
+    )
+    observability_text = (
+        "# Runtime Observability Decision Matrix\n"
+        "Runtime Observability Decision Matrix Status: `COMPLETE`\n"
+        + "\n".join(
+            f"| {claim} | signal | ordered state | raw evidence | phase route |"
+            for claim in observability_claims
+        )
+    )
+    visual_claims = (
+        "HUD visible/hidden transitions",
+        "HUD reopen/resume behavior",
+        "Log Viewer visible/hidden/resize-hover transitions",
+        "resize cursor and hit-zone behavior",
+        "active resize",
+        "Recording Studio resize rejection",
+        "Recording Studio Start / Pause / Stop",
+        "Studio reopen behavior",
+        "no stale UI",
+        "no blank, black, partial, or corrupted WebEngine content",
+        "conditional repair before/after behavior",
+        "clean relaunch",
+    )
+    visual_text = (
+        "# Visual Manual And Raw Evidence Plan\n"
+        "Still-Image-Only Time-Dependent Proof: `REJECTED`\n"
+        "Manual USER Validation / Waiver Routing: `COMPLETE`\n"
+        "Raw-Evidence Plan Status: `COMPLETE`\n"
+        "External-Pointer-Only Closure: `PROHIBITED`\n"
+        + "\n".join(
+            f"| {claim} | ordered frames/video | manual USER fallback | packet raw evidence |"
+            for claim in visual_claims
+        )
+    )
+    element_text = (
+        "# Element-to-Phase Proof Matrix\n"
+        "Element-to-Phase Proof Matrix Status: `COMPLETE`\n"
+        + "\n".join(
+            f"| `OPTG-ELEM-{index:02d}` | element {index} | Workstream proof | "
+            "H1 proof | Live Validation proof | UTS proof |"
+            for index in range(1, 12)
+        )
+    )
+    reconciliation_text = (
+        "# Option G BP2 Acceptance Reconciliation\n"
+        "Accepted BP2 Authority: `RECONCILED`\n"
+        "Historical BP2 ZIP Disposition: `ABSENT / NOT RECONSTRUCTED`\n"
+        "Stale BP2 Primary Disposition: `HISTORICAL PRE-ACCEPTANCE COPY`\n"
+    )
+    launcher_text = (
+        "# Launcher And Proof Classification\n"
+        "Exact Formal Launcher Path: "
+        "`C:\\Users\\anden\\OneDrive\\Desktop\\Nexus Desktop Launcher.lnk`\n"
+        "Shortcut Target: `C:\\Nexus Worktrees\\FAM-003\\launch_orin_desktop.vbs`\n"
+        "Working Directory: `C:\\Nexus Worktrees\\FAM-003`\n"
+        "Arguments: `NONE`\n"
+        "Launcher Parity Result: `PASS`\n"
+        "Troubleshooting / Helper Formal-Proof Substitution: `PROHIBITED`\n"
+    )
+    carrydown_text = (
+        "# Accepted BP2 Proof Contract Carrydown\n"
+        "Accepted BP2 observability, launcher, visual, manual, raw-evidence, "
+        "and phase obligations are mapped to OPTG-WS01 through OPTG-WS07.\n"
+    )
     valid = {
         "START_HERE.md": (
             "# FAM-003 Option G BP3\n"
@@ -1312,6 +1457,16 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md": orchestration_text,
         "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md": boundary_text,
         "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md": fixture_text,
+        "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md": ufd_text,
+        "Review Aids/OPTION_G_BP2_ACCEPTANCE_RECONCILIATION.md": reconciliation_text,
+        "Review Aids/OPTION_G_BP2_PROOF_CONTRACT_CARRYDOWN.md": carrydown_text,
+        "Review Aids/OPTION_G_LAUNCHER_AND_PROOF_CLASSIFICATION.md": launcher_text,
+        "Review Aids/OPTION_G_RUNTIME_OBSERVABILITY_DECISION_MATRIX.md": observability_text,
+        "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md": visual_text,
+        "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md": element_text,
+        "Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md": (
+            "# Defect Ledger\nValidator false-green defects are closed with proof.\n"
+        ),
         "Source Truth Context/current_external_branch_plan.md": active_header,
         "Source Truth Context/current_external_branch_state.md": active_header,
         "Source Truth Context/current_external_worktree_state.md": active_header,
@@ -1338,59 +1493,157 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     cases = (
         (
             "OPTG-BP3-FG-01",
-            "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
-            "BP2 Status: `USER Accepted`",
-            "BP2 Status: `Pending USER Review`",
-            "required accepted BP2",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "USER Feedback Disposition Required: `Yes`",
+            "",
+            "required UFD required",
         ),
         (
             "OPTG-BP3-FG-02",
-            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
-            "| `OPTG-WS07` | Seam 7 | `READY` |",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "UFD Ledger Status: `Complete`",
             "",
-            "seven OPTG-WS seam rows",
+            "required UFD ledger",
         ),
         (
             "OPTG-BP3-FG-03",
-            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
-            "| `OPTG-WS04` | Seam 4 | `READY` |",
-            "| `OPTG-WS04` | Seam 4 | `BLOCKED` |",
-            "every seam must be READY",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "Open UFD Count: `0`",
+            "Open UFD Count: `1`",
+            "UFD Open count disagrees",
         ),
         (
             "OPTG-BP3-FG-04",
-            "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md",
-            "| `OPTG-ALLOW-08` | `desktop/desktop_renderer.py` | Exact region 8 |",
-            "",
-            "eight OPTG-ALLOW rows",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "proof-carrydown and validator false-green repair",
+            "minor note",
+            "material USER direction is absent",
         ),
         (
             "OPTG-BP3-FG-05",
-            "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md",
-            "`NonintrusivePerformanceController._request_observation`",
-            "measurement request",
-            "exact measurement entrypoint",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "Deferred / Future-Gated Scope Admission: `NONE`",
+            "Deferred / Future-Gated Scope Admission: `ADMITTED`",
+            "deferred/future-gated feedback",
         ),
         (
             "OPTG-BP3-FG-06",
-            "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md",
-            "`STUDIO_RESIZABLE = False`",
-            "`STUDIO_RESIZABLE = True`",
-            "required Recording fixed invariant",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "# Option G UFD And Fold-Down",
+            "# Option G Defect Reference",
+            "required UFD heading",
         ),
         (
             "OPTG-BP3-FG-07",
-            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
-            "FAM-006/shared-owner stop",
-            "Shared-owner work may continue.",
-            "required FAM-006 stop",
+            "Review Aids/OPTION_G_RUNTIME_OBSERVABILITY_DECISION_MATRIX.md",
+            "hidden HUD polling stopping",
+            "HUD state",
+            "observability obligation is missing",
         ),
         (
             "OPTG-BP3-FG-08",
+            "Review Aids/OPTION_G_LAUNCHER_AND_PROOF_CLASSIFICATION.md",
+            "Exact Formal Launcher Path:",
+            "Launcher Path:",
+            "required formal normal launcher",
+        ),
+        (
+            "OPTG-BP3-FG-09",
+            "Review Aids/OPTION_G_LAUNCHER_AND_PROOF_CLASSIFICATION.md",
+            "Launcher Parity Result: `PASS`",
+            "Launcher Parity Result: `UNPROVEN`",
+            "required launcher parity",
+        ),
+        (
+            "OPTG-BP3-FG-10",
+            "Review Aids/OPTION_G_LAUNCHER_AND_PROOF_CLASSIFICATION.md",
+            "Troubleshooting / Helper Formal-Proof Substitution: `PROHIBITED`",
+            "Troubleshooting / Helper Formal-Proof Substitution: `ALLOWED`",
+            "required troubleshooting not formal",
+        ),
+        (
+            "OPTG-BP3-FG-11",
+            "Review Aids/OPTION_G_BP2_ACCEPTANCE_RECONCILIATION.md",
+            "Stale BP2 Primary Disposition: `HISTORICAL PRE-ACCEPTANCE COPY`",
+            "Stale BP2 Primary Disposition: `Pending USER Response`",
+            "required stale BP2 copy classified",
+        ),
+        (
+            "OPTG-BP3-FG-12",
+            "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
+            "Still-Image-Only Time-Dependent Proof: `REJECTED`",
+            "Still-Image-Only Time-Dependent Proof: `ACCEPTED`",
+            "required time-dependent still rejection",
+        ),
+        (
+            "OPTG-BP3-FG-13",
+            "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
+            "HUD visible/hidden transitions",
+            "HUD final state",
+            "visual/video/ordered-frame plan is missing",
+        ),
+        (
+            "OPTG-BP3-FG-14",
+            "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
+            "Manual USER Validation / Waiver Routing: `COMPLETE`",
+            "",
+            "required manual validation routed",
+        ),
+        (
+            "OPTG-BP3-FG-15",
+            "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
+            "Raw-Evidence Plan Status: `COMPLETE`",
+            "",
+            "required raw evidence complete",
+        ),
+        (
+            "OPTG-BP3-FG-16",
+            "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
+            "External-Pointer-Only Closure: `PROHIBITED`",
+            "External-Pointer-Only Closure: `ALLOWED`",
+            "required external pointers insufficient",
+        ),
+        (
+            "OPTG-BP3-FG-17",
+            "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md",
+            "| `OPTG-ELEM-11`",
+            "| element-11",
+            "at least eleven",
+        ),
+        (
+            "OPTG-BP3-FG-18",
+            "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md",
+            "UFD-FAM003-20260724-001; formal normal USER launch; observability;",
+            "basic proof;",
+            "seam omits proof-contract carrydown",
+        ),
+        (
+            "OPTG-BP3-FG-19",
+            "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            "ORIN Core CPU Contribution: `UNRESOLVED / DECISION 3`",
+            "ORIN Core CPU Contribution: `RESOLVED`",
+            "required ORIN Core unresolved",
+        ),
+        (
+            "OPTG-BP3-FG-20",
             "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
             "Workstream Implementation: `UNAPPROVED`",
             "Workstream Implementation: `APPROVED`",
             "required implementation unapproved",
+        ),
+        (
+            "OPTG-BP3-FG-21",
+            "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            "H1 remains `NOT_ENTERED`",
+            "H1 executes under Workstream authority",
+            "required H1 boundary",
+        ),
+        (
+            "OPTG-BP3-FG-22",
+            "Review Aids/OPTION_G_BP2_ACCEPTANCE_RECONCILIATION.md",
+            "Historical BP2 ZIP Disposition: `ABSENT / NOT RECONSTRUCTED`",
+            "Historical BP2 ZIP was reconstructed from packet copies",
+            "required historical BP2 ZIP not reconstructed",
         ),
     )
     for case_id, file_name, old, new, expected in cases:
