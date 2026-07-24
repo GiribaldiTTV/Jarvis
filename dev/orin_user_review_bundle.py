@@ -1805,6 +1805,12 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
 
 
 FAM007_DECOMPOSITION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
+    "Review Aids/CURRENT_DECOMPOSITION_STATE.md",
+    "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md",
+    "Review Aids/TRANSITION_SAFE_ROUTE_RULES.md",
+    "Review Aids/SELECTED_NEXT_STATE_RECEIPT.md",
+    "Review Aids/AI_READINESS_RECOMMENDATION_SELECTION_RECEIPT.md",
+    "Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md",
     "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md",
     "Review Aids/CORRECTED_CARRIER_MAP.md",
     "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md",
@@ -1815,6 +1821,21 @@ FAM007_DECOMPOSITION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
     "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md",
     "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
     "Source Truth Context/Proof Artifacts/Operational Receipts/VALIDATION_RECEIPT.md",
+)
+
+FAM007_DECOMPOSITION_STATES: tuple[str, ...] = (
+    "DECOMPOSITION_UNSELECTED",
+    "STAGE1_CANDIDATE_SELECTED",
+    "STAGE1_ANALYSIS_COMPLETE",
+    "STAGE2_CREATION_APPROVED",
+    "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+    "BRANCH_PLANNING_ENTRY_APPROVED",
+)
+
+FAM007_DECOMPOSITION_ROUTE_CODES: tuple[str, ...] = (
+    "ROUTE_A_SEPARATE",
+    "ROUTE_B_SHARED_SHELL_LOCAL_LIFECYCLE",
+    "ROUTE_C_INDIVISIBLE",
 )
 
 
@@ -1841,6 +1862,31 @@ def _markdown_table_rows(text: str) -> list[list[str]]:
     return rows
 
 
+def _fam007_field(text: str, field_name: str) -> str:
+    return _field_value(text, field_name).strip().strip("`").strip()
+
+
+def _fam007_field_code(text: str, field_name: str) -> str:
+    return _fam007_field(text, field_name).upper()
+
+
+def _fam007_receipt_is_recorded(value: str) -> bool:
+    normalized = value.strip().strip("`").strip()
+    return bool(normalized) and normalized.upper() not in {
+        "NONE",
+        "NOT_REQUIRED",
+        "NOT REQUIRED",
+        "NOT_APPLICABLE",
+        "NOT APPLICABLE",
+        "PENDING",
+    }
+
+
+def _fam007_text_has_all(text: str, markers: tuple[str, ...]) -> bool:
+    folded = text.casefold()
+    return all(marker.casefold() in folded for marker in markers)
+
+
 def _fam007_decomposition_packet_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
@@ -1861,27 +1907,398 @@ def _fam007_decomposition_packet_failures(
     )
     generated_folded = generated_text.casefold()
 
+    state_name = "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+    state_text = packet_files.get(state_name, "")
+    state = _fam007_field_code(state_text, "Declared Decomposition State")
+    candidate_code = _fam007_field_code(state_text, "Named Candidate Code")
+    candidate_name = _fam007_field(state_text, "Named Candidate")
+    selected_next_posture = _fam007_field_code(
+        state_text, "Selected-next Posture"
+    )
+    route_code = _fam007_field_code(
+        state_text, "Shell / Lifecycle Route Code"
+    )
+
+    state_model = packet_files.get(
+        "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md", ""
+    )
+    for required_state in FAM007_DECOMPOSITION_STATES:
+        if required_state not in state_model:
+            failures.append(
+                "FAM-007 decomposition: transition-state model does not define "
+                f"{required_state}"
+            )
+    for marker in (
+        "Required USER Approval Receipt",
+        "Selected-next Posture",
+        "Named Candidate",
+        "Branch / Worktree Existence",
+        "Allowed Mutation",
+        "Required Packet Artifacts",
+        "Current Gate",
+        "Next Legal Gate",
+        "Forbidden Phase Collapse",
+    ):
+        if marker.casefold() not in state_model.casefold():
+            failures.append(
+                "FAM-007 decomposition: transition-state model is missing "
+                f"{marker}"
+            )
+
+    if not state:
+        failures.append(
+            "FAM-007 decomposition: declared decomposition state is missing"
+        )
+    elif state not in FAM007_DECOMPOSITION_STATES:
+        failures.append(
+            f"FAM-007 decomposition: unknown declared decomposition state {state}"
+        )
+
+    state_expectations = {
+        "DECOMPOSITION_UNSELECTED": {
+            "candidate": "NONE",
+            "selected_next": "CONSUMED_NO_SUCCESSOR",
+            "branch_exists": "NO",
+            "branch_mutation": "NONE",
+            "stage1": "NOT_STARTED",
+            "stage2": "NOT_APPROVED",
+            "identity": "NOT_APPLICABLE",
+            "bp_entry": "NOT_APPROVED",
+            "current_gate": "DECOMPOSITION_DECISION_1_REVIEW",
+            "next_gate": "USER_DECISION_1_CURRENT_BRANCH_SUPERSESSION",
+        },
+        "STAGE1_CANDIDATE_SELECTED": {
+            "candidate": "NAMED",
+            "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+            "branch_exists": "NO",
+            "branch_mutation": "NONE",
+            "stage1": "ADMITTED_NOT_STARTED",
+            "stage2": "NOT_APPROVED",
+            "identity": "NOT_APPLICABLE",
+            "bp_entry": "NOT_APPROVED",
+            "current_gate": "BRANCH_READINESS_STAGE_1_ANALYSIS",
+            "next_gate": "BRANCH_READINESS_STAGE_1_ANALYSIS_COMPLETE",
+        },
+        "STAGE1_ANALYSIS_COMPLETE": {
+            "candidate": "NAMED",
+            "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+            "branch_exists": "NO",
+            "branch_mutation": "NONE",
+            "stage1": "COMPLETE",
+            "stage2": "NOT_APPROVED",
+            "identity": "NOT_APPLICABLE",
+            "bp_entry": "NOT_APPROVED",
+            "current_gate": "USER_BRANCH_READINESS_STAGE_2_DECISION",
+            "next_gate": "BRANCH_READINESS_STAGE_2_IF_APPROVED",
+        },
+        "STAGE2_CREATION_APPROVED": {
+            "candidate": "NAMED",
+            "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+            "branch_exists": "NO",
+            "branch_mutation": "APPROVED_NOT_EXECUTED",
+            "stage1": "COMPLETE",
+            "stage2": "APPROVED",
+            "identity": "NOT_APPLICABLE",
+            "bp_entry": "NOT_APPROVED",
+            "current_gate": "BRANCH_READINESS_STAGE_2_EXECUTION",
+            "next_gate": "SUCCESSOR_IDENTITY_VERIFICATION",
+        },
+        "SUCCESSOR_CREATED_IDENTITY_VERIFIED": {
+            "candidate": "NAMED",
+            "selected_next": "SELECTED_SUCCESSOR_CREATED",
+            "branch_exists": "YES",
+            "branch_mutation": "COMPLETED",
+            "stage1": "COMPLETE",
+            "stage2": "APPROVED",
+            "identity": "VERIFIED",
+            "bp_entry": "NOT_APPROVED",
+            "current_gate": "SUCCESSOR_IDENTITY_VERIFIED",
+            "next_gate": "USER_BRANCH_PLANNING_ENTRY_DECISION",
+        },
+        "BRANCH_PLANNING_ENTRY_APPROVED": {
+            "candidate": "NAMED",
+            "selected_next": "SELECTED_SUCCESSOR_CREATED",
+            "branch_exists": "YES",
+            "branch_mutation": "COMPLETED",
+            "stage1": "COMPLETE",
+            "stage2": "APPROVED",
+            "identity": "VERIFIED",
+            "bp_entry": "APPROVED",
+            "current_gate": "BRANCH_PLANNING_ENTRY_APPROVED",
+            "next_gate": "BP1_USER_BRANCH_VISION_REVIEW",
+        },
+    }
+    expectation = state_expectations.get(state)
+    if expectation:
+        state_fields = {
+            "selected_next": selected_next_posture,
+            "branch_exists": _fam007_field_code(
+                state_text, "Successor Branch / Worktree Exists"
+            ),
+            "branch_mutation": _fam007_field_code(
+                state_text, "Branch / Worktree Mutation"
+            ),
+            "stage1": _fam007_field_code(
+                state_text, "Stage 1 Analysis Status"
+            ),
+            "stage2": _fam007_field_code(
+                state_text, "Stage 2 Creation Approval"
+            ),
+            "identity": _fam007_field_code(
+                state_text, "Successor Identity Verification"
+            ),
+            "bp_entry": _fam007_field_code(
+                state_text, "Branch Planning Entry Approval"
+            ),
+            "current_gate": _fam007_field_code(
+                state_text, "Current Gate Code"
+            ),
+            "next_gate": _fam007_field_code(
+                state_text, "Next Legal Gate Code"
+            ),
+        }
+        for field_key, expected_value in expectation.items():
+            if field_key == "candidate":
+                continue
+            if state_fields.get(field_key) != expected_value:
+                failures.append(
+                    "FAM-007 decomposition: declared state "
+                    f"{state} requires {field_key}={expected_value}, got "
+                    f"{state_fields.get(field_key) or 'MISSING'}"
+                )
+        if expectation["candidate"] == "NONE":
+            if candidate_code != "NONE" or candidate_name.upper() != "NONE":
+                failures.append(
+                    "FAM-007 decomposition: unselected state must not name a candidate"
+                )
+        elif (
+            not candidate_code
+            or candidate_code == "NONE"
+            or not re.fullmatch(r"[A-Z0-9_]+", candidate_code)
+            or not candidate_name
+            or candidate_name.upper() == "NONE"
+        ):
+            failures.append(
+                "FAM-007 decomposition: selected transition state requires one named candidate"
+            )
+
+    if _fam007_field_code(state_text, "Implementation Approval") != "NOT_APPROVED":
+        failures.append(
+            "FAM-007 decomposition: transition model must not imply implementation approval"
+        )
+    if _fam007_field_code(state_text, "Forbidden Phase Collapse") != "CONFIRMED":
+        failures.append(
+            "FAM-007 decomposition: forbidden phase-collapse boundary is not confirmed"
+        )
+
+    receipt_fields = {
+        "decomposition": (
+            _fam007_field(state_text, "Decomposition Acceptance Receipt"),
+            _fam007_field(
+                state_text, "Decomposition Acceptance Exact USER Decision"
+            ),
+        ),
+        "stage1": (
+            _fam007_field(state_text, "Stage 1 Selection Approval Receipt"),
+            _fam007_field(
+                state_text, "Stage 1 Selection Exact USER Decision"
+            ),
+        ),
+        "stage2": (
+            _fam007_field(state_text, "Stage 2 Creation Approval Receipt"),
+            _fam007_field(
+                state_text, "Stage 2 Creation Exact USER Decision"
+            ),
+        ),
+        "bp_entry": (
+            _fam007_field(
+                state_text, "Branch Planning Entry Approval Receipt"
+            ),
+            _fam007_field(
+                state_text, "Branch Planning Entry Exact USER Decision"
+            ),
+        ),
+    }
+    required_receipts: set[str] = set()
+    if state in FAM007_DECOMPOSITION_STATES[1:]:
+        required_receipts.update(("decomposition", "stage1"))
+    if state in FAM007_DECOMPOSITION_STATES[3:]:
+        required_receipts.add("stage2")
+    if state == "BRANCH_PLANNING_ENTRY_APPROVED":
+        required_receipts.add("bp_entry")
+    for receipt_name, (receipt_id, exact_text) in receipt_fields.items():
+        if receipt_name in required_receipts:
+            if not _fam007_receipt_is_recorded(receipt_id):
+                failures.append(
+                    "FAM-007 decomposition: declared state "
+                    f"{state} requires an exact {receipt_name} USER approval receipt"
+                )
+            if not _fam007_receipt_is_recorded(exact_text):
+                failures.append(
+                    "FAM-007 decomposition: declared state "
+                    f"{state} requires exact {receipt_name} USER decision text"
+                )
+        elif state == "DECOMPOSITION_UNSELECTED" and (
+            _fam007_receipt_is_recorded(receipt_id)
+            or _fam007_receipt_is_recorded(exact_text)
+        ):
+            failures.append(
+                "FAM-007 decomposition: unselected state carries an approval receipt "
+                f"for {receipt_name}"
+            )
+
+    if state in FAM007_DECOMPOSITION_STATES[1:]:
+        decomposition_decision = receipt_fields["decomposition"][1]
+        stage1_decision = receipt_fields["stage1"][1]
+        if not _fam007_text_has_all(
+            decomposition_decision,
+            (
+                "discovery / evidence / false-green analysis / decomposition carrier only",
+                "does not select a successor",
+            ),
+        ):
+            failures.append(
+                "FAM-007 decomposition: decomposition acceptance receipt does not preserve "
+                "the current-carrier and no-successor boundary"
+            )
+        if not _fam007_text_has_all(
+            stage1_decision,
+            (
+                candidate_name,
+                "Branch Readiness Stage 1 analysis only",
+                "no branch/worktree mutation",
+                "Stage 2 remains separate",
+                "Branch Planning Entry remains separate",
+            ),
+        ):
+            failures.append(
+                "FAM-007 decomposition: Stage 1 selection approval scope is incomplete "
+                "or does not match the named candidate"
+            )
+    if state in FAM007_DECOMPOSITION_STATES[3:]:
+        if not _fam007_text_has_all(
+            receipt_fields["stage2"][1],
+            (
+                candidate_name,
+                "Branch Readiness Stage 2",
+                "branch/worktree creation",
+                "Branch Planning Entry remains separate",
+                "implementation remains blocked",
+            ),
+        ):
+            failures.append(
+                "FAM-007 decomposition: Stage 2 creation approval scope is incomplete "
+                "or does not match the named candidate"
+            )
+    if state == "BRANCH_PLANNING_ENTRY_APPROVED" and not _fam007_text_has_all(
+        receipt_fields["bp_entry"][1],
+        (
+            candidate_name,
+            "Branch Planning Entry",
+            "BP1",
+            "implementation remains blocked",
+        ),
+    ):
+        failures.append(
+            "FAM-007 decomposition: Branch Planning Entry approval scope is incomplete "
+            "or does not match the named candidate"
+        )
+
+    selected_next_receipt = packet_files.get(
+        "Review Aids/SELECTED_NEXT_STATE_RECEIPT.md", ""
+    )
+    for field_name, expected_value in (
+        ("Declared Decomposition State", state),
+        ("Named Candidate Code", candidate_code),
+        ("Named Candidate", candidate_name),
+        ("Selected-next Posture", selected_next_posture),
+    ):
+        if _fam007_field_code(selected_next_receipt, field_name) != expected_value.upper():
+            failures.append(
+                "FAM-007 decomposition: selected-next receipt disagrees on "
+                f"{field_name}"
+            )
+    if (
+        _fam007_field_code(selected_next_receipt, "External-State Consistency")
+        != "CONFIRMED"
+    ):
+        failures.append(
+            "FAM-007 decomposition: selected-next external-state consistency is not confirmed"
+        )
+
+    ai_receipt = packet_files.get(
+        "Review Aids/AI_READINESS_RECOMMENDATION_SELECTION_RECEIPT.md", ""
+    )
+    expected_ai_posture = (
+        "SELECTED_FOR_STAGE1_ANALYSIS_ONLY"
+        if candidate_code == "AI_READINESS_DIAGNOSTICS"
+        else "RECOMMENDATION_ONLY_NOT_SELECTED"
+    )
+    if _fam007_field_code(
+        ai_receipt, "Declared Decomposition State"
+    ) != state:
+        failures.append(
+            "FAM-007 decomposition: AI Readiness receipt state disagrees with the declaration"
+        )
+    if _fam007_field_code(
+        ai_receipt, "Named Candidate Code"
+    ) != candidate_code:
+        failures.append(
+            "FAM-007 decomposition: AI Readiness receipt candidate disagrees with the declaration"
+        )
+    if _fam007_field_code(
+        ai_receipt, "AI Readiness Posture"
+    ) != expected_ai_posture:
+        failures.append(
+            "FAM-007 decomposition: AI Readiness recommendation/selection posture "
+            "does not match the approved candidate state"
+        )
+    ai_stage1_receipt = _fam007_field(
+        ai_receipt, "Stage 1 Selection Approval Receipt"
+    )
+    if candidate_code == "AI_READINESS_DIAGNOSTICS":
+        if ai_stage1_receipt != receipt_fields["stage1"][0]:
+            failures.append(
+                "FAM-007 decomposition: AI Readiness selection lacks the matching "
+                "Stage 1 USER approval receipt"
+            )
+    elif _fam007_receipt_is_recorded(ai_stage1_receipt):
+        failures.append(
+            "FAM-007 decomposition: AI Readiness carries a selection receipt while "
+            "another candidate or no candidate is selected"
+        )
+
     separability = packet_files.get(
         "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md", ""
     )
     separability_folded = separability.casefold()
+    route_rules = packet_files.get(
+        "Review Aids/TRANSITION_SAFE_ROUTE_RULES.md", ""
+    )
+    route_fields = {
+        "separability": _fam007_field_code(separability, "Declared Route"),
+        "rules": _fam007_field_code(route_rules, "Declared Route"),
+    }
+    if route_code not in FAM007_DECOMPOSITION_ROUTE_CODES:
+        failures.append(
+            f"FAM-007 decomposition: missing or unknown route code {route_code or 'MISSING'}"
+        )
+    for source_name, declared_route in route_fields.items():
+        if declared_route != route_code:
+            failures.append(
+                "FAM-007 decomposition: route declaration mismatch between current state "
+                f"and {source_name}"
+            )
+
     combined_carrier_claimed = bool(
         re.search(
             r"\b(?:combined|single|one)\s+(?:detached[- ]child\s+)?"
             r"(?:shell\s*(?:/|and)\s*lifecycle|visual[- ]shell\s+and\s+lifecycle)\s+carrier\b",
-            generated_text,
+            separability,
             re.IGNORECASE,
         )
     )
-    if combined_carrier_claimed and not all(
-        marker in separability_folded
-        for marker in (
-            "atomicity result: proven indivisible",
-            "unsafe separation evidence:",
-            "independent visual adjudication:",
-            "independent lifecycle adjudication:",
-        )
-    ):
+    if route_code != "ROUTE_C_INDIVISIBLE" and combined_carrier_claimed:
         failures.append(
             "FAM-007 decomposition: visual shell and lifecycle are combined without "
             "the required indivisible-atomicity proof"
@@ -1889,16 +2306,56 @@ def _fam007_decomposition_packet_failures(
     if re.search(
         r"\b(?:same|shared)\s+(?:file|class|base class)\b[^\n]{0,120}"
         r"\b(?:proves?|establishes?|requires?)\b[^\n]{0,80}\b(?:atomic|one carrier|combined)\b",
-        generated_text,
+        separability,
         re.IGNORECASE,
     ):
         failures.append(
             "FAM-007 decomposition: same-file or same-class placement is treated as carrier atomicity proof"
         )
-    if "route a - separate shared carriers" not in separability_folded:
+
+    route_requirements = {
+        "ROUTE_A_SEPARATE": (
+            ("Visual Shell Ownership", "SEPARATE_CARRIER"),
+            ("Lifecycle Ownership", "SEPARATE_CARRIER"),
+            ("Code-Region Ownership", "COMPLETE"),
+            ("Dependency Boundaries", "EXPLICIT"),
+            ("Proof Boundaries", "EXPLICIT"),
+            ("Same-File/Class Atomicity Claim", "NOT_USED"),
+        ),
+        "ROUTE_B_SHARED_SHELL_LOCAL_LIFECYCLE": (
+            ("Source-Truth Route Permission", "CONFIRMED"),
+            ("Visual Shell Sharing", "EXPLICIT"),
+            ("Lifecycle Ownership", "CHILD_LOCAL_OR_EXACT_OWNER_LOCAL"),
+            ("Code-Region Ownership", "COMPLETE"),
+            ("Cross-Window Invariance Proof", "COMPLETE"),
+            ("Dependency Boundaries", "EXPLICIT"),
+            ("Proof Boundaries", "EXPLICIT"),
+            ("Same-File/Class Atomicity Claim", "NOT_USED"),
+        ),
+        "ROUTE_C_INDIVISIBLE": (
+            ("Atomicity Result", "PROVEN_INDIVISIBLE"),
+            ("Unsafe Separation Evidence", "COMPLETE"),
+            ("Independent Visual Adjudication", "COMPLETE"),
+            ("Independent Lifecycle Adjudication", "COMPLETE"),
+            ("Child-Specific Product Work", "EXCLUDED"),
+            ("Carrier Boundary", "BOUNDED"),
+            ("Rollback Boundary", "EXPLICIT"),
+            ("Proof Boundary", "EXPLICIT"),
+            ("Same-File/Class Atomicity Claim", "NOT_USED"),
+        ),
+    }
+    for field_name, expected_value in route_requirements.get(route_code, ()):
+        actual_value = _fam007_field_code(separability, field_name)
+        if actual_value != expected_value:
+            failures.append(
+                "FAM-007 decomposition: "
+                f"{route_code} requires {field_name}={expected_value}, got "
+                f"{actual_value or 'MISSING'}"
+            )
+    if route_code == "ROUTE_C_INDIVISIBLE" and not combined_carrier_claimed:
         failures.append(
-            "FAM-007 decomposition: shell/lifecycle adjudication must select Route A "
-            "or provide the complete Route C indivisible-atomicity proof"
+            "FAM-007 decomposition: Route C must explicitly declare one combined "
+            "shell/lifecycle carrier"
         )
 
     legal_sequence = packet_files.get(
@@ -1967,6 +2424,94 @@ def _fam007_decomposition_packet_failures(
             + ", ".join(missing_approval_markers)
         )
 
+    issue307_receipt = packet_files.get(
+        "Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md", ""
+    )
+    issue307_state = _fam007_field_code(
+        issue307_receipt, "Issue #307 Resolution State"
+    )
+    issue307_route = _fam007_field_code(
+        issue307_receipt, "Issue #307 Resolution Route"
+    )
+    issue307_approval_receipt = _fam007_field(
+        issue307_receipt, "Issue #307 USER Approval Receipt"
+    )
+    issue307_approval_text = _fam007_field(
+        issue307_receipt, "Issue #307 Exact USER Decision"
+    )
+    issue307_receipt_owner = _fam007_field_code(
+        issue307_receipt, "Issue #307 Final Closure Owner"
+    )
+    if issue307_state not in {"UNRESOLVED", "RESOLVED_ATOMIC"}:
+        failures.append(
+            "FAM-007 decomposition: Issue #307 resolution state is missing or unknown"
+        )
+    elif issue307_state == "UNRESOLVED":
+        if issue307_route != "PENDING_USER_APPROVED_RESOLUTION":
+            failures.append(
+                "FAM-007 decomposition: unresolved Issue #307 must preserve the "
+                "future USER-approved split, replacement, or equivalent clarification route"
+            )
+        if (
+            _fam007_receipt_is_recorded(issue307_approval_receipt)
+            or _fam007_receipt_is_recorded(issue307_approval_text)
+        ):
+            failures.append(
+                "FAM-007 decomposition: unresolved Issue #307 carries a false resolution approval"
+            )
+        if _fam007_field_code(
+            issue307_receipt, "Implementation Or Closeout Allowed"
+        ) != "NO":
+            failures.append(
+                "FAM-007 decomposition: unresolved Issue #307 must block implementation and closeout"
+            )
+    else:
+        if issue307_route not in {
+            "USER_APPROVED_SPLIT",
+            "USER_APPROVED_REPLACEMENT",
+            "USER_APPROVED_LIVE_ISSUE_CLARIFICATION",
+        }:
+            failures.append(
+                "FAM-007 decomposition: resolved Issue #307 uses an unsupported resolution route"
+            )
+        if not _fam007_receipt_is_recorded(issue307_approval_receipt):
+            failures.append(
+                "FAM-007 decomposition: resolved Issue #307 lacks an exact USER approval receipt"
+            )
+        if not _fam007_receipt_is_recorded(issue307_approval_text):
+            failures.append(
+                "FAM-007 decomposition: resolved Issue #307 lacks exact USER decision text"
+            )
+        if not _fam007_text_has_all(
+            issue307_approval_text,
+            ("Issue #307", "one final closure owner", issue307_receipt_owner),
+        ):
+            failures.append(
+                "FAM-007 decomposition: Issue #307 approval text does not establish "
+                "one atomic final closure owner"
+            )
+        for field_name in (
+            "Issue / Ledger / Carrier Consistency",
+            "Implementation Obligations Atomic",
+            "Proof Obligations Atomic",
+            "Historical Traceability Preserved",
+        ):
+            if _fam007_field_code(issue307_receipt, field_name) not in {
+                "CONFIRMED",
+                "YES",
+            }:
+                failures.append(
+                    "FAM-007 decomposition: resolved Issue #307 requires "
+                    f"{field_name}"
+                )
+        if _fam007_field_code(
+            issue307_receipt, "Implementation Or Closeout Allowed"
+        ) != "NO_SEPARATELY_GATED":
+            failures.append(
+                "FAM-007 decomposition: Issue #307 resolution must not imply "
+                "implementation or closeout approval"
+            )
+
     ownership_name = "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md"
     ownership = packet_files.get(ownership_name, "")
     ownership_rows = _markdown_table_rows(ownership)
@@ -2006,6 +2551,8 @@ def _fam007_decomposition_packet_failures(
             + ", ".join(missing_columns)
         )
     else:
+        issue307_matrix_owner = ""
+        issue307_matrix_split_state = ""
         issue_rows: dict[int, list[list[str]]] = {}
         for row in ownership_rows:
             if not row:
@@ -2046,10 +2593,32 @@ def _fam007_decomposition_packet_failures(
                 failures.append(
                     f"{ownership_name}: Issue #{issue_number} uses a dependency statement as final closure ownership"
                 )
-            if issue_number == 307 and "SPLIT_REQUIRED" not in split_state:
-                failures.append(
-                    f"{ownership_name}: Issue #307 must expose the future USER-approved split/replacement requirement"
-                )
+            if issue_number == 307:
+                issue307_matrix_owner = final_owner
+                issue307_matrix_split_state = split_state
+        if issue307_state == "UNRESOLVED" and (
+            "SPLIT_REQUIRED" not in issue307_matrix_split_state
+            and "RESOLUTION_REQUIRED" not in issue307_matrix_split_state
+        ):
+            failures.append(
+                f"{ownership_name}: Issue #307 must expose the future USER-approved "
+                "split, replacement, or equivalent clarification requirement"
+            )
+        if issue307_state == "RESOLVED_ATOMIC" and (
+            issue307_matrix_split_state != "ATOMIC_RESOLVED"
+        ):
+            failures.append(
+                f"{ownership_name}: resolved Issue #307 must use ATOMIC_RESOLVED ownership"
+            )
+        if (
+            issue307_matrix_owner
+            and issue307_receipt_owner
+            and issue307_matrix_owner != issue307_receipt_owner
+        ):
+            failures.append(
+                f"{ownership_name}: Issue #307 final closure owner disagrees with "
+                "the resolution receipt"
+            )
 
     dependency_graph = packet_files.get(
         "Review Aids/TYPED_SUCCESSOR_DEPENDENCY_GRAPH.md", ""
@@ -2074,32 +2643,69 @@ def _fam007_decomposition_packet_failures(
             + ", ".join(missing_dependency_markers)
         )
 
-    if not re.search(
-        r"selected[- ]next(?:\s+state)?\s*:\s*`?(?:none|consumed;\s*no\s+successor)",
-        generated_text,
-        re.IGNORECASE,
+    start_here = packet_files.get("START_HERE.md", "")
+    primary_review = "\n".join(
+        text
+        for name, text in packet_files.items()
+        if name.startswith(f"{USER_REVIEW_DIR_NAME}/")
+    )
+    for surface_name, surface_text in (
+        ("START_HERE.md", start_here),
+        ("primary USER review", primary_review),
     ):
-        failures.append(
-            "FAM-007 decomposition: selected-next non-selection is not explicit"
+        if _fam007_field_code(
+            surface_text, "Declared Decomposition State"
+        ) != state:
+            failures.append(
+                f"FAM-007 decomposition: {surface_name} disagrees on the current "
+                "declared decomposition state"
+            )
+        if _fam007_field_code(
+            surface_text, "Selected-next Posture"
+        ) != selected_next_posture:
+            failures.append(
+                f"FAM-007 decomposition: {surface_name} disagrees on selected-next posture"
+            )
+
+    current_decision_text = "\n".join(
+        (
+            start_here,
+            primary_review,
+            state_text,
+            selected_next_receipt,
+            ai_receipt,
         )
-    if re.search(
-        r"selected[- ]next(?:\s+state)?\s*:\s*`?(?:ai\s+readiness|"
-        r"detached[- ]child|visual\s+shell|lifecycle)",
-        generated_text,
-        re.IGNORECASE,
-    ):
-        failures.append(
-            "FAM-007 decomposition: a successor is implied as selected-next without USER approval"
-        )
-    if not re.search(
-        r"ai\s+readiness\s*&?\s*diagnostics[^\n]{0,100}"
-        r"recommendation\s+only[^\n]{0,100}(?:not\s+selected|selected[- ]next\s+remains\s+none)",
-        generated_text,
-        re.IGNORECASE,
-    ):
-        failures.append(
-            "FAM-007 decomposition: AI Readiness recommendation is not explicitly distinguished from selection"
-        )
+    )
+    if state == "DECOMPOSITION_UNSELECTED":
+        if re.search(
+            r"\b(?:successor|stage\s*1\s+candidate)\s+selected\s*:\s*`?yes\b|"
+            r"\bselected\s+for\s+branch\s+readiness\s+stage\s*1\b",
+            current_decision_text,
+            re.IGNORECASE,
+        ):
+            failures.append(
+                "FAM-007 decomposition: a successor is implied as selected-next "
+                "without USER approval"
+            )
+        if "recommendation_only_not_selected" not in ai_receipt.casefold():
+            failures.append(
+                "FAM-007 decomposition: AI Readiness recommendation is not explicitly "
+                "distinguished from selection"
+            )
+    else:
+        if re.search(
+            r"\bsuccessor\s+selected\s*:\s*`?no\b",
+            current_decision_text,
+            re.IGNORECASE,
+        ):
+            failures.append(
+                "FAM-007 decomposition: selected state still claims no successor is selected"
+            )
+        if candidate_name.casefold() not in current_decision_text.casefold():
+            failures.append(
+                "FAM-007 decomposition: named candidate is absent from the current "
+                "decision surfaces"
+            )
 
     identity = packet_files.get(
         "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md", ""
@@ -2119,7 +2725,11 @@ def _fam007_decomposition_packet_failures(
         "Open PR State:",
         "Current Phase:",
         "Current Approval State:",
+        "Declared Decomposition State:",
         "Selected-next State:",
+        "Named Candidate Code:",
+        "Successor Branch / Worktree Exists:",
+        "Successor Identity Verification:",
         "Current Branch Role:",
         "Current Packet Receipt:",
         "Preserved Evidence Packet Receipt:",
@@ -2132,6 +2742,23 @@ def _fam007_decomposition_packet_failures(
             "FAM-007 decomposition: self-contained identity receipt is incomplete: "
             + ", ".join(missing_identity_markers)
         )
+    for field_name, expected_value in (
+        ("Declared Decomposition State", state),
+        ("Named Candidate Code", candidate_code),
+        (
+            "Successor Branch / Worktree Exists",
+            expectation["branch_exists"] if expectation else "",
+        ),
+        (
+            "Successor Identity Verification",
+            expectation["identity"] if expectation else "",
+        ),
+    ):
+        if expected_value and _fam007_field_code(identity, field_name) != expected_value:
+            failures.append(
+                "FAM-007 decomposition: identity receipt disagrees on "
+                f"{field_name}"
+            )
 
     external_receipt = packet_files.get(
         "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md", ""
@@ -2147,15 +2774,33 @@ def _fam007_decomposition_packet_failures(
         "State Version:",
         "Target Branch:",
         "Target HEAD:",
+        "Declared Decomposition State:",
+        "Named Candidate Code:",
+        "Named Candidate:",
         "Current Gate:",
         "Next Legal Gate:",
         "Packet Boundary:",
         "Selected-next Posture:",
+        "Shell / Lifecycle Route Code:",
+        "Issue #307 Resolution State:",
         "Validation Result:",
     ):
         if marker not in external_receipt:
             failures.append(
                 f"FAM-007 decomposition: external-state receipt is missing {marker}"
+            )
+    for field_name, expected_value in (
+        ("Declared Decomposition State", state),
+        ("Named Candidate Code", candidate_code),
+        ("Named Candidate", candidate_name),
+        ("Selected-next Posture", selected_next_posture),
+        ("Shell / Lifecycle Route Code", route_code),
+        ("Issue #307 Resolution State", issue307_state),
+    ):
+        if _fam007_field_code(external_receipt, field_name) != expected_value.upper():
+            failures.append(
+                "FAM-007 decomposition: packet/external-state mismatch for "
+                f"{field_name}"
             )
 
     validation_receipt = packet_files.get(
