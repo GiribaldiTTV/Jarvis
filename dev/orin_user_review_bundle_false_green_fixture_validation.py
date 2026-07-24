@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import inspect
 import json
+import re
 import subprocess
 import tempfile
 import zipfile
@@ -274,6 +275,111 @@ def _assert_active_identity_arguments_required() -> None:
             "missing-active-identity-arguments did not fail closed:\n"
             + "\n".join(failures)
         )
+
+
+def _assert_fam007_canonical_active_surface_fixtures() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-fam007-canonical-root-") as temp_dir:
+        review_root = Path(temp_dir)
+        packet = review_root / "FAM-007"
+        packet.mkdir()
+        export_zip = review_root / "FAM-007-20260724-120000.zip"
+        kwargs = {
+            "validation_mode": PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+            "expected_branch": "feature/fam-007-ai-dashboard-child-domain-diagnostics",
+        }
+
+        failures = bundle._fam007_active_surface_failures(
+            packet,
+            export_zip,
+            "FAM-007",
+            **kwargs,
+        )
+        if failures:
+            raise AssertionError(
+                "canonical FAM-007 active surface failed unexpectedly:\n"
+                + "\n".join(failures)
+            )
+
+        unrelated = review_root / "FAM-006"
+        unrelated.mkdir()
+        failures = bundle._fam007_active_surface_failures(
+            packet,
+            export_zip,
+            "FAM-007",
+            **kwargs,
+        )
+        if failures:
+            raise AssertionError(
+                "unrelated family artifact was treated as FAM-007 drift:\n"
+                + "\n".join(failures)
+            )
+
+        stage_folder = review_root / "FAM-007-Decomposition"
+        stage_folder.mkdir()
+        failures = bundle._fam007_active_surface_failures(
+            packet,
+            export_zip,
+            "FAM-007",
+            **kwargs,
+        )
+        if not any("Parallel or stale FAM-007" in failure for failure in failures):
+            raise AssertionError("parallel FAM-007 stage folder was not rejected")
+        stage_folder.rmdir()
+
+        transfer_folder = review_root / "FAM-007-20260723-171541-upload-parts"
+        transfer_folder.mkdir()
+        failures = bundle._fam007_active_surface_failures(
+            packet,
+            export_zip,
+            "FAM-007",
+            **kwargs,
+        )
+        if not any("Parallel or stale FAM-007" in failure for failure in failures):
+            raise AssertionError("FAM-007 transfer-part folder was not rejected")
+        transfer_folder.rmdir()
+
+        loose_receipt = review_root / "UTS - FAM-007.txt"
+        loose_receipt.write_text("historical receipt", encoding="utf-8")
+        failures = bundle._fam007_active_surface_failures(
+            packet,
+            export_zip,
+            "FAM-007",
+            **kwargs,
+        )
+        if not any("Parallel or stale FAM-007" in failure for failure in failures):
+            raise AssertionError("loose FAM-007 root receipt was not rejected")
+        loose_receipt.unlink()
+
+        stage_packet = review_root / "FAM-007-Decomposition"
+        stage_export = review_root / "FAM-007-Decomposition-20260724-120000.zip"
+        failures = bundle._fam007_active_surface_failures(
+            stage_packet,
+            stage_export,
+            "FAM-007-Decomposition",
+            **kwargs,
+        )
+        if not any("stage-neutral" in failure for failure in failures):
+            raise AssertionError("stage-specific FAM-007 active label was not rejected")
+        historical_failures = bundle._fam007_active_surface_failures(
+            stage_packet,
+            stage_export,
+            "FAM-007-Decomposition",
+            validation_mode=PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+            expected_branch=kwargs["expected_branch"],
+        )
+        if historical_failures:
+            raise AssertionError(
+                "accepted-historical FAM-007 stage packet was treated as active drift:\n"
+                + "\n".join(historical_failures)
+            )
+
+    generation_failures = bundle._fam007_generation_label_failures(
+        "FAM-007-Decomposition"
+    )
+    if not generation_failures:
+        raise AssertionError("FAM-007 generation accepted a stage-specific active label")
+    if bundle._fam007_generation_label_failures("FAM-007"):
+        raise AssertionError("FAM-007 generation rejected its canonical family label")
 
 
 def _assert_stage1_primary_for_stage2_decision() -> None:
@@ -1731,6 +1837,108 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
         )
     )
     _apply_decomposition_state(files, "DECOMPOSITION_UNSELECTED")
+    archive_root = r"D:\Nexus Artifacts\FAM-007\USER Review Archive"
+    receipt_artifacts = [
+        {
+            "classification": classification,
+            "originalPath": original_path,
+            "archivedPath": archived_path,
+            "sizeBytes": 123,
+            "sha256": "A" * 64,
+            "purpose": purpose,
+            "targetCurrentnessLimitation": "EVIDENCE_ONLY_NOT_ACTIVE_STATE",
+            "archiveVerification": "PASS",
+            "sourceHashMatchesArchive": True,
+            "archiveReadable": True,
+        }
+        for classification, original_path, archived_path, purpose in (
+            (
+                "IMMUTABLE_EVIDENCE",
+                r"C:\Nexus USER\FAM-007-20260723-171541.zip",
+                archive_root
+                + r"\Immutable Evidence\FAM-007-20260723-171541"
+                + r"\FAM-007-20260723-171541.zip",
+                "Preserve the immutable focused-closure evidence packet.",
+            ),
+            (
+                "HISTORICAL_RECEIPT",
+                r"C:\Nexus USER\FAM-007-Decomposition-20260724-122330.zip",
+                archive_root
+                + r"\Historical Review Packets\FAM-007-Decomposition-20260724-122330"
+                + r"\FAM-007-Decomposition-20260724-122330.zip",
+                "Preserve the superseded decomposition decision packet.",
+            ),
+            (
+                "TRANSFER_RECEIPT",
+                r"C:\Nexus USER\FAM-007-20260723-171541-upload-parts"
+                + r"\FAM-007-20260723-171541-UPLOAD-MANIFEST.zip",
+                archive_root
+                + r"\Transfer Receipts\FAM-007-20260723-171541"
+                + r"\FAM-007-20260723-171541-UPLOAD-MANIFEST.zip",
+                "Preserve the minimum transfer and reconstruction audit receipt.",
+            ),
+        )
+    ]
+    files["Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json"] = json.dumps(
+        {
+            "schema": "ndai-fam007-evidence-archive-receipt-v1",
+            "archiveRoot": archive_root,
+            "artifacts": receipt_artifacts,
+            "transferPartsDisposition": {
+                "verifiedOriginalArchived": True,
+                "minimumReceiptSetArchived": True,
+                "removedPartCount": 11,
+            },
+        },
+        indent=2,
+    )
+    files["Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.md"] = "\n".join(
+        [
+            "# Immutable Evidence Archive Receipt",
+            f"Archive Root: `{archive_root}`",
+            "Receipt JSON: `Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json`",
+            "Archive Verification: `PASS`",
+            "Target Currentness Limitation: `EVIDENCE_ONLY_NOT_ACTIVE_STATE`",
+        ]
+    )
+    files["Review Aids/ARCHIVE_EVIDENCE_INDEX.md"] = "\n".join(
+        [
+            "# Archive Evidence Index",
+            f"Archive Root: `{archive_root}`",
+            "Target Currentness Limitation: `EVIDENCE_ONLY_NOT_ACTIVE_STATE`",
+            "The archive is evidence only and is not active external state.",
+        ]
+    )
+    files["Review Aids/PRIOR_DECOMPOSITION_PACKET_SUPERSESSION_RECEIPT.md"] = "\n".join(
+        [
+            "# Prior Decomposition Packet Supersession Receipt",
+            r"Canonical Active Packet Folder: `C:\Nexus USER\FAM-007`",
+            "Prior Active Label: `FAM-007-Decomposition`",
+            "Supersession State: `ARCHIVED_SUPERSEDED_NOT_ACTIVE`",
+        ]
+    )
+    files["Review Aids/ROOT_CLEANUP_REPORT.md"] = "\n".join(
+        [
+            "# Root Cleanup Report",
+            "Canonical Active Folder Count: `1`",
+            "Canonical Active ZIP Count: `1`",
+            "Noncanonical Same-Family Root Artifact Count: `0`",
+            "Unrelated Family Mutation Count: `0`",
+            "Cleanup Finding: `PASS`",
+        ]
+    )
+    external_receipt_name = (
+        "Source Truth Context/Proof Artifacts/Operational Receipts/"
+        "EXTERNAL_STATE_RECEIPT.md"
+    )
+    files[external_receipt_name] += "\n" + "\n".join(
+        [
+            r"Canonical Active USER Folder: `C:\Nexus USER\FAM-007`",
+            r"Canonical Active USER ZIP: `C:\Nexus USER\FAM-007-20260724-120000.zip`",
+            "Prior FAM-007-Decomposition Packet State: `ARCHIVED_SUPERSEDED_NOT_ACTIVE`",
+            "Immutable Evidence Currentness: `EVIDENCE_ONLY_NOT_ACTIVE_STATE`",
+        ]
+    )
     return files
 
 
@@ -2555,9 +2763,124 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
     )
 
 
+def _assert_fam007_active_normalization_receipt_fixtures() -> None:
+    def failures_for(files: dict[str, str]) -> list[str]:
+        return bundle._fam007_active_normalization_receipt_failures(
+            files,
+            validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        )
+
+    valid = _valid_fam007_decomposition_packet_files()
+    valid_failures = failures_for(valid)
+    if valid_failures:
+        raise AssertionError(
+            "valid canonical archive/cleanup receipt set failed unexpectedly:\n"
+            + "\n".join(valid_failures)
+        )
+
+    missing_receipt = dict(valid)
+    missing_receipt.pop("Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json")
+    if not any(
+        "normalization artifact is missing" in failure
+        for failure in failures_for(missing_receipt)
+    ):
+        raise AssertionError("missing archive receipt did not fail closed")
+
+    missing_historical = json.loads(json.dumps(valid))
+    receipt_name = "Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json"
+    receipt = json.loads(missing_historical[receipt_name])
+    receipt["artifacts"] = [
+        item
+        for item in receipt["artifacts"]
+        if item["classification"] != "HISTORICAL_RECEIPT"
+    ]
+    missing_historical[receipt_name] = json.dumps(receipt)
+    if not any(
+        "required archive classes are missing" in failure
+        for failure in failures_for(missing_historical)
+    ):
+        raise AssertionError("deleted historical receipt lacked archive-verification failure")
+
+    missing_sha = json.loads(json.dumps(valid))
+    receipt = json.loads(missing_sha[receipt_name])
+    receipt["artifacts"][0].pop("sha256")
+    missing_sha[receipt_name] = json.dumps(receipt)
+    if not any("missing sha256" in failure for failure in failures_for(missing_sha)):
+        raise AssertionError("archive receipt without SHA256 did not fail closed")
+
+    missing_purpose = json.loads(json.dumps(valid))
+    receipt = json.loads(missing_purpose[receipt_name])
+    receipt["artifacts"][0]["purpose"] = ""
+    missing_purpose[receipt_name] = json.dumps(receipt)
+    if not any(
+        "missing purpose" in failure for failure in failures_for(missing_purpose)
+    ):
+        raise AssertionError("archive receipt without purpose did not fail closed")
+
+    promoted_archive = json.loads(json.dumps(valid))
+    receipt = json.loads(promoted_archive[receipt_name])
+    receipt["artifacts"][0]["targetCurrentnessLimitation"] = "CURRENT_ACTIVE_PROOF"
+    promoted_archive[receipt_name] = json.dumps(receipt)
+    if not any(
+        "EVIDENCE_ONLY_NOT_ACTIVE_STATE" in failure
+        for failure in failures_for(promoted_archive)
+    ):
+        raise AssertionError("archived evidence was allowed to become current proof")
+
+    unverified_archive = json.loads(json.dumps(valid))
+    receipt = json.loads(unverified_archive[receipt_name])
+    receipt["artifacts"][0]["archiveVerification"] = "PENDING"
+    receipt["artifacts"][0]["sourceHashMatchesArchive"] = False
+    unverified_archive[receipt_name] = json.dumps(receipt)
+    unverified_failures = failures_for(unverified_archive)
+    if not any("archiveVerification must be PASS" in failure for failure in unverified_failures):
+        raise AssertionError("cleanup could delete the only evidence copy without verified archive")
+
+    unverified_transfer = json.loads(json.dumps(valid))
+    receipt = json.loads(unverified_transfer[receipt_name])
+    receipt["transferPartsDisposition"]["verifiedOriginalArchived"] = False
+    unverified_transfer[receipt_name] = json.dumps(receipt)
+    if not any(
+        "transfer parts cannot be removed" in failure
+        for failure in failures_for(unverified_transfer)
+    ):
+        raise AssertionError("transfer-part removal lacked verified original archive proof")
+
+    archived_as_active = json.loads(json.dumps(valid))
+    external_name = (
+        "Source Truth Context/Proof Artifacts/Operational Receipts/"
+        "EXTERNAL_STATE_RECEIPT.md"
+    )
+    archived_as_active[external_name] = re.sub(
+        r"Canonical Active USER ZIP:\s*`[^`]+`",
+        lambda _match: (
+            "Canonical Active USER ZIP: "
+            r"`D:\Nexus Artifacts\FAM-007\USER Review Archive\historical.zip`"
+        ),
+        archived_as_active[external_name],
+    )
+    if not any(
+        "points to an archived/superseded packet" in failure
+        for failure in failures_for(archived_as_active)
+    ):
+        raise AssertionError("active external state accepted an archived packet pointer")
+
+    accepted_historical = bundle._fam007_active_normalization_receipt_failures(
+        {"START_HERE.md": "# FAM-007 decomposition"},
+        validation_mode=PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+    )
+    if accepted_historical:
+        raise AssertionError(
+            "accepted-historical packet was forced through current active normalization:\n"
+            + "\n".join(accepted_historical)
+        )
+
+
 def main() -> int:
     _assert_origin_main_fallback()
+    _assert_fam007_canonical_active_surface_fixtures()
     _assert_fam007_decomposition_semantic_fixtures()
+    _assert_fam007_active_normalization_receipt_fixtures()
     _assert_failure(
         "unknown-origin-main-identity",
         "requires explicit identity expectations",

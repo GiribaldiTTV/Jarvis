@@ -74,6 +74,15 @@ PACKET_VALIDATION_MODES = (
     PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
     PACKET_VALIDATION_MODE_NEXT_GATE,
 )
+FAM007_CANONICAL_USER_LABEL = "FAM-007"
+FAM007_ARCHIVE_ROOT_TEXT = r"D:\Nexus Artifacts\FAM-007\USER Review Archive"
+FAM007_ACTIVE_NORMALIZATION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
+    "Review Aids/ARCHIVE_EVIDENCE_INDEX.md",
+    "Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.md",
+    "Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json",
+    "Review Aids/PRIOR_DECOMPOSITION_PACKET_SUPERSESSION_RECEIPT.md",
+    "Review Aids/ROOT_CLEANUP_REPORT.md",
+)
 
 
 def _is_dev_owner_live_validation_lv1_packet(
@@ -1098,6 +1107,84 @@ def _same_label_root_artifact_failures(
         "Root-level same-label USER packet artifact is not allowed outside the "
         f"active packet folder and timestamped ZIP: {artifact}"
         for artifact in _same_label_root_artifact_paths(review_root, label)
+    ]
+
+
+def _is_fam007_live_review_scope(
+    packet_dir: Path,
+    export_zip: Path,
+    label: str,
+    expected_branch: str | None,
+) -> bool:
+    branch = (expected_branch or "").casefold()
+    names = (packet_dir.name, export_zip.name, label)
+    return "fam-007" in branch or any("fam-007" in name.casefold() for name in names)
+
+
+def _fam007_related_root_artifact_paths(
+    review_root: Path,
+    *,
+    packet_dir: Path,
+    export_zip: Path,
+) -> list[Path]:
+    if not review_root.is_dir():
+        return []
+    excluded = {packet_dir.resolve(), export_zip.resolve()}
+    return sorted(
+        path.resolve()
+        for path in review_root.iterdir()
+        if "fam-007" in path.name.casefold() and path.resolve() not in excluded
+    )
+
+
+def _fam007_active_surface_failures(
+    packet_dir: Path,
+    export_zip: Path,
+    label: str,
+    *,
+    validation_mode: str,
+    expected_branch: str | None,
+) -> list[str]:
+    if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        return []
+    if not _is_fam007_live_review_scope(packet_dir, export_zip, label, expected_branch):
+        return []
+
+    failures: list[str] = []
+    if label.casefold() != FAM007_CANONICAL_USER_LABEL.casefold():
+        failures.append(
+            "FAM-007 active USER packet label must be canonical and stage-neutral: "
+            f"expected {FAM007_CANONICAL_USER_LABEL}, got {label}"
+        )
+    if packet_dir.name.casefold() != FAM007_CANONICAL_USER_LABEL.casefold():
+        failures.append(
+            "FAM-007 active USER packet folder must encode stage in packet metadata, "
+            f"not a second active label: expected {FAM007_CANONICAL_USER_LABEL}, "
+            f"got {packet_dir.name}"
+        )
+
+    review_root = packet_dir.parent.resolve()
+    for artifact in _fam007_related_root_artifact_paths(
+        review_root,
+        packet_dir=packet_dir,
+        export_zip=export_zip,
+    ):
+        failures.append(
+            "Parallel or stale FAM-007 active USER root artifact remains; archive "
+            f"preservation-required evidence before cleanup: {artifact}"
+        )
+    return failures
+
+
+def _fam007_generation_label_failures(label: str) -> list[str]:
+    if ROOT.name.casefold() != FAM007_CANONICAL_USER_LABEL.casefold():
+        return []
+    if label.casefold() == FAM007_CANONICAL_USER_LABEL.casefold():
+        return []
+    return [
+        "FAM-007 packet generation must use the canonical active family label "
+        f"{FAM007_CANONICAL_USER_LABEL}; encode decomposition or other stages "
+        f"inside packet metadata, not through active label {label}"
     ]
 
 
@@ -3082,6 +3169,197 @@ def _fam007_decomposition_packet_failures(
     ):
         failures.append(
             "FAM-007 decomposition: non-self-referential final receipt and no-loose-sidecar boundary are incomplete"
+        )
+
+    return failures
+
+
+def _fam007_active_normalization_receipt_failures(
+    packet_files: Mapping[str, str],
+    *,
+    validation_mode: str,
+) -> list[str]:
+    if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        return []
+    if not _is_fam007_decomposition_packet(packet_files):
+        return []
+
+    failures: list[str] = []
+    for artifact in FAM007_ACTIVE_NORMALIZATION_REQUIRED_ARTIFACTS:
+        if not packet_files.get(artifact, "").strip():
+            failures.append(
+                f"{artifact}: required FAM-007 active-root normalization artifact is missing"
+            )
+
+    receipt_name = "Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json"
+    receipt_text = packet_files.get(receipt_name, "")
+    try:
+        receipt = json.loads(receipt_text)
+    except (json.JSONDecodeError, TypeError):
+        if receipt_text.strip():
+            failures.append(
+                f"{receipt_name}: archive receipt JSON is not parseable"
+            )
+        return failures
+    if not isinstance(receipt, dict):
+        failures.append(f"{receipt_name}: archive receipt must be a JSON object")
+        return failures
+
+    archive_root = str(receipt.get("archiveRoot", ""))
+    if archive_root.casefold() != FAM007_ARCHIVE_ROOT_TEXT.casefold():
+        failures.append(
+            f"{receipt_name}: archive root must be {FAM007_ARCHIVE_ROOT_TEXT}, "
+            f"got {archive_root or 'MISSING'}"
+        )
+
+    artifacts = receipt.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        failures.append(f"{receipt_name}: archived artifact inventory is missing")
+        artifacts = []
+
+    required_classes = {
+        "IMMUTABLE_EVIDENCE",
+        "HISTORICAL_RECEIPT",
+        "TRANSFER_RECEIPT",
+    }
+    found_classes: set[str] = set()
+    archive_root_path = PureWindowsPath(FAM007_ARCHIVE_ROOT_TEXT)
+    for index, artifact in enumerate(artifacts):
+        prefix = f"{receipt_name}: artifact[{index}]"
+        if not isinstance(artifact, dict):
+            failures.append(f"{prefix} must be a JSON object")
+            continue
+        classification = str(artifact.get("classification", "")).upper()
+        found_classes.add(classification)
+        for field_name in (
+            "originalPath",
+            "archivedPath",
+            "sizeBytes",
+            "sha256",
+            "purpose",
+            "targetCurrentnessLimitation",
+        ):
+            value = artifact.get(field_name)
+            if value in (None, ""):
+                failures.append(f"{prefix} is missing {field_name}")
+        size_bytes = artifact.get("sizeBytes")
+        if not isinstance(size_bytes, int) or size_bytes <= 0:
+            failures.append(f"{prefix} sizeBytes must be a positive integer")
+        sha256 = str(artifact.get("sha256", ""))
+        if not re.fullmatch(r"[0-9A-Fa-f]{64}", sha256):
+            failures.append(f"{prefix} sha256 must be one exact SHA256")
+        archived_path = str(artifact.get("archivedPath", ""))
+        if archived_path:
+            pure_archived_path = PureWindowsPath(archived_path)
+            try:
+                pure_archived_path.relative_to(archive_root_path)
+            except ValueError:
+                failures.append(
+                    f"{prefix} archivedPath must remain under {FAM007_ARCHIVE_ROOT_TEXT}"
+                )
+        if (
+            str(artifact.get("targetCurrentnessLimitation", "")).upper()
+            != "EVIDENCE_ONLY_NOT_ACTIVE_STATE"
+        ):
+            failures.append(
+                f"{prefix} must preserve target-currentness limitation "
+                "EVIDENCE_ONLY_NOT_ACTIVE_STATE"
+            )
+        if str(artifact.get("archiveVerification", "")).upper() != "PASS":
+            failures.append(f"{prefix} archiveVerification must be PASS")
+        if artifact.get("sourceHashMatchesArchive") is not True:
+            failures.append(f"{prefix} sourceHashMatchesArchive must be true")
+        if artifact.get("archiveReadable") is not True:
+            failures.append(f"{prefix} archiveReadable must be true")
+
+    missing_classes = sorted(required_classes - found_classes)
+    if missing_classes:
+        failures.append(
+            f"{receipt_name}: required archive classes are missing: {missing_classes}"
+        )
+
+    transfer_disposition = receipt.get("transferPartsDisposition")
+    if not isinstance(transfer_disposition, dict):
+        failures.append(f"{receipt_name}: transferPartsDisposition is missing")
+    else:
+        if transfer_disposition.get("verifiedOriginalArchived") is not True:
+            failures.append(
+                f"{receipt_name}: transfer parts cannot be removed until "
+                "verifiedOriginalArchived is true"
+            )
+        if transfer_disposition.get("minimumReceiptSetArchived") is not True:
+            failures.append(
+                f"{receipt_name}: minimum transfer receipt set is not archived"
+            )
+        removed_count = transfer_disposition.get("removedPartCount")
+        if not isinstance(removed_count, int) or removed_count < 1:
+            failures.append(
+                f"{receipt_name}: removedPartCount must record verified transfer-part cleanup"
+            )
+
+    archive_index = packet_files.get("Review Aids/ARCHIVE_EVIDENCE_INDEX.md", "")
+    for marker in (
+        FAM007_ARCHIVE_ROOT_TEXT,
+        "EVIDENCE_ONLY_NOT_ACTIVE_STATE",
+        "not active external state",
+    ):
+        if marker.casefold() not in archive_index.casefold():
+            failures.append(
+                "Review Aids/ARCHIVE_EVIDENCE_INDEX.md: archive/currentness "
+                f"boundary is missing {marker}"
+            )
+
+    supersession_text = packet_files.get(
+        "Review Aids/PRIOR_DECOMPOSITION_PACKET_SUPERSESSION_RECEIPT.md", ""
+    )
+    for marker in (
+        r"Canonical Active Packet Folder: `C:\Nexus USER\FAM-007`",
+        "Prior Active Label: `FAM-007-Decomposition`",
+        "Supersession State: `ARCHIVED_SUPERSEDED_NOT_ACTIVE`",
+    ):
+        if marker.casefold() not in supersession_text.casefold():
+            failures.append(
+                "Review Aids/PRIOR_DECOMPOSITION_PACKET_SUPERSESSION_RECEIPT.md: "
+                f"supersession boundary is missing {marker}"
+            )
+
+    cleanup_text = packet_files.get("Review Aids/ROOT_CLEANUP_REPORT.md", "")
+    for marker in (
+        "Canonical Active Folder Count: `1`",
+        "Canonical Active ZIP Count: `1`",
+        "Noncanonical Same-Family Root Artifact Count: `0`",
+        "Cleanup Finding: `PASS`",
+        "Unrelated Family Mutation Count: `0`",
+    ):
+        if marker.casefold() not in cleanup_text.casefold():
+            failures.append(
+                f"Review Aids/ROOT_CLEANUP_REPORT.md: cleanup proof is missing {marker}"
+            )
+
+    external_receipt = packet_files.get(
+        "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
+        "",
+    )
+    for marker in (
+        r"Canonical Active USER Folder: `C:\Nexus USER\FAM-007`",
+        "Prior FAM-007-Decomposition Packet State: `ARCHIVED_SUPERSEDED_NOT_ACTIVE`",
+        "Immutable Evidence Currentness: `EVIDENCE_ONLY_NOT_ACTIVE_STATE`",
+    ):
+        if marker.casefold() not in external_receipt.casefold():
+            failures.append(
+                "Source Truth Context/Proof Artifacts/Operational Receipts/"
+                f"EXTERNAL_STATE_RECEIPT.md: active/archive authority is missing {marker}"
+            )
+    active_zip_match = re.search(
+        r"Canonical Active USER ZIP:\s*`C:\\Nexus USER\\FAM-007-\d{8}-\d{6}\.zip`",
+        external_receipt,
+        re.IGNORECASE,
+    )
+    if not active_zip_match:
+        failures.append(
+            "Source Truth Context/Proof Artifacts/Operational Receipts/"
+            "EXTERNAL_STATE_RECEIPT.md: canonical active USER ZIP is missing or "
+            "points to an archived/superseded packet"
         )
 
     return failures
@@ -5431,6 +5709,15 @@ def validate_local_user_packet(
         )
 
     review_root = packet_dir.parent.resolve()
+    failures.extend(
+        _fam007_active_surface_failures(
+            packet_dir,
+            export_zip,
+            label,
+            validation_mode=validation_mode,
+            expected_branch=expected_branch,
+        )
+    )
     if export_zip.parent.resolve() != review_root:
         failures.append(
             "Timestamped USER packet ZIP must live beside the packet folder: "
@@ -5580,6 +5867,12 @@ def validate_local_user_packet(
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam007_decomposition_packet_failures(packet_files))
+    failures.extend(
+        _fam007_active_normalization_receipt_failures(
+            packet_files,
+            validation_mode=validation_mode,
+        )
+    )
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,
@@ -15162,6 +15455,9 @@ def build_bundle(
 
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
+    generation_label_failures = _fam007_generation_label_failures(label)
+    if generation_label_failures:
+        raise ValueError("; ".join(generation_label_failures))
     review_root, target = _safe_target(desktop, review_root_name, label)
     if target.exists():
         _clear_target(target)
