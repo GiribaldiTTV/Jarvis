@@ -970,8 +970,331 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
     return focused_entries, full_entries
 
 
+def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
+    owners = {
+        292: ("F7-SHELL", "F7-SHELL"),
+        293: ("F7-SHELL", "F7-SHELL"),
+        294: ("F7-SHELL", "F7-SHELL"),
+        295: ("F7-CONTROL", "F7-CONTROL"),
+        296: ("F7-READINESS", "F7-READINESS"),
+        297: ("F7-CAPABILITIES", "F7-CAPABILITIES"),
+        298: ("F7-CURRENT", "F7-CURRENT"),
+        299: ("F7-CURRENT", "F7-CURRENT"),
+        300: ("F7-CURRENT", "F7-CURRENT"),
+        301: ("FAM001-RUNTIME", "FAM001-RUNTIME"),
+        302: ("F7-CURRENT", "F7-CURRENT"),
+        303: ("F7-CURRENT", "F7-CURRENT"),
+        304: ("F7-CURRENT", "F7-CURRENT"),
+        305: ("UI-STANDARDS", "UI-STANDARDS"),
+        306: ("GOV-TOOLING", "GOV-TOOLING"),
+        307: ("F7-LIFECYCLE", "F7-LIFECYCLE"),
+        308: ("F7-PARENT", "F7-PARENT"),
+    }
+    ownership_lines = [
+        "| Issue | Implementation Owner | Final Closure Owner | Inherited Proof Obligations | Downstream Acceptance Dependencies | Atomicity / Split | Dependency Contributors |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for issue_number, (implementation_owner, final_owner) in owners.items():
+        split_state = (
+            "SPLIT_REQUIRED_BEFORE_IMPLEMENTATION_OR_CLOSEOUT"
+            if issue_number == 307
+            else "ATOMIC"
+        )
+        ownership_lines.append(
+            f"| #{issue_number} | `{implementation_owner}` | `{final_owner}` | "
+            f"Window-specific proof | Later acceptance | `{split_state}` | `NONE` |"
+        )
+
+    approval_stages = (
+        "decomposition acceptance",
+        "stage 1 analysis selection",
+        "stage 1 analysis",
+        "stage 2 branch/worktree creation approval",
+        "branch/worktree creation",
+        "branch planning entry approval",
+        "BP1",
+        "BP2",
+        "BP3",
+        "branch plan acceptance",
+        "workstream entry",
+        "implementation",
+        "H1",
+        "LV",
+        "UTS",
+        "PR",
+    )
+    return {
+        "START_HERE.md": "\n".join(
+            [
+                "# FAM-007 Decomposition Decision Packet",
+                "Current Gate: `Decomposition acceptance and successor analysis routing`",
+                "Selected-next State: `NONE`",
+                "AI Readiness & Diagnostics is recommendation only and not selected.",
+                "Final Packet Receipt Authority: active external state after ZIP generation; no loose sidecar is permitted.",
+                "Primary USER Review File: `USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md`",
+            ]
+        ),
+        "USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md": (
+            "# FAM-007 Decomposition Review\n\n"
+            "## Decision\n\n"
+            "Review the decomposition and legal successor analysis route. "
+            "This review keeps every successor unselected and keeps product work blocked."
+        ),
+        "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md": (
+            "# Separability\n\n"
+            "Selected route: Route A - separate shared carriers.\n"
+            "Code-region result: SEPARABLE.\n"
+        ),
+        "Review Aids/CORRECTED_CARRIER_MAP.md": "# Corrected carrier map\n",
+        "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md": "\n".join(
+            ownership_lines
+        ),
+        "Review Aids/TYPED_SUCCESSOR_DEPENDENCY_GRAPH.md": "\n".join(
+            [
+                "# Typed dependency graph",
+                "Implementation dependency",
+                "Proof dependency",
+                "Acceptance dependency",
+                "Source-truth dependency",
+                "Branch-creation dependency",
+                "Branch Planning order",
+                "Implementation order",
+                "Acceptance order",
+            ]
+        ),
+        "Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md": "\n".join(
+            [
+                "# Legal successor entry sequence",
+                "Branch Readiness Stage 1 - analysis with no branch mutation.",
+                "Branch Readiness Stage 2 - separately approved.",
+                "Branch/worktree creation - branch/worktree mutation occurs only in approved BR2.",
+                "Branch Planning Entry - separate USER overlay after identity verification.",
+                "BP1, BP2, and BP3 remain distinct planning gates.",
+            ]
+        ),
+        "Review Aids/APPROVAL_STAGE_TABLE.md": "\n".join(
+            ["# Approval stage table", *approval_stages]
+        ),
+        "Review Aids/RISKS_AND_ROLLBACK.md": "# Risks and rollback\n",
+        "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md": "\n".join(
+            [
+                "Worktree: exact",
+                "Git Root: exact",
+                "Branch: exact",
+                "HEAD: exact",
+                "Upstream: exact",
+                "origin/main: exact",
+                "Merge Base: exact",
+                "Upstream Divergence: exact",
+                "origin/main...HEAD Orientation: exact",
+                "Cleanliness: clean",
+                "Untracked Inventory: none",
+                "Open PR State: none",
+                "Current Phase: Live Validation",
+                "Current Approval State: packet repair only",
+                "Selected-next State: NONE",
+                "Current Branch Role: decomposition",
+                "Current Packet Receipt: exact",
+                "Preserved Evidence Packet Receipt: exact",
+            ]
+        ),
+        "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md": "\n".join(
+            [
+                *[f"Projection {number}: exact" for number in range(1, 8)],
+                "External State Schema: exact",
+                "State Version: exact",
+                "Target Branch: exact",
+                "Target HEAD: exact",
+                "Current Gate: exact",
+                "Next Legal Gate: exact",
+                "Packet Boundary: exact",
+                "Selected-next Posture: NONE",
+                "Validation Result: PASS",
+            ]
+        ),
+        "Source Truth Context/Operational Receipts/VALIDATION_RECEIPT.md": "\n".join(
+            [
+                "Command: exact",
+                "Result: PASS",
+                "Timestamp: exact",
+                "Target Identity: exact",
+                "Failed-Before-Pass Attempts: recorded",
+                "Final Result: PASS",
+            ]
+        ),
+    }
+
+
+def _assert_fam007_decomposition_semantic_fixtures() -> None:
+    valid = _valid_fam007_decomposition_packet_files()
+    failures = bundle._fam007_decomposition_packet_failures(valid)
+    if failures:
+        raise AssertionError(
+            "valid-fam007-decomposition packet failed unexpectedly:\n"
+            + "\n".join(failures)
+        )
+
+    def assert_failure(name: str, needle: str, mutate) -> None:
+        packet_files = dict(_valid_fam007_decomposition_packet_files())
+        mutate(packet_files)
+        found = bundle._fam007_decomposition_packet_failures(packet_files)
+        if not any(needle in failure for failure in found):
+            raise AssertionError(
+                f"{name} did not fail on {needle!r}; failures were:\n"
+                + "\n".join(found)
+            )
+
+    assert_failure(
+        "combined-shell-lifecycle-without-atomicity",
+        "combined without the required indivisible-atomicity proof",
+        lambda files: files.__setitem__(
+            "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md",
+            "# Separability\nCombined shell/lifecycle carrier.",
+        ),
+    )
+    assert_failure(
+        "same-file-is-not-atomicity",
+        "same-file or same-class placement",
+        lambda files: files.__setitem__(
+            "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md",
+            files["Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md"]
+            + "\nThe same file proves this must be one carrier.",
+        ),
+    )
+    assert_failure(
+        "accepted-plan-before-creation",
+        "circularly gated on an accepted Branch Plan",
+        lambda files: files.__setitem__(
+            "Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md",
+            files["Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md"]
+            + "\nBranch/worktree creation must wait until an accepted Branch Plan.",
+        ),
+    )
+    assert_failure(
+        "collapsed-br1-br2-entry",
+        "collapses or omits distinct",
+        lambda files: files.__setitem__(
+            "Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md",
+            files["Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md"].replace(
+                "Branch Readiness Stage 2", "Second readiness step"
+            ),
+        ),
+    )
+    assert_failure(
+        "multiple-final-closure-owners",
+        "exactly one coded final closure owner",
+        lambda files: files.__setitem__(
+            "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md",
+            files["Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md"].replace(
+                "| #292 | `F7-SHELL` | `F7-SHELL` |",
+                "| #292 | `F7-SHELL` | `F7-SHELL + F7-READINESS` |",
+            ),
+        ),
+    )
+    assert_failure(
+        "contributors-are-not-closure-owners",
+        "confuses dependency contributors",
+        lambda files: files.__setitem__(
+            "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md",
+            files["Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md"].replace(
+                "| #292 | `F7-SHELL` | `F7-SHELL` | Window-specific proof | Later acceptance | `ATOMIC` | `NONE` |",
+                "| #292 | `F7-SHELL` | `F7-SHELL` | Window-specific proof | Later acceptance | `ATOMIC` | `F7-SHELL` |",
+            ),
+        ),
+    )
+    assert_failure(
+        "dependency-is-not-ownership",
+        "uses a dependency statement",
+        lambda files: files.__setitem__(
+            "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md",
+            files["Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md"].replace(
+                "| #293 | `F7-SHELL` | `F7-SHELL` |",
+                "| #293 | `F7-SHELL` | `DEPENDS-THEN-CLOSE` |",
+            ),
+        ),
+    )
+    assert_failure(
+        "hidden-issue-split",
+        "Issue #307 must expose",
+        lambda files: files.__setitem__(
+            "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md",
+            files["Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md"].replace(
+                "SPLIT_REQUIRED_BEFORE_IMPLEMENTATION_OR_CLOSEOUT", "ATOMIC"
+            ),
+        ),
+    )
+    assert_failure(
+        "implied-selected-next",
+        "implied as selected-next",
+        lambda files: files.__setitem__(
+            "START_HERE.md",
+            files["START_HERE.md"].replace(
+                "Selected-next State: `NONE`",
+                "Selected-next State: `AI Readiness & Diagnostics`",
+            ),
+        ),
+    )
+    assert_failure(
+        "recommendation-selection-drift",
+        "recommendation is not explicitly distinguished",
+        lambda files: files.__setitem__(
+            "START_HERE.md",
+            files["START_HERE.md"].replace(
+                "AI Readiness & Diagnostics is recommendation only and not selected.",
+                "AI Readiness & Diagnostics is recommended.",
+            ),
+        ),
+    )
+    assert_failure(
+        "missing-identity-fact",
+        "identity receipt is incomplete",
+        lambda files: files.__setitem__(
+            "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md",
+            files[
+                "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md"
+            ].replace("Merge Base: exact\n", ""),
+        ),
+    )
+    assert_failure(
+        "missing-external-state-version",
+        "external-state receipt is missing State Version:",
+        lambda files: files.__setitem__(
+            "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
+            files[
+                "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md"
+            ].replace("State Version: exact\n", ""),
+        ),
+    )
+    assert_failure(
+        "absent-codex-digest-proof",
+        "depends on an absent Codex digest",
+        lambda files: files.__setitem__(
+            "START_HERE.md",
+            files["START_HERE.md"]
+            + "\nValidation is recorded in the Codex digest.",
+        ),
+    )
+    assert_failure(
+        "self-embedded-final-sha",
+        "falsely embedded",
+        lambda files: files.__setitem__(
+            "START_HERE.md",
+            files["START_HERE.md"] + "\nFinal packet SHA256: " + ("A" * 64),
+        ),
+    )
+    assert_failure(
+        "loose-sidecar-receipt-boundary",
+        "no-loose-sidecar boundary",
+        lambda files: files.__setitem__(
+            "START_HERE.md",
+            files["START_HERE.md"].replace("no loose sidecar", "separate sidecar"),
+        ),
+    )
+
+
 def main() -> int:
     _assert_origin_main_fallback()
+    _assert_fam007_decomposition_semantic_fixtures()
     _assert_failure(
         "unknown-origin-main-identity",
         "requires explicit identity expectations",

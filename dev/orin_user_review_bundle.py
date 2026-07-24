@@ -1804,6 +1804,403 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
     return failures
 
 
+FAM007_DECOMPOSITION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
+    "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md",
+    "Review Aids/CORRECTED_CARRIER_MAP.md",
+    "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md",
+    "Review Aids/TYPED_SUCCESSOR_DEPENDENCY_GRAPH.md",
+    "Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md",
+    "Review Aids/APPROVAL_STAGE_TABLE.md",
+    "Review Aids/RISKS_AND_ROLLBACK.md",
+    "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md",
+    "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
+    "Source Truth Context/Operational Receipts/VALIDATION_RECEIPT.md",
+)
+
+
+def _is_fam007_decomposition_packet(packet_files: Mapping[str, str]) -> bool:
+    start_here = packet_files.get("START_HERE.md", "")
+    primary_text = "\n".join(
+        text
+        for name, text in packet_files.items()
+        if name.startswith(f"{USER_REVIEW_DIR_NAME}/")
+    )
+    marker_text = f"{start_here}\n{primary_text}".casefold()
+    return "fam-007" in marker_text and "decomposition" in marker_text
+
+
+def _markdown_table_rows(text: str) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|") or not stripped.endswith("|"):
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if cells and not all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+            rows.append(cells)
+    return rows
+
+
+def _fam007_decomposition_packet_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    if not _is_fam007_decomposition_packet(packet_files):
+        return []
+
+    failures: list[str] = []
+    for artifact in FAM007_DECOMPOSITION_REQUIRED_ARTIFACTS:
+        if not packet_files.get(artifact, "").strip():
+            failures.append(
+                f"{artifact}: required FAM-007 decomposition decision artifact is missing"
+            )
+
+    generated_text = "\n".join(
+        text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    )
+    generated_folded = generated_text.casefold()
+
+    separability = packet_files.get(
+        "Review Aids/SHELL_LIFECYCLE_SEPARABILITY_MATRIX.md", ""
+    )
+    separability_folded = separability.casefold()
+    combined_carrier_claimed = bool(
+        re.search(
+            r"\b(?:combined|single|one)\s+(?:detached[- ]child\s+)?"
+            r"(?:shell\s*(?:/|and)\s*lifecycle|visual[- ]shell\s+and\s+lifecycle)\s+carrier\b",
+            generated_text,
+            re.IGNORECASE,
+        )
+    )
+    if combined_carrier_claimed and not all(
+        marker in separability_folded
+        for marker in (
+            "atomicity result: proven indivisible",
+            "unsafe separation evidence:",
+            "independent visual adjudication:",
+            "independent lifecycle adjudication:",
+        )
+    ):
+        failures.append(
+            "FAM-007 decomposition: visual shell and lifecycle are combined without "
+            "the required indivisible-atomicity proof"
+        )
+    if re.search(
+        r"\b(?:same|shared)\s+(?:file|class|base class)\b[^\n]{0,120}"
+        r"\b(?:proves?|establishes?|requires?)\b[^\n]{0,80}\b(?:atomic|one carrier|combined)\b",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: same-file or same-class placement is treated as carrier atomicity proof"
+        )
+    if "route a - separate shared carriers" not in separability_folded:
+        failures.append(
+            "FAM-007 decomposition: shell/lifecycle adjudication must select Route A "
+            "or provide the complete Route C indivisible-atomicity proof"
+        )
+
+    legal_sequence = packet_files.get(
+        "Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md", ""
+    )
+    legal_folded = legal_sequence.casefold()
+    if re.search(
+        r"\b(?:branch|worktree)\s+(?:creation|setup)\b[^\n]{0,120}"
+        r"\b(?:wait|defer|after|until)\b[^\n]{0,120}\baccepted\s+branch\s+plan\b",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: branch/worktree creation is circularly gated on an accepted Branch Plan"
+        )
+    legal_markers = (
+        "branch readiness stage 1",
+        "branch readiness stage 2",
+        "branch/worktree creation",
+        "branch planning entry",
+        "bp1",
+        "bp2",
+        "bp3",
+    )
+    missing_legal_markers = [
+        marker for marker in legal_markers if marker not in legal_folded
+    ]
+    if missing_legal_markers:
+        failures.append(
+            "FAM-007 decomposition: legal successor sequence collapses or omits distinct "
+            "BR1, BR2, creation, or Branch Planning stages: "
+            + ", ".join(missing_legal_markers)
+        )
+    if "no branch mutation" not in legal_folded or "branch/worktree mutation" not in legal_folded:
+        failures.append(
+            "FAM-007 decomposition: legal sequence does not distinguish BR1 no-mutation "
+            "analysis from BR2 branch/worktree mutation"
+        )
+
+    approval_table = packet_files.get("Review Aids/APPROVAL_STAGE_TABLE.md", "")
+    approval_folded = approval_table.casefold()
+    approval_markers = (
+        "decomposition acceptance",
+        "stage 1 analysis selection",
+        "stage 1 analysis",
+        "stage 2 branch/worktree creation approval",
+        "branch/worktree creation",
+        "branch planning entry approval",
+        "bp1",
+        "bp2",
+        "bp3",
+        "branch plan acceptance",
+        "workstream entry",
+        "implementation",
+        "h1",
+        "lv",
+        "uts",
+        "pr",
+    )
+    missing_approval_markers = [
+        marker for marker in approval_markers if marker not in approval_folded
+    ]
+    if missing_approval_markers:
+        failures.append(
+            "FAM-007 decomposition: approval-stage table is incomplete: "
+            + ", ".join(missing_approval_markers)
+        )
+
+    ownership_name = "Review Aids/CORRECTED_ISSUE_OWNERSHIP_MATRIX.md"
+    ownership = packet_files.get(ownership_name, "")
+    ownership_rows = _markdown_table_rows(ownership)
+    ownership_header = next(
+        (
+            row
+            for row in ownership_rows
+            if row and row[0].casefold() in {"issue", "issue number"}
+        ),
+        [],
+    )
+    required_columns = (
+        "Implementation Owner",
+        "Final Closure Owner",
+        "Inherited Proof Obligations",
+        "Downstream Acceptance Dependencies",
+        "Atomicity / Split",
+        "Dependency Contributors",
+    )
+    header_indexes = {
+        heading: next(
+            (
+                index
+                for index, cell in enumerate(ownership_header)
+                if cell.casefold() == heading.casefold()
+            ),
+            -1,
+        )
+        for heading in required_columns
+    }
+    missing_columns = [
+        heading for heading, index in header_indexes.items() if index < 0
+    ]
+    if missing_columns:
+        failures.append(
+            f"{ownership_name}: issue ownership model is missing columns: "
+            + ", ".join(missing_columns)
+        )
+    else:
+        issue_rows: dict[int, list[list[str]]] = {}
+        for row in ownership_rows:
+            if not row:
+                continue
+            match = re.fullmatch(r"#?(\d+)", row[0].strip("` "))
+            if match:
+                issue_rows.setdefault(int(match.group(1)), []).append(row)
+        for issue_number in range(292, 309):
+            rows = issue_rows.get(issue_number, [])
+            if len(rows) != 1:
+                failures.append(
+                    f"{ownership_name}: Issue #{issue_number} must have exactly one ownership row"
+                )
+                continue
+            row = rows[0]
+            if len(row) <= max(header_indexes.values()):
+                failures.append(
+                    f"{ownership_name}: Issue #{issue_number} ownership row is missing required cells"
+                )
+                continue
+            final_owner = row[header_indexes["Final Closure Owner"]].strip("` ")
+            implementation_owner = row[header_indexes["Implementation Owner"]].strip("` ")
+            contributors = row[header_indexes["Dependency Contributors"]].strip("` ")
+            split_state = row[header_indexes["Atomicity / Split"]].strip("` ")
+            if not re.fullmatch(r"[A-Z0-9-]+", final_owner):
+                failures.append(
+                    f"{ownership_name}: Issue #{issue_number} must name exactly one coded final closure owner"
+                )
+            if not implementation_owner:
+                failures.append(
+                    f"{ownership_name}: Issue #{issue_number} is missing an implementation owner"
+                )
+            if contributors == final_owner and contributors not in {"NONE", "N/A"}:
+                failures.append(
+                    f"{ownership_name}: Issue #{issue_number} confuses dependency contributors with final closure ownership"
+                )
+            if re.search(r"\b(?:depends?|prerequisite|after|then)\b", final_owner, re.IGNORECASE):
+                failures.append(
+                    f"{ownership_name}: Issue #{issue_number} uses a dependency statement as final closure ownership"
+                )
+            if issue_number == 307 and "SPLIT_REQUIRED" not in split_state:
+                failures.append(
+                    f"{ownership_name}: Issue #307 must expose the future USER-approved split/replacement requirement"
+                )
+
+    dependency_graph = packet_files.get(
+        "Review Aids/TYPED_SUCCESSOR_DEPENDENCY_GRAPH.md", ""
+    ).casefold()
+    dependency_markers = (
+        "implementation dependency",
+        "proof dependency",
+        "acceptance dependency",
+        "source-truth dependency",
+        "branch-creation dependency",
+        "branch planning order",
+        "implementation order",
+        "acceptance order",
+    )
+    missing_dependency_markers = [
+        marker for marker in dependency_markers if marker not in dependency_graph
+    ]
+    if missing_dependency_markers:
+        failures.append(
+            "FAM-007 decomposition: dependency graph collapses dependency types or "
+            "planning/implementation/acceptance order: "
+            + ", ".join(missing_dependency_markers)
+        )
+
+    if not re.search(
+        r"selected[- ]next(?:\s+state)?\s*:\s*`?(?:none|consumed;\s*no\s+successor)",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: selected-next non-selection is not explicit"
+        )
+    if re.search(
+        r"selected[- ]next(?:\s+state)?\s*:\s*`?(?:ai\s+readiness|"
+        r"detached[- ]child|visual\s+shell|lifecycle)",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: a successor is implied as selected-next without USER approval"
+        )
+    if not re.search(
+        r"ai\s+readiness\s*&?\s*diagnostics[^\n]{0,100}"
+        r"recommendation\s+only[^\n]{0,100}(?:not\s+selected|selected[- ]next\s+remains\s+none)",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: AI Readiness recommendation is not explicitly distinguished from selection"
+        )
+
+    identity = packet_files.get(
+        "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md", ""
+    )
+    identity_markers = (
+        "Worktree:",
+        "Git Root:",
+        "Branch:",
+        "HEAD:",
+        "Upstream:",
+        "origin/main:",
+        "Merge Base:",
+        "Upstream Divergence:",
+        "origin/main...HEAD Orientation:",
+        "Cleanliness:",
+        "Untracked Inventory:",
+        "Open PR State:",
+        "Current Phase:",
+        "Current Approval State:",
+        "Selected-next State:",
+        "Current Branch Role:",
+        "Current Packet Receipt:",
+        "Preserved Evidence Packet Receipt:",
+    )
+    missing_identity_markers = [
+        marker for marker in identity_markers if marker not in identity
+    ]
+    if missing_identity_markers:
+        failures.append(
+            "FAM-007 decomposition: self-contained identity receipt is incomplete: "
+            + ", ".join(missing_identity_markers)
+        )
+
+    external_receipt = packet_files.get(
+        "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md", ""
+    )
+    for projection_number in range(1, 8):
+        if f"Projection {projection_number}:" not in external_receipt:
+            failures.append(
+                "FAM-007 decomposition: external-state receipt does not enumerate "
+                f"Projection {projection_number}"
+            )
+    for marker in (
+        "External State Schema:",
+        "State Version:",
+        "Target Branch:",
+        "Target HEAD:",
+        "Current Gate:",
+        "Next Legal Gate:",
+        "Packet Boundary:",
+        "Selected-next Posture:",
+        "Validation Result:",
+    ):
+        if marker not in external_receipt:
+            failures.append(
+                f"FAM-007 decomposition: external-state receipt is missing {marker}"
+            )
+
+    validation_receipt = packet_files.get(
+        "Source Truth Context/Operational Receipts/VALIDATION_RECEIPT.md", ""
+    )
+    for marker in (
+        "Command:",
+        "Result:",
+        "Timestamp:",
+        "Target Identity:",
+        "Failed-Before-Pass Attempts:",
+        "Final Result:",
+    ):
+        if marker not in validation_receipt:
+            failures.append(
+                f"FAM-007 decomposition: validation receipt is missing {marker}"
+            )
+    if re.search(
+        r"(?:recorded|available|provided|see|refer)\b[^\n]{0,80}\bcodex\s+(?:chat\s+)?digest\b",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: validation or decision proof depends on an absent Codex digest"
+        )
+    if re.search(
+        r"final\s+(?:packet|zip|archive)\s+(?:sha256|hash)\s*:\s*`?[0-9a-f]{64}",
+        generated_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-007 decomposition: final packet SHA is falsely embedded inside the packet itself"
+        )
+    if (
+        "final packet receipt authority:" not in generated_folded
+        or "active external state" not in generated_folded
+        or "no loose sidecar" not in generated_folded
+    ):
+        failures.append(
+            "FAM-007 decomposition: non-self-referential final receipt and no-loose-sidecar boundary are incomplete"
+        )
+
+    return failures
+
+
 def _current_branch_external_state_dir() -> Path | None:
     try:
         branch = subprocess.check_output(
@@ -4296,6 +4693,7 @@ def validate_local_user_packet(
         )
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
+    failures.extend(_fam007_decomposition_packet_failures(packet_files))
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,
@@ -14340,6 +14738,7 @@ def build_bundle(
         *_user_branch_vision_substantive_failures(generated_packet_files),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_fam007_visual_adjudication_artifact_failures(packet_files),
+        *_fam007_decomposition_packet_failures(packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
         *_pr_stage1_packet_coherence_failures(generated_packet_files),
         *_pr_stage1_source_coverage_failures(
