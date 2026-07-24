@@ -879,6 +879,7 @@ WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
     "Prefer live external headers in BP3 packets",
     "Harden BP3 packet live-state readback",
     "Harden Option G BP3 proof carrydown",
+    "Harden FAM-003 BP3 decision surfaces",
     "Repair FAM-003 R2 scope-audit metadata",
 }
 

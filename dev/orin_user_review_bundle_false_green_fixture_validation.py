@@ -1273,6 +1273,29 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "LV remains `NOT_ENTERED`\n"
         "UTS remains `NOT_REQUESTED`\n"
         "ORIN Core CPU Contribution: `UNRESOLVED / DECISION 3`\n"
+        "\n## Current Actionable Decision - BP3 Acceptance Only\n\n"
+        f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
+        "\n## USER Review Packet Finding\n\n"
+        "USER Review Packet Finding: `PASS`\n"
+        "Replacement Packet Folder: `C:\\Nexus USER\\FAM-003`\n"
+        "Replacement ZIP Path: `C:\\Nexus USER\\FAM-003-20260724-120000.zip`\n"
+        "Replacement ZIP Filename: `FAM-003-20260724-120000.zip`\n"
+        "External ZIP SHA256: `Recorded in the post-generation Codex return and "
+        "FAM-003 external packet receipt outside this hashed ZIP.`\n"
+        "Folder / ZIP Parity: `PASS (73 / 73; file-list and content-hash equality)`\n"
+        "Primary USER Review Filename: "
+        "`USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
+        "Packet Reviewability State: `Reviewable`\n"
+        "BP3 Readiness Result: `READY_FOR_USER_BP3_REVIEW`\n"
+        "Workstream Implementation: `UNAPPROVED`\n"
+        "\n## USER Review Response\n\n"
+        "USER Review Response: Pending USER Review\n"
+        "\n## Codex Response Digest\n\n"
+        "Codex Response Digest: Pending USER Response - no BP3 acceptance recorded; "
+        "Workstream implementation remains unapproved.\n"
+        "\n## Future decision only - not requested, granted, or actionable at the "
+        "current BP3 gate\n\n"
+        f"{bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION}\n"
     )
     active_header = (
         "External State Schema: `external-state-v1`\n"
@@ -1284,6 +1307,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Workstream Result: `USER_DECISION_REQUIRED`\n"
         "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
+        "Transition Status: "
+        "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`\n"
         "Historical Receipt Boundary: `Historical content follows.`\n"
         "## Current Phase\n"
         "Current Gate: `Branch Planning - BP2 USER review pending`\n"
@@ -1451,9 +1476,18 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Primary USER Review File: `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
             "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
             "pending; Workstream implementation remains blocked`\n"
+            "Current Actionable Decision: `BP3 acceptance only`\n\n"
+            f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
         ),
         "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
-        "Review Aids/USER_DECISIONS.md": "USER Decision: approve Option G BP3 only.\n",
+        "Review Aids/USER_DECISIONS.md": (
+            "# USER Decisions\n\n"
+            "## Current Actionable Decision - BP3 Acceptance Only\n\n"
+            f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n\n"
+            "## Future decision only - not requested, granted, or actionable at the "
+            "current BP3 gate\n\n"
+            f"{bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION}\n"
+        ),
         "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md": orchestration_text,
         "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md": boundary_text,
         "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md": fixture_text,
@@ -1465,7 +1499,25 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Review Aids/OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md": visual_text,
         "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md": element_text,
         "Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md": (
-            "# Defect Ledger\nValidator false-green defects are closed with proof.\n"
+            "# Defect Ledger\n"
+            "`OPTG-BP3-DS-DEF-01`\n"
+            "`OPTG-BP3-DS-DEF-02`\n"
+            "`OPTG-BP3-DS-DEF-03`\n"
+            "`OPTG-BP3-DS-DEF-04`\n"
+            "`OPTG-BP3-DS-DEF-05`\n"
+            "Validator false-green defects are closed with proof.\n"
+        ),
+        "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json": (
+            '{"currentActionableDecision": "BP3 acceptance only", '
+            '"futureWorkstreamDecision": "FUTURE_ONLY_NON_ACTIONABLE", '
+            '"userGateState": "Pending USER Review", '
+            '"workstreamImplementation": "UNAPPROVED"}\n'
+        ),
+        "Source Truth Context/Proof Artifacts/Validation/VALIDATION_RESULTS.md": (
+            "BP3 Decision Surface Validation: `PASS`\n"
+            "USER Review Response: `Pending USER Review`\n"
+            "Workstream Implementation: `UNAPPROVED`\n"
+            "Future Workstream Decision: `FUTURE_ONLY_NON_ACTIONABLE`\n"
         ),
         "Source Truth Context/current_external_branch_plan.md": active_header,
         "Source Truth Context/current_external_branch_state.md": active_header,
@@ -1629,7 +1681,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
             "Workstream Implementation: `UNAPPROVED`",
             "Workstream Implementation: `APPROVED`",
-            "required implementation unapproved",
+            "forbidden implementation already authorized",
         ),
         (
             "OPTG-BP3-FG-21",
@@ -1649,6 +1701,369 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     for case_id, file_name, old, new, expected in cases:
         mutated = dict(valid)
         mutated[file_name] = mutated[file_name].replace(old, new, 1)
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {failures}"
+            )
+
+    current_decision = bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION
+    future_decision = bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION
+    decision_surface_cases = (
+        (
+            "OPTG-BP3-DS-FG-01",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    current_decision,
+                    "Accept, waive, revise, or block the Option G BP3 packet.",
+                    1,
+                ),
+            ),
+            {},
+            "exact packet-contained current BP3 decision",
+        ),
+        (
+            "OPTG-BP3-DS-FG-02",
+            tuple(
+                (file_name, current_decision, "", 1)
+                for file_name in (
+                    "START_HERE.md",
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {"Review Aids/CODEX_CHAT_RETURN.md": current_decision},
+            "exact packet-contained current BP3 decision",
+        ),
+        (
+            "OPTG-BP3-DS-FG-03",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    "I accept the repaired FAM-003",
+                    "I revise the repaired FAM-003",
+                    1,
+                ),
+            ),
+            {},
+            "exact packet-contained current BP3 decision",
+        ),
+        (
+            "OPTG-BP3-DS-FG-04",
+            (
+                (
+                    "START_HERE.md",
+                    "I accept the repaired FAM-003",
+                    "I approve implementation for the repaired FAM-003",
+                    1,
+                ),
+            ),
+            {},
+            "exact packet-contained current BP3 decision",
+        ),
+        (
+            "OPTG-BP3-DS-FG-05",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "USER Review Packet Finding:",
+                    "Packet Finding:",
+                    1,
+                ),
+            ),
+            {},
+            "required closed-loop USER Review Packet Finding marker",
+        ),
+        (
+            "OPTG-BP3-DS-FG-06",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "USER Review Response:",
+                    "Response:",
+                    1,
+                ),
+            ),
+            {},
+            "required closed-loop USER Review Response marker",
+        ),
+        (
+            "OPTG-BP3-DS-FG-07",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Codex Response Digest:",
+                    "Digest:",
+                    1,
+                ),
+            ),
+            {},
+            "required closed-loop Codex Response Digest marker",
+        ),
+        (
+            "OPTG-BP3-DS-FG-08",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "USER Review Response: Pending USER Review",
+                    "USER Review Response: USER Accepted",
+                    1,
+                ),
+            ),
+            {},
+            "pre-response USER Review Response",
+        ),
+        (
+            "OPTG-BP3-DS-FG-09",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "USER Gate State: Pending USER Review",
+                    "USER Gate State: USER Approved",
+                    1,
+                ),
+            ),
+            {},
+            "retain USER Gate State Pending USER Review",
+        ),
+        (
+            "OPTG-BP3-DS-FG-10",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "External ZIP SHA256: `Recorded in the post-generation Codex return and "
+                    "FAM-003 external packet receipt outside this hashed ZIP.`\n",
+                    "",
+                    1,
+                ),
+            ),
+            {},
+            "Finding lacks external SHA receipt model",
+        ),
+        (
+            "OPTG-BP3-DS-FG-11",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Codex Response Digest: Pending USER Response - no BP3 acceptance "
+                    "recorded; Workstream implementation remains unapproved.",
+                    "Codex Response Digest: BP3 accepted and Workstream implementation ready.",
+                    1,
+                ),
+            ),
+            {},
+            "Codex Response Digest must state",
+        ),
+        (
+            "OPTG-BP3-DS-FG-12",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    future_decision,
+                    "Future Workstream approval text will be supplied later.",
+                    1,
+                ),
+            ),
+            {},
+            "exact future-only Workstream approval text",
+        ),
+        (
+            "OPTG-BP3-DS-FG-13",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    "Future decision only - not requested, granted, or actionable at the "
+                    "current BP3 gate",
+                    "Current actionable Workstream decision",
+                    1,
+                ),
+            ),
+            {},
+            "future-only and non-actionable",
+        ),
+        (
+            "OPTG-BP3-DS-FG-14",
+            tuple(
+                (
+                    file_name,
+                    "`OPTG-WS01` through `OPTG-WS07`",
+                    "`OPTG-WS01` through `OPTG-WS06`",
+                    0,
+                )
+                for file_name in (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "future Workstream decision omits seven seams",
+        ),
+        (
+            "OPTG-BP3-DS-FG-15",
+            tuple(
+                (
+                    file_name,
+                    "`F3-OPTG-D01`",
+                    "`F3-OPTG-DXX`",
+                    0,
+                )
+                for file_name in (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "future Workstream decision omits dependency F3-OPTG-D01",
+        ),
+        (
+            "OPTG-BP3-DS-FG-16",
+            tuple(
+                (
+                    file_name,
+                    "`OPTG-ALLOW-01` through `OPTG-ALLOW-08`",
+                    "`OPTG-ALLOW-01` through `OPTG-ALLOW-09`",
+                    0,
+                )
+                for file_name in (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "future Workstream decision omits eight-region allowlist",
+        ),
+        (
+            "OPTG-BP3-DS-FG-17",
+            tuple(
+                (
+                    file_name,
+                    "Any unknown path, resource, object, owner, FAM-006/shared-owner "
+                    "ambiguity",
+                    "Any unknown path, resource, object, owner may self-admit; "
+                    "FAM-006/shared-owner ambiguity",
+                    1,
+                )
+                for file_name in (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "permits unknown paths/resources/objects/owners",
+        ),
+        (
+            "OPTG-BP3-DS-FG-18",
+            tuple(
+                (
+                    file_name,
+                    "Recording Studio stays non-resizable and its Start / Pause / Stop "
+                    "controls, geometry, lifecycle, and visuals remain unchanged.",
+                    "",
+                    1,
+                )
+                for file_name in (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "future Workstream decision omits Recording non-resizable",
+        ),
+        (
+            "OPTG-BP3-DS-FG-19",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    future_decision,
+                    future_decision
+                    + " FAM-006, ORIN Core, renderer, generic WebEngine, and "
+                    "AI-lifetime scope are admitted.",
+                    1,
+                ),
+            ),
+            {},
+            "admits excluded FAM-006",
+        ),
+        (
+            "OPTG-BP3-DS-FG-20",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    future_decision,
+                    future_decision
+                    + " H1, Live Validation, and UTS are authorized.",
+                    1,
+                ),
+            ),
+            {},
+            "authorizes H1, Live Validation, or UTS",
+        ),
+        (
+            "OPTG-BP3-DS-FG-21",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    current_decision,
+                    current_decision + " I approve Workstream implementation now.",
+                    1,
+                ),
+            ),
+            {},
+            "BP3 acceptance and Workstream implementation approval are combined",
+        ),
+        (
+            "OPTG-BP3-DS-FG-22",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    future_decision,
+                    "Future Workstream approval text withheld by governed exception.",
+                    1,
+                ),
+            ),
+            {},
+            "governed exception to withholding future Workstream approval text lacks",
+        ),
+        (
+            "OPTG-BP3-DS-FG-23",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    current_decision,
+                    "Accept, waive, revise, or block.",
+                    1,
+                ),
+            ),
+            {},
+            "exact packet-contained current BP3 decision",
+        ),
+        (
+            "OPTG-BP3-DS-FG-24",
+            (
+                (
+                    "Source Truth Context/current_external_branch_plan.md",
+                    "Transition Status: "
+                    "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`",
+                    "Transition Status: `REPAIR_REQUIRED`",
+                    1,
+                ),
+            ),
+            {},
+            "active external state still says BP3 repair is required",
+        ),
+    )
+    for case_id, mutations, additions, expected in decision_surface_cases:
+        mutated = dict(valid)
+        for file_name, old, new, count in mutations:
+            if count == 0:
+                mutated[file_name] = mutated[file_name].replace(old, new)
+            else:
+                mutated[file_name] = mutated[file_name].replace(old, new, count)
+        mutated.update(additions)
         failures = bundle._fam003_option_g_bp3_orchestration_failures(
             mutated,
             status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
@@ -2199,7 +2614,10 @@ def main() -> int:
             encoding="utf-8",
         ),
     )
-    print("False-green fixture validation: PASS")
+    print(
+        "False-green fixture validation: PASS "
+        "(Option G BP3: 22 proof-carrydown + 24 decision-surface cases)"
+    )
     return 0
 
 

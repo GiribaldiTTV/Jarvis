@@ -5663,6 +5663,46 @@ def _fam003_option_g_bp2_planning_failures(
     return failures
 
 
+FAM003_OPTION_G_BP3_CURRENT_DECISION = (
+    "I accept the repaired FAM-003 Decision 2 Option G BP3 Workstream Entry / "
+    "Orchestration Validation contract for `feature/fam-003-settings-resize-proof` "
+    "in `C:\\Nexus Worktrees\\FAM-003` and authorize preparation of a separate "
+    "bounded Workstream implementation approval packet only. This acceptance "
+    "preserves `F3-OPTG-D01`, `OPTG-WS01` through `OPTG-WS07`, and "
+    "`OPTG-ALLOW-01` through `OPTG-ALLOW-08` as planning boundaries only; it "
+    "does not self-admit any path, resource, object, owner, or "
+    "FAM-006/shared-owner scope. I do not authorize Workstream implementation, "
+    "product/runtime changes, polling/timer changes, retention repair, performance "
+    "optimization, Recording Studio behavior changes, ORIN Core work, "
+    "renderer-backend or renderer-policy changes, generic WebEngine lifetime "
+    "changes, AI-lifetime changes, permanent Option D adoption, H1, Live "
+    "Validation, UTS, issue mutation, PR Readiness, PR creation, merge, release, "
+    "selected-next mutation, sibling/Governance mutation, branch/worktree change, "
+    "or cleanup beyond packet hygiene."
+)
+
+
+FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION = (
+    "I approve bounded FAM-003 Decision 2 Option G Workstream implementation on "
+    "`feature/fam-003-settings-resize-proof` in "
+    "`C:\\Nexus Worktrees\\FAM-003` exactly as accepted in the revised BP2 and "
+    "BP3 contracts, including `OPTG-WS01` through `OPTG-WS07`, dependency "
+    "`F3-OPTG-D01`, and only `OPTG-ALLOW-01` through `OPTG-ALLOW-08` as "
+    "attribution-gated conditional repair regions. Conditional repair may execute "
+    "only after current Workstream evidence satisfies the exact accepted "
+    "attribution trigger for the applicable allowlist row. Any unknown path, "
+    "resource, object, owner, FAM-006/shared-owner ambiguity, Recording Studio "
+    "behavior effect, generic WebEngine lifetime change, renderer-backend or "
+    "renderer-policy change, AI-lifetime change, or ORIN Core boundary returns "
+    "`BLOCKED / USER decision required` before mutation. Recording Studio stays "
+    "non-resizable and its Start / Pause / Stop controls, geometry, lifecycle, and "
+    "visuals remain unchanged. Option D remains temporary; permanent Option D "
+    "adoption is excluded. H1, Live Validation, UTS, issues, PR Readiness, PR "
+    "creation, merge, release, selected-next mutation, sibling/Governance "
+    "mutation, branch/worktree change, and cleanup remain blocked."
+)
+
+
 def _fam003_option_g_bp3_orchestration_failures(
     packet_files: Mapping[str, str],
     *,
@@ -5676,17 +5716,21 @@ def _fam003_option_g_bp3_orchestration_failures(
     start_here = packet_files.get("START_HERE.md", "")
     primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
     identity = f"{start_here}\n{primary}".casefold()
-    if (
-        "feature/fam-003-settings-resize-proof" not in identity
-        or "option g" not in identity
-        or "bp3" not in identity
-    ):
+    if "option g" not in identity or "bp3" not in identity or "fam-003" not in identity:
         return []
+    failures: list[str] = []
+    if "feature/fam-003-settings-resize-proof" not in identity:
+        failures.append(
+            "FAM-003 Option G BP3: active routing surfaces omit the exact branch "
+            "feature/fam-003-settings-resize-proof"
+        )
 
     decisions = _packet_file_text(packet_files, "USER_DECISIONS.md")
     orchestration = _packet_file_text(packet_files, "OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md")
     boundary = _packet_file_text(packet_files, "OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md")
     fixtures = _packet_file_text(packet_files, "OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md")
+    manifest = _packet_file_text(packet_files, "PACKET_MANIFEST.json")
+    validation_results = _packet_file_text(packet_files, "VALIDATION_RESULTS.md")
     required_aids = {
         "UFD ledger": "OPTION_G_UFD_AND_FOLD_DOWN.md",
         "BP2 acceptance reconciliation": "OPTION_G_BP2_ACCEPTANCE_RECONCILIATION.md",
@@ -5709,11 +5753,299 @@ def _fam003_option_g_bp3_orchestration_failures(
             orchestration,
             boundary,
             fixtures,
+            manifest,
+            validation_results,
             *aid_text.values(),
         )
     )
     normalized = re.sub(r"\s+", " ", active_text).casefold()
-    failures: list[str] = []
+    decision_surfaces = {
+        "START_HERE.md": start_here,
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
+        "Review Aids/USER_DECISIONS.md": decisions,
+    }
+    normalized_current_decision = re.sub(
+        r"\s+", " ", FAM003_OPTION_G_BP3_CURRENT_DECISION
+    ).casefold()
+    for file_name, text in decision_surfaces.items():
+        normalized_surface = re.sub(r"\s+", " ", text).casefold()
+        if normalized_current_decision not in normalized_surface:
+            failures.append(
+                "FAM-003 Option G BP3: exact packet-contained current BP3 decision "
+                f"is missing or inconsistent in {file_name}"
+            )
+
+    generic_decision_pattern = re.compile(
+        r"(?:accept|approve),?\s+waive,?\s+revise,?\s+or\s+block",
+        re.IGNORECASE,
+    )
+    if (
+        generic_decision_pattern.search(decisions)
+        and normalized_current_decision
+        not in re.sub(r"\s+", " ", decisions).casefold()
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: USER_DECISIONS.md contains only a generic "
+            "accept/waive/revise/block menu instead of exact copy-paste text"
+        )
+
+    closed_loop_markers = {
+        "USER Review Packet Finding": "USER Review Packet Finding:",
+        "USER Review Response": "USER Review Response:",
+        "Codex Response Digest": "Codex Response Digest:",
+    }
+    for label, marker in closed_loop_markers.items():
+        if marker not in primary:
+            failures.append(
+                f"FAM-003 Option G BP3: required closed-loop {label} marker is absent"
+            )
+
+    finding_match = re.search(
+        r"(?ms)^## USER Review Packet Finding\s*(.*?)(?=^## |\Z)",
+        primary,
+    )
+    finding_text = finding_match.group(1) if finding_match else ""
+    finding_requirements = {
+        "packet folder": r"Replacement Packet Folder:\s*`C:\\Nexus USER\\FAM-003`",
+        "timestamped ZIP path": (
+            r"Replacement ZIP Path:\s*`C:\\Nexus USER\\"
+            r"FAM-003-\d{8}-\d{6}\.zip`"
+        ),
+        "ZIP filename": (
+            r"Replacement ZIP Filename:\s*`FAM-003-\d{8}-\d{6}\.zip`"
+        ),
+        "external SHA receipt model": (
+            r"External ZIP SHA256:.*(?:post-generation|outside (?:this|the) hashed ZIP)"
+        ),
+        "folder/ZIP parity": r"Folder / ZIP Parity:\s*`PASS \(\d+ / \d+",
+        "primary filename": (
+            r"Primary USER Review Filename:\s*"
+            r"`USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST\.md`"
+        ),
+        "packet reviewability": r"Packet Reviewability State:\s*`Reviewable`",
+        "BP3 result": r"BP3 Readiness Result:\s*`READY_FOR_USER_BP3_REVIEW`",
+        "implementation blocked": r"Workstream Implementation:\s*`UNAPPROVED`",
+    }
+    for label, pattern in finding_requirements.items():
+        if not re.search(pattern, finding_text, re.IGNORECASE | re.DOTALL):
+            failures.append(
+                "FAM-003 Option G BP3: USER Review Packet Finding lacks "
+                f"{label}"
+            )
+
+    def _closed_loop_value(marker: str) -> str:
+        match = re.search(
+            rf"(?m)^{re.escape(marker)}\s*(.+?)\s*$",
+            primary,
+            re.IGNORECASE,
+        )
+        return match.group(1).strip().strip("`") if match else ""
+
+    response_value = _closed_loop_value("USER Review Response:")
+    if response_value.casefold() != "pending user review":
+        failures.append(
+            "FAM-003 Option G BP3: pre-response USER Review Response must be "
+            "Pending USER Review and must not pre-record acceptance"
+        )
+    gate_value = _closed_loop_value("USER Gate State:")
+    if gate_value.casefold() != "pending user review":
+        failures.append(
+            "FAM-003 Option G BP3: pre-response packet must retain USER Gate State "
+            "Pending USER Review"
+        )
+    digest_value = _closed_loop_value("Codex Response Digest:")
+    expected_digest = (
+        "Pending USER Response - no BP3 acceptance recorded; Workstream "
+        "implementation remains unapproved."
+    )
+    if digest_value.casefold() != expected_digest.casefold():
+        failures.append(
+            "FAM-003 Option G BP3: Codex Response Digest must state that USER "
+            "response is pending, BP3 is unaccepted, and implementation is unapproved"
+        )
+
+    future_label = (
+        "Future decision only - not requested, granted, or actionable at the "
+        "current BP3 gate"
+    )
+    normalized_future_decision = re.sub(
+        r"\s+", " ", FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION
+    ).casefold()
+    future_surface_texts = {
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
+        "Review Aids/USER_DECISIONS.md": decisions,
+    }
+    for file_name, text in future_surface_texts.items():
+        normalized_surface = re.sub(r"\s+", " ", text).casefold()
+        if future_label.casefold() not in normalized_surface:
+            failures.append(
+                "FAM-003 Option G BP3: future Workstream decision is not clearly "
+                f"future-only and non-actionable in {file_name}"
+            )
+        if normalized_future_decision not in normalized_surface:
+            failures.append(
+                "FAM-003 Option G BP3: exact future-only Workstream approval text "
+                f"is missing or widened in {file_name}"
+            )
+
+    exception_markers = (
+        "future workstream approval text withheld",
+        "governed exception to future workstream approval text",
+        "future implementation decision exception",
+    )
+    if any(marker in normalized for marker in exception_markers):
+        if not re.search(
+            r"Docs/(?:phase_governance|codex_modes|Main|"
+            r"governance_efficiency_operating_model)\.md(?::\d+)?",
+            active_text,
+            re.IGNORECASE,
+        ):
+            failures.append(
+                "FAM-003 Option G BP3: governed exception to withholding future "
+                "Workstream approval text lacks a source-truth citation"
+            )
+
+    future_boundary_terms = {
+        "seven seams": "`OPTG-WS01` through `OPTG-WS07`",
+        "dependency F3-OPTG-D01": "`F3-OPTG-D01`",
+        "eight-region allowlist": "`OPTG-ALLOW-01` through `OPTG-ALLOW-08`",
+        "attribution trigger": "exact accepted attribution trigger",
+        "unknown-path stop": "Any unknown path, resource, object, owner",
+        "FAM-006/shared-owner stop": "FAM-006/shared-owner ambiguity",
+        "Recording non-resizable": "Recording Studio stays non-resizable",
+        "Recording controls": "Start / Pause / Stop",
+        "generic WebEngine exclusion": "generic WebEngine lifetime change",
+        "renderer exclusion": "renderer-backend or renderer-policy change",
+        "AI-lifetime exclusion": "AI-lifetime change",
+        "ORIN Core exclusion": "ORIN Core boundary",
+        "temporary Option D": "Option D remains temporary",
+        "H1/LV/UTS separation": "H1, Live Validation, UTS",
+    }
+    for file_name, text in future_surface_texts.items():
+        normalized_future_surface = re.sub(r"\s+", " ", text).casefold()
+        for label, term in future_boundary_terms.items():
+            if term.casefold() not in normalized_future_surface:
+                failures.append(
+                    "FAM-003 Option G BP3: future Workstream decision omits "
+                    f"{label} in {file_name}"
+                )
+
+    normalized_future_surface = re.sub(r"\s+", " ", f"{primary}\n{decisions}").casefold()
+    if re.search(
+        r"unknown (?:path|resource|object|owner).{0,120}"
+        r"(?:may proceed|may self-admit|is allowed|is authorized)",
+        normalized_future_surface,
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: future Workstream decision permits unknown "
+            "paths/resources/objects/owners or self-admission"
+        )
+    if re.search(
+        r"(?:fam-006|orin core|generic webengine|renderer(?:-backend|-policy)?|"
+        r"ai-lifetime).{0,140}(?:is|are)?\s*(?:admitted|authorized|allowed)",
+        normalized_future_surface,
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: future Workstream decision admits excluded "
+            "FAM-006, ORIN Core, renderer, generic WebEngine, or AI-lifetime scope"
+        )
+    if re.search(
+        r"(?:h1|live validation|uts).{0,100}(?:is|are)?\s*"
+        r"(?:authorized|approved|included)",
+        normalized_future_surface,
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: future Workstream decision authorizes H1, "
+            "Live Validation, or UTS"
+        )
+
+    current_section_match = re.search(
+        r"(?ms)^## Current Actionable Decision[^\n]*\n(.*?)(?=^## |\Z)",
+        primary,
+    )
+    current_section = current_section_match.group(1) if current_section_match else ""
+    if re.search(
+        r"(?<!do not )(?<!not )\b(?:approve|authorize)\s+"
+        r"(?:bounded\s+)?Workstream implementation\b",
+        current_section,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: BP3 acceptance and Workstream implementation "
+            "approval are combined in the current actionable decision"
+        )
+
+    for defect_index in range(1, 6):
+        defect_id = f"OPTG-BP3-DS-DEF-{defect_index:02d}"
+        if defect_id not in aid_text["defect ledger"]:
+            failures.append(
+                "FAM-003 Option G BP3: decision-surface defect ledger omits "
+                f"{defect_id}"
+            )
+
+    normalized_manifest = re.sub(r"\s+", " ", manifest).casefold()
+    manifest_terms = (
+        '"currentactionabledecision": "bp3 acceptance only"',
+        '"futureworkstreamdecision": "future_only_non_actionable"',
+        '"usergatestate": "pending user review"',
+        '"workstreamimplementation": "unapproved"',
+    )
+    for term in manifest_terms:
+        if term not in normalized_manifest:
+            failures.append(
+                "FAM-003 Option G BP3: packet manifest decision-surface metadata "
+                f"is missing {term}"
+            )
+    validation_terms = (
+        "BP3 Decision Surface Validation: `PASS`",
+        "USER Review Response: `Pending USER Review`",
+        "Workstream Implementation: `UNAPPROVED`",
+        "Future Workstream Decision: `FUTURE_ONLY_NON_ACTIONABLE`",
+    )
+    for term in validation_terms:
+        if term.casefold() not in validation_results.casefold():
+            failures.append(
+                "FAM-003 Option G BP3: validation summary decision-surface state "
+                f"is missing {term}"
+            )
+
+    for file_name in (
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_worktree_state.md",
+    ):
+        text = packet_files.get(file_name, "")
+        live_header = re.split(
+            r"^Historical Receipt Boundary:",
+            text,
+            maxsplit=1,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )[0]
+        normalized_header = re.sub(r"\s+", " ", live_header).casefold()
+        if (
+            "transition status: "
+            "`option_g_bp3_decision_surface_repaired_ready_for_user_review`"
+            not in normalized_header
+        ):
+            failures.append(
+                "FAM-003 Option G BP3: active external state lacks the repaired "
+                f"decision-surface transition in {file_name}"
+            )
+        if "repair_required" in normalized_header or "repair required" in normalized_header:
+            failures.append(
+                "FAM-003 Option G BP3: active external state still says BP3 repair "
+                f"is required in {file_name}"
+            )
+        if re.search(
+            r"(?:bp3|user gate state|user review response):\s*`?"
+            r"(?:user accepted|user approved|accepted|approved)",
+            live_header,
+            re.IGNORECASE,
+        ):
+            failures.append(
+                "FAM-003 Option G BP3: active external state falsely records BP3 "
+                f"acceptance before USER action in {file_name}"
+            )
 
     for label, file_name in required_aids.items():
         if not aid_text[label].strip():
