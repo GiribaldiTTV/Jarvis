@@ -5814,8 +5814,9 @@ def _fam003_option_g_bp3_orchestration_failures(
         "ZIP filename": (
             r"Replacement ZIP Filename:\s*`FAM-003-\d{8}-\d{6}\.zip`"
         ),
-        "external SHA receipt model": (
-            r"External ZIP SHA256:.*(?:post-generation|outside (?:this|the) hashed ZIP)"
+        "external archive receipt model": (
+            r"External Archive Receipt:.*"
+            r"(?:post-generation|outside (?:this|the) hashed archive)"
         ),
         "folder/ZIP parity": r"Folder / ZIP Parity:\s*`PASS \(\d+ / \d+",
         "primary filename": (

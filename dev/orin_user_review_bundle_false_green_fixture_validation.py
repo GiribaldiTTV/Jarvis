@@ -1280,8 +1280,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Replacement Packet Folder: `C:\\Nexus USER\\FAM-003`\n"
         "Replacement ZIP Path: `C:\\Nexus USER\\FAM-003-20260724-120000.zip`\n"
         "Replacement ZIP Filename: `FAM-003-20260724-120000.zip`\n"
-        "External ZIP SHA256: `Recorded in the post-generation Codex return and "
-        "FAM-003 external packet receipt outside this hashed ZIP.`\n"
+        "External Archive Receipt: `Recorded in the post-generation Codex return "
+        "and FAM-003 external packet receipt outside this hashed archive.`\n"
         "Folder / ZIP Parity: `PASS (73 / 73; file-list and content-hash equality)`\n"
         "Primary USER Review Filename: "
         "`USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
@@ -1835,14 +1835,15 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             (
                 (
                     "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
-                    "External ZIP SHA256: `Recorded in the post-generation Codex return and "
-                    "FAM-003 external packet receipt outside this hashed ZIP.`\n",
+                    "External Archive Receipt: `Recorded in the post-generation "
+                    "Codex return and FAM-003 external packet receipt outside this "
+                    "hashed archive.`\n",
                     "",
                     1,
                 ),
             ),
             {},
-            "Finding lacks external SHA receipt model",
+            "Finding lacks external archive receipt model",
         ),
         (
             "OPTG-BP3-DS-FG-11",
