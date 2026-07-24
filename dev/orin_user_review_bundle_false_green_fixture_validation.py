@@ -970,7 +970,205 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
     return focused_entries, full_entries
 
 
+def _assert_fam003_option_g_bp2_planning_guards() -> None:
+    seams = "\n".join(f"`OPTG-WS{index:02d}`" for index in range(1, 8))
+    recording_fixtures = "\n".join(
+        f"`OPTG-RS-FG-{index:02d}`" for index in range(1, 11)
+    )
+    packet_fixtures = "\n".join(
+        f"`OPTG-PKT-FG-{index:02d}`" for index in range(1, 16)
+    )
+    allowlist = "\n".join(
+        (
+            f"| `OPTG-ALLOW-{index:02d}` | `desktop/desktop_renderer.py` | "
+            f"`ExactClass.method_{index}` | Exact bounded native lifecycle region |"
+        )
+        for index in range(1, 9)
+    )
+    plan_path = (
+        "Source Truth Context/Active External Snapshot/"
+        "decision2_option_g_bp2_gate_repair_20260724.md"
+    )
+    valid = {
+        "START_HERE.md": (
+            "# FAM-003 Option G BP2 Repair\n"
+            "Branch: `feature/fam-003-settings-resize-proof`\n"
+            "Primary USER Review File: `USER Review/USER_BRANCH_PLAN_REVIEW.md`\n"
+            "Option G revised BP2 USER review pending.\n"
+        ),
+        "USER Review/USER_BRANCH_PLAN_REVIEW.md": (
+            "# USER Branch Plan Review - FAM-003 Option G\n"
+            "Primary Review Type: `BP2 USER Branch Plan Review`\n"
+            "Accept revised Option G BP2 only and authorize revised BP3 "
+            "orchestration-validation preparation.\n"
+            "BP3 Status: `NOT_ENTERED`\n"
+            "Workstream Implementation: `UNAPPROVED`\n"
+            "Workstream implementation requires a later separate USER decision.\n"
+        ),
+        "Review Aids/USER_DECISIONS.md": (
+            "Accept revised Option G BP2 only and authorize revised BP3 "
+            "orchestration-validation preparation.\n"
+        ),
+        "Review Aids/DECISION_AND_GATE_DIGEST.md": (
+            "Combined BP2/BP3 Acceptance Legal: `NO`\n"
+            "BP2 must be accepted or waived before BP3 preparation.\n"
+            "BP3 Status: `NOT_ENTERED`\n"
+        ),
+        plan_path: (
+            "# Option G repaired BP2\n"
+            "Combined BP2/BP3 Acceptance Legal: `NO`\n"
+            "BP2 must be accepted or waived before BP3 preparation.\n"
+            "BP3 Status: `NOT_ENTERED`\n"
+            "Workstream Implementation: `UNAPPROVED`\n"
+            "Workstream implementation requires a later separate USER decision.\n"
+            "`MonitoringHudStudioWebWindow`\n"
+            "`MonitoringHudStudioWebWindow.__init__` / `_resize_hover_timer` "
+            "construction and start guard\n"
+            "`MonitoringHudLogViewerStudioWindow`\n"
+            "`MonitoringHudRecordingStudioWindow`\n"
+            "`STUDIO_RESIZABLE = False`\n"
+            "`Start / Pause / Stop`\n"
+            "If attribution identifies a path, object, resource, or owner not "
+            "explicitly enumerated in the accepted conditional repair matrix, "
+            "Workstream must return `BLOCKED / USER decision required` before mutation.\n"
+            "Current-carrier access does not establish ownership or self-admit repair scope.\n"
+            "FAM-006/shared-owner stop\n"
+            "Stage 1 Explicit Exclusions: Recording Studio product behavior; "
+            "FAM-006 JavaScript; generic WebEngine lifetime; renderer policy; "
+            "ORIN Core; AI.\n"
+            "ORIN Core Decision 3 carryforward\n"
+            "H1 remains `NOT_ENTERED`\n"
+            "LV remains `NOT_ENTERED`\n"
+            "UTS remains `NOT_REQUESTED`\n"
+            f"{seams}\n{recording_fixtures}\n{packet_fixtures}\n{allowlist}\n"
+        ),
+    }
+    valid_failures = bundle._fam003_option_g_bp2_planning_failures(valid)
+    if valid_failures:
+        raise AssertionError(
+            "Valid FAM-003 Option G BP2 planning fixture failed:\n"
+            + "\n".join(valid_failures)
+        )
+
+    cases = (
+        (
+            "OPTG-PKT-FG-01",
+            "USER Review/USER_BRANCH_PLAN_REVIEW.md",
+            "Accept revised Option G BP2 only and authorize revised BP3 orchestration-validation preparation.",
+            "Accept revised Option G BP2 and approve revised BP3.",
+            "forbidden current BP3 acceptance request",
+        ),
+        (
+            "OPTG-PKT-FG-02",
+            plan_path,
+            "Combined BP2/BP3 Acceptance Legal: `NO`",
+            "Combined gate basis is unspecified.",
+            "active plan lacks required combined gate rejection",
+        ),
+        (
+            "OPTG-PKT-FG-03",
+            "USER Review/USER_BRANCH_PLAN_REVIEW.md",
+            "Primary Review Type: `BP2 USER Branch Plan Review`",
+            "Primary Review Type: `BP3 Workstream Entry`",
+            "required primary review type",
+        ),
+        (
+            "OPTG-PKT-FG-04",
+            "USER Review/USER_BRANCH_PLAN_REVIEW.md",
+            "BP3 Status: `NOT_ENTERED`",
+            "BP3 requirements are complete.",
+            "required BP3 not entered",
+        ),
+        (
+            "OPTG-PKT-FG-05",
+            plan_path,
+            "# Option G repaired BP2",
+            "# Option G repaired BP2\nRecording Studio must not enter the changed-file set.",
+            "forbidden file-absence Recording proof",
+        ),
+        (
+            "OPTG-PKT-FG-06",
+            plan_path,
+            "`MonitoringHudStudioWebWindow.__init__` / `_resize_hover_timer` construction and start guard",
+            "Shared base changes may be made as needed.",
+            "required shared timer construction region",
+        ),
+        (
+            "OPTG-PKT-FG-07",
+            plan_path,
+            "`STUDIO_RESIZABLE = False`",
+            "`STUDIO_RESIZABLE = True`",
+            "required Recording Studio non-resizable invariant",
+        ),
+        (
+            "OPTG-PKT-FG-08",
+            plan_path,
+            "`Start / Pause / Stop`",
+            "Recording controls remain generally available.",
+            "required Recording controls invariant",
+        ),
+        (
+            "OPTG-PKT-FG-09",
+            plan_path,
+            "| `OPTG-ALLOW-08` | `desktop/desktop_renderer.py` | `ExactClass.method_8` | Exact bounded native lifecycle region |",
+            "",
+            "exactly eight OPTG-ALLOW rows",
+        ),
+        (
+            "OPTG-PKT-FG-10",
+            plan_path,
+            "If attribution identifies a path, object, resource, or owner not explicitly enumerated in the accepted conditional repair matrix, Workstream must return `BLOCKED / USER decision required` before mutation.",
+            "Newly attributed paths may be repaired after local classification.",
+            "required unknown attribution stop",
+        ),
+        (
+            "OPTG-PKT-FG-11",
+            plan_path,
+            "Current-carrier access does not establish ownership or self-admit repair scope.",
+            "Current-carrier access establishes ownership.",
+            "required current carrier not ownership",
+        ),
+        (
+            "OPTG-PKT-FG-12",
+            plan_path,
+            "FAM-006/shared-owner stop",
+            "Shared-owner work may continue.",
+            "required FAM-006 stop",
+        ),
+        (
+            "OPTG-PKT-FG-13",
+            plan_path,
+            "Stage 1 Explicit Exclusions: Recording Studio product behavior; FAM-006 JavaScript; generic WebEngine lifetime; renderer policy; ORIN Core; AI.",
+            "Stage 1 exclusions are unchanged.",
+            "required Stage 1 exclusions",
+        ),
+        (
+            "OPTG-PKT-FG-14",
+            plan_path,
+            "# Option G repaired BP2",
+            "# Option G repaired BP2\nBP2 acceptance authorizes Workstream implementation.",
+            "forbidden planning-implies-implementation",
+        ),
+        (
+            "OPTG-PKT-FG-15",
+            plan_path,
+            "# Option G repaired BP2",
+            "# Option G repaired BP2\nH1 executes under Workstream authority.",
+            "forbidden downstream phase execution",
+        ),
+    )
+    for case_id, file_name, old, new, expected in cases:
+        mutated = dict(valid)
+        mutated[file_name] = mutated[file_name].replace(old, new, 1)
+        failures = bundle._fam003_option_g_bp2_planning_failures(mutated)
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {failures}"
+            )
+
+
 def main() -> int:
+    _assert_fam003_option_g_bp2_planning_guards()
     _assert_origin_main_fallback()
     _assert_failure(
         "unknown-origin-main-identity",

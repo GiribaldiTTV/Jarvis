@@ -4251,6 +4251,7 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(_fam003_option_g_bp2_planning_failures(packet_files))
     failures.extend(_pr_stage1_review_failures(packet_files))
     failures.extend(_pr_stage1_packet_coherence_failures(packet_files))
     failures.extend(
@@ -5332,6 +5333,218 @@ def _fam003_bp3_r2_orchestration_consistency_failures(
                     "FAM-003 BP3 visual decision: accepted BP2 context retains stale "
                     f"visual-decision wording: {marker}"
                 )
+
+    return failures
+
+
+def _fam003_option_g_bp2_planning_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Reject Option G packets that blur BP2, BP3, or conditional repair authority."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    identity = f"{start_here}\n{primary}".casefold()
+    if (
+        "feature/fam-003-settings-resize-proof" not in identity
+        or "option g" not in identity
+        or "bp2" not in identity
+    ):
+        return []
+
+    active_plan_path = next(
+        (
+            name
+            for name in packet_files
+            if _packet_file_basename(name)
+            == "decision2_option_g_bp2_gate_repair_20260724.md"
+        ),
+        "",
+    )
+    active_plan = packet_files.get(active_plan_path, "") if active_plan_path else ""
+    decisions = _packet_file_text(packet_files, "USER_DECISIONS.md")
+    gate_digest = _packet_file_text(packet_files, "DECISION_AND_GATE_DIGEST.md")
+    active_text = "\n".join((start_here, primary, decisions, gate_digest, active_plan))
+    normalized = re.sub(r"\s+", " ", active_text).casefold()
+    failures: list[str] = []
+
+    if not active_plan:
+        failures.append(
+            "FAM-003 Option G BP2: active repaired planning owner "
+            "decision2_option_g_bp2_gate_repair_20260724.md is missing"
+        )
+
+    required_markers = {
+        "primary review type": "Primary Review Type: `BP2 USER Branch Plan Review`",
+        "BP2-only decision": (
+            "Accept revised Option G BP2 only and authorize revised BP3 "
+            "orchestration-validation preparation."
+        ),
+        "combined gate rejection": "Combined BP2/BP3 Acceptance Legal: `NO`",
+        "gate order": "BP2 must be accepted or waived before BP3 preparation.",
+        "BP3 not entered": "BP3 Status: `NOT_ENTERED`",
+        "implementation unapproved": "Workstream Implementation: `UNAPPROVED`",
+        "separate implementation decision": (
+            "Workstream implementation requires a later separate USER decision."
+        ),
+        "shared base class": "`MonitoringHudStudioWebWindow`",
+        "shared timer construction region": (
+            "`MonitoringHudStudioWebWindow.__init__` / `_resize_hover_timer` "
+            "construction and start guard"
+        ),
+        "Log Viewer subclass": "`MonitoringHudLogViewerStudioWindow`",
+        "Recording Studio subclass": "`MonitoringHudRecordingStudioWindow`",
+        "Recording Studio non-resizable invariant": "`STUDIO_RESIZABLE = False`",
+        "Recording controls invariant": "`Start / Pause / Stop`",
+        "unknown attribution stop": (
+            "If attribution identifies a path, object, resource, or owner not "
+            "explicitly enumerated in the accepted conditional repair matrix, "
+            "Workstream must return `BLOCKED / USER decision required` before mutation."
+        ),
+        "current carrier not ownership": (
+            "Current-carrier access does not establish ownership or self-admit repair scope."
+        ),
+        "FAM-006 stop": "FAM-006/shared-owner stop",
+        "Stage 1 exclusions": (
+            "Stage 1 Explicit Exclusions: Recording Studio product behavior; "
+            "FAM-006 JavaScript; generic WebEngine lifetime; renderer policy; "
+            "ORIN Core; AI."
+        ),
+        "ORIN Core carryforward": "ORIN Core Decision 3 carryforward",
+        "H1 boundary": "H1 remains `NOT_ENTERED`",
+        "LV boundary": "LV remains `NOT_ENTERED`",
+        "UTS boundary": "UTS remains `NOT_REQUESTED`",
+    }
+    for label, marker in required_markers.items():
+        if marker.casefold() not in normalized:
+            failures.append(
+                f"FAM-003 Option G BP2: required {label} marker is missing: {marker}"
+            )
+
+    primary_requirements = {
+        "primary review type": "Primary Review Type: `BP2 USER Branch Plan Review`",
+        "BP2-only decision": (
+            "Accept revised Option G BP2 only and authorize revised BP3 "
+            "orchestration-validation preparation."
+        ),
+        "BP3 not entered": "BP3 Status: `NOT_ENTERED`",
+        "implementation unapproved": "Workstream Implementation: `UNAPPROVED`",
+    }
+    normalized_primary = primary.casefold()
+    for label, marker in primary_requirements.items():
+        if marker.casefold() not in normalized_primary:
+            failures.append(
+                f"FAM-003 Option G BP2: primary review lacks required {label}: {marker}"
+            )
+
+    plan_requirements = {
+        "combined gate rejection": "Combined BP2/BP3 Acceptance Legal: `NO`",
+        "gate order": "BP2 must be accepted or waived before BP3 preparation.",
+        "shared timer construction region": (
+            "`MonitoringHudStudioWebWindow.__init__` / `_resize_hover_timer` "
+            "construction and start guard"
+        ),
+        "Recording Studio non-resizable invariant": "`STUDIO_RESIZABLE = False`",
+        "Recording controls invariant": "`Start / Pause / Stop`",
+        "unknown attribution stop": (
+            "If attribution identifies a path, object, resource, or owner not "
+            "explicitly enumerated in the accepted conditional repair matrix, "
+            "Workstream must return `BLOCKED / USER decision required` before mutation."
+        ),
+        "current carrier not ownership": (
+            "Current-carrier access does not establish ownership or self-admit repair scope."
+        ),
+        "FAM-006 stop": "FAM-006/shared-owner stop",
+        "Stage 1 exclusions": (
+            "Stage 1 Explicit Exclusions: Recording Studio product behavior; "
+            "FAM-006 JavaScript; generic WebEngine lifetime; renderer policy; "
+            "ORIN Core; AI."
+        ),
+    }
+    normalized_plan = active_plan.casefold()
+    for label, marker in plan_requirements.items():
+        if marker.casefold() not in normalized_plan:
+            failures.append(
+                f"FAM-003 Option G BP2: active plan lacks required {label}: {marker}"
+            )
+
+    for seam in range(1, 8):
+        marker = f"OPTG-WS{seam:02d}"
+        if marker.casefold() not in normalized:
+            failures.append(f"FAM-003 Option G BP2: seam is missing: {marker}")
+
+    for fixture in range(1, 11):
+        marker = f"OPTG-RS-FG-{fixture:02d}"
+        if marker.casefold() not in normalized:
+            failures.append(
+                f"FAM-003 Option G BP2: Recording Studio false-green fixture is missing: {marker}"
+            )
+
+    for fixture in range(1, 16):
+        marker = f"OPTG-PKT-FG-{fixture:02d}"
+        if marker.casefold() not in normalized:
+            failures.append(
+                f"FAM-003 Option G BP2: planning packet false-green fixture is missing: {marker}"
+            )
+
+    forbidden_patterns = {
+        "combined BP2/BP3/Workstream acceptance": re.compile(
+            r"accept(?:ance|ed)?[^\n]{0,80}bp2[^\n]{0,40}bp3"
+            r"[^\n]{0,60}workstream orchestration",
+            re.IGNORECASE,
+        ),
+        "current BP3 acceptance request": re.compile(
+            r"(?:accept|approve)\s+(?:the\s+)?(?:revised\s+)?bp3",
+            re.IGNORECASE,
+        ),
+        "planning-implies-implementation": re.compile(
+            r"(?:bp2|planning) acceptance (?:authorizes|permits|starts) "
+            r"(?:workstream )?implementation",
+            re.IGNORECASE,
+        ),
+        "downstream phase execution": re.compile(
+            r"(?:h1|live validation|lv|uts)[^\n]{0,40}"
+            r"(?:executes?|starts?|runs?) under workstream",
+            re.IGNORECASE,
+        ),
+        "conditional wildcard file": re.compile(
+            r"(?:any|newly discovered|unnamed) (?:file|path|object|resource|owner)"
+            r"[^\n]{0,80}(?:may|can|is permitted to) (?:be )?(?:change|repair|mutat)",
+            re.IGNORECASE,
+        ),
+        "file-absence Recording proof": re.compile(
+            r"recording studio[^\n]{0,100}(?:must not enter|absent from|not in) "
+            r"(?:the )?changed-file set",
+            re.IGNORECASE,
+        ),
+    }
+    for label, pattern in forbidden_patterns.items():
+        if pattern.search(active_text):
+            failures.append(
+                f"FAM-003 Option G BP2: forbidden {label} wording is present"
+            )
+
+    allowlist_rows = [
+        line
+        for line in active_plan.splitlines()
+        if line.strip().startswith("| `OPTG-ALLOW-")
+    ]
+    if len(allowlist_rows) != 8:
+        failures.append(
+            "FAM-003 Option G BP2: conditional repair allowlist must contain "
+            f"exactly eight OPTG-ALLOW rows; found {len(allowlist_rows)}"
+        )
+    for row in allowlist_rows:
+        if "`desktop/desktop_renderer.py`" not in row:
+            failures.append(
+                "FAM-003 Option G BP2: conditional allowlist row does not name "
+                f"the exact approved path: {row.strip()}"
+            )
+        if any(token in row.casefold() for token in (" wildcard ", " any file ", " unnamed ")):
+            failures.append(
+                "FAM-003 Option G BP2: conditional allowlist row contains an "
+                f"unbounded token: {row.strip()}"
+            )
 
     return failures
 
