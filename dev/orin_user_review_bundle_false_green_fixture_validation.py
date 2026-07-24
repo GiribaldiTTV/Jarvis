@@ -1505,6 +1505,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "`OPTG-BP3-DS-DEF-03`\n"
             "`OPTG-BP3-DS-DEF-04`\n"
             "`OPTG-BP3-DS-DEF-05`\n"
+            "`OPTG-BP3-DS-DEF-06`\n"
+            "`OPTG-BP3-DS-DEF-07`\n"
             "Validator false-green defects are closed with proof.\n"
         ),
         "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json": (
@@ -2055,6 +2057,33 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             ),
             {},
             "active external state still says BP3 repair is required",
+        ),
+        (
+            "OPTG-BP3-DS-FG-25",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "USER Review Response: Pending USER Review",
+                    "USER Review Response: Pending USER Review\n"
+                    "USER Review Response: Pending USER Review",
+                    1,
+                ),
+            ),
+            {},
+            "required closed-loop USER Review Response marker must appear exactly once",
+        ),
+        (
+            "OPTG-BP3-DS-FG-26",
+            (
+                (
+                    "Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md",
+                    "`OPTG-BP3-DS-DEF-07`",
+                    "`OPTG-BP3-DS-DEF-07`\n`OPTG-BP3-DS-DEF-07`",
+                    1,
+                ),
+            ),
+            {},
+            "decision-surface defect row OPTG-BP3-DS-DEF-07 must appear exactly once",
         ),
     )
     for case_id, mutations, additions, expected in decision_surface_cases:
@@ -2617,7 +2646,7 @@ def main() -> int:
     )
     print(
         "False-green fixture validation: PASS "
-        "(Option G BP3: 22 proof-carrydown + 24 decision-surface cases)"
+        "(Option G BP3: 22 proof-carrydown + 26 decision-surface cases)"
     )
     return 0
 

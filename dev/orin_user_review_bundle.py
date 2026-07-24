@@ -5774,6 +5774,11 @@ def _fam003_option_g_bp3_orchestration_failures(
                 "FAM-003 Option G BP3: exact packet-contained current BP3 decision "
                 f"is missing or inconsistent in {file_name}"
             )
+        elif text.count(FAM003_OPTION_G_BP3_CURRENT_DECISION) != 1:
+            failures.append(
+                "FAM-003 Option G BP3: exact packet-contained current BP3 decision "
+                f"must appear exactly once in {file_name}"
+            )
 
     generic_decision_pattern = re.compile(
         r"(?:accept|approve),?\s+waive,?\s+revise,?\s+or\s+block",
@@ -5795,9 +5800,15 @@ def _fam003_option_g_bp3_orchestration_failures(
         "Codex Response Digest": "Codex Response Digest:",
     }
     for label, marker in closed_loop_markers.items():
-        if marker not in primary:
+        marker_count = primary.count(marker)
+        if marker_count == 0:
             failures.append(
                 f"FAM-003 Option G BP3: required closed-loop {label} marker is absent"
+            )
+        elif marker_count != 1:
+            failures.append(
+                f"FAM-003 Option G BP3: required closed-loop {label} marker "
+                "must appear exactly once"
             )
 
     finding_match = re.search(
@@ -5888,6 +5899,11 @@ def _fam003_option_g_bp3_orchestration_failures(
                 "FAM-003 Option G BP3: exact future-only Workstream approval text "
                 f"is missing or widened in {file_name}"
             )
+        elif text.count(FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION) != 1:
+            failures.append(
+                "FAM-003 Option G BP3: exact future-only Workstream approval text "
+                f"must appear exactly once in {file_name}"
+            )
 
     exception_markers = (
         "future workstream approval text withheld",
@@ -5976,12 +5992,18 @@ def _fam003_option_g_bp3_orchestration_failures(
             "approval are combined in the current actionable decision"
         )
 
-    for defect_index in range(1, 6):
+    for defect_index in range(1, 8):
         defect_id = f"OPTG-BP3-DS-DEF-{defect_index:02d}"
-        if defect_id not in aid_text["defect ledger"]:
+        defect_count = aid_text["defect ledger"].count(defect_id)
+        if defect_count == 0:
             failures.append(
                 "FAM-003 Option G BP3: decision-surface defect ledger omits "
                 f"{defect_id}"
+            )
+        elif defect_count != 1:
+            failures.append(
+                "FAM-003 Option G BP3: decision-surface defect row "
+                f"{defect_id} must appear exactly once"
             )
 
     normalized_manifest = re.sub(r"\s+", " ", manifest).casefold()

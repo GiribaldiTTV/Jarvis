@@ -881,6 +881,7 @@ WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
     "Harden Option G BP3 proof carrydown",
     "Harden FAM-003 BP3 decision surfaces",
     "Align FAM-003 BP3 packet metadata",
+    "Close FAM-003 BP3 packet idempotence gap",
     "Repair FAM-003 R2 scope-audit metadata",
 }
 
