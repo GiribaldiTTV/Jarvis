@@ -1076,7 +1076,7 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
             ["# Approval stage table", *approval_stages]
         ),
         "Review Aids/RISKS_AND_ROLLBACK.md": "# Risks and rollback\n",
-        "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md": "\n".join(
+        "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md": "\n".join(
             [
                 "Worktree: exact",
                 "Git Root: exact",
@@ -1098,7 +1098,7 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
                 "Preserved Evidence Packet Receipt: exact",
             ]
         ),
-        "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md": "\n".join(
+        "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md": "\n".join(
             [
                 *[f"Projection {number}: exact" for number in range(1, 8)],
                 "External State Schema: exact",
@@ -1112,7 +1112,7 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
                 "Validation Result: PASS",
             ]
         ),
-        "Source Truth Context/Operational Receipts/VALIDATION_RECEIPT.md": "\n".join(
+        "Source Truth Context/Proof Artifacts/Operational Receipts/VALIDATION_RECEIPT.md": "\n".join(
             [
                 "Command: exact",
                 "Result: PASS",
@@ -1249,9 +1249,9 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         "missing-identity-fact",
         "identity receipt is incomplete",
         lambda files: files.__setitem__(
-            "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md",
+            "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md",
             files[
-                "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md"
+                "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md"
             ].replace("Merge Base: exact\n", ""),
         ),
     )
@@ -1259,9 +1259,9 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         "missing-external-state-version",
         "external-state receipt is missing State Version:",
         lambda files: files.__setitem__(
-            "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
+            "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
             files[
-                "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md"
+                "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md"
             ].replace("State Version: exact\n", ""),
         ),
     )

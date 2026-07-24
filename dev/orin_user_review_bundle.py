@@ -1812,9 +1812,9 @@ FAM007_DECOMPOSITION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
     "Review Aids/LEGAL_SUCCESSOR_ENTRY_SEQUENCE.md",
     "Review Aids/APPROVAL_STAGE_TABLE.md",
     "Review Aids/RISKS_AND_ROLLBACK.md",
-    "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md",
-    "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
-    "Source Truth Context/Operational Receipts/VALIDATION_RECEIPT.md",
+    "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md",
+    "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md",
+    "Source Truth Context/Proof Artifacts/Operational Receipts/VALIDATION_RECEIPT.md",
 )
 
 
@@ -2102,7 +2102,7 @@ def _fam007_decomposition_packet_failures(
         )
 
     identity = packet_files.get(
-        "Source Truth Context/Operational Receipts/IDENTITY_RECEIPT.md", ""
+        "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md", ""
     )
     identity_markers = (
         "Worktree:",
@@ -2134,7 +2134,7 @@ def _fam007_decomposition_packet_failures(
         )
 
     external_receipt = packet_files.get(
-        "Source Truth Context/Operational Receipts/EXTERNAL_STATE_RECEIPT.md", ""
+        "Source Truth Context/Proof Artifacts/Operational Receipts/EXTERNAL_STATE_RECEIPT.md", ""
     )
     for projection_number in range(1, 8):
         if f"Projection {projection_number}:" not in external_receipt:
@@ -2159,7 +2159,7 @@ def _fam007_decomposition_packet_failures(
             )
 
     validation_receipt = packet_files.get(
-        "Source Truth Context/Operational Receipts/VALIDATION_RECEIPT.md", ""
+        "Source Truth Context/Proof Artifacts/Operational Receipts/VALIDATION_RECEIPT.md", ""
     )
     for marker in (
         "Command:",
