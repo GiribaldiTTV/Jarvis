@@ -5143,7 +5143,16 @@ def _bp3_active_state_consistency_failures(
 
     branch_state_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md"
     branch_state_text = packet_files.get(branch_state_name, "")
-    current_phase = _section(branch_state_text, "Current Phase")
+    active_header = re.split(
+        r"^Historical Receipt Boundary:",
+        branch_state_text,
+        maxsplit=1,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )[0]
+    if "External State Schema: `external-state-v1`" in active_header:
+        current_phase = active_header
+    else:
+        current_phase = _section(branch_state_text, "Current Phase")
     if not current_phase:
         current_phase = re.split(
             r"^Historical Receipt Boundary:",
@@ -5188,7 +5197,15 @@ def _bp3_active_state_consistency_failures(
             continue
         gate_matches = list(re.finditer(r"^Current Gate:\s*`?([^`\n]+)`?", text, re.MULTILINE))
         if gate_matches:
-            gate_match = gate_matches[0] if gate_position == "first" else gate_matches[-1]
+            migrated_live_header = (
+                "External State Schema: `external-state-v1`" in text
+                and "Historical Receipt Boundary:" in text
+            )
+            gate_match = (
+                gate_matches[0]
+                if migrated_live_header or gate_position == "first"
+                else gate_matches[-1]
+            )
             gate_text = gate_match.group(1)
         else:
             gate_text = text[:800]

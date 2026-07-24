@@ -1230,6 +1230,9 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
         "Historical Receipt Boundary: `Historical content follows.`\n"
+        "## Current Phase\n"
+        "Current Gate: `Branch Planning - BP2 USER review pending`\n"
+        "Next Legal Phase: `USER review of BP2`\n"
     )
     orchestration_text = (
         f"{seams}\n"
