@@ -6057,14 +6057,16 @@ def _fam003_option_g_bp3_orchestration_failures(
             flags=re.IGNORECASE | re.MULTILINE,
         )[0]
         normalized_header = re.sub(r"\s+", " ", live_header).casefold()
-        if (
+        accepted_transitions = (
             "transition status: "
-            "`option_g_bp3_decision_surface_repaired_ready_for_user_review`"
-            not in normalized_header
-        ):
+            "`option_g_bp3_decision_surface_repaired_ready_for_user_review`",
+            "transition status: "
+            "`option_g_bp3_canonical_ufd_ownership_repaired_ready_for_user_review`",
+        )
+        if not any(transition in normalized_header for transition in accepted_transitions):
             failures.append(
                 "FAM-003 Option G BP3: active external state lacks the repaired "
-                f"decision-surface transition in {file_name}"
+                f"decision-surface/canonical-UFD transition in {file_name}"
             )
         if "repair_required" in normalized_header or "repair required" in normalized_header:
             failures.append(
