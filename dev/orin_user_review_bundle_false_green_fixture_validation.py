@@ -1380,6 +1380,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         )
     ufd_text = (
         "# Option G UFD And Fold-Down\n"
+        "UFD Authority Classification: `SUPPORTING REVIEW COPY`\n"
         "USER Feedback Disposition Required: `Yes`\n"
         "UFD Ledger Status: `Complete`\n"
         "UFD Ledger Owner: `C:\\Nexus Governance State\\branches\\"
@@ -1388,6 +1389,51 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n"
         "Deferred / Future-Gated Scope Admission: `NONE`\n\n"
+        + "\n".join(ufd_rows)
+    )
+    canonical_ufd_owner = (
+        "C:\\Nexus Governance State\\branches\\"
+        "feature_fam_003_settings_resize_proof\\branch_plan.md"
+    )
+    canonical_ufd_plan = (
+        "External State Schema: `external-state-v1`\n"
+        "State Version: `7`\n"
+        "Record Class: `Live Branch Plan`\n"
+        "Record Role: `Current branch planning projection`\n"
+        "Branch: `feature/fam-003-settings-resize-proof`\n"
+        "Source Repo HEAD: `0123456789abcdef0123456789abcdef01234567`\n"
+        "USER Feedback Disposition Required: `Yes`\n"
+        "UFD Ledger Status: `Complete`\n"
+        f"UFD Ledger Owner: `{canonical_ufd_owner}`\n"
+        "UFD Item Count: `18`\n"
+        f"UFD Physical Detail Location: `{canonical_ufd_owner}`\n"
+        "UFD Supporting Evidence Copy: "
+        "`decision2_option_g_bp3_proof_carrydown_repair_20260724.md`\n"
+        "UFD Packet Review Copy: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`\n"
+        "Open UFD Count: `0`\n"
+        "Blocking UFD Count: `0`\n"
+        "Fold-Down Status: `Pending`\n"
+        "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
+        "pending; Workstream implementation remains blocked`\n"
+        "Workstream Result: `USER_DECISION_REQUIRED`\n"
+        "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
+        "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
+        "Transition Status: "
+        "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`\n\n"
+        + "\n".join(ufd_rows)
+        + "\nHistorical Receipt Boundary: `Historical content follows.`\n"
+        "## Current Phase\n"
+        "Current Gate: `Branch Planning - BP2 USER review pending`\n"
+    )
+    supporting_ufd_record = (
+        "# Option G BP3 Proof Carrydown Repair\n"
+        "UFD Authority Classification: `SUPPORTING EVIDENCE COPY`\n"
+        "UFD Ledger Status: `Complete`\n"
+        f"UFD Ledger Owner: `{canonical_ufd_owner}`\n"
+        "UFD Item Count: `18`\n"
+        "Open UFD Count: `0`\n"
+        "Blocking UFD Count: `0`\n"
+        "Fold-Down Status: `Pending`\n\n"
         + "\n".join(ufd_rows)
     )
     observability_claims = (
@@ -1521,9 +1567,13 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Workstream Implementation: `UNAPPROVED`\n"
             "Future Workstream Decision: `FUTURE_ONLY_NON_ACTIONABLE`\n"
         ),
-        "Source Truth Context/current_external_branch_plan.md": active_header,
+        "Source Truth Context/current_external_branch_plan.md": canonical_ufd_plan,
         "Source Truth Context/current_external_branch_state.md": active_header,
         "Source Truth Context/current_external_worktree_state.md": active_header,
+        (
+            "Source Truth Context/Active External Snapshot/"
+            "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+        ): supporting_ufd_record,
     }
     valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
         valid,
@@ -1701,6 +1751,156 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         ),
     )
     for case_id, file_name, old, new, expected in cases:
+        mutated = dict(valid)
+        mutated[file_name] = mutated[file_name].replace(old, new, 1)
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {failures}"
+            )
+
+    canonical_ufd_cases = (
+        (
+            "OPTG-BP3-UFD-FG-01",
+            "Source Truth Context/current_external_branch_plan.md",
+            "\n".join(ufd_rows),
+            "",
+            "physically contain exactly 18",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-02",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "UFD Authority Classification: `SUPPORTING REVIEW COPY`",
+            "UFD Authority Classification: `CANONICAL SOURCE TRUTH`",
+            "supporting review copy",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-03",
+            (
+                "Source Truth Context/Active External Snapshot/"
+                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+            ),
+            "UFD Authority Classification: `SUPPORTING EVIDENCE COPY`",
+            "UFD Authority Classification: `CANONICAL SOURCE TRUTH`",
+            "supporting evidence copy",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-04",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"UFD Ledger Owner: `{canonical_ufd_owner}`",
+            "UFD Ledger Owner: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`",
+            "owner marker disagrees",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-05",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"UFD Physical Detail Location: `{canonical_ufd_owner}`",
+            "UFD Physical Detail Location: `separate-annex.md`",
+            "physical-detail location",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-06",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Item Count: `18`",
+            "UFD Item Count: `17`",
+            "UFD Item Count must be 18",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-07",
+            "Source Truth Context/current_external_branch_plan.md",
+            ufd_rows[-1],
+            "",
+            "physically contain exactly 18",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-08",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Open UFD Count: `0`",
+            "Open UFD Count: `1`",
+            "open count disagrees",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-09",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Blocking UFD Count: `0`",
+            "Blocking UFD Count: `1`",
+            "blocking count disagrees",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-10",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Supporting Evidence Copy:",
+            "UFD Detail Record:",
+            "redirects UFD detail",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-11",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Packet Review Copy: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`\n",
+            "",
+            "generated packet UFD aid",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-12",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "USER Direction Or Finding: `Accepted Option G direction 1`",
+            "USER Direction Or Finding: `Divergent packet copy`",
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-13",
+            (
+                "Source Truth Context/Active External Snapshot/"
+                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+            ),
+            "USER Direction Or Finding: `Accepted Option G direction 1`",
+            "USER Direction Or Finding: `Divergent evidence copy`",
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-14",
+            "Source Truth Context/current_external_branch_plan.md",
+            "\n".join(ufd_rows)
+            + "\nHistorical Receipt Boundary: `Historical content follows.`\n",
+            "Historical Receipt Boundary: `Historical content follows.`\n"
+            + "\n".join(ufd_rows)
+            + "\n",
+            "physically contain exactly 18",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-15",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Proof / Closure Requirement: `Packet and fixture proof`",
+            "Proof Closure Requirement: `Packet and fixture proof`",
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-16",
+            "Source Truth Context/current_external_branch_plan.md",
+            ufd_rows[-1],
+            ufd_rows[-2],
+            "physically contain exactly 18",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-17",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Supporting Evidence Copy: "
+            "`decision2_option_g_bp3_proof_carrydown_repair_20260724.md`\n",
+            "",
+            "proof-carrydown record",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-18",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"UFD Physical Detail Location: `{canonical_ufd_owner}`",
+            "UFD Physical Detail Location: `ufd_ledger.md`",
+            "physical-detail location",
+        ),
+    )
+    for case_id, file_name, old, new, expected in canonical_ufd_cases:
         mutated = dict(valid)
         mutated[file_name] = mutated[file_name].replace(old, new, 1)
         failures = bundle._fam003_option_g_bp3_orchestration_failures(
@@ -2646,7 +2846,8 @@ def main() -> int:
     )
     print(
         "False-green fixture validation: PASS "
-        "(Option G BP3: 22 proof-carrydown + 26 decision-surface cases)"
+        "(Option G BP3: 22 proof-carrydown + 26 decision-surface + "
+        "18 canonical-UFD cases)"
     )
     return 0
 

@@ -192,6 +192,143 @@ def _live_header_text(text: str) -> str:
     return "".join(lines)
 
 
+FAM003_OPTION_G_BRANCH = "feature/fam-003-settings-resize-proof"
+FAM003_OPTION_G_UFD_COUNT = 18
+FAM003_OPTION_G_UFD_ITEM_MARKERS = (
+    "Feedback ID:",
+    "Feedback Summary:",
+    "Feedback Source:",
+    "Feedback Phase:",
+    "Disposition Type:",
+    "USER Decision State:",
+    "Owner Class:",
+    "Canonical Owner File:",
+    "Workstream Severity:",
+    "Status:",
+    "Fold-Down Target:",
+    "Pointer Locations:",
+    "Source / Date:",
+    "USER Direction Or Finding:",
+    "Affected Scope:",
+    "Affected Artifact:",
+    "Classification:",
+    "Owner:",
+    "Carrier:",
+    "Planning Or Implementation Effect:",
+    "Proof / Closure Requirement:",
+    "Remaining USER Decision:",
+)
+
+
+def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]:
+    """Prove that a declared active UFD owner physically owns its atomic rows."""
+
+    failures: list[str] = []
+    required = (markdown_field_value(live_text, "USER Feedback Disposition Required") or "").casefold()
+    if "yes" not in required:
+        return failures
+
+    branch = markdown_field_value(live_text, "Branch") or ""
+    normalized_relative = relative.replace("\\", "/")
+    if not normalized_relative.endswith("/branch_plan.md"):
+        failures.append(
+            "Canonical UFD Ownership: USER Feedback Disposition Required is active "
+            f"outside the canonical branch-plan target: {relative}"
+        )
+        return failures
+
+    expected_owner = "C:\\Nexus Governance State\\" + normalized_relative.replace("/", "\\")
+    owner = markdown_field_value(live_text, "UFD Ledger Owner")
+    if _normalized_windows_value(owner) != _normalized_windows_value(expected_owner):
+        failures.append(
+            "Canonical UFD Ownership: UFD Ledger Owner does not match the physical "
+            f"active branch plan: expected {expected_owner!r}, found {owner or 'MISSING'!r}"
+        )
+
+    physical_location = markdown_field_value(live_text, "UFD Physical Detail Location")
+    if _normalized_windows_value(physical_location) != _normalized_windows_value(expected_owner):
+        failures.append(
+            "Canonical UFD Ownership: UFD Physical Detail Location must identify "
+            f"the active branch plan itself: expected {expected_owner!r}, "
+            f"found {physical_location or 'MISSING'!r}"
+        )
+    if markdown_field_value(live_text, "UFD Detail Record"):
+        failures.append(
+            "Canonical UFD Ownership: UFD Detail Record must not redirect full-detail "
+            "authority away from the declared active branch-plan owner"
+        )
+
+    item_matches = list(
+        re.finditer(
+            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n(.*?)(?=^### UFD Item:|\Z)",
+            live_text,
+        )
+    )
+    declared_count_text = markdown_field_value(live_text, "UFD Item Count")
+    declared_count_match = re.search(r"\d+", declared_count_text or "")
+    if not declared_count_match:
+        failures.append("Canonical UFD Ownership: UFD Item Count is missing or non-numeric")
+        declared_count = -1
+    else:
+        declared_count = int(declared_count_match.group(0))
+    if declared_count != len(item_matches):
+        failures.append(
+            "Canonical UFD Ownership: declared UFD Item Count does not match physical "
+            f"atomic rows: declared {declared_count}, found {len(item_matches)}"
+        )
+    if branch == FAM003_OPTION_G_BRANCH and len(item_matches) != FAM003_OPTION_G_UFD_COUNT:
+        failures.append(
+            "Canonical UFD Ownership: FAM-003 Option G requires exactly "
+            f"{FAM003_OPTION_G_UFD_COUNT} physical atomic rows; found {len(item_matches)}"
+        )
+
+    open_items = 0
+    blocking_items = 0
+    seen_ids: set[str] = set()
+    required_markers = (
+        FAM003_OPTION_G_UFD_ITEM_MARKERS
+        if branch == FAM003_OPTION_G_BRANCH
+        else FAM003_OPTION_G_UFD_ITEM_MARKERS[:12]
+    )
+    for item_match in item_matches:
+        item_id = item_match.group(1).strip()
+        item_text = item_match.group(2)
+        normalized_id = item_id.casefold()
+        if normalized_id in seen_ids:
+            failures.append(f"Canonical UFD Ownership: duplicate atomic row {item_id}")
+        seen_ids.add(normalized_id)
+        for marker in required_markers:
+            if marker not in item_text:
+                failures.append(
+                    f"Canonical UFD Ownership: {item_id} is missing required field {marker}"
+                )
+        feedback_id = markdown_field_value(item_text, "Feedback ID") or ""
+        if feedback_id.casefold() != normalized_id:
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} Feedback ID does not match its heading"
+            )
+        status = (markdown_field_value(item_text, "Status") or "").casefold()
+        if any(term in status for term in ("open", "queued", "blocking", "deferred")):
+            open_items += 1
+        if "blocking" in status:
+            blocking_items += 1
+
+    for marker, actual in (
+        ("Open UFD Count", open_items),
+        ("Blocking UFD Count", blocking_items),
+    ):
+        value = markdown_field_value(live_text, marker)
+        match = re.search(r"\d+", value or "")
+        declared = int(match.group(0)) if match else -1
+        if declared != actual:
+            failures.append(
+                f"Canonical UFD Ownership: {marker} {declared} does not match "
+                f"physical atomic-row state {actual}"
+            )
+
+    return failures
+
+
 def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
     values: list[tuple[str, str]] = []
     for field in fields:
@@ -388,6 +525,7 @@ def validate_target_currentness(
         failures.append(f"Target Currentness: {relative} is missing Record Role classification")
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
+    failures.extend(_validate_active_branch_plan_ufd(relative, live_text))
     return failures
 
 

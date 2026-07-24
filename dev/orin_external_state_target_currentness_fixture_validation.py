@@ -406,6 +406,175 @@ def _run_projection_set_semantic_fixtures(parent: Path) -> None:
     )
 
 
+UFD_TARGET = "branches/feature_fam_003_settings_resize_proof/branch_plan.md"
+UFD_BRANCH = "feature/fam-003-settings-resize-proof"
+UFD_WORKTREE_PATH = r"C:\Nexus Worktrees\FAM-003"
+UFD_SLOT = "runtime-active-3"
+UFD_OWNER = (
+    r"C:\Nexus Governance State\branches"
+    r"\feature_fam_003_settings_resize_proof\branch_plan.md"
+)
+
+
+def _ufd_fixture_rows() -> list[str]:
+    rows: list[str] = []
+    for index in range(1, 19):
+        item_id = f"UFD-FAM003-20260724-{index:03d}"
+        rows.append(
+            "\n".join(
+                (
+                    f"### UFD Item: {item_id}",
+                    f"Feedback ID: `{item_id}`",
+                    f"Feedback Summary: `Atomic Option G direction {index}`",
+                    "Feedback Source: `USER direction`",
+                    "Feedback Phase: `BP3 repair`",
+                    "Disposition Type: `Current Branch Requirement`",
+                    "USER Decision State: `Accepted by USER`",
+                    "Owner Class: `Branch Record`",
+                    "Canonical Owner File: `Docs/branch_records/feature_fam_003_settings_resize_proof.md`",
+                    "Workstream Severity: `Level 2 seam-blocking`",
+                    "Status: `Closed`",
+                    "Fold-Down Target: `Branch record`",
+                    "Pointer Locations: `Supporting packet and evidence copies`",
+                    "Source / Date: `USER / 2026-07-24`",
+                    f"USER Direction Or Finding: `Accepted Option G direction {index}`",
+                    "Affected Scope: `Option G`",
+                    "Affected Artifact: `BP3 planning`",
+                    "Classification: `Incorporated`",
+                    "Owner: `FAM-003`",
+                    "Carrier: `feature/fam-003-settings-resize-proof`",
+                    "Planning Or Implementation Effect: `Planning carrydown only`",
+                    "Proof / Closure Requirement: `Canonical owner and copy-equivalence proof`",
+                    "Remaining USER Decision: `BP3 acceptance only`",
+                )
+            )
+        )
+    return rows
+
+
+def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
+    target = root.joinpath(*UFD_TARGET.split("/"))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    rows = "\n\n".join(_ufd_fixture_rows())
+    text = text_override or (
+        "# FAM-003 UFD Target Currentness Fixture\n"
+        "External State Schema: `external-state-v1`\n"
+        "State Version: `1`\n"
+        "Last Updated: `2026-01-01T00:00:00Z`\n"
+        "Last Updated By: `fixture`\n"
+        "Record Class: `Live Branch Plan`\n"
+        "Record Role: `Current branch planning projection`\n"
+        "Worktree: `FAM-003`\n"
+        f"Worktree Path: `{UFD_WORKTREE_PATH}`\n"
+        f"Branch: `{UFD_BRANCH}`\n"
+        f"Source Repo HEAD: `{HEAD}`\n"
+        f"Origin/Main: `{ORIGIN_MAIN}`\n"
+        f"Slot ID: `{UFD_SLOT}`\n"
+        "USER Feedback Disposition Required: `Yes`\n"
+        "UFD Ledger Status: `Complete`\n"
+        f"UFD Ledger Owner: `{UFD_OWNER}`\n"
+        "UFD Item Count: `18`\n"
+        f"UFD Physical Detail Location: `{UFD_OWNER}`\n"
+        "Open UFD Count: `0`\n"
+        "Blocking UFD Count: `0`\n"
+        "Fold-Down Status: `Pending`\n\n"
+        f"{rows}\n\n"
+        "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n"
+    )
+    target.write_text(text, encoding="utf-8")
+    return target
+
+
+def _run_ufd_owner_fixtures(parent: Path) -> None:
+    root = parent / "ufd-owner"
+    root.mkdir(parents=True, exist_ok=True)
+    _manifest(root)
+    target = _write_ufd_record(root)
+    original = target.read_text(encoding="utf-8")
+
+    def validate(text: str) -> list[str]:
+        _write_ufd_record(root, text)
+        return validator.validate_target_currentness(
+            root,
+            [UFD_TARGET],
+            expected_branch=UFD_BRANCH,
+            expected_source_head=HEAD,
+            expected_origin_main=ORIGIN_MAIN,
+            expected_worktree_path=UFD_WORKTREE_PATH,
+            expected_worktree_slot=UFD_SLOT,
+            expected_target_sha256=sha256_file(target),
+            expected_schema="external-state-v1",
+        )
+
+    _assert_pass("canonical UFD owner with 18 physical rows", validate(original))
+    rows = "\n\n".join(_ufd_fixture_rows())
+    historical = (
+        "Historical Receipt Boundary: "
+        "`Historical receipts below do not redefine live fields.`\n"
+    )
+    cases = (
+        (
+            "declared owner without atomic rows",
+            original.replace(rows + "\n\n", ""),
+            "exactly 18 physical atomic rows",
+        ),
+        (
+            "owner marker disagrees with physical file",
+            original.replace(UFD_OWNER, "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md", 1),
+            "UFD Ledger Owner does not match",
+        ),
+        (
+            "physical detail location disagrees",
+            original.replace(
+                f"UFD Physical Detail Location: `{UFD_OWNER}`",
+                "UFD Physical Detail Location: `ufd_ledger.md`",
+            ),
+            "UFD Physical Detail Location",
+        ),
+        (
+            "declared item count disagrees",
+            original.replace("UFD Item Count: `18`", "UFD Item Count: `17`"),
+            "declared UFD Item Count does not match",
+        ),
+        (
+            "atomic rows below historical boundary",
+            original.replace(rows + "\n\n" + historical, historical + rows + "\n"),
+            "exactly 18 physical atomic rows",
+        ),
+        (
+            "atomic row missing required field",
+            original.replace("Proof / Closure Requirement:", "Proof Closure Requirement:", 1),
+            "missing required field Proof / Closure Requirement:",
+        ),
+        (
+            "open count disagrees with rows",
+            original.replace("Open UFD Count: `0`", "Open UFD Count: `1`"),
+            "Open UFD Count 1 does not match",
+        ),
+        (
+            "blocking count disagrees with rows",
+            original.replace("Blocking UFD Count: `0`", "Blocking UFD Count: `1`"),
+            "Blocking UFD Count 1 does not match",
+        ),
+        (
+            "pointer target redirects canonical detail",
+            original.replace(
+                "UFD Physical Detail Location:",
+                "UFD Detail Record:",
+                1,
+            ),
+            "must not redirect full-detail authority",
+        ),
+        (
+            "duplicate atomic item",
+            original.replace(_ufd_fixture_rows()[-1], _ufd_fixture_rows()[-2], 1),
+            "duplicate atomic row",
+        ),
+    )
+    for name, text, needle in cases:
+        _assert_failure(name, needle, validate(text))
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-target-currentness-") as temp_dir:
         root = Path(temp_dir)
@@ -1608,7 +1777,13 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-projection-set-semantics-") as temp_dir:
         _run_projection_set_semantic_fixtures(Path(temp_dir))
 
-    print("Target-scoped external-state currentness fixture validation: PASS")
+    with tempfile.TemporaryDirectory(prefix="ndai-ufd-owner-") as temp_dir:
+        _run_ufd_owner_fixtures(Path(temp_dir))
+
+    print(
+        "Target-scoped external-state currentness fixture validation: PASS "
+        "(10 canonical-UFD negative fixtures)"
+    )
     return 0
 
 

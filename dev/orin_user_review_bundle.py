@@ -2800,6 +2800,11 @@ def _markdown_field_values(text: str, field_name: str) -> list[str]:
     return [match.group(1).strip() for match in pattern.finditer(text)]
 
 
+def _markdown_field_value(text: str, field_name: str) -> str:
+    values = _markdown_field_values(text, field_name)
+    return values[0] if values else ""
+
+
 def _normalize_windows_path_text(text: str) -> str:
     return text.strip().strip("`").replace("/", "\\").casefold()
 
@@ -4297,6 +4302,13 @@ def validate_local_user_packet(
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_fam003_option_g_bp2_planning_failures(packet_files))
+    packet_status = _packet_text_status("\n".join(generated_packet_files.values()))
+    failures.extend(
+        _fam003_option_g_bp3_orchestration_failures(
+            packet_files,
+            status=packet_status,
+        )
+    )
     failures.extend(_pr_stage1_review_failures(packet_files))
     failures.extend(_pr_stage1_packet_coherence_failures(packet_files))
     failures.extend(
@@ -6153,12 +6165,143 @@ def _fam003_option_g_bp3_orchestration_failures(
             failures.append(f"FAM-003 Option G BP3: required {label} marker is missing")
 
     ufd_text = aid_text["UFD ledger"]
+    canonical_ufd_plan = _packet_file_text(packet_files, "current_external_branch_plan.md")
+    supporting_ufd_record = _packet_file_text(
+        packet_files,
+        "decision2_option_g_bp3_proof_carrydown_repair_20260724.md",
+    )
+
+    def _ufd_rows(text: str, *, live_only: bool = False) -> dict[str, str]:
+        if live_only:
+            text = text.partition("Historical Receipt Boundary:")[0]
+        matches = re.finditer(
+            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n"
+            r"(.*?)(?=^### UFD Item:|^## |^Historical Receipt Boundary:|\Z)",
+            text,
+        )
+        return {
+            match.group(1).strip(): re.sub(
+                r"[ \t]+\n",
+                "\n",
+                match.group(2).replace("\r\n", "\n"),
+            ).strip()
+            for match in matches
+        }
+
+    canonical_ufd_rows = _ufd_rows(canonical_ufd_plan, live_only=True)
+    aid_ufd_rows = _ufd_rows(ufd_text)
+    supporting_ufd_rows = _ufd_rows(supporting_ufd_record)
     ufd_item_matches = list(
         re.finditer(
-            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n(.*?)(?=^### UFD Item:|\Z)",
+            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n"
+            r"(.*?)(?=^### UFD Item:|^## |^Historical Receipt Boundary:|\Z)",
             ufd_text,
         )
     )
+
+    expected_ufd_owner = (
+        "C:\\Nexus Governance State\\branches\\"
+        "feature_fam_003_settings_resize_proof\\branch_plan.md"
+    )
+    canonical_live = canonical_ufd_plan.partition("Historical Receipt Boundary:")[0]
+    canonical_owner = _markdown_field_value(canonical_live, "UFD Ledger Owner")
+    physical_location = _markdown_field_value(
+        canonical_live,
+        "UFD Physical Detail Location",
+    )
+    if not canonical_ufd_plan:
+        failures.append(
+            "FAM-003 Option G BP3: packet source/copy mapping omits the canonical "
+            "current external branch plan"
+        )
+    if canonical_owner != expected_ufd_owner:
+        failures.append(
+            "FAM-003 Option G BP3: canonical UFD owner marker disagrees with the "
+            "active external branch plan"
+        )
+    if physical_location != expected_ufd_owner:
+        failures.append(
+            "FAM-003 Option G BP3: canonical UFD physical-detail location is missing "
+            "or points outside the active external branch plan"
+        )
+    if _markdown_field_value(canonical_live, "UFD Detail Record"):
+        failures.append(
+            "FAM-003 Option G BP3: canonical branch plan redirects UFD detail to a "
+            "supporting record instead of physically owning the atomic rows"
+        )
+    if len(canonical_ufd_rows) != 18:
+        failures.append(
+            "FAM-003 Option G BP3: canonical active external branch plan must "
+            f"physically contain exactly 18 atomic UFD rows; found {len(canonical_ufd_rows)}"
+        )
+    declared_canonical_count = _markdown_field_value(canonical_live, "UFD Item Count")
+    if declared_canonical_count != "18":
+        failures.append(
+            "FAM-003 Option G BP3: canonical branch plan UFD Item Count must be 18"
+        )
+    canonical_open_count = sum(
+        any(term in _markdown_field_value(row, "Status").casefold() for term in (
+            "open",
+            "queued",
+            "blocking",
+            "deferred",
+        ))
+        for row in canonical_ufd_rows.values()
+    )
+    canonical_blocking_count = sum(
+        "blocking" in _markdown_field_value(row, "Status").casefold()
+        for row in canonical_ufd_rows.values()
+    )
+    if _markdown_field_value(canonical_live, "Open UFD Count") != str(canonical_open_count):
+        failures.append(
+            "FAM-003 Option G BP3: canonical branch plan UFD open count disagrees "
+            "with its physical atomic rows"
+        )
+    if (
+        _markdown_field_value(canonical_live, "Blocking UFD Count")
+        != str(canonical_blocking_count)
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: canonical branch plan UFD blocking count "
+            "disagrees with its physical atomic rows"
+        )
+    if (
+        "UFD Supporting Evidence Copy:" not in canonical_live
+        or "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+        not in canonical_live
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: canonical branch plan must classify the proof-"
+            "carrydown record as a supporting evidence copy"
+        )
+    if (
+        "UFD Packet Review Copy:" not in canonical_live
+        or "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md" not in canonical_live
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: canonical branch plan must classify the generated "
+            "packet UFD aid as a supporting review copy"
+        )
+    if "UFD Authority Classification: `SUPPORTING REVIEW COPY`" not in ufd_text:
+        failures.append(
+            "FAM-003 Option G BP3: generated UFD review aid must be labeled as a "
+            "supporting review copy, not source truth"
+        )
+    if "UFD Authority Classification: `SUPPORTING EVIDENCE COPY`" not in supporting_ufd_record:
+        failures.append(
+            "FAM-003 Option G BP3: proof-carrydown UFD record must be labeled as a "
+            "supporting evidence copy, not the canonical owner"
+        )
+    if aid_ufd_rows != canonical_ufd_rows:
+        failures.append(
+            "FAM-003 Option G BP3: generated packet UFD aid differs from the "
+            "canonical active branch-plan rows"
+        )
+    if supporting_ufd_rows != canonical_ufd_rows:
+        failures.append(
+            "FAM-003 Option G BP3: proof-carrydown UFD copy differs from the "
+            "canonical active branch-plan rows"
+        )
     if len(ufd_item_matches) < 18:
         failures.append(
             "FAM-003 Option G BP3: active UFD ledger must contain at least "

@@ -883,6 +883,7 @@ WORKSTREAM_COMMIT_EXCLUDED_SUBJECTS = {
     "Align FAM-003 BP3 packet metadata",
     "Close FAM-003 BP3 packet idempotence gap",
     "Repair FAM-003 R2 scope-audit metadata",
+    "Repair FAM-003 canonical UFD ownership",
 }
 
 
