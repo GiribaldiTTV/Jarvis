@@ -972,8 +972,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 DECOMPOSITION_ACCEPTANCE_RECEIPT = "USER-DECISION-1-FIXTURE"
 DECOMPOSITION_ACCEPTANCE_TEXT = (
-    "I accept the current branch as the discovery / evidence / false-green "
-    "analysis / decomposition carrier only. This decision does not select a successor."
+    bundle.FAM007_DECOMPOSITION_ACCEPTANCE_EXACT_USER_DECISION
 )
 
 
@@ -994,6 +993,17 @@ def _decomposition_state_values(
             "bp_entry": "NOT_APPROVED",
             "current_gate": "DECOMPOSITION_DECISION_1_REVIEW",
             "next_gate": "USER_DECISION_1_CURRENT_BRANCH_SUPERSESSION",
+        },
+        "DECOMPOSITION_ACCEPTED_NO_CANDIDATE": {
+            "selected_next": "CONSUMED_NO_SUCCESSOR",
+            "branch_exists": "NO",
+            "branch_mutation": "NONE",
+            "stage1": "NOT_STARTED",
+            "stage2": "NOT_APPROVED",
+            "identity": "NOT_APPLICABLE",
+            "bp_entry": "NOT_APPROVED",
+            "current_gate": "DECOMPOSITION_DECISION_2_REVIEW",
+            "next_gate": "USER_DECISION_2_STAGE1_CANDIDATE_SELECTION",
         },
         "STAGE1_CANDIDATE_SELECTED": {
             "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
@@ -1062,29 +1072,80 @@ def _decomposition_state_values(
 def _decomposition_approval_values(values: dict[str, str]) -> dict[str, str]:
     state = values["state"]
     candidate_name = values["candidate_name"]
-    later_than_unselected = state != "DECOMPOSITION_UNSELECTED"
+    decomposition_accepted = state != "DECOMPOSITION_UNSELECTED"
+    stage1_selected = state in {
+        "STAGE1_CANDIDATE_SELECTED",
+        "STAGE1_ANALYSIS_COMPLETE",
+        "STAGE2_CREATION_APPROVED",
+        "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+        "BRANCH_PLANNING_ENTRY_APPROVED",
+    }
     stage2_or_later = state in {
         "STAGE2_CREATION_APPROVED",
+        "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+        "BRANCH_PLANNING_ENTRY_APPROVED",
+    }
+    identity_verified = state in {
         "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
         "BRANCH_PLANNING_ENTRY_APPROVED",
     }
     bp_entry = state == "BRANCH_PLANNING_ENTRY_APPROVED"
     return {
         "decomposition_receipt": (
-            DECOMPOSITION_ACCEPTANCE_RECEIPT if later_than_unselected else "NONE"
+            DECOMPOSITION_ACCEPTANCE_RECEIPT if decomposition_accepted else "NONE"
         ),
         "decomposition_text": (
-            DECOMPOSITION_ACCEPTANCE_TEXT if later_than_unselected else "NONE"
+            DECOMPOSITION_ACCEPTANCE_TEXT if decomposition_accepted else "NONE"
+        ),
+        "decomposition_target": (
+            "CURRENT_FAM007_DECOMPOSITION_CARRIER"
+            if decomposition_accepted
+            else "NONE"
+        ),
+        "decomposition_stage": (
+            "DECISION_1_DECOMPOSITION_ACCEPTANCE"
+            if decomposition_accepted
+            else "NONE"
+        ),
+        "decomposition_scope": (
+            "CURRENT_BRANCH_POSTURE_ONLY" if decomposition_accepted else "NONE"
+        ),
+        "decomposition_prohibited": (
+            "SUCCESSOR_SELECTION; BRANCH_READINESS_STAGE_1; STAGE_2; "
+            "BRANCH_WORKTREE_CREATION; BRANCH_PLANNING_ENTRY; IMPLEMENTATION"
+            if decomposition_accepted
+            else "NONE"
+        ),
+        "decomposition_reference": (
+            "USER_MESSAGE_FIXTURE_DECISION_1" if decomposition_accepted else "NONE"
         ),
         "stage1_receipt": (
-            "USER-STAGE1-SELECTION-FIXTURE" if later_than_unselected else "NONE"
+            "USER-STAGE1-SELECTION-FIXTURE" if stage1_selected else "NONE"
         ),
         "stage1_text": (
             f"I approve {candidate_name} for Branch Readiness Stage 1 analysis only; "
             "no branch/worktree mutation; Stage 2 remains separate; "
             "Branch Planning Entry remains separate."
-            if later_than_unselected
+            if stage1_selected
             else "NONE"
+        ),
+        "stage1_target": (
+            "CURRENT_FAM007_DECOMPOSITION_CARRIER" if stage1_selected else "NONE"
+        ),
+        "stage1_stage": (
+            "DECISION_2_STAGE1_CANDIDATE_SELECTION" if stage1_selected else "NONE"
+        ),
+        "stage1_scope": (
+            "NAMED_CANDIDATE_STAGE1_ANALYSIS_ONLY" if stage1_selected else "NONE"
+        ),
+        "stage1_prohibited": (
+            "BRANCH_WORKTREE_MUTATION; STAGE_2; BRANCH_PLANNING_ENTRY; "
+            "IMPLEMENTATION"
+            if stage1_selected
+            else "NONE"
+        ),
+        "stage1_reference": (
+            "USER_MESSAGE_FIXTURE_DECISION_2" if stage1_selected else "NONE"
         ),
         "stage2_receipt": (
             "USER-STAGE2-CREATION-FIXTURE" if stage2_or_later else "NONE"
@@ -1096,6 +1157,47 @@ def _decomposition_approval_values(values: dict[str, str]) -> dict[str, str]:
             if stage2_or_later
             else "NONE"
         ),
+        "stage2_target": (
+            "NAMED_SUCCESSOR_CARRIER" if stage2_or_later else "NONE"
+        ),
+        "stage2_stage": (
+            "BRANCH_READINESS_STAGE_2_CREATION_APPROVAL"
+            if stage2_or_later
+            else "NONE"
+        ),
+        "stage2_scope": (
+            "ONE_SUCCESSOR_BRANCH_WORKTREE_CREATION_ONLY"
+            if stage2_or_later
+            else "NONE"
+        ),
+        "stage2_prohibited": (
+            "BRANCH_PLANNING_ENTRY; BP1; IMPLEMENTATION"
+            if stage2_or_later
+            else "NONE"
+        ),
+        "stage2_reference": (
+            "USER_MESSAGE_FIXTURE_STAGE_2" if stage2_or_later else "NONE"
+        ),
+        "identity_receipt": (
+            "SUCCESSOR-IDENTITY-FIXTURE" if identity_verified else "NONE"
+        ),
+        "identity_target": (
+            "NAMED_SUCCESSOR_CARRIER" if identity_verified else "NONE"
+        ),
+        "identity_stage": (
+            "SUCCESSOR_IDENTITY_VERIFICATION" if identity_verified else "NONE"
+        ),
+        "identity_scope": (
+            "BRANCH_WORKTREE_IDENTITY_ONLY" if identity_verified else "NONE"
+        ),
+        "identity_prohibited": (
+            "BRANCH_PLANNING_ENTRY; BP1; IMPLEMENTATION"
+            if identity_verified
+            else "NONE"
+        ),
+        "identity_reference": (
+            "IDENTITY_PROOF_FIXTURE_SUCCESSOR" if identity_verified else "NONE"
+        ),
         "bp_receipt": "USER-BP-ENTRY-FIXTURE" if bp_entry else "NONE",
         "bp_text": (
             f"I approve Branch Planning Entry for {candidate_name}; BP1 is next and "
@@ -1103,6 +1205,13 @@ def _decomposition_approval_values(values: dict[str, str]) -> dict[str, str]:
             if bp_entry
             else "NONE"
         ),
+        "bp_target": "NAMED_SUCCESSOR_CARRIER" if bp_entry else "NONE",
+        "bp_stage": "BRANCH_PLANNING_ENTRY_APPROVAL" if bp_entry else "NONE",
+        "bp_scope": "BP1_ENTRY_ONLY" if bp_entry else "NONE",
+        "bp_prohibited": (
+            "BP2; BP3; WORKSTREAM; IMPLEMENTATION" if bp_entry else "NONE"
+        ),
+        "bp_reference": "USER_MESSAGE_FIXTURE_BP_ENTRY" if bp_entry else "NONE",
     }
 
 
@@ -1128,19 +1237,45 @@ def _decomposition_state_text(values: dict[str, str], route: str) -> str:
             "Forbidden Phase Collapse: `CONFIRMED`",
             f"Decomposition Acceptance Receipt: `{approvals['decomposition_receipt']}`",
             f"Decomposition Acceptance Exact USER Decision: `{approvals['decomposition_text']}`",
+            f"Decomposition Acceptance Target Carrier: `{approvals['decomposition_target']}`",
+            f"Decomposition Acceptance Approval Stage: `{approvals['decomposition_stage']}`",
+            f"Decomposition Acceptance Approval Scope: `{approvals['decomposition_scope']}`",
+            f"Decomposition Acceptance Prohibited Later Gates: `{approvals['decomposition_prohibited']}`",
+            f"Decomposition Acceptance Record Reference: `{approvals['decomposition_reference']}`",
             f"Stage 1 Selection Approval Receipt: `{approvals['stage1_receipt']}`",
             f"Stage 1 Selection Exact USER Decision: `{approvals['stage1_text']}`",
+            f"Stage 1 Selection Target Carrier: `{approvals['stage1_target']}`",
+            f"Stage 1 Selection Approval Stage: `{approvals['stage1_stage']}`",
+            f"Stage 1 Selection Approval Scope: `{approvals['stage1_scope']}`",
+            f"Stage 1 Selection Prohibited Later Gates: `{approvals['stage1_prohibited']}`",
+            f"Stage 1 Selection Record Reference: `{approvals['stage1_reference']}`",
             f"Stage 2 Creation Approval Receipt: `{approvals['stage2_receipt']}`",
             f"Stage 2 Creation Exact USER Decision: `{approvals['stage2_text']}`",
+            f"Stage 2 Creation Target Carrier: `{approvals['stage2_target']}`",
+            f"Stage 2 Creation Approval Stage: `{approvals['stage2_stage']}`",
+            f"Stage 2 Creation Approval Scope: `{approvals['stage2_scope']}`",
+            f"Stage 2 Creation Prohibited Later Gates: `{approvals['stage2_prohibited']}`",
+            f"Stage 2 Creation Record Reference: `{approvals['stage2_reference']}`",
+            f"Successor Identity Receipt: `{approvals['identity_receipt']}`",
+            f"Successor Identity Target Carrier: `{approvals['identity_target']}`",
+            f"Successor Identity Verification Stage: `{approvals['identity_stage']}`",
+            f"Successor Identity Verification Scope: `{approvals['identity_scope']}`",
+            f"Successor Identity Prohibited Later Gates: `{approvals['identity_prohibited']}`",
+            f"Successor Identity Record Reference: `{approvals['identity_reference']}`",
             f"Branch Planning Entry Approval Receipt: `{approvals['bp_receipt']}`",
             f"Branch Planning Entry Exact USER Decision: `{approvals['bp_text']}`",
+            f"Branch Planning Entry Target Carrier: `{approvals['bp_target']}`",
+            f"Branch Planning Entry Approval Stage: `{approvals['bp_stage']}`",
+            f"Branch Planning Entry Approval Scope: `{approvals['bp_scope']}`",
+            f"Branch Planning Entry Prohibited Later Gates: `{approvals['bp_prohibited']}`",
+            f"Branch Planning Entry Record Reference: `{approvals['bp_reference']}`",
         ]
     )
 
 
 def _decomposition_transition_model_text() -> str:
     states = "\n".join(
-        f"| `{state}` | Required USER Approval Receipt | Selected-next Posture | "
+        f"| `{state}` | Required USER Approval Receipt | Forbidden Receipts | Selected-next Posture | "
         "Named Candidate | Branch / Worktree Existence | Allowed Mutation | "
         "Required Packet Artifacts | Current Gate | Next Legal Gate | "
         "Forbidden Phase Collapse |"
@@ -1148,12 +1283,31 @@ def _decomposition_transition_model_text() -> str:
     )
     return (
         "# Decomposition Transition State Model\n\n"
-        "| State | Required USER Approval Receipt | Selected-next Posture | "
+        "| State | Required USER Approval Receipt | Forbidden Receipts | Selected-next Posture | "
         "Named Candidate | Branch / Worktree Existence | Allowed Mutation | "
         "Required Packet Artifacts | Current Gate | Next Legal Gate | "
         "Forbidden Phase Collapse |\n"
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
         f"{states}\n"
+    )
+
+
+def _receipt_requirement_matrix_text() -> str:
+    return "\n".join(
+        [
+            "# Receipt Requirement Matrix",
+            "",
+            "Each transition uses explicit Required Receipts and Forbidden Receipts contracts.",
+            "",
+            "| Receipt | Receipt Identifier | Exact USER Decision | Target Carrier / Branch | Approval Stage | Approval Scope | Prohibited Later Gates | Timestamp / Routed Record Reference |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- |",
+            "| Decomposition Acceptance Receipt | required after Decision 1 | exact canonical text | current decomposition carrier | Decision 1 | posture only | successor and later gates | required |",
+            "| Stage 1 Candidate-Selection Receipt | required after Decision 2 | exact candidate-specific text | current decomposition carrier | Decision 2 | Stage 1 analysis only | mutation and later gates | required |",
+            "| Stage 2 Creation Receipt | required after separate approval | exact candidate-specific text | named successor carrier | Stage 2 | one creation only | BP and implementation | required |",
+            "| Successor Identity Receipt | required after creation | not a USER approval | named successor carrier | identity verification | identity only | BP and implementation | required |",
+            "| Branch Planning Entry Receipt | required after separate approval | exact candidate-specific text | named successor carrier | BP entry | BP1 entry only | BP2 and later gates | required |",
+            "| Issue #307 Resolution Receipt | required only for atomic resolution | exact route/owner text | Issue #307 carrier | issue resolution | one final owner | implementation, closeout, issue mutation | required |",
+        ]
     )
 
 
@@ -1238,6 +1392,20 @@ def _apply_decomposition_state(
         candidate_name=candidate_name,
     )
     approvals = _decomposition_approval_values(values)
+    decision1_state = (
+        "PENDING_USER_DECISION"
+        if state == "DECOMPOSITION_UNSELECTED"
+        else "ACCEPTED"
+    )
+    decision2_state = (
+        "NOT_REACHED"
+        if state == "DECOMPOSITION_UNSELECTED"
+        else (
+            "PENDING_USER_DECISION"
+            if state == "DECOMPOSITION_ACCEPTED_NO_CANDIDATE"
+            else "ACCEPTED"
+        )
+    )
     files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = (
         _decomposition_state_text(values, route)
     )
@@ -1247,6 +1415,8 @@ def _apply_decomposition_state(
             f"Declared Decomposition State: `{state}`",
             f"Selected-next Posture: `{values['selected_next']}`",
             f"Named Candidate: `{candidate_name}`",
+            f"Decision 1 State: `{decision1_state}`",
+            f"Decision 2 State: `{decision2_state}`",
             "Final Packet Receipt Authority: active external state after ZIP generation; no loose sidecar is permitted.",
             "Primary USER Review File: `USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md`",
         ]
@@ -1257,8 +1427,18 @@ def _apply_decomposition_state(
             f"Declared Decomposition State: `{state}`",
             f"Selected-next Posture: `{values['selected_next']}`",
             f"Named Candidate: `{candidate_name}`",
+            f"Decision 1 State: `{decision1_state}`",
+            f"Decision 2 State: `{decision2_state}`",
             "Review the decomposition and legal successor analysis route. "
             "This current-gate review does not authorize implementation.",
+            *(
+                [
+                    "Exact Next USER Decision: "
+                    f"`{bundle.FAM007_DECOMPOSITION_ACCEPTANCE_EXACT_USER_DECISION}`"
+                ]
+                if state == "DECOMPOSITION_UNSELECTED"
+                else []
+            ),
         ]
     )
     files["Review Aids/SELECTED_NEXT_STATE_RECEIPT.md"] = "\n".join(
@@ -1340,6 +1520,11 @@ def _apply_decomposition_state(
             f"Selected-next Posture: `{values['selected_next']}`",
             f"Shell / Lifecycle Route Code: `{route}`",
             f"Issue #307 Resolution State: `{issue307_state}`",
+            f"Decomposition Acceptance Receipt: `{approvals['decomposition_receipt']}`",
+            f"Stage 1 Selection Approval Receipt: `{approvals['stage1_receipt']}`",
+            f"Stage 2 Creation Approval Receipt: `{approvals['stage2_receipt']}`",
+            f"Successor Identity Receipt: `{approvals['identity_receipt']}`",
+            f"Branch Planning Entry Approval Receipt: `{approvals['bp_receipt']}`",
             "Validation Result: PASS",
         ]
     )
@@ -1361,14 +1546,26 @@ def _apply_route(files: dict[str, str], route: str) -> None:
     files["Review Aids/TRANSITION_SAFE_ROUTE_RULES.md"] = _route_rules_text(route)
 
 
-def _resolve_issue307(files: dict[str, str]) -> None:
+def _resolve_issue307(
+    files: dict[str, str],
+    route: str = "USER_APPROVED_LIVE_ISSUE_CLARIFICATION",
+) -> None:
+    route_phrase = {
+        "USER_APPROVED_SPLIT": "split",
+        "USER_APPROVED_REPLACEMENT": "replacement",
+        "USER_APPROVED_LIVE_ISSUE_CLARIFICATION": "live issue clarification",
+    }[route]
     files["Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md"] = "\n".join(
         [
             "# Issue #307 Resolution Receipt",
             "Issue #307 Resolution State: `RESOLVED_ATOMIC`",
-            "Issue #307 Resolution Route: `USER_APPROVED_LIVE_ISSUE_CLARIFICATION`",
+            f"Issue #307 Resolution Route: `{route}`",
             "Issue #307 USER Approval Receipt: `USER-ISSUE-307-FIXTURE`",
-            "Issue #307 Exact USER Decision: `I approve the Issue #307 live issue clarification with one final closure owner F7-LIFECYCLE.`",
+            f"Issue #307 Exact USER Decision: `I approve the Issue #307 {route_phrase} with one final closure owner F7-LIFECYCLE.`",
+            "Issue #307 Approval Stage: `ISSUE_307_ATOMIC_RESOLUTION`",
+            "Issue #307 Approval Scope: `ONE_ATOMIC_FINAL_CLOSURE_OWNER_ONLY`",
+            "Issue #307 Prohibited Later Gates: `IMPLEMENTATION; CLOSEOUT; ISSUE_MUTATION`",
+            "Issue #307 Record Reference: `USER_MESSAGE_FIXTURE_ISSUE_307`",
             "Issue #307 Final Closure Owner: `F7-LIFECYCLE`",
             "Issue / Ledger / Carrier Consistency: `CONFIRMED`",
             "Implementation Obligations Atomic: `YES`",
@@ -1453,6 +1650,9 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
         "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md": (
             _decomposition_transition_model_text()
         ),
+        "Review Aids/RECEIPT_REQUIREMENT_MATRIX.md": (
+            _receipt_requirement_matrix_text()
+        ),
         "Review Aids/TRANSITION_SAFE_ROUTE_RULES.md": _route_rules_text(
             "ROUTE_A_SEPARATE"
         ),
@@ -1465,6 +1665,10 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
                 "Issue #307 Resolution Route: `PENDING_USER_APPROVED_RESOLUTION`",
                 "Issue #307 USER Approval Receipt: `NONE`",
                 "Issue #307 Exact USER Decision: `NONE`",
+                "Issue #307 Approval Stage: `NONE`",
+                "Issue #307 Approval Scope: `NONE`",
+                "Issue #307 Prohibited Later Gates: `NONE`",
+                "Issue #307 Record Reference: `NONE`",
                 "Issue #307 Final Closure Owner: `F7-LIFECYCLE`",
                 "Issue / Ledger / Carrier Consistency: `CONFIRMED`",
                 "Implementation Obligations Atomic: `NO`",
@@ -1553,6 +1757,16 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         _valid_fam007_decomposition_packet_files(),
     )
 
+    accepted_no_candidate = _valid_fam007_decomposition_packet_files()
+    _apply_decomposition_state(
+        accepted_no_candidate,
+        "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+    )
+    assert_pass(
+        "decision1-accepted-no-candidate-decision2-separate",
+        accepted_no_candidate,
+    )
+
     route_b = _valid_fam007_decomposition_packet_files()
     _apply_route(route_b, "ROUTE_B_SHARED_SHELL_LOCAL_LIFECYCLE")
     assert_pass("source-truth-complete-route-b", route_b)
@@ -1579,9 +1793,17 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
     )
     assert_pass("ai-readiness-approved-stage1-selection", ai_readiness_selected)
 
-    issue307_resolved = _valid_fam007_decomposition_packet_files()
-    _resolve_issue307(issue307_resolved)
-    assert_pass("issue-307-approved-atomic-resolution", issue307_resolved)
+    for issue_route in (
+        "USER_APPROVED_SPLIT",
+        "USER_APPROVED_REPLACEMENT",
+        "USER_APPROVED_LIVE_ISSUE_CLARIFICATION",
+    ):
+        issue307_resolved = _valid_fam007_decomposition_packet_files()
+        _resolve_issue307(issue307_resolved, issue_route)
+        assert_pass(
+            f"issue-307-approved-atomic-resolution-{issue_route.casefold()}",
+            issue307_resolved,
+        )
 
     stage1_complete = _valid_fam007_decomposition_packet_files()
     _apply_decomposition_state(
@@ -1703,6 +1925,167 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         ),
     )
 
+    def pending_state_carries_decision1_receipt(files: dict[str, str]) -> None:
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Decomposition Acceptance Receipt: `NONE`",
+            "Decomposition Acceptance Receipt: `USER-DECISION-1-FABRICATED`",
+        )
+
+    assert_failure(
+        "pending-state-carries-decision1-receipt",
+        "DECOMPOSITION_UNSELECTED forbids decomposition receipt fields",
+        pending_state_carries_decision1_receipt,
+    )
+
+    def pending_surface_falsely_accepts_decision1(files: dict[str, str]) -> None:
+        files["USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md"] = (
+            files[
+                "USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md"
+            ].replace(
+                "Decision 1 State: `PENDING_USER_DECISION`",
+                "Decision 1 State: `ACCEPTED`",
+            )
+        )
+
+    assert_failure(
+        "pending-surface-falsely-implies-decision1-approval",
+        "primary USER review falsely represents Decision 1 State",
+        pending_surface_falsely_accepts_decision1,
+    )
+
+    def accepted_state_missing_decision1_receipt(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            f"Decomposition Acceptance Receipt: `{DECOMPOSITION_ACCEPTANCE_RECEIPT}`",
+            "Decomposition Acceptance Receipt: `NONE`",
+        )
+
+    assert_failure(
+        "accepted-no-candidate-missing-decision1-receipt",
+        "requires decomposition receipt field receipt",
+        accepted_state_missing_decision1_receipt,
+    )
+
+    def accepted_state_carries_stage1_receipt(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Stage 1 Selection Approval Receipt: `NONE`",
+            "Stage 1 Selection Approval Receipt: `USER-STAGE1-FABRICATED`",
+        )
+
+    assert_failure(
+        "stage1-receipt-before-candidate-selection",
+        "DECOMPOSITION_ACCEPTED_NO_CANDIDATE forbids stage1 receipt fields",
+        accepted_state_carries_stage1_receipt,
+    )
+
+    def accepted_state_candidate_leakage(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace("Named Candidate Code: `NONE`", "Named Candidate Code: `LEAKED`")
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace("Named Candidate: `NONE`", "Named Candidate: `Leaked Candidate`")
+
+    assert_failure(
+        "candidate-leakage-before-decision2",
+        "no-candidate state must not name a candidate",
+        accepted_state_candidate_leakage,
+    )
+
+    def accepted_state_selected_next_leakage(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace("CONSUMED_NO_SUCCESSOR", "SELECTED_STAGE1_ANALYSIS_ONLY")
+
+    assert_failure(
+        "selected-next-leakage-before-decision2",
+        "requires selected_next=CONSUMED_NO_SUCCESSOR",
+        accepted_state_selected_next_leakage,
+    )
+
+    def arbitrary_decision1_approval_text(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            DECOMPOSITION_ACCEPTANCE_TEXT,
+            "approved",
+        )
+
+    assert_failure(
+        "arbitrary-decision1-approval-text",
+        "decomposition exact USER decision does not exactly match",
+        arbitrary_decision1_approval_text,
+    )
+
+    def arbitrary_decision1_receipt_identifier(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            f"Decomposition Acceptance Receipt: `{DECOMPOSITION_ACCEPTANCE_RECEIPT}`",
+            "Decomposition Acceptance Receipt: `approved`",
+        )
+
+    assert_failure(
+        "arbitrary-decision1-receipt-identifier",
+        "decomposition receipt identifier is not structured proof",
+        arbitrary_decision1_receipt_identifier,
+    )
+
+    def paraphrased_decision1_approval_text(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            DECOMPOSITION_ACCEPTANCE_TEXT,
+            "I accept the decomposition carrier and will choose a successor later.",
+        )
+
+    assert_failure(
+        "paraphrased-or-fabricated-decision1",
+        "decomposition exact USER decision does not exactly match",
+        paraphrased_decision1_approval_text,
+    )
+
+    assert_failure(
+        "missing-receipt-requirement-matrix",
+        "required FAM-007 decomposition decision artifact is missing",
+        lambda files: files.__setitem__(
+            "Review Aids/RECEIPT_REQUIREMENT_MATRIX.md", ""
+        ),
+    )
+
     def stage1_missing_approval(files: dict[str, str]) -> None:
         _apply_decomposition_state(
             files,
@@ -1719,7 +2102,7 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
 
     assert_failure(
         "stage1-selection-missing-approval",
-        "requires an exact stage1 USER approval receipt",
+        "requires stage1 receipt field receipt",
         stage1_missing_approval,
     )
 
@@ -1739,7 +2122,7 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
 
     assert_failure(
         "stage1-selection-wrong-approval-scope",
-        "Stage 1 selection approval scope is incomplete",
+        "stage1 exact USER decision does not exactly match",
         stage1_wrong_scope,
     )
 
@@ -1802,6 +2185,62 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         stage1_branch_mutation,
     )
 
+    def branch_exists_before_stage2(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "STAGE1_CANDIDATE_SELECTED",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Successor Branch / Worktree Exists: `NO`",
+            "Successor Branch / Worktree Exists: `YES`",
+        )
+
+    assert_failure(
+        "branch-exists-before-stage2",
+        "requires branch_exists=NO",
+        branch_exists_before_stage2,
+    )
+
+    def stale_current_gate(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Current Gate Code: `DECOMPOSITION_DECISION_2_REVIEW`",
+            "Current Gate Code: `DECOMPOSITION_DECISION_1_REVIEW`",
+        )
+
+    assert_failure(
+        "stale-current-gate",
+        "requires current_gate=DECOMPOSITION_DECISION_2_REVIEW",
+        stale_current_gate,
+    )
+
+    def stale_next_gate(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Next Legal Gate Code: `USER_DECISION_2_STAGE1_CANDIDATE_SELECTION`",
+            "Next Legal Gate Code: `BRANCH_READINESS_STAGE_2_EXECUTION`",
+        )
+
+    assert_failure(
+        "stale-next-gate",
+        "requires next_gate=USER_DECISION_2_STAGE1_CANDIDATE_SELECTION",
+        stale_next_gate,
+    )
+
     def stage1_phase_collapse(files: dict[str, str]) -> None:
         _apply_decomposition_state(
             files,
@@ -1838,7 +2277,7 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
 
     assert_failure(
         "stage2-creation-missing-approval",
-        "requires an exact stage2 USER approval receipt",
+        "requires stage2 receipt field receipt",
         stage2_missing_approval,
     )
 
@@ -1882,6 +2321,49 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         created_identity_missing,
     )
 
+    def created_successor_missing_identity_receipt(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Successor Identity Receipt: `SUCCESSOR-IDENTITY-FIXTURE`",
+            "Successor Identity Receipt: `NONE`",
+        )
+
+    assert_failure(
+        "created-successor-missing-identity-receipt",
+        "requires identity receipt field receipt",
+        created_successor_missing_identity_receipt,
+    )
+
+    def branch_planning_before_identity(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "Successor Identity Verification: `VERIFIED`",
+            "Successor Identity Verification: `MISSING`",
+        ).replace(
+            "Branch Planning Entry Approval: `NOT_APPROVED`",
+            "Branch Planning Entry Approval: `APPROVED`",
+        )
+
+    assert_failure(
+        "branch-planning-before-identity-verification",
+        "requires identity=VERIFIED",
+        branch_planning_before_identity,
+    )
+
     def bp_entry_missing_approval(files: dict[str, str]) -> None:
         _apply_decomposition_state(
             files,
@@ -1898,7 +2380,7 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
 
     assert_failure(
         "branch-planning-entry-missing-approval",
-        "requires an exact bp_entry USER approval receipt",
+        "requires bp_entry receipt field receipt",
         bp_entry_missing_approval,
     )
 
@@ -1964,6 +2446,35 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         "issue-307-resolution-owner-ambiguity",
         "exactly one coded final closure owner",
         resolved_issue_owner_ambiguity,
+    )
+
+    def unresolved_issue_allows_implementation(files: dict[str, str]) -> None:
+        files["Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md"] = files[
+            "Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md"
+        ].replace(
+            "Implementation Or Closeout Allowed: `NO`",
+            "Implementation Or Closeout Allowed: `YES`",
+        )
+
+    assert_failure(
+        "unresolved-issue307-implementation-or-closeout",
+        "must block implementation and closeout",
+        unresolved_issue_allows_implementation,
+    )
+
+    def issue307_paraphrased_approval(files: dict[str, str]) -> None:
+        _resolve_issue307(files)
+        files["Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md"] = files[
+            "Review Aids/ISSUE_307_RESOLUTION_RECEIPT.md"
+        ].replace(
+            "I approve the Issue #307 live issue clarification with one final closure owner F7-LIFECYCLE.",
+            "I approve Issue #307 with F7-LIFECYCLE.",
+        )
+
+    assert_failure(
+        "issue307-paraphrased-or-fabricated-approval",
+        "exact USER decision does not exactly match",
+        issue307_paraphrased_approval,
     )
 
     assert_failure(
