@@ -83,6 +83,13 @@ FAM007_ACTIVE_NORMALIZATION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
     "Review Aids/PRIOR_DECOMPOSITION_PACKET_SUPERSESSION_RECEIPT.md",
     "Review Aids/ROOT_CLEANUP_REPORT.md",
 )
+FAM007_ARCHIVE_USER_FACING_RECEIPT_FILES = frozenset(
+    {
+        "Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.md",
+        "Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json",
+        "Review Aids/PRIOR_DECOMPOSITION_PACKET_SUPERSESSION_RECEIPT.md",
+    }
+)
 
 
 def _is_dev_owner_live_validation_lv1_packet(
@@ -4791,8 +4798,14 @@ def _generic_user_facing_technical_metadata_failures(
     """Check only generated USER-facing surfaces, not copied source-truth context."""
 
     failures: list[str] = []
+    fam007_decomposition = _is_fam007_decomposition_packet(packet_files)
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
+        if (
+            fam007_decomposition
+            and normalized in FAM007_ARCHIVE_USER_FACING_RECEIPT_FILES
+        ):
+            continue
         if (
             normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Unified Defect Ledger/")
             and normalized.endswith(".json")

@@ -2777,6 +2777,27 @@ def _assert_fam007_active_normalization_receipt_fixtures() -> None:
             "valid canonical archive/cleanup receipt set failed unexpectedly:\n"
             + "\n".join(valid_failures)
         )
+    metadata_failures = bundle._generic_user_facing_technical_metadata_failures(valid)
+    if metadata_failures:
+        raise AssertionError(
+            "required FAM-007 archive receipts were rejected as loose USER-facing "
+            "technical metadata:\n" + "\n".join(metadata_failures)
+        )
+    guard_packet = dict(valid)
+    guard_packet["Review Aids/UNROUTED_HASH_SIDECAR.md"] = (
+        "Final ZIP SHA256: `" + ("A" * 64) + "`"
+    )
+    guard_failures = bundle._generic_user_facing_technical_metadata_failures(
+        guard_packet
+    )
+    if not any(
+        "UNROUTED_HASH_SIDECAR.md" in failure
+        and "technical metadata" in failure
+        for failure in guard_failures
+    ):
+        raise AssertionError(
+            "archive-receipt exemption weakened the generic loose-hash guard"
+        )
 
     missing_receipt = dict(valid)
     missing_receipt.pop("Review Aids/IMMUTABLE_EVIDENCE_ARCHIVE_RECEIPT.json")
