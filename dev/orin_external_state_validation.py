@@ -194,6 +194,15 @@ def _live_header_text(text: str) -> str:
 
 FAM003_OPTION_G_BRANCH = "feature/fam-003-settings-resize-proof"
 FAM003_OPTION_G_UFD_COUNT = 18
+FAM003_OPTION_G_UFD_FOLD_DOWN_TARGET = (
+    "Docs/branch_records/feature_fam_003_settings_resize_proof.md"
+)
+UFD_CONTEXT_RELATIVE_LOCATION_RE = re.compile(
+    r"\b(?:this|the)\s+annex\b"
+    r"|\bthis supporting record\b"
+    r"|\bthe record above\b",
+    re.IGNORECASE,
+)
 FAM003_OPTION_G_UFD_ITEM_MARKERS = (
     "Feedback ID:",
     "Feedback Summary:",
@@ -257,6 +266,45 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
             "Canonical UFD Ownership: UFD Detail Record must not redirect full-detail "
             "authority away from the declared active branch-plan owner"
         )
+    current_owner_class = markdown_field_value(live_text, "UFD Current Owner Class")
+    if (current_owner_class or "").casefold() != "branch plan":
+        failures.append(
+            "Canonical UFD Ownership: UFD Current Owner Class must be Branch Plan "
+            f"while the active external branch plan owns the ledger; found "
+            f"{current_owner_class or 'MISSING'!r}"
+        )
+    current_owner_file = markdown_field_value(
+        live_text,
+        "UFD Current Canonical Owner File",
+    )
+    if _normalized_windows_value(current_owner_file) != _normalized_windows_value(
+        expected_owner
+    ):
+        failures.append(
+            "Canonical UFD Ownership: UFD Current Canonical Owner File must match "
+            f"the active external branch plan: expected {expected_owner!r}, found "
+            f"{current_owner_file or 'MISSING'!r}"
+        )
+    future_fold_down_target = markdown_field_value(
+        live_text,
+        "UFD Future Fold-Down Target",
+    )
+    if (
+        branch == FAM003_OPTION_G_BRANCH
+        and future_fold_down_target != FAM003_OPTION_G_UFD_FOLD_DOWN_TARGET
+    ):
+        failures.append(
+            "Canonical UFD Ownership: UFD Future Fold-Down Target must identify "
+            "the FAM-003 repo branch record compact receipt while fold-down is "
+            f"pending; found {future_fold_down_target or 'MISSING'!r}"
+        )
+    if _normalized_windows_value(future_fold_down_target) == _normalized_windows_value(
+        expected_owner
+    ):
+        failures.append(
+            "Canonical UFD Ownership: current canonical ownership and future "
+            "fold-down ownership must remain distinct"
+        )
 
     item_matches = list(
         re.finditer(
@@ -306,6 +354,41 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
         if feedback_id.casefold() != normalized_id:
             failures.append(
                 f"Canonical UFD Ownership: {item_id} Feedback ID does not match its heading"
+            )
+        owner_class = markdown_field_value(item_text, "Owner Class")
+        if (owner_class or "").casefold() != "branch plan":
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} Owner Class must be Branch Plan "
+                "while fold-down is pending"
+            )
+        canonical_owner = markdown_field_value(item_text, "Canonical Owner File")
+        if _normalized_windows_value(canonical_owner) != _normalized_windows_value(
+            expected_owner
+        ):
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} Canonical Owner File must match "
+                "the physical active branch-plan owner"
+            )
+        fold_down_target = markdown_field_value(item_text, "Fold-Down Target")
+        if (
+            branch == FAM003_OPTION_G_BRANCH
+            and fold_down_target != FAM003_OPTION_G_UFD_FOLD_DOWN_TARGET
+        ):
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} Fold-Down Target must identify "
+                "the future compact branch-record receipt"
+            )
+        if _normalized_windows_value(canonical_owner) == _normalized_windows_value(
+            fold_down_target
+        ):
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} conflates current canonical "
+                "ownership with its future fold-down target"
+            )
+        if UFD_CONTEXT_RELATIVE_LOCATION_RE.search(item_text):
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} contains context-relative "
+                "location wording that changes meaning across supporting copies"
             )
         status = (markdown_field_value(item_text, "Status") or "").casefold()
         if any(term in status for term in ("open", "queued", "blocking", "deferred")):

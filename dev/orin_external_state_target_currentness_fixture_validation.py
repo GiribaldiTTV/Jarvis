@@ -414,6 +414,7 @@ UFD_OWNER = (
     r"C:\Nexus Governance State\branches"
     r"\feature_fam_003_settings_resize_proof\branch_plan.md"
 )
+UFD_FOLD_DOWN_TARGET = "Docs/branch_records/feature_fam_003_settings_resize_proof.md"
 
 
 def _ufd_fixture_rows() -> list[str]:
@@ -430,11 +431,11 @@ def _ufd_fixture_rows() -> list[str]:
                     "Feedback Phase: `BP3 repair`",
                     "Disposition Type: `Current Branch Requirement`",
                     "USER Decision State: `Accepted by USER`",
-                    "Owner Class: `Branch Record`",
-                    "Canonical Owner File: `Docs/branch_records/feature_fam_003_settings_resize_proof.md`",
+                    "Owner Class: `Branch Plan`",
+                    f"Canonical Owner File: `{UFD_OWNER}`",
                     "Workstream Severity: `Level 2 seam-blocking`",
                     "Status: `Closed`",
-                    "Fold-Down Target: `Branch record`",
+                    f"Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`",
                     "Pointer Locations: `Supporting packet and evidence copies`",
                     "Source / Date: `USER / 2026-07-24`",
                     f"USER Direction Or Finding: `Accepted Option G direction {index}`",
@@ -475,6 +476,9 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
         f"UFD Ledger Owner: `{UFD_OWNER}`\n"
         "UFD Item Count: `18`\n"
         f"UFD Physical Detail Location: `{UFD_OWNER}`\n"
+        "UFD Current Owner Class: `Branch Plan`\n"
+        f"UFD Current Canonical Owner File: `{UFD_OWNER}`\n"
+        f"UFD Future Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n\n"
@@ -569,6 +573,124 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
             "duplicate atomic item",
             original.replace(_ufd_fixture_rows()[-1], _ufd_fixture_rows()[-2], 1),
             "duplicate atomic row",
+        ),
+        (
+            "row owner class points to future branch record",
+            original.replace("Owner Class: `Branch Plan`", "Owner Class: `Branch Record`", 1),
+            "Owner Class must be Branch Plan",
+        ),
+        (
+            "row canonical owner points to future branch record",
+            original.replace(
+                f"Canonical Owner File: `{UFD_OWNER}`",
+                f"Canonical Owner File: `{UFD_FOLD_DOWN_TARGET}`",
+                1,
+            ),
+            "Canonical Owner File must match",
+        ),
+        (
+            "row canonical owner points to packet aid",
+            original.replace(
+                f"Canonical Owner File: `{UFD_OWNER}`",
+                "Canonical Owner File: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`",
+                1,
+            ),
+            "Canonical Owner File must match",
+        ),
+        (
+            "row canonical owner is ambiguous relative path",
+            original.replace(
+                f"Canonical Owner File: `{UFD_OWNER}`",
+                "Canonical Owner File: `branch_plan.md`",
+                1,
+            ),
+            "Canonical Owner File must match",
+        ),
+        (
+            "row fold-down target is missing",
+            original.replace(
+                f"Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`",
+                "Fold-Down Target: ``",
+                1,
+            ),
+            "Fold-Down Target must identify",
+        ),
+        (
+            "row fold-down target conflates current owner",
+            original.replace(
+                f"Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`",
+                f"Fold-Down Target: `{UFD_OWNER}`",
+                1,
+            ),
+            "Fold-Down Target must identify",
+        ),
+        (
+            "ledger current owner class points to branch record",
+            original.replace(
+                "UFD Current Owner Class: `Branch Plan`",
+                "UFD Current Owner Class: `Branch Record`",
+            ),
+            "UFD Current Owner Class must be Branch Plan",
+        ),
+        (
+            "ledger current canonical owner points to branch record",
+            original.replace(
+                f"UFD Current Canonical Owner File: `{UFD_OWNER}`",
+                f"UFD Current Canonical Owner File: `{UFD_FOLD_DOWN_TARGET}`",
+            ),
+            "UFD Current Canonical Owner File must match",
+        ),
+        (
+            "ledger future fold-down target is missing",
+            original.replace(
+                f"UFD Future Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`",
+                "UFD Future Fold-Down Target: ``",
+            ),
+            "UFD Future Fold-Down Target must identify",
+        ),
+        (
+            "ledger future fold-down target conflates current owner",
+            original.replace(
+                f"UFD Future Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`",
+                f"UFD Future Fold-Down Target: `{UFD_OWNER}`",
+            ),
+            "UFD Future Fold-Down Target must identify",
+        ),
+        (
+            "canonical row uses this annex",
+            original.replace(
+                "Pointer Locations: `Supporting packet and evidence copies`",
+                "Pointer Locations: `this annex`",
+                1,
+            ),
+            "context-relative location wording",
+        ),
+        (
+            "canonical row uses the annex",
+            original.replace(
+                "Pointer Locations: `Supporting packet and evidence copies`",
+                "Pointer Locations: `the annex`",
+                1,
+            ),
+            "context-relative location wording",
+        ),
+        (
+            "canonical row uses this supporting record",
+            original.replace(
+                "Pointer Locations: `Supporting packet and evidence copies`",
+                "Pointer Locations: `this supporting record`",
+                1,
+            ),
+            "context-relative location wording",
+        ),
+        (
+            "canonical row uses the record above",
+            original.replace(
+                "Pointer Locations: `Supporting packet and evidence copies`",
+                "Pointer Locations: `the record above`",
+                1,
+            ),
+            "context-relative location wording",
         ),
     )
     for name, text, needle in cases:
@@ -1782,7 +1904,7 @@ def main() -> int:
 
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
-        "(10 canonical-UFD negative fixtures)"
+        "(24 canonical-UFD negative fixtures)"
     )
     return 0
 

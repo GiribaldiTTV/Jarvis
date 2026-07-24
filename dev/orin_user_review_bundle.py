@@ -6062,6 +6062,8 @@ def _fam003_option_g_bp3_orchestration_failures(
             "`option_g_bp3_decision_surface_repaired_ready_for_user_review`",
             "transition status: "
             "`option_g_bp3_canonical_ufd_ownership_repaired_ready_for_user_review`",
+            "transition status: "
+            "`option_g_bp3_ufd_row_ownership_repaired_ready_for_user_review`",
         )
         if not any(transition in normalized_header for transition in accepted_transitions):
             failures.append(
@@ -6205,6 +6207,13 @@ def _fam003_option_g_bp3_orchestration_failures(
         "C:\\Nexus Governance State\\branches\\"
         "feature_fam_003_settings_resize_proof\\branch_plan.md"
     )
+    expected_ufd_fold_down_target = (
+        "Docs/branch_records/feature_fam_003_settings_resize_proof.md"
+    )
+    branch_record_copy = _packet_file_text(
+        packet_files,
+        "feature_fam_003_settings_resize_proof.md",
+    )
     canonical_live = canonical_ufd_plan.partition("Historical Receipt Boundary:")[0]
     canonical_owner = _markdown_field_value(canonical_live, "UFD Ledger Owner")
     physical_location = _markdown_field_value(
@@ -6226,6 +6235,38 @@ def _fam003_option_g_bp3_orchestration_failures(
             "FAM-003 Option G BP3: canonical UFD physical-detail location is missing "
             "or points outside the active external branch plan"
         )
+    current_owner_class = _markdown_field_value(
+        canonical_live,
+        "UFD Current Owner Class",
+    )
+    if current_owner_class != "Branch Plan":
+        failures.append(
+            "FAM-003 Option G BP3: UFD Current Owner Class must be Branch Plan "
+            "while the active external branch plan owns the atomic ledger"
+        )
+    current_owner_file = _markdown_field_value(
+        canonical_live,
+        "UFD Current Canonical Owner File",
+    )
+    if current_owner_file != expected_ufd_owner:
+        failures.append(
+            "FAM-003 Option G BP3: UFD Current Canonical Owner File must match "
+            "the physical active external branch plan"
+        )
+    future_fold_down_target = _markdown_field_value(
+        canonical_live,
+        "UFD Future Fold-Down Target",
+    )
+    if future_fold_down_target != expected_ufd_fold_down_target:
+        failures.append(
+            "FAM-003 Option G BP3: UFD Future Fold-Down Target must identify "
+            "the repo branch-record compact receipt"
+        )
+    if current_owner_file == future_fold_down_target:
+        failures.append(
+            "FAM-003 Option G BP3: current canonical ownership and future "
+            "fold-down ownership are conflated"
+        )
     if _markdown_field_value(canonical_live, "UFD Detail Record"):
         failures.append(
             "FAM-003 Option G BP3: canonical branch plan redirects UFD detail to a "
@@ -6236,6 +6277,57 @@ def _fam003_option_g_bp3_orchestration_failures(
             "FAM-003 Option G BP3: canonical active external branch plan must "
             f"physically contain exactly 18 atomic UFD rows; found {len(canonical_ufd_rows)}"
         )
+    context_relative_location_re = re.compile(
+        r"\b(?:this|the)\s+annex\b"
+        r"|\bthis supporting record\b"
+        r"|\bthe record above\b",
+        re.IGNORECASE,
+    )
+    for item_id, item_text in canonical_ufd_rows.items():
+        row_owner_class = _markdown_field_value(item_text, "Owner Class")
+        if row_owner_class != "Branch Plan":
+            failures.append(
+                f"FAM-003 Option G BP3: {item_id} Owner Class must be Branch Plan "
+                "while fold-down is pending"
+            )
+        row_owner_file = _markdown_field_value(item_text, "Canonical Owner File")
+        if row_owner_file != expected_ufd_owner:
+            failures.append(
+                f"FAM-003 Option G BP3: {item_id} Canonical Owner File must match "
+                "the active external branch-plan owner"
+            )
+        row_fold_down_target = _markdown_field_value(item_text, "Fold-Down Target")
+        if row_fold_down_target != expected_ufd_fold_down_target:
+            failures.append(
+                f"FAM-003 Option G BP3: {item_id} Fold-Down Target must identify "
+                "the future compact branch-record receipt"
+            )
+        if row_owner_file == row_fold_down_target:
+            failures.append(
+                f"FAM-003 Option G BP3: {item_id} conflates current canonical "
+                "ownership with future fold-down ownership"
+            )
+        if context_relative_location_re.search(item_text):
+            failures.append(
+                f"FAM-003 Option G BP3: {item_id} contains context-relative "
+                "location wording that changes meaning across exact copies"
+            )
+    if not branch_record_copy:
+        failures.append(
+            "FAM-003 Option G BP3: packet source/copy mapping is missing the "
+            "future branch-record fold-down target"
+        )
+    else:
+        if re.search(r"(?m)^### UFD Item:\s*UFD-", branch_record_copy):
+            failures.append(
+                "FAM-003 Option G BP3: repo branch record must remain a compact "
+                "future fold-down surface before governed PR Readiness fold-down"
+            )
+        if expected_ufd_owner not in branch_record_copy:
+            failures.append(
+                "FAM-003 Option G BP3: repo branch record must point to the active "
+                "external branch-plan owner while fold-down is pending"
+            )
     declared_canonical_count = _markdown_field_value(canonical_live, "UFD Item Count")
     if declared_canonical_count != "18":
         failures.append(

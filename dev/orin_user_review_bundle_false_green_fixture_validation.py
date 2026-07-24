@@ -1361,11 +1361,13 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Feedback Phase: `BP3 repair`\n"
             "Disposition Type: `Current Branch Requirement`\n"
             "USER Decision State: `Accepted by USER`\n"
-            "Owner Class: `Branch Record`\n"
-            "Canonical Owner File: `Docs/branch_records/feature_fam_003_settings_resize_proof.md`\n"
+            "Owner Class: `Branch Plan`\n"
+            "Canonical Owner File: `C:\\Nexus Governance State\\branches\\"
+            "feature_fam_003_settings_resize_proof\\branch_plan.md`\n"
             "Workstream Severity: `Level 2 seam-blocking`\n"
             "Status: `Closed`\n"
-            "Fold-Down Target: `Branch record`\n"
+            "Fold-Down Target: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`\n"
             "Pointer Locations: `Active branch plan compact pointer`\n"
             "Source / Date: `USER / 2026-07-24`\n"
             f"USER Direction Or Finding: `Accepted Option G direction {index}`\n"
@@ -1385,6 +1387,11 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "UFD Ledger Status: `Complete`\n"
         "UFD Ledger Owner: `C:\\Nexus Governance State\\branches\\"
         "feature_fam_003_settings_resize_proof\\branch_plan.md`\n"
+        "UFD Current Owner Class: `Branch Plan`\n"
+        "UFD Current Canonical Owner File: `C:\\Nexus Governance State\\branches\\"
+        "feature_fam_003_settings_resize_proof\\branch_plan.md`\n"
+        "UFD Future Fold-Down Target: `Docs/branch_records/"
+        "feature_fam_003_settings_resize_proof.md`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n"
@@ -1407,6 +1414,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         f"UFD Ledger Owner: `{canonical_ufd_owner}`\n"
         "UFD Item Count: `18`\n"
         f"UFD Physical Detail Location: `{canonical_ufd_owner}`\n"
+        "UFD Current Owner Class: `Branch Plan`\n"
+        f"UFD Current Canonical Owner File: `{canonical_ufd_owner}`\n"
+        "UFD Future Fold-Down Target: `Docs/branch_records/"
+        "feature_fam_003_settings_resize_proof.md`\n"
         "UFD Supporting Evidence Copy: "
         "`decision2_option_g_bp3_proof_carrydown_repair_20260724.md`\n"
         "UFD Packet Review Copy: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`\n"
@@ -1431,6 +1442,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "UFD Ledger Status: `Complete`\n"
         f"UFD Ledger Owner: `{canonical_ufd_owner}`\n"
         "UFD Item Count: `18`\n"
+        "UFD Current Owner Class: `Branch Plan`\n"
+        f"UFD Current Canonical Owner File: `{canonical_ufd_owner}`\n"
+        "UFD Future Fold-Down Target: `Docs/branch_records/"
+        "feature_fam_003_settings_resize_proof.md`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n\n"
@@ -1570,6 +1585,16 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Source Truth Context/current_external_branch_plan.md": canonical_ufd_plan,
         "Source Truth Context/current_external_branch_state.md": active_header,
         "Source Truth Context/current_external_worktree_state.md": active_header,
+        (
+            "Source Truth Context/Repo Owners/"
+            "feature_fam_003_settings_resize_proof.md"
+        ): (
+            "# Branch Record: feature/fam-003-settings-resize-proof\n"
+            "External Branch Plan Owner: "
+            "`C:\\Nexus Governance State\\branches\\"
+            "feature_fam_003_settings_resize_proof\\branch_plan.md`\n"
+            "Receipt Class: `Compact future fold-down target`\n"
+        ),
         (
             "Source Truth Context/Active External Snapshot/"
             "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
@@ -1898,6 +1923,182 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             f"UFD Physical Detail Location: `{canonical_ufd_owner}`",
             "UFD Physical Detail Location: `ufd_ledger.md`",
             "physical-detail location",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-19",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Owner Class: `Branch Plan`",
+            "Owner Class: `Branch Record`",
+            "Owner Class must be Branch Plan",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-20",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"Canonical Owner File: `{canonical_ufd_owner}`",
+            "Canonical Owner File: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`",
+            "Canonical Owner File must match",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-21",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"Canonical Owner File: `{canonical_ufd_owner}`",
+            "Canonical Owner File: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`",
+            "Canonical Owner File must match",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-22",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Fold-Down Target: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`",
+            f"Fold-Down Target: `{canonical_ufd_owner}`",
+            "Fold-Down Target must identify",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-23",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Fold-Down Target: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`",
+            "Fold-Down Target: ``",
+            "Fold-Down Target must identify",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-24",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Current Owner Class: `Branch Plan`",
+            "UFD Current Owner Class: `Branch Record`",
+            "UFD Current Owner Class must be Branch Plan",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-25",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"UFD Current Canonical Owner File: `{canonical_ufd_owner}`",
+            "UFD Current Canonical Owner File: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`",
+            "UFD Current Canonical Owner File must match",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-26",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Future Fold-Down Target: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`",
+            f"UFD Future Fold-Down Target: `{canonical_ufd_owner}`",
+            "UFD Future Fold-Down Target must identify",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-27",
+            "Source Truth Context/current_external_branch_plan.md",
+            "UFD Future Fold-Down Target: `Docs/branch_records/"
+            "feature_fam_003_settings_resize_proof.md`",
+            "UFD Future Fold-Down Target: ``",
+            "UFD Future Fold-Down Target must identify",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-28",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Pointer Locations: `Active branch plan compact pointer`",
+            "Pointer Locations: `this annex`",
+            "context-relative location wording",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-29",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Pointer Locations: `Active branch plan compact pointer`",
+            "Pointer Locations: `the annex`",
+            "context-relative location wording",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-30",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Pointer Locations: `Active branch plan compact pointer`",
+            "Pointer Locations: `this supporting record`",
+            "context-relative location wording",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-31",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Pointer Locations: `Active branch plan compact pointer`",
+            "Pointer Locations: `the record above`",
+            "context-relative location wording",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-32",
+            (
+                "Source Truth Context/Repo Owners/"
+                "feature_fam_003_settings_resize_proof.md"
+            ),
+            "Receipt Class: `Compact future fold-down target`\n",
+            "Receipt Class: `Compact future fold-down target`\n"
+            + ufd_rows[0],
+            "repo branch record must remain a compact",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-33",
+            (
+                "Source Truth Context/Repo Owners/"
+                "feature_fam_003_settings_resize_proof.md"
+            ),
+            canonical_ufd_owner,
+            "missing-current-owner",
+            "repo branch record must point",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-34",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            ufd_rows[0],
+            ufd_rows[0].replace(
+                "Owner Class: `Branch Plan`",
+                "Owner Class: `Branch Record`",
+            ),
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-35",
+            (
+                "Source Truth Context/Active External Snapshot/"
+                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+            ),
+            ufd_rows[0],
+            ufd_rows[0].replace(
+                "Owner Class: `Branch Plan`",
+                "Owner Class: `Branch Record`",
+            ),
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-36",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            ufd_rows[0],
+            ufd_rows[0].replace(
+                f"Canonical Owner File: `{canonical_ufd_owner}`",
+                "Canonical Owner File: `Docs/branch_records/"
+                "feature_fam_003_settings_resize_proof.md`",
+            ),
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-37",
+            (
+                "Source Truth Context/Active External Snapshot/"
+                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+            ),
+            ufd_rows[0],
+            ufd_rows[0].replace(
+                f"Canonical Owner File: `{canonical_ufd_owner}`",
+                "Canonical Owner File: `Docs/branch_records/"
+                "feature_fam_003_settings_resize_proof.md`",
+            ),
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-38",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            ufd_rows[0],
+            ufd_rows[0].replace(
+                "Pointer Locations: `Active branch plan compact pointer`",
+                "Pointer Locations: `this annex`",
+            ),
+            "differs from the canonical",
         ),
     )
     for case_id, file_name, old, new, expected in canonical_ufd_cases:
@@ -2847,7 +3048,7 @@ def main() -> int:
     print(
         "False-green fixture validation: PASS "
         "(Option G BP3: 22 proof-carrydown + 26 decision-surface + "
-        "18 canonical-UFD cases)"
+        "38 canonical-UFD cases)"
     )
     return 0
 
