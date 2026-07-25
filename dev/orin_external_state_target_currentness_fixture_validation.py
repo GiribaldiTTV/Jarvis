@@ -213,6 +213,44 @@ def main() -> int:
         )
         target = _record(root)
 
+        marked_current_text = "\n".join(
+            [
+                "# Marked Current Projection",
+                "Last Updated: `old-header`",
+                "## Earlier Historical Receipt",
+                "Last Updated: `historical-value`",
+                "<!-- FAM007_CLOSEOUT_CURRENT_BEGIN -->",
+                "Current Decomposition State: `DECOMPOSITION_UNSELECTED`",
+                "## Historical Content Inside Marker",
+                "Current Decomposition State: `historical-unselected`",
+                "<!-- FAM007_CLOSEOUT_CURRENT_END -->",
+                "",
+            ]
+        )
+        marked_projection, marked_failures = reconciler._replace_existing_fields(
+            marked_current_text,
+            {
+                "Current Decomposition State": (
+                    "DECOMPOSITION_ACCEPTED_NO_CANDIDATE"
+                )
+            },
+            {},
+        )
+        if marked_failures:
+            raise AssertionError(
+                "marked current projection repair failed:\n"
+                + "\n".join(marked_failures)
+            )
+        if (
+            "Current Decomposition State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`"
+            not in marked_projection
+            or "Current Decomposition State: `historical-unselected`"
+            not in marked_projection
+        ):
+            raise AssertionError(
+                "marked current projection repair changed the wrong semantic region"
+            )
+
         _assert_failure(
             "wrong branch",
             "Branch mismatch",

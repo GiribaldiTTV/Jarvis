@@ -257,7 +257,40 @@ def _replace_existing_fields(
         ),
         len(lines),
     )
-    for index, line in enumerate(lines[:live_end]):
+    editable_indices = set(range(live_end))
+    marker_begin = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n") == "<!-- FAM007_CLOSEOUT_CURRENT_BEGIN -->"
+        ),
+        None,
+    )
+    marker_end = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n") == "<!-- FAM007_CLOSEOUT_CURRENT_END -->"
+        ),
+        None,
+    )
+    if (
+        marker_begin is not None
+        and marker_end is not None
+        and marker_end > marker_begin
+        and marker_begin >= live_end
+    ):
+        current_end = next(
+            (
+                index
+                for index in range(marker_begin + 1, marker_end)
+                if lines[index].rstrip("\r\n").startswith("## ")
+            ),
+            marker_end,
+        )
+        editable_indices.update(range(marker_begin + 1, current_end))
+    for index in sorted(editable_indices):
+        line = lines[index]
         content = line.rstrip("\r\n")
         newline = line[len(content) :]
         replacement = None
@@ -441,7 +474,39 @@ def _live_header_text(text: str) -> str:
         ),
         len(lines),
     )
-    return "".join(lines[:live_end])
+    active_lines = list(lines[:live_end])
+    marker_begin = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n") == "<!-- FAM007_CLOSEOUT_CURRENT_BEGIN -->"
+        ),
+        None,
+    )
+    marker_end = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line.rstrip("\r\n") == "<!-- FAM007_CLOSEOUT_CURRENT_END -->"
+        ),
+        None,
+    )
+    if (
+        marker_begin is not None
+        and marker_end is not None
+        and marker_end > marker_begin
+        and marker_begin >= live_end
+    ):
+        current_end = next(
+            (
+                index
+                for index in range(marker_begin + 1, marker_end)
+                if lines[index].rstrip("\r\n").startswith("## ")
+            ),
+            marker_end,
+        )
+        active_lines.extend(lines[marker_begin + 1 : current_end])
+    return "".join(active_lines)
 
 
 def _live_field_value(text: str, field: str) -> str:
