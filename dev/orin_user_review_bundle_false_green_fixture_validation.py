@@ -1309,7 +1309,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
         "Transition Status: "
-        "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`\n"
+        "`OPTION_G_BP3_FALSE_GREEN_PREVENTION_REPAIRED_READY_FOR_USER_REVIEW`\n"
         "Historical Receipt Boundary: `Historical content follows.`\n"
         "## Current Phase\n"
         "Current Gate: `Branch Planning - BP2 USER review pending`\n"
@@ -1466,7 +1466,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
         "Transition Status: "
-        "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`\n\n"
+        "`OPTION_G_BP3_FALSE_GREEN_PREVENTION_REPAIRED_READY_FOR_USER_REVIEW`\n\n"
         + "\n".join(ufd_rows)
         + f"\n{element_section}\n"
         + "Historical Receipt Boundary: `Historical content follows.`\n"
@@ -2807,7 +2807,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 (
                     "Source Truth Context/current_external_branch_plan.md",
                     "Transition Status: "
-                    "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`",
+                    "`OPTION_G_BP3_FALSE_GREEN_PREVENTION_REPAIRED_READY_FOR_USER_REVIEW`",
                     "Transition Status: `REPAIR_REQUIRED`",
                     1,
                 ),

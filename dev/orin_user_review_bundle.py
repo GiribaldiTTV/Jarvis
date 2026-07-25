@@ -6488,6 +6488,8 @@ def _fam003_option_g_bp3_orchestration_failures(
             "`option_g_bp3_canonical_ufd_ownership_repaired_ready_for_user_review`",
             "transition status: "
             "`option_g_bp3_ufd_row_ownership_repaired_ready_for_user_review`",
+            "transition status: "
+            "`option_g_bp3_false_green_prevention_repaired_ready_for_user_review`",
         )
         if not any(transition in normalized_header for transition in accepted_transitions):
             failures.append(
