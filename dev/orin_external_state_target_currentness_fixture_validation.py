@@ -415,6 +415,13 @@ UFD_OWNER = (
     r"\feature_fam_003_settings_resize_proof\branch_plan.md"
 )
 UFD_FOLD_DOWN_TARGET = "Docs/branch_records/feature_fam_003_settings_resize_proof.md"
+ELEMENT_HEADER = (
+    "| Element ID | Element / Surface | Element Classification | "
+    "Workstream Implementation Plan | Workstream Proof Plan | "
+    "Hardening Proof Plan | Live Validation Proof / Waiver Plan | "
+    "UTS / USER Acceptance Path | Future / Deferred Boundary | "
+    "USER Decision State | Source Owner / Ledger Owner |"
+)
 
 
 def _ufd_fixture_rows() -> list[str]:
@@ -453,6 +460,45 @@ def _ufd_fixture_rows() -> list[str]:
     return rows
 
 
+def _element_to_phase_fixture() -> str:
+    classifications = (
+        "Touched",
+        "Touched",
+        "Touched",
+        "Affected",
+        "Planned",
+        "Planned",
+        "Affected",
+        "Affected",
+        "Affected",
+        "Affected",
+        "Deferred",
+    )
+    rows = []
+    for index, classification in enumerate(classifications, start=1):
+        rows.append(
+            f"| `OPTG-ELEM-{index:02d}` | Element {index} | {classification} | "
+            f"Implement plan {index} | Workstream proof {index} | Hardening proof {index} | "
+            f"Live Validation proof or waiver {index} | UTS acceptance {index} | "
+            f"Future boundary {index} | BP3 pending | {UFD_OWNER} |"
+        )
+    return "\n".join(
+        (
+            "## Element-to-Phase Proof Matrix",
+            "",
+            "Matrix Status: `Present`",
+            "USER Review Status: `Pending`",
+            "Open Element Questions: `None`",
+            f"Element Coverage Owner: `{UFD_OWNER}`",
+            f"Element Validation Ledger Owner: `{UFD_OWNER}`",
+            "",
+            ELEMENT_HEADER,
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+            *rows,
+        )
+    )
+
+
 def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
     target = root.joinpath(*UFD_TARGET.split("/"))
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -483,6 +529,7 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n\n"
         f"{rows}\n\n"
+        f"{_element_to_phase_fixture()}\n\n"
         "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n"
     )
     target.write_text(text, encoding="utf-8")
@@ -512,6 +559,7 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
 
     _assert_pass("canonical UFD owner with 18 physical rows", validate(original))
     rows = "\n\n".join(_ufd_fixture_rows())
+    matrix = _element_to_phase_fixture()
     historical = (
         "Historical Receipt Boundary: "
         "`Historical receipts below do not redefine live fields.`\n"
@@ -542,7 +590,10 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         ),
         (
             "atomic rows below historical boundary",
-            original.replace(rows + "\n\n" + historical, historical + rows + "\n"),
+            original.replace(rows + "\n\n", "").replace(
+                historical,
+                historical + rows + "\n",
+            ),
             "exactly 18 physical atomic rows",
         ),
         (
@@ -691,6 +742,93 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
                 1,
             ),
             "context-relative location wording",
+        ),
+        (
+            "matrix exists only as a pointer",
+            original.replace(matrix + "\n\n", ""),
+            "does not physically contain the canonical Element-to-Phase",
+        ),
+        (
+            "matrix coverage owner uses context-relative phrase",
+            original.replace(
+                f"Element Coverage Owner: `{UFD_OWNER}`",
+                "Element Coverage Owner: `this branch-plan-owned annex`",
+            ),
+            "Element Coverage Owner must name",
+        ),
+        (
+            "matrix ledger owner uses context-relative phrase",
+            original.replace(
+                f"Element Validation Ledger Owner: `{UFD_OWNER}`",
+                "Element Validation Ledger Owner: `future Workstream raw-evidence manifest`",
+            ),
+            "Element Validation Ledger Owner must name",
+        ),
+        (
+            "matrix header uses legacy aliases",
+            original.replace(
+                ELEMENT_HEADER,
+                ELEMENT_HEADER.replace("Element Classification", "Classification"),
+            ),
+            "exact 11-column schema",
+        ),
+        (
+            "matrix row uses invalid preserved classification",
+            original.replace("| Element 7 | Affected |", "| Element 7 | Preserved |"),
+            "invalid Element Classification",
+        ),
+        (
+            "matrix omits one required row",
+            original.replace(
+                next(
+                    line
+                    for line in matrix.splitlines()
+                    if line.startswith("| `OPTG-ELEM-11`")
+                )
+                + "\n",
+                "",
+            ),
+            "must contain exactly 11 ordered unique rows",
+        ),
+        (
+            "matrix duplicates one required ID",
+            original.replace("`OPTG-ELEM-11`", "`OPTG-ELEM-10`", 1),
+            "must contain exactly 11 ordered unique rows",
+        ),
+        (
+            "matrix row has an empty proof path",
+            original.replace("| Workstream proof 1 |", "|  |", 1),
+            "contains an empty required cell",
+        ),
+        (
+            "matrix moved below historical boundary",
+            original.replace(
+                matrix + "\n\n" + historical,
+                historical + matrix + "\n",
+            ),
+            "does not physically contain the canonical Element-to-Phase",
+        ),
+        (
+            "matrix status is invalid",
+            original.replace("Matrix Status: `Present`", "Matrix Status: `COMPLETE`"),
+            "Matrix Status is missing or invalid",
+        ),
+        (
+            "matrix user review status is invalid",
+            original.replace(
+                "USER Review Status: `Pending`",
+                "USER Review Status: `Green by validator`",
+            ),
+            "USER Review Status is missing or invalid",
+        ),
+        (
+            "matrix row has an extra column",
+            original.replace(
+                "| Future boundary 1 | BP3 pending |",
+                "| Future boundary 1 | extra | BP3 pending |",
+                1,
+            ),
+            "has 12 columns",
         ),
     )
     for name, text, needle in cases:
@@ -1904,7 +2042,7 @@ def main() -> int:
 
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
-        "(24 canonical-UFD negative fixtures)"
+        "(24 canonical-UFD + 12 Element-to-Phase negative fixtures)"
     )
     return 0
 

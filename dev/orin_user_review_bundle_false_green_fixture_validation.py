@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import inspect
 import json
 import subprocess
@@ -1402,6 +1403,41 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "C:\\Nexus Governance State\\branches\\"
         "feature_fam_003_settings_resize_proof\\branch_plan.md"
     )
+    element_classifications = (
+        "Touched",
+        "Touched",
+        "Touched",
+        "Affected",
+        "Planned",
+        "Planned",
+        "Affected",
+        "Affected",
+        "Affected",
+        "Affected",
+        "Deferred",
+    )
+    element_rows = "\n".join(
+        f"| `OPTG-ELEM-{index:02d}` | element {index} | {classification} | "
+        f"implementation {index} | Workstream proof {index} | H1 proof {index} | "
+        f"Live Validation proof {index} | UTS proof {index} | boundary {index} | "
+        f"BP3 pending | {canonical_ufd_owner} |"
+        for index, classification in enumerate(element_classifications, start=1)
+    )
+    element_section = (
+        "## Element-to-Phase Proof Matrix\n\n"
+        "Matrix Status: `Present`\n"
+        "USER Review Status: `Pending`\n"
+        "Open Element Questions: `None`\n"
+        f"Element Coverage Owner: `{canonical_ufd_owner}`\n"
+        f"Element Validation Ledger Owner: `{canonical_ufd_owner}`\n\n"
+        "| Element ID | Element / Surface | Element Classification | "
+        "Workstream Implementation Plan | Workstream Proof Plan | "
+        "Hardening Proof Plan | Live Validation Proof / Waiver Plan | "
+        "UTS / USER Acceptance Path | Future / Deferred Boundary | "
+        "USER Decision State | Source Owner / Ledger Owner |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        f"{element_rows}"
+    )
     canonical_ufd_plan = (
         "External State Schema: `external-state-v1`\n"
         "State Version: `7`\n"
@@ -1432,7 +1468,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Transition Status: "
         "`OPTION_G_BP3_DECISION_SURFACE_REPAIRED_READY_FOR_USER_REVIEW`\n\n"
         + "\n".join(ufd_rows)
-        + "\nHistorical Receipt Boundary: `Historical content follows.`\n"
+        + f"\n{element_section}\n"
+        + "Historical Receipt Boundary: `Historical content follows.`\n"
         "## Current Phase\n"
         "Current Gate: `Branch Planning - BP2 USER review pending`\n"
     )
@@ -1501,13 +1538,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         )
     )
     element_text = (
-        "# Element-to-Phase Proof Matrix\n"
-        "Element-to-Phase Proof Matrix Status: `COMPLETE`\n"
-        + "\n".join(
-            f"| `OPTG-ELEM-{index:02d}` | element {index} | Workstream proof | "
-            "H1 proof | Live Validation proof | UTS proof |"
-            for index in range(1, 12)
-        )
+        "Element-to-Phase Authority Classification: `SUPPORTING REVIEW COPY`\n\n"
+        f"{element_section}\n"
     )
     reconciliation_text = (
         "# Option G BP2 Acceptance Reconciliation\n"
@@ -1529,6 +1561,77 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "# Accepted BP2 Proof Contract Carrydown\n"
         "Accepted BP2 observability, launcher, visual, manual, raw-evidence, "
         "and phase obligations are mapped to OPTG-WS01 through OPTG-WS07.\n"
+    )
+    provenance_checks = []
+    provenance_files: dict[str, str] = {}
+    validation_result_rows = []
+    for index in range(1, 21):
+        check_id = f"{index:02d}_fixture_check"
+        command = f"py -3 dev/fixture_check_{index:02d}.py"
+        raw_log = (
+            "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
+            f"{check_id}.txt"
+        )
+        raw_text = (
+            f"Command: {command}\n"
+            "Working Directory: C:\\Nexus Worktrees\\FAM-003\n"
+            "Started UTC: 2026-07-25T00:00:00Z\n"
+            "Ended UTC: 2026-07-25T00:00:01Z\n"
+            "Duration MS: 1000\n"
+            "Exit Code: 0\n"
+            "Output Mode: merged stdout/stderr\n"
+            "--- MERGED STDOUT/STDERR ---\n"
+            f"{check_id}: PASS\n"
+        )
+        provenance_files[raw_log] = raw_text
+        provenance_checks.append(
+            {
+                "id": check_id,
+                "executable": "py",
+                "arguments": ["-3", f"dev/fixture_check_{index:02d}.py"],
+                "command": command,
+                "workingDirectory": r"C:\Nexus Worktrees\FAM-003",
+                "startedUtc": "2026-07-25T00:00:00Z",
+                "endedUtc": "2026-07-25T00:00:01Z",
+                "durationMs": 1000,
+                "exitCode": 0,
+                "outputMode": "merged stdout/stderr",
+                "rawLog": raw_log,
+                "rawLogSha256": hashlib.sha256(raw_text.encode("utf-8"))
+                .hexdigest()
+                .upper(),
+                "helperIdentity": f"dev/fixture_check_{index:02d}.py@fixture",
+                "fixture": f"fixture-{index:02d}",
+                "targets": [f"fixture-target-{index:02d}"],
+                "expectedIdentities": {
+                    "branch": "feature/fam-003-settings-resize-proof",
+                    "head": "0123456789abcdef0123456789abcdef01234567",
+                },
+                "expectedHashes": {
+                    "HEAD": "0123456789abcdef0123456789abcdef01234567"
+                },
+                "expectedDisposition": "PASS",
+            }
+        )
+        validation_result_rows.append(
+            f"| `{check_id}` | {command} | `PASS` | `{raw_log}` |"
+        )
+    provenance_summary = json.dumps(
+        {
+            "schema": bundle.FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA,
+            "checks": provenance_checks,
+        },
+        indent=2,
+    )
+    validation_results_text = (
+        "BP3 Decision Surface Validation: `PASS`\n"
+        "USER Review Response: `Pending USER Review`\n"
+        "Workstream Implementation: `UNAPPROVED`\n"
+        "Future Workstream Decision: `FUTURE_ONLY_NON_ACTIONABLE`\n\n"
+        "| Check ID | Exact command | Result | Raw log |\n"
+        "| --- | --- | --- | --- |\n"
+        + "\n".join(validation_result_rows)
+        + "\n"
     )
     valid = {
         "START_HERE.md": (
@@ -1577,11 +1680,12 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             '"workstreamImplementation": "UNAPPROVED"}\n'
         ),
         "Source Truth Context/Proof Artifacts/Validation/VALIDATION_RESULTS.md": (
-            "BP3 Decision Surface Validation: `PASS`\n"
-            "USER Review Response: `Pending USER Review`\n"
-            "Workstream Implementation: `UNAPPROVED`\n"
-            "Future Workstream Decision: `FUTURE_ONLY_NON_ACTIONABLE`\n"
+            validation_results_text
         ),
+        (
+            "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
+            "validation_summary.json"
+        ): provenance_summary,
         "Source Truth Context/current_external_branch_plan.md": canonical_ufd_plan,
         "Source Truth Context/current_external_branch_state.md": active_header,
         "Source Truth Context/current_external_worktree_state.md": active_header,
@@ -1600,6 +1704,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
         ): supporting_ufd_record,
     }
+    valid.update(provenance_files)
     valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
         valid,
         status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
@@ -1737,7 +1842,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md",
             "| `OPTG-ELEM-11`",
             "| element-11",
-            "at least eleven",
+            "packet aid differs from the canonical",
         ),
         (
             "OPTG-BP3-FG-18",
@@ -1889,8 +1994,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-14",
             "Source Truth Context/current_external_branch_plan.md",
             "\n".join(ufd_rows)
-            + "\nHistorical Receipt Boundary: `Historical content follows.`\n",
-            "Historical Receipt Boundary: `Historical content follows.`\n"
+            + f"\n{element_section}\n"
+            + "Historical Receipt Boundary: `Historical content follows.`\n",
+            f"{element_section}\n"
+            + "Historical Receipt Boundary: `Historical content follows.`\n"
             + "\n".join(ufd_rows)
             + "\n",
             "physically contain exactly 18",
@@ -2112,6 +2219,255 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             raise AssertionError(
                 f"{case_id} did not fail on {expected!r}: {failures}"
             )
+
+    element_matrix_cases = (
+        (
+            "OPTG-BP3-ELEM-FG-01",
+            "Source Truth Context/current_external_branch_plan.md",
+            element_section + "\n",
+            "",
+            "physically contain the Element-to-Phase",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-02",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"Element Coverage Owner: `{canonical_ufd_owner}`",
+            "Element Coverage Owner: `this branch-plan-owned annex`",
+            "Element Coverage Owner must name",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-03",
+            "Source Truth Context/current_external_branch_plan.md",
+            f"Element Validation Ledger Owner: `{canonical_ufd_owner}`",
+            "Element Validation Ledger Owner: `future Workstream raw-evidence manifest`",
+            "Element Validation Ledger Owner must name",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-04",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Element Classification | Workstream Implementation Plan",
+            "Classification | Workstream Implementation Plan",
+            "exact 11-column schema",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-05",
+            "Source Truth Context/current_external_branch_plan.md",
+            "| element 7 | Affected |",
+            "| element 7 | Preserved |",
+            "invalid Element Classification",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-06",
+            "Source Truth Context/current_external_branch_plan.md",
+            next(
+                line
+                for line in element_section.splitlines()
+                if line.startswith("| `OPTG-ELEM-11`")
+            )
+            + "\n",
+            "",
+            "exactly the ordered rows",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-07",
+            "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md",
+            "Element-to-Phase Authority Classification: `SUPPORTING REVIEW COPY`",
+            "Element-to-Phase Authority Classification: `CANONICAL SOURCE TRUTH`",
+            "SUPPORTING REVIEW COPY",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-08",
+            "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md",
+            "| element 1 | Touched |",
+            "| divergent element 1 | Touched |",
+            "packet aid differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-09",
+            "Source Truth Context/current_external_branch_plan.md",
+            element_section
+            + "\nHistorical Receipt Boundary: `Historical content follows.`\n",
+            "Historical Receipt Boundary: `Historical content follows.`\n"
+            + element_section
+            + "\n",
+            "physically contain the Element-to-Phase",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-10",
+            "Source Truth Context/current_external_branch_plan.md",
+            "| Workstream proof 1 |",
+            "|  |",
+            "empty Element-to-Phase proof-path cell",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-11",
+            "Source Truth Context/current_external_branch_plan.md",
+            "| boundary 1 | BP3 pending |",
+            "| boundary 1 | extra | BP3 pending |",
+            "has 12 columns",
+        ),
+        (
+            "OPTG-BP3-ELEM-FG-12",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Matrix Status: `Present`",
+            "Matrix Status: `COMPLETE`",
+            "Matrix Status is missing or invalid",
+        ),
+    )
+    for case_id, file_name, old, new, expected in element_matrix_cases:
+        mutated = dict(valid)
+        mutated[file_name] = mutated[file_name].replace(old, new, 1)
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {failures}"
+            )
+
+    provenance_summary_path = (
+        "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
+        "validation_summary.json"
+    )
+
+    def _assert_provenance_failure(
+        case_id: str,
+        summary_value: object,
+        expected: str,
+        *,
+        remove_file: str | None = None,
+        validation_text: str | None = None,
+    ) -> None:
+        mutated = dict(valid)
+        mutated[provenance_summary_path] = json.dumps(summary_value, indent=2)
+        if remove_file:
+            mutated.pop(remove_file, None)
+        if validation_text is not None:
+            mutated[
+                "Source Truth Context/Proof Artifacts/Validation/VALIDATION_RESULTS.md"
+            ] = validation_text
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {failures}"
+            )
+
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-01",
+        provenance_checks,
+        "must be a provenance object",
+    )
+    truncated = json.loads(provenance_summary)
+    truncated["checks"] = truncated["checks"][:15]
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-02",
+        truncated,
+        "expected at least 20",
+    )
+    for case_index, field in enumerate(
+        (
+            "id",
+            "executable",
+            "arguments",
+            "command",
+            "workingDirectory",
+            "startedUtc",
+            "endedUtc",
+            "durationMs",
+            "exitCode",
+            "outputMode",
+            "rawLog",
+            "rawLogSha256",
+            "helperIdentity",
+            "fixture",
+            "targets",
+            "expectedIdentities",
+            "expectedHashes",
+            "expectedDisposition",
+        ),
+        start=3,
+    ):
+        missing_field = json.loads(provenance_summary)
+        missing_field["checks"][0].pop(field)
+        _assert_provenance_failure(
+            f"OPTG-BP3-PROV-FG-{case_index:02d}",
+            missing_field,
+            f"missing {field}",
+        )
+    noncontiguous = json.loads(provenance_summary)
+    noncontiguous["checks"][-1]["id"] = "22_fixture_check"
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-21",
+        noncontiguous,
+        "not one contiguous 01-N sequence",
+    )
+    missing_log = json.loads(provenance_summary)
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-22",
+        missing_log,
+        "raw log is missing",
+        remove_file=missing_log["checks"][0]["rawLog"],
+    )
+    wrong_hash = json.loads(provenance_summary)
+    wrong_hash["checks"][0]["rawLogSha256"] = "0" * 64
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-23",
+        wrong_hash,
+        "raw log SHA256 does not match",
+    )
+    missing_digest_row = validation_results_text.replace(validation_result_rows[0], "")
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-24",
+        json.loads(provenance_summary),
+        "human validation digest omits exact command provenance",
+        validation_text=missing_digest_row,
+    )
+    invalid_timestamp = json.loads(provenance_summary)
+    invalid_timestamp["checks"][0]["endedUtc"] = "2026-07-24T23:59:59Z"
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-25",
+        invalid_timestamp,
+        "invalid start/end timestamps",
+    )
+    false_pass = json.loads(provenance_summary)
+    false_pass["checks"][0]["exitCode"] = 1
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-26",
+        false_pass,
+        "claims PASS but exitCode is nonzero",
+    )
+
+    if bundle._byte_exact_projection_copy_failures(
+        "current_external_branch_plan.md",
+        b"line\r\n",
+        b"line\r\n",
+        "live-branch-plan",
+    ):
+        raise AssertionError("Byte-exact projection copy positive fixture failed")
+    projection_failures = bundle._byte_exact_projection_copy_failures(
+        "current_external_branch_plan.md",
+        b"line\n",
+        b"line\r\n",
+        "live-branch-plan",
+    )
+    if not any("not byte-exact" in failure for failure in projection_failures):
+        raise AssertionError(
+            "OPTG-BP3-PROJ-FG-01 did not reject LF-normalized projection copy"
+        )
+    projection_failures = bundle._byte_exact_projection_copy_failures(
+        "current_external_branch_plan.md",
+        None,
+        b"line\r\n",
+        "live-branch-plan",
+    )
+    if not any("proof is missing" in failure for failure in projection_failures):
+        raise AssertionError(
+            "OPTG-BP3-PROJ-FG-02 did not reject missing projection bytes"
+        )
 
     current_decision = bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION
     future_decision = bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION
@@ -3048,7 +3404,8 @@ def main() -> int:
     print(
         "False-green fixture validation: PASS "
         "(Option G BP3: 22 proof-carrydown + 26 decision-surface + "
-        "38 canonical-UFD cases)"
+        "38 canonical-UFD + 12 Element-to-Phase + 26 provenance + "
+        "2 byte-exact projection cases)"
     )
     return 0
 

@@ -187,6 +187,8 @@ def _live_header_text(text: str) -> str:
         content = line.rstrip("\r\n")
         if re.match(r"^\s*(?:-\s*)?Historical Receipt Boundary:\s*", content):
             return "".join(lines[: index + 1])
+    for index, line in enumerate(lines):
+        content = line.rstrip("\r\n")
         if content.lstrip("\ufeff").startswith("## "):
             return "".join(lines[:index])
     return "".join(lines)
@@ -227,6 +229,163 @@ FAM003_OPTION_G_UFD_ITEM_MARKERS = (
     "Proof / Closure Requirement:",
     "Remaining USER Decision:",
 )
+ELEMENT_TO_PHASE_HEADING = "## Element-to-Phase Proof Matrix"
+ELEMENT_TO_PHASE_HEADER = (
+    "Element ID",
+    "Element / Surface",
+    "Element Classification",
+    "Workstream Implementation Plan",
+    "Workstream Proof Plan",
+    "Hardening Proof Plan",
+    "Live Validation Proof / Waiver Plan",
+    "UTS / USER Acceptance Path",
+    "Future / Deferred Boundary",
+    "USER Decision State",
+    "Source Owner / Ledger Owner",
+)
+ELEMENT_TO_PHASE_CLASSIFICATIONS = {
+    "Planned",
+    "Created",
+    "Touched",
+    "Affected",
+    "Deferred",
+    "Future",
+    "Dependency-Only",
+    "Non-Gating Supporting",
+}
+FAM003_OPTION_G_ELEMENT_IDS = tuple(
+    f"OPTG-ELEM-{index:02d}" for index in range(1, 12)
+)
+
+
+def _markdown_table_cells(line: str) -> list[str]:
+    stripped = line.strip()
+    if not stripped.startswith("|") or not stripped.endswith("|"):
+        return []
+    return [cell.strip().strip("`") for cell in stripped[1:-1].split("|")]
+
+
+def _element_to_phase_section(live_text: str) -> str:
+    match = re.search(
+        rf"(?ms)^{re.escape(ELEMENT_TO_PHASE_HEADING)}\s*\n"
+        r"(.*?)(?=^Historical Receipt Boundary:|^## |\Z)",
+        live_text,
+    )
+    return match.group(0).rstrip() if match else ""
+
+
+def _validate_active_branch_plan_element_matrix(
+    relative: str,
+    live_text: str,
+) -> list[str]:
+    """Validate the physical Element-to-Phase matrix owned by an active branch plan."""
+
+    failures: list[str] = []
+    branch = markdown_field_value(live_text, "Branch") or ""
+    matrix_declared = markdown_field_value(
+        live_text,
+        "Element-to-Phase Proof Matrix",
+    )
+    if branch != FAM003_OPTION_G_BRANCH and not matrix_declared:
+        return failures
+
+    normalized_relative = relative.replace("\\", "/")
+    if not normalized_relative.endswith("/branch_plan.md"):
+        failures.append(
+            "Element-to-Phase Ownership: the active matrix is declared outside "
+            f"the branch-plan owner: {relative}"
+        )
+        return failures
+    expected_owner = "C:\\Nexus Governance State\\" + normalized_relative.replace("/", "\\")
+    section = _element_to_phase_section(live_text)
+    if not section:
+        failures.append(
+            "Element-to-Phase Ownership: the active branch plan does not physically "
+            "contain the canonical Element-to-Phase Proof Matrix above the historical boundary"
+        )
+        return failures
+
+    marker_expectations = (
+        ("Matrix Status", {"required", "present", "accepted"}),
+        ("USER Review Status", {"pending", "accepted", "revised", "waived", "needs user decision"}),
+        ("Open Element Questions", {"none", "queued", "blocking", "deferred with waiver"}),
+    )
+    for marker, allowed in marker_expectations:
+        value = markdown_field_value(section, marker)
+        if not value or value.casefold() not in allowed:
+            failures.append(
+                f"Element-to-Phase Schema: {marker} is missing or invalid; found "
+                f"{value or 'MISSING'!r}"
+            )
+
+    for marker in ("Element Coverage Owner", "Element Validation Ledger Owner"):
+        value = markdown_field_value(section, marker)
+        if _normalized_windows_value(value) != _normalized_windows_value(expected_owner):
+            failures.append(
+                f"Element-to-Phase Ownership: {marker} must name the physical active "
+                f"branch plan {expected_owner!r}; found {value or 'MISSING'!r}"
+            )
+
+    table_lines = [line for line in section.splitlines() if line.strip().startswith("|")]
+    if len(table_lines) < 2:
+        failures.append("Element-to-Phase Schema: the canonical matrix table is missing")
+        return failures
+    header = tuple(_markdown_table_cells(table_lines[0]))
+    if header != ELEMENT_TO_PHASE_HEADER:
+        failures.append(
+            "Element-to-Phase Schema: canonical table header must match the exact "
+            f"11-column schema; found {header!r}"
+        )
+    separator = _markdown_table_cells(table_lines[1])
+    if len(separator) != len(ELEMENT_TO_PHASE_HEADER) or any(
+        not re.fullmatch(r":?-{3,}:?", cell) for cell in separator
+    ):
+        failures.append(
+            "Element-to-Phase Schema: table separator does not match the exact 11-column schema"
+        )
+
+    rows: list[list[str]] = []
+    for line in table_lines[2:]:
+        cells = _markdown_table_cells(line)
+        if cells:
+            rows.append(cells)
+    expected_ids = (
+        FAM003_OPTION_G_ELEMENT_IDS if branch == FAM003_OPTION_G_BRANCH else ()
+    )
+    row_ids = [row[0] for row in rows if row]
+    if expected_ids and tuple(row_ids) != expected_ids:
+        failures.append(
+            "Element-to-Phase Coverage: FAM-003 Option G must contain exactly "
+            f"{len(expected_ids)} ordered unique rows {expected_ids!r}; found {tuple(row_ids)!r}"
+        )
+    elif len(row_ids) != len(set(item.casefold() for item in row_ids)):
+        failures.append("Element-to-Phase Coverage: duplicate Element IDs are forbidden")
+
+    for index, row in enumerate(rows, start=1):
+        row_id = row[0] if row else f"row-{index}"
+        if len(row) != len(ELEMENT_TO_PHASE_HEADER):
+            failures.append(
+                f"Element-to-Phase Schema: {row_id} has {len(row)} columns; "
+                f"expected {len(ELEMENT_TO_PHASE_HEADER)}"
+            )
+            continue
+        if any(not cell.strip() for cell in row):
+            failures.append(
+                f"Element-to-Phase Proof Path: {row_id} contains an empty required cell"
+            )
+        if row[2] not in ELEMENT_TO_PHASE_CLASSIFICATIONS:
+            failures.append(
+                f"Element-to-Phase Schema: {row_id} uses invalid Element Classification "
+                f"{row[2]!r}"
+            )
+        if row[2] in {"Planned", "Created", "Touched", "Affected"}:
+            for column in range(3, 8):
+                if not row[column].strip():
+                    failures.append(
+                        f"Element-to-Phase Proof Path: {row_id} omits "
+                        f"{ELEMENT_TO_PHASE_HEADER[column]}"
+                    )
+    return failures
 
 
 def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]:
@@ -308,7 +467,8 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
 
     item_matches = list(
         re.finditer(
-            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n(.*?)(?=^### UFD Item:|\Z)",
+            r"(?ms)^### UFD Item:\s*(UFD-[^\n]+)\n"
+            r"(.*?)(?=^### UFD Item:|^## |\Z)",
             live_text,
         )
     )
@@ -609,6 +769,7 @@ def validate_target_currentness(
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
     failures.extend(_validate_active_branch_plan_ufd(relative, live_text))
+    failures.extend(_validate_active_branch_plan_element_matrix(relative, live_text))
     return failures
 
 

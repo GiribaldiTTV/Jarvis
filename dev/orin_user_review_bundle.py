@@ -2735,6 +2735,7 @@ def _accepted_historical_context_posture_failures(
 def _source_truth_context_currentness_failures(
     packet_files: Mapping[str, str],
     *,
+    packet_binary_files: Mapping[str, bytes] | None,
     validation_mode: str,
     export_zip: Path,
 ) -> list[str]:
@@ -2746,6 +2747,11 @@ def _source_truth_context_currentness_failures(
         ),
         f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md": (
             external_state_dir / "branch_plan.md" if external_state_dir else None
+        ),
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_worktree_state.md": (
+            Path(r"C:\Nexus Governance State\worktrees")
+            / ROOT.name
+            / "worktree_state.md"
         ),
     }
     for copied_name, live_path in copied_to_live.items():
@@ -2769,6 +2775,21 @@ def _source_truth_context_currentness_failures(
             and _normalized_packet_text(copied_text) != _normalized_packet_text(live_text)
         ):
             failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
+        if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+            copied_bytes = (
+                packet_binary_files.get(copied_name)
+                if packet_binary_files is not None
+                else None
+            )
+            live_bytes = live_path.read_bytes()
+            failures.extend(
+                _byte_exact_projection_copy_failures(
+                    copied_name,
+                    copied_bytes,
+                    live_bytes,
+                    live_path,
+                )
+            )
     if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
         failures.extend(
             _accepted_historical_context_posture_failures(
@@ -4307,6 +4328,7 @@ def validate_local_user_packet(
         _fam003_option_g_bp3_orchestration_failures(
             packet_files,
             status=packet_status,
+            packet_binary_files=zip_binary_files or folder_binary_files,
         )
     )
     failures.extend(_pr_stage1_review_failures(packet_files))
@@ -4338,6 +4360,7 @@ def validate_local_user_packet(
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,
+            packet_binary_files=zip_binary_files or folder_binary_files,
             validation_mode=validation_mode,
             export_zip=export_zip,
         )
@@ -5463,6 +5486,22 @@ def _fam003_bp3_r2_orchestration_consistency_failures(
     return failures
 
 
+def _byte_exact_projection_copy_failures(
+    copied_name: str,
+    copied_bytes: bytes | None,
+    live_bytes: bytes,
+    live_path: Path | str,
+) -> list[str]:
+    if copied_bytes is None:
+        return [f"{copied_name}: byte-exact current projection proof is missing"]
+    if copied_bytes != live_bytes:
+        return [
+            f"{copied_name}: copied current projection is text-equivalent but "
+            f"not byte-exact with live external state {live_path}"
+        ]
+    return []
+
+
 def _fam003_option_g_bp2_planning_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
@@ -5715,10 +5754,395 @@ FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION = (
 )
 
 
+FAM003_OPTION_G_ELEMENT_HEADER = (
+    "Element ID",
+    "Element / Surface",
+    "Element Classification",
+    "Workstream Implementation Plan",
+    "Workstream Proof Plan",
+    "Hardening Proof Plan",
+    "Live Validation Proof / Waiver Plan",
+    "UTS / USER Acceptance Path",
+    "Future / Deferred Boundary",
+    "USER Decision State",
+    "Source Owner / Ledger Owner",
+)
+FAM003_OPTION_G_ELEMENT_CLASSIFICATIONS = {
+    "Planned",
+    "Created",
+    "Touched",
+    "Affected",
+    "Deferred",
+    "Future",
+    "Dependency-Only",
+    "Non-Gating Supporting",
+}
+FAM003_OPTION_G_ELEMENT_IDS = tuple(
+    f"OPTG-ELEM-{index:02d}" for index in range(1, 12)
+)
+FAM003_OPTION_G_ELEMENT_OWNER = (
+    r"C:\Nexus Governance State\branches"
+    r"\feature_fam_003_settings_resize_proof\branch_plan.md"
+)
+FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA = "ndai-validation-provenance-v1"
+FAM003_OPTION_G_MINIMUM_PROVENANCE_CHECKS = 20
+
+
+def _markdown_table_cells(line: str) -> list[str]:
+    stripped = line.strip()
+    if not stripped.startswith("|") or not stripped.endswith("|"):
+        return []
+    return [cell.strip().strip("`") for cell in stripped[1:-1].split("|")]
+
+
+def _element_to_phase_section(text: str) -> str:
+    match = re.search(
+        r"(?ms)^## Element-to-Phase Proof Matrix\s*\n"
+        r"(.*?)(?=^Historical Receipt Boundary:|^## |\Z)",
+        text,
+    )
+    return match.group(0).rstrip() if match else ""
+
+
+def _fam003_option_g_element_matrix_failures(
+    canonical_plan: str,
+    packet_aid: str,
+) -> list[str]:
+    failures: list[str] = []
+    canonical_live = canonical_plan.partition("Historical Receipt Boundary:")[0]
+    canonical_section = _element_to_phase_section(canonical_live)
+    aid_section = _element_to_phase_section(packet_aid)
+    if not canonical_section:
+        failures.append(
+            "FAM-003 Option G BP3: canonical active external branch plan must "
+            "physically contain the Element-to-Phase Proof Matrix above its "
+            "historical boundary"
+        )
+        return failures
+    if not aid_section:
+        failures.append(
+            "FAM-003 Option G BP3: generated Element-to-Phase review aid omits "
+            "the canonical matrix section"
+        )
+    elif aid_section != canonical_section:
+        failures.append(
+            "FAM-003 Option G BP3: Element-to-Phase packet aid differs from the "
+            "canonical active branch-plan matrix"
+        )
+    if (
+        "Element-to-Phase Authority Classification: `SUPPORTING REVIEW COPY`"
+        not in packet_aid
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: Element-to-Phase packet aid must be labeled "
+            "SUPPORTING REVIEW COPY, not source truth"
+        )
+
+    marker_expectations = (
+        ("Matrix Status", {"required", "present", "accepted"}),
+        (
+            "USER Review Status",
+            {"pending", "accepted", "revised", "waived", "needs user decision"},
+        ),
+        (
+            "Open Element Questions",
+            {"none", "queued", "blocking", "deferred with waiver"},
+        ),
+    )
+    for marker, allowed in marker_expectations:
+        value = _markdown_field_value(canonical_section, marker)
+        if not value or value.casefold() not in allowed:
+            failures.append(
+                f"FAM-003 Option G BP3: canonical Element-to-Phase {marker} is "
+                f"missing or invalid; found {value or 'MISSING'!r}"
+            )
+    for marker in ("Element Coverage Owner", "Element Validation Ledger Owner"):
+        value = _markdown_field_value(canonical_section, marker)
+        if value != FAM003_OPTION_G_ELEMENT_OWNER:
+            failures.append(
+                f"FAM-003 Option G BP3: canonical {marker} must name the active "
+                f"external branch plan; found {value or 'MISSING'!r}"
+            )
+
+    table_lines = [
+        line for line in canonical_section.splitlines() if line.strip().startswith("|")
+    ]
+    if len(table_lines) < 2:
+        failures.append(
+            "FAM-003 Option G BP3: canonical Element-to-Phase table is missing"
+        )
+        return failures
+    header = tuple(_markdown_table_cells(table_lines[0]))
+    if header != FAM003_OPTION_G_ELEMENT_HEADER:
+        failures.append(
+            "FAM-003 Option G BP3: canonical Element-to-Phase table must use "
+            f"the exact 11-column schema; found {header!r}"
+        )
+    separator = _markdown_table_cells(table_lines[1])
+    if len(separator) != len(FAM003_OPTION_G_ELEMENT_HEADER) or any(
+        not re.fullmatch(r":?-{3,}:?", cell) for cell in separator
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: canonical Element-to-Phase separator does "
+            "not use the exact 11-column schema"
+        )
+
+    rows = [_markdown_table_cells(line) for line in table_lines[2:]]
+    row_ids = tuple(row[0] for row in rows if row)
+    if row_ids != FAM003_OPTION_G_ELEMENT_IDS:
+        failures.append(
+            "FAM-003 Option G BP3: canonical Element-to-Phase matrix must "
+            f"contain exactly the ordered rows {FAM003_OPTION_G_ELEMENT_IDS!r}; "
+            f"found {row_ids!r}"
+        )
+    for index, row in enumerate(rows, start=1):
+        row_id = row[0] if row else f"row-{index}"
+        if len(row) != len(FAM003_OPTION_G_ELEMENT_HEADER):
+            failures.append(
+                f"FAM-003 Option G BP3: {row_id} has {len(row)} columns; "
+                f"expected {len(FAM003_OPTION_G_ELEMENT_HEADER)}"
+            )
+            continue
+        if any(not cell.strip() for cell in row):
+            failures.append(
+                f"FAM-003 Option G BP3: {row_id} has an empty Element-to-Phase "
+                "proof-path cell"
+            )
+        if row[2] not in FAM003_OPTION_G_ELEMENT_CLASSIFICATIONS:
+            failures.append(
+                f"FAM-003 Option G BP3: {row_id} uses invalid Element "
+                f"Classification {row[2]!r}"
+            )
+    return failures
+
+
+def _parse_utc_timestamp(value: object) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        return datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _fam003_option_g_validation_provenance_failures(
+    packet_files: Mapping[str, str],
+    packet_binary_files: Mapping[str, bytes] | None,
+) -> list[str]:
+    failures: list[str] = []
+    summary_text = _packet_file_text(packet_files, "validation_summary.json")
+    validation_results = _packet_file_text(packet_files, "VALIDATION_RESULTS.md")
+    if not summary_text:
+        return [
+            "FAM-003 Option G BP3: machine-readable final validation provenance "
+            "summary is missing"
+        ]
+    try:
+        summary = json.loads(summary_text)
+    except json.JSONDecodeError as exc:
+        return [
+            "FAM-003 Option G BP3: machine-readable final validation provenance "
+            f"summary is malformed: {exc}"
+        ]
+    if not isinstance(summary, dict):
+        return [
+            "FAM-003 Option G BP3: validation_summary.json must be a provenance "
+            "object, not a partial check list"
+        ]
+    if summary.get("schema") != FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA:
+        failures.append(
+            "FAM-003 Option G BP3: validation provenance schema is missing or stale"
+        )
+    checks = summary.get("checks")
+    if not isinstance(checks, list):
+        failures.append(
+            "FAM-003 Option G BP3: validation provenance checks must be one complete list"
+        )
+        return failures
+    if len(checks) < FAM003_OPTION_G_MINIMUM_PROVENANCE_CHECKS:
+        failures.append(
+            "FAM-003 Option G BP3: final validation provenance must cover every "
+            f"01-N check; found {len(checks)}, expected at least "
+            f"{FAM003_OPTION_G_MINIMUM_PROVENANCE_CHECKS}"
+        )
+
+    required_fields = (
+        "id",
+        "executable",
+        "arguments",
+        "command",
+        "workingDirectory",
+        "startedUtc",
+        "endedUtc",
+        "durationMs",
+        "exitCode",
+        "outputMode",
+        "rawLog",
+        "rawLogSha256",
+        "helperIdentity",
+        "fixture",
+        "targets",
+        "expectedIdentities",
+        "expectedHashes",
+        "expectedDisposition",
+    )
+    observed_numbers: list[int] = []
+    observed_ids: set[str] = set()
+    for index, check in enumerate(checks, start=1):
+        if not isinstance(check, dict):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance row {index} is not an object"
+            )
+            continue
+        check_id = str(check.get("id") or f"row-{index}")
+        match = re.fullmatch(r"(\d{2})_[A-Za-z0-9_]+", check_id)
+        if not match:
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance ID {check_id!r} "
+                "must use NN_name format"
+            )
+        else:
+            observed_numbers.append(int(match.group(1)))
+        if check_id.casefold() in observed_ids:
+            failures.append(
+                f"FAM-003 Option G BP3: duplicate validation provenance ID {check_id}"
+            )
+        observed_ids.add(check_id.casefold())
+
+        for field in required_fields:
+            if field not in check or check[field] is None or check[field] == "":
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    f"is missing {field}"
+                )
+        if not isinstance(check.get("arguments"), list):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} arguments "
+                "must be an explicit list"
+            )
+        if not isinstance(check.get("targets"), list):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} targets "
+                "must be an explicit list"
+            )
+        if not isinstance(check.get("expectedIdentities"), dict) or not check.get(
+            "expectedIdentities"
+        ):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} must "
+                "record expected identities"
+            )
+        if not isinstance(check.get("expectedHashes"), dict) or not check.get(
+            "expectedHashes"
+        ):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} must "
+                "record expected hashes"
+            )
+        if check.get("outputMode") not in {
+            "merged stdout/stderr",
+            "separate stdout/stderr",
+        }:
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} has "
+                "an invalid outputMode"
+            )
+        started = _parse_utc_timestamp(check.get("startedUtc"))
+        ended = _parse_utc_timestamp(check.get("endedUtc"))
+        if started is None or ended is None or ended < started:
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} has "
+                "invalid start/end timestamps"
+            )
+        duration = check.get("durationMs")
+        if not isinstance(duration, int) or duration < 0:
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} has "
+                "invalid durationMs"
+            )
+        exit_code = check.get("exitCode")
+        if not isinstance(exit_code, int):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} has "
+                "non-integer exitCode"
+            )
+        elif check.get("expectedDisposition") == "PASS" and exit_code != 0:
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} claims "
+                "PASS but exitCode is nonzero"
+            )
+
+        raw_log = str(check.get("rawLog") or "").replace("\\", "/")
+        if not raw_log.startswith(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/Proof Artifacts/Validation/Raw Logs/"
+        ):
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} rawLog "
+                "must name its packet-contained raw log"
+            )
+        raw_text = packet_files.get(raw_log)
+        raw_bytes = (
+            packet_binary_files.get(raw_log)
+            if packet_binary_files is not None
+            else (raw_text.encode("utf-8") if raw_text is not None else None)
+        )
+        if raw_text is None or raw_bytes is None:
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} raw log "
+                f"is missing from the packet: {raw_log or 'MISSING'}"
+            )
+        else:
+            expected_hash = str(check.get("rawLogSha256") or "").upper()
+            actual_hash = hashlib.sha256(raw_bytes).hexdigest().upper()
+            if expected_hash != actual_hash:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} raw "
+                    "log SHA256 does not match packet bytes"
+                )
+            for marker in (
+                "Command:",
+                "Working Directory:",
+                "Started UTC:",
+                "Ended UTC:",
+                "Duration MS:",
+                "Exit Code:",
+                "Output Mode:",
+                "MERGED STDOUT/STDERR",
+            ):
+                if marker not in raw_text:
+                    failures.append(
+                        f"FAM-003 Option G BP3: validation provenance {check_id} "
+                        f"raw log omits {marker}"
+                    )
+
+        command = str(check.get("command") or "")
+        digest_row = next(
+            (
+                line
+                for line in validation_results.splitlines()
+                if f"`{check_id}`" in line and command in line
+            ),
+            "",
+        )
+        if not digest_row:
+            failures.append(
+                f"FAM-003 Option G BP3: human validation digest omits exact "
+                f"command provenance for {check_id}"
+            )
+
+    if observed_numbers and observed_numbers != list(range(1, len(checks) + 1)):
+        failures.append(
+            "FAM-003 Option G BP3: validation provenance IDs are not one "
+            "contiguous 01-N sequence"
+        )
+    return failures
+
+
 def _fam003_option_g_bp3_orchestration_failures(
     packet_files: Mapping[str, str],
     *,
     status: str,
+    packet_binary_files: Mapping[str, bytes] | None = None,
 ) -> list[str]:
     """Reject Option G BP3 packets that omit accepted proof-contract carrydown."""
 
@@ -6161,7 +6585,7 @@ def _fam003_option_g_bp3_orchestration_failures(
         "external pointers insufficient": (
             "External-Pointer-Only Closure: `PROHIBITED`"
         ),
-        "element-to-phase complete": "Element-to-Phase Proof Matrix Status: `COMPLETE`",
+        "element-to-phase present": "Matrix Status: `Present`",
         "ORIN Core unresolved": "ORIN Core CPU Contribution: `UNRESOLVED / DECISION 3`",
     }
     for label, marker in required_markers.items():
@@ -6614,25 +7038,18 @@ def _fam003_option_g_bp3_orchestration_failures(
                 f"missing claim {claim}"
             )
 
-    element_text = aid_text["Element-to-Phase matrix"]
-    element_rows = [
-        line
-        for line in element_text.splitlines()
-        if line.strip().startswith("| `OPTG-ELEM-")
-    ]
-    if len(element_rows) < 11:
-        failures.append(
-            "FAM-003 Option G BP3: Element-to-Phase mapping must contain at "
-            f"least eleven current/deferred elements; found {len(element_rows)}"
+    failures.extend(
+        _fam003_option_g_element_matrix_failures(
+            canonical_ufd_plan,
+            aid_text["Element-to-Phase matrix"],
         )
-    for row in element_rows:
-        normalized_row = row.casefold()
-        for term in ("workstream", "h1", "live validation", "uts"):
-            if term not in normalized_row:
-                failures.append(
-                    "FAM-003 Option G BP3: Element-to-Phase row omits "
-                    f"{term!r}: {row.strip()}"
-                )
+    )
+    failures.extend(
+        _fam003_option_g_validation_provenance_failures(
+            packet_files,
+            packet_binary_files,
+        )
+    )
 
     forbidden_patterns = {
         "combined BP3 and implementation approval": re.compile(

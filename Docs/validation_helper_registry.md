@@ -237,6 +237,31 @@ Feedback Disposition must fail when its declared owner is not the selected
 atomic rows are absent or historical-only, row fields or counts disagree, or
 open/blocking counts are derived from a noncanonical copy.
 
+FAM-003 Option G BP3 Element-to-Phase and validation-provenance addendum:
+`dev/orin_external_state_validation.py` (`Helper Status: Reusable`) must fail
+the active `feature/fam-003-settings-resize-proof` branch plan when its
+Element-to-Phase matrix is absent above the historical boundary, exists only
+in a supporting receipt or packet aid, uses context-relative owner wording,
+does not use the exact eleven-column schema from `Docs/branch_plans/README.md`,
+uses an unrecognized classification, or omits any ordered `OPTG-ELEM-01`
+through `OPTG-ELEM-11` proof-path row.
+`dev/orin_external_state_target_currentness_fixture_validation.py` (`Helper Status: Reusable Fixture Validator`) owns fail-capable canonical
+owner, physical-placement, schema, classification, count, uniqueness, and
+proof-path fixtures for that rule. `dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) must treat the packet Element-to-Phase aid as a
+supporting review copy of the canonical active branch-plan section, require
+byte-exact active-review copies of the current external branch plan, branch
+state, and worktree state, and reject normalized-text-only equality.
+For this packet class, final validation evidence must use one contiguous
+`01-N` machine-readable provenance ledger covering every check, with
+executable, arguments, exact command, working directory, start/end/duration,
+exit code, explicit stdout/stderr mode, packet-contained raw log and SHA256,
+helper identity, fixture, targets, expected identities and hashes, expected
+disposition, and a matching human digest row.
+`dev/orin_user_review_bundle_false_green_fixture_validation.py` (`Helper Status: Reusable`) owns packet-aid divergence,
+partial-provenance, missing-log, false-PASS, human-digest, and byte-exact-copy
+negative fixtures. Packet/helper PASS remains reviewability evidence only and
+does not accept BP3 or authorize Workstream implementation.
+
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
 absolute/off-root, reparse/symlink, malformed, unsupported-record,
