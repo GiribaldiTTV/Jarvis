@@ -969,8 +969,19 @@ def main() -> int:
             post_expected_source_head="f" * 40,
             **rollback_expectations,
         )
-        if ok or audit is not None or target.read_bytes() != rollback_before or not any("Post-write target validation" in item for item in rollback_messages):
-            raise AssertionError("post-write validation failure did not roll back without audit:\n" + "\n".join(rollback_messages))
+        if (
+            ok
+            or audit is not None
+            or target.read_bytes() != rollback_before
+            or not any(
+                "Projected post-write target validation" in item
+                for item in rollback_messages
+            )
+        ):
+            raise AssertionError(
+                "invalid post-state projection was not rejected before write:\n"
+                + "\n".join(rollback_messages)
+            )
         released, release_messages = lock_release.release_lock(
             root, lock_id, "fixture transition complete", apply=True
         )
@@ -1247,6 +1258,84 @@ def main() -> int:
                 "target-currentness CLI accepted an uninitialized external-state root:\n"
                 + cli_result.stdout
                 + cli_result.stderr
+            )
+
+    with tempfile.TemporaryDirectory(prefix="ndai-target-semantic-repair-") as temp_dir:
+        root = Path(temp_dir)
+        _manifest(root)
+        stale_lines = [
+            "External State Item Status: `Decision 1 pending; decomposition unselected.`",
+            "Declared Decomposition State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
+            "Current Decomposition State: `DECOMPOSITION_UNSELECTED`",
+            "Decision 1 State: `PENDING_USER_DECISION`",
+            "Decision 2 State: `NOT_REACHED`",
+            "Decomposition Acceptance Receipt: `NONE`",
+            "Current Selected-Next: `NONE`",
+            "Next USER Gate: `USER_DECISION_1_DECOMPOSITION_SELECTION`",
+        ]
+        target = _record(root, extra_lines=stale_lines)
+        before = target.read_bytes()
+        snapshot = _snapshot(root, target, "fixture-semantic-repair")
+        lock_id = "worktree-fixture-semantic-repair"
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        complete_assignments = [
+            "External State Item Status=Decision 1 accepted; Decision 2 pending; no successor selected.",
+            "Declared Decomposition State=DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+            "Current Decomposition State=DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+            "Decision 1 State=ACCEPTED",
+            "Decision 2 State=PENDING_USER_DECISION",
+            "Decomposition Acceptance Receipt=USER-DECISION-1-FIXTURE",
+            "Current Selected-Next=CONSUMED_NO_SUCCESSOR",
+            "Next USER Gate=USER_DECISION_2_STAGE1_CANDIDATE_SELECTION",
+        ]
+        incomplete_ok, incomplete_messages, incomplete_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=complete_assignments[:-1],
+            additions=[],
+            apply=False,
+            **_expectations(target),
+        )
+        if (
+            incomplete_ok
+            or incomplete_audit is not None
+            or target.read_bytes() != before
+            or not any(
+                "Pre-write target validation: FAM-007 Decomposition Semantic Conflict:"
+                in item
+                for item in incomplete_messages
+            )
+        ):
+            raise AssertionError(
+                "incomplete FAM-007 semantic repair crossed the pre-write gate:\n"
+                + "\n".join(incomplete_messages)
+            )
+        complete_ok, complete_messages, complete_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=complete_assignments,
+            additions=[],
+            apply=False,
+            **_expectations(target),
+        )
+        if not complete_ok or complete_audit is not None or target.read_bytes() != before:
+            raise AssertionError(
+                "complete FAM-007 semantic repair did not validate as a dry-run projection:\n"
+                + "\n".join(complete_messages)
             )
 
     with tempfile.TemporaryDirectory(prefix="ndai-target-crlf-") as temp_dir:

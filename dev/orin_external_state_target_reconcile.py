@@ -31,6 +31,16 @@ from orin_external_state_validation import (
     validate_target_currentness,
 )
 
+FAM007_DECOMPOSITION_REPAIR_FIELDS = {
+    "Declared Decomposition State",
+    "Current Decomposition State",
+    "Decision 1 State",
+    "Decision 2 State",
+    "Decomposition Acceptance Receipt",
+    "Current Selected-Next",
+    "Next USER Gate",
+}
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -619,6 +629,10 @@ def reconcile_target(
         expected_worktree_slot=expected_worktree_slot,
         expected_target_sha256=expected_target_sha256,
     )
+    requested_fields = set(updates) | set(additions_map)
+    complete_fam007_semantic_repair = (
+        FAM007_DECOMPOSITION_REPAIR_FIELDS <= requested_fields
+    )
     addable_identity_fields = set(additions_map)
     allowed_pre_additions = {
         f"{relative} is missing required field {field}"
@@ -640,6 +654,10 @@ def reconcile_target(
             or (
                 item.endswith("is missing Historical Receipt Boundary")
                 and "Historical Receipt Boundary" in addable_identity_fields
+            )
+            or (
+                item.startswith("FAM-007 Decomposition Semantic Conflict:")
+                and complete_fam007_semantic_repair
             )
         )
     ]
@@ -668,21 +686,21 @@ def reconcile_target(
     post_source_head = post_expected_source_head or expected_source_head
     post_origin_main = post_expected_origin_main or expected_origin_main
 
+    projected_validation = _projected_target_validation(
+        relative=relative,
+        projected_text=after_text,
+        expected_branch=expected_branch,
+        expected_source_head=post_source_head,
+        expected_origin_main=post_origin_main,
+        expected_worktree_path=expected_worktree_path,
+        expected_worktree_slot=expected_worktree_slot,
+    )
+    if projected_validation:
+        return False, [
+            f"Projected post-write target validation: {item}"
+            for item in projected_validation
+        ], None
     if not apply:
-        projected_validation = _projected_target_validation(
-            relative=relative,
-            projected_text=after_text,
-            expected_branch=expected_branch,
-            expected_source_head=post_source_head,
-            expected_origin_main=post_origin_main,
-            expected_worktree_path=expected_worktree_path,
-            expected_worktree_slot=expected_worktree_slot,
-        )
-        if projected_validation:
-            return False, [
-                f"Projected post-write target validation: {item}"
-                for item in projected_validation
-            ], None
         return True, [
             f"READY: {relative}",
             f"Before SHA256: {before_hash}",
