@@ -536,6 +536,53 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
     return target
 
 
+def _non_plan_element_projection(
+    root: Path,
+    relative: str,
+    record_class: str,
+    record_role: str,
+    *,
+    declare_matrix: bool = False,
+) -> Path:
+    target = root.joinpath(*relative.split("/"))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    declaration = (
+        "Element-to-Phase Proof Matrix: `Present`\n" if declare_matrix else ""
+    )
+    target.write_text(
+        (
+            "External State Schema: `external-state-v1`\n"
+            "State Version: `22`\n"
+            f"Record Class: `{record_class}`\n"
+            f"Record Role: `{record_role}`\n"
+            f"Branch: `{UFD_BRANCH}`\n"
+            f"Source Repo HEAD: `{HEAD}`\n"
+            f"Origin/Main: `{ORIGIN_MAIN}`\n"
+            "Worktree: `FAM-003`\n"
+            f"Worktree Path: `{UFD_WORKTREE_PATH}`\n"
+            f"Slot ID: `{UFD_SLOT}`\n"
+            f"{declaration}"
+            "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n"
+        ),
+        encoding="utf-8",
+    )
+    return target
+
+
+def _validate_non_plan_element_projection(root: Path, relative: str, target: Path) -> list[str]:
+    return validator.validate_target_currentness(
+        root,
+        [relative],
+        expected_branch=UFD_BRANCH,
+        expected_source_head=HEAD,
+        expected_origin_main=ORIGIN_MAIN,
+        expected_worktree_path=UFD_WORKTREE_PATH,
+        expected_worktree_slot=UFD_SLOT,
+        expected_target_sha256=sha256_file(target),
+        expected_schema="external-state-v1",
+    )
+
+
 def _run_ufd_owner_fixtures(parent: Path) -> None:
     root = parent / "ufd-owner"
     root.mkdir(parents=True, exist_ok=True)
@@ -833,6 +880,47 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
     )
     for name, text, needle in cases:
         _assert_failure(name, needle, validate(text))
+
+    branch_state_relative = (
+        "branches/feature_fam_003_settings_resize_proof/branch_state.md"
+    )
+    branch_state = _non_plan_element_projection(
+        root,
+        branch_state_relative,
+        "Live Branch Projection",
+        "Current active branch phase, blocker, and next legal phase fields",
+    )
+    _assert_pass(
+        "branch state does not duplicate branch-plan matrix",
+        _validate_non_plan_element_projection(root, branch_state_relative, branch_state),
+    )
+    worktree_state_relative = "worktrees/FAM-003/worktree_state.md"
+    worktree_state = _non_plan_element_projection(
+        root,
+        worktree_state_relative,
+        "Live Worktree Projection",
+        "Current assignment and acknowledgement fields for one worktree",
+    )
+    _assert_pass(
+        "worktree state does not duplicate branch-plan matrix",
+        _validate_non_plan_element_projection(
+            root,
+            worktree_state_relative,
+            worktree_state,
+        ),
+    )
+    branch_state = _non_plan_element_projection(
+        root,
+        branch_state_relative,
+        "Live Branch Projection",
+        "Current active branch phase, blocker, and next legal phase fields",
+        declare_matrix=True,
+    )
+    _assert_failure(
+        "branch state cannot declare canonical matrix ownership",
+        "declared outside the branch-plan owner",
+        _validate_non_plan_element_projection(root, branch_state_relative, branch_state),
+    )
 
 
 def main() -> int:
@@ -2042,7 +2130,8 @@ def main() -> int:
 
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
-        "(24 canonical-UFD + 12 Element-to-Phase negative fixtures)"
+        "(24 canonical-UFD + 12 Element-to-Phase negative + "
+        "3 non-plan projection ownership fixtures)"
     )
     return 0
 

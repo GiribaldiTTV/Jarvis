@@ -286,15 +286,16 @@ def _validate_active_branch_plan_element_matrix(
         live_text,
         "Element-to-Phase Proof Matrix",
     )
-    if branch != FAM003_OPTION_G_BRANCH and not matrix_declared:
-        return failures
-
     normalized_relative = relative.replace("\\", "/")
-    if not normalized_relative.endswith("/branch_plan.md"):
-        failures.append(
-            "Element-to-Phase Ownership: the active matrix is declared outside "
-            f"the branch-plan owner: {relative}"
-        )
+    is_branch_plan = normalized_relative.endswith("/branch_plan.md")
+    if not is_branch_plan:
+        if matrix_declared:
+            failures.append(
+                "Element-to-Phase Ownership: the active matrix is declared outside "
+                f"the branch-plan owner: {relative}"
+            )
+        return failures
+    if branch != FAM003_OPTION_G_BRANCH and not matrix_declared:
         return failures
     expected_owner = "C:\\Nexus Governance State\\" + normalized_relative.replace("/", "\\")
     section = _element_to_phase_section(live_text)
