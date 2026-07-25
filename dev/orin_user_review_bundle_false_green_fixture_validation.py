@@ -1379,7 +1379,7 @@ def _decomposition_state_text(values: dict[str, str], route: str) -> str:
     )
 
 
-def _decomposition_transition_model_text() -> str:
+def _decomposition_transition_model_text(current_state: str) -> str:
     states = "\n".join(
         f"| `{state}` | Required USER Approval Receipt | Forbidden Receipts | Selected-next Posture | "
         "Named Candidate | Branch / Worktree Existence | Allowed Mutation | "
@@ -1389,6 +1389,9 @@ def _decomposition_transition_model_text() -> str:
     )
     return (
         "# Decomposition Transition State Model\n\n"
+        f"Current Packet State: `{current_state}`\n\n"
+        "The rows below define validator capability. Only the declared current packet "
+        "state controls this packet.\n\n"
         "| State | Required USER Approval Receipt | Forbidden Receipts | Selected-next Posture | "
         "Named Candidate | Branch / Worktree Existence | Allowed Mutation | "
         "Required Packet Artifacts | Current Gate | Next Legal Gate | "
@@ -1398,10 +1401,17 @@ def _decomposition_transition_model_text() -> str:
     )
 
 
-def _receipt_requirement_matrix_text() -> str:
+def _receipt_requirement_matrix_text(current_state: str) -> str:
+    expectation = bundle.FAM007_DECOMPOSITION_STATE_CONTRACTS[current_state]
     return "\n".join(
         [
             "# Receipt Requirement Matrix",
+            "",
+            f"Current Packet State: `{current_state}`",
+            "Current Required Receipts: "
+            f"`{bundle._fam007_decomposition_receipt_set_code(expectation['required_receipts'])}`",
+            "Current Forbidden Receipts: "
+            f"`{bundle._fam007_decomposition_receipt_set_code(expectation['forbidden_receipts'])}`",
             "",
             "Each transition uses explicit Required Receipts and Forbidden Receipts contracts.",
             "",
@@ -1413,6 +1423,35 @@ def _receipt_requirement_matrix_text() -> str:
             "| Successor Identity Receipt | required after creation | not a USER approval | named successor carrier | identity verification | identity only | BP and implementation | required |",
             "| Branch Planning Entry Receipt | required after separate approval | exact candidate-specific text | named successor carrier | BP entry | BP1 entry only | BP2 and later gates | required |",
             "| Issue #307 Resolution Receipt | required only for atomic resolution | exact route/owner text | Issue #307 carrier | issue resolution | one final owner | implementation, closeout, issue mutation | required |",
+        ]
+    )
+
+
+def _approval_stage_table_text(state: str) -> str:
+    rows = bundle._fam007_decomposition_approval_authorizations(state)
+    lines = [
+        "# Approval stage table",
+        "",
+        "| Stage | Action / legal carrier | Required artifact | Mutation occurs | Required USER approval | Current authorization | Next permissible action | Prohibited progression |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for stage_name, authorization in rows.items():
+        lines.append(
+            f"| {stage_name} | fixture carrier | fixture artifact | no | separate gate | "
+            f"{authorization} | source-truth-routed next action | no phase collapse |"
+        )
+    return "\n".join(lines)
+
+
+def _recovery_ledger_text(state: str) -> str:
+    approval_recorded = "NO" if state == "DECOMPOSITION_UNSELECTED" else "YES"
+    return "\n".join(
+        [
+            "# Current-Gate Recovery Defect Ledger",
+            "",
+            "Current Result: `REPAIRED_AND_REVALIDATED`",
+            f"Current State Preserved: `{state}`",
+            f"USER Approval Recorded: `{approval_recorded}`",
         ]
     )
 
@@ -1514,6 +1553,18 @@ def _apply_decomposition_state(
     )
     files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = (
         _decomposition_state_text(values, route)
+    )
+    files["Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md"] = (
+        _recovery_ledger_text(state)
+    )
+    files["Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md"] = (
+        _decomposition_transition_model_text(state)
+    )
+    files["Review Aids/RECEIPT_REQUIREMENT_MATRIX.md"] = (
+        _receipt_requirement_matrix_text(state)
+    )
+    files["Review Aids/APPROVAL_STAGE_TABLE.md"] = (
+        _approval_stage_table_text(state)
     )
     files["START_HERE.md"] = "\n".join(
         [
@@ -1731,33 +1782,18 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
             f"Window-specific proof | Later acceptance | `{split_state}` | `NONE` |"
         )
 
-    approval_stages = (
-        "decomposition acceptance",
-        "stage 1 analysis selection",
-        "stage 1 analysis",
-        "stage 2 branch/worktree creation approval",
-        "branch/worktree creation",
-        "branch planning entry approval",
-        "BP1",
-        "BP2",
-        "BP3",
-        "branch plan acceptance",
-        "workstream entry",
-        "implementation",
-        "H1",
-        "LV",
-        "UTS",
-        "PR",
-    )
     files = {
         "START_HERE.md": "",
         "USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md": "",
         "Review Aids/CURRENT_DECOMPOSITION_STATE.md": "",
+        "Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md": (
+            _recovery_ledger_text("DECOMPOSITION_UNSELECTED")
+        ),
         "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md": (
-            _decomposition_transition_model_text()
+            _decomposition_transition_model_text("DECOMPOSITION_UNSELECTED")
         ),
         "Review Aids/RECEIPT_REQUIREMENT_MATRIX.md": (
-            _receipt_requirement_matrix_text()
+            _receipt_requirement_matrix_text("DECOMPOSITION_UNSELECTED")
         ),
         "Review Aids/TRANSITION_SAFE_ROUTE_RULES.md": _route_rules_text(
             "ROUTE_A_SEPARATE"
@@ -1813,8 +1849,8 @@ def _valid_fam007_decomposition_packet_files() -> dict[str, str]:
                 "BP1, BP2, and BP3 remain distinct planning gates.",
             ]
         ),
-        "Review Aids/APPROVAL_STAGE_TABLE.md": "\n".join(
-            ["# Approval stage table", *approval_stages]
+        "Review Aids/APPROVAL_STAGE_TABLE.md": (
+            _approval_stage_table_text("DECOMPOSITION_UNSELECTED")
         ),
         "Review Aids/RISKS_AND_ROLLBACK.md": "# Risks and rollback\n",
         "Source Truth Context/Proof Artifacts/Operational Receipts/IDENTITY_RECEIPT.md": "",
@@ -2179,6 +2215,137 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         "accepted-no-candidate-missing-decision1-receipt",
         "requires decomposition receipt field receipt",
         accepted_state_missing_decision1_receipt,
+    )
+
+    def accepted_support_claims_unselected(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md"] = files[
+            "Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md"
+        ].replace(
+            "Current State Preserved: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
+            "Current State Preserved: `DECOMPOSITION_UNSELECTED`",
+        )
+
+    assert_failure(
+        "accepted-support-falsely-claims-unselected",
+        "recovery ledger disagrees on current state",
+        accepted_support_claims_unselected,
+    )
+
+    def accepted_support_denies_user_approval(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md"] = files[
+            "Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md"
+        ].replace("USER Approval Recorded: `YES`", "USER Approval Recorded: `NO`")
+
+    assert_failure(
+        "accepted-support-denies-user-approval",
+        "recovery ledger falsely represents USER approval",
+        accepted_support_denies_user_approval,
+    )
+
+    def accepted_transition_preamble_claims_unselected(
+        files: dict[str, str],
+    ) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md"] = files[
+            "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md"
+        ].replace(
+            "Current Packet State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
+            "Current Packet State: `DECOMPOSITION_UNSELECTED`",
+        )
+
+    assert_failure(
+        "accepted-transition-preamble-claims-unselected",
+        "transition-state model disagrees on current packet state",
+        accepted_transition_preamble_claims_unselected,
+    )
+
+    def accepted_matrix_claims_no_required_receipts(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/RECEIPT_REQUIREMENT_MATRIX.md"] = files[
+            "Review Aids/RECEIPT_REQUIREMENT_MATRIX.md"
+        ].replace(
+            "Current Required Receipts: `DECOMPOSITION`",
+            "Current Required Receipts: `NONE`",
+        )
+
+    assert_failure(
+        "accepted-matrix-claims-no-required-receipts",
+        "receipt-requirement matrix disagrees on current required receipts",
+        accepted_matrix_claims_no_required_receipts,
+    )
+
+    def accepted_table_leaves_decision1_at_review(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/APPROVAL_STAGE_TABLE.md"] = files[
+            "Review Aids/APPROVAL_STAGE_TABLE.md"
+        ].replace(
+            "| Decomposition acceptance | fixture carrier | fixture artifact | no | "
+            "separate gate | COMPLETED / RECORDED |",
+            "| Decomposition acceptance | fixture carrier | fixture artifact | no | "
+            "separate gate | AUTHORIZED FOR USER REVIEW |",
+        )
+
+    assert_failure(
+        "accepted-table-leaves-decision1-at-review",
+        "approval-stage table disagrees on Decomposition acceptance",
+        accepted_table_leaves_decision1_at_review,
+    )
+
+    def accepted_table_says_posture_not_reached(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/APPROVAL_STAGE_TABLE.md"] = files[
+            "Review Aids/APPROVAL_STAGE_TABLE.md"
+        ].replace(
+            "| Accepted posture / no candidate selected | fixture carrier | fixture "
+            "artifact | no | separate gate | CURRENT |",
+            "| Accepted posture / no candidate selected | fixture carrier | fixture "
+            "artifact | no | separate gate | NOT REACHED |",
+        )
+
+    assert_failure(
+        "accepted-table-says-posture-not-reached",
+        "approval-stage table disagrees on Accepted posture / no candidate selected",
+        accepted_table_says_posture_not_reached,
+    )
+
+    def accepted_table_blocks_decision2_review(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "DECOMPOSITION_ACCEPTED_NO_CANDIDATE",
+        )
+        files["Review Aids/APPROVAL_STAGE_TABLE.md"] = files[
+            "Review Aids/APPROVAL_STAGE_TABLE.md"
+        ].replace(
+            "| Stage 1 analysis selection | fixture carrier | fixture artifact | no | "
+            "separate gate | CURRENT USER REVIEW GATE |",
+            "| Stage 1 analysis selection | fixture carrier | fixture artifact | no | "
+            "separate gate | NOT AUTHORIZED |",
+        )
+
+    assert_failure(
+        "accepted-table-blocks-decision2-review",
+        "approval-stage table disagrees on Stage 1 analysis selection",
+        accepted_table_blocks_decision2_review,
     )
 
     def accepted_state_carries_stage1_receipt(files: dict[str, str]) -> None:

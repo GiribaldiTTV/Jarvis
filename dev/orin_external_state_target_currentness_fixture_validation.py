@@ -57,6 +57,7 @@ def _record(
     origin_main: str = ORIGIN_MAIN,
     worktree_path: str = WORKTREE_PATH,
     slot: str = SLOT,
+    extra_lines: list[str] | None = None,
 ) -> Path:
     target = _target_path(root)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -77,6 +78,7 @@ def _record(
                 "Source Repo HEAD: `" + head + "`",
                 "Origin/Main: `" + origin_main + "`",
                 "Slot ID: `" + slot + "`",
+                *(extra_lines or []),
                 "",
             ]
         ),
@@ -165,6 +167,51 @@ def main() -> int:
         target = _record(root)
         _assert_pass("valid selected live projection", _run(root))
         _assert_pass("stale root manifest is separate posture", _run(root))
+
+        accepted_decomposition_lines = [
+            "External State Item Status: `Decision 1 accepted; Decision 2 pending; no successor selected.`",
+            "External State Current Acceptance Receipt: `FAM007_DECISION_1_ACCEPTED`",
+            "Declared Decomposition State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
+            "Current Decomposition State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
+            "Decision 1 State: `ACCEPTED`",
+            "Decision 2 State: `PENDING_USER_DECISION`",
+            "Decomposition Acceptance Receipt: `USER-DECISION-1-FIXTURE`",
+            "Current Selected-Next: `CONSUMED_NO_SUCCESSOR`",
+            "Next USER Gate: `USER_DECISION_2_STAGE1_CANDIDATE_SELECTION`",
+        ]
+        target = _record(root, extra_lines=accepted_decomposition_lines)
+        _assert_pass(
+            "valid accepted-no-candidate semantic projection",
+            _run(root),
+        )
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Current Decomposition State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
+                "Current Decomposition State: `DECOMPOSITION_UNSELECTED`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "conflicting FAM-007 decomposition aliases",
+            "active state aliases disagree",
+            _run(root),
+        )
+        target = _record(root, extra_lines=accepted_decomposition_lines)
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "External State Item Status: `Decision 1 accepted; Decision 2 pending; "
+                "no successor selected.`",
+                "External State Item Status: `DECOMPOSITION_UNSELECTED; Decision 1 "
+                "pending; Decision 2 not reached.`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale FAM-007 active status prose",
+            "retains pre-Decision-1 prose",
+            _run(root),
+        )
+        target = _record(root)
 
         _assert_failure(
             "wrong branch",

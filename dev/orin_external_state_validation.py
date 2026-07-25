@@ -133,6 +133,24 @@ TARGET_HISTORICAL_RECORD_CLASSES = {
     "historical projection",
     "accepted historical receipt",
 }
+FAM007_DECOMPOSITION_CURRENT_MARKER_BEGIN = "<!-- FAM007_CLOSEOUT_CURRENT_BEGIN -->"
+FAM007_DECOMPOSITION_CURRENT_MARKER_END = "<!-- FAM007_CLOSEOUT_CURRENT_END -->"
+FAM007_DECOMPOSITION_CURRENT_STATE_CONTRACTS = {
+    "DECOMPOSITION_UNSELECTED": {
+        "decision1": "PENDING_USER_DECISION",
+        "decision2": "NOT_REACHED",
+        "selected_next": "CONSUMED_NO_SUCCESSOR",
+        "next_user_gate": "USER_DECISION_1_CURRENT_BRANCH_SUPERSESSION",
+        "acceptance_receipt": "NONE",
+    },
+    "DECOMPOSITION_ACCEPTED_NO_CANDIDATE": {
+        "decision1": "ACCEPTED",
+        "decision2": "PENDING_USER_DECISION",
+        "selected_next": "CONSUMED_NO_SUCCESSOR",
+        "next_user_gate": "USER_DECISION_2_STAGE1_CANDIDATE_SELECTION",
+        "acceptance_receipt": "RECORDED",
+    },
+}
 
 
 def _normalized_windows_value(value: str | None) -> str:
@@ -164,6 +182,21 @@ def _live_header_text(text: str) -> str:
     return "".join(lines[:live_end])
 
 
+def _fam007_current_projection_text(text: str) -> str:
+    live_text = _live_header_text(text)
+    begin = text.find(FAM007_DECOMPOSITION_CURRENT_MARKER_BEGIN)
+    end = text.find(FAM007_DECOMPOSITION_CURRENT_MARKER_END)
+    if begin == -1 or end == -1 or end <= begin:
+        return live_text
+    if begin < len(live_text):
+        return live_text
+    current_block = text[begin:end]
+    first_heading = current_block.find("\n## ")
+    if first_heading != -1:
+        current_block = current_block[:first_heading]
+    return live_text + "\n" + current_block
+
+
 def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
     values: list[tuple[str, str]] = []
     for field in fields:
@@ -192,6 +225,115 @@ def _field_alias_failures(
     return [
         f"Target Currentness: duplicate or conflicting live identity fields for {relative}: {rendered}"
     ]
+
+
+def _fam007_decomposition_semantic_failures(
+    relative: str,
+    text: str,
+) -> list[str]:
+    active_text = _fam007_current_projection_text(text)
+    state_values = _markdown_field_values(
+        active_text,
+        ("Declared Decomposition State", "Current Decomposition State"),
+    )
+    if not state_values:
+        return []
+
+    failures: list[str] = []
+    unique_states = {value.upper() for _, value in state_values}
+    if len(unique_states) != 1:
+        rendered = ", ".join(f"{field}={value!r}" for field, value in state_values)
+        return [
+            "FAM-007 Decomposition Semantic Conflict: "
+            f"{relative} active state aliases disagree: {rendered}"
+        ]
+    state = next(iter(unique_states))
+    contract = FAM007_DECOMPOSITION_CURRENT_STATE_CONTRACTS.get(state)
+    if contract is None:
+        return failures
+
+    def require_all(field: str, expected: str, *, prefix: bool = False) -> None:
+        values = [value for _, value in _markdown_field_values(active_text, (field,))]
+        if not values:
+            failures.append(
+                "FAM-007 Decomposition Semantic Conflict: "
+                f"{relative} is missing active field {field}"
+            )
+            return
+        mismatches = [
+            value
+            for value in values
+            if (
+                not value.upper().startswith(expected)
+                if prefix
+                else value.upper() != expected
+            )
+        ]
+        if mismatches:
+            failures.append(
+                "FAM-007 Decomposition Semantic Conflict: "
+                f"{relative} {field} expected {expected}, found {mismatches}"
+            )
+
+    require_all("Decision 1 State", contract["decision1"])
+    require_all("Decision 2 State", contract["decision2"])
+    require_all("Current Selected-Next", contract["selected_next"], prefix=True)
+    require_all("Next USER Gate", contract["next_user_gate"])
+
+    receipt_values = [
+        value
+        for _, value in _markdown_field_values(
+            active_text, ("Decomposition Acceptance Receipt",)
+        )
+    ]
+    if not receipt_values:
+        failures.append(
+            "FAM-007 Decomposition Semantic Conflict: "
+            f"{relative} is missing active field Decomposition Acceptance Receipt"
+        )
+    elif contract["acceptance_receipt"] == "NONE":
+        if any(value.upper() != "NONE" for value in receipt_values):
+            failures.append(
+                "FAM-007 Decomposition Semantic Conflict: "
+                f"{relative} records Decision 1 approval while the state is unselected"
+            )
+    elif any(
+        not re.fullmatch(r"USER-[A-Z0-9]+(?:-[A-Z0-9]+)*", value.upper())
+        for value in receipt_values
+    ):
+        failures.append(
+            "FAM-007 Decomposition Semantic Conflict: "
+            f"{relative} lacks a structured Decision 1 acceptance receipt"
+        )
+
+    if state == "DECOMPOSITION_ACCEPTED_NO_CANDIDATE":
+        active_status_fields = (
+            "Stage",
+            "External State Item Status",
+            "External State Current Acceptance Receipt",
+            "Decomposition Repair Status",
+            "Ledger Status",
+            "USER Result",
+            "Gating Decision",
+            "Current Approval State",
+            "Next Legal Phase",
+            "Exact Next USER Decision",
+        )
+        stale_pattern = re.compile(
+            r"DECOMPOSITION_UNSELECTED|DECISION_1_PENDING|"
+            r"pending\s+USER\s+Decision\s+1|Decision\s+1\s+pending|"
+            r"Decision\s+2\s+not\s+reached|Decision\s+1\s+remains\s+next|"
+            r"Decision\s+1\s+only|No\s+new\s+USER\s+decision\s+recorded|"
+            r"Decision\s+1[^\n]{0,80}\bremain\s+unapproved",
+            re.IGNORECASE,
+        )
+        for field, value in _markdown_field_values(active_text, active_status_fields):
+            if stale_pattern.search(value):
+                failures.append(
+                    "FAM-007 Decomposition Semantic Conflict: "
+                    f"{relative} active {field} retains pre-Decision-1 prose: {value!r}"
+                )
+    return failures
 
 
 def _has_reparse_point(path: Path) -> bool:
@@ -320,6 +462,7 @@ def validate_target_currentness(
     failures.extend(_field_alias_failures(relative, live_text, ("Origin/Main", "Source origin/main")))
     failures.extend(_field_alias_failures(relative, live_text, ("Worktree Path",)))
     failures.extend(_field_alias_failures(relative, live_text, ("Slot ID",)))
+    failures.extend(_fam007_decomposition_semantic_failures(relative, text))
     if failures:
         return failures
 

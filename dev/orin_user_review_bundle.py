@@ -1900,6 +1900,7 @@ def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> 
 
 FAM007_DECOMPOSITION_REQUIRED_ARTIFACTS: tuple[str, ...] = (
     "Review Aids/CURRENT_DECOMPOSITION_STATE.md",
+    "Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md",
     "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md",
     "Review Aids/RECEIPT_REQUIREMENT_MATRIX.md",
     "Review Aids/TRANSITION_SAFE_ROUTE_RULES.md",
@@ -2036,6 +2037,112 @@ FAM007_DECOMPOSITION_STATE_CONTRACTS: dict[str, dict[str, object]] = {
 FAM007_DECOMPOSITION_STATES: tuple[str, ...] = tuple(
     FAM007_DECOMPOSITION_STATE_CONTRACTS
 )
+
+FAM007_DECOMPOSITION_RECEIPT_ORDER: tuple[str, ...] = (
+    "decomposition",
+    "stage1",
+    "stage2",
+    "identity",
+    "bp_entry",
+)
+FAM007_DECOMPOSITION_RECEIPT_CODES: dict[str, str] = {
+    "decomposition": "DECOMPOSITION",
+    "stage1": "STAGE1",
+    "stage2": "STAGE2",
+    "identity": "IDENTITY",
+    "bp_entry": "BP_ENTRY",
+}
+
+
+def _fam007_decomposition_receipt_set_code(receipts: object) -> str:
+    receipt_set = set(receipts) if isinstance(receipts, (set, frozenset)) else set()
+    values = [
+        FAM007_DECOMPOSITION_RECEIPT_CODES[receipt]
+        for receipt in FAM007_DECOMPOSITION_RECEIPT_ORDER
+        if receipt in receipt_set
+    ]
+    return "; ".join(values) if values else "NONE"
+
+
+def _fam007_decomposition_approval_authorizations(state: str) -> dict[str, str]:
+    state_index = (
+        FAM007_DECOMPOSITION_STATES.index(state)
+        if state in FAM007_DECOMPOSITION_STATES
+        else -1
+    )
+
+    def completed_or_current(current_index: int, *, review: bool = False) -> str:
+        if state_index > current_index:
+            return "COMPLETED"
+        if state_index == current_index:
+            return "CURRENT USER REVIEW GATE" if review else "CURRENT"
+        return "NOT AUTHORIZED"
+
+    return {
+        "Decomposition acceptance": (
+            "AUTHORIZED FOR USER REVIEW"
+            if state_index == 0
+            else "COMPLETED / RECORDED"
+        ),
+        "Accepted posture / no candidate selected": completed_or_current(1),
+        "Stage 1 analysis selection": completed_or_current(1, review=True),
+        "Stage 1 analysis": (
+            "AUTHORIZED"
+            if state_index == 2
+            else "COMPLETED"
+            if state_index > 2
+            else "NOT AUTHORIZED"
+        ),
+        "Stage 2 branch/worktree creation approval": (
+            "CURRENT USER REVIEW GATE"
+            if state_index == 3
+            else "COMPLETED / RECORDED"
+            if state_index > 3
+            else "NOT AUTHORIZED"
+        ),
+        "Branch/worktree creation": (
+            "AUTHORIZED"
+            if state_index == 4
+            else "COMPLETED"
+            if state_index > 4
+            else "NOT AUTHORIZED"
+        ),
+        "Branch Planning Entry approval": (
+            "CURRENT USER REVIEW GATE"
+            if state_index == 5
+            else "COMPLETED / RECORDED"
+            if state_index > 5
+            else "NOT AUTHORIZED"
+        ),
+        "BP1": (
+            "CURRENT USER REVIEW GATE"
+            if state_index == 6
+            else "NOT AUTHORIZED"
+        ),
+        "BP2": "NOT AUTHORIZED",
+        "BP3": "NOT AUTHORIZED",
+        "Branch Plan acceptance": "NOT AUTHORIZED",
+        "Workstream Entry": "NOT AUTHORIZED",
+        "Implementation": "NOT AUTHORIZED",
+        "H1": "BLOCKED",
+        "LV": "BLOCKED",
+        "UTS": "BLOCKED / NOT CREATED",
+        "PR": "BLOCKED",
+    }
+
+
+def _fam007_markdown_table_rows(text: str) -> dict[str, list[str]]:
+    rows: dict[str, list[str]] = {}
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|") or not stripped.endswith("|"):
+            continue
+        cells = [cell.strip().strip("`") for cell in stripped.strip("|").split("|")]
+        if not cells or cells[0].casefold() in {"stage", "---"}:
+            continue
+        rows[cells[0].casefold()] = cells
+    return rows
+
 
 FAM007_DECOMPOSITION_RECEIPT_FIELDS: dict[str, dict[str, str]] = {
     "decomposition": {
@@ -2174,6 +2281,24 @@ def _fam007_decomposition_packet_failures(
     state_model = packet_files.get(
         "Review Aids/DECOMPOSITION_TRANSITION_STATE_MODEL.md", ""
     )
+    state_model_current = _fam007_field_code(state_model, "Current Packet State")
+    if state_model_current != state:
+        failures.append(
+            "FAM-007 decomposition: transition-state model disagrees on current "
+            f"packet state; expected {state}, got {state_model_current or 'MISSING'}"
+        )
+    for current_claim in re.findall(
+        r"\bcurrent(?:\s+packet)?\b[^\n]{0,80}\b("
+        + "|".join(map(re.escape, FAM007_DECOMPOSITION_STATES))
+        + r")\b",
+        state_model,
+        re.IGNORECASE,
+    ):
+        if current_claim.upper() != state:
+            failures.append(
+                "FAM-007 decomposition: transition-state model contains a stale active "
+                f"current-state claim {current_claim.upper()}; expected {state}"
+            )
     for required_state in FAM007_DECOMPOSITION_STATES:
         if required_state not in state_model:
             failures.append(
@@ -2201,6 +2326,12 @@ def _fam007_decomposition_packet_failures(
     receipt_matrix = packet_files.get(
         "Review Aids/RECEIPT_REQUIREMENT_MATRIX.md", ""
     )
+    matrix_current_state = _fam007_field_code(receipt_matrix, "Current Packet State")
+    if matrix_current_state != state:
+        failures.append(
+            "FAM-007 decomposition: receipt-requirement matrix disagrees on current "
+            f"packet state; expected {state}, got {matrix_current_state or 'MISSING'}"
+        )
     for marker in (
         "Decomposition Acceptance Receipt",
         "Stage 1 Candidate-Selection Receipt",
@@ -2235,6 +2366,30 @@ def _fam007_decomposition_packet_failures(
 
     expectation = FAM007_DECOMPOSITION_STATE_CONTRACTS.get(state)
     if expectation:
+        expected_required_receipts = _fam007_decomposition_receipt_set_code(
+            expectation["required_receipts"]
+        )
+        expected_forbidden_receipts = _fam007_decomposition_receipt_set_code(
+            expectation["forbidden_receipts"]
+        )
+        actual_required_receipts = _fam007_field_code(
+            receipt_matrix, "Current Required Receipts"
+        )
+        actual_forbidden_receipts = _fam007_field_code(
+            receipt_matrix, "Current Forbidden Receipts"
+        )
+        if actual_required_receipts != expected_required_receipts:
+            failures.append(
+                "FAM-007 decomposition: receipt-requirement matrix disagrees on "
+                f"current required receipts; expected {expected_required_receipts}, "
+                f"got {actual_required_receipts or 'MISSING'}"
+            )
+        if actual_forbidden_receipts != expected_forbidden_receipts:
+            failures.append(
+                "FAM-007 decomposition: receipt-requirement matrix disagrees on "
+                f"current forbidden receipts; expected {expected_forbidden_receipts}, "
+                f"got {actual_forbidden_receipts or 'MISSING'}"
+            )
         state_fields = {
             "selected_next": selected_next_posture,
             "branch_exists": _fam007_field_code(
@@ -2618,32 +2773,47 @@ def _fam007_decomposition_packet_failures(
         )
 
     approval_table = packet_files.get("Review Aids/APPROVAL_STAGE_TABLE.md", "")
-    approval_folded = approval_table.casefold()
-    approval_markers = (
-        "decomposition acceptance",
-        "stage 1 analysis selection",
-        "stage 1 analysis",
-        "stage 2 branch/worktree creation approval",
-        "branch/worktree creation",
-        "branch planning entry approval",
-        "bp1",
-        "bp2",
-        "bp3",
-        "branch plan acceptance",
-        "workstream entry",
-        "implementation",
-        "h1",
-        "lv",
-        "uts",
-        "pr",
+    approval_rows = _fam007_markdown_table_rows(approval_table)
+    expected_approval_rows = (
+        _fam007_decomposition_approval_authorizations(state)
+        if state in FAM007_DECOMPOSITION_STATES
+        else {}
     )
-    missing_approval_markers = [
-        marker for marker in approval_markers if marker not in approval_folded
-    ]
-    if missing_approval_markers:
+    for stage_name, expected_authorization in expected_approval_rows.items():
+        row = approval_rows.get(stage_name.casefold())
+        if row is None or len(row) < 6:
+            failures.append(
+                "FAM-007 decomposition: approval-stage table is incomplete: "
+                f"{stage_name}"
+            )
+            continue
+        actual_authorization = row[5].upper()
+        if actual_authorization != expected_authorization:
+            failures.append(
+                "FAM-007 decomposition: approval-stage table disagrees on "
+                f"{stage_name}; expected {expected_authorization}, got "
+                f"{actual_authorization or 'MISSING'}"
+            )
+
+    recovery_ledger = packet_files.get(
+        "Review Aids/CURRENT_GATE_RECOVERY_DEFECT_LEDGER.md", ""
+    )
+    recovery_state = _fam007_field_code(recovery_ledger, "Current State Preserved")
+    if recovery_state != state:
         failures.append(
-            "FAM-007 decomposition: approval-stage table is incomplete: "
-            + ", ".join(missing_approval_markers)
+            "FAM-007 decomposition: recovery ledger disagrees on current state; "
+            f"expected {state}, got {recovery_state or 'MISSING'}"
+        )
+    expected_user_approval = (
+        "NO" if state == "DECOMPOSITION_UNSELECTED" else "YES"
+    )
+    actual_user_approval = _fam007_field_code(
+        recovery_ledger, "USER Approval Recorded"
+    )
+    if actual_user_approval != expected_user_approval:
+        failures.append(
+            "FAM-007 decomposition: recovery ledger falsely represents USER approval; "
+            f"expected {expected_user_approval}, got {actual_user_approval or 'MISSING'}"
         )
 
     issue307_receipt = packet_files.get(
