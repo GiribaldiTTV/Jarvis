@@ -374,9 +374,10 @@ def _user_facing_technical_metadata_scan_text(file_name: str, text: str) -> str:
     """Exclude only the governed current-metadata body from leak scanning."""
 
     normalized = file_name.replace("\\", "/")
-    if normalized == "START_HERE.md" or normalized.endswith(
-        "/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
-    ):
+    if normalized in {
+        "START_HERE.md",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    } or normalized.endswith("/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"):
         return re.sub(
             r"(?ms)^## Current Packet Metadata\s*\n.*?(?=^## |\Z)",
             "## Current Packet Metadata\n",

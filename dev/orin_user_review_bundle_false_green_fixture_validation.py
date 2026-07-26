@@ -2088,6 +2088,21 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Governed current metadata block was incorrectly treated as leaked "
             f"technical metadata: {technical_positive_failures}"
         )
+    direct_primary_scan = bundle._user_facing_technical_metadata_scan_text(
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        primary,
+    )
+    direct_primary_leaks = [
+        label
+        for label, pattern in bundle.USER_FACING_TECHNICAL_METADATA_PATTERNS
+        if pattern.search(direct_primary_scan)
+    ]
+    if direct_primary_leaks:
+        raise AssertionError(
+            "Governed primary current metadata block was not excluded when the "
+            "packet reader supplied the basename: "
+            f"{direct_primary_leaks}"
+        )
     leaked_metadata = dict(valid)
     leaked_metadata["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"] = (
         primary
