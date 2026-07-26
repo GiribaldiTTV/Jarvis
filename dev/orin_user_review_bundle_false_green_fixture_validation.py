@@ -1598,7 +1598,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     scope_commits = ["a" * 40, "b" * 40, "c" * 40, fixture_head]
     scope_changed_files = sorted(bundle.FAM003_OPTION_G_APPROVED_REPAIR_FILES)
     false_green_fixture_identity = (
-        "Option G BP3: 22 proof-carrydown + 34 decision-surface + 7 active-metadata "
+        "Option G BP3: 22 proof-carrydown + 34 decision-surface + 8 active-metadata "
         "+ 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases"
@@ -2075,6 +2075,36 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         ),
         "active Replacement ZIP must appear exactly once",
     )
+
+    technical_positive_failures = bundle._generic_user_facing_technical_metadata_failures(
+        valid
+    )
+    if any(
+        "START_HERE.md" in failure
+        or "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" in failure
+        for failure in technical_positive_failures
+    ):
+        raise AssertionError(
+            "Governed current metadata block was incorrectly treated as leaked "
+            f"technical metadata: {technical_positive_failures}"
+        )
+    leaked_metadata = dict(valid)
+    leaked_metadata["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"] = (
+        primary
+        + "\nSource Repo HEAD: `ffffffffffffffffffffffffffffffffffffffff`\n"
+    )
+    leaked_failures = bundle._generic_user_facing_technical_metadata_failures(
+        leaked_metadata
+    )
+    if not any(
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" in failure
+        and "head-token" in failure
+        for failure in leaked_failures
+    ):
+        raise AssertionError(
+            "OPTG-BP3-META-FG-08 did not reject technical source-revision "
+            f"metadata outside the governed current metadata block: {leaked_failures}"
+        )
 
     active_state_failures = bundle._bp3_active_state_consistency_failures(
         valid,
@@ -4194,7 +4224,7 @@ def main() -> int:
     print(
         "False-green fixture validation: PASS "
         "(Option G BP3: 22 proof-carrydown + 34 decision-surface + "
-        "7 active-metadata + 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
+        "8 active-metadata + 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases)"
     )

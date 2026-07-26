@@ -368,6 +368,22 @@ USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...]
     ("worktree-status", re.compile(r"\bworktree status\b", re.IGNORECASE)),
     ("sha-like-proof", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
 )
+
+
+def _user_facing_technical_metadata_scan_text(file_name: str, text: str) -> str:
+    """Exclude only the governed current-metadata body from leak scanning."""
+
+    normalized = file_name.replace("\\", "/")
+    if normalized == "START_HERE.md" or normalized.endswith(
+        "/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ):
+        return re.sub(
+            r"(?ms)^## Current Packet Metadata\s*\n.*?(?=^## |\Z)",
+            "## Current Packet Metadata\n",
+            text,
+            count=1,
+        )
+    return text
 MIN_PRIMARY_REVIEW_WORDS = 80
 MIN_PRIMARY_REVIEW_CHARACTERS = 500
 _FALSE_GREEN_ACCEPTANCE_TARGET = (
@@ -3275,8 +3291,9 @@ def _generic_user_facing_technical_metadata_failures(
             and not normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
         ):
             continue
+        scan_text = _user_facing_technical_metadata_scan_text(file_name, text)
         for label, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
-            if pattern.search(text):
+            if pattern.search(scan_text):
                 failures.append(f"{file_name}: USER-facing file contains technical metadata: {label}")
     return failures
 
@@ -4521,8 +4538,9 @@ def _user_facing_technical_metadata_failures(packet_files: Mapping[str, str]) ->
         if not text:
             continue
         display_name = _packet_file_path(packet_files, file_name)
+        scan_text = _user_facing_technical_metadata_scan_text(file_name, text)
         for reason, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
-            if pattern.search(text):
+            if pattern.search(scan_text):
                 failures.append(
                     f"{display_name}: USER-facing generated file contains technical metadata {reason}"
                 )
@@ -7315,6 +7333,8 @@ def _fam003_option_g_bp3_orchestration_failures(
             "`option_g_bp3_ufd_row_ownership_repaired_ready_for_user_review`",
             "transition status: "
             "`option_g_bp3_false_green_prevention_repaired_ready_for_user_review`",
+            "transition status: "
+            "`option_g_bp3_active_metadata_provenance_repaired_ready_for_user_review`",
         )
         if not any(transition in normalized_header for transition in accepted_transitions):
             failures.append(
