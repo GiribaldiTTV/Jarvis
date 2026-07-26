@@ -1274,8 +1274,9 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "LV remains `NOT_ENTERED`\n"
         "UTS remains `NOT_REQUESTED`\n"
         "ORIN Core CPU Contribution: `UNRESOLVED / DECISION 3`\n"
-        "\n## Current Actionable Decision - BP3 Acceptance Only\n\n"
+        "\n## Current Actionable Decision - BP3 Approval Only\n\n"
         f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
+        f"{bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT}\n"
         "\n## USER Review Packet Finding\n\n"
         "USER Review Packet Finding: `PASS`\n"
         "Replacement Packet Folder: `C:\\Nexus USER\\FAM-003`\n"
@@ -1292,7 +1293,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "\n## USER Review Response\n\n"
         "USER Review Response: Pending USER Review\n"
         "\n## Codex Response Digest\n\n"
-        "Codex Response Digest: Pending USER Response - no BP3 acceptance recorded; "
+        "Codex Response Digest: Pending USER Response - no BP3 approval recorded; "
         "Workstream implementation remains unapproved.\n"
         "\n## Future decision only - not requested, granted, or actionable at the "
         "current BP3 gate\n\n"
@@ -1379,7 +1380,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Carrier: `feature/fam-003-settings-resize-proof`\n"
             "Planning Or Implementation Effect: `Planning carrydown only`\n"
             "Proof / Closure Requirement: `Packet and fixture proof`\n"
-            "Remaining USER Decision: `BP3 acceptance only`\n"
+            "Remaining USER Decision: `BP3 approval only`\n"
         )
     ufd_text = (
         "# Option G UFD And Fold-Down\n"
@@ -1572,16 +1573,27 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
             f"{check_id}.txt"
         )
+        expected_failure = index == 20
+        expected_signature = "EXPECTED_FIXTURE_FAILURE_SIGNATURE"
+        exit_code = 1 if expected_failure else 0
+        result_output = (
+            f"{expected_signature}\n"
+            if expected_failure
+            else f"{check_id}: PASS\n"
+        )
+        final_disposition = (
+            "EXPECTED_FAIL_CONFIRMED" if expected_failure else "PASS"
+        )
         raw_text = (
             f"Command: {command}\n"
             "Working Directory: C:\\Nexus Worktrees\\FAM-003\n"
             "Started UTC: 2026-07-25T00:00:00Z\n"
             "Ended UTC: 2026-07-25T00:00:01Z\n"
             "Duration MS: 1000\n"
-            "Exit Code: 0\n"
+            f"Exit Code: {exit_code}\n"
             "Output Mode: merged stdout/stderr\n"
             "--- MERGED STDOUT/STDERR ---\n"
-            f"{check_id}: PASS\n"
+            f"{result_output}"
         )
         provenance_files[raw_log] = raw_text
         provenance_checks.append(
@@ -1594,7 +1606,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 "startedUtc": "2026-07-25T00:00:00Z",
                 "endedUtc": "2026-07-25T00:00:01Z",
                 "durationMs": 1000,
-                "exitCode": 0,
+                "exitCode": exit_code,
+                "stdout": "NOT_SEPARATELY_CAPTURED",
+                "stderr": "NOT_SEPARATELY_CAPTURED",
+                "mergedOutput": result_output,
                 "outputMode": "merged stdout/stderr",
                 "rawLog": raw_log,
                 "rawLogSha256": hashlib.sha256(raw_text.encode("utf-8"))
@@ -1610,15 +1625,47 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 "expectedHashes": {
                     "HEAD": "0123456789abcdef0123456789abcdef01234567"
                 },
-                "expectedDisposition": "PASS",
+                "applicabilityResult": "APPLICABLE",
+                "applicabilityReason": "Executed as part of the complete current BP3 final validation suite.",
+                "expectedDisposition": "EXPECTED_FAIL" if expected_failure else "PASS",
+                "expectedFailureSignature": (
+                    expected_signature if expected_failure else "NONE"
+                ),
+                "finalDisposition": final_disposition,
+                "finalValidationResult": "PASS",
             }
         )
         validation_result_rows.append(
-            f"| `{check_id}` | {command} | `PASS` | `{raw_log}` |"
+            f"| `{check_id}` | {command} | `{final_disposition}` | `{raw_log}` |"
         )
+    applicability_row = {
+        "id": "NA01_fam003_r2_scope_audit",
+        "helperIdentity": bundle.FAM003_OPTION_G_SCOPE_AUDIT_HELPER,
+        "registeredScope": "Workstream-scoped",
+        "currentPacketClass": "BP3 Workstream Entry / Orchestration Validation USER review",
+        "executed": False,
+        "applicabilityResult": "Not Applicable With Reason",
+        "applicabilityReason": bundle.FAM003_OPTION_G_SCOPE_AUDIT_NA_REASON,
+        "sourceTruthBasis": "Docs/validation_helper_registry.md: FAM-003 R2 Workstream completion scope-audit helper row",
+        "expectedDisposition": "NOT_APPLICABLE_WITH_REASON",
+        "finalDisposition": "NOT_APPLICABLE_WITH_REASON",
+        "finalValidationResult": "PASS",
+    }
     provenance_summary = json.dumps(
         {
             "schema": bundle.FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA,
+            "finalSuiteInventory": [
+                *(check["id"] for check in provenance_checks),
+                applicability_row["id"],
+            ],
+            "suiteDispositionCounts": {
+                "PASS": 19,
+                "EXPECTED_FAIL_CONFIRMED": 1,
+                "NOT_APPLICABLE_WITH_REASON": 1,
+                "FAILED": 0,
+            },
+            "finalValidationResult": "PASS",
+            "applicability": [applicability_row],
             "checks": provenance_checks,
         },
         indent=2,
@@ -1633,6 +1680,77 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         + "\n".join(validation_result_rows)
         + "\n"
     )
+    fixture_head = "0123456789abcdef0123456789abcdef01234567"
+    fixture_projection_hashes = {
+        "Source Truth Context/current_external_branch_plan.md": "1" * 64,
+        "Source Truth Context/current_external_branch_state.md": "2" * 64,
+        "Source Truth Context/current_external_worktree_state.md": "3" * 64,
+    }
+    fixture_delta_files = [
+        "Docs/validation_helper_registry.md",
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+    ]
+    fixture_lineage_files = sorted(bundle.FAM003_OPTION_G_APPROVED_REPAIR_FILES)
+    fixture_lineage_commits = ["a" * 40, "b" * 40, "c" * 40, fixture_head]
+    fixture_snapshot = "snapshot-20260726T010203Z-a1b2c3d4"
+    fixture_receipt = "fam003-option-g-bp3-validation-disposition-repair-20260726T010203Z.json"
+    fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
+    fixture_rollback = (
+        f"Revert {fixture_head}, restore {fixture_snapshot} only if the governed "
+        "external transition is defective, then revalidate all three projections."
+    )
+    packet_manifest = json.dumps(
+        {
+            "currentActionableDecision": "BP3 approval only",
+            "futureWorkstreamDecision": "FUTURE_ONLY_NON_ACTIONABLE",
+            "userGateState": "Pending USER Review",
+            "workstreamImplementation": "UNAPPROVED",
+            "Source Repo HEAD": fixture_head,
+            "externalStateVersion": 24,
+            "Replacement ZIP": fixture_packet,
+            "Projection Raw Hashes": fixture_projection_hashes,
+            "Current Repair Delta": {
+                "commitCount": 1,
+                "commits": [fixture_head],
+                "changedFileCount": len(fixture_delta_files),
+                "changedFiles": fixture_delta_files,
+                "sourceHead": fixture_head,
+                "snapshotIdentity": fixture_snapshot,
+                "stateVersion": 24,
+                "projectionHashes": fixture_projection_hashes,
+                "transactionReceipt": fixture_receipt,
+                "rollbackRoute": fixture_rollback,
+                "packetIdentity": fixture_packet,
+            },
+            "Repair Lineage": {
+                "commitCount": len(fixture_lineage_commits),
+                "commits": fixture_lineage_commits,
+                "changedFileCount": len(fixture_lineage_files),
+                "changedFiles": fixture_lineage_files,
+            },
+        },
+        indent=2,
+    )
+    active_rollback_ledger = (
+        "# Option G BP3 External Transaction And Rollback Ledger\n\n"
+        "## Current Actionable Rollback Model\n\n"
+        f"Source HEAD: `{fixture_head}`\n"
+        f"Current repair commit: `{fixture_head}`\n"
+        + "\n".join(f"- Current repair file: `{path}`" for path in fixture_delta_files)
+        + "\n"
+        f"Snapshot Identity: `{fixture_snapshot}`\n"
+        f"Transaction Receipt: `{fixture_receipt}`\n"
+        f"Packet Identity: `{fixture_packet}`\n"
+        + "\n".join(
+            f"Projection Hash: `{value}`" for value in fixture_projection_hashes.values()
+        )
+        + "\n"
+        f"Rollback Route: {fixture_rollback}\n\n"
+        "## Historical / Superseded Evidence\n\n"
+        "The prior two-file model and snapshot-20260725T021152Z-da786968 are "
+        "historical only and are not current rollback instructions.\n"
+    )
     valid = {
         "START_HERE.md": (
             "# FAM-003 Option G BP3\n"
@@ -1640,14 +1758,18 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Primary USER Review File: `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
             "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
             "pending; Workstream implementation remains blocked`\n"
-            "Current Actionable Decision: `BP3 acceptance only`\n\n"
+            "Current Actionable Decision: `BP3 approval only`\n"
+            "Workstream Implementation: `UNAPPROVED`\n\n"
             f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
+            f"{bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT}\n"
         ),
         "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
         "Review Aids/USER_DECISIONS.md": (
             "# USER Decisions\n\n"
-            "## Current Actionable Decision - BP3 Acceptance Only\n\n"
+            "## Current Actionable Decision - BP3 Approval Only\n\n"
+            "Workstream Implementation: `UNAPPROVED`\n\n"
             f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n\n"
+            f"{bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT}\n\n"
             "## Future decision only - not requested, granted, or actionable at the "
             "current BP3 gate\n\n"
             f"{bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION}\n"
@@ -1673,12 +1795,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "`OPTG-BP3-DS-DEF-07`\n"
             "Validator false-green defects are closed with proof.\n"
         ),
-        "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json": (
-            '{"currentActionableDecision": "BP3 acceptance only", '
-            '"futureWorkstreamDecision": "FUTURE_ONLY_NON_ACTIONABLE", '
-            '"userGateState": "Pending USER Review", '
-            '"workstreamImplementation": "UNAPPROVED"}\n'
+        "Review Aids/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md": (
+            active_rollback_ledger
         ),
+        "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json": packet_manifest,
         "Source Truth Context/Proof Artifacts/Validation/VALIDATION_RESULTS.md": (
             validation_results_text
         ),
@@ -2338,6 +2458,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         *,
         remove_file: str | None = None,
         validation_text: str | None = None,
+        file_updates: dict[str, str] | None = None,
     ) -> None:
         mutated = dict(valid)
         mutated[provenance_summary_path] = json.dumps(summary_value, indent=2)
@@ -2347,6 +2468,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             mutated[
                 "Source Truth Context/Proof Artifacts/Validation/VALIDATION_RESULTS.md"
             ] = validation_text
+        if file_updates:
+            mutated.update(file_updates)
         failures = bundle._fam003_option_g_bp3_orchestration_failures(
             mutated,
             status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
@@ -2387,7 +2510,12 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "targets",
             "expectedIdentities",
             "expectedHashes",
+            "applicabilityResult",
+            "applicabilityReason",
             "expectedDisposition",
+            "expectedFailureSignature",
+            "finalDisposition",
+            "finalValidationResult",
         ),
         start=3,
     ):
@@ -2440,6 +2568,219 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         false_pass,
         "claims PASS but exitCode is nonzero",
     )
+
+    arbitrary_na = json.loads(provenance_summary)
+    arbitrary_na_check = arbitrary_na["checks"][0]
+    arbitrary_na_raw = provenance_files[arbitrary_na_check["rawLog"]].replace(
+        "Exit Code: 0\n", "Exit Code: 1\n"
+    ).replace("01_fixture_check: PASS\n", "RuntimeError: arbitrary unrelated fatal error\n")
+    arbitrary_na_check.update(
+        {
+            "exitCode": 1,
+            "mergedOutput": "RuntimeError: arbitrary unrelated fatal error\n",
+            "expectedDisposition": "EXPECTED_NOT_APPLICABLE",
+            "expectedFailureSignature": "NOT_APPLICABLE",
+            "finalDisposition": "NOT_APPLICABLE_CONFIRMED",
+            "rawLogSha256": hashlib.sha256(arbitrary_na_raw.encode("utf-8")).hexdigest().upper(),
+        }
+    )
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-NA-01",
+        arbitrary_na,
+        "unsupported expected disposition",
+        file_updates={arbitrary_na_check["rawLog"]: arbitrary_na_raw},
+    )
+
+    traceback_na = json.loads(provenance_summary)
+    traceback_check = traceback_na["checks"][0]
+    traceback_raw = provenance_files[traceback_check["rawLog"]].replace(
+        "01_fixture_check: PASS\n",
+        "Traceback (most recent call last):\nRuntimeError: unrelated failure\n",
+    )
+    traceback_check["mergedOutput"] = (
+        "Traceback (most recent call last):\nRuntimeError: unrelated failure\n"
+    )
+    traceback_check["rawLogSha256"] = hashlib.sha256(
+        traceback_raw.encode("utf-8")
+    ).hexdigest().upper()
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-NA-02",
+        traceback_na,
+        "uncontrolled traceback or exception",
+        file_updates={traceback_check["rawLog"]: traceback_raw},
+    )
+
+    missing_na_reason = json.loads(provenance_summary)
+    missing_na_reason["applicability"][0]["applicabilityReason"] = ""
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-NA-03",
+        missing_na_reason,
+        "missing applicabilityReason",
+    )
+    applicable_na = json.loads(provenance_summary)
+    applicable_na["applicability"][0]["executed"] = True
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-NA-04",
+        applicable_na,
+        "must be unexecuted",
+    )
+    wrong_failure_signature = json.loads(provenance_summary)
+    wrong_failure_signature["checks"][-1]["expectedFailureSignature"] = "WRONG_SIGNATURE"
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-MAP-01",
+        wrong_failure_signature,
+        "does not contain the exact expected failure signature",
+    )
+    missing_final = json.loads(provenance_summary)
+    missing_final["checks"][0].pop("finalDisposition")
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-MAP-02",
+        missing_final,
+        "missing finalDisposition",
+    )
+    mismatched_final = json.loads(provenance_summary)
+    mismatched_final["checks"][0]["finalDisposition"] = "EXPECTED_FAIL_CONFIRMED"
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-MAP-03",
+        mismatched_final,
+        "expected/final disposition mismatch for PASS",
+    )
+    zero_expected_failure = json.loads(provenance_summary)
+    zero_expected_failure["checks"][-1]["exitCode"] = 0
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-MAP-04",
+        zero_expected_failure,
+        "must have a nonzero exitCode",
+    )
+    inconsistent_counts = json.loads(provenance_summary)
+    inconsistent_counts["suiteDispositionCounts"]["PASS"] = 20
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COUNT-01",
+        inconsistent_counts,
+        "suite disposition counts disagree",
+    )
+    digest_mismatch = validation_results_text.replace(
+        "`01_fixture_check` | py -3 dev/fixture_check_01.py | `PASS`",
+        "`01_fixture_check` | py -3 dev/fixture_check_01.py | `FAILED`",
+    )
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-DIGEST-01",
+        json.loads(provenance_summary),
+        "human validation digest disposition disagrees",
+        validation_text=digest_mismatch,
+    )
+    omitted_inventory = json.loads(provenance_summary)
+    omitted_inventory["finalSuiteInventory"].pop()
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-INVENTORY-01",
+        omitted_inventory,
+        "finalSuiteInventory omits",
+    )
+
+    manifest_path = "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json"
+
+    def _assert_active_repair_failure(
+        case_id: str,
+        manifest_value: dict[str, object],
+        expected: str,
+        *,
+        rollback_text: str | None = None,
+        defect_text: str | None = None,
+    ) -> None:
+        mutated = dict(valid)
+        mutated[manifest_path] = json.dumps(manifest_value, indent=2)
+        if rollback_text is not None:
+            mutated[
+                "Review Aids/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md"
+            ] = rollback_text
+        if defect_text is not None:
+            mutated["Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md"] = defect_text
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    bad_commit_count = json.loads(packet_manifest)
+    bad_commit_count["Current Repair Delta"]["commitCount"] = 2
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-01",
+        bad_commit_count,
+        "commit count disagrees",
+    )
+    bad_file_count = json.loads(packet_manifest)
+    bad_file_count["Current Repair Delta"]["changedFileCount"] = 4
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-02",
+        bad_file_count,
+        "changed-file count disagrees",
+    )
+    bad_file_identity = json.loads(packet_manifest)
+    bad_file_identity["Current Repair Delta"]["changedFiles"].append("desktop/desktop_renderer.py")
+    bad_file_identity["Current Repair Delta"]["changedFileCount"] = 4
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-03",
+        bad_file_identity,
+        "outside the approved repair set",
+    )
+    bad_snapshot = json.loads(packet_manifest)
+    bad_snapshot["Current Repair Delta"]["snapshotIdentity"] = "snapshot-20990101T000000Z-deadbeef"
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-04",
+        bad_snapshot,
+        "active rollback ledger disagrees with current snapshotIdentity",
+    )
+    bad_state = json.loads(packet_manifest)
+    bad_state["Current Repair Delta"]["stateVersion"] = 25
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-05",
+        bad_state,
+        "external-state version disagrees",
+    )
+    bad_projection = json.loads(packet_manifest)
+    first_projection = next(iter(fixture_projection_hashes))
+    bad_projection["Current Repair Delta"]["projectionHashes"][first_projection] = "9" * 64
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-06",
+        bad_projection,
+        "projection hashes disagree",
+    )
+    bad_receipt = json.loads(packet_manifest)
+    bad_receipt["Current Repair Delta"]["transactionReceipt"] = "wrong-receipt.json"
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-07",
+        bad_receipt,
+        "active rollback ledger disagrees with current transactionReceipt",
+    )
+    bad_rollback = json.loads(packet_manifest)
+    bad_rollback["Current Repair Delta"]["rollbackRoute"] = "unsafe rollback route"
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-08",
+        bad_rollback,
+        "active rollback ledger disagrees with current rollbackRoute",
+    )
+    bad_packet = json.loads(packet_manifest)
+    bad_packet["Current Repair Delta"]["packetIdentity"] = r"C:\Nexus USER\FAM-003-20990101-000000.zip"
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-09",
+        bad_packet,
+        "packet identity disagrees",
+    )
+    _assert_active_repair_failure(
+        "OPTG-BP3-ROLLBACK-FG-10",
+        json.loads(packet_manifest),
+        "stale active rollback evidence",
+        rollback_text=active_rollback_ledger.replace(
+            "## Historical / Superseded Evidence", "## Unlabeled Prior Notes"
+        ),
+    )
+    historical_failures = bundle._fam003_option_g_active_repair_evidence_failures(valid)
+    if historical_failures:
+        raise AssertionError(
+            "OPTG-BP3-ROLLBACK-POS-01 rejected clearly labeled historical evidence: "
+            f"{historical_failures}"
+        )
 
     if bundle._byte_exact_projection_copy_failures(
         "current_external_branch_plan.md",
@@ -2503,7 +2844,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             (
                 (
                     "Review Aids/USER_DECISIONS.md",
-                    "I accept the repaired FAM-003",
+                    "I approve the repaired FAM-003",
                     "I revise the repaired FAM-003",
                     1,
                 ),
@@ -2516,7 +2857,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             (
                 (
                     "START_HERE.md",
-                    "I accept the repaired FAM-003",
+                    "I approve the repaired FAM-003",
                     "I approve implementation for the repaired FAM-003",
                     1,
                 ),
@@ -2609,7 +2950,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             (
                 (
                     "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
-                    "Codex Response Digest: Pending USER Response - no BP3 acceptance "
+                    "Codex Response Digest: Pending USER Response - no BP3 approval "
                     "recorded; Workstream implementation remains unapproved.",
                     "Codex Response Digest: BP3 accepted and Workstream implementation ready.",
                     1,
@@ -2773,7 +3114,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 ),
             ),
             {},
-            "BP3 acceptance and Workstream implementation approval are combined",
+            "BP3 approval and Workstream implementation approval are combined",
         ),
         (
             "OPTG-BP3-DS-FG-22",
@@ -2841,6 +3182,83 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             ),
             {},
             "decision-surface defect row OPTG-BP3-DS-DEF-07 must appear exactly once",
+        ),
+        (
+            "OPTG-BP3-DS-FG-27",
+            tuple(
+                (
+                    file_name,
+                    "I approve the repaired FAM-003",
+                    "I accept the repaired FAM-003",
+                    1,
+                )
+                for file_name in (
+                    "START_HERE.md",
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "uses accept where exact approve vocabulary is required",
+        ),
+        (
+            "OPTG-BP3-DS-FG-28",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    "I approve the repaired FAM-003",
+                    "I accept the repaired FAM-003",
+                    1,
+                ),
+            ),
+            {},
+            "uses accept where exact approve vocabulary is required",
+        ),
+        (
+            "OPTG-BP3-DS-FG-29",
+            tuple(
+                (
+                    file_name,
+                    bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT,
+                    bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT.replace(
+                        "USER Approved", "USER Accepted"
+                    ),
+                    1,
+                )
+                for file_name in (
+                    "START_HERE.md",
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "Review Aids/USER_DECISIONS.md",
+                )
+            ),
+            {},
+            "future USER Approved state mapping is missing",
+        ),
+        (
+            "OPTG-BP3-DS-FG-30",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    current_decision,
+                    current_decision + " I approve Workstream implementation now.",
+                    1,
+                ),
+            ),
+            {},
+            "BP3 approval and Workstream implementation approval are combined",
+        ),
+        (
+            "OPTG-BP3-DS-FG-31",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "USER Gate State: Pending USER Review",
+                    "USER Gate State: USER Approved",
+                    1,
+                ),
+            ),
+            {},
+            "packet claims BP3 is already USER Approved",
         ),
     )
     for case_id, mutations, additions, expected in decision_surface_cases:
@@ -3403,8 +3821,9 @@ def main() -> int:
     )
     print(
         "False-green fixture validation: PASS "
-        "(Option G BP3: 22 proof-carrydown + 26 decision-surface + "
-        "38 canonical-UFD + 12 Element-to-Phase + 26 provenance + "
+        "(Option G BP3: 22 proof-carrydown + 31 decision-surface + "
+        "38 canonical-UFD + 12 Element-to-Phase + 45 provenance + "
+        "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases)"
     )
     return 0

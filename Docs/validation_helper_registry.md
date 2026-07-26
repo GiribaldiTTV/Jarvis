@@ -262,6 +262,36 @@ partial-provenance, missing-log, false-PASS, human-digest, and byte-exact-copy
 negative fixtures. Packet/helper PASS remains reviewability evidence only and
 does not accept BP3 or authorize Workstream implementation.
 
+For the FAM-003 Option G BP3 packet class, validation provenance uses the
+fail-closed `ndai-validation-provenance-v2` contract. Executed rows are
+`APPLICABLE` and may map only `PASS -> PASS` with exit `0`, or
+`EXPECTED_FAIL -> EXPECTED_FAIL_CONFIRMED` with a nonzero exit and the exact
+registered failure signature in the raw log. `Not Applicable With Reason` is
+not an executed-check escape hatch: an omitted phase-specific helper must live
+in the separate complete applicability ledger as unexecuted, name its
+registered scope, current packet class, concrete routed reason, and registry
+basis, and map exactly
+`NOT_APPLICABLE_WITH_REASON -> NOT_APPLICABLE_WITH_REASON`. An uncontrolled
+traceback, unhandled exception, unsupported expected disposition, mapping
+mismatch, missing final disposition, raw-log mismatch, digest mismatch, omitted
+inventory row, or suite-count disagreement is a packet failure. The registered
+`dev/orin_fam003_r2_workstream_scope_audit_validation.py` helper is
+Workstream-scoped and is `Not Applicable With Reason` to this planning-only BP3
+packet suite because no Workstream implementation commit ledger is being
+adjudicated; the independent bounded repair-scope proof remains a separate
+packet-contained executed check.
+
+The same packet guard must reconcile active review claims to one current repair
+delta and one full repair lineage in the packet manifest. Current commit/file
+counts and identities, source HEAD, snapshot, state version, projection hashes,
+transaction receipt, rollback route, and packet identity must agree with the
+active transaction/rollback aid. Prior models may remain only below an explicit
+`Historical / Superseded Evidence` boundary. For BP3, the exact actionable USER
+verb is `approve`; sending the exact text later maps the USER Gate State to
+`USER Approved` while Workstream implementation remains `UNAPPROVED` and
+separately gated. Mixed `accept`/`approve` text, `accept` as the BP3 action,
+already-approved claims, or combined BP3/Workstream authority must fail.
+
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
 absolute/off-root, reparse/symlink, malformed, unsupported-record,

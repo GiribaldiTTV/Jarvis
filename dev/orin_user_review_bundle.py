@@ -5715,10 +5715,10 @@ def _fam003_option_g_bp2_planning_failures(
 
 
 FAM003_OPTION_G_BP3_CURRENT_DECISION = (
-    "I accept the repaired FAM-003 Decision 2 Option G BP3 Workstream Entry / "
+    "I approve the repaired FAM-003 Decision 2 Option G BP3 Workstream Entry / "
     "Orchestration Validation contract for `feature/fam-003-settings-resize-proof` "
     "in `C:\\Nexus Worktrees\\FAM-003` and authorize preparation of a separate "
-    "bounded Workstream implementation approval packet only. This acceptance "
+    "bounded Workstream implementation approval packet only. This approval "
     "preserves `F3-OPTG-D01`, `OPTG-WS01` through `OPTG-WS07`, and "
     "`OPTG-ALLOW-01` through `OPTG-ALLOW-08` as planning boundaries only; it "
     "does not self-admit any path, resource, object, owner, or "
@@ -5730,6 +5730,11 @@ FAM003_OPTION_G_BP3_CURRENT_DECISION = (
     "Validation, UTS, issue mutation, PR Readiness, PR creation, merge, release, "
     "selected-next mutation, sibling/Governance mutation, branch/worktree change, "
     "or cleanup beyond packet hygiene."
+)
+
+FAM003_OPTION_G_BP3_DECISION_EFFECT = (
+    "Decision Effect If USER Sends Exact Text: `USER Gate State` becomes "
+    "`USER Approved`; Workstream Implementation remains `UNAPPROVED`."
 )
 
 
@@ -5784,8 +5789,16 @@ FAM003_OPTION_G_ELEMENT_OWNER = (
     r"C:\Nexus Governance State\branches"
     r"\feature_fam_003_settings_resize_proof\branch_plan.md"
 )
-FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA = "ndai-validation-provenance-v1"
+FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA = "ndai-validation-provenance-v2"
 FAM003_OPTION_G_MINIMUM_PROVENANCE_CHECKS = 20
+FAM003_OPTION_G_SCOPE_AUDIT_HELPER = (
+    "dev/orin_fam003_r2_workstream_scope_audit_validation.py"
+)
+FAM003_OPTION_G_SCOPE_AUDIT_NA_REASON = (
+    "Registered Workstream-scoped completion helper does not apply to the current "
+    "planning-only BP3 packet validation suite because no Workstream implementation "
+    "commit ledger is being adjudicated."
+)
 
 
 def _markdown_table_cells(line: str) -> list[str]:
@@ -5953,6 +5966,32 @@ def _fam003_option_g_validation_provenance_failures(
         failures.append(
             "FAM-003 Option G BP3: validation provenance schema is missing or stale"
         )
+    final_suite_inventory = summary.get("finalSuiteInventory")
+    if not isinstance(final_suite_inventory, list) or not final_suite_inventory:
+        failures.append(
+            "FAM-003 Option G BP3: validation provenance finalSuiteInventory must "
+            "be one complete non-empty list"
+        )
+        final_suite_inventory = []
+    suite_counts = summary.get("suiteDispositionCounts")
+    if not isinstance(suite_counts, dict):
+        failures.append(
+            "FAM-003 Option G BP3: validation provenance suiteDispositionCounts "
+            "must be a complete object"
+        )
+        suite_counts = {}
+    if summary.get("finalValidationResult") != "PASS":
+        failures.append(
+            "FAM-003 Option G BP3: final validation result must be PASS only after "
+            "all executed and applicability rows reconcile"
+        )
+    applicability = summary.get("applicability")
+    if not isinstance(applicability, list):
+        failures.append(
+            "FAM-003 Option G BP3: validation provenance applicability ledger is "
+            "missing or malformed"
+        )
+        applicability = []
     checks = summary.get("checks")
     if not isinstance(checks, list):
         failures.append(
@@ -5976,6 +6015,9 @@ def _fam003_option_g_validation_provenance_failures(
         "endedUtc",
         "durationMs",
         "exitCode",
+        "stdout",
+        "stderr",
+        "mergedOutput",
         "outputMode",
         "rawLog",
         "rawLogSha256",
@@ -5984,7 +6026,12 @@ def _fam003_option_g_validation_provenance_failures(
         "targets",
         "expectedIdentities",
         "expectedHashes",
+        "applicabilityResult",
+        "applicabilityReason",
         "expectedDisposition",
+        "expectedFailureSignature",
+        "finalDisposition",
+        "finalValidationResult",
     )
     observed_numbers: list[int] = []
     observed_ids: set[str] = set()
@@ -6066,10 +6113,62 @@ def _fam003_option_g_validation_provenance_failures(
                 f"FAM-003 Option G BP3: validation provenance {check_id} has "
                 "non-integer exitCode"
             )
-        elif check.get("expectedDisposition") == "PASS" and exit_code != 0:
+        expected_disposition = check.get("expectedDisposition")
+        final_disposition = check.get("finalDisposition")
+        final_result = check.get("finalValidationResult")
+        expected_signature = str(check.get("expectedFailureSignature") or "")
+        if check.get("applicabilityResult") != "APPLICABLE":
             failures.append(
-                f"FAM-003 Option G BP3: validation provenance {check_id} claims "
-                "PASS but exitCode is nonzero"
+                f"FAM-003 Option G BP3: executed validation provenance {check_id} "
+                "must be APPLICABLE; Not Applicable With Reason belongs in the "
+                "separate applicability ledger"
+            )
+        if not str(check.get("applicabilityReason") or "").strip():
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} lacks a "
+                "concrete applicability reason"
+            )
+        if final_result != "PASS":
+            failures.append(
+                f"FAM-003 Option G BP3: validation provenance {check_id} final "
+                "validation result is not PASS"
+            )
+        if expected_disposition == "PASS":
+            if exit_code != 0:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} claims "
+                    "PASS but exitCode is nonzero"
+                )
+            if final_disposition != "PASS":
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    "expected/final disposition mismatch for PASS"
+                )
+            if expected_signature not in {"NONE", "NOT_APPLICABLE"}:
+                failures.append(
+                    f"FAM-003 Option G BP3: PASS provenance {check_id} must not "
+                    "declare an expected failure signature"
+                )
+        elif expected_disposition == "EXPECTED_FAIL":
+            if exit_code == 0:
+                failures.append(
+                    f"FAM-003 Option G BP3: expected-failure provenance {check_id} "
+                    "must have a nonzero exitCode"
+                )
+            if final_disposition != "EXPECTED_FAIL_CONFIRMED":
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    "expected/final disposition mismatch for EXPECTED_FAIL"
+                )
+            if not expected_signature or expected_signature in {"NONE", "NOT_APPLICABLE"}:
+                failures.append(
+                    f"FAM-003 Option G BP3: expected-failure provenance {check_id} "
+                    "must declare the exact expected failure signature"
+                )
+        else:
+            failures.append(
+                f"FAM-003 Option G BP3: executed validation provenance {check_id} "
+                f"uses unsupported expected disposition {expected_disposition!r}"
             )
 
         raw_log = str(check.get("rawLog") or "").replace("\\", "/")
@@ -6114,6 +6213,26 @@ def _fam003_option_g_validation_provenance_failures(
                         f"FAM-003 Option G BP3: validation provenance {check_id} "
                         f"raw log omits {marker}"
                     )
+            uncontrolled_markers = (
+                "Traceback (most recent call last):",
+                "Unhandled exception",
+                "UNHANDLED EXCEPTION",
+            )
+            if any(marker in raw_text for marker in uncontrolled_markers):
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} raw "
+                    "log contains an uncontrolled traceback or exception"
+                )
+            if (
+                expected_disposition == "EXPECTED_FAIL"
+                and expected_signature
+                and expected_signature not in {"NONE", "NOT_APPLICABLE"}
+                and expected_signature not in raw_text
+            ):
+                failures.append(
+                    f"FAM-003 Option G BP3: expected-failure provenance {check_id} "
+                    "raw log does not contain the exact expected failure signature"
+                )
 
         command = str(check.get("command") or "")
         digest_row = next(
@@ -6129,11 +6248,305 @@ def _fam003_option_g_validation_provenance_failures(
                 f"FAM-003 Option G BP3: human validation digest omits exact "
                 f"command provenance for {check_id}"
             )
+        elif str(final_disposition or "") not in digest_row:
+            failures.append(
+                f"FAM-003 Option G BP3: human validation digest disposition "
+                f"disagrees with machine provenance for {check_id}"
+            )
 
     if observed_numbers and observed_numbers != list(range(1, len(checks) + 1)):
         failures.append(
             "FAM-003 Option G BP3: validation provenance IDs are not one "
             "contiguous 01-N sequence"
+        )
+
+    applicability_required_fields = (
+        "id",
+        "helperIdentity",
+        "registeredScope",
+        "currentPacketClass",
+        "executed",
+        "applicabilityResult",
+        "applicabilityReason",
+        "sourceTruthBasis",
+        "expectedDisposition",
+        "finalDisposition",
+        "finalValidationResult",
+    )
+    applicability_ids: list[str] = []
+    for index, row in enumerate(applicability, start=1):
+        if not isinstance(row, dict):
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {index} is not an object"
+            )
+            continue
+        row_id = str(row.get("id") or f"row-{index}")
+        applicability_ids.append(row_id)
+        for field in applicability_required_fields:
+            if field not in row or row[field] is None or row[field] == "":
+                failures.append(
+                    f"FAM-003 Option G BP3: applicability row {row_id} is missing {field}"
+                )
+        if row.get("executed") is not False:
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {row_id} must be unexecuted"
+            )
+        if row.get("applicabilityResult") != "Not Applicable With Reason":
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {row_id} must use exact "
+                "Not Applicable With Reason vocabulary"
+            )
+        if row.get("expectedDisposition") != "NOT_APPLICABLE_WITH_REASON" or row.get(
+            "finalDisposition"
+        ) != "NOT_APPLICABLE_WITH_REASON":
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {row_id} has an "
+                "expected/final disposition mismatch"
+            )
+        if row.get("finalValidationResult") != "PASS":
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {row_id} is not PASS"
+            )
+        if len(str(row.get("applicabilityReason") or "").split()) < 8:
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {row_id} lacks a concrete "
+                "routed applicability reason"
+            )
+        if "Docs/validation_helper_registry.md" not in str(row.get("sourceTruthBasis") or ""):
+            failures.append(
+                f"FAM-003 Option G BP3: applicability row {row_id} lacks the routed "
+                "helper-registry basis"
+            )
+
+    scope_rows = [
+        row
+        for row in applicability
+        if isinstance(row, dict)
+        and row.get("helperIdentity") == FAM003_OPTION_G_SCOPE_AUDIT_HELPER
+    ]
+    if len(scope_rows) != 1:
+        failures.append(
+            "FAM-003 Option G BP3: complete final-suite inventory must contain one "
+            "controlled applicability row for the Workstream-scoped R2 scope auditor"
+        )
+    elif (
+        scope_rows[0].get("registeredScope") != "Workstream-scoped"
+        or scope_rows[0].get("currentPacketClass")
+        != "BP3 Workstream Entry / Orchestration Validation USER review"
+        or scope_rows[0].get("applicabilityReason")
+        != FAM003_OPTION_G_SCOPE_AUDIT_NA_REASON
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: Workstream-scoped R2 scope-auditor applicability "
+            "row does not match the registered scope and deterministic reason"
+        )
+
+    complete_ids = [str(check.get("id")) for check in checks if isinstance(check, dict)]
+    complete_ids.extend(applicability_ids)
+    if final_suite_inventory != complete_ids or len(complete_ids) != len(set(complete_ids)):
+        failures.append(
+            "FAM-003 Option G BP3: finalSuiteInventory omits, duplicates, reorders, "
+            "or adds a check/applicability row"
+        )
+    actual_counts = {
+        "PASS": sum(
+            1 for check in checks if isinstance(check, dict) and check.get("finalDisposition") == "PASS"
+        ),
+        "EXPECTED_FAIL_CONFIRMED": sum(
+            1
+            for check in checks
+            if isinstance(check, dict)
+            and check.get("finalDisposition") == "EXPECTED_FAIL_CONFIRMED"
+        ),
+        "NOT_APPLICABLE_WITH_REASON": sum(
+            1
+            for row in applicability
+            if isinstance(row, dict)
+            and row.get("finalDisposition") == "NOT_APPLICABLE_WITH_REASON"
+        ),
+        "FAILED": sum(
+            1
+            for row in (*checks, *applicability)
+            if isinstance(row, dict) and row.get("finalValidationResult") != "PASS"
+        ),
+    }
+    if suite_counts != actual_counts:
+        failures.append(
+            "FAM-003 Option G BP3: suite disposition counts disagree with row "
+            f"dispositions; expected {actual_counts!r}, found {suite_counts!r}"
+        )
+    return failures
+
+
+FAM003_OPTION_G_APPROVED_REPAIR_FILES = {
+    "Docs/validation_helper_registry.md",
+    "dev/orin_external_state_target_currentness_fixture_validation.py",
+    "dev/orin_external_state_validation.py",
+    "dev/orin_user_review_bundle.py",
+    "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+}
+
+
+def _current_review_claims(text: str) -> str:
+    return text.partition("## Historical / Superseded Evidence")[0]
+
+
+def _fam003_option_g_active_repair_evidence_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    failures: list[str] = []
+    manifest_text = _packet_file_text(packet_files, "PACKET_MANIFEST.json")
+    active_ledger = _packet_file_text(
+        packet_files, "OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md"
+    )
+    defect_ledger = _packet_file_text(
+        packet_files, "OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md"
+    )
+    if not manifest_text:
+        return ["FAM-003 Option G BP3: packet manifest is missing"]
+    try:
+        manifest = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        return [f"FAM-003 Option G BP3: packet manifest is malformed: {exc}"]
+    if not isinstance(manifest, dict):
+        return ["FAM-003 Option G BP3: packet manifest must be an object"]
+
+    delta = manifest.get("Current Repair Delta")
+    lineage = manifest.get("Repair Lineage")
+    if not isinstance(delta, dict):
+        failures.append(
+            "FAM-003 Option G BP3: packet manifest omits Current Repair Delta"
+        )
+        delta = {}
+    if not isinstance(lineage, dict):
+        failures.append("FAM-003 Option G BP3: packet manifest omits Repair Lineage")
+        lineage = {}
+
+    def _validate_commit_file_set(label: str, value: Mapping[str, object]) -> None:
+        commits = value.get("commits")
+        files = value.get("changedFiles")
+        commit_count = value.get("commitCount")
+        file_count = value.get("changedFileCount")
+        if not isinstance(commits, list) or commit_count != len(commits):
+            failures.append(
+                f"FAM-003 Option G BP3: {label} commit count disagrees with commit identities"
+            )
+        elif not all(re.fullmatch(r"[0-9a-f]{40}", str(item)) for item in commits):
+            failures.append(f"FAM-003 Option G BP3: {label} contains an invalid commit identity")
+        if not isinstance(files, list) or file_count != len(files):
+            failures.append(
+                f"FAM-003 Option G BP3: {label} changed-file count disagrees with file identities"
+            )
+        elif len(files) != len(set(map(str, files))):
+            failures.append(f"FAM-003 Option G BP3: {label} contains duplicate changed files")
+        elif not set(map(str, files)).issubset(FAM003_OPTION_G_APPROVED_REPAIR_FILES):
+            failures.append(
+                f"FAM-003 Option G BP3: {label} contains a file outside the approved repair set"
+            )
+
+    _validate_commit_file_set("Current Repair Delta", delta)
+    _validate_commit_file_set("Repair Lineage", lineage)
+    if set(map(str, lineage.get("changedFiles") or [])) != FAM003_OPTION_G_APPROVED_REPAIR_FILES:
+        failures.append(
+            "FAM-003 Option G BP3: Repair Lineage must identify the exact five-file repair set"
+        )
+    if not set(map(str, delta.get("changedFiles") or [])).issubset(
+        set(map(str, lineage.get("changedFiles") or []))
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: Current Repair Delta files are absent from Repair Lineage"
+        )
+    if not set(map(str, delta.get("commits") or [])).issubset(
+        set(map(str, lineage.get("commits") or []))
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: Current Repair Delta commits are absent from Repair Lineage"
+        )
+
+    required_delta_fields = (
+        "sourceHead",
+        "snapshotIdentity",
+        "stateVersion",
+        "projectionHashes",
+        "transactionReceipt",
+        "rollbackRoute",
+        "packetIdentity",
+    )
+    for field in required_delta_fields:
+        if field not in delta or delta[field] in (None, "", [], {}):
+            failures.append(
+                f"FAM-003 Option G BP3: Current Repair Delta is missing {field}"
+            )
+    source_head = str(delta.get("sourceHead") or "")
+    commits = list(map(str, delta.get("commits") or []))
+    if commits and source_head != commits[-1]:
+        failures.append(
+            "FAM-003 Option G BP3: Current Repair Delta sourceHead must equal its final commit"
+        )
+    if manifest.get("Source Repo HEAD") != source_head:
+        failures.append(
+            "FAM-003 Option G BP3: manifest Source Repo HEAD disagrees with Current Repair Delta"
+        )
+    if manifest.get("externalStateVersion") != delta.get("stateVersion"):
+        failures.append(
+            "FAM-003 Option G BP3: manifest external-state version disagrees with Current Repair Delta"
+        )
+    if manifest.get("Projection Raw Hashes") != delta.get("projectionHashes"):
+        failures.append(
+            "FAM-003 Option G BP3: manifest projection hashes disagree with Current Repair Delta"
+        )
+    if manifest.get("Replacement ZIP") != delta.get("packetIdentity"):
+        failures.append(
+            "FAM-003 Option G BP3: manifest packet identity disagrees with Current Repair Delta"
+        )
+
+    current_ledger = _current_review_claims(active_ledger)
+    current_defects = _current_review_claims(defect_ledger)
+    if not current_ledger:
+        failures.append(
+            "FAM-003 Option G BP3: current external transaction and rollback ledger is missing"
+        )
+    for field in (
+        "sourceHead",
+        "snapshotIdentity",
+        "transactionReceipt",
+        "rollbackRoute",
+        "packetIdentity",
+    ):
+        value = str(delta.get(field) or "")
+        if value and value not in current_ledger:
+            failures.append(
+                f"FAM-003 Option G BP3: active rollback ledger disagrees with current {field}"
+            )
+    for value in map(str, delta.get("commits") or []):
+        if value not in current_ledger:
+            failures.append(
+                "FAM-003 Option G BP3: active rollback ledger omits a Current Repair Delta commit"
+            )
+    for value in map(str, delta.get("changedFiles") or []):
+        if value not in current_ledger:
+            failures.append(
+                "FAM-003 Option G BP3: active rollback ledger omits a Current Repair Delta file"
+            )
+    for value in (delta.get("projectionHashes") or {}).values():
+        if str(value) not in current_ledger:
+            failures.append(
+                "FAM-003 Option G BP3: active rollback ledger omits a current projection hash"
+            )
+
+    stale_active_claims = (
+        "one two-file commit",
+        "snapshot-20260725T021152Z-da786968",
+    )
+    for stale in stale_active_claims:
+        if stale.casefold() in current_ledger.casefold() or stale.casefold() in current_defects.casefold():
+            failures.append(
+                "FAM-003 Option G BP3: stale active rollback evidence remains outside "
+                f"the Historical / Superseded Evidence section: {stale}"
+            )
+    if "## Historical / Superseded Evidence" not in active_ledger:
+        failures.append(
+            "FAM-003 Option G BP3: rollback ledger does not separate historical evidence"
         )
     return failures
 
@@ -6176,6 +6589,9 @@ def _fam003_option_g_bp3_orchestration_failures(
         "visual, manual, and raw-evidence plan": "OPTION_G_VISUAL_MANUAL_RAW_EVIDENCE_PLAN.md",
         "Element-to-Phase matrix": "OPTION_G_ELEMENT_TO_PHASE_MATRIX.md",
         "defect ledger": "OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md",
+        "external transaction and rollback ledger": (
+            "OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md"
+        ),
     }
     aid_text = {
         label: _packet_file_text(packet_files, file_name)
@@ -6215,6 +6631,47 @@ def _fam003_option_g_bp3_orchestration_failures(
                 "FAM-003 Option G BP3: exact packet-contained current BP3 decision "
                 f"must appear exactly once in {file_name}"
             )
+        if FAM003_OPTION_G_BP3_DECISION_EFFECT not in text:
+            failures.append(
+                "FAM-003 Option G BP3: exact future USER Approved state mapping is "
+                f"missing in {file_name}"
+            )
+        elif text.count(FAM003_OPTION_G_BP3_DECISION_EFFECT) != 1:
+            failures.append(
+                "FAM-003 Option G BP3: exact future USER Approved state mapping "
+                f"must appear exactly once in {file_name}"
+            )
+
+    active_decision_text = "\n".join(decision_surfaces.values())
+    if re.search(
+        r"\bI\s+accept\s+the\s+repaired\s+FAM-003\b",
+        active_decision_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: current decision uses accept where exact approve "
+            "vocabulary is required for USER Approved"
+        )
+    if "BP3 acceptance only" in active_decision_text:
+        failures.append(
+            "FAM-003 Option G BP3: current decision labels use acceptance instead of approval"
+        )
+    if re.search(
+        r"USER Gate State:\s*`?USER Approved`?",
+        active_decision_text,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: packet claims BP3 is already USER Approved"
+        )
+    if not all(
+        "Workstream Implementation" in text and "UNAPPROVED" in text
+        for text in decision_surfaces.values()
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: every current decision surface must keep "
+            "Workstream implementation explicitly UNAPPROVED"
+        )
 
     generic_decision_pattern = re.compile(
         r"(?:accept|approve),?\s+waive,?\s+revise,?\s+or\s+block",
@@ -6303,13 +6760,13 @@ def _fam003_option_g_bp3_orchestration_failures(
         )
     digest_value = _closed_loop_value("Codex Response Digest:")
     expected_digest = (
-        "Pending USER Response - no BP3 acceptance recorded; Workstream "
+        "Pending USER Response - no BP3 approval recorded; Workstream "
         "implementation remains unapproved."
     )
     if digest_value.casefold() != expected_digest.casefold():
         failures.append(
             "FAM-003 Option G BP3: Codex Response Digest must state that USER "
-            "response is pending, BP3 is unaccepted, and implementation is unapproved"
+            "response is pending, BP3 is unapproved, and implementation is unapproved"
         )
 
     future_label = (
@@ -6424,7 +6881,7 @@ def _fam003_option_g_bp3_orchestration_failures(
         re.IGNORECASE,
     ):
         failures.append(
-            "FAM-003 Option G BP3: BP3 acceptance and Workstream implementation "
+            "FAM-003 Option G BP3: BP3 approval and Workstream implementation "
             "approval are combined in the current actionable decision"
         )
 
@@ -6444,7 +6901,7 @@ def _fam003_option_g_bp3_orchestration_failures(
 
     normalized_manifest = re.sub(r"\s+", " ", manifest).casefold()
     manifest_terms = (
-        '"currentactionabledecision": "bp3 acceptance only"',
+        '"currentactionabledecision": "bp3 approval only"',
         '"futureworkstreamdecision": "future_only_non_actionable"',
         '"usergatestate": "pending user review"',
         '"workstreamimplementation": "unapproved"',
@@ -7052,6 +7509,7 @@ def _fam003_option_g_bp3_orchestration_failures(
             packet_binary_files,
         )
     )
+    failures.extend(_fam003_option_g_active_repair_evidence_failures(packet_files))
 
     forbidden_patterns = {
         "combined BP3 and implementation approval": re.compile(
