@@ -292,6 +292,27 @@ verb is `approve`; sending the exact text later maps the USER Gate State to
 separately gated. Mixed `accept`/`approve` text, `accept` as the BP3 action,
 already-approved claims, or combined BP3/Workstream authority must fail.
 
+FAM-003 Option G BP3 active-metadata and provenance-coherence addendum:
+`dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) must reject more
+than one active current-metadata block in `START_HERE.md` or the primary BP3
+review; duplicate active State Version, source HEAD, or packet identity values;
+duplicate current traceability or reusable-fixture sections; and stale packet
+metadata outside an explicit `Historical / Superseded Evidence` boundary. The
+packet's human digest, machine summary, raw logs, applicability ledger,
+manifest, and current USER summaries must agree on output-capture policy,
+executed/applicability totals, fixture counts, bounded-scope base/final
+HEAD/range/commit/file calculation, and the exact stale packet exercised.
+When a FAM-003-local staging helper supplies an essential bounded-scope PASS,
+the packet must include the exact executed helper source plus original/copy
+paths, SHA256 values, and source/copy equality; broad inventory evidence or raw
+output alone is insufficient. Output captured through separate subprocess
+streams must be labeled `separate stdout/stderr` and carry parseable stdout,
+stderr, and deterministic merged sections. `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+(`Helper Status: Reusable`) owns positive and atomic negative coverage for
+these active-metadata, cross-carrier provenance, self-containment, stale-target,
+stale-packet, and BP3 approve-versus-accept false-green classes. Packet PASS
+remains reviewability evidence only and does not approve BP3 or Workstream.
+
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
 absolute/off-root, reparse/symlink, malformed, unsupported-record,

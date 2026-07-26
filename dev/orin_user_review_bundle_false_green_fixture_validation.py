@@ -1256,8 +1256,14 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "`_observe`",
         )
     )
+    fixture_head = "0123456789abcdef0123456789abcdef01234567"
+    fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
     primary = (
         "# FAM-003 Option G BP3\n"
+        "\n## Current Packet Metadata\n\n"
+        "External State Version: `24`\n"
+        f"Source Repo HEAD: `{fixture_head}`\n"
+        f"Replacement ZIP: `{fixture_packet}`\n"
         "Primary Review Type: `BP3 Workstream Entry / Orchestration Validation`\n"
         "Branch: `feature/fam-003-settings-resize-proof`\n"
         "Packet Reviewability State: `Reviewable`\n"
@@ -1331,7 +1337,22 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "`STUDIO_RESIZABLE = False`\n"
         "`Start / Pause / Stop`\n"
     )
-    fixture_text = f"{recording}\n{workstream}\n{packet}\n"
+    fixture_text = (
+        "# Option G False-Green And Proof Matrix\n\n"
+        "## Current Reusable Fixture Result\n\n"
+        "Current Fixture Result: `PASS`\n\n"
+        f"{recording}\n{workstream}\n{packet}\n"
+    )
+    traceability_text = (
+        "# Option G Traceability And Readiness\n\n"
+        "## Current False-Green Repair Traceability\n\n"
+        "External State Version: `24`\n"
+        f"Source Repo HEAD: `{fixture_head}`\n"
+        f"Replacement ZIP: `{fixture_packet}`\n"
+        "Current Gate: `BP3 USER review pending; Workstream remains blocked`\n"
+        "\n## Historical / Superseded Evidence\n\n"
+        "Earlier repair models are preserved as historical evidence only.\n"
+    )
     ufd_topics = (
         "premature Workstream completion",
         "nonintrusive performance measurement",
@@ -1566,9 +1587,51 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     provenance_checks = []
     provenance_files: dict[str, str] = {}
     validation_result_rows = []
+    scope_helper_source = (
+        "from __future__ import annotations\n\n"
+        "# Fixture source for independently inspectable bounded-scope proof.\n"
+        "print('fixture only')\n"
+    )
+    scope_helper_hash = hashlib.sha256(scope_helper_source.encode("utf-8")).hexdigest().upper()
+    scope_helper_copy = bundle.FAM003_OPTION_G_SCOPE_HELPER_COPY
+    scope_base = "b" * 40
+    scope_commits = ["a" * 40, "b" * 40, "c" * 40, fixture_head]
+    scope_changed_files = sorted(bundle.FAM003_OPTION_G_APPROVED_REPAIR_FILES)
+    false_green_fixture_identity = (
+        "Option G BP3: 22 proof-carrydown + 34 decision-surface + 7 active-metadata "
+        "+ 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
+        "10 active-rollback negatives + 1 labeled-history positive + "
+        "2 byte-exact projection cases"
+    )
     for index in range(1, 21):
-        check_id = f"{index:02d}_fixture_check"
-        command = f"py -3 dev/fixture_check_{index:02d}.py"
+        check_id = (
+            "12_bounded_repair_scope"
+            if index == 12
+            else (
+                "02_user_bundle_false_green"
+                if index == 2
+                else (
+                    "20_old_packet_rejected"
+                    if index == 20
+                    else f"{index:02d}_fixture_check"
+                )
+            )
+        )
+        command = (
+            "py -3 .nexus_state_staging/validate_bounded_repair_scope.py"
+            if index == 12
+            else (
+                "py -3 dev/orin_user_review_bundle_false_green_fixture_validation.py"
+                if index == 2
+                else (
+                    "py -3 dev/orin_user_review_bundle.py --validate-local-user-packet "
+                    '"C:\\Nexus USER\\FAM-003" --review-export-zip '
+                    '"C:\\Nexus USER\\FAM-003-20260726-135245.zip"'
+                    if index == 20
+                    else f"py -3 dev/fixture_check_{index:02d}.py"
+                )
+            )
+        )
         raw_log = (
             "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
             f"{check_id}.txt"
@@ -1576,11 +1639,32 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         expected_failure = index == 20
         expected_signature = "EXPECTED_FIXTURE_FAILURE_SIGNATURE"
         exit_code = 1 if expected_failure else 0
-        result_output = (
-            f"{expected_signature}\n"
-            if expected_failure
-            else f"{check_id}: PASS\n"
-        )
+        if index == 12:
+            result_output = (
+                "FAM-003 bounded BP3 false-green repair scope: PASS\n"
+                f"Base: {scope_base}\n"
+                f"HEAD: {fixture_head}\n"
+                "Changed files:\n"
+                + "\n".join(f"- {path}" for path in scope_changed_files)
+                + "\nRepair commits:\n"
+                + "\n".join(f"- {commit} Fixture repair" for commit in scope_commits)
+                + "\nProduct/runtime files changed: NONE\n"
+            )
+        elif index == 2:
+            result_output = (
+                f"False-green fixture validation: PASS ({false_green_fixture_identity})\n"
+            )
+        elif index == 20:
+            result_output = (
+                "EXPECTED_FIXTURE_FAILURE_SIGNATURE\n"
+                "Rejected packet: C:\\Nexus USER\\FAM-003-20260726-135245.zip\n"
+            )
+        else:
+            result_output = (
+                f"{expected_signature}\n"
+                if expected_failure
+                else f"{check_id}: PASS\n"
+            )
         final_disposition = (
             "EXPECTED_FAIL_CONFIRMED" if expected_failure else "PASS"
         )
@@ -1591,33 +1675,64 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Ended UTC: 2026-07-25T00:00:01Z\n"
             "Duration MS: 1000\n"
             f"Exit Code: {exit_code}\n"
-            "Output Mode: merged stdout/stderr\n"
-            "--- MERGED STDOUT/STDERR ---\n"
-            f"{result_output}"
+            "Output Mode: separate stdout/stderr\n"
+            "STDOUT\n"
+            f"{result_output.rstrip()}\n"
+            "END STDOUT\n"
+            "STDERR\n"
+            "EMPTY\n"
+            "END STDERR\n"
+            "MERGED STDOUT/STDERR\n"
+            f"{result_output.rstrip()}\n"
+            "END MERGED STDOUT/STDERR\n"
         )
         provenance_files[raw_log] = raw_text
-        provenance_checks.append(
-            {
+        record = {
                 "id": check_id,
                 "executable": "py",
-                "arguments": ["-3", f"dev/fixture_check_{index:02d}.py"],
+                "arguments": command.split()[1:],
                 "command": command,
                 "workingDirectory": r"C:\Nexus Worktrees\FAM-003",
                 "startedUtc": "2026-07-25T00:00:00Z",
                 "endedUtc": "2026-07-25T00:00:01Z",
                 "durationMs": 1000,
                 "exitCode": exit_code,
-                "stdout": "NOT_SEPARATELY_CAPTURED",
-                "stderr": "NOT_SEPARATELY_CAPTURED",
+                "stdout": result_output.rstrip(),
+                "stderr": "EMPTY",
                 "mergedOutput": result_output,
-                "outputMode": "merged stdout/stderr",
+                "outputMode": "separate stdout/stderr",
                 "rawLog": raw_log,
                 "rawLogSha256": hashlib.sha256(raw_text.encode("utf-8"))
                 .hexdigest()
                 .upper(),
-                "helperIdentity": f"dev/fixture_check_{index:02d}.py@fixture",
-                "fixture": f"fixture-{index:02d}",
-                "targets": [f"fixture-target-{index:02d}"],
+                "helperIdentity": (
+                    bundle.FAM003_OPTION_G_SCOPE_HELPER_ORIGINAL
+                    if index == 12
+                    else (
+                        "dev/orin_user_review_bundle_false_green_fixture_validation.py"
+                        if index == 2
+                        else f"dev/fixture_check_{index:02d}.py@fixture"
+                    )
+                ),
+                "fixture": (
+                    f"exact {len(scope_changed_files)}-file approved tracked write set and "
+                    f"{len(scope_commits)} repair commits"
+                    if index == 12
+                    else (
+                        false_green_fixture_identity
+                        if index == 2
+                        else (
+                            "stale packet C:/Nexus USER/FAM-003-20260726-135245.zip"
+                            if index == 20
+                            else f"fixture-{index:02d}"
+                        )
+                    )
+                ),
+                "targets": (
+                    [f"{scope_base}...{fixture_head}"]
+                    if index == 12
+                    else [f"fixture-target-{index:02d}"]
+                ),
                 "expectedIdentities": {
                     "branch": "feature/fam-003-settings-resize-proof",
                     "head": "0123456789abcdef0123456789abcdef01234567",
@@ -1634,7 +1749,24 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 "finalDisposition": final_disposition,
                 "finalValidationResult": "PASS",
             }
-        )
+        if index == 12:
+            record.update(
+                {
+                    "baseRevision": scope_base,
+                    "finalHead": fixture_head,
+                    "commitRange": f"{scope_base}...{fixture_head}",
+                    "commitCount": len(scope_commits),
+                    "changedFiles": scope_changed_files,
+                    "scopeHelperSourceProof": {
+                        "originalPath": bundle.FAM003_OPTION_G_SCOPE_HELPER_ORIGINAL,
+                        "originalSha256": scope_helper_hash,
+                        "packetCopyPath": scope_helper_copy,
+                        "packetCopySha256": scope_helper_hash,
+                        "sourceCopyEqual": True,
+                    },
+                }
+            )
+        provenance_checks.append(record)
         validation_result_rows.append(
             f"| `{check_id}` | {command} | `{final_disposition}` | `{raw_log}` |"
         )
@@ -1654,6 +1786,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     provenance_summary = json.dumps(
         {
             "schema": bundle.FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA,
+            "outputCapturePolicy": bundle.FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY,
             "finalSuiteInventory": [
                 *(check["id"] for check in provenance_checks),
                 applicability_row["id"],
@@ -1675,12 +1808,14 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "USER Review Response: `Pending USER Review`\n"
         "Workstream Implementation: `UNAPPROVED`\n"
         "Future Workstream Decision: `FUTURE_ONLY_NON_ACTIONABLE`\n\n"
+        f"Check Count: `{len(provenance_checks)}`\n"
+        f"Output Capture: `{bundle.FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY}`\n\n"
         "| Check ID | Exact command | Result | Raw log |\n"
         "| --- | --- | --- | --- |\n"
         + "\n".join(validation_result_rows)
-        + "\n"
+        + "\n\nThe expected rejection of the stale `FAM-003-20260726-135245.zip` "
+        "packet is a controlled expected-failure check.\n"
     )
-    fixture_head = "0123456789abcdef0123456789abcdef01234567"
     fixture_projection_hashes = {
         "Source Truth Context/current_external_branch_plan.md": "1" * 64,
         "Source Truth Context/current_external_branch_state.md": "2" * 64,
@@ -1695,7 +1830,6 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     fixture_lineage_commits = ["a" * 40, "b" * 40, "c" * 40, fixture_head]
     fixture_snapshot = "snapshot-20260726T010203Z-a1b2c3d4"
     fixture_receipt = "fam003-option-g-bp3-validation-disposition-repair-20260726T010203Z.json"
-    fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
     fixture_rollback = (
         f"Revert {fixture_head}, restore {fixture_snapshot} only if the governed "
         "external transition is defective, then revalidate all three projections."
@@ -1710,6 +1844,22 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "externalStateVersion": 24,
             "Replacement ZIP": fixture_packet,
             "Projection Raw Hashes": fixture_projection_hashes,
+            "Validation Provenance": {
+                "schema": bundle.FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA,
+                "outputCapturePolicy": bundle.FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY,
+                "executedCheckCount": len(provenance_checks),
+                "applicabilityRowCount": 1,
+                "suiteDispositionCounts": {
+                    "PASS": 19,
+                    "EXPECTED_FAIL_CONFIRMED": 1,
+                    "NOT_APPLICABLE_WITH_REASON": 1,
+                    "FAILED": 0,
+                },
+                "finalValidationResult": "PASS",
+            },
+            "Self-Contained Bounded Scope Proof": provenance_checks[11][
+                "scopeHelperSourceProof"
+            ],
             "Current Repair Delta": {
                 "commitCount": 1,
                 "commits": [fixture_head],
@@ -1754,6 +1904,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     valid = {
         "START_HERE.md": (
             "# FAM-003 Option G BP3\n"
+            "\n## Current Packet Metadata\n\n"
+            "External State Version: `24`\n"
+            f"Source Repo HEAD: `{fixture_head}`\n"
+            f"Replacement ZIP: `{fixture_packet}`\n"
             "Branch: `feature/fam-003-settings-resize-proof`\n"
             "Primary USER Review File: `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
             "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review "
@@ -1777,6 +1931,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Review Aids/OPTION_G_WHOLE_PACKAGE_ORCHESTRATION.md": orchestration_text,
         "Review Aids/OPTION_G_CODE_AND_ALLOWLIST_BOUNDARY.md": boundary_text,
         "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md": fixture_text,
+        "Review Aids/OPTION_G_TRACEABILITY_AND_READINESS.md": traceability_text,
         "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md": ufd_text,
         "Review Aids/OPTION_G_BP2_ACCEPTANCE_RECONCILIATION.md": reconciliation_text,
         "Review Aids/OPTION_G_BP2_PROOF_CONTRACT_CARRYDOWN.md": carrydown_text,
@@ -1806,6 +1961,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
             "validation_summary.json"
         ): provenance_summary,
+        scope_helper_copy: scope_helper_source,
         "Source Truth Context/current_external_branch_plan.md": canonical_ufd_plan,
         "Source Truth Context/current_external_branch_state.md": active_header,
         "Source Truth Context/current_external_worktree_state.md": active_header,
@@ -1834,6 +1990,92 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Valid FAM-003 Option G BP3 orchestration fixture failed:\n"
             + "\n".join(valid_failures)
         )
+
+    def _assert_active_metadata_failure(
+        case_id: str,
+        file_name: str,
+        mutated_text: str,
+        expected: str,
+    ) -> None:
+        mutated = dict(valid)
+        mutated[file_name] = mutated_text
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    start_text = valid["START_HERE.md"]
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-01",
+        "START_HERE.md",
+        start_text.replace(
+            "External State Version: `24`",
+            "External State Version: `24`\nExternal State Version: `23`",
+            1,
+        ),
+        "active External State Version must appear exactly once",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-02",
+        "START_HERE.md",
+        start_text
+        + "\n## Current Packet Metadata\n\nExternal State Version: `23`\n"
+        + "Source Repo HEAD: `f" + "f" * 39 + "`\n"
+        + "Replacement ZIP: `C:\\Nexus USER\\FAM-003-20990101-000000.zip`\n",
+        "must contain exactly one ## Current Packet Metadata section",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-03",
+        "Review Aids/OPTION_G_TRACEABILITY_AND_READINESS.md",
+        traceability_text.replace(
+            "## Historical / Superseded Evidence",
+            "## Current False-Green Repair Traceability\n\nOld current block.\n\n"
+            "## Historical / Superseded Evidence",
+            1,
+        ),
+        "exactly one ## Current False-Green Repair Traceability section",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-04",
+        "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md",
+        fixture_text + "\n## Current Reusable Fixture Result\n\nOld counts.\n",
+        "exactly one ## Current Reusable Fixture Result section",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-05",
+        "START_HERE.md",
+        start_text.replace(
+            "Branch: `feature/fam-003-settings-resize-proof`",
+            "Stale Packet Disposition: `old packet`\n"
+            "Branch: `feature/fam-003-settings-resize-proof`",
+            1,
+        ),
+        "retains stale packet metadata outside Historical / Superseded Evidence",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-06",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        primary.replace(
+            f"Source Repo HEAD: `{fixture_head}`",
+            f"Source Repo HEAD: `{fixture_head}`\nSource Repo HEAD: `{'f' * 40}`",
+            1,
+        ),
+        "active Source Repo HEAD must appear exactly once",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-07",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        primary.replace(
+            f"Replacement ZIP: `{fixture_packet}`",
+            f"Replacement ZIP: `{fixture_packet}`\n"
+            "Replacement ZIP: `C:\\Nexus USER\\FAM-003-20990101-000000.zip`",
+            1,
+        ),
+        "active Replacement ZIP must appear exactly once",
+    )
+
     active_state_failures = bundle._bp3_active_state_consistency_failures(
         valid,
         status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
@@ -2677,6 +2919,97 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "finalSuiteInventory omits",
     )
 
+    wrong_capture_policy = json.loads(provenance_summary)
+    wrong_capture_policy["outputCapturePolicy"] = "merged stdout/stderr"
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-01",
+        wrong_capture_policy,
+        "top-level output-capture policy",
+    )
+    wrong_row_mode = json.loads(provenance_summary)
+    wrong_row_mode["checks"][0]["outputMode"] = "merged stdout/stderr"
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-02",
+        wrong_row_mode,
+        "outputMode inconsistent",
+    )
+    contradictory_raw = json.loads(provenance_summary)
+    contradictory_check = contradictory_raw["checks"][0]
+    contradictory_path = contradictory_check["rawLog"]
+    contradictory_text = provenance_files[contradictory_path].replace(
+        "Output Mode: separate stdout/stderr",
+        "Output Mode: merged stdout/stderr",
+        1,
+    )
+    contradictory_check["rawLogSha256"] = hashlib.sha256(
+        contradictory_text.encode("utf-8")
+    ).hexdigest().upper()
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-03",
+        contradictory_raw,
+        "raw-log output mode contradicts",
+        file_updates={contradictory_path: contradictory_text},
+    )
+    stale_fixture_identity = json.loads(provenance_summary)
+    stale_fixture_identity["checks"][1]["fixture"] = (
+        "Option G BP3: 22 proof-carrydown + 26 decision-surface + 26 provenance"
+    )
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-04",
+        stale_fixture_identity,
+        "check-02 fixture identity/counts disagree",
+    )
+    stale_scope_count = json.loads(provenance_summary)
+    stale_scope_count["checks"][11]["commitCount"] = 3
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-05",
+        stale_scope_count,
+        "commitCount disagrees with the raw calculation",
+    )
+    stale_scope_range = json.loads(provenance_summary)
+    stale_scope_range["checks"][11]["targets"] = [f"{scope_base}...{'e' * 40}"]
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-06",
+        stale_scope_range,
+        "target range does not end at the declared final HEAD",
+    )
+    missing_scope_source = json.loads(provenance_summary)
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-07",
+        missing_scope_source,
+        "source/copy hash equality",
+        remove_file=scope_helper_copy,
+    )
+    mismatched_scope_source = json.loads(provenance_summary)
+    mismatched_scope_source["checks"][11]["scopeHelperSourceProof"][
+        "packetCopySha256"
+    ] = "0" * 64
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-08",
+        mismatched_scope_source,
+        "source/copy hash equality",
+    )
+    stale_packet_fixture = json.loads(provenance_summary)
+    stale_packet_fixture["checks"][19]["fixture"] = (
+        "stale packet C:/Nexus USER/FAM-003-20260724-205513.zip"
+    )
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-09",
+        stale_packet_fixture,
+        "stale-packet identity disagrees",
+    )
+    stale_packet_digest = validation_results_text.replace(
+        "FAM-003-20260726-135245.zip` packet is a controlled",
+        "FAM-003-20260724-205513.zip` packet is a controlled",
+        1,
+    )
+    _assert_provenance_failure(
+        "OPTG-BP3-PROV-FG-COHERENCE-10",
+        json.loads(provenance_summary),
+        "human stale-packet narrative does not name",
+        validation_text=stale_packet_digest,
+    )
+
     manifest_path = "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json"
 
     def _assert_active_repair_failure(
@@ -3260,6 +3593,45 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             {},
             "packet claims BP3 is already USER Approved",
         ),
+        (
+            "OPTG-BP3-DS-FG-32",
+            (
+                (
+                    "START_HERE.md",
+                    "Current Actionable Decision: `BP3 approval only`",
+                    "USER Decision This Packet Supports: Accept the exact repaired FAM-003 Option G BP3 contract.",
+                    1,
+                ),
+            ),
+            {},
+            "active BP3 labels or future-state text use accept/acceptance",
+        ),
+        (
+            "OPTG-BP3-DS-FG-33",
+            (
+                (
+                    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+                    "## Current Actionable Decision - BP3 Approval Only",
+                    "## Current Actionable Decision - if accepting BP3",
+                    1,
+                ),
+            ),
+            {},
+            "active BP3 labels or future-state text use accept/acceptance",
+        ),
+        (
+            "OPTG-BP3-DS-FG-34",
+            (
+                (
+                    "Review Aids/USER_DECISIONS.md",
+                    "exactly as accepted in the revised BP2 plan and approved in the BP3 orchestration contract",
+                    "exactly as accepted in the revised BP2 and BP3 contracts",
+                    1,
+                ),
+            ),
+            {},
+            "active BP3 labels or future-state text use accept/acceptance",
+        ),
     )
     for case_id, mutations, additions, expected in decision_surface_cases:
         mutated = dict(valid)
@@ -3821,8 +4193,8 @@ def main() -> int:
     )
     print(
         "False-green fixture validation: PASS "
-        "(Option G BP3: 22 proof-carrydown + 31 decision-surface + "
-        "38 canonical-UFD + 12 Element-to-Phase + 45 provenance + "
+        "(Option G BP3: 22 proof-carrydown + 34 decision-surface + "
+        "7 active-metadata + 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases)"
     )

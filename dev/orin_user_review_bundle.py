@@ -5741,8 +5741,9 @@ FAM003_OPTION_G_BP3_DECISION_EFFECT = (
 FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION = (
     "I approve bounded FAM-003 Decision 2 Option G Workstream implementation on "
     "`feature/fam-003-settings-resize-proof` in "
-    "`C:\\Nexus Worktrees\\FAM-003` exactly as accepted in the revised BP2 and "
-    "BP3 contracts, including `OPTG-WS01` through `OPTG-WS07`, dependency "
+    "`C:\\Nexus Worktrees\\FAM-003` exactly as accepted in the revised BP2 plan "
+    "and approved in the BP3 orchestration contract, including `OPTG-WS01` "
+    "through `OPTG-WS07`, dependency "
     "`F3-OPTG-D01`, and only `OPTG-ALLOW-01` through `OPTG-ALLOW-08` as "
     "attribution-gated conditional repair regions. Conditional repair may execute "
     "only after current Workstream evidence satisfies the exact accepted "
@@ -5791,6 +5792,19 @@ FAM003_OPTION_G_ELEMENT_OWNER = (
 )
 FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA = "ndai-validation-provenance-v2"
 FAM003_OPTION_G_MINIMUM_PROVENANCE_CHECKS = 20
+FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY = (
+    "separate stdout/stderr plus deterministic merged output"
+)
+FAM003_OPTION_G_CURRENT_METADATA_HEADING = "## Current Packet Metadata"
+FAM003_OPTION_G_TRACEABILITY_HEADING = "## Current False-Green Repair Traceability"
+FAM003_OPTION_G_FIXTURE_HEADING = "## Current Reusable Fixture Result"
+FAM003_OPTION_G_SCOPE_HELPER_ORIGINAL = (
+    ".nexus_state_staging/validate_bounded_repair_scope.py"
+)
+FAM003_OPTION_G_SCOPE_HELPER_COPY = (
+    "Source Truth Context/Proof Artifacts/Validation/Executed Helpers/"
+    "validate_bounded_repair_scope.py"
+)
 FAM003_OPTION_G_SCOPE_AUDIT_HELPER = (
     "dev/orin_fam003_r2_workstream_scope_audit_validation.py"
 )
@@ -5962,6 +5976,11 @@ def _fam003_option_g_validation_provenance_failures(
             "FAM-003 Option G BP3: validation_summary.json must be a provenance "
             "object, not a partial check list"
         ]
+    if summary.get("outputCapturePolicy") != FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY:
+        failures.append(
+            "FAM-003 Option G BP3: top-level output-capture policy must state "
+            "separate stdout/stderr plus deterministic merged output"
+        )
     if summary.get("schema") != FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA:
         failures.append(
             "FAM-003 Option G BP3: validation provenance schema is missing or stale"
@@ -6086,13 +6105,10 @@ def _fam003_option_g_validation_provenance_failures(
                 f"FAM-003 Option G BP3: validation provenance {check_id} must "
                 "record expected hashes"
             )
-        if check.get("outputMode") not in {
-            "merged stdout/stderr",
-            "separate stdout/stderr",
-        }:
+        if check.get("outputMode") != "separate stdout/stderr":
             failures.append(
                 f"FAM-003 Option G BP3: validation provenance {check_id} has "
-                "an invalid outputMode"
+                "an outputMode inconsistent with the separate-stream suite policy"
             )
         started = _parse_utc_timestamp(check.get("startedUtc"))
         ended = _parse_utc_timestamp(check.get("endedUtc"))
@@ -6206,7 +6222,12 @@ def _fam003_option_g_validation_provenance_failures(
                 "Duration MS:",
                 "Exit Code:",
                 "Output Mode:",
+                "STDOUT\n",
+                "END STDOUT",
+                "STDERR\n",
+                "END STDERR",
                 "MERGED STDOUT/STDERR",
+                "END MERGED STDOUT/STDERR",
             ):
                 if marker not in raw_text:
                     failures.append(
@@ -6223,6 +6244,58 @@ def _fam003_option_g_validation_provenance_failures(
                     f"FAM-003 Option G BP3: validation provenance {check_id} raw "
                     "log contains an uncontrolled traceback or exception"
                 )
+            if "Output Mode: separate stdout/stderr" not in raw_text:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    "raw-log output mode contradicts the separate-stream suite policy"
+                )
+
+            stream_match = re.search(
+                r"(?ms)^STDOUT\n(.*?)\nEND STDOUT\n"
+                r"STDERR\n(.*?)\nEND STDERR\n"
+                r"MERGED STDOUT/STDERR\n(.*?)\nEND MERGED STDOUT/STDERR\s*$",
+                raw_text.replace("\r\n", "\n"),
+            )
+            if not stream_match:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} raw "
+                    "log lacks parseable separate-stream and merged-output sections"
+                )
+                raw_stdout = raw_stderr = raw_merged = ""
+            else:
+                raw_stdout, raw_stderr, raw_merged = (
+                    value.strip() for value in stream_match.groups()
+                )
+
+            def _normalized_output(value: object) -> str:
+                return str(value or "").replace("\r\n", "\n").strip()
+
+            machine_stdout = _normalized_output(check.get("stdout"))
+            machine_stderr = _normalized_output(check.get("stderr"))
+            machine_merged = _normalized_output(check.get("mergedOutput"))
+            if raw_stdout and machine_stdout != raw_stdout:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    "machine stdout disagrees with the raw-log stdout section"
+                )
+            if raw_stderr and machine_stderr != raw_stderr:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    "machine stderr disagrees with the raw-log stderr section"
+                )
+            if raw_merged and machine_merged != raw_merged:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} "
+                    "machine mergedOutput disagrees with the raw-log merged section"
+                )
+            expected_merged = "\n".join(
+                value for value in (raw_stdout, raw_stderr) if value != "EMPTY"
+            ) or "EMPTY_OUTPUT"
+            if raw_merged and raw_merged != expected_merged:
+                failures.append(
+                    f"FAM-003 Option G BP3: validation provenance {check_id} raw "
+                    "merged output is not the deterministic stdout/stderr composition"
+                )
             if (
                 expected_disposition == "EXPECTED_FAIL"
                 and expected_signature
@@ -6233,6 +6306,111 @@ def _fam003_option_g_validation_provenance_failures(
                     f"FAM-003 Option G BP3: expected-failure provenance {check_id} "
                     "raw log does not contain the exact expected failure signature"
                 )
+
+            if check_id.endswith("_user_bundle_false_green"):
+                fixture_match = re.search(
+                    r"False-green fixture validation: PASS \((Option G BP3:.*?)\)",
+                    raw_merged,
+                )
+                actual_fixture = fixture_match.group(1) if fixture_match else ""
+                if not actual_fixture or str(check.get("fixture") or "") != actual_fixture:
+                    failures.append(
+                        "FAM-003 Option G BP3: check-02 fixture identity/counts "
+                        "disagree with the executed fixture output"
+                    )
+
+            if check_id.endswith("_bounded_repair_scope"):
+                base_match = re.search(r"(?m)^Base:\s*([0-9a-f]{40})$", raw_merged)
+                head_match = re.search(r"(?m)^HEAD:\s*([0-9a-f]{40})$", raw_merged)
+                changed_match = re.search(
+                    r"(?ms)^Changed files:\n(.*?)\nRepair commits:", raw_merged
+                )
+                commit_match = re.search(
+                    r"(?ms)^Repair commits:\n(.*?)\nProduct/runtime files changed:",
+                    raw_merged,
+                )
+                changed_files = re.findall(
+                    r"(?m)^-\s+(.+)$", changed_match.group(1) if changed_match else ""
+                )
+                commits = re.findall(
+                    r"(?m)^-\s+([0-9a-f]{40})(?:\s|$)",
+                    commit_match.group(1) if commit_match else "",
+                )
+                base_revision = base_match.group(1) if base_match else ""
+                final_head = head_match.group(1) if head_match else ""
+                commit_range = f"{base_revision}...{final_head}" if base_revision and final_head else ""
+                scope_contract = {
+                    "baseRevision": base_revision,
+                    "finalHead": final_head,
+                    "commitRange": commit_range,
+                    "commitCount": len(commits),
+                    "changedFiles": changed_files,
+                }
+                for field, expected_value in scope_contract.items():
+                    if check.get(field) != expected_value:
+                        failures.append(
+                            "FAM-003 Option G BP3: bounded-scope provenance "
+                            f"{field} disagrees with the raw calculation"
+                        )
+                if check.get("targets") != [commit_range]:
+                    failures.append(
+                        "FAM-003 Option G BP3: bounded-scope target range does not "
+                        "end at the declared final HEAD"
+                    )
+                expected_fixture = (
+                    f"exact {len(changed_files)}-file approved tracked write set and "
+                    f"{len(commits)} repair commits"
+                )
+                if check.get("fixture") != expected_fixture:
+                    failures.append(
+                        "FAM-003 Option G BP3: bounded-scope fixture count disagrees "
+                        "with the raw commit/file calculation"
+                    )
+                source_proof = check.get("scopeHelperSourceProof")
+                if not isinstance(source_proof, dict):
+                    failures.append(
+                        "FAM-003 Option G BP3: bounded-scope proof lacks its "
+                        "packet-contained executed-helper source mapping"
+                    )
+                else:
+                    original_path = str(source_proof.get("originalPath") or "")
+                    copy_path = str(source_proof.get("packetCopyPath") or "").replace("\\", "/")
+                    source_hash = str(source_proof.get("originalSha256") or "").upper()
+                    copy_hash = str(source_proof.get("packetCopySha256") or "").upper()
+                    copy_bytes = (
+                        packet_binary_files.get(copy_path)
+                        if packet_binary_files is not None
+                        else (
+                            packet_files[copy_path].encode("utf-8")
+                            if copy_path in packet_files
+                            else None
+                        )
+                    )
+                    actual_copy_hash = (
+                        hashlib.sha256(copy_bytes).hexdigest().upper()
+                        if copy_bytes is not None
+                        else ""
+                    )
+                    if original_path != FAM003_OPTION_G_SCOPE_HELPER_ORIGINAL:
+                        failures.append(
+                            "FAM-003 Option G BP3: bounded-scope helper original "
+                            "path is missing or stale"
+                        )
+                    if copy_path != FAM003_OPTION_G_SCOPE_HELPER_COPY:
+                        failures.append(
+                            "FAM-003 Option G BP3: bounded-scope helper packet-copy "
+                            "path is missing or stale"
+                        )
+                    if not source_hash or source_hash != copy_hash or copy_hash != actual_copy_hash:
+                        failures.append(
+                            "FAM-003 Option G BP3: bounded-scope helper source/copy "
+                            "hash equality is missing or false"
+                        )
+                    if source_proof.get("sourceCopyEqual") is not True:
+                        failures.append(
+                            "FAM-003 Option G BP3: bounded-scope helper source/copy "
+                            "equality is not explicitly proven"
+                        )
 
         command = str(check.get("command") or "")
         digest_row = next(
@@ -6253,6 +6431,33 @@ def _fam003_option_g_validation_provenance_failures(
                 f"FAM-003 Option G BP3: human validation digest disposition "
                 f"disagrees with machine provenance for {check_id}"
             )
+        if check_id.endswith("_old_packet_rejected"):
+            packet_pattern = r"FAM-003-\d{8}-\d{6}\.zip"
+            carriers = {
+                "command": set(re.findall(packet_pattern, command)),
+                "fixture": set(re.findall(packet_pattern, str(check.get("fixture") or ""))),
+                "raw log": set(re.findall(packet_pattern, raw_text or "")),
+                "human digest row": set(re.findall(packet_pattern, digest_row)),
+            }
+            expected_packets = carriers["command"]
+            if len(expected_packets) != 1 or any(
+                values != expected_packets for values in carriers.values()
+            ):
+                failures.append(
+                    "FAM-003 Option G BP3: stale-packet identity disagrees across "
+                    "command, fixture, raw log, and human digest"
+                )
+            expected_packet = next(iter(expected_packets), "")
+            stale_narrative_lines = [
+                line
+                for line in validation_results.splitlines()
+                if "expected rejection of the stale" in line.casefold()
+            ]
+            if len(stale_narrative_lines) != 1 or expected_packet not in stale_narrative_lines[0]:
+                failures.append(
+                    "FAM-003 Option G BP3: human stale-packet narrative does not "
+                    "name the packet actually rejected by the executed check"
+                )
 
     if observed_numbers and observed_numbers != list(range(1, len(checks) + 1)):
         failures.append(
@@ -6375,6 +6580,60 @@ def _fam003_option_g_validation_provenance_failures(
             "FAM-003 Option G BP3: suite disposition counts disagree with row "
             f"dispositions; expected {actual_counts!r}, found {suite_counts!r}"
         )
+    digest_count_match = re.search(r"(?m)^Check Count:\s*`(\d+)`", validation_results)
+    if not digest_count_match or int(digest_count_match.group(1)) != len(checks):
+        failures.append(
+            "FAM-003 Option G BP3: human validation digest check count disagrees "
+            "with the machine provenance ledger"
+        )
+    digest_policy_match = re.search(
+        r"(?m)^Output Capture:\s*`([^`]+)`", validation_results
+    )
+    if (
+        not digest_policy_match
+        or digest_policy_match.group(1) != FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: human validation digest output-capture policy "
+            "disagrees with the machine provenance ledger"
+        )
+    manifest_text = _packet_file_text(packet_files, "PACKET_MANIFEST.json")
+    try:
+        manifest = json.loads(manifest_text) if manifest_text else {}
+    except json.JSONDecodeError:
+        manifest = {}
+    manifest_provenance = manifest.get("Validation Provenance")
+    expected_manifest_provenance = {
+        "schema": FAM003_OPTION_G_VALIDATION_PROVENANCE_SCHEMA,
+        "outputCapturePolicy": FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY,
+        "executedCheckCount": len(checks),
+        "applicabilityRowCount": len(applicability),
+        "suiteDispositionCounts": actual_counts,
+        "finalValidationResult": summary.get("finalValidationResult"),
+    }
+    if manifest_provenance != expected_manifest_provenance:
+        failures.append(
+            "FAM-003 Option G BP3: packet manifest validation-provenance totals or "
+            "capture policy disagree with the machine ledger"
+        )
+    scope_checks = [
+        check
+        for check in checks
+        if isinstance(check, dict)
+        and str(check.get("id") or "").endswith("_bounded_repair_scope")
+    ]
+    if len(scope_checks) != 1:
+        failures.append(
+            "FAM-003 Option G BP3: final suite must contain exactly one executed "
+            "bounded-repair-scope proof"
+        )
+    elif manifest.get("Self-Contained Bounded Scope Proof") != scope_checks[0].get(
+        "scopeHelperSourceProof"
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: packet manifest bounded-scope source mapping "
+            "disagrees with the executed check"
+        )
     return failures
 
 
@@ -6389,6 +6648,98 @@ FAM003_OPTION_G_APPROVED_REPAIR_FILES = {
 
 def _current_review_claims(text: str) -> str:
     return text.partition("## Historical / Superseded Evidence")[0]
+
+
+def _markdown_section_count(text: str, heading: str) -> int:
+    return len(re.findall(rf"(?m)^{re.escape(heading)}\s*$", text))
+
+
+def _markdown_section(text: str, heading: str) -> str:
+    match = re.search(
+        rf"(?ms)^{re.escape(heading)}\s*\n(.*?)(?=^## |\Z)",
+        text,
+    )
+    return match.group(1).strip() if match else ""
+
+
+def _fam003_option_g_active_metadata_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    failures: list[str] = []
+    manifest_text = _packet_file_text(packet_files, "PACKET_MANIFEST.json")
+    try:
+        manifest = json.loads(manifest_text) if manifest_text else {}
+    except json.JSONDecodeError:
+        manifest = {}
+    expected_version = str(manifest.get("externalStateVersion") or "")
+    expected_head = str(manifest.get("Source Repo HEAD") or "")
+    expected_packet = str(manifest.get("Replacement ZIP") or "")
+
+    for file_name in (
+        "START_HERE.md",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    ):
+        text = packet_files.get(file_name, "")
+        active = _current_review_claims(text)
+        count = _markdown_section_count(active, FAM003_OPTION_G_CURRENT_METADATA_HEADING)
+        if count != 1:
+            failures.append(
+                f"FAM-003 Option G BP3: {file_name} must contain exactly one "
+                f"{FAM003_OPTION_G_CURRENT_METADATA_HEADING} section; found {count}"
+            )
+            continue
+        section = _markdown_section(active, FAM003_OPTION_G_CURRENT_METADATA_HEADING)
+        scalar_contract = {
+            "External State Version": expected_version,
+            "Source Repo HEAD": expected_head,
+            "Replacement ZIP": expected_packet,
+        }
+        for label, expected in scalar_contract.items():
+            matches = re.findall(
+                rf"(?m)^{re.escape(label)}:\s*`?([^`\r\n]+)`?\s*$",
+                active,
+            )
+            if len(matches) != 1:
+                failures.append(
+                    f"FAM-003 Option G BP3: {file_name} active {label} must "
+                    f"appear exactly once; found {len(matches)}"
+                )
+                continue
+            value = matches[0].strip()
+            if expected and value.casefold() != expected.casefold():
+                failures.append(
+                    f"FAM-003 Option G BP3: {file_name} active {label} disagrees "
+                    "with the packet manifest"
+                )
+            if label not in section:
+                failures.append(
+                    f"FAM-003 Option G BP3: {file_name} active {label} must live "
+                    "inside the single current metadata section"
+                )
+        if re.search(r"(?im)^Stale Packet(?: Disposition)?:", active):
+            failures.append(
+                f"FAM-003 Option G BP3: {file_name} retains stale packet metadata "
+                "outside Historical / Superseded Evidence"
+            )
+
+    section_contract = {
+        "Review Aids/OPTION_G_TRACEABILITY_AND_READINESS.md": (
+            FAM003_OPTION_G_TRACEABILITY_HEADING
+        ),
+        "Review Aids/OPTION_G_FALSE_GREEN_AND_PROOF_MATRIX.md": (
+            FAM003_OPTION_G_FIXTURE_HEADING
+        ),
+    }
+    for file_name, heading in section_contract.items():
+        active = _current_review_claims(packet_files.get(file_name, ""))
+        count = _markdown_section_count(active, heading)
+        if count != 1:
+            failures.append(
+                f"FAM-003 Option G BP3: {file_name} must contain exactly one "
+                f"{heading} section; found {count}"
+            )
+
+    return failures
 
 
 def _fam003_option_g_active_repair_evidence_failures(
@@ -6655,6 +7006,23 @@ def _fam003_option_g_bp3_orchestration_failures(
     if "BP3 acceptance only" in active_decision_text:
         failures.append(
             "FAM-003 Option G BP3: current decision labels use acceptance instead of approval"
+        )
+    mixed_bp3_pattern = re.compile(
+        r"(?:\baccept(?:ing)?\b.{0,120}\bBP3\b|"
+        r"\baccepted\s+BP3\b|\bBP3\s+(?:is\s+|was\s+|as\s+)?accepted\b|"
+        r"\bBP3\s+acceptance\b|"
+        r"\baccepted\s+in\s+(?:the\s+)?revised\s+BP2\s+and\s+BP3\b)",
+        re.IGNORECASE,
+    )
+    mixed_bp3_lines = [
+        line.strip()
+        for line in active_decision_text.splitlines()
+        if mixed_bp3_pattern.search(line)
+    ]
+    if mixed_bp3_lines:
+        failures.append(
+            "FAM-003 Option G BP3: active BP3 labels or future-state text use "
+            "accept/acceptance where approve/approval is required"
         )
     if re.search(
         r"USER Gate State:\s*`?USER Approved`?",
@@ -7509,6 +7877,7 @@ def _fam003_option_g_bp3_orchestration_failures(
             packet_binary_files,
         )
     )
+    failures.extend(_fam003_option_g_active_metadata_failures(packet_files))
     failures.extend(_fam003_option_g_active_repair_evidence_failures(packet_files))
 
     forbidden_patterns = {
