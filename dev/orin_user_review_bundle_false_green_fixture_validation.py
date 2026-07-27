@@ -4089,8 +4089,28 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         )
 
 
+def _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown() -> None:
+    packet = {
+        "START_HERE.md": (
+            "FAM-003 Option G BP3 review for "
+            "feature/fam-003-settings-resize-proof"
+        ),
+        (
+            "Historical Evidence/Accepted Planning/"
+            "decision2_option_g_bp2_gate_repair_20260724.md"
+        ): "Accepted BP2 owner carried for BP3 source-chain proof.",
+    }
+    failures = bundle._fam003_option_g_bp2_planning_failures(packet)
+    if failures:
+        raise AssertionError(
+            "Accepted BP2 carrydown incorrectly activated the BP2 primary guard:\n"
+            + "\n".join(failures)
+        )
+
+
 def main() -> int:
     _assert_fam003_option_g_bp2_planning_guards()
+    _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown()
     _assert_fam003_option_g_bp3_orchestration_guards()
     _assert_migrated_live_header_ignores_historical_receipt_metadata()
     _assert_source_context_text_normalization()
@@ -4621,7 +4641,8 @@ def main() -> int:
     )
     print(
         "False-green fixture validation: PASS "
-        "(Option G BP3: 25 formal-digest + 13 Branch Vision + 5 inventory + "
+        "(Option G BP3: 1 BP2 carrydown applicability positive + "
+        "25 formal-digest + 13 Branch Vision + 5 inventory + "
         "22 proof-carrydown + 34 decision-surface + 11 active-metadata + "
         "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "

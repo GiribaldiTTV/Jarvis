@@ -5540,6 +5540,8 @@ def _fam003_option_g_bp2_planning_failures(
 
     start_here = packet_files.get("START_HERE.md", "")
     primary = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    if not primary.strip():
+        return []
     identity = f"{start_here}\n{primary}".casefold()
     if (
         "feature/fam-003-settings-resize-proof" not in identity
