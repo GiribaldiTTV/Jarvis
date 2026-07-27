@@ -194,6 +194,10 @@ def main() -> int:
             f"Transition-Safe Final Packet Integrity: `{PACKET_INTEGRITY}`",
             f"Canonical Active USER ZIP: `{PACKET_PATH}`",
             f"Canonical Active USER ZIP SHA256: `{PACKET_SHA.upper()}`",
+            f"USER Review ZIP: `{PACKET_PATH}`",
+            f"USER Review ZIP SHA256: `{PACKET_SHA.upper()}`",
+            f"Current Snapshot Boundary: `CURRENT authority is commit {HEAD}; "
+            f"active ZIP is {PACKET_PATH} at SHA256 {PACKET_SHA.upper()}.`",
         ]
         target = _record(root, extra_lines=accepted_decomposition_lines)
         _assert_pass(
@@ -226,10 +230,49 @@ def main() -> int:
             _run(root),
         )
         target = _record(root, extra_lines=accepted_decomposition_lines)
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                f"USER Review ZIP: `{PACKET_PATH}`",
+                f"USER Review ZIP: `{STALE_PACKET_PATH}`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale active FAM-007 USER Review ZIP alias",
+            "active USER Review ZIP",
+            _run(root),
+        )
+        target = _record(root, extra_lines=accepted_decomposition_lines)
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                f"USER Review ZIP SHA256: `{PACKET_SHA.upper()}`",
+                f"USER Review ZIP SHA256: `{'f' * 64}`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale active FAM-007 USER Review ZIP SHA alias",
+            "active USER Review ZIP SHA",
+            _run(root),
+        )
+        target = _record(root, extra_lines=accepted_decomposition_lines)
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                f"CURRENT authority is commit {HEAD}",
+                f"CURRENT authority is commit {'d' * 40}",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale active FAM-007 Current Snapshot Boundary HEAD",
+            "Current Snapshot Boundary does not identify current Source Repo HEAD",
+            _run(root),
+        )
+        target = _record(root, extra_lines=accepted_decomposition_lines)
         projection_texts = [target.read_text(encoding="utf-8") for _ in range(7)]
         projection_texts[-1] = projection_texts[-1].replace(
-            f"Transition-Safe Final Packet: `{PACKET_PATH}`",
-            f"Transition-Safe Final Packet: `{STALE_PACKET_PATH}`",
+            f"USER Review ZIP: `{PACKET_PATH}`",
+            f"USER Review ZIP: `{STALE_PACKET_PATH}`",
         )
         projection_failures = [
             validator._fam007_packet_alias_failures(
@@ -1408,6 +1451,21 @@ def main() -> int:
             )
             for line in stale_alias_lines
         ]
+        stale_alias_lines = [
+            line.replace(
+                f"USER Review ZIP: `{PACKET_PATH}`",
+                f"USER Review ZIP: `{STALE_PACKET_PATH}`",
+            )
+            .replace(
+                f"USER Review ZIP SHA256: `{PACKET_SHA.upper()}`",
+                f"USER Review ZIP SHA256: `{'f' * 64}`",
+            )
+            .replace(
+                f"CURRENT authority is commit {HEAD}",
+                f"CURRENT authority is commit {'d' * 40}",
+            )
+            for line in stale_alias_lines
+        ]
         target = _record(root, extra_lines=stale_alias_lines)
         before = target.read_bytes()
         snapshot = _snapshot(root, target, "fixture-packet-alias-repair")
@@ -1432,6 +1490,10 @@ def main() -> int:
             f"Transition-Safe Final Packet Integrity={PACKET_INTEGRITY}",
             f"Canonical Active USER ZIP={PACKET_PATH}",
             f"Canonical Active USER ZIP SHA256={PACKET_SHA.upper()}",
+            f"USER Review ZIP={PACKET_PATH}",
+            f"USER Review ZIP SHA256={PACKET_SHA.upper()}",
+            f"Current Snapshot Boundary=CURRENT authority is commit {HEAD}; "
+            f"active ZIP is {PACKET_PATH} at SHA256 {PACKET_SHA.upper()}.",
         ]
         incomplete_ok, incomplete_messages, incomplete_audit = reconciler.reconcile_target(
             root=root,

@@ -48,6 +48,9 @@ FAM007_PACKET_ALIAS_REPAIR_FIELDS = {
     "Transition-Safe Final Packet Integrity",
     "Canonical Active USER ZIP",
     "Canonical Active USER ZIP SHA256",
+    "USER Review ZIP",
+    "USER Review ZIP SHA256",
+    "Current Snapshot Boundary",
 }
 
 

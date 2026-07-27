@@ -365,11 +365,15 @@ def _fam007_packet_alias_failures(relative: str, text: str) -> list[str]:
 
     canonical_path = one_value("Canonical Active USER ZIP")
     transition_path = one_value("Transition-Safe Final Packet")
+    user_review_path = one_value("USER Review ZIP")
     canonical_sha = one_value("Canonical Active USER ZIP SHA256").upper()
     transition_sha = one_value("Transition-Safe Final Packet SHA256").upper()
+    user_review_sha = one_value("USER Review ZIP SHA256").upper()
     transition_size_text = one_value("Transition-Safe Final Packet Size")
     transition_integrity = one_value("Transition-Safe Final Packet Integrity")
     packet_boundary = one_value("Packet Boundary")
+    current_snapshot = one_value("Current Snapshot Boundary")
+    source_head = one_value("Source Repo HEAD").lower()
 
     if canonical_path and transition_path and (
         _normalized_windows_value(canonical_path)
@@ -384,6 +388,21 @@ def _fam007_packet_alias_failures(relative: str, text: str) -> list[str]:
         failures.append(
             "FAM-007 Packet Alias Conflict: "
             f"{relative} active transition SHA {transition_sha} does not match "
+            f"canonical SHA {canonical_sha}"
+        )
+    if canonical_path and user_review_path and (
+        _normalized_windows_value(canonical_path)
+        != _normalized_windows_value(user_review_path)
+    ):
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} active USER Review ZIP {user_review_path!r} "
+            f"does not match Canonical Active USER ZIP {canonical_path!r}"
+        )
+    if canonical_sha and user_review_sha and canonical_sha != user_review_sha:
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} active USER Review ZIP SHA {user_review_sha} does not match "
             f"canonical SHA {canonical_sha}"
         )
     if canonical_sha and not re.fullmatch(r"[0-9A-F]{64}", canonical_sha):
@@ -415,6 +434,21 @@ def _fam007_packet_alias_failures(relative: str, text: str) -> list[str]:
         failures.append(
             "FAM-007 Packet Alias Conflict: "
             f"{relative} Packet Boundary does not identify the canonical active ZIP SHA"
+        )
+    if source_head and source_head not in current_snapshot.lower():
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} Current Snapshot Boundary does not identify current Source Repo HEAD"
+        )
+    if canonical_path and _normalized_windows_value(canonical_path) not in _normalized_windows_value(current_snapshot):
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} Current Snapshot Boundary does not identify the canonical active ZIP"
+        )
+    if canonical_sha and canonical_sha not in current_snapshot.upper():
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} Current Snapshot Boundary does not identify the canonical active ZIP SHA"
         )
     for integrity_pattern, label in (
         (r"\b\d+\s*/\s*\d+\s+parity\b", "parity"),
