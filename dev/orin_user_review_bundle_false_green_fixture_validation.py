@@ -1540,6 +1540,12 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Carrier: `feature/fam-003-settings-resize-proof`\n"
             "Planning Or Implementation Effect: `Planning carrydown only`\n"
             "Proof / Closure Requirement: `Packet and fixture proof`\n"
+            + (
+                "No-Action Reason: `Recording product behavior is outside accepted Option G scope.`\n"
+                if index == 7
+                else ""
+            )
+            +
             "Remaining USER Decision: `BP3 approval only`\n"
         )
     ufd_text = (

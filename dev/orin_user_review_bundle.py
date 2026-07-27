@@ -6147,6 +6147,7 @@ FAM003_OPTION_G_SUPPORT_ACTIVE_ALLOWED_FIELDS = {
     "Carrier",
     "Planning Or Implementation Effect",
     "Proof / Closure Requirement",
+    "No-Action Reason",
     "Matrix Status",
     "USER Review Status",
     "Open Element Questions",
