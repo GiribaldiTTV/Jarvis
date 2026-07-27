@@ -312,6 +312,24 @@ def _assert_utf8_source_identity_normalizes_platform_line_endings() -> None:
             + "\n".join(failures)
         )
 
+    with tempfile.TemporaryDirectory(prefix="ndai-utf8-packet-loader-") as temp_dir:
+        packet_root = Path(temp_dir) / "packet"
+        source_copy = packet_root / copied_path
+        source_copy.parent.mkdir(parents=True)
+        (packet_root / "START_HERE.md").write_text(start_here, encoding="utf-8")
+        source_copy.write_bytes(crlf_text.encode("utf-8"))
+        folder_text = bundle._packet_text_files(packet_root)
+        if copied_path not in folder_text:
+            raise AssertionError("Folder replay loader did not classify UTF-8 Python as text")
+
+        export_zip = Path(temp_dir) / "packet.zip"
+        with zipfile.ZipFile(export_zip, "w") as archive:
+            archive.writestr("START_HERE.md", start_here)
+            archive.writestr(copied_path, crlf_text)
+        zip_text = bundle._zip_text_files(export_zip)
+        if copied_path not in zip_text:
+            raise AssertionError("ZIP replay loader did not classify UTF-8 Python as text")
+
     drifted_files = dict(packet_files)
     drifted_files[copied_path] = crlf_text + "# content drift\r\n"
     drifted_binary_files = {

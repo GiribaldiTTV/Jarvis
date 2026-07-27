@@ -1246,11 +1246,11 @@ def _validate_export_zip(
 def _packet_text_files(packet_dir: Path) -> dict[str, str]:
     packet_files: dict[str, str] = {}
     for path in sorted(_bundle_files(packet_dir)):
-        if path.suffix.lower() not in {".md", ".txt", ".json"}:
+        try:
+            text = path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
             continue
-        packet_files[path.relative_to(packet_dir).as_posix()] = path.read_text(
-            encoding="utf-8"
-        )
+        packet_files[path.relative_to(packet_dir).as_posix()] = text
     return packet_files
 
 
@@ -1261,9 +1261,11 @@ def _zip_text_files(export_zip: Path) -> dict[str, str]:
             if info.is_dir():
                 continue
             name = info.filename.replace("\\", "/")
-            if PurePosixPath(name).suffix.lower() not in {".md", ".txt", ".json"}:
+            try:
+                text = archive.read(info).decode("utf-8")
+            except UnicodeDecodeError:
                 continue
-            packet_files[name] = archive.read(info).decode("utf-8")
+            packet_files[name] = text
     return packet_files
 
 
