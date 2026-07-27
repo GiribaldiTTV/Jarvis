@@ -1259,6 +1259,33 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     )
     fixture_head = "0123456789abcdef0123456789abcdef01234567"
     fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
+    fixture_prior_packet = r"C:\Nexus USER\FAM-003-20260726-224500.zip"
+    fixture_prior_hash = "9" * 64
+    fixture_intermediate_packets = (
+        (r"C:\Nexus USER\FAM-003-20260726-182000.zip", "8" * 64),
+        (r"C:\Nexus USER\FAM-003-20260726-194500.zip", "7" * 64),
+    )
+    fixture_publication_receipt_path = (
+        r"C:\Nexus Governance State\audit_log\fixture-packet-publication.json"
+    )
+    fixture_publication_receipt = json.dumps(
+        {
+            "Record Class": "USER Packet Publication Receipt",
+            "Packet ZIP": fixture_prior_packet,
+            "Packet ZIP SHA256": fixture_prior_hash,
+            "Packet Validation Result": "PASS",
+        },
+        indent=2,
+    )
+    fixture_publication_receipt_hash = hashlib.sha256(
+        fixture_publication_receipt.encode("utf-8")
+    ).hexdigest().upper()
+    lineage_review_text = (
+        "\n## Packet Lineage\n\n"
+        f"Prior USER-reviewed packet: `{Path(fixture_prior_packet).name}`\n"
+        f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[0][0]).name}`\n"
+        f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[1][0]).name}`\n"
+    )
     exact_digest = (
         "\n## Next Legal Phase Digest\n\n"
         "Current Phase: `BP3 Workstream Entry / Orchestration Validation USER review pending`\n"
@@ -1353,7 +1380,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "\n## Future decision only - not requested, granted, or actionable at the "
         "current BP3 gate\n\n"
         f"{bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION}\n"
-        f"{exact_digest}"
+        f"{exact_digest}{lineage_review_text}"
     )
     active_header = (
         "External State Schema: `external-state-v1`\n"
@@ -1463,6 +1490,9 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "feature_fam_003_settings_resize_proof\\branch_plan.md`\n"
         "UFD Future Fold-Down Target: `Docs/branch_records/"
         "feature_fam_003_settings_resize_proof.md`\n"
+        "UFD Supporting Evidence Copy: `C:\\Nexus Governance State\\branches\\"
+        "feature_fam_003_settings_resize_proof\\"
+        "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n"
@@ -1525,7 +1555,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "UFD Future Fold-Down Target: `Docs/branch_records/"
         "feature_fam_003_settings_resize_proof.md`\n"
         "UFD Supporting Evidence Copy: "
-        "`decision2_option_g_bp3_proof_carrydown_repair_20260724.md`\n"
+        "`C:\\Nexus Governance State\\branches\\feature_fam_003_settings_resize_proof\\"
+        "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md`\n"
         "UFD Packet Review Copy: `Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
@@ -1545,8 +1576,12 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Current Gate: `Branch Planning - BP2 USER review pending`\n"
     )
     supporting_ufd_record = (
-        "# Option G BP3 Proof Carrydown Repair\n"
+        "# Option G BP3 Packet Lineage Support Closure\n"
+        "Record Role: `Current supporting evidence copy`\n"
         "UFD Authority Classification: `SUPPORTING EVIDENCE COPY`\n"
+        f"Source Repo HEAD: `{fixture_head}`\n"
+        "State Version: `24`\n"
+        "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review pending; Workstream implementation remains blocked`\n"
         "UFD Ledger Status: `Complete`\n"
         f"UFD Ledger Owner: `{canonical_ufd_owner}`\n"
         "UFD Item Count: `18`\n"
@@ -1556,8 +1591,19 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "feature_fam_003_settings_resize_proof.md`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
-        "Fold-Down Status: `Pending`\n\n"
+        "Fold-Down Status: `Pending`\n"
+        f"Element Validation Ledger Owner: `{bundle.FAM003_OPTION_G_ELEMENT_OWNER}`\n"
+        "Element Matrix Column Count: `11`\n"
+        "Element Matrix Row Count: `11`\n"
+        "Element Classification Vocabulary: `Affected; Created; Deferred; Dependency-Only; Future; Non-Gating Supporting; Planned; Touched`\n"
+        "Remaining USER Decision: `BP3 approval only`\n"
+        "Rollback Snapshot Identity: `snapshot-20260726T010203Z-a1b2c3d4`\n"
+        "Transaction Receipt: `fam003-option-g-bp3-validation-disposition-repair-20260726T010203Z.json`\n"
+        "Supersedes Supporting Record: `C:\\Nexus Governance State\\branches\\feature_fam_003_settings_resize_proof\\decision2_option_g_bp3_formal_digest_vision_ufd_repair_20260726.md`\n\n"
         + "\n".join(ufd_rows)
+        + f"\n{element_section}\n"
+        "## Historical / Superseded Evidence\n\n"
+        "The superseded support record is preserved byte-for-byte as historical evidence.\n"
     )
     observability_claims = (
         "hidden HUD polling stopping",
@@ -1647,8 +1693,9 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     scope_commits = ["a" * 40, "b" * 40, "c" * 40, fixture_head]
     scope_changed_files = sorted(bundle.FAM003_OPTION_G_APPROVED_REPAIR_FILES)
     false_green_fixture_identity = (
-        "Option G BP3: 1 BP2 carrydown applicability positive + 25 formal-digest "
-        "+ 13 Branch Vision + 5 inventory + 22 proof-carrydown + "
+        "Option G BP3: 1 BP2 carrydown applicability positive + 26 formal-digest "
+        "+ 13 Branch Vision + 11 inventory + 5 packet-lineage + "
+        "10 supporting-carrier + 4 defect-ledger + 22 proof-carrydown + "
         "34 decision-surface + 19 active-metadata + 41 canonical-UFD + "
         "12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
@@ -1891,6 +1938,20 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "futureWorkstreamDecision": "FUTURE_ONLY_NON_ACTIONABLE",
             "userGateState": "Pending USER Review",
             "workstreamImplementation": "UNAPPROVED",
+            "Packet Lineage": {
+                "priorUserReviewedPacket": fixture_prior_packet,
+                "priorUserReviewedZipSha256": fixture_prior_hash,
+                "publicationReceiptPath": fixture_publication_receipt_path,
+                "publicationReceiptSha256": fixture_publication_receipt_hash,
+                "intermediateCandidates": [
+                    {
+                        "path": path,
+                        "sha256": sha256,
+                        "classification": "INTERMEDIATE / NON-REVIEWABLE",
+                    }
+                    for path, sha256 in fixture_intermediate_packets
+                ],
+            },
             "Source Repo HEAD": fixture_head,
             "externalStateVersion": 24,
             "Replacement ZIP": fixture_packet,
@@ -1967,7 +2028,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Workstream Implementation: `UNAPPROVED`\n\n"
             f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
             f"{bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT}\n"
-            f"{exact_digest}"
+            f"{exact_digest}{lineage_review_text}"
         ),
         "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
         "Review Aids/USER_DECISIONS.md": (
@@ -1993,6 +2054,9 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Review Aids/OPTION_G_ELEMENT_TO_PHASE_MATRIX.md": element_text,
         "Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md": (
             "# Defect Ledger\n"
+            "Current External State Version: `24`\n"
+            "Element-to-Phase Target Check: `13_target_branch_plan`\n"
+            "Current Closure Transition: `OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`\n"
             "`OPTG-BP3-DS-DEF-01`\n"
             "`OPTG-BP3-DS-DEF-02`\n"
             "`OPTG-BP3-DS-DEF-03`\n"
@@ -2000,6 +2064,12 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "`OPTG-BP3-DS-DEF-05`\n"
             "`OPTG-BP3-DS-DEF-06`\n"
             "`OPTG-BP3-DS-DEF-07`\n"
+            "`OPTG-BP3-PLC-DEF-01`\n"
+            "`OPTG-BP3-PLC-DEF-02`\n"
+            "`OPTG-BP3-PLC-DEF-03`\n"
+            "`OPTG-BP3-PLC-DEF-04`\n"
+            "`OPTG-BP3-PLC-DEF-05`\n"
+            "`OPTG-BP3-PLC-DEF-06`\n"
             "Validator false-green defects are closed with proof.\n"
         ),
         "Review Aids/Validation Outputs/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md": (
@@ -2029,14 +2099,39 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         ),
         (
             "Source Truth Context/Active External Snapshot/"
-            "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+            "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
         ): supporting_ufd_record,
+        (
+            "Source Truth Context/Historical Evidence/"
+            "decision2_option_g_bp3_formal_digest_vision_ufd_repair_20260726.md"
+        ): "# Historical superseded supporting record\n",
+        (
+            "Source Truth Context/Proof Artifacts/Validation/"
+            "fixture-packet-publication.json"
+        ): fixture_publication_receipt,
         "Source Truth Context/Repo Owners/nexus_vision.md": project_vision_text,
         "Source Truth Context/Repo Owners/FAM-003_interaction_and_actions.md": family_vision_text,
         "Source Truth Context/Repo Owners/F3-FF01.md": ffv_text,
         "Source Truth Context/Active External Snapshot/bp1_branch_vision_revision_20260715.md": accepted_bp1_text,
         "Source Truth Context/Active External Snapshot/decision2_option_g_bp2_gate_repair_20260724.md": accepted_bp2_text,
         "Source Truth Context/Active External Snapshot/decision2_option_g_bp2_acceptance_20260724.md": accepted_bp2_receipt_text,
+        "Source Truth Context/Proof Artifacts/Validation/INTERMEDIATE_UNTRACKED_INVENTORY_RECEIPT.json": json.dumps(
+            {
+                "schema": "fam003-untracked-inventory-completion-v1",
+                "completionStage": "CUTOFF_TO_CANDIDATE",
+                "cutoffUtc": "2026-07-26T00:00:00Z",
+                "finalUtc": "2026-07-26T00:00:01Z",
+                "sourceHead": fixture_head,
+                "externalStateVersion": 24,
+                "cutoffItemCount": 1,
+                "finalItemCount": 1,
+                "addedAfterCutoffCount": 0,
+                "removedAfterCutoffCount": 0,
+                "foreignOrUnknownCount": 0,
+                "rows": [{"path": "fixture", "foreignOrUnknown": "NO"}],
+            },
+            indent=2,
+        ),
         "Source Truth Context/Proof Artifacts/Validation/FINAL_UNTRACKED_INVENTORY.json": json.dumps(
             {
                 "schema": "fam003-untracked-inventory-cutoff-v2",
@@ -2048,10 +2143,24 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 "foreignOrUnknownCount": 0,
                 "rows": [{"path": "fixture", "foreignOrUnknown": "NO"}],
                 "postCutoffArtifactGroups": ["packet candidate", "validation logs"],
+                "intermediateCompletionReceipt": r"C:\Nexus Governance State\audit_log\fixture-intermediate-inventory.json",
+                "intermediateCompletionReceiptSha256": "__INTERMEDIATE_HASH__",
+                "intermediateCompletionReceiptPacketCopy": "Source Truth Context/Proof Artifacts/Validation/INTERMEDIATE_UNTRACKED_INVENTORY_RECEIPT.json",
                 "finalCompletionReceipt": r"C:\Nexus Governance State\audit_log\fixture-final-inventory.json",
             }
         ),
     }
+    intermediate_key = (
+        "Source Truth Context/Proof Artifacts/Validation/"
+        "INTERMEDIATE_UNTRACKED_INVENTORY_RECEIPT.json"
+    )
+    inventory_key = (
+        "Source Truth Context/Proof Artifacts/Validation/FINAL_UNTRACKED_INVENTORY.json"
+    )
+    valid[inventory_key] = valid[inventory_key].replace(
+        "__INTERMEDIATE_HASH__",
+        hashlib.sha256(valid[intermediate_key].encode("utf-8")).hexdigest().upper(),
+    )
     valid.update(provenance_files)
     valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
         valid,
@@ -2074,6 +2183,288 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         )
         if not any(expected.casefold() in failure.casefold() for failure in failures):
             raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    with tempfile.TemporaryDirectory(prefix="fam003-postpublication-") as temp_dir:
+        completion_path = Path(temp_dir) / "postpublication-completion.json"
+        completion = {
+            "schema": "fam003-untracked-inventory-completion-v1",
+            "completionStage": "POST_PUBLICATION",
+            "cutoffUtc": "2026-07-26T00:00:00Z",
+            "finalUtc": "2026-07-26T00:00:02Z",
+            "sourceHead": fixture_head,
+            "externalStateVersion": 24,
+            "cutoffItemCount": 1,
+            "finalItemCount": 1,
+            "addedAfterCutoffCount": 0,
+            "removedAfterCutoffCount": 0,
+            "foreignOrUnknownCount": 0,
+            "rows": [{"path": "fixture", "foreignOrUnknown": "NO"}],
+            "packetZip": fixture_packet,
+            "packetZipSha256": "6" * 64,
+            "folderZipParity": "PASS",
+        }
+        completion_path.write_text(json.dumps(completion), encoding="utf-8")
+        live_receipt_valid = dict(valid)
+        live_receipt_inventory = json.loads(live_receipt_valid[inventory_key])
+        live_receipt_inventory["finalCompletionReceipt"] = str(completion_path)
+        live_receipt_valid[inventory_key] = json.dumps(live_receipt_inventory)
+        packet_binary_files = {
+            path: text.encode("utf-8") for path, text in live_receipt_valid.items()
+        }
+        live_receipt_failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            live_receipt_valid,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+            packet_binary_files=packet_binary_files,
+        )
+        if live_receipt_failures:
+            raise AssertionError(
+                "Valid post-publication completion receipt failed:\n"
+                + "\n".join(live_receipt_failures)
+            )
+        for case_id, field, value, expected in (
+            (
+                "OPTG-BP3-INVENTORY-FG-09",
+                "completionStage",
+                "CUTOFF_TO_CANDIDATE",
+                "not a post-publication completion receipt",
+            ),
+            (
+                "OPTG-BP3-INVENTORY-FG-10",
+                "packetZip",
+                r"C:\Nexus USER\wrong.zip",
+                "lacks exact packet identity and parity proof",
+            ),
+            (
+                "OPTG-BP3-INVENTORY-FG-11",
+                "folderZipParity",
+                "FAIL",
+                "lacks exact packet identity and parity proof",
+            ),
+        ):
+            mutated_completion = dict(completion)
+            mutated_completion[field] = value
+            completion_path.write_text(
+                json.dumps(mutated_completion),
+                encoding="utf-8",
+            )
+            failures = bundle._fam003_option_g_bp3_orchestration_failures(
+                live_receipt_valid,
+                status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+                packet_binary_files=packet_binary_files,
+            )
+            if not any(expected.casefold() in failure.casefold() for failure in failures):
+                raise AssertionError(
+                    f"{case_id} did not fail on {expected!r}: {failures}"
+                )
+
+    manifest_path = "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json"
+    support_path = (
+        "Source Truth Context/Active External Snapshot/"
+        "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
+    )
+    historical_support_path = (
+        "Source Truth Context/Historical Evidence/"
+        "decision2_option_g_bp3_formal_digest_vision_ufd_repair_20260726.md"
+    )
+    ufd_aid_path = "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md"
+    defect_path = "Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md"
+
+    missing_lineage = dict(valid)
+    missing_lineage_manifest = json.loads(packet_manifest)
+    missing_lineage_manifest.pop("Packet Lineage")
+    missing_lineage[manifest_path] = json.dumps(missing_lineage_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-01",
+        missing_lineage,
+        "omits receipt-backed Packet Lineage",
+    )
+
+    wrong_prior = dict(valid)
+    wrong_prior_manifest = json.loads(packet_manifest)
+    wrong_prior_manifest["Packet Lineage"]["priorUserReviewedPacket"] = (
+        fixture_intermediate_packets[0][0]
+    )
+    wrong_prior[manifest_path] = json.dumps(wrong_prior_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-02",
+        wrong_prior,
+        "prior USER-reviewed packet identity disagrees",
+    )
+
+    missing_receipt = {
+        path: text
+        for path, text in valid.items()
+        if Path(path).name != "fixture-packet-publication.json"
+    }
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-03",
+        missing_receipt,
+        "omits the publication receipt",
+    )
+
+    bad_candidate_class = dict(valid)
+    bad_candidate_manifest = json.loads(packet_manifest)
+    bad_candidate_manifest["Packet Lineage"]["intermediateCandidates"][0][
+        "classification"
+    ] = "PRIOR USER-REVIEWED PACKET"
+    bad_candidate_class[manifest_path] = json.dumps(bad_candidate_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-04",
+        bad_candidate_class,
+        "lacks INTERMEDIATE / NON-REVIEWABLE classification",
+    )
+
+    missing_lineage_surface = dict(valid)
+    missing_name = Path(fixture_intermediate_packets[0][0]).name
+    for review_path in (
+        "START_HERE.md",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    ):
+        missing_lineage_surface[review_path] = missing_lineage_surface[review_path].replace(
+            f"Intermediate repair candidate: `{missing_name}`\n",
+            "",
+        )
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-05",
+        missing_lineage_surface,
+        "USER review surfaces omit a receipt-backed packet-lineage identity",
+    )
+
+    pointer_mismatch = dict(valid)
+    pointer_mismatch[ufd_aid_path] = pointer_mismatch[ufd_aid_path].replace(
+        "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md",
+        "wrong-support.md",
+        1,
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-SUPPORT-FG-01",
+        pointer_mismatch,
+        "supporting pointer disagrees",
+    )
+
+    missing_support = dict(valid)
+    missing_support.pop(support_path)
+    _assert_option_g_failure(
+        "OPTG-BP3-SUPPORT-FG-02",
+        missing_support,
+        "lacks its exact packet-contained current support record",
+    )
+
+    for case_id, old, new, expected in (
+        (
+            "OPTG-BP3-SUPPORT-FG-03",
+            f"Source Repo HEAD: `{fixture_head}`",
+            f"Source Repo HEAD: `{'f' * 40}`",
+            "Source Repo HEAD is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-04",
+            "State Version: `24`",
+            "State Version: `20`",
+            "State Version is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-05",
+            f"Element Validation Ledger Owner: `{bundle.FAM003_OPTION_G_ELEMENT_OWNER}`",
+            "Element Validation Ledger Owner: `this supporting record`",
+            "Element Validation Ledger Owner is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-06",
+            "Element Matrix Column Count: `11`",
+            "Element Matrix Column Count: `12`",
+            "Element Matrix Column Count is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-07",
+            "Element Classification Vocabulary: `Affected; Created; Deferred; Dependency-Only; Future; Non-Gating Supporting; Planned; Touched`",
+            "Element Classification Vocabulary: `Affected; Preserved; Planned`",
+            "Element Classification Vocabulary is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-08",
+            "Remaining USER Decision: `BP3 approval only`",
+            "Remaining USER Decision: `Accept, waive, revise, or block`",
+            "Remaining USER Decision is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-09",
+            "Rollback Snapshot Identity: `snapshot-20260726T010203Z-a1b2c3d4`",
+            "Rollback Snapshot Identity: `snapshot-20260724T093400Z-4e61a51c`",
+            "Rollback Snapshot Identity is stale",
+        ),
+    ):
+        mutated = dict(valid)
+        mutated[support_path] = mutated[support_path].replace(old, new, 1)
+        _assert_option_g_failure(case_id, mutated, expected)
+
+    missing_historical_support = dict(valid)
+    missing_historical_support.pop(historical_support_path)
+    _assert_option_g_failure(
+        "OPTG-BP3-SUPPORT-FG-10",
+        missing_historical_support,
+        "not preserved and classified under Historical Evidence",
+    )
+
+    for case_id, old, new, expected in (
+        (
+            "OPTG-BP3-DEFECT-FG-01",
+            "Current External State Version: `24`",
+            "Current External State Version: `32`",
+            "current external-state version is stale",
+        ),
+        (
+            "OPTG-BP3-DEFECT-FG-02",
+            "Element-to-Phase Target Check: `13_target_branch_plan`",
+            "Element-to-Phase Target Check: `14_target_branch_plan`",
+            "Element-to-Phase target check is stale",
+        ),
+        (
+            "OPTG-BP3-DEFECT-FG-03",
+            "Current Closure Transition: `OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`",
+            "Current Closure Transition: `STATE_32_READY_FOR_USER_REVIEW`",
+            "current closure transition disagrees",
+        ),
+        (
+            "OPTG-BP3-DEFECT-FG-04",
+            "`OPTG-BP3-PLC-DEF-06`\n",
+            "",
+            "OPTG-BP3-PLC-DEF-06 must appear exactly once",
+        ),
+    ):
+        mutated = dict(valid)
+        mutated[defect_path] = mutated[defect_path].replace(old, new, 1)
+        _assert_option_g_failure(case_id, mutated, expected)
+
+    intermediate_missing = dict(valid)
+    intermediate_inventory = json.loads(intermediate_missing[inventory_key])
+    intermediate_inventory["intermediateCompletionReceiptPacketCopy"] = ""
+    intermediate_missing[inventory_key] = json.dumps(intermediate_inventory)
+    _assert_option_g_failure(
+        "OPTG-BP3-INVENTORY-FG-06",
+        intermediate_missing,
+        "omits the packet-contained intermediate completion receipt mapping",
+    )
+
+    intermediate_hash_mismatch = dict(valid)
+    intermediate_inventory = json.loads(intermediate_hash_mismatch[inventory_key])
+    intermediate_inventory["intermediateCompletionReceiptSha256"] = "0" * 64
+    intermediate_hash_mismatch[inventory_key] = json.dumps(intermediate_inventory)
+    _assert_option_g_failure(
+        "OPTG-BP3-INVENTORY-FG-07",
+        intermediate_hash_mismatch,
+        "intermediate completion receipt SHA256 disagrees",
+    )
+
+    intermediate_count_mismatch = dict(valid)
+    intermediate_receipt = json.loads(intermediate_count_mismatch[intermediate_key])
+    intermediate_receipt["finalItemCount"] = 2
+    intermediate_count_mismatch[intermediate_key] = json.dumps(intermediate_receipt)
+    _assert_option_g_failure(
+        "OPTG-BP3-INVENTORY-FG-08",
+        intermediate_count_mismatch,
+        "intermediate completion receipt SHA256 disagrees",
+    )
 
     digest_start = valid["START_HERE.md"]
     digest_cases = (
@@ -2156,6 +2547,15 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 1,
             ),
             "does not explain the unapproved BP3 USER gate",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-26",
+            digest_start.replace(
+                "USER Inspection Files: `C:\\Nexus USER\\FAM-003 and its timestamped ZIP`",
+                "USER Inspection Files: `START_HERE.md; USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md; Review Aids; Source Truth Context`",
+                1,
+            ),
+            "names a broad directory",
         ),
     )
     for case_id, mutated_start, expected in digest_cases:
@@ -2736,7 +3136,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-03",
             (
                 "Source Truth Context/Active External Snapshot/"
-                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+                "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
             ),
             "UFD Authority Classification: `SUPPORTING EVIDENCE COPY`",
             "UFD Authority Classification: `CANONICAL SOURCE TRUTH`",
@@ -2809,7 +3209,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-13",
             (
                 "Source Truth Context/Active External Snapshot/"
-                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+                "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
             ),
             "USER Direction Or Finding: `Accepted Option G direction 1`",
             "USER Direction Or Finding: `Divergent evidence copy`",
@@ -2845,7 +3245,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-17",
             "Source Truth Context/current_external_branch_plan.md",
             "UFD Supporting Evidence Copy: "
-            "`decision2_option_g_bp3_proof_carrydown_repair_20260724.md`\n",
+            "`C:\\Nexus Governance State\\branches\\feature_fam_003_settings_resize_proof\\"
+            "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md`\n",
             "",
             "proof-carrydown record",
         ),
@@ -2988,7 +3389,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-35",
             (
                 "Source Truth Context/Active External Snapshot/"
-                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+                "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
             ),
             ufd_rows[0],
             ufd_rows[0].replace(
@@ -3012,7 +3413,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-37",
             (
                 "Source Truth Context/Active External Snapshot/"
-                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+                "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
             ),
             ufd_rows[0],
             ufd_rows[0].replace(
@@ -3050,11 +3451,11 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "OPTG-BP3-UFD-FG-41",
             (
                 "Source Truth Context/Active External Snapshot/"
-                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+                "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
             ),
             "Remaining USER Decision: `BP3 approval only`",
             "Remaining USER Decision: `BP3 acceptance only`",
-            "differs from the canonical",
+            "current supporting record Remaining USER Decision",
         ),
     )
     for case_id, file_name, old, new, expected in canonical_ufd_cases:
@@ -4700,7 +5101,8 @@ def main() -> int:
     print(
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
-        "25 formal-digest + 13 Branch Vision + 5 inventory + "
+        "26 formal-digest + 13 Branch Vision + 11 inventory + "
+        "5 packet-lineage + 10 supporting-carrier + 4 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
         "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
