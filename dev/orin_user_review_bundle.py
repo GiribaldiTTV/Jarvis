@@ -4359,6 +4359,7 @@ def validate_local_user_packet(
             packet_files,
             status=packet_status,
             packet_binary_files=zip_binary_files or folder_binary_files,
+            export_zip=export_zip,
         )
     )
     failures.extend(_pr_stage1_review_failures(packet_files))
@@ -6065,9 +6066,15 @@ def _packet_path_by_basename(packet_files: Mapping[str, str], basename: str) -> 
 
 
 FAM003_OPTION_G_EXACT_PRIOR_PACKET = (
-    r"C:\Nexus USER\FAM-003-20260726-224500.zip"
+    r"C:\Nexus USER\FAM-003-20260727-125220.zip"
 )
 FAM003_OPTION_G_EXACT_PRIOR_PACKET_SHA256 = (
+    "6354FE982551485FA959729FD920AEA8BE31231251CA096FC299BB987245B96D"
+)
+FAM003_OPTION_G_EXACT_REJECTED_PACKET = (
+    r"C:\Nexus USER\FAM-003-20260726-224500.zip"
+)
+FAM003_OPTION_G_EXACT_REJECTED_PACKET_SHA256 = (
     "9D9A30A47351DE1241FE7BA3C711C2B0171E04113D2C177247E0877D66D26320"
 )
 FAM003_OPTION_G_PRIOR_REJECTION_DISPOSITION = "EXPECTED_FAIL_CONFIRMED"
@@ -6196,12 +6203,12 @@ def _fam003_option_g_packet_lineage_failures(
     if prior_path.casefold() != FAM003_OPTION_G_EXACT_PRIOR_PACKET.casefold():
         failures.append(
             "FAM-003 Option G BP3: receipt-backed prior USER-reviewed packet is not "
-            "the exact FAM-003-20260726-224500.zip review target"
+            "the exact FAM-003-20260727-125220.zip review target"
         )
     if prior_hash.casefold() != FAM003_OPTION_G_EXACT_PRIOR_PACKET_SHA256.casefold():
         failures.append(
             "FAM-003 Option G BP3: receipt-backed prior USER-reviewed packet hash is "
-            "not the exact 224500 ZIP SHA256"
+            "not the exact 125220 ZIP SHA256"
         )
     receipt_basename = PureWindowsPath(receipt_path).name if receipt_path else ""
     receipt_packet_path = (
@@ -6283,7 +6290,7 @@ def _fam003_option_g_packet_lineage_failures(
 
     if not isinstance(rejection, dict):
         failures.append(
-            "FAM-003 Option G BP3: packet manifest omits execution-backed exact-224500 rejection proof"
+            "FAM-003 Option G BP3: packet manifest omits execution-backed exact-224500 rejection proof (historical target)"
         )
         rejection = {}
     target_path = str(rejection.get("targetPacket") or "")
@@ -6315,9 +6322,13 @@ def _fam003_option_g_packet_lineage_failures(
         "rawLogPacketCopy": raw_log_copy,
         "rawLogSha256": raw_log_hash,
     }
-    if target_path.casefold() != prior_path.casefold() or target_hash.casefold() != prior_hash.casefold():
+    if (
+        target_path.casefold() != FAM003_OPTION_G_EXACT_REJECTED_PACKET.casefold()
+        or target_hash.casefold()
+        != FAM003_OPTION_G_EXACT_REJECTED_PACKET_SHA256.casefold()
+    ):
         failures.append(
-            "FAM-003 Option G BP3: exact-224500 rejection target identity/hash disagrees with Packet Lineage"
+            "FAM-003 Option G BP3: historical exact-224500 rejection target identity/hash disagrees with the required rejected packet"
         )
     if command.casefold() not in {"py -3 dev\\orin_user_review_bundle.py", "py -3 dev/orin_user_review_bundle.py"}:
         failures.append(
@@ -6413,10 +6424,41 @@ def _fam003_option_g_packet_lineage_failures(
             failures.append(
                 "FAM-003 Option G BP3: exact-224500 active-review raw log does not prove the intended FAIL target"
             )
-    lineage_surfaces = (
-        f"{packet_files.get('START_HERE.md', '')}\n"
-        f"{_packet_file_text(packet_files, 'WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md')}"
-    )
+    lineage_surface_map = {
+        "START_HERE.md": packet_files.get("START_HERE.md", ""),
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": _packet_file_text(
+            packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        ),
+    }
+    current_name = PureWindowsPath(current_packet).name if current_packet else ""
+    prior_name = PureWindowsPath(prior_path).name if prior_path else ""
+    for file_name, text in lineage_surface_map.items():
+        active = _current_review_claims(text)
+        if _markdown_section_count(active, "## Packet Lineage") != 1:
+            failures.append(
+                "FAM-003 Option G BP3: "
+                f"{file_name} must contain exactly one active ## Packet Lineage section"
+            )
+            continue
+        section = _markdown_section(active, "## Packet Lineage")
+        if prior_name and section.count(prior_name) != 1:
+            failures.append(
+                "FAM-003 Option G BP3: "
+                f"{file_name} Packet Lineage must name the immediate prior USER-reviewed packet exactly once"
+            )
+        if current_name and section.count(current_name) != 1:
+            failures.append(
+                "FAM-003 Option G BP3: "
+                f"{file_name} Packet Lineage must name the current replacement packet exactly once"
+            )
+        for candidate_path in candidate_paths:
+            candidate_name = PureWindowsPath(candidate_path).name
+            if candidate_name and section.count(candidate_name) != 1:
+                failures.append(
+                    "FAM-003 Option G BP3: "
+                    f"{file_name} Packet Lineage must name each intermediate candidate exactly once"
+                )
+    lineage_surfaces = "\n".join(lineage_surface_map.values())
     for path in (prior_path, *candidate_paths):
         if path and PureWindowsPath(path).name not in lineage_surfaces:
             failures.append(
@@ -7827,11 +7869,273 @@ def _fam003_option_g_defect_ledger_failures(
     return failures
 
 
+FAM003_OPTION_G_FINAL_CLOSURE_SCHEMA = "fam003-option-g-bp3-final-closure-v2"
+FAM003_OPTION_G_FINAL_BYTE_RECEIPT_SCHEMA = (
+    "fam003-option-g-bp3-final-byte-audit-v1"
+)
+FAM003_OPTION_G_FINAL_CLOSURE_DEFECT_IDS = tuple(
+    f"F3-BP3-FZ-{index:03d}" for index in range(1, 10)
+)
+
+
+def _fam003_option_g_final_closure_failures(
+    packet_files: Mapping[str, str],
+    packet_binary_files: Mapping[str, bytes] | None,
+    *,
+    export_zip: Path | None = None,
+) -> list[str]:
+    """Reject candidate-only or stale artifacts presented as final BP3 closure."""
+
+    failures: list[str] = []
+    manifest_text = _packet_file_text(packet_files, "PACKET_MANIFEST.json")
+    try:
+        manifest = json.loads(manifest_text) if manifest_text else {}
+    except json.JSONDecodeError:
+        manifest = {}
+    closure = manifest.get("Final Closure") if isinstance(manifest, dict) else None
+    if not isinstance(closure, dict):
+        return [
+            "FAM-003 Option G BP3: packet manifest Final Closure must be a non-null structured object"
+        ]
+    if closure.get("schema") != FAM003_OPTION_G_FINAL_CLOSURE_SCHEMA:
+        failures.append(
+            "FAM-003 Option G BP3: packet manifest Final Closure schema is missing or stale"
+        )
+    if closure.get("receiptModel") != "EXTERNAL_NON_SELF_REFERENTIAL_FINAL_BYTE_AUDIT":
+        failures.append(
+            "FAM-003 Option G BP3: Final Closure does not declare the non-self-referential external final-byte receipt model"
+        )
+
+    artifact_fields = {
+        "initialClosureContractPacketCopy": "INITIAL_BP3_CLOSURE_CONTRACT.json",
+        "activeCarrierCensusPacketCopy": "FINAL_ACTIVE_CARRIER_CENSUS.json",
+        "finalCurrentFactMatrixPacketCopy": "FINAL_CURRENT_FACT_MATRIX.json",
+        "finalAtomicDefectLedgerPacketCopy": "FINAL_BP3_ATOMIC_DEFECT_LEDGER.json",
+        "preZipAdversarialAuditPacketCopy": "INDEPENDENT_ADVERSARIAL_AUDIT.json",
+    }
+    resolved_paths: dict[str, str] = {}
+    parsed: dict[str, dict[str, object]] = {}
+    for field, basename in artifact_fields.items():
+        declared_path = str(closure.get(field) or "").replace("\\", "/")
+        matches = [
+            path
+            for path in packet_files
+            if PurePosixPath(path).name.casefold() == basename.casefold()
+        ]
+        if len(matches) != 1:
+            failures.append(
+                f"FAM-003 Option G BP3: final closure artifact {basename} must appear exactly once"
+            )
+            continue
+        actual_path = matches[0]
+        resolved_paths[field] = actual_path
+        if declared_path != actual_path:
+            failures.append(
+                f"FAM-003 Option G BP3: Final Closure {field} does not identify the exact packet copy"
+            )
+        try:
+            value = json.loads(packet_files.get(actual_path, ""))
+        except json.JSONDecodeError:
+            value = {}
+        if not isinstance(value, dict) or not value:
+            failures.append(
+                f"FAM-003 Option G BP3: final closure artifact {basename} is malformed"
+            )
+        else:
+            parsed[field] = value
+
+    contract = parsed.get("initialClosureContractPacketCopy", {})
+    invariants = contract.get("invariants") if isinstance(contract, dict) else None
+    invariants = invariants if isinstance(invariants, list) else []
+    if (
+        contract.get("schema") != "fam003-bp3-closure-contract-v2"
+        or contract.get("contractRole") != "INITIAL_PRE_REPAIR_INVARIANT_FREEZE"
+        or contract.get("authorityClass") != "NON_GOVERNING_DERIVED_EVIDENCE"
+        or contract.get("invariantCount") != len(invariants)
+        or len(invariants) < 72
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: initial closure contract is mislabeled, incomplete, or presented as final current fact"
+        )
+    if contract.get("actualFinalValues") not in ({}, None):
+        failures.append(
+            "FAM-003 Option G BP3: initial closure contract must not embed mutable final values"
+        )
+
+    census = parsed.get("activeCarrierCensusPacketCopy", {})
+    carrier_rows = census.get("carriers") if isinstance(census, dict) else None
+    carrier_rows = carrier_rows if isinstance(carrier_rows, list) else []
+    if (
+        census.get("censusRole") != "FINAL_ACTIVE_SUPPORTING_HISTORICAL_CARRIER_CENSUS"
+        or census.get("carrierCount") != len(carrier_rows)
+        or not carrier_rows
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: final active-carrier census is missing, stale, or incomplete"
+        )
+
+    matrix = parsed.get("finalCurrentFactMatrixPacketCopy", {})
+    matrix_facts = matrix.get("facts") if isinstance(matrix, dict) else None
+    matrix_facts = matrix_facts if isinstance(matrix_facts, dict) else {}
+    matrix_rows = matrix.get("rows") if isinstance(matrix, dict) else None
+    matrix_rows = matrix_rows if isinstance(matrix_rows, list) else []
+    manifest_head = str(manifest.get("Source Repo HEAD") or "")
+    manifest_version = manifest.get("externalStateVersion")
+    manifest_packet = str(manifest.get("Replacement ZIP") or "")
+    if (
+        matrix.get("schema") != "fam003-bp3-final-current-fact-matrix-v2"
+        or matrix.get("matrixRole") != "ACTUAL_FINAL_POSTPUBLICATION_CURRENT_FACTS"
+        or matrix.get("result") != "PASS"
+        or matrix.get("mismatchCount") != 0
+        or matrix_facts.get("head") != manifest_head
+        or matrix_facts.get("externalStateVersion") != manifest_version
+        or str(matrix_facts.get("replacementPacket") or "").casefold()
+        != manifest_packet.casefold()
+        or not matrix_rows
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: FINAL_CURRENT_FACT_MATRIX is stale, mismatched, empty, or not a zero-mismatch final PASS"
+        )
+    for row in matrix_rows:
+        if not isinstance(row, dict) or row.get("status") != "PASS":
+            failures.append(
+                "FAM-003 Option G BP3: FINAL_CURRENT_FACT_MATRIX contains a non-PASS row"
+            )
+            break
+
+    ledger = parsed.get("finalAtomicDefectLedgerPacketCopy", {})
+    defects = ledger.get("defects") if isinstance(ledger, dict) else None
+    defects = defects if isinstance(defects, list) else []
+    status_counts = ledger.get("statusCounts") if isinstance(ledger, dict) else None
+    status_counts = status_counts if isinstance(status_counts, dict) else {}
+    defect_ids = {
+        str(row.get("defectId") or "")
+        for row in defects
+        if isinstance(row, dict)
+    }
+    if (
+        ledger.get("schema") != "fam003-bp3-final-atomic-defect-ledger-v2"
+        or ledger.get("ledgerRole") != "FINAL_POSTPUBLICATION_ATOMIC_DEFECT_LEDGER"
+        or ledger.get("result") != "PASS"
+        or ledger.get("defectCount") != len(defects)
+        or not set(FAM003_OPTION_G_FINAL_CLOSURE_DEFECT_IDS).issubset(defect_ids)
+        or status_counts.get("CLOSED_WITH_PROOF") != len(defects)
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: final atomic defect ledger is incomplete or does not close every admitted defect with proof"
+        )
+    for row in defects:
+        if not isinstance(row, dict):
+            failures.append("FAM-003 Option G BP3: final atomic defect row is malformed")
+            continue
+        if row.get("status") != "CLOSED_WITH_PROOF":
+            failures.append(
+                "FAM-003 Option G BP3: final atomic defect ledger contains a nonclosed status"
+            )
+        for field in ("closureEvidence", "positiveValidation", "negativeFixture"):
+            value = row.get(field)
+            if not isinstance(value, list) or not value or not all(
+                isinstance(item, str) and item.strip() for item in value
+            ):
+                failures.append(
+                    f"FAM-003 Option G BP3: final atomic defect {row.get('defectId')} lacks {field} proof"
+                )
+
+    audit = parsed.get("preZipAdversarialAuditPacketCopy", {})
+    audit_path = resolved_paths.get("preZipAdversarialAuditPacketCopy", "")
+    audit_md_path = _packet_path_by_basename(
+        packet_files, "INDEPENDENT_ADVERSARIAL_AUDIT.md"
+    )
+    exclusions = audit.get("selfRecordExclusions") if isinstance(audit, dict) else None
+    exclusions = exclusions if isinstance(exclusions, list) else []
+    audited_files = audit.get("auditedFiles") if isinstance(audit, dict) else None
+    audited_files = audited_files if isinstance(audited_files, list) else []
+    audited_paths = {
+        str(row.get("path") or "")
+        for row in audited_files
+        if isinstance(row, dict)
+    }
+    expected_exclusions = {path for path in (audit_path, audit_md_path) if path}
+    expected_audited_paths = set(packet_files) - expected_exclusions
+    if (
+        audit.get("schema") != "fam003-bp3-pre-zip-adversarial-audit-v2"
+        or audit.get("auditRole") != "PRE_ZIP_CANDIDATE_AUDIT"
+        or audit.get("result") != "PASS_PRE_ZIP_CANDIDATE_AUDIT"
+        or audit.get("findingCount") != 0
+        or audit.get("candidateFileCount") != len(packet_files)
+        or audit.get("auditedFileCount") != len(expected_audited_paths)
+        or set(exclusions) != expected_exclusions
+        or audited_paths != expected_audited_paths
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: pre-ZIP adversarial audit is pending, stale, self-referential, or lacks exact candidate coverage"
+        )
+    if packet_binary_files is not None:
+        for row in audited_files:
+            if not isinstance(row, dict):
+                continue
+            path = str(row.get("path") or "")
+            expected_hash = str(row.get("sha256") or "")
+            data = packet_binary_files.get(path)
+            if data is None or hashlib.sha256(data).hexdigest().casefold() != expected_hash.casefold():
+                failures.append(
+                    f"FAM-003 Option G BP3: pre-ZIP adversarial audit hash disagrees for {path}"
+                )
+
+    receipt_path_text = str(closure.get("externalFinalByteReceiptPath") or "")
+    if not receipt_path_text:
+        failures.append(
+            "FAM-003 Option G BP3: Final Closure omits the external final-byte receipt path"
+        )
+    elif export_zip is not None:
+        receipt_path = Path(receipt_path_text)
+        if not receipt_path.is_file():
+            failures.append(
+                "FAM-003 Option G BP3: external final-byte receipt is missing"
+            )
+        else:
+            try:
+                receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+                receipt = {}
+            actual_zip_hash = hashlib.sha256(export_zip.read_bytes()).hexdigest().upper()
+            required_pass_fields = (
+                "archiveIntegrity",
+                "extractedZipByteParity",
+                "manifestValidation",
+                "utf8ControlCharacterAudit",
+                "activeReviewValidation",
+                "currentFactMatrixValidation",
+                "duplicateActiveSectionAudit",
+                "finalLedgerValidation",
+            )
+            if (
+                receipt.get("schema") != FAM003_OPTION_G_FINAL_BYTE_RECEIPT_SCHEMA
+                or str(receipt.get("packetZip") or "").casefold()
+                != manifest_packet.casefold()
+                or str(receipt.get("zipSha256") or "").casefold()
+                != actual_zip_hash.casefold()
+                or str(receipt.get("postReceiptZipSha256") or "").casefold()
+                != actual_zip_hash.casefold()
+                or receipt.get("zipFileCount") != len(packet_files)
+                or receipt.get("extractedFileCount") != len(packet_files)
+                or receipt.get("mutationAfterReceipt") != "NO"
+                or not str(receipt.get("startedUtc") or "").endswith("Z")
+                or not str(receipt.get("completedUtc") or "").endswith("Z")
+                or any(receipt.get(field) != "PASS" for field in required_pass_fields)
+            ):
+                failures.append(
+                    "FAM-003 Option G BP3: external final-byte receipt does not prove the exact immutable final ZIP bytes"
+                )
+    return failures
+
+
 def _fam003_option_g_bp3_orchestration_failures(
     packet_files: Mapping[str, str],
     *,
     status: str,
     packet_binary_files: Mapping[str, bytes] | None = None,
+    export_zip: Path | None = None,
 ) -> list[str]:
     """Reject Option G BP3 packets that omit accepted proof-contract carrydown."""
 
@@ -9141,6 +9445,13 @@ def _fam003_option_g_bp3_orchestration_failures(
     )
     failures.extend(_fam003_option_g_supporting_carrier_failures(packet_files))
     failures.extend(_fam003_option_g_defect_ledger_failures(packet_files))
+    failures.extend(
+        _fam003_option_g_final_closure_failures(
+            packet_files,
+            packet_binary_files,
+            export_zip=export_zip,
+        )
+    )
 
     forbidden_patterns = {
         "combined BP3 and implementation approval": re.compile(

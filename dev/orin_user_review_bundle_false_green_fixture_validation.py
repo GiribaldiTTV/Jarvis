@@ -1259,8 +1259,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     )
     fixture_head = "0123456789abcdef0123456789abcdef01234567"
     fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
-    fixture_prior_packet = r"C:\Nexus USER\FAM-003-20260726-224500.zip"
+    fixture_prior_packet = bundle.FAM003_OPTION_G_EXACT_PRIOR_PACKET
     fixture_prior_hash = bundle.FAM003_OPTION_G_EXACT_PRIOR_PACKET_SHA256
+    fixture_rejected_packet = bundle.FAM003_OPTION_G_EXACT_REJECTED_PACKET
+    fixture_rejected_hash = bundle.FAM003_OPTION_G_EXACT_REJECTED_PACKET_SHA256
     fixture_intermediate_packets = (
         (r"C:\Nexus USER\FAM-003-20260726-182000.zip", "8" * 64),
         (r"C:\Nexus USER\FAM-003-20260726-194500.zip", "7" * 64),
@@ -1314,8 +1316,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "6ac9857527842d7f7a4794336f73d67b09058e29",
     ]
     fixture_rejection = {
-        "targetPacket": fixture_prior_packet,
-        "targetZipSha256": fixture_prior_hash,
+        "targetPacket": fixture_rejected_packet,
+        "targetZipSha256": fixture_rejected_hash,
         "command": r"py -3 dev\orin_user_review_bundle.py",
         "orderedArguments": fixture_rejection_arguments,
         "workingDirectory": r"C:\Nexus Worktrees\FAM-003",
@@ -1345,7 +1347,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     )
     lineage_review_text = (
         "\n## Packet Lineage\n\n"
-        f"Prior USER-reviewed packet: `{Path(fixture_prior_packet).name}`\n"
+        f"Immediate Prior USER-Reviewed Packet: `{Path(fixture_prior_packet).name}`\n"
+        f"Current Replacement Packet: `{Path(fixture_packet).name}`\n"
         f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[0][0]).name}`\n"
         f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[1][0]).name}`\n"
         f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[2][0]).name}`\n"
@@ -2275,6 +2278,121 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         hashlib.sha256(valid[intermediate_key].encode("utf-8")).hexdigest().upper(),
     )
     valid.update(provenance_files)
+    manifest_path = (
+        "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json"
+    )
+    closure_root = "Source Truth Context/Proof Artifacts/Validation/Final Closure"
+    closure_paths = {
+        "initialClosureContractPacketCopy": f"{closure_root}/INITIAL_BP3_CLOSURE_CONTRACT.json",
+        "activeCarrierCensusPacketCopy": f"{closure_root}/FINAL_ACTIVE_CARRIER_CENSUS.json",
+        "finalCurrentFactMatrixPacketCopy": f"{closure_root}/FINAL_CURRENT_FACT_MATRIX.json",
+        "finalAtomicDefectLedgerPacketCopy": f"{closure_root}/FINAL_BP3_ATOMIC_DEFECT_LEDGER.json",
+        "preZipAdversarialAuditPacketCopy": (
+            "Source Truth Context/Proof Artifacts/Validation/Independent Audit/"
+            "INDEPENDENT_ADVERSARIAL_AUDIT.json"
+        ),
+    }
+    audit_md_path = (
+        "Source Truth Context/Proof Artifacts/Validation/Independent Audit/"
+        "INDEPENDENT_ADVERSARIAL_AUDIT.md"
+    )
+    manifest_value = json.loads(valid[manifest_path])
+    manifest_value["Final Closure"] = {
+        "schema": bundle.FAM003_OPTION_G_FINAL_CLOSURE_SCHEMA,
+        **closure_paths,
+        "externalFinalByteReceiptPath": (
+            r"C:\Nexus Governance State\audit_log\fixture-final-byte-audit.json"
+        ),
+        "receiptModel": "EXTERNAL_NON_SELF_REFERENTIAL_FINAL_BYTE_AUDIT",
+    }
+    valid[manifest_path] = json.dumps(manifest_value, indent=2)
+    valid[closure_paths["initialClosureContractPacketCopy"]] = json.dumps(
+        {
+            "schema": "fam003-bp3-closure-contract-v2",
+            "contractRole": "INITIAL_PRE_REPAIR_INVARIANT_FREEZE",
+            "authorityClass": "NON_GOVERNING_DERIVED_EVIDENCE",
+            "invariantCount": 72,
+            "invariants": [
+                {"id": f"I{index:02d}", "requirement": f"Invariant {index}"}
+                for index in range(1, 73)
+            ],
+            "actualFinalValues": {},
+        },
+        indent=2,
+    )
+    valid[closure_paths["activeCarrierCensusPacketCopy"]] = json.dumps(
+        {
+            "schema": "fam003-bp3-final-active-carrier-census-v2",
+            "censusRole": "FINAL_ACTIVE_SUPPORTING_HISTORICAL_CARRIER_CENSUS",
+            "carrierCount": 1,
+            "carriers": [{"path": manifest_path, "class": "CURRENT"}],
+        },
+        indent=2,
+    )
+    valid[closure_paths["finalCurrentFactMatrixPacketCopy"]] = json.dumps(
+        {
+            "schema": "fam003-bp3-final-current-fact-matrix-v2",
+            "matrixRole": "ACTUAL_FINAL_POSTPUBLICATION_CURRENT_FACTS",
+            "facts": {
+                "head": fixture_head,
+                "externalStateVersion": 24,
+                "replacementPacket": fixture_packet,
+            },
+            "mismatchCount": 0,
+            "rows": [{"id": "CURRENT-01", "status": "PASS"}],
+            "result": "PASS",
+        },
+        indent=2,
+    )
+    closure_defects = [
+        {
+            "defectId": defect_id,
+            "status": "CLOSED_WITH_PROOF",
+            "closureEvidence": ["final packet evidence"],
+            "positiveValidation": ["positive fixture PASS"],
+            "negativeFixture": ["atomic negative EXPECTED_FAIL_CONFIRMED"],
+        }
+        for defect_id in bundle.FAM003_OPTION_G_FINAL_CLOSURE_DEFECT_IDS
+    ]
+    valid[closure_paths["finalAtomicDefectLedgerPacketCopy"]] = json.dumps(
+        {
+            "schema": "fam003-bp3-final-atomic-defect-ledger-v2",
+            "ledgerRole": "FINAL_POSTPUBLICATION_ATOMIC_DEFECT_LEDGER",
+            "defectCount": len(closure_defects),
+            "statusCounts": {"CLOSED_WITH_PROOF": len(closure_defects)},
+            "defects": closure_defects,
+            "result": "PASS",
+        },
+        indent=2,
+    )
+    valid[audit_md_path] = (
+        "# Independent Adversarial Audit\n\n"
+        "Result: `PASS_PRE_ZIP_CANDIDATE_AUDIT`\n"
+    )
+    audit_path = closure_paths["preZipAdversarialAuditPacketCopy"]
+    valid[audit_path] = "{}"
+    audit_exclusions = {audit_path, audit_md_path}
+    audited_files = [
+        {
+            "path": path,
+            "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest().upper(),
+        }
+        for path, text in sorted(valid.items())
+        if path not in audit_exclusions
+    ]
+    valid[audit_path] = json.dumps(
+        {
+            "schema": "fam003-bp3-pre-zip-adversarial-audit-v2",
+            "auditRole": "PRE_ZIP_CANDIDATE_AUDIT",
+            "candidateFileCount": len(valid),
+            "auditedFileCount": len(audited_files),
+            "selfRecordExclusions": sorted(audit_exclusions),
+            "auditedFiles": audited_files,
+            "findingCount": 0,
+            "result": "PASS_PRE_ZIP_CANDIDATE_AUDIT",
+        },
+        indent=2,
+    )
     valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
         valid,
         status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
@@ -2296,6 +2414,118 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         )
         if not any(expected.casefold() in failure.casefold() for failure in failures):
             raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    duplicate_lineage = dict(valid)
+    duplicate_lineage["START_HERE.md"] += lineage_review_text
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-01",
+        duplicate_lineage,
+        "must contain exactly one active ## Packet Lineage section",
+    )
+
+    missing_current_lineage = dict(valid)
+    missing_current_lineage["START_HERE.md"] = missing_current_lineage[
+        "START_HERE.md"
+    ].replace(
+        f"Current Replacement Packet: `{Path(fixture_packet).name}`\n",
+        "",
+        1,
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-02",
+        missing_current_lineage,
+        "must name the current replacement packet exactly once",
+    )
+
+    null_closure = dict(valid)
+    null_closure_manifest = json.loads(null_closure[manifest_path])
+    null_closure_manifest["Final Closure"] = None
+    null_closure[manifest_path] = json.dumps(null_closure_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-03",
+        null_closure,
+        "Final Closure must be a non-null structured object",
+    )
+
+    stale_matrix = dict(valid)
+    stale_matrix_value = json.loads(
+        stale_matrix[closure_paths["finalCurrentFactMatrixPacketCopy"]]
+    )
+    stale_matrix_value["facts"]["head"] = "b" * 40
+    stale_matrix_value["rows"][0]["status"] = "REPAIR"
+    stale_matrix_value["mismatchCount"] = 1
+    stale_matrix_value["result"] = "REPAIR"
+    stale_matrix[closure_paths["finalCurrentFactMatrixPacketCopy"]] = json.dumps(
+        stale_matrix_value
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-04",
+        stale_matrix,
+        "FINAL_CURRENT_FACT_MATRIX is stale",
+    )
+
+    nonclosed_ledger = dict(valid)
+    nonclosed_ledger_value = json.loads(
+        nonclosed_ledger[closure_paths["finalAtomicDefectLedgerPacketCopy"]]
+    )
+    nonclosed_ledger_value["defects"][0]["status"] = "REPAIRING"
+    nonclosed_ledger_value["statusCounts"] = {
+        "CLOSED_WITH_PROOF": len(closure_defects) - 1,
+        "REPAIRING": 1,
+    }
+    nonclosed_ledger[closure_paths["finalAtomicDefectLedgerPacketCopy"]] = json.dumps(
+        nonclosed_ledger_value
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-05",
+        nonclosed_ledger,
+        "final atomic defect ledger is incomplete",
+    )
+
+    pending_audit = dict(valid)
+    pending_audit_value = json.loads(pending_audit[audit_path])
+    pending_audit_value["result"] = "PASS_PENDING_POSTPUBLICATION_FINAL_BYTE_AUDIT"
+    pending_audit[audit_path] = json.dumps(pending_audit_value)
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-06",
+        pending_audit,
+        "pre-ZIP adversarial audit is pending",
+    )
+
+    wrong_audit_count = dict(valid)
+    wrong_audit_count_value = json.loads(wrong_audit_count[audit_path])
+    wrong_audit_count_value["candidateFileCount"] -= 1
+    wrong_audit_count[audit_path] = json.dumps(wrong_audit_count_value)
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-07",
+        wrong_audit_count,
+        "pre-ZIP adversarial audit is pending",
+    )
+
+    stale_contract = dict(valid)
+    stale_contract_value = json.loads(
+        stale_contract[closure_paths["initialClosureContractPacketCopy"]]
+    )
+    stale_contract_value["contractRole"] = "FINAL_CURRENT_FACTS"
+    stale_contract_value["actualFinalValues"] = {"head": "stale"}
+    stale_contract[closure_paths["initialClosureContractPacketCopy"]] = json.dumps(
+        stale_contract_value
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-08",
+        stale_contract,
+        "initial closure contract is mislabeled",
+    )
+
+    missing_receipt_path = dict(valid)
+    missing_receipt_manifest = json.loads(missing_receipt_path[manifest_path])
+    missing_receipt_manifest["Final Closure"]["externalFinalByteReceiptPath"] = ""
+    missing_receipt_path[manifest_path] = json.dumps(missing_receipt_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-FINAL-FG-09",
+        missing_receipt_path,
+        "omits the external final-byte receipt path",
+    )
 
     with tempfile.TemporaryDirectory(prefix="fam003-postpublication-") as temp_dir:
         completion_path = Path(temp_dir) / "postpublication-completion.json"
@@ -2321,6 +2551,13 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         live_receipt_inventory = json.loads(live_receipt_valid[inventory_key])
         live_receipt_inventory["finalCompletionReceipt"] = str(completion_path)
         live_receipt_valid[inventory_key] = json.dumps(live_receipt_inventory)
+        live_receipt_audit = json.loads(live_receipt_valid[audit_path])
+        for row in live_receipt_audit["auditedFiles"]:
+            if row["path"] == inventory_key:
+                row["sha256"] = hashlib.sha256(
+                    live_receipt_valid[inventory_key].encode("utf-8")
+                ).hexdigest().upper()
+        live_receipt_valid[audit_path] = json.dumps(live_receipt_audit, indent=2)
         packet_binary_files = {
             path: text.encode("utf-8") for path, text in live_receipt_valid.items()
         }
@@ -5413,7 +5650,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
-        "15 packet-lineage + 21 supporting-carrier + 8 defect-ledger + "
+        "15 packet-lineage + 9 final-closure + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
         "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "

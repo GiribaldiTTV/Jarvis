@@ -346,6 +346,24 @@ other mutable proof remain prohibited there and belong in helper output, raw
 validation evidence, Codex digest, or external operational state. This scoped
 exception does not apply to another branch, FAM, packet class, or review file.
 
+FAM-003 Option G BP3 final-packet closure uses a non-recursive two-stage proof
+model. The packet-contained initial closure contract is labeled
+`INITIAL_PRE_REPAIR_INVARIANT_FREEZE` and cannot carry mutable final values or
+substitute for final proof. The packet must carry one actual-final current-fact
+matrix with zero mismatches, one final atomic defect ledger whose admitted rows
+are all `CLOSED_WITH_PROOF`, one active/supporting/historical carrier census,
+and one pre-ZIP adversarial audit that covers every candidate file except its
+two explicitly declared self-record files. The manifest `Final Closure` object
+must identify those exact packet copies and the routed external final-byte
+receipt. After ZIP creation, that external receipt binds the immutable ZIP
+path, SHA256, file count, extracted-byte parity, manifest/current-fact/ledger
+checks, UTF-8/control-character checks, and active-review result; the ZIP must
+not be mutated afterward. `dev/orin_user_review_bundle.py` and
+`dev/orin_user_review_bundle_false_green_fixture_validation.py` own fail-capable
+enforcement for null closure metadata, duplicate active lineage sections,
+candidate-only or pending audit claims, stale final matrices, nonclosed defect
+rows, audit coverage drift, and missing or mismatched final-byte receipts.
+
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
 absolute/off-root, reparse/symlink, malformed, unsupported-record,
