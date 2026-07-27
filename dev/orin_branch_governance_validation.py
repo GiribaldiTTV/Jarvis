@@ -17376,14 +17376,14 @@ def _github_rest_pr_view_for_branch(
     owner = repository_full_name.split("/", 1)[0]
     pulls_url = (
         "https://api.github.com/repos/"
-        f"{repository_full_name}/pulls?state=all&head={urllib_parse.quote(f'{owner}:{branch_name}', safe=':')}"
+        f"{repository_full_name}/pulls?state=open&head={urllib_parse.quote(f'{owner}:{branch_name}', safe=':')}"
     )
     pulls_payload, pulls_error = _github_api_json(pulls_url)
     if pulls_error:
         return None, f"REST pull lookup failed: {pulls_error}"
     pulls = pulls_payload or []
     if not pulls:
-        return None, f"REST pull lookup found no PR for branch '{branch_name}'"
+        return None, f"REST pull lookup found no open pull request for branch '{branch_name}'"
 
     pull = max(
         pulls,
@@ -18121,11 +18121,16 @@ def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, 
             payload = json.loads(completed.stdout)
         except json.JSONDecodeError as exc:
             return None, f"could not parse gh pr view JSON: {exc}"
-        if repository_full_name:
-            payload.setdefault("repositoryFullName", repository_full_name)
-        return payload, ""
+        if str(payload.get("state") or "").upper() == "OPEN":
+            if repository_full_name:
+                payload.setdefault("repositoryFullName", repository_full_name)
+            return payload, ""
+        gh_error = (
+            "gh pr view returned the latest historical PR in state "
+            f"{str(payload.get('state') or 'UNKNOWN').upper()}, not an open pull request"
+        )
 
-    if completed is not None:
+    if completed is not None and completed.returncode != 0:
         gh_error = completed.stderr.strip() or completed.stdout.strip() or "gh pr view failed"
     if repository_error:
         return None, gh_error or repository_error
@@ -19969,6 +19974,10 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
             "pr creation approval missing" in normalized_record
             and "live pr state: `open`" not in normalized_record
         )
+        or (
+            "current pull request:" in normalized_record
+            and "no open/current pr" in normalized_record
+        )
     )
     creation_pending_recorded = any(
         marker in normalized_record
@@ -19980,6 +19989,12 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
             "stage 2 pr creation: `pending",
             "pr readiness execution user approval missing",
         )
+    ) or (
+        "pr creation, merge, release" in normalized_record
+        and (
+            "not approved" in normalized_record
+            or "remain unapproved" in normalized_record
+        )
     )
     return (
         no_pr_error
@@ -19987,6 +20002,31 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
         and pre_pr_state_recorded
         and creation_pending_recorded
     )
+
+
+def _external_branch_operational_live_header(
+    branch_name: str,
+    current_head_sha: str,
+) -> str:
+    branch_slug = branch_name.replace("/", "_")
+    state_path = Path(
+        EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY,
+        branch_slug,
+        EXTERNAL_BRANCH_OPERATIONAL_STATE_FILE,
+    )
+    try:
+        state_text = state_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return ""
+
+    live_header = re.split(r"(?m)^##\s+Historical\b", state_text, maxsplit=1)[0]
+    branch_match = re.search(r"(?m)^Branch:\s*`([^`]+)`\s*$", live_header)
+    head_match = re.search(r"(?m)^Source Repo HEAD:\s*`([0-9a-fA-F]{40})`\s*$", live_header)
+    if not branch_match or branch_match.group(1) != branch_name:
+        return ""
+    if not head_match or head_match.group(1).casefold() != current_head_sha.casefold():
+        return ""
+    return live_header
 
 
 def _run_pr_live_state_gate(
@@ -20003,6 +20043,14 @@ def _run_pr_live_state_gate(
     if not branch_name:
         return
 
+    current_head_sha = _git_head_sha()
+    external_live_header = _external_branch_operational_live_header(
+        branch_name,
+        current_head_sha,
+    )
+    pre_pr_state_text = "\n".join(
+        text for text in (active_branch_record_text, external_live_header) if text
+    )
     pr_info, pr_error = _gh_pr_view_for_branch(branch_name)
     if not pr_info and _is_automation_closeout_repair_branch(branch_name):
         pr_info, pr_error = _automation_closeout_repair_fallback_pr_view_for_branch(
@@ -20027,7 +20075,7 @@ def _run_pr_live_state_gate(
     if (
         not pr_info
         and _pre_pr_stage1_state_allows_missing_live_pr(
-            active_branch_record_text,
+            pre_pr_state_text,
             pr_error,
         )
     ):
@@ -20063,10 +20111,10 @@ def _run_pr_live_state_gate(
     if (
         pr_state != "OPEN"
         and _pre_pr_stage1_state_allows_missing_live_pr(
-            active_branch_record_text,
+            pre_pr_state_text,
             "no open pull request",
         )
-        and "historical merge proof" in active_branch_record_text.casefold()
+        and "historical merge proof" in pre_pr_state_text.casefold()
     ):
         return
     if (
@@ -20089,7 +20137,6 @@ def _run_pr_live_state_gate(
             fallback_bot_approval = bool(pr_info.get("botApproval"))
             fallback_bot_approval_ordered = bool(pr_info.get("botApprovalOrdered"))
             fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
-    current_head_sha = _git_head_sha()
     recorded_bot_review_status, recorded_bot_review_head = _branch_record_bot_review_state(
         active_branch_record_text
     )

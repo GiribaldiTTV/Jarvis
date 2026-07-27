@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import tempfile
 import zipfile
 from pathlib import Path
@@ -25,6 +26,7 @@ from orin_current_gate_repair import (
 )
 from orin_branch_governance_validation import (
     STANDING_GOVERNANCE_MERGE_EXCEPTION_REQUIREMENTS,
+    _pre_pr_stage1_state_allows_missing_live_pr,
     standing_governance_merge_exception_failures,
 )
 
@@ -465,8 +467,45 @@ def main() -> int:
     )
     negative.append("standing-Governance exception omitted from a routed source owner")
 
-    _require(len(negative) == 26, f"Expected 26 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 17, f"Expected 17 positive fixtures, got {len(positive)}")
+    current_external_pre_pr_state = """
+Current Phase: `PR Readiness / bounded Standing Governance phase-gate intake`
+Current Stage: `Stage 1 Ready For Stage 2`
+Current Pull Request: `None - no open/current PR; PR #290 is merged historical evidence only`
+Current Approval State: `Stage 1 complete; PR creation, merge, release remain unapproved`
+## Historical PR #290 gate projection - superseded
+Current Pull Request: `PR #290 - merged`
+"""
+    _require(
+        _pre_pr_stage1_state_allows_missing_live_pr(
+            current_external_pre_pr_state,
+            "REST pull lookup found no open pull request",
+        ),
+        "Current external Stage 1 no-PR posture was not admitted",
+    )
+    positive.append("current external Stage 1 no-PR posture ignores historical closed PR")
+
+    historical_only_pre_pr_state = """
+## Historical PR #290 gate projection - superseded
+Current Stage: `Stage 1 Ready For Stage 2`
+Current Pull Request: `None - no open/current PR`
+Current Approval State: `PR creation, merge, release remain unapproved`
+"""
+    current_only_header = re.split(
+        r"(?m)^##\s+Historical\b",
+        historical_only_pre_pr_state,
+        maxsplit=1,
+    )[0]
+    _require(
+        not _pre_pr_stage1_state_allows_missing_live_pr(
+            current_only_header,
+            "REST pull lookup found no open pull request",
+        ),
+        "Historical-only Stage 1 text incorrectly admitted the current no-PR posture",
+    )
+    negative.append("historical closed PR text cannot satisfy current Stage 1 no-PR state")
+
+    _require(len(negative) == 27, f"Expected 27 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 18, f"Expected 18 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")
