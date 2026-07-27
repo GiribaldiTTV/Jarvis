@@ -5398,6 +5398,17 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
             "valid FAM-003 consolidated Interface Bundle / Workstream decision fixture failed:\n"
             + "\n".join(failures)
         )
+    if not bundle._is_fam003_option_g_consolidated_decision_packet(consolidated):
+        raise AssertionError("valid consolidated packet was not classified as consolidated")
+    stale_bp3_failures = bundle._fam003_option_g_bp3_orchestration_failures(
+        consolidated,
+        status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if stale_bp3_failures:
+        raise AssertionError(
+            "consolidated post-BP3 packet re-entered the pending-BP3 validator:\n"
+            + "\n".join(stale_bp3_failures)
+        )
 
     def expect_consolidated_failure(
         case_id: str,

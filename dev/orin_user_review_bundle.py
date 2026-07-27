@@ -284,6 +284,8 @@ BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS = (
     "does not request bp3 implementation approval",
     "not a workstream implementation approval",
     "workstream implementation remains pending",
+    "workstream implementation: `unapproved`",
+    "workstream implementation: unapproved",
 )
 FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS = (
     "prepare the separate bounded workstream/runtime implementation approval packet",
@@ -1784,6 +1786,25 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _is_fam003_option_g_consolidated_decision_packet(
+    packet_files: Mapping[str, str],
+) -> bool:
+    direct = "\n".join(
+        (
+            packet_files.get("START_HERE.md", ""),
+            packet_files.get(
+                f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md",
+                "",
+            ),
+        )
+    )
+    return (
+        "Decision Packet Class: `Consolidated Interface Bundle + Workstream "
+        "Implementation USER Decision`"
+        in direct
+    )
+
+
 def _fam003_option_g_workstream_approval_closure_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
@@ -1857,11 +1878,7 @@ def _fam003_option_g_workstream_approval_closure_failures(
                 f"contract marker {marker!r}"
             )
 
-    consolidated_class = (
-        "Decision Packet Class: `Consolidated Interface Bundle + Workstream "
-        "Implementation USER Decision`"
-    )
-    is_consolidated = consolidated_class in direct_text
+    is_consolidated = _is_fam003_option_g_consolidated_decision_packet(packet_files)
     bundle_granted = "Interface Bundle User Approval: `Granted`" in direct_text
     bundle_pending = (
         "Interface Bundle User Approval: `Pending Consolidated USER Decision`"
@@ -8456,6 +8473,9 @@ def _fam003_option_g_bp3_orchestration_failures(
     export_zip: Path | None = None,
 ) -> list[str]:
     """Reject Option G BP3 packets that omit accepted proof-contract carrydown."""
+
+    if _is_fam003_option_g_consolidated_decision_packet(packet_files):
+        return []
 
     if status != DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
         return []
