@@ -7848,6 +7848,8 @@ def _fam003_option_g_bp3_orchestration_failures(
             "`option_g_bp3_active_metadata_provenance_repaired_ready_for_user_review`",
             "transition status: "
             "`option_g_bp3_formal_digest_vision_ufd_seven_file_lineage_ready_for_user_review`",
+            "transition status: "
+            "`option_g_bp3_formal_digest_vision_ufd_metadata_boundary_ready_for_user_review`",
         )
         if not any(transition in normalized_header for transition in accepted_transitions):
             failures.append(
