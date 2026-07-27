@@ -1784,6 +1784,134 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
     return failures
 
 
+def _fam003_option_g_workstream_approval_closure_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Reject an Option G implementation-approval packet with an incomplete closure contract."""
+
+    primary_path = (
+        f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"
+    )
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = packet_files.get(primary_path, "")
+    identity = f"{start_here}\n{primary}".casefold()
+    if not primary or not all(
+        marker in identity for marker in ("fam-003", "option g", "workstream")
+    ):
+        return []
+
+    failures: list[str] = []
+    direct_text = "\n".join(
+        text
+        for path, text in packet_files.items()
+        if path == "START_HERE.md"
+        or path.startswith(f"{USER_REVIEW_DIR_NAME}/")
+        or path.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+    )
+    required_direct_markers = (
+        "## Runtime Branch Engineering Contract",
+        "USER Engineering Planning Review:",
+        "Runtime Implementation Approval:",
+        "Current Runtime Baseline:",
+        "Planned Runtime Delta:",
+        "User-Facing Runtime Delta:",
+        "State / Config / Schema Delta:",
+        "Validator / Helper Delta:",
+        "Expected Changed Files / Surfaces:",
+        "Approval-Boundary Audit:",
+        "Future-Gated Items:",
+        "Workstream Seam Map:",
+        "Proof Expectations:",
+        "Risk Forecast:",
+        "Recommendations And Alternatives:",
+        "Plan Version / Revision Status:",
+        "Plan-To-Implementation Traceability:",
+        "## Admitted Implementation Slice",
+        "## Planning-Loop Guardrail",
+        "Implementation Delta Class:",
+        "Docs-Only Workstream:",
+        "Planning-Loop Bypass User Approval:",
+        "Planning-Loop Bypass Reason:",
+        "## Future-Proof Implementation Review",
+        "Concrete USER-Facing Feature Classification:",
+        "## Architecture / Experience / Policy Impact Matrix",
+        "Primary Interface Release Surface:",
+        "Interface Bundle User Approval:",
+        "Fallback Point:",
+        "Visual Acceptance Target Plan:",
+        "Broad-Family Planning Applicability:",
+        "Exact Owner / Carrier Admission Result:",
+        "WAP-009",
+    )
+    for marker in required_direct_markers:
+        if marker not in direct_text:
+            failures.append(
+                "FAM-003 Option G Workstream approval closure is missing direct "
+                f"contract marker {marker!r}"
+            )
+
+    if "HUD Dashboard" in direct_text and "Log Viewer Studio" in direct_text:
+        if "Interface Bundle User Approval: `Granted`" not in direct_text:
+            failures.append(
+                "FAM-003 Option G Workstream approval is blocked by Multiple Interface "
+                "Release Drift until 'Interface Bundle User Approval: `Granted`' is recorded"
+            )
+
+    required_aids = (
+        "CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md",
+        "ACTIVE_CARRIER_CENSUS_AND_FACT_MATRIX.md",
+        "RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md",
+        "INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
+        "OPTION_G_UFD_AND_FOLD_DOWN.md",
+    )
+    for basename in required_aids:
+        if not _packet_file_text(packet_files, basename):
+            failures.append(
+                "FAM-003 Option G Workstream approval packet is missing required "
+                f"review aid {basename}"
+            )
+
+    def active_copy_ending(file_name: str) -> str:
+        matches = [
+            (path, text)
+            for path, text in packet_files.items()
+            if _packet_file_basename(path).casefold().endswith(file_name.casefold())
+            and "Historical Evidence" not in path
+        ]
+        matches.sort(key=lambda item: item[0])
+        return matches[0][1] if matches else ""
+
+    branch_plan = active_copy_ending("branch_plan.md")
+    support = active_copy_ending(
+        "decision2_option_g_bp3_final_supporting_evidence_20260727.md"
+    )
+    approval_receipt = active_copy_ending(
+        "decision2_option_g_bp3_user_approval_workstream_packet_20260727.md"
+    )
+    plan_version = _markdown_field_value(branch_plan, "State Version")
+    for label, text in (
+        ("current supporting carrier", support),
+        ("BP3 approval / Workstream packet receipt", approval_receipt),
+    ):
+        if not text:
+            failures.append(f"FAM-003 Option G Workstream approval packet omits {label}")
+            continue
+        if _markdown_field_value(text, "State Version") != plan_version:
+            failures.append(
+                f"FAM-003 Option G Workstream approval {label} State Version "
+                "does not match the active branch plan"
+            )
+
+    if "Packet Reviewability State: `Reviewable`" in primary and (
+        "Interface Bundle User Approval: `Granted`" not in direct_text
+    ):
+        failures.append(
+            "FAM-003 Option G Workstream approval packet falsely claims Reviewable "
+            "while Interface Bundle USER approval is absent"
+        )
+    return failures
+
+
 def _fam003_r2_completion_packet_detected(
     packet_files: Mapping[str, str],
 ) -> bool:
@@ -4380,6 +4508,9 @@ def validate_local_user_packet(
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam003_workstream_review_state_failures(packet_files))
+    failures.extend(
+        _fam003_option_g_workstream_approval_closure_failures(packet_files)
+    )
     failures.extend(
         _fam003_r2_workstream_completion_scope_failures(
             packet_files,

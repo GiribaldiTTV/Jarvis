@@ -5174,6 +5174,110 @@ def _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown() -> None:
         )
 
 
+def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
+    required_markers = (
+        "## Runtime Branch Engineering Contract",
+        "USER Engineering Planning Review:",
+        "Runtime Implementation Approval:",
+        "Current Runtime Baseline:",
+        "Planned Runtime Delta:",
+        "User-Facing Runtime Delta:",
+        "State / Config / Schema Delta:",
+        "Validator / Helper Delta:",
+        "Expected Changed Files / Surfaces:",
+        "Approval-Boundary Audit:",
+        "Future-Gated Items:",
+        "Workstream Seam Map:",
+        "Proof Expectations:",
+        "Risk Forecast:",
+        "Recommendations And Alternatives:",
+        "Plan Version / Revision Status:",
+        "Plan-To-Implementation Traceability:",
+        "## Admitted Implementation Slice",
+        "## Planning-Loop Guardrail",
+        "Implementation Delta Class:",
+        "Docs-Only Workstream:",
+        "Planning-Loop Bypass User Approval:",
+        "Planning-Loop Bypass Reason:",
+        "## Future-Proof Implementation Review",
+        "Concrete USER-Facing Feature Classification:",
+        "## Architecture / Experience / Policy Impact Matrix",
+        "Primary Interface Release Surface:",
+        "Interface Bundle User Approval:",
+        "Fallback Point:",
+        "Visual Acceptance Target Plan:",
+        "Broad-Family Planning Applicability:",
+        "Exact Owner / Carrier Admission Result:",
+        "WAP-009",
+    )
+    contract = "\n".join(required_markers) + "\n"
+    contract = contract.replace(
+        "Interface Bundle User Approval:\n",
+        "Interface Bundle User Approval: `Granted`\n",
+    )
+    contract += "HUD Dashboard\nLog Viewer Studio\n"
+    valid = {
+        "START_HERE.md": "# FAM-003 Option G Workstream approval\n",
+        "USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md": (
+            "# FAM-003 Option G Workstream Implementation Approval Review\n"
+            "Packet Reviewability State: `Reviewable`\n"
+        ),
+        "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md": contract,
+        "Review Aids/ACTIVE_CARRIER_CENSUS_AND_FACT_MATRIX.md": "State Version: `48`\n",
+        "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md": contract,
+        "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md": contract,
+        "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md": "18 canonical UFD rows\n",
+        "Source Truth Context/Active External Snapshot/branch_plan.md": "State Version: `48`\n",
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md": "State Version: `48`\n",
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md": "State Version: `48`\n",
+    }
+    failures = bundle._fam003_option_g_workstream_approval_closure_failures(valid)
+    if failures:
+        raise AssertionError(
+            "valid FAM-003 Option G Workstream approval closure fixture failed:\n"
+            + "\n".join(failures)
+        )
+
+    for marker in required_markers:
+        mutated = dict(valid)
+        mutated["Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md"] = mutated[
+            "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md"
+        ].replace(marker, "REMOVED", 1)
+        mutated["Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md"] = mutated[
+            "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md"
+        ].replace(marker, "REMOVED", 1)
+        mutated["Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"] = mutated[
+            "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"
+        ].replace(marker, "REMOVED", 1)
+        failures = bundle._fam003_option_g_workstream_approval_closure_failures(mutated)
+        if not any(marker in failure for failure in failures):
+            raise AssertionError(
+                f"missing Workstream closure marker fixture did not fail for {marker!r}: {failures}"
+            )
+
+    not_granted = dict(valid)
+    not_granted["Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md"] = not_granted[
+        "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md"
+    ].replace("Interface Bundle User Approval: `Granted`", "Interface Bundle User Approval: `Not Granted`")
+    not_granted["Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md"] = not_granted[
+        "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md"
+    ].replace("Interface Bundle User Approval: `Granted`", "Interface Bundle User Approval: `Not Granted`")
+    not_granted["Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"] = not_granted[
+        "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"
+    ].replace("Interface Bundle User Approval: `Granted`", "Interface Bundle User Approval: `Not Granted`")
+    failures = bundle._fam003_option_g_workstream_approval_closure_failures(not_granted)
+    if not any("Multiple Interface Release Drift" in failure for failure in failures):
+        raise AssertionError(f"missing Interface Bundle approval did not block: {failures}")
+
+    stale_support = dict(valid)
+    stale_support[
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md"
+    ] = "State Version: `44`\n"
+    failures = bundle._fam003_option_g_workstream_approval_closure_failures(stale_support)
+    if not any("supporting carrier State Version" in failure for failure in failures):
+        raise AssertionError(f"stale supporting carrier did not fail: {failures}")
+
+
 def _assert_external_historical_evidence_mapping_boundary() -> None:
     if bundle._requires_source_context_mapping(
         "Source Truth Context/Historical Evidence/external-receipt.json"
@@ -5194,6 +5298,7 @@ def main() -> int:
     _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown()
     _assert_external_historical_evidence_mapping_boundary()
     _assert_fam003_option_g_bp3_orchestration_guards()
+    _assert_fam003_option_g_workstream_approval_closure_guards()
     _assert_migrated_live_header_ignores_historical_receipt_metadata()
     _assert_source_context_text_normalization()
     _assert_origin_main_fallback()
@@ -5724,6 +5829,7 @@ def main() -> int:
     print(
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
+        "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
         "15 packet-lineage + 10 final-closure + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
