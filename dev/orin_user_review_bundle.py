@@ -1960,7 +1960,7 @@ FAM007_DECOMPOSITION_STATE_CONTRACTS: dict[str, dict[str, object]] = {
     },
     "STAGE1_CANDIDATE_SELECTED": {
         "candidate": "NAMED",
-        "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+        "selected_next": "CONSUMED_NO_SUCCESSOR",
         "branch_exists": "NO",
         "branch_mutation": "NONE",
         "stage1": "ADMITTED_NOT_STARTED",
@@ -1974,7 +1974,7 @@ FAM007_DECOMPOSITION_STATE_CONTRACTS: dict[str, dict[str, object]] = {
     },
     "STAGE1_ANALYSIS_COMPLETE": {
         "candidate": "NAMED",
-        "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+        "selected_next": "CONSUMED_NO_SUCCESSOR",
         "branch_exists": "NO",
         "branch_mutation": "NONE",
         "stage1": "COMPLETE",
@@ -1988,7 +1988,7 @@ FAM007_DECOMPOSITION_STATE_CONTRACTS: dict[str, dict[str, object]] = {
     },
     "STAGE2_CREATION_APPROVED": {
         "candidate": "NAMED",
-        "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+        "selected_next": "CONSUMED_NO_SUCCESSOR",
         "branch_exists": "NO",
         "branch_mutation": "APPROVED_NOT_EXECUTED",
         "stage1": "COMPLETE",
@@ -2036,6 +2036,71 @@ FAM007_DECOMPOSITION_STATE_CONTRACTS: dict[str, dict[str, object]] = {
 
 FAM007_DECOMPOSITION_STATES: tuple[str, ...] = tuple(
     FAM007_DECOMPOSITION_STATE_CONTRACTS
+)
+
+FAM007_BR1_ANALYSIS_PACKET_ARTIFACT = (
+    "Review Aids/BRANCH_READINESS_STAGE_1_ANALYSIS_PACKET.md"
+)
+FAM007_BR1_ANALYSIS_REQUIRED_MARKERS: tuple[str, ...] = (
+    "## Branch Readiness Stage 1 Analysis Packet",
+    "Governed State",
+    "FAM / Package Candidate",
+    "BR1 Candidate Viability / Grouping Matrix",
+    "Concrete Feature Outcome",
+    "Implementation-Bearing Route Class",
+    "Behavior-Change Classification",
+    "Family Feature Vision",
+    "Deferred Feature Carryforward",
+    "Grouping Recommendation",
+    "Split Reason",
+    "Slice / SLC / Seam Map",
+    "Proof Path",
+    "Largest Safe Coherent Package",
+    "Tiny-Branch Sprawl Review",
+    "Product Vision",
+    "Project-Wide Vision Alignment",
+    "Branch-Specific Vision Alignment",
+    "USER Vision Question Packet",
+    "Codex Product Interpretation",
+    "Codex Implementation Recommendation",
+    "Codex Additional Recommendations",
+    "USER / ChatGPT Review Checkpoint",
+    "USER Critique Loop",
+    "USER Decision Ledger",
+    "Full Feature Element Breakdown",
+    "System Concept Model",
+    "Entity / Profile Model",
+    "User Workflow Model",
+    "Scale / Data-Volume Model",
+    "Configuration / State Model",
+    "Whole-System Interaction Map",
+    "Minimum Viable vs Full-System Boundary",
+    "Current Branch vs Future Package Boundaries",
+    "Affected Surfaces",
+    "Branch Reach",
+    "Expected User-Facing Outcomes",
+    "Acceptance Criteria",
+    "Screenshot and User Test Summary Proof Expectations",
+    "Implementation Sequence Proposal",
+    "Rejected Shallow Plan",
+    "Alternatives / Tradeoffs",
+    "Open USER Decision Points",
+    "Deferred Ideas / Future-Package Ledger",
+    "Validation Plan",
+    "Stale Branch Cleanup Plan:",
+    "Expected Docs Sync",
+    "Blockers and Waivers",
+    "Rollback Path",
+    "Branch Readiness Planning Incomplete",
+    "Next Legal Phase:",
+    "Branch Readiness Execution User Approval Missing",
+    "Repository File Mutation: NONE",
+    "Branch Creation: NONE",
+    "Package Admission: NONE",
+    "Docs Sync: NONE",
+    "PR Work: NONE",
+    "Release Work: NONE",
+    "Selected-next Truth: NONE",
 )
 
 FAM007_DECOMPOSITION_RECEIPT_ORDER: tuple[str, ...] = (
@@ -2305,6 +2370,30 @@ def _fam007_decomposition_packet_failures(
                 "FAM-007 decomposition: transition-state model does not define "
                 f"{required_state}"
             )
+    state_model_rows = _fam007_markdown_table_rows(state_model)
+    for model_state, model_contract in FAM007_DECOMPOSITION_STATE_CONTRACTS.items():
+        row = state_model_rows.get(model_state.casefold())
+        if row is None or len(row) < 11:
+            failures.append(
+                "FAM-007 decomposition: transition-state model row is incomplete: "
+                f"{model_state}"
+            )
+            continue
+        actual_model_selected_next = row[3].upper()
+        if actual_model_selected_next != model_contract["selected_next"]:
+            failures.append(
+                "FAM-007 decomposition: transition-state model selected-next semantics "
+                f"for {model_state} require {model_contract['selected_next']}, got "
+                f"{actual_model_selected_next or 'MISSING'}"
+            )
+        if (
+            model_state == "STAGE1_ANALYSIS_COMPLETE"
+            and "## branch readiness stage 1 analysis packet" not in row[7].casefold()
+        ):
+            failures.append(
+                "FAM-007 decomposition: STAGE1_ANALYSIS_COMPLETE transition row must "
+                "require the complete governed ## Branch Readiness Stage 1 Analysis Packet"
+            )
     for marker in (
         "Required USER Approval Receipt",
         "Forbidden Receipts",
@@ -2550,6 +2639,15 @@ def _fam007_decomposition_packet_failures(
                     "FAM-007 decomposition: "
                     f"{receipt_name} routed record reference is not structured proof"
                 )
+            if receipt_name != "identity" and re.search(
+                r"CODEX|CHATGPT|ASSISTANT|DIGEST|AUTO(?:MATED)?",
+                fields["reference"],
+                re.IGNORECASE,
+            ):
+                failures.append(
+                    "FAM-007 decomposition: "
+                    f"{receipt_name} approval provenance is not USER-authored evidence"
+                )
             contract = receipt_contracts[receipt_name]
             for contract_field in ("target", "stage", "scope", "prohibited"):
                 if fields[contract_field] != contract[contract_field]:
@@ -2579,6 +2677,31 @@ def _fam007_decomposition_packet_failures(
                     "FAM-007 decomposition: declared state "
                     f"{state} forbids {receipt_name} receipt fields: "
                     + ", ".join(recorded_fields)
+                )
+
+    br1_complete_states = {
+        "STAGE1_ANALYSIS_COMPLETE",
+        "STAGE2_CREATION_APPROVED",
+        "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+        "BRANCH_PLANNING_ENTRY_APPROVED",
+    }
+    if state in br1_complete_states:
+        br1_packet = packet_files.get(FAM007_BR1_ANALYSIS_PACKET_ARTIFACT, "")
+        if not br1_packet.strip():
+            failures.append(
+                "FAM-007 decomposition: Stage 1 completion requires the complete governed "
+                f"{FAM007_BR1_ANALYSIS_PACKET_ARTIFACT}"
+            )
+        else:
+            missing_br1_markers = [
+                marker
+                for marker in FAM007_BR1_ANALYSIS_REQUIRED_MARKERS
+                if marker.casefold() not in br1_packet.casefold()
+            ]
+            if missing_br1_markers:
+                failures.append(
+                    "FAM-007 decomposition: governed BR1 analysis packet is incomplete; "
+                    "missing " + ", ".join(missing_br1_markers)
                 )
 
     selected_next_receipt = packet_files.get(

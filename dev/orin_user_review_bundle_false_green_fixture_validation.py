@@ -1112,7 +1112,7 @@ def _decomposition_state_values(
             "next_gate": "USER_DECISION_2_STAGE1_CANDIDATE_SELECTION",
         },
         "STAGE1_CANDIDATE_SELECTED": {
-            "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+            "selected_next": "CONSUMED_NO_SUCCESSOR",
             "branch_exists": "NO",
             "branch_mutation": "NONE",
             "stage1": "ADMITTED_NOT_STARTED",
@@ -1123,7 +1123,7 @@ def _decomposition_state_values(
             "next_gate": "BRANCH_READINESS_STAGE_1_ANALYSIS_COMPLETE",
         },
         "STAGE1_ANALYSIS_COMPLETE": {
-            "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+            "selected_next": "CONSUMED_NO_SUCCESSOR",
             "branch_exists": "NO",
             "branch_mutation": "NONE",
             "stage1": "COMPLETE",
@@ -1134,7 +1134,7 @@ def _decomposition_state_values(
             "next_gate": "BRANCH_READINESS_STAGE_2_IF_APPROVED",
         },
         "STAGE2_CREATION_APPROVED": {
-            "selected_next": "SELECTED_STAGE1_ANALYSIS_ONLY",
+            "selected_next": "CONSUMED_NO_SUCCESSOR",
             "branch_exists": "NO",
             "branch_mutation": "APPROVED_NOT_EXECUTED",
             "stage1": "COMPLETE",
@@ -1381,9 +1381,15 @@ def _decomposition_state_text(values: dict[str, str], route: str) -> str:
 
 def _decomposition_transition_model_text(current_state: str) -> str:
     states = "\n".join(
-        f"| `{state}` | Required USER Approval Receipt | Forbidden Receipts | Selected-next Posture | "
+        f"| `{state}` | Required USER Approval Receipt | Forbidden Receipts | "
+        f"`{bundle.FAM007_DECOMPOSITION_STATE_CONTRACTS[state]['selected_next']}` | "
         "Named Candidate | Branch / Worktree Existence | Allowed Mutation | "
-        "Required Packet Artifacts | Current Gate | Next Legal Gate | "
+        + (
+            "complete governed `## Branch Readiness Stage 1 Analysis Packet`"
+            if state == "STAGE1_ANALYSIS_COMPLETE"
+            else "Required Packet Artifacts"
+        )
+        + " | Current Gate | Next Legal Gate | "
         "Forbidden Phase Collapse |"
         for state in bundle.FAM007_DECOMPOSITION_STATES
     )
@@ -1454,6 +1460,15 @@ def _recovery_ledger_text(state: str) -> str:
             f"USER Approval Recorded: `{approval_recorded}`",
         ]
     )
+
+
+def _br1_analysis_packet_text() -> str:
+    lines = [bundle.FAM007_BR1_ANALYSIS_REQUIRED_MARKERS[0]]
+    lines.extend(
+        f"{marker} `FIXTURE_COMPLETE`"
+        for marker in bundle.FAM007_BR1_ANALYSIS_REQUIRED_MARKERS[1:]
+    )
+    return "\n".join(lines)
 
 
 def _route_rules_text(route: str) -> str:
@@ -1566,6 +1581,17 @@ def _apply_decomposition_state(
     files["Review Aids/APPROVAL_STAGE_TABLE.md"] = (
         _approval_stage_table_text(state)
     )
+    if state in {
+        "STAGE1_ANALYSIS_COMPLETE",
+        "STAGE2_CREATION_APPROVED",
+        "SUCCESSOR_CREATED_IDENTITY_VERIFIED",
+        "BRANCH_PLANNING_ENTRY_APPROVED",
+    }:
+        files[bundle.FAM007_BR1_ANALYSIS_PACKET_ARTIFACT] = (
+            _br1_analysis_packet_text()
+        )
+    else:
+        files.pop(bundle.FAM007_BR1_ANALYSIS_PACKET_ARTIFACT, None)
     files["START_HERE.md"] = "\n".join(
         [
             "# FAM-007 Decomposition Decision Packet",
@@ -2510,12 +2536,113 @@ def _assert_fam007_decomposition_semantic_fixtures() -> None:
         )
         files["Review Aids/SELECTED_NEXT_STATE_RECEIPT.md"] = files[
             "Review Aids/SELECTED_NEXT_STATE_RECEIPT.md"
-        ].replace("SELECTED_STAGE1_ANALYSIS_ONLY", "CONSUMED_NO_SUCCESSOR")
+        ].replace("CONSUMED_NO_SUCCESSOR", "SELECTED_STAGE1_ANALYSIS_ONLY")
 
     assert_failure(
         "stage1-selection-stale-selected-next",
         "selected-next receipt disagrees",
         stage1_stale_selected_next,
+    )
+
+    def stage1_state_creates_selected_next(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "STAGE1_CANDIDATE_SELECTED",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace("CONSUMED_NO_SUCCESSOR", "SELECTED_STAGE1_ANALYSIS_ONLY")
+
+    assert_failure(
+        "stage1-selection-must-not-create-selected-next-successor-truth",
+        "requires selected_next=CONSUMED_NO_SUCCESSOR",
+        stage1_state_creates_selected_next,
+    )
+
+    def stage1_completion_creates_selected_next(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "STAGE1_ANALYSIS_COMPLETE",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace("CONSUMED_NO_SUCCESSOR", "SELECTED_STAGE1_ANALYSIS_ONLY")
+
+    assert_failure(
+        "stage1-completion-must-not-create-selected-next-successor-truth",
+        "requires selected_next=CONSUMED_NO_SUCCESSOR",
+        stage1_completion_creates_selected_next,
+    )
+
+    def stage1_uses_codex_digest_as_user_approval(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "STAGE1_CANDIDATE_SELECTED",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files["Review Aids/CURRENT_DECOMPOSITION_STATE.md"] = files[
+            "Review Aids/CURRENT_DECOMPOSITION_STATE.md"
+        ].replace(
+            "USER_MESSAGE_FIXTURE_DECISION_2",
+            "ROUTED_USER_DECISION_CODEX_DIGEST_ATTEMPT",
+        )
+
+    assert_failure(
+        "codex-digest-is-not-user-decision2-approval",
+        "approval provenance is not USER-authored evidence",
+        stage1_uses_codex_digest_as_user_approval,
+    )
+
+    def decision2_consumed_without_receipt(files: dict[str, str]) -> None:
+        _apply_decomposition_state(files, "DECOMPOSITION_ACCEPTED_NO_CANDIDATE")
+        files["USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md"] = files[
+            "USER Review/FAM007_BRANCH_SUPERSESSION_DECOMPOSITION_REVIEW.md"
+        ].replace(
+            "Decision 2 State: `PENDING_USER_DECISION`",
+            "Decision 2 State: `ACCEPTED`",
+        )
+
+    assert_failure(
+        "decision2-consumed-without-user-receipt",
+        "primary USER review falsely represents Decision 2 State",
+        decision2_consumed_without_receipt,
+    )
+
+    def stage1_complete_without_governed_packet(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "STAGE1_ANALYSIS_COMPLETE",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files.pop(bundle.FAM007_BR1_ANALYSIS_PACKET_ARTIFACT, None)
+
+    assert_failure(
+        "stage1-complete-without-governed-br1-packet",
+        "Stage 1 completion requires the complete governed",
+        stage1_complete_without_governed_packet,
+    )
+
+    def stage1_complete_with_incomplete_governed_packet(files: dict[str, str]) -> None:
+        _apply_decomposition_state(
+            files,
+            "STAGE1_ANALYSIS_COMPLETE",
+            candidate_code="DETACHED_CHILD_VISUAL_SHELL",
+            candidate_name="Detached Child Visual Shell",
+        )
+        files[bundle.FAM007_BR1_ANALYSIS_PACKET_ARTIFACT] = (
+            "## Branch Readiness Stage 1 Analysis Packet\nGoverned State: COMPLETE"
+        )
+
+    assert_failure(
+        "stage1-complete-with-incomplete-governed-br1-packet",
+        "governed BR1 analysis packet is incomplete",
+        stage1_complete_with_incomplete_governed_packet,
     )
 
     def stage1_external_state_mismatch(files: dict[str, str]) -> None:

@@ -40,6 +40,15 @@ FAM007_DECOMPOSITION_REPAIR_FIELDS = {
     "Current Selected-Next",
     "Next USER Gate",
 }
+FAM007_PACKET_ALIAS_REPAIR_FIELDS = {
+    "Packet Boundary",
+    "Transition-Safe Final Packet",
+    "Transition-Safe Final Packet SHA256",
+    "Transition-Safe Final Packet Size",
+    "Transition-Safe Final Packet Integrity",
+    "Canonical Active USER ZIP",
+    "Canonical Active USER ZIP SHA256",
+}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -633,6 +642,9 @@ def reconcile_target(
     complete_fam007_semantic_repair = (
         FAM007_DECOMPOSITION_REPAIR_FIELDS <= requested_fields
     )
+    complete_fam007_packet_alias_repair = (
+        FAM007_PACKET_ALIAS_REPAIR_FIELDS <= requested_fields
+    )
     addable_identity_fields = set(additions_map)
     allowed_pre_additions = {
         f"{relative} is missing required field {field}"
@@ -658,6 +670,10 @@ def reconcile_target(
             or (
                 item.startswith("FAM-007 Decomposition Semantic Conflict:")
                 and complete_fam007_semantic_repair
+            )
+            or (
+                item.startswith("FAM-007 Packet Alias Conflict:")
+                and complete_fam007_packet_alias_repair
             )
         )
     ]

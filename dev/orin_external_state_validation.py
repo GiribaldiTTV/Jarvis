@@ -336,6 +336,109 @@ def _fam007_decomposition_semantic_failures(
     return failures
 
 
+def _fam007_packet_alias_failures(relative: str, text: str) -> list[str]:
+    active_text = _fam007_current_projection_text(text)
+    state_values = _markdown_field_values(
+        active_text,
+        ("Declared Decomposition State", "Current Decomposition State"),
+    )
+    canonical_paths = _markdown_field_values(
+        active_text, ("Canonical Active USER ZIP",)
+    )
+    transition_paths = _markdown_field_values(
+        active_text, ("Transition-Safe Final Packet",)
+    )
+    if not state_values or (not canonical_paths and not transition_paths):
+        return []
+
+    failures: list[str] = []
+
+    def one_value(field: str) -> str:
+        values = [value for _, value in _markdown_field_values(active_text, (field,))]
+        if len(values) != 1:
+            failures.append(
+                "FAM-007 Packet Alias Conflict: "
+                f"{relative} requires exactly one active {field}; found {len(values)}"
+            )
+            return ""
+        return values[0]
+
+    canonical_path = one_value("Canonical Active USER ZIP")
+    transition_path = one_value("Transition-Safe Final Packet")
+    canonical_sha = one_value("Canonical Active USER ZIP SHA256").upper()
+    transition_sha = one_value("Transition-Safe Final Packet SHA256").upper()
+    transition_size_text = one_value("Transition-Safe Final Packet Size")
+    transition_integrity = one_value("Transition-Safe Final Packet Integrity")
+    packet_boundary = one_value("Packet Boundary")
+
+    if canonical_path and transition_path and (
+        _normalized_windows_value(canonical_path)
+        != _normalized_windows_value(transition_path)
+    ):
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} active Transition-Safe Final Packet {transition_path!r} "
+            f"does not match Canonical Active USER ZIP {canonical_path!r}"
+        )
+    if canonical_sha and transition_sha and canonical_sha != transition_sha:
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} active transition SHA {transition_sha} does not match "
+            f"canonical SHA {canonical_sha}"
+        )
+    if canonical_sha and not re.fullmatch(r"[0-9A-F]{64}", canonical_sha):
+        failures.append(
+            f"FAM-007 Packet Alias Conflict: {relative} canonical packet SHA is malformed"
+        )
+
+    boundary_size_match = re.search(r"\b([0-9][0-9,]*)\s+bytes\b", packet_boundary)
+    transition_size_match = re.search(r"\b([0-9][0-9,]*)\s+bytes\b", transition_size_text)
+    boundary_size = (
+        boundary_size_match.group(1).replace(",", "") if boundary_size_match else ""
+    )
+    transition_size = (
+        transition_size_match.group(1).replace(",", "")
+        if transition_size_match
+        else ""
+    )
+    if not boundary_size or not transition_size or boundary_size != transition_size:
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} transition packet size does not match Packet Boundary"
+        )
+    if canonical_path and _normalized_windows_value(canonical_path) not in _normalized_windows_value(packet_boundary):
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} Packet Boundary does not identify the canonical active ZIP"
+        )
+    if canonical_sha and canonical_sha not in packet_boundary.upper():
+        failures.append(
+            "FAM-007 Packet Alias Conflict: "
+            f"{relative} Packet Boundary does not identify the canonical active ZIP SHA"
+        )
+    for integrity_pattern, label in (
+        (r"\b\d+\s*/\s*\d+\s+parity\b", "parity"),
+        (r"\b\d+\s+manifest entries plus manifest\b", "manifest"),
+        (r"\bJSON\s+\d+\s*/\s*\d+\b", "JSON"),
+        (r"\bPNG\s+\d+\s*/\s*\d+\b", "PNG"),
+    ):
+        boundary_match = re.search(integrity_pattern, packet_boundary, re.IGNORECASE)
+        transition_match = re.search(
+            integrity_pattern, transition_integrity, re.IGNORECASE
+        )
+        if (
+            boundary_match is None
+            or transition_match is None
+            or re.sub(r"\s+", "", boundary_match.group(0)).casefold()
+            != re.sub(r"\s+", "", transition_match.group(0)).casefold()
+        ):
+            failures.append(
+                "FAM-007 Packet Alias Conflict: "
+                f"{relative} transition packet {label} does not match Packet Boundary"
+            )
+    return failures
+
+
 def _has_reparse_point(path: Path) -> bool:
     try:
         if os.path.islink(path):
@@ -463,6 +566,7 @@ def validate_target_currentness(
     failures.extend(_field_alias_failures(relative, live_text, ("Worktree Path",)))
     failures.extend(_field_alias_failures(relative, live_text, ("Slot ID",)))
     failures.extend(_fam007_decomposition_semantic_failures(relative, text))
+    failures.extend(_fam007_packet_alias_failures(relative, text))
     if failures:
         return failures
 

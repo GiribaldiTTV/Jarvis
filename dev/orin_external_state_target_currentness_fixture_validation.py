@@ -22,6 +22,14 @@ HEAD = "a" * 40
 ORIGIN_MAIN = "b" * 40
 WORKTREE_PATH = r"C:\Nexus Worktrees\Governance"
 SLOT = "governance-standing"
+PACKET_PATH = r"C:\Nexus USER\FAM-007-20260724-233232.zip"
+STALE_PACKET_PATH = r"C:\Nexus USER\FAM-007-20260724-191343.zip"
+PACKET_SHA = "e" * 64
+PACKET_SIZE = "2605577 bytes"
+PACKET_INTEGRITY = (
+    "66/66 parity; 65 manifest entries plus manifest; JSON 5/5; PNG 11/11; "
+    "duplicates 0"
+)
 
 
 def _target_path(root: Path) -> Path:
@@ -178,12 +186,61 @@ def main() -> int:
             "Decomposition Acceptance Receipt: `USER-DECISION-1-FIXTURE`",
             "Current Selected-Next: `CONSUMED_NO_SUCCESSOR`",
             "Next USER Gate: `USER_DECISION_2_STAGE1_CANDIDATE_SELECTION`",
+            f"Packet Boundary: `Active packet {PACKET_PATH}; {PACKET_SIZE}; "
+            f"SHA256 {PACKET_SHA.upper()}; {PACKET_INTEGRITY}`",
+            f"Transition-Safe Final Packet: `{PACKET_PATH}`",
+            f"Transition-Safe Final Packet SHA256: `{PACKET_SHA.upper()}`",
+            f"Transition-Safe Final Packet Size: `{PACKET_SIZE}`",
+            f"Transition-Safe Final Packet Integrity: `{PACKET_INTEGRITY}`",
+            f"Canonical Active USER ZIP: `{PACKET_PATH}`",
+            f"Canonical Active USER ZIP SHA256: `{PACKET_SHA.upper()}`",
         ]
         target = _record(root, extra_lines=accepted_decomposition_lines)
         _assert_pass(
             "valid accepted-no-candidate semantic projection",
             _run(root),
         )
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                f"Transition-Safe Final Packet: `{PACKET_PATH}`",
+                f"Transition-Safe Final Packet: `{STALE_PACKET_PATH}`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale active FAM-007 packet alias",
+            "does not match Canonical Active USER ZIP",
+            _run(root),
+        )
+        target = _record(root, extra_lines=accepted_decomposition_lines)
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                f"Transition-Safe Final Packet SHA256: `{PACKET_SHA.upper()}`",
+                f"Transition-Safe Final Packet SHA256: `{'f' * 64}`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale active FAM-007 packet alias hash",
+            "active transition SHA",
+            _run(root),
+        )
+        target = _record(root, extra_lines=accepted_decomposition_lines)
+        projection_texts = [target.read_text(encoding="utf-8") for _ in range(7)]
+        projection_texts[-1] = projection_texts[-1].replace(
+            f"Transition-Safe Final Packet: `{PACKET_PATH}`",
+            f"Transition-Safe Final Packet: `{STALE_PACKET_PATH}`",
+        )
+        projection_failures = [
+            validator._fam007_packet_alias_failures(
+                f"projection-{index + 1}.md", projection_text
+            )
+            for index, projection_text in enumerate(projection_texts)
+        ]
+        if sum(bool(failures) for failures in projection_failures) != 1:
+            raise AssertionError(
+                "seven-projection fixture did not isolate exactly one stale active alias"
+            )
         target.write_text(
             target.read_text(encoding="utf-8").replace(
                 "Current Decomposition State: `DECOMPOSITION_ACCEPTED_NO_CANDIDATE`",
@@ -1335,6 +1392,83 @@ def main() -> int:
         if not complete_ok or complete_audit is not None or target.read_bytes() != before:
             raise AssertionError(
                 "complete FAM-007 semantic repair did not validate as a dry-run projection:\n"
+                + "\n".join(complete_messages)
+            )
+
+    with tempfile.TemporaryDirectory(prefix="ndai-target-packet-alias-repair-") as temp_dir:
+        root = Path(temp_dir)
+        _manifest(root)
+        stale_alias_lines = [
+            *accepted_decomposition_lines,
+        ]
+        stale_alias_lines = [
+            line.replace(
+                f"Transition-Safe Final Packet: `{PACKET_PATH}`",
+                f"Transition-Safe Final Packet: `{STALE_PACKET_PATH}`",
+            )
+            for line in stale_alias_lines
+        ]
+        target = _record(root, extra_lines=stale_alias_lines)
+        before = target.read_bytes()
+        snapshot = _snapshot(root, target, "fixture-packet-alias-repair")
+        lock_id = "worktree-fixture-packet-alias-repair"
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        alias_assignments = [
+            f"Packet Boundary=Active packet {PACKET_PATH}; {PACKET_SIZE}; "
+            f"SHA256 {PACKET_SHA.upper()}; {PACKET_INTEGRITY}",
+            f"Transition-Safe Final Packet={PACKET_PATH}",
+            f"Transition-Safe Final Packet SHA256={PACKET_SHA.upper()}",
+            f"Transition-Safe Final Packet Size={PACKET_SIZE}",
+            f"Transition-Safe Final Packet Integrity={PACKET_INTEGRITY}",
+            f"Canonical Active USER ZIP={PACKET_PATH}",
+            f"Canonical Active USER ZIP SHA256={PACKET_SHA.upper()}",
+        ]
+        incomplete_ok, incomplete_messages, incomplete_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=alias_assignments[:-1],
+            additions=[],
+            apply=False,
+            **_expectations(target),
+        )
+        if (
+            incomplete_ok
+            or incomplete_audit is not None
+            or target.read_bytes() != before
+            or not any(
+                "Pre-write target validation: FAM-007 Packet Alias Conflict:" in item
+                for item in incomplete_messages
+            )
+        ):
+            raise AssertionError(
+                "incomplete FAM-007 packet-alias repair crossed the pre-write gate:\n"
+                + "\n".join(incomplete_messages)
+            )
+        complete_ok, complete_messages, complete_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=alias_assignments,
+            additions=[],
+            apply=False,
+            **_expectations(target),
+        )
+        if not complete_ok or complete_audit is not None or target.read_bytes() != before:
+            raise AssertionError(
+                "complete FAM-007 packet-alias repair did not validate as a dry-run projection:\n"
                 + "\n".join(complete_messages)
             )
 
