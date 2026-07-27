@@ -4567,9 +4567,25 @@ def _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown() -> None:
         )
 
 
+def _assert_external_historical_evidence_mapping_boundary() -> None:
+    if bundle._requires_source_context_mapping(
+        "Source Truth Context/Historical Evidence/external-receipt.json"
+    ):
+        raise AssertionError(
+            "governed external historical evidence was incorrectly routed through Git-at-HEAD mapping"
+        )
+    if not bundle._requires_source_context_mapping(
+        "Source Truth Context/Repo Owners/phase_governance.md"
+    ):
+        raise AssertionError(
+            "ordinary copied repo source truth escaped required Git-at-HEAD mapping"
+        )
+
+
 def main() -> int:
     _assert_fam003_option_g_bp2_planning_guards()
     _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown()
+    _assert_external_historical_evidence_mapping_boundary()
     _assert_fam003_option_g_bp3_orchestration_guards()
     _assert_migrated_live_header_ignores_historical_receipt_metadata()
     _assert_source_context_text_normalization()
