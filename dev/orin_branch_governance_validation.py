@@ -3122,6 +3122,8 @@ CURRENT_DECISION_SURFACE_POINTER_DOCS = (
 STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_branch_governance_validation.py",
     "dev/orin_branch_readiness_planning_fixture_validation.py",
+    "dev/orin_current_gate_repair.py",
+    "dev/orin_current_gate_repair_fixture_validation.py",
     "dev/orin_pr_review_churn_validation.py",
     "dev/orin_rar_issue_candidate_durability_validation.py",
     "dev/orin_worktree_rebaseline_audit.py",
@@ -20549,8 +20551,26 @@ def _standing_governance_intake_file_allowed(path: str) -> bool:
         normalized.startswith("Docs/")
         or normalized.startswith("dev/fixtures/branch_readiness_planning/")
         or normalized.startswith("dev/fixtures/branch_record_live_state_leakage/")
+        or normalized.startswith("dev/fixtures/current_gate_repair/")
         or normalized.startswith("dev/fixtures/pr_review_churn/")
         or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
+    )
+
+
+def _run_standing_governance_allowed_file_fixtures(require) -> None:
+    allowed_paths = (
+        "dev/orin_current_gate_repair.py",
+        "dev/orin_current_gate_repair_fixture_validation.py",
+        "dev/fixtures/current_gate_repair/fam007_20260727_165940_invalid_route_class.json",
+    )
+    for path in allowed_paths:
+        require(
+            _standing_governance_intake_file_allowed(path),
+            f"Standing Governance Intake allowlist must admit registered current-gate file: {path}",
+        )
+    require(
+        not _standing_governance_intake_file_allowed("desktop/desktop_renderer.py"),
+        "Standing Governance Intake allowlist must continue to reject runtime product files",
     )
 
 
@@ -20585,6 +20605,7 @@ def _run_repo_active_rri_cycle_parser_fixtures(require) -> None:
 
 def _run_standing_governance_intake_gate(require) -> None:
     _run_repo_active_rri_cycle_parser_fixtures(require)
+    _run_standing_governance_allowed_file_fixtures(require)
     branch_name = _git_current_branch()
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     active_branch_record_paths = _collect_branch_record_paths(
