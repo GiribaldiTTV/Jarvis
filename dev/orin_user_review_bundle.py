@@ -5592,7 +5592,7 @@ def _write_stage1_ready_support_context(
         "",
         "## USER Gate State",
         "",
-        "Context Only - this file is not a USER gate and records no new BP2 acceptance.",
+        "Superseded - this file is supporting context, not a current USER gate, and records no new BP2 acceptance.",
         "",
         "## Review Purpose",
         "",

@@ -389,6 +389,14 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
                     "Governance Stage 1-ready support context omitted required wording: "
                     + required
                 )
+        gate_failures = bundle._branch_planning_review_gate_state_failures(
+            {bundle.USER_BRANCH_PLAN_REVIEW_FILE: support.read_text(encoding="utf-8")}
+        )
+        if gate_failures:
+            raise AssertionError(
+                "Generator-emitted Governance Stage 1 support context failed its own "
+                "gate-state contract:\n" + "\n".join(gate_failures)
+            )
 
 
 def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:
