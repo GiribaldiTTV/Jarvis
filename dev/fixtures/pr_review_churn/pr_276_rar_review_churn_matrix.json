@@ -163,6 +163,26 @@
           "pr2-comment-family-classifier",
           "pr2-thread-pagination-and-approval-latch"
         ]
+      },
+      {
+        "name": "current-gate repair adversarial fixture suite",
+        "command": [
+          "{python}",
+          "dev/orin_current_gate_repair_fixture_validation.py"
+        ],
+        "covers_families": [
+          "pr-readiness-review-risk-parser"
+        ]
+      },
+      {
+        "name": "external-state lock lifecycle adversarial fixture suite",
+        "command": [
+          "{python}",
+          "dev/orin_external_state_lock_lifecycle_fixture_validation.py"
+        ],
+        "covers_families": [
+          "repo-live-state-boundary-parser"
+        ]
       }
     ],
     "connector_corpus_replay": [
@@ -439,6 +459,12 @@
       "repo-live-state-boundary-parser"
     ],
     "dev/orin_external_state_target_currentness_fixture_validation.py": [
+      "repo-live-state-boundary-parser"
+    ],
+    "dev/orin_current_gate_repair_fixture_validation.py": [
+      "pr-readiness-review-risk-parser"
+    ],
+    "dev/orin_external_state_lock_lifecycle_fixture_validation.py": [
       "repo-live-state-boundary-parser"
     ],
     "dev/orin_user_review_bundle_false_green_fixture_validation.py": [
@@ -961,6 +987,7 @@
       ],
       "source_truth": [
         "Docs/Main.md",
+        "Docs/external_operational_state_store_reform_plan.md",
         "Docs/governance_efficiency_operating_model.md",
         "Docs/phase_governance.md",
         "Docs/validation_helper_registry.md"
@@ -970,19 +997,26 @@
         "dev/orin_branch_readiness_planning_fixture_validation.py",
         "dev/orin_repo_live_state_leakage_scan.py",
         "dev/orin_pr_review_churn_validation.py",
-        "dev/orin_external_state_validation.py"
+        "dev/orin_external_state_validation.py",
+        "dev/orin_external_state_lock.py",
+        "dev/orin_external_state_lock_lifecycle.py",
+        "dev/orin_external_state_lock_release.py"
       ],
       "fixture_coverage": [
         "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_repo_live_state_tracking.md",
         "dev/fixtures/branch_record_live_state_leakage/invalid_unindexed_branch_record_live_state.md",
         "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_review.md",
-        "dev/orin_external_state_target_currentness_fixture_validation.py"
+        "dev/orin_external_state_target_currentness_fixture_validation.py",
+        "dev/orin_external_state_lock_lifecycle_fixture_validation.py"
       ],
       "generated_mutation_coverage": [
         "repo live-state ledger text with external-state mention",
         "external-state owner reference without repo live ledger",
         "active RAR rows stay external while repo docs remain durable rules",
         "release target comments stay external/Git-derived before final Release Readiness operator package",
+        "success, blocked, validation-failure, and exception returns release the workload lock before the final digest",
+        "release receipts cannot override an active authoritative lock entry",
+        "dead-owner and foreign-active locks receive distinct fail-closed dispositions",
         "Active RRI Cycle values with suffix text remain blocked in repo docs",
         "ordinary current-cycle product/runtime wording remains unknown without RRI or external-state context"
       ],
@@ -991,6 +1025,9 @@
         "External operational state pointer",
         "Repo doc active ledger wording",
         "standing Governance Active RRI Cycle pointer",
+        "completed workload retaining a lock for USER continuation",
+        "verification-only replay claiming zero without reading the authoritative lock table",
+        "multi-target write failure followed by guaranteed lock cleanup",
         "return-digest closeout external state",
         "external Current Cycle with RRI context",
         "unrelated product current-cycle wording"
@@ -1011,19 +1048,29 @@
       ],
       "implementation": [
         "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_current_gate_repair.py",
         "dev/orin_pr_review_churn_validation.py"
       ],
       "fixture_coverage": [
-        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
+        "dev/orin_current_gate_repair_fixture_validation.py",
+        "dev/fixtures/current_gate_repair/fam007_20260727_165940_invalid_route_class.json"
       ],
       "generated_mutation_coverage": [
         "generic PR Readiness review-risk comment maps to PR readiness family",
         "generic PR Readiness comment does not map to RAR phase advancement",
-        "Stage 1 packet review-risk gap requires explicit family coverage"
+        "Stage 1 packet review-risk gap requires explicit family coverage",
+        "wrong exact governed enum remains a same-gate repair instead of a USER gate",
+        "canonical packet publication cannot replace accepted evidence before draft validation",
+        "stale compiled source-owner contracts fail closed",
+        "standing Governance merge exception removed from one routed source owner"
       ],
       "sibling_variant_replay": [
         "PR Readiness Stage 1 packet gap",
         "PR Readiness Stage 2 field gap",
+        "self-repairable current-gate defect incorrectly returned as a new USER decision",
+        "true scope, carrier, issue-mutation, or stage-transition change incorrectly self-repaired",
+        "standing durable authority incorrectly folded down as a non-standing carrier",
         "review-risk coverage missing outside RAR parser scope"
       ]
     },

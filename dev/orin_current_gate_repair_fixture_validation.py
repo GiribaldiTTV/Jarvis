@@ -23,6 +23,10 @@ from orin_current_gate_repair import (
     consolidate_user_decisions,
     validate_br1_stage1_packet,
 )
+from orin_branch_governance_validation import (
+    STANDING_GOVERNANCE_MERGE_EXCEPTION_REQUIREMENTS,
+    standing_governance_merge_exception_failures,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -438,8 +442,31 @@ def main() -> int:
     _require(before.changed_axes(after) == (), "Autonomous repair changed gate invariants")
     positive.append("candidate/scope/owner/stage/selected-next unchanged")
 
-    _require(len(negative) == 25, f"Expected 25 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 16, f"Expected 16 positive fixtures, got {len(positive)}")
+    standing_sources = {
+        relative_path: (ROOT / relative_path).read_text(encoding="utf-8")
+        for relative_path in STANDING_GOVERNANCE_MERGE_EXCEPTION_REQUIREMENTS
+    }
+    _require(
+        not standing_governance_merge_exception_failures(standing_sources),
+        "Current standing-Governance merge exception source truth is inconsistent",
+    )
+    positive.append("standing-Governance merge exception source owners agree")
+
+    missing_exception_sources = dict(standing_sources)
+    phase_path = "Docs/phase_governance.md"
+    missing_exception_sources[phase_path] = missing_exception_sources[phase_path].replace(
+        "The single `Standing Governance Intake Branch` is the only exception",
+        "The standing branch follows the generic fold-down rule",
+        1,
+    )
+    _require(
+        bool(standing_governance_merge_exception_failures(missing_exception_sources)),
+        "Missing standing-Governance merge exception wording did not fail closed",
+    )
+    negative.append("standing-Governance exception omitted from a routed source owner")
+
+    _require(len(negative) == 26, f"Expected 26 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 17, f"Expected 17 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")

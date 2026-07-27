@@ -2950,6 +2950,26 @@ STANDING_GOVERNANCE_INTAKE_PHRASES = (
     "One Active Cycle",
     "Sync Rule",
 )
+STANDING_GOVERNANCE_MERGE_EXCEPTION_REQUIREMENTS = {
+    "Docs/phase_governance.md": (
+        "A non-standing PR branch must not merge an active branch authority record into `main`",
+        "The single `Standing Governance Intake Branch` is the only exception",
+        "standing Governance record must instead project continued durable standing authority plus external completion and zero-lock closeout",
+    ),
+    "Docs/development_rules.md": (
+        "same non-standing branch remains listed under `Active Branch Authority Records`",
+        "The single `Standing Governance Intake Branch` is the only exception",
+    ),
+    "Docs/validation_helper_registry.md": (
+        "same non-standing branch still has a record under `Active Branch Authority Records`",
+        "The single standing Governance intake record is exempt from that fold-down",
+        "do not require selected-next truth or a waiver by default",
+    ),
+    "Docs/branch_records/feature_release_readiness_source_truth_intake.md": (
+        "the single standing Governance intake record remains indexed durable authority",
+        "operational state folds down externally and does not become merged-main current-cycle truth",
+    ),
+}
 GOVERNANCE_INTAKE_DIGEST_STANDARD_DOC = Path(
     "Docs/governance_intake_triage_and_digest_profiles.md"
 )
@@ -3190,6 +3210,24 @@ STANDING_GOVERNANCE_INTAKE_RETURN_DIGEST_MARKERS = (
 
 def _is_standing_governance_intake_branch(branch_name: str) -> bool:
     return branch_name == STANDING_GOVERNANCE_INTAKE_BRANCH
+
+
+def standing_governance_merge_exception_failures(
+    source_texts: dict[str, str],
+) -> list[str]:
+    """Return source-owner disagreements for the sole standing-branch exception."""
+
+    failures: list[str] = []
+    for relative_path, required_phrases in STANDING_GOVERNANCE_MERGE_EXCEPTION_REQUIREMENTS.items():
+        text = source_texts.get(relative_path, "")
+        for phrase in required_phrases:
+            if phrase not in text:
+                failures.append(
+                    f"{relative_path}: standing Governance merge-stable exception is missing '{phrase}'"
+                )
+    return failures
+
+
 STANDING_GOVERNANCE_RETURN_DIGEST_IDENTITY_GUARD_MARKERS = (
     "Originating Branch Source",
     "Originating Worktree Source",
@@ -21899,6 +21937,13 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: Standing Governance Intake Branch guidance is missing '{required_phrase}'",
             )
+
+    standing_exception_sources = {
+        relative_path: _read_text(Path(relative_path))
+        for relative_path in STANDING_GOVERNANCE_MERGE_EXCEPTION_REQUIREMENTS
+    }
+    for failure in standing_governance_merge_exception_failures(standing_exception_sources):
+        require(False, failure)
 
     standard_text = _read_text(GOVERNANCE_INTAKE_DIGEST_STANDARD_DOC)
     require(

@@ -162,7 +162,7 @@ Allowed:
 - PR watcher approval-default governance may be repaired on this standing lane when Stage 2 watcher handoff drift recurs; PR Readiness Stage 2 denies recurring PR watcher automation by default, and using watcher-based PR monitoring requires explicit USER watcher-exception approval for the exact PR.
 - Direct PR2 continuation governance may be repaired on this standing lane when direct verification handoff drift recurs; no-watcher PR2 still requires the active Codex turn to continue direct PR verification until new actionable feedback is repaired or blocked, the current-head approval latch plus green mergeability allows merge, the PR merges/closes, or a real blocker appears.
 - Automation reliability governance may be repaired on this standing lane when native heartbeat or cron automation cards are `ACTIVE` but do not deliver proof, repair comments, or reflect current source truth. Background-observability-only automations are advisory until current runtime/delivery proof exists, and stale historical toolchain-path findings must be downgraded unless current source truth still owns the path.
-- PR Readiness Stage 1 blocker-handling governance may be repaired on this standing lane when a live source-only, docs-only, governance, validator, or repo-wide support branch exposes repeatable false blockers around `Pre-PR Live State: No live PR`, `PR Creation Approval: Pending USER approval`, `Stage 2 PR Creation: Pending USER approval`, `No Successor Runtime Branch By Inertia: USER-waived`, `Selected-Next Defer User Waiver: Granted`, or post-merge `No Active Branch` projection; Governance repairs the rule and returns guidance, while the originating branch remains responsible for any branch-local rebaseline or Stage 1 packet updates.
+- PR Readiness Stage 1 blocker-handling governance may be repaired on this standing lane when a live source-only, docs-only, governance, validator, or repo-wide support branch exposes repeatable false blockers around lawful pre-Stage-2 no-PR posture, default selected-next deferral to Branch Readiness, or post-merge `No Active Branch` projection; retired waiver-string cases remain regression inputs only. Governance repairs the rule and returns guidance, while the originating branch remains responsible for any branch-local rebaseline or Stage 1 packet updates.
 - Post-PR #190 Release Readiness source-truth drift repair records `feature/fam-007-local-ai-provider-setup-contract-readiness` as historical merged-unreleased evidence, preserves No Active Branch / selected-next defer posture, records `v1.7.11-prebeta` candidate anchor `ede84200d519c007fc2f726641e168f38af0ead6`, and routes the originating FAM-007 lane back to Release Readiness Stage 2 preparation after governance merge/rebaseline.
 - Post-PR #201 Release Readiness source-truth drift repair records `feature/fam-007-local-ai-provider-consent-collection-implementation-foundation` as historical merged-unreleased evidence, clears stale PR creation / PR Readiness pending wording from current-state truth, preserves No Active Branch / selected-next defer posture, records release-window contributor posture for PR #201, and adds prevention so future PR Readiness/Release Readiness validation catches merge-stable projection misses before release execution.
 - Validation Suite recommendation standardization may be repaired on this standing lane when USER approves the focused reform pass; the reusable helper is `dev/orin_validation_suite.py`, accepts `--phase` and `--changed-file`, emits `Recommended Validation Suite:`, is report-only, and does not execute commands.
@@ -521,44 +521,45 @@ Next Legal Phase Detail: Current cycle, gate, durability, packet, neutral-main, 
 
 ## Origin/Main Freshness Check
 
-Branch Creation Base: `9214ff60c9a5e12b4737acce46f20312eb461f4d`
-Current origin/main: `9214ff60c9a5e12b4737acce46f20312eb461f4d`
+Branch Creation Base: `6ac9857527842d7f7a4794336f73d67b09058e29`
+Current origin/main: `6ac9857527842d7f7a4794336f73d67b09058e29`
 Origin/Main Advanced Since Branch Creation: `NO`
 Origin/Main Changed Files: `NONE`
-Branch Changed Files: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`, `Docs/development_rules.md`, `Docs/governance_efficiency_operating_model.md`, `Docs/incident_patterns.md`, `Docs/nexus_startup_contract.md`, `Docs/phase_governance.md`, `Docs/validation_helper_registry.md`, `dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json`, `dev/orin_branch_governance_validation.py`, `dev/orin_branch_readiness_planning_fixture_validation.py`, `dev/orin_external_state_lock_release.py`, `dev/orin_external_state_snapshot.py`, `dev/orin_external_state_target_currentness_fixture_validation.py`, `dev/orin_external_state_target_reconcile.py`, `dev/orin_external_state_validation.py`, `dev/orin_user_review_bundle.py`, `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+Branch Changed Files: `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md`, `Docs/branch_records/feature_release_readiness_source_truth_intake.md`, `Docs/development_rules.md`, `Docs/external_operational_state_store_reform_plan.md`, `Docs/governance_efficiency_operating_model.md`, `Docs/governance_intake_triage_and_digest_profiles.md`, `Docs/incident_patterns.md`, `Docs/nexus_startup_contract.md`, `Docs/orin_task_template.md`, `Docs/phase_governance.md`, `Docs/validation_helper_registry.md`, `dev/fixtures/current_gate_repair/fam007_20260727_165940_invalid_route_class.json`, `dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json`, `dev/orin_branch_governance_validation.py`, `dev/orin_current_gate_repair.py`, `dev/orin_current_gate_repair_fixture_validation.py`, `dev/orin_external_state_lock.py`, `dev/orin_external_state_lock_lifecycle.py`, `dev/orin_external_state_lock_lifecycle_fixture_validation.py`, `dev/orin_external_state_lock_release.py`, `dev/orin_external_state_snapshot.py`, `dev/orin_external_state_target_currentness_fixture_validation.py`, `dev/orin_external_state_target_reconcile.py`, `dev/orin_external_state_validation.py`, `dev/orin_user_review_bundle.py`
 Reconciliation Required: `NO`
 Reconciliation File List: `NONE`
-Reconciliation Recommendation: `No origin/main reconciliation is required; the current Governance branch is based on the current fetched origin/main and its unique changes remain within the approved integrated Defect A/B Governance repair scope.`
+Reconciliation Recommendation: `No origin/main reconciliation is required; the current Governance branch is based on the current fetched origin/main and its unique changes remain within the USER-approved RRI-20260727-001 current-gate and workload-scoped lock-lifecycle governance repair scope.`
 Reconciliation Mutation Status: `Analysis-only; no file fixes during Stage 1.`
 
 ## Governance Drift Audit
 
-Governance Drift Found: `Defect A active USER-packet identity false-green risk and Defect B global external-state currentness overreach were repaired in this cycle; no unresolved in-scope drift remains after target, packet, fixture, and full-validation reproof.`
+Governance Drift Found: `The Stage 1 adversarial manifest omitted the two newly admitted fixture validators, and routed merge-target owners omitted the single standing-Governance authority exception or retained obsolete selected-next waiver wording. Both current-branch proof and source-truth drifts were repaired before Stage 2.`
 
-Governance Drift Disposition: `PASS - remaining historical packet bytes are receipt-only external evidence, live packet identity is helper/validator-proven, and the stale structural root manifest is not promoted to target currentness.`
+Governance Drift Disposition: `PASS - the current-gate and lock-lifecycle fixtures now map to executable adversarial families, and phase governance, development rules, the helper registry, branch-index law, and this standing record agree on merge-stable authority and selected-next boundaries.`
 
 ## Post-Merge State
 
-Post-Merge State: `No Active Branch after a future approved merge and fold-down; this pre-merge Governance carrier remains active only until PR Readiness and later PR decisions complete.`
+Post-Merge State: `No Active Branch for runtime, implementation, release-packaging, and non-standing repair carriers after a future approved merge. This single standing Governance intake record remains the durable routing exception; the completed RRI cycle and all volatile PR, packet, lock, return-digest, release-window, and next-action state close externally.`
 
-Post-Merge Branch Authority Projection: `PASS - future merge must fold this active Governance authority into historical/no-active posture before any successor or release posture is claimed.`
+Post-Merge Branch Authority Projection: `PASS - the single standing Governance intake record remains indexed durable authority; RRI-20260727-001 operational state folds down externally and does not become merged-main current-cycle truth.`
 
-Post-Merge Validation: `PASS - current pre-merge proof is complete for the approved integrated repair; post-merge rebaseline, fold-down, and release checks remain future-gated.`
+Post-Merge Validation: `PASS - current pre-merge proof covers the approved current-gate and lock-lifecycle repair; Stage 2 direct PR verification and post-merge neutral-main/standing-lane reconciliation remain future-gated.`
 
 ## Release Readiness Health Pass
 
-Post-Merge Branch Authority Projection: `PASS - no-active-branch fold-down is required after any future merge.`
-Stale Active Branch Wording Scan: `PASS - current summary posture is PR Readiness and no stale product active-branch claim is used as release truth.`
-Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - pending Stage 1 and later PR decisions are intentionally current pre-merge posture, not post-merge release truth.`
-Merged-Unreleased Scope Posture: `NOT APPLICABLE - no PR or merge exists and release execution is not in scope.`
+Post-Merge Branch Authority Projection: `PASS - no non-standing active authority is projected; the indexed standing Governance exception remains durable while the completed cycle closes externally.`
+Stale Active Branch Wording Scan: `PASS - the record describes standing routing law only and does not project an active runtime, implementation, release-packaging, or non-standing repair carrier.`
+Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - live Stage 1/Stage 2 and PR facts remain in the USER packet, Codex digest, external operational state, or Git/GitHub/helper output rather than merged-main current-state fields.`
+Merged-Unreleased Scope Posture: `PASS - governance-only source-truth, helper, validator, fixture, and packet-generation changes; no runtime or user-facing product release debt is created, and later release notes may keep this scope internal validation/traceability only.`
 Release Execution Gate: `PASS - release, tag, GitHub Release, and artifact publication remain blocked and were not performed.`
 Watcher / Live PR State Projection: `PASS - live PR and watcher facts are direct-verification operator evidence only; they are not projected into merged-main current-state truth.`
 Branch Cleanup Plan: `PASS - no cleanup, branch deletion, or worktree removal is authorized in this cycle.`
+Branch Cleanup Execution Gate: `BLOCKED - cleanup may execute only in a later USER-approved Branch Readiness Stage 2 after replacement-target and worktree-binding proof; this Stage 1 performs none.`
 FAM Overlap Routing: `PASS - no sibling FAM worktree was mutated; future adoption routes through each owning carrier.`
-Release Candidate Anchor Projection: `PASS - no release candidate is being assembled by this Governance repair.`
-Release Window Contributor Inventory: `PASS - no release window mutation or release contribution claim is made by this repair.`
-Governance Intake Routing: `PASS - RRI-20260715-001 remains the USER-approved Governance carrier for this non-runtime repair.`
-Projected Post-Merge Validation: `PASS - any future merge requires rebaseline, fold-down, currentness, packet, and release-health validation before progression.`
+Release Candidate Anchor Projection: `PASS - no release candidate is assembled or changed by this Governance PR; live release selection remains a separate Release Readiness decision.`
+Release Window Contributor Inventory: `PASS - this branch contributes governance-only internal validation/traceability changes and no runtime contributor or release-window mutation.`
+Governance Intake Routing: `PASS - RRI-20260727-001 is the USER-approved standing Governance carrier for this bounded non-runtime phase-gate and lock-lifecycle repair.`
+Projected Post-Merge Validation: `PASS - projected main retains durable standing-lane law, no live RRI cycle or PR state, no selected-next mutation, no runtime active authority, and no lock retained across workloads.`
 
 ## Release Window Audit
 
