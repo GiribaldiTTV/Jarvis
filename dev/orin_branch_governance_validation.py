@@ -21666,6 +21666,23 @@ def main() -> int:
     current_git_branch = _git_current_branch()
     outside_lane_merge_stable_findings: list[str] = []
 
+    # Active product branch plans live outside the repo. When the current lane has
+    # that governed owner, run the existing snapshot validator against its live
+    # section instead of leaving the reusable validation path dormant.
+    if current_git_branch == "feature/fam-003-settings-resize-proof":
+        active_plan = Path(
+            r"C:\Nexus Governance State\branches\feature_fam_003_settings_resize_proof\branch_plan.md"
+        )
+        require(
+            active_plan.is_file(),
+            f"{active_plan}: active Branch Vision Contract owner is missing",
+        )
+        if active_plan.is_file():
+            active_text = active_plan.read_text(encoding="utf-8").partition(
+                "Historical Receipt Boundary:"
+            )[0]
+            _validate_branch_vision_contract_snapshot(require, str(active_plan), active_text)
+
     rar_substantive_docs = {
         Path("Docs/phase_governance.md"): phase_governance_text,
         Path("Docs/branch_plans/README.md"): branch_plans_readme_text,

@@ -199,6 +199,35 @@ FAM003_OPTION_G_UFD_COUNT = 18
 FAM003_OPTION_G_UFD_FOLD_DOWN_TARGET = (
     "Docs/branch_records/feature_fam_003_settings_resize_proof.md"
 )
+FAM003_OPTION_G_VISION_HEADING = "## Branch Vision Contract Snapshot"
+FAM003_OPTION_G_VISION_MARKERS = (
+    "Vision Contract Required:",
+    "Vision Contract Requirement Reason:",
+    "Branch Vision Snapshot Status:",
+    "Open Vision Questions:",
+    "USER Vision Green:",
+    "Implementation Scope:",
+    "Seam Map:",
+    "Stop Conditions:",
+    "Design Assumption Ledger:",
+    "Vision Question Queue:",
+    "Question Severity Policy:",
+    "Vision-to-Implementation Traceability:",
+    "Branch Plan Revision Packet:",
+    "Project Vision Owner:",
+    "Project Vision SHA256:",
+    "FAM-003 Family Vision Owner:",
+    "FAM-003 Family Vision SHA256:",
+    "F3-FF01 Owner:",
+    "F3-FF01 SHA256:",
+    "Accepted BP1 Owner:",
+    "Accepted BP1 SHA256:",
+    "Accepted BP1 Acceptance Receipt:",
+    "Accepted BP2 Owner:",
+    "Accepted BP2 SHA256:",
+    "Accepted BP2 Acceptance Receipt:",
+    "Accepted BP2 Acceptance Receipt SHA256:",
+)
 UFD_CONTEXT_RELATIVE_LOCATION_RE = re.compile(
     r"\b(?:this|the)\s+annex\b"
     r"|\bthis supporting record\b"
@@ -551,6 +580,14 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
                 f"Canonical UFD Ownership: {item_id} contains context-relative "
                 "location wording that changes meaning across supporting copies"
             )
+        remaining_decision = (
+            markdown_field_value(item_text, "Remaining USER Decision") or ""
+        ).strip()
+        if branch == FAM003_OPTION_G_BRANCH and "bp3 acceptance" in remaining_decision.casefold():
+            failures.append(
+                f"Canonical UFD Vocabulary: {item_id} uses BP3 acceptance where "
+                "the actionable BP3 state is USER Approved; use 'BP3 approval only'"
+            )
         status = (markdown_field_value(item_text, "Status") or "").casefold()
         if any(term in status for term in ("open", "queued", "blocking", "deferred")):
             open_items += 1
@@ -570,6 +607,94 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
                 f"physical atomic-row state {actual}"
             )
 
+    return failures
+
+
+def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[str]:
+    """Validate the current FAM-003 Branch Vision snapshot in its active owner."""
+
+    failures: list[str] = []
+    branch = markdown_field_value(live_text, "Branch") or ""
+    if branch != FAM003_OPTION_G_BRANCH:
+        return failures
+    if not relative.replace("\\", "/").endswith("/branch_plan.md"):
+        return failures
+    if FAM003_OPTION_G_VISION_HEADING not in live_text:
+        return [
+            "Branch Vision Contract Snapshot: required active snapshot is absent "
+            "from the live FAM-003 branch plan above the historical boundary"
+        ]
+    section = live_text.split(FAM003_OPTION_G_VISION_HEADING, 1)[1]
+    section = section.split("\n## ", 1)[0]
+    for marker in FAM003_OPTION_G_VISION_MARKERS:
+        value = markdown_field_value(section, marker.rstrip(":"))
+        if marker not in section or not value:
+            failures.append(
+                f"Branch Vision Contract Snapshot: active snapshot is missing a "
+                f"nonblank {marker} value"
+            )
+    required = (markdown_field_value(section, "Vision Contract Required") or "").casefold()
+    status = (markdown_field_value(section, "Branch Vision Snapshot Status") or "").casefold()
+    questions = (markdown_field_value(section, "Open Vision Questions") or "").casefold()
+    user_green = (markdown_field_value(section, "USER Vision Green") or "").casefold()
+    if "yes" not in required:
+        failures.append("Branch Vision Contract Snapshot: FAM-003 runtime branch must say required Yes")
+    if "accepted" not in status:
+        failures.append("Branch Vision Contract Snapshot: accepted BP1 carrydown must use Accepted status")
+    if questions not in {"none", "none; no blocking vision questions"}:
+        failures.append("Branch Vision Contract Snapshot: Open Vision Questions must be None")
+    if user_green not in {"yes", "green", "accepted"}:
+        failures.append("Branch Vision Contract Snapshot: USER Vision Green must be Yes")
+    implementation_scope = (
+        markdown_field_value(section, "Implementation Scope") or ""
+    ).casefold()
+    seam_map = (markdown_field_value(section, "Seam Map") or "").casefold()
+    if (
+        "accepted bp1" not in implementation_scope
+        or "accepted bp2" not in implementation_scope
+        or "workstream implementation" in implementation_scope
+    ):
+        failures.append(
+            "Branch Vision Contract Snapshot: implementation scope exceeds accepted BP1/BP2 carrydown"
+        )
+    if not all(
+        marker.casefold() in seam_map
+        for marker in ("F3-OPTG-D01", "OPTG-WS01", "OPTG-WS07", "OPTG-ALLOW-08")
+    ):
+        failures.append(
+            "Branch Vision Contract Snapshot: seam map disagrees with the accepted Option G BP3 plan"
+        )
+    expected_owners = {
+        "Project Vision Owner": "Docs/nexus_vision.md",
+        "FAM-003 Family Vision Owner": (
+            "Docs/family_visions/FAM-003_interaction_and_actions.md"
+        ),
+        "F3-FF01 Owner": "Docs/family_feature_visions/F3-FF01.md",
+        "Accepted BP1 Owner": "bp1_branch_vision_revision_20260715.md",
+        "Accepted BP2 Owner": "decision2_option_g_bp2_gate_repair_20260724.md",
+        "Accepted BP2 Acceptance Receipt": (
+            "decision2_option_g_bp2_acceptance_20260724.md"
+        ),
+    }
+    for field, expected in expected_owners.items():
+        if markdown_field_value(section, field) != expected:
+            failures.append(
+                f"Branch Vision Contract Snapshot: {field} must identify {expected}"
+            )
+    for field in (
+        "Project Vision SHA256",
+        "FAM-003 Family Vision SHA256",
+        "F3-FF01 SHA256",
+        "Accepted BP1 SHA256",
+        "Accepted BP2 SHA256",
+        "Accepted BP2 Acceptance Receipt SHA256",
+    ):
+        if not re.fullmatch(
+            r"[0-9A-Fa-f]{64}", markdown_field_value(section, field) or ""
+        ):
+            failures.append(
+                f"Branch Vision Contract Snapshot: {field} must be a full SHA256"
+            )
     return failures
 
 
@@ -769,6 +894,7 @@ def validate_target_currentness(
         failures.append(f"Target Currentness: {relative} is missing Record Role classification")
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
+    failures.extend(_validate_active_branch_plan_vision(relative, live_text))
     failures.extend(_validate_active_branch_plan_ufd(relative, live_text))
     failures.extend(_validate_active_branch_plan_element_matrix(relative, live_text))
     return failures

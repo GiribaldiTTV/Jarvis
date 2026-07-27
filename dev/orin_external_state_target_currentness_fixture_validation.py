@@ -453,7 +453,7 @@ def _ufd_fixture_rows() -> list[str]:
                     "Carrier: `feature/fam-003-settings-resize-proof`",
                     "Planning Or Implementation Effect: `Planning carrydown only`",
                     "Proof / Closure Requirement: `Canonical owner and copy-equivalence proof`",
-                    "Remaining USER Decision: `BP3 acceptance only`",
+                    "Remaining USER Decision: `BP3 approval only`",
                 )
             )
         )
@@ -528,6 +528,33 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n\n"
+        "## Branch Vision Contract Snapshot\n\n"
+        "Vision Contract Required: `Yes`\n"
+        "Vision Contract Requirement Reason: `Runtime and USER-facing branch`\n"
+        "Branch Vision Snapshot Status: `Accepted`\n"
+        "Open Vision Questions: `None`\n"
+        "USER Vision Green: `Yes`\n"
+        "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`\n"
+        "Seam Map: `F3-OPTG-D01; OPTG-WS01 through OPTG-WS07; OPTG-ALLOW-01 through OPTG-ALLOW-08`\n"
+        "Stop Conditions: `Stop on scope or owner drift`\n"
+        "Design Assumption Ledger: `Accepted by USER`\n"
+        "Vision Question Queue: `None`\n"
+        "Question Severity Policy: `Level 1 non-blocking; Level 2 seam-blocking; Level 3 workstream-breaking`\n"
+        "Vision-to-Implementation Traceability: `vision -> branch -> seam -> file -> validator -> proof`\n"
+        "Branch Plan Revision Packet: `Required with USER decision for scope changes`\n"
+        "Project Vision Owner: `Docs/nexus_vision.md`\n"
+        f"Project Vision SHA256: `{'1' * 64}`\n"
+        "FAM-003 Family Vision Owner: `Docs/family_visions/FAM-003_interaction_and_actions.md`\n"
+        f"FAM-003 Family Vision SHA256: `{'2' * 64}`\n"
+        "F3-FF01 Owner: `Docs/family_feature_visions/F3-FF01.md`\n"
+        f"F3-FF01 SHA256: `{'3' * 64}`\n"
+        "Accepted BP1 Owner: `bp1_branch_vision_revision_20260715.md`\n"
+        f"Accepted BP1 SHA256: `{'A' * 64}`\n"
+        "Accepted BP1 Acceptance Receipt: `Embedded USER Acceptance Receipt in accepted BP1 owner`\n"
+        "Accepted BP2 Owner: `decision2_option_g_bp2_gate_repair_20260724.md`\n"
+        f"Accepted BP2 SHA256: `{'B' * 64}`\n"
+        "Accepted BP2 Acceptance Receipt: `decision2_option_g_bp2_acceptance_20260724.md`\n"
+        f"Accepted BP2 Acceptance Receipt SHA256: `{'C' * 64}`\n\n"
         f"{rows}\n\n"
         f"{_element_to_phase_fixture()}\n\n"
         "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n"
@@ -607,15 +634,64 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
     _assert_pass("canonical UFD owner with 18 physical rows", validate(original))
     rows = "\n\n".join(_ufd_fixture_rows())
     matrix = _element_to_phase_fixture()
+    vision_block = (
+        "## Branch Vision Contract Snapshot"
+        + original.split("## Branch Vision Contract Snapshot", 1)[1].split(
+            "\n### UFD Item:", 1
+        )[0]
+    )
     historical = (
         "Historical Receipt Boundary: "
         "`Historical receipts below do not redefine live fields.`\n"
     )
     cases = (
         (
+            "required Branch Vision snapshot absent",
+            original.replace(vision_block, "", 1),
+            "required active snapshot is absent",
+        ),
+        (
+            "Branch Vision snapshot exists only below historical boundary",
+            original.replace(vision_block, "", 1).replace(
+                historical,
+                historical + vision_block + "\n",
+                1,
+            ),
+            "required active snapshot is absent",
+        ),
+        (
+            "Branch Vision snapshot omits accepted BP1 hash",
+            original.replace("Accepted BP1 SHA256:", "Accepted BP1 Digest:", 1),
+            "missing a nonblank Accepted BP1 SHA256:",
+        ),
+        (
+            "Branch Vision snapshot has malformed Project Vision hash",
+            original.replace("1" * 64, "bad-project-hash", 1),
+            "Project Vision SHA256 must be a full SHA256",
+        ),
+        (
+            "Branch Vision snapshot widens implementation scope",
+            original.replace(
+                "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`",
+                "Implementation Scope: `Workstream implementation`",
+                1,
+            ),
+            "implementation scope exceeds accepted BP1/BP2 carrydown",
+        ),
+        (
+            "Branch Vision snapshot seam map drifts",
+            original.replace("OPTG-WS07", "OPTG-WS06", 1),
+            "seam map disagrees",
+        ),
+        (
             "declared owner without atomic rows",
             original.replace(rows + "\n\n", ""),
             "exactly 18 physical atomic rows",
+        ),
+        (
+            "canonical UFD row uses BP3 acceptance vocabulary",
+            original.replace("Remaining USER Decision: `BP3 approval only`", "Remaining USER Decision: `BP3 acceptance only`", 1),
+            "uses BP3 acceptance",
         ),
         (
             "owner marker disagrees with physical file",
@@ -2130,7 +2206,7 @@ def main() -> int:
 
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
-        "(24 canonical-UFD + 12 Element-to-Phase negative + "
+        "(24 canonical-UFD + 6 Branch Vision + 12 Element-to-Phase negative + "
         "3 non-plan projection ownership fixtures)"
     )
     return 0

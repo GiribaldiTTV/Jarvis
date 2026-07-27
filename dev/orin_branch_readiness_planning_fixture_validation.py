@@ -10259,6 +10259,29 @@ def validate() -> list[str]:
             + "; ".join(valid_vision_failures[:5])
         )
 
+    governance_source = (ROOT / "dev" / "orin_branch_governance_validation.py").read_text(
+        encoding="utf-8"
+    )
+    if governance_source.count("_validate_branch_vision_contract_snapshot(") < 2:
+        failures.append(
+            "Branch Vision Contract Snapshot validator is defined but never invoked for an applicable branch"
+        )
+
+    missing_vision_failures = _validate_branch_vision_contract_text(
+        "# Active branch plan without the required snapshot\n"
+    )
+    if not any("Branch Vision Contract Snapshot" in item for item in missing_vision_failures):
+        failures.append("Missing Branch Vision Contract Snapshot fixture unexpectedly passed")
+
+    historical_only_text = (
+        "Historical Receipt Boundary: `Historical evidence below is immutable.`\n"
+        + VALID_BRANCH_VISION_CONTRACT_FIXTURE.read_text(encoding="utf-8")
+    )
+    historical_active = historical_only_text.partition("Historical Receipt Boundary:")[0]
+    historical_only_failures = _validate_branch_vision_contract_text(historical_active)
+    if not any("Branch Vision Contract Snapshot" in item for item in historical_only_failures):
+        failures.append("Historical-only Branch Vision Contract Snapshot fixture unexpectedly passed")
+
     proposed_vision_failures = _validate_branch_vision_contract_text(
         INVALID_PROPOSED_BRANCH_VISION_CONTRACT_FIXTURE.read_text(encoding="utf-8")
     )

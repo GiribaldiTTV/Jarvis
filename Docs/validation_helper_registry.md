@@ -313,6 +313,38 @@ these active-metadata, cross-carrier provenance, self-containment, stale-target,
 stale-packet, and BP3 approve-versus-accept false-green classes. Packet PASS
 remains reviewability evidence only and does not approve BP3 or Workstream.
 
+FAM-003 Option G BP3 formal-digest, Vision-carrydown, UFD-vocabulary, and
+inventory-completion clarification: the active packet guard requires one exact
+`Next Legal Phase Digest` in both `START_HERE.md` and the primary BP3 review,
+using the ordered fields owned by `Docs/phase_governance.md`; the exact BP3
+decision therefore appears once in the actionable decision section and once in
+the formal digest on those two carriers, while `USER_DECISIONS.md` carries one
+actionable copy. The active external `branch_plan.md` must carry the current
+`Branch Vision Contract Snapshot` above its historical boundary and identify,
+with source hashes, Project Vision, FAM-003 Family Vision, F3-FF01, the accepted
+BP1 owner and embedded acceptance receipt, and the accepted BP2 owner and
+acceptance receipt. `dev/orin_branch_governance_validation.py` must invoke the
+existing Branch Vision snapshot validator for the applicable FAM-003 branch;
+definition without invocation is a failure. Current canonical and supporting
+UFD copies use `BP3 approval only`, preserve `USER Approved` as the future gate
+state, and reject `BP3 acceptance` in current BP3 decision fields without
+changing BP1/BP2 `USER Accepted` vocabulary.
+
+The packet-contained untracked inventory is a complete pre-generation cutoff,
+not a final inventory. It records cutoff UTC, source HEAD, external-state
+version, complete rows/hashes, and classified expected post-cutoff artifact
+groups. A routed external completion receipt records the final post-publication
+rows, count, added/removed reconciliation, and independently derived
+foreign/unknown count without recursive self-packaging. The FAM-003
+`Current Packet Metadata` exception remains narrower than the general
+USER-facing metadata ban: exactly one block in `START_HERE.md` and exactly one
+in the primary Option G BP3 review may carry only `External State Version`,
+`Source Repo HEAD`, and `Replacement ZIP` as technical metadata. `Origin/Main`,
+merge base, ahead/behind, upstream, packet/ZIP hashes, transaction hashes, and
+other mutable proof remain prohibited there and belong in helper output, raw
+validation evidence, Codex digest, or external operational state. This scoped
+exception does not apply to another branch, FAM, packet class, or review file.
+
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
 absolute/off-root, reparse/symlink, malformed, unsupported-record,

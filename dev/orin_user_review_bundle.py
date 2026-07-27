@@ -374,10 +374,22 @@ def _user_facing_technical_metadata_scan_text(file_name: str, text: str) -> str:
     """Exclude only the governed current-metadata body from leak scanning."""
 
     normalized = file_name.replace("\\", "/")
-    if normalized in {
-        "START_HERE.md",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
-    } or normalized.endswith("/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"):
+    is_fam003_option_g_bp3 = all(
+        marker in text.casefold()
+        for marker in (
+            "fam-003",
+            "option g",
+            "bp3",
+            "feature/fam-003-settings-resize-proof",
+        )
+    )
+    if is_fam003_option_g_bp3 and (
+        normalized in {
+            "START_HERE.md",
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        }
+        or normalized.endswith("/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    ):
         return re.sub(
             r"(?ms)^## Current Packet Metadata\s*\n.*?(?=^## |\Z)",
             "## Current Packet Metadata\n",
@@ -5815,6 +5827,151 @@ FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY = (
     "separate stdout/stderr plus deterministic merged output"
 )
 FAM003_OPTION_G_CURRENT_METADATA_HEADING = "## Current Packet Metadata"
+FAM003_OPTION_G_NEXT_PHASE_HEADING = "## Next Legal Phase Digest"
+FAM003_OPTION_G_NEXT_PHASE_FIELDS = (
+    "Current Phase:",
+    "Next Legal Phase:",
+    "Why This Phase Is Next:",
+    "Approval Required:",
+    "Exact USER Approval Text:",
+    "Allowed Scope:",
+    "Explicit Exclusions:",
+    "Validation Required:",
+    "Stop Conditions:",
+    "USER Plan Review Gate:",
+    "USER Inspection Files:",
+    "Review Required Because:",
+    "Implementation Blocker:",
+    "Review Waiver Reason:",
+)
+FAM003_OPTION_G_VISION_MARKERS = (
+    "Vision Contract Required:",
+    "Vision Contract Requirement Reason:",
+    "Branch Vision Snapshot Status:",
+    "Open Vision Questions:",
+    "USER Vision Green:",
+    "Implementation Scope:",
+    "Seam Map:",
+    "Stop Conditions:",
+    "Design Assumption Ledger:",
+    "Vision Question Queue:",
+    "Question Severity Policy:",
+    "Vision-to-Implementation Traceability:",
+    "Branch Plan Revision Packet:",
+    "Project Vision Owner:",
+    "Project Vision SHA256:",
+    "FAM-003 Family Vision Owner:",
+    "FAM-003 Family Vision SHA256:",
+    "F3-FF01 Owner:",
+    "F3-FF01 SHA256:",
+    "Accepted BP1 Owner:",
+    "Accepted BP1 SHA256:",
+    "Accepted BP1 Acceptance Receipt:",
+    "Accepted BP2 Owner:",
+    "Accepted BP2 SHA256:",
+    "Accepted BP2 Acceptance Receipt:",
+    "Accepted BP2 Acceptance Receipt SHA256:",
+)
+
+
+def _fam003_option_g_next_phase_digest_failures(
+    text: str,
+    *,
+    file_name: str,
+) -> list[str]:
+    failures: list[str] = []
+    active = _current_review_claims(text)
+    if _markdown_section_count(active, FAM003_OPTION_G_NEXT_PHASE_HEADING) != 1:
+        return [
+            f"FAM-003 Option G BP3: {file_name} must contain exactly one "
+            f"{FAM003_OPTION_G_NEXT_PHASE_HEADING}"
+        ]
+    section = _markdown_section(active, FAM003_OPTION_G_NEXT_PHASE_HEADING)
+    positions: list[int] = []
+    field_values: dict[str, str] = {}
+    for marker in FAM003_OPTION_G_NEXT_PHASE_FIELDS:
+        matches = list(re.finditer(rf"(?m)^{re.escape(marker)}\s*(.+?)\s*$", section))
+        if len(matches) != 1:
+            failures.append(
+                f"FAM-003 Option G BP3: {file_name} Next Legal Phase Digest must "
+                f"contain exactly one nonblank {marker} field"
+            )
+            continue
+        field_values[marker] = matches[0].group(1).strip().strip("`")
+        if not field_values[marker]:
+            failures.append(
+                f"FAM-003 Option G BP3: {file_name} Next Legal Phase Digest has "
+                f"a blank {marker} value"
+            )
+        positions.append(matches[0].start())
+    if positions != sorted(positions):
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Next Legal Phase Digest fields are out of order"
+        )
+    exact_value = field_values.get("Exact USER Approval Text:", "")
+    if re.sub(r"\s+", " ", exact_value).strip() != re.sub(
+        r"\s+", " ", FAM003_OPTION_G_BP3_CURRENT_DECISION
+    ).strip():
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Next Legal Phase Digest exact approval text differs from the current decision"
+        )
+    next_phase = field_values.get("Next Legal Phase:", "").casefold()
+    if "user bp3 review" not in next_phase:
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Next Legal Phase Digest does not preserve the pending BP3 USER gate"
+        )
+    exclusions = field_values.get("Explicit Exclusions:", "").casefold()
+    blocker = field_values.get("Implementation Blocker:", "").casefold()
+    if "workstream implementation" not in exclusions or "workstream implementation" not in blocker:
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Next Legal Phase Digest does not keep Workstream implementation blocked"
+        )
+    current_phase = field_values.get("Current Phase:", "").casefold()
+    approval_required = field_values.get("Approval Required:", "").casefold()
+    allowed_scope = field_values.get("Allowed Scope:", "").casefold()
+    review_reason = field_values.get("Review Required Because:", "").casefold()
+    if "bp3" not in current_phase or "user review pending" not in current_phase:
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Current Phase does not identify the pending BP3 USER review gate"
+        )
+    if "yes" not in approval_required or "bp3 approval" not in approval_required:
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Approval Required must identify BP3 approval only"
+        )
+    if (
+        "review" not in allowed_scope
+        or "bp3" not in allowed_scope
+        or "workstream implementation" in allowed_scope
+    ):
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Allowed Scope is inconsistent with independent BP3 review only"
+        )
+    if "bp3" not in review_reason or not any(
+        term in review_reason for term in ("unapproved", "pending", "requires user")
+    ):
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Review Required Because does not explain the unapproved BP3 USER gate"
+        )
+    plan_gate = field_values.get("USER Plan Review Gate:", "").casefold()
+    if not all(term in plan_gate for term in ("approve", "revise", "waive", "reject")):
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} USER Plan Review Gate must allow approve, revise, waive, or reject"
+        )
+    if field_values.get("Review Waiver Reason:", "").casefold() != "not waived":
+        failures.append(
+            f"FAM-003 Option G BP3: {file_name} Review Waiver Reason must be Not waived"
+        )
+    return failures
+
+
+def _packet_bytes_by_basename(
+    packet_binary_files: Mapping[str, bytes] | None,
+    basename: str,
+) -> bytes | None:
+    if not packet_binary_files:
+        return None
+    matches = [data for path, data in packet_binary_files.items() if PurePosixPath(path).name == basename]
+    return matches[0] if len(matches) == 1 else None
 FAM003_OPTION_G_TRACEABILITY_HEADING = "## Current False-Green Repair Traceability"
 FAM003_OPTION_G_FIXTURE_HEADING = "## Current Reusable Fixture Result"
 FAM003_OPTION_G_SCOPE_HELPER_ORIGINAL = (
@@ -6735,6 +6892,21 @@ def _fam003_option_g_active_metadata_failures(
                     f"FAM-003 Option G BP3: {file_name} active {label} must live "
                     "inside the single current metadata section"
                 )
+        for prohibited in (
+            "Origin/Main:",
+            "Merge Base:",
+            "Ahead / Behind:",
+            "Ahead/Behind:",
+            "Upstream:",
+            "ZIP SHA256:",
+            "Packet SHA256:",
+            "Transaction Hash:",
+        ):
+            if prohibited.casefold() in section.casefold():
+                failures.append(
+                    f"FAM-003 Option G BP3: {file_name} current metadata exception "
+                    f"does not permit {prohibited}"
+                )
         if re.search(r"(?im)^Stale Packet(?: Disposition)?:", active):
             failures.append(
                 f"FAM-003 Option G BP3: {file_name} retains stale packet metadata "
@@ -6986,6 +7158,251 @@ def _fam003_option_g_bp3_orchestration_failures(
         "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
         "Review Aids/USER_DECISIONS.md": decisions,
     }
+    for file_name in (
+        "START_HERE.md",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    ):
+        failures.extend(
+            _fam003_option_g_next_phase_digest_failures(
+                decision_surfaces[file_name],
+                file_name=file_name,
+            )
+        )
+
+    active_plan_text = _packet_file_text(packet_files, "current_external_branch_plan.md")
+    active_plan = active_plan_text.partition("Historical Receipt Boundary:")[0]
+    vision_heading = "## Branch Vision Contract Snapshot"
+    if vision_heading not in active_plan:
+        failures.append(
+            "FAM-003 Option G BP3: canonical active branch plan lacks the required "
+            "Branch Vision Contract Snapshot above the historical boundary"
+        )
+        vision_section = ""
+    else:
+        vision_section = active_plan.split(vision_heading, 1)[1].split("\n## ", 1)[0]
+    for marker in FAM003_OPTION_G_VISION_MARKERS:
+        if marker not in vision_section or not _markdown_field_value(
+            vision_section, marker.rstrip(":")
+        ):
+            failures.append(
+                f"FAM-003 Option G BP3: active Branch Vision Contract Snapshot is "
+                f"missing nonblank {marker}"
+            )
+    vision_required = _markdown_field_value(
+        vision_section, "Vision Contract Required"
+    ).casefold()
+    vision_status = _markdown_field_value(
+        vision_section, "Branch Vision Snapshot Status"
+    ).casefold()
+    open_questions = _markdown_field_value(
+        vision_section, "Open Vision Questions"
+    ).casefold()
+    user_vision_green = _markdown_field_value(
+        vision_section, "USER Vision Green"
+    ).casefold()
+    implementation_scope = _markdown_field_value(
+        vision_section, "Implementation Scope"
+    ).casefold()
+    seam_map = _markdown_field_value(vision_section, "Seam Map").casefold()
+    if "yes" not in vision_required:
+        failures.append(
+            "FAM-003 Option G BP3: runtime/user-facing branch incorrectly classifies its Vision contract as not required"
+        )
+    if "accepted" not in vision_status:
+        failures.append(
+            "FAM-003 Option G BP3: Branch Vision snapshot does not preserve accepted BP1 status"
+        )
+    if open_questions not in {"none", "none; no blocking vision questions"}:
+        failures.append(
+            "FAM-003 Option G BP3: Branch Vision snapshot conceals or leaves open vision questions"
+        )
+    if user_vision_green not in {"yes", "green", "accepted"}:
+        failures.append(
+            "FAM-003 Option G BP3: USER Vision Green is inconsistent with accepted BP1"
+        )
+    if (
+        "accepted bp1" not in implementation_scope
+        or "accepted bp2" not in implementation_scope
+        or "workstream implementation" in implementation_scope
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: Branch Vision implementation scope is wider than accepted BP1/BP2 carrydown"
+        )
+    if not all(
+        marker.casefold() in seam_map
+        for marker in ("F3-OPTG-D01", "OPTG-WS01", "OPTG-WS07", "OPTG-ALLOW-08")
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: Branch Vision seam map is inconsistent with the current BP3 plan"
+        )
+    required_vision_copies = (
+        "nexus_vision.md",
+        "FAM-003_interaction_and_actions.md",
+        "F3-FF01.md",
+        "bp1_branch_vision_revision_20260715.md",
+        "decision2_option_g_bp2_gate_repair_20260724.md",
+        "decision2_option_g_bp2_acceptance_20260724.md",
+    )
+    for basename in required_vision_copies:
+        if not _packet_file_text(packet_files, basename):
+            failures.append(
+                f"FAM-003 Option G BP3: accepted Vision source chain omits {basename}"
+            )
+    vision_hash_sources = (
+        ("Project Vision SHA256", "nexus_vision.md", "Project Vision"),
+        (
+            "FAM-003 Family Vision SHA256",
+            "FAM-003_interaction_and_actions.md",
+            "FAM-003 Family Vision",
+        ),
+        ("F3-FF01 SHA256", "F3-FF01.md", "F3-FF01"),
+        (
+            "Accepted BP1 SHA256",
+            "bp1_branch_vision_revision_20260715.md",
+            "accepted BP1",
+        ),
+        (
+            "Accepted BP2 SHA256",
+            "decision2_option_g_bp2_gate_repair_20260724.md",
+            "accepted BP2",
+        ),
+        (
+            "Accepted BP2 Acceptance Receipt SHA256",
+            "decision2_option_g_bp2_acceptance_20260724.md",
+            "accepted BP2 receipt",
+        ),
+    )
+    for hash_field, basename, label in vision_hash_sources:
+        expected_hash = _markdown_field_value(vision_section, hash_field)
+        source_bytes = _packet_bytes_by_basename(packet_binary_files, basename)
+        if source_bytes is None:
+            source_text = _packet_file_text(packet_files, basename)
+            source_bytes = source_text.encode("utf-8") if source_text else None
+        if (
+            not source_bytes
+            or not re.fullmatch(r"[0-9A-Fa-f]{64}", expected_hash)
+            or hashlib.sha256(source_bytes).hexdigest().casefold()
+            != expected_hash.casefold()
+        ):
+            failures.append(
+                f"FAM-003 Option G BP3: {label} source/hash proof is missing or mismatched"
+            )
+    accepted_bp1_text = _packet_file_text(
+        packet_files,
+        "bp1_branch_vision_revision_20260715.md",
+    )
+    accepted_bp2_receipt = _packet_file_text(
+        packet_files,
+        "decision2_option_g_bp2_acceptance_20260724.md",
+    )
+    if "## USER Acceptance Receipt" not in accepted_bp1_text:
+        failures.append(
+            "FAM-003 Option G BP3: accepted BP1 owner omits its USER Acceptance Receipt"
+        )
+    if not any(
+        marker in accepted_bp2_receipt
+        for marker in ("USER_ACCEPTED", "USER accepted")
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: accepted BP2 receipt omits USER-accepted proof"
+        )
+
+    inventory_text = _packet_file_text(packet_files, "FINAL_UNTRACKED_INVENTORY.json")
+    try:
+        inventory = json.loads(inventory_text) if inventory_text else {}
+    except json.JSONDecodeError:
+        inventory = {}
+    rows = inventory.get("rows") if isinstance(inventory, dict) else None
+    rows = rows if isinstance(rows, list) else []
+    if inventory.get("schema") != "fam003-untracked-inventory-cutoff-v2":
+        failures.append(
+            "FAM-003 Option G BP3: untracked inventory must use the truthful cutoff-v2 model"
+        )
+    if inventory.get("inventoryKind") != "PRE_GENERATION_CUTOFF":
+        failures.append(
+            "FAM-003 Option G BP3: packet-contained untracked inventory must be labeled PRE_GENERATION_CUTOFF, not final"
+        )
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", str(inventory.get("sourceHead") or "")):
+        failures.append(
+            "FAM-003 Option G BP3: inventory cutoff lacks a full source HEAD"
+        )
+    if not isinstance(inventory.get("externalStateVersion"), int):
+        failures.append(
+            "FAM-003 Option G BP3: inventory cutoff lacks an integer external-state version"
+        )
+    if not str(inventory.get("cutoffUtc") or "").endswith("Z"):
+        failures.append(
+            "FAM-003 Option G BP3: inventory cutoff lacks an exact UTC cutoff"
+        )
+    post_cutoff_groups = inventory.get("postCutoffArtifactGroups")
+    if not isinstance(post_cutoff_groups, list) or not post_cutoff_groups:
+        failures.append(
+            "FAM-003 Option G BP3: inventory cutoff omits classified post-cutoff artifact groups"
+        )
+    if inventory.get("itemCount") != len(rows):
+        failures.append(
+            "FAM-003 Option G BP3: inventory itemCount differs from its complete row count"
+        )
+    derived_unknown = sum(
+        1 for row in rows if isinstance(row, dict) and row.get("foreignOrUnknown") == "YES"
+    )
+    if inventory.get("foreignOrUnknownCount") != derived_unknown:
+        failures.append(
+            "FAM-003 Option G BP3: inventory foreign/unknown count is not independently derived from rows"
+        )
+    completion_receipt = str(inventory.get("finalCompletionReceipt") or "")
+    if not completion_receipt:
+        failures.append(
+            "FAM-003 Option G BP3: inventory cutoff lacks the routed final completion receipt path"
+        )
+    elif packet_binary_files is None:
+        # In-memory false-green fixtures cannot create external receipts. The
+        # active packet path below still requires and reads the routed receipt.
+        pass
+    elif Path(completion_receipt).is_file():
+        try:
+            completion = json.loads(Path(completion_receipt).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            completion = {}
+        completion_rows = completion.get("rows")
+        completion_rows = completion_rows if isinstance(completion_rows, list) else []
+        if completion.get("schema") != "fam003-untracked-inventory-completion-v1":
+            failures.append(
+                "FAM-003 Option G BP3: final inventory receipt uses an unsupported schema"
+            )
+        if (
+            completion.get("cutoffItemCount") != inventory.get("itemCount")
+            or completion.get("cutoffUtc") != inventory.get("cutoffUtc")
+            or completion.get("sourceHead") != inventory.get("sourceHead")
+            or completion.get("externalStateVersion")
+            != inventory.get("externalStateVersion")
+        ):
+            failures.append(
+                "FAM-003 Option G BP3: final inventory receipt does not reconcile the packet cutoff count"
+            )
+        final_count = completion.get("finalItemCount")
+        added_count = completion.get("addedAfterCutoffCount")
+        removed_count = completion.get("removedAfterCutoffCount")
+        if (
+            final_count != len(completion_rows)
+            or not isinstance(added_count, int)
+            or not isinstance(removed_count, int)
+            or final_count != inventory.get("itemCount", 0) + added_count - removed_count
+            or completion.get("foreignOrUnknownCount") != sum(
+                1
+                for row in completion_rows
+                if isinstance(row, dict) and row.get("foreignOrUnknown") == "YES"
+            )
+            or completion.get("foreignOrUnknownCount") != 0
+            or not str(completion.get("finalUtc") or "").endswith("Z")
+        ):
+            failures.append(
+                "FAM-003 Option G BP3: final inventory receipt lacks a clean final count and foreign/unknown result"
+            )
+    else:
+        failures.append(
+            "FAM-003 Option G BP3: routed final inventory completion receipt is missing"
+        )
     normalized_current_decision = re.sub(
         r"\s+", " ", FAM003_OPTION_G_BP3_CURRENT_DECISION
     ).casefold()
@@ -6996,10 +7413,18 @@ def _fam003_option_g_bp3_orchestration_failures(
                 "FAM-003 Option G BP3: exact packet-contained current BP3 decision "
                 f"is missing or inconsistent in {file_name}"
             )
-        elif text.count(FAM003_OPTION_G_BP3_CURRENT_DECISION) != 1:
+        expected_decision_copies = (
+            2
+            if file_name in {
+                "START_HERE.md",
+                "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            }
+            else 1
+        )
+        if text.count(FAM003_OPTION_G_BP3_CURRENT_DECISION) != expected_decision_copies:
             failures.append(
                 "FAM-003 Option G BP3: exact packet-contained current BP3 decision "
-                f"must appear exactly once in {file_name}"
+                f"must appear exactly {expected_decision_copies} time(s) in {file_name}"
             )
         if FAM003_OPTION_G_BP3_DECISION_EFFECT not in text:
             failures.append(
@@ -7442,9 +7867,13 @@ def _fam003_option_g_bp3_orchestration_failures(
 
     ufd_text = aid_text["UFD ledger"]
     canonical_ufd_plan = _packet_file_text(packet_files, "current_external_branch_plan.md")
-    supporting_ufd_record = _packet_file_text(
-        packet_files,
-        "decision2_option_g_bp3_proof_carrydown_repair_20260724.md",
+    canonical_live = canonical_ufd_plan.partition("Historical Receipt Boundary:")[0]
+    supporting_ufd_path = _markdown_field_value(canonical_live, "UFD Supporting Evidence Copy")
+    supporting_ufd_basename = PureWindowsPath(supporting_ufd_path).name if supporting_ufd_path else ""
+    supporting_ufd_record = (
+        _packet_file_text(packet_files, supporting_ufd_basename)
+        if supporting_ufd_basename
+        else ""
     )
 
     def _ufd_rows(text: str, *, live_only: bool = False) -> dict[str, str]:
@@ -7486,7 +7915,6 @@ def _fam003_option_g_bp3_orchestration_failures(
         packet_files,
         "feature_fam_003_settings_resize_proof.md",
     )
-    canonical_live = canonical_ufd_plan.partition("Historical Receipt Boundary:")[0]
     canonical_owner = _markdown_field_value(canonical_live, "UFD Ledger Owner")
     physical_location = _markdown_field_value(
         canonical_live,
@@ -7633,8 +8061,7 @@ def _fam003_option_g_bp3_orchestration_failures(
         )
     if (
         "UFD Supporting Evidence Copy:" not in canonical_live
-        or "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
-        not in canonical_live
+        or not supporting_ufd_basename
     ):
         failures.append(
             "FAM-003 Option G BP3: canonical branch plan must classify the proof-"
@@ -7668,6 +8095,18 @@ def _fam003_option_g_bp3_orchestration_failures(
             "FAM-003 Option G BP3: proof-carrydown UFD copy differs from the "
             "canonical active branch-plan rows"
         )
+    for source_label, rows in (
+        ("canonical", canonical_ufd_rows),
+        ("packet review copy", aid_ufd_rows),
+        ("supporting evidence copy", supporting_ufd_rows),
+    ):
+        for item_id, item_text in rows.items():
+            remaining = _markdown_field_value(item_text, "Remaining USER Decision")
+            if "bp3 acceptance" in remaining.casefold():
+                failures.append(
+                    f"FAM-003 Option G BP3: {source_label} {item_id} uses BP3 "
+                    "acceptance where the current decision requires BP3 approval"
+                )
     if len(ufd_item_matches) < 18:
         failures.append(
             "FAM-003 Option G BP3: active UFD ledger must contain at least "

@@ -7,6 +7,7 @@ import base64
 import hashlib
 import inspect
 import json
+import re
 import subprocess
 import tempfile
 import zipfile
@@ -1258,6 +1259,59 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     )
     fixture_head = "0123456789abcdef0123456789abcdef01234567"
     fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
+    exact_digest = (
+        "\n## Next Legal Phase Digest\n\n"
+        "Current Phase: `BP3 Workstream Entry / Orchestration Validation USER review pending`\n"
+        "Next Legal Phase: `Independent USER BP3 review`\n"
+        "Why This Phase Is Next: `The repaired BP3 packet requires USER adjudication.`\n"
+        "Approval Required: `Yes - BP3 approval only`\n"
+        f"Exact USER Approval Text: {bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
+        "Allowed Scope: `Independent review and BP3 disposition only`\n"
+        "Explicit Exclusions: `Workstream implementation, H1, LV, UTS, PR, merge, release`\n"
+        "Validation Required: `Packet and source-truth validation must remain green`\n"
+        "Stop Conditions: `Stop on revision, rejection, waiver, stale authority, or proof drift`\n"
+        "USER Plan Review Gate: `USER may approve, revise, waive, or reject the BP3 plan`\n"
+        "USER Inspection Files: `C:\\Nexus USER\\FAM-003 and its timestamped ZIP`\n"
+        "Review Required Because: `BP3 remains unapproved and controls Workstream routing`\n"
+        "Implementation Blocker: `Workstream implementation remains unapproved pending a later separate gate`\n"
+        "Review Waiver Reason: `Not waived`\n"
+    )
+    accepted_bp1_text = "# Accepted BP1 owner\n## USER Acceptance Receipt\nUSER accepted Option A.\n"
+    accepted_bp1_hash = hashlib.sha256(accepted_bp1_text.encode("utf-8")).hexdigest().upper()
+    project_vision_text = "# Project Vision\n"
+    family_vision_text = "# FAM-003 Family Vision\n"
+    ffv_text = "# F3-FF01\n"
+    accepted_bp2_text = "# Accepted BP2 owner\n"
+    accepted_bp2_receipt_text = "# Accepted BP2 receipt\nReceipt Status: `USER_ACCEPTED`\n"
+    vision_section = (
+        "\n## Branch Vision Contract Snapshot\n\n"
+        "Vision Contract Required: `Yes`\n"
+        "Vision Contract Requirement Reason: `Runtime and USER-facing branch`\n"
+        "Branch Vision Snapshot Status: `Accepted`\n"
+        "Open Vision Questions: `None`\n"
+        "USER Vision Green: `Yes`\n"
+        "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`\n"
+        "Seam Map: `F3-OPTG-D01; OPTG-WS01 through OPTG-WS07; OPTG-ALLOW-01 through OPTG-ALLOW-08`\n"
+        "Stop Conditions: `Stop on owner or scope drift`\n"
+        "Design Assumption Ledger: `Accepted by USER`\n"
+        "Vision Question Queue: `None`\n"
+        "Question Severity Policy: `Level 1 non-blocking; Level 2 seam-blocking; Level 3 workstream-breaking`\n"
+        "Vision-to-Implementation Traceability: `vision -> branch -> seam -> file -> validator -> proof`\n"
+        "Branch Plan Revision Packet: `Required with USER decision for changes`\n"
+        "Project Vision Owner: `Docs/nexus_vision.md`\n"
+        f"Project Vision SHA256: `{hashlib.sha256(project_vision_text.encode('utf-8')).hexdigest().upper()}`\n"
+        "FAM-003 Family Vision Owner: `Docs/family_visions/FAM-003_interaction_and_actions.md`\n"
+        f"FAM-003 Family Vision SHA256: `{hashlib.sha256(family_vision_text.encode('utf-8')).hexdigest().upper()}`\n"
+        "F3-FF01 Owner: `Docs/family_feature_visions/F3-FF01.md`\n"
+        f"F3-FF01 SHA256: `{hashlib.sha256(ffv_text.encode('utf-8')).hexdigest().upper()}`\n"
+        "Accepted BP1 Owner: `bp1_branch_vision_revision_20260715.md`\n"
+        f"Accepted BP1 SHA256: `{accepted_bp1_hash}`\n"
+        "Accepted BP1 Acceptance Receipt: `Embedded USER Acceptance Receipt in accepted BP1 owner`\n"
+        "Accepted BP2 Owner: `decision2_option_g_bp2_gate_repair_20260724.md`\n"
+        f"Accepted BP2 SHA256: `{hashlib.sha256(accepted_bp2_text.encode('utf-8')).hexdigest().upper()}`\n"
+        "Accepted BP2 Acceptance Receipt: `decision2_option_g_bp2_acceptance_20260724.md`\n"
+        f"Accepted BP2 Acceptance Receipt SHA256: `{hashlib.sha256(accepted_bp2_receipt_text.encode('utf-8')).hexdigest().upper()}`\n"
+    )
     primary = (
         "# FAM-003 Option G BP3\n"
         "\n## Current Packet Metadata\n\n"
@@ -1304,6 +1358,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "\n## Future decision only - not requested, granted, or actionable at the "
         "current BP3 gate\n\n"
         f"{bundle.FAM003_OPTION_G_FUTURE_WORKSTREAM_DECISION}\n"
+        f"{exact_digest}"
     )
     active_header = (
         "External State Schema: `external-state-v1`\n"
@@ -1489,6 +1544,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
         "Transition Status: "
         "`OPTION_G_BP3_FALSE_GREEN_PREVENTION_REPAIRED_READY_FOR_USER_REVIEW`\n\n"
+        + vision_section
         + "\n".join(ufd_rows)
         + f"\n{element_section}\n"
         + "Historical Receipt Boundary: `Historical content follows.`\n"
@@ -1916,6 +1972,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Workstream Implementation: `UNAPPROVED`\n\n"
             f"{bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION}\n"
             f"{bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT}\n"
+            f"{exact_digest}"
         ),
         "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": primary,
         "Review Aids/USER_DECISIONS.md": (
@@ -1979,6 +2036,26 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Source Truth Context/Active External Snapshot/"
             "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
         ): supporting_ufd_record,
+        "Source Truth Context/Repo Owners/nexus_vision.md": project_vision_text,
+        "Source Truth Context/Repo Owners/FAM-003_interaction_and_actions.md": family_vision_text,
+        "Source Truth Context/Repo Owners/F3-FF01.md": ffv_text,
+        "Source Truth Context/Active External Snapshot/bp1_branch_vision_revision_20260715.md": accepted_bp1_text,
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp2_gate_repair_20260724.md": accepted_bp2_text,
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp2_acceptance_20260724.md": accepted_bp2_receipt_text,
+        "Source Truth Context/Proof Artifacts/Validation/FINAL_UNTRACKED_INVENTORY.json": json.dumps(
+            {
+                "schema": "fam003-untracked-inventory-cutoff-v2",
+                "inventoryKind": "PRE_GENERATION_CUTOFF",
+                "cutoffUtc": "2026-07-26T00:00:00Z",
+                "sourceHead": fixture_head,
+                "externalStateVersion": 24,
+                "itemCount": 1,
+                "foreignOrUnknownCount": 0,
+                "rows": [{"path": "fixture", "foreignOrUnknown": "NO"}],
+                "postCutoffArtifactGroups": ["packet candidate", "validation logs"],
+                "finalCompletionReceipt": r"C:\Nexus Governance State\audit_log\fixture-final-inventory.json",
+            }
+        ),
     }
     valid.update(provenance_files)
     valid_failures = bundle._fam003_option_g_bp3_orchestration_failures(
@@ -1990,6 +2067,252 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Valid FAM-003 Option G BP3 orchestration fixture failed:\n"
             + "\n".join(valid_failures)
         )
+
+    def _assert_option_g_failure(
+        case_id: str,
+        mutated: dict[str, str],
+        expected: str,
+    ) -> None:
+        failures = bundle._fam003_option_g_bp3_orchestration_failures(
+            mutated,
+            status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    digest_start = valid["START_HERE.md"]
+    digest_cases = (
+        (
+            "OPTG-BP3-DIGEST-FG-01",
+            digest_start.replace(exact_digest, "", 1),
+            "must contain exactly one ## Next Legal Phase Digest",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-02",
+            digest_start.replace(
+                "## Next Legal Phase Digest", "## Next Safe Move", 1
+            ),
+            "must contain exactly one ## Next Legal Phase Digest",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-03",
+            digest_start + exact_digest,
+            "must contain exactly one ## Next Legal Phase Digest",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-04",
+            digest_start.replace(
+                "Allowed Scope: `Independent review and BP3 disposition only`",
+                "Allowed Scope: `Workstream implementation`",
+                1,
+            ),
+            "Allowed Scope is inconsistent",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-05",
+            digest_start.replace(
+                "Explicit Exclusions: `Workstream implementation, H1, LV, UTS, PR, merge, release`",
+                "Explicit Exclusions: `H1, LV, UTS, PR, merge, release`",
+                1,
+            ),
+            "does not keep Workstream implementation blocked",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-06",
+            digest_start.replace(
+                "Next Legal Phase: `Independent USER BP3 review`",
+                "Next Legal Phase: `Workstream implementation`",
+                1,
+            ),
+            "does not preserve the pending BP3 USER gate",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-07",
+            digest_start.replace(
+                "Implementation Blocker: `Workstream implementation remains unapproved pending a later separate gate`",
+                "Implementation Blocker: `None`",
+                1,
+            ),
+            "does not keep Workstream implementation blocked",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-08",
+            digest_start.replace(
+                "Review Waiver Reason: `Not waived`",
+                "Review Waiver Reason: `Waived by validator`",
+                1,
+            ),
+            "Review Waiver Reason must be Not waived",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-09",
+            digest_start.replace(
+                "Approval Required: `Yes - BP3 approval only`",
+                "Approval Required: `No`",
+                1,
+            ),
+            "Approval Required must identify BP3 approval only",
+        ),
+        (
+            "OPTG-BP3-DIGEST-FG-10",
+            digest_start.replace(
+                "Review Required Because: `BP3 remains unapproved and controls Workstream routing`",
+                "Review Required Because: `Packet is green`",
+                1,
+            ),
+            "does not explain the unapproved BP3 USER gate",
+        ),
+    )
+    for case_id, mutated_start, expected in digest_cases:
+        mutated = dict(valid)
+        mutated["START_HERE.md"] = mutated_start
+        _assert_option_g_failure(case_id, mutated, expected)
+
+    for index, field in enumerate(bundle.FAM003_OPTION_G_NEXT_PHASE_FIELDS, start=11):
+        mutated = dict(valid)
+        mutated["START_HERE.md"] = re.sub(
+            rf"(?m)^{re.escape(field)}.*$",
+            "",
+            digest_start,
+            count=1,
+        )
+        _assert_option_g_failure(
+            f"OPTG-BP3-DIGEST-FG-{index:02d}",
+            mutated,
+            f"exactly one nonblank {field} field",
+        )
+
+    mutated = dict(valid)
+    mutated["START_HERE.md"] = digest_start.replace(
+        exact_digest,
+        exact_digest.replace(
+            bundle.FAM003_OPTION_G_BP3_CURRENT_DECISION,
+            "I approve a different BP3 package.",
+            1,
+        ),
+        1,
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-DIGEST-FG-25",
+        mutated,
+        "exact approval text differs",
+    )
+
+    canonical_plan_path = "Source Truth Context/current_external_branch_plan.md"
+    canonical_plan = valid[canonical_plan_path]
+    vision_cases = (
+        (
+            "OPTG-BP3-VISION-FG-01",
+            canonical_plan.replace(vision_section, "", 1),
+            "lacks the required Branch Vision Contract Snapshot",
+        ),
+        (
+            "OPTG-BP3-VISION-FG-02",
+            canonical_plan.replace(vision_section, "", 1).replace(
+                "Historical Receipt Boundary: `Historical content follows.`",
+                "Historical Receipt Boundary: `Historical content follows.`"
+                + vision_section,
+                1,
+            ),
+            "lacks the required Branch Vision Contract Snapshot",
+        ),
+        (
+            "OPTG-BP3-VISION-FG-03",
+            canonical_plan.replace(
+                "Open Vision Questions: `None`",
+                "Open Vision Questions: `Concealed`",
+                1,
+            ),
+            "conceals or leaves open vision questions",
+        ),
+        (
+            "OPTG-BP3-VISION-FG-04",
+            canonical_plan.replace(
+                "USER Vision Green: `Yes`", "USER Vision Green: `No`", 1
+            ),
+            "USER Vision Green is inconsistent",
+        ),
+        (
+            "OPTG-BP3-VISION-FG-05",
+            canonical_plan.replace(
+                "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`",
+                "Implementation Scope: `All Workstream implementation`",
+                1,
+            ),
+            "implementation scope is wider",
+        ),
+        (
+            "OPTG-BP3-VISION-FG-06",
+            canonical_plan.replace("OPTG-WS07", "OPTG-WS06", 1),
+            "seam map is inconsistent",
+        ),
+        (
+            "OPTG-BP3-VISION-FG-07",
+            canonical_plan.replace(accepted_bp1_hash, "0" * 64, 1),
+            "accepted BP1 source/hash proof",
+        ),
+    )
+    for case_id, mutated_plan, expected in vision_cases:
+        mutated = dict(valid)
+        mutated[canonical_plan_path] = mutated_plan
+        _assert_option_g_failure(case_id, mutated, expected)
+
+    for index, basename in enumerate(
+        (
+            "nexus_vision.md",
+            "FAM-003_interaction_and_actions.md",
+            "F3-FF01.md",
+            "bp1_branch_vision_revision_20260715.md",
+            "decision2_option_g_bp2_gate_repair_20260724.md",
+            "decision2_option_g_bp2_acceptance_20260724.md",
+        ),
+        start=8,
+    ):
+        mutated = {
+            path: text
+            for path, text in valid.items()
+            if Path(path).name != basename
+        }
+        _assert_option_g_failure(
+            f"OPTG-BP3-VISION-FG-{index:02d}",
+            mutated,
+            f"source chain omits {basename}",
+        )
+
+    inventory_path = (
+        "Source Truth Context/Proof Artifacts/Validation/FINAL_UNTRACKED_INVENTORY.json"
+    )
+    inventory_cases = []
+    for case_id, update, expected in (
+        ("OPTG-BP3-INVENTORY-FG-01", {"itemCount": 2}, "itemCount differs"),
+        (
+            "OPTG-BP3-INVENTORY-FG-02",
+            {"inventoryKind": "FINAL"},
+            "must be labeled PRE_GENERATION_CUTOFF",
+        ),
+        (
+            "OPTG-BP3-INVENTORY-FG-03",
+            {"postCutoffArtifactGroups": []},
+            "omits classified post-cutoff artifact groups",
+        ),
+        (
+            "OPTG-BP3-INVENTORY-FG-04",
+            {"finalCompletionReceipt": ""},
+            "lacks the routed final completion receipt path",
+        ),
+        (
+            "OPTG-BP3-INVENTORY-FG-05",
+            {"foreignOrUnknownCount": 1},
+            "foreign/unknown count is not independently derived",
+        ),
+    ):
+        inventory = json.loads(valid[inventory_path])
+        inventory.update(update)
+        inventory_cases.append((case_id, json.dumps(inventory), expected))
+    for case_id, inventory_text, expected in inventory_cases:
+        mutated = dict(valid)
+        mutated[inventory_path] = inventory_text
+        _assert_option_g_failure(case_id, mutated, expected)
 
     def _assert_active_metadata_failure(
         case_id: str,
@@ -2075,6 +2398,26 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         ),
         "active Replacement ZIP must appear exactly once",
     )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-08",
+        "START_HERE.md",
+        start_text.replace(
+            "External State Version: `24`",
+            "External State Version: `24`\nOrigin/Main: `" + "a" * 40 + "`",
+            1,
+        ),
+        "does not permit Origin/Main:",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-09",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        primary.replace(
+            f"Replacement ZIP: `{fixture_packet}`",
+            f"Replacement ZIP: `{fixture_packet}`\nPacket SHA256: `{'a' * 64}`",
+            1,
+        ),
+        "does not permit Packet SHA256:",
+    )
 
     technical_positive_failures = bundle._generic_user_facing_technical_metadata_failures(
         valid
@@ -2117,8 +2460,24 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         for failure in leaked_failures
     ):
         raise AssertionError(
-            "OPTG-BP3-META-FG-08 did not reject technical source-revision "
+            "OPTG-BP3-META-FG-10 did not reject technical source-revision "
             f"metadata outside the governed current metadata block: {leaked_failures}"
+        )
+    non_fam_packet = {
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": (
+            "# FAM-007 BP3 Option G\n"
+            "Branch: `feature/fam-007-example`\n"
+            "## Current Packet Metadata\n"
+            "Source Repo HEAD: `ffffffffffffffffffffffffffffffffffffffff`\n"
+        )
+    }
+    non_fam_failures = bundle._generic_user_facing_technical_metadata_failures(
+        non_fam_packet
+    )
+    if not any("head-token" in failure for failure in non_fam_failures):
+        raise AssertionError(
+            "OPTG-BP3-META-FG-11 applied the FAM-003 metadata exception outside "
+            f"its exact branch boundary: {non_fam_failures}"
         )
 
     active_state_failures = bundle._bp3_active_state_consistency_failures(
@@ -2612,6 +2971,30 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 "Pointer Locations: `Active branch plan compact pointer`",
                 "Pointer Locations: `this annex`",
             ),
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-39",
+            "Source Truth Context/current_external_branch_plan.md",
+            "Remaining USER Decision: `BP3 approval only`",
+            "Remaining USER Decision: `BP3 acceptance only`",
+            "uses BP3 acceptance",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-40",
+            "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md",
+            "Remaining USER Decision: `BP3 approval only`",
+            "Remaining USER Decision: `BP3 acceptance only`",
+            "differs from the canonical",
+        ),
+        (
+            "OPTG-BP3-UFD-FG-41",
+            (
+                "Source Truth Context/Active External Snapshot/"
+                "decision2_option_g_bp3_proof_carrydown_repair_20260724.md"
+            ),
+            "Remaining USER Decision: `BP3 approval only`",
+            "Remaining USER Decision: `BP3 acceptance only`",
             "differs from the canonical",
         ),
     )
@@ -4238,8 +4621,9 @@ def main() -> int:
     )
     print(
         "False-green fixture validation: PASS "
-        "(Option G BP3: 22 proof-carrydown + 34 decision-surface + "
-        "8 active-metadata + 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
+        "(Option G BP3: 25 formal-digest + 13 Branch Vision + 5 inventory + "
+        "22 proof-carrydown + 34 decision-surface + 11 active-metadata + "
+        "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases)"
     )
