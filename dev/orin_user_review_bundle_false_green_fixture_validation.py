@@ -5213,6 +5213,51 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
     )
     contract = "\n".join(required_markers) + "\n"
     contract = contract.replace(
+        "Implementation Delta Class:\n",
+        "Implementation Delta Class: `backend/runtime, developer-tooling, runtime/user-facing`\n",
+    )
+    future_proof = """## Future-Proof Implementation Review
+
+Current Feature: `HUD Dashboard and Log Viewer Studio lifecycle plus visible resize/cursor preservation; Recording Studio is protected regression-only.`
+Foreseeable Same-Class Additions: `Additional owned desktop-window lifecycle consumers may use the same derivation and proof hooks after separate admission.`
+Contract / Reference / Template / Primitive Basis: `Accepted BP1/BP2/BP3 Option G contract, shared desktop core, shared native Studio base, and current lifecycle validators.`
+Layout Derivation Rule: `Preserve existing accepted window geometry and cursor interaction; derive no new visual layout in this package.`
+State / Runtime Derivation Rule: `Visible, hidden, minimized, close, reopen, relaunch, retry, and shutdown behavior derive from owned lifecycle state rather than one-off timers.`
+Magic Values Avoided: `No new screenshot-tuned geometry or timer constants; any stable threshold must be named, owner-backed, and proven.`
+Extension Boundaries: `Only F3-OPTG-D01, OPTG-WS01 through OPTG-WS07, and attributed OPTG-ALLOW-01 through OPTG-ALLOW-08 are admitted.`
+Future-Gated Items: `Recording Studio behavior, renderer backend / generic WebEngine lifetime, renderer policy, AI lifetime, ORIN Core Decision 3, and permanent Option D.`
+Template / Shared Primitive / Reference Gap: `None`
+Source-Truth Gap: `None`
+Implementation Gap: `None`
+Proof Expectations: `Per-interface lifecycle, visible cursor/resize, failure/retry/recovery, attribution, Recording Studio invariants, raw evidence, and rollback proof.`
+Disposition: `Future-Proof Complete`
+"""
+    matrix = """## Architecture / Experience / Policy Impact Matrix
+
+| Owner Class | Named Owner | Touches? | Impact Type | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed |
+| --- | --- | --- | --- | --- | --- | --- |
+| `Architecture Layer` | `shared desktop core` | `Yes` | `Change Existing` | `Attributed lifecycle regions only` | `Generic renderer backend remains deferred` | `Exact diff and lifecycle validation` |
+| `Architecture Layer` | `shared native Studio base` | `Yes` | `Consume Existing` | `Preserve shared base behavior` | `Reusable primitive promotion deferred` | `Subclass and regression proof` |
+| `Experience Layer` | `HUD Dashboard` | `Yes` | `Consume Existing` | `Primary visible resize/cursor surface` | `New HUD semantics deferred to FAM-006` | `Normal-launch visible and lifecycle proof` |
+| `Experience Layer` | `Log Viewer Studio` | `Yes` | `Consume Existing` | `Bundled secondary resize-hover surface` | `New viewer semantics deferred to FAM-006` | `Visible hover, lifecycle, and recovery proof` |
+| `Experience Layer` | `Recording Studio` | `No` | `No Impact` | `Protected regression-only surface` | `All Recording Studio behavior changes excluded` | `Geometry, controls, visuals, and lifecycle invariants` |
+| `Cross-Family Policy Owner` | `FAM-006 boundary` | `Yes` | `Consume Existing` | `Dependency-bounded lifecycle support only` | `Product semantics and ownership transfer excluded` | `Owner and attribution stop checks` |
+| `Cross-Family Policy Owner` | `external-state ownership` | `Yes` | `Consume Existing` | `FAM-003 projections and receipts only` | `Foreign projections excluded` | `Locks, snapshot, currentness, rollback` |
+| `Cross-Family Policy Owner` | `source-truth / planning ownership` | `Yes` | `Consume Existing` | `Accepted BP1/BP2/BP3 carrydown` | `New owner or policy excluded` | `Carrier equality and decision-surface proof` |
+| `Runtime Subsystem` | `runtime lifecycle` | `Yes` | `Change Existing` | `Attributed hidden/visible polling lifecycle` | `AI lifetime and generic WebEngine lifetime deferred` | `State transition and retention validation` |
+| `Experience Layer` | `visible window / cursor behavior` | `Yes` | `Consume Existing` | `Preserve current interaction meaning` | `New visual design excluded` | `Ordered visible proof and invariance` |
+| `Package/slice/seam` | `validators / proof architecture` | `Yes` | `Extend Existing` | `Fail-closed Option G and packet checks` | `Cross-FAM promotion deferred` | `Positive and atomic negative fixtures` |
+| `Package/slice/seam` | `packet / receipt architecture` | `Yes` | `Extend Existing` | `Current decision packet and FAM-003 receipts` | `Implementation and downstream gates excluded` | `Manifest, parity, final-byte audit` |
+"""
+    contract = contract.replace(
+        "## Future-Proof Implementation Review\n",
+        future_proof,
+    )
+    contract = contract.replace(
+        "## Architecture / Experience / Policy Impact Matrix\n",
+        matrix + "\n## Interface Release Boundary\n",
+    )
+    contract = contract.replace(
         "Interface Bundle User Approval:\n",
         "Interface Bundle User Approval: `Granted`\n",
     )
@@ -5228,7 +5273,7 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md": contract,
         "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md": contract,
         "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md": "18 canonical UFD rows\n",
-        "Source Truth Context/Active External Snapshot/branch_plan.md": "State Version: `48`\n",
+        "Source Truth Context/Active External Snapshot/branch_plan.md": "State Version: `48`\n" + contract,
         "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md": "State Version: `48`\n",
         "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md": "State Version: `48`\n",
     }
@@ -5243,13 +5288,13 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         mutated = dict(valid)
         mutated["Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md"] = mutated[
             "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md"
-        ].replace(marker, "REMOVED", 1)
+        ].replace(marker, "REMOVED")
         mutated["Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md"] = mutated[
             "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md"
-        ].replace(marker, "REMOVED", 1)
+        ].replace(marker, "REMOVED")
         mutated["Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"] = mutated[
             "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"
-        ].replace(marker, "REMOVED", 1)
+        ].replace(marker, "REMOVED")
         failures = bundle._fam003_option_g_workstream_approval_closure_failures(mutated)
         if not any(marker in failure for failure in failures):
             raise AssertionError(
@@ -5295,6 +5340,7 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "Exact Consolidated USER Decision:",
         "I grant FAM-003 Interface Bundle User Approval",
         "I approve bounded FAM-003 Decision 2 Option G Workstream implementation",
+        "Open USER Questions: `Interface Bundle User Approval; Bounded Workstream Implementation Approval`",
     )
     consolidated_direct = "\n".join(consolidated_markers) + "\n"
     consolidated_contract = contract.replace(
@@ -5302,6 +5348,9 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "Interface Bundle User Approval: `Pending Consolidated USER Decision`",
     )
     consolidated = dict(valid)
+    consolidated["Source Truth Context/Active External Snapshot/branch_plan.md"] = (
+        "State Version: `48`\n" + consolidated_contract
+    )
     consolidated["USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"] = (
         "# FAM-003 Option G Consolidated USER Decision\n"
         "Packet Reviewability State: `Reviewable`\n"
@@ -5368,7 +5417,12 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "schema": "fam003-option-g-consolidated-defect-ledger-v1",
         "openCount": 0,
         "blockingCount": 0,
-        "rows": [{"id": "CD-001", "status": "CLOSED_WITH_PROOF"}],
+        "rows": [
+            {"id": "CD-001", "status": "CLOSED_WITH_PROOF"},
+            {"id": "CDP-MC-001", "status": "CLOSED_WITH_PROOF"},
+            {"id": "CDP-MC-002", "status": "CLOSED_WITH_PROOF"},
+            {"id": "CDP-MC-003", "status": "CLOSED_WITH_PROOF"},
+        ],
     }
     json_aids = {
         "Review Aids/WORKSTREAM_APPROVAL_CENSUS.json": census,
@@ -5391,6 +5445,9 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "USER_DECISIONS.md",
     ):
         consolidated[f"Review Aids/{file_name}"] = f"# {file_name}\n{consolidated_direct}"
+    consolidated["Review Aids/CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md"] = (
+        consolidated_contract
+    )
 
     failures = bundle._fam003_option_g_workstream_approval_closure_failures(consolidated)
     if failures:
@@ -5547,6 +5604,237 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "consolidated-premature-workstream-approval",
         premature_workstream,
         "falsely records Workstream implementation as approved",
+    )
+
+    contract_carrier_paths = (
+        "Source Truth Context/Active External Snapshot/branch_plan.md",
+        "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md",
+        "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md",
+        "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
+        "Review Aids/CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md",
+    )
+
+    def mutate_contracts(old: str, new: str) -> dict[str, str]:
+        mutated = dict(consolidated)
+        for path in contract_carrier_paths:
+            if old not in mutated[path]:
+                raise AssertionError(f"mandatory-contract fixture source missing {old!r}: {path}")
+            mutated[path] = mutated[path].replace(old, new)
+        return mutated
+
+    for case_id, value, expected in (
+        (
+            "mandatory-delta-semicolon",
+            "backend/runtime; developer-tooling; runtime/user-facing",
+            "comma-separated values",
+        ),
+        (
+            "mandatory-delta-unknown",
+            "backend/runtime, developer-tooling, runtime/user-facing, unknown",
+            "unknown or noncanonical",
+        ),
+        ("mandatory-delta-missing", "", "must appear exactly once"),
+        (
+            "mandatory-delta-duplicate",
+            "backend/runtime, developer-tooling, runtime/user-facing, runtime/user-facing",
+            "duplicate class",
+        ),
+        (
+            "mandatory-delta-alias",
+            "backend, developer-tooling, runtime/user-facing",
+            "unknown or noncanonical",
+        ),
+    ):
+        expect_consolidated_failure(
+            case_id,
+            mutate_contracts(
+                "Implementation Delta Class: `backend/runtime, developer-tooling, runtime/user-facing`",
+                f"Implementation Delta Class: `{value}`",
+            ),
+            expected,
+        )
+
+    future_fields = (
+        "Current Feature",
+        "Foreseeable Same-Class Additions",
+        "Contract / Reference / Template / Primitive Basis",
+        "Layout Derivation Rule",
+        "State / Runtime Derivation Rule",
+        "Magic Values Avoided",
+        "Extension Boundaries",
+        "Future-Gated Items",
+        "Template / Shared Primitive / Reference Gap",
+        "Source-Truth Gap",
+        "Implementation Gap",
+        "Proof Expectations",
+        "Disposition",
+    )
+    for field in future_fields:
+        expect_consolidated_failure(
+            f"mandatory-future-missing-{field.casefold().replace(' ', '-').replace('/', '-')}",
+            mutate_contracts(f"{field}: `", f"REMOVED {field}: `"),
+            field,
+        )
+    expect_consolidated_failure(
+        "mandatory-future-empty-field",
+        mutate_contracts(
+            "Source-Truth Gap: `None`",
+            "Source-Truth Gap: ``",
+        ),
+        "must be nonempty",
+    )
+    expect_consolidated_failure(
+        "mandatory-future-noncanonical-alias",
+        mutate_contracts(
+            "Foreseeable Same-Class Additions:",
+            "Same-Class Future Additions:",
+        ),
+        "noncanonical field alias",
+    )
+    expect_consolidated_failure(
+        "mandatory-future-invalid-disposition",
+        mutate_contracts(
+            "Disposition: `Future-Proof Complete`",
+            "Disposition: `Bounded now`",
+        ),
+        "disposition is not permitted",
+    )
+    expect_consolidated_failure(
+        "mandatory-future-source-gap-false-green",
+        mutate_contracts(
+            "Source-Truth Gap: `None`",
+            "Source-Truth Gap: `Unresolved owner`",
+        ),
+        "unresolved Future-Proof gap",
+    )
+    expect_consolidated_failure(
+        "mandatory-future-implementation-gap-false-green",
+        mutate_contracts(
+            "Implementation Gap: `None`",
+            "Implementation Gap: `Unresolved lifecycle path`",
+        ),
+        "unresolved Future-Proof gap",
+    )
+    expect_consolidated_failure(
+        "mandatory-future-silently-admitted-renderer",
+        mutate_contracts(
+            "renderer backend / generic WebEngine lifetime",
+            "generic WebEngine lifetime",
+        ),
+        "renderer backend",
+    )
+    expect_consolidated_failure(
+        "mandatory-future-recording-omitted",
+        mutate_contracts(
+            "Recording Studio behavior, ",
+            "",
+        ),
+        "recording studio",
+    )
+
+    impact_header = (
+        "| Owner Class | Named Owner | Touches? | Impact Type | Current Branch Scope | "
+        "Deferred / Future Scope | Proof / Validation Needed |"
+    )
+    for case_id, header, expected in (
+        (
+            "mandatory-matrix-missing-touches",
+            "| Owner Class | Named Owner | Impact Type | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed |",
+            "schema or column order",
+        ),
+        (
+            "mandatory-matrix-missing-impact",
+            "| Owner Class | Named Owner | Touches? | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed |",
+            "schema or column order",
+        ),
+        (
+            "mandatory-matrix-wrong-order",
+            "| Named Owner | Owner Class | Touches? | Impact Type | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed |",
+            "schema or column order",
+        ),
+        (
+            "mandatory-matrix-extra-column",
+            "| Owner Class | Named Owner | Touches? | Impact Type | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed | Extra |",
+            "schema or column order",
+        ),
+    ):
+        expect_consolidated_failure(
+            case_id,
+            mutate_contracts(impact_header, header),
+            expected,
+        )
+    expect_consolidated_failure(
+        "mandatory-matrix-unnamed-owner",
+        mutate_contracts("`shared desktop core`", "`TBD`"),
+        "unnamed owner",
+    )
+    expect_consolidated_failure(
+        "mandatory-matrix-affected-marked-untouched",
+        mutate_contracts(
+            "| `Experience Layer` | `HUD Dashboard` | `Yes` | `Consume Existing` |",
+            "| `Experience Layer` | `HUD Dashboard` | `No` | `No Impact` |",
+        ),
+        "incorrectly marked untouched",
+    )
+    expect_consolidated_failure(
+        "mandatory-matrix-current-scope-too-wide",
+        mutate_contracts("`Attributed lifecycle regions only`", "`all desktop runtime`"),
+        "wider than admitted authority",
+    )
+    expect_consolidated_failure(
+        "mandatory-matrix-deferred-presented-current",
+        mutate_contracts("`Preserve shared base behavior`", "`renderer policy`"),
+        "wider than admitted authority",
+    )
+    expect_consolidated_failure(
+        "mandatory-matrix-missing-proof",
+        mutate_contracts(
+            "| `Exact diff and lifecycle validation` |",
+            "| `` |",
+        ),
+        "empty cell",
+    )
+    recording_row = (
+        "| `Experience Layer` | `Recording Studio` | `No` | `No Impact` | "
+        "`Protected regression-only surface` | `All Recording Studio behavior changes excluded` | "
+        "`Geometry, controls, visuals, and lifecycle invariants` |\n"
+    )
+    expect_consolidated_failure(
+        "mandatory-matrix-recording-row-absent",
+        mutate_contracts(recording_row, ""),
+        "recording studio",
+    )
+    one_copy_drift = dict(consolidated)
+    one_copy_drift["Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"] = (
+        one_copy_drift["Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md"].replace(
+            "Disposition: `Future-Proof Complete`",
+            "Disposition: `Future-Gated Dependency`",
+        )
+    )
+    expect_consolidated_failure(
+        "mandatory-current-carrier-copy-drift",
+        one_copy_drift,
+        "differs from the active external branch plan",
+    )
+    historical_only = dict(consolidated)
+    historical_only["Source Truth Context/Active External Snapshot/branch_plan.md"] = (
+        "State Version: `48`\n## Historical Receipts\n"
+        + consolidated_contract
+    )
+    expect_consolidated_failure(
+        "mandatory-historical-contract-treated-current",
+        historical_only,
+        "Implementation Delta Class must appear exactly once in the current contract",
+    )
+    expect_consolidated_failure(
+        "mandatory-defect-ledger-ids-missing",
+        json_mutation(
+            "CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json",
+            lambda p: p.__setitem__(
+                "rows", [row for row in p["rows"] if not row["id"].startswith("CDP-MC-")]
+            ),
+        ),
+        "omits the three mandatory contract defects",
     )
 
 
@@ -6103,6 +6391,7 @@ def main() -> int:
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
         "1 consolidated-decision positive + 42 consolidated-decision negatives + "
+        "38 consolidated mandatory-contract negatives + "
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
         "15 packet-lineage + 10 final-closure + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "

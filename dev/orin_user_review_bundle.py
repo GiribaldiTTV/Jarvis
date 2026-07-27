@@ -1805,6 +1805,362 @@ def _is_fam003_option_g_consolidated_decision_packet(
     )
 
 
+_FAM003_OPTION_G_IMPLEMENTATION_DELTA_CLASSES = (
+    "backend/runtime",
+    "developer-tooling",
+    "runtime/user-facing",
+)
+_FAM003_OPTION_G_FUTURE_PROOF_FIELDS = (
+    "Current Feature",
+    "Foreseeable Same-Class Additions",
+    "Contract / Reference / Template / Primitive Basis",
+    "Layout Derivation Rule",
+    "State / Runtime Derivation Rule",
+    "Magic Values Avoided",
+    "Extension Boundaries",
+    "Future-Gated Items",
+    "Template / Shared Primitive / Reference Gap",
+    "Source-Truth Gap",
+    "Implementation Gap",
+    "Proof Expectations",
+    "Disposition",
+)
+_FAM003_OPTION_G_FUTURE_PROOF_DISPOSITIONS = {
+    "Future-Proof Complete",
+    "Future-Proof Partial",
+    "Implementation Gap",
+    "Template Gap",
+    "Shared Primitive Gap",
+    "Reference Gap",
+    "Source-Truth Gap",
+    "Future-Gated Dependency",
+    "Exception Needed",
+    "Issue Candidate",
+    "Reference Effectiveness Warning",
+    "Blocked Pending USER Decision",
+}
+_FAM003_OPTION_G_IMPACT_MATRIX_HEADER = (
+    "| Owner Class | Named Owner | Touches? | Impact Type | Current Branch Scope | "
+    "Deferred / Future Scope | Proof / Validation Needed |"
+)
+_FAM003_OPTION_G_IMPACT_OWNER_CLASSES = {
+    "Architecture Layer",
+    "Experience Layer",
+    "Cross-Family Policy Owner",
+    "Runtime Subsystem",
+    "Capability-Pack Domain",
+    "Family Vision",
+    "Package/slice/seam",
+    "No Impact",
+}
+_FAM003_OPTION_G_IMPACT_TYPES = {
+    "No Impact",
+    "Consume Existing",
+    "Extend Existing",
+    "Change Existing",
+    "New Candidate",
+    "USER Decision Required",
+}
+_FAM003_OPTION_G_CONTRACT_AIDS = (
+    "CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md",
+    "RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md",
+    "INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
+    "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md",
+)
+
+
+def _fam003_option_g_current_section(text: str, heading: str) -> str:
+    """Return one current markdown section, excluding later/historical copies."""
+
+    active = text.split("\n## Historical Receipts", 1)[0]
+    active = active.split("\nHistorical Receipt Boundary:", 1)[0]
+    pattern = re.compile(
+        rf"(?ms)^{re.escape(heading)}\s*$\n(.*?)(?=^##\s|\Z)"
+    )
+    matches = list(pattern.finditer(active))
+    if len(matches) != 1:
+        return ""
+    return f"{heading}\n{matches[0].group(1).strip()}".strip()
+
+
+def _fam003_option_g_contract_carriers(
+    packet_files: Mapping[str, str],
+) -> tuple[dict[str, str], list[str]]:
+    carriers: dict[str, str] = {}
+    failures: list[str] = []
+    branch_plan_matches = [
+        (path, text)
+        for path, text in packet_files.items()
+        if "Active External Snapshot" in path
+        and _packet_file_basename(path).casefold().endswith("branch_plan.md")
+        and "Historical Evidence" not in path
+    ]
+    if len(branch_plan_matches) != 1:
+        failures.append(
+            "FAM-003 consolidated packet must contain exactly one current active external branch_plan.md contract carrier"
+        )
+    else:
+        carriers["active external branch_plan.md"] = branch_plan_matches[0][1]
+    for basename in _FAM003_OPTION_G_CONTRACT_AIDS:
+        matches = [
+            (path, text)
+            for path, text in packet_files.items()
+            if path.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+            and _packet_file_basename(path).casefold() == basename.casefold()
+        ]
+        if len(matches) != 1:
+            failures.append(
+                f"FAM-003 consolidated packet must contain exactly one current contract carrier {basename}"
+            )
+        else:
+            carriers[basename] = matches[0][1]
+    return carriers, failures
+
+
+def _fam003_option_g_mandatory_contract_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Validate the three governed Option G contracts semantically."""
+
+    if not _is_fam003_option_g_consolidated_decision_packet(packet_files):
+        return []
+    carriers, failures = _fam003_option_g_contract_carriers(packet_files)
+    expected_delta = ", ".join(_FAM003_OPTION_G_IMPLEMENTATION_DELTA_CLASSES)
+    required_surface_tokens = (
+        "shared desktop core",
+        "shared native studio base",
+        "hud dashboard",
+        "log viewer studio",
+        "recording studio",
+        "fam-006 boundary",
+        "external-state ownership",
+        "source-truth / planning ownership",
+        "runtime lifecycle",
+        "visible window / cursor behavior",
+        "validators / proof architecture",
+        "packet / receipt architecture",
+    )
+    normalized_contracts: dict[str, tuple[str, str, str]] = {}
+
+    for carrier_name, text in carriers.items():
+        active = text.split("\n## Historical Receipts", 1)[0]
+        active = active.split("\nHistorical Receipt Boundary:", 1)[0]
+        delta_matches = re.findall(
+            r"(?m)^Implementation Delta Class:\s*`([^`]+)`\s*$", active
+        )
+        if len(delta_matches) != 1:
+            failures.append(
+                f"{carrier_name}: Implementation Delta Class must appear exactly once in the current contract"
+            )
+            delta_value = ""
+        else:
+            delta_value = delta_matches[0].strip()
+            if ";" in delta_value:
+                failures.append(
+                    f"{carrier_name}: Implementation Delta Class must use comma-separated values, not semicolons"
+                )
+            tokens = [token.strip() for token in delta_value.split(",")]
+            if any(token not in _FAM003_OPTION_G_IMPLEMENTATION_DELTA_CLASSES for token in tokens):
+                failures.append(
+                    f"{carrier_name}: Implementation Delta Class contains an unknown or noncanonical value"
+                )
+            if len(tokens) != len(set(tokens)):
+                failures.append(
+                    f"{carrier_name}: Implementation Delta Class contains a duplicate class"
+                )
+            if delta_value != expected_delta:
+                failures.append(
+                    f"{carrier_name}: Implementation Delta Class must equal {expected_delta!r}"
+                )
+
+        future = _fam003_option_g_current_section(
+            active, "## Future-Proof Implementation Review"
+        )
+        if not future:
+            failures.append(
+                f"{carrier_name}: current Future-Proof Implementation Review is missing or duplicated"
+            )
+        else:
+            if any(
+                re.search(rf"(?m)^{re.escape(alias)}:", future)
+                for alias in (
+                    "Same-Class Future Additions",
+                    "Reuse Boundary",
+                    "Future-Proof Disposition",
+                )
+            ):
+                failures.append(
+                    f"{carrier_name}: Future-Proof Implementation Review uses a noncanonical field alias"
+                )
+            future_values: dict[str, str] = {}
+            for field in _FAM003_OPTION_G_FUTURE_PROOF_FIELDS:
+                matches = re.findall(
+                    rf"(?m)^{re.escape(field)}:\s*`([^`]*)`\s*$", future
+                )
+                if len(matches) != 1:
+                    failures.append(
+                        f"{carrier_name}: Future-Proof field {field!r} must appear exactly once"
+                    )
+                    continue
+                value = matches[0].strip()
+                if not value:
+                    failures.append(
+                        f"{carrier_name}: Future-Proof field {field!r} must be nonempty"
+                    )
+                future_values[field] = value
+            disposition = future_values.get("Disposition", "")
+            if disposition not in _FAM003_OPTION_G_FUTURE_PROOF_DISPOSITIONS:
+                failures.append(
+                    f"{carrier_name}: Future-Proof disposition is not permitted"
+                )
+            unresolved = {
+                field: future_values.get(field, "")
+                for field in (
+                    "Template / Shared Primitive / Reference Gap",
+                    "Source-Truth Gap",
+                    "Implementation Gap",
+                )
+                if future_values.get(field, "").casefold()
+                not in {"none", "none in the admitted package"}
+            }
+            if unresolved and disposition == "Future-Proof Complete":
+                failures.append(
+                    f"{carrier_name}: unresolved Future-Proof gap cannot use Future-Proof Complete: {sorted(unresolved)}"
+                )
+            future_gated_lower = future_values.get("Future-Gated Items", "").casefold()
+            for required in (
+                "recording studio",
+                "renderer backend",
+                "renderer policy",
+                "orin core",
+                "ai lifetime",
+            ):
+                if required not in future_gated_lower:
+                    failures.append(
+                        f"{carrier_name}: Future-Gated Items omits protected or future-gated boundary {required!r}"
+                    )
+
+        matrix = _fam003_option_g_current_section(
+            active, "## Architecture / Experience / Policy Impact Matrix"
+        )
+        if not matrix:
+            failures.append(
+                f"{carrier_name}: current Architecture / Experience / Policy Impact Matrix is missing or duplicated"
+            )
+        else:
+            lines = [line.rstrip() for line in matrix.splitlines()]
+            headers = [line for line in lines if line.lstrip().startswith("| Owner")]
+            if headers != [_FAM003_OPTION_G_IMPACT_MATRIX_HEADER]:
+                failures.append(
+                    f"{carrier_name}: Architecture / Experience / Policy Impact Matrix schema or column order is invalid"
+                )
+            try:
+                header_index = lines.index(_FAM003_OPTION_G_IMPACT_MATRIX_HEADER)
+            except ValueError:
+                header_index = -1
+            rows: list[list[str]] = []
+            if header_index >= 0:
+                for line in lines[header_index + 2 :]:
+                    if not line.startswith("|"):
+                        if line.strip():
+                            failures.append(
+                                f"{carrier_name}: Architecture impact matrix contains non-table content in its current section"
+                            )
+                        continue
+                    cells = [cell.strip().strip("`") for cell in line.strip().strip("|").split("|")]
+                    if len(cells) != 7:
+                        failures.append(
+                            f"{carrier_name}: Architecture impact matrix row has {len(cells)} columns, expected 7"
+                        )
+                        continue
+                    if any(not cell for cell in cells):
+                        failures.append(
+                            f"{carrier_name}: Architecture impact matrix row contains an empty cell"
+                        )
+                    rows.append(cells)
+            for cells in rows:
+                owner_class, named_owner, touches, impact, current, deferred, proof = cells
+                if owner_class not in _FAM003_OPTION_G_IMPACT_OWNER_CLASSES:
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix owner class {owner_class!r} is not permitted"
+                    )
+                if not named_owner or named_owner.casefold() in {"owner", "tbd", "unknown"}:
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix contains an unnamed owner"
+                    )
+                if touches not in {"Yes", "No"}:
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix Touches? must be Yes or No"
+                    )
+                if impact not in _FAM003_OPTION_G_IMPACT_TYPES:
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix Impact Type {impact!r} is not permitted"
+                    )
+                if touches == "No" and impact != "No Impact":
+                    failures.append(
+                        f"{carrier_name}: untouched Architecture impact matrix row must use No Impact"
+                    )
+                if impact == "New Candidate":
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix introduces an unapproved new owner candidate"
+                    )
+                current_lower = current.casefold()
+                if any(
+                    forbidden in current_lower
+                    for forbidden in (
+                        "all desktop runtime",
+                        "all fam-006",
+                        "generic webengine lifetime",
+                        "renderer backend policy",
+                        "renderer policy",
+                        "recording studio behavior change",
+                    )
+                ):
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix current scope is wider than admitted authority"
+                    )
+                if not current or not deferred or not proof:
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix scope/proof cells must be nonempty"
+                    )
+            row_text = "\n".join(" | ".join(row).casefold() for row in rows)
+            for token in required_surface_tokens:
+                if token not in row_text:
+                    failures.append(
+                        f"{carrier_name}: Architecture impact matrix omits required surface {token!r}"
+                    )
+            for affected in (
+                "shared desktop core",
+                "shared native studio base",
+                "hud dashboard",
+                "log viewer studio",
+                "runtime lifecycle",
+                "visible window / cursor behavior",
+                "validators / proof architecture",
+                "packet / receipt architecture",
+            ):
+                matching = [row for row in rows if affected in " | ".join(row).casefold()]
+                if matching and all(row[2] == "No" for row in matching):
+                    failures.append(
+                        f"{carrier_name}: affected surface {affected!r} is incorrectly marked untouched"
+                    )
+
+        normalized_contracts[carrier_name] = (
+            f"Implementation Delta Class: `{delta_value}`",
+            future.strip(),
+            matrix.strip(),
+        )
+
+    reference = normalized_contracts.get("active external branch_plan.md")
+    if reference:
+        for carrier_name, contract in normalized_contracts.items():
+            if carrier_name != "active external branch_plan.md" and contract != reference:
+                failures.append(
+                    f"{carrier_name}: mandatory contract copy differs from the active external branch plan"
+                )
+    return failures
+
+
 def _fam003_option_g_workstream_approval_closure_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
@@ -1892,6 +2248,7 @@ def _fam003_option_g_workstream_approval_closure_failures(
             )
 
     if is_consolidated:
+        failures.extend(_fam003_option_g_mandatory_contract_failures(packet_files))
         consolidated_markers = (
             "Consolidated Decision Status: `Pending USER Review`",
             "Consolidated Decision Grants Before USER Response: `None`",
@@ -1907,6 +2264,7 @@ def _fam003_option_g_workstream_approval_closure_failures(
             "Exact Consolidated USER Decision:",
             "I grant FAM-003 Interface Bundle User Approval",
             "I approve bounded FAM-003 Decision 2 Option G Workstream implementation",
+            "Open USER Questions: `Interface Bundle User Approval; Bounded Workstream Implementation Approval`",
         )
         for marker in consolidated_markers:
             if marker not in direct_text:
@@ -1929,6 +2287,13 @@ def _fam003_option_g_workstream_approval_closure_failures(
                 "FAM-003 Option G consolidated decision packet falsely records "
                 "Workstream implementation as approved before the USER response"
             )
+        exclusions = direct_text.casefold()
+        for required_exclusion in ("renderer backend", "renderer policy"):
+            if required_exclusion not in exclusions:
+                failures.append(
+                    "FAM-003 Option G consolidated decision packet omits the approved "
+                    f"{required_exclusion} exclusion"
+                )
 
     required_aids = (
         "CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md",
@@ -2100,6 +2465,16 @@ def _fam003_option_g_workstream_approval_closure_failures(
                 for row in rows or []
             ):
                 failures.append("FAM-003 Option G consolidated defect ledger contains an invalid status")
+            defect_ids = {
+                str(row.get("id", ""))
+                for row in rows or []
+                if isinstance(row, dict)
+            }
+            required_mandatory_ids = {"CDP-MC-001", "CDP-MC-002", "CDP-MC-003"}
+            if not required_mandatory_ids.issubset(defect_ids):
+                failures.append(
+                    "FAM-003 Option G consolidated defect ledger omits the three mandatory contract defects"
+                )
 
     if "Packet Reviewability State: `Reviewable`" in primary and (
         not bundle_granted and not is_consolidated

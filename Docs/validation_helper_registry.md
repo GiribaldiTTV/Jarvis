@@ -333,6 +333,26 @@ phase facts, unresolved defects, and missing consolidated review aids. Packet
 PASS proves reviewability only; neither clause takes effect until the USER
 explicitly sends the decision text or records another legal disposition.
 
+FAM-003 consolidated mandatory-contract validation addendum: for the post-BP3
+Option G consolidated Interface Bundle / Workstream decision packet,
+`dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) must parse rather
+than marker-check the current `Implementation Delta Class`, complete
+`Future-Proof Implementation Review`, and `Architecture / Experience / Policy
+Impact Matrix`. It must enforce the comma-separated implementation-delta enum,
+all thirteen Future-Proof fields and permitted disposition vocabulary, the
+governed seven-column impact-matrix schema and complete named-owner rows, and
+equality between the active external branch-plan contract and every current
+packet review copy. Historical-only contracts cannot satisfy the current
+carrier. `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+(`Helper Status: Reusable`) owns positive and atomic negative coverage for
+delimiter/enum drift, missing or aliased Future-Proof fields, false-green gap
+dispositions, omitted protected/future-gated boundaries, matrix schema/owner/
+scope/proof defects, current-carrier disagreement, historical promotion, and
+missing `CDP-MC-001` through `CDP-MC-003` closure rows. This addendum registers
+machine enforcement of the existing contracts in `Docs/phase_governance.md`
+and `Docs/branch_plans/README.md`; it does not create new planning policy or
+grant Interface Bundle or Workstream implementation approval.
+
 FAM-003 Option G BP3 formal-digest, Vision-carrydown, UFD-vocabulary, and
 inventory-completion clarification: the active packet guard requires one exact
 `Next Legal Phase Digest` in both `START_HERE.md` and the primary BP3 review,
