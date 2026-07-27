@@ -1339,12 +1339,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         f"{bundle.FAM003_OPTION_G_BP3_DECISION_EFFECT}\n"
         "\n## USER Review Packet Finding\n\n"
         "USER Review Packet Finding: `PASS`\n"
-        "Replacement Packet Folder: `C:\\Nexus USER\\FAM-003`\n"
-        "Replacement ZIP Path: `C:\\Nexus USER\\FAM-003-20260724-120000.zip`\n"
-        "Replacement ZIP Filename: `FAM-003-20260724-120000.zip`\n"
-        "External Archive Receipt: `Recorded in the post-generation Codex return "
-        "and FAM-003 external packet receipt outside this hashed archive.`\n"
-        "Folder / ZIP Parity: `PASS (73 / 73; file-list and content-hash equality)`\n"
+        "Packet Evidence Location: `Source Truth Context/Proof Artifacts/Validation`\n"
         "Primary USER Review Filename: "
         "`USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n"
         "Packet Reviewability State: `Reviewable`\n"
@@ -1401,9 +1396,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     traceability_text = (
         "# Option G Traceability And Readiness\n\n"
         "## Current False-Green Repair Traceability\n\n"
-        "External State Version: `24`\n"
-        f"Source Repo HEAD: `{fixture_head}`\n"
-        f"Replacement ZIP: `{fixture_packet}`\n"
+        "Current authority: `active external branch plan and packet-contained source copies`\n"
         "Current Gate: `BP3 USER review pending; Workstream remains blocked`\n"
         "\n## Historical / Superseded Evidence\n\n"
         "Earlier repair models are preserved as historical evidence only.\n"
@@ -1654,8 +1647,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     scope_commits = ["a" * 40, "b" * 40, "c" * 40, fixture_head]
     scope_changed_files = sorted(bundle.FAM003_OPTION_G_APPROVED_REPAIR_FILES)
     false_green_fixture_identity = (
-        "Option G BP3: 22 proof-carrydown + 34 decision-surface + 8 active-metadata "
-        "+ 38 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
+        "Option G BP3: 1 BP2 carrydown applicability positive + 25 formal-digest "
+        "+ 13 Branch Vision + 5 inventory + 22 proof-carrydown + "
+        "34 decision-surface + 19 active-metadata + 41 canonical-UFD + "
+        "12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases"
     )
@@ -2007,7 +2002,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "`OPTG-BP3-DS-DEF-07`\n"
             "Validator false-green defects are closed with proof.\n"
         ),
-        "Review Aids/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md": (
+        "Review Aids/Validation Outputs/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md": (
             active_rollback_ledger
         ),
         "Source Truth Context/Proof Artifacts/Validation/PACKET_MANIFEST.json": packet_manifest,
@@ -2417,6 +2412,70 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             1,
         ),
         "does not permit Packet SHA256:",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-12",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        primary
+        + "\nReplacement ZIP Path: `C:\\Nexus USER\\FAM-003-20990101-000000.zip`\n",
+        "unauthorized current technical metadata outside the bounded exception: Replacement ZIP",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-13",
+        "Review Aids/OPTION_G_TRACEABILITY_AND_READINESS.md",
+        traceability_text.replace(
+            "Current Gate:",
+            "External State Version: `24`\nCurrent Gate:",
+            1,
+        ),
+        "unauthorized current technical metadata outside the bounded exception: External State Version",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-14",
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+        "# USER Review Folder And File Digest\n\n"
+        f"Replacement ZIP: `{fixture_packet}`\n",
+        "unauthorized current technical metadata outside the bounded exception: Replacement ZIP",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-15",
+        "START_HERE.md",
+        start_text.replace(
+            "Replacement ZIP: `C:\\Nexus USER\\FAM-003-20260726-010203.zip`",
+            "Replacement ZIP: `C:\\Nexus USER\\FAM-003-20260726-010203.zip`\n"
+            "Snapshot: `snapshot-20990101T000000Z-badproof`",
+            1,
+        ),
+        "does not permit Snapshot:",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-16",
+        "Review Aids/OPTION_G_PROJECTION_BYTE_IDENTITY.md",
+        "# Projection Byte Identity\n\nCurrent proof.\n",
+        "technical validation evidence must live under Review Aids/Validation Outputs",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-17",
+        "Review Aids/USER_HUB_CLEANUP_LEDGER.md",
+        "# USER Hub Cleanup Ledger\n\nCurrent proof.\n",
+        "technical validation evidence must live under Review Aids/Validation Outputs",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-18",
+        "Review Aids/OPTION_G_TRACEABILITY_AND_READINESS.md",
+        traceability_text.replace(
+            "Current Gate:",
+            "- External State Version: `24`\nCurrent Gate:",
+            1,
+        ),
+        "unauthorized current technical metadata outside the bounded exception: External State Version",
+    )
+    _assert_active_metadata_failure(
+        "OPTG-BP3-META-FG-19",
+        "Review Aids/FILES_LOADED_AND_AUTHORITY_FINDINGS.md",
+        "# Authority Findings\n\n"
+        "- Current packet ZIP SHA256: `" + "a" * 64 + "`\n",
+        "unauthorized current technical metadata outside the bounded exception: mutable SHA256 proof",
     )
 
     technical_positive_failures = bundle._generic_user_facing_technical_metadata_failures(
@@ -3452,7 +3511,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         mutated[manifest_path] = json.dumps(manifest_value, indent=2)
         if rollback_text is not None:
             mutated[
-                "Review Aids/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md"
+                "Review Aids/Validation Outputs/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md"
             ] = rollback_text
         if defect_text is not None:
             mutated["Review Aids/OPTION_G_BP3_REPAIR_DEFECT_LEDGER.md"] = defect_text
@@ -3696,15 +3755,14 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             (
                 (
                     "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
-                    "External Archive Receipt: `Recorded in the post-generation "
-                    "Codex return and FAM-003 external packet receipt outside this "
-                    "hashed archive.`\n",
+                    "Packet Evidence Location: "
+                    "`Source Truth Context/Proof Artifacts/Validation`\n",
                     "",
                     1,
                 ),
             ),
             {},
-            "Finding lacks external archive receipt model",
+            "Finding lacks technical packet evidence routing",
         ),
         (
             "OPTG-BP3-DS-FG-11",
@@ -4643,7 +4701,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "25 formal-digest + 13 Branch Vision + 5 inventory + "
-        "22 proof-carrydown + 34 decision-surface + 11 active-metadata + "
+        "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
         "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases)"

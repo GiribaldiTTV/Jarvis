@@ -5829,6 +5829,58 @@ FAM003_OPTION_G_OUTPUT_CAPTURE_POLICY = (
     "separate stdout/stderr plus deterministic merged output"
 )
 FAM003_OPTION_G_CURRENT_METADATA_HEADING = "## Current Packet Metadata"
+FAM003_OPTION_G_CURRENT_METADATA_FILES = (
+    "START_HERE.md",
+    "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+)
+FAM003_OPTION_G_CURRENT_METADATA_FIELDS = (
+    "External State Version",
+    "Source Repo HEAD",
+    "Replacement ZIP",
+)
+FAM003_OPTION_G_ORDINARY_METADATA_PATTERNS = (
+    (
+        "External State Version",
+        re.compile(r"(?im)^\s*(?:[-*]\s+)?External State Version\s*:"),
+    ),
+    (
+        "Source Repo HEAD",
+        re.compile(r"(?im)^\s*(?:[-*]\s+)?Source Repo HEAD\s*:"),
+    ),
+    (
+        "Replacement ZIP",
+        re.compile(
+            r"(?im)^\s*(?:[-*]\s+)?Replacement ZIP"
+            r"(?:\s+(?:Path|Filename))?\s*:"
+        ),
+    ),
+    ("Origin/Main", re.compile(r"(?im)^\s*(?:[-*]\s+)?Origin/Main\s*:")),
+    ("Merge Base", re.compile(r"(?im)^\s*(?:[-*]\s+)?Merge Base\s*:")),
+    (
+        "Ahead/Behind",
+        re.compile(
+            r"(?im)^\s*(?:[-*]\s+)?Ahead\s*(?:/|and)\s*Behind\s*:"
+            r"|^\s*(?:[-*]\s+)?Ahead/Behind\s*:"
+        ),
+    ),
+    ("Upstream", re.compile(r"(?im)^\s*(?:[-*]\s+)?Upstream\s*:")),
+    (
+        "mutable SHA256 proof",
+        re.compile(
+            r"(?im)^(?!\s*(?:[-*]\s+)?Accepted Packet Recorded SHA256:)"
+            r"\s*(?:[-*]\s+)?[^\r\n]*"
+            r"(?:ZIP|Packet|Projection|Transaction|Lock|Snapshot|UTS)"
+            r"[^\r\n]*SHA256(?:\s*:|\s+`)"
+        ),
+    ),
+    (
+        "lock or snapshot identity",
+        re.compile(
+            r"(?im)^\s*(?:[-*]\s+)?"
+            r"(?:Lock ID|Snapshot(?: Identity)?|lockId|snapshotIdentity)\s*:"
+        ),
+    ),
+)
 FAM003_OPTION_G_NEXT_PHASE_HEADING = "## Next Legal Phase Digest"
 FAM003_OPTION_G_NEXT_PHASE_FIELDS = (
     "Current Phase:",
@@ -6855,10 +6907,7 @@ def _fam003_option_g_active_metadata_failures(
     expected_head = str(manifest.get("Source Repo HEAD") or "")
     expected_packet = str(manifest.get("Replacement ZIP") or "")
 
-    for file_name in (
-        "START_HERE.md",
-        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
-    ):
+    for file_name in FAM003_OPTION_G_CURRENT_METADATA_FILES:
         text = packet_files.get(file_name, "")
         active = _current_review_claims(text)
         count = _markdown_section_count(active, FAM003_OPTION_G_CURRENT_METADATA_HEADING)
@@ -6869,11 +6918,13 @@ def _fam003_option_g_active_metadata_failures(
             )
             continue
         section = _markdown_section(active, FAM003_OPTION_G_CURRENT_METADATA_HEADING)
-        scalar_contract = {
-            "External State Version": expected_version,
-            "Source Repo HEAD": expected_head,
-            "Replacement ZIP": expected_packet,
-        }
+        scalar_contract = dict(
+            zip(
+                FAM003_OPTION_G_CURRENT_METADATA_FIELDS,
+                (expected_version, expected_head, expected_packet),
+                strict=True,
+            )
+        )
         for label, expected in scalar_contract.items():
             matches = re.findall(
                 rf"(?m)^{re.escape(label)}:\s*`?([^`\r\n]+)`?\s*$",
@@ -6905,6 +6956,11 @@ def _fam003_option_g_active_metadata_failures(
             "ZIP SHA256:",
             "Packet SHA256:",
             "Transaction Hash:",
+            "Projection SHA256:",
+            "Lock ID:",
+            "Snapshot:",
+            "Validation Status:",
+            "Commit History:",
         ):
             if prohibited.casefold() in section.casefold():
                 failures.append(
@@ -6915,6 +6971,40 @@ def _fam003_option_g_active_metadata_failures(
             failures.append(
                 f"FAM-003 Option G BP3: {file_name} retains stale packet metadata "
                 "outside Historical / Superseded Evidence"
+            )
+
+    for file_name, text in packet_files.items():
+        normalized = file_name.replace("\\", "/")
+        if normalized.startswith("Review Aids/Validation Outputs/"):
+            continue
+        if normalized not in FAM003_OPTION_G_CURRENT_METADATA_FILES and not normalized.startswith(
+            "Review Aids/"
+        ):
+            continue
+        active = _current_review_claims(text)
+        if normalized in FAM003_OPTION_G_CURRENT_METADATA_FILES:
+            active = re.sub(
+                rf"(?ms)^{re.escape(FAM003_OPTION_G_CURRENT_METADATA_HEADING)}\s*\n"
+                r".*?(?=^## |\Z)",
+                "",
+                active,
+                count=1,
+            )
+        for label, pattern in FAM003_OPTION_G_ORDINARY_METADATA_PATTERNS:
+            if pattern.search(active):
+                failures.append(
+                    f"FAM-003 Option G BP3: {normalized} carries unauthorized "
+                    f"current technical metadata outside the bounded exception: {label}"
+                )
+
+    for misplaced in (
+        "Review Aids/OPTION_G_PROJECTION_BYTE_IDENTITY.md",
+        "Review Aids/USER_HUB_CLEANUP_LEDGER.md",
+    ):
+        if misplaced in packet_files:
+            failures.append(
+                "FAM-003 Option G BP3: technical validation evidence must live under "
+                f"Review Aids/Validation Outputs, not ordinary Review Aids: {misplaced}"
             )
 
     section_contract = {
@@ -7526,19 +7616,10 @@ def _fam003_option_g_bp3_orchestration_failures(
     )
     finding_text = finding_match.group(1) if finding_match else ""
     finding_requirements = {
-        "packet folder": r"Replacement Packet Folder:\s*`C:\\Nexus USER\\FAM-003`",
-        "timestamped ZIP path": (
-            r"Replacement ZIP Path:\s*`C:\\Nexus USER\\"
-            r"FAM-003-\d{8}-\d{6}\.zip`"
+        "technical packet evidence routing": (
+            r"Packet Evidence Location:\s*"
+            r"`Source Truth Context/Proof Artifacts/Validation`"
         ),
-        "ZIP filename": (
-            r"Replacement ZIP Filename:\s*`FAM-003-\d{8}-\d{6}\.zip`"
-        ),
-        "external archive receipt model": (
-            r"External Archive Receipt:.*"
-            r"(?:post-generation|outside (?:this|the) hashed archive)"
-        ),
-        "folder/ZIP parity": r"Folder / ZIP Parity:\s*`PASS \(\d+ / \d+",
         "primary filename": (
             r"Primary USER Review Filename:\s*"
             r"`USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST\.md`"
