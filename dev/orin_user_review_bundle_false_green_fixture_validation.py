@@ -2527,6 +2527,81 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "omits the external final-byte receipt path",
     )
 
+    with tempfile.TemporaryDirectory(prefix="fam003-final-byte-count-") as temp_dir:
+        temp_root = Path(temp_dir)
+        receipt_path = temp_root / "final-byte-receipt.json"
+        zip_path = temp_root / "final-byte-packet.zip"
+        exact_count_valid = dict(valid)
+        exact_count_manifest = json.loads(exact_count_valid[manifest_path])
+        exact_count_manifest["Final Closure"]["externalFinalByteReceiptPath"] = str(
+            receipt_path
+        )
+        exact_count_valid[manifest_path] = json.dumps(exact_count_manifest, indent=2)
+        exact_count_audit = json.loads(exact_count_valid[audit_path])
+        for row in exact_count_audit["auditedFiles"]:
+            if row["path"] == manifest_path:
+                row["sha256"] = hashlib.sha256(
+                    exact_count_valid[manifest_path].encode("utf-8")
+                ).hexdigest().upper()
+        exact_count_valid[audit_path] = json.dumps(exact_count_audit, indent=2)
+        binary_files = {
+            path: text.encode("utf-8")
+            for path, text in exact_count_valid.items()
+        }
+        binary_files["Source Truth Context/Proof Artifacts/Validation/helper.py"] = (
+            b"print('binary archive-member count fixture')\n"
+        )
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path, data in sorted(binary_files.items()):
+                archive.writestr(path, data)
+        zip_hash = hashlib.sha256(zip_path.read_bytes()).hexdigest().upper()
+        receipt = {
+            "schema": bundle.FAM003_OPTION_G_FINAL_BYTE_RECEIPT_SCHEMA,
+            "packetZip": fixture_packet,
+            "zipSha256": zip_hash,
+            "postReceiptZipSha256": zip_hash,
+            "zipFileCount": len(binary_files),
+            "extractedFileCount": len(binary_files),
+            "mutationAfterReceipt": "NO",
+            "startedUtc": "2026-07-26T00:00:00Z",
+            "completedUtc": "2026-07-26T00:00:01Z",
+            "archiveIntegrity": "PASS",
+            "extractedZipByteParity": "PASS",
+            "manifestValidation": "PASS",
+            "utf8ControlCharacterAudit": "PASS",
+            "activeReviewValidation": "PASS",
+            "currentFactMatrixValidation": "PASS",
+            "duplicateActiveSectionAudit": "PASS",
+            "finalLedgerValidation": "PASS",
+        }
+        receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+        exact_count_failures = bundle._fam003_option_g_final_closure_failures(
+            exact_count_valid,
+            binary_files,
+            export_zip=zip_path,
+        )
+        if exact_count_failures:
+            raise AssertionError(
+                "Valid all-archive-member final-byte count failed:\n"
+                + "\n".join(exact_count_failures)
+            )
+        receipt["zipFileCount"] = len(exact_count_valid)
+        receipt["extractedFileCount"] = len(exact_count_valid)
+        receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+        exact_count_failures = bundle._fam003_option_g_final_closure_failures(
+            exact_count_valid,
+            binary_files,
+            export_zip=zip_path,
+        )
+        if not any(
+            "exact immutable final ZIP bytes" in failure
+            for failure in exact_count_failures
+        ):
+            raise AssertionError(
+                "OPTG-BP3-FINAL-FG-10 did not reject a text-only receipt count: "
+                f"{exact_count_failures}"
+            )
+
     with tempfile.TemporaryDirectory(prefix="fam003-postpublication-") as temp_dir:
         completion_path = Path(temp_dir) / "postpublication-completion.json"
         completion = {
@@ -5650,7 +5725,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
-        "15 packet-lineage + 9 final-closure + 21 supporting-carrier + 8 defect-ledger + "
+        "15 packet-lineage + 10 final-closure + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
         "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "

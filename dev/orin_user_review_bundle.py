@@ -8109,6 +8109,11 @@ def _fam003_option_g_final_closure_failures(
                 "duplicateActiveSectionAudit",
                 "finalLedgerValidation",
             )
+            extracted_file_count = (
+                len(packet_binary_files)
+                if packet_binary_files is not None
+                else len(packet_files)
+            )
             if (
                 receipt.get("schema") != FAM003_OPTION_G_FINAL_BYTE_RECEIPT_SCHEMA
                 or str(receipt.get("packetZip") or "").casefold()
@@ -8117,8 +8122,8 @@ def _fam003_option_g_final_closure_failures(
                 != actual_zip_hash.casefold()
                 or str(receipt.get("postReceiptZipSha256") or "").casefold()
                 != actual_zip_hash.casefold()
-                or receipt.get("zipFileCount") != len(packet_files)
-                or receipt.get("extractedFileCount") != len(packet_files)
+                or receipt.get("zipFileCount") != extracted_file_count
+                or receipt.get("extractedFileCount") != extracted_file_count
                 or receipt.get("mutationAfterReceipt") != "NO"
                 or not str(receipt.get("startedUtc") or "").endswith("Z")
                 or not str(receipt.get("completedUtc") or "").endswith("Z")

@@ -356,7 +356,8 @@ and one pre-ZIP adversarial audit that covers every candidate file except its
 two explicitly declared self-record files. The manifest `Final Closure` object
 must identify those exact packet copies and the routed external final-byte
 receipt. After ZIP creation, that external receipt binds the immutable ZIP
-path, SHA256, file count, extracted-byte parity, manifest/current-fact/ledger
+path, SHA256, total archive-member file count including binary evidence,
+extracted-byte parity, manifest/current-fact/ledger
 checks, UTF-8/control-character checks, and active-review result; the ZIP must
 not be mutated afterward. `dev/orin_user_review_bundle.py` and
 `dev/orin_user_review_bundle_false_green_fixture_validation.py` own fail-capable
