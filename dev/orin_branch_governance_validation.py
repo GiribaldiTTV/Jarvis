@@ -20008,7 +20008,7 @@ def _external_branch_operational_live_header(
     branch_name: str,
     current_head_sha: str,
 ) -> str:
-    branch_slug = branch_name.replace("/", "_")
+    branch_slug = re.sub(r"[^A-Za-z0-9]+", "_", branch_name).strip("_")
     state_path = Path(
         EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY,
         branch_slug,

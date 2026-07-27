@@ -10,6 +10,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+import orin_branch_governance_validation as branch_validation
 from orin_current_gate_repair import (
     BR1_MATRIX_ARTIFACT,
     CanonicalPacketPublisher,
@@ -504,8 +505,54 @@ Current Approval State: `PR creation, merge, release remain unapproved`
     )
     negative.append("historical closed PR text cannot satisfy current Stage 1 no-PR state")
 
-    _require(len(negative) == 27, f"Expected 27 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 18, f"Expected 18 positive fixtures, got {len(positive)}")
+    with tempfile.TemporaryDirectory(prefix="ndai-external-branch-slug-") as temp_dir:
+        branch_name = "feature/release-readiness-source-truth-intake"
+        source_head = "a" * 40
+        state_path = (
+            Path(temp_dir)
+            / "feature_release_readiness_source_truth_intake"
+            / "branch_state.md"
+        )
+        state_path.parent.mkdir(parents=True)
+        state_path.write_text(
+            "\n".join(
+                (
+                    "# Current Branch State",
+                    f"Branch: `{branch_name}`",
+                    f"Source Repo HEAD: `{source_head}`",
+                    "Current Stage: `Stage 1 Ready For Stage 2`",
+                    "## Historical Receipt",
+                    "Source Repo HEAD: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`",
+                )
+            ),
+            encoding="utf-8",
+        )
+        original_directory = branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY
+        branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = temp_dir
+        try:
+            live_header = branch_validation._external_branch_operational_live_header(
+                branch_name,
+                source_head,
+            )
+            _require(
+                "Stage 1 Ready For Stage 2" in live_header
+                and "Historical Receipt" not in live_header,
+                "Hyphenated branch did not resolve to its authoritative live external header",
+            )
+            positive.append("hyphenated branch resolves through canonical external-state slug")
+            _require(
+                not branch_validation._external_branch_operational_live_header(
+                    branch_name,
+                    "c" * 40,
+                ),
+                "External live header admitted a mismatched current commit",
+            )
+            negative.append("external live header rejects mismatched current commit")
+        finally:
+            branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
+
+    _require(len(negative) == 28, f"Expected 28 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 19, f"Expected 19 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")
