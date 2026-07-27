@@ -1548,7 +1548,8 @@ def main() -> int:
                 "current PR state lives in pr_readiness_state.md.",
                 "pr_readiness_state.md is historical snapshot evidence only and is not a current-state route.",
                 1,
-            ),
+            )
+            + "Receipt: `pr_readiness_state.md was retired without rewriting historical evidence.`\n",
             encoding="utf-8",
         )
         _assert_pass(

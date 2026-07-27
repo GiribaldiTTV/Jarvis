@@ -722,6 +722,16 @@ def validate_governance_semantic_currentness(
                 if "pr_readiness_state.md" not in line.casefold():
                     continue
                 normalized_line = re.sub(r"\s+", " ", line).strip().casefold()
+                if not any(
+                    marker in normalized_line
+                    for marker in (
+                        "intake state:",
+                        "active seam:",
+                        "next active seam:",
+                        "current state route:",
+                    )
+                ):
+                    continue
                 if not (
                     "historical snapshot evidence only" in normalized_line
                     and "not a current-state route" in normalized_line
