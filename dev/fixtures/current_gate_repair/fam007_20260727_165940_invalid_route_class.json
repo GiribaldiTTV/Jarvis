@@ -1,0 +1,54 @@
+{
+  "schema": "nexus-current-gate-regression-v1",
+  "provenance": {
+    "packet": "C:\\Nexus USER\\FAM-007-20260727-165940.zip",
+    "sha256": "F34CAD033856562B0AF8EB9C362CED5964B58FE372E03BD482667F6D01623526",
+    "size_bytes": 3332306,
+    "member_count": 127,
+    "artifact": "Review Aids/BR1_CANDIDATE_VIABILITY_GROUPING_MATRIX.md"
+  },
+  "invalid_packet_fields": {
+    "Option name": "Detached Child Visual Shell",
+    "Owning FAM / worktree": "FAM-007 / stable FAM-007 worktree",
+    "Main feature/package objective": "Establish one deterministic visible/native shell contract for the three detached AI child windows.",
+    "Concrete feature outcome": "No standalone productive AI outcome; reliable window-shell behavior enables later child products.",
+    "Implementation-bearing route class": "Foundation / infrastructure",
+    "Behavior change classification": "User-visible and runtime-facing shell behavior change",
+    "Support / infrastructure relationship": "Bounded shared presentation/native-interaction foundation; not support-only paperwork or readiness-only output.",
+    "Family Feature Vision context": "FAM-007 assisted desktop AI doorway and child/domain presentation.",
+    "Deferred Feature Carryforward consumed": "Detached child shell reliability only.",
+    "Cross-FAM Dependency Map": "Consumes FAM-002 presentation grammar.",
+    "Affected FAMs": "FAM-007 directly; FAM-002 as presentation authority.",
+    "Affected FFV / Element or Not Created": "No new FFV created in Stage 1.",
+    "Shared Surface Overlap Forecast": "High inside desktop/desktop_renderer.py.",
+    "Dependency Scope Class": "Cross-FAM standard consumption plus same-FAM lifecycle interface dependency.",
+    "Carry-In / Deferral / Transfer Decision": "No implementation carry-in at carrier creation.",
+    "Platform Contract Adoption Matrix when applicable": "Windows shell contracts remain explicit proof rows.",
+    "Repo-Wide Migration Neutralization Proof when applicable": "Not a repo-wide migration.",
+    "Grouping recommendation": "One coherent branch.",
+    "Split reason if not grouped": "Split only if code discovery proves ownership must change.",
+    "Expected Slice/SLC/seam map": "Nine shell slices inside one branch.",
+    "Proof path": "Source-to-visual trace and all-three-child proof.",
+    "Largest safe coherent package explanation": "Visible and native boundaries must agree.",
+    "Tiny-branch sprawl review": "Nine slices are not nine branches.",
+    "Blockers": "Stage 2 approval remains separate.",
+    "Exact USER decision needed": "Approve or reject Stage 2 after repaired Stage 1 review."
+  },
+  "expected_contract": {
+    "finding_class": "SELF_REPAIRABLE_CURRENT_GATE",
+    "invalid_value": "Foundation / infrastructure",
+    "corrected_route_class": "User-visible behavior change",
+    "preserved_package_classification": "Foundation / infrastructure",
+    "behavior": "Reject before canonical publication, repair within the same Stage 1 workload, and revalidate without new USER repair approval."
+  },
+  "governance_handoff": "Free-form infrastructure label instead of governed implementation-bearing class must be rejected before Stage 1 green.",
+  "preserved_invariants": {
+    "candidate": "Detached Child Visual Shell",
+    "scope_fingerprint": "detached-child-visual-shell-only",
+    "owner": "FAM-007",
+    "phase": "Branch Readiness",
+    "stage": "Stage 1",
+    "selected_next": "CONSUMED_NO_SUCCESSOR",
+    "successor": "DOES NOT EXIST"
+  }
+}

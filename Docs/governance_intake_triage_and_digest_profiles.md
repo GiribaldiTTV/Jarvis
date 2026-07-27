@@ -35,6 +35,16 @@ When a USER asks for a full digest, review digest, complete breakdown, file-by-f
 
 Forwarded Digest Non-Compaction Rule: when Codex produces a digest intended to be forwarded to another branch, worktree, governance lane, PR watcher, Release Readiness lane, or future Codex thread, the digest must be complete and non-lossy. It must include repo/worktree identity, branch, HEAD or relevant commits, phase, source-truth owners, decision state, blockers, validation state, what happened, what went wrong, recommended governance/source-truth changes, exact USER decision needed, and explicit exclusions. Codex may organize the digest, but must not compress it into minimal bullets or omit operational details for brevity.
 
+### Current-Gate USER Decision Consolidation
+
+Current-gate decision consolidation is owned by `CDR-001` in
+`Docs/phase_governance.md`. A `Decision Packet` must contain all presently
+knowable material USER choices for the same gate where practical. Deterministic
+same-gate repairs do not create serial USER repair gates; Codex repairs them
+under the active approval, publishes one coherent final packet, and returns that
+gate at one USER review boundary per gate. Separately gated later actions remain
+separate and explicit rather than being combined by inference.
+
 ## Governance Intake Triage Packet
 
 Before a broad non-release governance repair mutates source truth, Codex must either cite an already accepted triage packet or return this packet:

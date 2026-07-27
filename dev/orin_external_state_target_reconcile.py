@@ -8,8 +8,10 @@ import os
 import re
 import tempfile
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from pathlib import PureWindowsPath
+from typing import Callable, Sequence
 
 from orin_external_state_common import (
     DEFAULT_EXTERNAL_STATE_ROOT,
@@ -38,8 +40,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--root", default=str(DEFAULT_EXTERNAL_STATE_ROOT))
     parser.add_argument("--target", required=True, help="One relative external-state record path")
-    parser.add_argument("--lock-id", required=True)
-    parser.add_argument("--snapshot", required=True, help="Snapshot directory relative to the external root")
+    parser.add_argument(
+        "--lock-id",
+        default="",
+        help="Required with --apply; dry-run projection does not acquire or require a lock.",
+    )
+    parser.add_argument(
+        "--snapshot",
+        default="",
+        help="Required with --apply; dry-run projection does not create or require a snapshot.",
+    )
     parser.add_argument("--expected-branch", required=True)
     parser.add_argument("--expected-source-head", required=True)
     parser.add_argument(
@@ -498,6 +508,7 @@ def reconcile_target(
     section_renames: list[str] | None = None,
     post_expected_source_head: str | None = None,
     post_expected_origin_main: str | None = None,
+    write_audit: bool = True,
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
     transition_started_ns = time.time_ns()
@@ -517,14 +528,22 @@ def reconcile_target(
     failures.extend(assignment_failures)
     failures.extend(addition_failures)
     failures.extend(section_rename_failures)
-    snapshot_path, snapshot_failures = _safe_relative_path(root, snapshot, "Snapshot path")
-    failures.extend(snapshot_failures)
-    if snapshot_path is None or not snapshot_path.is_dir():
-        failures.append(f"Snapshot directory is missing: {snapshot_path or snapshot}")
-    initial_lock_payload, lock_failures = _lock_failures(
-        root, lock_id, target, expected_branch, expected_worktree_path
-    )
-    failures.extend(lock_failures)
+    snapshot_path: Path | None = None
+    initial_lock_payload: dict[str, object] | None = None
+    if apply and not lock_id:
+        failures.append("Applied target reconciliation requires a workload-scoped lock ID")
+    if apply and not snapshot:
+        failures.append("Applied target reconciliation requires a pre-write snapshot")
+    if snapshot:
+        snapshot_path, snapshot_failures = _safe_relative_path(root, snapshot, "Snapshot path")
+        failures.extend(snapshot_failures)
+        if snapshot_path is None or not snapshot_path.is_dir():
+            failures.append(f"Snapshot directory is missing: {snapshot_path or snapshot}")
+    if lock_id:
+        initial_lock_payload, lock_failures = _lock_failures(
+            root, lock_id, target, expected_branch, expected_worktree_path
+        )
+        failures.extend(lock_failures)
     relative, target_path, target_failures = _resolve_target_path(root, target)
     failures.extend(target_failures)
     if target_path is None or relative is None:
@@ -532,15 +551,16 @@ def reconcile_target(
     if failures:
         return False, failures, None
 
-    failures.extend(
-        _snapshot_failures(
-            root=root,
-            snapshot_path=snapshot_path,
-            relative=relative,
-            expected_target_sha256=expected_target_sha256,
-            transition_started_ns=transition_started_ns,
+    if snapshot_path is not None:
+        failures.extend(
+            _snapshot_failures(
+                root=root,
+                snapshot_path=snapshot_path,
+                relative=relative,
+                expected_target_sha256=expected_target_sha256,
+                transition_started_ns=transition_started_ns,
+            )
         )
-    )
     if failures:
         return False, failures, None
 
@@ -671,6 +691,14 @@ def reconcile_target(
         atomic_write_text(target_path, before_text)
         return False, [f"Post-write target validation: {item}" for item in post_validation], None
 
+    if not write_audit:
+        return True, [
+            f"APPLIED: {relative}",
+            f"Before SHA256: {before_hash}",
+            f"After SHA256: {actual_after_hash}",
+            "Audit: deferred to bounded target-set transaction",
+        ], None
+
     audit_path = root / "audit_log" / f"target-currentness-{new_lock_id('audit')}.json"
     changed_field_details = [
         {
@@ -722,6 +750,352 @@ def reconcile_target(
         f"APPLIED: {relative}",
         f"Before SHA256: {before_hash}",
         f"After SHA256: {actual_after_hash}",
+        f"Audit: {audit_path}",
+    ], audit_path
+
+
+@dataclass(frozen=True)
+class TargetReconcileRequest:
+    """One member of a bounded, all-or-rollback projection-set transaction."""
+
+    target: str
+    expected_branch: str
+    expected_source_head: str
+    expected_origin_main: str
+    expected_worktree_path: str
+    expected_worktree_slot: str
+    expected_target_sha256: str
+    assignments: tuple[str, ...]
+    additions: tuple[str, ...] = ()
+    section_renames: tuple[str, ...] = ()
+    post_expected_source_head: str | None = None
+    post_expected_origin_main: str | None = None
+
+
+def _project_request_text(
+    before_text: str,
+    request: TargetReconcileRequest,
+) -> tuple[str | None, list[str]]:
+    renames, failures = _parse_section_renames(list(request.section_renames))
+    updates, assignment_failures = _parse_assignments(
+        list(request.assignments),
+        required=not request.additions and not renames,
+    )
+    additions, addition_failures = (
+        _parse_assignments(list(request.additions)) if request.additions else ({}, [])
+    )
+    failures.extend(assignment_failures)
+    failures.extend(addition_failures)
+    overlap = set(updates) & set(additions)
+    if overlap:
+        failures.append(
+            "A field cannot be both --set-field and --add-field: "
+            + ", ".join(sorted(overlap))
+        )
+    if failures:
+        return None, failures
+    after_text, replacement_failures = _replace_existing_fields(
+        before_text,
+        updates,
+        additions,
+    )
+    failures.extend(replacement_failures)
+    after_text, section_failures, renamed_sections = _rename_sections(after_text, renames)
+    failures.extend(section_failures)
+    changed_fields = set(updates) | set(additions)
+    allowed_section_lines = {heading for pair in renamed_sections for heading in pair}
+    if not failures and _non_updated_lines_with_sections(
+        before_text,
+        changed_fields,
+        allowed_section_lines,
+    ) != _non_updated_lines_with_sections(
+        after_text,
+        changed_fields,
+        allowed_section_lines,
+    ):
+        failures.append("No-loss comparison failed: an unselected target line changed")
+    return (after_text if not failures else None), failures
+
+
+def _rollback_target_set(
+    *,
+    target_states: Sequence[tuple[Path, str, str]],
+    audit_path: Path | None,
+) -> list[str]:
+    failures: list[str] = []
+    if audit_path is not None and audit_path.exists():
+        try:
+            audit_path.unlink()
+        except Exception as exc:  # noqa: BLE001 - rollback must report cleanup failure
+            failures.append(f"Target-set rollback could not remove audit {audit_path}: {exc}")
+    for target_path, before_text, applied_hash in reversed(target_states):
+        try:
+            current_hash = sha256_file(target_path)
+        except OSError as exc:
+            failures.append(f"Target-set rollback could not read {target_path}: {exc}")
+            continue
+        if current_hash.casefold() != applied_hash.casefold():
+            failures.append(
+                "Target-set rollback refused to overwrite drifted target "
+                f"{target_path}: expected {applied_hash}, found {current_hash}"
+            )
+            continue
+        try:
+            atomic_write_text(target_path, before_text)
+        except Exception as exc:  # noqa: BLE001 - rollback must report restore failure
+            failures.append(f"Target-set rollback failed for {target_path}: {exc}")
+            continue
+        expected_before_hash = hashlib.sha256(before_text.encode("utf-8")).hexdigest()
+        actual_before_hash = sha256_file(target_path)
+        if actual_before_hash.casefold() != expected_before_hash.casefold():
+            failures.append(
+                f"Target-set rollback verification failed for {target_path}: "
+                f"expected {expected_before_hash}, found {actual_before_hash}"
+            )
+    return failures
+
+
+def reconcile_target_set(
+    *,
+    root: Path,
+    lock_id: str,
+    snapshot: str,
+    audit_target: str,
+    requests: Sequence[TargetReconcileRequest],
+    final_validation: Callable[[Path], list[str]],
+    apply: bool,
+) -> tuple[bool, list[str], Path | None]:
+    """Publish a coherent projection set or restore every member.
+
+    Dry-run compilation needs neither a lock nor a snapshot. Applied publication
+    requires one lock whose exact write set contains every projection and the
+    deterministic set-level audit target.
+    """
+
+    root = resolve_path(root)
+    failures = validate_canonical_root(root)
+    failures.extend(validate_initialized_root(root))
+    if not requests:
+        failures.append("Target-set reconciliation requires at least one target")
+    audit_path, audit_path_failures = _safe_relative_path(
+        root,
+        audit_target,
+        "Target-set audit path",
+    )
+    failures.extend(audit_path_failures)
+    resolved: list[tuple[TargetReconcileRequest, str, Path, str, str]] = []
+    normalized_targets: set[str] = set()
+    for request in requests:
+        relative, target_path, target_failures = _resolve_target_path(root, request.target)
+        failures.extend(target_failures)
+        if relative is None or target_path is None:
+            continue
+        key = relative.casefold()
+        if key in normalized_targets:
+            failures.append(f"Target-set reconciliation contains duplicate target: {relative}")
+            continue
+        normalized_targets.add(key)
+        try:
+            before_text = _read_text_preserve_newlines(target_path)
+            before_hash = sha256_file(target_path)
+        except OSError as exc:
+            failures.append(f"Target-set reconciliation cannot read {relative}: {exc}")
+            continue
+        if before_hash.casefold() != request.expected_target_sha256.casefold():
+            failures.append(
+                f"Target-set pre-write hash mismatch for {relative}: expected "
+                f"{request.expected_target_sha256}, found {before_hash}"
+            )
+        projected_text, projection_failures = _project_request_text(before_text, request)
+        failures.extend(f"{relative}: {item}" for item in projection_failures)
+        if projected_text is not None:
+            resolved.append((request, relative, target_path, before_text, projected_text))
+    if audit_path is not None and str(audit_path).casefold() in {
+        str(item[2]).casefold() for item in resolved
+    }:
+        failures.append("Target-set audit path aliases a projection target")
+    if failures or audit_path is None or len(resolved) != len(requests):
+        return False, failures, None
+
+    with tempfile.TemporaryDirectory(prefix="ndai-target-set-projection-") as temp_dir:
+        projected_root = Path(temp_dir)
+        for _request, relative, _target_path, _before_text, projected_text in resolved:
+            projected_path = projected_root.joinpath(*relative.split("/"))
+            projected_path.parent.mkdir(parents=True, exist_ok=True)
+            projected_path.write_text(projected_text, encoding="utf-8", newline="")
+        projected_failures = final_validation(projected_root)
+    if projected_failures:
+        return False, [
+            f"Projected target-set final validation: {item}"
+            for item in projected_failures
+        ], None
+
+    dry_run_messages: list[str] = []
+    for request, relative, _target_path, _before_text, _projected_text in resolved:
+        ok, messages, _ = reconcile_target(
+            root=root,
+            target=relative,
+            lock_id="",
+            snapshot="",
+            expected_branch=request.expected_branch,
+            expected_source_head=request.expected_source_head,
+            expected_origin_main=request.expected_origin_main,
+            expected_worktree_path=request.expected_worktree_path,
+            expected_worktree_slot=request.expected_worktree_slot,
+            expected_target_sha256=request.expected_target_sha256,
+            assignments=list(request.assignments),
+            additions=list(request.additions),
+            section_renames=list(request.section_renames),
+            post_expected_source_head=request.post_expected_source_head,
+            post_expected_origin_main=request.post_expected_origin_main,
+            apply=False,
+        )
+        if not ok:
+            return False, [f"{relative}: {item}" for item in messages], None
+        dry_run_messages.extend(f"{relative}: {item}" for item in messages)
+    if not apply:
+        return True, [
+            "READY: coherent target-set draft validated without lock acquisition",
+            *dry_run_messages,
+        ], None
+
+    if not lock_id:
+        return False, ["Applied target-set reconciliation requires a workload-scoped lock ID"], None
+    if not snapshot:
+        return False, ["Applied target-set reconciliation requires a pre-write snapshot"], None
+    lock_payload, lock_failures = _lock_failures(
+        root,
+        lock_id,
+        resolved[0][1],
+        resolved[0][0].expected_branch,
+        resolved[0][0].expected_worktree_path,
+    )
+    if lock_failures or lock_payload is None:
+        return False, lock_failures, None
+    admitted = _parse_intended_write_set(lock_payload.get("Intended Write Set", ""))
+    required_write_set = {item[1] for item in resolved} | {
+        audit_target.replace("\\", "/"),
+        snapshot.replace("\\", "/"),
+    }
+    missing_targets = sorted(required_write_set - admitted)
+    if missing_targets:
+        return False, [
+            "Target-set lock write set omits exact transaction targets: "
+            + ", ".join(missing_targets)
+        ], None
+    if audit_path.exists():
+        return False, [f"Target-set audit path already exists: {audit_path}"], None
+
+    applied_states: list[tuple[Path, str, str]] = []
+    audit_written = False
+    messages: list[str] = []
+    for request, relative, target_path, before_text, _projected_text in resolved:
+        ok, target_messages, _ = reconcile_target(
+            root=root,
+            target=relative,
+            lock_id=lock_id,
+            snapshot=snapshot,
+            expected_branch=request.expected_branch,
+            expected_source_head=request.expected_source_head,
+            expected_origin_main=request.expected_origin_main,
+            expected_worktree_path=request.expected_worktree_path,
+            expected_worktree_slot=request.expected_worktree_slot,
+            expected_target_sha256=request.expected_target_sha256,
+            assignments=list(request.assignments),
+            additions=list(request.additions),
+            section_renames=list(request.section_renames),
+            post_expected_source_head=request.post_expected_source_head,
+            post_expected_origin_main=request.post_expected_origin_main,
+            apply=True,
+            write_audit=False,
+        )
+        if not ok:
+            rollback_failures = _rollback_target_set(
+                target_states=applied_states,
+                audit_path=audit_path if audit_written else None,
+            )
+            rollback_messages = (
+                ["Target-set rollback: PASS - all applied projections restored"]
+                if not rollback_failures
+                else [f"Target-set rollback: {item}" for item in rollback_failures]
+            )
+            return False, [
+                *messages,
+                *(f"{relative}: {item}" for item in target_messages),
+                *rollback_messages,
+            ], None
+        applied_hash = sha256_file(target_path)
+        applied_states.append((target_path, before_text, applied_hash))
+        messages.extend(f"{relative}: {item}" for item in target_messages)
+
+    final_failures = final_validation(root)
+    if final_failures:
+        rollback_failures = _rollback_target_set(
+            target_states=applied_states,
+            audit_path=None,
+        )
+        rollback_messages = (
+            ["Target-set rollback: PASS - all applied projections restored"]
+            if not rollback_failures
+            else [f"Target-set rollback: {item}" for item in rollback_failures]
+        )
+        return False, [
+            *(f"Target-set final validation: {item}" for item in final_failures),
+            *rollback_messages,
+        ], None
+
+    audit_payload = {
+        "External State Schema": DEFAULT_SCHEMA_VERSION,
+        "Transition": "Bounded coherent target-set reconciliation",
+        "Lock ID": lock_id,
+        "Workload ID": lock_payload.get("Workload ID", "MISSING"),
+        "Snapshot": snapshot,
+        "Targets": [
+            {
+                "Target": relative,
+                "Before SHA256": request.expected_target_sha256,
+                "After SHA256": sha256_file(target_path),
+                "Assignments": list(request.assignments),
+                "Additions": list(request.additions),
+                "Section Renames": list(request.section_renames),
+            }
+            for request, relative, target_path, _before_text, _projected_text in resolved
+        ],
+        "Last Updated": utc_now(),
+        "Last Updated By": lock_payload.get("Last Updated By", "Codex"),
+    }
+    try:
+        atomic_write_json(audit_path, audit_payload)
+        audit_written = True
+        authoritative_audit = load_json(audit_path)
+        if authoritative_audit.get("Lock ID") != lock_id:
+            raise ValueError("authoritative target-set audit reread did not match lock identity")
+        final_failures = final_validation(root)
+        for target_path, _before_text, applied_hash in applied_states:
+            if sha256_file(target_path).casefold() != applied_hash.casefold():
+                final_failures.append(
+                    f"target changed after set publication validation: {target_path}"
+                )
+        if final_failures:
+            raise ValueError("; ".join(final_failures))
+    except Exception as exc:  # noqa: BLE001 - the set must roll back on any final failure
+        rollback_failures = _rollback_target_set(
+            target_states=applied_states,
+            audit_path=audit_path,
+        )
+        rollback_messages = (
+            ["Target-set rollback: PASS - all applied projections and audit restored"]
+            if not rollback_failures
+            else [f"Target-set rollback: {item}" for item in rollback_failures]
+        )
+        return False, [
+            f"Target-set final publication failed: {exc}",
+            *rollback_messages,
+        ], None
+
+    return True, [
+        "APPLIED: coherent target-set publication validated",
+        *messages,
         f"Audit: {audit_path}",
     ], audit_path
 

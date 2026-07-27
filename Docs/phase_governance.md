@@ -122,6 +122,16 @@ The audit packet must include:
 
 When the USER approves the recommendation, the rebaseline operation must still be constrained to the approved operation type, usually `git merge --ff-only origin/main` for neutral/main or standing-governance sync and an explicit merge/rebase/recreate strategy for active implementation branches. After the operation, `Current-Main Reconciliation Identity Guard` must prove origin/main stayed context, not identity, before validation, commit, push, PR Readiness, Release Readiness, or handoff.
 
+Before that approval, the standing Governance carrier must also pass
+cross-record semantic currentness. The live external branch state, branch plan,
+and worktree state are one operational projection and must agree on the current
+RRI cycle, phase/gate, packet classification, PR state, USER approval
+provenance, exact write set, validation posture, neutral-main freshness, and
+next legal gate. Matching identity hashes alone are not sufficient. Historical
+PRs, superseded packets, and receipt sections remain evidence only; a stale or
+contradictory one-of-three projection blocks rebaseline approval until the
+owning external records are reconciled and independently revalidated.
+
 ### Merged Vision / Proof Standard Adoption Gate
 
 Rule Name: `Merged Vision / Proof Standard Adoption Gate`
@@ -297,6 +307,79 @@ Repair Path: classify the LV or UTS defect. For Codex-visible LV defects before 
 USER Decision Required: required to waive rerun or reconfirmation, accept manual validation, approve an out-of-scope repair, proceed with residual risk, or route defects to a later branch.
 Validation Owner: future helper/validator coverage should check this loop when machine-checkable; until then, Codex must inspect and report the loop state in the phase digest.
 Final Disposition: PR Readiness is invalid when it relies on a pre-repair Hardening pass, a known-failing LV result, an LV repair without post-repair Hardening, or a post-Hardening state without LV reconfirmation or USER validation disposition when required.
+
+### Current-Gate Autonomous Repair Authority
+
+Rule ID: `CGA-001`
+Rule Name: `Current-Gate Autonomous Repair Authority`
+Owner File: `Docs/phase_governance.md`
+Compact Mirrors: `Docs/development_rules.md`, `Docs/nexus_startup_contract.md`, and `Docs/orin_task_template.md`
+Validator / Helper Owner: `dev/orin_current_gate_repair.py`, integrated through `dev/orin_user_review_bundle.py` and the owning phase validator
+Allowed Mutation Carrier: the already approved current branch/worktree and phase/stage carrier only
+Do Not Duplicate In: `Docs/Main.md`, branch records, branch plans, workstream records, generated packets, external operational state, helper output, or incident receipts
+Historical Receipt Rule: branch records and incident patterns may preserve compact implementation/incident receipts after the primary rule is correct; they do not become a second owner
+
+Once the USER approves a specific candidate, phase, stage, package, plan, Workstream, seam, bounded repair, or equivalent governed workload, that approval remains active for deterministic repairs required to make the same gate compliant. Codex must repair and revalidate such defects in the same workload without requesting another repair approval while the accepted product decision, selected candidate, owning branch/worktree, phase, stage, bounded scope, ownership, selected-next posture, and separately gated actions remain unchanged.
+
+The authority includes deterministic current-gate correction of missing required packet artifacts or fields, wrong exact governed enum values, stale aliases or current-state markers, manifest/parity/hash/archive defects, missing proof indexes or required matrices derivable from accepted scope, same-carrier generator/helper/validator defects, packet regeneration, same-gate external-state reconciliation already admitted by the approval, and root-cause repair required to prevent the same false green. It does not authorize a waiver, scope or ownership change, candidate change, branch/worktree action, issue mutation, phase/stage advancement, PR creation, merge, release, cross-worktree mutation, provider/private/runtime action, or another separately gated operation.
+
+The authority expires when the current gate is green and returns for the next USER gate, the USER revokes or revises the approval, a material USER-controlled decision appears, scope/ownership/carrier must change, or an external safety blocker makes continued repair unsafe.
+
+#### Four-Class Finding Contract
+
+Every current-gate finding must use exactly one top-level class:
+
+| Class | Use | Required action |
+| --- | --- | --- |
+| `SELF_REPAIRABLE_CURRENT_GATE` | source truth determines the correction and all accepted gate invariants remain unchanged | repair, regenerate affected drafts, rerun the complete contract, and continue the same workload; do not return a new USER repair-approval request |
+| `USER_DECISION_REQUIRED` | candidate, product/plan acceptance, scope, ownership, waiver, carrier/ancestry route, branch/worktree action, issue mutation, phase/stage crossing, PR, merge, release, or another separately gated choice is required | finish legal analysis, consolidate all presently knowable material choices into one decision packet where practical, then stop |
+| `EXTERNAL_SAFETY_BLOCKER` | identity, ownership, dirty-file provenance, foreign lock, target currentness, source-owner coherence, or transaction safety cannot be trusted | stop mutation, report exact evidence and recovery path, and never claim green |
+| `REUSABLE_ENFORCEMENT_GAP` | the current gate is independently complete through source-truth/manual proof but reusable automation remains incomplete | record a standing-Governance handoff; do not block the independently complete current gate unless approval integrity, identity, safety, or semantic truth remains unknowable |
+
+Misclassifying `SELF_REPAIRABLE_CURRENT_GATE` as another USER repair gate is `Serial Repair Approval Drift`. Treating `USER_DECISION_REQUIRED` or `EXTERNAL_SAFETY_BLOCKER` as autonomous repair is `Autonomous Repair Boundary Violation`.
+
+#### Internal Repair Continuation Latch
+
+Rule ID: `IRC-001`
+
+The `Internal Repair Continuation Latch` activates when an approved current gate has one or more `SELF_REPAIRABLE_CURRENT_GATE` findings. It remains active through repair, draft regeneration, adversarial review, validation, and root-cause closure. A return block describes the eventual lawful-stop digest; it does not authorize return while a self-repairable finding remains. Green return is invalid until every self-repairable signature is resolved, every required manual row is exposed for the owning review, and the current gate contract is rerun.
+
+The latch stops only for current-gate green, a consolidated `USER_DECISION_REQUIRED` packet, an `EXTERNAL_SAFETY_BLOCKER`, or `BLOCKED_ROOT_CAUSE_OWNER` when the required root-cause owner is another legal carrier and semantic truth cannot be completed safely without it. `REUSABLE_ENFORCEMENT_GAP` may remain as a non-blocking handoff only when the current gate is independently complete.
+
+#### Semantic Gate-Contract Compilation
+
+Rule ID: `SGC-001`
+
+Machine-checkable gate contracts must compile from the live primary source owner, not from copied packet text, hard-coded packet labels, prior helper output, or a stale serialized contract. A compiled contract must expose owner path and SHA256, rule/section provenance, required artifacts, required fields, exact enums, conditional fields, manual-review rows, forbidden/invalid shapes where machine-checkable, and blocking conditions. A source-owner hash change invalidates a prior compilation; the helper must recompile before pre-generation checks, post-generation checks, validation-green claims, or canonical publication.
+
+For BR1 Stage 1, `Docs/phase_governance.md` is the primary contract owner. `dev/orin_current_gate_repair.py` compiles `BR1 Candidate Viability / Grouping Matrix`, and `dev/orin_user_review_bundle.py` enforces it before publication and during packet validation. `Implementation-bearing route class` must equal one value from `Allowed Implementation-Bearing Route Classes`; package/concrete-feature classification may separately preserve `Foundation / infrastructure` only in the source-truth-supported classification field. Structural ZIP/parity green cannot override a semantic contract failure. Fields that are present but require product, grouping, dependency, proof, or USER judgment remain explicitly exposed manual rows rather than validator-proven semantics.
+
+#### One-Surviving-Canonical-Publish Contract
+
+Rule ID: `OCP-001`
+Primary Publication / Placement Owner: `Docs/governance_efficiency_operating_model.md`; this section owns the phase-gate blocker mirror.
+
+Intermediate packet and state drafts are noncanonical. Generate them in a noncanonical staging root, compile and validate the complete current-gate contract there, and keep the existing canonical packet/projection unchanged until one final transaction is ready. Final publication must preserve the prior canonical state for rollback, replace the coherent folder/ZIP or projection set once, validate the published result independently, remove superseded same-label current artifacts only inside that transaction, and restore the prior canonical state if final validation fails. Intermediate repair attempts must not churn live projection versions, active packet aliases, packet hashes, or current review pointers.
+
+External operational-state publication occurs only after the draft gate is complete, through the exact workload-scoped lock transaction owned by `Docs/governance_efficiency_operating_model.md` and `Docs/external_operational_state_store_reform_plan.md`. Lock release and independent authoritative zero-lock verification remain mandatory before final return.
+
+#### Deterministic Repair-Loop Breaker
+
+Rule ID: `RLB-001`
+
+Every repair finding must have a deterministic defect-family signature derived from its rule/code, finding class, artifact, and root-cause owner. The observed value and free-form message must not change that signature, because symptom text drift cannot create a new defect family. The first self-repairable occurrence may repair the affected draft. A second equivalent signature in the same gate or a later replay proves an output-only patch was insufficient and requires repair of the generator, schema, helper, validator, fixture family, or primary source owner before the signature can close. Repeating the same packet edit or returning another equivalent USER repair prompt is forbidden.
+
+Root-cause repair must add or strengthen the sibling positive/negative/adversarial fixture family, rerun the source-owner-to-code-to-fixture contract, and prove that corrected output passes while the original signature fails before canonical publication. If the root-cause owner is outside the current legal carrier and current semantic truth cannot be completed independently, return `BLOCKED_ROOT_CAUSE_OWNER` with that exact owner and handoff path.
+
+#### Consolidated Decision And One-Review Rule
+
+Rule ID: `CDR-001`
+
+Before returning `USER_DECISION_REQUIRED`, Codex must complete all currently legal analysis and identify all presently knowable material choices in the same gate. Where practical, one coherent USER decision packet must present those choices together rather than serially discovering one decision per turn. Deterministic repairs do not create additional USER review gates. The USER reviews the coherent final current-gate packet once after internal repair closes; later phase/stage, PR, merge, release, issue, waiver, branch/worktree, provider/private/runtime, and scope/ownership decisions remain separate explicit gates.
+
+Blocking Conditions: `Serial Repair Approval Drift`, `Autonomous Repair Boundary Violation`, `Current-Gate Self-Repair Incomplete`, `Manual Gate-Contract Rows Omitted`, `Gate Contract Stale`, `Gate Contract Source Owner Missing`, `Semantic Packet False Green`, `Intermediate Draft Published As Current`, `Canonical Publication Rollback Missing`, `Repair Signature Repeated Without Root-Cause Repair`, `Knowable USER Decisions Not Consolidated`, `External-State Lock Release Failed`, and `Current-Gate Invariant Drift`.
+
+Validation Owner: `dev/orin_current_gate_repair_fixture_validation.py` owns focused positive/negative/adversarial coverage; `dev/orin_user_review_bundle_false_green_fixture_validation.py` and `dev/orin_branch_readiness_planning_fixture_validation.py` remain owning integration seams where packet and BR1 behavior overlap; `dev/orin_external_state_lock_lifecycle_fixture_validation.py` owns lock final-return proof. Validator green remains evidence and cannot replace manual contract rows or USER decisions.
 
 ## Branch Naming Prefix Rule
 
@@ -2532,6 +2615,25 @@ If the external-state plan lacks a current Docs Split Target Matrix, the branch 
 If a branch treats external-state helper/bootstrap/root/migration work as approved, initialized, or required before USER has approved that stage, the branch is blocked by `External State Migration Premature`.
 
 Repo validators running in GitHub Actions or clean clones must not require `C:\Nexus Governance State`. Local governance workflows may require external state only after USER-approved initialization or an explicit local analysis/migration/validator-transition approval, and those checks must report `External State Missing`, `External State Version Conflict`, `External State Schema Conflict`, or `Stale Lock Recovery Required` instead of inferring state from stale repo Docs.
+
+### External-State Final-Return Gate
+
+This gate applies to every phase and bounded workload that acquires an external-
+state lock. Before any final digest or USER gate handoff, the acquiring workload
+must finish all protected work, release its lock in the same workload, reread
+the authoritative lock table independently, and prove both its own active-lock
+count is zero and the global active-lock inventory is reported. A disjoint
+foreign workload does not become the completed workload's retained lock. The
+lock cannot bridge USER turns, approvals, continuation prompts, handoffs,
+packet preservation, phase gates, or idle time.
+
+The gate runs on success, block, validation failure, handled exception, early
+return, and safe cancellation cleanup. A final posture of `ACCEPT`,
+`REPAIR_COMPLETED`, `COMPLETED`, `PASS`, or equivalent is blocked until release
+and zero-lock proof pass. Failure returns
+`BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED`; a foreign overlapping lock returns
+`BLOCKED_BY_FOREIGN_EXTERNAL_STATE_LOCK` and is preserved. A later workload
+must acquire a fresh lock. No standing retention exception exists.
 
 ### Target-Scoped External-State Currentness Gate
 

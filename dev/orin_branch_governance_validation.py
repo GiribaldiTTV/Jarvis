@@ -3132,6 +3132,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_external_state_common.py",
     "dev/orin_external_state_init.py",
     "dev/orin_external_state_lock.py",
+    "dev/orin_external_state_lock_lifecycle.py",
     "dev/orin_external_state_promote.py",
     "dev/orin_external_state_promote_preview.py",
     "dev/orin_external_state_report.py",
@@ -3140,6 +3141,7 @@ STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES = {
     "dev/orin_external_state_lock_release.py",
     "dev/orin_external_state_target_reconcile.py",
     "dev/orin_external_state_target_currentness_fixture_validation.py",
+    "dev/orin_external_state_lock_lifecycle_fixture_validation.py",
     "dev/orin_user_review_bundle_false_green_fixture_validation.py",
     "dev/orin_repo_live_state_leakage_scan.py",
     "dev/orin_state_fold_down_preview.py",
@@ -3731,6 +3733,77 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.",
         "Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.",
+    ),
+}
+
+CURRENT_GATE_REPAIR_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Current-Gate Autonomous Repair Authority",
+        "`CGA-001`",
+        "`IRC-001`",
+        "`SGC-001`",
+        "`OCP-001`",
+        "`RLB-001`",
+        "`CDR-001`",
+        "`SELF_REPAIRABLE_CURRENT_GATE`",
+        "`USER_DECISION_REQUIRED`",
+        "`EXTERNAL_SAFETY_BLOCKER`",
+        "`REUSABLE_ENFORCEMENT_GAP`",
+        "Serial Repair Approval Drift",
+        "Repair Signature Repeated Without Root-Cause Repair",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Current-Gate Autonomous Repair Execution Rule",
+        "`SELF_REPAIRABLE_CURRENT_GATE`",
+        "`USER_DECISION_REQUIRED`",
+        "`EXTERNAL_SAFETY_BLOCKER`",
+        "`REUSABLE_ENFORCEMENT_GAP`",
+        "repair continuation latch",
+        "Compile machine-checkable gate contracts",
+        "Publish one coherent final canonical state",
+    ),
+    Path("Docs/nexus_startup_contract.md"): (
+        "Current-Gate Autonomous Repair Authority",
+        "four-class finding model",
+        "repair continuation latch",
+        "intermediate drafts noncanonical",
+        "repeated signatures",
+    ),
+    Path("Docs/orin_task_template.md"): (
+        "Current-Gate Approval Inheritance:",
+        "Current-Gate Invariants:",
+        "Finding Class:",
+        "Internal Repair Continuation Latch:",
+        "Semantic Gate Contract:",
+        "Canonical Publication State:",
+        "Repair Signature / Root-Cause Owner:",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "Current-Gate Repair Source-Truth Placement",
+        "`CGA-001`",
+        "`IRC-001`",
+        "`SGC-001`",
+        "`OCP-001`",
+        "`RLB-001`",
+        "`CDR-001`",
+        "One-Surviving-Canonical-Publish Model",
+        "Intermediate Draft Published As Current",
+    ),
+    Path("Docs/governance_intake_triage_and_digest_profiles.md"): (
+        "Current-Gate USER Decision Consolidation",
+        "`CDR-001`",
+        "one USER review boundary per gate",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Current-Gate Autonomous Repair And Semantic Contract",
+        "`dev/orin_current_gate_repair.py`",
+        "`dev/orin_current_gate_repair_fixture_validation.py`",
+        "25 negative and 16 positive",
+    ),
+    Path("Docs/incident_patterns.md"): (
+        "Serial Current-Gate Repair And Semantic Packet False Green",
+        "FAM-007-20260727-165940.zip",
+        "Foundation / infrastructure",
     ),
 }
 
@@ -22880,6 +22953,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: governed output state contract is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in CURRENT_GATE_REPAIR_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: current-gate repair contract is missing '{required_phrase}'",
             )
 
     for relative_path in MERGE_STABLE_CURRENT_STATE_DOCS:

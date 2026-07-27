@@ -258,6 +258,27 @@ Branch Class:
 Bounded State:
 [exact phase/stage, workspace, branch, write target, authority record, package/slice/seam, allowed scope, affected surfaces, validation contract, non-includes, pending USER decisions, stop/report conditions, and next legal phase]
 
+Current-Gate Approval Inheritance:
+[Active for deterministic same-gate repair / expired with reason / not applicable]
+
+Current-Gate Invariants:
+[candidate, scope fingerprint, owner, worktree, branch, phase, stage, selected-next, and separately gated actions]
+
+Current-Gate Finding Class:
+[SELF_REPAIRABLE_CURRENT_GATE / USER_DECISION_REQUIRED / EXTERNAL_SAFETY_BLOCKER / REUSABLE_ENFORCEMENT_GAP / none]
+
+Internal Repair Continuation Latch:
+[Active until all self-repairable signatures close / stopped on named lawful stop / not applicable]
+
+Semantic Gate Contract:
+[source owner, owner SHA256, rule/section, required artifacts/fields/enums, conditional fields, manual rows, stale-contract result]
+
+Canonical Publication State:
+[draft noncanonical / final transaction ready / one coherent final published / rollback restored prior canonical / not applicable]
+
+Repair Signature / Root-Cause Owner:
+[signature, occurrence count, generator/schema/helper/validator/source owner, root-cause repair status / none]
+
 Assigned Worktree Confinement:
 [Required / not applicable]
 
@@ -546,6 +567,15 @@ For phase-sensitive execution, the response must explicitly report:
 - `Continue Decision:`
 - `Continuation Execution Latch:`
 - `Stop Basis:`
+
+For an approved current-gate repair, also report `Current-Gate Finding Class:`,
+`Internal Repair Continuation Latch:`, `Semantic Gate Contract:`,
+`Canonical Publication State:`, and `Repair Signature / Root-Cause Owner:`.
+The detailed law remains in `Docs/phase_governance.md`. A self-repairable
+finding keeps execution active through repair and revalidation; a repeated
+signature requires root-cause owner repair; intermediate drafts remain
+noncanonical; USER decisions are consolidated; and a reusable enforcement gap
+does not block an independently complete current gate.
 
 Do not rely on generic `Results` or `Validation` headings by themselves.
 A green seam does not authorize stop while `Slice Status` remains non-green.

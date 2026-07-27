@@ -710,6 +710,58 @@ Use the smallest coherent slice for:
 
 These are execution rules, not analysis-stop rules.
 
+### Current-Gate Autonomous Repair Execution Rule
+
+`Docs/phase_governance.md` owns `CGA-001`, `IRC-001`, `SGC-001`,
+`OCP-001`, `RLB-001`, and `CDR-001`. Once the USER approves an exact current
+gate, deterministic defects that leave candidate, scope, owner, worktree,
+branch, phase, stage, selected-next posture, and separately gated actions
+unchanged are `SELF_REPAIRABLE_CURRENT_GATE`. Repair them, regenerate only
+noncanonical drafts, rerun the compiled gate contract and adversarial fixtures,
+and continue the same workload. Do not return another repair-approval request.
+
+Use only the four governed finding classes:
+`SELF_REPAIRABLE_CURRENT_GATE`, `USER_DECISION_REQUIRED`,
+`EXTERNAL_SAFETY_BLOCKER`, and `REUSABLE_ENFORCEMENT_GAP`. A material choice,
+waiver, scope/owner/carrier change, branch/worktree or issue action, phase/stage
+crossing, PR, merge, release, provider/private/runtime action, or other separate
+gate remains `USER_DECISION_REQUIRED`. Consolidate all presently knowable
+material choices before returning. Identity/ownership/foreign-lock/currentness
+risk is `EXTERNAL_SAFETY_BLOCKER`. A reusable automation gap is non-blocking
+only when the current gate is independently complete and semantically knowable.
+
+The internal repair continuation latch blocks final return while a
+self-repairable signature remains. A repeated signature requires
+generator/schema/helper/validator/source-owner repair plus sibling fixtures,
+not another output-only patch. Compile machine-checkable gate contracts from
+their live source owner before and after generation; reject stale owner hashes,
+wrong exact enums, missing artifacts/fields, omitted manual rows, and structural
+green with semantic failure. Publish one coherent final canonical state only
+after draft validation, preserve rollback, and keep intermediate packet/state
+attempts noncanonical. External-state publication retains the workload-scoped
+lock rule below.
+
+### External-State Lock Completion Rule
+
+Acquire an external-state lock only at the admitted protected transaction and
+only for its exact target set. Keep it only through snapshot, protected
+validation, reconciliation, writes, audit generation, and immediate post-write
+currentness checks. Use a guaranteed cleanup path so success, block, validation
+failure, handled exception, early return, cancellation handling, packet failure,
+or USER-gate stop cannot leave the workload lock active.
+
+Before the final USER digest, release the lock and independently reread the
+authoritative table. The completed workload active-lock count and the global
+active-lock inventory must both be reported; the completed workload count must
+be zero. A disjoint foreign workload is preserved and reported rather than
+misattributed to the completed workload. A receipt, cached count, or helper
+claim does not replace that read. Never retain a lock for another prompt, approval,
+continuation, handoff, or idle period; the next workload acquires a fresh lock.
+Preserve a foreign active lock and block overlapping work. Recover a stale lock
+only when the completed workload, dead owner process, finished transaction, and
+exact target ownership are proven. Release failure is
+`BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED`, never green.
+
 ## Testing And Validation
 
 Every revision must include:

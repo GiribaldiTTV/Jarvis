@@ -19,6 +19,7 @@ from orin_external_state_common import (
     validate_canonical_root,
     validate_initialized_root,
 )
+from orin_external_state_lock_lifecycle import inspect_lock_table, verify_final_lock_state
 
 
 REQUIRED_STAGE4_RECORDS = [
@@ -51,6 +52,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Fail when the external root is absent. Omit for clean-clone-safe local report mode.",
     )
     parser.add_argument(
+        "--final-lock-gate",
+        action="store_true",
+        help="Require independent completed-workload and authoritative zero-lock proof.",
+    )
+    parser.add_argument(
+        "--completed-workload-id",
+        help="Exact workload identity for --final-lock-gate.",
+    )
+    parser.add_argument(
         "--require-stage4-records",
         action="store_true",
         help=(
@@ -69,6 +79,15 @@ def build_parser() -> argparse.ArgumentParser:
             "Run additive target-scoped currentness validation. This mode requires one explicit "
             "relative target and per-target identity expectations; it does not claim root-wide currentness."
         ),
+    )
+    parser.add_argument(
+        "--semantic-currentness",
+        action="store_true",
+        help="Compare the live Governance branch, plan, and worktree projections as one semantic contract.",
+    )
+    parser.add_argument(
+        "--semantic-repo-record",
+        help="Optional repo branch record to verify as durable routing law rather than live operational state.",
     )
     parser.add_argument(
         "--target",
@@ -184,9 +203,14 @@ def _field_alias_failures(
     relative: str,
     text: str,
     fields: tuple[str, ...],
+    normalizer=lambda value: value.strip(),
 ) -> list[str]:
     values = _markdown_field_values(text, fields)
     if len(values) <= 1:
+        return []
+    field_names = [field for field, _ in values]
+    normalized_values = {normalizer(value) for _, value in values}
+    if len(field_names) == len(set(field_names)) and len(normalized_values) == 1:
         return []
     rendered = ", ".join(f"{field}={value!r}" for field, value in values)
     return [
@@ -315,9 +339,30 @@ def validate_target_currentness(
         return failures
 
     live_text = _live_header_text(text)
-    failures.extend(_field_alias_failures(relative, live_text, ("Branch", "Current Branch")))
-    failures.extend(_field_alias_failures(relative, live_text, ("Source Repo HEAD", "Current HEAD")))
-    failures.extend(_field_alias_failures(relative, live_text, ("Origin/Main", "Source origin/main")))
+    failures.extend(
+        _field_alias_failures(
+            relative,
+            live_text,
+            ("Branch", "Current Branch"),
+            lambda value: value.strip(),
+        )
+    )
+    failures.extend(
+        _field_alias_failures(
+            relative,
+            live_text,
+            ("Source Repo HEAD", "Current HEAD"),
+            lambda value: value.strip().casefold(),
+        )
+    )
+    failures.extend(
+        _field_alias_failures(
+            relative,
+            live_text,
+            ("Origin/Main", "Source origin/main"),
+            lambda value: value.strip().casefold(),
+        )
+    )
     failures.extend(_field_alias_failures(relative, live_text, ("Worktree Path",)))
     failures.extend(_field_alias_failures(relative, live_text, ("Slot ID",)))
     if failures:
@@ -360,6 +405,224 @@ def validate_target_currentness(
         failures.append(f"Target Currentness: {relative} is missing Record Role classification")
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
+    return failures
+
+
+GOVERNANCE_SEMANTIC_TARGETS = {
+    "branches/feature_release_readiness_source_truth_intake/branch_state.md": "branch state",
+    "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "branch plan",
+    "worktrees/Governance/worktree_state.md": "worktree state",
+}
+GOVERNANCE_SEMANTIC_FIELDS = (
+    "Current Cycle",
+    "Current Gate",
+    "Current USER Packet Status",
+    "Current Pull Request",
+    "Current PR State",
+    "Current Approval State",
+    "Current Write Set",
+    "Current Validation State",
+    "Neutral Main State",
+    "Next Legal Gate",
+)
+
+
+def _semantic_header_fields(text: str) -> dict[str, str]:
+    header = _live_header_text(text)
+    return {
+        field: markdown_field_value(header, field) or ""
+        for field in GOVERNANCE_SEMANTIC_FIELDS
+    }
+
+
+def _current_named_sections(text: str) -> dict[str, str]:
+    """Return only explicit current sections; receipt sections stay historical."""
+
+    lines = text.splitlines()
+    sections: dict[str, str] = {}
+    current_heading_names = {"active cycle", "current gate"}
+    heading_matches = [
+        (index, line[3:].strip())
+        for index, line in enumerate(lines)
+        if line.startswith("## ")
+    ]
+    for position, (start, heading) in enumerate(heading_matches):
+        if heading.casefold() not in current_heading_names:
+            continue
+        end = heading_matches[position + 1][0] if position + 1 < len(heading_matches) else len(lines)
+        sections[heading.casefold()] = "\n".join(lines[start + 1 : end])
+    return sections
+
+
+def _semantic_field_values(text: str, field: str) -> list[str]:
+    values: list[str] = []
+    header = _live_header_text(text)
+    value = markdown_field_value(header, field)
+    if value:
+        values.append(value)
+    for section_text in _current_named_sections(text).values():
+        value = markdown_field_value(section_text, field)
+        if value:
+            values.append(value)
+    return values
+
+
+def validate_governance_semantic_currentness(
+    root: Path,
+    *,
+    repo_branch_record: Path | None = None,
+    expected_cycle: str | None = None,
+) -> list[str]:
+    """Validate agreement across the three live Governance projections.
+
+    This is intentionally narrower than a root-wide freshness check. It compares
+    the live operational contract while preserving receipt sections as evidence.
+    """
+
+    failures: list[str] = []
+    root = resolve_path(root)
+    target_texts: dict[str, str] = {}
+    for relative, label in GOVERNANCE_SEMANTIC_TARGETS.items():
+        path = root.joinpath(*relative.split("/"))
+        if not path.is_file():
+            failures.append(f"Semantic Currentness: missing Governance {label}: {relative}")
+            continue
+        try:
+            target_texts[relative] = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            failures.append(f"Semantic Currentness: unreadable Governance {label}: {relative}: {exc}")
+
+    if len(target_texts) != len(GOVERNANCE_SEMANTIC_TARGETS):
+        return failures
+
+    live_fields = {
+        relative: _semantic_header_fields(text)
+        for relative, text in target_texts.items()
+    }
+    identity_fields = (
+        ("Branch", ("Branch", "Current Branch"), lambda value: value.strip().casefold()),
+        ("Source Repo HEAD", ("Source Repo HEAD", "Current HEAD"), lambda value: value.strip().casefold()),
+        ("Origin/Main", ("Origin/Main", "Source origin/main"), lambda value: value.strip().casefold()),
+        ("Worktree Path", ("Worktree Path",), _normalized_windows_value),
+        ("Slot ID", ("Slot ID",), lambda value: value.strip().casefold()),
+    )
+    for label, aliases, normalizer in identity_fields:
+        values: dict[str, str] = {}
+        for relative, text in target_texts.items():
+            value = _first_markdown_field(_live_header_text(text), aliases) or ""
+            values[relative] = value
+            if not value:
+                failures.append(f"Semantic Currentness: {relative} is missing {label}")
+        normalized = {normalizer(value) for value in values.values() if value}
+        if len(normalized) > 1:
+            failures.append(f"Semantic Currentness: live Governance records disagree on {label}: {values}")
+
+    for field in GOVERNANCE_SEMANTIC_FIELDS:
+        values = {relative: fields[field] for relative, fields in live_fields.items()}
+        if any(not value for value in values.values()):
+            failures.append(
+                f"Semantic Currentness: live Governance records must all declare {field}: {values}"
+            )
+            continue
+        normalized = {re.sub(r"\s+", " ", value).strip().casefold() for value in values.values()}
+        if len(normalized) != 1:
+            failures.append(f"Semantic Currentness: live Governance records disagree on {field}: {values}")
+
+    cycle_values = [fields["Current Cycle"] for fields in live_fields.values()]
+    cycle = cycle_values[0] if cycle_values else ""
+    if expected_cycle and cycle != expected_cycle:
+        failures.append(
+            f"Semantic Currentness: expected Current Cycle {expected_cycle!r}, found {cycle!r}"
+        )
+    if not re.fullmatch(r"RRI-\d{8}-\d{3}", cycle):
+        failures.append(f"Semantic Currentness: Current Cycle is not a live RRI identity: {cycle or 'MISSING'}")
+
+    current_values = next(iter(live_fields.values()))
+    current_pr = current_values["Current Pull Request"].casefold()
+    pr_state = current_values["Current PR State"].casefold()
+    no_current_pr = bool(
+        re.search(r"\bnone\b|\bno\s+(?:open|current|live)\s+pr\b", current_pr)
+    )
+    state_is_no_current_pr = bool(
+        re.search(r"\bnone\b|\bclosed\b|\bmerged\b|\bhistorical\b", pr_state)
+    )
+    if no_current_pr != state_is_no_current_pr:
+        failures.append(
+            "Semantic Currentness: Current Pull Request and Current PR State disagree "
+            "about whether a current PR exists"
+        )
+    if not no_current_pr and not re.search(r"\bpr\s*#?\d+\b|https://", current_pr):
+        failures.append(
+            "Semantic Currentness: an active Current Pull Request must identify a PR number or URL"
+        )
+    packet_status = current_values["Current USER Packet Status"].casefold()
+    if "current" in packet_status and "historical evidence only" in packet_status:
+        failures.append(
+            "Semantic Currentness: Current USER Packet Status simultaneously claims current and historical-only authority"
+        )
+    approval = current_values["Current Approval State"].casefold()
+    if "approved" not in approval and "not approved" not in approval:
+        failures.append(
+            "Semantic Currentness: Current Approval State must state an explicit approved or not-approved boundary"
+        )
+    write_set = current_values["Current Write Set"].casefold()
+    for required in ("branch_state.md", "branch_plan.md", "worktree_state.md"):
+        if required not in write_set:
+            failures.append(f"Semantic Currentness: Current Write Set omits {required}")
+    neutral_state = current_values["Neutral Main State"].casefold()
+    neutral_is_current = any(
+        marker in neutral_state
+        for marker in ("current", "up to date", "equal to origin/main", "matches origin/main")
+    )
+    neutral_is_stale = "stale" in neutral_state
+    if not neutral_is_current and not neutral_is_stale:
+        failures.append(
+            "Semantic Currentness: Neutral Main State must explicitly classify neutral main as current or stale"
+        )
+    if neutral_is_current and neutral_is_stale:
+        failures.append(
+            "Semantic Currentness: Neutral Main State cannot classify neutral main as both current and stale"
+        )
+    if neutral_is_stale and not any(
+        marker in neutral_state for marker in ("pending", "blocked", "decision", "rebaseline")
+    ):
+        failures.append(
+            "Semantic Currentness: stale Neutral Main State must include its pending or blocked disposition"
+        )
+
+    for relative, text in target_texts.items():
+        disposition = markdown_field_value(_live_header_text(text), "Final Disposition")
+        if disposition and "remains idle" in disposition.casefold():
+            failures.append(
+                f"Semantic Currentness: {relative} Final Disposition retains stale idle posture"
+            )
+
+    for relative, text in target_texts.items():
+        sections = _current_named_sections(text)
+        for section_name, section_text in sections.items():
+            for field in ("Current Cycle", "Current Gate", "Current Pull Request", "Current PR State"):
+                section_value = markdown_field_value(section_text, field)
+                header_value = live_fields[relative].get(field, "")
+                if section_value and re.sub(r"\s+", " ", section_value).strip().casefold() != re.sub(r"\s+", " ", header_value).strip().casefold():
+                    failures.append(
+                        f"Semantic Currentness: {relative} current section {section_name!r} disagrees on {field}"
+                    )
+
+    if repo_branch_record is not None:
+        try:
+            record_text = repo_branch_record.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            failures.append(f"Semantic Currentness: unreadable repo branch record: {exc}")
+        else:
+            current_record = record_text.split("## Historical", 1)[0]
+            if "external operational state only" not in current_record.casefold():
+                failures.append(
+                    "Semantic Currentness: repo branch record must route current cycle/gate state to external operational state"
+                )
+            if "active seam: `external operational state only" not in record_text.casefold():
+                failures.append(
+                    "Semantic Currentness: repo Active Seam must be an external-state routing pointer"
+                )
     return failures
 
 
@@ -1273,15 +1536,15 @@ def validate_released_locks(root: Path) -> list[str]:
     locks_dir = root / "locks"
     if not locks_dir.exists():
         return ["External State Missing: locks directory missing"]
-    for lock_path in sorted(locks_dir.glob("*.json")):
-        try:
-            payload = load_json(lock_path)
-        except Exception as exc:  # noqa: BLE001 - corrupt lock files block local operational workflow
-            issues.append(f"External State Corrupt: {lock_path}: {exc}")
-            continue
-        lock_state = str(payload.get("Lock State", "MISSING"))
-        if lock_state not in {"Released", "Expired"}:
-            issues.append(f"Stale Lock Recovery Required: {lock_path}: Lock State is {lock_state}")
+    for inspection in inspect_lock_table(root):
+        if inspection.classification == "MALFORMED":
+            issues.append(f"External State Corrupt: {inspection.path}: {inspection.error}")
+        elif inspection.active:
+            issues.append(
+                "Stale Lock Recovery Required: "
+                f"{inspection.path}: Lock State is {inspection.lock_state}; "
+                f"classification is {inspection.classification}"
+            )
     return issues
 
 
@@ -1295,6 +1558,7 @@ def main() -> int:
     print(f"Root: {root}")
     print(f"Root Required: {'YES' if args.require_root else 'NO'}")
     print(f"Stage 4 Records Required: {'YES' if args.require_stage4_records else 'NO'}")
+    print(f"Final Lock Gate Required: {'YES' if args.final_lock_gate else 'NO'}")
 
     if issues:
         print("Validation Result: BLOCKED")
@@ -1351,6 +1615,30 @@ def main() -> int:
         print("Target PASS Is Root-Wide PASS: NO")
         return 0
 
+    if args.semantic_currentness:
+        initialization_issues = validate_initialized_root(root, args.schema)
+        if initialization_issues:
+            print("Validation Scope: GOVERNANCE_SEMANTIC_CURRENTNESS")
+            print("Semantic Currentness Validation: BLOCKED")
+            for issue in initialization_issues:
+                print(issue)
+            return 1
+        semantic_issues = validate_governance_semantic_currentness(
+            root,
+            repo_branch_record=resolve_path(args.semantic_repo_record)
+            if args.semantic_repo_record
+            else None,
+        )
+        print("Validation Scope: GOVERNANCE_SEMANTIC_CURRENTNESS")
+        if semantic_issues:
+            print("Semantic Currentness Validation: BLOCKED")
+            for issue in semantic_issues:
+                print(issue)
+            return 1
+        print("Semantic Currentness Validation: PASS")
+        print("Semantic PASS Is Root-Wide PASS: NO")
+        return 0
+
     manifest_path = root / "state_manifest.json"
     if not manifest_path.exists():
         issues.append("External State Corrupt: state_manifest.json missing")
@@ -1395,6 +1683,19 @@ def main() -> int:
         issues.extend(validate_released_locks(root))
         issues.extend(validate_active_branch_plan_posture(root))
         issues.extend(validate_fam007_workstream_visual_acceptance_gate(root))
+    if args.final_lock_gate:
+        if not args.completed_workload_id:
+            issues.append("Completed Workload Identity Missing: --completed-workload-id is required")
+        else:
+            final_ok, final_messages = verify_final_lock_state(
+                root,
+                workload_id=args.completed_workload_id,
+                require_global_zero=False,
+            )
+            for message in final_messages:
+                print(message)
+            if not final_ok:
+                issues.append("BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED")
 
     if issues:
         print("Validation Result: BLOCKED")

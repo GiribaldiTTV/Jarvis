@@ -94,6 +94,26 @@ Prompt generation must preserve stage progression discipline:
 - Workstream Entry is BP3 inside Branch Planning when current source truth says so
 - release execution requires separate explicit USER approval
 
+Prompt generation must preserve the `Current-Gate Autonomous Repair Authority`
+owned by `Docs/phase_governance.md`. After an exact gate is USER-approved, a
+prompt must not turn deterministic same-gate defects into serial USER repair
+approvals. It must require the four-class finding model, keep the internal
+repair continuation latch active through repair/regeneration/revalidation, and
+return only when the gate is green, a consolidated material USER decision is
+required, an external safety blocker exists, or a root-cause owner outside the
+legal carrier blocks semantic completion.
+
+Generated prompts must preserve candidate, scope, owner, worktree, branch,
+phase, stage, and selected-next invariants during autonomous repair. They must
+request live source-owner gate-contract compilation, expose manual review rows,
+keep intermediate drafts noncanonical, require one coherent final publication,
+route repeated signatures to generator/schema/helper/validator/source-owner
+repair, and preserve workload-lock release plus authoritative zero-lock proof
+before final return. ChatGPT/Codex recommendations, packet structure, helper
+green, and copied source truth are evidence, not USER approval or semantic gate
+proof. Material scope/owner/carrier/waiver/phase/stage/PR/merge/release decisions
+remain separate and explicit.
+
 For Workstream-specific prompt generation, load the current phase owner and preserve its current bounded-continuation markers. Routing phrases that must remain discoverable for validators and prompt review include: Seam Sequence; continue-or-stop; Next-Seam Continuation Required; entry seam, not a terminal boundary; Bounded means one active seam at a time, not one-seam Workstream authority.; A single-seam Workstream requires explicit USER waiver before Workstream may stop after one seam while the package or slice remains incomplete.; Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.; If only one seam or one slice is planned or visible, stop immediately on `Single-Seam Or Single-Slice Workstream Blocker` until Branch Readiness expands the plan or USER grants a waiver.; Only USER can grant a single-seam or single-slice Workstream waiver; Codex, ChatGPT, validators, prompt wording, clean validation, or a green seam cannot infer it.; A Workstream with `Completion Status: In Progress` and no waiver must show remaining same-branch implementable work beyond the current seam.; seams inside the current slice may be predeclared in canon or discovered from repo truth while the slice remains in progress; there is no repo-wide cap on how many slices a branch or workstream may carry; same-branch backlog completion is the branch-level default: later slices for the same backlog item stay on the same branch when scope, phase, risk, and validation authority remain green; continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green; when a slice turns green during `Workstream`, advance immediately to the next admitted slice while `Completion Status` remains `In Progress`; `Workstream` reaches `Hardening` only when `Completion Status: Green`; green seam or green slice is continuation proof, not Hardening authority; `Completion Status: Green` means every admitted same-branch seam and slice for the current Workstream branch is complete, deferred, blocked, or explicitly waived in source truth; `Completion Status: Red` means a named blocker or waiver currently stops bounded Workstream continuation; `Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.; Phase Boundary Stop Required; A phase-exit seam named in `Next Active Seam` is a handoff target, not current-phase execution authority.; Bounded Workstream continuation ends at phase boundaries; it never crosses from Workstream into Hardening by inertia.; Codex must not execute Hardening, Live Validation, PR Readiness, Release Readiness, release work, or any other next phase in the same run unless USER explicitly admits that phase after reviewing the handoff.; Backlog Completion State; Backlog-Split User Approval; Backlog-Split Reason.
 
 These phrases are routing and validation anchors. The detailed rule owner remains `Docs/phase_governance.md`.

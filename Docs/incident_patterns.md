@@ -903,3 +903,95 @@ fail-closed path and alias handling, audit details for every added or replaced
 field, adversarial mutation fixtures, and a dedicated
 `PR_READINESS_STAGE1_REVIEW.md` primary packet artifact. ZIP parity or helper
 green alone does not clear this incident class.
+
+## Incident Pattern: External-State Lock Outlives Its Workload
+
+When an external-state lock remains active after protected work finishes, while
+Codex waits for USER approval, or after a success digest is prepared, the lock
+has been misused as thread ownership or a future-continuation reservation. The
+same false green occurs when a release receipt exists but the authoritative
+entry is still active, or when a helper prints zero without rereading the lock
+table. Prevention requires exact workload and target identity at acquisition,
+guaranteed same-workload release on every exit path, process-aware stale-lock
+classification, preservation of foreign active locks, and an independent final
+authoritative read proving the completed workload count is zero while reporting
+the global active-lock inventory and preserving disjoint foreign work.
+Retained-lock fixtures must fail the public final-return gate; success, blocked,
+validation-failure, exception, partial-write, stale-cleanup, foreign-lock, and
+fresh-next-workload fixtures must prove truthful cleanup behavior.
+
+Source references:
+
+- `Docs/governance_efficiency_operating_model.md`
+- `Docs/development_rules.md`
+- `Docs/phase_governance.md`
+- `Docs/external_operational_state_store_reform_plan.md`
+- `Docs/validation_helper_registry.md`
+- `dev/orin_external_state_lock_lifecycle.py`
+- `dev/orin_external_state_lock_lifecycle_fixture_validation.py`
+
+## Incident Pattern: Identity-Only External State False Green
+
+When branch state, branch plan, and worktree state each have matching branch,
+HEAD, origin/main, path, and hash markers but disagree about the current gate,
+packet, PR, approval, or next legal phase, target-scoped validation has proved
+identity only and has not proved operational truth. The same failure appears
+when a historical merged PR or superseded Stage 1 packet is parsed as current
+state, or when a repo branch record mirrors live external fields instead of
+routing to their external owner.
+
+Prevention requires a cross-record semantic-currentness pass before any
+rebaseline or PR gate. Compare all three live Governance projections as one
+contract; parse only explicit current sections; preserve receipt sections as
+historical evidence; require exact approval provenance; and fail if one target
+is stale or if current PR/phase/stage/gate/packet assertions disagree. Run the
+semantic positive and negative fixture family in addition to target identity,
+lock-lifecycle, and external-root validation. A green identity check alone is
+not a current-state green.
+
+Source references:
+
+- `Docs/external_operational_state_store_reform_plan.md`
+- `Docs/phase_governance.md`
+- `Docs/validation_helper_registry.md`
+- `dev/orin_external_state_validation.py`
+- `dev/orin_external_state_target_currentness_fixture_validation.py`
+
+## Incident Pattern: Serial Current-Gate Repair And Semantic Packet False Green
+
+When an already approved gate returns to the USER for each deterministic missing
+field, wrong enum, stale alias, packet regeneration, or helper defect, approval
+has been mistaken for a one-draft token. The same incident appears when a
+structurally valid folder/ZIP passes parity and hash checks while a governed
+semantic field is free-form, or when each repeated output patch repairs the
+latest literal symptom without changing the generator/schema/helper/validator
+that recreates it.
+
+Prevention requires `CGA-001` approval inheritance, the exact four finding
+classes, and an `IRC-001` continuation latch. Compile the gate contract from its
+live source owner before and after generation, expose manual rows, reject exact
+enum and required-artifact/field defects before publication, and preserve
+candidate/scope/owner/carrier/phase/stage/selected-next invariants. Keep drafts
+noncanonical and publish one rollback-capable final state. Give every defect a
+stable signature; the second equivalent occurrence must repair its root-cause
+owner and sibling fixture family rather than receive another packet-only patch
+or equivalent USER repair prompt. Consolidate all presently knowable true USER
+choices into one packet while leaving later separately gated actions explicit.
+
+The FAM-007 `FAM-007-20260727-165940.zip` packet is the regression seed:
+structural packet proof did not reject
+`Implementation-bearing route class: Foundation / infrastructure` even though
+BR1 source truth allows only its exact route-class enum. That value remains
+valid only in the separate package/concrete-feature classification field. The
+checked-in minimal fixture preserves the source ZIP SHA and invalid row without
+making the local ZIP a clean-clone dependency or mutating the FAM carrier.
+
+Source references:
+
+- `Docs/phase_governance.md`
+- `Docs/development_rules.md`
+- `Docs/governance_efficiency_operating_model.md`
+- `Docs/validation_helper_registry.md`
+- `dev/orin_current_gate_repair.py`
+- `dev/orin_current_gate_repair_fixture_validation.py`
+- `dev/orin_user_review_bundle.py`

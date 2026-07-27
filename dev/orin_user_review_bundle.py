@@ -20,12 +20,20 @@ import shutil
 import stat
 import struct
 import subprocess
+import tempfile
 import zipfile
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Mapping
+
+from orin_current_gate_repair import (
+    CanonicalPacketPublisher,
+    GateContractError,
+    compile_br1_stage1_contract,
+    validate_br1_stage1_packet,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -657,6 +665,7 @@ class LocalUserPacketValidationResult:
     zip_file_count: int
     primary_user_review_files: tuple[str, ...]
     failures: list[str]
+    manual_contract_rows: tuple[str, ...] = ()
 
 
 def _desktop_path() -> Path:
@@ -1113,6 +1122,7 @@ def _validate_export_zip(
             packet_files,
             packet_entries=entries,
         ),
+        *_current_gate_contract_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -3064,6 +3074,28 @@ def _fam003_lv1_visual_retest_semantic_failures(
     return failures
 
 
+def _current_gate_contract_validation(
+    packet_files: Mapping[str, str],
+):
+    contract = compile_br1_stage1_contract(ROOT / "Docs" / "phase_governance.md")
+    return validate_br1_stage1_packet(packet_files, contract)
+
+
+def _current_gate_contract_failures(packet_files: Mapping[str, str]) -> list[str]:
+    try:
+        result = _current_gate_contract_validation(packet_files)
+    except (OSError, UnicodeError, GateContractError) as exc:
+        return [
+            "Semantic gate-contract compilation failed before packet publication: "
+            f"{exc}"
+        ]
+    return [
+        f"{finding.finding_class.value} [{finding.code}] "
+        f"{finding.artifact or '<packet>'}: {finding.message}"
+        for finding in result.findings
+    ]
+
+
 def validate_local_user_packet(
     packet_dir: Path,
     *,
@@ -3083,6 +3115,7 @@ def validate_local_user_packet(
     packet_dir = packet_dir.resolve()
     export_zip = export_zip.resolve()
     failures: list[str] = []
+    manual_contract_rows: tuple[str, ...] = ()
 
     if validation_mode == PACKET_VALIDATION_MODE_ACTIVE_REVIEW:
         missing_identity = [
@@ -3270,6 +3303,23 @@ def validate_local_user_packet(
         )
     )
     failures.extend(_active_review_aid_false_green_failures(packet_files))
+    try:
+        gate_contract_result = _current_gate_contract_validation(packet_files)
+    except (OSError, UnicodeError, GateContractError) as exc:
+        failures.append(
+            "Semantic gate-contract compilation failed during packet validation: "
+            f"{exc}"
+        )
+    else:
+        failures.extend(
+            f"{finding.finding_class.value} [{finding.code}] "
+            f"{finding.artifact or '<packet>'}: {finding.message}"
+            for finding in gate_contract_result.findings
+        )
+        manual_contract_rows = tuple(
+            f"{row.artifact}: {row.field_name} = {row.status} ({row.reason})"
+            for row in gate_contract_result.manual_rows
+        )
     failures.extend(
         _source_truth_context_currentness_failures(
             packet_files,
@@ -3304,6 +3354,7 @@ def validate_local_user_packet(
         zip_file_count=len(zip_entries),
         primary_user_review_files=primary_files,
         failures=failures,
+        manual_contract_rows=manual_contract_rows,
     )
 
 
@@ -3339,6 +3390,9 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
         )
     else:
         lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, folder/ZIP file-list plus content-hash parity, and FAM-003 LV1 PNG image-integrity gates where applicable are validated.")
+    if result.manual_contract_rows:
+        lines.append("Manual Gate-Contract Rows:")
+        lines.extend(f"- {row}" for row in result.manual_contract_rows)
     return "\n".join(lines)
 
 
@@ -11872,9 +11926,18 @@ def build_bundle(
 
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
-    review_root, target = _safe_target(desktop, review_root_name, label)
-    if target.exists():
-        _clear_target(target)
+    canonical_review_root, canonical_target = _safe_target(
+        desktop,
+        review_root_name,
+        label,
+    )
+    compile_br1_stage1_contract(ROOT / "Docs" / "phase_governance.md")
+    canonical_review_root.mkdir(parents=True, exist_ok=True)
+    draft_context = tempfile.TemporaryDirectory(
+        prefix=f"nexus-{_sanitize_folder_name(label)}-review-draft-"
+    )
+    review_root = Path(draft_context.name).resolve()
+    target = (review_root / _sanitize_folder_name(label)).resolve()
     target.mkdir(parents=True, exist_ok=True)
     user_review_dir = target / USER_REVIEW_DIR_NAME
     review_aids_dir = target / REVIEW_AIDS_DIR_NAME
@@ -11902,18 +11965,19 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    export_zip = _export_zip_path(review_root, label, created_at_dt)
+    canonical_export_zip = _export_zip_path(canonical_review_root, label, created_at_dt)
     if review_export_zip is not None:
         requested_export_zip = review_export_zip.resolve()
-        if requested_export_zip.parent != review_root.resolve():
+        if requested_export_zip.parent != canonical_review_root.resolve():
             raise ValueError(
                 "Review export zip override must live beside the local USER hub folder: "
-                f"expected parent={review_root.resolve()} actual parent={requested_export_zip.parent}"
+                f"expected parent={canonical_review_root.resolve()} actual parent={requested_export_zip.parent}"
             )
         name_failures = _timestamped_export_zip_name_failures(requested_export_zip, label)
         if name_failures:
             raise ValueError("; ".join(name_failures))
-        export_zip = requested_export_zip
+        canonical_export_zip = requested_export_zip
+    export_zip = (review_root / canonical_export_zip.name).resolve()
     normalized_decision = exact_user_decision.casefold()
     workstream_package_approval_packet = (
         source_branch in FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES
@@ -12193,8 +12257,8 @@ def build_bundle(
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
-        packet_folder=target,
-        export_zip=export_zip,
+        packet_folder=canonical_target,
+        export_zip=canonical_export_zip,
         copied=copied,
         extra_bundle_files=extra_bundle_files,
         bundle_file_count=bundle_file_count,
@@ -12227,7 +12291,7 @@ def build_bundle(
         "",
         f"Review Purpose: {review_purpose}",
         "Review Location: Open this folder in the local USER hub and upload the matching timestamped ZIP beside it.",
-        f"Local USER Hub Folder: `{target}`",
+        f"Local USER Hub Folder: `{canonical_target}`",
         f"Custom Review Path Waiver: {custom_review_path_waiver}",
         f"Custom Review Path Reason: {custom_review_path_reason_value}",
         "Review Safety Note: Copied files are selected repo source-truth and "
@@ -12313,6 +12377,7 @@ def build_bundle(
         *_user_branch_vision_substantive_failures(generated_packet_files),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
+        *_current_gate_contract_failures(generated_packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -12320,17 +12385,51 @@ def build_bundle(
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
     expected_zip_entries = {path.relative_to(target).as_posix() for path in bundle_paths}
-    _remove_stale_same_label_export_zips(review_root, label, export_zip)
     _write_export_zip(target, export_zip)
-    _validate_export_zip(
-        export_zip,
-        source_branch=source_branch,
-        source_head=source_head,
-        origin_main=origin_main,
-        expected_label=label,
-        expected_entries=expected_zip_entries,
+
+    def validate_draft() -> None:
+        _validate_export_zip(
+            export_zip,
+            source_branch=source_branch,
+            source_head=source_head,
+            origin_main=origin_main,
+            expected_label=label,
+            expected_entries=expected_zip_entries,
+        )
+
+    def validate_final() -> None:
+        _validate_export_zip(
+            canonical_export_zip,
+            source_branch=source_branch,
+            source_head=source_head,
+            origin_main=origin_main,
+            expected_label=label,
+            expected_entries=expected_zip_entries,
+        )
+        final_contract_failures = _current_gate_contract_failures(
+            _packet_text_files(canonical_target)
+        )
+        if final_contract_failures:
+            raise ValueError(
+                "Canonical USER packet semantic gate-contract validation failed:\n"
+                + "\n".join(f"- {failure}" for failure in final_contract_failures)
+            )
+
+    superseded_paths = sorted(
+        _same_label_export_zip_paths(canonical_review_root, label)
     )
-    return target, export_zip
+    publisher = CanonicalPacketPublisher(canonical_review_root)
+    publisher.publish(
+        draft_folder=target,
+        draft_zip=export_zip,
+        canonical_folder=canonical_target,
+        canonical_zip=canonical_export_zip,
+        superseded_paths=superseded_paths,
+        validate_draft=validate_draft,
+        validate_final=validate_final,
+    )
+    draft_context.cleanup()
+    return canonical_target, canonical_export_zip
 
 
 def main() -> int:

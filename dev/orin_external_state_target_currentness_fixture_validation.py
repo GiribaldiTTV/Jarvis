@@ -22,6 +22,12 @@ HEAD = "a" * 40
 ORIGIN_MAIN = "b" * 40
 WORKTREE_PATH = r"C:\Nexus Worktrees\Governance"
 SLOT = "governance-standing"
+SEMANTIC_TARGETS = {
+    "branches/feature_release_readiness_source_truth_intake/branch_state.md": "branch_state",
+    "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "branch_plan",
+    "worktrees/Governance/worktree_state.md": "worktree_state",
+}
+SEMANTIC_CYCLE = "RRI-20260727-001"
 
 
 def _target_path(root: Path) -> Path:
@@ -94,6 +100,105 @@ def _expectations(target: Path) -> dict[str, str]:
         "expected_worktree_slot": SLOT,
         "expected_target_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
     }
+
+
+def _semantic_root(root: Path) -> dict[str, Path]:
+    _manifest(root)
+    paths: dict[str, Path] = {}
+    common = [
+        "External State Schema: `external-state-v1`",
+        "State Version: `1`",
+        "Last Updated: `2026-07-27T20:00:00Z`",
+        "Last Updated By: `fixture`",
+        "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+        "Worktree: `C:\\Nexus Worktrees\\Governance`",
+        "Worktree Path: `C:\\Nexus Worktrees\\Governance`",
+        "Slot ID: `governance-standing`",
+        "Branch: `feature/release-readiness-source-truth-intake`",
+        f"Source Repo HEAD: `{HEAD}`",
+        f"Origin/Main: `{ORIGIN_MAIN}`",
+        f"Current Cycle: `{SEMANTIC_CYCLE}`",
+        "Current Gate: `Bounded semantic currentness and lock-lifecycle reconciliation active; neutral-main fast-forward-only rebaseline pending separate USER decision.`",
+        "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`",
+        "Current Pull Request: `None - no open/current PR; PR #290 historical merged evidence only.`",
+        "Current PR State: `None / historical merged evidence only`",
+        "Current Approval State: `Bounded reconciliation approved; staging, commit, and push are not approved.`",
+        "Current Write Set: `branch_state.md; branch_plan.md; worktree_state.md`",
+        "Current Validation State: `Semantic currentness and lock lifecycle validated; repair uncommitted.`",
+        "Neutral Main State: `Stale versus fetched origin/main; fast-forward pending USER decision.`",
+        "Next Legal Gate: `USER decision on fresh neutral-main fast-forward / Governance durability packet.`",
+        "Final Disposition: `Bounded semantic-currentness and lock-lifecycle reconciliation remains active; neutral-main rebaseline is pending separate USER decision.`",
+    ]
+    record_contracts = {
+        "branch_state": (
+            "Live Branch Projection",
+            "Post-merge Governance branch authority projection",
+        ),
+        "branch_plan": (
+            "Live Branch Plan Projection",
+            "Post-merge Governance branch plan projection",
+        ),
+        "worktree_state": (
+            "Live Worktree Projection",
+            "Current worktree assignment and acknowledgement projection",
+        ),
+    }
+    for relative, label in SEMANTIC_TARGETS.items():
+        record_class, record_role = record_contracts[label]
+        path = root.joinpath(*relative.split("/"))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        identity = [
+            f"Record Class: `{record_class}`",
+            f"Record Role: `{record_role}`",
+        ]
+        path.write_text(
+            "# Semantic Currentness Fixture\n" + "\n".join([*common[:4], *identity, *common[4:]]) + "\n",
+            encoding="utf-8",
+        )
+        paths[relative] = path
+    return paths
+
+
+def _semantic_failures(root: Path) -> list[str]:
+    return validator.validate_governance_semantic_currentness(root, expected_cycle=SEMANTIC_CYCLE)
+
+
+def _semantic_target_snapshot(
+    root: Path,
+    paths: dict[str, Path],
+    name: str,
+    lock_id: str,
+) -> Path:
+    command = [
+        sys.executable,
+        str(Path(__file__).with_name("orin_external_state_snapshot.py")),
+        "--root",
+        str(root),
+        "--reason",
+        "bounded target-set fixture",
+        "--worktree",
+        WORKTREE_PATH,
+        "--branch",
+        "feature/release-readiness-source-truth-intake",
+        "--snapshot-name",
+        name,
+        "--lock-id",
+        lock_id,
+        "--source-head",
+        HEAD,
+        "--apply",
+    ]
+    for relative in paths:
+        command.extend(("--target", relative))
+    result = subprocess.run(command, text=True, capture_output=True, check=False)
+    if result.returncode != 0:
+        raise AssertionError(
+            "targeted snapshot helper failed:\n" + result.stdout + result.stderr
+        )
+    snapshot = root / "snapshots" / name
+    if not snapshot.is_dir():
+        raise AssertionError("targeted snapshot helper did not create its exact directory")
+    return snapshot
 
 
 def _snapshot(
@@ -250,6 +355,23 @@ def main() -> int:
             target.read_text(encoding="utf-8").replace(
                 "Branch: `feature/release-readiness-source-truth-intake`",
                 "Branch: `feature/release-readiness-source-truth-intake`\n"
+                "Current Branch: `feature/release-readiness-source-truth-intake`",
+            ).replace(
+                f"Source Repo HEAD: `{HEAD}`",
+                f"Source Repo HEAD: `{HEAD}`\nCurrent HEAD: `{HEAD.upper()}`",
+            ).replace(
+                f"Origin/Main: `{ORIGIN_MAIN}`",
+                f"Origin/Main: `{ORIGIN_MAIN}`\nSource origin/main: `{ORIGIN_MAIN.upper()}`",
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass("equivalent live identity aliases", _run(root))
+        _record(root)
+
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "Branch: `feature/release-readiness-source-truth-intake`\n"
                 "Branch: `feature/release-readiness-source-truth-intake`",
                 1,
             ),
@@ -378,8 +500,8 @@ def main() -> int:
         ok, messages, audit = reconciler.reconcile_target(
             root=root,
             target=TARGET,
-            lock_id=lock_id,
-            snapshot="snapshots/fixture-snapshot",
+            lock_id="",
+            snapshot="",
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
             additions=["Added Fixture Field=added"],
             apply=False,
@@ -435,7 +557,7 @@ def main() -> int:
             snapshot="snapshots/fixture-snapshot",
             assignments=["Last Updated=2026-01-02T00:00:01Z"],
             additions=[],
-            apply=False,
+            apply=True,
             **expectations,
         )
         if mismatch_ok or not any("Lock payload ID mismatch" in item for item in mismatch_messages):
@@ -671,7 +793,7 @@ def main() -> int:
                 snapshot=case_snapshot.relative_to(root).as_posix(),
                 assignments=["Last Updated=2026-01-05T00:00:01Z"],
                 additions=[],
-                apply=False,
+                apply=True,
                 **case_expectations,
             )
             if ok or not any("snapshot root mismatch" in item for item in case_messages):
@@ -688,7 +810,7 @@ def main() -> int:
                 snapshot=invalid_snapshot.relative_to(root).as_posix(),
                 assignments=["Last Updated=2026-01-05T00:00:00Z"],
                 additions=[],
-                apply=False,
+                apply=True,
                 **invalid_expectations,
             )
             if ok or not any(needle in item for item in invalid_messages):
@@ -1239,6 +1361,255 @@ def main() -> int:
             raise AssertionError("CRLF target transition introduced a lone LF newline")
         if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n") + 1:
             raise AssertionError("CRLF target transition changed untouched newline structure")
+
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-semantic-currentness-") as temp_dir:
+        root = Path(temp_dir)
+        paths = _semantic_root(root)
+        _assert_pass("coherent three-record Governance posture", _semantic_failures(root))
+
+        evolved_fields = {
+            "Current Gate: `Bounded semantic currentness and lock-lifecycle reconciliation active; neutral-main fast-forward-only rebaseline pending separate USER decision.`":
+                "Current Gate: `Current-gate autonomous repair completed; later PR action remains separately gated.`",
+            "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`":
+                "Current USER Packet Status: `Current canonical packet published and validated.`",
+            "Current Pull Request: `None - no open/current PR; PR #290 historical merged evidence only.`":
+                "Current Pull Request: `PR #301 https://example.invalid/pull/301`",
+            "Current PR State: `None / historical merged evidence only`":
+                "Current PR State: `Open / review pending`",
+            "Current Approval State: `Bounded reconciliation approved; staging, commit, and push are not approved.`":
+                "Current Approval State: `Bounded repair, commit, and push approved and completed; merge not approved.`",
+            "Current Validation State: `Semantic currentness and lock lifecycle validated; repair uncommitted.`":
+                "Current Validation State: `Current-gate semantic, packet, and lock validations PASS at durable HEAD.`",
+            "Neutral Main State: `Stale versus fetched origin/main; fast-forward pending USER decision.`":
+                "Neutral Main State: `Current and equal to origin/main.`",
+            "Next Legal Gate: `USER decision on fresh neutral-main fast-forward / Governance durability packet.`":
+                "Next Legal Gate: `USER review of current gate only.`",
+        }
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            for before, after in evolved_fields.items():
+                text = text.replace(before, after, 1)
+            path.write_text(text, encoding="utf-8")
+        _assert_pass(
+            "coherent evolved Governance posture is not hardcoded to one cycle state",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
+        plan = paths["branches/feature_release_readiness_source_truth_intake/branch_plan.md"]
+        original_plan = plan.read_text(encoding="utf-8")
+        plan.write_text(
+            original_plan.replace(
+                "Final Disposition: `Bounded semantic-currentness and lock-lifecycle reconciliation remains active; neutral-main rebaseline is pending separate USER decision.`",
+                "Final Disposition: `Standing cycle remains idle.`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "stale Final Disposition",
+            "Final Disposition retains stale idle posture",
+            _semantic_failures(root),
+        )
+        plan.write_text(original_plan, encoding="utf-8")
+
+        mutations = (
+            (
+                "branch-state current gate disagreement",
+                "Current Gate: `Bounded semantic currentness and lock-lifecycle reconciliation active; neutral-main fast-forward-only rebaseline pending separate USER decision.`",
+                "Current Gate: `Stage 1 Ready For Stage 2 - stale historical packet posture.`",
+                "disagree on Current Gate",
+            ),
+            (
+                "branch-plan old packet posture",
+                "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`",
+                "Current USER Packet Status: `Current active PR Readiness Stage 1 packet is ready for Stage 2.`",
+                "disagree on Current USER Packet Status",
+            ),
+            (
+                "worktree current PR contradiction",
+                "Current Pull Request: `None - no open/current PR; PR #290 historical merged evidence only.`",
+                "Current Pull Request: `PR #290 open/current`",
+                "disagree on Current Pull Request",
+            ),
+        )
+        for label, before, after, needle in mutations:
+            target = paths[next(relative for relative, name in SEMANTIC_TARGETS.items() if name == (
+                "branch_state" if "branch-state" in label else "branch_plan" if "branch-plan" in label else "worktree_state"
+            ))]
+            original = target.read_text(encoding="utf-8")
+            target.write_text(original.replace(before, after, 1), encoding="utf-8")
+            _assert_failure(label, needle, _semantic_failures(root))
+            target.write_text(original, encoding="utf-8")
+
+        target = paths["branches/feature_release_readiness_source_truth_intake/branch_state.md"]
+        original = target.read_text(encoding="utf-8")
+        target.write_text(
+            original + "\n## Historical Receipt\nCurrent Gate: `Stage 1 Ready For Stage 2`\n",
+            encoding="utf-8",
+        )
+        _assert_pass("historical wording remains evidence", _semantic_failures(root))
+        target.write_text(original, encoding="utf-8")
+        target.write_text(
+            original + "\n## Current Gate\nCurrent Gate: `Stage 1 Ready For Stage 2`\n",
+            encoding="utf-8",
+        )
+        _assert_failure("current section is not historical", "current section", _semantic_failures(root))
+        target.write_text(original, encoding="utf-8")
+
+        target = paths["worktrees/Governance/worktree_state.md"]
+        original = target.read_text(encoding="utf-8")
+        target.write_text(original.replace(f"Current Cycle: `{SEMANTIC_CYCLE}`", "Current Cycle: `None`", 1), encoding="utf-8")
+        _assert_failure("missing live cycle identity", "Current Cycle", _semantic_failures(root))
+        target.write_text(original, encoding="utf-8")
+
+        target.write_text(original.replace("Current PR State: `None / historical merged evidence only`", "Current PR State: `Open`", 1), encoding="utf-8")
+        _assert_failure("merged PR represented as active", "Current PR State", _semantic_failures(root))
+        target.write_text(original, encoding="utf-8")
+
+    def target_set_requests(paths: dict[str, Path]):
+        assignments = (
+            "State Version=2",
+            "Last Updated=2026-07-27T21:00:00Z",
+            "Current Gate=Current-gate target-set fixture published; later actions remain separately gated.",
+            "Current Approval State=Bounded target-set repair approved and completed; later actions not approved.",
+            "Current Validation State=Coherent target-set semantic validation PASS.",
+            "Next Legal Gate=USER review of the coherent current gate.",
+        )
+        return tuple(
+            reconciler.TargetReconcileRequest(
+                target=relative,
+                expected_branch="feature/release-readiness-source-truth-intake",
+                expected_source_head=HEAD,
+                expected_origin_main=ORIGIN_MAIN,
+                expected_worktree_path=WORKTREE_PATH,
+                expected_worktree_slot=SLOT,
+                expected_target_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                assignments=assignments,
+            )
+            for relative, path in paths.items()
+        )
+
+    audit_target = "audit_log/target-set-current-gate-fixture.json"
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-target-set-") as temp_dir:
+        root = Path(temp_dir)
+        paths = _semantic_root(root)
+        before = {relative: path.read_bytes() for relative, path in paths.items()}
+        requests = target_set_requests(paths)
+        dry_ok, dry_messages, dry_audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id="",
+            snapshot="",
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=_semantic_failures,
+            apply=False,
+        )
+        if not dry_ok or dry_audit is not None:
+            raise AssertionError(
+                "coherent target-set draft failed before lock acquisition:\n"
+                + "\n".join(dry_messages)
+            )
+        if any(path.read_bytes() != before[relative] for relative, path in paths.items()):
+            raise AssertionError("target-set draft validation mutated a live projection")
+        if any((root / "locks").glob("*.json")):
+            raise AssertionError("target-set draft validation acquired a lock")
+
+        lock_id = "target-set-success-lock"
+        snapshot_relative = "snapshots/target-set-success"
+        write_set = ";".join(
+            [*paths, audit_target, snapshot_relative]
+        )
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Workload ID": "target-set-success-workload",
+                "Last Updated By": "fixture",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": write_set,
+            },
+        )
+        snapshot = _semantic_target_snapshot(
+            root,
+            paths,
+            "target-set-success",
+            lock_id,
+        )
+        ok, messages, audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=_semantic_failures,
+            apply=True,
+        )
+        if not ok or audit is None or not audit.is_file():
+            raise AssertionError(
+                "coherent target-set publication failed:\n" + "\n".join(messages)
+            )
+        _assert_pass("coherent target-set final semantic validation", _semantic_failures(root))
+        if any(path.read_bytes() == before[relative] for relative, path in paths.items()):
+            raise AssertionError("coherent target-set publication omitted a projection")
+
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-target-set-rollback-") as temp_dir:
+        root = Path(temp_dir)
+        paths = _semantic_root(root)
+        before = {relative: path.read_bytes() for relative, path in paths.items()}
+        requests = target_set_requests(paths)
+        lock_id = "target-set-rollback-lock"
+        snapshot_relative = "snapshots/target-set-rollback"
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Workload ID": "target-set-rollback-workload",
+                "Last Updated By": "fixture",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": ";".join(
+                    [*paths, audit_target, snapshot_relative]
+                ),
+            },
+        )
+        snapshot = _semantic_target_snapshot(
+            root,
+            paths,
+            "target-set-rollback",
+            lock_id,
+        )
+
+        def fail_only_after_live_publication(candidate_root: Path) -> list[str]:
+            semantic = _semantic_failures(candidate_root)
+            if candidate_root.resolve() == root.resolve() and not semantic:
+                return ["forced set-level final validation failure"]
+            return semantic
+
+        ok, messages, audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=fail_only_after_live_publication,
+            apply=True,
+        )
+        if ok or audit is not None or not any(
+            "forced set-level final validation failure" in message for message in messages
+        ):
+            raise AssertionError(
+                "target-set final failure did not block publication:\n" + "\n".join(messages)
+            )
+        if any(path.read_bytes() != before[relative] for relative, path in paths.items()):
+            raise AssertionError("target-set final failure did not restore every projection")
+        if (root / audit_target).exists():
+            raise AssertionError("target-set rollback retained its audit as current state")
 
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0

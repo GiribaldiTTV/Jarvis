@@ -166,6 +166,54 @@ wrong HEAD, wrong baseline, omitted identity arguments, stale folder context,
 stale ZIP context, folder/ZIP disagreement, and accepted-historical
 preservation.
 
+### Current-Gate Autonomous Repair And Semantic Contract
+
+`dev/orin_current_gate_repair.py` (`Helper Status: Reusable`) is the shared,
+bounded current-gate contract and transaction module. It owns the exact four
+finding classes, gate-invariant comparison, deterministic defect signatures,
+internal repair continuation latch, repeated-signature root-cause escalation,
+USER-decision consolidation, BR1 Stage 1 source-owner contract compilation,
+manual-row exposure, and rollback-capable one-canonical packet publication. It
+is not an unrestricted autonomous mutation engine and does not grant scope,
+phase/stage, branch/worktree, issue, PR, merge, release, waiver, provider,
+private, runtime, or cross-worktree authority.
+
+`dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) integrates that
+contract before generation, after generated artifact assembly, in ZIP
+validation, and in existing packet validation. For BR1 Stage 1 it must compile
+the live `BR1 Candidate Viability / Grouping Matrix` contract from
+`Docs/phase_governance.md`, report owner/section provenance, require the matrix
+artifact and every governed field, enforce the exact allowed
+`Implementation-bearing route class` enum, keep source-context/historical
+receipts from becoming current fields, expose semantically manual rows, and
+reject structural/parity green when semantic rows fail. `Foundation /
+infrastructure` remains legal in the separate source-truth-supported
+package/concrete-feature classification field; it is not an allowed
+implementation-bearing route class.
+
+Packet generation must use a noncanonical temporary draft, validate it before
+touching the active USER hub, preserve the prior canonical folder/ZIP for
+rollback, publish one final folder/ZIP pair, rerun final validation, and leave
+only one same-label timestamped ZIP. Failed draft or final validation must not
+replace the accepted current packet. External-state transaction behavior stays
+owned by the lock/currentness helpers and must not be reimplemented in the
+packet helper.
+
+`dev/orin_current_gate_repair_fixture_validation.py` (`Helper Status: Reusable
+Fixture Validator`) owns 25 negative and 16 positive current-gate fixtures,
+including the clean-clone-safe FAM-007 `165940` invalid-enum regression,
+missing artifact/field, stale contract, current/historical boundary, wrong
+classification, scope/stage/carrier/issue boundaries, foreign lock, reusable
+gap, manual rows, draft publication, rollback, final-return latch, repeated
+signature escalation, decision consolidation, fresh contract compilation, and
+unchanged gate invariants. The fixture may verify the live preserved ZIP when
+available, but clean-clone validation depends only on the checked-in minimal
+JSON regression under `dev/fixtures/current_gate_repair/`.
+
+The helper is evidence, not authority. Green cannot override an unresolved
+manual contract row, a true USER decision, a safety blocker, a stale source
+owner, a retained external-state lock, or a changed current-gate invariant.
+
 ### Target-Scoped External-State Currentness
 
 `dev/orin_external_state_validation.py` (`Helper Status: Reusable`) owns the
@@ -186,7 +234,12 @@ The only approved current-projection writer is
 `dev/orin_external_state_target_reconcile.py` (`Helper Status: Reusable`). It
 must require the target pre-write hash, a matching locked write set, a
 pre-write snapshot, explicit field assignments, atomic replacement, no-loss
-comparison, post-write target validation, and an audit entry. Lock release is
+comparison, post-write target validation, and an audit entry. Its bounded
+target-set path must compile and validate projected final values before lock
+acquisition, publish every admitted projection under one exact write-set lock,
+run cross-record semantic validation, write one set-level audit, and restore
+every changed target if any member, audit, or final set validation fails. A
+dry-run projection must not require or acquire a lock or snapshot. Lock release is
 owned by `dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`);
 a currentness transition with a remaining lock is incomplete and must fail
 closeout. These helpers must not rewrite historical receipts or the structural
@@ -197,8 +250,21 @@ atomic release of the exact admitted lock, and
 `dev/orin_external_state_target_reconcile.py` (`Helper Status: Reusable`) owns
 the target-scoped lock/snapshot/atomic-write transition proof, while
 `dev/orin_external_state_target_currentness_fixture_validation.py` (`Helper Status: Reusable Fixture Validator`) owns the positive, negative,
-malformed, stale, path-security, TOCTOU, writer, audit, and lock-release
+malformed, stale, path-security, TOCTOU, writer, audit, lock-release,
+no-lock draft, coherent target-set publication, and all-target rollback
 regression suite for this contract.
+
+`dev/orin_external_state_lock.py` (`Helper Status: Reusable`) acquires an exact
+workload/target lock only at the protected transaction and blocks malformed or
+overlapping active locks. `dev/orin_external_state_lock_lifecycle.py` (`Helper Status: Reusable`) owns authoritative inventory, process-aware classification,
+guaranteed transaction cleanup, stale-completed-workload recovery, and the
+independent final-return zero-lock gate. `dev/orin_external_state_validation.py`
+exposes that gate through `--final-lock-gate --completed-workload-id <id>`.
+`dev/orin_external_state_lock_lifecycle_fixture_validation.py` (`Helper Status: Reusable Fixture Validator`) must prove retained-success, retained-continuation,
+USER-wait, validation-failure, exception, partial-write, receipt-only,
+dead-owner, verification-replay, claimed-zero, foreign-active, stale-cleanup,
+fresh-next-workload, and successful zero-lock behavior. Release receipts and
+caller-supplied counts never substitute for an authoritative table reread.
 
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
@@ -340,8 +406,13 @@ Codex User Guide operator-boundary validator guidance: `Docs/codex_user_guide.md
 | Path | Helper Status | Family | Reuse / Consolidation |
 | --- | --- | --- | --- |
 | `dev/orin_branch_governance_validation.py` | Helper Status: Reusable | governance validator | Extend when repo-wide source-of-truth, phase, branch, release, helper registry, prompt-contract, Source-Truth Placement Preflight, Element Validation Ledger placement, Element Validation Ledger drift, Branch Readiness product-system planning gates, PR Readiness post-merge source truth, Release Readiness Health Pass rules, `Release Readiness Candidate Anchor` rules, `Release Window Aggregation Ownership` rules, `Prompt-Entry Origin/Main Freshness Gate` rules, `Origin/Main Freshness Check` rules, `Pre-Rebaseline Impact Audit` rules, `Rebaseline Overlap Intent Gate` rules, `Current-Main Reconciliation Identity Guard` rules, `Standing Governance Intake Branch` rules, `automation/worktree governance intake` rules, `Assigned Worktree Confinement` rules, `Prompt-Ingress Lane Lock` / `Prompt-Ingress Lane Mismatch` rules, `Family-Scoped Branch Readiness Confinement` rules, `Target Family` and `Sibling Worktree Candidate Exclusion` validation where Sibling worktrees are overlap context only and not successor authority, active thread/worktree ownership rules, same-worktree/same-branch collision rules, dirty-worktree recovery rules, off-worktree work routing rules, Governance Routing Barrier rules, New Worktree Decision Gate rules, bounded Workstream continuation rules, USER Branch Plan Review Gate, Workstream Entry Whole-Package Analysis Gate, Formal Next Legal Phase Digest non-compaction, Forwarded Digest Non-Compaction Rule, Main-first loader chain routing, external-active branch plan routing, or merged-main active-authority closeout rules become machine-checkable. It owns source-checking for `Prompt-Entry Freshness Check:`, `Fetched origin/main:`, `Origin/Main Advanced Since Last Action:`, `Pre-Rebaseline Impact Audit Required:`, `Rebaseline/Reconciliation Status:`, `Prompt-Entry Origin/Main Freshness Missing`, `Pre-Rebaseline Impact Audit`, `No Baseline By Inertia`, `Incoming Main Change Set`, `Incoming Changed Files`, `Current Worktree Changed Files`, `Branch Changed Files`, `Rebaseline Overlap Files`, `Rebaseline Overlap Intent Gate`, `Branch Change Intent Ledger`, `Rebaseline Overlap Intent Missing`, `Incoming Runtime / Source-Truth Risk`, `Validation Before Rebaseline`, `Recommendation Only`, `Rebaseline Mutation Approval`, and `Rebaseline Mutation Status` so future worktree fast-forward, merge, rebase, branch-switch, current-main reconciliation operations, resumed-thread work, post-PR-merge handoffs, and validation-green claims cannot be normalized in governance without an analysis-first approval gate. It owns active `Phase: Workstream` checks for `Seam Continuation Decision`, `Backlog Completion Status`, `Completion Status`, `Continue Decision`, `Continuation Execution Latch`, `Single-Seam Workstream Waiver`, `Single-Seam Or Single-Slice Waiver Authority`, `Single-Seam Or Single-Slice Workstream Blocker`, and `Bounded Seam Default`, preventing a Workstream from stopping after one seam or one slice unless the whole Workstream is green and ready for Hardening, or Red with a named blocker/USER waiver. It owns `--standing-governance-intake-gate` for `feature/release-readiness-source-truth-intake`, `Release Readiness digest` intake plus USER-approved non-runtime automation/worktree governance intake and USER-approved phase-gate governance intake, `RRI-YYYYMMDD-NNN`, operational `One Active Cycle`, the external-owner rule for active RRI cycle values, current PR posture, return-digest progress, release-window state, and target commit facts, the pre-intake `Sync Rule`, `Bootstrap Exception Limit`, `Waiting For Governance Intake` / `Waiting For Updated Main`, the required `Return Digest`, `Neutral Main Workspace Rebaseline`, `Pre-Rebaseline Impact Audit`, the standing-branch exemption from dedicated cycle-ledger closeout PRs, `Return Digest Identity Guard`, `Return Digest Origin Identity Missing`, the standing-lane allowance for registered release-readiness validators such as `dev/orin_release_body_validation.py` and automation-observability repair support in `dev/automation_observability_report.py`, the merged-main `No Active Branch` exception that allows only this standing governance authority record while rejecting all active runtime/implementation/release/repair carriers, and `Merged Active Branch Authority Not Folded Down` ancestry checks that reject any non-standing active authority record whose branch ref is already merged into `origin/main`; it also owns Branch Readiness active implementation `Product Definition Plan` markers and substance checks for `Project-Wide Vision Alignment:`, `Branch-Specific Vision Alignment:`, `System Concept Model:`, `Entity / Profile Model:`, `User Workflow Model:`, `Scale / Data Volume Model:`, `Configuration And State Model:`, `Expected User-Facing Outcomes:`, `Codex Additional Recommendations:`, `USER Critique Loop:`, `USER Decision Ledger:`, `Deferred Ideas / Future Package Ledger:`, `Planning Adequacy Review:`, `Rejected Shallow Plan:`, `Alternatives And Tradeoffs Reviewed:`, `Whole-System Interaction Map:`, and `Open Questions / USER Decision Points:`, rejecting placeholder/self-assessed values such as `simple`, `basic`, `minimal`, `see above`, and `not applicable`; it owns runtime-focused `Runtime Branch Engineering Contract` markers including `USER Engineering Planning Review:`, `Runtime Implementation Approval:`, `Current Runtime Baseline:`, `Planned Runtime Delta:`, `User-Facing Runtime Delta:`, `State / Config / Schema Delta:`, `Validator / Helper Delta:`, `Workstream Seam Map:`, `Proof Expectations:`, and `Plan-To-Implementation Traceability:` so broad seam labels must be paired with concrete engineering deltas; it owns marker-first `Element-to-Phase Proof Matrix` checks for active external branch plans and repo historical branch-plan receipts, requiring planned/current elements to map Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance, USER decision state, and source owner / ledger owner before Workstream entry; it owns marker-first USER Branch Plan Review Gate checks for plain-language branch goal, planned user-facing outcome, USER Review Packet Finding, implementation breakdown, Hardening plan, Live Validation / UTS plan, recommendations, alternatives/tradeoffs, accepted/deferred/rejected scope, exact USER decision, and implementation approval boundary; it owns marker-first `USER Feedback Disposition` checks for `UFD-*` IDs, `USER Decision State:`, `Owner Class:`, `Canonical Owner File:`, `Workstream Severity:`, `Status:`, `Fold-Down Target:`, and `No Durable Owner Needed` no-action guardrails while natural-language duplicate feedback detection remains report-only until approved fixtures, false-positive review, and USER approval; owns `--worktree-confinement-gate` for `Active Thread Owner:`, `Thread Assignment Status:`, `Worktree Ownership Ledger:`, `Intended Write Set:`, `Same Worktree / Same Branch Collision Check:`, `Dirty Worktree Collision Check:`, `Dirty Worktree Recovery Packet:`, `Off-Worktree Work Routing`, `Governance Routing Barrier`, `New Worktree Decision Gate`, `Expected Worktree Root`, `Actual Worktree Root`, `No Cross-Worktree Mutation`, `GitHub Desktop-bound worktree`, `Worktree Escape User Waiver Missing`, `Worktree Escape User Waiver: Granted`, `Prompt-Ingress Lane Lock`, and `Prompt-Ingress Lane Mismatch` validation, `--release-readiness-health-gate` for `Release Candidate Anchor Projection:`, `Release Window Contributor Inventory:`, and `Governance Intake Routing:`, and `--pr-readiness-gate` plus the default validation path for PR Readiness `Branch Creation Base:`, `Current origin/main:`, `Origin/Main Advanced Since Branch Creation:`, `Reconciliation File List:`, `Reconciliation Recommendation:`, `Current-Main Reconciliation Identity Guard:`, `Branch-Local Authority Reassertion:`, `Incoming Main Active-Branch Blocks Accepted: NO`, merged-main active authority closeout, and no file fixes during Stage 1. |
-| `dev/orin_external_state_target_reconcile.py` | Helper Status: Reusable | target-scoped external-state writer | Use only for an explicitly admitted live projection target after snapshot and lock proof. It updates live fields before the first historical receipt boundary, preserves receipt history, performs atomic replacement and post-write validation, and records audit/rollback proof. It must not traverse, rewrite the root manifest, or mutate historical receipts. |
-| `dev/orin_external_state_lock_release.py` | Helper Status: Reusable | external-state lock release helper | Release only the exact admitted target lock after a completed or rolled-back target-scoped transition; a remaining lock is an incomplete closeout. It must not release unrelated locks or mutate repo source truth. |
+| `dev/orin_current_gate_repair.py` | Helper Status: Reusable | current-gate autonomous repair contract | Compile live source-owner gate contracts, classify findings into the exact four classes, preserve gate invariants, hold the internal continuation latch, escalate repeated signatures to root-cause owners, consolidate material USER decisions, and publish one rollback-capable canonical packet pair. It is bounded enforcement support, not autonomous scope or phase authority. |
+| `dev/orin_current_gate_repair_fixture_validation.py` | Helper Status: Reusable Fixture Validator | current-gate repair regression fixtures | Run the 25 negative and 16 positive fixtures, including the clean-clone-safe FAM-007 `165940` wrong-enum regression, stale-contract, manual-row, continuation, boundary, repeated-signature, canonical-publish, rollback, decision-consolidation, and unchanged-invariant cases. |
+| `dev/orin_external_state_lock.py` | Helper Status: Reusable | external-state lock acquisition helper | Acquire only at an admitted protected transaction with an exact workload identity and bounded target set. Block malformed or overlapping active locks; do not create locks for verification-only, dry-run, thread-open, USER-wait, or future-continuation posture. |
+| `dev/orin_external_state_lock_lifecycle.py` | Helper Status: Reusable | external-state lock lifecycle and final-return gate | Independently inventory and classify every authoritative lock, preserve foreign active locks, recover only proven stale completed-workload locks, provide guaranteed transaction cleanup, and block final return until the completed workload active-lock count is zero while reporting the global inventory. |
+| `dev/orin_external_state_target_reconcile.py` | Helper Status: Reusable | target-scoped and bounded target-set external-state writer | Use only for explicitly admitted live projection targets. Dry-run projection compiles without a lock or snapshot. Final single-target or target-set publication requires exact snapshot/lock proof; updates only live fields before the first historical receipt boundary; preserves receipt history; performs atomic member replacement plus set-level semantic validation; records audit proof; and restores every changed target on set failure. It must not traverse, rewrite the root manifest, or mutate historical receipts. |
+| `dev/orin_external_state_lock_release.py` | Helper Status: Reusable | external-state lock release helper | Release only the exact admitted target/workload lock, atomically reread the authoritative entry, and report workload/global counts. A remaining lock is an incomplete closeout. It must not release unrelated locks or mutate repo source truth. |
+| `dev/orin_external_state_lock_lifecycle_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state lock lifecycle regression fixtures | Prove all required retained-lock failures and success, blocked, validation-failure, exception, partial-write, foreign-lock, stale-cleanup, fresh-next-workload, public final-gate, and authoritative-zero paths without mutating live external state. |
 | `dev/orin_external_state_target_currentness_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state currentness regression fixtures | Prove positive, wrong-identity, stale, malformed, historical, traversal, reparse, TOCTOU, writer, audit, lock-release, and scoped-PASS-versus-root-PASS behavior for target-scoped currentness. It must not mutate live external state outside temporary fixtures. |
 | `dev/orin_worktree_rebaseline_audit.py` | Helper Status: Reusable | worktree rebaseline audit helper | report-only helper for `Pre-Rebaseline Impact Audit` packets. It must not fetch, merge, rebase, checkout, reset, or mutate files. Reuse before any FAM, Governance, or neutral-main worktree baselines to newer `origin/main`; it reports cwd, git root, worktree role from `Docs/worktree_slots.md` or generic runtime-slot fallback, branch, upstream, `HEAD`, target ref, merge base, incoming commits, incoming changed files, `Current Worktree Changed Files:`, `Branch Changed Files:`, `Rebaseline Overlap Files:`, runtime/source-truth risk, sibling worktree dirty-file overlap, active branch authority record, `Current-Main Reconciliation Identity Guard`, recommendation-only posture, `Rebaseline Mutation Approval: Pending`, and `Rebaseline Mutation Status: Not started` or blocked. Incoming changed files must compare `merge_base..target_ref`, branch changed files must compare `merge_base..HEAD`, current branch/worktree changed files must union branch changed files with staged/unstaged/untracked files, `Rebaseline Overlap Files:` must be the intersection of incoming changed files and current branch/worktree changed files, and branch authority matching must use the exact `- Branch:` field instead of substring matching. When overlap exists, the helper must resolve or accept the active external branch plan at `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, parse `Branch Change Intent Ledger` / `Changed Surface:` entries when available, report actual `Branch Change Intent Present:` YES/NO, classify `Semantic Merge Risk:` and `Regression / Gating Impact:`, and report `Rebaseline Overlap Intent Gate`, `Overall Overlap Gate Result:`, `Rebaseline Overlap Failure Procedure`, and `Rebaseline Overlap Intent Missing` guidance without treating fallback evidence as a compatibility bypass. Repo branch-plan files may be fallback evidence only after the external-state transition. |
 | `dev/orin_validation_suite.py` | Helper Status: Reusable | validation suite recommendation helper | report-only helper for `Recommended Validation Suite:` packets. It accepts `--phase` and optional `--changed-file` values, inspects committed, unstaged, staged, and untracked changed files when changed files are omitted, and recommends validation commands with rationale; it does not execute commands or mutate files. Use it to reduce copy/paste drift in Governance, Branch Readiness, PR Readiness, Release Readiness, FAM-006 runtime, and FAM-007 runtime validation planning. |
@@ -386,9 +457,12 @@ GitHub issue intake / closeout helper guidance: future helper or validator cover
 | `dev/orin_external_state_common.py` | Helper Status: Reusable | external operational state shared support | Shared Stage 1 scaffold for external-state path safety, canonical-root checks, manifest metadata, atomic writes, snapshots, and packet printing. Extend this module before duplicating external-state path, schema, version, lock, or audit support in another helper. |
 | `dev/orin_external_state_init.py` | Helper Status: Reusable | external operational state bootstrap | Stage 1 scaffold for bootstrap packets and future `--apply` root initialization. Default mode is dry-run/report-only and must not create `C:\Nexus Governance State`; applied initialization requires later USER approval and must keep the root outside every Git worktree. |
 | `dev/orin_external_state_report.py` | Helper Status: Reusable | external operational state report | Report-only helper for root existence, canonical-root posture, manifest metadata, and `External State Missing` / `External State Corrupt` evidence. It must not mutate external state or repo files. |
-| `dev/orin_external_state_validation.py` | Helper Status: Reusable | external operational state validation | Local external-state validation scaffold for manifest fields, schema consistency, corrupt JSON, clean-clone-safe missing-root posture, approved Stage 4 migrated record presence, required markdown metadata fields, source repo HEAD alignment, and released-lock posture. Missing root is informational unless `--require-root` is supplied for an approved local workflow. Use `--require-stage4-records` and `--expected-source-head <sha>` only for approved local Stage 5 / active-workflow validation. This helper is not wired into GitHub Actions repo validation and must not become a clean-clone requirement. |
-| `dev/orin_external_state_lock.py` | Helper Status: Reusable | external operational state locks | Stage 1 scaffold for lock packets across state-root, migration, release-window, worktree, branch, review-bundle, fold-down, and governance-candidate scopes. Default mode is dry-run; applied lock writes require an initialized root and later USER-approved state use. |
-| `dev/orin_external_state_snapshot.py` | Helper Status: Reusable | external operational state snapshot | Stage 1 scaffold for snapshot packets and future applied snapshots. Default mode is dry-run; applied snapshots require an initialized root and explicit approval for the relevant local operational workflow. |
+| `dev/orin_external_state_validation.py` | Helper Status: Reusable | external operational state validation | Local external-state validation for manifest/schema posture, approved migrated records, target-scoped currentness, released-lock posture, and the opt-in final-return gate. `--final-lock-gate --completed-workload-id <id>` must independently reread the authoritative table, require completed-workload zero, and report the global inventory. Missing root remains clean-clone safe unless `--require-root` is supplied. |
+| `dev/orin_external_state_lock.py` | Helper Status: Reusable | external operational state locks | Dry-run or applied exact workload/target lock acquisition across admitted lock scopes. Applied acquisition requires workload identity, serializes authoritative inspect-and-create, and blocks malformed or overlapping active locks. It must not reserve a lock for a future prompt or USER wait. |
+| `dev/orin_external_state_lock_lifecycle.py` | Helper Status: Reusable | external operational state lock lifecycle | Authoritative inventory, process-aware lock classification, guaranteed transaction cleanup, proven stale-completed-workload recovery, completed-workload zero verification, and global active-lock reporting. |
+| `dev/orin_external_state_lock_release.py` | Helper Status: Reusable | external operational state lock release | Atomic exact lock/workload release with authoritative reread and post-release workload/global active-count reporting. |
+| `dev/orin_external_state_lock_lifecycle_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external operational state lock lifecycle fixtures | Temporary-root positive/negative/adversarial coverage for all exit paths, concurrent acquisition, foreign lock preservation, safe stale cleanup, public final-gate failure, and final zero-lock proof. |
+| `dev/orin_external_state_snapshot.py` | Helper Status: Reusable | external operational state snapshot | Default mode is dry-run. Full-root snapshots retain the historical scaffold path. Bounded targeted snapshots use repeated exact `--target` values plus a deterministic `--snapshot-name`; applied targeted snapshots require the workload lock to admit every copied target and the snapshot directory, preserve hashes and sizes in the manifest, and remain confined to the initialized external root. |
 | `dev/orin_state_fold_down_preview.py` | Helper Status: Reusable | external operational state fold-down preview | Report-only preview helper for external-state files that may need durable repo fold-down. It must not edit external state, repo docs, branch records, branch plans, or generated indexes. |
 | `dev/orin_external_state_promote_preview.py` | Helper Status: Reusable | external operational state promotion preview | Report-only promotion preview helper that names source state, target state, reason, and required lock/version/conflict/validation/audit steps before any staging-to-central promotion. |
 | `dev/orin_external_state_promote.py` | Helper Status: Reusable | external operational state promotion | Stage 1 promotion scaffold. Default mode is dry-run; applied promotion requires initialized external state, explicit `--apply`, and must preserve the staging source while writing audit evidence so the no-loss rule is not bypassed. |
@@ -543,6 +617,23 @@ These reservations do not register files that do not yet exist. They record the 
 - Provider-specific probes remain `Temporary probe` assets unless and until they are promoted through this registry with an explicit status and reuse story.
 
 ## Release / PR Standard
+
+### Governance Semantic Currentness
+
+`dev/orin_external_state_validation.py --semantic-currentness` is the
+cross-record seam for the standing Governance projections. It must compare the
+live headers of `branch_state.md`, `branch_plan.md`, and
+`worktree_state.md` as one contract, including identity, current RRI cycle,
+gate, packet state, PR state, approval provenance, exact write set, validation
+state, neutral-main freshness, and next legal gate. It must distinguish the
+durable repo branch record and immutable historical receipts from live external
+state, and it must fail identity-only false greens, stale-one-of-three
+projections, current Stage 1/Stage 2 contradictions, merged PRs represented as
+open/current, and unproven USER approval. The focused target-currentness
+fixtures must include coherent positive records, contradictory current records,
+historical wording that remains valid evidence, and current-section wording
+that fails. This validator reports evidence; it does not authorize rebaseline,
+staging, commit, push, PR, merge, release, issue, or FAM mutation.
 
 Before a branch reports PR Readiness green:
 

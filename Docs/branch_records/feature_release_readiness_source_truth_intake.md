@@ -21,7 +21,7 @@ This branch is the single standing governance lane for Release Readiness source-
 - Branch Authority Marker: `Active standing governance intake lane`
 - `Active Branch`: `feature/release-readiness-source-truth-intake`
 - Branch Authority State: `Active standing authority / single-cycle Release Readiness digest, automation/worktree governance intake, or USER-approved phase-gate governance intake only`
-- Next Active Seam: `PR Readiness Stage 2 USER decision - Stage 1 analysis is complete and the separate Stage 2 approval remains pending; live gate details remain owned by external operational state.`
+- Next Active Seam: `External operational state only - current RRI cycle, gate, approval, packet, validation, durability, neutral-main, and next-action facts are not owned by this durable standing-lane record.`
 - Intake State: `External operational state only - current RRI cycle identity, PR posture, active release-window state, return-digest progress, and in-flight candidate anchor/target commit facts live in C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md, C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\pr_readiness_state.md, and C:\Nexus Governance State\release_windows\current_release_window_state.md. This repo record preserves durable standing-lane law and receipt pointers only.`
 - Standing Authority Exception: `Allowed - merged-main No Active Branch means no active runtime, implementation, release packaging, or repair carrier; the single standing governance intake authority may remain active for Release Readiness digest intake, USER-approved automation/worktree governance intake, or USER-approved phase-gate governance intake only`
 - Bootstrap Setup: `RRI-20260514-001 records the one-time USER-approved exception that creates C:\Nexus Worktrees\Governance and the standing branch from origin/main; this record now remains the durable active standing authority while each future intake still requires sync to origin/main before work`
@@ -55,6 +55,8 @@ This branch is the single standing governance lane for Release Readiness source-
 - Vision Contract / Circular Validation / UI Immersion Final Integration Hardening Receipt: `Cycle 1 through Cycle 5 source-truth changes were reviewed together for owner conflicts, duplicate authority, phase wording conflicts, validation-helper guidance consistency, no-repo-live-state tracking, FAM-006/FAM-007 next-legal-gate routing, and PR-readiness drift risk. Final integration hardening is docs-only; it does not authorize helper code, validator code, fixtures, runtime implementation, FAM worktree mutation, external-state mutation, FFV creation, file movement/deletion, PR creation, merge, release, issue mutation, cleanup, provider/model/private/cache/memory work, or active product branch mutation.`
 - Integrated Governance Repair - Defect A/B Scope Widening Receipt: `USER withdrew the prior docs-only RRI boundary and approved one integrated non-runtime repair package on the standing Governance carrier. Defect A requires active USER-review packet validation to receive explicit branch, HEAD, and origin/main expectations and independently prove folder and ZIP identity; accepted-historical packets remain allowed without current-Git comparison. Defect B requires additive target-scoped external-state currentness validation with exact target selection, root confinement, reparse/symlink rejection, pre/post hash TOCTOU detection, live-record class checks, historical-receipt rejection, and explicit branch/head/origin/worktree/slot/record-role/current-boundary comparison. The repair includes positive, negative, stale, malformed, and adversarial fixtures; validation-registry and incident-pattern updates; governed current-projection reconciliation after snapshot and locks; and a clean current timestamped Governance packet while preserving historical cleanup packets and the stale structural root manifest. Prior PR Readiness Stage 1 evidence is superseded until the widened repair is green and a fresh Stage 1 analysis is completed. This repair does not authorize PR creation, PR Stage 2, merge, release/tag/GitHub Release, issue mutation, FAM worktree mutation, neutral-main mutation, runtime/provider/private/cache/memory/installer/product-entitlement work, cleanup, or historical packet deletion.`
 - Integrated Governance Repair - Final False-Green / Transition-Safety Receipt: `USER-approved bounded repair extends the Defect A/B package with fail-closed target write-boundary TOCTOU detection immediately before atomic replacement, root- and target-bound pre-write snapshot proof, complete replacement/addition audit details with explicit MISSING before-values, live-header-only alias evaluation, target/snapshot path-alias rejection, global-versus-target validation regression fixtures, rollback/no-loss proof, and a dedicated PR_READINESS_STAGE1_REVIEW.md current-gate packet artifact. BP2 remains supporting context and cannot serve as the PR Readiness Stage 1 primary. The repair remains non-runtime and does not authorize PR creation, PR Stage 2, merge, release, issue mutation, FAM/sibling-worktree mutation, neutral-main mutation, cleanup, or provider/private/cache/memory work; fresh Stage 1 analysis remains required after green validation and external projection reconciliation.`
+- RRI-20260727-001 External-State Lock Lifecycle Governance Repair Receipt: `USER approved a bounded standing-Governance repair requiring external-state locks to exist only during an active protected workload transaction, release in the same workload on every safe exit path, and pass an independent authoritative zero-lock final-return gate before any USER digest. Scope includes routed source truth, lock acquisition/release/lifecycle helpers, validators, positive/negative fixtures, incident guidance, and directly required Governance external-projection audit/currentness updates. FAM-007 remains DECOMPOSITION_ACCEPTED_NO_CANDIDATE with Decision 2 pending; this repair does not select a candidate, execute Branch Readiness, mutate FAM product code or issues, create a PR, merge, or release.`
+- RRI-20260727-001 Current-Gate Autonomous Repair Receipt: `USER approved bounded Standing Governance implementation of Current-Gate Autonomous Repair Authority, the exact four-class finding model, Internal Repair Continuation Latch, live source-owner semantic gate-contract compilation, one-surviving-canonical-publish behavior, deterministic repeated-signature root-cause escalation, and consolidated true-decision reporting. The implementation integrates the existing lock-lifecycle/currentness package, extends the USER review packet path, and preserves FAM-007-20260727-165940.zip as read-only regression evidence for the invalid free-form implementation-bearing route class. It does not mutate any FAM worktree, FAM external state, FAM USER packet, neutral main, issue, branch/worktree identity, PR, merge, release, provider/private/runtime behavior, or phase/stage authority.`
 
 ## Historical PR Readiness Stage 2 Execution Packet - RRI-20260521-001
 
@@ -271,17 +273,17 @@ No runtime User Test Summary is required. Operator validation is repo-side: `git
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 2 - direct PR verification and Codex review approval latch`
+Active seam: `External operational state only - see C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md and branch_plan.md.`
 
-Seam Goal: `Verify the current Governance PR through direct PR verification, resolve only current in-scope Codex findings with local adversarial reproof, and hold the bounded lane until the current PR head receives Codex thumbs-up/green approval; merge remains separately excluded.`
+Seam Goal: `Preserve durable standing-Governance lane law while current cycle, current gate, packet, PR, approval, lock, and neutral-main facts remain in external operational state and Git/GitHub-derived truth.`
 
-Seam Scope: `Current Governance PR review state, all paginated Codex review threads, current helper/validator/fixture findings, dev/orin_user_review_bundle.py, dev/orin_external_state_validation.py, dev/orin_external_state_target_reconcile.py, current adversarial fixture validators, this standing authority record, and required local Governance validation/firewall reproof.`
+Seam Scope: `The bounded USER-approved non-runtime Governance intake named by current external operational state; exact live details, write targets, validation results, durability posture, and next gate are externally owned.`
 
-Seam Non-Includes: `FAM-006 mutation, FAM-007 mutation, FAM-003 mutation, neutral-main mutation, external-state mutation, GitHub issue mutation, shortcut mutation, troubleshooting launcher creation, installer/packaging work, runtime/provider/model/prompt/cache/memory/learning/personalization/voice/Core work, speculative future feature implementation, template/shared primitive implementation, unrelated helper/validator/fixture mutation, renaming/moving/deleting/archiving files, PR Readiness Stage 1 re-analysis, new PR creation, draft PR creation, merge, release execution, tag/GitHub Release/artifact work, branch deletion, or worktree cleanup.`
+Seam Non-Includes: `PR Stage 2, PR creation, merge, release, issue mutation, FAM or sibling-worktree mutation, neutral-main mutation, runtime/provider/private/cache/memory work, cleanup, branch switching, and any unrelated repair.`
 
 ## Seam Continuation Decision
 
-Seam Status: `Green`
+Seam Status: `Externalized - current operational status is owned by external state`
 
 Slice Status: `Green`
 
@@ -289,17 +291,17 @@ Completion Status: `Green`
 
 Waiver Status: `None`
 
-Continue Decision: `Continue`
+Continue Decision: `Stop at bounded reconciliation boundary`
 
-Continuation Execution Latch: `Active - bounded direct PR verification continues until all current Codex findings are resolved and the current PR head receives Codex thumbs-up/green approval; merge remains outside this approval.`
+Continuation Execution Latch: `Not active - no current PR exists; do not infer PR Stage 2 from historical PR #290.`
 
-Stop Basis: `Do not stop before the current-head Codex thumbs-up/green approval latch; do not merge under the current approval.`
+Stop Basis: `The current approved Governance gate must satisfy its external validation, publication, durability, and lock-release contract before return; later PR, merge, release, and unrelated mutations remain separately gated.`
 
-Next Active Seam: `PR Readiness Stage 2 - direct PR verification and Codex review approval latch`
+Next Active Seam: `External operational state only - do not infer a gate from this durable receipt.`
 
-Stop Condition: `Stop only after the current PR head has no unresolved current review threads, mergeability is green, and Codex has returned an explicit thumbs-up/green approval; merge, release, cleanup, and sibling mutation remain separately gated.`
+Stop Condition: `Stop only at the lawful boundary recorded by the current external gate after required validation, publication, durability, and lock release; do not infer Stage 2, PR, merge, or release.`
 
-Continuation Action: `Continue direct PR verification. For each current finding, repair only the approved Governance scope, run the focused and full validation/firewall set, push the same branch, reply without narrowing review to a commit, resolve the repaired thread, and request one complete Codex review. Do not merge.`
+Continuation Action: `Execute only the approved current Governance gate from external operational state, then publish one coherent final projection and return its exact next legal gate.`
 
 Template / Reference Plan Phase Entry Addendum: `USER approved analysis/planning entry for the blocked Template / Reference plan after Governance rebaseline to origin/main@7c26748bb6d04433a52b19d41dcacadebeb82c8e. PR #269 merged FAM-007 AI Control Center boundary flow evidence and H4 visual/resize/template-first proof into main. Governance may treat that merged evidence as candidate input for template/reference planning alongside accepted HUD/FAM-006 surfaces, FAM-002 component grammar, Project UI Vision, Vision-To-Proof requirements, and USER proof hierarchy. This addendum does not promote the AI Control Center, HUD Dashboard, control cluster, button set, dialog, status panel, tray menu, design token, shared primitive, helper, validator, or fixture as golden reference proof. The later planning-completion receipt records how candidate references are compared and which promotion criteria apply; USER later clarified that current PR Readiness remains blocked until planned template/reference work is admitted and completed on this branch or explicitly reclassified.`
 
@@ -515,7 +517,7 @@ Non-Includes: runtime implementation, provider/model/memory/voice/Core/shortcut/
 
 - `PR Readiness`
 
-Next Legal Phase Detail: The USER-approved integrated Defect A/B repair and current-gate packet-coherence repair are implemented, externally reconciled, and validated. The current packet records Stage 1 Ready For Stage 2; only the separate USER Stage 2 decision can authorize PR Stage 2 work. PR creation, merge, release, FAM worktree adoption, runtime UI implementation, code-level design-token/shared-primitive implementation, issue mutation, and cleanup remain separate USER decisions.
+Next Legal Phase Detail: Current cycle, gate, durability, packet, neutral-main, PR, and next-action posture are owned by external operational state. This durable record does not infer PR creation, merge, release, FAM worktree adoption, runtime implementation, issue mutation, or cleanup authority.
 
 ## Origin/Main Freshness Check
 

@@ -17,6 +17,8 @@ Marker syntax: `NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=<OWNER>; ledge
 | `Docs/validation_helper_registry.md` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `validation-helper-registry` | `canonical` |
 | `Docs/worktree_slots.md` | `GOV-SOURCE-TRUTH` | `SRCOWN-CLEANUP-REBINDING-013` | `worktree-slot-rebinding-posture` | `canonical` |
 | `dev/orin_branch_governance_validation.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `branch-governance-validator` | `shared` |
+| `dev/orin_current_gate_repair.py` | `VALIDATOR-HELPER` | `RRI-20260727-001` | `current-gate-autonomous-repair` | `shared` |
+| `dev/orin_current_gate_repair_fixture_validation.py` | `VALIDATOR-HELPER` | `RRI-20260727-001` | `current-gate-autonomous-repair-fixtures` | `shared` |
 | `dev/orin_governance_efficiency_validation.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `governance-efficiency-validator` | `shared` |
 | `dev/orin_validation_suite.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `validation-suite-recommendation-helper` | `shared` |
 | `dev/orin_user_review_bundle.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `user-review-bundle-helper` | `shared` |

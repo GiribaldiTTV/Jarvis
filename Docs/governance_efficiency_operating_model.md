@@ -37,6 +37,50 @@ Required fields for new reform rules:
 
 Full normative policy belongs in the owner file. Mirrors should summarize the rule and point to the owner instead of repeating full policy prose.
 
+### Current-Gate Repair Source-Truth Placement
+
+| Rule ID | Primary owner | Compact mirrors | Validator / helper owner | Do Not Duplicate In |
+| --- | --- | --- | --- | --- |
+| `CGA-001` Current-Gate Autonomous Repair Authority | `Docs/phase_governance.md` | `Docs/development_rules.md`, `Docs/nexus_startup_contract.md`, `Docs/orin_task_template.md` | `dev/orin_current_gate_repair.py` plus the owning phase/packet validator | Main, branch records/plans, workstream records, packets, external state, helper output |
+| `IRC-001` Internal Repair Continuation Latch | `Docs/phase_governance.md` | development rules, startup contract, task template | `dev/orin_current_gate_repair.py` | phase-local ledgers, generated prompts as alternate law, external state |
+| `SGC-001` Semantic Gate-Contract Compilation | `Docs/phase_governance.md` | development rules, startup contract, helper registry | `dev/orin_current_gate_repair.py`, `dev/orin_user_review_bundle.py` | copied packet source truth, hard-coded packet-only enums, serialized live contracts |
+| `OCP-001` One-Surviving-Canonical-Publish | `Docs/governance_efficiency_operating_model.md` | phase-governance gate summary, development rules, helper registry | `dev/orin_current_gate_repair.py`, `dev/orin_user_review_bundle.py`, and routed external-state writers | packet instructions, external projections, branch records, review aids, incident receipts |
+| `RLB-001` Deterministic Repair-Loop Breaker | `Docs/phase_governance.md` | development rules, startup contract, incident patterns | `dev/orin_current_gate_repair.py` and focused fixtures | per-branch output patches, PR comments, packet receipts as law |
+| `CDR-001` Consolidated Decision And One-Review Rule | `Docs/phase_governance.md` | startup contract, task template, digest profiles | `dev/orin_current_gate_repair.py` | serial handoff prompts, branch-local live decision ledgers |
+
+Historical branch receipts may identify the USER approval, implementation commit,
+validation, and legal carrier. Incident patterns may preserve the generalized
+failure signature. External operational state may record current gate, packet,
+transaction, and lock facts only. None of those surfaces becomes an alternate
+normative owner.
+
+### One-Surviving-Canonical-Publish Model
+
+`OCP-001` requires draft-first publication for USER packets and external live
+projections. Intermediate repair artifacts live in a noncanonical staging root
+and may not replace, rename, version-bump, or redirect the current canonical
+folder, ZIP, alias, projection, or pointer. The complete applicable gate
+contract, including exact enums, required artifacts/fields, manual-row exposure,
+folder/ZIP parity, and false-green checks, must run against the draft before the
+current state changes.
+
+Final publication is one bounded transaction. Preserve the current canonical
+state as rollback input, move all same-label current artifacts into the
+transaction backup, publish one coherent final folder/ZIP or projection set,
+independently validate the published state, and delete the superseded backup
+only after validation passes. On failure, remove the failed publication and
+restore the exact prior canonical state. A successful packet transaction leaves
+one active worktree-labeled folder and one matching timestamped ZIP. A
+successful external-state transaction writes only final completed projections,
+uses the exact target set and workload-scoped lock, avoids intermediate version
+churn, validates target currentness, releases the lock, and independently proves
+the completed-workload active-lock count is zero before the final USER digest.
+
+`Intermediate Draft Published As Current`, `Multiple Canonical Packet Artifacts`,
+`Live Projection Version Churn`, `Canonical Publication Rollback Missing`,
+`Semantic Contract Not Run Before Publish`, and
+`External-State Lock Retained Across Return` are blocking publication defects.
+
 ## Repo Docs Index-Only Contract
 
 Repo Docs are durable index/context files. They may contain governance law, product vision, architecture contracts, source-truth routing, durable evidence pointers, compact historical receipts, and public-safe explanation needed from a clean clone.
@@ -441,6 +485,46 @@ the target's expected pre-write hash, the appropriate lock, a pre-write
 snapshot, atomic replacement, schema validation, an audit entry, a no-loss
 comparison, post-write target validation, and lock release. Manual editing is
 not a legal substitute unless the current phase explicitly admits it.
+
+### Workload-Scoped External-State Lock Lifecycle
+
+An external-state lock is a protected-transaction lease, not thread ownership,
+future-continuation authority, or a reservation while waiting for the USER.
+Acquire it only when the workload reaches an admitted external-state
+transaction, and name the exact bounded target set. Read-only analysis,
+verification-only replay, packet review, and an opened Codex thread do not by
+themselves justify acquisition.
+
+The lock may cover only active snapshot, protected validation, reconciliation,
+write, audit, and immediate post-write currentness work. The workload that
+acquires it must release it on success, block, handled validation failure, or
+exception through guaranteed cleanup semantics. No return, early stop, USER
+gate, cancellation handler, or packet-generation failure may defer release to
+another prompt. Process-crash recovery is a new workload and requires fresh
+authoritative classification before cleanup.
+
+Before returning control to the USER, the workload must independently reread
+the authoritative lock table, prove its own active-lock count is zero, and
+report the global active-lock inventory without treating a disjoint foreign
+workload as its own retained lock. A release receipt or in-memory claim is not
+proof when the authoritative entry remains active. `ACCEPT`,
+`REPAIR_COMPLETED`, `COMPLETED`, `PASS`, or another successful final posture is
+illegal until this final-return gate passes. Release failure returns
+`BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED` with the lock ID, exact targets,
+cleanup attempts, remaining risk, and recovery path.
+
+No lock may remain while waiting for USER input, preserving a packet, keeping
+a gate open, handing off, idling between workloads, or returning a digest. The
+next workload acquires a fresh lock after its own preflight. There is no
+standing retention exception. Any future exception requires a separate USER
+decision naming the exact lock, target set, reason, retention boundary, and
+cleanup trigger.
+
+Foreign active locks are preserved and overlapping work returns
+`BLOCKED_BY_FOREIGN_EXTERNAL_STATE_LOCK`. Stale cleanup is allowed only after
+the exact completed workload, target set, finished transaction, absent owner
+process, and no in-progress write are proven. Ambiguous ownership remains
+`Stale Lock Recovery Required`; cleanup never deletes the lock receipt.
 
 Target-scoped validation contract:
 

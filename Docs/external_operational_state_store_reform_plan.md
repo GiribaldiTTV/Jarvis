@@ -1014,13 +1014,17 @@ Required state-file version fields:
 
 Helper behavior expected in implementation:
 
+- acquire only when the protected transaction begins and only for the exact target set
 - detect state version changes between read and write
 - return `External State Version Conflict` on changed versions
 - write temp file
 - validate temp file
 - replace atomically
 - append audit log
-- release lock
+- release in the same workload on success, block, validation failure, or handled exception
+- independently reread the authoritative lock table before the final USER digest
+- require the completed workload active-lock count to be zero and report the global inventory
+- acquire a fresh lock for any later workload instead of retaining or inheriting one
 
 Release-window single-writer rule:
 
@@ -1039,7 +1043,22 @@ Stale-lock recovery requires a recovery packet with:
 - recovery risk
 - exact USER decision needed
 
-Stale lock recovery must not discard or overwrite state when ownership or version risk is unclear.
+An active-looking lock may be classified as stale only when the exact completed
+workload, target set, finished transaction, absent owner process, and absence of
+an in-progress write are proven. A foreign active lock is preserved and blocks
+overlapping work. Stale cleanup changes the authoritative entry to `Released`
+through the release helper and preserves the receipt; it does not delete the
+lock file. Stale lock recovery must not discard or overwrite state when
+ownership or version risk is unclear.
+
+No lock may remain while waiting for USER review, approval, another prompt,
+continuation, handoff, packet preservation, or a phase gate. Release must use a
+guaranteed cleanup path and precede the final digest. A release receipt is not
+sufficient until an independent authoritative reread reports zero active locks
+for the completed workload and reports the global active-lock inventory.
+Release or zero-count failure returns
+`BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED`, not green. There is no standing
+retention exception.
 
 ## Cross-Worktree Lessons
 
@@ -1310,6 +1329,42 @@ Default path:
 4. Resume normal branch work from current `origin/main`; route any future exact branch-record / branch-plan cleanup only when a validator or USER review reports blocking leakage or receipt-safe cleanup need.
 
 External-state implementation does not replace post-release canon closure or become a release unblocker unless USER explicitly pauses release flow and approves that route.
+
+## Current-State Semantic Reconciliation Contract
+
+External operational state owns the live Governance cycle, current gate, current
+packet posture, current PR posture, approval boundary, write set, validation
+posture, neutral-main freshness, and next legal gate. The three live Governance
+projections (`branch_state.md`, `branch_plan.md`, and `worktree_state.md`) are
+one semantic contract, not independent status notes. A target-scoped identity or
+hash pass is not sufficient: the projections must agree on branch/worktree
+identity, cycle, gate, packet classification, PR state, approval boundary,
+write set, neutral-main state, validation state, and next gate.
+
+The repo standing branch record owns durable standing-lane law, routing, and
+historical receipts. It must route current cycle and gate details to the
+external projections and must not present a historical PR, superseded packet,
+or old Stage 1/Stage 2 posture as current authority. Historical receipts remain
+immutable evidence when their historical boundary is explicit. A semantic
+validator must ignore those receipts while failing contradictory current
+sections, stale one-of-three projections, merged PRs presented as open/current,
+and digest text presented as USER approval without provenance.
+
+Semantic reconciliation occurs before neutral-main rebaseline approval. The
+reconciliation workload releases its external-state lock before returning a
+USER digest and proves an authoritative zero active-lock count. Rebaseline is a
+separate fast-forward-only USER decision; it does not authorize staging,
+commit, push, PR, merge, release, issue mutation, or FAM worktree mutation.
+
+Current-gate repair publication follows `OCP-001` in
+`Docs/governance_efficiency_operating_model.md`. Draft repair cycles remain
+noncanonical and do not increment live `State Version`, redirect active packet
+pointers, or rewrite current-gate fields. After the draft contract is complete,
+one exact target-set transaction snapshots and reparses current projections,
+acquires the workload lock at the write boundary, publishes only the coherent
+final values, validates cross-record semantic currentness, records the audit,
+and releases the lock before return. Final validation failure restores the
+pre-write projection set; it must not leave a mixed-version current state.
 
 ## Future Exact USER Decision Shape
 
