@@ -114,6 +114,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--expected-decision-1")
     parser.add_argument("--expected-decision-2")
     parser.add_argument("--expected-decision-3")
+    parser.add_argument(
+        "--expected-completion-transition-status",
+        default="MIGRATION_COMPLETE",
+        help=(
+            "Expected Transition Status in the completion audit. Defaults to the "
+            "legacy migration completion value; later governed transitions must pass "
+            "their exact audited status explicitly."
+        ),
+    )
     return parser
 
 
@@ -1000,6 +1009,7 @@ def validate_projection_set_semantic_coherence(
     expected_decision_1: str | None,
     expected_decision_2: str | None,
     expected_decision_3: str | None,
+    expected_completion_transition_status: str = "MIGRATION_COMPLETE",
     expected_schema: str = DEFAULT_SCHEMA_VERSION,
 ) -> list[str]:
     """Validate cross-projection phase semantics without treating historical receipts as live state."""
@@ -1025,6 +1035,7 @@ def validate_projection_set_semantic_coherence(
         "expected Decision 1": expected_decision_1,
         "expected Decision 2": expected_decision_2,
         "expected Decision 3": expected_decision_3,
+        "expected completion audit transition status": expected_completion_transition_status,
     }
     missing = [name for name, value in required.items() if value is None or value == ""]
     if missing:
@@ -1161,7 +1172,7 @@ def validate_projection_set_semantic_coherence(
     audit = _load_semantic_json(audit_path, "completion audit", failures)
     if audit is not None:
         audit_expectations = {
-            "Transition Status": "MIGRATION_COMPLETE",
+            "Transition Status": expected_completion_transition_status,
             "Decision 1": expected_decision_1,
             "Decision 2": expected_decision_2,
             "Decision 3": expected_decision_3,
@@ -2246,6 +2257,7 @@ def main() -> int:
             expected_decision_1=args.expected_decision_1,
             expected_decision_2=args.expected_decision_2,
             expected_decision_3=args.expected_decision_3,
+            expected_completion_transition_status=args.expected_completion_transition_status,
             expected_schema=args.schema,
         )
         print("Validation Scope: PROJECTION_SET_SEMANTIC_COHERENCE")

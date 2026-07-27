@@ -264,7 +264,12 @@ def _semantic_fixture(root: Path) -> tuple[Path, Path]:
     return audit, review
 
 
-def _semantic_run(root: Path) -> list[str]:
+def _semantic_run(
+    root: Path,
+    *,
+    expected_live_transition: str = SEMANTIC_TRANSITION,
+    expected_completion_transition: str = "MIGRATION_COMPLETE",
+) -> list[str]:
     return validator.validate_projection_set_semantic_coherence(
         root,
         list(SEMANTIC_TARGETS),
@@ -280,7 +285,7 @@ def _semantic_run(root: Path) -> list[str]:
         expected_workstream_result=SEMANTIC_WORKSTREAM,
         expected_stage_states=SEMANTIC_STAGES,
         expected_next_legal_phase=SEMANTIC_NEXT,
-        expected_transition_status=SEMANTIC_TRANSITION,
+        expected_transition_status=expected_live_transition,
         expected_state_version=2,
         expected_last_updated_by="Codex",
         previous_snapshot="snapshots/semantic-before",
@@ -289,6 +294,7 @@ def _semantic_run(root: Path) -> list[str]:
         expected_decision_1="COMPLETE",
         expected_decision_2="ELIGIBLE_FOR_SEPARATE_USER_APPROVAL_ONLY",
         expected_decision_3="SEPARATE_FUTURE_GATE",
+        expected_completion_transition_status=expected_completion_transition,
     )
 
 
@@ -301,6 +307,36 @@ def _run_projection_set_semantic_fixtures(parent: Path) -> None:
 
     root = case("semantic-valid-historical-text")
     _assert_pass("historical Decision 1 receipt is not live state", _semantic_run(root))
+
+    root = case("semantic-valid-later-governed-transition")
+    later_transition = "CONSOLIDATED_DECISION_USER_REVIEW_PENDING"
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, transition=later_transition)
+    audit = root / "audit_log" / "migration-completion.json"
+    payload = json.loads(audit.read_text(encoding="utf-8"))
+    payload["Transition Status"] = later_transition
+    atomic_write_json(audit, payload)
+    _assert_pass(
+        "later governed transition uses its explicit completion-audit status",
+        _semantic_run(
+            root,
+            expected_live_transition=later_transition,
+            expected_completion_transition=later_transition,
+        ),
+    )
+
+    root = case("semantic-later-transition-audit-mismatch")
+    for target in SEMANTIC_TARGETS:
+        _write_semantic_record(root, target, transition=later_transition)
+    _assert_failure(
+        "later governed transition rejects a stale migration completion audit",
+        "completion audit Transition Status mismatch",
+        _semantic_run(
+            root,
+            expected_live_transition=later_transition,
+            expected_completion_transition=later_transition,
+        ),
+    )
 
     root = case("semantic-decision1-stale-route")
     for target in SEMANTIC_TARGETS:
