@@ -239,7 +239,12 @@ target-set path must compile and validate projected final values before lock
 acquisition, publish every admitted projection under one exact write-set lock,
 run cross-record semantic validation, write one set-level audit, and restore
 every changed target if any member, audit, or final set validation fails. A
-dry-run projection must not require or acquire a lock or snapshot. Lock release is
+USER-approved projection retirement may use the explicit historical-receipt
+post-state only when the writer proves the prior live identity, changes only
+selected header fields, preserves every unselected line and historical section,
+validates the resulting historical class/role/boundary and preserved identity,
+and records the class transition in audit evidence. A dry-run projection must
+not require or acquire a lock or snapshot. Lock release is
 owned by `dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`);
 a currentness transition with a remaining lock is incomplete and must fail
 closeout. These helpers must not rewrite historical receipts or the structural
@@ -251,7 +256,8 @@ atomic release of the exact admitted lock, and
 the target-scoped lock/snapshot/atomic-write transition proof, while
 `dev/orin_external_state_target_currentness_fixture_validation.py` (`Helper Status: Reusable Fixture Validator`) owns the positive, negative,
 malformed, stale, path-security, TOCTOU, writer, audit, lock-release,
-no-lock draft, coherent target-set publication, and all-target rollback
+no-lock draft, audited historical retirement, omitted-live-projection rejection,
+coherent target-set publication, and all-target rollback
 regression suite for this contract.
 
 `dev/orin_external_state_lock.py` (`Helper Status: Reusable`) acquires an exact
@@ -410,10 +416,10 @@ Codex User Guide operator-boundary validator guidance: `Docs/codex_user_guide.md
 | `dev/orin_current_gate_repair_fixture_validation.py` | Helper Status: Reusable Fixture Validator | current-gate repair regression fixtures | Run the 25 negative and 16 positive fixtures, including the clean-clone-safe FAM-007 `165940` wrong-enum regression, stale-contract, manual-row, continuation, boundary, repeated-signature, canonical-publish, rollback, decision-consolidation, and unchanged-invariant cases. |
 | `dev/orin_external_state_lock.py` | Helper Status: Reusable | external-state lock acquisition helper | Acquire only at an admitted protected transaction with an exact workload identity and bounded target set. Block malformed or overlapping active locks; do not create locks for verification-only, dry-run, thread-open, USER-wait, or future-continuation posture. |
 | `dev/orin_external_state_lock_lifecycle.py` | Helper Status: Reusable | external-state lock lifecycle and final-return gate | Independently inventory and classify every authoritative lock, preserve foreign active locks, recover only proven stale completed-workload locks, provide guaranteed transaction cleanup, and block final return until the completed workload active-lock count is zero while reporting the global inventory. |
-| `dev/orin_external_state_target_reconcile.py` | Helper Status: Reusable | target-scoped and bounded target-set external-state writer | Use only for explicitly admitted live projection targets. Dry-run projection compiles without a lock or snapshot. Final single-target or target-set publication requires exact snapshot/lock proof; updates only live fields before the first historical receipt boundary; preserves receipt history; performs atomic member replacement plus set-level semantic validation; records audit proof; and restores every changed target on set failure. It must not traverse, rewrite the root manifest, or mutate historical receipts. |
+| `dev/orin_external_state_target_reconcile.py` | Helper Status: Reusable | target-scoped and bounded target-set external-state writer | Use only for explicitly admitted live projection targets or an explicitly approved live-to-historical retirement. Dry-run projection compiles without a lock or snapshot. Final single-target or target-set publication requires exact snapshot/lock proof; updates only selected header fields before the first historical receipt boundary; preserves receipt history; validates the selected live or historical post-state; performs atomic member replacement plus set-level semantic validation; records audit proof; and restores every changed target on set failure. It must not traverse, rewrite the root manifest, or mutate historical receipts. |
 | `dev/orin_external_state_lock_release.py` | Helper Status: Reusable | external-state lock release helper | Release only the exact admitted target/workload lock, atomically reread the authoritative entry, and report workload/global counts. A remaining lock is an incomplete closeout. It must not release unrelated locks or mutate repo source truth. |
 | `dev/orin_external_state_lock_lifecycle_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state lock lifecycle regression fixtures | Prove all required retained-lock failures and success, blocked, validation-failure, exception, partial-write, foreign-lock, stale-cleanup, fresh-next-workload, public final-gate, and authoritative-zero paths without mutating live external state. |
-| `dev/orin_external_state_target_currentness_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state currentness regression fixtures | Prove positive, wrong-identity, stale, malformed, historical, traversal, reparse, TOCTOU, writer, audit, lock-release, and scoped-PASS-versus-root-PASS behavior for target-scoped currentness. It must not mutate live external state outside temporary fixtures. |
+| `dev/orin_external_state_target_currentness_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state currentness regression fixtures | Prove positive, wrong-identity, stale, malformed, historical, traversal, reparse, TOCTOU, writer, audit, lock-release, audited historical retirement, omitted-live-projection rejection, and scoped-PASS-versus-root-PASS behavior for target-scoped currentness. It must not mutate live external state outside temporary fixtures. |
 | `dev/orin_worktree_rebaseline_audit.py` | Helper Status: Reusable | worktree rebaseline audit helper | report-only helper for `Pre-Rebaseline Impact Audit` packets. It must not fetch, merge, rebase, checkout, reset, or mutate files. Reuse before any FAM, Governance, or neutral-main worktree baselines to newer `origin/main`; it reports cwd, git root, worktree role from `Docs/worktree_slots.md` or generic runtime-slot fallback, branch, upstream, `HEAD`, target ref, merge base, incoming commits, incoming changed files, `Current Worktree Changed Files:`, `Branch Changed Files:`, `Rebaseline Overlap Files:`, runtime/source-truth risk, sibling worktree dirty-file overlap, active branch authority record, `Current-Main Reconciliation Identity Guard`, recommendation-only posture, `Rebaseline Mutation Approval: Pending`, and `Rebaseline Mutation Status: Not started` or blocked. Incoming changed files must compare `merge_base..target_ref`, branch changed files must compare `merge_base..HEAD`, current branch/worktree changed files must union branch changed files with staged/unstaged/untracked files, `Rebaseline Overlap Files:` must be the intersection of incoming changed files and current branch/worktree changed files, and branch authority matching must use the exact `- Branch:` field instead of substring matching. When overlap exists, the helper must resolve or accept the active external branch plan at `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, parse `Branch Change Intent Ledger` / `Changed Surface:` entries when available, report actual `Branch Change Intent Present:` YES/NO, classify `Semantic Merge Risk:` and `Regression / Gating Impact:`, and report `Rebaseline Overlap Intent Gate`, `Overall Overlap Gate Result:`, `Rebaseline Overlap Failure Procedure`, and `Rebaseline Overlap Intent Missing` guidance without treating fallback evidence as a compatibility bypass. Repo branch-plan files may be fallback evidence only after the external-state transition. |
 | `dev/orin_validation_suite.py` | Helper Status: Reusable | validation suite recommendation helper | report-only helper for `Recommended Validation Suite:` packets. It accepts `--phase` and optional `--changed-file` values, inspects committed, unstaged, staged, and untracked changed files when changed files are omitted, and recommends validation commands with rationale; it does not execute commands or mutate files. Use it to reduce copy/paste drift in Governance, Branch Readiness, PR Readiness, Release Readiness, FAM-006 runtime, and FAM-007 runtime validation planning. |
 | `dev/orin_governance_efficiency_validation.py` | Helper Status: Reusable | governance efficiency operating model validator | Reuse for governance/source-truth efficiency reform checks before adding another source-truth owner. It validates `Docs/governance_efficiency_operating_model.md`, confirms compact pointers from routing and governance docs, enforces the Docs Source-Truth Reform Model, blocks `Package Trace:` / `Slice Trace:` detail from backlog/roadmap, keeps backlog/roadmap from absorbing live release, live branch, or Branch Runtime Engineering Plan detail markers, verifies the worktree slot registry does not own volatile live state, checks branch-record / branch-plan / workstream fold-down ownership rules, and ensures USER review hub metadata routes active packets to `C:\Nexus USER\<label>` plus mandatory timestamped upload ZIPs shaped `C:\Nexus USER\<label>-YYYYMMDD-HHMMSS.zip`. |
@@ -621,14 +627,17 @@ These reservations do not register files that do not yet exist. They record the 
 ### Governance Semantic Currentness
 
 `dev/orin_external_state_validation.py --semantic-currentness` is the
-cross-record seam for the standing Governance projections. It must compare the
-live headers of `branch_state.md`, `branch_plan.md`, and
-`worktree_state.md` as one contract, including identity, current RRI cycle,
+cross-record seam for the standing Governance projections. It must discover
+same-branch live projection classes before comparing the routed live headers of
+`branch_state.md`, `branch_plan.md`, and `worktree_state.md` as one contract.
+Any same-branch live projection omitted from the semantic target inventory is a
+blocking false green; historical receipt-class records remain evidence and are
+not live semantic targets. The contract includes identity, current RRI cycle,
 gate, packet state, PR state, approval provenance, exact write set, validation
 state, neutral-main freshness, and next legal gate. It must distinguish the
 durable repo branch record and immutable historical receipts from live external
 state, and it must fail identity-only false greens, stale-one-of-three
-projections, current Stage 1/Stage 2 contradictions, merged PRs represented as
+projections, omitted same-branch live projections, current Stage 1/Stage 2 contradictions, merged PRs represented as
 open/current, and unproven USER approval. The focused target-currentness
 fixtures must include coherent positive records, contradictory current records,
 historical wording that remains valid evidence, and current-section wording

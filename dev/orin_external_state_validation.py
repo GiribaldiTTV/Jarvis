@@ -408,6 +408,86 @@ def validate_target_currentness(
     return failures
 
 
+def validate_target_historical_receipt(
+    root: Path,
+    targets: list[str],
+    *,
+    expected_branch: str,
+    expected_source_head: str,
+    expected_origin_main: str,
+    expected_worktree_path: str,
+    expected_worktree_slot: str,
+    expected_target_sha256: str,
+    expected_schema: str = DEFAULT_SCHEMA_VERSION,
+) -> list[str]:
+    """Validate one retired projection as immutable historical evidence."""
+
+    failures: list[str] = []
+    root = resolve_path(root)
+    if len(targets) != 1:
+        return ["Historical Receipt: exactly one explicit target is required"]
+    relative, target_path, target_failures = _resolve_target_path(root, targets[0])
+    failures.extend(target_failures)
+    if relative is None or target_path is None:
+        return failures
+    try:
+        before_hash = sha256_file(target_path)
+        target_bytes = target_path.read_bytes()
+        after_hash = sha256_file(target_path)
+        text = target_bytes.decode("utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        return [f"Historical Receipt: selected target is malformed or unreadable: {relative}: {exc}"]
+    target_bytes_hash = hashlib.sha256(target_bytes).hexdigest()
+    if before_hash != after_hash or target_bytes_hash != before_hash:
+        failures.append(f"Historical Receipt: selected target changed during validation (TOCTOU): {relative}")
+    if before_hash.casefold() != (expected_target_sha256 or "").casefold():
+        failures.append(
+            f"Historical Receipt: target hash precondition failed for {relative}: "
+            f"expected {expected_target_sha256}, found {before_hash}"
+        )
+    if failures:
+        return failures
+
+    header = _live_header_text(text)
+    schema = markdown_field_value(header, "External State Schema")
+    if schema != expected_schema:
+        failures.append(
+            f"External State Schema Conflict: {relative}: expected {expected_schema}, "
+            f"found {schema or 'MISSING'}"
+        )
+    record_class = _normalized_windows_value(
+        markdown_field_value(header, "Record Class")
+    ).replace("\\", " ")
+    if record_class not in TARGET_HISTORICAL_RECORD_CLASSES and "historical receipt" not in record_class:
+        failures.append(
+            f"Historical Receipt: unsupported or missing historical Record Class in {relative}: "
+            f"{record_class or 'MISSING'}"
+        )
+    role = markdown_field_value(header, "Record Role") or ""
+    if "historical" not in role.casefold() or "receipt" not in role.casefold():
+        failures.append(
+            f"Historical Receipt: {relative} Record Role must classify the target as historical receipt evidence"
+        )
+    if not markdown_field_value(header, "Historical Receipt Boundary"):
+        failures.append(f"Historical Receipt: {relative} is missing Historical Receipt Boundary")
+
+    identity_fields = (
+        ("Branch", _first_markdown_field(header, ("Branch", "Current Branch")), expected_branch, lambda value: value.strip()),
+        ("Source Repo HEAD", _first_markdown_field(header, ("Source Repo HEAD", "Current HEAD")), expected_source_head, lambda value: value.strip().casefold()),
+        ("Origin/Main", _first_markdown_field(header, ("Origin/Main", "Source origin/main")), expected_origin_main, lambda value: value.strip().casefold()),
+        ("Worktree Path", markdown_field_value(header, "Worktree Path"), expected_worktree_path, _normalized_windows_value),
+        ("Slot ID", markdown_field_value(header, "Slot ID"), expected_worktree_slot, lambda value: value.strip().casefold()),
+    )
+    for label, actual, expected, normalizer in identity_fields:
+        if not actual:
+            failures.append(f"Historical Receipt: {relative} is missing required field {label}")
+        elif normalizer(actual) != normalizer(expected):
+            failures.append(
+                f"Historical Receipt: {relative} {label} mismatch: expected {expected!r}, found {actual!r}"
+            )
+    return failures
+
+
 GOVERNANCE_SEMANTIC_TARGETS = {
     "branches/feature_release_readiness_source_truth_intake/branch_state.md": "branch state",
     "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "branch plan",
@@ -473,7 +553,7 @@ def validate_governance_semantic_currentness(
     repo_branch_record: Path | None = None,
     expected_cycle: str | None = None,
 ) -> list[str]:
-    """Validate agreement across the three live Governance projections.
+    """Validate agreement across every routed live Governance projection.
 
     This is intentionally narrower than a root-wide freshness check. It compares
     the live operational contract while preserving receipt sections as evidence.
@@ -481,6 +561,25 @@ def validate_governance_semantic_currentness(
 
     failures: list[str] = []
     root = resolve_path(root)
+    branch_root = root / "branches" / "feature_release_readiness_source_truth_intake"
+    if branch_root.is_dir():
+        for path in sorted(branch_root.glob("*.md")):
+            try:
+                candidate_text = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as exc:
+                failures.append(
+                    f"Semantic Currentness: unreadable same-branch record: {path}: {exc}"
+                )
+                continue
+            record_class = _normalized_windows_value(
+                markdown_field_value(_live_header_text(candidate_text), "Record Class")
+            ).replace("\\", " ")
+            relative = path.relative_to(root).as_posix()
+            if record_class in TARGET_LIVE_RECORD_CLASSES and relative not in GOVERNANCE_SEMANTIC_TARGETS:
+                failures.append(
+                    "Semantic Currentness: same-branch live projection omitted from semantic "
+                    f"target inventory: {relative} ({record_class})"
+                )
     target_texts: dict[str, str] = {}
     for relative, label in GOVERNANCE_SEMANTIC_TARGETS.items():
         path = root.joinpath(*relative.split("/"))
@@ -619,6 +718,18 @@ def validate_governance_semantic_currentness(
                 failures.append(
                     "Semantic Currentness: repo branch record must route current cycle/gate state to external operational state"
                 )
+            for line in current_record.splitlines():
+                if "pr_readiness_state.md" not in line.casefold():
+                    continue
+                normalized_line = re.sub(r"\s+", " ", line).strip().casefold()
+                if not (
+                    "historical snapshot evidence only" in normalized_line
+                    and "not a current-state route" in normalized_line
+                ):
+                    failures.append(
+                        "Semantic Currentness: repo branch record routes pr_readiness_state.md "
+                        "without an explicit historical-only, non-current boundary"
+                    )
             if "active seam: `external operational state only" not in record_text.casefold():
                 failures.append(
                     "Semantic Currentness: repo Active Seam must be an external-state routing pointer"

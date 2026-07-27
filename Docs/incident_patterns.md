@@ -937,14 +937,19 @@ HEAD, origin/main, path, and hash markers but disagree about the current gate,
 packet, PR, approval, or next legal phase, target-scoped validation has proved
 identity only and has not proved operational truth. The same failure appears
 when a historical merged PR or superseded Stage 1 packet is parsed as current
-state, or when a repo branch record mirrors live external fields instead of
-routing to their external owner.
+state, when a fourth same-branch file retains a live projection class but is
+omitted from a fixed semantic target list, or when a repo branch record mirrors
+live external fields instead of routing to their external owner.
 
 Prevention requires a cross-record semantic-currentness pass before any
 rebaseline or PR gate. Compare all three live Governance projections as one
 contract; parse only explicit current sections; preserve receipt sections as
-historical evidence; require exact approval provenance; and fail if one target
-is stale or if current PR/phase/stage/gate/packet assertions disagree. Run the
+historical evidence; discover same-branch live record classes before accepting
+the target inventory; require exact approval provenance; and fail if one target
+is stale, a live projection is omitted, or current PR/phase/stage/gate/packet
+assertions disagree. Retire a stale optional projection only through the audited
+historical-receipt writer path, preserving every unselected line and receipt.
+Run the
 semantic positive and negative fixture family in addition to target identity,
 lock-lifecycle, and external-root validation. A green identity check alone is
 not a current-state green.

@@ -28,6 +28,9 @@ SEMANTIC_TARGETS = {
     "worktrees/Governance/worktree_state.md": "worktree_state",
 }
 SEMANTIC_CYCLE = "RRI-20260727-001"
+PR_STATE_TARGET = (
+    "branches/feature_release_readiness_source_truth_intake/pr_readiness_state.md"
+)
 
 
 def _target_path(root: Path) -> Path:
@@ -159,8 +162,33 @@ def _semantic_root(root: Path) -> dict[str, Path]:
     return paths
 
 
-def _semantic_failures(root: Path) -> list[str]:
-    return validator.validate_governance_semantic_currentness(root, expected_cycle=SEMANTIC_CYCLE)
+def _semantic_failures(
+    root: Path,
+    repo_branch_record: Path | None = None,
+) -> list[str]:
+    return validator.validate_governance_semantic_currentness(
+        root,
+        expected_cycle=SEMANTIC_CYCLE,
+        repo_branch_record=repo_branch_record,
+    )
+
+
+def _semantic_pr_projection(root: Path, record_class: str) -> Path:
+    path = root.joinpath(*PR_STATE_TARGET.split("/"))
+    path.write_text(
+        "\n".join(
+            [
+                "# PR State Fixture",
+                "External State Schema: `external-state-v1`",
+                f"Record Class: `{record_class}`",
+                "Record Role: `Historical PR readiness snapshot receipt`",
+                "Historical Receipt Boundary: `This record does not own live PR truth.`",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return path
 
 
 def _semantic_target_snapshot(
@@ -1362,10 +1390,171 @@ def main() -> int:
         if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n") + 1:
             raise AssertionError("CRLF target transition changed untouched newline structure")
 
+    with tempfile.TemporaryDirectory(prefix="ndai-target-retirement-") as temp_dir:
+        root = Path(temp_dir)
+        _manifest(root)
+        target = _record(root)
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + "## Historical Receipt\nReceipt Value: `preserve exactly`\n",
+            encoding="utf-8",
+        )
+        historical_section = target.read_text(encoding="utf-8").split(
+            "## Historical Receipt", 1
+        )[1]
+        snapshot = _snapshot(root, target, "fixture-historical-retirement")
+        lock_id = "worktree-fixture-historical-retirement"
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        expectations = _expectations(target)
+        before = target.read_bytes()
+        invalid_ok, invalid_messages, invalid_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id="",
+            snapshot="",
+            assignments=["Last Updated=2026-01-02T00:00:00Z"],
+            additions=[],
+            post_record_state="historical-receipt",
+            apply=False,
+            **expectations,
+        )
+        if invalid_ok or invalid_audit is not None or target.read_bytes() != before or not any(
+            "unsupported or missing historical Record Class" in item
+            for item in invalid_messages
+        ):
+            raise AssertionError(
+                "historical retirement accepted a live post-state:\n"
+                + "\n".join(invalid_messages)
+            )
+
+        retirement_assignments = [
+            "State Version=2",
+            "Last Updated=2026-01-02T00:00:00Z",
+            "Record Class=Historical Receipt",
+            "Record Role=Historical worktree projection receipt; not live operational state",
+            "Historical Receipt Boundary=This retired projection and all sections below are historical evidence only.",
+        ]
+        dry_ok, dry_messages, dry_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id="",
+            snapshot="",
+            assignments=retirement_assignments,
+            additions=[],
+            post_record_state="historical-receipt",
+            apply=False,
+            **expectations,
+        )
+        if not dry_ok or dry_audit is not None or target.read_bytes() != before:
+            raise AssertionError(
+                "historical retirement dry run failed or mutated the target:\n"
+                + "\n".join(dry_messages)
+            )
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            assignments=retirement_assignments,
+            additions=[],
+            post_record_state="historical-receipt",
+            apply=True,
+            **expectations,
+        )
+        if not ok or audit is None:
+            raise AssertionError(
+                "historical retirement apply failed:\n" + "\n".join(messages)
+            )
+        after_hash = hashlib.sha256(target.read_bytes()).hexdigest()
+        _assert_pass(
+            "retired target validates as historical receipt",
+            validator.validate_target_historical_receipt(
+                root,
+                [TARGET],
+                expected_target_sha256=after_hash,
+                **{
+                    key: value
+                    for key, value in expectations.items()
+                    if key != "expected_target_sha256"
+                },
+            ),
+        )
+        _assert_failure(
+            "retired target cannot validate as live currentness",
+            "historical receipt cannot be selected as live state",
+            _run(root, expected_target_sha256=after_hash),
+        )
+        if target.read_text(encoding="utf-8").split("## Historical Receipt", 1)[1] != historical_section:
+            raise AssertionError("historical retirement rewrote preserved receipt evidence")
+        audit_payload = json.loads(audit.read_text(encoding="utf-8"))
+        if audit_payload.get("Post Record State") != "historical-receipt":
+            raise AssertionError("historical retirement audit omitted the post-record state")
+
     with tempfile.TemporaryDirectory(prefix="ndai-governance-semantic-currentness-") as temp_dir:
         root = Path(temp_dir)
         paths = _semantic_root(root)
         _assert_pass("coherent three-record Governance posture", _semantic_failures(root))
+
+        pr_state = _semantic_pr_projection(root, "Live Branch Projection")
+        _assert_failure(
+            "same-branch live projection omitted from semantic inventory",
+            "same-branch live projection omitted from semantic target inventory",
+            _semantic_failures(root),
+        )
+        pr_state.write_text(
+            pr_state.read_text(encoding="utf-8").replace(
+                "Record Class: `Live Branch Projection`",
+                "Record Class: `Historical Receipt`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass(
+            "same-branch historical receipt is excluded from live semantic inventory",
+            _semantic_failures(root),
+        )
+        pr_state.unlink()
+
+        repo_record = root / "repo_branch_record.md"
+        repo_record.write_text(
+            "\n".join(
+                [
+                    "# Branch Record Fixture",
+                    "Active Seam: `External operational state only - current state is external.`",
+                    "Intake State: `External operational state only - current PR state lives in "
+                    "pr_readiness_state.md.`",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "repo route treats historical PR snapshot as current",
+            "without an explicit historical-only, non-current boundary",
+            _semantic_failures(root, repo_record),
+        )
+        repo_record.write_text(
+            repo_record.read_text(encoding="utf-8").replace(
+                "current PR state lives in pr_readiness_state.md.",
+                "pr_readiness_state.md is historical snapshot evidence only and is not a current-state route.",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass(
+            "repo route classifies PR snapshot as historical only",
+            _semantic_failures(root, repo_record),
+        )
 
         evolved_fields = {
             "Current Gate: `Bounded semantic currentness and lock-lifecycle reconciliation active; neutral-main fast-forward-only rebaseline pending separate USER decision.`":

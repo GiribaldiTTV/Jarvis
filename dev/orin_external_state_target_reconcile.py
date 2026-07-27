@@ -30,6 +30,7 @@ from orin_external_state_common import (
 from orin_external_state_validation import (
     _has_reparse_point,
     _resolve_target_path,
+    validate_target_historical_receipt,
     validate_target_currentness,
 )
 
@@ -84,6 +85,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         metavar="OLD=NEW",
         help="Rename one existing Markdown section heading; repeat for multiple sections",
+    )
+    parser.add_argument(
+        "--retire-as-historical-receipt",
+        action="store_true",
+        help="Validate the post-state as historical receipt evidence instead of a live projection.",
     )
     parser.add_argument("--apply", action="store_true", help="Apply the atomic transition")
     return parser
@@ -338,6 +344,7 @@ def _projected_target_validation(
     expected_origin_main: str,
     expected_worktree_path: str,
     expected_worktree_slot: str,
+    post_record_state: str,
 ) -> list[str]:
     """Validate a dry-run projection without mutating the live external root."""
 
@@ -347,7 +354,12 @@ def _projected_target_validation(
         projected_target.parent.mkdir(parents=True, exist_ok=True)
         projected_target.write_bytes(projected_text.encode("utf-8"))
         projected_hash = sha256_file(projected_target)
-        return validate_target_currentness(
+        validation = (
+            validate_target_historical_receipt
+            if post_record_state == "historical-receipt"
+            else validate_target_currentness
+        )
+        return validation(
             projected_root,
             [relative],
             expected_branch=expected_branch,
@@ -509,11 +521,14 @@ def reconcile_target(
     post_expected_source_head: str | None = None,
     post_expected_origin_main: str | None = None,
     write_audit: bool = True,
+    post_record_state: str = "live",
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
     transition_started_ns = time.time_ns()
     failures = validate_canonical_root(root)
     failures.extend(validate_initialized_root(root))
+    if post_record_state not in {"live", "historical-receipt"}:
+        failures.append(f"Unsupported post-record state: {post_record_state!r}")
     if failures:
         return False, failures, None
 
@@ -632,6 +647,7 @@ def reconcile_target(
             expected_origin_main=post_origin_main,
             expected_worktree_path=expected_worktree_path,
             expected_worktree_slot=expected_worktree_slot,
+            post_record_state=post_record_state,
         )
         if projected_validation:
             return False, [
@@ -677,7 +693,12 @@ def reconcile_target(
         ], None
     atomic_write_text(target_path, after_text)
     actual_after_hash = sha256_file(target_path)
-    post_validation = validate_target_currentness(
+    post_validation_func = (
+        validate_target_historical_receipt
+        if post_record_state == "historical-receipt"
+        else validate_target_currentness
+    )
+    post_validation = post_validation_func(
         root,
         [target],
         expected_branch=expected_branch,
@@ -710,7 +731,12 @@ def reconcile_target(
     ]
     audit_payload = {
         "External State Schema": DEFAULT_SCHEMA_VERSION,
-        "Transition": "Target-scoped live projection reconciliation",
+        "Transition": (
+            "Target-scoped historical projection retirement"
+            if post_record_state == "historical-receipt"
+            else "Target-scoped live projection reconciliation"
+        ),
+        "Post Record State": post_record_state,
         "Target": relative,
         "Lock ID": lock_id,
         "Snapshot": snapshot,
@@ -770,6 +796,7 @@ class TargetReconcileRequest:
     section_renames: tuple[str, ...] = ()
     post_expected_source_head: str | None = None
     post_expected_origin_main: str | None = None
+    post_record_state: str = "live"
 
 
 def _project_request_text(
@@ -948,6 +975,7 @@ def reconcile_target_set(
             section_renames=list(request.section_renames),
             post_expected_source_head=request.post_expected_source_head,
             post_expected_origin_main=request.post_expected_origin_main,
+            post_record_state=request.post_record_state,
             apply=False,
         )
         if not ok:
@@ -1006,6 +1034,7 @@ def reconcile_target_set(
             section_renames=list(request.section_renames),
             post_expected_source_head=request.post_expected_source_head,
             post_expected_origin_main=request.post_expected_origin_main,
+            post_record_state=request.post_record_state,
             apply=True,
             write_audit=False,
         )
@@ -1058,6 +1087,7 @@ def reconcile_target_set(
                 "Assignments": list(request.assignments),
                 "Additions": list(request.additions),
                 "Section Renames": list(request.section_renames),
+                "Post Record State": request.post_record_state,
             }
             for request, relative, target_path, _before_text, _projected_text in resolved
         ],
@@ -1118,6 +1148,9 @@ def main() -> int:
         assignments=args.set_field,
         additions=args.add_field,
         section_renames=args.rename_section,
+        post_record_state=(
+            "historical-receipt" if args.retire_as_historical_receipt else "live"
+        ),
         apply=args.apply,
     )
     print("External State Target Reconciliation")
