@@ -6064,6 +6064,109 @@ def _packet_path_by_basename(packet_files: Mapping[str, str], basename: str) -> 
     return matches[0] if len(matches) == 1 else ""
 
 
+FAM003_OPTION_G_EXACT_PRIOR_PACKET = (
+    r"C:\Nexus USER\FAM-003-20260726-224500.zip"
+)
+FAM003_OPTION_G_EXACT_PRIOR_PACKET_SHA256 = (
+    "9D9A30A47351DE1241FE7BA3C711C2B0171E04113D2C177247E0877D66D26320"
+)
+FAM003_OPTION_G_PRIOR_REJECTION_DISPOSITION = "EXPECTED_FAIL_CONFIRMED"
+FAM003_OPTION_G_PRIOR_REJECTION_CAPTURE_MODE = "stdout-stderr-combined-utf8"
+FAM003_OPTION_G_CURRENT_SUPPORT_SCHEMA = "fam003-option-g-bp3-current-support-v2"
+FAM003_OPTION_G_CURRENT_SUPPORT_ROLE = "Current supporting evidence copy"
+FAM003_OPTION_G_SUPPORT_ACTIVE_ALLOWED_FIELDS = {
+    "Record Status",
+    "Record Role",
+    "Current Active Section Schema",
+    "UFD Authority Classification",
+    "Branch",
+    "Worktree",
+    "State Version",
+    "Source Repo HEAD",
+    "Origin/Main",
+    "Current Gate",
+    "Packet Reviewability State",
+    "USER Gate State",
+    "Workstream Result",
+    "Workstream Implementation",
+    "H1 / LV / UTS",
+    "Next Legal Phase",
+    "Transition Status",
+    "Canonical Planning Owner",
+    "Accepted BP1 Authority",
+    "Accepted BP1 Receipt",
+    "Accepted BP2 Authority",
+    "Accepted BP2 Receipt",
+    "Project Vision SHA256",
+    "FAM-003 Family Vision SHA256",
+    "F3-FF01 SHA256",
+    "UFD Ledger Status",
+    "UFD Ledger Owner",
+    "UFD Item Count",
+    "UFD Physical Detail Location",
+    "UFD Current Owner Class",
+    "UFD Current Canonical Owner File",
+    "UFD Future Fold-Down Target",
+    "Open UFD Count",
+    "Blocking UFD Count",
+    "Fold-Down Status",
+    "Element Validation Ledger Owner",
+    "Element Matrix Column Count",
+    "Element Matrix Row Count",
+    "Element Classification Vocabulary",
+    "Remaining USER Decision",
+    "Rollback Snapshot Identity",
+    "Transaction Receipt",
+    "Current Replacement Packet",
+    "Prior USER-Reviewed Packet",
+    "Prior USER-Reviewed ZIP SHA256",
+    "Exact Prior-Packet Rejection",
+    "Prior-Packet Rejection Receipt Packet Copy",
+    "Current Branch Plan Projection SHA256",
+    "Current Branch State Projection SHA256",
+    "Current Worktree State Projection SHA256",
+    "Supersedes Supporting Record",
+    "Feedback ID",
+    "Feedback Summary",
+    "Feedback Source",
+    "Feedback Phase",
+    "Disposition Type",
+    "USER Decision State",
+    "Owner Class",
+    "Canonical Owner File",
+    "Workstream Severity",
+    "Status",
+    "Fold-Down Target",
+    "Pointer Locations",
+    "Source / Date",
+    "USER Direction Or Finding",
+    "Affected Scope",
+    "Affected Artifact",
+    "Classification",
+    "Owner",
+    "Carrier",
+    "Planning Or Implementation Effect",
+    "Proof / Closure Requirement",
+    "Matrix Status",
+    "USER Review Status",
+    "Open Element Questions",
+    "Element Coverage Owner",
+    "Current Phase",
+    "Why This Phase Is Next",
+    "Approval Required",
+    "Exact USER Approval Text",
+    "Allowed Scope",
+    "Explicit Exclusions",
+    "Validation Required",
+    "Stop Conditions",
+    "USER Plan Review Gate",
+    "USER Inspection Files",
+    "Review Required Because",
+    "Implementation Blocker",
+    "Review Waiver Reason",
+}
+
+
 def _fam003_option_g_packet_lineage_failures(
     packet_files: Mapping[str, str],
     packet_binary_files: Mapping[str, bytes] | None,
@@ -6084,9 +6187,20 @@ def _fam003_option_g_packet_lineage_failures(
     receipt_hash = str(lineage.get("publicationReceiptSha256") or "")
     candidates = lineage.get("intermediateCandidates")
     current_packet = str(manifest.get("Replacement ZIP") or "")
+    rejection = manifest.get("Prior Packet Rejection")
     if not re.fullmatch(r"[0-9A-Fa-f]{64}", prior_hash):
         failures.append(
             "FAM-003 Option G BP3: receipt-backed prior USER-reviewed packet hash is missing"
+        )
+    if prior_path.casefold() != FAM003_OPTION_G_EXACT_PRIOR_PACKET.casefold():
+        failures.append(
+            "FAM-003 Option G BP3: receipt-backed prior USER-reviewed packet is not "
+            "the exact FAM-003-20260726-224500.zip review target"
+        )
+    if prior_hash.casefold() != FAM003_OPTION_G_EXACT_PRIOR_PACKET_SHA256.casefold():
+        failures.append(
+            "FAM-003 Option G BP3: receipt-backed prior USER-reviewed packet hash is "
+            "not the exact 224500 ZIP SHA256"
         )
     receipt_basename = PureWindowsPath(receipt_path).name if receipt_path else ""
     receipt_packet_path = (
@@ -6165,6 +6279,139 @@ def _fam003_option_g_packet_lineage_failures(
             )
     if len(candidate_paths) != len({path.casefold() for path in candidate_paths}):
         failures.append("FAM-003 Option G BP3: packet lineage duplicates an intermediate candidate")
+
+    if not isinstance(rejection, dict):
+        failures.append(
+            "FAM-003 Option G BP3: packet manifest omits execution-backed exact-224500 rejection proof"
+        )
+        rejection = {}
+    target_path = str(rejection.get("targetPacket") or "")
+    target_hash = str(rejection.get("targetZipSha256") or "")
+    command = str(rejection.get("command") or "")
+    ordered_args = rejection.get("orderedArguments")
+    working_directory = str(rejection.get("workingDirectory") or "")
+    started_utc = str(rejection.get("startedUtc") or "")
+    completed_utc = str(rejection.get("completedUtc") or "")
+    exit_code = rejection.get("exitCode")
+    capture_mode = str(rejection.get("outputCaptureMode") or "")
+    disposition = str(rejection.get("finalDisposition") or "")
+    failure_ledger = rejection.get("failureLedger")
+    receipt_copy = str(rejection.get("receiptPacketCopy") or "")
+    raw_log_copy = str(rejection.get("rawLogPacketCopy") or "")
+    raw_log_hash = str(rejection.get("rawLogSha256") or "")
+    expected_rejection = {
+        "targetPacket": target_path,
+        "targetZipSha256": target_hash,
+        "command": command,
+        "orderedArguments": ordered_args,
+        "workingDirectory": working_directory,
+        "startedUtc": started_utc,
+        "completedUtc": completed_utc,
+        "exitCode": exit_code,
+        "outputCaptureMode": capture_mode,
+        "finalDisposition": disposition,
+        "failureLedger": failure_ledger,
+        "rawLogPacketCopy": raw_log_copy,
+        "rawLogSha256": raw_log_hash,
+    }
+    if target_path.casefold() != prior_path.casefold() or target_hash.casefold() != prior_hash.casefold():
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection target identity/hash disagrees with Packet Lineage"
+        )
+    if command.casefold() not in {"py -3 dev\\orin_user_review_bundle.py", "py -3 dev/orin_user_review_bundle.py"}:
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection command does not invoke the active USER packet validator"
+        )
+    if not isinstance(ordered_args, list) or not all(isinstance(value, str) for value in ordered_args):
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection omits ordered validator arguments"
+        )
+        ordered_args = []
+    ordered_argument_text = " ".join(ordered_args).casefold()
+    for required_argument in (
+        "--validate-local-user-packet",
+        "--review-export-zip",
+        "--packet-validation-mode active-review",
+        "--expected-branch feature/fam-003-settings-resize-proof",
+        "--expected-head",
+        "--expected-origin-main",
+    ):
+        if required_argument not in ordered_argument_text:
+            failures.append(
+                "FAM-003 Option G BP3: exact-224500 rejection ordered arguments omit "
+                f"{required_argument}"
+            )
+    if working_directory.casefold() != r"C:\Nexus Worktrees\FAM-003".casefold():
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection working directory is not the FAM-003 worktree"
+        )
+    if not started_utc.endswith("Z") or not completed_utc.endswith("Z"):
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection lacks exact UTC start/completion times"
+        )
+    if not isinstance(exit_code, int) or exit_code == 0:
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection does not preserve a nonzero validator exit code"
+        )
+    if capture_mode != FAM003_OPTION_G_PRIOR_REJECTION_CAPTURE_MODE:
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection output-capture mode is missing or inconsistent"
+        )
+    if disposition != FAM003_OPTION_G_PRIOR_REJECTION_DISPOSITION:
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection final disposition is not EXPECTED_FAIL_CONFIRMED"
+        )
+    if not isinstance(failure_ledger, list) or not failure_ledger or not all(
+        isinstance(value, str) and value.strip() for value in failure_ledger
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: exact-224500 rejection failure ledger is missing or empty"
+        )
+
+    receipt_text = packet_files.get(receipt_copy, "") if receipt_copy else ""
+    try:
+        rejection_receipt = json.loads(receipt_text) if receipt_text else {}
+    except json.JSONDecodeError:
+        rejection_receipt = {}
+    if not receipt_copy or not rejection_receipt:
+        failures.append(
+            "FAM-003 Option G BP3: packet omits the exact-224500 rejection execution receipt"
+        )
+    else:
+        if rejection_receipt.get("Record Class") != "Prior USER Packet Active-Review Rejection Receipt":
+            failures.append(
+                "FAM-003 Option G BP3: exact-224500 rejection receipt has the wrong record class"
+            )
+        for field, expected in expected_rejection.items():
+            if rejection_receipt.get(field) != expected:
+                failures.append(
+                    "FAM-003 Option G BP3: exact-224500 rejection receipt disagrees with "
+                    f"manifest field {field}"
+                )
+
+    raw_log_bytes = (
+        packet_binary_files.get(raw_log_copy, b"")
+        if packet_binary_files is not None and raw_log_copy
+        else packet_files.get(raw_log_copy, "").encode("utf-8") if raw_log_copy else b""
+    )
+    if not raw_log_bytes:
+        failures.append(
+            "FAM-003 Option G BP3: packet omits the exact-224500 active-review raw log"
+        )
+    else:
+        actual_raw_hash = hashlib.sha256(raw_log_bytes).hexdigest()
+        if actual_raw_hash.casefold() != raw_log_hash.casefold():
+            failures.append(
+                "FAM-003 Option G BP3: exact-224500 active-review raw-log SHA256 disagrees with packet bytes"
+            )
+        raw_log_text = raw_log_bytes.decode("utf-8", errors="replace")
+        if (
+            "USER Review Packet Finding: FAIL" not in raw_log_text
+            or "FAM-003-20260726-224500.zip" not in raw_log_text
+        ):
+            failures.append(
+                "FAM-003 Option G BP3: exact-224500 active-review raw log does not prove the intended FAIL target"
+            )
     lineage_surfaces = (
         f"{packet_files.get('START_HERE.md', '')}\n"
         f"{_packet_file_text(packet_files, 'WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md')}"
@@ -7362,6 +7609,16 @@ def _fam003_option_g_supporting_carrier_failures(
     delta = delta if isinstance(delta, dict) else {}
     expected_head = str(manifest.get("Source Repo HEAD") or "")
     expected_version = str(manifest.get("externalStateVersion") or "")
+    expected_packet = str(manifest.get("Replacement ZIP") or "")
+    projection_hashes = manifest.get("Projection Raw Hashes")
+    projection_hashes = projection_hashes if isinstance(projection_hashes, dict) else {}
+    lineage = manifest.get("Packet Lineage")
+    lineage = lineage if isinstance(lineage, dict) else {}
+    rejection = manifest.get("Prior Packet Rejection")
+    rejection = rejection if isinstance(rejection, dict) else {}
+    current_support = manifest.get("Current Support")
+    current_support = current_support if isinstance(current_support, dict) else {}
+    plan_transition = _markdown_field_value(canonical_live, "Transition Status")
 
     if not support_path or not support_text:
         return [
@@ -7372,8 +7629,70 @@ def _fam003_option_g_supporting_carrier_failures(
             "FAM-003 Option G BP3: UFD review aid supporting pointer disagrees with the active branch plan"
         )
     support_active = _current_review_claims(support_text)
+    support_active_normalized = support_active.replace("\r\n", "\n").rstrip() + "\n"
+    expected_support_hash = str(current_support.get("activeSectionSha256") or "")
+    actual_support_hash = hashlib.sha256(
+        support_active_normalized.encode("utf-8")
+    ).hexdigest()
+    if current_support.get("schema") != FAM003_OPTION_G_CURRENT_SUPPORT_SCHEMA:
+        failures.append(
+            "FAM-003 Option G BP3: manifest Current Support schema is missing or stale"
+        )
+    if str(current_support.get("role") or "") != FAM003_OPTION_G_CURRENT_SUPPORT_ROLE:
+        failures.append(
+            "FAM-003 Option G BP3: manifest Current Support role is missing or inconsistent"
+        )
+    if str(current_support.get("externalPath") or "").casefold() != support_path.casefold():
+        failures.append(
+            "FAM-003 Option G BP3: manifest Current Support path disagrees with the active branch-plan pointer"
+        )
+    if str(current_support.get("packetCopy") or "") != exact_support_packet_path:
+        failures.append(
+            "FAM-003 Option G BP3: manifest Current Support packet-copy path is stale or inconsistent"
+        )
+    if (
+        not re.fullmatch(r"[0-9A-Fa-f]{64}", expected_support_hash)
+        or expected_support_hash.casefold() != actual_support_hash.casefold()
+    ):
+        failures.append(
+            "FAM-003 Option G BP3: manifest Current Support active-section hash disagrees with the complete packet-contained active section"
+        )
+    allowed_heading_patterns = (
+        r"^# FAM-003 Option G BP3 Final Supporting Evidence$",
+        r"^## Current Identity And Gate$",
+        r"^## Accepted Planning Authority$",
+        r"^## Packet Lineage And Closure$",
+        r"^## USER Feedback Disposition$",
+        r"^### UFD Item: UFD-FAM003-20260724-\d{3}$",
+        r"^## Element-to-Phase Proof Matrix$",
+        r"^## Next Legal Phase Digest$",
+    )
+    for line in support_active.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("|"):
+            continue
+        if stripped.startswith("#"):
+            if not any(re.fullmatch(pattern, stripped) for pattern in allowed_heading_patterns):
+                failures.append(
+                    "FAM-003 Option G BP3: current supporting record contains an unapproved active heading: "
+                    f"{stripped}"
+                )
+            continue
+        field_match = re.match(r"^([^:]+):\s*", stripped)
+        if not field_match:
+            failures.append(
+                "FAM-003 Option G BP3: current supporting record contains unstructured active prose outside the closed schema"
+            )
+            continue
+        field_name = field_match.group(1).strip()
+        if field_name not in FAM003_OPTION_G_SUPPORT_ACTIVE_ALLOWED_FIELDS:
+            failures.append(
+                "FAM-003 Option G BP3: current supporting record contains an unapproved active field: "
+                f"{field_name}"
+            )
     required_support_fields = {
         "Record Role": "Current supporting evidence copy",
+        "Current Active Section Schema": FAM003_OPTION_G_CURRENT_SUPPORT_SCHEMA,
         "UFD Authority Classification": "SUPPORTING EVIDENCE COPY",
         "Source Repo HEAD": expected_head,
         "State Version": expected_version,
@@ -7381,12 +7700,34 @@ def _fam003_option_g_supporting_carrier_failures(
             "BP3 Workstream Entry / Orchestration Validation USER review pending; "
             "Workstream implementation remains blocked"
         ),
+        "Workstream Result": "USER_DECISION_REQUIRED",
+        "H1 / LV / UTS": "NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED",
+        "Next Legal Phase": "Independent USER BP3 review",
+        "Transition Status": plan_transition,
         "Element Validation Ledger Owner": FAM003_OPTION_G_ELEMENT_OWNER,
         "Element Matrix Column Count": "11",
         "Element Matrix Row Count": "11",
         "Remaining USER Decision": "BP3 approval only",
         "Rollback Snapshot Identity": str(delta.get("snapshotIdentity") or ""),
         "Transaction Receipt": str(delta.get("transactionReceipt") or ""),
+        "Current Replacement Packet": expected_packet,
+        "Prior USER-Reviewed Packet": str(lineage.get("priorUserReviewedPacket") or ""),
+        "Prior USER-Reviewed ZIP SHA256": str(
+            lineage.get("priorUserReviewedZipSha256") or ""
+        ),
+        "Exact Prior-Packet Rejection": FAM003_OPTION_G_PRIOR_REJECTION_DISPOSITION,
+        "Prior-Packet Rejection Receipt Packet Copy": str(
+            rejection.get("receiptPacketCopy") or ""
+        ),
+        "Current Branch Plan Projection SHA256": str(
+            projection_hashes.get("Source Truth Context/current_external_branch_plan.md") or ""
+        ),
+        "Current Branch State Projection SHA256": str(
+            projection_hashes.get("Source Truth Context/current_external_branch_state.md") or ""
+        ),
+        "Current Worktree State Projection SHA256": str(
+            projection_hashes.get("Source Truth Context/current_external_worktree_state.md") or ""
+        ),
     }
     for field, expected in required_support_fields.items():
         actual = _markdown_field_value(support_active, field)
@@ -7413,6 +7754,18 @@ def _fam003_option_g_supporting_carrier_failures(
         failures.append(
             "FAM-003 Option G BP3: current supporting record retains generic accept/waive vocabulary instead of BP3 approval"
         )
+    for stale_pattern in (
+        r"\bBP3 acceptance\b",
+        r"\baccepts BP3\b",
+        r"\baccepting BP3\b",
+        r"\bCanonical UFD Ownership Final Projection Version\b",
+        r"\bFinal Projection Version\b",
+    ):
+        if re.search(stale_pattern, support_active, re.IGNORECASE):
+            failures.append(
+                "FAM-003 Option G BP3: stale active lineage remains in the current "
+                f"supporting record: {stale_pattern}"
+            )
     superseded_path = _markdown_field_value(support_active, "Supersedes Supporting Record")
     superseded_basename = PureWindowsPath(superseded_path).name if superseded_path else ""
     historical_key = (
@@ -7462,12 +7815,14 @@ def _fam003_option_g_defect_ledger_failures(
         failures.append(
             "FAM-003 Option G BP3: defect ledger current closure transition disagrees with active external state"
         )
-    for defect_index in range(1, 7):
-        defect_id = f"OPTG-BP3-PLC-DEF-{defect_index:02d}"
-        if active.count(defect_id) != 1:
-            failures.append(
-                f"FAM-003 Option G BP3: packet-lineage closure defect {defect_id} must appear exactly once"
-            )
+    for defect_family, defect_count in (("PLC", 6), ("RPC", 4)):
+        for defect_index in range(1, defect_count + 1):
+            defect_id = f"OPTG-BP3-{defect_family}-DEF-{defect_index:02d}"
+            if active.count(defect_id) != 1:
+                failures.append(
+                    "FAM-003 Option G BP3: packet-lineage closure defect "
+                    f"{defect_id} must appear exactly once"
+                )
     return failures
 
 

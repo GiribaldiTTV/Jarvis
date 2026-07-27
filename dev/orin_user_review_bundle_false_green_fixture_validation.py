@@ -1260,10 +1260,11 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     fixture_head = "0123456789abcdef0123456789abcdef01234567"
     fixture_packet = r"C:\Nexus USER\FAM-003-20260726-010203.zip"
     fixture_prior_packet = r"C:\Nexus USER\FAM-003-20260726-224500.zip"
-    fixture_prior_hash = "9" * 64
+    fixture_prior_hash = bundle.FAM003_OPTION_G_EXACT_PRIOR_PACKET_SHA256
     fixture_intermediate_packets = (
         (r"C:\Nexus USER\FAM-003-20260726-182000.zip", "8" * 64),
         (r"C:\Nexus USER\FAM-003-20260726-194500.zip", "7" * 64),
+        (r"C:\Nexus USER\FAM-003-20260726-214500.zip", "6" * 64),
     )
     fixture_publication_receipt_path = (
         r"C:\Nexus Governance State\audit_log\fixture-packet-publication.json"
@@ -1280,11 +1281,74 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     fixture_publication_receipt_hash = hashlib.sha256(
         fixture_publication_receipt.encode("utf-8")
     ).hexdigest().upper()
+    fixture_rejection_receipt_copy = (
+        "Source Truth Context/Proof Artifacts/Validation/"
+        "EXACT_224500_REJECTION_RECEIPT.json"
+    )
+    fixture_rejection_log_copy = (
+        "Source Truth Context/Proof Artifacts/Validation/Raw Logs/"
+        "exact_224500_active_review_rejection.log"
+    )
+    fixture_rejection_log = (
+        "Command Target: FAM-003-20260726-224500.zip\n"
+        "USER Review Packet Finding: FAIL\n"
+        "Failure Ledger:\n"
+        "- stale current support record\n"
+        "- exact active-review contract rejection\n"
+    )
+    fixture_rejection_log_hash = hashlib.sha256(
+        fixture_rejection_log.encode("utf-8")
+    ).hexdigest().upper()
+    fixture_rejection_arguments = [
+        "--validate-local-user-packet",
+        r".nexus_state_staging\user_hub_backup_224500\FAM-003",
+        "--review-export-zip",
+        r".nexus_state_staging\user_hub_backup_224500\FAM-003-20260726-224500.zip",
+        "--packet-validation-mode",
+        "active-review",
+        "--expected-branch",
+        "feature/fam-003-settings-resize-proof",
+        "--expected-head",
+        fixture_head,
+        "--expected-origin-main",
+        "6ac9857527842d7f7a4794336f73d67b09058e29",
+    ]
+    fixture_rejection = {
+        "targetPacket": fixture_prior_packet,
+        "targetZipSha256": fixture_prior_hash,
+        "command": r"py -3 dev\orin_user_review_bundle.py",
+        "orderedArguments": fixture_rejection_arguments,
+        "workingDirectory": r"C:\Nexus Worktrees\FAM-003",
+        "startedUtc": "2026-07-27T00:00:00Z",
+        "completedUtc": "2026-07-27T00:00:01Z",
+        "exitCode": 1,
+        "outputCaptureMode": bundle.FAM003_OPTION_G_PRIOR_REJECTION_CAPTURE_MODE,
+        "finalDisposition": bundle.FAM003_OPTION_G_PRIOR_REJECTION_DISPOSITION,
+        "failureLedger": [
+            "stale current support record",
+            "exact active-review contract rejection",
+        ],
+        "receiptPacketCopy": fixture_rejection_receipt_copy,
+        "rawLogPacketCopy": fixture_rejection_log_copy,
+        "rawLogSha256": fixture_rejection_log_hash,
+    }
+    fixture_rejection_receipt = json.dumps(
+        {
+            "Record Class": "Prior USER Packet Active-Review Rejection Receipt",
+            **{
+                key: value
+                for key, value in fixture_rejection.items()
+                if key != "receiptPacketCopy"
+            },
+        },
+        indent=2,
+    )
     lineage_review_text = (
         "\n## Packet Lineage\n\n"
         f"Prior USER-reviewed packet: `{Path(fixture_prior_packet).name}`\n"
         f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[0][0]).name}`\n"
         f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[1][0]).name}`\n"
+        f"Intermediate repair candidate: `{Path(fixture_intermediate_packets[2][0]).name}`\n"
     )
     exact_digest = (
         "\n## Next Legal Phase Digest\n\n"
@@ -1575,13 +1639,23 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "## Current Phase\n"
         "Current Gate: `Branch Planning - BP2 USER review pending`\n"
     )
+    fixture_projection_hashes = {
+        "Source Truth Context/current_external_branch_plan.md": "1" * 64,
+        "Source Truth Context/current_external_branch_state.md": "2" * 64,
+        "Source Truth Context/current_external_worktree_state.md": "3" * 64,
+    }
     supporting_ufd_record = (
-        "# Option G BP3 Packet Lineage Support Closure\n"
+        "# FAM-003 Option G BP3 Final Supporting Evidence\n"
         "Record Role: `Current supporting evidence copy`\n"
+        f"Current Active Section Schema: `{bundle.FAM003_OPTION_G_CURRENT_SUPPORT_SCHEMA}`\n"
         "UFD Authority Classification: `SUPPORTING EVIDENCE COPY`\n"
         f"Source Repo HEAD: `{fixture_head}`\n"
         "State Version: `24`\n"
         "Current Gate: `BP3 Workstream Entry / Orchestration Validation USER review pending; Workstream implementation remains blocked`\n"
+        "Workstream Result: `USER_DECISION_REQUIRED`\n"
+        "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
+        "Next Legal Phase: `Independent USER BP3 review`\n"
+        "Transition Status: `OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`\n"
         "UFD Ledger Status: `Complete`\n"
         f"UFD Ledger Owner: `{canonical_ufd_owner}`\n"
         "UFD Item Count: `18`\n"
@@ -1599,12 +1673,29 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Remaining USER Decision: `BP3 approval only`\n"
         "Rollback Snapshot Identity: `snapshot-20260726T010203Z-a1b2c3d4`\n"
         "Transaction Receipt: `fam003-option-g-bp3-validation-disposition-repair-20260726T010203Z.json`\n"
+        f"Current Replacement Packet: `{fixture_packet}`\n"
+        f"Prior USER-Reviewed Packet: `{fixture_prior_packet}`\n"
+        f"Prior USER-Reviewed ZIP SHA256: `{fixture_prior_hash}`\n"
+        "Exact Prior-Packet Rejection: `EXPECTED_FAIL_CONFIRMED`\n"
+        f"Prior-Packet Rejection Receipt Packet Copy: `{fixture_rejection_receipt_copy}`\n"
+        f"Current Branch Plan Projection SHA256: `{fixture_projection_hashes['Source Truth Context/current_external_branch_plan.md']}`\n"
+        f"Current Branch State Projection SHA256: `{fixture_projection_hashes['Source Truth Context/current_external_branch_state.md']}`\n"
+        f"Current Worktree State Projection SHA256: `{fixture_projection_hashes['Source Truth Context/current_external_worktree_state.md']}`\n"
         "Supersedes Supporting Record: `C:\\Nexus Governance State\\branches\\feature_fam_003_settings_resize_proof\\decision2_option_g_bp3_formal_digest_vision_ufd_repair_20260726.md`\n\n"
         + "\n".join(ufd_rows)
         + f"\n{element_section}\n"
         "## Historical / Superseded Evidence\n\n"
         "The superseded support record is preserved byte-for-byte as historical evidence.\n"
     )
+    fixture_support_active = (
+        supporting_ufd_record.partition("## Historical / Superseded Evidence")[0]
+        .replace("\r\n", "\n")
+        .rstrip()
+        + "\n"
+    )
+    fixture_support_active_hash = hashlib.sha256(
+        fixture_support_active.encode("utf-8")
+    ).hexdigest().upper()
     observability_claims = (
         "hidden HUD polling stopping",
         "HUD polling resuming",
@@ -1694,8 +1785,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
     scope_changed_files = sorted(bundle.FAM003_OPTION_G_APPROVED_REPAIR_FILES)
     false_green_fixture_identity = (
         "Option G BP3: 1 BP2 carrydown applicability positive + 26 formal-digest "
-        "+ 13 Branch Vision + 11 inventory + 5 packet-lineage + "
-        "10 supporting-carrier + 4 defect-ledger + 22 proof-carrydown + "
+        "+ 13 Branch Vision + 11 inventory + 15 packet-lineage + "
+        "21 supporting-carrier + 8 defect-ledger + 22 proof-carrydown + "
         "34 decision-surface + 19 active-metadata + 41 canonical-UFD + "
         "12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
@@ -1914,11 +2005,6 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         + "\n\nThe expected rejection of the stale `FAM-003-20260726-135245.zip` "
         "packet is a controlled expected-failure check.\n"
     )
-    fixture_projection_hashes = {
-        "Source Truth Context/current_external_branch_plan.md": "1" * 64,
-        "Source Truth Context/current_external_branch_state.md": "2" * 64,
-        "Source Truth Context/current_external_worktree_state.md": "3" * 64,
-    }
     fixture_delta_files = [
         "Docs/validation_helper_registry.md",
         "dev/orin_user_review_bundle.py",
@@ -1951,6 +2037,21 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                     }
                     for path, sha256 in fixture_intermediate_packets
                 ],
+            },
+            "Prior Packet Rejection": fixture_rejection,
+            "Current Support": {
+                "schema": bundle.FAM003_OPTION_G_CURRENT_SUPPORT_SCHEMA,
+                "role": bundle.FAM003_OPTION_G_CURRENT_SUPPORT_ROLE,
+                "externalPath": (
+                    r"C:\Nexus Governance State\branches"
+                    r"\feature_fam_003_settings_resize_proof"
+                    r"\decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
+                ),
+                "packetCopy": (
+                    "Source Truth Context/Active External Snapshot/"
+                    "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
+                ),
+                "activeSectionSha256": fixture_support_active_hash,
             },
             "Source Repo HEAD": fixture_head,
             "externalStateVersion": 24,
@@ -2070,6 +2171,10 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "`OPTG-BP3-PLC-DEF-04`\n"
             "`OPTG-BP3-PLC-DEF-05`\n"
             "`OPTG-BP3-PLC-DEF-06`\n"
+            "`OPTG-BP3-RPC-DEF-01`\n"
+            "`OPTG-BP3-RPC-DEF-02`\n"
+            "`OPTG-BP3-RPC-DEF-03`\n"
+            "`OPTG-BP3-RPC-DEF-04`\n"
             "Validator false-green defects are closed with proof.\n"
         ),
         "Review Aids/Validation Outputs/OPTION_G_EXTERNAL_TRANSACTION_AND_ROLLBACK_LEDGER.md": (
@@ -2109,6 +2214,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Source Truth Context/Proof Artifacts/Validation/"
             "fixture-packet-publication.json"
         ): fixture_publication_receipt,
+        fixture_rejection_receipt_copy: fixture_rejection_receipt,
+        fixture_rejection_log_copy: fixture_rejection_log,
         "Source Truth Context/Repo Owners/nexus_vision.md": project_vision_text,
         "Source Truth Context/Repo Owners/FAM-003_interaction_and_actions.md": family_vision_text,
         "Source Truth Context/Repo Owners/F3-FF01.md": ffv_text,
@@ -2330,6 +2437,90 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "USER review surfaces omit a receipt-backed packet-lineage identity",
     )
 
+    missing_rejection = dict(valid)
+    missing_rejection_manifest = json.loads(packet_manifest)
+    missing_rejection_manifest.pop("Prior Packet Rejection")
+    missing_rejection[manifest_path] = json.dumps(missing_rejection_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-06",
+        missing_rejection,
+        "omits execution-backed exact-224500 rejection proof",
+    )
+
+    for case_id, field, value, expected in (
+        (
+            "OPTG-BP3-LINEAGE-FG-07",
+            "targetPacket",
+            fixture_intermediate_packets[0][0],
+            "rejection target identity/hash disagrees",
+        ),
+        (
+            "OPTG-BP3-LINEAGE-FG-08",
+            "targetZipSha256",
+            "0" * 64,
+            "rejection target identity/hash disagrees",
+        ),
+        (
+            "OPTG-BP3-LINEAGE-FG-09",
+            "exitCode",
+            0,
+            "does not preserve a nonzero validator exit code",
+        ),
+        (
+            "OPTG-BP3-LINEAGE-FG-10",
+            "finalDisposition",
+            "PASS",
+            "final disposition is not EXPECTED_FAIL_CONFIRMED",
+        ),
+        (
+            "OPTG-BP3-LINEAGE-FG-11",
+            "failureLedger",
+            [],
+            "failure ledger is missing or empty",
+        ),
+        (
+            "OPTG-BP3-LINEAGE-FG-12",
+            "rawLogSha256",
+            "0" * 64,
+            "raw-log SHA256 disagrees",
+        ),
+    ):
+        mutated = dict(valid)
+        mutated_manifest = json.loads(packet_manifest)
+        mutated_manifest["Prior Packet Rejection"][field] = value
+        mutated[manifest_path] = json.dumps(mutated_manifest)
+        _assert_option_g_failure(case_id, mutated, expected)
+
+    wrong_mode = dict(valid)
+    wrong_mode_manifest = json.loads(packet_manifest)
+    wrong_mode_manifest["Prior Packet Rejection"]["orderedArguments"] = [
+        value
+        for value in fixture_rejection_arguments
+        if value not in {"--packet-validation-mode", "active-review"}
+    ]
+    wrong_mode[manifest_path] = json.dumps(wrong_mode_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-13",
+        wrong_mode,
+        "ordered arguments omit --packet-validation-mode active-review",
+    )
+
+    missing_rejection_receipt = dict(valid)
+    missing_rejection_receipt.pop(fixture_rejection_receipt_copy)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-14",
+        missing_rejection_receipt,
+        "omits the exact-224500 rejection execution receipt",
+    )
+
+    missing_rejection_log = dict(valid)
+    missing_rejection_log.pop(fixture_rejection_log_copy)
+    _assert_option_g_failure(
+        "OPTG-BP3-LINEAGE-FG-15",
+        missing_rejection_log,
+        "omits the exact-224500 active-review raw log",
+    )
+
     pointer_mismatch = dict(valid)
     pointer_mismatch[ufd_aid_path] = pointer_mismatch[ufd_aid_path].replace(
         "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md",
@@ -2398,6 +2589,40 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         mutated[support_path] = mutated[support_path].replace(old, new, 1)
         _assert_option_g_failure(case_id, mutated, expected)
 
+    bad_support_hash = dict(valid)
+    bad_support_hash_manifest = json.loads(packet_manifest)
+    bad_support_hash_manifest["Current Support"]["activeSectionSha256"] = "0" * 64
+    bad_support_hash[manifest_path] = json.dumps(bad_support_hash_manifest)
+    _assert_option_g_failure(
+        "OPTG-BP3-SUPPORT-FG-19",
+        bad_support_hash,
+        "active-section hash disagrees",
+    )
+
+    unstructured_support = dict(valid)
+    unstructured_support[support_path] = unstructured_support[support_path].replace(
+        "Supersedes Supporting Record:",
+        "This stale active prose is outside the closed schema.\nSupersedes Supporting Record:",
+        1,
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-SUPPORT-FG-20",
+        unstructured_support,
+        "unstructured active prose",
+    )
+
+    unapproved_support_field = dict(valid)
+    unapproved_support_field[support_path] = unapproved_support_field[support_path].replace(
+        "Supersedes Supporting Record:",
+        "Stale Projection Version: `20`\nSupersedes Supporting Record:",
+        1,
+    )
+    _assert_option_g_failure(
+        "OPTG-BP3-SUPPORT-FG-21",
+        unapproved_support_field,
+        "unapproved active field",
+    )
+
     missing_historical_support = dict(valid)
     missing_historical_support.pop(historical_support_path)
     _assert_option_g_failure(
@@ -2405,6 +2630,60 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         missing_historical_support,
         "not preserved and classified under Historical Evidence",
     )
+
+    for case_id, old, new, expected in (
+        (
+            "OPTG-BP3-SUPPORT-FG-11",
+            "Workstream Result: `USER_DECISION_REQUIRED`",
+            "Workstream Result: `APPROVED`",
+            "Workstream Result is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-12",
+            "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`",
+            "H1 / LV / UTS: `READY / READY / REQUESTED`",
+            "H1 / LV / UTS is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-13",
+            "Next Legal Phase: `Independent USER BP3 review`",
+            "Next Legal Phase: `Workstream implementation`",
+            "Next Legal Phase is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-14",
+            "Transition Status: `OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`",
+            "Transition Status: `STALE_TRANSITION`",
+            "Transition Status is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-15",
+            f"Current Replacement Packet: `{fixture_packet}`",
+            "Current Replacement Packet: `C:\\Nexus USER\\stale.zip`",
+            "Current Replacement Packet is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-16",
+            f"Prior USER-Reviewed Packet: `{fixture_prior_packet}`",
+            "Prior USER-Reviewed Packet: `C:\\Nexus USER\\wrong.zip`",
+            "Prior USER-Reviewed Packet is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-17",
+            f"Current Branch Plan Projection SHA256: `{fixture_projection_hashes['Source Truth Context/current_external_branch_plan.md']}`",
+            f"Current Branch Plan Projection SHA256: `{'f' * 64}`",
+            "Current Branch Plan Projection SHA256 is stale",
+        ),
+        (
+            "OPTG-BP3-SUPPORT-FG-18",
+            "Supersedes Supporting Record:",
+            "BP3 acceptance must occur before Workstream.\nSupersedes Supporting Record:",
+            "stale active lineage remains",
+        ),
+    ):
+        mutated = dict(valid)
+        mutated[support_path] = mutated[support_path].replace(old, new, 1)
+        _assert_option_g_failure(case_id, mutated, expected)
 
     for case_id, old, new, expected in (
         (
@@ -2435,6 +2714,16 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         mutated = dict(valid)
         mutated[defect_path] = mutated[defect_path].replace(old, new, 1)
         _assert_option_g_failure(case_id, mutated, expected)
+
+    for defect_index in range(1, 5):
+        defect_id = f"OPTG-BP3-RPC-DEF-{defect_index:02d}"
+        mutated = dict(valid)
+        mutated[defect_path] = mutated[defect_path].replace(f"`{defect_id}`\n", "", 1)
+        _assert_option_g_failure(
+            f"OPTG-BP3-DEFECT-FG-{defect_index + 4:02d}",
+            mutated,
+            f"{defect_id} must appear exactly once",
+        )
 
     intermediate_missing = dict(valid)
     intermediate_inventory = json.loads(intermediate_missing[inventory_key])
@@ -5118,7 +5407,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
-        "5 packet-lineage + 10 supporting-carrier + 4 defect-ledger + "
+        "15 packet-lineage + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
         "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
