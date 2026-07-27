@@ -4118,7 +4118,7 @@ def _packet_identity_failures(
         if (
             packet_binary_files is not None
             and copied_path in packet_binary_files
-            and PurePosixPath(copied_path).suffix.lower() not in {".md", ".txt", ".json"}
+            and copied_path not in packet_files
         ):
             expected_bytes = _git_file_bytes(expected_head, source_path)
             if expected_bytes is None:

@@ -276,6 +276,56 @@ def _assert_active_identity_arguments_required() -> None:
         )
 
 
+def _assert_utf8_source_identity_normalizes_platform_line_endings() -> None:
+    source_path = "dev/orin_user_review_bundle.py"
+    copied_path = "Source Truth Context/orin_user_review_bundle.py"
+    expected_text = subprocess.check_output(
+        ["git", "show", f"HEAD:{source_path}"],
+        cwd=ROOT,
+    ).decode("utf-8")
+    crlf_text = expected_text.replace("\r\n", "\n").replace("\n", "\r\n")
+    start_here = (
+        "| Source path | Copied path |\n"
+        "| --- | --- |\n"
+        f"| `{source_path}` | `{copied_path}` |\n"
+    )
+    packet_files = {
+        "START_HERE.md": start_here,
+        copied_path: crlf_text,
+    }
+    packet_binary_files = {
+        name: text.encode("utf-8") for name, text in packet_files.items()
+    }
+    identity = {
+        "expected_branch": bundle._git_output("rev-parse", "--abbrev-ref", "HEAD"),
+        "expected_head": bundle._git_output("rev-parse", "HEAD"),
+        "expected_origin_main": bundle._git_output("rev-parse", "origin/main"),
+    }
+    failures = bundle._packet_identity_failures(
+        packet_files,
+        packet_binary_files=packet_binary_files,
+        **identity,
+    )
+    if failures:
+        raise AssertionError(
+            "UTF-8 source identity rejected a platform-only line-ending difference:\n"
+            + "\n".join(failures)
+        )
+
+    drifted_files = dict(packet_files)
+    drifted_files[copied_path] = crlf_text + "# content drift\r\n"
+    drifted_binary_files = {
+        name: text.encode("utf-8") for name, text in drifted_files.items()
+    }
+    drift_failures = bundle._packet_identity_failures(
+        drifted_files,
+        packet_binary_files=drifted_binary_files,
+        **identity,
+    )
+    if not any("does not match expected HEAD content" in failure for failure in drift_failures):
+        raise AssertionError("Changed UTF-8 source content did not fail packet identity")
+
+
 def _assert_stage1_primary_for_stage2_decision() -> None:
     decision = (
         "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
@@ -980,6 +1030,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 def main() -> int:
     _assert_origin_main_fallback()
+    _assert_utf8_source_identity_normalizes_platform_line_endings()
     _assert_failure(
         "unknown-origin-main-identity",
         "requires explicit identity expectations",
