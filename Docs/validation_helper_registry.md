@@ -323,9 +323,9 @@ actionable copy. The active external `branch_plan.md` must carry the current
 `Branch Vision Contract Snapshot` above its historical boundary and identify,
 with source hashes, Project Vision, FAM-003 Family Vision, F3-FF01, the accepted
 BP1 owner and embedded acceptance receipt, and the accepted BP2 owner and
-acceptance receipt. `dev/orin_branch_governance_validation.py`
-(`Helper Status: Reusable`) must invoke the existing Branch Vision snapshot
-validator for the applicable FAM-003 branch;
+acceptance receipt. `dev/orin_branch_governance_validation.py` (`Helper Status: Reusable`)
+must invoke the existing Branch Vision snapshot validator for the applicable
+FAM-003 branch;
 definition without invocation is a failure. Current canonical and supporting
 UFD copies use `BP3 approval only`, preserve `USER Approved` as the future gate
 state, and reject `BP3 acceptance` in current BP3 decision fields without
