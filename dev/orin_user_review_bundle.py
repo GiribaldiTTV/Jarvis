@@ -6815,6 +6815,8 @@ def _fam003_option_g_validation_provenance_failures(
 
 FAM003_OPTION_G_APPROVED_REPAIR_FILES = {
     "Docs/validation_helper_registry.md",
+    "dev/orin_branch_governance_validation.py",
+    "dev/orin_branch_readiness_planning_fixture_validation.py",
     "dev/orin_external_state_target_currentness_fixture_validation.py",
     "dev/orin_external_state_validation.py",
     "dev/orin_user_review_bundle.py",
@@ -6990,7 +6992,7 @@ def _fam003_option_g_active_repair_evidence_failures(
     _validate_commit_file_set("Repair Lineage", lineage)
     if set(map(str, lineage.get("changedFiles") or [])) != FAM003_OPTION_G_APPROVED_REPAIR_FILES:
         failures.append(
-            "FAM-003 Option G BP3: Repair Lineage must identify the exact five-file repair set"
+            "FAM-003 Option G BP3: Repair Lineage must identify the exact seven-file repair set"
         )
     if not set(map(str, delta.get("changedFiles") or [])).issubset(
         set(map(str, lineage.get("changedFiles") or []))
