@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 import zipfile
 from pathlib import Path, PureWindowsPath
+from typing import Callable
 
 import orin_user_review_bundle as bundle
 from orin_user_review_bundle import (
@@ -5277,6 +5278,266 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
     if not any("supporting carrier State Version" in failure for failure in failures):
         raise AssertionError(f"stale supporting carrier did not fail: {failures}")
 
+    consolidated_markers = (
+        "Decision Packet Class: `Consolidated Interface Bundle + Workstream Implementation USER Decision`",
+        "Consolidated Decision Status: `Pending USER Review`",
+        "Consolidated Decision Grants Before USER Response: `None`",
+        "Decision Clause 1: `Interface Bundle User Approval`",
+        "Decision Clause 2: `Bounded Workstream Implementation Approval`",
+        "Decision Independence: `Distinct clauses in one USER response; either clause may be accepted, revised, or rejected independently.`",
+        "Bundle Surfaces: `HUD Dashboard primary; Log Viewer Studio secondary`",
+        "Bundle Reason: `One accepted Option G lifecycle package coordinates both surfaces.`",
+        "Bundle Fallback: `Do not enter Workstream; retain current runtime and accepted BP3.`",
+        "Bundle Acceptance Plan: `Per-interface runtime, regression, and downstream live proof.`",
+        "Interface Bundle User Approval: `Pending Consolidated USER Decision`",
+        "Workstream Implementation: `UNAPPROVED`",
+        "USER Gate State: `Pending USER Review`",
+        "Exact Consolidated USER Decision:",
+        "I grant FAM-003 Interface Bundle User Approval",
+        "I approve bounded FAM-003 Decision 2 Option G Workstream implementation",
+    )
+    consolidated_direct = "\n".join(consolidated_markers) + "\n"
+    consolidated_contract = contract.replace(
+        "Interface Bundle User Approval: `Granted`",
+        "Interface Bundle User Approval: `Pending Consolidated USER Decision`",
+    )
+    consolidated = dict(valid)
+    consolidated["USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"] = (
+        "# FAM-003 Option G Consolidated USER Decision\n"
+        "Packet Reviewability State: `Reviewable`\n"
+        + consolidated_direct
+    )
+    for path in (
+        "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md",
+        "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md",
+        "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
+    ):
+        consolidated[path] = consolidated_contract
+
+    census_rows = [
+        {
+            "id": f"AC-{index:03d}",
+            "decision": f"Approval census item {index}",
+            "authorityOwner": "routed source truth",
+            "state": "PENDING" if index in (5, 6) else "PROVEN_OR_FUTURE_GATED",
+            "effectIfGranted": "Apply only the named bounded effect.",
+            "effectIfDenied": "Keep implementation blocked.",
+            "packetCarrier": "current consolidated USER decision packet",
+            "disposition": "USER_DECISION_REQUIRED" if index in (5, 6) else "NO_CURRENT_USER_DECISION",
+        }
+        for index in range(1, 35)
+    ]
+    census = {
+        "schema": "fam003-option-g-approval-census-v1",
+        "itemCount": len(census_rows),
+        "remainingUserDecisions": [
+            "Interface Bundle User Approval",
+            "Bounded Workstream Implementation Approval",
+        ],
+        "rows": census_rows,
+    }
+    closure = {
+        "schema": "fam003-option-g-consolidated-closure-v1",
+        "packetReady": True,
+        "interfaceBundleGranted": False,
+        "workstreamImplementationApproved": False,
+        "remainingUserDecisions": census["remainingUserDecisions"],
+    }
+    carrier = {
+        "schema": "fam003-option-g-active-carrier-census-v1",
+        "rows": [
+            {"id": item}
+            for item in (
+                "branch-plan", "branch-state", "worktree-state", "bp1-owner",
+                "bp2-owner", "bp2-acceptance", "bp3-owner", "bp3-approval",
+                "supporting-evidence", "user-packet",
+            )
+        ],
+    }
+    facts = {
+        "schema": "fam003-option-g-current-fact-matrix-v1",
+        "facts": [
+            {"id": item}
+            for item in (
+                "BP1", "BP2", "BP3", "INTERFACE_BUNDLE", "WORKSTREAM",
+                "H1", "LIVE_VALIDATION", "UTS", "OPTION_D", "DECISION_3",
+            )
+        ],
+    }
+    defects = {
+        "schema": "fam003-option-g-consolidated-defect-ledger-v1",
+        "openCount": 0,
+        "blockingCount": 0,
+        "rows": [{"id": "CD-001", "status": "CLOSED_WITH_PROOF"}],
+    }
+    json_aids = {
+        "Review Aids/WORKSTREAM_APPROVAL_CENSUS.json": census,
+        "Review Aids/CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json": closure,
+        "Review Aids/CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.json": carrier,
+        "Review Aids/CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.json": facts,
+        "Review Aids/CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json": defects,
+    }
+    for path, payload in json_aids.items():
+        consolidated[path] = json.dumps(payload, indent=2) + "\n"
+    for file_name in (
+        "WORKSTREAM_APPROVAL_CENSUS.md",
+        "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md",
+        "CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.md",
+        "CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.md",
+        "CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.md",
+        "INTERFACE_BUNDLE_ANALYSIS.md",
+        "OPTIONS_TRADEOFFS_AND_RECOMMENDATION.md",
+        "FORMAL_NEXT_LEGAL_PHASE_DIGEST.md",
+        "USER_DECISIONS.md",
+    ):
+        consolidated[f"Review Aids/{file_name}"] = f"# {file_name}\n{consolidated_direct}"
+
+    failures = bundle._fam003_option_g_workstream_approval_closure_failures(consolidated)
+    if failures:
+        raise AssertionError(
+            "valid FAM-003 consolidated Interface Bundle / Workstream decision fixture failed:\n"
+            + "\n".join(failures)
+        )
+
+    def expect_consolidated_failure(
+        case_id: str,
+        mutated: dict[str, str],
+        expected: str,
+    ) -> None:
+        case_failures = bundle._fam003_option_g_workstream_approval_closure_failures(mutated)
+        if not any(expected.casefold() in item.casefold() for item in case_failures):
+            raise AssertionError(
+                f"{case_id} did not fail on {expected!r}: {case_failures}"
+            )
+
+    for marker in consolidated_markers[1:]:
+        mutated = {
+            path: text.replace(marker, "REMOVED")
+            for path, text in consolidated.items()
+        }
+        expected_marker = marker
+        if marker.startswith(("Bundle Reason:", "Bundle Fallback:", "Bundle Acceptance Plan:")):
+            expected_marker = marker.split("`", 1)[0].strip()
+        elif marker.startswith("Interface Bundle User Approval:"):
+            expected_marker = "Pending Consolidated USER Decision"
+        expect_consolidated_failure(
+            f"consolidated-missing-{marker.split(':', 1)[0]}",
+            mutated,
+            expected_marker,
+        )
+
+    for file_name in (
+        "WORKSTREAM_APPROVAL_CENSUS.md",
+        "WORKSTREAM_APPROVAL_CENSUS.json",
+        "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md",
+        "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json",
+        "CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.md",
+        "CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.json",
+        "CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.md",
+        "CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.json",
+        "CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.md",
+        "CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json",
+        "INTERFACE_BUNDLE_ANALYSIS.md",
+        "OPTIONS_TRADEOFFS_AND_RECOMMENDATION.md",
+        "FORMAL_NEXT_LEGAL_PHASE_DIGEST.md",
+        "USER_DECISIONS.md",
+    ):
+        mutated = {
+            path: text for path, text in consolidated.items()
+            if not path.endswith(file_name)
+        }
+        expect_consolidated_failure(
+            f"consolidated-missing-aid-{file_name}",
+            mutated,
+            file_name,
+        )
+
+    def json_mutation(
+        file_name: str,
+        mutate: Callable[[dict[str, object]], None],
+    ) -> dict[str, str]:
+        mutated = dict(consolidated)
+        path = f"Review Aids/{file_name}"
+        payload = json.loads(mutated[path])
+        mutate(payload)
+        mutated[path] = json.dumps(payload, indent=2) + "\n"
+        return mutated
+
+    expect_consolidated_failure(
+        "consolidated-census-missing-row",
+        json_mutation("WORKSTREAM_APPROVAL_CENSUS.json", lambda p: p["rows"].pop()),
+        "AC-001..AC-034",
+    )
+    expect_consolidated_failure(
+        "consolidated-census-count-drift",
+        json_mutation("WORKSTREAM_APPROVAL_CENSUS.json", lambda p: p.__setitem__("itemCount", 99)),
+        "item count disagrees",
+    )
+    expect_consolidated_failure(
+        "consolidated-census-hidden-decision",
+        json_mutation("WORKSTREAM_APPROVAL_CENSUS.json", lambda p: p["remainingUserDecisions"].append("Hidden approval")),
+        "exactly the two",
+    )
+    expect_consolidated_failure(
+        "consolidated-census-incomplete-row",
+        json_mutation("WORKSTREAM_APPROVAL_CENSUS.json", lambda p: p["rows"][0].pop("effectIfDenied")),
+        "incomplete atomic row",
+    )
+    expect_consolidated_failure(
+        "consolidated-closure-not-ready",
+        json_mutation("CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json", lambda p: p.__setitem__("packetReady", False)),
+        "does not prove packet readiness",
+    )
+    expect_consolidated_failure(
+        "consolidated-closure-false-bundle-grant",
+        json_mutation("CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json", lambda p: p.__setitem__("interfaceBundleGranted", True)),
+        "falsely grants",
+    )
+    expect_consolidated_failure(
+        "consolidated-closure-false-workstream-approval",
+        json_mutation("CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json", lambda p: p.__setitem__("workstreamImplementationApproved", True)),
+        "falsely approves",
+    )
+    expect_consolidated_failure(
+        "consolidated-carrier-census-gap",
+        json_mutation("CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.json", lambda p: p["rows"].pop()),
+        "omits required authority carriers",
+    )
+    expect_consolidated_failure(
+        "consolidated-fact-matrix-gap",
+        json_mutation("CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.json", lambda p: p["facts"].pop()),
+        "omits gated phase facts",
+    )
+    expect_consolidated_failure(
+        "consolidated-defect-remains-open",
+        json_mutation("CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json", lambda p: p.__setitem__("openCount", 1)),
+        "unresolved owned defects",
+    )
+    expect_consolidated_failure(
+        "consolidated-defect-invalid-status",
+        json_mutation("CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json", lambda p: p["rows"][0].__setitem__("status", "OPEN")),
+        "invalid status",
+    )
+
+    premature_bundle = dict(consolidated)
+    premature_bundle["USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"] += (
+        "Interface Bundle User Approval: `Granted`\n"
+    )
+    expect_consolidated_failure(
+        "consolidated-premature-bundle-grant",
+        premature_bundle,
+        "falsely records the Interface Bundle as Granted",
+    )
+    premature_workstream = dict(consolidated)
+    premature_workstream["USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"] += (
+        "Workstream Implementation: `APPROVED`\n"
+    )
+    expect_consolidated_failure(
+        "consolidated-premature-workstream-approval",
+        premature_workstream,
+        "falsely records Workstream implementation as approved",
+    )
+
 
 def _assert_external_historical_evidence_mapping_boundary() -> None:
     if bundle._requires_source_context_mapping(
@@ -5830,6 +6091,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
+        "1 consolidated-decision positive + 42 consolidated-decision negatives + "
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
         "15 packet-lineage + 10 final-closure + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "

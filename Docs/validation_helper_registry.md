@@ -313,6 +313,26 @@ these active-metadata, cross-carrier provenance, self-containment, stale-target,
 stale-packet, and BP3 approve-versus-accept false-green classes. Packet PASS
 remains reviewability evidence only and does not approve BP3 or Workstream.
 
+FAM-003 Option G consolidated Interface Bundle / Workstream decision addendum:
+after BP3 is already `USER Approved`, `dev/orin_user_review_bundle.py`
+(`Helper Status: Reusable`) may validate one reviewable USER decision packet
+that presents the still-pending `Interface Bundle User Approval` and bounded
+`Workstream Implementation Approval` as two explicit, independently
+reviewable clauses in one USER response. This is not combined BP3/Workstream
+authority. The packet must keep the bundle ungranted and Workstream
+implementation unapproved before the USER response; name HUD Dashboard as the
+primary interface and Log Viewer Studio as the bundled secondary interface;
+carry bundle reason, fallback, and per-interface acceptance/proof planning;
+and include the complete approval census, closure contract, active-carrier
+census, current-fact matrix, and atomic defect ledger in both human-readable
+and machine-readable forms. `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+(`Helper Status: Reusable`) owns positive and atomic negative coverage for
+missing census rows, hidden approvals, missing decision clauses, premature
+bundle grant, premature implementation approval, stale carriers, incomplete
+phase facts, unresolved defects, and missing consolidated review aids. Packet
+PASS proves reviewability only; neither clause takes effect until the USER
+explicitly sends the decision text or records another legal disposition.
+
 FAM-003 Option G BP3 formal-digest, Vision-carrydown, UFD-vocabulary, and
 inventory-completion clarification: the active packet guard requires one exact
 `Next Legal Phase Digest` in both `START_HERE.md` and the primary BP3 review,

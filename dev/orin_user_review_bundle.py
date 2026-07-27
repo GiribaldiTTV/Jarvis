@@ -1787,7 +1787,14 @@ def _fam003_workstream_review_state_failures(packet_files: Mapping[str, str]) ->
 def _fam003_option_g_workstream_approval_closure_failures(
     packet_files: Mapping[str, str],
 ) -> list[str]:
-    """Reject an Option G implementation-approval packet with an incomplete closure contract."""
+    """Reject an incomplete Option G implementation decision packet.
+
+    A normal implementation-approval packet may be reviewable only after the
+    Interface Bundle grant is recorded.  A consolidated decision packet is the
+    one exception: it may ask for the missing bundle grant and bounded
+    implementation approval in the same USER response, but must prove that
+    both clauses are still pending and independently reviewable.
+    """
 
     primary_path = (
         f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"
@@ -1850,11 +1857,60 @@ def _fam003_option_g_workstream_approval_closure_failures(
                 f"contract marker {marker!r}"
             )
 
+    consolidated_class = (
+        "Decision Packet Class: `Consolidated Interface Bundle + Workstream "
+        "Implementation USER Decision`"
+    )
+    is_consolidated = consolidated_class in direct_text
+    bundle_granted = "Interface Bundle User Approval: `Granted`" in direct_text
+    bundle_pending = (
+        "Interface Bundle User Approval: `Pending Consolidated USER Decision`"
+        in direct_text
+    )
     if "HUD Dashboard" in direct_text and "Log Viewer Studio" in direct_text:
-        if "Interface Bundle User Approval: `Granted`" not in direct_text:
+        if not bundle_granted and not is_consolidated:
             failures.append(
                 "FAM-003 Option G Workstream approval is blocked by Multiple Interface "
                 "Release Drift until 'Interface Bundle User Approval: `Granted`' is recorded"
+            )
+
+    if is_consolidated:
+        consolidated_markers = (
+            "Consolidated Decision Status: `Pending USER Review`",
+            "Consolidated Decision Grants Before USER Response: `None`",
+            "Decision Clause 1: `Interface Bundle User Approval`",
+            "Decision Clause 2: `Bounded Workstream Implementation Approval`",
+            "Decision Independence: `Distinct clauses in one USER response; either clause may be accepted, revised, or rejected independently.`",
+            "Bundle Surfaces: `HUD Dashboard primary; Log Viewer Studio secondary`",
+            "Bundle Reason:",
+            "Bundle Fallback:",
+            "Bundle Acceptance Plan:",
+            "Workstream Implementation: `UNAPPROVED`",
+            "USER Gate State: `Pending USER Review`",
+            "Exact Consolidated USER Decision:",
+            "I grant FAM-003 Interface Bundle User Approval",
+            "I approve bounded FAM-003 Decision 2 Option G Workstream implementation",
+        )
+        for marker in consolidated_markers:
+            if marker not in direct_text:
+                failures.append(
+                    "FAM-003 Option G consolidated decision packet is missing direct "
+                    f"marker {marker!r}"
+                )
+        if not bundle_pending:
+            failures.append(
+                "FAM-003 Option G consolidated decision packet does not preserve the "
+                "Interface Bundle grant as Pending Consolidated USER Decision"
+            )
+        if bundle_granted:
+            failures.append(
+                "FAM-003 Option G consolidated decision packet falsely records the "
+                "Interface Bundle as Granted before the USER response"
+            )
+        if "Workstream Implementation: `APPROVED`" in direct_text:
+            failures.append(
+                "FAM-003 Option G consolidated decision packet falsely records "
+                "Workstream implementation as approved before the USER response"
             )
 
     required_aids = (
@@ -1864,6 +1920,23 @@ def _fam003_option_g_workstream_approval_closure_failures(
         "INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
         "OPTION_G_UFD_AND_FOLD_DOWN.md",
     )
+    if is_consolidated:
+        required_aids += (
+            "WORKSTREAM_APPROVAL_CENSUS.md",
+            "WORKSTREAM_APPROVAL_CENSUS.json",
+            "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md",
+            "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json",
+            "CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.md",
+            "CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.json",
+            "CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.md",
+            "CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.json",
+            "CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.md",
+            "CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json",
+            "INTERFACE_BUNDLE_ANALYSIS.md",
+            "OPTIONS_TRADEOFFS_AND_RECOMMENDATION.md",
+            "FORMAL_NEXT_LEGAL_PHASE_DIGEST.md",
+            "USER_DECISIONS.md",
+        )
     for basename in required_aids:
         if not _packet_file_text(packet_files, basename):
             failures.append(
@@ -1902,8 +1975,117 @@ def _fam003_option_g_workstream_approval_closure_failures(
                 "does not match the active branch plan"
             )
 
+    if is_consolidated:
+        def load_json_aid(file_name: str) -> object | None:
+            raw = _packet_file_text(packet_files, file_name)
+            if not raw:
+                return None
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError as exc:
+                failures.append(
+                    f"FAM-003 Option G consolidated decision aid {file_name} is invalid JSON: {exc}"
+                )
+                return None
+
+        census = load_json_aid("WORKSTREAM_APPROVAL_CENSUS.json")
+        expected_census_ids = {f"AC-{index:03d}" for index in range(1, 35)}
+        if isinstance(census, dict):
+            rows = census.get("rows")
+            row_ids = {
+                str(row.get("id", ""))
+                for row in rows
+                if isinstance(row, dict)
+            } if isinstance(rows, list) else set()
+            if census.get("schema") != "fam003-option-g-approval-census-v1":
+                failures.append("FAM-003 Option G approval census schema is missing or stale")
+            if census.get("itemCount") != len(rows or []):
+                failures.append("FAM-003 Option G approval census item count disagrees with rows")
+            if row_ids != expected_census_ids:
+                failures.append(
+                    "FAM-003 Option G approval census does not contain the exact AC-001..AC-034 inventory"
+                )
+            if census.get("remainingUserDecisions") != [
+                "Interface Bundle User Approval",
+                "Bounded Workstream Implementation Approval",
+            ]:
+                failures.append(
+                    "FAM-003 Option G approval census does not expose exactly the two consolidated USER decisions"
+                )
+            required_row_fields = {
+                "id", "decision", "authorityOwner", "state", "effectIfGranted",
+                "effectIfDenied", "packetCarrier", "disposition",
+            }
+            for row in rows or []:
+                if not isinstance(row, dict) or not required_row_fields.issubset(row):
+                    failures.append(
+                        "FAM-003 Option G approval census contains an incomplete atomic row"
+                    )
+                    break
+
+        closure = load_json_aid("CONSOLIDATED_DECISION_CLOSURE_CONTRACT.json")
+        if isinstance(closure, dict):
+            if closure.get("schema") != "fam003-option-g-consolidated-closure-v1":
+                failures.append("FAM-003 Option G consolidated closure schema is missing or stale")
+            if closure.get("packetReady") is not True:
+                failures.append("FAM-003 Option G consolidated closure does not prove packet readiness")
+            if closure.get("interfaceBundleGranted") is not False:
+                failures.append("FAM-003 Option G consolidated closure falsely grants the Interface Bundle")
+            if closure.get("workstreamImplementationApproved") is not False:
+                failures.append("FAM-003 Option G consolidated closure falsely approves implementation")
+            if closure.get("remainingUserDecisions") != [
+                "Interface Bundle User Approval",
+                "Bounded Workstream Implementation Approval",
+            ]:
+                failures.append("FAM-003 Option G consolidated closure decision inventory is incomplete")
+
+        carrier = load_json_aid("CONSOLIDATED_DECISION_ACTIVE_CARRIER_CENSUS.json")
+        if isinstance(carrier, dict):
+            expected_carriers = {
+                "branch-plan", "branch-state", "worktree-state", "bp1-owner",
+                "bp2-owner", "bp2-acceptance", "bp3-owner", "bp3-approval",
+                "supporting-evidence", "user-packet",
+            }
+            rows = carrier.get("rows")
+            carrier_ids = {
+                str(row.get("id", "")) for row in rows if isinstance(row, dict)
+            } if isinstance(rows, list) else set()
+            if carrier.get("schema") != "fam003-option-g-active-carrier-census-v1":
+                failures.append("FAM-003 Option G active-carrier census schema is missing or stale")
+            if not expected_carriers.issubset(carrier_ids):
+                failures.append("FAM-003 Option G active-carrier census omits required authority carriers")
+
+        fact_matrix = load_json_aid("CONSOLIDATED_DECISION_CURRENT_FACT_MATRIX.json")
+        if isinstance(fact_matrix, dict):
+            expected_facts = {
+                "BP1", "BP2", "BP3", "INTERFACE_BUNDLE", "WORKSTREAM",
+                "H1", "LIVE_VALIDATION", "UTS", "OPTION_D", "DECISION_3",
+            }
+            facts = fact_matrix.get("facts")
+            fact_ids = {
+                str(row.get("id", "")) for row in facts if isinstance(row, dict)
+            } if isinstance(facts, list) else set()
+            if fact_matrix.get("schema") != "fam003-option-g-current-fact-matrix-v1":
+                failures.append("FAM-003 Option G current-fact matrix schema is missing or stale")
+            if not expected_facts.issubset(fact_ids):
+                failures.append("FAM-003 Option G current-fact matrix omits gated phase facts")
+
+        defects = load_json_aid("CONSOLIDATED_DECISION_ATOMIC_DEFECT_LEDGER.json")
+        if isinstance(defects, dict):
+            rows = defects.get("rows")
+            if defects.get("schema") != "fam003-option-g-consolidated-defect-ledger-v1":
+                failures.append("FAM-003 Option G consolidated defect-ledger schema is missing or stale")
+            if defects.get("openCount") != 0 or defects.get("blockingCount") != 0:
+                failures.append("FAM-003 Option G consolidated packet has unresolved owned defects")
+            allowed = {"CLOSED_WITH_PROOF", "OUT_OF_SCOPE_USER_APPROVAL_REQUIRED"}
+            if any(
+                not isinstance(row, dict) or row.get("status") not in allowed
+                for row in rows or []
+            ):
+                failures.append("FAM-003 Option G consolidated defect ledger contains an invalid status")
+
     if "Packet Reviewability State: `Reviewable`" in primary and (
-        "Interface Bundle User Approval: `Granted`" not in direct_text
+        not bundle_granted and not is_consolidated
     ):
         failures.append(
             "FAM-003 Option G Workstream approval packet falsely claims Reviewable "
