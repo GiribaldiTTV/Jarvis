@@ -1393,7 +1393,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
         "Transition Status: "
-        "`OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`\n"
+        "`OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`\n"
         "Historical Receipt Boundary: `Historical content follows.`\n"
         "## Current Phase\n"
         "Current Gate: `Branch Planning - BP2 USER review pending`\n"
@@ -1567,7 +1567,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "H1 / LV / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
         "Next Legal Phase: `USER BP3 review and approval, waiver, revision, or block`\n"
         "Transition Status: "
-        "`OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`\n\n"
+        "`OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`\n\n"
         + vision_section
         + "\n".join(ufd_rows)
         + f"\n{element_section}\n"
@@ -2056,7 +2056,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "# Defect Ledger\n"
             "Current External State Version: `24`\n"
             "Element-to-Phase Target Check: `13_target_branch_plan`\n"
-            "Current Closure Transition: `OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`\n"
+            "Current Closure Transition: `OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`\n"
             "`OPTG-BP3-DS-DEF-01`\n"
             "`OPTG-BP3-DS-DEF-02`\n"
             "`OPTG-BP3-DS-DEF-03`\n"
@@ -2421,7 +2421,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         ),
         (
             "OPTG-BP3-DEFECT-FG-03",
-            "Current Closure Transition: `OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`",
+            "Current Closure Transition: `OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`",
             "Current Closure Transition: `STATE_32_READY_FOR_USER_REVIEW`",
             "current closure transition disagrees",
         ),
@@ -4368,7 +4368,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 (
                     "Source Truth Context/current_external_branch_plan.md",
                     "Transition Status: "
-                    "`OPTION_G_BP3_FORMAL_DIGEST_VISION_UFD_METADATA_BOUNDARY_READY_FOR_USER_REVIEW`",
+                    "`OPTION_G_BP3_PACKET_LINEAGE_SUPPORTING_CARRIER_READY_FOR_USER_REVIEW`",
                     "Transition Status: `REPAIR_REQUIRED`",
                     1,
                 ),
