@@ -367,6 +367,12 @@ Primary Publication / Placement Owner: `Docs/governance_efficiency_operating_mod
 
 Intermediate packet and state drafts are noncanonical. Generate them in a noncanonical staging root, compile and validate the complete current-gate contract there, and keep the existing canonical packet/projection unchanged until one final transaction is ready. Final publication must preserve the prior canonical state for rollback, replace the coherent folder/ZIP or projection set once, validate the published result independently, remove superseded same-label current artifacts only inside that transaction, and restore the prior canonical state if final validation fails. Intermediate repair attempts must not churn live projection versions, active packet aliases, packet hashes, or current review pointers.
 
+Mapped `Source Truth Context` files in active-review and next-gate packets must
+match the expected Git object byte-for-byte whenever folder or ZIP bytes are
+available. UTF-8 decoding may support additional semantic validation, but it
+must not replace exact source-identity comparison or normalize byte drift such
+as changed line endings.
+
 External operational-state publication occurs only after the draft gate is complete, through the exact workload-scoped lock transaction owned by `Docs/governance_efficiency_operating_model.md` and `Docs/external_operational_state_store_reform_plan.md`. Lock release and independent authoritative zero-lock verification remain mandatory before final return.
 
 #### Deterministic Repair-Loop Breaker

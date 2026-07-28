@@ -753,6 +753,7 @@ def _copy_file(
     target: Path,
     copy_name: str,
     *,
+    source_ref: str,
     subdir: str | None = None,
 ) -> tuple[str, str]:
     source = (ROOT / relative_file).resolve()
@@ -763,7 +764,13 @@ def _copy_file(
 
     destination = target / subdir / copy_name if subdir else target / copy_name
     destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, destination)
+    source_bytes = _git_file_bytes(source_ref, relative_file)
+    if source_bytes is None:
+        raise ValueError(
+            f"Review source file is not present at expected Git ref {source_ref}: "
+            f"{relative_file}"
+        )
+    destination.write_bytes(source_bytes)
     return source.relative_to(ROOT).as_posix(), destination.relative_to(target).as_posix()
 
 
@@ -4224,11 +4231,7 @@ def _packet_identity_failures(
     )
 
     for source_path, copied_path in file_mappings.items():
-        if (
-            packet_binary_files is not None
-            and copied_path in packet_binary_files
-            and copied_path not in packet_files
-        ):
+        if packet_binary_files is not None and copied_path in packet_binary_files:
             expected_bytes = _git_file_bytes(expected_head, source_path)
             if expected_bytes is None:
                 failures.append(
@@ -12055,8 +12058,18 @@ def build_bundle(
     review_aids_dir.mkdir(parents=True, exist_ok=True)
     source_context_dir.mkdir(parents=True, exist_ok=True)
 
+    source_branch = _git_output("branch", "--show-current")
+    source_head = _git_output("rev-parse", "HEAD")
+    upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    origin_main = _git_output("rev-parse", "origin/main")
     copied = [
-        _copy_file(file_name, target, copy_name, subdir=SOURCE_TRUTH_CONTEXT_DIR_NAME)
+        _copy_file(
+            file_name,
+            target,
+            copy_name,
+            source_ref=source_head,
+            subdir=SOURCE_TRUTH_CONTEXT_DIR_NAME,
+        )
         for file_name, copy_name in zip(files, _copy_names(files), strict=True)
     ]
     br1_matrix_file = _write_br1_matrix_review_aid(
@@ -12075,10 +12088,6 @@ def build_bundle(
     created_at_dt = datetime.now()
     created_at = created_at_dt.isoformat(timespec="seconds")
 
-    source_branch = _git_output("branch", "--show-current")
-    source_head = _git_output("rev-parse", "HEAD")
-    upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
-    origin_main = _git_output("rev-parse", "origin/main")
     canonical_export_zip = _export_zip_path(canonical_review_root, label, created_at_dt)
     if review_export_zip is not None:
         requested_export_zip = review_export_zip.resolve()

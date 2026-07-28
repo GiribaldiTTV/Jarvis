@@ -473,6 +473,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "later subsections",
             "next non-candidate markdown subsection",
             "non-candidate markdown subsections",
+            "preserve exact bytes for utf-8-decodable binary sources",
+            "packet_binary_files",
+            "every mapped source byte-for-byte",
         ),
     ),
     FamilyRule(

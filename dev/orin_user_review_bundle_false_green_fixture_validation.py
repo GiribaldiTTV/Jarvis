@@ -57,10 +57,10 @@ def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
     (root / "Source Truth Context").mkdir(parents=True)
     primary_path = "USER Review/FALSE_GREEN_FIXTURE_REVIEW.md"
     copied_source_path = "Source Truth Context/Docs__Main.md"
-    (root / copied_source_path).write_text(
-        (ROOT / "Docs" / "Main.md").read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
+    source_bytes = bundle._git_file_bytes(_current_head(), "Docs/Main.md")
+    if source_bytes is None:
+        raise AssertionError("fixture source file is missing at the expected HEAD")
+    (root / copied_source_path).write_bytes(source_bytes)
     (root / "START_HERE.md").write_text(
         "\n".join(
             [
@@ -366,13 +366,14 @@ def _assert_active_identity_arguments_required() -> None:
         )
 
 
-def _assert_utf8_source_identity_normalizes_platform_line_endings() -> None:
+def _assert_mapped_source_identity_requires_exact_bytes() -> None:
     source_path = "dev/orin_user_review_bundle.py"
-    copied_path = "Source Truth Context/orin_user_review_bundle.py"
-    expected_text = subprocess.check_output(
+    copied_path = "Source Truth Context/asset.bin"
+    expected_bytes = subprocess.check_output(
         ["git", "show", f"HEAD:{source_path}"],
         cwd=ROOT,
-    ).decode("utf-8")
+    )
+    expected_text = expected_bytes.decode("utf-8")
     crlf_text = expected_text.replace("\r\n", "\n").replace("\n", "\r\n")
     start_here = (
         "| Source path | Copied path |\n"
@@ -381,10 +382,11 @@ def _assert_utf8_source_identity_normalizes_platform_line_endings() -> None:
     )
     packet_files = {
         "START_HERE.md": start_here,
-        copied_path: crlf_text,
+        copied_path: expected_text,
     }
-    packet_binary_files = {
-        name: text.encode("utf-8") for name, text in packet_files.items()
+    exact_binary_files = {
+        "START_HERE.md": start_here.encode("utf-8"),
+        copied_path: expected_bytes,
     }
     identity = {
         "expected_branch": bundle._git_output("rev-parse", "--abbrev-ref", "HEAD"),
@@ -393,13 +395,32 @@ def _assert_utf8_source_identity_normalizes_platform_line_endings() -> None:
     }
     failures = bundle._packet_identity_failures(
         packet_files,
-        packet_binary_files=packet_binary_files,
+        packet_binary_files=exact_binary_files,
         **identity,
     )
     if failures:
         raise AssertionError(
-            "UTF-8 source identity rejected a platform-only line-ending difference:\n"
+            "Exact mapped source bytes failed packet identity:\n"
             + "\n".join(failures)
+        )
+
+    normalized_files = dict(packet_files)
+    normalized_files[copied_path] = crlf_text
+    normalized_binary_files = {
+        "START_HERE.md": start_here.encode("utf-8"),
+        copied_path: crlf_text.encode("utf-8"),
+    }
+    normalized_failures = bundle._packet_identity_failures(
+        normalized_files,
+        packet_binary_files=normalized_binary_files,
+        **identity,
+    )
+    if not any(
+        "does not match expected HEAD content" in failure
+        for failure in normalized_failures
+    ):
+        raise AssertionError(
+            "UTF-8-decodable mapped source passed after byte-level line-ending drift"
         )
 
     with tempfile.TemporaryDirectory(prefix="ndai-utf8-packet-loader-") as temp_dir:
@@ -421,7 +442,7 @@ def _assert_utf8_source_identity_normalizes_platform_line_endings() -> None:
             raise AssertionError("ZIP replay loader did not classify UTF-8 Python as text")
 
     drifted_files = dict(packet_files)
-    drifted_files[copied_path] = crlf_text + "# content drift\r\n"
+    drifted_files[copied_path] = expected_text + "# content drift\n"
     drifted_binary_files = {
         name: text.encode("utf-8") for name, text in drifted_files.items()
     }
@@ -1180,7 +1201,7 @@ def main() -> int:
     _assert_br1_builder_promotes_candidate_matrix()
     _assert_final_publication_parity_guard()
     _assert_origin_main_fallback()
-    _assert_utf8_source_identity_normalizes_platform_line_endings()
+    _assert_mapped_source_identity_requires_exact_bytes()
     _assert_failure(
         "unknown-origin-main-identity",
         "requires explicit identity expectations",

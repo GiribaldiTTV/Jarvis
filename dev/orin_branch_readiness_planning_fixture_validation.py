@@ -7092,14 +7092,15 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
         "# Fixture Aid\n\nSupporting review aid.\n",
         encoding="utf-8",
     )
+    current_head = review_bundle._git_output("rev-parse", "HEAD")
+    source_bytes = review_bundle._git_file_bytes(current_head, "Docs/Main.md")
+    if source_bytes is None:
+        raise AssertionError("fixture source file is missing at the expected HEAD")
     (
         packet_dir
         / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
         / "Docs__Main.md"
-    ).write_text(
-        (ROOT / "Docs" / "Main.md").read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
+    ).write_bytes(source_bytes)
 
 
 def _zip_local_user_packet_fixture(packet_dir: Path, export_zip: Path) -> None:
