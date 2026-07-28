@@ -75,7 +75,7 @@ def main() -> int:
             print(issue)
         return 1
     targeted = bool(args.target)
-    if targeted and args.snapshot_name and not re.fullmatch(r"[A-Za-z0-9_.-]+", args.snapshot_name):
+    if args.snapshot_name and not re.fullmatch(r"[A-Za-z0-9_.-]+", args.snapshot_name):
         print("Snapshot Result: BLOCKED")
         print(f"Snapshot name is not a safe directory name: {args.snapshot_name!r}")
         return 1

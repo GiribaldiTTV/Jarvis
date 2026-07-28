@@ -1482,6 +1482,42 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-target-retirement-") as temp_dir:
         root = Path(temp_dir)
         _manifest(root)
+        snapshot_helper = Path(__file__).with_name("orin_external_state_snapshot.py")
+        escaped_snapshot = root.parent / f"{root.name}-escaped-snapshot"
+        for unsafe_name in (
+            f"../{escaped_snapshot.name}",
+            str(escaped_snapshot),
+        ):
+            unsafe_snapshot = subprocess.run(
+                [
+                    sys.executable,
+                    str(snapshot_helper),
+                    "--root",
+                    str(root),
+                    "--reason",
+                    "unsafe full-root snapshot name fixture",
+                    "--worktree",
+                    WORKTREE_PATH,
+                    "--branch",
+                    "feature/release-readiness-source-truth-intake",
+                    "--snapshot-name",
+                    unsafe_name,
+                    "--apply",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if unsafe_snapshot.returncode == 0 or "not a safe directory name" not in (
+                unsafe_snapshot.stdout + unsafe_snapshot.stderr
+            ):
+                raise AssertionError(
+                    f"full-root snapshot accepted unsafe name {unsafe_name!r}:\n"
+                    + unsafe_snapshot.stdout
+                    + unsafe_snapshot.stderr
+                )
+            if escaped_snapshot.exists():
+                raise AssertionError("unsafe full-root snapshot escaped the canonical root")
         target = _record(root)
         target.write_text(
             target.read_text(encoding="utf-8")
