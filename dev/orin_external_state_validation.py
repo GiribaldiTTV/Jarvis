@@ -723,7 +723,18 @@ def validate_governance_semantic_currentness(
     for label, aliases, normalizer in identity_fields:
         values: dict[str, str] = {}
         for relative, text in target_texts.items():
-            value = _first_markdown_field(_live_header_text(text), aliases) or ""
+            header = _live_header_text(text)
+            failures.extend(
+                _field_alias_failures(
+                    relative,
+                    header,
+                    aliases,
+                    normalizer,
+                    context="Semantic Currentness",
+                    identity_scope="live identity aliases",
+                )
+            )
+            value = _first_markdown_field(header, aliases) or ""
             values[relative] = value
             if not value:
                 failures.append(f"Semantic Currentness: {relative} is missing {label}")
@@ -1834,6 +1845,19 @@ def main() -> int:
     print(f"Stage 4 Records Required: {'YES' if args.require_stage4_records else 'NO'}")
     print(f"Final Lock Gate Required: {'YES' if args.final_lock_gate else 'NO'}")
 
+    if (
+        args.target_currentness
+        and args.semantic_currentness
+        or args.final_lock_gate
+        and (args.target_currentness or args.semantic_currentness)
+    ):
+        print("Validation Result: BLOCKED")
+        print(
+            "Target currentness, semantic currentness, and final lock return are "
+            "exclusive validation modes and cannot be combined"
+        )
+        return 1
+
     if issues:
         print("Validation Result: BLOCKED")
         for issue in issues:
@@ -1981,7 +2005,7 @@ def main() -> int:
             final_ok, final_messages = verify_final_lock_state(
                 root,
                 workload_id=args.completed_workload_id,
-                require_global_zero=False,
+                require_global_zero=True,
             )
             for message in final_messages:
                 print(message)

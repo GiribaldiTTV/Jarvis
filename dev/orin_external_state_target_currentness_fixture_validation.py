@@ -1699,6 +1699,34 @@ def main() -> int:
         )
         branch_state.write_text(original_branch_state, encoding="utf-8")
 
+        for label, anchor, conflicting_alias in (
+            (
+                "conflicting live branch alias",
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "Current Branch: `feature/stale-conflicting-branch`",
+            ),
+            (
+                "conflicting live HEAD alias",
+                f"Source Repo HEAD: `{HEAD}`",
+                f"Current HEAD: `{'d' * 40}`",
+            ),
+            (
+                "conflicting live origin/main alias",
+                f"Origin/Main: `{ORIGIN_MAIN}`",
+                f"Source origin/main: `{'e' * 40}`",
+            ),
+        ):
+            branch_state.write_text(
+                original_branch_state.replace(anchor, anchor + "\n" + conflicting_alias, 1),
+                encoding="utf-8",
+            )
+            _assert_failure(
+                label,
+                "duplicate or conflicting live identity aliases",
+                _semantic_failures(root),
+            )
+        branch_state.write_text(original_branch_state, encoding="utf-8")
+
         current_gate = "Current Gate: `Bounded semantic currentness and lock-lifecycle reconciliation active; neutral-main fast-forward-only rebaseline pending separate USER decision.`"
         for label, duplicate_value in (
             ("conflicting duplicate semantic field", "Current Gate: `Stale contradictory gate.`"),

@@ -952,7 +952,10 @@ historical-receipt writer path, preserving every unselected line and receipt.
 Run the
 semantic positive and negative fixture family in addition to target identity,
 lock-lifecycle, and external-root validation. A green identity check alone is
-not a current-state green.
+not a current-state green. Semantic identity aliases must agree within each
+live projection before cross-record comparison. Final-return lock validation
+must run as an exclusive mode and require the authoritative global active-lock
+count to be zero; an earlier target/semantic return cannot substitute for it.
 
 Source references:
 

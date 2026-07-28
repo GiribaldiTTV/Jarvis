@@ -199,6 +199,67 @@ def main() -> int:
                 + released_cli.stderr
             )
 
+        _lock(
+            root,
+            "negative-foreign-global-zero",
+            "foreign-global-zero-workload",
+            targets="branches/other/branch_state.md",
+        )
+        foreign_global_cli = subprocess.run(
+            [
+                sys.executable,
+                str(validator),
+                "--root",
+                str(root),
+                "--final-lock-gate",
+                "--completed-workload-id",
+                "completed-local-workload",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if foreign_global_cli.returncode == 0 or "Authoritative Active Lock Count Not Zero" not in (
+            foreign_global_cli.stdout + foreign_global_cli.stderr
+        ):
+            raise AssertionError(
+                "public final-lock gate accepted a foreign active lock:\n"
+                + foreign_global_cli.stdout
+                + foreign_global_cli.stderr
+            )
+        release_lock(
+            root,
+            "negative-foreign-global-zero",
+            "fixture reset",
+            True,
+            expected_workload_id="foreign-global-zero-workload",
+        )
+
+        for currentness_mode in ("--semantic-currentness", "--target-currentness"):
+            combined_cli = subprocess.run(
+                [
+                    sys.executable,
+                    str(validator),
+                    "--root",
+                    str(root),
+                    currentness_mode,
+                    "--final-lock-gate",
+                    "--completed-workload-id",
+                    "combined-mode-workload",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if combined_cli.returncode == 0 or "exclusive validation modes" not in (
+                combined_cli.stdout + combined_cli.stderr
+            ):
+                raise AssertionError(
+                    f"public validator accepted {currentness_mode} with final-lock gate:\n"
+                    + combined_cli.stdout
+                    + combined_cli.stderr
+                )
+
         missing_root = root / "missing-external-state-root"
         for gate_args, label in (
             (["--semantic-currentness"], "semantic currentness"),
