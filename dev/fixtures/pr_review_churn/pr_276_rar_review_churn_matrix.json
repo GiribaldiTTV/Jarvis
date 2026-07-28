@@ -138,13 +138,13 @@
       },
       {
         "pr": 309,
-        "connector_comments": 70,
+        "connector_comments": 72,
         "observed_family_counts": {
           "current-gate-repair-transaction": 10,
-          "external-state-lock-lifecycle": 11,
+          "external-state-lock-lifecycle": 12,
           "external-state-semantic-validation": 15,
           "external-state-snapshot-transaction": 5,
-          "external-state-target-publication": 11,
+          "external-state-target-publication": 12,
           "governance-fixture-count-contract": 2,
           "pr-readiness-review-risk-parser": 2,
           "pr2-comment-family-classifier": 11,
@@ -158,8 +158,8 @@
           "repo-live-state-boundary-parser": 1
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state, Review 36 exposed unreachable orphaned-writer prepared recovery plus fail-open malformed PID and ambiguous-journal legacy release checks, Review 37 exposed missing final canonical folder/ZIP byte parity plus BR1 matrix truncation at nested headings, and Review 38 exposed shared lock-inventory collapse of present invalid owner-process values into the intentional absent-marker state.",
-        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, require exact target-set journal states, prove bounded orphaned-writer prepared rollback, fail closed on malformed legacy owner/journal evidence and present invalid owner-process values in the shared inventory, enforce final canonical folder/ZIP parity, preserve nested BR1 candidate headings, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
+        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state, Review 36 exposed unreachable orphaned-writer prepared recovery plus fail-open malformed PID and ambiguous-journal legacy release checks, Review 37 exposed missing final canonical folder/ZIP byte parity plus BR1 matrix truncation at nested headings, Review 38 exposed shared lock-inventory collapse of present invalid owner-process values into the intentional absent-marker state, and Review 39 exposed prepared-journal checks limited to legacy release plus unconditional current-member rollback over out-of-band drift.",
+        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, require exact target-set journal states across every release path, prove bounded orphaned-writer prepared rollback, preserve out-of-band current-member drift and prepared recovery evidence, fail closed on malformed legacy owner/journal evidence and present invalid owner-process values in the shared inventory, enforce final canonical folder/ZIP parity, preserve nested BR1 candidate headings, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
         "preventive_changes": [
           "dev/orin_pr_review_churn_validation.py adds precise classifiers and positive guardrails for six PR #309 threat families while preserving unrelated-comment unknown behavior.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records exact PR #309 family counts and rule-to-code-to-fixture-to-mutation coverage for every newly observed family.",
@@ -168,6 +168,7 @@
           "External-state currentness now rejects missing or blank target-set transaction states and the target-currentness fixture proves both malformed variants.",
           "Prepared target-set recovery now admits only an exact orphaned-writer rollback, while legacy missing-workload release blocks malformed owner PIDs and every matching transaction-like journal state other than exact Committed.",
           "Shared lock inventory now distinguishes absent/Not recorded owner-process markers from present invalid values and classifies blank, null, boolean, nonnumeric, zero, negative, and non-integral values as malformed.",
+          "Every ordinary, stale-completed, context-manager, cleanup, and recovery release now rechecks matching transaction journals before preparation and under the guard; current-member rollback restores only known pre/post bytes and preserves drift plus the prepared journal.",
           "Canonical USER packet publication now recomputes moved folder/ZIP file-list and byte-hash parity before commit, and BR1 matrix parsing preserves nested candidate headings until a same-or-higher-level boundary.",
           "Docs/branch_records/feature_release_readiness_source_truth_intake.md preserves this exact PR #309 review-churn root-cause receipt as historical evidence only."
         ],
@@ -402,6 +403,14 @@
       {
         "family_id": "external-state-lock-lifecycle",
         "comment": "Block legacy recovery on ambiguous matching journals unless the transaction state is exact Committed."
+      },
+      {
+        "family_id": "external-state-lock-lifecycle",
+        "comment": "Block every ordinary, stale, and transaction-context release while a matching prepared transaction remains."
+      },
+      {
+        "family_id": "external-state-target-publication",
+        "comment": "Refuse to overwrite out-of-band drift during current-member rollback and retain the prepared journal for recovery."
       },
       {
         "family_id": "current-gate-repair-transaction",
@@ -1383,6 +1392,7 @@
         "Final-return gate skips global zero or an explicitly requested lock check",
         "Malformed recorded PID is accepted during legacy missing-workload recovery",
         "Present invalid recorded PID is treated as an intentionally absent owner-process marker",
+        "Ordinary or stale cleanup releases a lock while its prepared transaction remains",
         "Ambiguous matching transaction journal permits legacy release"
       ],
       "source_truth": [
@@ -1409,6 +1419,8 @@
         "prepared journal introduced before legacy recovery publication",
         "legacy recorded process ID is malformed, zero, or negative",
         "shared inventory sees a blank, null, boolean, nonnumeric, zero, negative, or non-integral recorded process ID",
+        "ordinary, stale-completed, or context-manager release sees a matching Prepared journal",
+        "Prepared journal appears after ordinary release preflight but before guarded replacement",
         "matching transaction-like journal omits or corrupts Transaction State",
         "foreign active lock at final global-zero gate"
       ],
@@ -1419,6 +1431,7 @@
         "legacy recovery after payload-digest drift",
         "absent legacy process marker versus positive proven-exited PID",
         "missing or Not recorded shared marker versus a present invalid PID",
+        "matching Committed journal versus Prepared journal on every release route",
         "exact Committed journal versus every non-Committed state",
         "combined semantic and final-lock validation flags"
       ]
@@ -1466,7 +1479,8 @@
         "Prepared journal is misplaced, corrupt, or omitted from recovery discovery",
         "Single-target or target-set publication proceeds under a foreign or released lock",
         "Missing or blank target-set transaction state bypasses currentness validation",
-        "Prepared recovery is unreachable after the writer process exits"
+        "Prepared recovery is unreachable after the writer process exits",
+        "Current-member rollback overwrites out-of-band target drift"
       ],
       "source_truth": [
         "Docs/external_operational_state_store_reform_plan.md",
@@ -1486,6 +1500,7 @@
       "generated_mutation_coverage": [
         "final validator raises after all target members publish",
         "current member raises after replacement but before applied-state recording",
+        "current member raises before replacement after an out-of-band writer changes it",
         "embedded Before Text does not match Before SHA256",
         "audit journal path lies outside direct audit_log JSON discovery",
         "foreign workload supplies another workload's valid lock",
@@ -1497,6 +1512,7 @@
       "sibling_variant_replay": [
         "prepared journal survives failed rollback",
         "prior members and current member restore after an exception",
+        "drifted current member and prepared journal survive while prior owned members restore",
         "target-set publication reuses one guard context",
         "single-target CLI requires exact workload ownership",
         "concurrent currentness reader blocks on prepared transaction state",

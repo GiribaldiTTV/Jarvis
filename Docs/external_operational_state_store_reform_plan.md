@@ -1065,6 +1065,12 @@ workload, ordered targets, admitted write set, embedded pre-state hashes, and
 current before/after hashes all match under the lock-table guard. Recovery may
 restore only the journaled pre-state, remove the journal, and require a clean
 rerun; ordinary target mutation remains blocked under orphaned authority.
+Every release path, including ordinary workload cleanup, stale-completed
+cleanup, context-manager exit, and legacy recovery, must reject a matching
+transaction-like journal unless its state is exact `Committed`. The check runs
+before release preparation and again under the lock-table guard so a late
+`Prepared`, missing, blank, malformed, or otherwise non-committed journal
+cannot strand partial writes behind a released lock.
 
 A pre-upgrade non-released lock whose only modern shape defect is a missing
 `Workload ID` remains blocking and is not eligible for ordinary release or
@@ -1412,6 +1418,11 @@ Target-set transaction journals admit only exact `Prepared` or `Committed`
 states. A matching journal with a missing, blank, or otherwise invalid
 `Transaction State` blocks currentness as malformed transaction evidence;
 it must never be treated as completed or silently skipped.
+When the current target-set member raises, rollback may restore it only after
+an independent reread proves the current hash is either the journaled pre-state
+or this transaction's projected post-state. Any other hash is out-of-band
+drift; preserve it and the `Prepared` journal while safely restoring only prior
+members still owned by the transaction.
 
 ## Future Exact USER Decision Shape
 

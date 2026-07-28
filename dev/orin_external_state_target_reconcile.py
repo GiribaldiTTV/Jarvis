@@ -1022,6 +1022,42 @@ def _rollback_target_set(
     return failures
 
 
+def _rollback_current_target(
+    *,
+    target_path: Path,
+    before_text: str,
+    projected_text: str,
+) -> list[str]:
+    before_hash = hashlib.sha256(before_text.encode("utf-8")).hexdigest()
+    projected_hash = hashlib.sha256(projected_text.encode("utf-8")).hexdigest()
+    try:
+        current_hash = hashlib.sha256(target_path.read_bytes()).hexdigest()
+    except OSError as exc:
+        return [f"Target-set current-member rollback could not read {target_path}: {exc}"]
+    if current_hash.casefold() not in {before_hash.casefold(), projected_hash.casefold()}:
+        return [
+            "Target-set current-member rollback refused to overwrite drifted target "
+            f"{target_path}: found {current_hash}"
+        ]
+    if current_hash.casefold() != before_hash.casefold():
+        try:
+            atomic_write_text(target_path, before_text)
+        except Exception as exc:  # noqa: BLE001 - retain prepared journal
+            return [f"Target-set current-member rollback failed for {target_path}: {exc}"]
+    try:
+        restored_hash = hashlib.sha256(target_path.read_bytes()).hexdigest()
+    except OSError as exc:
+        return [
+            f"Target-set current-member rollback verification read failed for {target_path}: {exc}"
+        ]
+    if restored_hash.casefold() != before_hash.casefold():
+        return [
+            "Target-set current-member rollback verification failed for "
+            f"{target_path}: expected {before_hash}, found {restored_hash}"
+        ]
+    return []
+
+
 def _after_target_set_member_publish(_relative: str, _target_path: Path) -> None:
     """Test seam for abrupt termination after one set member is published."""
 
@@ -1231,7 +1267,7 @@ def _apply_target_set(
 
     applied_states: list[tuple[Path, str, str]] = []
     messages: list[str] = []
-    for request, relative, target_path, before_text, _projected_text in resolved:
+    for request, relative, target_path, before_text, projected_text in resolved:
         try:
             ok, target_messages, _ = reconcile_target(
                 root=root,
@@ -1256,22 +1292,11 @@ def _apply_target_set(
                 _lock_table_guard_held=True,
             )
         except Exception as exc:  # noqa: BLE001 - every member must join set rollback
-            current_restore_failures: list[str] = []
-            try:
-                atomic_write_text(target_path, before_text)
-                restored_hash = sha256_file(target_path)
-                expected_before_hash = hashlib.sha256(
-                    before_text.encode("utf-8")
-                ).hexdigest()
-                if restored_hash.casefold() != expected_before_hash.casefold():
-                    current_restore_failures.append(
-                        "Target-set current-member rollback verification failed for "
-                        f"{target_path}: expected {expected_before_hash}, found {restored_hash}"
-                    )
-            except Exception as restore_exc:  # noqa: BLE001 - retain prepared journal
-                current_restore_failures.append(
-                    f"Target-set current-member rollback failed for {target_path}: {restore_exc}"
-                )
+            current_restore_failures = _rollback_current_target(
+                target_path=target_path,
+                before_text=before_text,
+                projected_text=projected_text,
+            )
             rollback_failures = _rollback_target_set(
                 target_states=applied_states,
                 audit_path=(audit_path if not current_restore_failures else None),

@@ -2875,6 +2875,57 @@ def main() -> int:
                 "raised member exception retained a prepared journal after clean rollback"
             )
 
+        drift_text = "out-of-band current-member drift\n"
+        original_reconcile_target = reconciler.reconcile_target
+
+        def drift_before_current_member(**kwargs):
+            if kwargs.get("apply") and kwargs.get("target") == exception_relative:
+                exception_path.write_text(drift_text, encoding="utf-8")
+                raise RuntimeError("forced current-member pre-write drift exception")
+            return original_reconcile_target(**kwargs)
+
+        reconciler.reconcile_target = drift_before_current_member
+        try:
+            ok, messages, audit = reconciler.reconcile_target_set(
+                root=root,
+                lock_id=lock_id,
+                workload_id="target-set-rollback-workload",
+                snapshot=snapshot.relative_to(root).as_posix(),
+                audit_target=audit_target,
+                requests=requests,
+                final_validation=_semantic_failures,
+                apply=True,
+            )
+        finally:
+            reconciler.reconcile_target = original_reconcile_target
+        if ok or audit is not None or not any(
+            "current-member rollback refused to overwrite drifted target" in message
+            for message in messages
+        ):
+            raise AssertionError(
+                "current-member drift did not block rollback:\n" + "\n".join(messages)
+            )
+        if exception_path.read_text(encoding="utf-8") != drift_text:
+            raise AssertionError("current-member rollback overwrote out-of-band drift")
+        for relative, path in paths.items():
+            if relative != exception_relative and path.read_bytes() != before[relative]:
+                raise AssertionError(
+                    "current-member drift failure did not restore prior projections"
+                )
+        prepared_journal_path = root / audit_target
+        if (
+            not prepared_journal_path.is_file()
+            or json.loads(prepared_journal_path.read_text(encoding="utf-8")).get(
+                "Transaction State"
+            )
+            != "Prepared"
+        ):
+            raise AssertionError(
+                "current-member drift failure did not retain its prepared journal"
+            )
+        exception_path.write_bytes(exception_before)
+        prepared_journal_path.unlink()
+
         def fail_only_after_live_publication(candidate_root: Path) -> list[str]:
             semantic = _semantic_failures(candidate_root)
             if candidate_root.resolve() == root.resolve() and not semantic:

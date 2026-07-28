@@ -413,6 +413,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "invalid recorded owner",
             "legacy recovery on ambiguous matching journals",
             "ambiguous matching journals",
+            "release while a prepared transaction remains",
+            "prepared transaction remains",
+            "ordinary release",
         ),
     ),
     FamilyRule(

@@ -959,6 +959,13 @@ A present invalid owner-process value is not equivalent to an intentionally
 absent marker. Blank, null, boolean, nonnumeric, zero, negative, and
 non-integral values must classify the lock as `MALFORMED`; treating them as
 process-unproven `ACTIVE_VALID` authority is a lock-lifecycle false green.
+A matching `Prepared` or malformed target-set journal must block every lock
+release path, not only legacy recovery. Releasing through ordinary cleanup,
+stale cleanup, or context-manager exit while partial transaction evidence
+remains allows overlapping work to enter before recovery and is a lifecycle
+false green. Current-member rollback has the same ownership rule: restore only
+known pre-state or projected post-state bytes; preserve out-of-band drift and
+the prepared journal.
 
 ## Incident Pattern: External-State Lock Outlives Its Workload
 

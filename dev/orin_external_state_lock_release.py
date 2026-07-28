@@ -64,6 +64,51 @@ def _before_release_atomic_replacement(_lock_path: Path, _expected_bytes: bytes)
     """Test seam for adversarial lock mutation before final release validation."""
 
 
+def _matching_transaction_journal_failures(
+    root: Path,
+    lock_id: str,
+    *,
+    context: str,
+) -> list[str]:
+    failures: list[str] = []
+    for journal_path in sorted((root / "audit_log").glob("*.json")):
+        try:
+            journal = load_json(journal_path)
+        except Exception as exc:  # noqa: BLE001 - ambiguous transaction state blocks
+            failures.append(
+                f"{context} cannot inspect transaction journal {journal_path}: {exc}"
+            )
+            continue
+        if not isinstance(journal, dict):
+            failures.append(
+                f"{context} found a malformed transaction journal: {journal_path}"
+            )
+            continue
+        if journal.get("Lock ID") != lock_id:
+            continue
+        transaction_like = (
+            journal.get("Transition") == "Bounded coherent target-set reconciliation"
+            or "Transaction State" in journal
+            or "Targets" in journal
+        )
+        if not transaction_like:
+            continue
+        transaction_state = journal.get("Transaction State")
+        if transaction_state == "Committed":
+            continue
+        if transaction_state == "Prepared":
+            failures.append(
+                f"{context} is blocked by an incomplete prepared transaction journal: "
+                f"{journal_path}"
+            )
+        else:
+            failures.append(
+                f"{context} is blocked by a non-committed target-set transaction "
+                f"journal with state {transaction_state!r}: {journal_path}"
+            )
+    return failures
+
+
 def _legacy_recovery_shape_failures(
     root: Path,
     lock_id: str,
@@ -103,41 +148,6 @@ def _legacy_recovery_shape_failures(
         if process_is_running(owner_process_id) is not False:
             failures.append(
                 "Legacy recovery requires the recorded owner process to be proven exited"
-            )
-    for journal_path in sorted((root / "audit_log").glob("*.json")):
-        try:
-            journal = load_json(journal_path)
-        except Exception as exc:  # noqa: BLE001 - ambiguous transaction state blocks
-            failures.append(
-                f"Legacy recovery cannot inspect transaction journal {journal_path}: {exc}"
-            )
-            continue
-        if not isinstance(journal, dict):
-            failures.append(
-                f"Legacy recovery found a malformed transaction journal: {journal_path}"
-            )
-            continue
-        if journal.get("Lock ID") != lock_id:
-            continue
-        transaction_like = (
-            journal.get("Transition") == "Bounded coherent target-set reconciliation"
-            or "Transaction State" in journal
-            or "Targets" in journal
-        )
-        if not transaction_like:
-            continue
-        transaction_state = journal.get("Transaction State")
-        if transaction_state == "Committed":
-            continue
-        if transaction_state == "Prepared":
-            failures.append(
-                "Legacy recovery is blocked by an incomplete prepared transaction journal: "
-                f"{journal_path}"
-            )
-        else:
-            failures.append(
-                "Legacy recovery is blocked by a non-committed target-set transaction "
-                f"journal with state {transaction_state!r}: {journal_path}"
             )
     return failures
 
@@ -209,6 +219,13 @@ def release_lock(
             "Lock workload ID mismatch: expected "
             f"{expected_workload_id!r}, found {payload.get('Workload ID')!r}"
         ]
+    journal_failures = _matching_transaction_journal_failures(
+        root,
+        lock_id,
+        context=("Legacy recovery" if legacy_missing_workload_recovery else "Lock release"),
+    )
+    if journal_failures:
+        return False, journal_failures
     if payload.get("Lock State") not in NON_RELEASED_LOCK_STATES:
         return False, [f"Lock is already released or invalid: {lock_path}"]
     release_payload = dict(payload)
@@ -244,6 +261,17 @@ def release_lock(
                 )
                 if legacy_shape_failures:
                     return False, legacy_shape_failures
+            journal_failures = _matching_transaction_journal_failures(
+                root,
+                lock_id,
+                context=(
+                    "Legacy recovery"
+                    if legacy_missing_workload_recovery
+                    else "Lock release"
+                ),
+            )
+            if journal_failures:
+                return False, journal_failures
             atomic_write_json(lock_path, release_payload)
             try:
                 authoritative = load_json(lock_path)

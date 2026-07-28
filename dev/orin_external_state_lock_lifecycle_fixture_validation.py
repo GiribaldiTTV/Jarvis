@@ -700,6 +700,201 @@ def main() -> int:
             )
         legacy_race_journal.unlink(missing_ok=True)
 
+        ordinary_lock_id = "negative-ordinary-prepared-release"
+        ordinary_workload_id = "ordinary-prepared-release-workload"
+        ordinary_lock_path = _lock(
+            root,
+            ordinary_lock_id,
+            ordinary_workload_id,
+            process_id=os.getpid(),
+        )
+        ordinary_journal = root / "audit_log" / "ordinary-prepared-release.json"
+        atomic_write_json(
+            ordinary_journal,
+            {
+                "Transition": "Bounded coherent target-set reconciliation",
+                "Lock ID": ordinary_lock_id,
+                "Workload ID": ordinary_workload_id,
+                "Transaction State": "Prepared",
+                "Targets": [],
+            },
+        )
+        _assert_blocked(
+            "ordinary release with prepared target-set journal",
+            release_lock(
+                root,
+                ordinary_lock_id,
+                "prepared transaction must block release",
+                True,
+                expected_workload_id=ordinary_workload_id,
+            ),
+            "incomplete prepared transaction journal",
+        )
+        if json.loads(ordinary_lock_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
+            raise AssertionError("ordinary release changed a lock with a prepared journal")
+        ordinary_journal.unlink()
+        released, release_messages = release_lock(
+            root,
+            ordinary_lock_id,
+            "fixture reset after prepared journal removal",
+            True,
+            expected_workload_id=ordinary_workload_id,
+        )
+        if not released:
+            raise AssertionError(
+                "ordinary lock did not release after journal removal:\n"
+                + "\n".join(release_messages)
+            )
+
+        ordinary_race_lock_id = "negative-ordinary-prepared-release-race"
+        ordinary_race_workload_id = "ordinary-prepared-release-race-workload"
+        ordinary_race_lock_path = _lock(
+            root,
+            ordinary_race_lock_id,
+            ordinary_race_workload_id,
+            process_id=os.getpid(),
+        )
+        ordinary_race_journal = root / "audit_log" / "ordinary-prepared-release-race.json"
+        original_before_release = lock_release_module._before_release_atomic_replacement
+
+        def _inject_ordinary_prepared_journal(
+            _lock_path: Path,
+            _expected_bytes: bytes,
+        ) -> None:
+            atomic_write_json(
+                ordinary_race_journal,
+                {
+                    "Transition": "Bounded coherent target-set reconciliation",
+                    "Lock ID": ordinary_race_lock_id,
+                    "Workload ID": ordinary_race_workload_id,
+                    "Transaction State": "Prepared",
+                    "Targets": [],
+                },
+            )
+
+        lock_release_module._before_release_atomic_replacement = (
+            _inject_ordinary_prepared_journal
+        )
+        try:
+            _assert_blocked(
+                "ordinary release prepared-journal race",
+                release_lock(
+                    root,
+                    ordinary_race_lock_id,
+                    "late prepared transaction must block release",
+                    True,
+                    expected_workload_id=ordinary_race_workload_id,
+                ),
+                "incomplete prepared transaction journal",
+            )
+        finally:
+            lock_release_module._before_release_atomic_replacement = (
+                original_before_release
+            )
+        if json.loads(ordinary_race_lock_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
+            raise AssertionError("ordinary release missed a late prepared journal")
+        ordinary_race_journal.unlink()
+        released, release_messages = release_lock(
+            root,
+            ordinary_race_lock_id,
+            "fixture reset after prepared-journal race",
+            True,
+            expected_workload_id=ordinary_race_workload_id,
+        )
+        if not released:
+            raise AssertionError(
+                "ordinary race lock did not release after journal removal:\n"
+                + "\n".join(release_messages)
+            )
+
+        stale_lock_id = "negative-stale-prepared-release"
+        stale_workload_id = "stale-prepared-release-workload"
+        stale_lock_path = _lock(
+            root,
+            stale_lock_id,
+            stale_workload_id,
+            workload_state="Completed",
+        )
+        stale_journal = root / "audit_log" / "stale-prepared-release.json"
+        atomic_write_json(
+            stale_journal,
+            {
+                "Transition": "Bounded coherent target-set reconciliation",
+                "Lock ID": stale_lock_id,
+                "Workload ID": stale_workload_id,
+                "Transaction State": "Prepared",
+                "Targets": [],
+            },
+        )
+        _assert_blocked(
+            "stale-completed release with prepared target-set journal",
+            release_stale_completed_lock(
+                root,
+                lock_id=stale_lock_id,
+                expected_workload_id=stale_workload_id,
+                reason="prepared transaction must block stale cleanup",
+                apply=True,
+                process_checker=lambda _pid: False,
+            ),
+            "incomplete prepared transaction journal",
+        )
+        if json.loads(stale_lock_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
+            raise AssertionError("stale cleanup changed a lock with a prepared journal")
+        stale_journal.unlink()
+        released, release_messages = release_stale_completed_lock(
+            root,
+            lock_id=stale_lock_id,
+            expected_workload_id=stale_workload_id,
+            reason="fixture reset after prepared journal removal",
+            apply=True,
+            process_checker=lambda _pid: False,
+        )
+        if not released:
+            raise AssertionError(
+                "stale lock did not release after journal removal:\n"
+                + "\n".join(release_messages)
+            )
+
+        transaction_workload_id = "transaction-prepared-release-workload"
+        transaction_journal = root / "audit_log" / "transaction-prepared-release.json"
+        transaction_lock_id = ""
+        try:
+            with _transaction(root, transaction_workload_id) as transaction:
+                transaction_lock_id = transaction.lock_id
+                atomic_write_json(
+                    transaction_journal,
+                    {
+                        "Transition": "Bounded coherent target-set reconciliation",
+                        "Lock ID": transaction_lock_id,
+                        "Workload ID": transaction_workload_id,
+                        "Transaction State": "Prepared",
+                        "Targets": [],
+                    },
+                )
+        except ExternalStateError as exc:
+            if "incomplete prepared transaction journal" not in str(exc):
+                raise AssertionError(
+                    "transaction cleanup blocked for the wrong reason: " + str(exc)
+                ) from exc
+        else:
+            raise AssertionError("transaction cleanup released a lock with a prepared journal")
+        transaction_lock_path = root / "locks" / f"{transaction_lock_id}.json"
+        if json.loads(transaction_lock_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
+            raise AssertionError("transaction cleanup changed a lock with a prepared journal")
+        transaction_journal.unlink()
+        released, release_messages = release_lock(
+            root,
+            transaction_lock_id,
+            "fixture reset after prepared journal removal",
+            True,
+            expected_workload_id=transaction_workload_id,
+        )
+        if not released:
+            raise AssertionError(
+                "transaction lock did not release after journal removal:\n"
+                + "\n".join(release_messages)
+            )
+
         for malformed_id, mutate in (
             ("negative-missing-lock-type", lambda payload: payload.pop("Lock Type")),
             (
