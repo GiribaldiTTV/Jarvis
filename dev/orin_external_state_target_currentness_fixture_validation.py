@@ -158,6 +158,350 @@ def _assert_failure(name: str, needle: str, failures: list[str]) -> None:
         raise AssertionError(f"{name} did not fail on {needle!r}:\n" + "\n".join(failures))
 
 
+def _write_legacy_journal_fixture(
+    root: Path,
+    *,
+    filename: str = "legacy-completed.json",
+    target_count: int = 3,
+    include_post_record_state: bool = False,
+    completion_assignment: bool = True,
+    completion_assignment_value: str = (
+        "External State Item Status=Fixture transaction complete and validated"
+    ),
+    lock_state: str = "Released",
+    lock_workload_id: str | None = None,
+    recovery_payload: bool = False,
+    inconsistent_snapshot_hash: bool = False,
+    first_target_override: str | None = None,
+) -> Path:
+    audit_path = root / "audit_log" / filename
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_id = "worktree-legacy-fixture"
+    workload_id = "legacy-completed-workload"
+    snapshot_relative = "snapshots/legacy-completed"
+    snapshot_root = root / "snapshots" / "legacy-completed"
+    snapshot_root.mkdir(parents=True, exist_ok=True)
+    targets: list[dict[str, object]] = []
+    copied_files: list[dict[str, object]] = []
+    target_paths: list[str] = []
+    for index in range(1, target_count + 1):
+        relative = f"worktrees/Fixture-{index}/worktree_state.md"
+        before_bytes = f"legacy before {index}\n".encode()
+        before_hash = hashlib.sha256(before_bytes).hexdigest()
+        after_hash = hashlib.sha256(f"legacy after {index}\n".encode()).hexdigest()
+        snapshot_copy = snapshot_root.joinpath(*relative.split("/"))
+        snapshot_copy.parent.mkdir(parents=True, exist_ok=True)
+        snapshot_copy.write_bytes(before_bytes)
+        manifest_hash = "f" * 64 if inconsistent_snapshot_hash and index == 1 else before_hash
+        copied_files.append({"path": relative, "sha256": manifest_hash, "size": len(before_bytes)})
+        assignments = [
+            "State Version=2",
+            "Last Updated=2026-07-27T20:00:00Z",
+            "Last Updated By=fixture",
+        ]
+        if completion_assignment:
+            assignments.append(completion_assignment_value)
+        row: dict[str, object] = {
+            "Additions": [],
+            "After SHA256": after_hash,
+            "Assignments": assignments,
+            "Before SHA256": before_hash,
+            "Section Renames": [],
+            "Target": relative,
+        }
+        if first_target_override is not None and index == 1:
+            row["Target"] = first_target_override
+        if include_post_record_state:
+            row["Post Record State"] = "live"
+        if recovery_payload and index == 1:
+            row["Before Text"] = before_bytes.decode()
+        targets.append(row)
+        target_paths.append(relative)
+    atomic_write_json(
+        snapshot_root / "snapshot_manifest.json",
+        {
+            "External State Schema": "external-state-v1",
+            "Copied Files": copied_files,
+            "Last Updated": "2026-07-27T19:59:00Z",
+        },
+    )
+    atomic_write_json(
+        root / "locks" / f"{lock_id}.json",
+        {
+            "External State Schema": "external-state-v1",
+            "Lock ID": lock_id,
+            "Lock State": lock_state,
+            "Workload ID": lock_workload_id or workload_id,
+            "Workload State": "Completed" if lock_state == "Released" else "Active",
+            "Released At": "2026-07-27T20:01:00Z" if lock_state == "Released" else "",
+            "Retain Between Workloads": "No",
+            "Intended Write Set": ";".join(
+                [audit_path.relative_to(root).as_posix(), snapshot_relative, *target_paths]
+            ),
+        },
+    )
+    atomic_write_json(
+        audit_path,
+        {
+            "External State Schema": "external-state-v1",
+            "Last Updated": "2026-07-27T20:00:00Z",
+            "Last Updated By": "fixture",
+            "Lock ID": lock_id,
+            "Snapshot": snapshot_relative,
+            "Targets": targets,
+            "Transition": validator.TARGET_SET_TRANSITION,
+            "Workload ID": workload_id,
+        },
+    )
+    return audit_path
+
+
+def _write_modern_journal_fixture(
+    root: Path,
+    *,
+    filename: str = "modern-journal.json",
+    state: object = "Committed",
+    include_state: bool = True,
+    last_updated: str = "2026-07-28T00:00:00Z",
+    schema: str = "external-state-v1",
+) -> Path:
+    path = root / "audit_log" / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload: dict[str, object] = {
+        "External State Schema": schema,
+        "Transition": validator.TARGET_SET_TRANSITION,
+        "Lock ID": "branch-modern-fixture",
+        "Workload ID": "modern-fixture-workload",
+        "Snapshot": "snapshots/modern-fixture",
+        "Targets": [
+            {
+                "Target": "worktrees/Fixture/worktree_state.md",
+                "Before SHA256": "a" * 64,
+                "After SHA256": "b" * 64,
+            }
+        ],
+        "Last Updated": last_updated,
+        "Last Updated By": "fixture",
+    }
+    if include_state:
+        payload["Transaction State"] = state
+    atomic_write_json(path, payload)
+    return path
+
+
+def _run_journal_case(
+    name: str,
+    setup: object,
+    *,
+    should_pass: bool,
+) -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-legacy-journal-") as temp_dir:
+        root = Path(temp_dir)
+        setup(root)  # type: ignore[operator]
+        failures = validator.validate_incomplete_target_set_journals(root)
+        if should_pass and failures:
+            raise AssertionError(f"{name} unexpectedly failed:\n" + "\n".join(failures))
+        if not should_pass and not failures:
+            raise AssertionError(f"{name} unexpectedly passed")
+    print(f"Legacy journal fixture: {name}: PASS")
+
+
+def _assert_journal_mutation_killed(
+    name: str,
+    setup: object,
+    attribute: str,
+    replacement: object,
+) -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-legacy-mutation-") as temp_dir:
+        root = Path(temp_dir)
+        setup(root)  # type: ignore[operator]
+        baseline = validator.validate_incomplete_target_set_journals(root)
+        if not baseline:
+            raise AssertionError(f"mutation {name} has no failing baseline")
+        original = getattr(validator, attribute)
+        setattr(validator, attribute, replacement)
+        try:
+            mutated = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            setattr(validator, attribute, original)
+        if mutated:
+            raise AssertionError(
+                f"mutation {name} survived the focused suite:\n" + "\n".join(mutated)
+            )
+    print(f"Legacy journal mutation: {name}: KILLED")
+
+
+def _run_legacy_journal_compatibility_fixtures() -> None:
+    positive_cases = [
+        ("legacy completed shape 1", lambda root: _write_legacy_journal_fixture(root)),
+        (
+            "legacy completed shape 2",
+            lambda root: _write_legacy_journal_fixture(root, target_count=3),
+        ),
+        (
+            "legacy completed shape 3",
+            lambda root: _write_legacy_journal_fixture(
+                root, target_count=4, include_post_record_state=True
+            ),
+        ),
+        ("modern Committed journal", lambda root: _write_modern_journal_fixture(root)),
+        (
+            "unrelated historical audit",
+            lambda root: atomic_write_json(
+                root / "audit_log" / "unrelated.json",
+                {"External State Schema": "external-state-v1", "Transition": "Other audit"},
+            ),
+        ),
+        (
+            "legacy receipt with modern-looking filename",
+            lambda root: _write_legacy_journal_fixture(root, filename="current-journal.json"),
+        ),
+    ]
+    for name, setup in positive_cases:
+        _run_journal_case(name, setup, should_pass=True)
+
+    negative_cases = [
+        (
+            "modern journal missing Transaction State",
+            lambda root: _write_modern_journal_fixture(root, include_state=False),
+        ),
+        (
+            "modern journal blank Transaction State",
+            lambda root: _write_modern_journal_fixture(root, state=""),
+        ),
+        (
+            "modern journal unknown Transaction State",
+            lambda root: _write_modern_journal_fixture(root, state="Complete"),
+        ),
+        (
+            "modern Prepared journal",
+            lambda root: _write_modern_journal_fixture(root, state="Prepared"),
+        ),
+        (
+            "modern journal invalid schema",
+            lambda root: _write_modern_journal_fixture(root, schema="external-state-v0"),
+        ),
+        (
+            "matching malformed JSON",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "malformed.json").write_text(
+                    '{"Transition":"Bounded coherent target-set reconciliation",',
+                    encoding="utf-8",
+                ),
+            ),
+        ),
+        (
+            "legacy-looking receipt with recovery payload",
+            lambda root: _write_legacy_journal_fixture(root, recovery_payload=True),
+        ),
+        (
+            "legacy receipt with active lock evidence",
+            lambda root: _write_legacy_journal_fixture(root, lock_state="Locked"),
+        ),
+        (
+            "legacy receipt with ambiguous workload evidence",
+            lambda root: _write_legacy_journal_fixture(
+                root, lock_workload_id="different-workload"
+            ),
+        ),
+        (
+            "legacy receipt lacking completion evidence",
+            lambda root: _write_legacy_journal_fixture(root, completion_assignment=False),
+        ),
+        (
+            "legacy receipt with negated completion evidence",
+            lambda root: _write_legacy_journal_fixture(
+                root,
+                completion_assignment_value="External State Item Status=Workload is not complete",
+            ),
+        ),
+        (
+            "legacy receipt with substring-only completion evidence",
+            lambda root: _write_legacy_journal_fixture(
+                root,
+                completion_assignment_value="Current Validation State=Bypass recorded",
+            ),
+        ),
+        (
+            "legacy receipt with alternate-stream target",
+            lambda root: _write_legacy_journal_fixture(
+                root,
+                first_target_override="worktrees/Fixture-1/worktree_state.md:stream",
+            ),
+        ),
+        (
+            "legacy receipt with inconsistent snapshot hash",
+            lambda root: _write_legacy_journal_fixture(
+                root, inconsistent_snapshot_hash=True
+            ),
+        ),
+        (
+            "state-less modern journal with old timestamp",
+            lambda root: _write_modern_journal_fixture(
+                root, include_state=False, last_updated="2020-01-01T00:00:00Z"
+            ),
+        ),
+        (
+            "state-less modern journal with historical-looking filename",
+            lambda root: _write_modern_journal_fixture(
+                root, filename="legacy-completed-20200101.json", include_state=False
+            ),
+        ),
+    ]
+    for name, setup in negative_cases:
+        _run_journal_case(name, setup, should_pass=False)
+
+    negative_setups = dict(negative_cases)
+    accept_missing_state = lambda *_args, **_kwargs: []
+    accept_modern_state = lambda _payload: []
+    _assert_journal_mutation_killed(
+        "accept every missing Transaction State",
+        negative_setups["modern journal missing Transaction State"],
+        "_validate_legacy_completed_target_set_receipt",
+        accept_missing_state,
+    )
+    _assert_journal_mutation_killed(
+        "accept every old record",
+        negative_setups["state-less modern journal with old timestamp"],
+        "_validate_legacy_completed_target_set_receipt",
+        accept_missing_state,
+    )
+    _assert_journal_mutation_killed(
+        "transition phrase alone proves completion",
+        lambda root: atomic_write_json(
+            root / "audit_log" / "transition-only.json",
+            {"Transition": validator.TARGET_SET_TRANSITION},
+        ),
+        "_validate_legacy_completed_target_set_receipt",
+        accept_missing_state,
+    )
+    _assert_journal_mutation_killed(
+        "Prepared treated as Committed",
+        negative_setups["modern Prepared journal"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "malformed state ignored",
+        negative_setups["modern journal unknown Transaction State"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "active-lock evidence ignored",
+        negative_setups["legacy receipt with active lock evidence"],
+        "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "historical provenance checks skipped",
+        negative_setups["legacy receipt with inconsistent snapshot hash"],
+        "_validate_legacy_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-target-currentness-") as temp_dir:
         root = Path(temp_dir)
@@ -1240,6 +1584,7 @@ def main() -> int:
         if after_bytes.count(b"\r\n") != before_bytes.count(b"\r\n") + 1:
             raise AssertionError("CRLF target transition changed untouched newline structure")
 
+    _run_legacy_journal_compatibility_fixtures()
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0
 

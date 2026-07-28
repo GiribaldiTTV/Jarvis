@@ -20902,6 +20902,70 @@ def _is_historical_worktree_receipt(record_text: str) -> bool:
     )
 
 
+def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
+    singleton_markers = (
+        "Branch",
+        "Branch Class",
+        "Worktree",
+        "Record Class",
+        "Repo Live-State Boundary",
+        "Merge-Stable Fold-Down",
+        "Slot ID",
+        "USER Decision Pointer",
+        "Assigned Worktree Confinement",
+        "Non-Includes",
+    )
+    if any(
+        len(
+            re.findall(
+                rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
+                record_text,
+                flags=re.M,
+            )
+        )
+        != 1
+        for marker in singleton_markers
+    ):
+        return False
+    record_class = _extract_exact_marker_value(record_text, "Record Class")
+    live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
+    fold_down = _extract_exact_marker_value(record_text, "Merge-Stable Fold-Down").casefold()
+    non_includes = _extract_exact_marker_value(record_text, "Non-Includes").casefold()
+    return (
+        record_class == "Durable Carrier Admission Receipt"
+        and _extract_exact_marker_value(record_text, "Branch Class")
+        == "repair/dev-tooling-governance"
+        and bool(_extract_exact_marker_value(record_text, "Branch"))
+        and bool(_extract_exact_marker_value(record_text, "Worktree"))
+        and re.fullmatch(
+            r"runtime-active-[1-3]",
+            _extract_exact_marker_value(record_text, "Slot ID"),
+        )
+        is not None
+        and bool(_extract_exact_marker_value(record_text, "USER Decision Pointer"))
+        and "does not own" in live_boundary
+        and "derived" in live_boundary
+        and "before any future pr can be green" in fold_down
+        and "historical/no-active" in fold_down
+        and bool(_extract_exact_marker_value(record_text, "Assigned Worktree Confinement"))
+        and all(
+            boundary in non_includes
+            for boundary in ("external-state mutation", "pr creation", "merge", "release")
+        )
+    )
+
+
+def _durable_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[str, str]:
+    registry_path = Path("Docs/worktree_slots.md")
+    receipts = _section(_read_text(registry_path), "Durable Carrier Admission Receipts")
+    if len(re.findall(rf"^### {re.escape(branch_name)}\s*$", receipts, flags=re.M)) != 1:
+        return "", ""
+    receipt = _subsection(receipts, branch_name)
+    if _extract_exact_marker_value(receipt, "Branch") != branch_name:
+        return "", ""
+    return f"{registry_path}#{branch_name}", receipt
+
+
 def _validate_historical_worktree_receipt_confinement(
     require,
     record_path: str | Path,
@@ -21000,6 +21064,24 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         == "C:\\Nexus Worktrees\\FAM-007",
         "Assigned Worktree Confinement external-state fixture must not parse `Worktree State:` as `Worktree:`",
     )
+    durable_fixture = (
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+        / "valid_durable_carrier_admission_receipt.md"
+    )
+    durable_fixture_text = _read_text(durable_fixture)
+    require(
+        _is_durable_carrier_admission_receipt(durable_fixture_text),
+        f"{durable_fixture}: exact durable carrier admission receipt must classify",
+    )
+    invalid_durable_fixture = (
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+        / "invalid_durable_carrier_admission_receipt.md"
+    )
+    invalid_durable_fixture_text = _read_text(invalid_durable_fixture)
+    require(
+        not _is_durable_carrier_admission_receipt(invalid_durable_fixture_text),
+        f"{invalid_durable_fixture}: missing live-state boundary must fail classification",
+    )
 
 
 def _run_worktree_confinement_gate(require) -> None:
@@ -21017,6 +21099,7 @@ def _run_worktree_confinement_gate(require) -> None:
         active_branch_record_paths,
         branch_name,
     )
+    durable_admission_receipt = False
     if not record_text:
         external_record_path, external_record_text = _external_branch_state_record_for_branch(
             branch_name,
@@ -21030,6 +21113,21 @@ def _run_worktree_confinement_gate(require) -> None:
             )
             return
         record_path, record_text = external_record_path, external_record_text
+    if not record_text:
+        durable_record_path, durable_record_text = _durable_carrier_admission_receipt_for_branch(
+            branch_name
+        )
+        if durable_record_text:
+            require(
+                _is_durable_carrier_admission_receipt(durable_record_text),
+                (
+                    f"{durable_record_path}: durable carrier confinement fallback requires "
+                    "an exact non-live Durable Carrier Admission Receipt"
+                ),
+            )
+            if _is_durable_carrier_admission_receipt(durable_record_text):
+                record_path, record_text = durable_record_path, durable_record_text
+                durable_admission_receipt = True
     if not record_text:
         historical_branch_record_paths = _collect_branch_record_paths(
             branch_record_index_text,
@@ -21069,15 +21167,20 @@ def _run_worktree_confinement_gate(require) -> None:
         (
             "Assigned Worktree Confinement gate requires the current branch to have an "
             "active branch authority record, matching external branch-state record, "
-            "or a PR Readiness Stage 1 historical authority projection"
+            "exact durable carrier admission receipt, or a PR Readiness Stage 1 "
+            "historical authority projection"
         ),
     )
     if not record_text:
         return
 
-    identity = _section(record_text, "Branch Identity")
+    identity = record_text if durable_admission_receipt else _section(record_text, "Branch Identity")
     expected_root = _extract_exact_marker_value(identity, "Worktree")
-    confinement = _section(record_text, "Assigned Worktree Confinement")
+    confinement = (
+        record_text
+        if durable_admission_receipt
+        else _section(record_text, "Assigned Worktree Confinement")
+    )
     require(
         bool(expected_root),
         f"{record_path}: Assigned Worktree Confinement requires a Branch Identity `Worktree:` marker",

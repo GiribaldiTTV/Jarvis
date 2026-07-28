@@ -153,6 +153,48 @@ When a runtime branch is assigned to a slot, the branch authority record or Bran
 
 Current runtime slot assignment truth should be resolved from `C:\Nexus Governance State`, the active branch authority record, and identity preflight. Do not add phase narratives, PR readiness narration, latest release references, commit hashes, selected-next posture, live ownership, or long branch histories to the slot registry.
 
+## Durable Carrier Admission Receipts
+
+These compact one-time receipts prove only a specific USER-approved carrier
+admission and its assigned-worktree confinement when the approval freezes the
+standing carrier and explicitly prohibits external-state mutation. They do not
+own current HEAD, cleanliness, active ownership, phase, PR, lock, packet, or
+gate state. Those facts remain Git/GitHub/helper/Codex-derived. Every receipt in
+this section must fold to historical/no-active posture or be removed before its
+future PR can be green.
+
+### feature/governance-external-projection-compatibility
+
+- Branch: `feature/governance-external-projection-compatibility`
+- Branch Class: `repair/dev-tooling-governance`
+- Worktree: `C:\Nexus Worktrees\Governance-N0`
+- Record Class: `Durable Carrier Admission Receipt`
+- Repo Live-State Boundary: `This receipt proves USER-approved admission and confinement only. It does not own current operational facts; those facts remain Git, GitHub, approved-helper, and current-Codex derived.`
+- Merge-Stable Fold-Down: `Before any future PR can be green, this receipt must move to historical/no-active posture or be removed according to PR Readiness source truth.`
+- Slot ID: `runtime-active-2`
+- USER Decision Pointer: `2026-07-28 N0 carrier reassignment approval supplied to the current Codex task.`
+- Assigned Worktree Confinement: `Admission-time proof only; live ownership remains derived.`
+- Active Thread Owner: `The admission decision assigned one bounded Codex mutation owner; this receipt does not claim continuing live ownership.`
+- Thread Assignment Status: `One bounded owner was admitted for the N0 write set; current status is derived outside repo source truth.`
+- Worktree Ownership Ledger: `This durable receipt preserves the admission boundary only; Git, helpers, and the current Codex digest own live worktree facts.`
+- Intended Write Set: `Slot/index law; external-state validator and target-currentness fixtures; branch-governance validator and focused admission fixtures; helper registry and incident pattern.`
+- Same Worktree / Same Branch Collision Check: `PASS at admission; target path and branch did not exist and no other worktree or thread claimed them.`
+- Dirty Worktree Collision Check: `PASS at admission; the worktree was created clean and the current owner claimed every later tracked change in this bounded N0 task.`
+- Dirty Worktree Recovery Packet: `Not required at admission; any unowned or incoherent dirty state triggers the bounded stop conditions.`
+- Off-Worktree Work Routing: `Read-only forensic inspection of the frozen Governance carrier and immutable external receipts only; all tracked mutation stays in Governance-N0.`
+- Governance Routing Barrier: `Closed for this N0 carrier only by the exact USER New Carrier Branch Required decision.`
+- New Worktree Decision Gate: `Satisfied only for C:\Nexus Worktrees\Governance-N0 by the exact 2026-07-28 USER approval.`
+- Expected Worktree Root: `C:\Nexus Worktrees\Governance-N0`
+- Actual Worktree Root: `C:\Nexus Worktrees\Governance-N0`
+- No Cross-Worktree Mutation: `Required; frozen Governance, FAM, sibling, neutral-main, and external-state targets remain read-only.`
+- GitHub Desktop-bound worktree: `No binding change approved or required for N0.`
+- Worktree Escape User Waiver: `Granted from C:\Users\anden\.codex\worktrees\eed9\Nexus Desktop AI to C:\Nexus Worktrees\Governance-N0 for the exact N0 write set, validation, commit, and push; expires on clean pushed completion or any stop condition.`
+- Worktree Escape User Waiver Missing: `NO; the exact source, target, scope, expiration, validation, and return boundary are recorded above.`
+- Compatibility Defect: `Modern target-set transaction-journal validation misclassifies three immutable legacy completed-audit receipts that predate Transaction State.`
+- Compatibility Requirement: `Modern journals remain fail-closed. A state-less legacy receipt is accepted only when structural, released-lock, completed-workload, snapshot-manifest, target-path, and target-hash evidence proves completed immutable receipt posture without recoverable Before Text.`
+- Non-Includes: `External-state mutation; packet work; PR1 firewall; R-core; runtime/FAM/sibling/neutral-main mutation; issue mutation; PR creation; Connector review; merge; release; cleanup.`
+- Next Legal Gate: `Separate USER approval for N0 PR creation and one-time independent bootstrap acceptance after this branch is pushed clean and independently reviewable.`
+
 ## Active Thread Ownership And Collision Recovery
 
 An assigned slot has exactly one active Codex thread owner for mutation. A second thread may read the slot for audit, but it must not edit, stage, commit, push, merge, rebase, clean, stash, reset, launch runtime validation, or use GitHub Desktop against that slot until USER assigns ownership or grants a bounded waiver.

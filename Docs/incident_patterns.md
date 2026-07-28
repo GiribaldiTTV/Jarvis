@@ -903,3 +903,24 @@ fail-closed path and alias handling, audit details for every added or replaced
 field, adversarial mutation fixtures, and a dedicated
 `PR_READINESS_STAGE1_REVIEW.md` primary packet artifact. ZIP parity or helper
 green alone does not clear this incident class.
+
+## Incident Pattern: Legacy Completed Audit Misclassified As Active Transaction
+
+When a target-set journal validator assumes every receipt that names the
+target-set atomic transition must carry the current `Transaction State` field,
+immutable completed receipts from the pre-state schema are falsely classified
+as incomplete active transactions. Prevention requires a shape-based classifier
+instead of filename or age heuristics: current journals remain fail-closed,
+while a state-less legacy receipt is compatible only when its exact legacy
+fields, safe unique targets, released lock, completed workload, non-retention
+posture, snapshot manifest, copied-file hashes, and receipt-level completion
+assignment all agree. Matching malformed JSON, ambiguous shapes, active locks,
+missing completion evidence, recovery payloads, and inconsistent hashes must
+remain blocked. Temporary-root fixtures and mutation probes must prove that the
+compatibility rule cannot degrade into accepting every missing-state or old
+record.
+
+- source references:
+  - `dev/orin_external_state_validation.py`
+  - `dev/orin_external_state_target_currentness_fixture_validation.py`
+  - `Docs/validation_helper_registry.md`

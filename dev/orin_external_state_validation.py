@@ -39,6 +39,28 @@ REQUIRED_STAGE4_RECORDS = [
     "acknowledgements/Governance/stage4_active_state_migration_execution_ack.md",
 ]
 
+TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
+SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
+LEGACY_TARGET_SET_RECEIPT_FIELDS = {
+    "External State Schema",
+    "Last Updated",
+    "Last Updated By",
+    "Lock ID",
+    "Snapshot",
+    "Targets",
+    "Transition",
+    "Workload ID",
+}
+LEGACY_TARGET_ROW_FIELDS = {
+    "Additions",
+    "After SHA256",
+    "Assignments",
+    "Before SHA256",
+    "Section Renames",
+    "Target",
+}
+LEGACY_TARGET_ROW_OPTIONAL_FIELDS = {"Post Record State"}
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate External Governance State scaffold posture.")
@@ -1285,6 +1307,325 @@ def validate_released_locks(root: Path) -> list[str]:
     return issues
 
 
+def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
+    raw = str(value or "").strip()
+    candidate = PureWindowsPath(raw)
+    normalized = raw.replace("\\", "/")
+    parts = normalized.split("/")
+    if (
+        not raw
+        or Path(raw).is_absolute()
+        or candidate.is_absolute()
+        or candidate.drive
+        or candidate.root
+        or any(part in {"", ".", ".."} for part in parts)
+        or ("/" in raw and "\\" in raw)
+        or normalized.endswith("/")
+        or any(":" in part for part in parts)
+    ):
+        return None
+    return tuple(parts)
+
+
+def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
+    base_resolved = base.resolve(strict=False)
+    candidate = base.joinpath(*parts).resolve(strict=False)
+    try:
+        candidate.relative_to(base_resolved)
+    except ValueError:
+        return None
+    cursor = base_resolved
+    for part in parts:
+        cursor = cursor / part
+        if cursor.exists() and _has_reparse_point(cursor):
+            return None
+    return candidate if candidate.is_file() else None
+
+
+def _legacy_completion_assignment_present(assignments: list[object]) -> bool:
+    completion_fields = {
+        "current validation state",
+        "external state item status",
+        "final disposition",
+    }
+    for raw_assignment in assignments:
+        if not isinstance(raw_assignment, str) or "=" not in raw_assignment:
+            continue
+        field, value = raw_assignment.split("=", 1)
+        if field.strip().casefold() not in completion_fields:
+            continue
+        normalized_value = " ".join(value.casefold().split())
+        if re.search(r"(?<!not )\b(?:complete|completed|pass)\b", normalized_value):
+            return True
+    return False
+
+
+def _validate_legacy_snapshot_evidence(
+    root: Path,
+    snapshot: object,
+    target_before_hashes: dict[str, str],
+) -> list[str]:
+    issues: list[str] = []
+    snapshot_parts = _safe_external_relative_parts(snapshot)
+    if not snapshot_parts or snapshot_parts[0].casefold() != "snapshots":
+        return ["legacy receipt Snapshot is not a safe snapshots-relative path"]
+    manifest_path = _confined_evidence_file(
+        root,
+        (*snapshot_parts, "snapshot_manifest.json"),
+    )
+    if manifest_path is None:
+        return ["legacy receipt snapshot manifest is missing or escapes through a reparse point"]
+    try:
+        manifest = load_json(manifest_path)
+    except Exception as exc:  # noqa: BLE001 - corrupt provenance must fail closed
+        return [f"legacy receipt snapshot manifest is malformed: {manifest_path}: {exc}"]
+    if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
+        issues.append("legacy receipt snapshot manifest schema is not external-state-v1")
+    copied_files = manifest.get("Copied Files")
+    if not isinstance(copied_files, list) or not copied_files:
+        issues.append("legacy receipt snapshot manifest has no copied-file evidence")
+        return issues
+    copied_hashes: dict[str, str] = {}
+    for row in copied_files:
+        if not isinstance(row, dict):
+            issues.append("legacy receipt snapshot manifest contains a malformed copied-file row")
+            continue
+        relative = str(row.get("path", "")).replace("\\", "/")
+        digest = str(row.get("sha256", ""))
+        if _safe_external_relative_parts(relative) is None or not SHA256_PATTERN.fullmatch(digest):
+            issues.append("legacy receipt snapshot manifest contains invalid path/hash evidence")
+            continue
+        snapshot_relative_parts = _safe_external_relative_parts(relative)
+        snapshot_copy = _confined_evidence_file(
+            manifest_path.parent,
+            snapshot_relative_parts or (),
+        )
+        if snapshot_copy is None or sha256_file(snapshot_copy).casefold() != digest.casefold():
+            issues.append(
+                "legacy receipt snapshot copy is missing or disagrees with its manifest for "
+                f"{relative}"
+            )
+            continue
+        if relative in copied_hashes:
+            issues.append(f"legacy receipt snapshot manifest duplicates target {relative}")
+            continue
+        copied_hashes[relative] = digest.casefold()
+    for relative, before_hash in target_before_hashes.items():
+        if copied_hashes.get(relative) != before_hash.casefold():
+            issues.append(
+                "legacy receipt Before SHA256 does not match its snapshot manifest for "
+                f"{relative}"
+            )
+    return issues
+
+
+def _validate_legacy_lock_evidence(
+    root: Path,
+    audit_path: Path,
+    lock_id: object,
+    workload_id: object,
+    snapshot: object,
+    targets: set[str],
+) -> list[str]:
+    issues: list[str] = []
+    lock_text = str(lock_id or "").strip()
+    workload_text = str(workload_id or "").strip()
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", lock_text):
+        return ["legacy receipt Lock ID is missing or unsafe"]
+    if not workload_text:
+        return ["legacy receipt Workload ID is missing"]
+    lock_path = _confined_evidence_file(root, ("locks", f"{lock_text}.json"))
+    if lock_path is None:
+        return ["legacy receipt lock evidence is missing or escapes through a reparse point"]
+    try:
+        lock = load_json(lock_path)
+    except Exception as exc:  # noqa: BLE001 - ambiguous lock evidence must fail closed
+        return [f"legacy receipt lock evidence is malformed: {lock_path}: {exc}"]
+    expected_values = {
+        "External State Schema": DEFAULT_SCHEMA_VERSION,
+        "Lock ID": lock_text,
+        "Lock State": "Released",
+        "Workload ID": workload_text,
+        "Workload State": "Completed",
+        "Retain Between Workloads": "No",
+    }
+    for field, expected in expected_values.items():
+        if str(lock.get(field, "")).strip() != expected:
+            issues.append(
+                f"legacy receipt lock evidence has {field}={lock.get(field)!r}, expected {expected!r}"
+            )
+    if not str(lock.get("Released At", "")).strip():
+        issues.append("legacy receipt lock evidence has no Released At completion timestamp")
+    write_set = {
+        item.strip().replace("\\", "/")
+        for item in str(lock.get("Intended Write Set", "")).split(";")
+        if item.strip()
+    }
+    try:
+        audit_relative = audit_path.relative_to(root).as_posix()
+    except ValueError:
+        audit_relative = ""
+    required_write_set = {
+        audit_relative,
+        str(snapshot or "").replace("\\", "/"),
+        *targets,
+    }
+    missing = sorted(item for item in required_write_set if item and item not in write_set)
+    if missing:
+        issues.append(
+            "legacy receipt lock write set omits receipt evidence: " + ", ".join(missing)
+        )
+    return issues
+
+
+def _validate_legacy_completed_target_set_receipt(
+    root: Path,
+    path: Path,
+    payload: dict[str, object],
+) -> list[str]:
+    issues: list[str] = []
+    if set(payload) != LEGACY_TARGET_SET_RECEIPT_FIELDS:
+        issues.append("state-less record does not have the exact legacy completed-receipt fields")
+    if payload.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
+        issues.append("legacy receipt schema is not external-state-v1")
+    if payload.get("Transition") != TARGET_SET_TRANSITION:
+        issues.append("legacy receipt transition identity is invalid")
+    for field in ("Last Updated", "Last Updated By", "Lock ID", "Snapshot", "Workload ID"):
+        if not str(payload.get(field, "")).strip():
+            issues.append(f"legacy receipt is missing {field}")
+
+    rows = payload.get("Targets")
+    target_before_hashes: dict[str, str] = {}
+    completion_assignment_found = False
+    if not isinstance(rows, list) or not rows:
+        issues.append("legacy receipt has no target rows")
+        return issues
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            issues.append(f"legacy receipt target row {index} is not an object")
+            continue
+        row_fields = set(row)
+        if not LEGACY_TARGET_ROW_FIELDS.issubset(row_fields) or not row_fields.issubset(
+            LEGACY_TARGET_ROW_FIELDS | LEGACY_TARGET_ROW_OPTIONAL_FIELDS
+        ):
+            issues.append(f"legacy receipt target row {index} has a non-legacy field shape")
+        if "Before Text" in row or any("recover" in str(key).casefold() for key in row):
+            issues.append(f"legacy receipt target row {index} contains recovery payload")
+        relative_parts = _safe_external_relative_parts(row.get("Target"))
+        relative = "/".join(relative_parts or ())
+        if not relative_parts:
+            issues.append(f"legacy receipt target row {index} has an unsafe target path")
+        elif relative in target_before_hashes:
+            issues.append(f"legacy receipt duplicates target {relative}")
+        before_hash = str(row.get("Before SHA256", ""))
+        after_hash = str(row.get("After SHA256", ""))
+        if not SHA256_PATTERN.fullmatch(before_hash) or not SHA256_PATTERN.fullmatch(after_hash):
+            issues.append(f"legacy receipt target row {index} has malformed hash evidence")
+        elif before_hash.casefold() == after_hash.casefold():
+            issues.append(f"legacy receipt target row {index} has no before/after transition")
+        if relative_parts:
+            target_before_hashes[relative] = before_hash
+        for list_field in ("Additions", "Assignments", "Section Renames"):
+            value = row.get(list_field)
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+                issues.append(f"legacy receipt target row {index} has malformed {list_field}")
+        assignments = row.get("Assignments")
+        if isinstance(assignments, list) and _legacy_completion_assignment_present(assignments):
+            completion_assignment_found = True
+
+    if target_before_hashes:
+        issues.extend(
+            _validate_legacy_snapshot_evidence(
+                root,
+                payload.get("Snapshot"),
+                target_before_hashes,
+            )
+        )
+        issues.extend(
+            _validate_legacy_lock_evidence(
+                root,
+                path,
+                payload.get("Lock ID"),
+                payload.get("Workload ID"),
+                payload.get("Snapshot"),
+                set(target_before_hashes),
+            )
+        )
+    if not completion_assignment_found:
+        issues.append("legacy receipt lacks explicit completion evidence across its target set")
+    return issues
+
+
+def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]:
+    issues: list[str] = []
+    if payload.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
+        issues.append("modern target-set transaction journal has an invalid Schema")
+    if payload.get("Transition") != TARGET_SET_TRANSITION:
+        issues.append("modern target-set transaction journal has an invalid Transition")
+    state = payload.get("Transaction State")
+    if not isinstance(state, str) or not state.strip():
+        return [*issues, "modern target-set transaction journal has missing or blank Transaction State"]
+    state = state.strip()
+    if state == "Prepared":
+        return [*issues, "incomplete target-set transaction journal requires locked recovery"]
+    if state != "Committed":
+        return [*issues, f"target-set transaction journal has invalid state {state!r}"]
+    for field in ("Lock ID", "Workload ID", "Snapshot"):
+        if not str(payload.get(field, "")).strip():
+            issues.append(f"modern Committed journal is missing {field}")
+    rows = payload.get("Targets")
+    if not isinstance(rows, list) or not rows:
+        return [*issues, "modern Committed journal has no target rows"]
+    seen: set[str] = set()
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            issues.append(f"modern Committed journal target row {index} is not an object")
+            continue
+        relative_parts = _safe_external_relative_parts(row.get("Target"))
+        relative = "/".join(relative_parts or ())
+        if not relative_parts or relative in seen:
+            issues.append(f"modern Committed journal target row {index} has unsafe/duplicate target")
+        else:
+            seen.add(relative)
+        if "Before Text" in row:
+            issues.append(f"modern Committed journal target row {index} retains recoverable Before Text")
+        for hash_field in ("Before SHA256", "After SHA256"):
+            if not SHA256_PATTERN.fullmatch(str(row.get(hash_field, ""))):
+                issues.append(
+                    f"modern Committed journal target row {index} has malformed {hash_field}"
+                )
+    return issues
+
+
+def validate_incomplete_target_set_journals(root: Path) -> list[str]:
+    failures: list[str] = []
+    audit_root = root / "audit_log"
+    if not audit_root.is_dir():
+        return failures
+    for path in sorted(audit_root.glob("*.json")):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            failures.append(f"Target-set transaction journal is unreadable: {path}: {exc}")
+            continue
+        if TARGET_SET_TRANSITION not in text:
+            continue
+        try:
+            payload = load_json(path)
+        except Exception as exc:  # noqa: BLE001 - matching malformed journals fail closed
+            failures.append(f"Target-set transaction journal is malformed: {path}: {exc}")
+            continue
+        if not isinstance(payload, dict):
+            failures.append(f"Target-set transaction journal is not an object: {path}")
+            continue
+        if "Transaction State" in payload:
+            journal_issues = _validate_modern_target_set_journal(payload)
+        else:
+            journal_issues = _validate_legacy_completed_target_set_receipt(root, path, payload)
+        failures.extend(f"Target-set transaction journal invalid: {path}: {issue}" for issue in journal_issues)
+    return failures
+
+
 def main() -> int:
     args = build_parser().parse_args()
     root = resolve_path(args.root)
@@ -1328,7 +1669,8 @@ def main() -> int:
             for issue in initialization_issues:
                 print(issue)
             return 1
-        target_issues = validate_target_currentness(
+        target_issues = validate_incomplete_target_set_journals(root)
+        target_issues.extend(validate_target_currentness(
             root,
             args.target,
             expected_branch=args.expected_branch,
@@ -1338,7 +1680,7 @@ def main() -> int:
             expected_worktree_slot=args.expected_worktree_slot,
             expected_target_sha256=args.expected_target_sha256,
             expected_schema=args.schema,
-        )
+        ))
         print("Validation Scope: TARGET_SCOPED_CURRENTNESS")
         print(f"Selected Target: {args.target[0] if args.target else 'MISSING'}")
         print("Root Manifest Posture: STRUCTURAL_ONLY - root initialization/index posture is reported separately and is not asserted current for this target")
@@ -1389,6 +1731,8 @@ def main() -> int:
             "External State Schema Conflict: mixed or unsupported schema values found: "
             + ", ".join(sorted(schemas))
         )
+
+    issues.extend(validate_incomplete_target_set_journals(root))
 
     if args.require_stage4_records:
         issues.extend(validate_stage4_records(root, args.schema, args.expected_source_head))
