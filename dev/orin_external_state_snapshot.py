@@ -26,6 +26,10 @@ def _after_target_copy(_relative: str, _source: Path, _destination: Path) -> Non
     """Test seam for authoritative lock drift during a targeted snapshot."""
 
 
+def _after_snapshot_guard_acquired(_snapshot_dir: Path) -> None:
+    """Test seam for a same-name snapshot published while this invocation waits."""
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Create dry-run or applied External Governance State snapshots.")
     parser.add_argument("--root", default=str(DEFAULT_EXTERNAL_STATE_ROOT))
@@ -157,6 +161,13 @@ def main() -> int:
     try:
         transaction_guard = lock_table_guard(root) if targeted else nullcontext()
         with transaction_guard:
+            _after_snapshot_guard_acquired(snapshot_dir)
+            try:
+                snapshot_dir.mkdir(parents=True, exist_ok=False)
+            except FileExistsError:
+                print("Snapshot Result: BLOCKED")
+                print(f"Snapshot directory already exists: {snapshot_dir}")
+                return 1
             transaction_lock_payload = lock_payload
             if targeted:
                 transaction_lock_payload, transaction_lock_failures = _lock_failures(

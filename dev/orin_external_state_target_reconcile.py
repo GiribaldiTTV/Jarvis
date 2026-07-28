@@ -33,6 +33,7 @@ from orin_external_state_validation import (
     validate_target_historical_receipt,
     validate_target_currentness,
 )
+from orin_external_state_lock_lifecycle import lock_table_guard
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -871,11 +872,6 @@ def _rollback_target_set(
     audit_path: Path | None,
 ) -> list[str]:
     failures: list[str] = []
-    if audit_path is not None and audit_path.exists():
-        try:
-            audit_path.unlink()
-        except Exception as exc:  # noqa: BLE001 - rollback must report cleanup failure
-            failures.append(f"Target-set rollback could not remove audit {audit_path}: {exc}")
     for target_path, before_text, applied_hash in reversed(target_states):
         try:
             current_hash = sha256_file(target_path)
@@ -900,7 +896,336 @@ def _rollback_target_set(
                 f"Target-set rollback verification failed for {target_path}: "
                 f"expected {expected_before_hash}, found {actual_before_hash}"
             )
+    if not failures and audit_path is not None and audit_path.exists():
+        try:
+            audit_path.unlink()
+        except Exception as exc:  # noqa: BLE001 - rollback must report cleanup failure
+            failures.append(f"Target-set rollback could not remove audit {audit_path}: {exc}")
     return failures
+
+
+def _after_target_set_member_publish(_relative: str, _target_path: Path) -> None:
+    """Test seam for abrupt termination after one set member is published."""
+
+
+def _recover_prepared_target_set_journal(
+    *,
+    root: Path,
+    audit_path: Path,
+    audit_target: str,
+    lock_id: str,
+    requests: Sequence[TargetReconcileRequest],
+    apply: bool,
+) -> list[str] | None:
+    if not audit_path.is_file():
+        return None
+    try:
+        journal = load_json(audit_path)
+    except Exception:
+        return None
+    if (
+        journal.get("Transition") != "Bounded coherent target-set reconciliation"
+        or journal.get("Transaction State") != "Prepared"
+    ):
+        return None
+    if not apply or not lock_id or not requests:
+        return [
+            "Incomplete target-set transaction journal requires an applied, locked recovery workload"
+        ]
+    rows = journal.get("Targets")
+    if not isinstance(rows, list) or not rows:
+        return ["Incomplete target-set transaction journal has no recoverable target rows"]
+    journal_targets: list[str] = []
+    journal_paths: dict[str, Path] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            return ["Incomplete target-set journal contains a malformed recovery row"]
+        relative, target_path, target_failures = _resolve_target_path(
+            root,
+            str(row.get("Target", "")),
+        )
+        if target_failures or relative is None or target_path is None:
+            return [
+                f"Incomplete target-set recovery target: {item}"
+                for item in target_failures
+            ]
+        journal_targets.append(relative)
+        journal_paths[relative] = target_path
+    requested_targets = [request.target.replace("\\", "/") for request in requests]
+    if journal_targets != requested_targets:
+        return [
+            "Incomplete target-set transaction journal target set differs from the requested recovery set"
+        ]
+    for row, request in zip(rows, requests, strict=True):
+        if str(row.get("Before SHA256", "")).casefold() != (
+            request.expected_target_sha256.casefold()
+        ):
+            return [
+                "Incomplete target-set transaction journal pre-state differs from the requested "
+                f"recovery contract: {request.target}"
+            ]
+    first_request = requests[0]
+    with lock_table_guard(root):
+        try:
+            authoritative = load_json(audit_path)
+        except Exception as exc:
+            return [f"Incomplete target-set journal authoritative reread failed: {exc}"]
+        if authoritative != journal:
+            return ["Incomplete target-set transaction journal changed during recovery preflight"]
+        lock_payload, lock_failures = _lock_failures(
+            root,
+            lock_id,
+            journal_targets[0],
+            first_request.expected_branch,
+            first_request.expected_worktree_path,
+        )
+        if lock_failures or lock_payload is None:
+            return [f"Recovery lock validation: {item}" for item in lock_failures]
+        admitted = _parse_intended_write_set(lock_payload.get("Intended Write Set", ""))
+        required = set(journal_targets) | {audit_target.replace("\\", "/")}
+        missing = sorted(required - admitted)
+        if missing:
+            return [
+                "Recovery lock write set omits incomplete transaction targets: "
+                + ", ".join(missing)
+            ]
+        restore_rows: list[tuple[Path, str, str, str]] = []
+        for row in rows:
+            relative = str(row.get("Target", "")).replace("\\", "/")
+            target_path = journal_paths[relative]
+            before_text = row.get("Before Text")
+            before_hash = str(row.get("Before SHA256", ""))
+            after_hash = str(row.get("After SHA256", ""))
+            if not isinstance(before_text, str) or not before_hash or not after_hash:
+                return [f"Incomplete target-set journal row is not recoverable: {relative}"]
+            try:
+                current_hash = sha256_file(target_path)
+            except OSError as exc:
+                return [f"Incomplete target-set recovery could not read {relative}: {exc}"]
+            if current_hash.casefold() not in {before_hash.casefold(), after_hash.casefold()}:
+                return [
+                    "Incomplete target-set recovery refused drifted target "
+                    f"{relative}: found {current_hash}"
+                ]
+            restore_rows.append((target_path, before_text, before_hash, current_hash))
+        for target_path, before_text, before_hash, current_hash in restore_rows:
+            if current_hash.casefold() != before_hash.casefold():
+                try:
+                    atomic_write_text(target_path, before_text)
+                except Exception as exc:  # noqa: BLE001 - retain journal for retry
+                    return [f"Incomplete target-set recovery write failed: {target_path}: {exc}"]
+            try:
+                restored_hash = sha256_file(target_path)
+            except OSError as exc:
+                return [f"Incomplete target-set recovery verification read failed: {target_path}: {exc}"]
+            if restored_hash.casefold() != before_hash.casefold():
+                return [f"Incomplete target-set recovery verification failed: {target_path}"]
+        try:
+            audit_path.unlink()
+        except OSError as exc:
+            return [f"Incomplete target-set recovery could not remove its journal: {exc}"]
+    return [
+        "Recovered incomplete target-set transaction and removed its prepared journal",
+        "Rerun required after recovery preflight",
+    ]
+
+
+def _apply_target_set(
+    *,
+    root: Path,
+    lock_id: str,
+    snapshot: str,
+    audit_path: Path,
+    resolved: Sequence[tuple[TargetReconcileRequest, str, Path, str, str]],
+    lock_payload: dict[str, object],
+    final_validation: Callable[[Path], list[str]],
+) -> tuple[bool, list[str], Path | None]:
+    if audit_path.exists():
+        return False, [f"Target-set audit path already exists: {audit_path}"], None
+    first_request, first_relative, _first_path, _first_before, _first_after = resolved[0]
+    final_lock_payload, final_lock_failures = _lock_failures(
+        root,
+        lock_id,
+        first_relative,
+        first_request.expected_branch,
+        first_request.expected_worktree_path,
+    )
+    if final_lock_failures or final_lock_payload != lock_payload:
+        details = final_lock_failures or [
+            "authoritative lock payload changed before target-set publication"
+        ]
+        return False, [f"Target-set final lock validation: {item}" for item in details], None
+    journal_payload = {
+        "External State Schema": DEFAULT_SCHEMA_VERSION,
+        "Transition": "Bounded coherent target-set reconciliation",
+        "Transaction State": "Prepared",
+        "Lock ID": lock_id,
+        "Workload ID": lock_payload.get("Workload ID", "MISSING"),
+        "Snapshot": snapshot,
+        "Targets": [
+            {
+                "Target": relative,
+                "Before SHA256": request.expected_target_sha256,
+                "Before Text": before_text,
+                "After SHA256": hashlib.sha256(projected_text.encode("utf-8")).hexdigest(),
+            }
+            for request, relative, _target_path, before_text, projected_text in resolved
+        ],
+        "Last Updated": utc_now(),
+        "Last Updated By": lock_payload.get("Last Updated By", "Codex"),
+    }
+    try:
+        atomic_write_json(audit_path, journal_payload)
+        if load_json(audit_path) != journal_payload:
+            raise ValueError("prepared target-set journal authoritative reread mismatch")
+    except Exception as exc:
+        cleanup_failure = ""
+        if audit_path.exists():
+            try:
+                audit_path.unlink()
+            except OSError as cleanup_exc:
+                cleanup_failure = f"; incomplete journal cleanup failed: {cleanup_exc}"
+        return False, [
+            f"Target-set journal preparation failed before publication: {exc}{cleanup_failure}"
+        ], None
+
+    applied_states: list[tuple[Path, str, str]] = []
+    messages: list[str] = []
+    for request, relative, target_path, before_text, _projected_text in resolved:
+        ok, target_messages, _ = reconcile_target(
+            root=root,
+            target=relative,
+            lock_id=lock_id,
+            snapshot=snapshot,
+            expected_branch=request.expected_branch,
+            expected_source_head=request.expected_source_head,
+            expected_origin_main=request.expected_origin_main,
+            expected_worktree_path=request.expected_worktree_path,
+            expected_worktree_slot=request.expected_worktree_slot,
+            expected_target_sha256=request.expected_target_sha256,
+            assignments=list(request.assignments),
+            additions=list(request.additions),
+            section_renames=list(request.section_renames),
+            post_expected_source_head=request.post_expected_source_head,
+            post_expected_origin_main=request.post_expected_origin_main,
+            post_record_state=request.post_record_state,
+            apply=True,
+            write_audit=False,
+        )
+        if not ok:
+            rollback_failures = _rollback_target_set(
+                target_states=applied_states,
+                audit_path=audit_path,
+            )
+            rollback_messages = (
+                ["Target-set rollback: PASS - all applied projections restored"]
+                if not rollback_failures
+                else [f"Target-set rollback: {item}" for item in rollback_failures]
+            )
+            return False, [
+                *messages,
+                *(f"{relative}: {item}" for item in target_messages),
+                *rollback_messages,
+            ], None
+        applied_hash = sha256_file(target_path)
+        applied_states.append((target_path, before_text, applied_hash))
+        messages.extend(f"{relative}: {item}" for item in target_messages)
+        _after_target_set_member_publish(relative, target_path)
+
+    try:
+        final_failures = final_validation(root)
+    except Exception as exc:  # noqa: BLE001 - raised validation must use the same rollback path
+        rollback_failures = _rollback_target_set(
+            target_states=applied_states,
+            audit_path=audit_path,
+        )
+        rollback_messages = (
+            ["Target-set rollback: PASS - all applied projections restored"]
+            if not rollback_failures
+            else [f"Target-set rollback: {item}" for item in rollback_failures]
+        )
+        return False, [
+            f"Target-set final validation raised: {exc}",
+            *rollback_messages,
+        ], None
+    if final_failures:
+        rollback_failures = _rollback_target_set(
+            target_states=applied_states,
+            audit_path=audit_path,
+        )
+        rollback_messages = (
+            ["Target-set rollback: PASS - all applied projections restored"]
+            if not rollback_failures
+            else [f"Target-set rollback: {item}" for item in rollback_failures]
+        )
+        return False, [
+            *(f"Target-set final validation: {item}" for item in final_failures),
+            *rollback_messages,
+        ], None
+
+    audit_payload = {
+        "External State Schema": DEFAULT_SCHEMA_VERSION,
+        "Transition": "Bounded coherent target-set reconciliation",
+        "Transaction State": "Committed",
+        "Lock ID": lock_id,
+        "Workload ID": lock_payload.get("Workload ID", "MISSING"),
+        "Snapshot": snapshot,
+        "Targets": [
+            {
+                "Target": relative,
+                "Before SHA256": request.expected_target_sha256,
+                "After SHA256": sha256_file(target_path),
+                "Assignments": list(request.assignments),
+                "Additions": list(request.additions),
+                "Section Renames": list(request.section_renames),
+                "Post Record State": request.post_record_state,
+            }
+            for request, relative, target_path, _before_text, _projected_text in resolved
+        ],
+        "Last Updated": utc_now(),
+        "Last Updated By": lock_payload.get("Last Updated By", "Codex"),
+    }
+    try:
+        atomic_write_json(audit_path, audit_payload)
+        authoritative_audit = load_json(audit_path)
+        if authoritative_audit != audit_payload:
+            raise ValueError("authoritative target-set committed audit reread mismatch")
+        final_failures = final_validation(root)
+        for target_path, _before_text, applied_hash in applied_states:
+            if sha256_file(target_path).casefold() != applied_hash.casefold():
+                final_failures.append(
+                    f"target changed after set publication validation: {target_path}"
+                )
+        if final_failures:
+            raise ValueError("; ".join(final_failures))
+    except Exception as exc:  # noqa: BLE001 - the set must roll back on any final failure
+        journal_restore_failure = ""
+        try:
+            atomic_write_json(audit_path, journal_payload)
+        except Exception as journal_exc:  # noqa: BLE001 - preserve both failure causes
+            journal_restore_failure = (
+                f"Target-set rollback could not restore its prepared journal: {journal_exc}"
+            )
+        rollback_failures = _rollback_target_set(
+            target_states=applied_states,
+            audit_path=audit_path,
+        )
+        if journal_restore_failure:
+            rollback_failures.insert(0, journal_restore_failure)
+        rollback_messages = (
+            ["Target-set rollback: PASS - all applied projections and audit restored"]
+            if not rollback_failures
+            else [f"Target-set rollback: {item}" for item in rollback_failures]
+        )
+        return False, [
+            f"Target-set final publication failed: {exc}",
+            *rollback_messages,
+        ], None
+    return True, [
+        "APPLIED: coherent target-set publication validated",
+        *messages,
+        f"Audit: {audit_path}",
+    ], audit_path
 
 
 def reconcile_target_set(
@@ -931,6 +1256,17 @@ def reconcile_target_set(
         "Target-set audit path",
     )
     failures.extend(audit_path_failures)
+    if not failures and audit_path is not None:
+        recovery_messages = _recover_prepared_target_set_journal(
+            root=root,
+            audit_path=audit_path,
+            audit_target=audit_target,
+            lock_id=lock_id,
+            requests=requests,
+            apply=apply,
+        )
+        if recovery_messages is not None:
+            return False, recovery_messages, None
     resolved: list[tuple[TargetReconcileRequest, str, Path, str, str]] = []
     normalized_targets: set[str] = set()
     for request in requests:
@@ -1035,135 +1371,16 @@ def reconcile_target_set(
     if audit_path.exists():
         return False, [f"Target-set audit path already exists: {audit_path}"], None
 
-    applied_states: list[tuple[Path, str, str]] = []
-    audit_written = False
-    messages: list[str] = []
-    for request, relative, target_path, before_text, _projected_text in resolved:
-        ok, target_messages, _ = reconcile_target(
+    with lock_table_guard(root):
+        return _apply_target_set(
             root=root,
-            target=relative,
             lock_id=lock_id,
             snapshot=snapshot,
-            expected_branch=request.expected_branch,
-            expected_source_head=request.expected_source_head,
-            expected_origin_main=request.expected_origin_main,
-            expected_worktree_path=request.expected_worktree_path,
-            expected_worktree_slot=request.expected_worktree_slot,
-            expected_target_sha256=request.expected_target_sha256,
-            assignments=list(request.assignments),
-            additions=list(request.additions),
-            section_renames=list(request.section_renames),
-            post_expected_source_head=request.post_expected_source_head,
-            post_expected_origin_main=request.post_expected_origin_main,
-            post_record_state=request.post_record_state,
-            apply=True,
-            write_audit=False,
-        )
-        if not ok:
-            rollback_failures = _rollback_target_set(
-                target_states=applied_states,
-                audit_path=audit_path if audit_written else None,
-            )
-            rollback_messages = (
-                ["Target-set rollback: PASS - all applied projections restored"]
-                if not rollback_failures
-                else [f"Target-set rollback: {item}" for item in rollback_failures]
-            )
-            return False, [
-                *messages,
-                *(f"{relative}: {item}" for item in target_messages),
-                *rollback_messages,
-            ], None
-        applied_hash = sha256_file(target_path)
-        applied_states.append((target_path, before_text, applied_hash))
-        messages.extend(f"{relative}: {item}" for item in target_messages)
-
-    try:
-        final_failures = final_validation(root)
-    except Exception as exc:  # noqa: BLE001 - raised validation must use the same rollback path
-        rollback_failures = _rollback_target_set(
-            target_states=applied_states,
-            audit_path=None,
-        )
-        rollback_messages = (
-            ["Target-set rollback: PASS - all applied projections restored"]
-            if not rollback_failures
-            else [f"Target-set rollback: {item}" for item in rollback_failures]
-        )
-        return False, [
-            f"Target-set final validation raised: {exc}",
-            *rollback_messages,
-        ], None
-    if final_failures:
-        rollback_failures = _rollback_target_set(
-            target_states=applied_states,
-            audit_path=None,
-        )
-        rollback_messages = (
-            ["Target-set rollback: PASS - all applied projections restored"]
-            if not rollback_failures
-            else [f"Target-set rollback: {item}" for item in rollback_failures]
-        )
-        return False, [
-            *(f"Target-set final validation: {item}" for item in final_failures),
-            *rollback_messages,
-        ], None
-
-    audit_payload = {
-        "External State Schema": DEFAULT_SCHEMA_VERSION,
-        "Transition": "Bounded coherent target-set reconciliation",
-        "Lock ID": lock_id,
-        "Workload ID": lock_payload.get("Workload ID", "MISSING"),
-        "Snapshot": snapshot,
-        "Targets": [
-            {
-                "Target": relative,
-                "Before SHA256": request.expected_target_sha256,
-                "After SHA256": sha256_file(target_path),
-                "Assignments": list(request.assignments),
-                "Additions": list(request.additions),
-                "Section Renames": list(request.section_renames),
-                "Post Record State": request.post_record_state,
-            }
-            for request, relative, target_path, _before_text, _projected_text in resolved
-        ],
-        "Last Updated": utc_now(),
-        "Last Updated By": lock_payload.get("Last Updated By", "Codex"),
-    }
-    try:
-        atomic_write_json(audit_path, audit_payload)
-        audit_written = True
-        authoritative_audit = load_json(audit_path)
-        if authoritative_audit.get("Lock ID") != lock_id:
-            raise ValueError("authoritative target-set audit reread did not match lock identity")
-        final_failures = final_validation(root)
-        for target_path, _before_text, applied_hash in applied_states:
-            if sha256_file(target_path).casefold() != applied_hash.casefold():
-                final_failures.append(
-                    f"target changed after set publication validation: {target_path}"
-                )
-        if final_failures:
-            raise ValueError("; ".join(final_failures))
-    except Exception as exc:  # noqa: BLE001 - the set must roll back on any final failure
-        rollback_failures = _rollback_target_set(
-            target_states=applied_states,
             audit_path=audit_path,
+            resolved=resolved,
+            lock_payload=lock_payload,
+            final_validation=final_validation,
         )
-        rollback_messages = (
-            ["Target-set rollback: PASS - all applied projections and audit restored"]
-            if not rollback_failures
-            else [f"Target-set rollback: {item}" for item in rollback_failures]
-        )
-        return False, [
-            f"Target-set final publication failed: {exc}",
-            *rollback_messages,
-        ], None
-
-    return True, [
-        "APPLIED: coherent target-set publication validated",
-        *messages,
-        f"Audit: {audit_path}",
-    ], audit_path
 
 
 def main() -> int:

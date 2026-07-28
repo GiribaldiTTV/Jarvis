@@ -2044,6 +2044,63 @@ def main() -> int:
                 "targeted snapshot published after its admitting lock changed during copy"
             )
 
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-snapshot-name-race-") as temp_dir:
+        root = Path(temp_dir)
+        paths = _semantic_root(root)
+        lock_id = "snapshot-name-race"
+        snapshot_name = "snapshot-name-race"
+        snapshot_dir = root / "snapshots" / snapshot_name
+        atomic_write_json(
+            root / "locks" / f"{lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Workload ID": "snapshot-name-race-workload",
+                "Last Updated By": "fixture",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": ";".join([*paths, f"snapshots/{snapshot_name}"]),
+            },
+        )
+        original_hook = snapshotter._after_snapshot_guard_acquired
+        original_argv = sys.argv[:]
+
+        def publish_same_name_while_waiting(candidate: Path) -> None:
+            candidate.mkdir(parents=True, exist_ok=False)
+            (candidate / "preserved-first-snapshot.txt").write_text("first", encoding="utf-8")
+
+        snapshotter._after_snapshot_guard_acquired = publish_same_name_while_waiting
+        sys.argv = [
+            str(Path(snapshotter.__file__)),
+            "--root",
+            str(root),
+            "--reason",
+            "same-name race fixture",
+            "--worktree",
+            WORKTREE_PATH,
+            "--branch",
+            "feature/release-readiness-source-truth-intake",
+            "--snapshot-name",
+            snapshot_name,
+            "--lock-id",
+            lock_id,
+            "--apply",
+        ]
+        for relative in paths:
+            sys.argv.extend(("--target", relative))
+        try:
+            snapshot_result = snapshotter.main()
+        finally:
+            snapshotter._after_snapshot_guard_acquired = original_hook
+            sys.argv = original_argv
+        if snapshot_result == 0 or not (
+            snapshot_dir / "preserved-first-snapshot.txt"
+        ).is_file():
+            raise AssertionError(
+                "same-name targeted snapshot race overwrote or removed the first snapshot"
+            )
+
     with tempfile.TemporaryDirectory(prefix="ndai-governance-target-set-") as temp_dir:
         root = Path(temp_dir)
         paths = _semantic_root(root)
@@ -2195,6 +2252,145 @@ def main() -> int:
             raise AssertionError(
                 "raised target-set validator exception retained an audit as current state"
             )
+
+        rollback_relative, rollback_path = next(iter(paths.items()))
+        rollback_before = before[rollback_relative].decode("utf-8")
+        rollback_after = rollback_before + "\nrollback crash fixture\n"
+        rollback_path.write_text(rollback_after, encoding="utf-8", newline="")
+        rollback_hash = hashlib.sha256(rollback_after.encode("utf-8")).hexdigest()
+        rollback_journal = root / audit_target
+        atomic_write_json(
+            rollback_journal,
+            {
+                "External State Schema": "external-state-v1",
+                "Transition": "Bounded coherent target-set reconciliation",
+                "Transaction State": "Prepared",
+            },
+        )
+        original_atomic_write_text = reconciler.atomic_write_text
+
+        def crash_during_rollback(_path: Path, _text: str) -> None:
+            raise SystemExit("simulated abrupt rollback termination")
+
+        reconciler.atomic_write_text = crash_during_rollback
+        try:
+            try:
+                reconciler._rollback_target_set(
+                    target_states=[(rollback_path, rollback_before, rollback_hash)],
+                    audit_path=rollback_journal,
+                )
+            except SystemExit:
+                pass
+        finally:
+            reconciler.atomic_write_text = original_atomic_write_text
+        if not rollback_journal.is_file():
+            raise AssertionError("abrupt rollback termination removed its recovery journal")
+        rollback_failures = reconciler._rollback_target_set(
+            target_states=[(rollback_path, rollback_before, rollback_hash)],
+            audit_path=rollback_journal,
+        )
+        if rollback_failures or rollback_journal.exists():
+            raise AssertionError(
+                "resumed rollback did not restore the target and remove its journal: "
+                + "; ".join(rollback_failures)
+            )
+
+        crash_count = 0
+        original_publish_hook = reconciler._after_target_set_member_publish
+
+        def crash_after_first_member(_relative: str, _target_path: Path) -> None:
+            nonlocal crash_count
+            crash_count += 1
+            if crash_count == 1:
+                raise SystemExit("simulated abrupt target-set termination")
+
+        reconciler._after_target_set_member_publish = crash_after_first_member
+        try:
+            try:
+                reconciler.reconcile_target_set(
+                    root=root,
+                    lock_id=lock_id,
+                    snapshot=snapshot.relative_to(root).as_posix(),
+                    audit_target=audit_target,
+                    requests=requests,
+                    final_validation=_semantic_failures,
+                    apply=True,
+                )
+            except SystemExit:
+                pass
+        finally:
+            reconciler._after_target_set_member_publish = original_publish_hook
+        journal_path = root / audit_target
+        if not journal_path.is_file() or json.loads(
+            journal_path.read_text(encoding="utf-8")
+        ).get("Transaction State") != "Prepared":
+            raise AssertionError("abrupt target-set termination did not preserve a prepared journal")
+        journal_failures = validator.validate_incomplete_target_set_journals(root)
+        if not journal_failures:
+            raise AssertionError("prepared target-set journal did not block currentness validation")
+        journal_cli = subprocess.run(
+            [
+                sys.executable,
+                str(Path(validator.__file__)),
+                "--root",
+                str(root),
+                "--require-root",
+                "--semantic-currentness",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if journal_cli.returncode == 0 or "Incomplete target-set transaction journal" not in (
+            journal_cli.stdout + journal_cli.stderr
+        ):
+            raise AssertionError(
+                "semantic-currentness CLI did not block the prepared target-set journal:\n"
+                + journal_cli.stdout
+                + journal_cli.stderr
+            )
+        root_journal_cli = subprocess.run(
+            [
+                sys.executable,
+                str(Path(validator.__file__)),
+                "--root",
+                str(root),
+                "--require-root",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if root_journal_cli.returncode == 0 or (
+            "Incomplete target-set transaction journal"
+            not in root_journal_cli.stdout + root_journal_cli.stderr
+        ):
+            raise AssertionError(
+                "root-wide validation did not block the prepared target-set journal:\n"
+                + root_journal_cli.stdout
+                + root_journal_cli.stderr
+            )
+        recovered, recovery_messages, recovery_audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=_semantic_failures,
+            apply=True,
+        )
+        if recovered or recovery_audit is not None or not any(
+            "Recovered incomplete target-set transaction" in message
+            for message in recovery_messages
+        ):
+            raise AssertionError(
+                "incomplete target-set recovery did not force a clean rerun:\n"
+                + "\n".join(recovery_messages)
+            )
+        if any(path.read_bytes() != before[relative] for relative, path in paths.items()):
+            raise AssertionError("incomplete target-set recovery did not restore every projection")
+        if journal_path.exists():
+            raise AssertionError("incomplete target-set recovery retained its prepared journal")
 
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0

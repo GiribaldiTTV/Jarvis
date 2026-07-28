@@ -19,7 +19,11 @@ from orin_external_state_common import (
     validate_canonical_root,
     validate_initialized_root,
 )
-from orin_external_state_lock_lifecycle import inspect_lock_table, verify_final_lock_state
+from orin_external_state_lock_lifecycle import (
+    inspect_lock_table,
+    lock_table_guard,
+    verify_final_lock_state,
+)
 
 
 REQUIRED_STAGE4_RECORDS = [
@@ -862,6 +866,37 @@ def validate_governance_semantic_currentness(
                 failures.append(
                     "Semantic Currentness: repo Active Seam must be an external-state routing pointer"
                 )
+    return failures
+
+
+def validate_incomplete_target_set_journals(root: Path) -> list[str]:
+    failures: list[str] = []
+    audit_root = root / "audit_log"
+    if not audit_root.is_dir():
+        return failures
+    for path in sorted(audit_root.glob("*.json")):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            failures.append(f"Target-set transaction journal is unreadable: {path}: {exc}")
+            continue
+        if "Bounded coherent target-set reconciliation" not in text:
+            continue
+        try:
+            payload = load_json(path)
+        except Exception as exc:
+            failures.append(f"Target-set transaction journal is malformed: {path}: {exc}")
+            continue
+        transaction_state = str(payload.get("Transaction State", "")).strip()
+        if transaction_state == "Prepared":
+            failures.append(
+                "Incomplete target-set transaction journal requires locked recovery: "
+                f"{path}"
+            )
+        elif transaction_state and transaction_state != "Committed":
+            failures.append(
+                f"Target-set transaction journal has invalid state {transaction_state!r}: {path}"
+            )
     return failures
 
 
@@ -1833,17 +1868,24 @@ def main() -> int:
             for issue in initialization_issues:
                 print(issue)
             return 1
-        target_issues = validate_target_currentness(
-            root,
-            args.target,
-            expected_branch=args.expected_branch,
-            expected_source_head=args.expected_source_head,
-            expected_origin_main=args.expected_origin_main,
-            expected_worktree_path=args.expected_worktree_path,
-            expected_worktree_slot=args.expected_worktree_slot,
-            expected_target_sha256=args.expected_target_sha256,
-            expected_schema=args.schema,
-        )
+        try:
+            with lock_table_guard(root):
+                target_issues = validate_incomplete_target_set_journals(root)
+                target_issues.extend(
+                    validate_target_currentness(
+                        root,
+                        args.target,
+                        expected_branch=args.expected_branch,
+                        expected_source_head=args.expected_source_head,
+                        expected_origin_main=args.expected_origin_main,
+                        expected_worktree_path=args.expected_worktree_path,
+                        expected_worktree_slot=args.expected_worktree_slot,
+                        expected_target_sha256=args.expected_target_sha256,
+                        expected_schema=args.schema,
+                    )
+                )
+        except Exception as exc:  # noqa: BLE001 - guard failure is a blocked validation
+            target_issues = [f"Target currentness lock-table guard failed: {exc}"]
         print("Validation Scope: TARGET_SCOPED_CURRENTNESS")
         print(f"Selected Target: {args.target[0] if args.target else 'MISSING'}")
         print("Root Manifest Posture: STRUCTURAL_ONLY - root initialization/index posture is reported separately and is not asserted current for this target")
@@ -1864,12 +1906,19 @@ def main() -> int:
             for issue in initialization_issues:
                 print(issue)
             return 1
-        semantic_issues = validate_governance_semantic_currentness(
-            root,
-            repo_branch_record=resolve_path(args.semantic_repo_record)
-            if args.semantic_repo_record
-            else None,
-        )
+        try:
+            with lock_table_guard(root):
+                semantic_issues = validate_incomplete_target_set_journals(root)
+                semantic_issues.extend(
+                    validate_governance_semantic_currentness(
+                        root,
+                        repo_branch_record=resolve_path(args.semantic_repo_record)
+                        if args.semantic_repo_record
+                        else None,
+                    )
+                )
+        except Exception as exc:  # noqa: BLE001 - guard failure is a blocked validation
+            semantic_issues = [f"Semantic currentness lock-table guard failed: {exc}"]
         print("Validation Scope: GOVERNANCE_SEMANTIC_CURRENTNESS")
         if semantic_issues:
             print("Semantic Currentness Validation: BLOCKED")
@@ -1880,6 +1929,7 @@ def main() -> int:
         print("Semantic PASS Is Root-Wide PASS: NO")
         return 0
 
+    issues.extend(validate_incomplete_target_set_journals(root))
     manifest_path = root / "state_manifest.json"
     if not manifest_path.exists():
         issues.append("External State Corrupt: state_manifest.json missing")
