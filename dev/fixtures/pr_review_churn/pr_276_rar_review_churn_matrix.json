@@ -138,16 +138,16 @@
       },
       {
         "pr": 309,
-        "connector_comments": 62,
+        "connector_comments": 63,
         "observed_family_counts": {
-          "current-gate-repair-transaction": 7,
+          "current-gate-repair-transaction": 8,
           "external-state-lock-lifecycle": 8,
           "external-state-semantic-validation": 15,
           "external-state-snapshot-transaction": 5,
           "external-state-target-publication": 9,
           "governance-fixture-count-contract": 2,
           "pr-readiness-review-risk-parser": 2,
-          "pr2-comment-family-classifier": 9,
+          "pr2-comment-family-classifier": 10,
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-issue-candidate-disposition-parser": 1,
           "rar-issue-candidate-durability-parser": 1,
@@ -158,7 +158,7 @@
           "repo-live-state-boundary-parser": 1
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 then exposed that same-label ZIP discovery still occurred before canonical publication transaction ownership.",
+        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, and Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery.",
         "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
         "preventive_changes": [
           "dev/orin_pr_review_churn_validation.py adds precise classifiers and positive guardrails for six PR #309 threat families while preserving unrelated-comment unknown behavior.",
@@ -390,6 +390,10 @@
       {
         "family_id": "current-gate-repair-transaction",
         "comment": "Re-scan stale ZIPs inside the publication transaction so a competing same-label ZIP cannot escape the single-current-packet contract."
+      },
+      {
+        "family_id": "current-gate-repair-transaction",
+        "comment": "Skip binary source evidence when scanning for the BR1 matrix while an explicitly named invalid matrix still fails closed."
       }
     ],
     "unknown_comment_guardrails": [
@@ -574,7 +578,8 @@
       "external-state-lock-lifecycle"
     ],
     "dev/orin_user_review_bundle_false_green_fixture_validation.py": [
-      "visual-acceptance-proof-chain-parser"
+      "visual-acceptance-proof-chain-parser",
+      "current-gate-repair-transaction"
     ]
   },
   "families": [
@@ -1437,7 +1442,8 @@
         "Interrupted canonical packet publication strands the accepted pair",
         "Duplicate route class or mutable candidate key hides an unresolved BR1 defect",
         "Subordinate support-only wording is mistaken for whole-candidate classification",
-        "Same-label ZIP discovery runs before canonical publication transaction ownership"
+        "Same-label ZIP discovery runs before canonical publication transaction ownership",
+        "Binary source evidence is decoded as UTF-8 during BR1 matrix discovery"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -1461,14 +1467,16 @@
         "two missing fields on one candidate require distinct signatures",
         "candidate option-name repair does not change remaining defect identity",
         "support-only phrase appears only in a subordinate implementation field",
-        "competing same-label ZIP appears after the old scan point but before candidate capture"
+        "competing same-label ZIP appears after the old scan point but before candidate capture",
+        "PNG evidence sits beside an embedded matrix while an invalid explicit matrix is tested separately"
       ],
       "sibling_variant_replay": [
         "canonical draft validation fails before publication",
         "candidate ordinal remains stable across content repair",
         "invalid route-class enum remains self-repairable current-gate defect",
         "BR1 candidate matrix is promoted into the active review surface",
-        "superseded ZIP discovery executes only after transaction ownership and removes the late ZIP"
+        "superseded ZIP discovery executes only after transaction ownership and removes the late ZIP",
+        "ordinary binary evidence is skipped but an explicitly named invalid matrix fails closed"
       ]
     },
     {

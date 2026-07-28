@@ -791,13 +791,23 @@ def _write_br1_matrix_review_aid(
     embedded: list[tuple[str, str]] = []
     for source_rel, copied_rel in copied:
         copied_path = (target / copied_rel).resolve()
+        is_explicit_matrix = (
+            PurePosixPath(source_rel).name.casefold()
+            == BR1_MATRIX_ARTIFACT.casefold()
+        )
         try:
             text = copied_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeError) as exc:
+        except UnicodeError as exc:
+            if not is_explicit_matrix:
+                continue
             raise ValueError(
                 f"Cannot inspect BR1 matrix source {source_rel}: {exc}"
             ) from exc
-        if PurePosixPath(source_rel).name.casefold() == BR1_MATRIX_ARTIFACT.casefold():
+        except OSError as exc:
+            raise ValueError(
+                f"Cannot inspect BR1 matrix source {source_rel}: {exc}"
+            ) from exc
+        if is_explicit_matrix:
             explicit.append((source_rel, text.strip() + "\n"))
             continue
         section_count = len(

@@ -196,6 +196,10 @@ caller-selected source: either an explicit matrix file or an embedded
 `BR1 Candidate Viability / Grouping Matrix` section containing real
 `Option name` rows. Source-owner requirement prose is not candidate data, and
 conflicting supplied matrix sources must fail before packet publication.
+Matrix discovery must skip copied non-matrix files that are not UTF-8 text so
+PNG, JPEG, PDF, and other binary proof can remain in visual review bundles. An
+explicitly named `BR1_CANDIDATE_VIABILITY_GROUPING_MATRIX.md` remains
+fail-closed when it cannot be decoded and inspected as UTF-8 matrix content.
 The BR1 contract must activate from independent current Stage 1 identity rather
 than from required matrix or route-class content, and governed candidate fields
 before the first `Option name` boundary must be validated as an unnamed first

@@ -451,6 +451,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "whole-candidate claims",
             "re-scan stale zips",
             "single-current-packet contract",
+            "skip binary files when scanning for the br1 matrix",
+            "binary source evidence",
         ),
     ),
     FamilyRule(

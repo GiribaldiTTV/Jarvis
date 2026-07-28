@@ -167,6 +167,35 @@ def _assert_br1_builder_promotes_candidate_matrix() -> None:
                 "generated BR1 matrix failed its own current-gate contract:\n"
                 + "\n".join(failures)
             )
+        binary_rel = f"{bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/proof.png"
+        (packet / binary_rel).write_bytes(PNG_1X1)
+        matrix_with_binary = bundle._write_br1_matrix_review_aid(
+            target=packet,
+            review_aids_dir=review_aids,
+            copied=[
+                (source_rel, copied_rel),
+                ("evidence/proof.png", binary_rel),
+            ],
+        )
+        if matrix_with_binary is None:
+            raise AssertionError("binary source evidence hid the valid BR1 matrix")
+        invalid_explicit_rel = (
+            f"{bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/invalid-matrix.bin"
+        )
+        (packet / invalid_explicit_rel).write_bytes(b"\xff\xfe\x00")
+        try:
+            bundle._write_br1_matrix_review_aid(
+                target=packet,
+                review_aids_dir=review_aids,
+                copied=[
+                    (bundle.BR1_MATRIX_ARTIFACT, invalid_explicit_rel),
+                ],
+            )
+        except ValueError as exc:
+            if "Cannot inspect BR1 matrix source" not in str(exc):
+                raise
+        else:
+            raise AssertionError("invalid explicit BR1 matrix did not fail closed")
         second_rel = f"{bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/second_plan.md"
         (packet / second_rel).write_text(matrix, encoding="utf-8")
         try:
