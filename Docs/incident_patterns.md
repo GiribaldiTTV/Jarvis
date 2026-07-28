@@ -963,8 +963,9 @@ packet, PR, approval, or next legal phase, target-scoped validation has proved
 identity only and has not proved operational truth. The same failure appears
 when a historical merged PR or superseded Stage 1 packet is parsed as current
 state, when a fourth same-branch file retains a live projection class but is
-omitted from a fixed semantic target list, or when a repo branch record mirrors
-live external fields instead of routing to their external owner.
+omitted from a fixed semantic target list or hidden outside the branch-specific
+directory, or when a repo branch record mirrors live external fields instead of
+routing to their external owner.
 
 Prevention requires a cross-record semantic-currentness pass before any
 rebaseline or PR gate. Compare all three live Governance projections as one

@@ -535,6 +535,14 @@ GOVERNANCE_SEMANTIC_RECORD_CLASSES = {
     "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "Live Branch Plan Projection",
     "worktrees/Governance/worktree_state.md": "Live Worktree Projection",
 }
+GOVERNANCE_SEMANTIC_BRANCH = "feature/release-readiness-source-truth-intake"
+GOVERNANCE_SEMANTIC_DISCOVERY_EXCLUDED_ROOTS = {
+    "audit_log",
+    "locks",
+    "schemas",
+    "snapshots",
+    "staging",
+}
 GOVERNANCE_SEMANTIC_FIELDS = (
     "Current Cycle",
     "Current Gate",
@@ -558,6 +566,26 @@ def _semantic_header_fields(text: str) -> dict[str, str]:
         )
         for field in GOVERNANCE_SEMANTIC_FIELDS
     }
+
+
+def _semantic_discovery_paths(root: Path) -> list[Path]:
+    if not root.is_dir():
+        return []
+    paths: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root, topdown=True, followlinks=False):
+        directory = Path(dirpath)
+        if directory == root:
+            dirnames[:] = sorted(
+                name
+                for name in dirnames
+                if name.casefold() not in GOVERNANCE_SEMANTIC_DISCOVERY_EXCLUDED_ROOTS
+            )
+        else:
+            dirnames.sort()
+        for filename in sorted(filenames):
+            if filename.casefold().endswith(".md"):
+                paths.append(directory / filename)
+    return paths
 
 
 def _current_named_sections(text: str) -> list[tuple[str, str]]:
@@ -665,25 +693,30 @@ def validate_governance_semantic_currentness(
 
     failures: list[str] = []
     root = resolve_path(root)
-    branch_root = root / "branches" / "feature_release_readiness_source_truth_intake"
-    if branch_root.is_dir():
-        for path in sorted(branch_root.glob("*.md")):
-            try:
-                candidate_text = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
-                failures.append(
-                    f"Semantic Currentness: unreadable same-branch record: {path}: {exc}"
-                )
-                continue
-            record_class = _normalized_windows_value(
-                markdown_field_value(_live_header_text(candidate_text), "Record Class")
-            ).replace("\\", " ")
-            relative = path.relative_to(root).as_posix()
-            if record_class in TARGET_LIVE_RECORD_CLASSES and relative not in GOVERNANCE_SEMANTIC_TARGETS:
-                failures.append(
-                    "Semantic Currentness: same-branch live projection omitted from semantic "
-                    f"target inventory: {relative} ({record_class})"
-                )
+    for path in _semantic_discovery_paths(root):
+        try:
+            candidate_text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            failures.append(
+                f"Semantic Currentness: unreadable external-state Markdown record: {path}: {exc}"
+            )
+            continue
+        candidate_header = _live_header_text(candidate_text)
+        candidate_branch = markdown_field_value(candidate_header, "Branch")
+        if not candidate_branch or candidate_branch.strip().casefold() != GOVERNANCE_SEMANTIC_BRANCH:
+            continue
+        record_class = _normalized_windows_value(
+            markdown_field_value(candidate_header, "Record Class")
+        ).replace("\\", " ")
+        relative = path.relative_to(root).as_posix()
+        if (
+            record_class in TARGET_LIVE_RECORD_CLASSES
+            and relative not in GOVERNANCE_SEMANTIC_TARGETS
+        ):
+            failures.append(
+                "Semantic Currentness: same-branch live projection omitted from semantic "
+                f"target inventory: {relative} ({record_class})"
+            )
     target_texts: dict[str, str] = {}
     for relative, label in GOVERNANCE_SEMANTIC_TARGETS.items():
         path = root.joinpath(*relative.split("/"))

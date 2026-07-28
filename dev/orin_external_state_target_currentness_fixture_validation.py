@@ -191,6 +191,7 @@ def _semantic_pr_projection(root: Path, record_class: str) -> Path:
                 f"Record Class: `{record_class}`",
                 "Record Role: `Historical PR readiness snapshot receipt`",
                 "Historical Receipt Boundary: `This record does not own live PR truth.`",
+                f"Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
                 "",
             ]
         ),
@@ -2046,6 +2047,63 @@ def main() -> int:
             _semantic_failures(root),
         )
         pr_state.unlink()
+
+        cross_area_projection = root / "review_bundles" / "Governance" / "manifest.md"
+        cross_area_projection.parent.mkdir(parents=True)
+        cross_area_projection.write_text(
+            "\n".join(
+                [
+                    "# Review Bundle Projection Fixture",
+                    "Record Class: `Live Review-Bundle Projection`",
+                    "Record Role: `Current same-branch review-bundle projection`",
+                    "Historical Receipt Boundary: `Historical receipts do not redefine live state.`",
+                    f"Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "same-branch live projection outside branch directory",
+            "review_bundles/Governance/manifest.md (live review-bundle projection)",
+            _semantic_failures(root),
+        )
+        cross_area_projection.write_text(
+            cross_area_projection.read_text(encoding="utf-8").replace(
+                f"Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
+                "Branch: `feature/unrelated-branch`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass(
+            "unrelated-branch live projection is excluded by branch identity",
+            _semantic_failures(root),
+        )
+        cross_area_projection.unlink()
+
+        excluded_projection_paths: list[Path] = []
+        for excluded_root in validator.GOVERNANCE_SEMANTIC_DISCOVERY_EXCLUDED_ROOTS:
+            excluded_projection = root / excluded_root / "Governance" / "ignored.md"
+            excluded_projection.parent.mkdir(parents=True, exist_ok=True)
+            excluded_projection.write_text(
+                "\n".join(
+                    [
+                        "# Non-Live Support Copy Fixture",
+                        "Record Class: `Live Review-Bundle Projection`",
+                        f"Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            excluded_projection_paths.append(excluded_projection)
+        _assert_pass(
+            "non-live support roots are excluded from semantic authority discovery",
+            _semantic_failures(root),
+        )
+        for excluded_projection in excluded_projection_paths:
+            excluded_projection.unlink()
 
         repo_record = root / "repo_branch_record.md"
         repo_record.write_text(

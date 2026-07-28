@@ -647,7 +647,9 @@ These reservations do not register files that do not yet exist. They record the 
 
 `dev/orin_external_state_validation.py --semantic-currentness` is the
 cross-record seam for the standing Governance projections. It must discover
-same-branch live projection classes before comparing the routed live headers of
+same-branch live projection classes across canonical external-state areas,
+excluding snapshot, staging, audit, lock, and schema support roots, before
+comparing the routed live headers of
 `branch_state.md`, `branch_plan.md`, and `worktree_state.md` as one contract.
 Any same-branch live projection omitted from the semantic target inventory is a
 blocking false green; historical receipt-class records remain evidence and are
