@@ -29,6 +29,8 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Mapping
 
 from orin_current_gate_repair import (
+    BR1_MATRIX_ARTIFACT,
+    BR1_SECTION_HEADING,
     CanonicalPacketPublisher,
     GateContractError,
     compile_br1_stage1_contract,
@@ -763,6 +765,66 @@ def _copy_file(
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, destination)
     return source.relative_to(ROOT).as_posix(), destination.relative_to(target).as_posix()
+
+
+def _markdown_named_section(text: str, heading: str) -> str | None:
+    heading_match = re.search(
+        rf"(?im)^(?P<marks>#{{1,6}})\s+{re.escape(heading)}\s*$",
+        text,
+    )
+    if heading_match is None:
+        return None
+    level = len(heading_match.group("marks"))
+    remainder = text[heading_match.end() :]
+    next_heading = re.search(rf"(?m)^#{{1,{level}}}\s+", remainder)
+    end = heading_match.end() + (next_heading.start() if next_heading else len(remainder))
+    return text[heading_match.start() : end].strip() + "\n"
+
+
+def _write_br1_matrix_review_aid(
+    *,
+    target: Path,
+    review_aids_dir: Path,
+    copied: list[tuple[str, str]],
+) -> Path | None:
+    explicit: list[tuple[str, str]] = []
+    embedded: list[tuple[str, str]] = []
+    for source_rel, copied_rel in copied:
+        copied_path = (target / copied_rel).resolve()
+        try:
+            text = copied_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            raise ValueError(
+                f"Cannot inspect BR1 matrix source {source_rel}: {exc}"
+            ) from exc
+        if PurePosixPath(source_rel).name.casefold() == BR1_MATRIX_ARTIFACT.casefold():
+            explicit.append((source_rel, text.strip() + "\n"))
+            continue
+        section_count = len(
+            re.findall(
+                rf"(?im)^#{{1,6}}\s+{re.escape(BR1_SECTION_HEADING)}\s*$",
+                text,
+            )
+        )
+        if section_count > 1:
+            raise ValueError(
+                f"BR1 matrix source contains duplicate candidate sections: {source_rel}"
+            )
+        section = _markdown_named_section(text, BR1_SECTION_HEADING)
+        if section and re.search(r"(?im)^\s*(?:[-*]\s*)?Option name\s*:", section):
+            embedded.append((source_rel, section))
+
+    candidates = [*explicit, *embedded]
+    if not candidates:
+        return None
+    if len(candidates) != 1:
+        raise ValueError(
+            "Multiple BR1 candidate matrix sources were supplied; select exactly one: "
+            + ", ".join(source for source, _text in candidates)
+        )
+    matrix_path = review_aids_dir / BR1_MATRIX_ARTIFACT
+    matrix_path.write_text(candidates[0][1], encoding="utf-8")
+    return matrix_path.resolve()
 
 
 def _git_output(*args: str) -> str:
@@ -11952,6 +12014,11 @@ def build_bundle(
         _copy_file(file_name, target, copy_name, subdir=SOURCE_TRUTH_CONTEXT_DIR_NAME)
         for file_name, copy_name in zip(files, _copy_names(files), strict=True)
     ]
+    br1_matrix_file = _write_br1_matrix_review_aid(
+        target=target,
+        review_aids_dir=review_aids_dir,
+        copied=copied,
+    )
     copied_count = len(copied)
     copied_targets = {(target / copied_rel).resolve() for _source_rel, copied_rel in copied}
     expected_count = expected_file_count if expected_file_count is not None else copied_count
@@ -12223,6 +12290,8 @@ def build_bundle(
     expected_generated_paths = {
         *digest_paths,
     }
+    if br1_matrix_file is not None:
+        expected_generated_paths.add(br1_matrix_file)
     if user_vision_file is not None:
         expected_generated_paths.add(user_vision_file.resolve())
     if user_review_file is not None:

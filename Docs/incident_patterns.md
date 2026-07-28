@@ -934,6 +934,12 @@ path outside that scan is still an unrecoverable transaction path. Semantic
 projection discovery must inspect every canonical branch alias, including
 `Branch` and `Current Branch`, so alias-only live records cannot evade the
 bounded target inventory.
+When a current BR1 packet requires a candidate viability/grouping matrix, the
+production bundle builder must emit that active review artifact from the
+caller-selected matrix source or embedded candidate section. Copying the only
+matrix beneath excluded source-context paths while requiring it in active
+packet validation makes valid packet regeneration impossible and is itself a
+false-green enforcement gap.
 An active-looking lock whose recorded owner process has exited is likewise not
 valid mutation authority: if the workload is completed it is stale-completed;
 otherwise it is an orphaned active workload that remains blocked for explicit

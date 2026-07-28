@@ -190,6 +190,12 @@ reject structural/parity green when semantic rows fail. Repeated `Option name`
 sections are independent candidates; every candidate must satisfy the complete
 field contract and route enum instead of borrowing fields from another option
 or from field-like metadata under a later Markdown section heading.
+Production BR1 generation must emit the active
+`Review Aids/BR1_CANDIDATE_VIABILITY_GROUPING_MATRIX.md` from exactly one
+caller-selected source: either an explicit matrix file or an embedded
+`BR1 Candidate Viability / Grouping Matrix` section containing real
+`Option name` rows. Source-owner requirement prose is not candidate data, and
+conflicting supplied matrix sources must fail before packet publication.
 The BR1 contract must activate from independent current Stage 1 identity rather
 than from required matrix or route-class content, and governed candidate fields
 before the first `Option name` boundary must be validated as an unnamed first

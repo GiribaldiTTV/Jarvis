@@ -121,6 +121,67 @@ def _current_origin_main() -> str:
     return bundle._git_output("rev-parse", "origin/main")
 
 
+def _assert_br1_builder_promotes_candidate_matrix() -> None:
+    fixture_path = (
+        ROOT
+        / "dev"
+        / "fixtures"
+        / "current_gate_repair"
+        / "fam007_20260727_165940_invalid_route_class.json"
+    )
+    fields = dict(
+        json.loads(fixture_path.read_text(encoding="utf-8"))["invalid_packet_fields"]
+    )
+    fields["Implementation-bearing route class"] = "User-visible behavior change"
+    matrix = "## BR1 Candidate Viability / Grouping Matrix\n\n" + "\n".join(
+        f"{name}: `{value}`" for name, value in fields.items()
+    )
+    with tempfile.TemporaryDirectory(prefix="ndai-br1-builder-matrix-") as temp_dir:
+        packet = Path(temp_dir)
+        source_context = packet / bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
+        review_aids = packet / bundle.REVIEW_AIDS_DIR_NAME
+        source_context.mkdir()
+        review_aids.mkdir()
+        source_rel = "external/branch_plan.md"
+        copied_rel = f"{bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/branch_plan.md"
+        (packet / copied_rel).write_text(
+            "# Branch Plan\n\n" + matrix + "\n## Later Context\n\nReceipt only.\n",
+            encoding="utf-8",
+        )
+        matrix_path = bundle._write_br1_matrix_review_aid(
+            target=packet,
+            review_aids_dir=review_aids,
+            copied=[(source_rel, copied_rel)],
+        )
+        if matrix_path != (review_aids / bundle.BR1_MATRIX_ARTIFACT).resolve():
+            raise AssertionError("BR1 builder did not emit the governed active matrix artifact")
+        packet_files = {
+            "USER Review/STAGE1_REVIEW.md": "# Branch Readiness Stage 1\n",
+            matrix_path.relative_to(packet).as_posix(): matrix_path.read_text(
+                encoding="utf-8"
+            ),
+        }
+        failures = bundle._current_gate_contract_failures(packet_files)
+        if failures:
+            raise AssertionError(
+                "generated BR1 matrix failed its own current-gate contract:\n"
+                + "\n".join(failures)
+            )
+        second_rel = f"{bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/second_plan.md"
+        (packet / second_rel).write_text(matrix, encoding="utf-8")
+        try:
+            bundle._write_br1_matrix_review_aid(
+                target=packet,
+                review_aids_dir=review_aids,
+                copied=[(source_rel, copied_rel), ("external/second_plan.md", second_rel)],
+            )
+        except ValueError as exc:
+            if "select exactly one" not in str(exc):
+                raise
+        else:
+            raise AssertionError("BR1 builder accepted multiple candidate matrix sources")
+
+
 def _assert_origin_main_fallback() -> None:
     original_git_output = bundle._git_output
 
@@ -1047,6 +1108,7 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
 
 
 def main() -> int:
+    _assert_br1_builder_promotes_candidate_matrix()
     _assert_origin_main_fallback()
     _assert_utf8_source_identity_normalizes_platform_line_endings()
     _assert_failure(
