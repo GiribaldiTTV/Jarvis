@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import multiprocessing
 import os
@@ -13,6 +14,7 @@ from pathlib import Path
 from orin_external_state_common import ExternalStateError, atomic_write_json
 from orin_external_state_lock import acquire_lock
 import orin_external_state_lock_lifecycle as lock_lifecycle
+import orin_external_state_lock_release as lock_release_module
 from orin_external_state_lock_lifecycle import (
     ExternalStateLockTransaction,
     inspect_lock_table,
@@ -478,6 +480,157 @@ def main() -> int:
             True,
             expected_workload_id="identityless-release-workload",
         )
+
+        modern_legacy_path = _lock(
+            root,
+            "negative-modern-legacy-recovery",
+            "modern-owner-workload",
+        )
+        _assert_blocked(
+            "legacy recovery against modern lock",
+            release_lock(
+                root,
+                "negative-modern-legacy-recovery",
+                "must not recover a modern foreign lock",
+                True,
+                expected_workload_id="legacy-recovery-workload",
+                expected_lock_sha256=hashlib.sha256(
+                    modern_legacy_path.read_bytes()
+                ).hexdigest(),
+                legacy_missing_workload_recovery=True,
+                legacy_recovery_authorization="USER-approved fixture recovery",
+            ),
+            "already has a Workload ID",
+        )
+        release_lock(
+            root,
+            "negative-modern-legacy-recovery",
+            "fixture reset",
+            True,
+            expected_workload_id="modern-owner-workload",
+        )
+
+        legacy_path = _lock(
+            root,
+            "positive-legacy-missing-workload",
+            "pre-upgrade-workload-not-recorded",
+        )
+        legacy_payload = json.loads(legacy_path.read_text(encoding="utf-8"))
+        legacy_payload.pop("Workload ID")
+        atomic_write_json(legacy_path, legacy_payload)
+        legacy_digest = hashlib.sha256(legacy_path.read_bytes()).hexdigest()
+        legacy_row = next(
+            item
+            for item in inspect_lock_table(root, current_workload_id="legacy-recovery-workload")
+            if item.lock_id == "positive-legacy-missing-workload"
+        )
+        if legacy_row.classification != "MALFORMED" or not legacy_row.active:
+            raise AssertionError(
+                "pre-upgrade missing-workload lock was not retained as a blocking entry"
+            )
+        _assert_blocked(
+            "ordinary release of pre-upgrade lock",
+            release_lock(
+                root,
+                "positive-legacy-missing-workload",
+                "ordinary ownership check must remain enforced",
+                True,
+                expected_workload_id="legacy-recovery-workload",
+            ),
+            "Lock workload ID mismatch",
+        )
+        _assert_blocked(
+            "legacy recovery without payload digest",
+            release_lock(
+                root,
+                "positive-legacy-missing-workload",
+                "missing recovery precondition",
+                True,
+                expected_workload_id="legacy-recovery-workload",
+                legacy_missing_workload_recovery=True,
+            ),
+            "requires an exact lock payload SHA256",
+        )
+        _assert_blocked(
+            "legacy recovery after payload drift",
+            release_lock(
+                root,
+                "positive-legacy-missing-workload",
+                "wrong recovery precondition",
+                True,
+                expected_workload_id="legacy-recovery-workload",
+                expected_lock_sha256="0" * 64,
+                legacy_missing_workload_recovery=True,
+                legacy_recovery_authorization="USER-approved fixture recovery",
+            ),
+            "changed since stale classification",
+        )
+        legacy_race_journal = root / "audit_log" / "legacy-recovery-race.json"
+        original_before_release = (
+            lock_release_module._before_release_atomic_replacement
+        )
+
+        def _inject_prepared_journal(_lock_path: Path, _expected_bytes: bytes) -> None:
+            atomic_write_json(
+                legacy_race_journal,
+                {
+                    "Lock ID": "positive-legacy-missing-workload",
+                    "Transaction State": "Prepared",
+                },
+            )
+
+        lock_release_module._before_release_atomic_replacement = (
+            _inject_prepared_journal
+        )
+        try:
+            _assert_blocked(
+                "legacy recovery transaction-journal race",
+                release_lock(
+                    root,
+                    "positive-legacy-missing-workload",
+                    "race must be caught inside the publication guard",
+                    True,
+                    expected_workload_id="legacy-recovery-workload",
+                    expected_lock_sha256=legacy_digest,
+                    legacy_missing_workload_recovery=True,
+                    legacy_recovery_authorization="USER-approved fixture recovery",
+                ),
+                "incomplete prepared transaction journal",
+            )
+        finally:
+            lock_release_module._before_release_atomic_replacement = (
+                original_before_release
+            )
+            legacy_race_journal.unlink(missing_ok=True)
+        if hashlib.sha256(legacy_path.read_bytes()).hexdigest() != legacy_digest:
+            raise AssertionError(
+                "legacy recovery race fixture changed the authoritative lock"
+            )
+        recovered, recovery_messages = release_lock(
+            root,
+            "positive-legacy-missing-workload",
+            "USER-approved pre-upgrade lock migration fixture",
+            True,
+            expected_workload_id="legacy-recovery-workload",
+            expected_lock_sha256=legacy_digest,
+            legacy_missing_workload_recovery=True,
+            legacy_recovery_authorization="USER-approved fixture recovery",
+        )
+        recovered_payload = json.loads(legacy_path.read_text(encoding="utf-8"))
+        if (
+            not recovered
+            or recovered_payload.get("Lock State") != "Released"
+            or recovered_payload.get("Workload ID") != "legacy-recovery-workload"
+            or recovered_payload.get("Legacy Original Workload ID") != "MISSING"
+            or not any(
+                "Legacy Missing-Workload Recovery: APPLIED" in message
+                for message in recovery_messages
+            )
+        ):
+            raise AssertionError(
+                "bounded legacy missing-workload recovery failed:\n"
+                + "\n".join(recovery_messages)
+            )
 
         for malformed_id, mutate in (
             ("negative-missing-lock-type", lambda payload: payload.pop("Lock Type")),

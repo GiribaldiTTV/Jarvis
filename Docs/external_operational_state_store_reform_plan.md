@@ -1055,6 +1055,20 @@ explicit recovery path rather than automatic stale-completed cleanup. Stale
 lock recovery must not discard or overwrite state when ownership or version
 risk is unclear.
 
+A pre-upgrade non-released lock whose only modern shape defect is a missing
+`Workload ID` remains blocking and is not eligible for ordinary release or
+automatic stale-completed cleanup. After the exact target set, finished
+transaction, absent owner process, and explicit USER recovery decision are
+proven, `dev/orin_external_state_lock_release.py` may use its dedicated legacy
+missing-workload migration mode. That mode requires the exact inspected payload
+SHA256, a valid lock type and intended write set, a named recovery workload,
+an exact USER authorization receipt, no running or unverifiable recorded owner
+process, no matching prepared transaction journal, and guarded byte-for-byte
+CAS with process and journal eligibility revalidated inside the lock-table
+guard before stamping the recovery receipt and changing the authoritative entry
+to `Released`. It must reject modern locks that already carry a workload
+identity and any precondition drift.
+
 No lock may remain while waiting for USER review, approval, another prompt,
 continuation, handoff, packet preservation, or a phase gate. Release must use a
 guaranteed cleanup path and precede the final digest. A release receipt is not

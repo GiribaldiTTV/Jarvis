@@ -17,7 +17,11 @@ from orin_external_state_common import (
     validate_canonical_root,
     validate_initialized_root,
 )
-from orin_external_state_lock_lifecycle import NON_RELEASED_LOCK_STATES
+from orin_external_state_lock_lifecycle import (
+    LOCK_TYPES,
+    NON_RELEASED_LOCK_STATES,
+    _intended_write_set_is_valid,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -27,7 +31,29 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--expected-workload-id",
         required=True,
-        help="Exact workload that acquired the lock; mismatch blocks release.",
+        help=(
+            "Exact workload that acquired the lock, or the recovery workload identity "
+            "when --legacy-missing-workload-recovery is explicitly authorized."
+        ),
+    )
+    parser.add_argument(
+        "--expected-lock-sha256",
+        help="Exact authoritative payload digest required for bounded legacy recovery.",
+    )
+    parser.add_argument(
+        "--legacy-missing-workload-recovery",
+        action="store_true",
+        help=(
+            "USER-approved migration path for a pre-upgrade lock whose only modern "
+            "shape defect is a missing Workload ID. Requires --expected-lock-sha256."
+        ),
+    )
+    parser.add_argument(
+        "--legacy-recovery-authorization",
+        help=(
+            "Exact USER approval receipt/reference proving the legacy owner process "
+            "and protected transaction are complete."
+        ),
     )
     parser.add_argument("--reason", required=True)
     parser.add_argument("--apply", action="store_true")
@@ -38,6 +64,58 @@ def _before_release_atomic_replacement(_lock_path: Path, _expected_bytes: bytes)
     """Test seam for adversarial lock mutation before final release validation."""
 
 
+def _legacy_recovery_shape_failures(
+    root: Path,
+    lock_id: str,
+    payload: dict[str, object],
+) -> list[str]:
+    """Validate legacy recovery facts that can drift before publication."""
+    failures: list[str] = []
+    payload_workload_id = str(payload.get("Workload ID", "")).strip()
+    if payload_workload_id:
+        failures.append(
+            "Legacy recovery refused a lock that already has a Workload ID"
+        )
+    if payload.get("Lock Type") not in LOCK_TYPES:
+        failures.append("Legacy recovery requires a valid supported Lock Type")
+    if not _intended_write_set_is_valid(
+        str(payload.get("Intended Write Set", ""))
+    ):
+        failures.append("Legacy recovery requires a valid exact Intended Write Set")
+    owner_process_id = payload.get("Owning Process ID")
+    if isinstance(owner_process_id, str) and owner_process_id.isdigit():
+        owner_process_id = int(owner_process_id)
+    if isinstance(owner_process_id, int) and owner_process_id > 0:
+        from orin_external_state_lock_lifecycle import process_is_running
+
+        if process_is_running(owner_process_id) is not False:
+            failures.append(
+                "Legacy recovery requires the recorded owner process to be proven exited"
+            )
+    for journal_path in sorted((root / "audit_log").glob("*.json")):
+        try:
+            journal = load_json(journal_path)
+        except Exception as exc:  # noqa: BLE001 - ambiguous transaction state blocks
+            failures.append(
+                f"Legacy recovery cannot inspect transaction journal {journal_path}: {exc}"
+            )
+            continue
+        if not isinstance(journal, dict):
+            failures.append(
+                f"Legacy recovery found a malformed transaction journal: {journal_path}"
+            )
+            continue
+        if (
+            journal.get("Lock ID") == lock_id
+            and journal.get("Transaction State") == "Prepared"
+        ):
+            failures.append(
+                "Legacy recovery is blocked by an incomplete prepared transaction journal: "
+                f"{journal_path}"
+            )
+    return failures
+
+
 def release_lock(
     root: Path,
     lock_id: str,
@@ -46,6 +124,8 @@ def release_lock(
     *,
     expected_workload_id: str | None = None,
     expected_lock_sha256: str | None = None,
+    legacy_missing_workload_recovery: bool = False,
+    legacy_recovery_authorization: str | None = None,
 ) -> tuple[bool, list[str]]:
     root = resolve_path(root)
     failures = validate_canonical_root(root)
@@ -59,6 +139,16 @@ def release_lock(
         r"[0-9a-f]{64}", expected_lock_sha256
     ):
         failures.append("Lock release precondition digest is invalid")
+    if legacy_missing_workload_recovery and expected_lock_sha256 is None:
+        failures.append(
+            "Legacy missing-workload recovery requires an exact lock payload SHA256"
+        )
+    if legacy_missing_workload_recovery and not (
+        legacy_recovery_authorization or ""
+    ).strip():
+        failures.append(
+            "Legacy missing-workload recovery requires an explicit USER authorization receipt"
+        )
     if not lock_path.is_file():
         failures.append(f"Lock is missing: {lock_path}")
     if failures:
@@ -81,18 +171,34 @@ def release_lock(
         return False, [
             f"Lock payload ID mismatch: expected {lock_id!r}, found {payload.get('Lock ID')!r}"
         ]
-    if payload.get("Workload ID") != expected_workload_id:
+    payload_workload_id = str(payload.get("Workload ID", "")).strip()
+    if legacy_missing_workload_recovery:
+        legacy_shape_failures = _legacy_recovery_shape_failures(
+            root, lock_id, payload
+        )
+        if legacy_shape_failures:
+            return False, legacy_shape_failures
+    elif payload_workload_id != expected_workload_id:
         return False, [
             "Lock workload ID mismatch: expected "
             f"{expected_workload_id!r}, found {payload.get('Workload ID')!r}"
         ]
     if payload.get("Lock State") not in NON_RELEASED_LOCK_STATES:
         return False, [f"Lock is already released or invalid: {lock_path}"]
-    payload["Lock State"] = "Released"
-    payload["Workload State"] = "Completed"
-    payload["Released At"] = utc_now()
-    payload["Release Reason"] = reason
-    payload["Last Updated"] = utc_now()
+    release_payload = dict(payload)
+    if legacy_missing_workload_recovery:
+        release_payload["Legacy Original Workload ID"] = "MISSING"
+        release_payload["Legacy Lock Recovery"] = (
+            "Applied through explicit missing-workload migration with payload-digest CAS"
+        )
+        release_payload["Recovery Workload ID"] = expected_workload_id
+        release_payload["Legacy Recovery Authorization"] = legacy_recovery_authorization
+        release_payload["Workload ID"] = expected_workload_id
+    release_payload["Lock State"] = "Released"
+    release_payload["Workload State"] = "Completed"
+    release_payload["Released At"] = utc_now()
+    release_payload["Release Reason"] = reason
+    release_payload["Last Updated"] = utc_now()
     if not apply:
         return True, [f"READY: {lock_path}", "No write performed; omit --apply was honored"]
     from orin_external_state_lock_lifecycle import lock_table_guard
@@ -106,7 +212,13 @@ def release_lock(
                 return False, [f"Lock changed during release validation; no write performed: {exc}"]
             if final_lock_bytes != initial_lock_bytes:
                 return False, ["Lock changed during release validation; no write performed"]
-            atomic_write_json(lock_path, payload)
+            if legacy_missing_workload_recovery:
+                legacy_shape_failures = _legacy_recovery_shape_failures(
+                    root, lock_id, payload
+                )
+                if legacy_shape_failures:
+                    return False, legacy_shape_failures
+            atomic_write_json(lock_path, release_payload)
             try:
                 authoritative = load_json(lock_path)
             except Exception as exc:  # noqa: BLE001 - authoritative reread is mandatory
@@ -125,6 +237,11 @@ def release_lock(
     return True, [
         f"RELEASED: {lock_path}",
         "Release Receipt State: AUTHORITATIVE_ENTRY_RELEASED",
+        *(
+            ["Legacy Missing-Workload Recovery: APPLIED"]
+            if legacy_missing_workload_recovery
+            else []
+        ),
         f"Completed Workload Active Lock Count After Release: {len(workload_active)}",
         f"Authoritative Active Lock Count After Release: {len(active)}",
     ]
@@ -138,6 +255,9 @@ def main() -> int:
         args.reason,
         args.apply,
         expected_workload_id=args.expected_workload_id,
+        expected_lock_sha256=args.expected_lock_sha256,
+        legacy_missing_workload_recovery=args.legacy_missing_workload_recovery,
+        legacy_recovery_authorization=args.legacy_recovery_authorization,
     )
     print("External State Lock Release")
     for message in messages:

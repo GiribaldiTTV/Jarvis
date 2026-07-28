@@ -964,6 +964,13 @@ the global active-lock inventory and preserving disjoint foreign work.
 Retained-lock fixtures must fail the public final-return gate; success, blocked,
 validation-failure, exception, partial-write, stale-cleanup, foreign-lock, and
 fresh-next-workload fixtures must prove truthful cleanup behavior.
+Pre-upgrade locks that lack `Workload ID` expose a different upgrade incident:
+ordinary ownership checks must continue to reject them, but the migration must
+not leave them permanently unreleasable. Recovery requires explicit USER
+approval plus completed-transaction/process proof, exact payload SHA256, valid
+conflict metadata, a named recovery workload, guarded CAS, a preserved recovery
+receipt, and rejection of both modern workload-owned locks and changed legacy
+payloads.
 
 Source references:
 

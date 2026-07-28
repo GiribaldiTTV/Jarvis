@@ -765,6 +765,14 @@ If the owner process has exited while the workload remains active or otherwise
 not proven completed, classify the lock as `ORPHANED_ACTIVE_WORKLOAD`; it is not
 valid mutation authority and is not eligible for automatic stale-completed
 cleanup.
+A pre-upgrade lock missing only `Workload ID` remains blocking but must not be
+made permanently unreleasable. Its separate legacy migration path requires an
+explicit USER recovery decision, proof that the owner process and transaction
+are finished, the exact inspected payload SHA256, valid conflict metadata, a
+named recovery workload, an exact USER authorization receipt, no matching
+prepared transaction journal, and guarded CAS. Ordinary release remains
+forbidden, and the migration route must reject any modern lock that already has
+a workload identity.
 
 ## Testing And Validation
 
