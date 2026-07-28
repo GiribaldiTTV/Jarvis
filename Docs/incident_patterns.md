@@ -136,7 +136,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - fix pattern:
   preserve global modes, add target-scoped validation with one relative target, per-target branch/head/baseline/worktree/slot values, hash precondition, path security, TOCTOU detection, record-class checks, and explicit scoped-PASS output; reconcile records only through `dev/orin_external_state_target_reconcile.py`, then release locks through `dev/orin_external_state_lock_release.py`
 - validation pattern:
-  run valid, wrong-identity, stale-hash, missing/duplicate/alias, traversal/off-root, reparse/symlink, malformed, historical, multi-head, stale-manifest, TOCTOU, global-regression, and scoped-PASS fixture families
+  run valid, wrong-identity, stale-hash, missing/duplicate/alias, traversal/off-root, reparse/symlink, malformed selected-lock, exact and non-negated historical classification, multi-head, stale-manifest, TOCTOU, global-regression, and scoped-PASS fixture families
 - source references:
   - `Docs/governance_efficiency_operating_model.md`
   - `Docs/phase_governance.md`

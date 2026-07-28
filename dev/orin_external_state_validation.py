@@ -465,13 +465,24 @@ def validate_target_historical_receipt(
     record_class = _normalized_windows_value(
         markdown_field_value(header, "Record Class")
     ).replace("\\", " ")
-    if record_class not in TARGET_HISTORICAL_RECORD_CLASSES and "historical receipt" not in record_class:
+    if record_class not in TARGET_HISTORICAL_RECORD_CLASSES:
         failures.append(
             f"Historical Receipt: unsupported or missing historical Record Class in {relative}: "
             f"{record_class or 'MISSING'}"
         )
     role = markdown_field_value(header, "Record Role") or ""
-    if "historical" not in role.casefold() or "receipt" not in role.casefold():
+    normalized_role = re.sub(r"[^a-z0-9]+", " ", role.casefold()).strip()
+    role_negates_classification = bool(
+        re.search(
+            r"\b(?:no|not|without)\b(?:\s+\w+){0,4}\s+(?:historical|receipt)\b",
+            normalized_role,
+        )
+    )
+    if (
+        "historical" not in normalized_role
+        or "receipt" not in normalized_role
+        or role_negates_classification
+    ):
         failures.append(
             f"Historical Receipt: {relative} Record Role must classify the target as historical receipt evidence"
         )

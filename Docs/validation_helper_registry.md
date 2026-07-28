@@ -251,9 +251,12 @@ validates the resulting historical class/role/boundary and preserved identity,
 and records the class transition in audit evidence. A dry-run projection must
 not require or acquire a lock or snapshot. Lock release is
 owned by `dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`);
-a currentness transition with a remaining lock is incomplete and must fail
-closeout. These helpers must not rewrite historical receipts or the structural
-root manifest.
+a currentness transition must reject any selected lock that is not classified
+`ACTIVE_VALID` by the shared lifecycle inventory, including missing or invalid
+lock types. Historical retirement requires an exact allowed record class and a
+non-negated historical-receipt role. A transition with a remaining lock is
+incomplete and must fail closeout. These helpers must not rewrite historical
+receipts or the structural root manifest.
 
 `dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`) owns
 atomic release of the exact admitted lock and requires the acquiring workload

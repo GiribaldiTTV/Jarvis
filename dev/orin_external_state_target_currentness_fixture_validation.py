@@ -532,6 +532,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -588,6 +589,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": "different-lock-id",
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -614,6 +616,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": label_lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": "Governance",
@@ -780,6 +783,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": historical_lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -896,6 +900,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": prefix_lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1060,6 +1065,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": rollback_lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1102,6 +1108,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": "different-release-lock-id",
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1125,6 +1132,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": release_race_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1167,6 +1175,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": transition_lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1210,6 +1219,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": adversarial_lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1253,6 +1263,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_race_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1302,6 +1313,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": snapshot_race_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1419,6 +1431,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1540,6 +1553,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
@@ -1547,6 +1561,84 @@ def main() -> int:
                 "Intended Write Set": TARGET,
             },
         )
+        malformed_lock_id = "worktree-fixture-malformed-lock-type"
+        malformed_lock_path = root / "locks" / f"{malformed_lock_id}.json"
+        atomic_write_json(
+            malformed_lock_path,
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": malformed_lock_id,
+                "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        malformed_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-malformed-lock-type",
+            lock_id=malformed_lock_id,
+        )
+        malformed_ok, malformed_messages, malformed_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=malformed_lock_id,
+            snapshot=malformed_snapshot.relative_to(root).as_posix(),
+            assignments=["Last Updated=2026-01-01T00:00:01Z"],
+            additions=[],
+            apply=True,
+            **_expectations(target),
+        )
+        if (
+            malformed_ok
+            or malformed_audit is not None
+            or not any("classification is not ACTIVE_VALID: MALFORMED" in item for item in malformed_messages)
+        ):
+            raise AssertionError(
+                "target writer accepted a lifecycle-malformed selected lock:\n"
+                + "\n".join(malformed_messages)
+            )
+        malformed_snapshot_name = "fixture-malformed-lock-type-snapshot-command"
+        malformed_snapshot_cli = subprocess.run(
+            [
+                sys.executable,
+                str(Path(snapshotter.__file__)),
+                "--root",
+                str(root),
+                "--reason",
+                "malformed selected lock fixture",
+                "--worktree",
+                WORKTREE_PATH,
+                "--branch",
+                "feature/release-readiness-source-truth-intake",
+                "--snapshot-name",
+                malformed_snapshot_name,
+                "--lock-id",
+                malformed_lock_id,
+                "--source-head",
+                HEAD,
+                "--target",
+                TARGET,
+                "--apply",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if (
+            malformed_snapshot_cli.returncode == 0
+            or "classification is not ACTIVE_VALID: MALFORMED"
+            not in (malformed_snapshot_cli.stdout + malformed_snapshot_cli.stderr)
+            or (root / "snapshots" / malformed_snapshot_name).exists()
+        ):
+            raise AssertionError(
+                "targeted snapshot accepted a lifecycle-malformed selected lock:\n"
+                + malformed_snapshot_cli.stdout
+                + malformed_snapshot_cli.stderr
+            )
+        malformed_lock_path.unlink()
         expectations = _expectations(target)
         before = target.read_bytes()
         invalid_ok, invalid_messages, invalid_audit = reconciler.reconcile_target(
@@ -1622,6 +1714,43 @@ def main() -> int:
             ),
         )
         retired_text = target.read_text(encoding="utf-8")
+        for label, mutated_text, needle in (
+            (
+                "negated historical record class",
+                retired_text.replace(
+                    "Record Class: `Historical Receipt`",
+                    "Record Class: `Not Historical Receipt`",
+                    1,
+                ),
+                "unsupported or missing historical Record Class",
+            ),
+            (
+                "negated historical record role",
+                retired_text.replace(
+                    "Record Role: `Historical worktree projection receipt; not live operational state`",
+                    "Record Role: `Not historical receipt evidence`",
+                    1,
+                ),
+                "Record Role must classify the target as historical receipt evidence",
+            ),
+        ):
+            target.write_text(mutated_text, encoding="utf-8")
+            mutated_hash = hashlib.sha256(target.read_bytes()).hexdigest()
+            _assert_failure(
+                label,
+                needle,
+                validator.validate_target_historical_receipt(
+                    root,
+                    [TARGET],
+                    expected_target_sha256=mutated_hash,
+                    **{
+                        key: value
+                        for key, value in expectations.items()
+                        if key != "expected_target_sha256"
+                    },
+                ),
+            )
+        target.write_text(retired_text, encoding="utf-8")
         target.write_text(
             retired_text.replace(
                 "Branch: `feature/release-readiness-source-truth-intake`",
@@ -2022,6 +2151,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "snapshot-lock-drift-workload",
                 "Last Updated By": "fixture",
@@ -2083,6 +2213,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "snapshot-name-race-workload",
                 "Last Updated By": "fixture",
@@ -2163,6 +2294,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "target-set-success-workload",
                 "Last Updated By": "fixture",
@@ -2206,6 +2338,7 @@ def main() -> int:
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
+                "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "target-set-rollback-workload",
                 "Last Updated By": "fixture",

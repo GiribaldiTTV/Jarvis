@@ -33,7 +33,7 @@ from orin_external_state_validation import (
     validate_target_historical_receipt,
     validate_target_currentness,
 )
-from orin_external_state_lock_lifecycle import lock_table_guard
+from orin_external_state_lock_lifecycle import inspect_lock_table, lock_table_guard
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -233,6 +233,21 @@ def _lock_failures(
         payload = load_json(lock_path)
     except Exception as exc:  # noqa: BLE001 - corrupt operational state is a blocking result
         return None, [f"Required lock is unreadable: {lock_path}: {exc}"]
+    lifecycle_matches = [
+        inspection
+        for inspection in inspect_lock_table(root)
+        if inspection.path == lock_path
+    ]
+    if len(lifecycle_matches) != 1:
+        failures.append(
+            "Required lock lifecycle classification is unavailable or ambiguous: "
+            f"expected one entry, found {len(lifecycle_matches)}"
+        )
+    elif lifecycle_matches[0].classification != "ACTIVE_VALID":
+        failures.append(
+            "Required lock lifecycle classification is not ACTIVE_VALID: "
+            f"{lifecycle_matches[0].classification}"
+        )
     if payload.get("Lock ID") != lock_id:
         failures.append(
             f"Lock payload ID mismatch: expected {lock_id!r}, found {payload.get('Lock ID')!r}"
