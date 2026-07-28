@@ -171,7 +171,13 @@ def main() -> int:
                 + retained_cli.stdout
                 + retained_cli.stderr
             )
-        release_lock(root, "negative-success-digest", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-success-digest",
+            "fixture reset",
+            True,
+            expected_workload_id="negative-success",
+        )
         released_cli = subprocess.run(
             [
                 sys.executable,
@@ -237,7 +243,13 @@ def main() -> int:
             verify_final_lock_state(root, workload_id="negative-completed"),
             "BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED",
         )
-        release_lock(root, "negative-completed-retained", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-completed-retained",
+            "fixture reset",
+            True,
+            expected_workload_id="negative-completed",
+        )
 
         _lock(
             root,
@@ -250,7 +262,13 @@ def main() -> int:
             verify_final_lock_state(root, workload_id="negative-waiting"),
             "BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED",
         )
-        release_lock(root, "negative-waiting-retained", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-waiting-retained",
+            "fixture reset",
+            True,
+            expected_workload_id="negative-waiting",
+        )
 
         # Negative: raw failure/exception/multi-write bypasses are caught by final verification.
         for label in ("validation-failure", "exception", "multi-target-write-failure"):
@@ -261,7 +279,13 @@ def main() -> int:
                 verify_final_lock_state(root, workload_id=label),
                 "BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED",
             )
-            release_lock(root, lock_id, "fixture reset", True)
+            release_lock(
+                root,
+                lock_id,
+                "fixture reset",
+                True,
+                expected_workload_id=label,
+            )
 
         # Negative: a receipt does not override the authoritative active entry.
         _lock(root, "negative-receipt-only", "receipt-only")
@@ -278,7 +302,13 @@ def main() -> int:
             verify_final_lock_state(root, workload_id="receipt-only"),
             "BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED",
         )
-        release_lock(root, "negative-receipt-only", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-receipt-only",
+            "fixture reset",
+            True,
+            expected_workload_id="receipt-only",
+        )
 
         # Negative: a dead process does not make an active workload safe to release.
         _lock(root, "negative-dead-owner", "dead-owner")
@@ -302,7 +332,63 @@ def main() -> int:
             ),
             "not proven stale completed workload",
         )
-        release_lock(root, "negative-dead-owner", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-dead-owner",
+            "fixture reset",
+            True,
+            expected_workload_id="dead-owner",
+        )
+
+        identityless_path = _lock(
+            root,
+            "negative-identityless-release",
+            "identityless-release-workload",
+        )
+        release_helper = Path(__file__).with_name("orin_external_state_lock_release.py")
+        identityless_cli = subprocess.run(
+            [
+                sys.executable,
+                str(release_helper),
+                "--root",
+                str(root),
+                "--lock-id",
+                "negative-identityless-release",
+                "--reason",
+                "must remain blocked",
+                "--apply",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if identityless_cli.returncode == 0 or "--expected-workload-id" not in (
+            identityless_cli.stdout + identityless_cli.stderr
+        ):
+            raise AssertionError(
+                "release CLI accepted an identity-less applied release:\n"
+                + identityless_cli.stdout
+                + identityless_cli.stderr
+            )
+        _assert_blocked(
+            "identity-less applied release",
+            release_lock(
+                root,
+                "negative-identityless-release",
+                "must remain blocked",
+                True,
+            ),
+            "workload identity is required",
+        )
+        if json.loads(identityless_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
+            raise AssertionError("identity-less release mutated the authoritative lock")
+        release_lock(
+            root,
+            "negative-identityless-release",
+            "fixture reset",
+            True,
+            expected_workload_id="identityless-release-workload",
+        )
 
         for malformed_id, mutate in (
             ("negative-missing-lock-type", lambda payload: payload.pop("Lock Type")),
@@ -351,7 +437,13 @@ def main() -> int:
                     "acquisition did not fail closed on malformed conflict metadata:\n"
                     + "\n".join(acquire_messages)
                 )
-            release_lock(root, malformed_id, "fixture reset", True)
+            release_lock(
+                root,
+                malformed_id,
+                "fixture reset",
+                True,
+                expected_workload_id=malformed_id,
+            )
 
         ok, messages, _ = acquire_lock(
             root=root,
@@ -398,7 +490,13 @@ def main() -> int:
             ),
             "Authoritative Active Lock Count Not Zero",
         )
-        release_lock(root, "negative-verification-retained", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-verification-retained",
+            "fixture reset",
+            True,
+            expected_workload_id="verification-replay",
+        )
 
         # Positive: an active protected transaction holds one exact lock, then releases it.
         with _transaction(root, "positive-success") as transaction:
@@ -504,7 +602,13 @@ def main() -> int:
             raise AssertionError("foreign active overlapping lock did not block acquisition")
         if json.loads(foreign_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
             raise AssertionError("foreign active lock was mutated")
-        release_lock(root, "positive-foreign-active", "fixture reset", True)
+        release_lock(
+            root,
+            "positive-foreign-active",
+            "fixture reset",
+            True,
+            expected_workload_id="foreign-workload",
+        )
 
         # Positive: a disjoint foreign lock is reported but not misattributed at final return.
         _lock(
@@ -525,7 +629,13 @@ def main() -> int:
                 "disjoint foreign lock was not preserved and reported correctly:\n"
                 + "\n".join(local_final_messages)
             )
-        release_lock(root, "positive-foreign-disjoint", "fixture reset", True)
+        release_lock(
+            root,
+            "positive-foreign-disjoint",
+            "fixture reset",
+            True,
+            expected_workload_id="foreign-disjoint",
+        )
 
         _lock(
             root,
@@ -547,7 +657,13 @@ def main() -> int:
         )
         if casefold_ok or not any("External State Owner Conflict" in item for item in casefold_messages):
             raise AssertionError("case-insensitive overlapping target did not block")
-        release_lock(root, "positive-casefold-overlap", "fixture reset", True)
+        release_lock(
+            root,
+            "positive-casefold-overlap",
+            "fixture reset",
+            True,
+            expected_workload_id="casefold-foreign",
+        )
 
         # Positive: proven stale completed-workload lock is safely released, never deleted.
         stale_path = _lock(
@@ -619,7 +735,55 @@ def main() -> int:
             ),
             "not proven stale completed workload",
         )
-        release_lock(root, "negative-stale-process-unproven", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-stale-process-unproven",
+            "fixture reset",
+            True,
+            expected_workload_id="stale-process-unproven",
+        )
+
+        inaccessible_path = _lock(
+            root,
+            "negative-inaccessible-owner",
+            "inaccessible-owner-workload",
+            workload_state="Completed",
+        )
+        inaccessible = inspect_lock_table(
+            root,
+            current_workload_id="inaccessible-owner-workload",
+            process_checker=lambda _pid: None,
+        )
+        inaccessible_row = next(
+            item
+            for item in inaccessible
+            if item.lock_id == "negative-inaccessible-owner"
+        )
+        if inaccessible_row.process_running is not None or inaccessible_row.classification != "ACTIVE_VALID":
+            raise AssertionError(
+                "inaccessible owner process was treated as confirmed absent"
+            )
+        _assert_blocked(
+            "inaccessible owner stale cleanup",
+            release_stale_completed_lock(
+                root,
+                lock_id="negative-inaccessible-owner",
+                expected_workload_id="inaccessible-owner-workload",
+                reason="inaccessible process must remain protected",
+                apply=True,
+                process_checker=lambda _pid: None,
+            ),
+            "not proven stale completed workload",
+        )
+        if json.loads(inaccessible_path.read_text(encoding="utf-8"))["Lock State"] != "Locked":
+            raise AssertionError("inaccessible owner cleanup mutated the lock")
+        release_lock(
+            root,
+            "negative-inaccessible-owner",
+            "fixture reset",
+            True,
+            expected_workload_id="inaccessible-owner-workload",
+        )
 
         # Expired is still unreleased and cannot pass a final return gate.
         _lock(root, "negative-expired", "expired-workload", state="Expired")
@@ -628,7 +792,13 @@ def main() -> int:
             verify_final_lock_state(root, workload_id="expired-workload"),
             "BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED",
         )
-        release_lock(root, "negative-expired", "fixture reset", True)
+        release_lock(
+            root,
+            "negative-expired",
+            "fixture reset",
+            True,
+            expected_workload_id="expired-workload",
+        )
 
         _assert_released(root, "fixture-final")
 

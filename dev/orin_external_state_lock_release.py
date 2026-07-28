@@ -25,6 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--lock-id", required=True)
     parser.add_argument(
         "--expected-workload-id",
+        required=True,
         help="Exact workload that acquired the lock; mismatch blocks release.",
     )
     parser.add_argument("--reason", required=True)
@@ -50,6 +51,8 @@ def release_lock(
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_id):
         failures.append(f"Lock ID is not a safe filename: {lock_id!r}")
     lock_path = root / "locks" / f"{lock_id}.json"
+    if not (expected_workload_id or "").strip():
+        failures.append("Lock workload identity is required for release")
     if not lock_path.is_file():
         failures.append(f"Lock is missing: {lock_path}")
     if failures:
@@ -66,7 +69,7 @@ def release_lock(
         return False, [
             f"Lock payload ID mismatch: expected {lock_id!r}, found {payload.get('Lock ID')!r}"
         ]
-    if expected_workload_id is not None and payload.get("Workload ID") != expected_workload_id:
+    if payload.get("Workload ID") != expected_workload_id:
         return False, [
             "Lock workload ID mismatch: expected "
             f"{expected_workload_id!r}, found {payload.get('Workload ID')!r}"

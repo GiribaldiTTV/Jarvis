@@ -1086,7 +1086,11 @@ def main() -> int:
         if ok or audit is not None or target.read_bytes() != rollback_before or not any("Post-write target validation" in item for item in rollback_messages):
             raise AssertionError("post-write validation failure did not roll back without audit:\n" + "\n".join(rollback_messages))
         released, release_messages = lock_release.release_lock(
-            root, lock_id, "fixture transition complete", apply=True
+            root,
+            lock_id,
+            "fixture transition complete",
+            apply=True,
+            expected_workload_id="fixture-workload",
         )
         if not released or json.loads((root / "locks" / f"{lock_id}.json").read_text(encoding="utf-8"))["Lock State"] != "Released":
             raise AssertionError("lock release fixture failed:\n" + "\n".join(release_messages))
@@ -1105,7 +1109,11 @@ def main() -> int:
             },
         )
         released, release_messages = lock_release.release_lock(
-            root, release_mismatch_id, "fixture mismatched payload", apply=False
+            root,
+            release_mismatch_id,
+            "fixture mismatched payload",
+            apply=False,
+            expected_workload_id="fixture-workload",
         )
         if released or not any("Lock payload ID mismatch" in item for item in release_messages):
             raise AssertionError("lock release accepted a mismatched payload ID:\n" + "\n".join(release_messages))
@@ -1133,7 +1141,11 @@ def main() -> int:
         lock_release._before_release_atomic_replacement = mutate_lock_before_release
         try:
             released, release_messages = lock_release.release_lock(
-                root, release_race_id, "fixture release race", apply=True
+                root,
+                release_race_id,
+                "fixture release race",
+                apply=True,
+                expected_workload_id="fixture-workload",
             )
         finally:
             lock_release._before_release_atomic_replacement = original_release_hook
@@ -1182,7 +1194,11 @@ def main() -> int:
         if not ok or new_head not in target.read_text(encoding="utf-8"):
             raise AssertionError("target writer did not prove an atomic head transition:\n" + "\n".join(messages))
         released, release_messages = lock_release.release_lock(
-            root, transition_lock_id, "fixture head transition complete", apply=True
+            root,
+            transition_lock_id,
+            "fixture head transition complete",
+            apply=True,
+            expected_workload_id="fixture-workload",
         )
         if not released:
             raise AssertionError("head-transition lock release fixture failed:\n" + "\n".join(release_messages))

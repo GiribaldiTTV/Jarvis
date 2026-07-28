@@ -358,6 +358,33 @@ def _is_placeholder(value: str) -> bool:
     }
 
 
+def _candidate_matrix_fields(text: str) -> list[tuple[str, dict[str, list[str]]]]:
+    lines = text.splitlines()
+    candidate_starts: list[int] = []
+    for index, line in enumerate(lines):
+        match = re.match(r"^\s*(?:[-*]\s+)?([^|:#][^:]{1,120}):\s*(.*?)\s*$", line)
+        if match and _normalize_field_name(match.group(1)) == "option name":
+            candidate_starts.append(index)
+    if not candidate_starts:
+        return [("candidate 1", _field_values(text))]
+
+    candidates: list[tuple[str, dict[str, list[str]]]] = []
+    for candidate_index, start in enumerate(candidate_starts):
+        end = (
+            candidate_starts[candidate_index + 1]
+            if candidate_index + 1 < len(candidate_starts)
+            else len(lines)
+        )
+        fields = _field_values("\n".join(lines[start:end]))
+        option_values = fields.get("option name", [])
+        option_name = next(
+            (value for value in option_values if not _is_placeholder(value)),
+            f"candidate {candidate_index + 1}",
+        )
+        candidates.append((option_name, fields))
+    return candidates
+
+
 def validate_br1_stage1_packet(
     packet_files: Mapping[str, str],
     contract: CompiledGateContract,
@@ -397,37 +424,51 @@ def validate_br1_stage1_packet(
         )
 
     matrix_name, matrix_text = matrix_items[0]
-    matrix_fields = _field_values(matrix_text)
+    matrix_candidates = _candidate_matrix_fields(matrix_text)
     manual_rows: list[ManualContractRow] = []
-    for required_field in contract.required_fields:
-        normalized = _normalize_field_name(required_field)
-        values = matrix_fields.get(normalized, [])
-        if not values or all(_is_placeholder(value) for value in values):
-            findings.append(
-                GateFinding(
-                    code="BR1_REQUIRED_FIELD_MISSING",
-                    finding_class=FindingClass.SELF_REPAIRABLE_CURRENT_GATE,
-                    message=f"Required BR1 matrix field is missing or placeholder: {required_field}",
-                    artifact=matrix_name,
-                    root_cause_owner="dev/orin_user_review_bundle.py",
+    candidate_route_fields: list[tuple[str, str, str]] = []
+    for option_name, candidate_fields in matrix_candidates:
+        for required_field in contract.required_fields:
+            normalized = _normalize_field_name(required_field)
+            values = candidate_fields.get(normalized, [])
+            if not values or all(_is_placeholder(value) for value in values):
+                findings.append(
+                    GateFinding(
+                        code="BR1_REQUIRED_FIELD_MISSING",
+                        finding_class=FindingClass.SELF_REPAIRABLE_CURRENT_GATE,
+                        message=(
+                            f"Required BR1 matrix field is missing or placeholder for "
+                            f"{option_name!r}: {required_field}"
+                        ),
+                        artifact=matrix_name,
+                        root_cause_owner="dev/orin_user_review_bundle.py",
+                    )
                 )
-            )
-            continue
-        if required_field in contract.manual_review_fields:
-            manual_rows.append(
-                ManualContractRow(
-                    field_name=required_field,
-                    artifact=matrix_name,
-                    status="PRESENT_MANUAL_REVIEW_REQUIRED",
-                    reason="Presence is machine-checked; substantive truth remains a Codex/USER review row.",
+                continue
+            if required_field in contract.manual_review_fields:
+                manual_rows.append(
+                    ManualContractRow(
+                        field_name=required_field,
+                        artifact=matrix_name,
+                        status="PRESENT_MANUAL_REVIEW_REQUIRED",
+                        reason=(
+                            f"{option_name}: presence is machine-checked; substantive truth "
+                            "remains a Codex/USER review row."
+                        ),
+                    )
                 )
-            )
+        candidate_route_fields.extend(
+            (matrix_name, option_name, value)
+            for value in candidate_fields.get("implementation-bearing route class", [])
+        )
 
-    route_fields: list[tuple[str, str]] = []
+    route_fields: list[tuple[str, str, str]] = list(candidate_route_fields)
     for name, text in active.items():
+        if name == matrix_name:
+            continue
         fields = _field_values(text)
         route_fields.extend(
-            (name, value)
+            (name, _packet_basename(name), value)
             for value in fields.get("implementation-bearing route class", [])
         )
     if not route_fields:
@@ -440,14 +481,14 @@ def validate_br1_stage1_packet(
                 root_cause_owner="dev/orin_user_review_bundle.py",
             )
         )
-    for name, value in route_fields:
+    for name, option_name, value in route_fields:
         if value not in contract.allowed_route_classes:
             findings.append(
                 GateFinding(
                     code="BR1_ROUTE_CLASS_ENUM_INVALID",
                     finding_class=FindingClass.SELF_REPAIRABLE_CURRENT_GATE,
                     message=(
-                        f"Implementation-bearing route class {value!r} is not one of "
+                        f"Implementation-bearing route class {value!r} for {option_name!r} is not one of "
                         + ", ".join(contract.allowed_route_classes)
                     ),
                     artifact=name,

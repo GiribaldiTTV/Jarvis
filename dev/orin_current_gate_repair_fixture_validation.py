@@ -162,6 +162,27 @@ def main() -> int:
     _expect_code(missing_field, "BR1_REQUIRED_FIELD_MISSING")
     negative.append("missing required field")
 
+    incomplete_second_candidate = _packet(fields)
+    matrix_path = f"Review Aids/{BR1_MATRIX_ARTIFACT}"
+    incomplete_second_candidate[matrix_path] += (
+        "\n\nOption name: `Incomplete second candidate`\n"
+        "Implementation-bearing route class: `User-visible behavior change`\n"
+    )
+    second_candidate_result = validate_br1_stage1_packet(
+        incomplete_second_candidate,
+        contract,
+    )
+    _require(
+        any(
+            finding.code == "BR1_REQUIRED_FIELD_MISSING"
+            and "Incomplete second candidate" in finding.message
+            and "Proof path" in finding.message
+            for finding in second_candidate_result.findings
+        ),
+        "A complete first BR1 option masked missing fields in a later candidate",
+    )
+    negative.append("each BR1 matrix candidate requires its own complete field set")
+
     for code, label in (
         ("STALE_ACTIVE_ALIAS", "stale active alias"),
         ("CONFLICTING_CURRENT_MARKERS", "conflicting current-state markers"),
@@ -551,7 +572,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 28, f"Expected 28 negative fixtures, got {len(negative)}")
+    _require(len(negative) == 29, f"Expected 29 negative fixtures, got {len(negative)}")
     _require(len(positive) == 19, f"Expected 19 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")

@@ -186,7 +186,10 @@ the live `BR1 Candidate Viability / Grouping Matrix` contract from
 artifact and every governed field, enforce the exact allowed
 `Implementation-bearing route class` enum, keep source-context/historical
 receipts from becoming current fields, expose semantically manual rows, and
-reject structural/parity green when semantic rows fail. `Foundation /
+reject structural/parity green when semantic rows fail. Repeated `Option name`
+sections are independent candidates; every candidate must satisfy the complete
+field contract and route enum instead of borrowing fields from another option.
+`Foundation /
 infrastructure` remains legal in the separate source-truth-supported
 package/concrete-feature classification field; it is not an allowed
 implementation-bearing route class.
@@ -200,7 +203,7 @@ owned by the lock/currentness helpers and must not be reimplemented in the
 packet helper.
 
 `dev/orin_current_gate_repair_fixture_validation.py` (`Helper Status: Reusable
-Fixture Validator`) owns 25 negative and 16 positive current-gate fixtures,
+Fixture Validator`) owns 29 negative and 19 positive current-gate fixtures,
 including the clean-clone-safe FAM-007 `165940` invalid-enum regression,
 missing artifact/field, stale contract, current/historical boundary, wrong
 classification, scope/stage/carrier/issue boundaries, foreign lock, reusable
@@ -251,7 +254,9 @@ closeout. These helpers must not rewrite historical receipts or the structural
 root manifest.
 
 `dev/orin_external_state_lock_release.py` (`Helper Status: Reusable`) owns
-atomic release of the exact admitted lock, and
+atomic release of the exact admitted lock and requires the acquiring workload
+identity on CLI, dry-run, normal, cleanup, and recovery paths; an identity-less
+release is blocked, and
 `dev/orin_external_state_target_reconcile.py` (`Helper Status: Reusable`) owns
 the target-scoped lock/snapshot/atomic-write transition proof, while
 `dev/orin_external_state_target_currentness_fixture_validation.py` (`Helper Status: Reusable Fixture Validator`) owns the positive, negative,
@@ -262,7 +267,7 @@ regression suite for this contract.
 
 `dev/orin_external_state_lock.py` (`Helper Status: Reusable`) acquires an exact
 workload/target lock only at the protected transaction and blocks malformed or
-overlapping active locks. `dev/orin_external_state_lock_lifecycle.py` (`Helper Status: Reusable`) owns authoritative inventory, process-aware classification,
+overlapping active locks. `dev/orin_external_state_lock_lifecycle.py` (`Helper Status: Reusable`) owns authoritative inventory, process-aware classification that distinguishes a confirmed absent owner from an inaccessible/unknown owner,
 guaranteed transaction cleanup, stale-completed-workload recovery, and the
 independent final-return zero-lock gate. `dev/orin_external_state_validation.py`
 exposes that gate through `--final-lock-gate --completed-workload-id <id>`.
@@ -417,7 +422,7 @@ Codex User Guide operator-boundary validator guidance: `Docs/codex_user_guide.md
 | `dev/orin_external_state_lock.py` | Helper Status: Reusable | external-state lock acquisition helper | Acquire only at an admitted protected transaction with an exact workload identity and bounded target set. Block malformed or overlapping active locks; do not create locks for verification-only, dry-run, thread-open, USER-wait, or future-continuation posture. |
 | `dev/orin_external_state_lock_lifecycle.py` | Helper Status: Reusable | external-state lock lifecycle and final-return gate | Independently inventory and classify every authoritative lock, fail closed on active locks with missing or invalid type/write-set conflict metadata, preserve foreign active locks, recover only locks whose completed workload state and exited owner process both prove stale-completed ownership, release any proven recoverable non-released state through the auditable release path, provide guaranteed transaction cleanup, and block final return until the completed workload active-lock count is zero while reporting the global inventory. |
 | `dev/orin_external_state_target_reconcile.py` | Helper Status: Reusable | target-scoped and bounded target-set external-state writer | Use only for explicitly admitted live projection targets or an explicitly approved live-to-historical retirement. Dry-run projection compiles without a lock or snapshot. Final single-target or target-set publication requires an exact snapshot manifest bound to the admitting lock ID and workload ID; updates only selected header fields before the first historical receipt boundary; preserves receipt history; validates the selected live or historical post-state; performs atomic member replacement plus set-level semantic validation; records audit proof; and restores every changed target when set validation returns a failure or raises an exception. It must not traverse, rewrite the root manifest, or mutate historical receipts. |
-| `dev/orin_external_state_lock_release.py` | Helper Status: Reusable | external-state lock release helper | Release only the exact admitted target/workload lock, atomically reread the authoritative entry, and report workload/global counts. A remaining lock is an incomplete closeout. It must not release unrelated locks or mutate repo source truth. |
+| `dev/orin_external_state_lock_release.py` | Helper Status: Reusable | external-state lock release helper | Release only the exact admitted target/workload lock after a mandatory nonempty workload-identity match, atomically reread the authoritative entry, and report workload/global counts. A remaining lock is an incomplete closeout. It must not release unrelated locks or mutate repo source truth. |
 | `dev/orin_external_state_lock_lifecycle_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state lock lifecycle regression fixtures | Prove all required retained-lock failures and success, blocked, validation-failure, exception, partial-write, foreign-lock, stale-cleanup, fresh-next-workload, public final-gate, and authoritative-zero paths without mutating live external state. |
 | `dev/orin_external_state_target_currentness_fixture_validation.py` | Helper Status: Reusable Fixture Validator | external-state currentness regression fixtures | Prove positive, wrong-identity, stale, malformed, historical, traversal, reparse, TOCTOU, writer, audit, lock-release, audited historical retirement, omitted-live-projection rejection, and scoped-PASS-versus-root-PASS behavior for target-scoped currentness. It must not mutate live external state outside temporary fixtures. |
 | `dev/orin_worktree_rebaseline_audit.py` | Helper Status: Reusable | worktree rebaseline audit helper | report-only helper for `Pre-Rebaseline Impact Audit` packets. It must not fetch, merge, rebase, checkout, reset, or mutate files. Reuse before any FAM, Governance, or neutral-main worktree baselines to newer `origin/main`; it reports cwd, git root, worktree role from `Docs/worktree_slots.md` or generic runtime-slot fallback, branch, upstream, `HEAD`, target ref, merge base, incoming commits, incoming changed files, `Current Worktree Changed Files:`, `Branch Changed Files:`, `Rebaseline Overlap Files:`, runtime/source-truth risk, sibling worktree dirty-file overlap, active branch authority record, `Current-Main Reconciliation Identity Guard`, recommendation-only posture, `Rebaseline Mutation Approval: Pending`, and `Rebaseline Mutation Status: Not started` or blocked. Incoming changed files must compare `merge_base..target_ref`, branch changed files must compare `merge_base..HEAD`, current branch/worktree changed files must union branch changed files with staged/unstaged/untracked files, `Rebaseline Overlap Files:` must be the intersection of incoming changed files and current branch/worktree changed files, and branch authority matching must use the exact `- Branch:` field instead of substring matching. When overlap exists, the helper must resolve or accept the active external branch plan at `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, parse `Branch Change Intent Ledger` / `Changed Surface:` entries when available, report actual `Branch Change Intent Present:` YES/NO, classify `Semantic Merge Risk:` and `Regression / Gating Impact:`, and report `Rebaseline Overlap Intent Gate`, `Overall Overlap Gate Result:`, `Rebaseline Overlap Failure Procedure`, and `Rebaseline Overlap Intent Missing` guidance without treating fallback evidence as a compatibility bypass. Repo branch-plan files may be fallback evidence only after the external-state transition. |

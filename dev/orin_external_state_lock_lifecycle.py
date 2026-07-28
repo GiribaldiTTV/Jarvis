@@ -87,7 +87,7 @@ def _windows_kernel32():
     return kernel32
 
 
-def _process_is_running(process_id: int) -> bool:
+def _process_is_running(process_id: int) -> bool | None:
     if process_id <= 0:
         return False
     if os.name == "nt":
@@ -100,18 +100,21 @@ def _process_is_running(process_id: int) -> bool:
             process_id,
         )
         if not handle:
-            return False
+            error = ctypes.get_last_error()
+            return False if error == 87 else None  # ERROR_INVALID_PARAMETER means no process.
         try:
             exit_code = ctypes.c_ulong()
             if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
-                return False
+                return None
             return exit_code.value == still_active
         finally:
             kernel32.CloseHandle(handle)
     try:
         os.kill(process_id, 0)
-    except OSError:
+    except ProcessLookupError:
         return False
+    except (PermissionError, OSError):
+        return None
     return True
 
 
@@ -145,7 +148,7 @@ def inspect_lock_table(
     root: str | Path,
     *,
     current_workload_id: str | None = None,
-    process_checker: Callable[[int], bool] | None = None,
+    process_checker: Callable[[int], bool | None] | None = None,
 ) -> list[LockInspection]:
     """Read the authoritative lock directory on every call and classify every entry."""
 
@@ -352,7 +355,7 @@ def release_stale_completed_lock(
     expected_workload_id: str,
     reason: str,
     apply: bool,
-    process_checker: Callable[[int], bool] | None = None,
+    process_checker: Callable[[int], bool | None] | None = None,
 ) -> tuple[bool, list[str]]:
     inspections = inspect_lock_table(
         root,
