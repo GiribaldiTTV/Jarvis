@@ -353,6 +353,28 @@ machine enforcement of the existing contracts in `Docs/phase_governance.md`
 and `Docs/branch_plans/README.md`; it does not create new planning policy or
 grant Interface Bundle or Workstream implementation approval.
 
+FAM-003 Option G exact conditional-repair admission and current-state
+clarification: the post-BP3 consolidated decision packet must carry one
+ordered `OPTG-ALLOW-01` through `OPTG-ALLOW-08` ledger whose exact path,
+class/method/region, owner and carrier boundary, attribution trigger, permitted
+delta, exclusions, proof, rollback, and stop condition agree with the accepted
+BP2/BP3 Option G records. Supporting measurement helpers, validators,
+fixtures, proof carriers, packet carriers, and external-state carriers must be
+classified separately and cannot substitute for an `OPTG-ALLOW` runtime
+region. The current active branch plan physically owns the current exact
+allowlist carrydown; packet aids are review copies. Current decision carriers
+must identify their actual State Version in `Plan Version / Revision Status`
+and in `WAP-003`, `WAP-004`, `WAP-005`, and `WAP-008`; historical State 48 or
+State 53 evidence cannot be labeled active, final, or current after a later
+state is authoritative. `dev/orin_external_state_validation.py` and
+`dev/orin_user_review_bundle.py` (`Helper Status: Reusable`) enforce the live
+owner and USER-facing copy respectively, while their routed target-currentness
+and false-green fixtures must fail each per-row field drift, missing/duplicate/
+reordered rows, support-carrier substitution, accepted-owner mismatch, and
+stale current-state proof reference. This clarification registers enforcement
+of the already accepted Option G plan; it does not change that plan or grant
+Interface Bundle or Workstream implementation approval.
+
 FAM-003 Option G BP3 formal-digest, Vision-carrydown, UFD-vocabulary, and
 inventory-completion clarification: the active packet guard requires one exact
 `Next Legal Phase Digest` in both `START_HERE.md` and the primary BP3 review,

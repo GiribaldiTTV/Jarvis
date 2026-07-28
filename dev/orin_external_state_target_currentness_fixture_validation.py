@@ -535,6 +535,21 @@ def _element_to_phase_fixture() -> str:
     )
 
 
+def _option_g_allowlist_fixture() -> str:
+    def row(values: tuple[str, ...]) -> str:
+        return "| " + " | ".join(f"`{value}`" for value in values) + " |"
+
+    return "\n".join(
+        (
+            validator.FAM003_OPTION_G_ALLOWLIST_HEADING,
+            "",
+            row(validator.FAM003_OPTION_G_ALLOWLIST_HEADER),
+            "| " + " | ".join("---" for _ in validator.FAM003_OPTION_G_ALLOWLIST_HEADER) + " |",
+            *(row(values) for values in validator.FAM003_OPTION_G_ALLOWLIST_ROWS),
+        )
+    )
+
+
 def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
     target = root.joinpath(*UFD_TARGET.split("/"))
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -542,7 +557,7 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
     text = text_override or (
         "# FAM-003 UFD Target Currentness Fixture\n"
         "External State Schema: `external-state-v1`\n"
-        "State Version: `1`\n"
+        "State Version: `54`\n"
         "Last Updated: `2026-01-01T00:00:00Z`\n"
         "Last Updated By: `fixture`\n"
         "Record Class: `Live Branch Plan`\n"
@@ -564,6 +579,7 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n\n"
+        "Plan Version / Revision Status: `State 54 exact-allowlist and current-reference closure fixture`\n\n"
         "## Branch Vision Contract Snapshot\n\n"
         "Vision Contract Required: `Yes`\n"
         "Vision Contract Requirement Reason: `Runtime and USER-facing branch`\n"
@@ -591,6 +607,14 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
         f"Accepted BP2 SHA256: `{'B' * 64}`\n"
         "Accepted BP2 Acceptance Receipt: `decision2_option_g_bp2_acceptance_20260724.md`\n"
         f"Accepted BP2 Acceptance Receipt SHA256: `{'C' * 64}`\n\n"
+        f"{_option_g_allowlist_fixture()}\n\n"
+        "## Final Closure Ledger\n\n"
+        "| ID | Finding | Status | Closure / blocker |\n"
+        "| --- | --- | --- | --- |\n"
+        "| `WAP-003` | Runtime Engineering Contract | `CLOSED_WITH_PROOF` | current State 54 contract |\n"
+        "| `WAP-004` | implementation delta / planning loop | `CLOSED_WITH_PROOF` | current State 54 plan |\n"
+        "| `WAP-005` | feature and architecture classification | `CLOSED_WITH_PROOF` | current State 54 matrices |\n"
+        "| `WAP-008` | exact allowlist and current-reference closure | `CLOSED_WITH_PROOF` | current State 54 validator proof |\n\n"
         f"{rows}\n\n"
         f"{_element_to_phase_fixture()}\n\n"
         "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n"
@@ -668,6 +692,84 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         )
 
     _assert_pass("canonical UFD owner with 18 physical rows", validate(original))
+    allowlist = _option_g_allowlist_fixture()
+
+    def allowlist_row(values: tuple[str, ...]) -> str:
+        return "| " + " | ".join(f"`{value}`" for value in values) + " |"
+
+    _assert_failure(
+        "exact allowlist absent",
+        "physical eight-row ledger",
+        validate(original.replace(allowlist + "\n\n", "")),
+    )
+    _assert_failure(
+        "exact allowlist only below historical boundary",
+        "physical eight-row ledger",
+        validate(
+            original.replace(allowlist + "\n\n", "").replace(
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n\n" + allowlist,
+            )
+        ),
+    )
+    for row_index, expected_row in enumerate(
+        validator.FAM003_OPTION_G_ALLOWLIST_ROWS, start=1
+    ):
+        source_line = allowlist_row(expected_row)
+        for column_index in range(1, len(expected_row)):
+            changed = list(expected_row)
+            changed[column_index] = changed[column_index] + " drift"
+            _assert_failure(
+                f"allowlist row {row_index:02d} column {column_index} drift",
+                f"OPTG-ALLOW-{row_index:02d} drifts",
+                validate(original.replace(source_line, allowlist_row(tuple(changed)), 1)),
+            )
+    first_row = allowlist_row(validator.FAM003_OPTION_G_ALLOWLIST_ROWS[0])
+    second_row = allowlist_row(validator.FAM003_OPTION_G_ALLOWLIST_ROWS[1])
+    _assert_failure(
+        "allowlist missing row",
+        "IDs 01 through 08",
+        validate(original.replace(first_row + "\n", "", 1)),
+    )
+    _assert_failure(
+        "allowlist duplicate row",
+        "IDs 01 through 08",
+        validate(original.replace(first_row, first_row + "\n" + first_row, 1)),
+    )
+    _assert_failure(
+        "allowlist semantic reorder",
+        "IDs 01 through 08",
+        validate(original.replace(first_row + "\n" + second_row, second_row + "\n" + first_row, 1)),
+    )
+    support_substitution = list(validator.FAM003_OPTION_G_ALLOWLIST_ROWS[5])
+    support_substitution[1] = "dev/fam003_option_d_performance_controller.py"
+    _assert_failure(
+        "support carrier substituted for conditional region",
+        "OPTG-ALLOW-06 drifts",
+        validate(
+            original.replace(
+                allowlist_row(validator.FAM003_OPTION_G_ALLOWLIST_ROWS[5]),
+                allowlist_row(tuple(support_substitution)),
+                1,
+            )
+        ),
+    )
+    _assert_failure(
+        "current revision cites State 53",
+        "must identify State 54",
+        validate(
+            original.replace(
+                "Plan Version / Revision Status: `State 54",
+                "Plan Version / Revision Status: `State 53",
+                1,
+            )
+        ),
+    )
+    _assert_failure(
+        "current WAP row cites State 48",
+        "superseded State 48/53",
+        validate(original.replace("current State 54 contract", "active State 48 plan", 1)),
+    )
     rows = "\n\n".join(_ufd_fixture_rows())
     matrix = _element_to_phase_fixture()
     vision_block = (

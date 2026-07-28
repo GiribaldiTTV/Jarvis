@@ -5212,9 +5212,43 @@ def _assert_fam003_option_g_workstream_approval_closure_guards() -> None:
         "WAP-009",
     )
     contract = "\n".join(required_markers) + "\n"
+
+    def allowlist_row(values: tuple[str, ...]) -> str:
+        return "| " + " | ".join(f"`{value}`" for value in values) + " |"
+
+    allowlist = "\n".join(
+        (
+            bundle._FAM003_OPTION_G_ALLOWLIST_HEADING,
+            "",
+            allowlist_row(bundle._FAM003_OPTION_G_ALLOWLIST_HEADER),
+            "| " + " | ".join("---" for _ in bundle._FAM003_OPTION_G_ALLOWLIST_HEADER) + " |",
+            *(allowlist_row(row) for row in bundle._FAM003_OPTION_G_ALLOWLIST_ROWS),
+        )
+    )
+    accepted_bp3_allowlist = "\n".join(
+        allowlist_row(row)
+        for row in bundle._FAM003_OPTION_G_ACCEPTED_BP3_ALLOWLIST_ROWS
+    )
     contract = contract.replace(
         "Implementation Delta Class:\n",
         "Implementation Delta Class: `backend/runtime, developer-tooling, runtime/user-facing`\n",
+    )
+    contract = contract.replace(
+        "Plan Version / Revision Status:\n",
+        "Plan Version / Revision Status: `State 54 exact-allowlist and current-reference closure`\n",
+    )
+    contract = contract.replace(
+        "WAP-009\n",
+        "## Exact Owner And Carrier Admission\n\n"
+        + allowlist
+        + "\n\n## Final Closure Ledger\n\n"
+        + "| ID | Finding | Status | Closure / blocker |\n"
+        + "| --- | --- | --- | --- |\n"
+        + "| `WAP-003` | Runtime Engineering Contract | `CLOSED_WITH_PROOF` | current State 54 contract |\n"
+        + "| `WAP-004` | implementation delta / planning loop | `CLOSED_WITH_PROOF` | current State 54 plan |\n"
+        + "| `WAP-005` | feature and architecture classification | `CLOSED_WITH_PROOF` | current State 54 matrices |\n"
+        + "| `WAP-008` | exact allowlist and current-reference closure | `CLOSED_WITH_PROOF` | current State 54 validator proof |\n"
+        + "| `WAP-009` | deterministic packet closure | `CLOSED_WITH_PROOF` | current State 54 packet proof |\n",
     )
     future_proof = """## Future-Proof Implementation Review
 
@@ -5269,13 +5303,13 @@ Disposition: `Future-Proof Complete`
             "Packet Reviewability State: `Reviewable`\n"
         ),
         "Review Aids/CLOSURE_CONTRACT_AND_DEFECT_LEDGER.md": contract,
-        "Review Aids/ACTIVE_CARRIER_CENSUS_AND_FACT_MATRIX.md": "State Version: `48`\n",
+        "Review Aids/ACTIVE_CARRIER_CENSUS_AND_FACT_MATRIX.md": "State Version: `54`\n",
         "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md": contract,
         "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md": contract,
         "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md": "18 canonical UFD rows\n",
-        "Source Truth Context/Active External Snapshot/branch_plan.md": "State Version: `48`\n" + contract,
-        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md": "State Version: `48`\n",
-        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md": "State Version: `48`\n",
+        "Source Truth Context/Active External Snapshot/branch_plan.md": "State Version: `54`\n" + contract,
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md": "State Version: `54`\n",
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md": "State Version: `54`\n",
     }
     failures = bundle._fam003_option_g_workstream_approval_closure_failures(valid)
     if failures:
@@ -5349,8 +5383,11 @@ Disposition: `Future-Proof Complete`
     )
     consolidated = dict(valid)
     consolidated["Source Truth Context/Active External Snapshot/branch_plan.md"] = (
-        "State Version: `48`\n" + consolidated_contract
+        "State Version: `54`\n" + consolidated_contract
     )
+    consolidated[
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_workstream_entry_20260724.md"
+    ] = accepted_bp3_allowlist + "\n"
     consolidated["USER Review/WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW.md"] = (
         "# FAM-003 Option G Consolidated USER Decision\n"
         "Packet Reviewability State: `Reviewable`\n"
@@ -5362,6 +5399,14 @@ Disposition: `Future-Proof Complete`
         "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
     ):
         consolidated[path] = consolidated_contract
+    consolidated["Review Aids/PATH_RESOURCE_OBJECT_OWNER_ADMISSION_LEDGER.md"] = (
+        "# Path, Resource, Object, And Owner Admission Ledger\n\n"
+        + allowlist
+        + "\n\n## Separately Classified Non-Allowlist Carriers\n\n"
+        + "| ID | Carrier | Owner | Purpose | Authority | Stop condition |\n"
+        + "| --- | --- | --- | --- | --- | --- |\n"
+        + "| `OPTG-SUPPORT-01` | `dev/fam003_option_d_performance_controller.py` | `FAM-003` | `Nonintrusive measurement control` | `Supporting carrier, not an OPTG-ALLOW region` | `Stop on product sampling intrusion` |\n"
+    )
 
     census_rows = [
         {
@@ -5422,6 +5467,9 @@ Disposition: `Future-Proof Complete`
             {"id": "CDP-MC-001", "status": "CLOSED_WITH_PROOF"},
             {"id": "CDP-MC-002", "status": "CLOSED_WITH_PROOF"},
             {"id": "CDP-MC-003", "status": "CLOSED_WITH_PROOF"},
+            {"id": "CDP-ALLOW-001", "status": "CLOSED_WITH_PROOF"},
+            {"id": "CDP-STATE-001", "status": "CLOSED_WITH_PROOF"},
+            {"id": "CDP-VAL-001", "status": "CLOSED_WITH_PROOF"},
         ],
     }
     json_aids = {
@@ -5816,6 +5864,81 @@ Disposition: `Future-Proof Complete`
         one_copy_drift,
         "differs from the active external branch plan",
     )
+    ledger_path = "Review Aids/PATH_RESOURCE_OBJECT_OWNER_ADMISSION_LEDGER.md"
+    for row_index, expected_row in enumerate(
+        bundle._FAM003_OPTION_G_ALLOWLIST_ROWS, start=1
+    ):
+        source_line = allowlist_row(expected_row)
+        for column_index in range(1, len(expected_row)):
+            changed = list(expected_row)
+            changed[column_index] = changed[column_index] + " drift"
+            mutated = dict(consolidated)
+            mutated[ledger_path] = mutated[ledger_path].replace(
+                source_line, allowlist_row(tuple(changed)), 1
+            )
+            expect_consolidated_failure(
+                f"allowlist-user-ledger-{row_index:02d}-column-{column_index}",
+                mutated,
+                f"OPTG-ALLOW-{row_index:02d} differs",
+            )
+    first_allow = allowlist_row(bundle._FAM003_OPTION_G_ALLOWLIST_ROWS[0])
+    second_allow = allowlist_row(bundle._FAM003_OPTION_G_ALLOWLIST_ROWS[1])
+    for case_id, replacement in (
+        ("allowlist-user-ledger-missing", ""),
+        ("allowlist-user-ledger-duplicate", first_allow + "\n" + first_allow),
+    ):
+        mutated = dict(consolidated)
+        mutated[ledger_path] = mutated[ledger_path].replace(first_allow, replacement, 1)
+        expect_consolidated_failure(case_id, mutated, "ordered IDs 01 through 08")
+    mutated = dict(consolidated)
+    mutated[ledger_path] = mutated[ledger_path].replace(
+        first_allow + "\n" + second_allow,
+        second_allow + "\n" + first_allow,
+        1,
+    )
+    expect_consolidated_failure(
+        "allowlist-user-ledger-reordered",
+        mutated,
+        "ordered IDs 01 through 08",
+    )
+    mutated = dict(consolidated)
+    accepted_path = (
+        "Source Truth Context/Active External Snapshot/"
+        "decision2_option_g_bp3_workstream_entry_20260724.md"
+    )
+    mutated[accepted_path] = mutated[accepted_path].replace(
+        "DesktopRuntimeWindow.request_shutdown",
+        "dev/fam003_option_d_performance_controller.py",
+        1,
+    )
+    expect_consolidated_failure(
+        "accepted-bp3-allowlist-owner-drift",
+        mutated,
+        "exact approved OPTG-ALLOW-01 through OPTG-ALLOW-08 semantics",
+    )
+    support_substitution = list(bundle._FAM003_OPTION_G_ALLOWLIST_ROWS[5])
+    support_substitution[1] = "dev/fam003_option_d_performance_controller.py"
+    expect_consolidated_failure(
+        "allowlist-contract-support-carrier-substitution",
+        mutate_contracts(
+            allowlist_row(bundle._FAM003_OPTION_G_ALLOWLIST_ROWS[5]),
+            allowlist_row(tuple(support_substitution)),
+        ),
+        "OPTG-ALLOW-06 differs",
+    )
+    expect_consolidated_failure(
+        "current-plan-revision-state53",
+        mutate_contracts(
+            "Plan Version / Revision Status: `State 54",
+            "Plan Version / Revision Status: `State 53",
+        ),
+        "must identify current State 54",
+    )
+    expect_consolidated_failure(
+        "current-wap-state48",
+        mutate_contracts("current State 54 contract", "active State 48 plan"),
+        "superseded State 48/53 proof",
+    )
     historical_only = dict(consolidated)
     historical_only["Source Truth Context/Active External Snapshot/branch_plan.md"] = (
         "State Version: `48`\n## Historical Receipts\n"
@@ -5824,7 +5947,7 @@ Disposition: `Future-Proof Complete`
     expect_consolidated_failure(
         "mandatory-historical-contract-treated-current",
         historical_only,
-        "Implementation Delta Class must appear exactly once in the current contract",
+        "requires State 54 or later",
     )
     expect_consolidated_failure(
         "mandatory-defect-ledger-ids-missing",
@@ -5834,7 +5957,7 @@ Disposition: `Future-Proof Complete`
                 "rows", [row for row in p["rows"] if not row["id"].startswith("CDP-MC-")]
             ),
         ),
-        "omits the three mandatory contract defects",
+        "omits mandatory contract, exact-allowlist, current-state, or validator closure defects",
     )
 
 

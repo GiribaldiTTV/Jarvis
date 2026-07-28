@@ -1867,6 +1867,233 @@ _FAM003_OPTION_G_CONTRACT_AIDS = (
     "INTERFACE_VISUAL_AND_OWNER_ADMISSION.md",
     "CONSOLIDATED_DECISION_CLOSURE_CONTRACT.md",
 )
+_FAM003_OPTION_G_ALLOWLIST_HEADING = "## Exact Conditional Repair Allowlist"
+_FAM003_OPTION_G_ALLOWLIST_HEADER = (
+    "ID",
+    "Exact path",
+    "Exact class / method / region",
+    "Owner class and carrier boundary",
+    "Attribution trigger",
+    "Permitted delta",
+    "Explicit exclusions",
+    "Proof requirement",
+    "Rollback",
+    "Stop condition",
+)
+_FAM003_OPTION_G_ALLOWLIST_ROWS = (
+    (
+        "OPTG-ALLOW-01",
+        "desktop/desktop_renderer.py",
+        "DesktopRuntimeWindow.__init__; _monitoring_hud_resize_hover_timer, _monitoring_hud_recording_control_click_bridge_timer, and their current start calls",
+        "Shared desktop core; FAM-003 carrier only for accepted resident lifecycle support",
+        "Timer active while HUD unavailable, hidden, minimized, or not ready",
+        "Defer exact start responsibility behind lifecycle readiness; no interval or semantic change",
+        "Other timers, FAM-006 page/state, renderer",
+        "HUD timer-state fixture; changed-region audit",
+        "Restore original construction/start block",
+        "Any other timer or owner blocks; invalidates HUD lifecycle/performance proof",
+    ),
+    (
+        "OPTG-ALLOW-02",
+        "desktop/desktop_renderer.py",
+        "DesktopRuntimeWindow._apply_monitoring_hud_window_interaction_state",
+        "Shared desktop core; FAM-003 carrier only for accepted resident lifecycle support",
+        "Dashboard visibility/readiness and either named timer disagree",
+        "Idempotent start/stop of two named timers after exact transition",
+        "HUD meaning, profiles, layout, JavaScript",
+        "Full HUD lifecycle matrix; stale-state/duplicate-start fixture",
+        "Remove exact coordination",
+        "Product semantic change blocks; renew route/visual/lifecycle proof",
+    ),
+    (
+        "OPTG-ALLOW-03",
+        "desktop/desktop_renderer.py",
+        "DesktopRuntimeWindow.request_shutdown",
+        "Shared desktop core; FAM-003 carrier only for accepted resident lifecycle support",
+        "Named timer or callback survives shutdown",
+        "Stop/disconnect two named timers before retained child shutdown",
+        "Generic WebEngine teardown, FAM-006 shutdown semantics",
+        "Shutdown/relaunch callback fixture",
+        "Restore original ordering",
+        "Other teardown object blocks; renew relaunch proof",
+    ),
+    (
+        "OPTG-ALLOW-04",
+        "desktop/desktop_renderer.py",
+        "MonitoringHudStudioWebWindow.__init__; _resize_hover_timer construction/start guard",
+        "Shared native Studio base",
+        "Log Viewer timer starts before visible readiness",
+        "Gate exact start behind resizable/visible lifecycle",
+        "Recording subclass, geometry, DOM/CSS",
+        "Per-subclass timer fixture",
+        "Restore original guard",
+        "Subclass semantic change blocks; renew both Studio proofs",
+    ),
+    (
+        "OPTG-ALLOW-05",
+        "desktop/desktop_renderer.py",
+        "Proposed MonitoringHudStudioWebWindow._sync_resize_hover_polling_lifecycle",
+        "Shared native Studio base",
+        "Exact repeated start/stop logic is necessary and rows 04/06/07/08 remain insufficient without central guard",
+        "Add one helper limited to _resize_hover_timer",
+        "Other timer/callback/window/product state",
+        "Duplicate-start, unknown-resource, Recording inactive fixtures",
+        "Remove helper/calls",
+        "Any other resource blocks; renew shared-base proof",
+    ),
+    (
+        "OPTG-ALLOW-06",
+        "desktop/desktop_renderer.py",
+        "MonitoringHudStudioWebWindow._show_or_raise",
+        "Shared native Studio base",
+        "Reopened Log Viewer fails exact timer restart",
+        "Call guarded lifecycle helper after visible readiness",
+        "Recording behavior, geometry policy, activation semantics",
+        "Both-subclass reopen fixture",
+        "Remove call",
+        "Reopen semantic change blocks; renew reopen visual/lifecycle proof",
+    ),
+    (
+        "OPTG-ALLOW-07",
+        "desktop/desktop_renderer.py",
+        "MonitoringHudStudioWebWindow.closeEvent",
+        "Shared native Studio base",
+        "Closed Log Viewer retains active timer/callback",
+        "Stop/reset exact resize-hover state before close",
+        "Recording close meaning, WebEngine lifetime",
+        "Both-subclass close/reopen fixture",
+        "Restore prior block",
+        "Generic teardown blocks; renew shutdown/reopen proof",
+    ),
+    (
+        "OPTG-ALLOW-08",
+        "desktop/desktop_renderer.py",
+        "MonitoringHudStudioWebWindow._poll_native_edge_resize_hover_cursor",
+        "Shared native Studio base",
+        "Callback runs while hidden, minimized, not resizable, closing, or shutting down",
+        "Fail closed and synchronize exact timer state",
+        "Resize geometry, hit-test semantics, styling",
+        "Cursor/callback fixture",
+        "Revert guard",
+        "Any non-enumerated method blocks; renew visible cursor proof",
+    ),
+)
+_FAM003_OPTION_G_ACCEPTED_BP3_ALLOWLIST_ROWS = (
+    ("OPTG-ALLOW-01", "desktop/desktop_renderer.py; DesktopRuntimeWindow.__init__; _monitoring_hud_resize_hover_timer, _monitoring_hud_recording_control_click_bridge_timer, current start calls", "Shared desktop core; FAM-003 carrier only for accepted lifecycle support", "Timer active while HUD unavailable, hidden, minimized, or not ready", "Defer exact start responsibility behind lifecycle readiness; no interval/semantic change", "Other timers, FAM-006 page/state, renderer", "HUD timer-state fixture; changed-region audit", "Restore original construction/start block", "Any other timer/owner blocks; invalidates HUD lifecycle/performance proof"),
+    ("OPTG-ALLOW-02", "desktop/desktop_renderer.py; DesktopRuntimeWindow._apply_monitoring_hud_window_interaction_state", "Shared desktop core; FAM-003 carrier only for accepted lifecycle support", "Dashboard visibility/readiness and either named timer disagree", "Idempotent start/stop of two named timers after exact transition", "HUD meaning, profiles, layout, JavaScript", "Full HUD lifecycle matrix; stale-state/duplicate-start fixture", "Remove exact coordination", "Product semantic change blocks; renew route/visual/lifecycle proof"),
+    ("OPTG-ALLOW-03", "desktop/desktop_renderer.py; DesktopRuntimeWindow.request_shutdown", "Shared desktop core; FAM-003 carrier only for accepted lifecycle support", "Named timer/callback survives shutdown", "Stop/disconnect two named timers before retained child shutdown", "Generic WebEngine teardown, FAM-006 shutdown semantics", "Shutdown/relaunch callback fixture", "Restore original ordering", "Other teardown object blocks; renew relaunch proof"),
+    ("OPTG-ALLOW-04", "desktop/desktop_renderer.py; MonitoringHudStudioWebWindow.__init__; _resize_hover_timer construction/start guard", "Shared native Studio base", "Log Viewer timer starts before visible readiness", "Gate exact start behind resizable/visible lifecycle", "Recording subclass, geometry, DOM/CSS", "Per-subclass timer fixture", "Restore original guard", "Subclass semantic change blocks; renew both Studio proofs"),
+    ("OPTG-ALLOW-05", "desktop/desktop_renderer.py; proposed MonitoringHudStudioWebWindow._sync_resize_hover_polling_lifecycle", "Shared native Studio base", "Exact repeated start/stop logic is necessary and rows 04/06/07/08 remain insufficient without central guard", "Add one helper limited to _resize_hover_timer", "Other timer/callback/window/product state", "Duplicate-start, unknown-resource, Recording inactive fixtures", "Remove helper/calls", "Any other resource blocks; renew shared-base proof"),
+    ("OPTG-ALLOW-06", "desktop/desktop_renderer.py; MonitoringHudStudioWebWindow._show_or_raise", "Shared native Studio base", "Reopened Log Viewer fails exact timer restart", "Call guarded lifecycle helper after visible readiness", "Recording behavior, geometry policy, activation semantics", "Both-subclass reopen fixture", "Remove call", "Reopen semantic change blocks; renew reopen visual/lifecycle proof"),
+    ("OPTG-ALLOW-07", "desktop/desktop_renderer.py; MonitoringHudStudioWebWindow.closeEvent", "Shared native Studio base", "Closed Log Viewer retains active timer/callback", "Stop/reset exact resize-hover state before close", "Recording close meaning, WebEngine lifetime", "Both-subclass close/reopen fixture", "Restore prior block", "Generic teardown blocks; renew shutdown/reopen proof"),
+    ("OPTG-ALLOW-08", "desktop/desktop_renderer.py; MonitoringHudStudioWebWindow._poll_native_edge_resize_hover_cursor", "Shared native Studio base", "Callback runs while hidden, minimized, not resizable, closing, or shutting down", "Fail closed and synchronize exact timer state", "Resize geometry, hit-test semantics, styling", "Cursor/callback fixture", "Revert guard", "Any non-enumerated method blocks; renew visible cursor proof"),
+)
+
+
+def _fam003_option_g_allowlist_cells(line: str) -> tuple[str, ...]:
+    stripped = line.strip()
+    if not stripped.startswith("|") or not stripped.endswith("|"):
+        return ()
+    return tuple(cell.strip().strip("`") for cell in stripped[1:-1].split("|"))
+
+
+def _fam003_option_g_allowlist_section(text: str) -> str:
+    return _fam003_option_g_current_section(text, _FAM003_OPTION_G_ALLOWLIST_HEADING)
+
+
+def _fam003_option_g_allowlist_failures(text: str, carrier_name: str) -> list[str]:
+    failures: list[str] = []
+    section = _fam003_option_g_allowlist_section(text)
+    if not section:
+        return [f"{carrier_name}: exact OPTG-ALLOW ledger is missing or duplicated"]
+    lines = [line for line in section.splitlines() if line.strip()]
+    table_lines = [line for line in lines if line.lstrip().startswith("|")]
+    if len(table_lines) < 2:
+        return [f"{carrier_name}: exact OPTG-ALLOW ledger table is missing"]
+    header = _fam003_option_g_allowlist_cells(table_lines[0])
+    if header != _FAM003_OPTION_G_ALLOWLIST_HEADER:
+        failures.append(f"{carrier_name}: exact OPTG-ALLOW ledger schema or column order is invalid")
+    rows = tuple(
+        _fam003_option_g_allowlist_cells(line)
+        for line in table_lines[2:]
+        if line.strip().startswith("| `OPTG-ALLOW-")
+    )
+    ids = [row[0] for row in rows if row]
+    if ids != [f"OPTG-ALLOW-{index:02d}" for index in range(1, 9)]:
+        failures.append(
+            f"{carrier_name}: exact OPTG-ALLOW ledger must contain ordered IDs 01 through 08 exactly once"
+        )
+    if rows != _FAM003_OPTION_G_ALLOWLIST_ROWS:
+        for index, expected in enumerate(_FAM003_OPTION_G_ALLOWLIST_ROWS):
+            if index >= len(rows):
+                failures.append(f"{carrier_name}: {expected[0]} is missing")
+                continue
+            actual = rows[index]
+            if actual != expected:
+                changed = [
+                    _FAM003_OPTION_G_ALLOWLIST_HEADER[column]
+                    for column in range(min(len(actual), len(expected)))
+                    if actual[column] != expected[column]
+                ]
+                if len(actual) != len(expected):
+                    changed.append("column count")
+                failures.append(
+                    f"{carrier_name}: {expected[0]} differs from the accepted BP2/BP3 allowlist in {', '.join(changed)}"
+                )
+        if len(rows) > len(_FAM003_OPTION_G_ALLOWLIST_ROWS):
+            failures.append(f"{carrier_name}: exact OPTG-ALLOW ledger contains extra rows")
+    return failures
+
+
+def _fam003_option_g_current_state_reference_failures(
+    text: str,
+    carrier_name: str,
+    expected_state: str,
+) -> list[str]:
+    failures: list[str] = []
+    active = text.split("\n## Historical Receipts", 1)[0]
+    active = active.split("\nHistorical Receipt Boundary:", 1)[0]
+    revision = _markdown_field_value(active, "Plan Version / Revision Status") or ""
+    if f"State {expected_state}" not in revision:
+        failures.append(
+            f"{carrier_name}: Plan Version / Revision Status must identify current State {expected_state}"
+        )
+    if re.search(r"\bactive State (?:48|53)\b|\bState 53\b.*\b(?:final|current)\b", active, re.IGNORECASE):
+        failures.append(f"{carrier_name}: active closure text promotes superseded State 48/53 proof")
+    closure = _fam003_option_g_current_section(active, "## Final Closure Ledger")
+    for row_id in ("WAP-003", "WAP-004", "WAP-005", "WAP-008"):
+        rows = [line for line in closure.splitlines() if f"`{row_id}`" in line]
+        if len(rows) != 1 or f"State {expected_state}" not in rows[0]:
+            failures.append(
+                f"{carrier_name}: {row_id} must cite current State {expected_state} proof exactly once"
+            )
+    return failures
+
+
+def _fam003_option_g_accepted_bp3_allowlist_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    matches = [
+        text
+        for path, text in packet_files.items()
+        if _packet_file_basename(path).casefold()
+        == "decision2_option_g_bp3_workstream_entry_20260724.md"
+        and "Historical Evidence" not in path
+    ]
+    if len(matches) != 1:
+        return [
+            "FAM-003 consolidated packet must contain exactly one accepted BP3 allowlist owner copy"
+        ]
+    rows = tuple(
+        _fam003_option_g_allowlist_cells(line)
+        for line in matches[0].splitlines()
+        if line.strip().startswith("| `OPTG-ALLOW-")
+    )
+    if rows != _FAM003_OPTION_G_ACCEPTED_BP3_ALLOWLIST_ROWS:
+        return [
+            "accepted BP3 allowlist owner copy does not contain the exact approved OPTG-ALLOW-01 through OPTG-ALLOW-08 semantics"
+        ]
+    return []
 
 
 def _fam003_option_g_current_section(text: str, heading: str) -> str:
@@ -1926,6 +2153,12 @@ def _fam003_option_g_mandatory_contract_failures(
         return []
     carriers, failures = _fam003_option_g_contract_carriers(packet_files)
     expected_delta = ", ".join(_FAM003_OPTION_G_IMPLEMENTATION_DELTA_CLASSES)
+    branch_plan_text = carriers.get("active external branch_plan.md", "")
+    current_state = _markdown_field_value(branch_plan_text, "State Version") or ""
+    if not current_state.isdigit() or int(current_state) < 54:
+        failures.append(
+            "active external branch_plan.md: consolidated decision packet requires State 54 or later"
+        )
     required_surface_tokens = (
         "shared desktop core",
         "shared native studio base",
@@ -1940,11 +2173,18 @@ def _fam003_option_g_mandatory_contract_failures(
         "validators / proof architecture",
         "packet / receipt architecture",
     )
-    normalized_contracts: dict[str, tuple[str, str, str]] = {}
+    normalized_contracts: dict[str, tuple[str, ...]] = {}
 
     for carrier_name, text in carriers.items():
         active = text.split("\n## Historical Receipts", 1)[0]
         active = active.split("\nHistorical Receipt Boundary:", 1)[0]
+        failures.extend(_fam003_option_g_allowlist_failures(active, carrier_name))
+        if current_state:
+            failures.extend(
+                _fam003_option_g_current_state_reference_failures(
+                    active, carrier_name, current_state
+                )
+            )
         delta_matches = re.findall(
             r"(?m)^Implementation Delta Class:\s*`([^`]+)`\s*$", active
         )
@@ -2149,6 +2389,9 @@ def _fam003_option_g_mandatory_contract_failures(
             f"Implementation Delta Class: `{delta_value}`",
             future.strip(),
             matrix.strip(),
+            _fam003_option_g_allowlist_section(active).strip(),
+            (_markdown_field_value(active, "Plan Version / Revision Status") or "").strip(),
+            _fam003_option_g_current_section(active, "## Final Closure Ledger").strip(),
         )
 
     reference = normalized_contracts.get("active external branch_plan.md")
@@ -2249,6 +2492,20 @@ def _fam003_option_g_workstream_approval_closure_failures(
 
     if is_consolidated:
         failures.extend(_fam003_option_g_mandatory_contract_failures(packet_files))
+        failures.extend(_fam003_option_g_accepted_bp3_allowlist_failures(packet_files))
+        admission_ledger = _packet_file_text(
+            packet_files, "PATH_RESOURCE_OBJECT_OWNER_ADMISSION_LEDGER.md"
+        )
+        failures.extend(
+            _fam003_option_g_allowlist_failures(
+                admission_ledger,
+                "PATH_RESOURCE_OBJECT_OWNER_ADMISSION_LEDGER.md",
+            )
+        )
+        if "## Separately Classified Non-Allowlist Carriers" not in admission_ledger:
+            failures.append(
+                "PATH_RESOURCE_OBJECT_OWNER_ADMISSION_LEDGER.md: separately classified non-allowlist carrier ledger is missing"
+            )
         consolidated_markers = (
             "Consolidated Decision Status: `Pending USER Review`",
             "Consolidated Decision Grants Before USER Response: `None`",
@@ -2318,6 +2575,7 @@ def _fam003_option_g_workstream_approval_closure_failures(
             "OPTIONS_TRADEOFFS_AND_RECOMMENDATION.md",
             "FORMAL_NEXT_LEGAL_PHASE_DIGEST.md",
             "USER_DECISIONS.md",
+            "PATH_RESOURCE_OBJECT_OWNER_ADMISSION_LEDGER.md",
         )
     for basename in required_aids:
         if not _packet_file_text(packet_files, basename):
@@ -2470,10 +2728,17 @@ def _fam003_option_g_workstream_approval_closure_failures(
                 for row in rows or []
                 if isinstance(row, dict)
             }
-            required_mandatory_ids = {"CDP-MC-001", "CDP-MC-002", "CDP-MC-003"}
+            required_mandatory_ids = {
+                "CDP-MC-001",
+                "CDP-MC-002",
+                "CDP-MC-003",
+                "CDP-ALLOW-001",
+                "CDP-STATE-001",
+                "CDP-VAL-001",
+            }
             if not required_mandatory_ids.issubset(defect_ids):
                 failures.append(
-                    "FAM-003 Option G consolidated defect ledger omits the three mandatory contract defects"
+                    "FAM-003 Option G consolidated defect ledger omits mandatory contract, exact-allowlist, current-state, or validator closure defects"
                 )
 
     if "Packet Reviewability State: `Reviewable`" in primary and (

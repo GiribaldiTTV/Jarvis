@@ -294,6 +294,22 @@ ELEMENT_TO_PHASE_CLASSIFICATIONS = {
 FAM003_OPTION_G_ELEMENT_IDS = tuple(
     f"OPTG-ELEM-{index:02d}" for index in range(1, 12)
 )
+FAM003_OPTION_G_ALLOWLIST_HEADING = "## Exact Conditional Repair Allowlist"
+FAM003_OPTION_G_ALLOWLIST_HEADER = (
+    "ID", "Exact path", "Exact class / method / region",
+    "Owner class and carrier boundary", "Attribution trigger", "Permitted delta",
+    "Explicit exclusions", "Proof requirement", "Rollback", "Stop condition",
+)
+FAM003_OPTION_G_ALLOWLIST_ROWS = (
+    ("OPTG-ALLOW-01", "desktop/desktop_renderer.py", "DesktopRuntimeWindow.__init__; _monitoring_hud_resize_hover_timer, _monitoring_hud_recording_control_click_bridge_timer, and their current start calls", "Shared desktop core; FAM-003 carrier only for accepted resident lifecycle support", "Timer active while HUD unavailable, hidden, minimized, or not ready", "Defer exact start responsibility behind lifecycle readiness; no interval or semantic change", "Other timers, FAM-006 page/state, renderer", "HUD timer-state fixture; changed-region audit", "Restore original construction/start block", "Any other timer or owner blocks; invalidates HUD lifecycle/performance proof"),
+    ("OPTG-ALLOW-02", "desktop/desktop_renderer.py", "DesktopRuntimeWindow._apply_monitoring_hud_window_interaction_state", "Shared desktop core; FAM-003 carrier only for accepted resident lifecycle support", "Dashboard visibility/readiness and either named timer disagree", "Idempotent start/stop of two named timers after exact transition", "HUD meaning, profiles, layout, JavaScript", "Full HUD lifecycle matrix; stale-state/duplicate-start fixture", "Remove exact coordination", "Product semantic change blocks; renew route/visual/lifecycle proof"),
+    ("OPTG-ALLOW-03", "desktop/desktop_renderer.py", "DesktopRuntimeWindow.request_shutdown", "Shared desktop core; FAM-003 carrier only for accepted resident lifecycle support", "Named timer or callback survives shutdown", "Stop/disconnect two named timers before retained child shutdown", "Generic WebEngine teardown, FAM-006 shutdown semantics", "Shutdown/relaunch callback fixture", "Restore original ordering", "Other teardown object blocks; renew relaunch proof"),
+    ("OPTG-ALLOW-04", "desktop/desktop_renderer.py", "MonitoringHudStudioWebWindow.__init__; _resize_hover_timer construction/start guard", "Shared native Studio base", "Log Viewer timer starts before visible readiness", "Gate exact start behind resizable/visible lifecycle", "Recording subclass, geometry, DOM/CSS", "Per-subclass timer fixture", "Restore original guard", "Subclass semantic change blocks; renew both Studio proofs"),
+    ("OPTG-ALLOW-05", "desktop/desktop_renderer.py", "Proposed MonitoringHudStudioWebWindow._sync_resize_hover_polling_lifecycle", "Shared native Studio base", "Exact repeated start/stop logic is necessary and rows 04/06/07/08 remain insufficient without central guard", "Add one helper limited to _resize_hover_timer", "Other timer/callback/window/product state", "Duplicate-start, unknown-resource, Recording inactive fixtures", "Remove helper/calls", "Any other resource blocks; renew shared-base proof"),
+    ("OPTG-ALLOW-06", "desktop/desktop_renderer.py", "MonitoringHudStudioWebWindow._show_or_raise", "Shared native Studio base", "Reopened Log Viewer fails exact timer restart", "Call guarded lifecycle helper after visible readiness", "Recording behavior, geometry policy, activation semantics", "Both-subclass reopen fixture", "Remove call", "Reopen semantic change blocks; renew reopen visual/lifecycle proof"),
+    ("OPTG-ALLOW-07", "desktop/desktop_renderer.py", "MonitoringHudStudioWebWindow.closeEvent", "Shared native Studio base", "Closed Log Viewer retains active timer/callback", "Stop/reset exact resize-hover state before close", "Recording close meaning, WebEngine lifetime", "Both-subclass close/reopen fixture", "Restore prior block", "Generic teardown blocks; renew shutdown/reopen proof"),
+    ("OPTG-ALLOW-08", "desktop/desktop_renderer.py", "MonitoringHudStudioWebWindow._poll_native_edge_resize_hover_cursor", "Shared native Studio base", "Callback runs while hidden, minimized, not resizable, closing, or shutting down", "Fail closed and synchronize exact timer state", "Resize geometry, hit-test semantics, styling", "Cursor/callback fixture", "Revert guard", "Any non-enumerated method blocks; renew visible cursor proof"),
+)
 
 
 def _markdown_table_cells(line: str) -> list[str]:
@@ -707,6 +723,99 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
     return failures
 
 
+def _validate_active_branch_plan_option_g_allowlist(
+    relative: str,
+    live_text: str,
+) -> list[str]:
+    """Validate exact Option G mutation admission and current proof references."""
+
+    branch = markdown_field_value(live_text, "Branch") or ""
+    if branch != FAM003_OPTION_G_BRANCH:
+        return []
+    if not relative.replace("\\", "/").endswith("/branch_plan.md"):
+        return []
+    failures: list[str] = []
+    active = live_text.split("\nHistorical Receipt Boundary:", 1)[0]
+    match = re.search(
+        rf"(?ms)^{re.escape(FAM003_OPTION_G_ALLOWLIST_HEADING)}\s*$\n"
+        r"(.*?)(?=^## |\Z)",
+        active,
+    )
+    if not match:
+        failures.append(
+            "Exact Conditional Repair Allowlist: current active branch plan lacks the physical eight-row ledger"
+        )
+    else:
+        section = match.group(0)
+        table_lines = [
+            line for line in section.splitlines() if line.lstrip().startswith("|")
+        ]
+        if len(table_lines) < 2:
+            failures.append("Exact Conditional Repair Allowlist: table is missing")
+        else:
+            if tuple(_markdown_table_cells(table_lines[0])) != FAM003_OPTION_G_ALLOWLIST_HEADER:
+                failures.append(
+                    "Exact Conditional Repair Allowlist: schema or column order is invalid"
+                )
+            rows = tuple(
+                tuple(_markdown_table_cells(line))
+                for line in table_lines[2:]
+                if line.strip().startswith("| `OPTG-ALLOW-")
+            )
+            ids = [row[0] for row in rows if row]
+            if ids != [f"OPTG-ALLOW-{index:02d}" for index in range(1, 9)]:
+                failures.append(
+                    "Exact Conditional Repair Allowlist: IDs 01 through 08 must appear once in accepted order"
+                )
+            if rows != FAM003_OPTION_G_ALLOWLIST_ROWS:
+                for index, expected in enumerate(FAM003_OPTION_G_ALLOWLIST_ROWS):
+                    if index >= len(rows):
+                        failures.append(
+                            f"Exact Conditional Repair Allowlist: {expected[0]} is missing"
+                        )
+                        continue
+                    actual = rows[index]
+                    if actual != expected:
+                        changed = [
+                            FAM003_OPTION_G_ALLOWLIST_HEADER[column]
+                            for column in range(min(len(actual), len(expected)))
+                            if actual[column] != expected[column]
+                        ]
+                        if len(actual) != len(expected):
+                            changed.append("column count")
+                        failures.append(
+                            f"Exact Conditional Repair Allowlist: {expected[0]} drifts in {', '.join(changed)}"
+                        )
+                if len(rows) > len(FAM003_OPTION_G_ALLOWLIST_ROWS):
+                    failures.append(
+                        "Exact Conditional Repair Allowlist: unapproved extra row is present"
+                    )
+
+    state_version = markdown_field_value(active, "State Version") or ""
+    revision = markdown_field_value(active, "Plan Version / Revision Status") or ""
+    if not state_version.isdigit() or int(state_version) < 54:
+        failures.append("Current Option G decision carrier must be State 54 or later")
+    elif f"State {state_version}" not in revision:
+        failures.append(
+            f"Current Option G Plan Version / Revision Status must identify State {state_version}"
+        )
+    if re.search(
+        r"\bactive State (?:48|53)\b|\bState 53\b.*\b(?:final|current)\b",
+        active,
+        re.IGNORECASE,
+    ):
+        failures.append(
+            "Current Option G decision carrier promotes superseded State 48/53 proof"
+        )
+    for row_id in ("WAP-003", "WAP-004", "WAP-005", "WAP-008"):
+        rows = [line for line in active.splitlines() if f"`{row_id}`" in line]
+        if len(rows) != 1 or not state_version or f"State {state_version}" not in rows[0]:
+            failures.append(
+                f"Current Option G decision carrier {row_id} must cite State {state_version or 'UNKNOWN'} proof exactly once"
+            )
+    return failures
+
+
 def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
     values: list[tuple[str, str]] = []
     for field in fields:
@@ -904,6 +1013,7 @@ def validate_target_currentness(
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
     failures.extend(_validate_active_branch_plan_vision(relative, live_text))
+    failures.extend(_validate_active_branch_plan_option_g_allowlist(relative, live_text))
     failures.extend(_validate_active_branch_plan_ufd(relative, live_text))
     failures.extend(_validate_active_branch_plan_element_matrix(relative, live_text))
     return failures
