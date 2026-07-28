@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import ctypes
 import hashlib
+import json
 import os
 import re
 import time
@@ -16,7 +17,6 @@ from typing import Callable
 from orin_external_state_common import (
     DEFAULT_EXTERNAL_STATE_ROOT,
     ExternalStateError,
-    load_json,
     resolve_path,
     validate_canonical_root,
     validate_initialized_root,
@@ -67,6 +67,7 @@ class LockInspection:
     last_activity_at: str
     classification: str
     active: bool
+    payload_sha256: str
     error: str = ""
 
 
@@ -165,8 +166,13 @@ def inspect_lock_table(
         return []
     inspections: list[LockInspection] = []
     for path in sorted(locks_dir.glob("*.json")):
+        payload_sha256 = ""
         try:
-            payload = load_json(path)
+            payload_bytes = path.read_bytes()
+            payload_sha256 = hashlib.sha256(payload_bytes).hexdigest()
+            payload = json.loads(payload_bytes)
+            if not isinstance(payload, dict):
+                raise ExternalStateError(f"{path} must contain a JSON object")
         except Exception as exc:  # noqa: BLE001 - malformed lock is a blocking classification
             inspections.append(
                 LockInspection(
@@ -184,6 +190,7 @@ def inspect_lock_table(
                     last_activity_at="",
                     classification="MALFORMED",
                     active=False,
+                    payload_sha256=payload_sha256,
                     error=str(exc),
                 )
             )
@@ -241,6 +248,7 @@ def inspect_lock_table(
                 last_activity_at=str(payload.get("Last Activity At", payload.get("Last Updated", ""))),
                 classification=classification,
                 active=active,
+                payload_sha256=payload_sha256,
                 error="invalid lock identity, state, type, or intended write set" if malformed else "",
             )
         )
@@ -381,13 +389,19 @@ def release_stale_completed_lock(
         ]
     from orin_external_state_lock_release import release_lock
 
+    _before_stale_release_cas(inspection.path, inspection.payload_sha256)
     return release_lock(
         Path(root),
         lock_id,
         reason,
         apply,
         expected_workload_id=expected_workload_id,
+        expected_lock_sha256=inspection.payload_sha256,
     )
+
+
+def _before_stale_release_cas(_lock_path: Path, _expected_sha256: str) -> None:
+    """Test seam for adversarial mutation after stale classification."""
 
 
 class ExternalStateLockTransaction:

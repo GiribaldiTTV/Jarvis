@@ -114,6 +114,11 @@ def acquire_lock(
 ) -> tuple[bool, list[str], str]:
     root = resolve_path(root)
     failures = validate_canonical_root(root)
+    lock_type_valid = lock_type in LOCK_TYPES
+    if not lock_type_valid:
+        failures.append(
+            f"External State Lock Type Invalid: unsupported lock type {lock_type!r}"
+        )
     targets = _write_set(intended_write_set)
     if not targets:
         failures.append("External State Lock Missing: exact intended write set is empty")
@@ -127,7 +132,11 @@ def acquire_lock(
     else:
         failures.extend(validate_initialized_root(root, schema))
 
-    lock_id = new_lock_id(lock_type)
+    lock_id = (
+        new_lock_id(lock_type)
+        if lock_type_valid
+        else "INVALID-LOCK-TYPE-NOT-ACQUIRED"
+    )
     if failures:
         return False, failures, lock_id
     acquired_at = utc_now()

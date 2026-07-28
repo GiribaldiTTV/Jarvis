@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import re
 from pathlib import Path
 
@@ -44,6 +45,7 @@ def release_lock(
     apply: bool,
     *,
     expected_workload_id: str | None = None,
+    expected_lock_sha256: str | None = None,
 ) -> tuple[bool, list[str]]:
     root = resolve_path(root)
     failures = validate_canonical_root(root)
@@ -53,6 +55,10 @@ def release_lock(
     lock_path = root / "locks" / f"{lock_id}.json"
     if not (expected_workload_id or "").strip():
         failures.append("Lock workload identity is required for release")
+    if expected_lock_sha256 is not None and not re.fullmatch(
+        r"[0-9a-f]{64}", expected_lock_sha256
+    ):
+        failures.append("Lock release precondition digest is invalid")
     if not lock_path.is_file():
         failures.append(f"Lock is missing: {lock_path}")
     if failures:
@@ -61,6 +67,12 @@ def release_lock(
         initial_lock_bytes = lock_path.read_bytes()
     except OSError as exc:
         return False, [f"Lock is unreadable: {lock_path}: {exc}"]
+    if expected_lock_sha256 is not None and hashlib.sha256(
+        initial_lock_bytes
+    ).hexdigest() != expected_lock_sha256:
+        return False, [
+            "Lock changed since stale classification; no write performed"
+        ]
     try:
         payload = load_json(lock_path)
     except Exception as exc:  # noqa: BLE001 - corrupt operational state blocks release

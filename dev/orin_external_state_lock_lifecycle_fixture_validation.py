@@ -10,8 +10,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-from orin_external_state_common import atomic_write_json
+from orin_external_state_common import ExternalStateError, atomic_write_json
 from orin_external_state_lock import acquire_lock
+import orin_external_state_lock_lifecycle as lock_lifecycle
 from orin_external_state_lock_lifecycle import (
     ExternalStateLockTransaction,
     inspect_lock_table,
@@ -535,6 +536,48 @@ def main() -> int:
         )
         if unsafe or not any("Target Invalid" in item for item in unsafe_messages):
             raise AssertionError("unsafe lock target set did not fail closed")
+
+        locks_before_invalid_type = set((root / "locks").glob("*.json"))
+        invalid_type_ok, invalid_type_messages, invalid_type_id = acquire_lock(
+            root=root,
+            lock_type="branch-typo",
+            owner="fixture",
+            workload_id="invalid-lock-type",
+            owner_process_id=os.getpid(),
+            worktree=WORKTREE,
+            branch=BRANCH,
+            intended_write_set=TARGETS,
+            expires="fixture",
+            apply=True,
+        )
+        if (
+            invalid_type_ok
+            or invalid_type_id != "INVALID-LOCK-TYPE-NOT-ACQUIRED"
+            or not any("unsupported lock type" in item for item in invalid_type_messages)
+            or set((root / "locks").glob("*.json")) != locks_before_invalid_type
+        ):
+            raise AssertionError(
+                "callable acquire API accepted or materialized an unsupported lock type:\n"
+                + "\n".join(invalid_type_messages)
+            )
+        try:
+            with ExternalStateLockTransaction(
+                root=root,
+                lock_type="branch-typo",
+                owner="fixture",
+                workload_id="invalid-transaction-lock-type",
+                owner_process_id=os.getpid(),
+                worktree=WORKTREE,
+                branch=BRANCH,
+                intended_write_set=TARGETS,
+                expires="fixture",
+            ):
+                raise AssertionError("unsupported transaction lock type entered its body")
+        except ExternalStateError as exc:
+            if "unsupported lock type" not in str(exc):
+                raise
+        else:
+            raise AssertionError("transaction API accepted an unsupported lock type")
         _lock(root, "negative-verification-retained", "verification-replay")
         _assert_blocked(
             "verification replay retained lock",
@@ -764,6 +807,53 @@ def main() -> int:
                 True,
                 expected_workload_id=f"{lock_id}-workload",
             )
+
+        # Negative: stale classification cannot release a payload reactivated before CAS.
+        stale_race_path = _lock(
+            root,
+            "negative-stale-reactivated",
+            "stale-reactivated-workload",
+            workload_state="Completed",
+        )
+        original_stale_release_seam = lock_lifecycle._before_stale_release_cas
+
+        def _reactivate_stale_lock(lock_path: Path, _expected_sha256: str) -> None:
+            payload = json.loads(lock_path.read_text(encoding="utf-8"))
+            payload["Workload State"] = "Active"
+            payload["Owning Process ID"] = os.getpid()
+            payload["Last Activity At"] = "2026-01-01T00:00:01Z"
+            atomic_write_json(lock_path, payload)
+
+        lock_lifecycle._before_stale_release_cas = _reactivate_stale_lock
+        try:
+            stale_race_result = release_stale_completed_lock(
+                root,
+                lock_id="negative-stale-reactivated",
+                expected_workload_id="stale-reactivated-workload",
+                reason="must not release a reactivated workload",
+                apply=True,
+                process_checker=lambda _pid: False,
+            )
+        finally:
+            lock_lifecycle._before_stale_release_cas = original_stale_release_seam
+        _assert_blocked(
+            "stale lock reactivated before release",
+            stale_race_result,
+            "changed since stale classification",
+        )
+        stale_race_payload = json.loads(stale_race_path.read_text(encoding="utf-8"))
+        if (
+            stale_race_payload.get("Lock State") != "Locked"
+            or stale_race_payload.get("Workload State") != "Active"
+        ):
+            raise AssertionError("stale-release CAS failure mutated the reactivated lock")
+        release_lock(
+            root,
+            "negative-stale-reactivated",
+            "fixture reset",
+            True,
+            expected_workload_id="stale-reactivated-workload",
+        )
 
         # Positive: proven stale completed-workload lock is safely released, never deleted.
         stale_path = _lock(

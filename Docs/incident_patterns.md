@@ -913,7 +913,9 @@ same false green occurs when a release receipt exists but the authoritative
 entry is still active, or when a helper prints zero without rereading the lock
 table. Prevention requires exact workload and target identity at acquisition,
 guaranteed same-workload release on every exit path, process-aware stale-lock
-classification, preservation of foreign active locks, and an independent final
+classification bound to release by an exact payload-digest CAS precondition,
+callable-API lock-type rejection before ID or payload creation, preservation of
+foreign active locks, and an independent final
 authoritative read proving the completed workload count is zero while reporting
 the global active-lock inventory and preserving disjoint foreign work.
 Retained-lock fixtures must fail the public final-return gate; success, blocked,
