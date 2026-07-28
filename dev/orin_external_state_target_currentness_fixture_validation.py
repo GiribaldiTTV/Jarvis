@@ -96,6 +96,85 @@ def _expectations(target: Path) -> dict[str, str]:
     }
 
 
+def _run_fam003_accepted_bp3_identity_fixtures(root: Path) -> None:
+    branch_root = root / "branches" / "feature_fam_003_settings_resize_proof"
+    branch_root.mkdir(parents=True, exist_ok=True)
+    accepted_zip = r"C:\Nexus USER\FAM-003-20260727-074718.zip"
+    accepted_hash = (
+        "27C99E5868852DDE4B916C4FE63E8D806E6DCCD7BE6C12F3EBBD6446F0BA7697"
+    )
+    current_zip = r"C:\Nexus USER\FAM-003-20260728-061541.zip"
+    plan_path = branch_root / "branch_plan.md"
+    support_path = (
+        branch_root / "decision2_option_g_bp3_final_supporting_evidence_20260727.md"
+    )
+    approval_path = (
+        branch_root
+        / "decision2_option_g_bp3_user_approval_workstream_packet_20260727.md"
+    )
+    plan_path.write_text(
+        "Accepted BP3 Decision Basis ZIP: `" + accepted_zip + "`\n"
+        "Accepted BP3 Decision Basis SHA256: `" + accepted_hash + "`\n"
+        "Final Replacement Packet: `" + current_zip + "` / `READY`\n"
+        "Historical Receipt Boundary: `fixture`\n",
+        encoding="utf-8",
+    )
+    support_path.write_text(
+        "Accepted BP3 Decision Basis ZIP: `" + accepted_zip + "`\n"
+        "Accepted BP3 Decision Basis SHA256: `" + accepted_hash + "`\n"
+        "Current Workstream Packet: `" + current_zip + "`\n"
+        "Historical Receipt Boundary: `fixture`\n",
+        encoding="utf-8",
+    )
+    approval_path.write_text(
+        "Accepted Decision Basis ZIP: `" + accepted_zip + "`\n"
+        "Accepted Decision Basis SHA256: `" + accepted_hash + "`\n"
+        "Current Packet Under Review: `" + current_zip + "`\n"
+        "Historical Receipt Boundary: `fixture`\n",
+        encoding="utf-8",
+    )
+    issues = validator.validate_fam003_accepted_bp3_decision_basis_identity(root)
+    if issues:
+        raise AssertionError(
+            "valid FAM-003 accepted/current packet identity fixture failed:\n"
+            + "\n".join(issues)
+        )
+
+    cases = (
+        (
+            "support-accepted-current-conflation",
+            support_path,
+            "Accepted BP3 Decision Basis ZIP: `" + accepted_zip + "`",
+            "Accepted BP3 Decision Basis ZIP: `" + current_zip + "`",
+            "supporting evidence has the wrong decision-basis ZIP",
+        ),
+        (
+            "approval-current-drift",
+            approval_path,
+            "Current Packet Under Review: `" + current_zip + "`",
+            "Current Packet Under Review: `C:\\Nexus USER\\FAM-003-drift.zip`",
+            "current packet disagrees",
+        ),
+        (
+            "plan-accepted-hash-drift",
+            plan_path,
+            accepted_hash,
+            "0" * 64,
+            "branch plan has the wrong decision-basis SHA256",
+        ),
+    )
+    originals = {
+        path: path.read_text(encoding="utf-8")
+        for path in (plan_path, support_path, approval_path)
+    }
+    for case_id, path, old, new, expected in cases:
+        path.write_text(originals[path].replace(old, new, 1), encoding="utf-8")
+        issues = validator.validate_fam003_accepted_bp3_decision_basis_identity(root)
+        if not any(expected.casefold() in issue.casefold() for issue in issues):
+            raise AssertionError(f"{case_id} did not fail on {expected!r}: {issues}")
+        path.write_text(originals[path], encoding="utf-8")
+
+
 def _snapshot(
     root: Path,
     target: Path,
@@ -2342,10 +2421,14 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-ufd-owner-") as temp_dir:
         _run_ufd_owner_fixtures(Path(temp_dir))
 
+    with tempfile.TemporaryDirectory(prefix="ndai-fam003-bp3-identity-") as temp_dir:
+        _run_fam003_accepted_bp3_identity_fixtures(Path(temp_dir))
+
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
         "(24 canonical-UFD + 6 Branch Vision + 12 Element-to-Phase negative + "
-        "3 non-plan projection ownership fixtures)"
+        "3 non-plan projection ownership + 1 accepted-BP3 identity positive + "
+        "3 accepted-BP3 identity negative fixtures)"
     )
     return 0
 

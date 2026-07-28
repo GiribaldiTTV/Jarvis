@@ -41,6 +41,14 @@ REQUIRED_STAGE4_RECORDS = [
     "acknowledgements/Governance/stage4_active_state_migration_execution_ack.md",
 ]
 
+FAM003_ACCEPTED_BP3_DECISION_BASIS_ZIP = (
+    r"C:\Nexus USER\FAM-003-20260727-074718.zip"
+)
+FAM003_ACCEPTED_BP3_DECISION_BASIS_SHA256 = (
+    "27C99E5868852DDE4B916C4FE63E8D806E6DCCD7BE6C12F3EBBD6446F0BA7697"
+)
+FAM003_OPTION_G_BRANCH_ROOT = "branches/feature_fam_003_settings_resize_proof"
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate External Governance State scaffold posture.")
@@ -2132,6 +2140,115 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
     return issues
 
 
+def validate_fam003_accepted_bp3_decision_basis_identity(root: Path) -> list[str]:
+    """Keep the frozen accepted BP3 basis distinct from the current packet."""
+
+    branch_root = root.joinpath(*FAM003_OPTION_G_BRANCH_ROOT.split("/"))
+    plan_path = branch_root / "branch_plan.md"
+    support_path = (
+        branch_root / "decision2_option_g_bp3_final_supporting_evidence_20260727.md"
+    )
+    approval_path = (
+        branch_root
+        / "decision2_option_g_bp3_user_approval_workstream_packet_20260727.md"
+    )
+    if not plan_path.is_file():
+        return []
+
+    def active_header(path: Path) -> str:
+        text = path.read_text(encoding="utf-8-sig")
+        return re.split(
+            r"^Historical Receipt Boundary:",
+            text,
+            maxsplit=1,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )[0]
+
+    def first_backtick_field(text: str, field: str) -> str:
+        match = re.search(
+            rf"^{re.escape(field)}:\s*`([^`]+)`",
+            text,
+            re.MULTILINE,
+        )
+        return match.group(1).strip() if match else ""
+
+    def normalized_path(value: str) -> str:
+        return value.strip().strip("`").replace("/", "\\").casefold()
+
+    plan = active_header(plan_path)
+    if not first_backtick_field(plan, "Accepted BP3 Decision Basis ZIP"):
+        return []
+
+    issues: list[str] = []
+    expected_zip = normalized_path(FAM003_ACCEPTED_BP3_DECISION_BASIS_ZIP)
+    expected_hash = FAM003_ACCEPTED_BP3_DECISION_BASIS_SHA256
+    plan_zip = normalized_path(
+        first_backtick_field(plan, "Accepted BP3 Decision Basis ZIP")
+    )
+    plan_hash = first_backtick_field(
+        plan, "Accepted BP3 Decision Basis SHA256"
+    ).upper()
+    current_zip = normalized_path(first_backtick_field(plan, "Final Replacement Packet"))
+    if plan_zip != expected_zip:
+        issues.append(
+            "FAM-003 accepted BP3 identity: active branch plan has the wrong decision-basis ZIP"
+        )
+    if plan_hash != expected_hash:
+        issues.append(
+            "FAM-003 accepted BP3 identity: active branch plan has the wrong decision-basis SHA256"
+        )
+    if not current_zip:
+        issues.append(
+            "FAM-003 accepted BP3 identity: active branch plan omits the current replacement packet"
+        )
+    elif current_zip == expected_zip:
+        issues.append(
+            "FAM-003 accepted BP3 identity: current packet is conflated with the frozen accepted decision basis"
+        )
+
+    carriers = (
+        (
+            "current supporting evidence",
+            support_path,
+            "Accepted BP3 Decision Basis ZIP",
+            "Accepted BP3 Decision Basis SHA256",
+            "Current Workstream Packet",
+        ),
+        (
+            "BP3 approval / Workstream support",
+            approval_path,
+            "Accepted Decision Basis ZIP",
+            "Accepted Decision Basis SHA256",
+            "Current Packet Under Review",
+        ),
+    )
+    for label, path, zip_field, hash_field, current_field in carriers:
+        if not path.is_file():
+            issues.append(f"FAM-003 accepted BP3 identity: missing {label} carrier: {path}")
+            continue
+        text = active_header(path)
+        accepted_zip = normalized_path(first_backtick_field(text, zip_field))
+        accepted_hash = first_backtick_field(text, hash_field).upper()
+        carrier_current_zip = normalized_path(first_backtick_field(text, current_field))
+        if accepted_zip != expected_zip:
+            issues.append(
+                f"FAM-003 accepted BP3 identity: {label} has the wrong decision-basis ZIP"
+            )
+        if accepted_hash != expected_hash:
+            issues.append(
+                f"FAM-003 accepted BP3 identity: {label} has the wrong decision-basis SHA256"
+            )
+        if carrier_current_zip != current_zip:
+            issues.append(
+                f"FAM-003 accepted BP3 identity: {label} current packet disagrees with branch_plan.md"
+            )
+        if accepted_zip and carrier_current_zip == accepted_zip:
+            issues.append(
+                f"FAM-003 accepted BP3 identity: {label} conflates current and accepted packet identities"
+            )
+    return issues
+
+
 def validate_fam007_workstream_visual_acceptance_gate(root: Path) -> list[str]:
     issues: list[str] = []
     branch_root = root / "branches" / "feature_fam_007_ai_control_center_readiness_diagnostics"
@@ -2426,6 +2543,7 @@ def main() -> int:
         issues.extend(validate_stage4_records(root, args.schema, args.expected_source_head))
         issues.extend(validate_released_locks(root))
         issues.extend(validate_active_branch_plan_posture(root))
+        issues.extend(validate_fam003_accepted_bp3_decision_basis_identity(root))
         issues.extend(validate_fam007_workstream_visual_acceptance_gate(root))
 
     if issues:

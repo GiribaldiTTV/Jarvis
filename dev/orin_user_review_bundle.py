@@ -1810,6 +1810,12 @@ _FAM003_OPTION_G_IMPLEMENTATION_DELTA_CLASSES = (
     "developer-tooling",
     "runtime/user-facing",
 )
+_FAM003_OPTION_G_ACCEPTED_BP3_DECISION_BASIS_ZIP = (
+    r"C:\Nexus USER\FAM-003-20260727-074718.zip"
+)
+_FAM003_OPTION_G_ACCEPTED_BP3_DECISION_BASIS_SHA256 = (
+    "27C99E5868852DDE4B916C4FE63E8D806E6DCCD7BE6C12F3EBBD6446F0BA7697"
+)
 _FAM003_OPTION_G_FUTURE_PROOF_FIELDS = (
     "Current Feature",
     "Foreseeable Same-Class Additions",
@@ -2616,6 +2622,91 @@ def _fam003_option_g_workstream_approval_closure_failures(
             )
 
     if is_consolidated:
+        def first_backtick_field(text: str, field_name: str) -> str:
+            match = re.search(
+                rf"^{re.escape(field_name)}:\s*`([^`]+)`",
+                _active_external_state_text(text),
+                re.MULTILINE,
+            )
+            return match.group(1).strip() if match else ""
+
+        expected_accepted_zip = _normalize_windows_path_text(
+            _FAM003_OPTION_G_ACCEPTED_BP3_DECISION_BASIS_ZIP
+        )
+        expected_accepted_hash = (
+            _FAM003_OPTION_G_ACCEPTED_BP3_DECISION_BASIS_SHA256
+        )
+        plan_accepted_zip = _normalize_windows_path_text(
+            first_backtick_field(branch_plan, "Accepted BP3 Decision Basis ZIP")
+        )
+        plan_accepted_hash = first_backtick_field(
+            branch_plan, "Accepted BP3 Decision Basis SHA256"
+        ).upper()
+        current_packet_zip = _normalize_windows_path_text(
+            first_backtick_field(branch_plan, "Final Replacement Packet")
+        )
+        if plan_accepted_zip != expected_accepted_zip:
+            failures.append(
+                "FAM-003 Option G active branch plan does not preserve the exact "
+                "accepted BP3 decision-basis ZIP identity"
+            )
+        if plan_accepted_hash != expected_accepted_hash:
+            failures.append(
+                "FAM-003 Option G active branch plan does not preserve the exact "
+                "accepted BP3 decision-basis SHA256"
+            )
+        if not current_packet_zip:
+            failures.append(
+                "FAM-003 Option G active branch plan omits the current replacement packet identity"
+            )
+        elif current_packet_zip == expected_accepted_zip:
+            failures.append(
+                "FAM-003 Option G current replacement packet is conflated with the frozen accepted BP3 decision basis"
+            )
+
+        identity_carriers = (
+            (
+                "current supporting carrier",
+                support,
+                "Accepted BP3 Decision Basis ZIP",
+                "Accepted BP3 Decision Basis SHA256",
+                "Current Workstream Packet",
+            ),
+            (
+                "BP3 approval / Workstream packet receipt",
+                approval_receipt,
+                "Accepted Decision Basis ZIP",
+                "Accepted Decision Basis SHA256",
+                "Current Packet Under Review",
+            ),
+        )
+        for label, text, zip_field, hash_field, current_field in identity_carriers:
+            if not text:
+                continue
+            accepted_zip = _normalize_windows_path_text(
+                first_backtick_field(text, zip_field)
+            )
+            accepted_hash = first_backtick_field(text, hash_field).upper()
+            carrier_current_zip = _normalize_windows_path_text(
+                first_backtick_field(text, current_field)
+            )
+            if accepted_zip != expected_accepted_zip:
+                failures.append(
+                    f"FAM-003 Option G {label} does not preserve the exact accepted BP3 decision-basis ZIP identity"
+                )
+            if accepted_hash != expected_accepted_hash:
+                failures.append(
+                    f"FAM-003 Option G {label} does not preserve the exact accepted BP3 decision-basis SHA256"
+                )
+            if carrier_current_zip != current_packet_zip:
+                failures.append(
+                    f"FAM-003 Option G {label} current packet identity disagrees with the active branch plan"
+                )
+            if accepted_zip and carrier_current_zip == accepted_zip:
+                failures.append(
+                    f"FAM-003 Option G {label} conflates the current review packet with the frozen accepted BP3 decision basis"
+                )
+
         def load_json_aid(file_name: str) -> object | None:
             raw = _packet_file_text(packet_files, file_name)
             if not raw:

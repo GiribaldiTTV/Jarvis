@@ -5307,9 +5307,25 @@ Disposition: `Future-Proof Complete`
         "Review Aids/RUNTIME_ENGINEERING_AND_IMPLEMENTATION_DELTA_CONTRACT.md": contract,
         "Review Aids/INTERFACE_VISUAL_AND_OWNER_ADMISSION.md": contract,
         "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md": "18 canonical UFD rows\n",
-        "Source Truth Context/Active External Snapshot/branch_plan.md": "State Version: `54`\n" + contract,
-        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md": "State Version: `54`\n",
-        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md": "State Version: `54`\n",
+        "Source Truth Context/Active External Snapshot/branch_plan.md": (
+            "State Version: `54`\n"
+            "Accepted BP3 Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260727-074718.zip`\n"
+            "Accepted BP3 Decision Basis SHA256: `27C99E5868852DDE4B916C4FE63E8D806E6DCCD7BE6C12F3EBBD6446F0BA7697`\n"
+            "Final Replacement Packet: `C:\\Nexus USER\\FAM-003-20260728-061541.zip` / `READY FOR INDEPENDENT USER REVIEW`\n"
+            + contract
+        ),
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md": (
+            "State Version: `54`\n"
+            "Accepted BP3 Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260727-074718.zip`\n"
+            "Accepted BP3 Decision Basis SHA256: `27C99E5868852DDE4B916C4FE63E8D806E6DCCD7BE6C12F3EBBD6446F0BA7697`\n"
+            "Current Workstream Packet: `C:\\Nexus USER\\FAM-003-20260728-061541.zip`\n"
+        ),
+        "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md": (
+            "State Version: `54`\n"
+            "Accepted Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260727-074718.zip`\n"
+            "Accepted Decision Basis SHA256: `27C99E5868852DDE4B916C4FE63E8D806E6DCCD7BE6C12F3EBBD6446F0BA7697`\n"
+            "Current Packet Under Review: `C:\\Nexus USER\\FAM-003-20260728-061541.zip`\n"
+        ),
     }
     failures = bundle._fam003_option_g_workstream_approval_closure_failures(valid)
     if failures:
@@ -5382,9 +5398,9 @@ Disposition: `Future-Proof Complete`
         "Interface Bundle User Approval: `Pending Consolidated USER Decision`",
     )
     consolidated = dict(valid)
-    consolidated["Source Truth Context/Active External Snapshot/branch_plan.md"] = (
-        "State Version: `54`\n" + consolidated_contract
-    )
+    consolidated["Source Truth Context/Active External Snapshot/branch_plan.md"] = valid[
+        "Source Truth Context/Active External Snapshot/branch_plan.md"
+    ].replace(contract, consolidated_contract)
     consolidated[
         "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_workstream_entry_20260724.md"
     ] = accepted_bp3_allowlist + "\n"
@@ -5525,6 +5541,43 @@ Disposition: `Future-Proof Complete`
             raise AssertionError(
                 f"{case_id} did not fail on {expected!r}: {case_failures}"
             )
+
+    identity_cases = (
+        (
+            "consolidated-branch-plan-accepted-zip-conflated",
+            "Source Truth Context/Active External Snapshot/branch_plan.md",
+            "Accepted BP3 Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260727-074718.zip`",
+            "Accepted BP3 Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260728-061541.zip`",
+            "accepted BP3 decision-basis ZIP identity",
+        ),
+        (
+            "consolidated-support-accepted-zip-conflated",
+            "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md",
+            "Accepted BP3 Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260727-074718.zip`",
+            "Accepted BP3 Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260728-061541.zip`",
+            "accepted BP3 decision-basis ZIP identity",
+        ),
+        (
+            "consolidated-approval-accepted-zip-conflated",
+            "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_user_approval_workstream_packet_20260727.md",
+            "Accepted Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260727-074718.zip`",
+            "Accepted Decision Basis ZIP: `C:\\Nexus USER\\FAM-003-20260728-061541.zip`",
+            "accepted BP3 decision-basis ZIP identity",
+        ),
+        (
+            "consolidated-support-current-packet-drift",
+            "Source Truth Context/Active External Snapshot/decision2_option_g_bp3_final_supporting_evidence_20260727.md",
+            "Current Workstream Packet: `C:\\Nexus USER\\FAM-003-20260728-061541.zip`",
+            "Current Workstream Packet: `C:\\Nexus USER\\FAM-003-20260728-999999.zip`",
+            "current packet identity disagrees",
+        ),
+    )
+    for case_id, path, old, new, expected in identity_cases:
+        mutated = dict(consolidated)
+        if old not in mutated[path]:
+            raise AssertionError(f"{case_id} fixture source is missing")
+        mutated[path] = mutated[path].replace(old, new, 1)
+        expect_consolidated_failure(case_id, mutated, expected)
 
     for marker in consolidated_markers[1:]:
         mutated = {

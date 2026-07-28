@@ -375,6 +375,20 @@ stale current-state proof reference. This clarification registers enforcement
 of the already accepted Option G plan; it does not change that plan or grant
 Interface Bundle or Workstream implementation approval.
 
+FAM-003 accepted-BP3 decision-basis identity clarification: the immutable
+accepted BP3 decision-basis archive identity and the mutable current review
+packet identity are distinct facts. The active external `branch_plan.md` owns
+the accepted-basis ZIP/SHA256 pair and the current replacement-packet pointer.
+Current supporting carriers must repeat those identities in separate labeled
+fields and must never pair a current packet path with the accepted archive
+hash. `dev/orin_user_review_bundle.py` validates packet-contained live copies
+against that split, while `dev/orin_external_state_validation.py` validates the
+live external carriers directly. Their routed false-green and target-currentness
+fixtures cover accepted/current conflation, accepted hash drift, and current
+packet pointer disagreement. This clarification registers enforcement of the
+already accepted BP3 identity; it does not approve the Interface Bundle or
+Workstream implementation.
+
 FAM-003 Option G BP3 formal-digest, Vision-carrydown, UFD-vocabulary, and
 inventory-completion clarification: the active packet guard requires one exact
 `Next Legal Phase Digest` in both `START_HERE.md` and the primary BP3 review,
