@@ -204,6 +204,9 @@ def _field_alias_failures(
     text: str,
     fields: tuple[str, ...],
     normalizer=lambda value: value.strip(),
+    *,
+    context: str = "Target Currentness",
+    identity_scope: str = "live identity fields",
 ) -> list[str]:
     values = _markdown_field_values(text, fields)
     if len(values) <= 1:
@@ -214,7 +217,7 @@ def _field_alias_failures(
         return []
     rendered = ", ".join(f"{field}={value!r}" for field, value in values)
     return [
-        f"Target Currentness: duplicate or conflicting live identity fields for {relative}: {rendered}"
+        f"{context}: duplicate or conflicting {identity_scope} for {relative}: {rendered}"
     ]
 
 
@@ -470,6 +473,25 @@ def validate_target_historical_receipt(
         )
     if not markdown_field_value(header, "Historical Receipt Boundary"):
         failures.append(f"Historical Receipt: {relative} is missing Historical Receipt Boundary")
+
+    historical_aliases = (
+        (("Branch", "Current Branch"), lambda value: value.strip()),
+        (("Source Repo HEAD", "Current HEAD"), lambda value: value.strip().casefold()),
+        (("Origin/Main", "Source origin/main"), lambda value: value.strip().casefold()),
+        (("Worktree Path",), _normalized_windows_value),
+        (("Slot ID",), lambda value: value.strip().casefold()),
+    )
+    for aliases, normalizer in historical_aliases:
+        failures.extend(
+            _field_alias_failures(
+                relative,
+                header,
+                aliases,
+                normalizer,
+                context="Historical Receipt",
+                identity_scope="historical identity fields",
+            )
+        )
 
     identity_fields = (
         ("Branch", _first_markdown_field(header, ("Branch", "Current Branch")), expected_branch, lambda value: value.strip()),
@@ -1694,6 +1716,8 @@ def main() -> int:
             or args.require_stage4_records
             or args.expected_source_head
             or args.target_currentness
+            or args.semantic_currentness
+            or args.final_lock_gate
         ):
             print("Clean Clone Boundary: BLOCKED - required local external-state validation needs the root")
             return 1

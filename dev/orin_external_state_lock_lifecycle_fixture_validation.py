@@ -193,6 +193,39 @@ def main() -> int:
                 + released_cli.stderr
             )
 
+        missing_root = root / "missing-external-state-root"
+        for gate_args, label in (
+            (["--semantic-currentness"], "semantic currentness"),
+            (
+                [
+                    "--final-lock-gate",
+                    "--completed-workload-id",
+                    "missing-root-workload",
+                ],
+                "final lock",
+            ),
+        ):
+            missing_root_cli = subprocess.run(
+                [
+                    sys.executable,
+                    str(validator),
+                    "--root",
+                    str(missing_root),
+                    *gate_args,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if missing_root_cli.returncode == 0 or "Clean Clone Boundary: BLOCKED" not in (
+                missing_root_cli.stdout + missing_root_cli.stderr
+            ):
+                raise AssertionError(
+                    f"explicit {label} gate accepted a missing external-state root:\n"
+                    + missing_root_cli.stdout
+                    + missing_root_cli.stderr
+                )
+
         _lock(
             root,
             "negative-completed-retained",
@@ -247,7 +280,7 @@ def main() -> int:
         )
         release_lock(root, "negative-receipt-only", "fixture reset", True)
 
-        # Negative: dead owner, verification replay retention, and claimed zero all fail closed.
+        # Negative: a dead process does not make an active workload safe to release.
         _lock(root, "negative-dead-owner", "dead-owner")
         dead = inspect_lock_table(
             root,
@@ -255,8 +288,20 @@ def main() -> int:
             process_checker=lambda _pid: False,
         )
         dead_row = next(item for item in dead if item.lock_id == "negative-dead-owner")
-        if dead_row.classification != "STALE_COMPLETED_WORKLOAD":
+        if dead_row.classification != "ACTIVE_VALID":
             raise AssertionError(f"dead owner classified as {dead_row.classification}")
+        _assert_blocked(
+            "dead process with active workload state",
+            release_stale_completed_lock(
+                root,
+                lock_id="negative-dead-owner",
+                expected_workload_id="dead-owner",
+                reason="active workload must remain protected",
+                apply=True,
+                process_checker=lambda _pid: False,
+            ),
+            "not proven stale completed workload",
+        )
         release_lock(root, "negative-dead-owner", "fixture reset", True)
 
         ok, messages, _ = acquire_lock(

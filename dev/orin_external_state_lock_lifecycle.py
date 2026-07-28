@@ -172,7 +172,10 @@ def inspect_lock_table(
             classification = "RELEASED_RESIDUE"
         elif not workload_id:
             classification = "MALFORMED"
-        elif process_running is False:
+        elif (
+            process_running is False
+            and workload_state in COMPLETED_WORKLOAD_STATES
+        ):
             classification = "STALE_COMPLETED_WORKLOAD"
         elif current_workload_id and workload_id != current_workload_id:
             classification = "FOREIGN_ACTIVE"

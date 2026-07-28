@@ -88,6 +88,7 @@ def main() -> int:
         print("Applied targeted snapshot requires --lock-id")
         return 1
     resolved_targets: list[tuple[str, Path]] = []
+    lock_payload: dict[str, object] | None = None
     if targeted:
         from orin_external_state_target_reconcile import (
             _lock_failures,
@@ -109,7 +110,7 @@ def main() -> int:
             seen.add(key)
             resolved_targets.append((relative, target_path))
         if args.apply and resolved_targets and args.lock_id:
-            payload, lock_failures = _lock_failures(
+            lock_payload, lock_failures = _lock_failures(
                 root,
                 args.lock_id,
                 resolved_targets[0][0],
@@ -117,8 +118,11 @@ def main() -> int:
                 args.worktree,
             )
             failures.extend(lock_failures)
-            if payload is not None:
-                admitted = _parse_intended_write_set(payload.get("Intended Write Set", ""))
+            if lock_payload is not None:
+                workload_id = str(lock_payload.get("Workload ID", "")).strip()
+                if not workload_id:
+                    failures.append("Snapshot admitting lock omits Workload ID")
+                admitted = _parse_intended_write_set(lock_payload.get("Intended Write Set", ""))
                 required = {relative for relative, _path in resolved_targets}
                 required.add(f"snapshots/{snapshot_name}")
                 missing = sorted(required - admitted)
@@ -185,6 +189,10 @@ def main() -> int:
         "Branch": args.branch,
         "Source Repo HEAD": args.source_head,
         "Snapshot Reason": args.reason,
+        "Lock ID": args.lock_id or "",
+        "Workload ID": (
+            str(lock_payload.get("Workload ID", "")) if lock_payload is not None else ""
+        ),
         "Copied Files": copied,
     }
     manifest_path = snapshot_dir / "snapshot_manifest.json"
@@ -195,6 +203,13 @@ def main() -> int:
             raise RuntimeError("authoritative snapshot manifest root mismatch")
         if authoritative_manifest.get("Copied Files") != copied:
             raise RuntimeError("authoritative snapshot manifest file inventory mismatch")
+        if targeted and authoritative_manifest.get("Lock ID") != args.lock_id:
+            raise RuntimeError("authoritative snapshot manifest lock identity mismatch")
+        expected_workload_id = (
+            str(lock_payload.get("Workload ID", "")) if lock_payload is not None else ""
+        )
+        if targeted and authoritative_manifest.get("Workload ID") != expected_workload_id:
+            raise RuntimeError("authoritative snapshot manifest workload identity mismatch")
     except Exception as exc:  # noqa: BLE001 - manifest proof is part of the snapshot
         shutil.rmtree(snapshot_dir, ignore_errors=True)
         print("Snapshot Result: BLOCKED")

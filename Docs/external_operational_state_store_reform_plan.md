@@ -1242,6 +1242,12 @@ Snapshot manifests include:
 - source root
 - checksum
 - changed state files
+- for an applied targeted transaction, the admitting lock ID and workload ID
+
+Targeted reconciliation must compare the manifest lock/workload identity with
+the active admitting transaction before publication and again immediately
+before atomic replacement. A matching target hash from another workload is not
+valid transaction proof.
 
 External state must not contain plaintext secrets, tokens, cookies, provider keys, private model files, or owner-private memory unless a later encrypted Owner vault is approved.
 

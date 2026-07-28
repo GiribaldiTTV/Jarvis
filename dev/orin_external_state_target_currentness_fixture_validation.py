@@ -226,6 +226,16 @@ def _semantic_target_snapshot(
     snapshot = root / "snapshots" / name
     if not snapshot.is_dir():
         raise AssertionError("targeted snapshot helper did not create its exact directory")
+    manifest = json.loads(
+        (snapshot / "snapshot_manifest.json").read_text(encoding="utf-8")
+    )
+    lock_payload = json.loads(
+        (root / "locks" / f"{lock_id}.json").read_text(encoding="utf-8")
+    )
+    if manifest.get("Lock ID") != lock_id or manifest.get("Workload ID") != lock_payload.get(
+        "Workload ID"
+    ):
+        raise AssertionError("targeted snapshot manifest omitted its lock/workload binding")
     return snapshot
 
 
@@ -238,6 +248,8 @@ def _snapshot(
     snapshot_bytes: bytes | None = None,
     manifest_root: str | None = None,
     manifest_hash: str | None = None,
+    lock_id: str = "worktree-fixture-lock",
+    workload_id: str = "fixture-workload",
 ) -> Path:
     snapshot = root / "snapshots" / name
     snapshot.mkdir(parents=True)
@@ -258,6 +270,8 @@ def _snapshot(
             "Last Updated": "2026-01-01T00:00:00Z",
             "Last Updated By": "fixture",
             "Root": manifest_root or str(root.resolve()),
+            "Lock ID": lock_id,
+            "Workload ID": workload_id,
             "Copied Files": [
                 {
                     "path": TARGET,
@@ -518,6 +532,7 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
@@ -573,6 +588,7 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": "different-lock-id",
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
@@ -598,12 +614,15 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": label_lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": "Governance",
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
-        label_snapshot = _snapshot(root, target, "fixture-label-lock")
+        label_snapshot = _snapshot(
+            root, target, "fixture-label-lock", lock_id=label_lock_id
+        )
         label_expectations = _expectations(target)
         ok, messages, audit = reconciler.reconcile_target(
             root=root,
@@ -761,12 +780,18 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": historical_lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
-        historical_snapshot = _snapshot(root, target, "fixture-historical-only-field")
+        historical_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-historical-only-field",
+            lock_id=historical_lock_id,
+        )
         historical_expectations = _expectations(target)
         historical_expectations["expected_source_head"] = HEAD
         ok, messages, audit = reconciler.reconcile_target(
@@ -804,6 +829,26 @@ def main() -> int:
                 "snapshot from another root",
                 _snapshot(root, target, "fixture-wrong-root", manifest_root=str(root / "other-root")),
                 "snapshot root mismatch",
+            ),
+            (
+                "snapshot from another lock",
+                _snapshot(
+                    root,
+                    target,
+                    "fixture-wrong-lock",
+                    lock_id="different-workload-lock",
+                ),
+                "snapshot lock identity mismatch",
+            ),
+            (
+                "snapshot from another workload",
+                _snapshot(
+                    root,
+                    target,
+                    "fixture-wrong-workload",
+                    workload_id="different-workload",
+                ),
+                "snapshot workload identity mismatch",
             ),
         ]
         if os.path.normcase(os.path.normpath(str(root))) == os.path.normpath(str(root)):
@@ -851,6 +896,7 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": prefix_lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": f"{TARGET}.backup",
@@ -1014,12 +1060,15 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": rollback_lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
-        rollback_snapshot = _snapshot(root, target, "fixture-rollback")
+        rollback_snapshot = _snapshot(
+            root, target, "fixture-rollback", lock_id=rollback_lock_id
+        )
         rollback_before = target.read_bytes()
         rollback_expectations = _expectations(target)
         rollback_expectations["expected_source_head"] = HEAD
@@ -1049,6 +1098,7 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": "different-release-lock-id",
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
@@ -1067,6 +1117,7 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": release_race_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
@@ -1104,13 +1155,19 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": transition_lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
         new_head = "d" * 40
-        transition_snapshot = _snapshot(root, target, "fixture-head-transition-snapshot")
+        transition_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-head-transition-snapshot",
+            lock_id=transition_lock_id,
+        )
         ok, messages, _ = reconciler.reconcile_target(
             root=root,
             target=TARGET,
@@ -1137,12 +1194,18 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": adversarial_lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
-        adversarial_snapshot = _snapshot(root, target, "fixture-adversarial-snapshot")
+        adversarial_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-adversarial-snapshot",
+            lock_id=adversarial_lock_id,
+        )
         original_hook = reconciler._before_atomic_replacement_check
 
         def mutate_before_final_reread(path: Path, _expected_hash: str) -> None:
@@ -1174,12 +1237,15 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_race_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
-        lock_race_snapshot = _snapshot(root, target, "fixture-lock-race")
+        lock_race_snapshot = _snapshot(
+            root, target, "fixture-lock-race", lock_id=lock_race_id
+        )
         lock_race_before = target.read_bytes()
         original_lock_hook = reconciler._before_final_lock_check
 
@@ -1220,12 +1286,18 @@ def main() -> int:
                 "External State Schema": "external-state-v1",
                 "Lock ID": snapshot_race_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
             },
         )
-        snapshot_race_snapshot = _snapshot(root, target, "fixture-snapshot-race")
+        snapshot_race_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-snapshot-race",
+            lock_id=snapshot_race_id,
+        )
         snapshot_race_before = target.read_bytes()
         original_snapshot_hook = reconciler._before_final_snapshot_check
 
@@ -1323,14 +1395,15 @@ def main() -> int:
         with target.open("ab") as handle:
             handle.write(b"## CRLF Historical Receipts\r\nSource Repo HEAD: `crlf-history`\r\n")
         before_bytes = target.read_bytes()
-        snapshot = _snapshot(root, target, "fixture-crlf")
         lock_id = "worktree-fixture-crlf"
+        snapshot = _snapshot(root, target, "fixture-crlf", lock_id=lock_id)
         atomic_write_json(
             root / "locks" / f"{lock_id}.json",
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
@@ -1402,14 +1475,20 @@ def main() -> int:
         historical_section = target.read_text(encoding="utf-8").split(
             "## Historical Receipt", 1
         )[1]
-        snapshot = _snapshot(root, target, "fixture-historical-retirement")
         lock_id = "worktree-fixture-historical-retirement"
+        snapshot = _snapshot(
+            root,
+            target,
+            "fixture-historical-retirement",
+            lock_id=lock_id,
+        )
         atomic_write_json(
             root / "locks" / f"{lock_id}.json",
             {
                 "External State Schema": "external-state-v1",
                 "Lock ID": lock_id,
                 "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
                 "Intended Write Set": TARGET,
@@ -1489,6 +1568,32 @@ def main() -> int:
                 },
             ),
         )
+        retired_text = target.read_text(encoding="utf-8")
+        target.write_text(
+            retired_text.replace(
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "Branch: `feature/release-readiness-source-truth-intake`\n"
+                "Current Branch: `feature/conflicting-historical-alias`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        conflicting_receipt_hash = hashlib.sha256(target.read_bytes()).hexdigest()
+        _assert_failure(
+            "historical receipt conflicting identity aliases",
+            "duplicate or conflicting historical identity fields",
+            validator.validate_target_historical_receipt(
+                root,
+                [TARGET],
+                expected_target_sha256=conflicting_receipt_hash,
+                **{
+                    key: value
+                    for key, value in expectations.items()
+                    if key != "expected_target_sha256"
+                },
+            ),
+        )
+        target.write_text(retired_text, encoding="utf-8")
         _assert_failure(
             "retired target cannot validate as live currentness",
             "historical receipt cannot be selected as live state",

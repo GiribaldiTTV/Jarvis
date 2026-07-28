@@ -378,6 +378,8 @@ def _snapshot_failures(
     relative: str,
     expected_target_sha256: str,
     transition_started_ns: int,
+    expected_lock_id: str,
+    expected_workload_id: str,
 ) -> list[str]:
     failures: list[str] = []
     manifest_path = snapshot_path / "snapshot_manifest.json"
@@ -392,6 +394,18 @@ def _snapshot_failures(
     if manifest_root != expected_root:
         failures.append(
             f"Transition Snapshot Contract: snapshot root mismatch: expected {root}, found {manifest.get('Root', 'MISSING')}"
+        )
+    manifest_lock_id = str(manifest.get("Lock ID", ""))
+    if not expected_lock_id or manifest_lock_id != expected_lock_id:
+        failures.append(
+            "Transition Snapshot Contract: snapshot lock identity mismatch: "
+            f"expected {expected_lock_id or 'MISSING'}, found {manifest_lock_id or 'MISSING'}"
+        )
+    manifest_workload_id = str(manifest.get("Workload ID", ""))
+    if not expected_workload_id or manifest_workload_id != expected_workload_id:
+        failures.append(
+            "Transition Snapshot Contract: snapshot workload identity mismatch: "
+            f"expected {expected_workload_id or 'MISSING'}, found {manifest_workload_id or 'MISSING'}"
         )
     if manifest_path.stat().st_mtime_ns > transition_started_ns:
         failures.append("Transition Snapshot Contract: snapshot was created after the transition began")
@@ -567,6 +581,9 @@ def reconcile_target(
         return False, failures, None
 
     if snapshot_path is not None:
+        expected_snapshot_workload_id = str(
+            (initial_lock_payload or {}).get("Workload ID", "")
+        )
         failures.extend(
             _snapshot_failures(
                 root=root,
@@ -574,6 +591,8 @@ def reconcile_target(
                 relative=relative,
                 expected_target_sha256=expected_target_sha256,
                 transition_started_ns=transition_started_ns,
+                expected_lock_id=lock_id,
+                expected_workload_id=expected_snapshot_workload_id,
             )
         )
     if failures:
@@ -686,6 +705,8 @@ def reconcile_target(
         relative=relative,
         expected_target_sha256=expected_target_sha256,
         transition_started_ns=transition_started_ns,
+        expected_lock_id=lock_id,
+        expected_workload_id=str((final_lock_payload or {}).get("Workload ID", "")),
     )
     if final_snapshot_failures:
         return False, [
