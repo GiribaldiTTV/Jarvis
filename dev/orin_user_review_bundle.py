@@ -1994,7 +1994,7 @@ def _fam003_option_g_allowlist_cells(line: str) -> tuple[str, ...]:
     stripped = line.strip()
     if not stripped.startswith("|") or not stripped.endswith("|"):
         return ()
-    return tuple(cell.strip().strip("`") for cell in stripped[1:-1].split("|"))
+    return tuple(cell.strip().replace("`", "") for cell in stripped[1:-1].split("|"))
 
 
 def _fam003_option_g_allowlist_section(text: str) -> str:
