@@ -515,6 +515,11 @@ GOVERNANCE_SEMANTIC_TARGETS = {
     "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "branch plan",
     "worktrees/Governance/worktree_state.md": "worktree state",
 }
+GOVERNANCE_SEMANTIC_RECORD_CLASSES = {
+    "branches/feature_release_readiness_source_truth_intake/branch_state.md": "Live Branch Projection",
+    "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "Live Branch Plan Projection",
+    "worktrees/Governance/worktree_state.md": "Live Worktree Projection",
+}
 GOVERNANCE_SEMANTIC_FIELDS = (
     "Current Cycle",
     "Current Gate",
@@ -532,7 +537,10 @@ GOVERNANCE_SEMANTIC_FIELDS = (
 def _semantic_header_fields(text: str) -> dict[str, str]:
     header = _live_header_text(text)
     return {
-        field: markdown_field_value(header, field) or ""
+        field: next(
+            (value for _, value in _markdown_field_values(header, (field,))),
+            "",
+        )
         for field in GOVERNANCE_SEMANTIC_FIELDS
     }
 
@@ -646,6 +654,32 @@ def validate_governance_semantic_currentness(
 
     if len(target_texts) != len(GOVERNANCE_SEMANTIC_TARGETS):
         return failures
+
+    for relative, text in target_texts.items():
+        header = _live_header_text(text)
+        expected_record_class = GOVERNANCE_SEMANTIC_RECORD_CLASSES[relative]
+        record_classes = [
+            value for _, value in _markdown_field_values(header, ("Record Class",))
+        ]
+        if len(record_classes) != 1:
+            failures.append(
+                "Semantic Currentness: "
+                f"{relative} must declare exactly one Record Class {expected_record_class!r}; "
+                f"found {record_classes or ['MISSING']}"
+            )
+        elif record_classes[0].strip().casefold() != expected_record_class.casefold():
+            failures.append(
+                "Semantic Currentness: "
+                f"{relative} must have Record Class {expected_record_class!r}; "
+                f"found {record_classes[0]!r}"
+            )
+        for field in GOVERNANCE_SEMANTIC_FIELDS:
+            values = [value for _, value in _markdown_field_values(header, (field,))]
+            if len(values) > 1:
+                failures.append(
+                    "Semantic Currentness: "
+                    f"{relative} contains duplicate {field} entries in its live header: {values}"
+                )
 
     live_fields = {
         relative: _semantic_header_fields(text)

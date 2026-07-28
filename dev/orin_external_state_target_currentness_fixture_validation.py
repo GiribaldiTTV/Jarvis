@@ -1662,6 +1662,62 @@ def main() -> int:
         paths = _semantic_root(root)
         _assert_pass("coherent three-record Governance posture", _semantic_failures(root))
 
+        branch_state = paths["branches/feature_release_readiness_source_truth_intake/branch_state.md"]
+        original_branch_state = branch_state.read_text(encoding="utf-8")
+        for label, replacement in (
+            ("historical record in required live target", "Record Class: `Historical Receipt`"),
+            ("wrong live class in required live target", "Record Class: `Live Branch Plan Projection`"),
+        ):
+            branch_state.write_text(
+                original_branch_state.replace(
+                    "Record Class: `Live Branch Projection`",
+                    replacement,
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_failure(
+                label,
+                "must have Record Class 'Live Branch Projection'",
+                _semantic_failures(root),
+            )
+        branch_state.write_text(original_branch_state, encoding="utf-8")
+
+        branch_state.write_text(
+            original_branch_state.replace(
+                "Record Class: `Live Branch Projection`",
+                "Record Class: `Live Branch Projection`\nRecord Class: `Live Branch Projection`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "duplicate required live record class",
+            "must declare exactly one Record Class",
+            _semantic_failures(root),
+        )
+        branch_state.write_text(original_branch_state, encoding="utf-8")
+
+        current_gate = "Current Gate: `Bounded semantic currentness and lock-lifecycle reconciliation active; neutral-main fast-forward-only rebaseline pending separate USER decision.`"
+        for label, duplicate_value in (
+            ("conflicting duplicate semantic field", "Current Gate: `Stale contradictory gate.`"),
+            ("identical duplicate semantic field", current_gate),
+        ):
+            branch_state.write_text(
+                original_branch_state.replace(
+                    current_gate,
+                    current_gate + "\n" + duplicate_value,
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_failure(
+                label,
+                "contains duplicate Current Gate entries in its live header",
+                _semantic_failures(root),
+            )
+        branch_state.write_text(original_branch_state, encoding="utf-8")
+
         pr_state = _semantic_pr_projection(root, "Live Branch Projection")
         _assert_failure(
             "same-branch live projection omitted from semantic inventory",

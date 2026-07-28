@@ -639,7 +639,9 @@ Any same-branch live projection omitted from the semantic target inventory is a
 blocking false green; historical receipt-class records remain evidence and are
 not live semantic targets. The contract includes identity, current RRI cycle,
 gate, packet state, PR state, approval provenance, exact write set, validation
-state, neutral-main freshness, and next legal gate. It must distinguish the
+state, neutral-main freshness, and next legal gate. Every required target must
+declare exactly one target-specific live record class, and every governed
+semantic field must occur exactly once in its live header. It must distinguish the
 durable repo branch record and immutable historical receipts from live external
 state, and it must fail identity-only false greens, stale-one-of-three
 projections, omitted same-branch live projections, current Stage 1/Stage 2 contradictions, merged PRs represented as
