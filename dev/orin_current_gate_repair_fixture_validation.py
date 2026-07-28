@@ -162,6 +162,48 @@ def main() -> int:
     _expect_code(missing_field, "BR1_REQUIRED_FIELD_MISSING")
     negative.append("missing required field")
 
+    ordinary_fields = dict(fields)
+    ordinary_fields.pop("Platform Contract Adoption Matrix when applicable")
+    ordinary_fields.pop("Repo-Wide Migration Neutralization Proof when applicable")
+    ordinary_result = validate_br1_stage1_packet(_packet(ordinary_fields), contract)
+    _require(
+        not any(
+            finding.code == "BR1_REQUIRED_FIELD_MISSING"
+            and "when applicable" in finding.message
+            for finding in ordinary_result.findings
+        ),
+        "Inapplicable conditional BR1 fields were enforced as unconditional requirements",
+    )
+    positive.append("inapplicable conditional BR1 fields may be omitted")
+
+    for field_name, trigger_field, trigger_value, label in (
+        (
+            "Platform Contract Adoption Matrix when applicable",
+            "Dependency Scope Class",
+            "Platform contract adoption required for the shared surface.",
+            "applicable platform contract matrix is required",
+        ),
+        (
+            "Repo-Wide Migration Neutralization Proof when applicable",
+            "Dependency Scope Class",
+            "Repo-wide migration required across active carriers.",
+            "applicable repo-wide migration proof is required",
+        ),
+    ):
+        applicable_fields = dict(fields)
+        applicable_fields.pop(field_name)
+        applicable_fields[trigger_field] = trigger_value
+        applicable_result = validate_br1_stage1_packet(_packet(applicable_fields), contract)
+        _require(
+            any(
+                finding.code == "BR1_REQUIRED_FIELD_MISSING"
+                and field_name in finding.message
+                for finding in applicable_result.findings
+            ),
+            f"{label} did not fail closed",
+        )
+        negative.append(label)
+
     incomplete_second_candidate = _packet(fields)
     matrix_path = f"Review Aids/{BR1_MATRIX_ARTIFACT}"
     incomplete_second_candidate[matrix_path] += (
@@ -572,8 +614,8 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 29, f"Expected 29 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 19, f"Expected 19 positive fixtures, got {len(positive)}")
+    _require(len(negative) == 31, f"Expected 31 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 20, f"Expected 20 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")

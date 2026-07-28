@@ -13,6 +13,7 @@ from pathlib import Path
 
 import orin_external_state_validation as validator
 import orin_external_state_lock_release as lock_release
+import orin_external_state_snapshot as snapshotter
 import orin_external_state_target_reconcile as reconciler
 from orin_external_state_common import atomic_write_json
 
@@ -1799,6 +1800,60 @@ def main() -> int:
         )
         paths = _semantic_root(root)
 
+        for packet_status in (
+            "No current packet; the prior packet is historical evidence only.",
+            "Not current; the prior packet is historical evidence only.",
+        ):
+            for path in paths.values():
+                text = path.read_text(encoding="utf-8")
+                path.write_text(
+                    text.replace(
+                        "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`",
+                        f"Current USER Packet Status: `{packet_status}`",
+                        1,
+                    ),
+                    encoding="utf-8",
+                )
+            _assert_pass(
+                "negated current packet wording remains historical-only",
+                _semantic_failures(root),
+            )
+            paths = _semantic_root(root)
+
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            path.write_text(
+                text.replace(
+                    "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`",
+                    "Current USER Packet Status: `Current packet is canonical; the prior packet is historical evidence only.`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+        _assert_failure(
+            "current packet authority conflicts with historical-only status",
+            "simultaneously claims current and historical-only authority",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            path.write_text(
+                text.replace(
+                    "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`",
+                    "Current USER Packet Status: `No current packet; current canonical packet published.`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+        _assert_failure(
+            "packet status both negates and claims current authority",
+            "simultaneously claims and negates current packet authority",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
         for path in paths.values():
             text = path.read_text(encoding="utf-8")
             path.write_text(
@@ -1928,6 +1983,67 @@ def main() -> int:
         )
 
     audit_target = "audit_log/target-set-current-gate-fixture.json"
+    with tempfile.TemporaryDirectory(prefix="ndai-governance-snapshot-lock-drift-") as temp_dir:
+        root = Path(temp_dir)
+        paths = _semantic_root(root)
+        lock_id = "snapshot-lock-drift"
+        snapshot_name = "snapshot-lock-drift"
+        lock_path = root / "locks" / f"{lock_id}.json"
+        atomic_write_json(
+            lock_path,
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Locked",
+                "Workload ID": "snapshot-lock-drift-workload",
+                "Last Updated By": "fixture",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": ";".join([*paths, f"snapshots/{snapshot_name}"]),
+            },
+        )
+        original_hook = snapshotter._after_target_copy
+        original_argv = sys.argv[:]
+        drifted = False
+
+        def release_lock_after_first_copy(_relative: str, _source: Path, _destination: Path) -> None:
+            nonlocal drifted
+            if drifted:
+                return
+            payload = json.loads(lock_path.read_text(encoding="utf-8"))
+            payload["Lock State"] = "Released"
+            atomic_write_json(lock_path, payload)
+            drifted = True
+
+        snapshotter._after_target_copy = release_lock_after_first_copy
+        sys.argv = [
+            str(Path(snapshotter.__file__)),
+            "--root",
+            str(root),
+            "--reason",
+            "lock drift fixture",
+            "--worktree",
+            WORKTREE_PATH,
+            "--branch",
+            "feature/release-readiness-source-truth-intake",
+            "--snapshot-name",
+            snapshot_name,
+            "--lock-id",
+            lock_id,
+            "--apply",
+        ]
+        for relative in paths:
+            sys.argv.extend(("--target", relative))
+        try:
+            snapshot_result = snapshotter.main()
+        finally:
+            snapshotter._after_target_copy = original_hook
+            sys.argv = original_argv
+        if snapshot_result == 0 or (root / "snapshots" / snapshot_name).exists():
+            raise AssertionError(
+                "targeted snapshot published after its admitting lock changed during copy"
+            )
+
     with tempfile.TemporaryDirectory(prefix="ndai-governance-target-set-") as temp_dir:
         root = Path(temp_dir)
         paths = _semantic_root(root)

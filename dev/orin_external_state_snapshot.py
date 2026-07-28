@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import nullcontext
 import re
 import shutil
 from pathlib import Path
@@ -18,6 +19,11 @@ from orin_external_state_common import (
     validate_canonical_root,
     validate_initialized_root,
 )
+from orin_external_state_lock_lifecycle import lock_table_guard
+
+
+def _after_target_copy(_relative: str, _source: Path, _destination: Path) -> None:
+    """Test seam for authoritative lock drift during a targeted snapshot."""
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -147,73 +153,118 @@ def main() -> int:
         print("Snapshot Result: BLOCKED")
         print(f"Snapshot directory already exists: {snapshot_dir}")
         return 1
-    if targeted:
-        copied: list[dict[str, object]] = []
-        try:
-            for relative, source in resolved_targets:
-                source_before_hash = sha256_file(source)
-                destination = snapshot_dir.joinpath(*relative.split("/"))
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, destination)
-                destination_hash = sha256_file(destination)
-                source_after_hash = sha256_file(source)
-                if not (
-                    source_before_hash.casefold()
-                    == destination_hash.casefold()
-                    == source_after_hash.casefold()
-                ):
-                    raise RuntimeError(
-                        f"Target changed during snapshot copy: {relative}"
-                    )
-                copied.append(
-                    {
-                        "path": relative,
-                        "sha256": destination_hash,
-                        "size": destination.stat().st_size,
-                    }
-                )
-        except Exception as exc:  # noqa: BLE001 - a partial snapshot is never canonical
-            shutil.rmtree(snapshot_dir, ignore_errors=True)
-            print("Snapshot Result: BLOCKED")
-            print(f"Targeted snapshot failed and partial output was removed: {exc}")
-            return 1
-    else:
-        copied = copy_tree_snapshot(root, snapshot_dir)
-    manifest = {
-        "External State Schema": args.schema,
-        "State Version": 1,
-        "Last Updated": utc_now(),
-        "Last Updated By": args.created_by,
-        "Root": str(root.resolve()),
-        "Worktree": args.worktree,
-        "Branch": args.branch,
-        "Source Repo HEAD": args.source_head,
-        "Snapshot Reason": args.reason,
-        "Lock ID": args.lock_id or "",
-        "Workload ID": (
-            str(lock_payload.get("Workload ID", "")) if lock_payload is not None else ""
-        ),
-        "Copied Files": copied,
-    }
-    manifest_path = snapshot_dir / "snapshot_manifest.json"
+    copied: list[dict[str, object]] = []
     try:
-        atomic_write_json(manifest_path, manifest)
-        authoritative_manifest = load_json(manifest_path)
-        if authoritative_manifest.get("Root") != str(root.resolve()):
-            raise RuntimeError("authoritative snapshot manifest root mismatch")
-        if authoritative_manifest.get("Copied Files") != copied:
-            raise RuntimeError("authoritative snapshot manifest file inventory mismatch")
-        if targeted and authoritative_manifest.get("Lock ID") != args.lock_id:
-            raise RuntimeError("authoritative snapshot manifest lock identity mismatch")
-        expected_workload_id = (
-            str(lock_payload.get("Workload ID", "")) if lock_payload is not None else ""
-        )
-        if targeted and authoritative_manifest.get("Workload ID") != expected_workload_id:
-            raise RuntimeError("authoritative snapshot manifest workload identity mismatch")
-    except Exception as exc:  # noqa: BLE001 - manifest proof is part of the snapshot
+        transaction_guard = lock_table_guard(root) if targeted else nullcontext()
+        with transaction_guard:
+            transaction_lock_payload = lock_payload
+            if targeted:
+                transaction_lock_payload, transaction_lock_failures = _lock_failures(
+                    root,
+                    args.lock_id,
+                    resolved_targets[0][0],
+                    args.branch,
+                    args.worktree,
+                )
+                if transaction_lock_failures or transaction_lock_payload != lock_payload:
+                    lock_change_details = transaction_lock_failures or [
+                        "authoritative lock payload differs from the preflight payload"
+                    ]
+                    raise RuntimeError(
+                        "Snapshot admitting lock changed before the guarded copy transaction: "
+                        + "; ".join(lock_change_details)
+                    )
+                admitted = _parse_intended_write_set(
+                    transaction_lock_payload.get("Intended Write Set", "")
+                )
+                required = {relative for relative, _path in resolved_targets}
+                required.add(f"snapshots/{snapshot_name}")
+                missing = sorted(required - admitted)
+                if missing:
+                    raise RuntimeError(
+                        "Snapshot lock write set changed before copy and omits: "
+                        + ", ".join(missing)
+                    )
+                copied = []
+            if targeted:
+                for relative, source in resolved_targets:
+                    source_before_hash = sha256_file(source)
+                    destination = snapshot_dir.joinpath(*relative.split("/"))
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, destination)
+                    destination_hash = sha256_file(destination)
+                    source_after_hash = sha256_file(source)
+                    if not (
+                        source_before_hash.casefold()
+                        == destination_hash.casefold()
+                        == source_after_hash.casefold()
+                    ):
+                        raise RuntimeError(
+                            f"Target changed during snapshot copy: {relative}"
+                        )
+                    copied.append(
+                        {
+                            "path": relative,
+                            "sha256": destination_hash,
+                            "size": destination.stat().st_size,
+                        }
+                    )
+                    _after_target_copy(relative, source, destination)
+                final_lock_payload, final_lock_failures = _lock_failures(
+                    root,
+                    args.lock_id,
+                    resolved_targets[0][0],
+                    args.branch,
+                    args.worktree,
+                )
+                if final_lock_failures or final_lock_payload != transaction_lock_payload:
+                    lock_change_details = final_lock_failures or [
+                        "authoritative lock payload changed during copy"
+                    ]
+                    raise RuntimeError(
+                        "Snapshot admitting lock changed during the guarded copy transaction: "
+                        + "; ".join(lock_change_details)
+                    )
+            else:
+                copied = copy_tree_snapshot(root, snapshot_dir)
+            manifest = {
+                "External State Schema": args.schema,
+                "State Version": 1,
+                "Last Updated": utc_now(),
+                "Last Updated By": args.created_by,
+                "Root": str(root.resolve()),
+                "Worktree": args.worktree,
+                "Branch": args.branch,
+                "Source Repo HEAD": args.source_head,
+                "Snapshot Reason": args.reason,
+                "Lock ID": args.lock_id or "",
+                "Workload ID": (
+                    str(transaction_lock_payload.get("Workload ID", ""))
+                    if transaction_lock_payload is not None
+                    else ""
+                ),
+                "Copied Files": copied,
+            }
+            manifest_path = snapshot_dir / "snapshot_manifest.json"
+            atomic_write_json(manifest_path, manifest)
+            authoritative_manifest = load_json(manifest_path)
+            if authoritative_manifest.get("Root") != str(root.resolve()):
+                raise RuntimeError("authoritative snapshot manifest root mismatch")
+            if authoritative_manifest.get("Copied Files") != copied:
+                raise RuntimeError("authoritative snapshot manifest file inventory mismatch")
+            if targeted and authoritative_manifest.get("Lock ID") != args.lock_id:
+                raise RuntimeError("authoritative snapshot manifest lock identity mismatch")
+            expected_workload_id = (
+                str(transaction_lock_payload.get("Workload ID", ""))
+                if transaction_lock_payload is not None
+                else ""
+            )
+            if targeted and authoritative_manifest.get("Workload ID") != expected_workload_id:
+                raise RuntimeError("authoritative snapshot manifest workload identity mismatch")
+    except Exception as exc:  # noqa: BLE001 - a partial snapshot is never canonical
         shutil.rmtree(snapshot_dir, ignore_errors=True)
         print("Snapshot Result: BLOCKED")
-        print(f"Snapshot manifest failed and snapshot output was removed: {exc}")
+        print(f"Snapshot transaction failed and partial output was removed: {exc}")
         return 1
     print(f"Snapshot Result: APPLIED - {len(copied)} files copied")
     return 0

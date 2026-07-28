@@ -608,6 +608,30 @@ def _neutral_main_classification(value: str) -> tuple[bool, bool, bool]:
     return current, stale, negated_current
 
 
+def _packet_status_currentness(value: str) -> tuple[bool, bool]:
+    claims_current = False
+    negates_current = False
+    for clause in re.split(r"[;.\n]+", re.sub(r"\s+", " ", value).strip().casefold()):
+        if not clause.strip():
+            continue
+        clause_negates = bool(
+            re.search(
+                r"\b(?:no\s+current(?:\s+user)?\s+packet|not\s+current|packet\s+is\s+not\s+current)\b",
+                clause,
+            )
+        )
+        negates_current = negates_current or clause_negates
+        if clause_negates:
+            continue
+        claims_current = claims_current or bool(
+            re.search(
+                r"(?:^|\b)(?:current(?:\s+user)?\s+packet|current\s+canonical\s+packet|packet\s+is\s+current)\b",
+                clause,
+            )
+        )
+    return claims_current, negates_current
+
+
 def validate_governance_semantic_currentness(
     root: Path,
     *,
@@ -742,9 +766,14 @@ def validate_governance_semantic_currentness(
             "Semantic Currentness: an active Current Pull Request must identify a PR number or URL"
         )
     packet_status = current_values["Current USER Packet Status"].casefold()
-    if "current" in packet_status and "historical evidence only" in packet_status:
+    packet_claims_current, packet_negates_current = _packet_status_currentness(packet_status)
+    if packet_claims_current and "historical evidence only" in packet_status:
         failures.append(
             "Semantic Currentness: Current USER Packet Status simultaneously claims current and historical-only authority"
+        )
+    if packet_claims_current and packet_negates_current:
+        failures.append(
+            "Semantic Currentness: Current USER Packet Status simultaneously claims and negates current packet authority"
         )
     approval = current_values["Current Approval State"].casefold()
     if not _has_explicit_approval_boundary(approval):

@@ -385,6 +385,42 @@ def _candidate_matrix_fields(text: str) -> list[tuple[str, dict[str, list[str]]]
     return candidates
 
 
+CONDITIONAL_FIELD_APPLICABILITY_TERMS = {
+    "platform contract adoption matrix when applicable": "platform contract",
+    "repo-wide migration neutralization proof when applicable": "repo-wide migration",
+}
+
+
+def _affirmatively_mentions(values: list[str], term: str) -> bool:
+    for value in values:
+        for clause in re.split(r"[.;\n]+", value.casefold()):
+            if term not in clause:
+                continue
+            prefix = clause.split(term, 1)[0]
+            if re.search(r"\b(?:no|not|without)\b(?:\s+\w+){0,4}\s*$", prefix):
+                continue
+            return True
+    return False
+
+
+def _conditional_field_applies(
+    required_field: str,
+    candidate_fields: Mapping[str, list[str]],
+) -> bool:
+    normalized_field = _normalize_field_name(required_field)
+    term = CONDITIONAL_FIELD_APPLICABILITY_TERMS.get(normalized_field)
+    if term is None:
+        return False
+    conditional_names = set(CONDITIONAL_FIELD_APPLICABILITY_TERMS)
+    evidence_values = [
+        value
+        for field_name, values in candidate_fields.items()
+        if field_name not in conditional_names
+        for value in values
+    ]
+    return _affirmatively_mentions(evidence_values, term)
+
+
 def validate_br1_stage1_packet(
     packet_files: Mapping[str, str],
     contract: CompiledGateContract,
@@ -429,6 +465,11 @@ def validate_br1_stage1_packet(
     candidate_route_fields: list[tuple[str, str, str]] = []
     for option_name, candidate_fields in matrix_candidates:
         for required_field in contract.required_fields:
+            if (
+                required_field in contract.conditional_fields
+                and not _conditional_field_applies(required_field, candidate_fields)
+            ):
+                continue
             normalized = _normalize_field_name(required_field)
             values = candidate_fields.get(normalized, [])
             if not values or all(_is_placeholder(value) for value in values):
