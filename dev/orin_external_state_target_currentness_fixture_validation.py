@@ -1743,6 +1743,40 @@ def main() -> int:
         )
         paths = _semantic_root(root)
 
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            path.write_text(
+                text.replace(
+                    "Current Approval State: `Bounded reconciliation approved; staging, commit, and push are not approved.`",
+                    "Current Approval State: `Approval pending; approved action is unknown.`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+        _assert_failure(
+            "incidental approved substring is not an approval boundary",
+            "must state an explicit approved or not-approved boundary",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            path.write_text(
+                text.replace(
+                    "Neutral Main State: `Stale versus fetched origin/main; fast-forward pending USER decision.`",
+                    "Neutral Main State: `Not current; rebaseline pending USER decision.`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+        _assert_failure(
+            "negated neutral-main currentness is not a current classification",
+            "negates currentness without classifying neutral main as stale",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
         plan = paths["branches/feature_release_readiness_source_truth_intake/branch_plan.md"]
         original_plan = plan.read_text(encoding="utf-8")
         plan.write_text(

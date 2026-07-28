@@ -569,6 +569,37 @@ def _semantic_field_values(text: str, field: str) -> list[str]:
     return values
 
 
+def _has_explicit_approval_boundary(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value).strip().casefold()
+    if re.search(r"\b(?:not[\s-]+approved|unapproved)\b", normalized):
+        return True
+    return bool(
+        re.search(
+            r"\bapproved\b(?=\s*(?:$|[;,.]|\band\s+(?:complete|completed|recorded|active|consumed)\b|\b(?:for|to|through|only|under|by)\b))",
+            normalized,
+        )
+    )
+
+
+def _neutral_main_classification(value: str) -> tuple[bool, bool, bool]:
+    normalized = re.sub(r"\s+", " ", value).strip().casefold()
+    negated_current = bool(
+        re.search(
+            r"\b(?:not\s+current|not\s+up[\s-]+to[\s-]+date|not\s+equal\s+to\s+origin/main|does\s+not\s+match\s+origin/main|doesn't\s+match\s+origin/main)\b",
+            normalized,
+        )
+    )
+    negated_stale = bool(re.search(r"\bnot\s+stale\b", normalized))
+    current = not negated_current and bool(
+        re.search(
+            r"(?:^|[;,.]\s*)(?:neutral\s+main(?:\s+workspace)?\s+(?:is\s+)?)?current\b|\bup[\s-]+to[\s-]+date\b|\bequal\s+to\s+origin/main\b|\bmatches\s+origin/main\b",
+            normalized,
+        )
+    )
+    stale = not negated_stale and bool(re.search(r"\bstale\b", normalized))
+    return current, stale, negated_current
+
+
 def validate_governance_semantic_currentness(
     root: Path,
     *,
@@ -682,7 +713,7 @@ def validate_governance_semantic_currentness(
             "Semantic Currentness: Current USER Packet Status simultaneously claims current and historical-only authority"
         )
     approval = current_values["Current Approval State"].casefold()
-    if "approved" not in approval and "not approved" not in approval:
+    if not _has_explicit_approval_boundary(approval):
         failures.append(
             "Semantic Currentness: Current Approval State must state an explicit approved or not-approved boundary"
         )
@@ -691,11 +722,13 @@ def validate_governance_semantic_currentness(
         if required not in write_set:
             failures.append(f"Semantic Currentness: Current Write Set omits {required}")
     neutral_state = current_values["Neutral Main State"].casefold()
-    neutral_is_current = any(
-        marker in neutral_state
-        for marker in ("current", "up to date", "equal to origin/main", "matches origin/main")
+    neutral_is_current, neutral_is_stale, neutral_negates_current = _neutral_main_classification(
+        neutral_state
     )
-    neutral_is_stale = "stale" in neutral_state
+    if neutral_negates_current and not neutral_is_stale:
+        failures.append(
+            "Semantic Currentness: Neutral Main State negates currentness without classifying neutral main as stale"
+        )
     if not neutral_is_current and not neutral_is_stale:
         failures.append(
             "Semantic Currentness: Neutral Main State must explicitly classify neutral main as current or stale"
