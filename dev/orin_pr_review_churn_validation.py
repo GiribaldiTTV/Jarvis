@@ -461,6 +461,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "single-current-packet contract",
             "skip binary files when scanning for the br1 matrix",
             "binary source evidence",
+            "folder/zip parity to final publication validation",
+            "canonical folder different from the upload zip",
+            "preserve nested headings within the br1 matrix",
+            "nested heading as the end of the entire matrix",
         ),
     ),
     FamilyRule(

@@ -389,7 +389,7 @@ def _candidate_matrix_fields(
     candidate_field_names: set[str],
 ) -> list[tuple[str, str, dict[str, list[str]]]]:
     lines = text.splitlines()
-    heading_pattern = re.compile(r"^\s{0,3}#{1,6}\s+(.+?)\s*$")
+    heading_pattern = re.compile(r"^\s{0,3}(#{1,6})\s+(.+?)\s*$")
     heading_indices = [
         index for index, line in enumerate(lines) if heading_pattern.match(line)
     ]
@@ -400,16 +400,20 @@ def _candidate_matrix_fields(
         heading_match = heading_pattern.match(line)
         if not heading_match:
             continue
-        heading = re.sub(r"\s+#+\s*$", "", heading_match.group(1)).strip()
+        heading = re.sub(r"\s+#+\s*$", "", heading_match.group(2)).strip()
         if heading.casefold() != BR1_SECTION_HEADING.casefold():
             continue
         matrix_heading_found = True
+        matrix_heading_level = len(heading_match.group(1))
         section_start = index + 1
         section_end = next(
             (
                 later_index
                 for later_index in range(section_start, len(lines))
-                if heading_pattern.match(lines[later_index])
+                if (
+                    (later_match := heading_pattern.match(lines[later_index]))
+                    and len(later_match.group(1)) <= matrix_heading_level
+                )
             ),
             len(lines),
         )

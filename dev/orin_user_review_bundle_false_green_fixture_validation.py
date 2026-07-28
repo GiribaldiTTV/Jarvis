@@ -1136,8 +1136,49 @@ def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
     return focused_entries, full_entries
 
 
+def _assert_final_publication_parity_guard() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-final-publication-parity-") as temp_dir:
+        root = Path(temp_dir)
+        packet = root / "Governance"
+        packet.mkdir()
+        binary = packet / "evidence.bin"
+        binary.write_bytes(b"canonical-evidence")
+        (packet / "START_HERE.md").write_text("# Packet\n", encoding="utf-8")
+        export_zip = root / "Governance-20260727-000000.zip"
+        bundle._write_export_zip(packet, export_zip)
+        bundle._validate_final_folder_zip_parity(packet, export_zip)
+
+        binary.write_bytes(b"mutated-after-folder-publish")
+        try:
+            bundle._validate_final_folder_zip_parity(packet, export_zip)
+        except ValueError as exc:
+            if "content hash mismatch" not in str(exc):
+                raise AssertionError(
+                    "late canonical binary mutation returned the wrong parity failure"
+                ) from exc
+        else:
+            raise AssertionError("late canonical binary mutation passed final parity")
+
+        binary.write_bytes(b"canonical-evidence")
+        (packet / "late.txt").write_text("late folder-only file\n", encoding="utf-8")
+        try:
+            bundle._validate_final_folder_zip_parity(packet, export_zip)
+        except ValueError as exc:
+            if "missing from ZIP" not in str(exc):
+                raise AssertionError(
+                    "late canonical text addition returned the wrong parity failure"
+                ) from exc
+        else:
+            raise AssertionError("late canonical text addition passed final parity")
+
+    builder_source = inspect.getsource(bundle.build_bundle)
+    if "_validate_final_folder_zip_parity(" not in builder_source:
+        raise AssertionError("canonical publisher final callback omits folder/ZIP parity")
+
+
 def main() -> int:
     _assert_br1_builder_promotes_candidate_matrix()
+    _assert_final_publication_parity_guard()
     _assert_origin_main_fallback()
     _assert_utf8_source_identity_normalizes_platform_line_endings()
     _assert_failure(

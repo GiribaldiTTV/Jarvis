@@ -2252,6 +2252,41 @@ def _zip_file_hashes(export_zip: Path) -> tuple[dict[str, str], tuple[str, ...]]
         return file_hashes, duplicate_entries
 
 
+def _validate_final_folder_zip_parity(packet_dir: Path, export_zip: Path) -> None:
+    folder_hashes = _folder_file_hashes(packet_dir)
+    zip_hashes, duplicate_zip_entries = _zip_file_hashes(export_zip)
+    failures: list[str] = []
+    if duplicate_zip_entries:
+        failures.append(
+            "Folder/ZIP parity failed: duplicate ZIP entries are not allowed "
+            f"entries={list(duplicate_zip_entries)}"
+        )
+    folder_entries = set(folder_hashes)
+    zip_entries = set(zip_hashes)
+    if folder_entries != zip_entries:
+        failures.append(
+            "Folder/ZIP parity failed: "
+            f"missing from ZIP={sorted(folder_entries - zip_entries) or 'none'} "
+            f"extra in ZIP={sorted(zip_entries - folder_entries) or 'none'}"
+        )
+    else:
+        content_mismatches = sorted(
+            entry
+            for entry in folder_entries
+            if folder_hashes[entry] != zip_hashes[entry]
+        )
+        if content_mismatches:
+            failures.append(
+                "Folder/ZIP parity failed: matching file list but content hash mismatch "
+                f"for entries={content_mismatches}"
+            )
+    if failures:
+        raise ValueError(
+            "Canonical USER packet final folder/ZIP parity validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in failures)
+        )
+
+
 def _same_label_export_zip_paths(review_root: Path, label: str) -> set[Path]:
     safe_label = _sanitize_folder_name(label)
     timestamped_name = re.compile(rf"^{re.escape(safe_label)}-\d{{8}}-\d{{6}}\.zip$")
@@ -12486,6 +12521,10 @@ def build_bundle(
             origin_main=origin_main,
             expected_label=label,
             expected_entries=expected_zip_entries,
+        )
+        _validate_final_folder_zip_parity(
+            canonical_target,
+            canonical_export_zip,
         )
         final_contract_failures = _current_gate_contract_failures(
             _packet_text_files(canonical_target)

@@ -332,6 +332,22 @@ def main() -> int:
     valid_candidate_fields["Implementation-bearing route class"] = (
         "User-visible behavior change"
     )
+    nested_heading_packet = _packet(valid_candidate_fields)
+    nested_heading_packet[matrix_path] = nested_heading_packet[matrix_path].replace(
+        "# BR1 Candidate Viability / Grouping Matrix",
+        "### BR1 Candidate Viability / Grouping Matrix\n\n#### Candidate A",
+        1,
+    )
+    nested_heading_result = validate_br1_stage1_packet(
+        nested_heading_packet,
+        contract,
+    )
+    _require(
+        not nested_heading_result.findings,
+        "A nested candidate heading truncated the BR1 matrix: "
+        + "; ".join(finding.message for finding in nested_heading_result.findings),
+    )
+    positive.append("nested candidate headings remain inside the BR1 matrix")
     _require(
         len(contract.invalid_candidate_shapes) == 11,
         "Invalid candidate shapes were not compiled as exact source-owner entries",
@@ -1125,7 +1141,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
     _require(len(negative) == 51, f"Expected 51 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 26, f"Expected 26 positive fixtures, got {len(positive)}")
+    _require(len(positive) == 27, f"Expected 27 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")
