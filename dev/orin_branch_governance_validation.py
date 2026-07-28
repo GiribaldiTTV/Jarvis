@@ -3838,7 +3838,7 @@ CURRENT_GATE_REPAIR_REQUIRED_PHRASES = {
         "Current-Gate Autonomous Repair And Semantic Contract",
         "`dev/orin_current_gate_repair.py`",
         "`dev/orin_current_gate_repair_fixture_validation.py`",
-        "35 negative and 22 positive",
+        "36 negative and 22 positive",
     ),
     Path("Docs/incident_patterns.md"): (
         "Serial Current-Gate Repair And Semantic Packet False Green",
@@ -20020,6 +20020,12 @@ def _external_branch_operational_live_header(
         return ""
 
     live_header = re.split(r"(?m)^##\s+Historical\b", state_text, maxsplit=1)[0]
+    record_classes = re.findall(
+        r"(?m)^Record Class:\s*`([^`]+)`\s*$",
+        live_header,
+    )
+    if record_classes != ["Live Branch Projection"]:
+        return ""
     branch_match = re.search(r"(?m)^Branch:\s*`([^`]+)`\s*$", live_header)
     head_match = re.search(r"(?m)^Source Repo HEAD:\s*`([0-9a-fA-F]{40})`\s*$", live_header)
     if not branch_match or branch_match.group(1) != branch_name:

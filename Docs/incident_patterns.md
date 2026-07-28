@@ -999,6 +999,11 @@ packet-only patch or equivalent USER repair prompt. Consolidate all presently
 knowable true USER choices into one packet while leaving later separately gated
 actions explicit.
 
+External branch state may contribute to current-gate or pre-PR inference only
+when its current header declares exactly one `Live Branch Projection` record
+class. A `Historical Receipt` remains evidence even when its branch and HEAD
+happen to match current Git identity; it cannot authorize a current no-PR path.
+
 The FAM-007 `FAM-007-20260727-165940.zip` packet is the regression seed:
 structural packet proof did not reject
 `Implementation-bearing route class: Foundation / infrastructure` even though

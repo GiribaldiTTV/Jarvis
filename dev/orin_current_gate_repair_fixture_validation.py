@@ -814,6 +814,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
             "\n".join(
                 (
                     "# Current Branch State",
+                    "Record Class: `Live Branch Projection`",
                     f"Branch: `{branch_name}`",
                     f"Source Repo HEAD: `{source_head}`",
                     "Current Stage: `Stage 1 Ready For Stage 2`",
@@ -844,10 +845,33 @@ Current Approval State: `PR creation, merge, release remain unapproved`
                 "External live header admitted a mismatched current commit",
             )
             negative.append("external live header rejects mismatched current commit")
+
+            state_path.write_text(
+                "\n".join(
+                    (
+                        "# Historical Branch State",
+                        "Record Class: `Historical Receipt`",
+                        f"Branch: `{branch_name}`",
+                        f"Source Repo HEAD: `{source_head}`",
+                        "Current Stage: `Stage 1 Ready For Stage 2`",
+                        "Current Pull Request: `None - no open/current PR`",
+                        "Current Approval State: `PR creation, merge, release remain unapproved`",
+                    )
+                ),
+                encoding="utf-8",
+            )
+            _require(
+                not branch_validation._external_branch_operational_live_header(
+                    branch_name,
+                    source_head,
+                ),
+                "Historical external branch projection was admitted as live pre-PR state",
+            )
+            negative.append("historical external projection cannot satisfy live pre-PR state")
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 35, f"Expected 35 negative fixtures, got {len(negative)}")
+    _require(len(negative) == 36, f"Expected 36 negative fixtures, got {len(negative)}")
     _require(len(positive) == 22, f"Expected 22 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
