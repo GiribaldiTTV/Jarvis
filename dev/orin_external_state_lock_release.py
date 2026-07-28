@@ -16,6 +16,7 @@ from orin_external_state_common import (
     validate_canonical_root,
     validate_initialized_root,
 )
+from orin_external_state_lock_lifecycle import NON_RELEASED_LOCK_STATES
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -70,7 +71,7 @@ def release_lock(
             "Lock workload ID mismatch: expected "
             f"{expected_workload_id!r}, found {payload.get('Workload ID')!r}"
         ]
-    if payload.get("Lock State") not in {"Locked", "Expired"}:
+    if payload.get("Lock State") not in NON_RELEASED_LOCK_STATES:
         return False, [f"Lock is already released or invalid: {lock_path}"]
     payload["Lock State"] = "Released"
     payload["Workload State"] = "Completed"

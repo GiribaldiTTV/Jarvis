@@ -1906,6 +1906,38 @@ def main() -> int:
         if (root / audit_target).exists():
             raise AssertionError("target-set rollback retained its audit as current state")
 
+        def raise_only_after_live_publication(candidate_root: Path) -> list[str]:
+            semantic = _semantic_failures(candidate_root)
+            if candidate_root.resolve() == root.resolve() and not semantic:
+                raise RuntimeError("forced set-level final validator exception")
+            return semantic
+
+        ok, messages, audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=raise_only_after_live_publication,
+            apply=True,
+        )
+        if ok or audit is not None or not any(
+            "forced set-level final validator exception" in message
+            for message in messages
+        ):
+            raise AssertionError(
+                "raised target-set validator exception did not block publication:\n"
+                + "\n".join(messages)
+            )
+        if any(path.read_bytes() != before[relative] for relative, path in paths.items()):
+            raise AssertionError(
+                "raised target-set validator exception did not restore every projection"
+            )
+        if (root / audit_target).exists():
+            raise AssertionError(
+                "raised target-set validator exception retained an audit as current state"
+            )
+
     print("Target-scoped external-state currentness fixture validation: PASS")
     return 0
 

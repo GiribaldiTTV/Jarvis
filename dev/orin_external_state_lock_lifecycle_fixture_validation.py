@@ -304,6 +304,55 @@ def main() -> int:
         )
         release_lock(root, "negative-dead-owner", "fixture reset", True)
 
+        for malformed_id, mutate in (
+            ("negative-missing-lock-type", lambda payload: payload.pop("Lock Type")),
+            (
+                "negative-missing-write-set",
+                lambda payload: payload.pop("Intended Write Set"),
+            ),
+            (
+                "negative-invalid-lock-type",
+                lambda payload: payload.__setitem__("Lock Type", "unknown-type"),
+            ),
+            (
+                "negative-invalid-write-set",
+                lambda payload: payload.__setitem__("Intended Write Set", "../outside.md"),
+            ),
+        ):
+            malformed_path = _lock(root, malformed_id, malformed_id)
+            malformed_payload = json.loads(malformed_path.read_text(encoding="utf-8"))
+            mutate(malformed_payload)
+            atomic_write_json(malformed_path, malformed_payload)
+            malformed_row = next(
+                item
+                for item in inspect_lock_table(root, current_workload_id="local-workload")
+                if item.lock_id == malformed_id
+            )
+            if malformed_row.classification != "MALFORMED":
+                raise AssertionError(
+                    f"incomplete conflict metadata classified as {malformed_row.classification}"
+                )
+            acquired, acquire_messages, _ = acquire_lock(
+                root=root,
+                lock_type="branch",
+                owner="fixture",
+                workload_id="local-workload",
+                owner_process_id=os.getpid(),
+                worktree=WORKTREE,
+                branch=BRANCH,
+                intended_write_set=TARGETS,
+                expires="fixture",
+                apply=False,
+            )
+            if acquired or not any(
+                "External State Corrupt" in item for item in acquire_messages
+            ):
+                raise AssertionError(
+                    "acquisition did not fail closed on malformed conflict metadata:\n"
+                    + "\n".join(acquire_messages)
+                )
+            release_lock(root, malformed_id, "fixture reset", True)
+
         ok, messages, _ = acquire_lock(
             root=root,
             lock_type="branch",
@@ -519,6 +568,37 @@ def main() -> int:
             raise AssertionError("stale cleanup failed or deleted its audit receipt:\n" + "\n".join(cleanup_messages))
         if json.loads(stale_path.read_text(encoding="utf-8"))["Lock State"] != "Released":
             raise AssertionError("stale cleanup did not mark the authoritative entry Released")
+
+        for recoverable_state in (
+            "Expired",
+            "Stale",
+            "Conflict",
+            "Recovery Required",
+        ):
+            state_slug = recoverable_state.casefold().replace(" ", "-")
+            recoverable_id = f"positive-stale-{state_slug}"
+            recoverable_workload = f"stale-{state_slug}-workload"
+            recoverable_path = _lock(
+                root,
+                recoverable_id,
+                recoverable_workload,
+                state=recoverable_state,
+                workload_state="Completed",
+            )
+            recovered, recovery_messages = release_stale_completed_lock(
+                root,
+                lock_id=recoverable_id,
+                expected_workload_id=recoverable_workload,
+                reason=f"fixture recovery from {recoverable_state}",
+                apply=True,
+                process_checker=lambda _pid: False,
+            )
+            recovered_payload = json.loads(recoverable_path.read_text(encoding="utf-8"))
+            if not recovered or recovered_payload.get("Lock State") != "Released":
+                raise AssertionError(
+                    f"stale cleanup could not release {recoverable_state}:\n"
+                    + "\n".join(recovery_messages)
+                )
 
         # Unknown process ownership is not proof that stale cleanup is safe.
         _lock(

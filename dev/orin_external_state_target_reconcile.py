@@ -1078,7 +1078,22 @@ def reconcile_target_set(
         applied_states.append((target_path, before_text, applied_hash))
         messages.extend(f"{relative}: {item}" for item in target_messages)
 
-    final_failures = final_validation(root)
+    try:
+        final_failures = final_validation(root)
+    except Exception as exc:  # noqa: BLE001 - raised validation must use the same rollback path
+        rollback_failures = _rollback_target_set(
+            target_states=applied_states,
+            audit_path=None,
+        )
+        rollback_messages = (
+            ["Target-set rollback: PASS - all applied projections restored"]
+            if not rollback_failures
+            else [f"Target-set rollback: {item}" for item in rollback_failures]
+        )
+        return False, [
+            f"Target-set final validation raised: {exc}",
+            *rollback_messages,
+        ], None
     if final_failures:
         rollback_failures = _rollback_target_set(
             target_states=applied_states,

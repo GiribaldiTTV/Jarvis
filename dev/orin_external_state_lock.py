@@ -13,19 +13,7 @@ from orin_external_state_common import (
     validate_canonical_root,
     validate_initialized_root,
 )
-from orin_external_state_lock_lifecycle import inspect_lock_table, lock_table_guard
-
-
-LOCK_TYPES = {
-    "state-root",
-    "migration",
-    "release-window",
-    "worktree",
-    "branch",
-    "review-bundle",
-    "fold-down",
-    "governance-candidate",
-}
+from orin_external_state_lock_lifecycle import LOCK_TYPES, inspect_lock_table, lock_table_guard
 
 
 def build_parser() -> argparse.ArgumentParser:

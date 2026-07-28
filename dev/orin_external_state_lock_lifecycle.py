@@ -30,6 +30,16 @@ NON_RELEASED_LOCK_STATES = {
     "Conflict",
     "Recovery Required",
 }
+LOCK_TYPES = {
+    "state-root",
+    "migration",
+    "release-window",
+    "worktree",
+    "branch",
+    "review-bundle",
+    "fold-down",
+    "governance-candidate",
+}
 COMPLETED_WORKLOAD_STATES = {
     "Completed",
     "Blocked",
@@ -114,6 +124,23 @@ def _owner_process_id(payload: dict[str, object]) -> int | None:
     return None
 
 
+def _intended_write_set_is_valid(raw: str) -> bool:
+    raw_targets = [item.strip().replace("\\", "/") for item in raw.split(";") if item.strip()]
+    if not raw_targets:
+        return False
+    target_keys: list[str] = []
+    for target in raw_targets:
+        parts = target.split("/")
+        if (
+            target.startswith("/")
+            or re.match(r"^[A-Za-z]:", target)
+            or any(part in {"", ".", ".."} for part in parts)
+        ):
+            return False
+        target_keys.append(target.casefold())
+    return len(target_keys) == len(set(target_keys))
+
+
 def inspect_lock_table(
     root: str | Path,
     *,
@@ -158,12 +185,20 @@ def inspect_lock_table(
         lock_type = str(payload.get("Lock Type", ""))
         workload_id = str(payload.get("Workload ID", ""))
         workload_state = str(payload.get("Workload State", ""))
+        intended_write_set = str(payload.get("Intended Write Set", ""))
         process_id = _owner_process_id(payload)
         process_running = checker(process_id) if process_id is not None else None
-        malformed = (
+        identity_malformed = (
             lock_id != path.stem
             or not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_id)
             or lock_state not in NON_RELEASED_LOCK_STATES | {"Released"}
+        )
+        conflict_metadata_malformed = (
+            lock_type not in LOCK_TYPES
+            or not _intended_write_set_is_valid(intended_write_set)
+        )
+        malformed = identity_malformed or (
+            lock_state != "Released" and conflict_metadata_malformed
         )
         active = lock_state in NON_RELEASED_LOCK_STATES
         if malformed:
@@ -192,12 +227,12 @@ def inspect_lock_table(
                 owner=str(payload.get("Last Updated By", "")),
                 owner_process_id=process_id,
                 process_running=process_running,
-                intended_write_set=str(payload.get("Intended Write Set", "")),
+                intended_write_set=intended_write_set,
                 acquired_at=str(payload.get("Acquired At", payload.get("Last Updated", ""))),
                 last_activity_at=str(payload.get("Last Activity At", payload.get("Last Updated", ""))),
                 classification=classification,
                 active=active,
-                error="invalid lock identity or state" if malformed else "",
+                error="invalid lock identity, state, type, or intended write set" if malformed else "",
             )
         )
     return inspections
