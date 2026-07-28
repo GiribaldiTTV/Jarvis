@@ -3070,6 +3070,25 @@ def main() -> int:
         journal_failures = validator.validate_incomplete_target_set_journals(root)
         if not journal_failures:
             raise AssertionError("prepared target-set journal did not block currentness validation")
+        for invalid_state in (None, ""):
+            invalid_journal = dict(prepared_journal)
+            if invalid_state is None:
+                invalid_journal.pop("Transaction State", None)
+            else:
+                invalid_journal["Transaction State"] = invalid_state
+            atomic_write_json(journal_path, invalid_journal)
+            invalid_state_failures = (
+                validator.validate_incomplete_target_set_journals(root)
+            )
+            if not any(
+                "journal has invalid state ''" in failure
+                for failure in invalid_state_failures
+            ):
+                raise AssertionError(
+                    "missing/blank target-set transaction state did not block currentness: "
+                    + "; ".join(invalid_state_failures)
+                )
+        atomic_write_json(journal_path, prepared_journal)
         journal_cli = subprocess.run(
             [
                 sys.executable,

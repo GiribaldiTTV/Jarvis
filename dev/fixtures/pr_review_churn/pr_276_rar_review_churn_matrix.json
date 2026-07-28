@@ -138,13 +138,13 @@
       },
       {
         "pr": 309,
-        "connector_comments": 63,
+        "connector_comments": 64,
         "observed_family_counts": {
           "current-gate-repair-transaction": 8,
           "external-state-lock-lifecycle": 8,
           "external-state-semantic-validation": 15,
           "external-state-snapshot-transaction": 5,
-          "external-state-target-publication": 9,
+          "external-state-target-publication": 10,
           "governance-fixture-count-contract": 2,
           "pr-readiness-review-risk-parser": 2,
           "pr2-comment-family-classifier": 10,
@@ -158,13 +158,14 @@
           "repo-live-state-boundary-parser": 1
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, and Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery.",
-        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
+        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, and Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state.",
+        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, require exact target-set journal states, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
         "preventive_changes": [
           "dev/orin_pr_review_churn_validation.py adds precise classifiers and positive guardrails for six PR #309 threat families while preserving unrelated-comment unknown behavior.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records exact PR #309 family counts and rule-to-code-to-fixture-to-mutation coverage for every newly observed family.",
           "The pre-PR firewall replays representative semantic-currentness, lock lifecycle, snapshot, target publication, current-gate repair, and fixture-count comments before another connector request.",
           "Existing external-state target-currentness, lock-lifecycle, current-gate repair, and branch-governance fixture suites provide the bounded adversarial implementation proof for the new families.",
+          "External-state currentness now rejects missing or blank target-set transaction states and the target-currentness fixture proves both malformed variants.",
           "Docs/branch_records/feature_release_readiness_source_truth_intake.md preserves this exact PR #309 review-churn root-cause receipt as historical evidence only."
         ],
         "receipt_file": "Docs/branch_records/feature_release_readiness_source_truth_intake.md",
@@ -380,6 +381,10 @@
         "comment": "Roll back target sets when a member raises and preserve a prepared journal until restoration is proven."
       },
       {
+        "family_id": "external-state-target-publication",
+        "comment": "Reject a missing or blank transaction state in a target-set journal instead of silently treating it as complete."
+      },
+      {
         "family_id": "current-gate-repair-transaction",
         "comment": "Use a stable candidate key for repair signatures and reject duplicate route classes per BR1 candidate."
       },
@@ -414,9 +419,13 @@
       "rar-issue-candidate-durability-parser",
       "visual-acceptance-proof-chain-parser"
     ],
+    "Docs/external_operational_state_store_reform_plan.md": [
+      "external-state-target-publication"
+    ],
     "Docs/incident_patterns.md": [
       "visual-acceptance-proof-chain-parser",
-      "current-gate-repair-transaction"
+      "current-gate-repair-transaction",
+      "external-state-target-publication"
     ],
     "Docs/ui_reference_catalog/README.md": [
       "visual-acceptance-proof-chain-parser",
@@ -560,7 +569,8 @@
     "dev/orin_external_state_validation.py": [
       "repo-live-state-boundary-parser",
       "external-state-semantic-validation",
-      "external-state-lock-lifecycle"
+      "external-state-lock-lifecycle",
+      "external-state-target-publication"
     ],
     "dev/orin_external_state_target_currentness_fixture_validation.py": [
       "repo-live-state-boundary-parser",
@@ -1402,12 +1412,14 @@
       "representative_comment_patterns": [
         "Validator or member exception bypasses complete target-set rollback",
         "Prepared journal is misplaced, corrupt, or omitted from recovery discovery",
-        "Single-target or target-set publication proceeds under a foreign or released lock"
+        "Single-target or target-set publication proceeds under a foreign or released lock",
+        "Missing or blank target-set transaction state bypasses currentness validation"
       ],
       "source_truth": [
         "Docs/external_operational_state_store_reform_plan.md",
         "Docs/development_rules.md",
-        "Docs/validation_helper_registry.md"
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
       ],
       "implementation": [
         "dev/orin_external_state_target_reconcile.py",
@@ -1425,14 +1437,16 @@
         "audit journal path lies outside direct audit_log JSON discovery",
         "foreign workload supplies another workload's valid lock",
         "lock release races a single-target publication",
-        "non-reentrant guard rejects nested target-set publication"
+        "non-reentrant guard rejects nested target-set publication",
+        "target-set journal omits or blanks Transaction State"
       ],
       "sibling_variant_replay": [
         "prepared journal survives failed rollback",
         "prior members and current member restore after an exception",
         "target-set publication reuses one guard context",
         "single-target CLI requires exact workload ownership",
-        "concurrent currentness reader blocks on prepared transaction state"
+        "concurrent currentness reader blocks on prepared transaction state",
+        "missing and blank journal states both fail closed"
       ]
     },
     {

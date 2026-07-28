@@ -437,6 +437,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "nested lock acquisition",
             "target sets when a member raises",
             "prepared journal",
+            "missing or blank transaction state",
+            "missing/blank target-set transaction state",
+            "journals with a missing state",
         ),
     ),
     FamilyRule(
@@ -734,7 +737,7 @@ def _classifier_guardrail_failures() -> list[str]:
             "Bind targeted snapshots to the caller workload."
         ),
         "external-state-target-publication": (
-            "Roll back target sets when a member raises."
+            "Reject a missing or blank transaction state in a target-set journal."
         ),
         "current-gate-repair-transaction": (
             "Use a stable candidate key for repair signatures."

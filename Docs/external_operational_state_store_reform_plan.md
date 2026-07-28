@@ -1394,6 +1394,10 @@ acquires the workload lock at the write boundary, publishes only the coherent
 final values, validates cross-record semantic currentness, records the audit,
 and releases the lock before return. Final validation failure restores the
 pre-write projection set; it must not leave a mixed-version current state.
+Target-set transaction journals admit only exact `Prepared` or `Committed`
+states. A matching journal with a missing, blank, or otherwise invalid
+`Transaction State` blocks currentness as malformed transaction evidence;
+it must never be treated as completed or silently skipped.
 
 ## Future Exact USER Decision Shape
 

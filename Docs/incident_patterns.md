@@ -930,8 +930,11 @@ after replacement must restore that current member as well as every previously
 published member before the transaction can return blocked. Prepared target-set
 journals must be confined to
 the direct `audit_log/*.json` directory scanned by recovery validation; a safe
-path outside that scan is still an unrecoverable transaction path. Semantic
-projection discovery must inspect every canonical branch alias, including
+path outside that scan is still an unrecoverable transaction path. Matching
+target-set journals admit only exact `Prepared` or `Committed` states; missing,
+blank, or otherwise invalid `Transaction State` values must block currentness
+as malformed transaction evidence instead of bypassing recovery validation.
+Semantic projection discovery must inspect every canonical branch alias, including
 `Branch` and `Current Branch`, so alias-only live records cannot evade the
 bounded target inventory.
 When a current BR1 packet requires a candidate viability/grouping matrix, the

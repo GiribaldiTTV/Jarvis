@@ -985,7 +985,7 @@ def validate_incomplete_target_set_journals(root: Path) -> list[str]:
                 "Incomplete target-set transaction journal requires locked recovery: "
                 f"{path}"
             )
-        elif transaction_state and transaction_state != "Committed":
+        elif transaction_state != "Committed":
             failures.append(
                 f"Target-set transaction journal has invalid state {transaction_state!r}: {path}"
             )
