@@ -1869,6 +1869,16 @@ def main() -> int:
         )
         return 1
 
+    if args.semantic_currentness and (
+        args.require_stage4_records or args.expected_source_head
+    ):
+        print("Validation Result: BLOCKED")
+        print(
+            "Semantic currentness cannot be combined with global Stage 4 record "
+            "or manifest source-HEAD validation"
+        )
+        return 1
+
     if issues:
         print("Validation Result: BLOCKED")
         for issue in issues:

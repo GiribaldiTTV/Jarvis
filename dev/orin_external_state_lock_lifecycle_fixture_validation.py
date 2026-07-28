@@ -261,6 +261,33 @@ def main() -> int:
                     + combined_cli.stderr
                 )
 
+        for global_gate_args, label in (
+            (["--require-stage4-records"], "global Stage 4 records"),
+            (["--expected-source-head", "0" * 40], "manifest source HEAD"),
+        ):
+            combined_semantic_cli = subprocess.run(
+                [
+                    sys.executable,
+                    str(validator),
+                    "--root",
+                    str(root),
+                    "--semantic-currentness",
+                    *global_gate_args,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if combined_semantic_cli.returncode == 0 or (
+                "Semantic currentness cannot be combined with global"
+                not in combined_semantic_cli.stdout + combined_semantic_cli.stderr
+            ):
+                raise AssertionError(
+                    f"public validator accepted semantic currentness with {label}:\n"
+                    + combined_semantic_cli.stdout
+                    + combined_semantic_cli.stderr
+                )
+
         missing_root = root / "missing-external-state-root"
         for gate_args, label in (
             (["--semantic-currentness"], "semantic currentness"),

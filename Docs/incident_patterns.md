@@ -906,6 +906,9 @@ green alone does not clear this incident class. BR1 applicability must derive
 from independent current-gate identity rather than required candidate content,
 and governed candidate fields before the first `Option name` boundary must fail
 closed as an unnamed candidate instead of disappearing from validation.
+Scoped semantic-currentness validation must reject combination with requested
+global Stage 4 or manifest source-HEAD checks so an early scoped return cannot
+silently bypass those gates.
 
 ## Incident Pattern: External-State Lock Outlives Its Workload
 
