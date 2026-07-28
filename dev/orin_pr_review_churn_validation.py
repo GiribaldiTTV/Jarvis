@@ -378,6 +378,89 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         ),
     ),
     FamilyRule(
+        "external-state-semantic-validation",
+        (
+            "explicit validation gates",
+            "--semantic-currentness",
+            "semantic currentness",
+            "historical receipts",
+            "historical classifications",
+            "approval-state token",
+            "neutral-main currentness",
+            "current packet status",
+            "requested final lock gate",
+            "same-branch live projection",
+            "projection discovery",
+            "branch aliases",
+            "record class: not historical receipt",
+        ),
+    ),
+    FamilyRule(
+        "external-state-lock-lifecycle",
+        (
+            "stale release",
+            "stale_completed_workload",
+            "recoverable state",
+            "workload identity before releasing",
+            "inaccessible owner processes",
+            "global zero in the final lock gate",
+            "stale ownership under the release guard",
+            "owner process has exited",
+            "pre-upgrade active locks",
+            "missing workload id",
+            "orphaned lock",
+        ),
+    ),
+    FamilyRule(
+        "external-state-snapshot-transaction",
+        (
+            "targeted snapshots",
+            "snapshot manifest",
+            "workload lock held while copying",
+            "snapshot exclusivity",
+            "--snapshot-name",
+            "targeted-snapshot path",
+            "snapshot to the caller workload",
+        ),
+    ),
+    FamilyRule(
+        "external-state-target-publication",
+        (
+            "target set when validators raise",
+            "stage target-set updates",
+            "journal recovery text",
+            "durable transaction journal",
+            "locks owned by a different workload",
+            "single-target applies",
+            "single-target publication",
+            "constrain journals",
+            "nested lock acquisition",
+            "target sets when a member raises",
+            "prepared journal",
+        ),
+    ),
+    FamilyRule(
+        "current-gate-repair-transaction",
+        (
+            "canonical publication recoverable",
+            "route classes per br1 candidate",
+            "repair signatures",
+            "stable candidate key",
+            "current-gate fixture counts",
+            "invalid-shape matching",
+            "whole-candidate claims",
+        ),
+    ),
+    FamilyRule(
+        "governance-fixture-count-contract",
+        (
+            "fixture totals",
+            "fixture counts",
+            "actual coverage",
+            "stale coverage",
+        ),
+    ),
+    FamilyRule(
         "pr2-thread-pagination-and-approval-latch",
         (
             "review thread",
@@ -636,6 +719,31 @@ def _classify_comment(body: str) -> list[str]:
 
 def _classifier_guardrail_failures() -> list[str]:
     failures: list[str] = []
+    pr309_family_samples = {
+        "external-state-semantic-validation": (
+            "Reject negated current packet status in --semantic-currentness."
+        ),
+        "external-state-lock-lifecycle": (
+            "Revalidate stale ownership under the release guard."
+        ),
+        "external-state-snapshot-transaction": (
+            "Bind targeted snapshots to the caller workload."
+        ),
+        "external-state-target-publication": (
+            "Roll back target sets when a member raises."
+        ),
+        "current-gate-repair-transaction": (
+            "Use a stable candidate key for repair signatures."
+        ),
+        "governance-fixture-count-contract": (
+            "Update the enforced current-gate fixture counts."
+        ),
+    }
+    for family_id, sample in pr309_family_samples.items():
+        if family_id not in _classify_comment(sample):
+            failures.append(
+                f"Comment-family classifier did not classify PR #309 family {family_id}"
+            )
     unrelated = "A database migration status row has mixed case after cleanup."
     if _classify_comment(unrelated) != ["unknown"]:
         failures.append(

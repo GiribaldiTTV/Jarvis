@@ -135,6 +135,40 @@
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #289 Review-Churn Root-Cause Receipt"
+      },
+      {
+        "pr": 309,
+        "connector_comments": 61,
+        "observed_family_counts": {
+          "current-gate-repair-transaction": 6,
+          "external-state-lock-lifecycle": 8,
+          "external-state-semantic-validation": 15,
+          "external-state-snapshot-transaction": 5,
+          "external-state-target-publication": 9,
+          "governance-fixture-count-contract": 2,
+          "pr-readiness-review-risk-parser": 2,
+          "pr2-comment-family-classifier": 9,
+          "pr2-thread-pagination-and-approval-latch": 1,
+          "rar-issue-candidate-disposition-parser": 1,
+          "rar-issue-candidate-durability-parser": 1,
+          "rar-path-suffix-parser": 7,
+          "rar-status-green-parser": 1,
+          "rar-table-row-parser": 10,
+          "rar-user-packet-proof-parser": 3,
+          "repo-live-state-boundary-parser": 1
+        },
+        "pr_readiness_stage_1_failure": true,
+        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of 61 connector comments unknown until this repair.",
+        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
+        "preventive_changes": [
+          "dev/orin_pr_review_churn_validation.py adds precise classifiers and positive guardrails for six PR #309 threat families while preserving unrelated-comment unknown behavior.",
+          "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records exact PR #309 family counts and rule-to-code-to-fixture-to-mutation coverage for every newly observed family.",
+          "The pre-PR firewall replays representative semantic-currentness, lock lifecycle, snapshot, target publication, current-gate repair, and fixture-count comments before another connector request.",
+          "Existing external-state target-currentness, lock-lifecycle, current-gate repair, and branch-governance fixture suites provide the bounded adversarial implementation proof for the new families.",
+          "Docs/branch_records/feature_release_readiness_source_truth_intake.md preserves this exact PR #309 review-churn root-cause receipt as historical evidence only."
+        ],
+        "receipt_file": "Docs/branch_records/feature_release_readiness_source_truth_intake.md",
+        "receipt_marker": "PR #309 Review-Churn Root-Cause Receipt"
       }
     ]
   },
@@ -171,7 +205,9 @@
           "dev/orin_current_gate_repair_fixture_validation.py"
         ],
         "covers_families": [
-          "pr-readiness-review-risk-parser"
+          "pr-readiness-review-risk-parser",
+          "current-gate-repair-transaction",
+          "governance-fixture-count-contract"
         ]
       },
       {
@@ -181,7 +217,20 @@
           "dev/orin_external_state_lock_lifecycle_fixture_validation.py"
         ],
         "covers_families": [
-          "repo-live-state-boundary-parser"
+          "repo-live-state-boundary-parser",
+          "external-state-lock-lifecycle"
+        ]
+      },
+      {
+        "name": "external-state target currentness adversarial fixture suite",
+        "command": [
+          "{python}",
+          "dev/orin_external_state_target_currentness_fixture_validation.py"
+        ],
+        "covers_families": [
+          "external-state-semantic-validation",
+          "external-state-snapshot-transaction",
+          "external-state-target-publication"
         ]
       }
     ],
@@ -313,6 +362,30 @@
       {
         "family_id": "visual-acceptance-proof-chain-parser",
         "comment": "Require Render Authority Level in visual acceptance planning so visible UI packets distinguish concept render, design candidate, visual acceptance target, and implementation match proof."
+      },
+      {
+        "family_id": "external-state-semantic-validation",
+        "comment": "Reject negated current packet status and same-branch live projections omitted from --semantic-currentness inventory."
+      },
+      {
+        "family_id": "external-state-lock-lifecycle",
+        "comment": "Revalidate stale ownership under the release guard and reject pre-upgrade active locks without bounded recovery proof."
+      },
+      {
+        "family_id": "external-state-snapshot-transaction",
+        "comment": "Bind targeted snapshots to the admitting lock and caller workload while the guarded copy transaction is active."
+      },
+      {
+        "family_id": "external-state-target-publication",
+        "comment": "Roll back target sets when a member raises and preserve a prepared journal until restoration is proven."
+      },
+      {
+        "family_id": "current-gate-repair-transaction",
+        "comment": "Use a stable candidate key for repair signatures and reject duplicate route classes per BR1 candidate."
+      },
+      {
+        "family_id": "governance-fixture-count-contract",
+        "comment": "Update enforced current-gate fixture counts whenever runtime fixture totals change."
       }
     ],
     "unknown_comment_guardrails": [
@@ -370,7 +443,13 @@
       "repo-live-state-boundary-parser",
       "pr-readiness-review-risk-parser",
       "pr2-comment-family-classifier",
-      "pr2-thread-pagination-and-approval-latch"
+      "pr2-thread-pagination-and-approval-latch",
+      "external-state-semantic-validation",
+      "external-state-lock-lifecycle",
+      "external-state-snapshot-transaction",
+      "external-state-target-publication",
+      "current-gate-repair-transaction",
+      "governance-fixture-count-contract"
     ],
     "dev/fixtures/branch_readiness_planning/invalid_visual_acceptance_missing_target.md": [
       "visual-acceptance-proof-chain-parser"
@@ -410,11 +489,18 @@
       "repo-live-state-boundary-parser",
       "pr-readiness-review-risk-parser",
       "pr2-comment-family-classifier",
-      "pr2-thread-pagination-and-approval-latch"
+      "pr2-thread-pagination-and-approval-latch",
+      "external-state-semantic-validation",
+      "external-state-lock-lifecycle",
+      "external-state-snapshot-transaction",
+      "external-state-target-publication",
+      "current-gate-repair-transaction",
+      "governance-fixture-count-contract"
     ],
     "dev/orin_branch_governance_validation.py": [
       "pr2-thread-pagination-and-approval-latch",
-      "repo-live-state-boundary-parser"
+      "repo-live-state-boundary-parser",
+      "governance-fixture-count-contract"
     ],
     "dev/orin_repo_live_state_leakage_scan.py": [
       "repo-live-state-boundary-parser"
@@ -450,22 +536,36 @@
       "rar-path-suffix-parser",
       "rar-short-marker-parser",
       "repo-live-state-boundary-parser",
-      "pr-readiness-review-risk-parser"
+      "pr-readiness-review-risk-parser",
+      "external-state-semantic-validation",
+      "external-state-lock-lifecycle",
+      "external-state-snapshot-transaction",
+      "external-state-target-publication",
+      "current-gate-repair-transaction",
+      "governance-fixture-count-contract"
     ],
     "dev/orin_user_review_bundle.py": [
       "visual-acceptance-proof-chain-parser"
     ],
     "dev/orin_external_state_validation.py": [
-      "repo-live-state-boundary-parser"
+      "repo-live-state-boundary-parser",
+      "external-state-semantic-validation",
+      "external-state-lock-lifecycle"
     ],
     "dev/orin_external_state_target_currentness_fixture_validation.py": [
-      "repo-live-state-boundary-parser"
+      "repo-live-state-boundary-parser",
+      "external-state-semantic-validation",
+      "external-state-snapshot-transaction",
+      "external-state-target-publication"
     ],
     "dev/orin_current_gate_repair_fixture_validation.py": [
-      "pr-readiness-review-risk-parser"
+      "pr-readiness-review-risk-parser",
+      "current-gate-repair-transaction",
+      "governance-fixture-count-contract"
     ],
     "dev/orin_external_state_lock_lifecycle_fixture_validation.py": [
-      "repo-live-state-boundary-parser"
+      "repo-live-state-boundary-parser",
+      "external-state-lock-lifecycle"
     ],
     "dev/orin_user_review_bundle_false_green_fixture_validation.py": [
       "visual-acceptance-proof-chain-parser"
@@ -1173,6 +1273,222 @@
         "current-head review request binding paginates beyond the latest 100 timeline items",
         "same-head green PR review summaries must postdate the latest current-head review request",
         "same-head green proof must postdate the latest Connector review/comment signal after request"
+      ]
+    },
+    {
+      "family_id": "external-state-semantic-validation",
+      "title": "External-state semantic currentness and explicit-gate validation",
+      "representative_comment_patterns": [
+        "Explicit semantic or final-lock gate bypasses a missing root",
+        "Negated approval, neutral-main, packet, or historical wording passes as affirmative",
+        "Same-branch live projection or branch alias escapes semantic inventory"
+      ],
+      "source_truth": [
+        "Docs/external_operational_state_store_reform_plan.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_external_state_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_external_state_target_currentness_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "missing root under each explicit validation mode",
+        "affirmative token embedded inside negated approval or currentness wording",
+        "conflicting historical aliases and negated historical classification",
+        "same-branch live projection outside the branch directory",
+        "Current Branch alias without canonical Branch field"
+      ],
+      "sibling_variant_replay": [
+        "semantic-currentness combined with final-lock-gate",
+        "no-current-packet natural-language posture",
+        "historical-only packet text containing the word current",
+        "live review-bundle projection omitted from the declared inventory"
+      ]
+    },
+    {
+      "family_id": "external-state-lock-lifecycle",
+      "title": "External-state lock ownership, stale recovery, and final-zero lifecycle",
+      "representative_comment_patterns": [
+        "Active or inaccessible owner is mistaken for stale-completed",
+        "Foreign or workloadless lock is released without bounded ownership proof",
+        "Final-return gate skips global zero or an explicitly requested lock check"
+      ],
+      "source_truth": [
+        "Docs/external_operational_state_store_reform_plan.md",
+        "Docs/development_rules.md",
+        "Docs/incident_patterns.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_external_state_lock_lifecycle.py",
+        "dev/orin_external_state_lock_release.py",
+        "dev/orin_external_state_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_external_state_lock_lifecycle_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "active workload with exited owner process",
+        "completed workload with inaccessible owner process",
+        "stale classification followed by payload drift before release",
+        "pre-upgrade lock missing Workload ID",
+        "prepared journal introduced before legacy recovery publication",
+        "foreign active lock at final global-zero gate"
+      ],
+      "sibling_variant_replay": [
+        "ordinary release without expected workload identity",
+        "all non-released recoverable lock states",
+        "legacy recovery against a modern workload-owned lock",
+        "legacy recovery after payload-digest drift",
+        "combined semantic and final-lock validation flags"
+      ]
+    },
+    {
+      "family_id": "external-state-snapshot-transaction",
+      "title": "Targeted external-state snapshot admission and immutable publication",
+      "representative_comment_patterns": [
+        "Snapshot manifest is not bound to the admitting lock and workload",
+        "Lock can drift while a multi-target snapshot is copied",
+        "Concurrent same-name snapshot overwrites immutable evidence"
+      ],
+      "source_truth": [
+        "Docs/external_operational_state_store_reform_plan.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_external_state_snapshot.py",
+        "dev/orin_external_state_target_reconcile.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_external_state_target_currentness_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "snapshot lock changes during guarded copy",
+        "caller workload differs from admitting workload",
+        "snapshot manifest lock identity differs from reconcile identity",
+        "two writers race on the same deterministic snapshot name"
+      ],
+      "sibling_variant_replay": [
+        "single-target and multi-target snapshot identity binding",
+        "released lock during snapshot copy",
+        "existing immutable snapshot directory under guarded publication",
+        "snapshot produced by another workload with matching target hashes"
+      ]
+    },
+    {
+      "family_id": "external-state-target-publication",
+      "title": "External-state target-set publication, rollback, journal, and ownership",
+      "representative_comment_patterns": [
+        "Validator or member exception bypasses complete target-set rollback",
+        "Prepared journal is misplaced, corrupt, or omitted from recovery discovery",
+        "Single-target or target-set publication proceeds under a foreign or released lock"
+      ],
+      "source_truth": [
+        "Docs/external_operational_state_store_reform_plan.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_external_state_target_reconcile.py",
+        "dev/orin_external_state_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_external_state_target_currentness_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "final validator raises after all target members publish",
+        "current member raises after replacement but before applied-state recording",
+        "embedded Before Text does not match Before SHA256",
+        "audit journal path lies outside direct audit_log JSON discovery",
+        "foreign workload supplies another workload's valid lock",
+        "lock release races a single-target publication",
+        "non-reentrant guard rejects nested target-set publication"
+      ],
+      "sibling_variant_replay": [
+        "prepared journal survives failed rollback",
+        "prior members and current member restore after an exception",
+        "target-set publication reuses one guard context",
+        "single-target CLI requires exact workload ownership",
+        "concurrent currentness reader blocks on prepared transaction state"
+      ]
+    },
+    {
+      "family_id": "current-gate-repair-transaction",
+      "title": "Current-gate repair signatures, BR1 shape, and canonical publication",
+      "representative_comment_patterns": [
+        "Interrupted canonical packet publication strands the accepted pair",
+        "Duplicate route class or mutable candidate key hides an unresolved BR1 defect",
+        "Subordinate support-only wording is mistaken for whole-candidate classification"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_current_gate_repair.py",
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_current_gate_repair_fixture_validation.py",
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "interruption between canonical folder and ZIP replacement",
+        "two different route-class values in one candidate",
+        "two missing fields on one candidate require distinct signatures",
+        "candidate option-name repair does not change remaining defect identity",
+        "support-only phrase appears only in a subordinate implementation field"
+      ],
+      "sibling_variant_replay": [
+        "canonical draft validation fails before publication",
+        "candidate ordinal remains stable across content repair",
+        "invalid route-class enum remains self-repairable current-gate defect",
+        "BR1 candidate matrix is promoted into the active review surface"
+      ]
+    },
+    {
+      "family_id": "governance-fixture-count-contract",
+      "title": "Governance fixture-count registry and enforcement synchronization",
+      "representative_comment_patterns": [
+        "Registry advertises stale negative and positive fixture totals",
+        "Governance validator enforces a count that differs from runtime fixtures"
+      ],
+      "source_truth": [
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_governance_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_current_gate_repair_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "registry total lags fixture runtime total",
+        "governance validator literal lags corrected registry total",
+        "runtime fixture total changes while both durable count references stay stale"
+      ],
+      "sibling_variant_replay": [
+        "negative count changes without positive count change",
+        "fixture validator and registry agree but governance marker does not",
+        "runtime-reported totals differ from both durable references"
       ]
     }
   ]
