@@ -920,6 +920,15 @@ recovery must bind the caller's workload identity to the authoritative active
 lock; possession of another workload's visible lock ID is not mutation
 authority. Both callable and public CLI apply paths must fail before target or
 audit mutation when workload identity is omitted or foreign.
+The final single-target lock/snapshot check, target replacement, post-write
+validation, rollback, and audit publication must remain under the lock-table
+guard so another workload cannot release and replace the admitting lock between
+validation and publication. Prepared target-set journals must be confined to
+the direct `audit_log/*.json` directory scanned by recovery validation; a safe
+path outside that scan is still an unrecoverable transaction path. Semantic
+projection discovery must inspect every canonical branch alias, including
+`Branch` and `Current Branch`, so alias-only live records cannot evade the
+bounded target inventory.
 An active-looking lock whose recorded owner process has exited is likewise not
 valid mutation authority: if the workload is completed it is stale-completed;
 otherwise it is an orphaned active workload that remains blocked for explicit

@@ -702,8 +702,14 @@ def validate_governance_semantic_currentness(
             )
             continue
         candidate_header = _live_header_text(candidate_text)
-        candidate_branch = markdown_field_value(candidate_header, "Branch")
-        if not candidate_branch or candidate_branch.strip().casefold() != GOVERNANCE_SEMANTIC_BRANCH:
+        candidate_branches = {
+            value.strip().casefold()
+            for _field, value in _markdown_field_values(
+                candidate_header,
+                ("Branch", "Current Branch"),
+            )
+        }
+        if GOVERNANCE_SEMANTIC_BRANCH not in candidate_branches:
             continue
         record_class = _normalized_windows_value(
             markdown_field_value(candidate_header, "Record Class")

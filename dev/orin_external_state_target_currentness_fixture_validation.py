@@ -1430,6 +1430,102 @@ def main() -> int:
                 + "\n".join(messages)
             )
 
+        publication_guard_lock_id = "worktree-fixture-publication-guard"
+        atomic_write_json(
+            root / "locks" / f"{publication_guard_lock_id}.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": publication_guard_lock_id,
+                "Lock Type": "worktree",
+                "Lock State": "Locked",
+                "Workload ID": "fixture-workload",
+                "Worktree": WORKTREE_PATH,
+                "Branch": "feature/release-readiness-source-truth-intake",
+                "Intended Write Set": TARGET,
+            },
+        )
+        publication_guard_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-publication-guard",
+            lock_id=publication_guard_lock_id,
+        )
+        original_lock_hook = reconciler._before_final_lock_check
+        release_result: subprocess.CompletedProcess[str] | None = None
+
+        def try_release_during_publication(lock_root: Path, lock_name: str) -> None:
+            nonlocal release_result
+            release_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(Path(lock_release.__file__).resolve()),
+                    "--root",
+                    str(lock_root),
+                    "--lock-id",
+                    lock_name,
+                    "--expected-workload-id",
+                    "fixture-workload",
+                    "--reason",
+                    "publication guard contention fixture",
+                    "--apply",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        reconciler._before_final_lock_check = try_release_during_publication
+        try:
+            publication_guard_expectations = _expectations(target)
+            publication_guard_expectations["expected_source_head"] = "d" * 40
+            ok, messages, audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=publication_guard_lock_id,
+                snapshot=publication_guard_snapshot.relative_to(root).as_posix(),
+                assignments=["Last Updated=2026-01-04T00:00:02Z"],
+                additions=[],
+                apply=True,
+                **publication_guard_expectations,
+            )
+        finally:
+            reconciler._before_final_lock_check = original_lock_hook
+        release_output = "" if release_result is None else (
+            release_result.stdout + release_result.stderr
+        )
+        if (
+            not ok
+            or audit is None
+            or release_result is None
+            or release_result.returncode == 0
+            or "lock-table acquisition guard is busy" not in release_output
+        ):
+            raise AssertionError(
+                "single-target publication did not exclude concurrent lock release:\n"
+                + "\n".join(messages)
+                + "\nConcurrent release output:\n"
+                + release_output
+            )
+        publication_lock = json.loads(
+            (root / "locks" / f"{publication_guard_lock_id}.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        if publication_lock.get("Lock State") != "Locked":
+            raise AssertionError("publication guard allowed the admitting lock to change")
+        released, release_messages = lock_release.release_lock(
+            root,
+            publication_guard_lock_id,
+            "publication guard fixture complete",
+            apply=True,
+            expected_workload_id="fixture-workload",
+        )
+        if not released:
+            raise AssertionError(
+                "publication-guard lock release fixture failed:\n"
+                + "\n".join(release_messages)
+            )
+
         snapshot_race_id = "worktree-fixture-snapshot-race"
         atomic_write_json(
             root / "locks" / f"{snapshot_race_id}.json",
@@ -2057,7 +2153,7 @@ def main() -> int:
                     "Record Class: `Live Review-Bundle Projection`",
                     "Record Role: `Current same-branch review-bundle projection`",
                     "Historical Receipt Boundary: `Historical receipts do not redefine live state.`",
-                    f"Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
+                    f"Current Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
                     "",
                 ]
             ),
@@ -2070,8 +2166,8 @@ def main() -> int:
         )
         cross_area_projection.write_text(
             cross_area_projection.read_text(encoding="utf-8").replace(
-                f"Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
-                "Branch: `feature/unrelated-branch`",
+                f"Current Branch: `{validator.GOVERNANCE_SEMANTIC_BRANCH}`",
+                "Current Branch: `feature/unrelated-branch`",
                 1,
             ),
             encoding="utf-8",
@@ -2517,6 +2613,38 @@ def main() -> int:
         paths = _semantic_root(root)
         before = {relative: path.read_bytes() for relative, path in paths.items()}
         requests = target_set_requests(paths)
+        for invalid_audit_target in (
+            "journals/hidden-prepared.json",
+            "audit_log/nested/hidden-prepared.json",
+            "Audit_Log/hidden-prepared.json",
+            "audit_log/hidden-prepared.JSON",
+        ):
+            invalid_audit_ok, invalid_audit_messages, invalid_audit = (
+                reconciler.reconcile_target_set(
+                    root=root,
+                    lock_id="",
+                    snapshot="",
+                    audit_target=invalid_audit_target,
+                    requests=requests,
+                    final_validation=_semantic_failures,
+                    apply=False,
+                )
+            )
+            if (
+                invalid_audit_ok
+                or invalid_audit is not None
+                or not any(
+                    "direct audit_log/*.json journal" in item
+                    for item in invalid_audit_messages
+                )
+                or (root / invalid_audit_target).exists()
+            ):
+                raise AssertionError(
+                    "target-set reconciliation accepted an unrecoverable journal path: "
+                    + invalid_audit_target
+                    + "\n"
+                    + "\n".join(invalid_audit_messages)
+                )
         dry_ok, dry_messages, dry_audit = reconciler.reconcile_target_set(
             root=root,
             lock_id="",

@@ -543,6 +543,153 @@ def _non_updated_lines_with_sections(
     return result
 
 
+def _publish_single_target(
+    *,
+    root: Path,
+    target: str,
+    target_path: Path,
+    relative: str,
+    lock_id: str,
+    expected_branch: str,
+    expected_worktree_path: str,
+    expected_workload_id: str,
+    initial_lock_payload: dict[str, object] | None,
+    snapshot_path: Path | None,
+    expected_target_sha256: str,
+    transition_started_ns: int,
+    after_text: str,
+    before_text: str,
+    before_hash: str,
+    post_record_state: str,
+    post_source_head: str,
+    post_origin_main: str,
+    expected_source_head: str,
+    expected_worktree_slot: str,
+    write_audit: bool,
+    changed_fields: set[str],
+    updates: dict[str, str],
+    additions_map: dict[str, str],
+    renamed_sections: list[tuple[str, str]],
+    snapshot: str,
+) -> tuple[bool, list[str], Path | None]:
+    _before_final_lock_check(root, lock_id)
+    final_lock_payload, final_lock_failures = _lock_failures(
+        root,
+        lock_id,
+        target,
+        expected_branch,
+        expected_worktree_path,
+        expected_workload_id,
+    )
+    if final_lock_failures:
+        return False, [f"Final lock validation: {item}" for item in final_lock_failures], None
+    if final_lock_payload != initial_lock_payload:
+        return False, [
+            "Lock changed between validation and atomic replacement; no replacement performed"
+        ], None
+    _before_final_snapshot_check(snapshot_path)
+    final_snapshot_failures = _snapshot_failures(
+        root=root,
+        snapshot_path=snapshot_path,
+        relative=relative,
+        expected_target_sha256=expected_target_sha256,
+        transition_started_ns=transition_started_ns,
+        expected_lock_id=lock_id,
+        expected_workload_id=str((final_lock_payload or {}).get("Workload ID", "")),
+    )
+    if final_snapshot_failures:
+        return False, [
+            f"Final snapshot validation: {item}" for item in final_snapshot_failures
+        ], None
+    atomic_write_text(target_path, after_text)
+    actual_after_hash = sha256_file(target_path)
+    post_validation_func = (
+        validate_target_historical_receipt
+        if post_record_state == "historical-receipt"
+        else validate_target_currentness
+    )
+    post_validation = post_validation_func(
+        root,
+        [target],
+        expected_branch=expected_branch,
+        expected_source_head=post_source_head,
+        expected_origin_main=post_origin_main,
+        expected_worktree_path=expected_worktree_path,
+        expected_worktree_slot=expected_worktree_slot,
+        expected_target_sha256=actual_after_hash,
+    )
+    if post_validation:
+        atomic_write_text(target_path, before_text)
+        return False, [f"Post-write target validation: {item}" for item in post_validation], None
+
+    if not write_audit:
+        return True, [
+            f"APPLIED: {relative}",
+            f"Before SHA256: {before_hash}",
+            f"After SHA256: {actual_after_hash}",
+            "Audit: deferred to bounded target-set transaction",
+        ], None
+
+    audit_path = root / "audit_log" / f"target-currentness-{new_lock_id('audit')}.json"
+    changed_field_details = [
+        {
+            "Field": field,
+            "Before": _live_field_value(before_text, field),
+            "After": _live_field_value(after_text, field),
+        }
+        for field in sorted(changed_fields)
+    ]
+    audit_payload = {
+        "External State Schema": DEFAULT_SCHEMA_VERSION,
+        "Transition": (
+            "Target-scoped historical projection retirement"
+            if post_record_state == "historical-receipt"
+            else "Target-scoped live projection reconciliation"
+        ),
+        "Post Record State": post_record_state,
+        "Target": relative,
+        "Lock ID": lock_id,
+        "Snapshot": snapshot,
+        "Before SHA256": before_hash,
+        "After SHA256": actual_after_hash,
+        "Changed Fields": sorted(changed_fields),
+        "Replaced Fields": sorted(updates),
+        "Added Fields": sorted(additions_map),
+        "Renamed Sections": [
+            {"Before": old, "After": new}
+            for old, new in renamed_sections
+        ],
+        "Changed Field Details": changed_field_details,
+        "Source Identity": {
+            "Branch": expected_branch,
+            "Before Source Repo HEAD": expected_source_head,
+            "After Source Repo HEAD": post_source_head,
+            "Origin/Main": post_origin_main,
+            "Worktree Path": expected_worktree_path,
+            "Slot ID": expected_worktree_slot,
+        },
+        "Branch": expected_branch,
+        "Before Source Repo HEAD": expected_source_head,
+        "After Source Repo HEAD": post_source_head,
+        "Origin/Main": post_origin_main,
+        "Worktree Path": expected_worktree_path,
+        "Slot ID": expected_worktree_slot,
+        "Last Updated": utc_now(),
+        "Last Updated By": "Codex",
+    }
+    try:
+        atomic_write_json(audit_path, audit_payload)
+    except Exception as exc:  # noqa: BLE001 - no silent unaudited transition
+        atomic_write_text(target_path, before_text)
+        return False, [f"Audit entry write failed; target rolled back: {exc}"], None
+    return True, [
+        f"APPLIED: {relative}",
+        f"Before SHA256: {before_hash}",
+        f"After SHA256: {actual_after_hash}",
+        f"Audit: {audit_path}",
+    ], audit_path
+
+
 def reconcile_target(
     *,
     root: Path,
@@ -723,122 +870,35 @@ def reconcile_target(
             "Target changed between validation and atomic replacement; no replacement performed: "
             f"expected {before_hash}, found {final_before_hash}"
         ], None
-    _before_final_lock_check(root, lock_id)
-    final_lock_payload, final_lock_failures = _lock_failures(
-        root,
-        lock_id,
-        target,
-        expected_branch,
-        expected_worktree_path,
-        expected_workload_id,
-    )
-    if final_lock_failures:
-        return False, [f"Final lock validation: {item}" for item in final_lock_failures], None
-    if final_lock_payload != initial_lock_payload:
-        return False, [
-            "Lock changed between validation and atomic replacement; no replacement performed"
-        ], None
-    _before_final_snapshot_check(snapshot_path)
-    final_snapshot_failures = _snapshot_failures(
-        root=root,
-        snapshot_path=snapshot_path,
-        relative=relative,
-        expected_target_sha256=expected_target_sha256,
-        transition_started_ns=transition_started_ns,
-        expected_lock_id=lock_id,
-        expected_workload_id=str((final_lock_payload or {}).get("Workload ID", "")),
-    )
-    if final_snapshot_failures:
-        return False, [
-            f"Final snapshot validation: {item}" for item in final_snapshot_failures
-        ], None
-    atomic_write_text(target_path, after_text)
-    actual_after_hash = sha256_file(target_path)
-    post_validation_func = (
-        validate_target_historical_receipt
-        if post_record_state == "historical-receipt"
-        else validate_target_currentness
-    )
-    post_validation = post_validation_func(
-        root,
-        [target],
-        expected_branch=expected_branch,
-        expected_source_head=post_source_head,
-        expected_origin_main=post_origin_main,
-        expected_worktree_path=expected_worktree_path,
-        expected_worktree_slot=expected_worktree_slot,
-        expected_target_sha256=actual_after_hash,
-    )
-    if post_validation:
-        atomic_write_text(target_path, before_text)
-        return False, [f"Post-write target validation: {item}" for item in post_validation], None
-
-    if not write_audit:
-        return True, [
-            f"APPLIED: {relative}",
-            f"Before SHA256: {before_hash}",
-            f"After SHA256: {actual_after_hash}",
-            "Audit: deferred to bounded target-set transaction",
-        ], None
-
-    audit_path = root / "audit_log" / f"target-currentness-{new_lock_id('audit')}.json"
-    changed_field_details = [
-        {
-            "Field": field,
-            "Before": _live_field_value(before_text, field),
-            "After": _live_field_value(after_text, field),
-        }
-        for field in sorted(changed_fields)
-    ]
-    audit_payload = {
-        "External State Schema": DEFAULT_SCHEMA_VERSION,
-        "Transition": (
-            "Target-scoped historical projection retirement"
-            if post_record_state == "historical-receipt"
-            else "Target-scoped live projection reconciliation"
-        ),
-        "Post Record State": post_record_state,
-        "Target": relative,
-        "Lock ID": lock_id,
-        "Snapshot": snapshot,
-        "Before SHA256": before_hash,
-        "After SHA256": actual_after_hash,
-        "Changed Fields": sorted(changed_fields),
-        "Replaced Fields": sorted(updates),
-        "Added Fields": sorted(additions_map),
-        "Renamed Sections": [
-            {"Before": old, "After": new}
-            for old, new in renamed_sections
-        ],
-        "Changed Field Details": changed_field_details,
-        "Source Identity": {
-            "Branch": expected_branch,
-            "Before Source Repo HEAD": expected_source_head,
-            "After Source Repo HEAD": post_source_head,
-            "Origin/Main": post_origin_main,
-            "Worktree Path": expected_worktree_path,
-            "Slot ID": expected_worktree_slot,
-        },
-        "Branch": expected_branch,
-        "Before Source Repo HEAD": expected_source_head,
-        "After Source Repo HEAD": post_source_head,
-        "Origin/Main": post_origin_main,
-        "Worktree Path": expected_worktree_path,
-        "Slot ID": expected_worktree_slot,
-        "Last Updated": utc_now(),
-        "Last Updated By": "Codex",
-    }
-    try:
-        atomic_write_json(audit_path, audit_payload)
-    except Exception as exc:  # noqa: BLE001 - no silent unaudited transition
-        atomic_write_text(target_path, before_text)
-        return False, [f"Audit entry write failed; target rolled back: {exc}"], None
-    return True, [
-        f"APPLIED: {relative}",
-        f"Before SHA256: {before_hash}",
-        f"After SHA256: {actual_after_hash}",
-        f"Audit: {audit_path}",
-    ], audit_path
+    with lock_table_guard(root):
+        return _publish_single_target(
+            root=root,
+            target=target,
+            target_path=target_path,
+            relative=relative,
+            lock_id=lock_id,
+            expected_branch=expected_branch,
+            expected_worktree_path=expected_worktree_path,
+            expected_workload_id=expected_workload_id,
+            initial_lock_payload=initial_lock_payload,
+            snapshot_path=snapshot_path,
+            expected_target_sha256=expected_target_sha256,
+            transition_started_ns=transition_started_ns,
+            after_text=after_text,
+            before_text=before_text,
+            before_hash=before_hash,
+            post_record_state=post_record_state,
+            post_source_head=post_source_head,
+            post_origin_main=post_origin_main,
+            expected_source_head=expected_source_head,
+            expected_worktree_slot=expected_worktree_slot,
+            write_audit=write_audit,
+            changed_fields=changed_fields,
+            updates=updates,
+            additions_map=additions_map,
+            renamed_sections=renamed_sections,
+            snapshot=snapshot,
+        )
 
 
 @dataclass(frozen=True)
@@ -1313,6 +1373,20 @@ def reconcile_target_set(
         "Target-set audit path",
     )
     failures.extend(audit_path_failures)
+    if audit_path is not None:
+        try:
+            audit_relative = audit_path.relative_to(root)
+        except ValueError:
+            failures.append("Target-set audit path must remain below the external-state root")
+        else:
+            if (
+                len(audit_relative.parts) != 2
+                or audit_relative.parts[0] != "audit_log"
+                or audit_relative.suffix != ".json"
+            ):
+                failures.append(
+                    "Target-set audit path must be a direct audit_log/*.json journal"
+                )
     if not failures and audit_path is not None:
         recovery_messages = _recover_prepared_target_set_journal(
             root=root,
