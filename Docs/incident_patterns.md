@@ -977,7 +977,10 @@ historical-receipt writer path, preserving every unselected line and receipt.
 Free-form `Current PR State` and `Current USER Packet Status` text is not a
 classification: an active PR must explicitly say open/current/live/active, and
 packet status must explicitly state current authority or no-current-packet
-posture. Values that match neither side fail closed.
+posture. Values that match neither side fail closed. Every governed semantic
+field repeated in an `Active Cycle` or `Current Gate` section must agree with
+the live header, and duplicate current-section headings fail closed rather than
+allowing a later section to overwrite earlier contradictory authority.
 Run the
 semantic positive and negative fixture family in addition to target identity,
 lock-lifecycle, and external-root validation. A green identity check alone is

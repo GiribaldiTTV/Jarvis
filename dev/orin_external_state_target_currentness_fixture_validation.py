@@ -2000,6 +2000,33 @@ def main() -> int:
             )
         branch_state.write_text(original_branch_state, encoding="utf-8")
 
+        for field in validator.GOVERNANCE_SEMANTIC_FIELDS:
+            branch_state.write_text(
+                original_branch_state
+                + f"\n## Current Gate\n{field}: `Contradictory section value.`\n",
+                encoding="utf-8",
+            )
+            _assert_failure(
+                f"current section contradicts live header for {field}",
+                f"current section 'current gate' disagrees on {field}",
+                _semantic_failures(root),
+            )
+        branch_state.write_text(original_branch_state, encoding="utf-8")
+
+        for section_heading in ("Current Gate", "Active Cycle"):
+            branch_state.write_text(
+                original_branch_state
+                + f"\n## {section_heading}\nCurrent Cycle: `{SEMANTIC_CYCLE}`\n"
+                + f"\n## {section_heading}\nCurrent Cycle: `{SEMANTIC_CYCLE}`\n",
+                encoding="utf-8",
+            )
+            _assert_failure(
+                f"duplicate {section_heading} sections",
+                f"contains duplicate current section heading '{section_heading.casefold()}'",
+                _semantic_failures(root),
+            )
+        branch_state.write_text(original_branch_state, encoding="utf-8")
+
         pr_state = _semantic_pr_projection(root, "Live Branch Projection")
         _assert_failure(
             "same-branch live projection omitted from semantic inventory",

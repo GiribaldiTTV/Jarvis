@@ -560,11 +560,11 @@ def _semantic_header_fields(text: str) -> dict[str, str]:
     }
 
 
-def _current_named_sections(text: str) -> dict[str, str]:
-    """Return only explicit current sections; receipt sections stay historical."""
+def _current_named_sections(text: str) -> list[tuple[str, str]]:
+    """Return every explicit current section; receipt sections stay historical."""
 
     lines = text.splitlines()
-    sections: dict[str, str] = {}
+    sections: list[tuple[str, str]] = []
     current_heading_names = {"active cycle", "current gate"}
     heading_matches = [
         (index, line[3:].strip())
@@ -575,7 +575,7 @@ def _current_named_sections(text: str) -> dict[str, str]:
         if heading.casefold() not in current_heading_names:
             continue
         end = heading_matches[position + 1][0] if position + 1 < len(heading_matches) else len(lines)
-        sections[heading.casefold()] = "\n".join(lines[start + 1 : end])
+        sections.append((heading.casefold(), "\n".join(lines[start + 1 : end])))
     return sections
 
 
@@ -585,7 +585,7 @@ def _semantic_field_values(text: str, field: str) -> list[str]:
     value = markdown_field_value(header, field)
     if value:
         values.append(value)
-    for section_text in _current_named_sections(text).values():
+    for _, section_text in _current_named_sections(text):
         value = markdown_field_value(section_text, field)
         if value:
             values.append(value)
@@ -859,14 +859,28 @@ def validate_governance_semantic_currentness(
 
     for relative, text in target_texts.items():
         sections = _current_named_sections(text)
-        for section_name, section_text in sections.items():
-            for field in ("Current Cycle", "Current Gate", "Current Pull Request", "Current PR State"):
-                section_value = markdown_field_value(section_text, field)
+        section_names = [section_name for section_name, _ in sections]
+        for section_name in sorted(set(section_names)):
+            if section_names.count(section_name) > 1:
+                failures.append(
+                    f"Semantic Currentness: {relative} contains duplicate current section "
+                    f"heading {section_name!r}"
+                )
+        for section_name, section_text in sections:
+            for field in GOVERNANCE_SEMANTIC_FIELDS:
                 header_value = live_fields[relative].get(field, "")
-                if section_value and re.sub(r"\s+", " ", section_value).strip().casefold() != re.sub(r"\s+", " ", header_value).strip().casefold():
-                    failures.append(
-                        f"Semantic Currentness: {relative} current section {section_name!r} disagrees on {field}"
-                    )
+                section_values = [
+                    value
+                    for _, value in _markdown_field_values(section_text, (field,))
+                ]
+                for section_value in section_values:
+                    if re.sub(r"\s+", " ", section_value).strip().casefold() != re.sub(
+                        r"\s+", " ", header_value
+                    ).strip().casefold():
+                        failures.append(
+                            f"Semantic Currentness: {relative} current section "
+                            f"{section_name!r} disagrees on {field}"
+                        )
 
     if repo_branch_record is not None:
         try:
