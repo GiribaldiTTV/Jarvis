@@ -982,7 +982,9 @@ publication must persist a prepared transaction manifest before displacing the
 prior folder/ZIP, mark it committed only after final validation, and recover a
 safely proven interrupted transaction on the next invocation; an in-memory
 exception handler alone cannot repair process termination. Give every defect a
-stable signature; the second equivalent occurrence must repair its root-cause
+stable signature with a defect-specific key; independent missing fields or
+candidate defects must not collide merely because their code, artifact, and
+owner match. The second truly equivalent occurrence must repair its root-cause
 owner and sibling fixture family rather than receive another packet-only patch
 or equivalent USER repair prompt. Consolidate all presently knowable true USER
 choices into one packet while leaving later separately gated actions explicit.

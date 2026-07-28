@@ -46,15 +46,20 @@ class GateFinding:
     message: str
     artifact: str = ""
     root_cause_owner: str = ""
+    defect_key: str = ""
 
     @property
     def signature(self) -> str:
+        discriminator = self.defect_key
+        if not discriminator and self.finding_class == FindingClass.USER_DECISION_REQUIRED:
+            discriminator = self.message
         normalized = "|".join(
             (
                 self.code.casefold().strip(),
                 self.finding_class.value.casefold(),
                 self.artifact.replace("\\", "/").casefold().strip(),
                 self.root_cause_owner.replace("\\", "/").casefold().strip(),
+                discriminator.casefold().strip(),
             )
         )
         return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:20]
@@ -448,6 +453,7 @@ def validate_br1_stage1_packet(
                 message=f"Required BR1 artifact is missing: {BR1_MATRIX_ARTIFACT}",
                 artifact=BR1_MATRIX_ARTIFACT,
                 root_cause_owner="dev/orin_user_review_bundle.py",
+                defect_key=BR1_MATRIX_ARTIFACT,
             )
         )
         return PacketContractValidation(contract, True, tuple(findings), ())
@@ -459,6 +465,7 @@ def validate_br1_stage1_packet(
                 message=f"BR1 packet contains {len(matrix_items)} matrix artifacts; expected one",
                 artifact=BR1_MATRIX_ARTIFACT,
                 root_cause_owner="dev/orin_user_review_bundle.py",
+                defect_key="duplicate-matrix-artifact",
             )
         )
 
@@ -486,6 +493,7 @@ def validate_br1_stage1_packet(
                         ),
                         artifact=matrix_name,
                         root_cause_owner="dev/orin_user_review_bundle.py",
+                        defect_key=f"{option_name}|{required_field}",
                     )
                 )
                 continue
@@ -501,9 +509,26 @@ def validate_br1_stage1_packet(
                         ),
                     )
                 )
+        candidate_route_values = candidate_fields.get(
+            "implementation-bearing route class",
+            [],
+        )
+        if len(candidate_route_values) > 1:
+            findings.append(
+                GateFinding(
+                    code="BR1_ROUTE_CLASS_DUPLICATE",
+                    finding_class=FindingClass.SELF_REPAIRABLE_CURRENT_GATE,
+                    message=(
+                        f"BR1 candidate {option_name!r} contains "
+                        f"{len(candidate_route_values)} route-class values; expected exactly one"
+                    ),
+                    artifact=matrix_name,
+                    root_cause_owner="dev/orin_user_review_bundle.py",
+                    defect_key=f"{option_name}|implementation-bearing route class",
+                )
+            )
         candidate_route_fields.extend(
-            (matrix_name, option_name, value)
-            for value in candidate_fields.get("implementation-bearing route class", [])
+            (matrix_name, option_name, value) for value in candidate_route_values
         )
 
     route_fields: list[tuple[str, str, str]] = list(candidate_route_fields)
@@ -511,9 +536,23 @@ def validate_br1_stage1_packet(
         if name == matrix_name:
             continue
         fields = _field_values(text)
+        artifact_route_values = fields.get("implementation-bearing route class", [])
+        if len(artifact_route_values) > 1:
+            findings.append(
+                GateFinding(
+                    code="BR1_ROUTE_CLASS_DUPLICATE",
+                    finding_class=FindingClass.SELF_REPAIRABLE_CURRENT_GATE,
+                    message=(
+                        f"Active BR1 artifact {name!r} contains "
+                        f"{len(artifact_route_values)} route-class values; expected one"
+                    ),
+                    artifact=name,
+                    root_cause_owner="dev/orin_user_review_bundle.py",
+                    defect_key="implementation-bearing route class",
+                )
+            )
         route_fields.extend(
-            (name, _packet_basename(name), value)
-            for value in fields.get("implementation-bearing route class", [])
+            (name, _packet_basename(name), value) for value in artifact_route_values
         )
     if not route_fields:
         findings.append(
@@ -523,6 +562,7 @@ def validate_br1_stage1_packet(
                 message="No active BR1 artifact contains Implementation-bearing route class",
                 artifact=matrix_name,
                 root_cause_owner="dev/orin_user_review_bundle.py",
+                defect_key="implementation-bearing route class",
             )
         )
     for name, option_name, value in route_fields:
@@ -537,6 +577,7 @@ def validate_br1_stage1_packet(
                     ),
                     artifact=name,
                     root_cause_owner="dev/orin_user_review_bundle.py",
+                    defect_key=f"{option_name}|implementation-bearing route class",
                 )
             )
 

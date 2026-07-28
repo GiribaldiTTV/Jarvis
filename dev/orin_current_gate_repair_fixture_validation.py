@@ -68,13 +68,20 @@ def _packet(fields: dict[str, str], *, include_matrix: bool = True) -> dict[str,
     return packet
 
 
-def _finding(code: str, finding_class: FindingClass, message: str = "fixture") -> GateFinding:
+def _finding(
+    code: str,
+    finding_class: FindingClass,
+    message: str = "fixture",
+    *,
+    defect_key: str = "",
+) -> GateFinding:
     return GateFinding(
         code=code,
         finding_class=finding_class,
         message=message,
         artifact="fixture",
         root_cause_owner="fixture-owner",
+        defect_key=defect_key,
     )
 
 
@@ -225,6 +232,42 @@ def main() -> int:
     )
     negative.append("each BR1 matrix candidate requires its own complete field set")
 
+    duplicate_route_candidate = _packet(fields)
+    duplicate_route_candidate[matrix_path] += (
+        "\nImplementation-bearing route class: `Maintenance / tooling / validation`\n"
+    )
+    duplicate_route_result = validate_br1_stage1_packet(
+        duplicate_route_candidate,
+        contract,
+    )
+    _expect_code(duplicate_route_result, "BR1_ROUTE_CLASS_DUPLICATE")
+    negative.append("each BR1 candidate requires exactly one route class")
+
+    two_missing_fields = dict(fields)
+    two_missing_fields.pop("Proof path")
+    two_missing_fields.pop("Blockers")
+    two_missing_result = validate_br1_stage1_packet(_packet(two_missing_fields), contract)
+    missing_findings = [
+        finding
+        for finding in two_missing_result.findings
+        if finding.code == "BR1_REQUIRED_FIELD_MISSING"
+        and ("Proof path" in finding.message or "Blockers" in finding.message)
+    ]
+    _require(
+        len(missing_findings) == 2
+        and len({finding.signature for finding in missing_findings}) == 2,
+        "Distinct missing fields collided on one continuation signature",
+    )
+    signature_latch = InternalRepairContinuationLatch()
+    signature_dispositions = [
+        signature_latch.observe(finding) for finding in missing_findings
+    ]
+    _require(
+        all(disposition.occurrence == 1 for disposition in signature_dispositions),
+        "A distinct missing field was misclassified as a repeated defect",
+    )
+    negative.append("distinct field defects retain distinct repair signatures")
+
     for code, label in (
         ("STALE_ACTIVE_ALIAS", "stale active alias"),
         ("CONFLICTING_CURRENT_MARKERS", "conflicting current-state markers"),
@@ -368,6 +411,24 @@ def main() -> int:
         )
     )
     _require(len(decisions) == 2, "Knowable USER decisions were serialized or dropped")
+    same_code_decisions = consolidate_user_decisions(
+        (
+            _finding(
+                "DECISION_SHARED",
+                FindingClass.USER_DECISION_REQUIRED,
+                "choose alpha",
+            ),
+            _finding(
+                "DECISION_SHARED",
+                FindingClass.USER_DECISION_REQUIRED,
+                "choose beta",
+            ),
+        )
+    )
+    _require(
+        len(same_code_decisions) == 2,
+        "Distinct USER decisions sharing a code were consolidated away",
+    )
     negative.append("multiple USER decisions returned serially")
 
     context_only = _packet({**fields, "Implementation-bearing route class": "User-visible behavior change"})
@@ -721,7 +782,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 32, f"Expected 32 negative fixtures, got {len(negative)}")
+    _require(len(negative) == 34, f"Expected 34 negative fixtures, got {len(negative)}")
     _require(len(positive) == 21, f"Expected 21 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
