@@ -9,7 +9,14 @@
 - Status: `Branch Readiness`
 - Merge-Stable Fold-Down: `Before any future PR can be green, this receipt must move to historical/no-active posture.`
 - Slot ID: `runtime-active-2`
+- Assigned Branch: `feature/governance-fixture`
+- Assigned Family / Workstream: `bounded fixture repair`
+- Branch Authority Record: `Docs/worktree_slots.md#feature/governance-fixture`
 - USER Decision Pointer: `Fixture USER decision.`
+- Expected Worktree Root: `C:\Nexus Worktrees\Governance-Fixture`
+- Actual Worktree Root: `C:\Nexus Worktrees\Governance-Fixture`
+- Assignment Status: `Durable receipt; live status is derived.`
+- Operational Truth Source: `Git and helper output.`
 - Non-Includes: `External-state mutation; PR creation; merge; release.`
 
 ## Assigned Worktree Confinement

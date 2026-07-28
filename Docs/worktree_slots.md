@@ -172,6 +172,9 @@ future PR can be green.
 - Repo Live-State Boundary: `This receipt proves USER-approved admission and confinement only. It does not own current operational facts; those facts remain Git, GitHub, approved-helper, and current-Codex derived.`
 - Merge-Stable Fold-Down: `Before any future PR can be green, this receipt must move to historical/no-active posture or be removed according to PR Readiness source truth.`
 - Slot ID: `runtime-active-2`
+- Assigned Branch: `feature/governance-external-projection-compatibility`
+- Assigned Family / Workstream: `bounded Governance N0 external-audit compatibility repair`
+- Branch Authority Record: `Docs/worktree_slots.md#feature/governance-external-projection-compatibility`
 - USER Decision Pointer: `2026-07-28 N0 carrier reassignment approval supplied to the current Codex task.`
 - Assigned Worktree Confinement: `Admission-time proof only; live ownership remains derived.`
 - Active Thread Owner: `The admission decision assigned one bounded Codex mutation owner; this receipt does not claim continuing live ownership.`
@@ -190,6 +193,8 @@ future PR can be green.
 - GitHub Desktop-bound worktree: `No binding change approved or required for N0.`
 - Worktree Escape User Waiver: `Granted from C:\Users\anden\.codex\worktrees\eed9\Nexus Desktop AI to C:\Nexus Worktrees\Governance-N0 for the exact N0 write set, validation, commit, and push; expires on clean pushed completion or any stop condition.`
 - Worktree Escape User Waiver Missing: `NO; the exact source, target, scope, expiration, validation, and return boundary are recorded above.`
+- Assignment Status: `Durable one-time admission receipt only; live status remains Git/GitHub/helper/Codex-derived.`
+- Operational Truth Source: `git status; git rev-parse; git worktree list; fetched origin/main; GitHub PR inspection; approved helper output; current Codex digest.`
 - Compatibility Defect: `Modern target-set transaction-journal validation misclassifies three immutable legacy completed-audit receipts that predate Transaction State.`
 - Compatibility Requirement: `Modern journals remain fail-closed. A state-less legacy receipt is accepted only when structural, released-lock, completed-workload, snapshot-manifest, target-path, and target-hash evidence proves completed immutable receipt posture without recoverable Before Text.`
 - Non-Includes: `External-state mutation; packet work; PR1 firewall; R-core; runtime/FAM/sibling/neutral-main mutation; issue mutation; PR creation; Connector review; merge; release; cleanup.`

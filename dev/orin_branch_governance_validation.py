@@ -20911,8 +20911,15 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         "Repo Live-State Boundary",
         "Merge-Stable Fold-Down",
         "Slot ID",
+        "Assigned Branch",
+        "Assigned Family / Workstream",
+        "Branch Authority Record",
         "USER Decision Pointer",
         "Assigned Worktree Confinement",
+        "Expected Worktree Root",
+        "Actual Worktree Root",
+        "Assignment Status",
+        "Operational Truth Source",
         "Non-Includes",
     )
     if any(
@@ -20931,18 +20938,35 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
     live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
     fold_down = _extract_exact_marker_value(record_text, "Merge-Stable Fold-Down").casefold()
     non_includes = _extract_exact_marker_value(record_text, "Non-Includes").casefold()
+    branch = _extract_exact_marker_value(record_text, "Branch")
+    worktree = _extract_exact_marker_value(record_text, "Worktree")
     return (
         record_class == "Durable Carrier Admission Receipt"
         and _extract_exact_marker_value(record_text, "Branch Class")
         == "repair/dev-tooling-governance"
-        and bool(_extract_exact_marker_value(record_text, "Branch"))
-        and bool(_extract_exact_marker_value(record_text, "Worktree"))
+        and bool(branch)
+        and bool(worktree)
+        and _extract_exact_marker_value(record_text, "Assigned Branch") == branch
+        and bool(_extract_exact_marker_value(record_text, "Assigned Family / Workstream"))
+        and _extract_exact_marker_value(record_text, "Branch Authority Record").startswith(
+            "Docs/worktree_slots.md#"
+        )
+        and _extract_exact_marker_value(record_text, "Expected Worktree Root") == worktree
+        and _extract_exact_marker_value(record_text, "Actual Worktree Root") == worktree
         and re.fullmatch(
             r"runtime-active-[1-3]",
             _extract_exact_marker_value(record_text, "Slot ID"),
         )
         is not None
         and bool(_extract_exact_marker_value(record_text, "USER Decision Pointer"))
+        and "derived" in _extract_exact_marker_value(
+            record_text,
+            "Assignment Status",
+        ).casefold()
+        and "git" in _extract_exact_marker_value(
+            record_text,
+            "Operational Truth Source",
+        ).casefold()
         and "does not own" in live_boundary
         and "derived" in live_boundary
         and "before any future pr can be green" in fold_down
