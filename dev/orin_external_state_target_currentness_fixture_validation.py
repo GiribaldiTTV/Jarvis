@@ -2356,6 +2356,29 @@ def main() -> int:
         )
         paths = _semantic_root(root)
 
+        for negated_pr_state in ("not open", "not current", "not live", "not active"):
+            for path in paths.values():
+                text = path.read_text(encoding="utf-8")
+                text = text.replace(
+                    "Current Pull Request: `None - no open/current PR; PR #290 historical merged evidence only.`",
+                    "Current Pull Request: `PR #309 https://example.invalid/pull/309`",
+                    1,
+                )
+                path.write_text(
+                    text.replace(
+                        "Current PR State: `None / historical merged evidence only`",
+                        f"Current PR State: `{negated_pr_state}`",
+                        1,
+                    ),
+                    encoding="utf-8",
+                )
+            _assert_failure(
+                f"active PR state uses negated classification {negated_pr_state!r}",
+                "requires Current PR State to explicitly classify",
+                _semantic_failures(root),
+            )
+            paths = _semantic_root(root)
+
         for path in paths.values():
             text = path.read_text(encoding="utf-8")
             path.write_text(

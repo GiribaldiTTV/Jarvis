@@ -451,11 +451,20 @@ def _candidate_matrix_fields(
 
     candidate_offset = len(candidates)
     for candidate_index, start in enumerate(candidate_starts):
-        end = (
+        next_candidate = (
             candidate_starts[candidate_index + 1]
             if candidate_index + 1 < len(candidate_starts)
             else section_end
         )
+        next_subsection = next(
+            (
+                index
+                for index in range(start + 1, next_candidate)
+                if heading_pattern.match(lines[index])
+            ),
+            next_candidate,
+        )
+        end = min(next_candidate, next_subsection)
         fields = _field_values("\n".join(lines[start:end]))
         option_values = fields.get("option name", [])
         option_name = next(

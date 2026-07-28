@@ -138,16 +138,16 @@
       },
       {
         "pr": 309,
-        "connector_comments": 72,
+        "connector_comments": 74,
         "observed_family_counts": {
-          "current-gate-repair-transaction": 10,
+          "current-gate-repair-transaction": 11,
           "external-state-lock-lifecycle": 12,
-          "external-state-semantic-validation": 15,
+          "external-state-semantic-validation": 16,
           "external-state-snapshot-transaction": 5,
           "external-state-target-publication": 12,
           "governance-fixture-count-contract": 2,
           "pr-readiness-review-risk-parser": 2,
-          "pr2-comment-family-classifier": 11,
+          "pr2-comment-family-classifier": 12,
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-issue-candidate-disposition-parser": 1,
           "rar-issue-candidate-durability-parser": 1,
@@ -158,8 +158,8 @@
           "repo-live-state-boundary-parser": 1
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state, Review 36 exposed unreachable orphaned-writer prepared recovery plus fail-open malformed PID and ambiguous-journal legacy release checks, Review 37 exposed missing final canonical folder/ZIP byte parity plus BR1 matrix truncation at nested headings, Review 38 exposed shared lock-inventory collapse of present invalid owner-process values into the intentional absent-marker state, and Review 39 exposed prepared-journal checks limited to legacy release plus unconditional current-member rollback over out-of-band drift.",
-        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, require exact target-set journal states across every release path, prove bounded orphaned-writer prepared rollback, preserve out-of-band current-member drift and prepared recovery evidence, fail closed on malformed legacy owner/journal evidence and present invalid owner-process values in the shared inventory, enforce final canonical folder/ZIP parity, preserve nested BR1 candidate headings, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
+        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state, Review 36 exposed unreachable orphaned-writer prepared recovery plus fail-open malformed PID and ambiguous-journal legacy release checks, Review 37 exposed missing final canonical folder/ZIP byte parity plus BR1 matrix truncation at nested headings, Review 38 exposed shared lock-inventory collapse of present invalid owner-process values into the intentional absent-marker state, Review 39 exposed prepared-journal checks limited to legacy release plus unconditional current-member rollback over out-of-band drift, and Review 40 exposed cross-subsection BR1 candidate field borrowing plus affirmative PR-state token matching inside negated clauses.",
+        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, isolate every BR1 candidate at the next option or Markdown subsection, reject negated active PR states, require exact target-set journal states across every release path, prove bounded orphaned-writer prepared rollback, preserve out-of-band current-member drift and prepared recovery evidence, fail closed on malformed legacy owner/journal evidence and present invalid owner-process values in the shared inventory, enforce final canonical folder/ZIP parity, preserve nested BR1 matrix headings, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
         "preventive_changes": [
           "dev/orin_pr_review_churn_validation.py adds precise classifiers and positive guardrails for six PR #309 threat families while preserving unrelated-comment unknown behavior.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records exact PR #309 family counts and rule-to-code-to-fixture-to-mutation coverage for every newly observed family.",
@@ -169,6 +169,7 @@
           "Prepared target-set recovery now admits only an exact orphaned-writer rollback, while legacy missing-workload release blocks malformed owner PIDs and every matching transaction-like journal state other than exact Committed.",
           "Shared lock inventory now distinguishes absent/Not recorded owner-process markers from present invalid values and classifies blank, null, boolean, nonnumeric, zero, negative, and non-integral values as malformed.",
           "Every ordinary, stale-completed, context-manager, cleanup, and recovery release now rechecks matching transaction journals before preparation and under the guard; current-member rollback restores only known pre/post bytes and preserves drift plus the prepared journal.",
+          "BR1 candidates now end at the next option or Markdown subsection so later summary fields cannot satisfy them, and semantic currentness rejects not-open/not-current/not-live/not-active PR states.",
           "Canonical USER packet publication now recomputes moved folder/ZIP file-list and byte-hash parity before commit, and BR1 matrix parsing preserves nested candidate headings until a same-or-higher-level boundary.",
           "Docs/branch_records/feature_release_readiness_source_truth_intake.md preserves this exact PR #309 review-churn root-cause receipt as historical evidence only."
         ],
@@ -411,6 +412,14 @@
       {
         "family_id": "external-state-target-publication",
         "comment": "Refuse to overwrite out-of-band drift during current-member rollback and retain the prepared journal for recovery."
+      },
+      {
+        "family_id": "current-gate-repair-transaction",
+        "comment": "Stop BR1 candidates from borrowing required fields from later non-candidate Markdown subsections."
+      },
+      {
+        "family_id": "external-state-semantic-validation",
+        "comment": "Reject negated Current PR State values such as not open and not current instead of matching their positive tokens."
       },
       {
         "family_id": "current-gate-repair-transaction",
@@ -1354,6 +1363,7 @@
       "representative_comment_patterns": [
         "Explicit semantic or final-lock gate bypasses a missing root",
         "Negated approval, neutral-main, packet, or historical wording passes as affirmative",
+        "Negated Current PR State passes because its positive token is matched",
         "Same-branch live projection or branch alias escapes semantic inventory"
       ],
       "source_truth": [
@@ -1372,6 +1382,7 @@
       "generated_mutation_coverage": [
         "missing root under each explicit validation mode",
         "affirmative token embedded inside negated approval or currentness wording",
+        "Current PR State says not open, not current, not live, or not active",
         "conflicting historical aliases and negated historical classification",
         "same-branch live projection outside the branch directory",
         "Current Branch alias without canonical Branch field"
@@ -1380,6 +1391,7 @@
         "semantic-currentness combined with final-lock-gate",
         "no-current-packet natural-language posture",
         "historical-only packet text containing the word current",
+        "active PR with a negated active-state token",
         "live review-bundle projection omitted from the declared inventory"
       ]
     },
@@ -1530,7 +1542,8 @@
         "Same-label ZIP discovery runs before canonical publication transaction ownership",
         "Binary source evidence is decoded as UTF-8 during BR1 matrix discovery",
         "Canonical folder/ZIP byte parity is not rerun before publication commits",
-        "Nested candidate heading truncates the governed BR1 matrix"
+        "Nested candidate heading truncates the governed BR1 matrix",
+        "Candidate borrows a required field from a later Markdown subsection"
       ],
       "source_truth": [
         "Docs/phase_governance.md",
@@ -1557,7 +1570,8 @@
         "competing same-label ZIP appears after the old scan point but before candidate capture",
         "PNG evidence sits beside an embedded matrix while an invalid explicit matrix is tested separately",
         "canonical folder binary or text changes after move but before commit",
-        "lower-level candidate heading appears inside a named matrix section"
+        "lower-level candidate heading appears inside a named matrix section",
+        "nested packet summary repeats a required candidate field"
       ],
       "sibling_variant_replay": [
         "canonical draft validation fails before publication",
@@ -1567,7 +1581,8 @@
         "superseded ZIP discovery executes only after transaction ownership and removes the late ZIP",
         "ordinary binary evidence is skipped but an explicitly named invalid matrix fails closed",
         "moved canonical folder and ZIP file-list/content-hash disagreement",
-        "same-level boundary closes matrix while lower-level headings remain"
+        "same-level boundary closes matrix while lower-level headings remain",
+        "candidate scope ends at the next option or non-candidate subsection"
       ]
     },
     {

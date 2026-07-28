@@ -353,6 +353,12 @@ Rule ID: `SGC-001`
 Machine-checkable gate contracts must compile from the live primary source owner, not from copied packet text, hard-coded packet labels, prior helper output, or a stale serialized contract. A compiled contract must expose owner path and SHA256, rule/section provenance, required artifacts, required fields, exact enums, conditional fields, manual-review rows, forbidden/invalid shapes where machine-checkable, and blocking conditions. A source-owner hash change invalidates a prior compilation; the helper must recompile before pre-generation checks, post-generation checks, validation-green claims, or canonical publication.
 
 For BR1 Stage 1, `Docs/phase_governance.md` is the primary contract owner. `dev/orin_current_gate_repair.py` compiles `BR1 Candidate Viability / Grouping Matrix`, and `dev/orin_user_review_bundle.py` enforces it before publication and during packet validation. `Implementation-bearing route class` must equal one value from `Allowed Implementation-Bearing Route Classes`; package/concrete-feature classification may separately preserve `Foundation / infrastructure` only in the source-truth-supported classification field. Structural ZIP/parity green cannot override a semantic contract failure. Fields that are present but require product, grouping, dependency, proof, or USER judgment remain explicitly exposed manual rows rather than validator-proven semantics.
+Each repeated `Option name` begins an independent candidate. Its field scope
+ends at the next `Option name` or the next Markdown subsection heading,
+whichever comes first, so a candidate cannot borrow required fields from a
+later packet summary, review aid, or other non-candidate subsection. A
+lower-level candidate heading may remain inside the matrix section, but it does
+not extend the preceding candidate's field scope.
 
 #### One-Surviving-Canonical-Publish Contract
 

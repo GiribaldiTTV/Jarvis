@@ -393,6 +393,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "projection discovery",
             "branch aliases",
             "record class: not historical receipt",
+            "negated current pr state",
         ),
     ),
     FamilyRule(
@@ -468,6 +469,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "canonical folder different from the upload zip",
             "preserve nested headings within the br1 matrix",
             "nested heading as the end of the entire matrix",
+            "borrowing fields from later subsections",
+            "later subsections",
+            "next non-candidate markdown subsection",
+            "non-candidate markdown subsections",
         ),
     ),
     FamilyRule(

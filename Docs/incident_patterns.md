@@ -944,7 +944,10 @@ matrix beneath excluded source-context paths while requiring it in active
 packet validation makes valid packet regeneration impossible and is itself a
 false-green enforcement gap. A governed matrix heading may contain lower-level
 candidate headings; parsing must end only at the next same-or-higher-level
-heading so nested candidate fields remain visible.
+heading so the complete matrix remains visible. Within that matrix, each
+candidate begins at `Option name` and ends at the next option or Markdown
+subsection heading; otherwise an incomplete candidate can borrow `Proof path`
+or another required field from a later packet summary.
 An active-looking lock whose recorded owner process has exited is likewise not
 valid mutation authority: if the workload is completed it is stale-completed;
 otherwise it is an orphaned active workload that remains blocked for explicit
@@ -1025,7 +1028,9 @@ historical-receipt writer path, preserving every unselected line and receipt.
 Free-form `Current PR State` and `Current USER Packet Status` text is not a
 classification: an active PR must explicitly say open/current/live/active, and
 packet status must explicitly state current authority or no-current-packet
-posture. Values that match neither side fail closed. Every governed semantic
+posture. Negated phrases such as `not open`, `not current`, `not live`, and `not
+active` remain negative even though they contain a positive token. Values that
+match neither side fail closed. Every governed semantic
 field repeated in an `Active Cycle` or `Current Gate` section must agree with
 the live header, and duplicate current-section headings fail closed rather than
 allowing a later section to overwrite earlier contradictory authority.

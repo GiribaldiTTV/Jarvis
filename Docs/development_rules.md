@@ -723,6 +723,10 @@ branch, phase, stage, selected-next posture, and separately gated actions
 unchanged are `SELF_REPAIRABLE_CURRENT_GATE`. Repair them, regenerate only
 noncanonical drafts, rerun the compiled gate contract and adversarial fixtures,
 and continue the same workload. Do not return another repair-approval request.
+BR1 candidate parsing must isolate every repeated `Option name`: candidate
+fields end at the next option or Markdown subsection heading, whichever comes
+first. A later packet summary or review subsection cannot satisfy an earlier
+candidate's missing required field.
 
 Use only the four governed finding classes:
 `SELF_REPAIRABLE_CURRENT_GATE`, `USER_DECISION_REQUIRED`,

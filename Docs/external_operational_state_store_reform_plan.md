@@ -1398,6 +1398,9 @@ digest text presented as USER approval without provenance, an active PR whose
 state does not explicitly classify it as open/current/live/active, and packet
 status text that classifies neither current authority nor no-current-packet
 posture.
+Positive PR-state tokens inside `not open`, `not current`, `not live`, `not
+active`, or equivalent negated clauses are not affirmative classification and
+must fail the active-PR semantic gate.
 
 Semantic reconciliation occurs before neutral-main rebaseline approval. The
 reconciliation workload releases its external-state lock before returning a

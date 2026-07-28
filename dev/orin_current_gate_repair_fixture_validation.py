@@ -328,6 +328,25 @@ def main() -> int:
     )
     negative.append("candidate fields stop at the next Markdown section boundary")
 
+    nested_summary_packet = _packet(section_bounded_fields)
+    nested_summary_packet[matrix_path] += (
+        "\n\n#### Packet Summary\n"
+        "Proof path: `This belongs to the summary, not the candidate.`\n"
+    )
+    nested_summary_result = validate_br1_stage1_packet(
+        nested_summary_packet,
+        contract,
+    )
+    _require(
+        any(
+            finding.code == "BR1_REQUIRED_FIELD_MISSING"
+            and "Proof path" in finding.message
+            for finding in nested_summary_result.findings
+        ),
+        "The last BR1 candidate borrowed a required field from a nested summary",
+    )
+    negative.append("candidate fields stop at a nested non-candidate subsection")
+
     valid_candidate_fields = dict(fields)
     valid_candidate_fields["Implementation-bearing route class"] = (
         "User-visible behavior change"
@@ -1140,7 +1159,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 51, f"Expected 51 negative fixtures, got {len(negative)}")
+    _require(len(negative) == 52, f"Expected 52 negative fixtures, got {len(negative)}")
     _require(len(positive) == 27, f"Expected 27 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")

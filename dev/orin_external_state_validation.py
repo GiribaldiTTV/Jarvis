@@ -825,8 +825,13 @@ def validate_governance_semantic_currentness(
     state_is_no_current_pr = bool(
         re.search(r"\bnone\b|\bclosed\b|\bmerged\b|\bhistorical\b", pr_state)
     )
-    state_is_current_pr = not state_is_no_current_pr and bool(
-        re.search(r"\bopen\b|\bcurrent\b|\blive\b|\bactive\b", pr_state)
+    state_negates_current_pr = bool(
+        re.search(r"\b(?:not|no)\s+(?:open|current|live|active)\b", pr_state)
+    )
+    state_is_current_pr = (
+        not state_is_no_current_pr
+        and not state_negates_current_pr
+        and bool(re.search(r"\bopen\b|\bcurrent\b|\blive\b|\bactive\b", pr_state))
     )
     if no_current_pr != state_is_no_current_pr:
         failures.append(
