@@ -521,7 +521,9 @@ def _candidate_invalid_shape_match(
         if field_name in CANDIDATE_SHAPE_CLASSIFICATION_FIELDS
         for value in values
     ]
-    whole_candidate_noun = r"(?:branch|candidate|carrier|package|objective|purpose|deliverable)"
+    whole_candidate_noun = (
+        r"(?:branch|candidate|option|carrier|package|objective|purpose|deliverable)"
+    )
     for term in _machine_invalid_shape_terms(shape):
         if not _affirmatively_mentions(classification_values, term):
             continue

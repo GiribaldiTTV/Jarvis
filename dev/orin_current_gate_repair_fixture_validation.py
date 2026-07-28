@@ -290,6 +290,18 @@ def main() -> int:
     )
     negative.append("each BR1 matrix candidate requires its own complete field set")
 
+    invalid_option_name_fields = dict(fields)
+    invalid_option_name_fields["Option name"] = "Support-only option"
+    invalid_option_name_fields["Implementation-bearing route class"] = (
+        "User-visible behavior change"
+    )
+    invalid_option_name_result = validate_br1_stage1_packet(
+        _packet(invalid_option_name_fields),
+        contract,
+    )
+    _expect_code(invalid_option_name_result, "BR1_INVALID_CANDIDATE_SHAPE")
+    negative.append("forbidden whole-candidate shape in Option name")
+
     section_bounded_fields = dict(fields)
     section_bounded_fields.pop("Proof path")
     section_bounded_packet = _packet(section_bounded_fields)
@@ -1102,7 +1114,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 50, f"Expected 50 negative fixtures, got {len(negative)}")
+    _require(len(negative) == 51, f"Expected 51 negative fixtures, got {len(negative)}")
     _require(len(positive) == 26, f"Expected 26 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
