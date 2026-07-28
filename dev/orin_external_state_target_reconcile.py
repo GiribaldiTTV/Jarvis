@@ -998,6 +998,12 @@ def _recover_prepared_target_set_journal(
             after_hash = str(row.get("After SHA256", ""))
             if not isinstance(before_text, str) or not before_hash or not after_hash:
                 return [f"Incomplete target-set journal row is not recoverable: {relative}"]
+            embedded_before_hash = hashlib.sha256(before_text.encode("utf-8")).hexdigest()
+            if embedded_before_hash.casefold() != before_hash.casefold():
+                return [
+                    "Incomplete target-set recovery refused corrupt embedded pre-state "
+                    f"for {relative}: expected {before_hash}, found {embedded_before_hash}"
+                ]
             try:
                 current_hash = sha256_file(target_path)
             except OSError as exc:

@@ -13,6 +13,9 @@ from enum import Enum
 from pathlib import Path, PurePosixPath
 from typing import Callable, Iterable, Mapping, Sequence
 
+from orin_external_state_common import atomic_write_json, load_json
+from orin_external_state_lock_lifecycle import process_is_running
+
 
 BR1_SECTION_HEADING = "BR1 Candidate Viability / Grouping Matrix"
 BR1_MATRIX_ARTIFACT = "BR1_CANDIDATE_VIABILITY_GROUPING_MATRIX.md"
@@ -576,14 +579,174 @@ def _remove_path(path: Path) -> None:
 
 
 class CanonicalPacketPublisher:
-    """Publish one folder/ZIP pair only after draft validation, with rollback."""
+    """Publish one folder/ZIP pair after draft validation with durable recovery."""
 
-    def __init__(self, canonical_root: str | Path) -> None:
+    TRANSACTION_PREFIX = ".canonical-publish-"
+    TRANSACTION_MANIFEST = "transaction.json"
+
+    def __init__(
+        self,
+        canonical_root: str | Path,
+        *,
+        process_checker: Callable[[int], bool | None] = process_is_running,
+        after_move: Callable[[str, Path, Path], None] | None = None,
+    ) -> None:
         self.canonical_root = Path(canonical_root).resolve()
+        self.process_checker = process_checker
+        self.after_move = after_move or (lambda _stage, _source, _destination: None)
 
     def _inside_root(self, path: Path) -> bool:
         resolved = path.resolve()
         return resolved == self.canonical_root or self.canonical_root in resolved.parents
+
+    def _relative_canonical_path(self, path: Path) -> str:
+        if not self._inside_root(path):
+            raise CanonicalPublishError(f"Canonical transaction path escapes root: {path}")
+        return path.resolve().relative_to(self.canonical_root).as_posix()
+
+    def _resolve_manifest_path(self, raw: object, *, base: Path, label: str) -> Path:
+        relative = PurePosixPath(str(raw))
+        if relative.is_absolute() or not relative.parts or any(
+            part in {"", ".", ".."} for part in relative.parts
+        ):
+            raise CanonicalPublishError(f"Canonical transaction {label} is invalid: {raw!r}")
+        candidate = base.joinpath(*relative.parts).resolve()
+        if candidate != base and base not in candidate.parents:
+            raise CanonicalPublishError(f"Canonical transaction {label} escapes its root: {raw!r}")
+        return candidate
+
+    def _owner_is_inactive(self, owner_process_id: object) -> bool:
+        if not isinstance(owner_process_id, int) or owner_process_id <= 0:
+            raise CanonicalPublishError("Canonical transaction owner process identity is invalid")
+        running = self.process_checker(owner_process_id)
+        if running is not False:
+            state = "active" if running else "unknown"
+            raise CanonicalPublishError(
+                f"Canonical transaction owner process is still {state}: {owner_process_id}"
+            )
+        return True
+
+    def _recover_transaction(
+        self,
+        transaction_root: Path,
+        *,
+        ignore_owner: bool = False,
+    ) -> None:
+        manifest_path = transaction_root / self.TRANSACTION_MANIFEST
+        if not manifest_path.is_file():
+            match = re.fullmatch(r"\.canonical-publish-(\d+)-[0-9a-f]+", transaction_root.name)
+            if not match:
+                raise CanonicalPublishError(
+                    f"Unrecognized canonical transaction directory: {transaction_root}"
+                )
+            if not ignore_owner:
+                self._owner_is_inactive(int(match.group(1)))
+            # No canonical move occurs until the manifest write returns. A dead
+            # owner with no manifest can therefore leave only setup residue.
+            residue = list(transaction_root.iterdir())
+            if any(
+                not re.fullmatch(r"\.transaction\.json\..+\.tmp", item.name)
+                for item in residue
+            ):
+                raise CanonicalPublishError(
+                    f"Manifest-free canonical transaction contains unknown residue: {transaction_root}"
+                )
+            _remove_path(transaction_root)
+            return
+
+        try:
+            manifest = load_json(manifest_path)
+        except Exception as exc:
+            raise CanonicalPublishError(
+                f"Canonical transaction recovery manifest is unreadable: {manifest_path}: {exc}"
+            ) from exc
+        if not ignore_owner:
+            self._owner_is_inactive(manifest.get("Owner Process ID"))
+        directory_match = re.fullmatch(
+            r"\.canonical-publish-(\d+)-[0-9a-f]+",
+            transaction_root.name,
+        )
+        if not directory_match or manifest.get("Owner Process ID") != int(
+            directory_match.group(1)
+        ):
+            raise CanonicalPublishError(
+                "Canonical transaction directory and manifest owner identities differ"
+            )
+        if manifest.get("Transaction Version") != 1:
+            raise CanonicalPublishError("Canonical transaction recovery version is unsupported")
+        state = manifest.get("Transaction State")
+        rows = manifest.get("Candidates")
+        if state not in {"Prepared", "Committed"} or not isinstance(rows, list) or not rows:
+            raise CanonicalPublishError("Canonical transaction recovery manifest is malformed")
+
+        recovered_rows: list[tuple[Path, Path, bool]] = []
+        original_paths: set[Path] = set()
+        backup_paths: set[Path] = set()
+        for row in rows:
+            if not isinstance(row, dict) or not isinstance(row.get("Had Original"), bool):
+                raise CanonicalPublishError("Canonical transaction candidate row is malformed")
+            original = self._resolve_manifest_path(
+                row.get("Original"),
+                base=self.canonical_root,
+                label="original path",
+            )
+            backup = self._resolve_manifest_path(
+                row.get("Backup"),
+                base=transaction_root,
+                label="backup path",
+            )
+            if original in original_paths or backup in backup_paths:
+                raise CanonicalPublishError(
+                    "Canonical transaction candidate rows contain duplicate paths"
+                )
+            original_paths.add(original)
+            backup_paths.add(backup)
+            recovered_rows.append((original, backup, row["Had Original"]))
+
+        if state == "Committed":
+            for key in ("Canonical Folder", "Canonical ZIP"):
+                published = self._resolve_manifest_path(
+                    manifest.get(key),
+                    base=self.canonical_root,
+                    label=key.casefold(),
+                )
+                if not published.exists():
+                    raise CanonicalPublishError(
+                        f"Committed canonical transaction is missing {key}: {published}"
+                    )
+            _remove_path(transaction_root)
+            return
+
+        for original, backup, had_original in reversed(recovered_rows):
+            if backup.exists():
+                _remove_path(original)
+                original.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(backup), str(original))
+            elif had_original and not original.exists():
+                raise CanonicalPublishError(
+                    f"Prepared canonical transaction lost original and backup: {original}"
+                )
+            elif not had_original:
+                _remove_path(original)
+        _remove_path(transaction_root)
+
+    def _recover_orphaned_transactions(self) -> None:
+        transactions = sorted(
+            path
+            for path in self.canonical_root.glob(f"{self.TRANSACTION_PREFIX}*")
+            if path.is_dir()
+        )
+        if len(transactions) > 1:
+            raise CanonicalPublishError(
+                "Multiple canonical transactions make recovery order ambiguous: "
+                + ", ".join(str(path) for path in transactions)
+            )
+        for transaction_root in transactions:
+            if transaction_root.is_symlink() or not self._inside_root(transaction_root):
+                raise CanonicalPublishError(
+                    f"Canonical transaction directory escapes root: {transaction_root}"
+                )
+            self._recover_transaction(transaction_root)
 
     def publish(
         self,
@@ -603,11 +766,12 @@ class CanonicalPacketPublisher:
         for path in (canonical_folder_path, canonical_zip_path):
             if not self._inside_root(path):
                 raise CanonicalPublishError(f"Canonical publish target escapes root: {path}")
+        self.canonical_root.mkdir(parents=True, exist_ok=True)
+        self._recover_orphaned_transactions()
         if not draft_folder_path.is_dir() or not draft_zip_path.is_file():
             raise CanonicalPublishError("Canonical publish draft folder/ZIP pair is incomplete")
 
         validate_draft()
-        self.canonical_root.mkdir(parents=True, exist_ok=True)
         candidates = [canonical_folder_path, canonical_zip_path]
         candidates.extend(Path(path).resolve() for path in superseded_paths)
         unique_candidates: list[Path] = []
@@ -624,40 +788,71 @@ class CanonicalPacketPublisher:
             f".canonical-publish-{os.getpid()}-{uuid.uuid4().hex}"
         )
         transaction_root.mkdir(parents=False, exist_ok=False)
-        backups: list[tuple[Path, Path]] = []
-        published: list[Path] = []
-        rollback_performed = False
-
-        try:
-            for index, candidate in enumerate(unique_candidates):
-                if not candidate.exists():
-                    continue
-                backup = transaction_root / f"{index:04d}-{candidate.name}"
-                shutil.move(str(candidate), str(backup))
-                backups.append((candidate, backup))
-
-            shutil.move(str(draft_folder_path), str(canonical_folder_path))
-            published.append(canonical_folder_path)
-            shutil.move(str(draft_zip_path), str(canonical_zip_path))
-            published.append(canonical_zip_path)
-            validate_final()
-        except Exception as exc:
-            rollback_performed = True
-            for path in reversed(published):
-                _remove_path(path)
-            for original, backup in reversed(backups):
-                if backup.exists():
-                    shutil.move(str(backup), str(original))
+        competing_transactions = [
+            path
+            for path in self.canonical_root.glob(f"{self.TRANSACTION_PREFIX}*")
+            if path.is_dir() and path != transaction_root
+        ]
+        if competing_transactions:
             _remove_path(transaction_root)
             raise CanonicalPublishError(
-                f"Canonical publication failed and rollback was attempted: {exc}"
+                "Concurrent canonical publication transaction detected: "
+                + ", ".join(str(path) for path in competing_transactions)
+            )
+        candidate_rows = [
+            {
+                "Original": self._relative_canonical_path(candidate),
+                "Backup": f"backups/{index:04d}-{candidate.name}",
+                "Had Original": candidate.exists(),
+            }
+            for index, candidate in enumerate(unique_candidates)
+        ]
+        manifest = {
+            "Transaction Version": 1,
+            "Transaction State": "Prepared",
+            "Owner Process ID": os.getpid(),
+            "Canonical Folder": self._relative_canonical_path(canonical_folder_path),
+            "Canonical ZIP": self._relative_canonical_path(canonical_zip_path),
+            "Candidates": candidate_rows,
+        }
+        atomic_write_json(transaction_root / self.TRANSACTION_MANIFEST, manifest)
+        (transaction_root / "backups").mkdir(parents=False, exist_ok=False)
+
+        try:
+            for candidate, row in zip(unique_candidates, candidate_rows, strict=True):
+                if not row["Had Original"]:
+                    continue
+                backup = transaction_root.joinpath(*PurePosixPath(row["Backup"]).parts)
+                shutil.move(str(candidate), str(backup))
+                self.after_move("backup", candidate, backup)
+
+            shutil.move(str(draft_folder_path), str(canonical_folder_path))
+            self.after_move("publish", draft_folder_path, canonical_folder_path)
+            shutil.move(str(draft_zip_path), str(canonical_zip_path))
+            self.after_move("publish", draft_zip_path, canonical_zip_path)
+            validate_final()
+            manifest["Transaction State"] = "Committed"
+            atomic_write_json(transaction_root / self.TRANSACTION_MANIFEST, manifest)
+            self.after_move(
+                "commit",
+                transaction_root / self.TRANSACTION_MANIFEST,
+                transaction_root,
+            )
+        except Exception as exc:
+            recovery_error = ""
+            try:
+                self._recover_transaction(transaction_root, ignore_owner=True)
+            except Exception as recovery_exc:  # noqa: BLE001 - report both publication failures
+                recovery_error = f"; durable recovery failed: {recovery_exc}"
+            raise CanonicalPublishError(
+                f"Canonical publication failed and rollback was attempted: {exc}{recovery_error}"
             ) from exc
 
-        superseded_count = len(backups)
+        superseded_count = sum(bool(row["Had Original"]) for row in candidate_rows)
         _remove_path(transaction_root)
         return CanonicalPublishResult(
             canonical_folder=canonical_folder_path,
             canonical_zip=canonical_zip_path,
             superseded_count=superseded_count,
-            rollback_performed=rollback_performed,
+            rollback_performed=False,
         )

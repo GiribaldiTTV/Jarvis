@@ -483,6 +483,113 @@ def main() -> int:
         _require((canonical_folder / "value.txt").read_text() == "old", "Rollback did not restore folder")
     positive.append("rollback after failed final publication")
 
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        canonical_folder, canonical_zip = _write_pair(root, "Governance", "old")
+        draft_root = root / "draft"
+        draft_folder, draft_zip = _write_pair(draft_root, "Governance", "new")
+        interrupted = False
+
+        def interrupt_after_first_backup(stage: str, _source: Path, _destination: Path) -> None:
+            nonlocal interrupted
+            if stage == "backup" and not interrupted:
+                interrupted = True
+                raise SystemExit("simulated canonical publication process exit")
+
+        try:
+            CanonicalPacketPublisher(root, after_move=interrupt_after_first_backup).publish(
+                draft_folder=draft_folder,
+                draft_zip=draft_zip,
+                canonical_folder=canonical_folder,
+                canonical_zip=canonical_zip,
+                superseded_paths=(canonical_zip,),
+                validate_draft=lambda: None,
+                validate_final=lambda: None,
+            )
+        except SystemExit:
+            pass
+        else:
+            raise AssertionError("Canonical publication interruption fixture did not exit")
+        _require(
+            any(root.glob(".canonical-publish-*")),
+            "Interrupted publication did not preserve its durable transaction",
+        )
+        try:
+            CanonicalPacketPublisher(root).publish(
+                draft_folder=draft_folder,
+                draft_zip=draft_zip,
+                canonical_folder=canonical_folder,
+                canonical_zip=canonical_zip,
+                superseded_paths=(canonical_zip,),
+                validate_draft=lambda: None,
+                validate_final=lambda: None,
+            )
+        except CanonicalPublishError as exc:
+            _require(
+                "owner process is still active" in str(exc),
+                "Active interrupted publication blocked for the wrong reason",
+            )
+        else:
+            raise AssertionError("A second publisher recovered an active transaction")
+        negative.append("interrupted canonical publication cannot strand hidden prior state")
+
+        recovered = CanonicalPacketPublisher(
+            root,
+            process_checker=lambda _pid: False,
+        ).publish(
+            draft_folder=draft_folder,
+            draft_zip=draft_zip,
+            canonical_folder=canonical_folder,
+            canonical_zip=canonical_zip,
+            superseded_paths=(canonical_zip,),
+            validate_draft=lambda: _require(
+                (canonical_folder / "value.txt").read_text() == "old",
+                "Interrupted publication did not restore prior canonical state before retry",
+            ),
+            validate_final=lambda: None,
+        )
+        _require(
+            not recovered.rollback_performed
+            and (canonical_folder / "value.txt").read_text() == "new"
+            and not any(root.glob(".canonical-publish-*")),
+            "Recovered canonical publication did not produce one clean final pair",
+        )
+        positive.append("next invocation recovers interrupted canonical publication")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        canonical_folder, canonical_zip = _write_pair(root, "Governance", "old")
+        draft_root = root / "draft"
+        draft_folder, draft_zip = _write_pair(draft_root, "Governance", "committed")
+
+        def interrupt_after_commit(stage: str, _source: Path, _destination: Path) -> None:
+            if stage == "commit":
+                raise SystemExit("simulated exit after canonical commit")
+
+        try:
+            CanonicalPacketPublisher(root, after_move=interrupt_after_commit).publish(
+                draft_folder=draft_folder,
+                draft_zip=draft_zip,
+                canonical_folder=canonical_folder,
+                canonical_zip=canonical_zip,
+                superseded_paths=(canonical_zip,),
+                validate_draft=lambda: None,
+                validate_final=lambda: None,
+            )
+        except SystemExit:
+            pass
+        else:
+            raise AssertionError("Committed canonical interruption fixture did not exit")
+        CanonicalPacketPublisher(
+            root,
+            process_checker=lambda _pid: False,
+        )._recover_orphaned_transactions()
+        _require(
+            (canonical_folder / "value.txt").read_text() == "committed"
+            and not any(root.glob(".canonical-publish-*")),
+            "Committed canonical recovery did not preserve the validated publication",
+        )
+
     lock_lifecycle_contract = (ROOT / "dev" / "orin_external_state_lock_lifecycle.py").read_text(encoding="utf-8")
     _require("verify_final_lock_state" in lock_lifecycle_contract, "Final zero-lock gate missing")
     _require("ExternalStateLockTransaction" in lock_lifecycle_contract, "Fresh transaction helper missing")
@@ -614,8 +721,8 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 31, f"Expected 31 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 20, f"Expected 20 positive fixtures, got {len(positive)}")
+    _require(len(negative) == 32, f"Expected 32 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 21, f"Expected 21 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")

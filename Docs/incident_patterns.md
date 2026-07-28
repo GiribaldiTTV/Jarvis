@@ -977,7 +977,11 @@ classes, and an `IRC-001` continuation latch. Compile the gate contract from its
 live source owner before and after generation, expose manual rows, reject exact
 enum and required-artifact/field defects before publication, and preserve
 candidate/scope/owner/carrier/phase/stage/selected-next invariants. Keep drafts
-noncanonical and publish one rollback-capable final state. Give every defect a
+noncanonical and publish one rollback-capable final state. Canonical packet
+publication must persist a prepared transaction manifest before displacing the
+prior folder/ZIP, mark it committed only after final validation, and recover a
+safely proven interrupted transaction on the next invocation; an in-memory
+exception handler alone cannot repair process termination. Give every defect a
 stable signature; the second equivalent occurrence must repair its root-cause
 owner and sibling fixture family rather than receive another packet-only patch
 or equivalent USER repair prompt. Consolidate all presently knowable true USER

@@ -665,6 +665,45 @@ def main() -> int:
             expected_workload_id="casefold-foreign",
         )
 
+        for lock_id, existing_target, requested_target in (
+            (
+                "positive-ancestor-overlap",
+                "snapshots/run",
+                "snapshots/run/central/state.md",
+            ),
+            (
+                "positive-descendant-overlap",
+                "snapshots/run/central/state.md",
+                "snapshots/run",
+            ),
+        ):
+            _lock(root, lock_id, f"{lock_id}-workload", targets=existing_target)
+            overlap_ok, overlap_messages, _ = acquire_lock(
+                root=root,
+                lock_type="branch",
+                owner="fixture",
+                workload_id=f"{lock_id}-request",
+                owner_process_id=os.getpid(),
+                worktree=WORKTREE,
+                branch=BRANCH,
+                intended_write_set=requested_target,
+                expires="fixture",
+                apply=False,
+            )
+            if overlap_ok or not any(
+                "External State Owner Conflict" in item for item in overlap_messages
+            ):
+                raise AssertionError(
+                    f"ancestor/descendant overlapping target did not block: {lock_id}"
+                )
+            release_lock(
+                root,
+                lock_id,
+                "fixture reset",
+                True,
+                expected_workload_id=f"{lock_id}-workload",
+            )
+
         # Positive: proven stale completed-workload lock is safely released, never deleted.
         stale_path = _lock(
             root,

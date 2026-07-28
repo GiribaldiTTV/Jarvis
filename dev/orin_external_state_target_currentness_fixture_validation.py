@@ -2325,6 +2325,36 @@ def main() -> int:
             journal_path.read_text(encoding="utf-8")
         ).get("Transaction State") != "Prepared":
             raise AssertionError("abrupt target-set termination did not preserve a prepared journal")
+        prepared_journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        original_embedded_before_text = prepared_journal["Targets"][0]["Before Text"]
+        mixed_before_corrupt_recovery = {
+            relative: path.read_bytes() for relative, path in paths.items()
+        }
+        prepared_journal["Targets"][0]["Before Text"] += "corrupt recovery payload"
+        atomic_write_json(journal_path, prepared_journal)
+        corrupt_ok, corrupt_messages, corrupt_audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id=lock_id,
+            snapshot=snapshot.relative_to(root).as_posix(),
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=_semantic_failures,
+            apply=True,
+        )
+        if corrupt_ok or corrupt_audit is not None or not any(
+            "corrupt embedded pre-state" in message for message in corrupt_messages
+        ):
+            raise AssertionError(
+                "corrupt prepared journal was not rejected before recovery:\n"
+                + "\n".join(corrupt_messages)
+            )
+        if any(
+            path.read_bytes() != mixed_before_corrupt_recovery[relative]
+            for relative, path in paths.items()
+        ):
+            raise AssertionError("corrupt prepared journal changed a target before rejection")
+        prepared_journal["Targets"][0]["Before Text"] = original_embedded_before_text
+        atomic_write_json(journal_path, prepared_journal)
         journal_failures = validator.validate_incomplete_target_set_journals(root)
         if not journal_failures:
             raise AssertionError("prepared target-set journal did not block currentness validation")

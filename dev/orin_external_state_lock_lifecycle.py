@@ -118,6 +118,12 @@ def _process_is_running(process_id: int) -> bool | None:
     return True
 
 
+def process_is_running(process_id: int) -> bool | None:
+    """Return proven running, proven exited, or unknown for a process identity."""
+
+    return _process_is_running(process_id)
+
+
 def _owner_process_id(payload: dict[str, object]) -> int | None:
     value = payload.get("Owning Process ID")
     if isinstance(value, int) and value > 0:

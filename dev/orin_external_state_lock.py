@@ -60,6 +60,13 @@ def _write_set_failures(targets: set[str], raw: str) -> list[str]:
     return failures
 
 
+def _targets_overlap(left: str, right: str) -> bool:
+    left_parts = tuple(part.casefold() for part in left.split("/"))
+    right_parts = tuple(part.casefold() for part in right.split("/"))
+    shared = min(len(left_parts), len(right_parts))
+    return left_parts[:shared] == right_parts[:shared]
+
+
 def _lock_conflicts(root, *, workload_id: str | None, lock_type: str, targets: set[str]) -> list[str]:
     failures: list[str] = []
     target_keys = {target.casefold() for target in targets}
@@ -78,7 +85,12 @@ def _lock_conflicts(root, *, workload_id: str | None, lock_type: str, targets: s
             "state-root",
             "migration",
         }
-        if broad_lock or target_keys.intersection(existing_target_keys):
+        path_overlap = any(
+            _targets_overlap(requested, existing)
+            for requested in target_keys
+            for existing in existing_target_keys
+        )
+        if broad_lock or path_overlap:
             failures.append(
                 "External State Owner Conflict: overlapping active lock "
                 f"{inspection.lock_id} ({inspection.classification})"
