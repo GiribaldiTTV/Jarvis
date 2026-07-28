@@ -467,6 +467,14 @@ CONDITIONAL_FIELD_APPLICABILITY_TERMS = {
     "platform contract adoption matrix when applicable": "platform contract",
     "repo-wide migration neutralization proof when applicable": "repo-wide migration",
 }
+CANDIDATE_SHAPE_CLASSIFICATION_FIELDS = {
+    "option name",
+    "main feature/package objective",
+    "concrete feature outcome",
+    "implementation-bearing route class",
+    "behavior change classification",
+    "grouping recommendation",
+}
 
 
 def _affirmatively_mentions(values: list[str], term: str) -> bool:
@@ -501,6 +509,43 @@ def _machine_invalid_shape_terms(shape: str) -> tuple[str, ...]:
             "defers every concrete deliverable",
         )
     return ()
+
+
+def _candidate_invalid_shape_match(
+    candidate_fields: Mapping[str, list[str]],
+    shape: str,
+) -> str | None:
+    classification_values = [
+        value
+        for field_name, values in candidate_fields.items()
+        if field_name in CANDIDATE_SHAPE_CLASSIFICATION_FIELDS
+        for value in values
+    ]
+    whole_candidate_noun = r"(?:branch|candidate|carrier|package|objective|purpose|deliverable)"
+    for term in _machine_invalid_shape_terms(shape):
+        if not _affirmatively_mentions(classification_values, term):
+            continue
+        if "-only" not in term:
+            return term
+        term_pattern = re.escape(term)
+        for value in classification_values:
+            for clause in re.split(r"[,.;\n]+", value.casefold()):
+                if term not in clause or not _affirmatively_mentions([clause], term):
+                    continue
+                normalized = clause.strip()
+                noun_then_classification = re.search(
+                    rf"\b{whole_candidate_noun}\b[^,.;]{{0,80}}"
+                    rf"\b(?:is|as|remains|constitutes|classified(?:\s+as)?)\b"
+                    rf"[^,.;]{{0,40}}\b{term_pattern}\b",
+                    normalized,
+                )
+                classification_then_noun = re.search(
+                    rf"\b{term_pattern}\b\s+\b{whole_candidate_noun}\b",
+                    normalized,
+                )
+                if normalized == term or noun_then_classification or classification_then_noun:
+                    return term
+    return None
 
 
 def _conditional_field_applies(
@@ -569,17 +614,11 @@ def validate_br1_stage1_packet(
     manual_rows: list[ManualContractRow] = []
     candidate_route_fields: list[tuple[str, str, str, str]] = []
     for candidate_key, option_name, candidate_fields in matrix_candidates:
-        candidate_values = [
-            value for values in candidate_fields.values() for value in values
-        ]
+        candidate_values = [value for values in candidate_fields.values() for value in values]
         for invalid_shape in contract.invalid_candidate_shapes:
-            matched_term = next(
-                (
-                    term
-                    for term in _machine_invalid_shape_terms(invalid_shape)
-                    if _affirmatively_mentions(candidate_values, term)
-                ),
-                None,
+            matched_term = _candidate_invalid_shape_match(
+                candidate_fields,
+                invalid_shape,
             )
             if matched_term is None:
                 continue
@@ -952,8 +991,19 @@ class CanonicalPacketPublisher:
             raise CanonicalPublishError("Canonical publish draft folder/ZIP pair is incomplete")
 
         validate_draft()
+        resolved_superseded_paths: list[Path] = []
+        for raw_path in superseded_paths:
+            supplied_path = Path(raw_path)
+            if supplied_path.is_symlink() or (
+                supplied_path.exists() and not supplied_path.is_file()
+            ):
+                raise CanonicalPublishError(
+                    "Superseded canonical ZIP path must be a regular file: "
+                    f"{supplied_path}"
+                )
+            resolved_superseded_paths.append(supplied_path.resolve())
         candidates = [canonical_folder_path, canonical_zip_path]
-        candidates.extend(Path(path).resolve() for path in superseded_paths)
+        candidates.extend(resolved_superseded_paths)
         unique_candidates: list[Path] = []
         for candidate in candidates:
             if candidate in unique_candidates:

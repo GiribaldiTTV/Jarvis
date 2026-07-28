@@ -398,6 +398,26 @@ def main() -> int:
         "Setup-only candidate with an exact USER action gate was rejected",
     )
     positive.append("setup-only candidate preserves the exact USER action-gate exception")
+
+    subordinate_support_fields = dict(valid_candidate_fields)
+    subordinate_support_fields["Main feature/package objective"] = (
+        "Deliver visible runtime behavior while grouping support-only scripts into the package."
+    )
+    subordinate_support_fields["Support / infrastructure relationship"] = (
+        "Support-only scripts are subordinate implementation work inside the runtime package."
+    )
+    subordinate_support_result = validate_br1_stage1_packet(
+        _packet(subordinate_support_fields),
+        contract,
+    )
+    _require(
+        not any(
+            finding.code == "BR1_INVALID_CANDIDATE_SHAPE"
+            for finding in subordinate_support_result.findings
+        ),
+        "Subordinate support-only work misclassified the whole candidate as support-only",
+    )
+    positive.append("subordinate support-only work does not classify the whole candidate")
     _require(
         any(
             row.field_name == "Invalid Candidate Shapes"
@@ -606,6 +626,43 @@ def main() -> int:
             raise AssertionError("Invalid draft reached canonical publication")
         _require((canonical_folder / "value.txt").read_text() == "accepted", "Canonical folder changed before validation")
     negative.append("intermediate draft replacing canonical packet")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        root = Path(temp_dir)
+        canonical_folder, canonical_zip = _write_pair(root, "FAM-007", "accepted")
+        draft_root = root / "draft-valid"
+        draft_folder, draft_zip = _write_pair(draft_root, "FAM-007", "replacement")
+        superseded_directory = root / "FAM-007-20260727-123456.zip"
+        superseded_directory.mkdir()
+        marker = superseded_directory / "preserve.txt"
+        marker.write_text("unrelated extracted directory", encoding="utf-8")
+        publisher = CanonicalPacketPublisher(root)
+        try:
+            publisher.publish(
+                draft_folder=draft_folder,
+                draft_zip=draft_zip,
+                canonical_folder=canonical_folder,
+                canonical_zip=canonical_zip,
+                superseded_paths=(canonical_zip, superseded_directory),
+                validate_draft=lambda: None,
+                validate_final=lambda: None,
+            )
+        except CanonicalPublishError as exc:
+            _require(
+                "must be a regular file" in str(exc),
+                "Non-file superseded ZIP blocked for the wrong reason",
+            )
+        else:
+            raise AssertionError("ZIP-named superseded directory reached publication")
+        _require(
+            marker.read_text(encoding="utf-8") == "unrelated extracted directory",
+            "ZIP-named superseded directory was modified or removed",
+        )
+        _require(
+            (canonical_folder / "value.txt").read_text(encoding="utf-8") == "accepted",
+            "Canonical packet changed before non-file superseded path rejection",
+        )
+    negative.append("non-file superseded ZIP path reached canonical publication")
 
     live_projection_version = 7
     draft_projection_version = 8
@@ -1045,8 +1102,8 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 49, f"Expected 49 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 25, f"Expected 25 positive fixtures, got {len(positive)}")
+    _require(len(negative) == 50, f"Expected 50 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 26, f"Expected 26 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")
