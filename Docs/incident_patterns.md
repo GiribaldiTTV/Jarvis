@@ -913,9 +913,11 @@ is not enforcement.
 Scoped semantic-currentness validation must reject combination with requested
 global Stage 4 or manifest source-HEAD checks so an early scoped return cannot
 silently bypass those gates.
-Target-set publication and prepared-journal recovery must bind the caller's
-workload identity to the authoritative active lock; possession of another
-workload's visible lock ID is not mutation authority.
+Single-target publication, target-set publication, and prepared-journal
+recovery must bind the caller's workload identity to the authoritative active
+lock; possession of another workload's visible lock ID is not mutation
+authority. Both callable and public CLI apply paths must fail before target or
+audit mutation when workload identity is omitted or foreign.
 An active-looking lock whose recorded owner process has exited is likewise not
 valid mutation authority: if the workload is completed it is stale-completed;
 otherwise it is an orphaned active workload that remains blocked for explicit
@@ -970,6 +972,10 @@ the target inventory; require exact approval provenance; and fail if one target
 is stale, a live projection is omitted, or current PR/phase/stage/gate/packet
 assertions disagree. Retire a stale optional projection only through the audited
 historical-receipt writer path, preserving every unselected line and receipt.
+Free-form `Current PR State` and `Current USER Packet Status` text is not a
+classification: an active PR must explicitly say open/current/live/active, and
+packet status must explicitly state current authority or no-current-packet
+posture. Values that match neither side fail closed.
 Run the
 semantic positive and negative fixture family in addition to target identity,
 lock-lifecycle, and external-root validation. A green identity check alone is

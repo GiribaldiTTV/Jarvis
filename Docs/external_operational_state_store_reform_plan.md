@@ -1251,7 +1251,9 @@ Snapshot manifests include:
 Targeted reconciliation must compare the manifest lock/workload identity with
 the active admitting transaction before publication and again immediately
 before atomic replacement. A matching target hash from another workload is not
-valid transaction proof.
+valid transaction proof. Every applied single-target or target-set caller must
+provide its exact workload identity; omission or a foreign workload identity
+blocks before any target or audit mutation.
 
 External state must not contain plaintext secrets, tokens, cookies, provider keys, private model files, or owner-private memory unless a later encrypted Owner vault is approved.
 
@@ -1358,7 +1360,10 @@ or old Stage 1/Stage 2 posture as current authority. Historical receipts remain
 immutable evidence when their historical boundary is explicit. A semantic
 validator must ignore those receipts while failing contradictory current
 sections, stale one-of-three projections, merged PRs presented as open/current,
-and digest text presented as USER approval without provenance.
+digest text presented as USER approval without provenance, an active PR whose
+state does not explicitly classify it as open/current/live/active, and packet
+status text that classifies neither current authority nor no-current-packet
+posture.
 
 Semantic reconciliation occurs before neutral-main rebaseline approval. The
 reconciliation workload releases its external-state lock before returning a

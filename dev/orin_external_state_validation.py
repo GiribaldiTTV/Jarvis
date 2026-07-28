@@ -634,6 +634,10 @@ def _packet_status_currentness(value: str) -> tuple[bool, bool]:
                 r"\b(?:no\s+current(?:\s+user)?\s+packet|not\s+current|packet\s+is\s+not\s+current)\b",
                 clause,
             )
+            or re.search(
+                r"\bhistorical\s+evidence\s+only\b|\bno\s+(?:(?:post-merge|new|active|canonical)\s+)?(?:user\s+)?packet\b",
+                clause,
+            )
         )
         negates_current = negates_current or clause_negates
         if clause_negates:
@@ -782,6 +786,9 @@ def validate_governance_semantic_currentness(
     state_is_no_current_pr = bool(
         re.search(r"\bnone\b|\bclosed\b|\bmerged\b|\bhistorical\b", pr_state)
     )
+    state_is_current_pr = not state_is_no_current_pr and bool(
+        re.search(r"\bopen\b|\bcurrent\b|\blive\b|\bactive\b", pr_state)
+    )
     if no_current_pr != state_is_no_current_pr:
         failures.append(
             "Semantic Currentness: Current Pull Request and Current PR State disagree "
@@ -790,6 +797,11 @@ def validate_governance_semantic_currentness(
     if not no_current_pr and not re.search(r"\bpr\s*#?\d+\b|https://", current_pr):
         failures.append(
             "Semantic Currentness: an active Current Pull Request must identify a PR number or URL"
+        )
+    if not no_current_pr and not state_is_current_pr:
+        failures.append(
+            "Semantic Currentness: an active Current Pull Request requires Current PR State "
+            "to explicitly classify it as open, current, live, or active"
         )
     packet_status = current_values["Current USER Packet Status"].casefold()
     packet_claims_current, packet_negates_current = _packet_status_currentness(packet_status)
@@ -800,6 +812,11 @@ def validate_governance_semantic_currentness(
     if packet_claims_current and packet_negates_current:
         failures.append(
             "Semantic Currentness: Current USER Packet Status simultaneously claims and negates current packet authority"
+        )
+    if not packet_claims_current and not packet_negates_current:
+        failures.append(
+            "Semantic Currentness: Current USER Packet Status must explicitly classify "
+            "current authority or no-current-packet posture"
         )
     approval = current_values["Current Approval State"].casefold()
     if not _has_explicit_approval_boundary(approval):

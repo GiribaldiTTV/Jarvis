@@ -48,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Required with --apply; dry-run projection does not acquire or require a lock.",
     )
     parser.add_argument(
+        "--workload-id",
+        default="",
+        help="Exact caller workload identity; required with --apply.",
+    )
+    parser.add_argument(
         "--snapshot",
         default="",
         help="Required with --apply; dry-run projection does not create or require a snapshot.",
@@ -584,6 +589,8 @@ def reconcile_target(
     initial_lock_payload: dict[str, object] | None = None
     if apply and not lock_id:
         failures.append("Applied target reconciliation requires a workload-scoped lock ID")
+    if apply and not expected_workload_id:
+        failures.append("Applied target reconciliation requires an exact workload ID")
     if apply and not snapshot:
         failures.append("Applied target reconciliation requires a pre-write snapshot")
     if snapshot:
@@ -1444,6 +1451,7 @@ def main() -> int:
         root=Path(args.root),
         target=args.target,
         lock_id=args.lock_id,
+        expected_workload_id=args.workload_id,
         snapshot=args.snapshot,
         expected_branch=args.expected_branch,
         expected_source_head=args.expected_source_head,

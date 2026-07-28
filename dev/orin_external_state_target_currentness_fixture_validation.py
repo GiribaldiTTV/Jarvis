@@ -95,8 +95,12 @@ def _record(
     return target
 
 
-def _expectations(target: Path) -> dict[str, str]:
-    return {
+def _expectations(
+    target: Path,
+    *,
+    include_workload_id: bool = True,
+) -> dict[str, str]:
+    values = {
         "expected_branch": "feature/release-readiness-source-truth-intake",
         "expected_source_head": HEAD,
         "expected_origin_main": ORIGIN_MAIN,
@@ -104,6 +108,9 @@ def _expectations(target: Path) -> dict[str, str]:
         "expected_worktree_slot": SLOT,
         "expected_target_sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
     }
+    if include_workload_id:
+        values["expected_workload_id"] = "fixture-workload"
+    return values
 
 
 def _semantic_root(root: Path) -> dict[str, Path]:
@@ -289,7 +296,7 @@ def _snapshot(
 
 def _run(root: Path, targets: list[str] | None = None, **overrides: str | None) -> list[str]:
     target = _target_path(root)
-    values = _expectations(target)
+    values = _expectations(target, include_workload_id=False)
     values.update(overrides)
     return validator.validate_target_currentness(
         root,
@@ -353,23 +360,35 @@ def main() -> int:
             validator.validate_target_currentness(
                 root,
                 ["worktrees/Missing/worktree_state.md"],
-                **_expectations(target),
+                **_expectations(target, include_workload_id=False),
             ),
         )
         _assert_failure(
             "traversal target",
             "traversal or alias",
-            validator.validate_target_currentness(root, ["worktrees/../worktree_state.md"], **_expectations(target)),
+            validator.validate_target_currentness(
+                root,
+                ["worktrees/../worktree_state.md"],
+                **_expectations(target, include_workload_id=False),
+            ),
         )
         _assert_failure(
             "absolute target",
             "absolute/off-root",
-            validator.validate_target_currentness(root, [str(target)], **_expectations(target)),
+            validator.validate_target_currentness(
+                root,
+                [str(target)],
+                **_expectations(target, include_workload_id=False),
+            ),
         )
         _assert_failure(
             "duplicate target selection",
             "exactly one explicit target",
-            validator.validate_target_currentness(root, [TARGET, TARGET], **_expectations(target)),
+            validator.validate_target_currentness(
+                root,
+                [TARGET, TARGET],
+                **_expectations(target, include_workload_id=False),
+            ),
         )
         for alias_target, label in (
             ("worktrees//Governance/worktree_state.md", "repeated separator"),
@@ -380,7 +399,11 @@ def main() -> int:
             _assert_failure(
                 label,
                 "traversal or alias",
-                validator.validate_target_currentness(root, [alias_target], **_expectations(target)),
+                validator.validate_target_currentness(
+                    root,
+                    [alias_target],
+                    **_expectations(target, include_workload_id=False),
+                ),
             )
 
         target.write_text(
@@ -486,7 +509,7 @@ def main() -> int:
         finally:
             validator.sha256_file = original_hash
 
-        expected_values = _expectations(target)
+        expected_values = _expectations(target, include_workload_id=False)
         original_read_bytes = Path.read_bytes
         original_bytes = original_read_bytes(target)
         tampered_bytes = original_bytes.replace(
@@ -556,6 +579,102 @@ def main() -> int:
             **expectations,
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
+
+        for label, workload_id, needle in (
+            (
+                "single-target apply without caller workload identity",
+                "",
+                "requires an exact workload ID",
+            ),
+            (
+                "single-target apply under a foreign workload identity",
+                "foreign-workload",
+                "Lock workload mismatch",
+            ),
+        ):
+            workload_expectations = dict(expectations)
+            workload_expectations["expected_workload_id"] = workload_id
+            audit_before = sorted((root / "audit_log").glob("target-currentness-*.json"))
+            workload_ok, workload_messages, workload_audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot="snapshots/fixture-snapshot",
+                assignments=["Last Updated=2026-01-01T00:00:01Z"],
+                additions=[],
+                apply=True,
+                **workload_expectations,
+            )
+            audit_after = sorted((root / "audit_log").glob("target-currentness-*.json"))
+            if (
+                workload_ok
+                or workload_audit is not None
+                or target.read_bytes() != before
+                or audit_after != audit_before
+                or not any(needle in item for item in workload_messages)
+            ):
+                raise AssertionError(
+                    f"{label} was accepted or mutated external state:\n"
+                    + "\n".join(workload_messages)
+                )
+
+        cli_base = [
+            sys.executable,
+            str(Path(reconciler.__file__).resolve()),
+            "--root",
+            str(root),
+            "--target",
+            TARGET,
+            "--lock-id",
+            lock_id,
+            "--snapshot",
+            "snapshots/fixture-snapshot",
+            "--expected-branch",
+            expectations["expected_branch"],
+            "--expected-source-head",
+            expectations["expected_source_head"],
+            "--expected-origin-main",
+            expectations["expected_origin_main"],
+            "--expected-worktree-path",
+            expectations["expected_worktree_path"],
+            "--expected-worktree-slot",
+            expectations["expected_worktree_slot"],
+            "--expected-target-sha256",
+            expectations["expected_target_sha256"],
+            "--set-field",
+            "Last Updated=2026-01-01T00:00:02Z",
+            "--apply",
+        ]
+        for label, workload_args, needle in (
+            (
+                "single-target CLI apply without caller workload identity",
+                [],
+                "requires an exact workload ID",
+            ),
+            (
+                "single-target CLI apply under a foreign workload identity",
+                ["--workload-id", "foreign-workload"],
+                "Lock workload mismatch",
+            ),
+        ):
+            audit_before = sorted((root / "audit_log").glob("target-currentness-*.json"))
+            cli_result = subprocess.run(
+                [*cli_base, *workload_args],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            audit_after = sorted((root / "audit_log").glob("target-currentness-*.json"))
+            cli_output = cli_result.stdout + cli_result.stderr
+            if (
+                cli_result.returncode == 0
+                or target.read_bytes() != before
+                or audit_after != audit_before
+                or needle not in cli_output
+            ):
+                raise AssertionError(
+                    f"{label} was accepted or mutated external state:\n" + cli_output
+                )
 
         for label, assignments, additions in (
             (
@@ -1714,7 +1833,7 @@ def main() -> int:
                 **{
                     key: value
                     for key, value in expectations.items()
-                    if key != "expected_target_sha256"
+                    if key not in {"expected_target_sha256", "expected_workload_id"}
                 },
             ),
         )
@@ -1751,7 +1870,7 @@ def main() -> int:
                     **{
                         key: value
                         for key, value in expectations.items()
-                        if key != "expected_target_sha256"
+                        if key not in {"expected_target_sha256", "expected_workload_id"}
                     },
                 ),
             )
@@ -1776,7 +1895,7 @@ def main() -> int:
                 **{
                     key: value
                     for key, value in expectations.items()
-                    if key != "expected_target_sha256"
+                    if key not in {"expected_target_sha256", "expected_workload_id"}
                 },
             ),
         )
@@ -2012,6 +2131,45 @@ def main() -> int:
         _assert_failure(
             "packet status both negates and claims current authority",
             "simultaneously claims and negates current packet authority",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            path.write_text(
+                text.replace(
+                    "Current USER Packet Status: `Pre-merge packet is historical evidence only; no post-merge packet was generated.`",
+                    "Current USER Packet Status: `Packet authority pending classification.`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+        _assert_failure(
+            "packet status omits an authority classification",
+            "must explicitly classify current authority or no-current-packet posture",
+            _semantic_failures(root),
+        )
+        paths = _semantic_root(root)
+
+        for path in paths.values():
+            text = path.read_text(encoding="utf-8")
+            text = text.replace(
+                "Current Pull Request: `None - no open/current PR; PR #290 historical merged evidence only.`",
+                "Current Pull Request: `PR #309 https://example.invalid/pull/309`",
+                1,
+            )
+            path.write_text(
+                text.replace(
+                    "Current PR State: `None / historical merged evidence only`",
+                    "Current PR State: `Approval pending`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+        _assert_failure(
+            "active PR state omits an active-state classification",
+            "requires Current PR State to explicitly classify",
             _semantic_failures(root),
         )
         paths = _semantic_root(root)
