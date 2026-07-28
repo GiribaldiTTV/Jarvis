@@ -1213,28 +1213,63 @@ def _apply_target_set(
     applied_states: list[tuple[Path, str, str]] = []
     messages: list[str] = []
     for request, relative, target_path, before_text, _projected_text in resolved:
-        ok, target_messages, _ = reconcile_target(
-            root=root,
-            target=relative,
-            lock_id=lock_id,
-            snapshot=snapshot,
-            expected_branch=request.expected_branch,
-            expected_source_head=request.expected_source_head,
-            expected_origin_main=request.expected_origin_main,
-            expected_worktree_path=request.expected_worktree_path,
-            expected_worktree_slot=request.expected_worktree_slot,
-            expected_target_sha256=request.expected_target_sha256,
-            assignments=list(request.assignments),
-            additions=list(request.additions),
-            section_renames=list(request.section_renames),
-            post_expected_source_head=request.post_expected_source_head,
-            post_expected_origin_main=request.post_expected_origin_main,
-            post_record_state=request.post_record_state,
-            apply=True,
-            write_audit=False,
-            expected_workload_id=workload_id,
-            _lock_table_guard_held=True,
-        )
+        try:
+            ok, target_messages, _ = reconcile_target(
+                root=root,
+                target=relative,
+                lock_id=lock_id,
+                snapshot=snapshot,
+                expected_branch=request.expected_branch,
+                expected_source_head=request.expected_source_head,
+                expected_origin_main=request.expected_origin_main,
+                expected_worktree_path=request.expected_worktree_path,
+                expected_worktree_slot=request.expected_worktree_slot,
+                expected_target_sha256=request.expected_target_sha256,
+                assignments=list(request.assignments),
+                additions=list(request.additions),
+                section_renames=list(request.section_renames),
+                post_expected_source_head=request.post_expected_source_head,
+                post_expected_origin_main=request.post_expected_origin_main,
+                post_record_state=request.post_record_state,
+                apply=True,
+                write_audit=False,
+                expected_workload_id=workload_id,
+                _lock_table_guard_held=True,
+            )
+        except Exception as exc:  # noqa: BLE001 - every member must join set rollback
+            current_restore_failures: list[str] = []
+            try:
+                atomic_write_text(target_path, before_text)
+                restored_hash = sha256_file(target_path)
+                expected_before_hash = hashlib.sha256(
+                    before_text.encode("utf-8")
+                ).hexdigest()
+                if restored_hash.casefold() != expected_before_hash.casefold():
+                    current_restore_failures.append(
+                        "Target-set current-member rollback verification failed for "
+                        f"{target_path}: expected {expected_before_hash}, found {restored_hash}"
+                    )
+            except Exception as restore_exc:  # noqa: BLE001 - retain prepared journal
+                current_restore_failures.append(
+                    f"Target-set current-member rollback failed for {target_path}: {restore_exc}"
+                )
+            rollback_failures = _rollback_target_set(
+                target_states=applied_states,
+                audit_path=(audit_path if not current_restore_failures else None),
+            )
+            rollback_messages = (
+                ["Target-set rollback: PASS - current and prior projections restored"]
+                if not current_restore_failures and not rollback_failures
+                else [
+                    *(f"Target-set rollback: {item}" for item in current_restore_failures),
+                    *(f"Target-set rollback: {item}" for item in rollback_failures),
+                ]
+            )
+            return False, [
+                *messages,
+                f"{relative}: Target-set member publication raised: {exc}",
+                *rollback_messages,
+            ], None
         if not ok:
             rollback_failures = _rollback_target_set(
                 target_states=applied_states,

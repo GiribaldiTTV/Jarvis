@@ -925,7 +925,10 @@ validation, rollback, and audit publication must remain under the lock-table
 guard so another workload cannot release and replace the admitting lock between
 validation and publication. Target-set member publication must reuse that
 already-held transaction guard instead of recursively acquiring a lock whose
-reentrancy differs between Windows and POSIX hosts. Prepared target-set journals must be confined to
+reentrancy differs between Windows and POSIX hosts. A member-level exception
+after replacement must restore that current member as well as every previously
+published member before the transaction can return blocked. Prepared target-set
+journals must be confined to
 the direct `audit_log/*.json` directory scanned by recovery validation; a safe
 path outside that scan is still an unrecoverable transaction path. Semantic
 projection discovery must inspect every canonical branch alias, including

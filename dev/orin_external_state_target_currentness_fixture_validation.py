@@ -2830,6 +2830,49 @@ def main() -> int:
             "target-set-rollback-workload",
         )
 
+        exception_relative, exception_path = list(paths.items())[1]
+        exception_before = before[exception_relative]
+        original_sha256_file = reconciler.sha256_file
+
+        def raise_after_current_member_replacement(candidate: Path) -> str:
+            if (
+                candidate.resolve() == exception_path.resolve()
+                and candidate.read_bytes() != exception_before
+            ):
+                raise RuntimeError("forced current-member post-write hash exception")
+            return original_sha256_file(candidate)
+
+        reconciler.sha256_file = raise_after_current_member_replacement
+        try:
+            ok, messages, audit = reconciler.reconcile_target_set(
+                root=root,
+                lock_id=lock_id,
+                workload_id="target-set-rollback-workload",
+                snapshot=snapshot.relative_to(root).as_posix(),
+                audit_target=audit_target,
+                requests=requests,
+                final_validation=_semantic_failures,
+                apply=True,
+            )
+        finally:
+            reconciler.sha256_file = original_sha256_file
+        if ok or audit is not None or not any(
+            "forced current-member post-write hash exception" in message
+            for message in messages
+        ):
+            raise AssertionError(
+                "raised target-set member exception did not block publication:\n"
+                + "\n".join(messages)
+            )
+        if any(path.read_bytes() != before[relative] for relative, path in paths.items()):
+            raise AssertionError(
+                "raised member exception did not restore current and prior projections"
+            )
+        if (root / audit_target).exists():
+            raise AssertionError(
+                "raised member exception retained a prepared journal after clean rollback"
+            )
+
         def fail_only_after_live_publication(candidate_root: Path) -> list[str]:
             semantic = _semantic_failures(candidate_root)
             if candidate_root.resolve() == root.resolve() and not semantic:
