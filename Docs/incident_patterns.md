@@ -906,9 +906,16 @@ green alone does not clear this incident class. BR1 applicability must derive
 from independent current-gate identity rather than required candidate content,
 and governed candidate fields before the first `Option name` boundary must fail
 closed as an unnamed candidate instead of disappearing from validation.
+Compiled invalid candidate shapes must likewise produce machine findings for
+explicit `*-only` carrier claims and a visible manual-review row for the
+remaining semantic shapes; compiling a source-owner rule without consuming it
+is not enforcement.
 Scoped semantic-currentness validation must reject combination with requested
 global Stage 4 or manifest source-HEAD checks so an early scoped return cannot
 silently bypass those gates.
+Target-set publication and prepared-journal recovery must bind the caller's
+workload identity to the authoritative active lock; possession of another
+workload's visible lock ID is not mutation authority.
 
 ## Incident Pattern: External-State Lock Outlives Its Workload
 

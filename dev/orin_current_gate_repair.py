@@ -253,11 +253,6 @@ def _backtick_values(value: str) -> tuple[str, ...]:
     return tuple(item.strip() for item in re.findall(r"`([^`]+)`", value) if item.strip())
 
 
-def _comma_values(value: str) -> tuple[str, ...]:
-    normalized = re.sub(r"\s+and\s+", ", ", value.strip().rstrip("."), flags=re.I)
-    return tuple(item.strip() for item in normalized.split(",") if item.strip())
-
-
 def compile_br1_stage1_contract(
     owner_path: str | Path,
     *,
@@ -279,10 +274,12 @@ def compile_br1_stage1_contract(
     allowed_route_classes = _backtick_values(
         _line_value(section, "Allowed Implementation-Bearing Route Classes:")
     )
-    invalid_shapes = _comma_values(_line_value(section, "Invalid Candidate Shapes:"))
+    invalid_shapes = _backtick_values(_line_value(section, "Invalid Candidate Shapes:"))
     blocking_conditions = _backtick_values(_line_value(section, "Blocking Conditions:"))
-    if not required_fields or not allowed_route_classes:
-        raise GateContractError("Compiled BR1 contract has empty fields or enum values")
+    if not required_fields or not allowed_route_classes or not invalid_shapes:
+        raise GateContractError(
+            "Compiled BR1 contract has empty fields, enum values, or invalid shapes"
+        )
     conditional_fields = tuple(
         item for item in required_fields if "when applicable" in item.casefold()
     )
@@ -431,17 +428,36 @@ CONDITIONAL_FIELD_APPLICABILITY_TERMS = {
 
 def _affirmatively_mentions(values: list[str], term: str) -> bool:
     for value in values:
-        for clause in re.split(r"[.;\n]+", value.casefold()):
+        for clause in re.split(r"[,.;\n]+", value.casefold()):
             if term not in clause:
                 continue
             prefix = clause.split(term, 1)[0]
-            if re.search(r"\b(?:no|not|without)\b(?:\s+\w+){0,4}\s*$", prefix):
+            prefix_tokens = re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*", prefix)
+            if any(token in {"no", "not", "without"} for token in prefix_tokens[-5:]):
                 continue
             suffix = clause.split(term, 1)[1]
-            if re.match(r"^\s*(?:\w+\s+){0,4}(?:no|not|without)\b", suffix):
+            suffix_tokens = re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*", suffix)
+            if any(token in {"no", "not", "without"} for token in suffix_tokens[:5]):
                 continue
             return True
     return False
+
+
+def _machine_invalid_shape_terms(shape: str) -> tuple[str, ...]:
+    normalized = shape.casefold().strip().rstrip(".")
+    simple_only = re.fullmatch(r"([a-z]+-only) branches", normalized)
+    if simple_only:
+        return (simple_only.group(1),)
+    if normalized.startswith("setup/skeleton-only branches"):
+        return ("setup/skeleton-only", "setup-only", "skeleton-only")
+    if "purpose is to choose later candidates" in normalized:
+        return ("choose later candidates",)
+    if "defer every concrete deliverable" in normalized:
+        return (
+            "defer every concrete deliverable",
+            "defers every concrete deliverable",
+        )
+    return ()
 
 
 def _conditional_field_applies(
@@ -510,6 +526,48 @@ def validate_br1_stage1_packet(
     manual_rows: list[ManualContractRow] = []
     candidate_route_fields: list[tuple[str, str, str, str]] = []
     for candidate_key, option_name, candidate_fields in matrix_candidates:
+        candidate_values = [
+            value for values in candidate_fields.values() for value in values
+        ]
+        for invalid_shape in contract.invalid_candidate_shapes:
+            matched_term = next(
+                (
+                    term
+                    for term in _machine_invalid_shape_terms(invalid_shape)
+                    if _affirmatively_mentions(candidate_values, term)
+                ),
+                None,
+            )
+            if matched_term is None:
+                continue
+            if invalid_shape.casefold().startswith("setup/skeleton-only branches") and (
+                _affirmatively_mentions(candidate_values, "exact user action gate")
+            ):
+                continue
+            findings.append(
+                GateFinding(
+                    code="BR1_INVALID_CANDIDATE_SHAPE",
+                    finding_class=FindingClass.SELF_REPAIRABLE_CURRENT_GATE,
+                    message=(
+                        f"BR1 candidate {option_name!r} affirmatively matches source-owner "
+                        f"invalid shape {invalid_shape!r} through {matched_term!r}"
+                    ),
+                    artifact=matrix_name,
+                    root_cause_owner="dev/orin_user_review_bundle.py",
+                    defect_key=f"{candidate_key}|invalid-shape|{invalid_shape}",
+                )
+            )
+        manual_rows.append(
+            ManualContractRow(
+                field_name="Invalid Candidate Shapes",
+                artifact=matrix_name,
+                status="PRESENT_MANUAL_REVIEW_REQUIRED",
+                reason=(
+                    f"{option_name}: explicit source-owner invalid forms are machine-checked; "
+                    "grouping, dependency, and tiny-branch semantics remain a Codex/USER review row."
+                ),
+            )
+        )
         for required_field in contract.required_fields:
             if (
                 required_field in contract.conditional_fields

@@ -294,6 +294,92 @@ def main() -> int:
     valid_candidate_fields["Implementation-bearing route class"] = (
         "User-visible behavior change"
     )
+    _require(
+        len(contract.invalid_candidate_shapes) == 11,
+        "Invalid candidate shapes were not compiled as exact source-owner entries",
+    )
+    for invalid_only_shape in (
+        "planning-only",
+        "readiness-only",
+        "support-only",
+        "infrastructure-only",
+        "manifest-only",
+        "registry-only",
+        "proof-only",
+    ):
+        invalid_shape_fields = dict(valid_candidate_fields)
+        invalid_shape_fields["Main feature/package objective"] = (
+            f"This is a {invalid_only_shape} branch."
+        )
+        invalid_shape_result = validate_br1_stage1_packet(
+            _packet(invalid_shape_fields),
+            contract,
+        )
+        _expect_code(invalid_shape_result, "BR1_INVALID_CANDIDATE_SHAPE")
+        negative.append(f"explicit {invalid_only_shape} candidate shape")
+
+    for invalid_shape_text, invalid_shape_label in (
+        ("This is a setup-only branch.", "setup-only without exact USER action gate"),
+        (
+            "This candidate's purpose is to choose later candidates.",
+            "candidate whose purpose is to choose later candidates",
+        ),
+        (
+            "This candidate defers every concrete deliverable to another branch.",
+            "candidate that defers every concrete deliverable",
+        ),
+    ):
+        invalid_shape_fields = dict(valid_candidate_fields)
+        invalid_shape_fields["Main feature/package objective"] = invalid_shape_text
+        invalid_shape_result = validate_br1_stage1_packet(
+            _packet(invalid_shape_fields),
+            contract,
+        )
+        _expect_code(invalid_shape_result, "BR1_INVALID_CANDIDATE_SHAPE")
+        negative.append(invalid_shape_label)
+
+    negated_shape_fields = dict(valid_candidate_fields)
+    negated_shape_fields["Main feature/package objective"] = (
+        "This is not a planning-only branch; it implements visible shell behavior."
+    )
+    negated_shape_result = validate_br1_stage1_packet(
+        _packet(negated_shape_fields),
+        contract,
+    )
+    _require(
+        not any(
+            finding.code == "BR1_INVALID_CANDIDATE_SHAPE"
+            for finding in negated_shape_result.findings
+        ),
+        "Negated invalid-shape wording was treated as an affirmative invalid candidate",
+    )
+    positive.append("negated invalid-shape wording remains non-applicable")
+
+    gated_setup_fields = dict(valid_candidate_fields)
+    gated_setup_fields["Main feature/package objective"] = "This is a setup-only branch."
+    gated_setup_fields["Exact USER decision needed"] = (
+        "Exact USER action gate authorizes the named setup behavior only."
+    )
+    gated_setup_result = validate_br1_stage1_packet(
+        _packet(gated_setup_fields),
+        contract,
+    )
+    _require(
+        not any(
+            finding.code == "BR1_INVALID_CANDIDATE_SHAPE"
+            for finding in gated_setup_result.findings
+        ),
+        "Setup-only candidate with an exact USER action gate was rejected",
+    )
+    positive.append("setup-only candidate preserves the exact USER action-gate exception")
+    _require(
+        any(
+            row.field_name == "Invalid Candidate Shapes"
+            for row in negated_shape_result.manual_rows
+        ),
+        "Compiled invalid candidate shapes were not exposed for substantive manual review",
+    )
+
     unnamed_first_candidate_fields = dict(valid_candidate_fields)
     unnamed_first_candidate_fields.pop("Option name")
     unnamed_first_candidate_fields["Implementation-bearing route class"] = (
@@ -933,8 +1019,8 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 38, f"Expected 38 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 23, f"Expected 23 positive fixtures, got {len(positive)}")
+    _require(len(negative) == 48, f"Expected 48 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 25, f"Expected 25 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")

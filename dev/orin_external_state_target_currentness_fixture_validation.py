@@ -2309,9 +2309,31 @@ def main() -> int:
             "target-set-success",
             lock_id,
         )
+        foreign_ok, foreign_messages, foreign_audit = reconciler.reconcile_target_set(
+            root=root,
+            lock_id=lock_id,
+            workload_id="different-caller-workload",
+            snapshot=snapshot.relative_to(root).as_posix(),
+            audit_target=audit_target,
+            requests=requests,
+            final_validation=_semantic_failures,
+            apply=True,
+        )
+        if foreign_ok or foreign_audit is not None or not any(
+            "Lock workload mismatch" in message for message in foreign_messages
+        ):
+            raise AssertionError(
+                "target-set reconciliation accepted another workload's lock:\n"
+                + "\n".join(foreign_messages)
+            )
+        if any(path.read_bytes() != before[relative] for relative, path in paths.items()):
+            raise AssertionError("foreign-workload target-set attempt changed a projection")
+        if (root / audit_target).exists():
+            raise AssertionError("foreign-workload target-set attempt created an audit")
         ok, messages, audit = reconciler.reconcile_target_set(
             root=root,
             lock_id=lock_id,
+            workload_id="target-set-success-workload",
             snapshot=snapshot.relative_to(root).as_posix(),
             audit_target=audit_target,
             requests=requests,
@@ -2365,6 +2387,7 @@ def main() -> int:
         ok, messages, audit = reconciler.reconcile_target_set(
             root=root,
             lock_id=lock_id,
+            workload_id="target-set-rollback-workload",
             snapshot=snapshot.relative_to(root).as_posix(),
             audit_target=audit_target,
             requests=requests,
@@ -2391,6 +2414,7 @@ def main() -> int:
         ok, messages, audit = reconciler.reconcile_target_set(
             root=root,
             lock_id=lock_id,
+            workload_id="target-set-rollback-workload",
             snapshot=snapshot.relative_to(root).as_posix(),
             audit_target=audit_target,
             requests=requests,
@@ -2471,6 +2495,7 @@ def main() -> int:
                 reconciler.reconcile_target_set(
                     root=root,
                     lock_id=lock_id,
+                    workload_id="target-set-rollback-workload",
                     snapshot=snapshot.relative_to(root).as_posix(),
                     audit_target=audit_target,
                     requests=requests,
@@ -2487,6 +2512,36 @@ def main() -> int:
         ).get("Transaction State") != "Prepared":
             raise AssertionError("abrupt target-set termination did not preserve a prepared journal")
         prepared_journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        foreign_recovery_before = {
+            relative: path.read_bytes() for relative, path in paths.items()
+        }
+        foreign_recovered, foreign_recovery_messages, foreign_recovery_audit = (
+            reconciler.reconcile_target_set(
+                root=root,
+                lock_id=lock_id,
+                workload_id="different-recovery-workload",
+                snapshot=snapshot.relative_to(root).as_posix(),
+                audit_target=audit_target,
+                requests=requests,
+                final_validation=_semantic_failures,
+                apply=True,
+            )
+        )
+        if foreign_recovered or foreign_recovery_audit is not None or not any(
+            "journal workload differs" in message
+            for message in foreign_recovery_messages
+        ):
+            raise AssertionError(
+                "prepared target-set journal accepted a foreign recovery workload:\n"
+                + "\n".join(foreign_recovery_messages)
+            )
+        if any(
+            path.read_bytes() != foreign_recovery_before[relative]
+            for relative, path in paths.items()
+        ) or not journal_path.is_file():
+            raise AssertionError(
+                "foreign recovery workload changed targets or removed the prepared journal"
+            )
         original_embedded_before_text = prepared_journal["Targets"][0]["Before Text"]
         mixed_before_corrupt_recovery = {
             relative: path.read_bytes() for relative, path in paths.items()
@@ -2496,6 +2551,7 @@ def main() -> int:
         corrupt_ok, corrupt_messages, corrupt_audit = reconciler.reconcile_target_set(
             root=root,
             lock_id=lock_id,
+            workload_id="target-set-rollback-workload",
             snapshot=snapshot.relative_to(root).as_posix(),
             audit_target=audit_target,
             requests=requests,
@@ -2564,6 +2620,7 @@ def main() -> int:
         recovered, recovery_messages, recovery_audit = reconciler.reconcile_target_set(
             root=root,
             lock_id=lock_id,
+            workload_id="target-set-rollback-workload",
             snapshot=snapshot.relative_to(root).as_posix(),
             audit_target=audit_target,
             requests=requests,

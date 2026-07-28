@@ -222,6 +222,7 @@ def _lock_failures(
     target: str,
     expected_branch: str,
     expected_worktree_path: str,
+    expected_workload_id: str = "",
 ) -> tuple[dict[str, object] | None, list[str]]:
     failures: list[str] = []
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_id):
@@ -254,6 +255,11 @@ def _lock_failures(
         )
     if payload.get("Lock State") != "Locked":
         failures.append(f"Required lock is not held: {lock_path}")
+    if expected_workload_id and payload.get("Workload ID") != expected_workload_id:
+        failures.append(
+            "Lock workload mismatch: expected "
+            f"{expected_workload_id!r}, found {payload.get('Workload ID')!r}"
+        )
     if payload.get("Branch") != expected_branch:
         failures.append(f"Lock branch mismatch: expected {expected_branch!r}, found {payload.get('Branch')!r}")
     lock_worktree = str(payload.get("Worktree", ""))
@@ -552,6 +558,7 @@ def reconcile_target(
     post_expected_origin_main: str | None = None,
     write_audit: bool = True,
     post_record_state: str = "live",
+    expected_workload_id: str = "",
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
     transition_started_ns = time.time_ns()
@@ -586,7 +593,12 @@ def reconcile_target(
             failures.append(f"Snapshot directory is missing: {snapshot_path or snapshot}")
     if lock_id:
         initial_lock_payload, lock_failures = _lock_failures(
-            root, lock_id, target, expected_branch, expected_worktree_path
+            root,
+            lock_id,
+            target,
+            expected_branch,
+            expected_worktree_path,
+            expected_workload_id,
         )
         failures.extend(lock_failures)
     relative, target_path, target_failures = _resolve_target_path(root, target)
@@ -706,7 +718,12 @@ def reconcile_target(
         ], None
     _before_final_lock_check(root, lock_id)
     final_lock_payload, final_lock_failures = _lock_failures(
-        root, lock_id, target, expected_branch, expected_worktree_path
+        root,
+        lock_id,
+        target,
+        expected_branch,
+        expected_worktree_path,
+        expected_workload_id,
     )
     if final_lock_failures:
         return False, [f"Final lock validation: {item}" for item in final_lock_failures], None
@@ -929,6 +946,7 @@ def _recover_prepared_target_set_journal(
     audit_path: Path,
     audit_target: str,
     lock_id: str,
+    workload_id: str,
     requests: Sequence[TargetReconcileRequest],
     apply: bool,
 ) -> list[str] | None:
@@ -943,9 +961,15 @@ def _recover_prepared_target_set_journal(
         or journal.get("Transaction State") != "Prepared"
     ):
         return None
-    if not apply or not lock_id or not requests:
+    if not apply or not lock_id or not workload_id or not requests:
         return [
             "Incomplete target-set transaction journal requires an applied, locked recovery workload"
+        ]
+    if journal.get("Workload ID") != workload_id:
+        return [
+            "Incomplete target-set transaction journal workload differs from the requested "
+            f"recovery workload: expected {workload_id!r}, "
+            f"found {journal.get('Workload ID')!r}"
         ]
     rows = journal.get("Targets")
     if not isinstance(rows, list) or not rows:
@@ -993,6 +1017,7 @@ def _recover_prepared_target_set_journal(
             journal_targets[0],
             first_request.expected_branch,
             first_request.expected_worktree_path,
+            workload_id,
         )
         if lock_failures or lock_payload is None:
             return [f"Recovery lock validation: {item}" for item in lock_failures]
@@ -1055,6 +1080,7 @@ def _apply_target_set(
     *,
     root: Path,
     lock_id: str,
+    workload_id: str,
     snapshot: str,
     audit_path: Path,
     resolved: Sequence[tuple[TargetReconcileRequest, str, Path, str, str]],
@@ -1070,6 +1096,7 @@ def _apply_target_set(
         first_relative,
         first_request.expected_branch,
         first_request.expected_worktree_path,
+        workload_id,
     )
     if final_lock_failures or final_lock_payload != lock_payload:
         details = final_lock_failures or [
@@ -1132,6 +1159,7 @@ def _apply_target_set(
             post_record_state=request.post_record_state,
             apply=True,
             write_audit=False,
+            expected_workload_id=workload_id,
         )
         if not ok:
             rollback_failures = _rollback_target_set(
@@ -1258,6 +1286,7 @@ def reconcile_target_set(
     requests: Sequence[TargetReconcileRequest],
     final_validation: Callable[[Path], list[str]],
     apply: bool,
+    workload_id: str = "",
 ) -> tuple[bool, list[str], Path | None]:
     """Publish a coherent projection set or restore every member.
 
@@ -1283,6 +1312,7 @@ def reconcile_target_set(
             audit_path=audit_path,
             audit_target=audit_target,
             lock_id=lock_id,
+            workload_id=workload_id,
             requests=requests,
             apply=apply,
         )
@@ -1367,6 +1397,8 @@ def reconcile_target_set(
 
     if not lock_id:
         return False, ["Applied target-set reconciliation requires a workload-scoped lock ID"], None
+    if not workload_id:
+        return False, ["Applied target-set reconciliation requires an exact workload ID"], None
     if not snapshot:
         return False, ["Applied target-set reconciliation requires a pre-write snapshot"], None
     lock_payload, lock_failures = _lock_failures(
@@ -1375,6 +1407,7 @@ def reconcile_target_set(
         resolved[0][1],
         resolved[0][0].expected_branch,
         resolved[0][0].expected_worktree_path,
+        workload_id,
     )
     if lock_failures or lock_payload is None:
         return False, lock_failures, None
@@ -1396,6 +1429,7 @@ def reconcile_target_set(
         return _apply_target_set(
             root=root,
             lock_id=lock_id,
+            workload_id=workload_id,
             snapshot=snapshot,
             audit_path=audit_path,
             resolved=resolved,
