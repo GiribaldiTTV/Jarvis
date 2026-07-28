@@ -28,6 +28,7 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Mapping
 
+import orin_pr_review_churn_validation as pr_review_churn
 from orin_current_gate_repair import (
     BR1_MATRIX_ARTIFACT,
     BR1_SECTION_HEADING,
@@ -57,6 +58,9 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 PR_READINESS_STAGE1_REVIEW_FILE = "PR_READINESS_STAGE1_REVIEW.md"
+PR_READINESS_STAGE1_FIREWALL_PROOF_FILE = (
+    "Source Truth Context/Proof Artifacts/PR_READINESS_STAGE1_ADVERSARIAL_FIREWALL.json"
+)
 PR_STAGE1_OUTCOME_REPAIR = "PR Readiness Stage 1 Repair Required"
 PR_STAGE1_OUTCOME_READY = "Stage 1 Ready For Stage 2"
 USER_REVIEW_DIR_NAME = "USER Review"
@@ -856,6 +860,18 @@ def _git_output(*args: str) -> str:
         return "UNKNOWN"
 
 
+def _git_diff_sha256(base_ref: str = "origin/main") -> str:
+    try:
+        diff_bytes = subprocess.check_output(
+            ["git", "diff", "--binary", f"{base_ref}...HEAD"],
+            cwd=ROOT,
+            stderr=subprocess.STDOUT,
+        )
+    except subprocess.CalledProcessError:
+        return "UNKNOWN"
+    return hashlib.sha256(diff_bytes).hexdigest().upper()
+
+
 def _markdown_lines(items: list[str]) -> list[str]:
     if not items:
         return ["- None recorded."]
@@ -1195,7 +1211,12 @@ def _validate_export_zip(
         *_fam006_bp3_support_context_failures(generated_packet_files),
         *_user_branch_vision_substantive_failures(generated_packet_files),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
-        *_pr_stage1_review_failures(generated_packet_files),
+        *_pr_stage1_review_failures(
+            packet_files,
+            expected_head=source_head,
+            expected_origin_main=origin_main,
+            expected_diff_sha256=_git_diff_sha256("origin/main"),
+        ),
         *_pr_stage1_packet_coherence_failures(generated_packet_files),
         *_pr_stage1_source_coverage_failures(
             packet_files,
@@ -1434,7 +1455,13 @@ def _is_pr_stage1_packet_posture(packet_files: Mapping[str, str]) -> bool:
     return current_gate_is_stage1 or decision_path_is_stage1
 
 
-def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
+def _pr_stage1_review_failures(
+    packet_files: Mapping[str, str],
+    *,
+    expected_head: str | None = None,
+    expected_origin_main: str | None = None,
+    expected_diff_sha256: str | None = None,
+) -> list[str]:
     """Validate the dedicated PR Readiness Stage 1 current-gate artifact."""
 
     start_here = packet_files.get("START_HERE.md", "")
@@ -1486,6 +1513,111 @@ def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
     if f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}" in start_here:
         failures.append(
             "START_HERE.md: PR Stage 1 packet still identifies the BP2 Branch Plan file as primary"
+        )
+    ready_outcome = "stage 1 ready for stage 2" in normalized
+    if ready_outcome and "## Pre-PR Adversarial Review Firewall" not in text:
+        failures.append(
+            f"{display_name}: PR Stage 1 Ready artifact is missing ## Pre-PR Adversarial Review Firewall"
+        )
+    proof_text = packet_files.get(PR_READINESS_STAGE1_FIREWALL_PROOF_FILE, "")
+    if not proof_text.strip():
+        if ready_outcome:
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: PR Stage 1 firewall proof is missing"
+            )
+        return failures
+    try:
+        proof = json.loads(proof_text)
+    except json.JSONDecodeError as exc:
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: invalid JSON: {exc}"
+        )
+        return failures
+    if not isinstance(proof, dict):
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: proof root must be an object"
+        )
+        return failures
+    for field in (
+        "base_ref",
+        "base_oid",
+        "head_oid",
+        "diff_sha256",
+        "result",
+        "report",
+    ):
+        value = proof.get(field)
+        if value in (None, "", [], {}):
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: proof field {field} is missing or empty"
+            )
+    for field in ("changed_gated_files", "mapped_families"):
+        if not isinstance(proof.get(field), list):
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: proof field {field} must be a list"
+            )
+    gated_files = proof.get("changed_gated_files")
+    mapped_families = proof.get("mapped_families")
+    if isinstance(gated_files, list) and gated_files and not mapped_families:
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: changed gated files have no mapped families"
+        )
+    for field, length in (("base_oid", 40), ("head_oid", 40), ("diff_sha256", 64)):
+        value = proof.get(field)
+        if not isinstance(value, str) or not re.fullmatch(
+            rf"[0-9a-fA-F]{{{length}}}", value
+        ):
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: proof field {field} must be a {length}-character hexadecimal identity"
+            )
+    if ready_outcome and proof.get("result") != "PASS":
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: Stage 1 Ready requires firewall result PASS"
+        )
+    if ready_outcome and proof.get("worktree_clean") is not True:
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: Stage 1 Ready requires a clean-worktree firewall proof"
+        )
+    if ready_outcome and proof.get("upstream_oid") != proof.get("head_oid"):
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: Stage 1 Ready requires proof that HEAD equals upstream"
+        )
+    for field, actual, expected in (
+        ("head_oid", proof.get("head_oid"), expected_head),
+        ("base_oid", proof.get("base_oid"), expected_origin_main),
+        ("diff_sha256", proof.get("diff_sha256"), expected_diff_sha256),
+    ):
+        if ready_outcome and expected and actual != expected:
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: proof field {field} does not match the validated packet identity"
+            )
+    if ready_outcome and expected_head:
+        matrix = pr_review_churn._load_matrix(pr_review_churn.DEFAULT_MATRIX)
+        live_changed_files = pr_review_churn._changed_files(
+            str(proof.get("base_ref") or "origin/main")
+        )
+        live_gated_files = [
+            path
+            for path in live_changed_files
+            if pr_review_churn._is_firewall_gated_path(path, matrix)
+        ]
+        live_families = sorted(
+            pr_review_churn._families_for_changed_files(matrix, live_gated_files)
+        )
+        if gated_files != live_gated_files:
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: changed gated file inventory does not match the validated branch diff"
+            )
+        if mapped_families != live_families:
+            failures.append(
+                f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: mapped family inventory does not match the validated branch diff"
+            )
+    report = proof.get("report")
+    if ready_outcome and (
+        not isinstance(report, str) or "Result: PASS" not in report
+    ):
+        failures.append(
+            f"{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}: Stage 1 Ready proof lacks the helper PASS report"
         )
     return failures
 
@@ -3402,7 +3534,22 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
-    failures.extend(_pr_stage1_review_failures(packet_files))
+    active_identity_mode = validation_mode in {
+        PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        PACKET_VALIDATION_MODE_NEXT_GATE,
+    }
+    failures.extend(
+        _pr_stage1_review_failures(
+            packet_files,
+            expected_head=expected_head if active_identity_mode else None,
+            expected_origin_main=(
+                expected_origin_main if active_identity_mode else None
+            ),
+            expected_diff_sha256=(
+                _git_diff_sha256("origin/main") if active_identity_mode else None
+            ),
+        )
+    )
     failures.extend(_pr_stage1_packet_coherence_failures(packet_files))
     failures.extend(
         _pr_stage1_source_coverage_failures(
@@ -5487,6 +5634,75 @@ def _write_user_branch_vision_review(
     return review_path.resolve()
 
 
+def _write_pr_readiness_stage1_firewall_proof(
+    *,
+    target: Path,
+    source_head: str,
+    origin_main: str,
+    stage1_outcome: str,
+) -> tuple[Path, str]:
+    """Run and bind the executable PR1 firewall to the packet source snapshot."""
+
+    args = argparse.Namespace(
+        matrix=str(pr_review_churn.DEFAULT_MATRIX),
+        base="origin/main",
+        skip_pre_pr_commands=False,
+    )
+    code, report = pr_review_churn.build_pre_pr_report(args)
+    matrix = pr_review_churn._load_matrix(pr_review_churn.DEFAULT_MATRIX)
+    changed_files = pr_review_churn._changed_files(args.base)
+    changed_gated_files = [
+        path
+        for path in changed_files
+        if pr_review_churn._is_firewall_gated_path(path, matrix)
+    ]
+    mapped_families = sorted(
+        pr_review_churn._families_for_changed_files(matrix, changed_gated_files)
+    )
+    diff_sha256 = _git_diff_sha256(args.base)
+    if diff_sha256 == "UNKNOWN":
+        raise ValueError("PR Readiness Stage 1 firewall could not bind the branch diff")
+    worktree_status = _git_output("status", "--short")
+    upstream_oid = _git_output("rev-parse", "@{u}")
+    result = "PASS" if code == 0 else "FAIL"
+    if stage1_outcome == PR_STAGE1_OUTCOME_READY:
+        blockers: list[str] = []
+        if result != "PASS":
+            blockers.append("the executable pre-PR firewall did not pass")
+        if worktree_status:
+            blockers.append("the worktree is not clean")
+        if upstream_oid != source_head:
+            blockers.append("HEAD is not synchronized with its upstream")
+        if source_head == "UNKNOWN" or origin_main == "UNKNOWN":
+            blockers.append("Git identity could not be resolved")
+        if blockers:
+            raise ValueError(
+                "Stage 1 Ready For Stage 2 is blocked: " + "; ".join(blockers)
+            )
+    proof_path = target / Path(PR_READINESS_STAGE1_FIREWALL_PROOF_FILE).relative_to(
+        SOURCE_TRUTH_CONTEXT_DIR_NAME
+    )
+    proof_path.parent.mkdir(parents=True, exist_ok=True)
+    proof = {
+        "schema_version": 1,
+        "base_ref": args.base,
+        "base_oid": origin_main,
+        "head_oid": source_head,
+        "upstream_oid": upstream_oid,
+        "diff_sha256": diff_sha256,
+        "changed_gated_files": changed_gated_files,
+        "mapped_families": mapped_families,
+        "worktree_clean": not bool(worktree_status),
+        "result": result,
+        "report": report,
+    }
+    proof_path.write_text(
+        json.dumps(proof, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return proof_path.resolve(), result
+
+
 def _write_pr_readiness_stage1_review(
     *,
     target: Path,
@@ -5496,6 +5712,7 @@ def _write_pr_readiness_stage1_review(
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
     stage1_outcome: str,
+    firewall_result: str = "NOT RUN",
 ) -> Path:
     """Write the dedicated current-gate artifact for PR Readiness Stage 1."""
 
@@ -5553,6 +5770,13 @@ def _write_pr_readiness_stage1_review(
         "wrong-root snapshots, missing target copies, conflicting field aliases, path aliases, "
         "added and replaced fields, stale current-gate artifacts, and BP2-primary misclassification. "
         "Structural ZIP parity alone is not PR Readiness proof.",
+        "",
+        "## Pre-PR Adversarial Review Firewall",
+        "",
+        f"Pre-PR Adversarial Review Firewall: {firewall_result}",
+        f"Evidence: `{PR_READINESS_STAGE1_FIREWALL_PROOF_FILE}`",
+        "A ready outcome requires fresh executable command-to-family proof for every "
+        "changed gated file; generic prose or validator green cannot substitute.",
         "",
         "## Supporting Source-Truth Context",
         "",
@@ -11934,7 +12158,16 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
     failures.extend(_fam006_bp3_support_context_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
-    failures.extend(_pr_stage1_review_failures(packet_files))
+    failures.extend(
+        _pr_stage1_review_failures(
+            packet_files,
+            expected_head=expected_head if enforce_identity else None,
+            expected_origin_main=expected_origin_main if enforce_identity else None,
+            expected_diff_sha256=(
+                _git_diff_sha256("origin/main") if enforce_identity else None
+            ),
+        )
+    )
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if not _packet_file_present(packet_files, required_file):
@@ -12314,7 +12547,17 @@ def build_bundle(
         stage1_outcome=stage1_outcome,
     )
     pr_stage1_review_file = None
+    pr_stage1_firewall_proof_file = None
     if primary_user_review_file_name == PR_READINESS_STAGE1_REVIEW_FILE:
+        (
+            pr_stage1_firewall_proof_file,
+            pr_stage1_firewall_result,
+        ) = _write_pr_readiness_stage1_firewall_proof(
+            target=source_context_dir,
+            source_head=source_head,
+            origin_main=origin_main,
+            stage1_outcome=stage1_outcome,
+        )
         pr_stage1_review_file = _write_pr_readiness_stage1_review(
             target=review_aids_dir,
             title=title,
@@ -12323,6 +12566,7 @@ def build_bundle(
             pending_user_decisions=pending_user_decisions,
             copied=copied,
             stage1_outcome=stage1_outcome,
+            firewall_result=pr_stage1_firewall_result,
         )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
@@ -12352,6 +12596,8 @@ def build_bundle(
         expected_generated_paths.add(user_review_file.resolve())
     if pr_stage1_review_file is not None:
         expected_generated_paths.add(pr_stage1_review_file.resolve())
+    if pr_stage1_firewall_proof_file is not None:
+        expected_generated_paths.add(pr_stage1_firewall_proof_file.resolve())
     primary_source_path = (review_aids_dir / primary_user_review_file_name).resolve()
     primary_destination_path = (user_review_dir / primary_user_review_file_name).resolve()
     if primary_source_path in expected_generated_paths:
@@ -12501,7 +12747,12 @@ def build_bundle(
         *_fam006_bp3_support_context_failures(generated_packet_files),
         *_user_branch_vision_substantive_failures(generated_packet_files),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
-        *_pr_stage1_review_failures(generated_packet_files),
+        *_pr_stage1_review_failures(
+            packet_files,
+            expected_head=source_head,
+            expected_origin_main=origin_main,
+            expected_diff_sha256=_git_diff_sha256("origin/main"),
+        ),
         *_current_gate_contract_failures(generated_packet_files),
     ]
     if artifact_failures:

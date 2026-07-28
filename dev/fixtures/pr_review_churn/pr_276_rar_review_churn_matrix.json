@@ -550,6 +550,9 @@
     "dev/fixtures/branch_readiness_planning/valid_visual_acceptance_enforcement_chain.md": [
       "visual-acceptance-proof-chain-parser"
     ],
+    "dev/fixtures/current_gate_repair/fam007_20260727_165940_invalid_route_class.json": [
+      "current-gate-repair-transaction"
+    ],
     "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json": [
       "rar-status-green-parser",
       "rar-phase-advancement-parser",
@@ -647,8 +650,17 @@
       "repo-live-state-boundary-parser",
       "external-state-lock-lifecycle"
     ],
+    "dev/orin_external_state_lock.py": [
+      "external-state-lock-lifecycle"
+    ],
+    "dev/orin_external_state_lock_lifecycle.py": [
+      "external-state-lock-lifecycle"
+    ],
     "dev/orin_external_state_lock_release.py": [
       "external-state-lock-lifecycle"
+    ],
+    "dev/orin_external_state_snapshot.py": [
+      "external-state-snapshot-transaction"
     ],
     "dev/orin_external_state_target_reconcile.py": [
       "external-state-target-publication"
@@ -1419,6 +1431,7 @@
         "Docs/validation_helper_registry.md"
       ],
       "implementation": [
+        "dev/orin_external_state_lock.py",
         "dev/orin_external_state_lock_lifecycle.py",
         "dev/orin_external_state_lock_release.py",
         "dev/orin_external_state_validation.py",
@@ -1565,6 +1578,7 @@
       "fixture_coverage": [
         "dev/orin_current_gate_repair_fixture_validation.py",
         "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/current_gate_repair/fam007_20260727_165940_invalid_route_class.json",
         "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json"
       ],
       "generated_mutation_coverage": [

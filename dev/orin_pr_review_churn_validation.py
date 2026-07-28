@@ -71,6 +71,7 @@ HELPER_FILE_PATTERNS = (
     "audit",
     "harness",
 )
+EXECUTED_FAMILIES_MARKER = "PR1_EXECUTED_FAMILIES:"
 FIREWALL_GATED_PATHS = {
     "docs/branch_plans/readme.md",
     "docs/branch_records/feature_release_readiness_source_truth_intake.md",
@@ -1117,10 +1118,16 @@ def _changed_files(base: str) -> list[str]:
 
 def _is_helper_validator_parser(path: str) -> bool:
     normalized = path.replace("\\", "/").casefold()
-    if not normalized.startswith("dev/") or not normalized.endswith(".py"):
+    if not normalized.startswith("dev/"):
+        return False
+    if normalized.startswith("dev/fixtures/"):
+        return True
+    if not normalized.endswith(".py"):
         return False
     name = Path(normalized).name
-    return any(pattern in name for pattern in HELPER_FILE_PATTERNS)
+    return name.startswith("orin_") or any(
+        pattern in name for pattern in HELPER_FILE_PATTERNS
+    )
 
 
 def _is_firewall_gated_path(path: str, matrix: dict[str, Any]) -> bool:
@@ -1674,10 +1681,9 @@ def _validate_pre_pr_firewall(
                 )
 
     commands = firewall.get("validation_commands")
+    command_family_coverage: set[str] = set()
     if not isinstance(commands, list) or not commands:
         failures.append("pre_pr_firewall.validation_commands must be a non-empty list")
-    elif skip_commands:
-        lines.append("- local validation commands: SKIPPED by caller")
     else:
         for index, command_entry in enumerate(commands, start=1):
             if not isinstance(command_entry, dict):
@@ -1685,6 +1691,26 @@ def _validate_pre_pr_firewall(
                 continue
             command = command_entry.get("command")
             name = command_entry.get("name") or f"command {index}"
+            covered_families = command_entry.get("covers_families")
+            if (
+                not isinstance(covered_families, list)
+                or not covered_families
+                or any(
+                    not isinstance(family_id, str) or not family_id.strip()
+                    for family_id in covered_families
+                )
+            ):
+                failures.append(
+                    f"validation_commands row {index} must declare a non-empty covers_families list"
+                )
+                covered_families = []
+            for family_id in covered_families:
+                if family_id not in entries:
+                    failures.append(
+                        f"validation_commands row {index} references unknown family {family_id}"
+                    )
+                    continue
+                command_family_coverage.add(family_id)
             if (
                 not isinstance(command, list)
                 or not command
@@ -1697,6 +1723,8 @@ def _validate_pre_pr_firewall(
                     f"validation_commands row {index} must use {{python}} for Python scripts"
                 )
                 continue
+            if skip_commands:
+                continue
             resolved_command = _resolve_manifest_command(command)
             code, output = _run_for_status(resolved_command)
             lines.append(
@@ -1706,8 +1734,137 @@ def _validate_pre_pr_firewall(
                 failures.append(
                     f"pre_pr_firewall validation command failed ({' '.join(command)}): {output}"
                 )
+                continue
+            executed_families: set[str] = set()
+            for output_line in output.splitlines():
+                if not output_line.startswith(EXECUTED_FAMILIES_MARKER):
+                    continue
+                executed_families.update(
+                    family_id.strip()
+                    for family_id in output_line.removeprefix(
+                        EXECUTED_FAMILIES_MARKER
+                    ).split(",")
+                    if family_id.strip()
+                )
+            missing_execution_markers = sorted(
+                set(covered_families) - executed_families
+            )
+            if missing_execution_markers:
+                failures.append(
+                    f"validation command {name} passed without executable family proof: "
+                    + ", ".join(missing_execution_markers)
+                )
+
+    uncovered_changed_families = sorted(
+        changed_families - command_family_coverage
+    )
+    if uncovered_changed_families:
+        failures.append(
+            "Changed pre-PR families lack a bound validation command: "
+            + ", ".join(uncovered_changed_families)
+        )
+    if skip_commands and isinstance(commands, list) and commands:
+        lines.append(
+            "- local validation commands: SKIPPED by caller; command-to-family contract checked"
+        )
 
     return failures, lines
+
+
+def _pre_pr_firewall_contract_guardrail_failures(
+    matrix: dict[str, Any],
+) -> list[str]:
+    """Prove that the firewall rejects the exact PR #309 false-green shapes."""
+
+    failures: list[str] = []
+    for path in (
+        "dev/orin_current_gate_repair.py",
+        "dev/orin_external_state_lock.py",
+        "dev/orin_external_state_lock_lifecycle.py",
+        "dev/orin_external_state_lock_release.py",
+        "dev/orin_external_state_snapshot.py",
+        "dev/orin_external_state_target_reconcile.py",
+        "dev/fixtures/example/adversarial_case.json",
+    ):
+        if not _is_helper_validator_parser(path):
+            failures.append(
+                f"Pre-PR helper-family guardrail did not gate implementation surface: {path}"
+            )
+
+    probe = json.loads(json.dumps(matrix))
+    firewall = probe.get("pre_pr_firewall")
+    if not isinstance(firewall, dict):
+        return failures + ["Pre-PR guardrail probe could not find pre_pr_firewall"]
+    commands = firewall.get("validation_commands")
+    if not isinstance(commands, list) or not commands:
+        return failures + ["Pre-PR guardrail probe could not find validation_commands"]
+
+    target_family = "current-gate-repair-transaction"
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        covered = command.get("covers_families")
+        if isinstance(covered, list):
+            command["covers_families"] = [
+                family_id for family_id in covered if family_id != target_family
+            ]
+    probe_failures, _ = _validate_pre_pr_firewall(
+        probe,
+        ["dev/orin_current_gate_repair.py"],
+        skip_commands=True,
+    )
+    if not any(
+        "lack a bound validation command" in failure
+        and target_family in failure
+        for failure in probe_failures
+    ):
+        failures.append(
+            "Pre-PR command-binding guardrail accepted a changed family without executable validation"
+        )
+
+    unknown_probe = json.loads(json.dumps(matrix))
+    unknown_commands = unknown_probe.get("pre_pr_firewall", {}).get(
+        "validation_commands", []
+    )
+    if unknown_commands and isinstance(unknown_commands[0], dict):
+        unknown_commands[0].setdefault("covers_families", []).append(
+            "unregistered-pr1-family"
+        )
+        unknown_failures, _ = _validate_pre_pr_firewall(
+            unknown_probe,
+            [],
+            skip_commands=True,
+        )
+        if not any(
+            "references unknown family unregistered-pr1-family" in failure
+            for failure in unknown_failures
+        ):
+            failures.append(
+                "Pre-PR command-binding guardrail accepted an unknown family declaration"
+            )
+
+    marker_probe = json.loads(json.dumps(matrix))
+    marker_probe["pre_pr_firewall"]["validation_commands"] = [
+        {
+            "name": "missing executable-family marker probe",
+            "command": ["{python}", "-c", "print('fixture command passed')"],
+            "covers_families": [target_family],
+        }
+    ]
+    marker_failures, _ = _validate_pre_pr_firewall(
+        marker_probe,
+        ["dev/orin_current_gate_repair.py"],
+        skip_commands=False,
+    )
+    if not any(
+        "passed without executable family proof" in failure
+        and target_family in failure
+        for failure in marker_failures
+    ):
+        failures.append(
+            "Pre-PR executable-family guardrail accepted a passing command without its marker"
+        )
+    return failures
 
 
 def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
@@ -1719,6 +1876,7 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     changed_families = _families_for_changed_files(matrix, changed_helper_files)
     failures: list[str] = []
     failures.extend(_classifier_guardrail_failures())
+    failures.extend(_pre_pr_firewall_contract_guardrail_failures(matrix))
     failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
     firewall_failures, firewall_lines = _validate_pre_pr_firewall(
         matrix, changed_helper_files, skip_commands=args.skip_pre_pr_commands

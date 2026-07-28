@@ -771,6 +771,7 @@ def _assert_stage1_coherence_guards() -> None:
     if not any("absent files" in failure or "missing from coverage" in failure for failure in failures):
         raise AssertionError("false source coverage did not fail Stage 1 coverage validation")
 
+
     binary_coverage = {
         "START_HERE.md": (
             "Primary USER Review File: `USER Review/PR_READINESS_STAGE1_REVIEW.md`\n"
@@ -820,6 +821,71 @@ def _assert_stage1_coherence_guards() -> None:
         raise AssertionError(
             "ready Stage 1 packet did not reject a stale Stage 1 request in a review aid"
         )
+
+
+def _assert_stage1_ready_requires_executable_firewall_proof() -> None:
+    headings = (
+        "## Review Status",
+        "## Contract Status",
+        "## Packet Reviewability State",
+        "## USER Gate State",
+        "## Current-Gate Purpose",
+        "## Scope And Authority",
+        "## Transition-Safety Review",
+        "## Adversarial And False-Green Review",
+        "## Pre-PR Adversarial Review Firewall",
+        "## Stage 1 Outcome",
+        "## Exact USER Decision Supported",
+    )
+    packet = {
+        "START_HERE.md": (
+            "Primary USER Review File: USER Review/PR_READINESS_STAGE1_REVIEW.md\n"
+            "Current Gate: Stage 1 Ready For Stage 2\n"
+        ),
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md": (
+            "\n\n".join(headings) + "\nStage 1 Ready For Stage 2\n"
+        ),
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md": "Supporting planning context.\n",
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": "Supporting planning context.\n",
+    }
+    failures = bundle._pr_stage1_review_failures(packet)
+    if not any("firewall proof is missing" in failure for failure in failures):
+        raise AssertionError("Stage 1 Ready accepted a packet without firewall proof")
+
+    proof = {
+        "base_ref": "origin/main",
+        "base_oid": "a" * 40,
+        "head_oid": "b" * 40,
+        "upstream_oid": "b" * 40,
+        "diff_sha256": "C" * 64,
+        "changed_gated_files": ["dev/orin_example.py"],
+        "mapped_families": ["example-family"],
+        "result": "FAIL",
+        "worktree_clean": True,
+        "report": "Pre-PR Adversarial Review Firewall\nResult: FAIL",
+    }
+    packet[bundle.PR_READINESS_STAGE1_FIREWALL_PROOF_FILE] = json.dumps(proof)
+    failures = bundle._pr_stage1_review_failures(packet)
+    if not any("Stage 1 Ready requires firewall result PASS" in failure for failure in failures):
+        raise AssertionError("Stage 1 Ready accepted a failed firewall result")
+
+    proof["result"] = "PASS"
+    proof["report"] = "Pre-PR Adversarial Review Firewall\nResult: PASS"
+    packet[bundle.PR_READINESS_STAGE1_FIREWALL_PROOF_FILE] = json.dumps(proof)
+    failures = bundle._pr_stage1_review_failures(packet)
+    if failures:
+        raise AssertionError(
+            "Stage 1 Ready rejected complete executable firewall proof:\n"
+            + "\n".join(failures)
+        )
+    failures = bundle._pr_stage1_review_failures(
+        packet,
+        expected_head="d" * 40,
+        expected_origin_main="a" * 40,
+        expected_diff_sha256="C" * 64,
+    )
+    if not any("does not match the validated packet identity" in failure for failure in failures):
+        raise AssertionError("Stage 1 Ready accepted firewall proof bound to a stale HEAD")
 
 
 def _assert_stale_primary_aid_is_not_skipped() -> None:
@@ -1217,6 +1283,7 @@ def main() -> int:
     _assert_non_stage1_live_validation_packet_classification()
     _assert_current_stage1_terms_are_not_stale()
     _assert_stage1_coherence_guards()
+    _assert_stage1_ready_requires_executable_firewall_proof()
     _assert_local_stage1_validation_replays_stage1_checks()
     _assert_active_identity_arguments_required()
     _assert_failure(

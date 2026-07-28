@@ -5927,6 +5927,12 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
         "visual-acceptance-proof-chain-parser",
         "pr2-comment-family-classifier",
         "pr2-thread-pagination-and-approval-latch",
+        "external-state-semantic-validation",
+        "external-state-lock-lifecycle",
+        "external-state-snapshot-transaction",
+        "external-state-target-publication",
+        "current-gate-repair-transaction",
+        "governance-fixture-count-contract",
     }
     observed_families = {
         family.get("family_id") for family in families if isinstance(family, dict)
@@ -5965,6 +5971,7 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
             f"{relative_matrix}: pre_pr_firewall validation_commands must be non-empty",
         )
         if isinstance(validation_commands, list):
+            command_covered_families: set[str] = set()
             for command_entry in validation_commands:
                 if not isinstance(command_entry, dict):
                     failures.append(
@@ -6011,6 +6018,21 @@ def _validate_pr_review_churn_matrix_fixture() -> list[str]:
                         "covers_families must reference known families"
                     ),
                 )
+                if isinstance(covers, list):
+                    command_covered_families.update(
+                        family_id
+                        for family_id in covers
+                        if isinstance(family_id, str)
+                    )
+            require(
+                observed_families == command_covered_families,
+                (
+                    f"{relative_matrix}: every registered review family must be bound "
+                    "to an executable validation command; "
+                    f"missing={sorted(observed_families - command_covered_families)} "
+                    f"unknown={sorted(command_covered_families - observed_families)}"
+                ),
+            )
         corpus = pre_pr_firewall.get("connector_corpus_replay")
         require(
             isinstance(corpus, list) and bool(corpus),
@@ -14021,6 +14043,16 @@ def main() -> int:
         return 1
 
     print("PASS: Branch Readiness planning fixture validation passed")
+    print(
+        "PR1_EXECUTED_FAMILIES:"
+        "rar-status-green-parser,rar-phase-advancement-parser,"
+        "rar-issue-candidate-disposition-parser,rar-issue-candidate-durability-parser,"
+        "rar-user-packet-proof-parser,rar-code-to-visual-reference-parser,"
+        "visual-acceptance-proof-chain-parser,rar-table-row-parser,"
+        "rar-path-suffix-parser,rar-short-marker-parser,"
+        "repo-live-state-boundary-parser,pr-readiness-review-risk-parser,"
+        "pr2-comment-family-classifier,pr2-thread-pagination-and-approval-latch"
+    )
     return 0
 
 

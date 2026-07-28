@@ -1168,6 +1168,10 @@ Current Approval State: `PR creation, merge, release remain unapproved`
     print(f"FAM-007 165940 regression: {live_status}")
     print("Invalid route class classification: SELF_REPAIRABLE_CURRENT_GATE")
     print("Canonical publication: draft-first, rollback-capable, one surviving state")
+    print(
+        "PR1_EXECUTED_FAMILIES:pr-readiness-review-risk-parser,"
+        "current-gate-repair-transaction,governance-fixture-count-contract"
+    )
     return 0
 
 

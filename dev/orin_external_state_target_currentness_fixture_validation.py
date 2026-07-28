@@ -3248,6 +3248,10 @@ def main() -> int:
             raise AssertionError("incomplete target-set recovery retained its prepared journal")
 
     print("Target-scoped external-state currentness fixture validation: PASS")
+    print(
+        "PR1_EXECUTED_FAMILIES:external-state-semantic-validation,"
+        "external-state-snapshot-transaction,external-state-target-publication"
+    )
     return 0
 
 

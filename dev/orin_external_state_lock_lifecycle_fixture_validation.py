@@ -1523,6 +1523,10 @@ def main() -> int:
     print("Positive fixtures: 8 requested classes PASS")
     print("Concurrent acquisition and unknown-process stale-cleanup hardening: PASS")
     print("Final successful fixture workload active-lock count: 0")
+    print(
+        "PR1_EXECUTED_FAMILIES:repo-live-state-boundary-parser,"
+        "external-state-lock-lifecycle"
+    )
     return 0
 
 
