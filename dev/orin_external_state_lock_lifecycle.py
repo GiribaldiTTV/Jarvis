@@ -228,6 +228,8 @@ def inspect_lock_table(
             and workload_state in COMPLETED_WORKLOAD_STATES
         ):
             classification = "STALE_COMPLETED_WORKLOAD"
+        elif process_running is False:
+            classification = "ORPHANED_ACTIVE_WORKLOAD"
         elif current_workload_id and workload_id != current_workload_id:
             classification = "FOREIGN_ACTIVE"
         else:

@@ -52,6 +52,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--lock-id",
         help="Workload lock admitting every target and snapshot directory. Required for applied targeted snapshots.",
     )
+    parser.add_argument(
+        "--workload-id",
+        help="Exact caller workload identity. Required for applied targeted snapshots.",
+    )
     parser.add_argument("--source-head", default="not captured by snapshot scaffold")
     parser.add_argument("--apply", action="store_true", help="Write snapshot files. Omit for dry-run.")
     return parser
@@ -97,6 +101,10 @@ def main() -> int:
         print("Snapshot Result: BLOCKED")
         print("Applied targeted snapshot requires --lock-id")
         return 1
+    if targeted and args.apply and not args.workload_id:
+        print("Snapshot Result: BLOCKED")
+        print("Applied targeted snapshot requires --workload-id")
+        return 1
     resolved_targets: list[tuple[str, Path]] = []
     lock_payload: dict[str, object] | None = None
     if targeted:
@@ -126,6 +134,7 @@ def main() -> int:
                 resolved_targets[0][0],
                 args.branch,
                 args.worktree,
+                args.workload_id,
             )
             failures.extend(lock_failures)
             if lock_payload is not None:
@@ -176,6 +185,7 @@ def main() -> int:
                     resolved_targets[0][0],
                     args.branch,
                     args.worktree,
+                    args.workload_id,
                 )
                 if transaction_lock_failures or transaction_lock_payload != lock_payload:
                     lock_change_details = transaction_lock_failures or [
@@ -227,6 +237,7 @@ def main() -> int:
                     resolved_targets[0][0],
                     args.branch,
                     args.worktree,
+                    args.workload_id,
                 )
                 if final_lock_failures or final_lock_payload != transaction_lock_payload:
                     lock_change_details = final_lock_failures or [

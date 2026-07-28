@@ -197,6 +197,7 @@ def _semantic_target_snapshot(
     paths: dict[str, Path],
     name: str,
     lock_id: str,
+    workload_id: str,
 ) -> Path:
     command = [
         sys.executable,
@@ -213,6 +214,8 @@ def _semantic_target_snapshot(
         name,
         "--lock-id",
         lock_id,
+        "--workload-id",
+        workload_id,
         "--source-head",
         HEAD,
         "--apply",
@@ -1617,6 +1620,8 @@ def main() -> int:
                 malformed_snapshot_name,
                 "--lock-id",
                 malformed_lock_id,
+                "--workload-id",
+                "fixture-workload",
                 "--source-head",
                 HEAD,
                 "--target",
@@ -2188,6 +2193,8 @@ def main() -> int:
             snapshot_name,
             "--lock-id",
             lock_id,
+            "--workload-id",
+            "snapshot-lock-drift-workload",
             "--apply",
         ]
         for relative in paths:
@@ -2244,6 +2251,8 @@ def main() -> int:
             snapshot_name,
             "--lock-id",
             lock_id,
+            "--workload-id",
+            "snapshot-name-race-workload",
             "--apply",
         ]
         for relative in paths:
@@ -2303,11 +2312,56 @@ def main() -> int:
                 "Intended Write Set": write_set,
             },
         )
+        for workload_args, expected_error, label in (
+            ([], "requires --workload-id", "missing workload identity"),
+            (
+                ["--workload-id", "different-snapshot-workload"],
+                "Lock workload mismatch",
+                "foreign workload identity",
+            ),
+        ):
+            snapshot_command = [
+                sys.executable,
+                str(Path(snapshotter.__file__)),
+                "--root",
+                str(root),
+                "--reason",
+                f"{label} fixture",
+                "--worktree",
+                WORKTREE_PATH,
+                "--branch",
+                "feature/release-readiness-source-truth-intake",
+                "--snapshot-name",
+                "target-set-success",
+                "--lock-id",
+                lock_id,
+                *workload_args,
+                "--source-head",
+                HEAD,
+                "--apply",
+            ]
+            for relative in paths:
+                snapshot_command.extend(("--target", relative))
+            blocked_snapshot = subprocess.run(
+                snapshot_command,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            if blocked_snapshot.returncode == 0 or expected_error not in (
+                blocked_snapshot.stdout + blocked_snapshot.stderr
+            ) or (root / "snapshots" / "target-set-success").exists():
+                raise AssertionError(
+                    f"targeted snapshot accepted {label}:\n"
+                    + blocked_snapshot.stdout
+                    + blocked_snapshot.stderr
+                )
         snapshot = _semantic_target_snapshot(
             root,
             paths,
             "target-set-success",
             lock_id,
+            "target-set-success-workload",
         )
         foreign_ok, foreign_messages, foreign_audit = reconciler.reconcile_target_set(
             root=root,
@@ -2376,6 +2430,7 @@ def main() -> int:
             paths,
             "target-set-rollback",
             lock_id,
+            "target-set-rollback-workload",
         )
 
         def fail_only_after_live_publication(candidate_root: Path) -> list[str]:

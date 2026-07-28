@@ -399,7 +399,7 @@ def main() -> int:
             expected_workload_id="receipt-only",
         )
 
-        # Negative: a dead process does not make an active workload safe to release.
+        # Negative: a dead process makes an active workload orphaned, never valid authority.
         _lock(root, "negative-dead-owner", "dead-owner")
         dead = inspect_lock_table(
             root,
@@ -407,7 +407,7 @@ def main() -> int:
             process_checker=lambda _pid: False,
         )
         dead_row = next(item for item in dead if item.lock_id == "negative-dead-owner")
-        if dead_row.classification != "ACTIVE_VALID":
+        if dead_row.classification != "ORPHANED_ACTIVE_WORKLOAD":
             raise AssertionError(f"dead owner classified as {dead_row.classification}")
         _assert_blocked(
             "dead process with active workload state",

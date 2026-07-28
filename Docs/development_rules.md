@@ -761,6 +761,10 @@ Preserve a foreign active lock and block overlapping work. Recover a stale lock
 only when the completed workload, dead owner process, finished transaction, and
 exact target ownership are proven. Release failure is
 `BLOCKED_EXTERNAL_STATE_LOCK_RELEASE_FAILED`, never green.
+If the owner process has exited while the workload remains active or otherwise
+not proven completed, classify the lock as `ORPHANED_ACTIVE_WORKLOAD`; it is not
+valid mutation authority and is not eligible for automatic stale-completed
+cleanup.
 
 ## Testing And Validation
 

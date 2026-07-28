@@ -1048,8 +1048,12 @@ workload, target set, finished transaction, absent owner process, and absence of
 an in-progress write are proven. A foreign active lock is preserved and blocks
 overlapping work. Stale cleanup changes the authoritative entry to `Released`
 through the release helper and preserves the receipt; it does not delete the
-lock file. Stale lock recovery must not discard or overwrite state when
-ownership or version risk is unclear.
+lock file. When the owner process has exited but the workload is not proven
+completed, that state is `ORPHANED_ACTIVE_WORKLOAD`, blocks mutation authority,
+and requires an
+explicit recovery path rather than automatic stale-completed cleanup. Stale
+lock recovery must not discard or overwrite state when ownership or version
+risk is unclear.
 
 No lock may remain while waiting for USER review, approval, another prompt,
 continuation, handoff, packet preservation, or a phase gate. Release must use a

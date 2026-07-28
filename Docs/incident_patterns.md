@@ -916,6 +916,12 @@ silently bypass those gates.
 Target-set publication and prepared-journal recovery must bind the caller's
 workload identity to the authoritative active lock; possession of another
 workload's visible lock ID is not mutation authority.
+An active-looking lock whose recorded owner process has exited is likewise not
+valid mutation authority: if the workload is completed it is stale-completed;
+otherwise it is an orphaned active workload that remains blocked for explicit
+recovery. Applied targeted snapshots must require the caller's exact workload
+identity and bind it to the authoritative lock instead of attributing another
+workload's snapshot by lock ID alone.
 
 ## Incident Pattern: External-State Lock Outlives Its Workload
 
