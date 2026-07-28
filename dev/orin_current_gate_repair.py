@@ -366,7 +366,9 @@ def _is_placeholder(value: str) -> bool:
     }
 
 
-def _candidate_matrix_fields(text: str) -> list[tuple[str, dict[str, list[str]]]]:
+def _candidate_matrix_fields(
+    text: str,
+) -> list[tuple[str, str, dict[str, list[str]]]]:
     lines = text.splitlines()
     candidate_starts: list[int] = []
     for index, line in enumerate(lines):
@@ -374,9 +376,9 @@ def _candidate_matrix_fields(text: str) -> list[tuple[str, dict[str, list[str]]]
         if match and _normalize_field_name(match.group(1)) == "option name":
             candidate_starts.append(index)
     if not candidate_starts:
-        return [("candidate 1", _field_values(text))]
+        return [("candidate 1", "candidate 1", _field_values(text))]
 
-    candidates: list[tuple[str, dict[str, list[str]]]] = []
+    candidates: list[tuple[str, str, dict[str, list[str]]]] = []
     for candidate_index, start in enumerate(candidate_starts):
         end = (
             candidate_starts[candidate_index + 1]
@@ -389,7 +391,8 @@ def _candidate_matrix_fields(text: str) -> list[tuple[str, dict[str, list[str]]]
             (value for value in option_values if not _is_placeholder(value)),
             f"candidate {candidate_index + 1}",
         )
-        candidates.append((option_name, fields))
+        candidate_key = f"candidate {candidate_index + 1}"
+        candidates.append((candidate_key, option_name, fields))
     return candidates
 
 
@@ -406,6 +409,9 @@ def _affirmatively_mentions(values: list[str], term: str) -> bool:
                 continue
             prefix = clause.split(term, 1)[0]
             if re.search(r"\b(?:no|not|without)\b(?:\s+\w+){0,4}\s*$", prefix):
+                continue
+            suffix = clause.split(term, 1)[1]
+            if re.match(r"^\s*(?:\w+\s+){0,4}(?:no|not|without)\b", suffix):
                 continue
             return True
     return False
@@ -472,8 +478,8 @@ def validate_br1_stage1_packet(
     matrix_name, matrix_text = matrix_items[0]
     matrix_candidates = _candidate_matrix_fields(matrix_text)
     manual_rows: list[ManualContractRow] = []
-    candidate_route_fields: list[tuple[str, str, str]] = []
-    for option_name, candidate_fields in matrix_candidates:
+    candidate_route_fields: list[tuple[str, str, str, str]] = []
+    for candidate_key, option_name, candidate_fields in matrix_candidates:
         for required_field in contract.required_fields:
             if (
                 required_field in contract.conditional_fields
@@ -493,7 +499,7 @@ def validate_br1_stage1_packet(
                         ),
                         artifact=matrix_name,
                         root_cause_owner="dev/orin_user_review_bundle.py",
-                        defect_key=f"{option_name}|{required_field}",
+                        defect_key=f"{candidate_key}|{required_field}",
                     )
                 )
                 continue
@@ -524,14 +530,15 @@ def validate_br1_stage1_packet(
                     ),
                     artifact=matrix_name,
                     root_cause_owner="dev/orin_user_review_bundle.py",
-                    defect_key=f"{option_name}|implementation-bearing route class",
+                    defect_key=f"{candidate_key}|implementation-bearing route class",
                 )
             )
         candidate_route_fields.extend(
-            (matrix_name, option_name, value) for value in candidate_route_values
+            (matrix_name, candidate_key, option_name, value)
+            for value in candidate_route_values
         )
 
-    route_fields: list[tuple[str, str, str]] = list(candidate_route_fields)
+    route_fields: list[tuple[str, str, str, str]] = list(candidate_route_fields)
     for name, text in active.items():
         if name == matrix_name:
             continue
@@ -552,7 +559,8 @@ def validate_br1_stage1_packet(
                 )
             )
         route_fields.extend(
-            (name, _packet_basename(name), value) for value in artifact_route_values
+            (name, _packet_basename(name), _packet_basename(name), value)
+            for value in artifact_route_values
         )
     if not route_fields:
         findings.append(
@@ -565,7 +573,7 @@ def validate_br1_stage1_packet(
                 defect_key="implementation-bearing route class",
             )
         )
-    for name, option_name, value in route_fields:
+    for name, candidate_key, option_name, value in route_fields:
         if value not in contract.allowed_route_classes:
             findings.append(
                 GateFinding(
@@ -577,7 +585,7 @@ def validate_br1_stage1_packet(
                     ),
                     artifact=name,
                     root_cause_owner="dev/orin_user_review_bundle.py",
-                    defect_key=f"{option_name}|implementation-bearing route class",
+                    defect_key=f"{candidate_key}|implementation-bearing route class",
                 )
             )
 

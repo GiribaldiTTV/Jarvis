@@ -211,6 +211,37 @@ def main() -> int:
         )
         negative.append(label)
 
+    for field_name, negated_triggers in (
+        (
+            "Platform Contract Adoption Matrix when applicable",
+            (
+                "No platform contract applies to this isolated candidate.",
+                "Platform contract is not applicable to this isolated candidate.",
+            ),
+        ),
+        (
+            "Repo-Wide Migration Neutralization Proof when applicable",
+            (
+                "No repo-wide migration is planned for this bounded candidate.",
+                "Repo-wide migration is not planned for this bounded candidate.",
+            ),
+        ),
+    ):
+        for negated_trigger in negated_triggers:
+            negated_fields = dict(fields)
+            negated_fields.pop(field_name)
+            negated_fields["Dependency Scope Class"] = negated_trigger
+            negated_result = validate_br1_stage1_packet(_packet(negated_fields), contract)
+            _require(
+                not any(
+                    finding.code == "BR1_REQUIRED_FIELD_MISSING"
+                    and field_name in finding.message
+                    for finding in negated_result.findings
+                ),
+                f"Bounded negation incorrectly activated {field_name}: {negated_trigger}",
+            )
+    positive.append("pre-term and post-term negation preserve conditional non-applicability")
+
     incomplete_second_candidate = _packet(fields)
     matrix_path = f"Review Aids/{BR1_MATRIX_ARTIFACT}"
     incomplete_second_candidate[matrix_path] += (
@@ -267,6 +298,40 @@ def main() -> int:
         "A distinct missing field was misclassified as a repeated defect",
     )
     negative.append("distinct field defects retain distinct repair signatures")
+
+    placeholder_candidate_fields = dict(fields)
+    placeholder_candidate_fields["Option name"] = "TBD"
+    placeholder_candidate_fields.pop("Proof path")
+    placeholder_result = validate_br1_stage1_packet(
+        _packet(placeholder_candidate_fields),
+        contract,
+    )
+    placeholder_finding = next(
+        finding
+        for finding in placeholder_result.findings
+        if finding.code == "BR1_REQUIRED_FIELD_MISSING"
+        and "Proof path" in finding.message
+    )
+    named_candidate_fields = dict(placeholder_candidate_fields)
+    named_candidate_fields["Option name"] = "Named candidate"
+    named_result = validate_br1_stage1_packet(_packet(named_candidate_fields), contract)
+    named_finding = next(
+        finding
+        for finding in named_result.findings
+        if finding.code == "BR1_REQUIRED_FIELD_MISSING"
+        and "Proof path" in finding.message
+    )
+    _require(
+        placeholder_finding.signature == named_finding.signature,
+        "Option-name repair reset the unchanged candidate-field defect signature",
+    )
+    stable_candidate_latch = InternalRepairContinuationLatch()
+    stable_candidate_latch.observe(placeholder_finding)
+    _require(
+        stable_candidate_latch.observe(named_finding).root_cause_repair_required,
+        "Unchanged candidate-field defect did not escalate after option-name repair",
+    )
+    negative.append("candidate display-name repair cannot reset a recurring defect")
 
     for code, label in (
         ("STALE_ACTIVE_ALIAS", "stale active alias"),
@@ -782,8 +847,8 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 34, f"Expected 34 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 21, f"Expected 21 positive fixtures, got {len(positive)}")
+    _require(len(negative) == 35, f"Expected 35 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 22, f"Expected 22 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")

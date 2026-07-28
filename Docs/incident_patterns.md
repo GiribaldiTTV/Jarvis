@@ -989,10 +989,15 @@ safely proven interrupted transaction on the next invocation; an in-memory
 exception handler alone cannot repair process termination. Give every defect a
 stable signature with a defect-specific key; independent missing fields or
 candidate defects must not collide merely because their code, artifact, and
-owner match. The second truly equivalent occurrence must repair its root-cause
-owner and sibling fixture family rather than receive another packet-only patch
-or equivalent USER repair prompt. Consolidate all presently knowable true USER
-choices into one packet while leaving later separately gated actions explicit.
+owner match. Candidate signatures must use an immutable matrix ordinal or
+equivalent stable identity rather than a mutable display name. Conditional
+applicability must recognize bounded negation both before and after its governed
+term so explicit `not applicable` and `not planned` statements cannot become
+false requirements. The second truly equivalent occurrence must repair its
+root-cause owner and sibling fixture family rather than receive another
+packet-only patch or equivalent USER repair prompt. Consolidate all presently
+knowable true USER choices into one packet while leaving later separately gated
+actions explicit.
 
 The FAM-007 `FAM-007-20260727-165940.zip` packet is the regression seed:
 structural packet proof did not reject
