@@ -711,6 +711,7 @@ def reconcile_target(
     write_audit: bool = True,
     post_record_state: str = "live",
     expected_workload_id: str = "",
+    _lock_table_guard_held: bool = False,
 ) -> tuple[bool, list[str], Path | None]:
     root = resolve_path(root)
     transition_started_ns = time.time_ns()
@@ -870,7 +871,7 @@ def reconcile_target(
             "Target changed between validation and atomic replacement; no replacement performed: "
             f"expected {before_hash}, found {final_before_hash}"
         ], None
-    with lock_table_guard(root):
+    def publish() -> tuple[bool, list[str], Path | None]:
         return _publish_single_target(
             root=root,
             target=target,
@@ -899,6 +900,11 @@ def reconcile_target(
             renamed_sections=renamed_sections,
             snapshot=snapshot,
         )
+
+    if _lock_table_guard_held:
+        return publish()
+    with lock_table_guard(root):
+        return publish()
 
 
 @dataclass(frozen=True)
@@ -1227,6 +1233,7 @@ def _apply_target_set(
             apply=True,
             write_audit=False,
             expected_workload_id=workload_id,
+            _lock_table_guard_held=True,
         )
         if not ok:
             rollback_failures = _rollback_target_set(

@@ -923,7 +923,9 @@ audit mutation when workload identity is omitted or foreign.
 The final single-target lock/snapshot check, target replacement, post-write
 validation, rollback, and audit publication must remain under the lock-table
 guard so another workload cannot release and replace the admitting lock between
-validation and publication. Prepared target-set journals must be confined to
+validation and publication. Target-set member publication must reuse that
+already-held transaction guard instead of recursively acquiring a lock whose
+reentrancy differs between Windows and POSIX hosts. Prepared target-set journals must be confined to
 the direct `audit_log/*.json` directory scanned by recovery validation; a safe
 path outside that scan is still an unrecoverable transaction path. Semantic
 projection discovery must inspect every canonical branch alias, including

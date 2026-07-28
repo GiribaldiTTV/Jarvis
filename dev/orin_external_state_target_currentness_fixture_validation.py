@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 import orin_external_state_validation as validator
@@ -2755,19 +2756,44 @@ def main() -> int:
             raise AssertionError("foreign-workload target-set attempt changed a projection")
         if (root / audit_target).exists():
             raise AssertionError("foreign-workload target-set attempt created an audit")
-        ok, messages, audit = reconciler.reconcile_target_set(
-            root=root,
-            lock_id=lock_id,
-            workload_id="target-set-success-workload",
-            snapshot=snapshot.relative_to(root).as_posix(),
-            audit_target=audit_target,
-            requests=requests,
-            final_validation=_semantic_failures,
-            apply=True,
-        )
+        original_guard = reconciler.lock_table_guard
+        guard_depth = 0
+        guard_entries = 0
+
+        @contextmanager
+        def reject_nested_guard(candidate_root: Path):
+            nonlocal guard_depth, guard_entries
+            if guard_depth:
+                raise AssertionError("target-set publication reacquired its lock-table guard")
+            guard_depth += 1
+            guard_entries += 1
+            try:
+                with original_guard(candidate_root):
+                    yield
+            finally:
+                guard_depth -= 1
+
+        reconciler.lock_table_guard = reject_nested_guard
+        try:
+            ok, messages, audit = reconciler.reconcile_target_set(
+                root=root,
+                lock_id=lock_id,
+                workload_id="target-set-success-workload",
+                snapshot=snapshot.relative_to(root).as_posix(),
+                audit_target=audit_target,
+                requests=requests,
+                final_validation=_semantic_failures,
+                apply=True,
+            )
+        finally:
+            reconciler.lock_table_guard = original_guard
         if not ok or audit is None or not audit.is_file():
             raise AssertionError(
                 "coherent target-set publication failed:\n" + "\n".join(messages)
+            )
+        if guard_entries != 1 or guard_depth != 0:
+            raise AssertionError(
+                "coherent target-set publication did not reuse exactly one guard context"
             )
         _assert_pass("coherent target-set final semantic validation", _semantic_failures(root))
         if any(path.read_bytes() == before[relative] for relative, path in paths.items()):
