@@ -409,6 +409,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "pre-upgrade active locks",
             "missing workload id",
             "orphaned lock",
+            "malformed process ids during legacy recovery",
+            "invalid recorded owner",
+            "legacy recovery on ambiguous matching journals",
+            "ambiguous matching journals",
         ),
     ),
     FamilyRule(
@@ -440,6 +444,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "missing or blank transaction state",
             "missing/blank target-set transaction state",
             "journals with a missing state",
+            "orphaned prepared transaction",
         ),
     ),
     FamilyRule(

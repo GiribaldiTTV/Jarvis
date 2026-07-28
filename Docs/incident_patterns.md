@@ -946,7 +946,11 @@ false-green enforcement gap.
 An active-looking lock whose recorded owner process has exited is likewise not
 valid mutation authority: if the workload is completed it is stale-completed;
 otherwise it is an orphaned active workload that remains blocked for explicit
-recovery. Applied targeted snapshots must require the caller's exact workload
+recovery. The bounded exception is exact rollback of a crash-durable `Prepared`
+target-set journal after proving the dead process, matching lock/workload,
+ordered target set, admitted write set, embedded pre-state hashes, and current
+before/after hashes under the lock-table guard; it restores only pre-state and
+requires a clean rerun. Applied targeted snapshots must require the caller's exact workload
 identity and bind it to the authoritative lock instead of attributing another
 workload's snapshot by lock ID alone.
 

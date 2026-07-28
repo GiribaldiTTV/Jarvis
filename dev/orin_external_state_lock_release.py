@@ -82,10 +82,22 @@ def _legacy_recovery_shape_failures(
         str(payload.get("Intended Write Set", ""))
     ):
         failures.append("Legacy recovery requires a valid exact Intended Write Set")
-    owner_process_id = payload.get("Owning Process ID")
-    if isinstance(owner_process_id, str) and owner_process_id.isdigit():
-        owner_process_id = int(owner_process_id)
-    if isinstance(owner_process_id, int) and owner_process_id > 0:
+    owner_process_id: int | None = None
+    if "Owning Process ID" in payload:
+        recorded_process_id = payload["Owning Process ID"]
+        if type(recorded_process_id) is int and recorded_process_id > 0:
+            owner_process_id = recorded_process_id
+        elif (
+            isinstance(recorded_process_id, str)
+            and recorded_process_id.isdigit()
+            and int(recorded_process_id) > 0
+        ):
+            owner_process_id = int(recorded_process_id)
+        else:
+            failures.append(
+                "Legacy recovery requires an absent owner-process marker or a positive recorded PID"
+            )
+    if owner_process_id is not None:
         from orin_external_state_lock_lifecycle import process_is_running
 
         if process_is_running(owner_process_id) is not False:
@@ -105,13 +117,27 @@ def _legacy_recovery_shape_failures(
                 f"Legacy recovery found a malformed transaction journal: {journal_path}"
             )
             continue
-        if (
-            journal.get("Lock ID") == lock_id
-            and journal.get("Transaction State") == "Prepared"
-        ):
+        if journal.get("Lock ID") != lock_id:
+            continue
+        transaction_like = (
+            journal.get("Transition") == "Bounded coherent target-set reconciliation"
+            or "Transaction State" in journal
+            or "Targets" in journal
+        )
+        if not transaction_like:
+            continue
+        transaction_state = journal.get("Transaction State")
+        if transaction_state == "Committed":
+            continue
+        if transaction_state == "Prepared":
             failures.append(
                 "Legacy recovery is blocked by an incomplete prepared transaction journal: "
                 f"{journal_path}"
+            )
+        else:
+            failures.append(
+                "Legacy recovery is blocked by a non-committed target-set transaction "
+                f"journal with state {transaction_state!r}: {journal_path}"
             )
     return failures
 

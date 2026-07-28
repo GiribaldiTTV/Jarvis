@@ -228,6 +228,8 @@ def _lock_failures(
     expected_branch: str,
     expected_worktree_path: str,
     expected_workload_id: str = "",
+    *,
+    allow_orphaned_prepared_recovery: bool = False,
 ) -> tuple[dict[str, object] | None, list[str]]:
     failures: list[str] = []
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", lock_id):
@@ -249,11 +251,22 @@ def _lock_failures(
             "Required lock lifecycle classification is unavailable or ambiguous: "
             f"expected one entry, found {len(lifecycle_matches)}"
         )
-    elif lifecycle_matches[0].classification != "ACTIVE_VALID":
-        failures.append(
-            "Required lock lifecycle classification is not ACTIVE_VALID: "
-            f"{lifecycle_matches[0].classification}"
-        )
+    else:
+        allowed_classifications = {"ACTIVE_VALID"}
+        if allow_orphaned_prepared_recovery:
+            allowed_classifications.add("ORPHANED_ACTIVE_WORKLOAD")
+        if lifecycle_matches[0].classification not in allowed_classifications:
+            if allow_orphaned_prepared_recovery:
+                failures.append(
+                    "Required recovery lock lifecycle classification is not one of "
+                    f"{sorted(allowed_classifications)}: "
+                    f"{lifecycle_matches[0].classification}"
+                )
+            else:
+                failures.append(
+                    "Required lock lifecycle classification is not ACTIVE_VALID: "
+                    f"{lifecycle_matches[0].classification}"
+                )
     if payload.get("Lock ID") != lock_id:
         failures.append(
             f"Lock payload ID mismatch: expected {lock_id!r}, found {payload.get('Lock ID')!r}"
@@ -1038,6 +1051,11 @@ def _recover_prepared_target_set_journal(
         return [
             "Incomplete target-set transaction journal requires an applied, locked recovery workload"
         ]
+    if journal.get("Lock ID") != lock_id:
+        return [
+            "Incomplete target-set transaction journal lock differs from the requested "
+            f"recovery lock: expected {lock_id!r}, found {journal.get('Lock ID')!r}"
+        ]
     if journal.get("Workload ID") != workload_id:
         return [
             "Incomplete target-set transaction journal workload differs from the requested "
@@ -1091,6 +1109,7 @@ def _recover_prepared_target_set_journal(
             first_request.expected_branch,
             first_request.expected_worktree_path,
             workload_id,
+            allow_orphaned_prepared_recovery=True,
         )
         if lock_failures or lock_payload is None:
             return [f"Recovery lock validation: {item}" for item in lock_failures]

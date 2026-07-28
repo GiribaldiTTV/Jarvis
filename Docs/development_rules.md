@@ -765,14 +765,24 @@ If the owner process has exited while the workload remains active or otherwise
 not proven completed, classify the lock as `ORPHANED_ACTIVE_WORKLOAD`; it is not
 valid mutation authority and is not eligible for automatic stale-completed
 cleanup.
+The only bounded transaction exception is explicit recovery of an exact
+`Prepared` target-set journal owned by that same lock and workload after the
+recorded process is proven exited. Under the lock-table guard, recovery must
+prove the journal lock/workload identity, exact ordered target set, admitted
+write set, embedded pre-state hashes, and current before/after hashes; it may
+restore only the recorded pre-state, remove the recovered journal, and require
+a clean rerun. It must not publish new target values under orphaned authority.
 A pre-upgrade lock missing only `Workload ID` remains blocking but must not be
 made permanently unreleasable. Its separate legacy migration path requires an
 explicit USER recovery decision, proof that the owner process and transaction
 are finished, the exact inspected payload SHA256, valid conflict metadata, a
-named recovery workload, an exact USER authorization receipt, no matching
-prepared transaction journal, and guarded CAS. Ordinary release remains
-forbidden, and the migration route must reject any modern lock that already has
-a workload identity.
+named recovery workload, an exact USER authorization receipt, either an absent
+legacy owner-process marker or a positive recorded PID proven exited, no
+matching transaction-like journal unless its state is exact `Committed`, and
+guarded CAS. Missing, blank, malformed, zero, or negative recorded process IDs
+and missing, blank, or otherwise non-`Committed` matching transaction states
+must fail closed. Ordinary release remains forbidden, and the migration route
+must reject any modern lock that already has a workload identity.
 
 ## Testing And Validation
 

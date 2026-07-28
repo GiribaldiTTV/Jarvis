@@ -517,6 +517,26 @@ def main() -> int:
         )
         legacy_payload = json.loads(legacy_path.read_text(encoding="utf-8"))
         legacy_payload.pop("Workload ID")
+        for invalid_process_id in ("abc", 0, -1):
+            invalid_process_payload = dict(legacy_payload)
+            invalid_process_payload["Owning Process ID"] = invalid_process_id
+            atomic_write_json(legacy_path, invalid_process_payload)
+            _assert_blocked(
+                f"legacy recovery with invalid owner PID {invalid_process_id!r}",
+                release_lock(
+                    root,
+                    "positive-legacy-missing-workload",
+                    "invalid owner identity must block",
+                    True,
+                    expected_workload_id="legacy-recovery-workload",
+                    expected_lock_sha256=hashlib.sha256(
+                        legacy_path.read_bytes()
+                    ).hexdigest(),
+                    legacy_missing_workload_recovery=True,
+                    legacy_recovery_authorization="USER-approved fixture recovery",
+                ),
+                "absent owner-process marker or a positive recorded PID",
+            )
         atomic_write_json(legacy_path, legacy_payload)
         legacy_digest = hashlib.sha256(legacy_path.read_bytes()).hexdigest()
         legacy_row = next(
@@ -606,6 +626,53 @@ def main() -> int:
             raise AssertionError(
                 "legacy recovery race fixture changed the authoritative lock"
             )
+        for invalid_state in (None, "", "Corrupt"):
+            def _inject_ambiguous_journal(
+                _lock_path: Path,
+                _expected_bytes: bytes,
+                state=invalid_state,
+            ) -> None:
+                payload = {
+                    "Transition": "Bounded coherent target-set reconciliation",
+                    "Lock ID": "positive-legacy-missing-workload",
+                    "Targets": [],
+                }
+                if state is not None:
+                    payload["Transaction State"] = state
+                atomic_write_json(legacy_race_journal, payload)
+
+            lock_release_module._before_release_atomic_replacement = (
+                _inject_ambiguous_journal
+            )
+            try:
+                _assert_blocked(
+                    f"legacy recovery with ambiguous journal state {invalid_state!r}",
+                    release_lock(
+                        root,
+                        "positive-legacy-missing-workload",
+                        "ambiguous transaction evidence must block",
+                        True,
+                        expected_workload_id="legacy-recovery-workload",
+                        expected_lock_sha256=legacy_digest,
+                        legacy_missing_workload_recovery=True,
+                        legacy_recovery_authorization="USER-approved fixture recovery",
+                    ),
+                    "non-committed target-set transaction journal",
+                )
+            finally:
+                lock_release_module._before_release_atomic_replacement = (
+                    original_before_release
+                )
+                legacy_race_journal.unlink(missing_ok=True)
+        atomic_write_json(
+            legacy_race_journal,
+            {
+                "Transition": "Bounded coherent target-set reconciliation",
+                "Lock ID": "positive-legacy-missing-workload",
+                "Transaction State": "Committed",
+                "Targets": [],
+            },
+        )
         recovered, recovery_messages = release_lock(
             root,
             "positive-legacy-missing-workload",
@@ -631,6 +698,7 @@ def main() -> int:
                 "bounded legacy missing-workload recovery failed:\n"
                 + "\n".join(recovery_messages)
             )
+        legacy_race_journal.unlink(missing_ok=True)
 
         for malformed_id, mutate in (
             ("negative-missing-lock-type", lambda payload: payload.pop("Lock Type")),

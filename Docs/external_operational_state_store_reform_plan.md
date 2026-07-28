@@ -1054,6 +1054,12 @@ and requires an
 explicit recovery path rather than automatic stale-completed cleanup. Stale
 lock recovery must not discard or overwrite state when ownership or version
 risk is unclear.
+An exact crash-durable `Prepared` target-set journal is that bounded recovery
+path only when the recorded process is proven exited and the journal lock,
+workload, ordered targets, admitted write set, embedded pre-state hashes, and
+current before/after hashes all match under the lock-table guard. Recovery may
+restore only the journaled pre-state, remove the journal, and require a clean
+rerun; ordinary target mutation remains blocked under orphaned authority.
 
 A pre-upgrade non-released lock whose only modern shape defect is a missing
 `Workload ID` remains blocking and is not eligible for ordinary release or
@@ -1062,11 +1068,14 @@ transaction, absent owner process, and explicit USER recovery decision are
 proven, `dev/orin_external_state_lock_release.py` may use its dedicated legacy
 missing-workload migration mode. That mode requires the exact inspected payload
 SHA256, a valid lock type and intended write set, a named recovery workload,
-an exact USER authorization receipt, no running or unverifiable recorded owner
-process, no matching prepared transaction journal, and guarded byte-for-byte
-CAS with process and journal eligibility revalidated inside the lock-table
-guard before stamping the recovery receipt and changing the authoritative entry
-to `Released`. It must reject modern locks that already carry a workload
+an exact USER authorization receipt, either an absent legacy owner-process
+marker or a positive recorded PID proven exited, no matching transaction-like
+journal unless its state is exact `Committed`, and guarded byte-for-byte CAS
+with process and journal eligibility revalidated inside the lock-table guard
+before stamping the recovery receipt and changing the authoritative entry to
+`Released`. Missing, blank, malformed, zero, or negative recorded process IDs
+and missing, blank, or otherwise non-`Committed` matching transaction states
+must fail closed. It must reject modern locks that already carry a workload
 identity and any precondition drift.
 
 No lock may remain while waiting for USER review, approval, another prompt,

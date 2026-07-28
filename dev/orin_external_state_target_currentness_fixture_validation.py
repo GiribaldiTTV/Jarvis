@@ -2814,6 +2814,8 @@ def main() -> int:
                 "Lock Type": "worktree",
                 "Lock State": "Locked",
                 "Workload ID": "target-set-rollback-workload",
+                "Workload State": "Active",
+                "Owning Process ID": os.getpid(),
                 "Last Updated By": "fixture",
                 "Worktree": WORKTREE_PATH,
                 "Branch": "feature/release-readiness-source-truth-intake",
@@ -3007,6 +3009,23 @@ def main() -> int:
         ).get("Transaction State") != "Prepared":
             raise AssertionError("abrupt target-set termination did not preserve a prepared journal")
         prepared_journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        with subprocess.Popen([sys.executable, "-c", "pass"]) as dead_owner:
+            dead_owner.wait(timeout=10)
+            dead_owner_pid = dead_owner.pid
+        lock_path = root / "locks" / f"{lock_id}.json"
+        orphaned_lock = json.loads(lock_path.read_text(encoding="utf-8"))
+        orphaned_lock["Owning Process ID"] = dead_owner_pid
+        atomic_write_json(lock_path, orphaned_lock)
+        orphaned_row = next(
+            row
+            for row in reconciler.inspect_lock_table(root)
+            if row.lock_id == lock_id
+        )
+        if orphaned_row.classification != "ORPHANED_ACTIVE_WORKLOAD":
+            raise AssertionError(
+                "dead target-set writer did not produce orphaned recovery classification: "
+                + orphaned_row.classification
+            )
         foreign_recovery_before = {
             relative: path.read_bytes() for relative, path in paths.items()
         }
