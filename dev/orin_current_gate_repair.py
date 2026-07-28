@@ -389,16 +389,59 @@ def _candidate_matrix_fields(
     candidate_field_names: set[str],
 ) -> list[tuple[str, str, dict[str, list[str]]]]:
     lines = text.splitlines()
-    candidate_starts: list[int] = []
+    heading_pattern = re.compile(r"^\s{0,3}#{1,6}\s+(.+?)\s*$")
+    heading_indices = [
+        index for index, line in enumerate(lines) if heading_pattern.match(line)
+    ]
+    section_start = 0
+    section_end = len(lines)
+    matrix_heading_found = False
     for index, line in enumerate(lines):
+        heading_match = heading_pattern.match(line)
+        if not heading_match:
+            continue
+        heading = re.sub(r"\s+#+\s*$", "", heading_match.group(1)).strip()
+        if heading.casefold() != BR1_SECTION_HEADING.casefold():
+            continue
+        matrix_heading_found = True
+        section_start = index + 1
+        section_end = next(
+            (
+                later_index
+                for later_index in range(section_start, len(lines))
+                if heading_pattern.match(lines[later_index])
+            ),
+            len(lines),
+        )
+        break
+    if not matrix_heading_found and heading_indices:
+        if heading_indices[0] == 0:
+            section_start = 1
+            section_end = (
+                heading_indices[1] if len(heading_indices) > 1 else len(lines)
+            )
+        else:
+            section_end = heading_indices[0]
+
+    candidate_starts: list[int] = []
+    for index in range(section_start, section_end):
+        line = lines[index]
         match = re.match(r"^\s*(?:[-*]\s+)?([^|:#][^:]{1,120}):\s*(.*?)\s*$", line)
         if match and _normalize_field_name(match.group(1)) == "option name":
             candidate_starts.append(index)
     if not candidate_starts:
-        return [("candidate 1", "candidate 1", _field_values(text))]
+        return [
+            (
+                "candidate 1",
+                "candidate 1",
+                _field_values("\n".join(lines[section_start:section_end])),
+            )
+        ]
 
     candidates: list[tuple[str, str, dict[str, list[str]]]] = []
-    prefix_fields = _field_values("\n".join(lines[: candidate_starts[0]]))
+    prefix_fields = _field_values(
+        "\n".join(lines[section_start : candidate_starts[0]])
+    )
     if any(name in candidate_field_names for name in prefix_fields):
         candidates.append(("candidate 1", "candidate 1", prefix_fields))
 
@@ -407,7 +450,7 @@ def _candidate_matrix_fields(
         end = (
             candidate_starts[candidate_index + 1]
             if candidate_index + 1 < len(candidate_starts)
-            else len(lines)
+            else section_end
         )
         fields = _field_values("\n".join(lines[start:end]))
         option_values = fields.get("option name", [])

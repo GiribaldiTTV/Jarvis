@@ -909,7 +909,9 @@ closed as an unnamed candidate instead of disappearing from validation.
 Compiled invalid candidate shapes must likewise produce machine findings for
 explicit `*-only` carrier claims and a visible manual-review row for the
 remaining semantic shapes; compiling a source-owner rule without consuming it
-is not enforcement.
+is not enforcement. Candidate field parsing must stop at the next candidate or
+Markdown section heading so a semantically incomplete final candidate cannot
+borrow required fields from a later packet summary or metadata section.
 Scoped semantic-currentness validation must reject combination with requested
 global Stage 4 or manifest source-HEAD checks so an early scoped return cannot
 silently bypass those gates.

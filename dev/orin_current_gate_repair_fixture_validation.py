@@ -290,6 +290,32 @@ def main() -> int:
     )
     negative.append("each BR1 matrix candidate requires its own complete field set")
 
+    section_bounded_fields = dict(fields)
+    section_bounded_fields.pop("Proof path")
+    section_bounded_packet = _packet(section_bounded_fields)
+    section_bounded_packet[matrix_path] = section_bounded_packet[matrix_path].replace(
+        "# BR1 Candidate Viability / Grouping Matrix",
+        "# Candidate Matrix With A Malformed Heading",
+        1,
+    )
+    section_bounded_packet[matrix_path] += (
+        "\n\n## Packet Summary\n"
+        "Proof path: `This belongs to the summary, not the candidate.`\n"
+    )
+    section_bounded_result = validate_br1_stage1_packet(
+        section_bounded_packet,
+        contract,
+    )
+    _require(
+        any(
+            finding.code == "BR1_REQUIRED_FIELD_MISSING"
+            and "Proof path" in finding.message
+            for finding in section_bounded_result.findings
+        ),
+        "The last BR1 candidate borrowed a required field from a later Markdown section",
+    )
+    negative.append("candidate fields stop at the next Markdown section boundary")
+
     valid_candidate_fields = dict(fields)
     valid_candidate_fields["Implementation-bearing route class"] = (
         "User-visible behavior change"
@@ -1019,7 +1045,7 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 48, f"Expected 48 negative fixtures, got {len(negative)}")
+    _require(len(negative) == 49, f"Expected 49 negative fixtures, got {len(negative)}")
     _require(len(positive) == 25, f"Expected 25 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
