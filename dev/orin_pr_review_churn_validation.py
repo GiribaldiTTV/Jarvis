@@ -449,6 +449,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "current-gate fixture counts",
             "invalid-shape matching",
             "whole-candidate claims",
+            "re-scan stale zips",
+            "single-current-packet contract",
         ),
     ),
     FamilyRule(

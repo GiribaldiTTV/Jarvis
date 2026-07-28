@@ -977,6 +977,7 @@ class CanonicalPacketPublisher:
         canonical_folder: str | Path,
         canonical_zip: str | Path,
         superseded_paths: Sequence[str | Path] = (),
+        discover_superseded_paths: Callable[[], Sequence[str | Path]] | None = None,
         validate_draft: Callable[[], None],
         validate_final: Callable[[], None],
     ) -> CanonicalPublishResult:
@@ -993,29 +994,6 @@ class CanonicalPacketPublisher:
             raise CanonicalPublishError("Canonical publish draft folder/ZIP pair is incomplete")
 
         validate_draft()
-        resolved_superseded_paths: list[Path] = []
-        for raw_path in superseded_paths:
-            supplied_path = Path(raw_path)
-            if supplied_path.is_symlink() or (
-                supplied_path.exists() and not supplied_path.is_file()
-            ):
-                raise CanonicalPublishError(
-                    "Superseded canonical ZIP path must be a regular file: "
-                    f"{supplied_path}"
-                )
-            resolved_superseded_paths.append(supplied_path.resolve())
-        candidates = [canonical_folder_path, canonical_zip_path]
-        candidates.extend(resolved_superseded_paths)
-        unique_candidates: list[Path] = []
-        for candidate in candidates:
-            if candidate in unique_candidates:
-                continue
-            if not self._inside_root(candidate):
-                raise CanonicalPublishError(
-                    f"Superseded canonical path escapes root: {candidate}"
-                )
-            unique_candidates.append(candidate)
-
         transaction_root = self.canonical_root / (
             f".canonical-publish-{os.getpid()}-{uuid.uuid4().hex}"
         )
@@ -1031,24 +1009,54 @@ class CanonicalPacketPublisher:
                 "Concurrent canonical publication transaction detected: "
                 + ", ".join(str(path) for path in competing_transactions)
             )
-        candidate_rows = [
-            {
-                "Original": self._relative_canonical_path(candidate),
-                "Backup": f"backups/{index:04d}-{candidate.name}",
-                "Had Original": candidate.exists(),
+        try:
+            raw_superseded_paths = list(superseded_paths)
+            if discover_superseded_paths is not None:
+                raw_superseded_paths.extend(discover_superseded_paths())
+            resolved_superseded_paths: list[Path] = []
+            for raw_path in raw_superseded_paths:
+                supplied_path = Path(raw_path)
+                if supplied_path.is_symlink() or (
+                    supplied_path.exists() and not supplied_path.is_file()
+                ):
+                    raise CanonicalPublishError(
+                        "Superseded canonical ZIP path must be a regular file: "
+                        f"{supplied_path}"
+                    )
+                resolved_superseded_paths.append(supplied_path.resolve())
+            candidates = [canonical_folder_path, canonical_zip_path]
+            candidates.extend(resolved_superseded_paths)
+            unique_candidates: list[Path] = []
+            for candidate in candidates:
+                if candidate in unique_candidates:
+                    continue
+                if not self._inside_root(candidate):
+                    raise CanonicalPublishError(
+                        f"Superseded canonical path escapes root: {candidate}"
+                    )
+                unique_candidates.append(candidate)
+
+            candidate_rows = [
+                {
+                    "Original": self._relative_canonical_path(candidate),
+                    "Backup": f"backups/{index:04d}-{candidate.name}",
+                    "Had Original": candidate.exists(),
+                }
+                for index, candidate in enumerate(unique_candidates)
+            ]
+            manifest = {
+                "Transaction Version": 1,
+                "Transaction State": "Prepared",
+                "Owner Process ID": os.getpid(),
+                "Canonical Folder": self._relative_canonical_path(canonical_folder_path),
+                "Canonical ZIP": self._relative_canonical_path(canonical_zip_path),
+                "Candidates": candidate_rows,
             }
-            for index, candidate in enumerate(unique_candidates)
-        ]
-        manifest = {
-            "Transaction Version": 1,
-            "Transaction State": "Prepared",
-            "Owner Process ID": os.getpid(),
-            "Canonical Folder": self._relative_canonical_path(canonical_folder_path),
-            "Canonical ZIP": self._relative_canonical_path(canonical_zip_path),
-            "Candidates": candidate_rows,
-        }
-        atomic_write_json(transaction_root / self.TRANSACTION_MANIFEST, manifest)
-        (transaction_root / "backups").mkdir(parents=False, exist_ok=False)
+            atomic_write_json(transaction_root / self.TRANSACTION_MANIFEST, manifest)
+            (transaction_root / "backups").mkdir(parents=False, exist_ok=False)
+        except Exception:
+            _remove_path(transaction_root)
+            raise
 
         try:
             for candidate, row in zip(unique_candidates, candidate_rows, strict=True):

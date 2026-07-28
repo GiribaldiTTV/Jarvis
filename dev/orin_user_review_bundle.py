@@ -12486,16 +12486,15 @@ def build_bundle(
                 + "\n".join(f"- {failure}" for failure in final_contract_failures)
             )
 
-    superseded_paths = sorted(
-        _same_label_export_zip_paths(canonical_review_root, label)
-    )
     publisher = CanonicalPacketPublisher(canonical_review_root)
     publisher.publish(
         draft_folder=target,
         draft_zip=export_zip,
         canonical_folder=canonical_target,
         canonical_zip=canonical_export_zip,
-        superseded_paths=superseded_paths,
+        discover_superseded_paths=lambda: sorted(
+            _same_label_export_zip_paths(canonical_review_root, label)
+        ),
         validate_draft=validate_draft,
         validate_final=validate_final,
     )

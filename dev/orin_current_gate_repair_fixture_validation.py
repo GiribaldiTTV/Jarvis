@@ -807,6 +807,7 @@ def main() -> int:
         draft_root = root / "draft"
         draft_folder, draft_zip = _write_pair(draft_root, "Governance", "new")
         callback_state: list[str] = []
+        late_zip = root / "Governance-20260727-000001.zip"
 
         def validate_draft() -> None:
             _require((canonical_folder / "value.txt").read_text() == "old", "Draft validation replaced canonical")
@@ -816,17 +817,26 @@ def main() -> int:
             _require((canonical_folder / "value.txt").read_text() == "new", "Final canonical value missing")
             callback_state.append("final-validated")
 
+        def discover_superseded_paths() -> tuple[Path, ...]:
+            _require(
+                len(list(root.glob(".canonical-publish-*"))) == 1,
+                "Superseded ZIP discovery ran before transaction ownership",
+            )
+            late_zip.write_bytes(b"competing same-label ZIP")
+            return tuple(root.glob("Governance-*.zip"))
+
         result = CanonicalPacketPublisher(root).publish(
             draft_folder=draft_folder,
             draft_zip=draft_zip,
             canonical_folder=canonical_folder,
             canonical_zip=canonical_zip,
-            superseded_paths=(canonical_zip,),
+            discover_superseded_paths=discover_superseded_paths,
             validate_draft=validate_draft,
             validate_final=validate_final,
         )
         _require(not result.rollback_performed and callback_state == ["draft-validated-before-publish", "final-validated"], "Canonical publish order failed")
         _require(len(list(root.glob("Governance-*.zip"))) == 1, "More than one canonical ZIP survived")
+        _require(not late_zip.exists(), "Late same-label ZIP escaped transactional cleanup")
     positive.append("one surviving canonical publication")
     positive.append("lock/write boundary begins only after draft validation")
 
