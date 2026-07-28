@@ -955,6 +955,10 @@ before/after hashes under the lock-table guard; it restores only pre-state and
 requires a clean rerun. Applied targeted snapshots must require the caller's exact workload
 identity and bind it to the authoritative lock instead of attributing another
 workload's snapshot by lock ID alone.
+A present invalid owner-process value is not equivalent to an intentionally
+absent marker. Blank, null, boolean, nonnumeric, zero, negative, and
+non-integral values must classify the lock as `MALFORMED`; treating them as
+process-unproven `ACTIVE_VALID` authority is a lock-lifecycle false green.
 
 ## Incident Pattern: External-State Lock Outlives Its Workload
 

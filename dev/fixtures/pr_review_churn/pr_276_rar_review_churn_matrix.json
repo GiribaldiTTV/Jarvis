@@ -138,10 +138,10 @@
       },
       {
         "pr": 309,
-        "connector_comments": 69,
+        "connector_comments": 70,
         "observed_family_counts": {
           "current-gate-repair-transaction": 10,
-          "external-state-lock-lifecycle": 10,
+          "external-state-lock-lifecycle": 11,
           "external-state-semantic-validation": 15,
           "external-state-snapshot-transaction": 5,
           "external-state-target-publication": 11,
@@ -153,13 +153,13 @@
           "rar-issue-candidate-durability-parser": 1,
           "rar-path-suffix-parser": 7,
           "rar-status-green-parser": 1,
-          "rar-table-row-parser": 12,
+          "rar-table-row-parser": 13,
           "rar-user-packet-proof-parser": 4,
           "repo-live-state-boundary-parser": 1
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state, Review 36 exposed unreachable orphaned-writer prepared recovery plus fail-open malformed PID and ambiguous-journal legacy release checks, and Review 37 exposed missing final canonical folder/ZIP byte parity plus BR1 matrix truncation at nested headings.",
-        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, require exact target-set journal states, prove bounded orphaned-writer prepared rollback, fail closed on malformed legacy owner/journal evidence, enforce final canonical folder/ZIP parity, preserve nested BR1 candidate headings, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
+        "root_cause": "PR #309 PR Readiness Stage 1 did not model external-state semantic validation, lock lifecycle and recovery, targeted snapshot transactions, target-set publication and recovery, current-gate repair transactions, or synchronized fixture-count contracts as explicit review threat families. GitHub review therefore became the first exhaustive adversarial harness across these related safety boundaries, while the churn classifier left 36 of the first 61 connector comments unknown until this repair; Review 33 exposed same-label ZIP discovery before canonical publication transaction ownership, Review 34 exposed unconditional UTF-8 decoding of binary evidence during BR1 matrix discovery, Review 35 exposed a truthiness condition that silently accepted missing or blank target-set journal state, Review 36 exposed unreachable orphaned-writer prepared recovery plus fail-open malformed PID and ambiguous-journal legacy release checks, Review 37 exposed missing final canonical folder/ZIP byte parity plus BR1 matrix truncation at nested headings, and Review 38 exposed shared lock-inventory collapse of present invalid owner-process values into the intentional absent-marker state.",
+        "prevention_summary": "The review-churn classifier and matrix now classify every PR #309 connector comment into a source-truth-backed family, bind each new family to implementation and adversarial fixtures, replay representative connector comments, retain unknown-comment guardrails, require exact target-set journal states, prove bounded orphaned-writer prepared rollback, fail closed on malformed legacy owner/journal evidence and present invalid owner-process values in the shared inventory, enforce final canonical folder/ZIP parity, preserve nested BR1 candidate headings, and require exact live counts plus this historical receipt before current-head review can satisfy the churn gate.",
         "preventive_changes": [
           "dev/orin_pr_review_churn_validation.py adds precise classifiers and positive guardrails for six PR #309 threat families while preserving unrelated-comment unknown behavior.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json records exact PR #309 family counts and rule-to-code-to-fixture-to-mutation coverage for every newly observed family.",
@@ -167,6 +167,7 @@
           "Existing external-state target-currentness, lock-lifecycle, current-gate repair, and branch-governance fixture suites provide the bounded adversarial implementation proof for the new families.",
           "External-state currentness now rejects missing or blank target-set transaction states and the target-currentness fixture proves both malformed variants.",
           "Prepared target-set recovery now admits only an exact orphaned-writer rollback, while legacy missing-workload release blocks malformed owner PIDs and every matching transaction-like journal state other than exact Committed.",
+          "Shared lock inventory now distinguishes absent/Not recorded owner-process markers from present invalid values and classifies blank, null, boolean, nonnumeric, zero, negative, and non-integral values as malformed.",
           "Canonical USER packet publication now recomputes moved folder/ZIP file-list and byte-hash parity before commit, and BR1 matrix parsing preserves nested candidate headings until a same-or-higher-level boundary.",
           "Docs/branch_records/feature_release_readiness_source_truth_intake.md preserves this exact PR #309 review-churn root-cause receipt as historical evidence only."
         ],
@@ -393,6 +394,10 @@
       {
         "family_id": "external-state-lock-lifecycle",
         "comment": "Reject malformed process IDs during legacy recovery instead of accepting an invalid recorded owner."
+      },
+      {
+        "family_id": "external-state-lock-lifecycle",
+        "comment": "Reject invalid recorded owner process IDs in the shared lock inventory while allowing an intentionally absent marker."
       },
       {
         "family_id": "external-state-lock-lifecycle",
@@ -1377,6 +1382,7 @@
         "Foreign or workloadless lock is released without bounded ownership proof",
         "Final-return gate skips global zero or an explicitly requested lock check",
         "Malformed recorded PID is accepted during legacy missing-workload recovery",
+        "Present invalid recorded PID is treated as an intentionally absent owner-process marker",
         "Ambiguous matching transaction journal permits legacy release"
       ],
       "source_truth": [
@@ -1402,6 +1408,7 @@
         "pre-upgrade lock missing Workload ID",
         "prepared journal introduced before legacy recovery publication",
         "legacy recorded process ID is malformed, zero, or negative",
+        "shared inventory sees a blank, null, boolean, nonnumeric, zero, negative, or non-integral recorded process ID",
         "matching transaction-like journal omits or corrupts Transaction State",
         "foreign active lock at final global-zero gate"
       ],
@@ -1411,6 +1418,7 @@
         "legacy recovery against a modern workload-owned lock",
         "legacy recovery after payload-digest drift",
         "absent legacy process marker versus positive proven-exited PID",
+        "missing or Not recorded shared marker versus a present invalid PID",
         "exact Committed journal versus every non-Committed state",
         "combined semantic and final-lock validation flags"
       ]

@@ -755,6 +755,87 @@ def main() -> int:
                 expected_workload_id=malformed_id,
             )
 
+        for ordinal, invalid_process_id in enumerate(
+            (0, -1, "abc", "", None, True, False, 1.5),
+            start=1,
+        ):
+            malformed_id = f"negative-invalid-owner-process-{ordinal}"
+            malformed_path = _lock(root, malformed_id, malformed_id)
+            malformed_payload = json.loads(malformed_path.read_text(encoding="utf-8"))
+            malformed_payload["Owning Process ID"] = invalid_process_id
+            atomic_write_json(malformed_path, malformed_payload)
+            malformed_row = next(
+                item
+                for item in inspect_lock_table(root, current_workload_id=malformed_id)
+                if item.lock_id == malformed_id
+            )
+            if malformed_row.classification != "MALFORMED" or not malformed_row.active:
+                raise AssertionError(
+                    "present invalid owner process ID was not retained as a blocking "
+                    f"malformed lock: {invalid_process_id!r} -> "
+                    f"{malformed_row.classification}"
+                )
+            acquired, acquire_messages, _ = acquire_lock(
+                root=root,
+                lock_type="branch",
+                owner="fixture",
+                workload_id="local-workload",
+                owner_process_id=os.getpid(),
+                worktree=WORKTREE,
+                branch=BRANCH,
+                intended_write_set=TARGETS,
+                expires="fixture",
+                apply=False,
+            )
+            if acquired or not any(
+                "External State Corrupt" in item for item in acquire_messages
+            ):
+                raise AssertionError(
+                    "acquisition did not fail closed on an invalid recorded owner process ID:\n"
+                    + "\n".join(acquire_messages)
+                )
+            malformed_path.unlink()
+
+        for absent_marker_id, remove_marker in (
+            ("positive-owner-process-not-recorded", False),
+            ("positive-owner-process-marker-absent", True),
+        ):
+            absent_marker_path = _lock(
+                root,
+                absent_marker_id,
+                absent_marker_id,
+                process_id="Not recorded",
+            )
+            if remove_marker:
+                absent_marker_payload = json.loads(
+                    absent_marker_path.read_text(encoding="utf-8")
+                )
+                absent_marker_payload.pop("Owning Process ID")
+                atomic_write_json(absent_marker_path, absent_marker_payload)
+            absent_marker_row = next(
+                item
+                for item in inspect_lock_table(
+                    root,
+                    current_workload_id=absent_marker_id,
+                )
+                if item.lock_id == absent_marker_id
+            )
+            if (
+                absent_marker_row.classification != "ACTIVE_VALID"
+                or absent_marker_row.owner_process_id is not None
+            ):
+                raise AssertionError(
+                    "an intentional absent owner-process marker was rejected: "
+                    f"{absent_marker_row.classification}"
+                )
+            release_lock(
+                root,
+                absent_marker_id,
+                "fixture reset",
+                True,
+                expected_workload_id=absent_marker_id,
+            )
+
         ok, messages, _ = acquire_lock(
             root=root,
             lock_type="branch",

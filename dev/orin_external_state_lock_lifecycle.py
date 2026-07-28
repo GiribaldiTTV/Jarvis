@@ -125,13 +125,17 @@ def process_is_running(process_id: int) -> bool | None:
     return _process_is_running(process_id)
 
 
-def _owner_process_id(payload: dict[str, object]) -> int | None:
-    value = payload.get("Owning Process ID")
-    if isinstance(value, int) and value > 0:
-        return value
+def _owner_process_id(payload: dict[str, object]) -> tuple[int | None, bool]:
+    if "Owning Process ID" not in payload:
+        return None, False
+    value = payload["Owning Process ID"]
+    if value == "Not recorded":
+        return None, False
+    if type(value) is int and value > 0:
+        return value, False
     if isinstance(value, str) and value.isdigit() and int(value) > 0:
-        return int(value)
-    return None
+        return int(value), False
+    return None, True
 
 
 def _intended_write_set_is_valid(raw: str) -> bool:
@@ -202,7 +206,7 @@ def inspect_lock_table(
         workload_id = str(payload.get("Workload ID", ""))
         workload_state = str(payload.get("Workload State", ""))
         intended_write_set = str(payload.get("Intended Write Set", ""))
-        process_id = _owner_process_id(payload)
+        process_id, process_id_malformed = _owner_process_id(payload)
         process_running = checker(process_id) if process_id is not None else None
         identity_malformed = (
             lock_id != path.stem
@@ -213,7 +217,7 @@ def inspect_lock_table(
             lock_type not in LOCK_TYPES
             or not _intended_write_set_is_valid(intended_write_set)
         )
-        malformed = identity_malformed or (
+        malformed = identity_malformed or process_id_malformed or (
             lock_state != "Released" and conflict_metadata_malformed
         )
         active = lock_state in NON_RELEASED_LOCK_STATES
@@ -251,7 +255,11 @@ def inspect_lock_table(
                 classification=classification,
                 active=active,
                 payload_sha256=payload_sha256,
-                error="invalid lock identity, state, type, or intended write set" if malformed else "",
+                error=(
+                    "invalid lock identity, state, owner process ID, type, or intended write set"
+                    if malformed
+                    else ""
+                ),
             )
         )
     return inspections

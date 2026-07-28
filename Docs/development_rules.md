@@ -769,6 +769,11 @@ If the owner process has exited while the workload remains active or otherwise
 not proven completed, classify the lock as `ORPHANED_ACTIVE_WORKLOAD`; it is not
 valid mutation authority and is not eligible for automatic stale-completed
 cleanup.
+Lock inventory must distinguish an intentionally absent owner-process marker
+from a present invalid value. A missing marker or exact `Not recorded` value may
+remain process-unproven, but a present blank, null, boolean, nonnumeric, zero,
+negative, or non-integral value makes the authoritative lock `MALFORMED`; it
+must never become `ACTIVE_VALID` or authorize snapshot/reconcile publication.
 The only bounded transaction exception is explicit recovery of an exact
 `Prepared` target-set journal owned by that same lock and workload after the
 recorded process is proven exited. Under the lock-table guard, recovery must

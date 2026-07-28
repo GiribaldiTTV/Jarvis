@@ -1054,6 +1054,11 @@ and requires an
 explicit recovery path rather than automatic stale-completed cleanup. Stale
 lock recovery must not discard or overwrite state when ownership or version
 risk is unclear.
+The authoritative inventory must preserve the distinction between an absent
+owner-process marker and an invalid recorded value. A missing marker or exact
+`Not recorded` value is process-unproven; a present blank, null, boolean,
+nonnumeric, zero, negative, or non-integral value is malformed and blocks lock
+admission, snapshot/reconcile authority, cleanup, and green final-return claims.
 An exact crash-durable `Prepared` target-set journal is that bounded recovery
 path only when the recorded process is proven exited and the journal lock,
 workload, ordered targets, admitted write set, embedded pre-state hashes, and
