@@ -324,14 +324,35 @@ def _is_br1_stage1_packet(packet_files: Mapping[str, str]) -> bool:
     active = _active_packet_files(packet_files)
     if any(_packet_basename(name) == BR1_MATRIX_ARTIFACT for name in active):
         return True
-    combined = "\n".join(active.values()).casefold()
-    return (
-        "branch readiness stage 1" in combined
-        and (
-            "candidate viability" in combined
-            or "implementation-bearing route class" in combined
-        )
-    )
+    for text in active.values():
+        if re.search(
+            r"(?im)^\s{0,3}#{1,6}\s+branch readiness stage 1\b",
+            text,
+        ):
+            return True
+        fields = _field_values(text)
+        direct_gate_values = [
+            value
+            for name in (
+                "current gate",
+                "current phase",
+                "decision phase",
+                "review phase",
+            )
+            for value in fields.get(name, [])
+        ]
+        if any(
+            re.match(r"(?i)^branch readiness stage 1\b", value)
+            for value in direct_gate_values
+        ):
+            return True
+        phase_values = fields.get("phase", []) + fields.get("current phase", [])
+        stage_values = fields.get("stage", []) + fields.get("current stage", [])
+        if any(value.casefold() == "branch readiness" for value in phase_values) and any(
+            re.match(r"(?i)^stage 1\b", value) for value in stage_values
+        ):
+            return True
+    return False
 
 
 def _normalize_field_name(value: str) -> str:
@@ -368,6 +389,7 @@ def _is_placeholder(value: str) -> bool:
 
 def _candidate_matrix_fields(
     text: str,
+    candidate_field_names: set[str],
 ) -> list[tuple[str, str, dict[str, list[str]]]]:
     lines = text.splitlines()
     candidate_starts: list[int] = []
@@ -379,6 +401,11 @@ def _candidate_matrix_fields(
         return [("candidate 1", "candidate 1", _field_values(text))]
 
     candidates: list[tuple[str, str, dict[str, list[str]]]] = []
+    prefix_fields = _field_values("\n".join(lines[: candidate_starts[0]]))
+    if any(name in candidate_field_names for name in prefix_fields):
+        candidates.append(("candidate 1", "candidate 1", prefix_fields))
+
+    candidate_offset = len(candidates)
     for candidate_index, start in enumerate(candidate_starts):
         end = (
             candidate_starts[candidate_index + 1]
@@ -389,9 +416,9 @@ def _candidate_matrix_fields(
         option_values = fields.get("option name", [])
         option_name = next(
             (value for value in option_values if not _is_placeholder(value)),
-            f"candidate {candidate_index + 1}",
+            f"candidate {candidate_index + candidate_offset + 1}",
         )
-        candidate_key = f"candidate {candidate_index + 1}"
+        candidate_key = f"candidate {candidate_index + candidate_offset + 1}"
         candidates.append((candidate_key, option_name, fields))
     return candidates
 
@@ -476,7 +503,10 @@ def validate_br1_stage1_packet(
         )
 
     matrix_name, matrix_text = matrix_items[0]
-    matrix_candidates = _candidate_matrix_fields(matrix_text)
+    matrix_candidates = _candidate_matrix_fields(
+        matrix_text,
+        {_normalize_field_name(field) for field in contract.required_fields},
+    )
     manual_rows: list[ManualContractRow] = []
     candidate_route_fields: list[tuple[str, str, str, str]] = []
     for candidate_key, option_name, candidate_fields in matrix_candidates:

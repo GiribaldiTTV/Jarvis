@@ -3838,7 +3838,7 @@ CURRENT_GATE_REPAIR_REQUIRED_PHRASES = {
         "Current-Gate Autonomous Repair And Semantic Contract",
         "`dev/orin_current_gate_repair.py`",
         "`dev/orin_current_gate_repair_fixture_validation.py`",
-        "36 negative and 22 positive",
+        "38 negative and 23 positive",
     ),
     Path("Docs/incident_patterns.md"): (
         "Serial Current-Gate Repair And Semantic Packet False Green",

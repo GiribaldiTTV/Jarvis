@@ -50,7 +50,11 @@ def _require(condition: bool, message: str) -> None:
 
 
 def _field_text(fields: dict[str, str]) -> str:
-    return "# BR1 Candidate Viability / Grouping Matrix\n\n" + "\n".join(
+    return "# BR1 Candidate Viability / Grouping Matrix\n\n" + _field_lines(fields)
+
+
+def _field_lines(fields: dict[str, str]) -> str:
+    return "\n".join(
         f"{name}: `{value}`" for name, value in fields.items()
     )
 
@@ -163,6 +167,29 @@ def main() -> int:
     _expect_code(missing_artifact, "BR1_REQUIRED_ARTIFACT_MISSING")
     negative.append("missing required packet artifact")
 
+    identity_only_packet = {
+        "USER Review/STAGE1_REVIEW.md": (
+            "# Branch Readiness Stage 1\n\n"
+            "Branch Readiness Stage 2: `NOT AUTHORIZED`\n"
+        )
+    }
+    identity_only_result = validate_br1_stage1_packet(identity_only_packet, contract)
+    _expect_code(identity_only_result, "BR1_REQUIRED_ARTIFACT_MISSING")
+    negative.append("independent Stage 1 identity cannot hide a missing matrix")
+
+    future_stage1_packet = {
+        "USER Review/CURRENT_REVIEW.md": (
+            "# Live Validation Review\n\n"
+            "Next Legal Phase: `Branch Readiness Stage 1`\n"
+        )
+    }
+    future_stage1_result = validate_br1_stage1_packet(future_stage1_packet, contract)
+    _require(
+        not future_stage1_result.applies and not future_stage1_result.findings,
+        "A future Branch Readiness Stage 1 reference was misclassified as the current gate",
+    )
+    positive.append("future Stage 1 wording does not activate the BR1 contract")
+
     missing_field_values = dict(fields)
     missing_field_values.pop("Proof path")
     missing_field = validate_br1_stage1_packet(_packet(missing_field_values), contract)
@@ -262,6 +289,41 @@ def main() -> int:
         "A complete first BR1 option masked missing fields in a later candidate",
     )
     negative.append("each BR1 matrix candidate requires its own complete field set")
+
+    valid_candidate_fields = dict(fields)
+    valid_candidate_fields["Implementation-bearing route class"] = (
+        "User-visible behavior change"
+    )
+    unnamed_first_candidate_fields = dict(valid_candidate_fields)
+    unnamed_first_candidate_fields.pop("Option name")
+    unnamed_first_candidate_fields["Implementation-bearing route class"] = (
+        "Foundation / infrastructure"
+    )
+    malformed_first_candidate = _packet(valid_candidate_fields)
+    malformed_first_candidate[matrix_path] = (
+        "# BR1 Candidate Viability / Grouping Matrix\n\n"
+        f"{_field_lines(unnamed_first_candidate_fields)}\n\n"
+        f"{_field_lines(valid_candidate_fields)}\n"
+    )
+    malformed_first_result = validate_br1_stage1_packet(
+        malformed_first_candidate,
+        contract,
+    )
+    _require(
+        any(
+            finding.code == "BR1_REQUIRED_FIELD_MISSING"
+            and "candidate 1" in finding.message
+            and "Option name" in finding.message
+            for finding in malformed_first_result.findings
+        )
+        and any(
+            finding.code == "BR1_ROUTE_CLASS_ENUM_INVALID"
+            and "candidate 1" in finding.message
+            for finding in malformed_first_result.findings
+        ),
+        "Governed fields before the first Option name boundary were discarded",
+    )
+    negative.append("pre-boundary candidate fields cannot be discarded")
 
     duplicate_route_candidate = _packet(fields)
     duplicate_route_candidate[matrix_path] += (
@@ -871,8 +933,8 @@ Current Approval State: `PR creation, merge, release remain unapproved`
         finally:
             branch_validation.EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = original_directory
 
-    _require(len(negative) == 36, f"Expected 36 negative fixtures, got {len(negative)}")
-    _require(len(positive) == 22, f"Expected 22 positive fixtures, got {len(positive)}")
+    _require(len(negative) == 38, f"Expected 38 negative fixtures, got {len(negative)}")
+    _require(len(positive) == 23, f"Expected 23 positive fixtures, got {len(positive)}")
     live_status = _verify_live_regression_packet(fixture)
     print("Current-gate autonomous repair fixture validation: PASS")
     print(f"Negative fixtures: {len(negative)} PASS")

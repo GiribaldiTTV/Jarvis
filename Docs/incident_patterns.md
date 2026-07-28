@@ -902,7 +902,10 @@ and byte checks, a same-root snapshot containing the exact pre-write target,
 fail-closed path and alias handling, audit details for every added or replaced
 field, adversarial mutation fixtures, and a dedicated
 `PR_READINESS_STAGE1_REVIEW.md` primary packet artifact. ZIP parity or helper
-green alone does not clear this incident class.
+green alone does not clear this incident class. BR1 applicability must derive
+from independent current-gate identity rather than required candidate content,
+and governed candidate fields before the first `Option name` boundary must fail
+closed as an unnamed candidate instead of disappearing from validation.
 
 ## Incident Pattern: External-State Lock Outlives Its Workload
 
