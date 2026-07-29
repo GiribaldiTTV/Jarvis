@@ -21030,6 +21030,13 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
         "approval not recorded",
         "no decision",
         "denied",
+        "revoked",
+        "rescinded",
+        "withdrawn",
+        "expired",
+        "superseded",
+        "no longer active",
+        "no longer valid",
     )
     approval = (
         re.search(r"\buser(?: explicitly)?(?:-| )approved\b", normalized) is not None
@@ -21046,6 +21053,22 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
         )
     )
     return approval and bounded and admission and not any(term in normalized for term in rejected)
+
+
+def _carrier_non_includes_are_prohibitive(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    required = ("external-state mutation", "pr creation", "merge", "release")
+    permission_scrubbed = re.sub(
+        r"\b(?:not|never)\s+(?:allowed|authorized|permitted|approved|granted|included)\b",
+        "",
+        normalized,
+    )
+    permissive = re.search(
+        r"\b(?:allowed|authorized|permitted|approved|granted|included|not excluded|"
+        r"in scope|may proceed|can proceed|may mutate|can mutate)\b",
+        permission_scrubbed,
+    )
+    return all(boundary in normalized for boundary in required) and permissive is None
 
 
 def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
@@ -21071,7 +21094,7 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
     if any(
         len(
             re.findall(
-                rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
                 record_text,
                 flags=re.M,
             )
@@ -21119,10 +21142,7 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         and "before any future pr can be green" in fold_down
         and "historical/no-active" in fold_down
         and bool(_extract_exact_marker_value(record_text, "Assigned Worktree Confinement"))
-        and all(
-            boundary in non_includes
-            for boundary in ("external-state mutation", "pr creation", "merge", "release")
-        )
+        and _carrier_non_includes_are_prohibitive(non_includes)
     )
 
 
@@ -21194,7 +21214,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     if any(
         len(
             re.findall(
-                rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
                 record_text,
                 flags=re.M,
             )
@@ -21205,7 +21225,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         return False
     if any(
         re.search(
-            rf"^\s*(?:-\s*)?{re.escape(marker)}\s*:",
+            rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}[ \t]*:",
             record_text,
             flags=re.M,
         )
@@ -21280,10 +21300,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
             ),
         )
         and "not reserved" in slot_reuse
-        and all(
-            boundary in non_includes
-            for boundary in ("external-state mutation", "pr creation", "merge", "release")
-        )
+        and _carrier_non_includes_are_prohibitive(non_includes)
         and "pr creation" in future_gate
         and "user decision" in future_gate
         and "not a live-state source" in _extract_exact_marker_value(
@@ -21512,7 +21529,8 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     denied = re.search(
         r"\b(?:none|no (?:active )?owner(?: exists)?|owner (?:is )?(?:absent|missing|unknown)|"
-        r"unowned|not owned)\b",
+        r"unowned|not owned|revoked|expired|historical|inactive|previously owned|"
+        r"formerly owned|no longer owned|ownership (?:ended|closed|terminated))\b",
         normalized,
     )
     ownership = "owned by" in normalized or "ownership" in normalized
@@ -21929,6 +21947,40 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         not _is_durable_carrier_admission_receipt(pending_decision_fixture),
         f"{durable_fixture}: pending USER decision text must not prove bootstrap admission",
     )
+    for revoked_decision in (
+        "USER approved this one-time bounded carrier admission; approval later revoked.",
+        "USER approved this specific carrier admission; approval is now expired.",
+        "USER approved this bounded carrier admission; approval was withdrawn.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    "USER approved this one-time bounded carrier admission for the fixture worktree assignment.",
+                    revoked_decision,
+                )
+            ),
+            f"{durable_fixture}: revoked USER admission must fail closed: {revoked_decision}",
+        )
+    for permissive_non_include in (
+        "External-state mutation is allowed; PR creation; merge; release.",
+        "External-state mutation allowed; PR creation; merge; release.",
+        "External-state mutation is not excluded; PR creation; merge; release.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    "External-state mutation; PR creation; merge; release.",
+                    permissive_non_include,
+                )
+            ),
+            f"{durable_fixture}: permissive Non-Includes must fail closed: {permissive_non_include}",
+        )
+    require(
+        _carrier_non_includes_are_prohibitive(
+            "External-state mutation is not allowed; PR creation; merge; release."
+        ),
+        f"{durable_fixture}: explicit prohibition must remain a valid Non-Includes claim",
+    )
     require(
         _durable_carrier_pr_review_started(
             durable_fixture_text,
@@ -22149,6 +22201,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `No owner exists.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload; ownership revoked.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Historical ownership only.`",
             "has no active worktree ownership ledger",
         ),
         (
@@ -22405,6 +22467,27 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 f"{historical_fixture}: contradictory historical absence claim "
                 f"{contradictory_claim!r} must fail classification"
             ),
+        )
+    for required_marker in (
+        "Admission Decision Pointer",
+        "Admission Scope Receipt",
+        "Admission Confinement Receipt",
+        "Historical Write Set Receipt",
+        "Historical Collision Proof",
+        "Historical Escape Waiver Receipt",
+    ):
+        blank_required_marker_fixture = re.sub(
+            rf"(?m)^([ \t]*-[ \t]*{re.escape(required_marker)}:)[^\r\n]*$",
+            rf"\1",
+            historical_fixture_text,
+            count=1,
+        )
+        require(
+            blank_required_marker_fixture != historical_fixture_text
+            and not _is_historical_carrier_admission_receipt(
+                blank_required_marker_fixture
+            ),
+            f"{historical_fixture}: blank required historical marker {required_marker!r} must fail classification",
         )
     for forbidden_marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS:
         blank_forbidden_marker_fixture = (

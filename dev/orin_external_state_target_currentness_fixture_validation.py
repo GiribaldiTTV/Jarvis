@@ -643,6 +643,22 @@ def _write_modern_recovery_payload_fixture(root: Path, location: str) -> Path:
     return path
 
 
+def _write_modern_recovery_payload_alias_fixture(root: Path, key: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Metadata"] = {key: "original target contents"}
+    atomic_write_json(path, payload)
+    return path
+
+
+def _write_modern_missing_audit_metadata_fixture(root: Path, field: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload.pop(field, None)
+    atomic_write_json(path, payload)
+    return path
+
+
 def _write_modern_equal_hash_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -882,6 +898,18 @@ def _write_illegal_container_after_value_transition_fixture(root: Path) -> Path:
         '{"Notes":1 {, "Transition":"'
         + validator.TARGET_SET_TRANSITION
         + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_malformed_container_value_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "malformed-container-value-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes": [, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '", "Transaction State":"Prepared"}',
         encoding="utf-8",
     )
     return path
@@ -1596,6 +1624,32 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             )
             for location in ("top-level", "nested")
         ],
+        *[
+            (
+                f"modern journal with nested recovery payload alias {key}",
+                lambda root, key=key: _write_modern_recovery_payload_alias_fixture(
+                    root,
+                    key,
+                ),
+            )
+            for key in (
+                "Recovery",
+                "Recovery Payload",
+                "Rollback Data",
+                "Pre-Write Content",
+                "Original Target Text",
+            )
+        ],
+        *[
+            (
+                f"modern journal missing audit metadata {field}",
+                lambda root, field=field: _write_modern_missing_audit_metadata_fixture(
+                    root,
+                    field,
+                ),
+            )
+            for field in ("Last Updated", "Last Updated By")
+        ],
         (
             "modern journal with unchanged target hash",
             _write_modern_equal_hash_fixture,
@@ -1741,6 +1795,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON with illegal container after decoded value",
             _write_illegal_container_after_value_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with unterminated container value",
+            _write_malformed_container_value_transition_fixture,
         ),
         (
             "matching malformed JSON with oversized integer",
@@ -2316,6 +2374,20 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(
+        "nested recovery payload alias ignored",
+        negative_setups[
+            "modern journal with nested recovery payload alias Recovery Payload"
+        ],
+        "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
+        "modern committed journal audit metadata ignored",
+        negative_setups["modern journal missing audit metadata Last Updated"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
         "unchanged modern target hash accepted",
         negative_setups["modern journal with unchanged target hash"],
         "_validate_modern_target_set_journal",
@@ -2442,6 +2514,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups[
             "matching malformed JSON with illegal container after decoded value"
         ],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "unterminated container value hides top-level Transition",
+        negative_setups["matching malformed JSON with unterminated container value"],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

@@ -2199,7 +2199,24 @@ def _validate_legacy_completed_target_set_receipt(
 def _contains_recovery_payload_field(value: object) -> bool:
     if isinstance(value, dict):
         return any(
-            (isinstance(key, str) and key.casefold() == "before text")
+            (
+                isinstance(key, str)
+                and (
+                    (normalized_key := re.sub(r"[-_/]+", " ", key.casefold()).strip())
+                    == "before text"
+                    or any(
+                        marker in normalized_key
+                        for marker in ("recovery", "rollback", "pre write", "prewrite")
+                    )
+                    or (
+                        "original target" in normalized_key
+                        and any(
+                            payload_term in normalized_key
+                            for payload_term in ("data", "text", "content")
+                        )
+                    )
+                )
+            )
             or _contains_recovery_payload_field(nested)
             for key, nested in value.items()
         )
@@ -2218,6 +2235,14 @@ def _validate_modern_target_set_journal(
         issues.append("modern target-set transaction journal has an invalid Schema")
     if payload.get("Transition") != TARGET_SET_TRANSITION:
         issues.append("modern target-set transaction journal has an invalid Transition")
+    last_updated = payload.get("Last Updated")
+    if not _is_canonical_utc_timestamp(last_updated):
+        issues.append(
+            "modern target-set transaction journal has no canonical Last Updated timestamp"
+        )
+    last_updated_by = payload.get("Last Updated By")
+    if not isinstance(last_updated_by, str) or not last_updated_by.strip():
+        issues.append("modern target-set transaction journal is missing Last Updated By")
     state = payload.get("Transaction State")
     if not isinstance(state, str) or not state.strip():
         return [*issues, "modern target-set transaction journal has missing or blank Transaction State"]
@@ -2383,6 +2408,7 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
     """Resume at the next apparent root-member delimiter after malformed syntax."""
 
     index = start
+    first_closing_brace: int | None = None
     while index < len(text):
         character = text[index]
         if character == '"':
@@ -2391,9 +2417,10 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
         if character == ",":
             return index + 1
         if character == "}":
-            return index
+            if first_closing_brace is None:
+                first_closing_brace = index
         index += 1
-    return len(text)
+    return first_closing_brace if first_closing_brace is not None else len(text)
 
 
 def _raw_text_has_target_set_transition(text: str) -> bool:
@@ -2464,7 +2491,11 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         except json.JSONDecodeError:
             if transition_key:
                 return True
-            index = tolerant_value_end
+            index = (
+                tolerant_value_end
+                if text[cursor] == '"'
+                else _tolerant_json_member_continuation(text, cursor)
+            )
             continue
         except (RecursionError, MemoryError):
             if transition_key:

@@ -50,6 +50,7 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "row",
     "table",
     "malformed",
+    "surrogate code point",
     "blocked",
     "resolved",
     "unresolved",
@@ -167,6 +168,11 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable worktree comparison",
             "revoked durable-carrier assignment",
             "blank confinement marker",
+            "carrier-admission approval",
+            "carrier admission approval",
+            "permissive non-includes",
+            "worktree ownership ledger",
+            "historical singleton",
             "historical carrier",
             "historical authority claim",
             "historical absence claim",
@@ -500,6 +506,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "exact families",
             "exact-scope comments",
             "exact scope comments",
+            "false exact-scope match",
+            "surrogate-code-point matches",
+            "surrogate code point matches",
             "multi-family comments",
             "multi family comments",
             "mixed comments",
@@ -746,6 +755,22 @@ def _classify_comment(body: str) -> list[str]:
         ):
             matched_keywords.append("json decoder")
         if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and "surrogate code point" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "target path",
+                    "target-path",
+                    "audit",
+                    "external-state",
+                    "external state",
+                )
+            )
+        ):
+            matched_keywords.append("contextual surrogate code point")
+        if (
             rule.family_id == "durable-carrier-confinement-parser"
             and "historical receipt" in normalized
             and any(
@@ -814,6 +839,9 @@ def _classify_comment(body: str) -> list[str]:
         "exact families",
         "exact-scope comments",
         "exact scope comments",
+        "false exact-scope match",
+        "surrogate-code-point matches",
+        "surrogate code point matches",
         "multi-family comments",
         "multi family comments",
         "mixed comments",
@@ -996,6 +1024,22 @@ def _classifier_guardrail_failures() -> list[str]:
                 "Current-head durable carrier review did not classify into the confinement family: "
                 + comment
             )
+    unrelated_surrogate_profile = (
+        "The text decoder accepts a surrogate code point in a user profile name."
+    )
+    if _classify_comment(unrelated_surrogate_profile) != ["unknown"]:
+        failures.append(
+            "Unrelated surrogate-code-point prose must remain unknown without external-state context"
+        )
+    external_surrogate_target = (
+        "The external-state target path accepts a surrogate code point in journal evidence."
+    )
+    if _classify_comment(external_surrogate_target) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Contextual surrogate-code-point review did not classify into the external-state family"
+        )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."

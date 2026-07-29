@@ -980,11 +980,17 @@ value are exactly canonical. Malformed-audit scanning must lex an invalid JSON
 string as opaque through its tolerant closing quote so braces or brackets after
 an invalid escape cannot hide a later root-level target-set `Transition`. A
 decoded member value followed by an illegal container must likewise remain
-malformed member syntax instead of changing structural depth. Decoder integer
+malformed member syntax instead of changing structural depth. An unterminated
+container used as a malformed member value must resume at the next apparent
+root-member delimiter instead of trapping later root-level transition evidence.
+Decoder integer
 digit-limit failures must become fail-closed validation results rather than
 tracebacks. `Transaction State` evidence is canonical-byte evidence: leading or
 trailing whitespace is invalid. Snapshot manifests must reject case-ambiguous
 `Root` aliases because `Root` binds recovery evidence to the active state root.
+Modern committed journals require canonical `Last Updated` and nonblank
+`Last Updated By` attribution, and they must reject nested recovery, rollback,
+pre-write, or original-target payload aliases as recoverable pre-write content.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
@@ -1023,12 +1029,18 @@ the no-cross-worktree claim with wording such as `Not confirmed` or
 `Not prohibited`. Active owner, thread assignment, ownership-ledger, and bounded
 write-set markers must prove those semantics rather than merely remain nonblank.
 Assignment evidence that is revoked, expired, inactive, former, or historical is
-not active assignment authority. Marker parsing and required-marker cardinality
+not active assignment authority; the same stale-state rejection applies to USER
+admission approval and worktree ownership-ledger evidence. `Non-Includes` must be
+prohibitive, not a noun checklist that later says mutation is allowed or not
+excluded. Marker parsing and required-marker cardinality
 must use horizontal whitespace around same-line values; a blank marker must never
 borrow the next marker line through multiline `\s` matching.
 Durable worktree-root and Desktop-bound-root comparison must use host filesystem
 semantics: Windows comparison is case-insensitive, while POSIX comparison preserves
 case and must reject a distinct case-variant path.
+Historical singleton admission, scope, confinement, write-set, collision, and
+waiver receipts use the same physical-line rule; blank historical provenance
+cannot borrow the following marker and still classify as a valid fold-down.
 Safe-state parsing must reject a positive prefix followed by a contradictory
 clause: collision still exists, routing is not blocked or goes directly to a
 sibling, USER approval concerns another decision or is explicitly absent for the
@@ -1051,6 +1063,9 @@ carrier family. When an exact-scope comment also strongly matches another covere
 family, preserve both matches even if the prose omits that family's acronym.
 Generic `json decoder` wording likewise requires journal, audit, transaction,
 target-set, or external-state context before it maps to transaction evidence.
+Generic `surrogate code point` wording requires journal, target-path, audit, or
+external-state context; unrelated text-decoder or user-profile prose remains
+unknown unless the classifier-review wording itself routes it to the classifier family.
 
 - source references:
   - `dev/orin_external_state_validation.py`
