@@ -685,6 +685,21 @@ def _write_modern_snapshot_root_fixture(root: Path, value: str | None) -> Path:
     return path
 
 
+def _write_modern_case_ambiguous_snapshot_root_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    _write_json_with_field_pair(
+        manifest_path,
+        manifest,
+        "Root",
+        manifest["Root"],
+        str(root.parent / "foreign-root"),
+        second_key="root",
+    )
+    return path
+
+
 def _write_modern_snapshot_namespace_root_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     snapshot_namespace = root / "snapshots"
@@ -853,6 +868,34 @@ def _write_invalid_escape_brace_transition_fixture(root: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         '{"Notes":"bad\\q {", "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_illegal_container_after_value_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "illegal-container-after-value-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":1 {, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_oversized_integer_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "oversized-integer-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    digit_limit = sys.get_int_max_str_digits()
+    digit_count = max(5_000, digit_limit + 100 if digit_limit else 100_000)
+    path.write_text(
+        '{"Notes":'
+        + ("9" * digit_count)
+        + ',"Transition":"'
         + validator.TARGET_SET_TRANSITION
         + '"}',
         encoding="utf-8",
@@ -1504,6 +1547,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_modern_journal_fixture(root, state="Prepared"),
         ),
         (
+            "modern journal with whitespace-padded Transaction State",
+            lambda root: _write_modern_journal_fixture(root, state="Committed "),
+        ),
+        (
             "modern journal with noncanonical transition key casing",
             _write_modern_noncanonical_transition_fixture,
         ),
@@ -1579,6 +1626,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 root,
                 str(root.parent / "other-external-state-root"),
             ),
+        ),
+        (
+            "modern Committed journal with case-ambiguous snapshot Root",
+            _write_modern_case_ambiguous_snapshot_root_fixture,
         ),
         (
             "modern Committed journal uses the shared snapshots namespace root",
@@ -1686,6 +1737,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON after invalid string escape and brace",
             _write_invalid_escape_brace_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with illegal container after decoded value",
+            _write_illegal_container_after_value_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with oversized integer",
+            _write_oversized_integer_transition_fixture,
         ),
         (
             "BOM-prefixed modern Prepared journal",
@@ -2188,6 +2247,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         "_strict_json_loads",
         permissive_json_loads,
     )
+    _assert_journal_mutation_killed(
+        "case-ambiguous snapshot Root accepted",
+        negative_setups["modern Committed journal with case-ambiguous snapshot Root"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
     _assert_journal_false_positive_mutation_killed(
         "strict parsing and raw hashing use different bytes",
         _write_unique_registry_fixture,
@@ -2223,6 +2288,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "Prepared treated as Committed",
         negative_setups["modern Prepared journal"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "whitespace-padded Transaction State accepted",
+        negative_setups["modern journal with whitespace-padded Transaction State"],
         "_validate_modern_target_set_journal",
         accept_modern_state,
     )
@@ -2363,6 +2434,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "invalid string escape and brace hide top-level Transition",
         negative_setups["matching malformed JSON after invalid string escape and brace"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "illegal container after decoded value hides top-level Transition",
+        negative_setups[
+            "matching malformed JSON with illegal container after decoded value"
+        ],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

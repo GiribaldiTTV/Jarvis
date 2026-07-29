@@ -8619,7 +8619,7 @@ def _extract_marker_value(block: str, label: str) -> str:
 def _extract_exact_marker_value(block: str, label: str) -> str:
     normalized_label = label.rstrip(":")
     matches = re.findall(
-        rf"^\s*(?:-\s*)?{re.escape(normalized_label)}:\s*`?(.+?)`?\s*$",
+        rf"^[ \t]*(?:-[ \t]*)?{re.escape(normalized_label)}:[ \t]*`?([^\r\n]+?)`?[ \t]*$",
         block,
         flags=re.M,
     )
@@ -21500,7 +21500,9 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
 def _durable_thread_assignment_is_active(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     denied = re.search(
-        r"\b(?:none|unassigned|not assigned|no (?:active )?(?:thread )?owner(?: assigned)?)\b",
+        r"\b(?:none|unassigned|not assigned|no (?:active )?(?:thread )?owner(?: assigned)?|"
+        r"revoked|expired|historical|inactive|previously assigned|formerly assigned|"
+        r"no longer assigned|assignment (?:ended|closed|terminated))\b",
         normalized,
     )
     return bool(re.search(r"\bassigned\b", normalized) and denied is None)
@@ -21734,7 +21736,7 @@ def _validate_assigned_worktree_confinement_contract(
 ) -> None:
     for marker in required_markers:
         occurrences = re.findall(
-            rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
+            rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
             confinement,
             flags=re.M,
         )
@@ -22130,6 +22132,21 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no active thread assignment",
         ),
         (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Previously assigned; assignment revoked.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assignment expired.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Historical assignment only.`",
+            "has no active thread assignment",
+        ),
+        (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `No owner exists.`",
             "has no active worktree ownership ledger",
@@ -22143,6 +22160,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "Intended Write Set: `Bounded fixture validator files only.`",
             "Intended Write Set: `Unbounded access to all repository files.`",
             "has no bounded intended write set",
+        ),
+        (
+            "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
+            "Dirty Worktree Recovery Packet:",
+            "exactly one nonblank 'Dirty Worktree Recovery Packet:' marker",
         ),
         (
             "Same Worktree / Same Branch Collision Check: `No collision.`",

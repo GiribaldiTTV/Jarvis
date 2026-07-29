@@ -123,6 +123,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "committed journal",
             "malformed journal",
             "malformed json string",
+            "illegal container",
+            "whitespace-padded transaction state",
+            "oversized integer",
+            "case-ambiguous snapshot root",
             "modern lock",
             "exact lock write set",
             "legacy lock write set",
@@ -161,6 +165,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable receipt",
             "durable fallback",
             "durable worktree comparison",
+            "revoked durable-carrier assignment",
+            "blank confinement marker",
             "historical carrier",
             "historical authority claim",
             "historical absence claim",
@@ -964,6 +970,32 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Durable POSIX worktree-comparison review did not classify into the carrier family"
         )
+    new_external_guardrails = (
+        "Ignore illegal containers after decoded JSON values so malformed syntax cannot hide a root-level Transition.",
+        "Reject whitespace-padded Transaction State evidence instead of trimming it into canonical form.",
+        "Convert oversized integer decoder failures into fail-closed external-state validation results.",
+        "Reject case-ambiguous snapshot Root fields in recovery evidence.",
+    )
+    for comment in new_external_guardrails:
+        if _classify_comment(comment) != [
+            "external-state-transaction-evidence-parser"
+        ]:
+            failures.append(
+                "Current-head external transaction review did not classify into the external-state family: "
+                + comment
+            )
+    new_durable_guardrails = (
+        "Reject revoked durable-carrier assignments as inactive historical authority.",
+        "Keep blank confinement markers from consuming the next line.",
+    )
+    for comment in new_durable_guardrails:
+        if _classify_comment(comment) != [
+            "durable-carrier-confinement-parser"
+        ]:
+            failures.append(
+                "Current-head durable carrier review did not classify into the confinement family: "
+                + comment
+            )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."

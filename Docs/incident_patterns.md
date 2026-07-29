@@ -978,7 +978,13 @@ Transition selection must treat whitespace-trimmed key or
 value matches as candidates and then reject them unless the original key and
 value are exactly canonical. Malformed-audit scanning must lex an invalid JSON
 string as opaque through its tolerant closing quote so braces or brackets after
-an invalid escape cannot hide a later root-level target-set `Transition`.
+an invalid escape cannot hide a later root-level target-set `Transition`. A
+decoded member value followed by an illegal container must likewise remain
+malformed member syntax instead of changing structural depth. Decoder integer
+digit-limit failures must become fail-closed validation results rather than
+tracebacks. `Transaction State` evidence is canonical-byte evidence: leading or
+trailing whitespace is invalid. Snapshot manifests must reject case-ambiguous
+`Root` aliases because `Root` binds recovery evidence to the active state root.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
@@ -1016,6 +1022,10 @@ allows off-worktree work, removes the USER-owned new-worktree gate, or negates
 the no-cross-worktree claim with wording such as `Not confirmed` or
 `Not prohibited`. Active owner, thread assignment, ownership-ledger, and bounded
 write-set markers must prove those semantics rather than merely remain nonblank.
+Assignment evidence that is revoked, expired, inactive, former, or historical is
+not active assignment authority. Marker parsing and required-marker cardinality
+must use horizontal whitespace around same-line values; a blank marker must never
+borrow the next marker line through multiline `\s` matching.
 Durable worktree-root and Desktop-bound-root comparison must use host filesystem
 semantics: Windows comparison is case-insensitive, while POSIX comparison preserves
 case and must reject a distinct case-variant path.

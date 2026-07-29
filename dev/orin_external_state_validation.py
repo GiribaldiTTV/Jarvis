@@ -105,6 +105,7 @@ STRICT_JSON_CASE_AMBIGUOUS_FIELDS = frozenset(
         "Receipts",
         "Released At",
         "Retain Between Workloads",
+        "Root",
         "Schema",
         "Section Renames",
         "SHA256",
@@ -123,6 +124,11 @@ STRICT_JSON_CASE_AMBIGUOUS_FIELDS = frozenset(
 
 class StrictJSONError(ValueError):
     pass
+
+
+def _is_json_integer_resource_limit(exc: ValueError) -> bool:
+    message = str(exc).casefold()
+    return "integer string conversion" in message and "limit" in message
 
 
 def _strict_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -156,7 +162,13 @@ def _strict_json_loads(text: str) -> object:
             object_pairs_hook=_strict_json_object,
             parse_constant=reject_constant,
         )
+    except StrictJSONError:
+        raise
     except (RecursionError, MemoryError) as exc:
+        raise StrictJSONError("JSON exceeds safe decoder resource limits") from exc
+    except ValueError as exc:
+        if not _is_json_integer_resource_limit(exc):
+            raise
         raise StrictJSONError("JSON exceeds safe decoder resource limits") from exc
 
 
@@ -2209,7 +2221,6 @@ def _validate_modern_target_set_journal(
     state = payload.get("Transaction State")
     if not isinstance(state, str) or not state.strip():
         return [*issues, "modern target-set transaction journal has missing or blank Transaction State"]
-    state = state.strip()
     if state == "Prepared":
         return [*issues, "incomplete target-set transaction journal requires locked recovery"]
     if state != "Committed":
@@ -2368,6 +2379,23 @@ def _tolerant_json_string_end(text: str, start: int) -> int:
     return len(text)
 
 
+def _tolerant_json_member_continuation(text: str, start: int) -> int:
+    """Resume at the next apparent root-member delimiter after malformed syntax."""
+
+    index = start
+    while index < len(text):
+        character = text[index]
+        if character == '"':
+            index = _tolerant_json_string_end(text, index)
+            continue
+        if character == ",":
+            return index + 1
+        if character == "}":
+            return index
+        index += 1
+    return len(text)
+
+
 def _raw_text_has_target_set_transition(text: str) -> bool:
     if text.startswith("\ufeff"):
         text = text.removeprefix("\ufeff")
@@ -2420,11 +2448,17 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         cursor += 1
         while cursor < len(text) and text[cursor].isspace():
             cursor += 1
-        if cursor >= len(text) or text[cursor] != '"':
+        if cursor >= len(text):
             if transition_key:
                 return True
             continue
-        tolerant_value_end = _tolerant_json_string_end(text, cursor)
+        if transition_key and text[cursor] != '"':
+            return True
+        tolerant_value_end = (
+            _tolerant_json_string_end(text, cursor)
+            if text[cursor] == '"'
+            else cursor
+        )
         try:
             value, value_end = decoder.raw_decode(text, cursor)
         except json.JSONDecodeError:
@@ -2432,12 +2466,29 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
                 return True
             index = tolerant_value_end
             continue
+        except (RecursionError, MemoryError):
+            if transition_key:
+                return True
+            index = _tolerant_json_member_continuation(text, cursor)
+            continue
+        except ValueError as exc:
+            if not _is_json_integer_resource_limit(exc):
+                raise
+            if transition_key:
+                return True
+            index = _tolerant_json_member_continuation(text, cursor)
+            continue
         index = value_end
         if transition_key:
             if not isinstance(value, str):
                 return True
             if value.strip().casefold() == TARGET_SET_TRANSITION.casefold():
                 return True
+        delimiter = value_end
+        while delimiter < len(text) and text[delimiter].isspace():
+            delimiter += 1
+        if delimiter < len(text) and text[delimiter] not in ",}":
+            index = _tolerant_json_member_continuation(text, delimiter)
     return False
 
 
