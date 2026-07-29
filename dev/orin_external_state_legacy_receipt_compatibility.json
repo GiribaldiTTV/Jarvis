@@ -1,0 +1,27 @@
+{
+  "Schema": "legacy-external-state-receipt-compatibility-v1",
+  "Purpose": "Pre-Transaction-State target-set completion evidence",
+  "Receipts": [
+    {
+      "Audit Path": "audit_log/current-gate-autonomous-repair-rri-20260727-001.json",
+      "SHA256": "E5C88425E10A3D78D3B2A63063CE3425D03676E9A939F03BCE7847FBD7D6C492",
+      "Compatibility Profile": "rri-20260727-001-current-gate",
+      "Receipt Class": "Immutable Legacy Completed Audit Receipt",
+      "Immutable Purpose": "Pre-Transaction-State target-set completion evidence"
+    },
+    {
+      "Audit Path": "audit_log/rri-20260727-001-durability-final.json",
+      "SHA256": "0D1E0B868A3838F8E9329A40F89EAF5735A639D45F2664435C20F1E22C080D68",
+      "Compatibility Profile": "rri-20260727-001-durability-final",
+      "Receipt Class": "Immutable Legacy Completed Audit Receipt",
+      "Immutable Purpose": "Pre-Transaction-State target-set completion evidence"
+    },
+    {
+      "Audit Path": "audit_log/rri-20260727-001-pr1-projection-ownership-1384f20e.json",
+      "SHA256": "3C308ACB25820E5A25172FD56E06CE82C45EFD448A923A412882E45EC4ACC057",
+      "Compatibility Profile": "rri-20260727-001-pr1-projection",
+      "Receipt Class": "Immutable Legacy Completed Audit Receipt",
+      "Immutable Purpose": "Pre-Transaction-State target-set completion evidence"
+    }
+  ]
+}

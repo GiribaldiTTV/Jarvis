@@ -909,25 +909,34 @@ green alone does not clear this incident class.
 When a target-set journal validator assumes every receipt that names the
 target-set atomic transition must carry the current `Transaction State` field,
 immutable completed receipts from the pre-state schema are falsely classified
-as incomplete active transactions. Prevention requires a shape-based classifier
-instead of filename or age heuristics: current journals remain fail-closed,
-while a state-less legacy receipt is compatible only when its exact legacy
-fields, safe unique targets, released lock, completed workload, non-retention
-posture, snapshot manifest, copied-file hashes, and complete target-row
-completion evidence all agree. Every live target row must carry the required
-completion fields, every completion-bearing field must match one exact accepted
-profile, and all live rows must resolve to the same profile. Explicit
-`historical-receipt` rows carry no live completion evidence. Loose searches for
-`pass`, `complete`, or `completed` are invalid because one positive-looking
-token, negated or future prose, and one completed row cannot prove the complete
-target set. Matching malformed JSON, ambiguous shapes or assignments, active
-locks, partial or contradictory completion evidence, recovery payloads, and
-inconsistent hashes must remain blocked. Temporary-root fixtures and controlled
-mutations must prove that the compatibility rule cannot degrade into accepting
-every missing-state, old, partial-target, contradictory, or token-bearing
-record.
+as incomplete active transactions. Prevention requires parsed JSON selection by
+the exact `Transition` field plus an immutable compatibility registry, never
+filename, age, raw-text substring, old shape, or completion-token heuristics.
+Current journals remain fail-closed. A state-less legacy receipt is compatible
+only when its normalized audit path and raw SHA256 match one of the three exact
+registry identities in
+`dev/orin_external_state_legacy_receipt_compatibility.json`, its accepted
+profile matches that identity, and its exact legacy fields, safe unique targets,
+released lock, completed workload, non-retention posture, snapshot manifest,
+copied-file hashes, and complete target-row completion evidence all agree. Every
+live target row must carry the required completion fields, every
+completion-bearing field must match the identity-bound profile, and all live
+rows must resolve to that profile. Explicit `historical-receipt` rows carry no
+live completion evidence. Loose searches for `pass`, `complete`, `completed`, or
+the transition phrase are invalid because copied/renamed receipts, byte-tampered
+receipts, one positive-looking token, negated or future prose, and one completed
+row cannot prove immutable identity or the complete target set. A malformed JSON
+record that explicitly declares the exact transition remains blocked, while the
+same phrase in notes or another field does not select an unrelated audit.
+Ambiguous shapes or assignments, active locks, partial or contradictory
+completion evidence, recovery payloads, and inconsistent hashes must remain
+blocked. Temporary-root fixtures, live read-only receipt checks, and controlled
+mutations must prove that compatibility cannot expand beyond the exact three
+identities or degrade into accepting every missing-state, old, copied, renamed,
+tampered, partial-target, contradictory, or token-bearing record.
 
 - source references:
   - `dev/orin_external_state_validation.py`
+  - `dev/orin_external_state_legacy_receipt_compatibility.json`
   - `dev/orin_external_state_target_currentness_fixture_validation.py`
   - `Docs/validation_helper_registry.md`

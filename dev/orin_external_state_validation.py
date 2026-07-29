@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import stat
@@ -40,7 +41,16 @@ REQUIRED_STAGE4_RECORDS = [
 ]
 
 TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
+TARGET_SET_TRANSITION_FIELD_PATTERN = re.compile(
+    rf'(?:^|[{{,])\s*"Transition"\s*:\s*"{re.escape(TARGET_SET_TRANSITION)}"'
+)
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
+LEGACY_RECEIPT_COMPATIBILITY_MANIFEST = Path(__file__).with_name(
+    "orin_external_state_legacy_receipt_compatibility.json"
+)
+LEGACY_RECEIPT_COMPATIBILITY_SCHEMA = "legacy-external-state-receipt-compatibility-v1"
+LEGACY_RECEIPT_CLASS = "Immutable Legacy Completed Audit Receipt"
+LEGACY_RECEIPT_PURPOSE = "Pre-Transaction-State target-set completion evidence"
 LEGACY_TARGET_SET_RECEIPT_FIELDS = {
     "External State Schema",
     "Last Updated",
@@ -71,13 +81,8 @@ LEGACY_REQUIRED_COMPLETION_FIELDS = {
 }
 
 # These profiles are exact normalized states from the three immutable pre-state
-# receipts. New fixtures use the compact canonical profile instead of prose.
+# receipts. Receipt admission is additionally bound to the registry path and hash.
 LEGACY_COMPLETION_PROFILES = {
-    "canonical-complete": {
-        "external state item status": "complete",
-        "current validation state": "pass",
-        "final disposition": "complete",
-    },
     "rri-20260727-001-current-gate": {
         "external state item status": (
             "rri-20260727-001 current-gate autonomous-repair implementation and validation "
@@ -1416,6 +1421,120 @@ def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
     return candidate if candidate.is_file() else None
 
 
+def _load_legacy_receipt_compatibility_registry(
+    manifest_path: Path,
+) -> tuple[dict[str, dict[str, str]], list[str]]:
+    try:
+        payload = load_json(manifest_path)
+    except Exception as exc:  # noqa: BLE001 - compatibility identity must fail closed
+        return {}, [f"legacy receipt compatibility registry is unreadable: {manifest_path}: {exc}"]
+    if not isinstance(payload, dict):
+        return {}, ["legacy receipt compatibility registry is not an object"]
+
+    issues: list[str] = []
+    if set(payload) != {"Schema", "Purpose", "Receipts"}:
+        issues.append("legacy receipt compatibility registry has an unexpected top-level shape")
+    if payload.get("Schema") != LEGACY_RECEIPT_COMPATIBILITY_SCHEMA:
+        issues.append("legacy receipt compatibility registry has an invalid Schema")
+    if payload.get("Purpose") != LEGACY_RECEIPT_PURPOSE:
+        issues.append("legacy receipt compatibility registry has an invalid Purpose")
+
+    rows = payload.get("Receipts")
+    if not isinstance(rows, list):
+        return {}, [*issues, "legacy receipt compatibility registry has no Receipts list"]
+
+    registry: dict[str, dict[str, str]] = {}
+    seen_hashes: set[str] = set()
+    seen_profiles: set[str] = set()
+    required_row_fields = {
+        "Audit Path",
+        "SHA256",
+        "Compatibility Profile",
+        "Receipt Class",
+        "Immutable Purpose",
+    }
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict) or set(row) != required_row_fields:
+            issues.append(f"legacy receipt compatibility row {index} has an invalid shape")
+            continue
+        path_parts = _safe_external_relative_parts(row.get("Audit Path"))
+        if (
+            not path_parts
+            or len(path_parts) != 2
+            or path_parts[0].casefold() != "audit_log"
+            or not path_parts[1].casefold().endswith(".json")
+        ):
+            issues.append(f"legacy receipt compatibility row {index} has an invalid Audit Path")
+            continue
+        normalized_path = "/".join(path_parts)
+        path_key = normalized_path.casefold()
+        digest = str(row.get("SHA256", ""))
+        digest_key = digest.casefold()
+        profile = str(row.get("Compatibility Profile", ""))
+        if not SHA256_PATTERN.fullmatch(digest):
+            issues.append(f"legacy receipt compatibility row {index} has an invalid SHA256")
+        if profile not in LEGACY_COMPLETION_PROFILES:
+            issues.append(
+                f"legacy receipt compatibility row {index} has an unknown Compatibility Profile"
+            )
+        if row.get("Receipt Class") != LEGACY_RECEIPT_CLASS:
+            issues.append(f"legacy receipt compatibility row {index} has an invalid Receipt Class")
+        if row.get("Immutable Purpose") != LEGACY_RECEIPT_PURPOSE:
+            issues.append(f"legacy receipt compatibility row {index} has an invalid Immutable Purpose")
+        if path_key in registry:
+            issues.append(f"legacy receipt compatibility registry duplicates path {normalized_path}")
+        if digest_key in seen_hashes:
+            issues.append(f"legacy receipt compatibility registry duplicates SHA256 {digest}")
+        if profile in seen_profiles:
+            issues.append(f"legacy receipt compatibility registry duplicates profile {profile}")
+        registry[path_key] = {
+            "Audit Path": normalized_path,
+            "SHA256": digest_key,
+            "Compatibility Profile": profile,
+        }
+        seen_hashes.add(digest_key)
+        seen_profiles.add(profile)
+
+    expected_profiles = set(LEGACY_COMPLETION_PROFILES)
+    if len(rows) != 3 or seen_profiles != expected_profiles:
+        issues.append(
+            "legacy receipt compatibility registry must bind exactly the three immutable profiles"
+        )
+    return ({}, issues) if issues else (registry, [])
+
+
+def _validate_legacy_receipt_identity(
+    root: Path,
+    audit_path: Path,
+    manifest_path: Path,
+    actual_digest: str,
+) -> tuple[str | None, list[str]]:
+    registry, registry_issues = _load_legacy_receipt_compatibility_registry(manifest_path)
+    if registry_issues:
+        return None, registry_issues
+    try:
+        relative_path = audit_path.resolve(strict=True).relative_to(root.resolve(strict=True)).as_posix()
+    except (OSError, ValueError):
+        return None, ["legacy receipt audit path is outside the external-state root"]
+    path_parts = _safe_external_relative_parts(relative_path)
+    if not path_parts:
+        return None, ["legacy receipt audit path is unsafe"]
+    normalized_path = "/".join(path_parts)
+    entry = registry.get(normalized_path.casefold())
+    if entry is None:
+        return None, [
+            "state-less target-set record is not an admitted immutable receipt path: "
+            + normalized_path
+        ]
+    profile = entry["Compatibility Profile"]
+    if actual_digest.casefold() != entry["SHA256"]:
+        return profile, [
+            "legacy receipt SHA256 does not match its admitted immutable identity: "
+            + normalized_path
+        ]
+    return profile, []
+
+
 def _normalized_legacy_assignment_value(value: str) -> str:
     return " ".join(value.casefold().split())
 
@@ -1429,7 +1548,10 @@ def _legacy_completion_profile(values: dict[str, str]) -> str | None:
     return None
 
 
-def _validate_legacy_completion_evidence(rows: list[object]) -> list[str]:
+def _validate_legacy_completion_evidence(
+    rows: list[object],
+    expected_profile: str | None,
+) -> list[str]:
     issues: list[str] = []
     live_profiles: list[tuple[int, str]] = []
     for index, row in enumerate(rows, start=1):
@@ -1498,6 +1620,12 @@ def _validate_legacy_completion_evidence(rows: list[object]) -> list[str]:
         if profile is None:
             issues.append(
                 f"legacy receipt live target row {index} has no exact accepted completion profile"
+            )
+            continue
+        if expected_profile is not None and profile != expected_profile:
+            issues.append(
+                f"legacy receipt live target row {index} uses profile {profile!r}, "
+                f"expected {expected_profile!r}"
             )
             continue
         live_profiles.append((index, profile))
@@ -1632,8 +1760,17 @@ def _validate_legacy_completed_target_set_receipt(
     root: Path,
     path: Path,
     payload: dict[str, object],
+    compatibility_manifest_path: Path,
+    actual_digest: str,
 ) -> list[str]:
     issues: list[str] = []
+    compatibility_profile, identity_issues = _validate_legacy_receipt_identity(
+        root,
+        path,
+        compatibility_manifest_path,
+        actual_digest,
+    )
+    issues.extend(identity_issues)
     if set(payload) != LEGACY_TARGET_SET_RECEIPT_FIELDS:
         issues.append("state-less record does not have the exact legacy completed-receipt fields")
     if payload.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
@@ -1679,7 +1816,7 @@ def _validate_legacy_completed_target_set_receipt(
             if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 issues.append(f"legacy receipt target row {index} has malformed {list_field}")
 
-    issues.extend(_validate_legacy_completion_evidence(rows))
+    issues.extend(_validate_legacy_completion_evidence(rows, compatibility_profile))
 
     if target_before_hashes:
         issues.extend(
@@ -1743,31 +1880,49 @@ def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]
     return issues
 
 
-def validate_incomplete_target_set_journals(root: Path) -> list[str]:
+def _is_target_set_transaction(payload: dict[str, object]) -> bool:
+    return payload.get("Transition") == TARGET_SET_TRANSITION
+
+
+def validate_incomplete_target_set_journals(
+    root: Path,
+    compatibility_manifest_path: Path = LEGACY_RECEIPT_COMPATIBILITY_MANIFEST,
+) -> list[str]:
     failures: list[str] = []
     audit_root = root / "audit_log"
     if not audit_root.is_dir():
         return failures
     for path in sorted(audit_root.glob("*.json")):
         try:
-            text = path.read_text(encoding="utf-8")
+            raw_bytes = path.read_bytes()
         except OSError as exc:
             failures.append(f"Target-set transaction journal is unreadable: {path}: {exc}")
             continue
-        if TARGET_SET_TRANSITION not in text:
+        try:
+            text = raw_bytes.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            failures.append(f"Target-set transaction journal is not UTF-8: {path}: {exc}")
             continue
         try:
-            payload = load_json(path)
-        except Exception as exc:  # noqa: BLE001 - matching malformed journals fail closed
-            failures.append(f"Target-set transaction journal is malformed: {path}: {exc}")
+            payload = json.loads(text)
+        except json.JSONDecodeError as exc:
+            if TARGET_SET_TRANSITION_FIELD_PATTERN.search(text):
+                failures.append(f"Target-set transaction journal is malformed: {path}: {exc}")
             continue
         if not isinstance(payload, dict):
-            failures.append(f"Target-set transaction journal is not an object: {path}")
+            continue
+        if not _is_target_set_transaction(payload):
             continue
         if "Transaction State" in payload:
             journal_issues = _validate_modern_target_set_journal(payload)
         else:
-            journal_issues = _validate_legacy_completed_target_set_receipt(root, path, payload)
+            journal_issues = _validate_legacy_completed_target_set_receipt(
+                root,
+                path,
+                payload,
+                compatibility_manifest_path,
+                hashlib.sha256(raw_bytes).hexdigest(),
+            )
         failures.extend(f"Target-set transaction journal invalid: {path}: {issue}" for issue in journal_issues)
     return failures
 

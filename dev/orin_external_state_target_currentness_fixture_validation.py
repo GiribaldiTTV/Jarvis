@@ -40,6 +40,11 @@ REAL_LEGACY_COMPLETION_ASSIGNMENTS = {
         r"Final Disposition=PR Readiness Stage 1 is complete at pushed commit 771caab90b0be290227ea67ba2778c41496a06f9 with canonical packet C:\Nexus USER\Governance-20260727-162840.zip; stale pr_readiness_state.md is historical receipt evidence only; no PR exists; next gate is separate USER approval for Stage 2 and PR creation only",
     ],
 }
+PROFILE_BY_RECEIPT = {
+    "receipt-1": "rri-20260727-001-current-gate",
+    "receipt-2": "rri-20260727-001-durability-final",
+    "receipt-3": "rri-20260727-001-pr1-projection",
+}
 
 
 def _target_path(root: Path) -> Path:
@@ -222,10 +227,7 @@ def _write_legacy_journal_fixture(
                 or (
                     [completion_assignment_value]
                     if completion_assignment_value is not None
-                    else [
-                        "External State Item Status=Complete",
-                        "Current Validation State=PASS",
-                    ]
+                    else REAL_LEGACY_COMPLETION_ASSIGNMENTS["receipt-1"]
                 )
             )
         row: dict[str, object] = {
@@ -339,6 +341,131 @@ def _write_exact_real_legacy_receipt_fixture(root: Path, receipt: str) -> Path:
     )
 
 
+def _write_fixture_compatibility_manifest(
+    root: Path,
+    audit_path: Path,
+    profile: str,
+    *,
+    admitted_path: str | None = None,
+    admitted_sha256: str | None = None,
+) -> Path:
+    rows: list[dict[str, str]] = []
+    profiles = list(validator.LEGACY_COMPLETION_PROFILES)
+    for index, profile_name in enumerate(profiles, start=1):
+        if profile_name == profile:
+            relative = admitted_path or audit_path.relative_to(root).as_posix()
+            digest = admitted_sha256 or hashlib.sha256(audit_path.read_bytes()).hexdigest()
+        else:
+            relative = f"audit_log/unused-{index}.json"
+            digest = str(index) * 64
+        rows.append(
+            {
+                "Audit Path": relative,
+                "SHA256": digest,
+                "Compatibility Profile": profile_name,
+                "Receipt Class": validator.LEGACY_RECEIPT_CLASS,
+                "Immutable Purpose": validator.LEGACY_RECEIPT_PURPOSE,
+            }
+        )
+    manifest_path = root / "fixture_legacy_receipt_compatibility.json"
+    atomic_write_json(
+        manifest_path,
+        {
+            "Schema": validator.LEGACY_RECEIPT_COMPATIBILITY_SCHEMA,
+            "Purpose": validator.LEGACY_RECEIPT_PURPOSE,
+            "Receipts": rows,
+        },
+    )
+    return manifest_path
+
+
+def _resolve_case_manifest(
+    root: Path,
+    setup_result: object,
+    admitted_profile: str | None,
+) -> Path:
+    if (
+        isinstance(setup_result, tuple)
+        and len(setup_result) == 2
+        and isinstance(setup_result[0], Path)
+        and isinstance(setup_result[1], Path)
+    ):
+        return setup_result[1]
+    if admitted_profile is not None:
+        if not isinstance(setup_result, Path):
+            raise AssertionError("admitted journal fixture did not return its audit path")
+        return _write_fixture_compatibility_manifest(root, setup_result, admitted_profile)
+    return validator.LEGACY_RECEIPT_COMPATIBILITY_MANIFEST
+
+
+def _write_tampered_admitted_receipt_fixture(root: Path) -> tuple[Path, Path]:
+    audit_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    manifest_path = _write_fixture_compatibility_manifest(
+        root,
+        audit_path,
+        PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    original = audit_path.read_bytes()
+    tampered = original.replace(b'"Last Updated By": "fixture"', b'"Last Updated By": "fixturf"', 1)
+    if tampered == original:
+        raise AssertionError("tamper fixture did not alter the admitted receipt")
+    audit_path.write_bytes(tampered)
+    return audit_path, manifest_path
+
+
+def _write_renamed_admitted_receipt_fixture(root: Path) -> tuple[Path, Path]:
+    original_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    manifest_path = _write_fixture_compatibility_manifest(
+        root,
+        original_path,
+        PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    payload = json.loads(original_path.read_text(encoding="utf-8"))
+    copied_path = original_path.with_name("copied-accepted-receipt.json")
+    original_relative = original_path.relative_to(root).as_posix()
+    copied_relative = copied_path.relative_to(root).as_posix()
+    original_path.rename(copied_path)
+    lock_path = root / "locks" / f"{payload['Lock ID']}.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Intended Write Set"] = str(lock["Intended Write Set"]).replace(
+        original_relative,
+        copied_relative,
+    )
+    atomic_write_json(lock_path, lock)
+    return copied_path, manifest_path
+
+
+def _accept_registered_path_without_hash(
+    root: Path,
+    audit_path: Path,
+    manifest_path: Path,
+    _actual_digest: str,
+) -> tuple[str | None, list[str]]:
+    registry, issues = validator._load_legacy_receipt_compatibility_registry(manifest_path)
+    if issues:
+        return None, issues
+    relative = audit_path.relative_to(root).as_posix().casefold()
+    entry = registry.get(relative)
+    if entry is None:
+        return None, ["path not admitted"]
+    return entry["Compatibility Profile"], []
+
+
+def _accept_registered_hash_without_path(
+    _root: Path,
+    audit_path: Path,
+    manifest_path: Path,
+    actual_digest: str,
+) -> tuple[str | None, list[str]]:
+    registry, issues = validator._load_legacy_receipt_compatibility_registry(manifest_path)
+    if issues:
+        return None, issues
+    for entry in registry.values():
+        if entry["SHA256"] == actual_digest:
+            return entry["Compatibility Profile"], []
+    return None, ["hash not admitted"]
+
+
 def _write_legacy_case_alias_fixture(root: Path) -> Path:
     audit_path = _write_legacy_journal_fixture(root, target_count=2)
     payload = json.loads(audit_path.read_text(encoding="utf-8"))
@@ -395,11 +522,13 @@ def _run_journal_case(
     setup: object,
     *,
     should_pass: bool,
+    admitted_profile: str | None = None,
 ) -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-legacy-journal-") as temp_dir:
         root = Path(temp_dir)
-        setup(root)  # type: ignore[operator]
-        failures = validator.validate_incomplete_target_set_journals(root)
+        setup_result = setup(root)  # type: ignore[operator]
+        manifest_path = _resolve_case_manifest(root, setup_result, admitted_profile)
+        failures = validator.validate_incomplete_target_set_journals(root, manifest_path)
         if should_pass and failures:
             raise AssertionError(f"{name} unexpectedly failed:\n" + "\n".join(failures))
         if not should_pass and not failures:
@@ -412,17 +541,20 @@ def _assert_journal_mutation_killed(
     setup: object,
     attribute: str,
     replacement: object,
+    *,
+    admitted_profile: str | None = None,
 ) -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-legacy-mutation-") as temp_dir:
         root = Path(temp_dir)
-        setup(root)  # type: ignore[operator]
-        baseline = validator.validate_incomplete_target_set_journals(root)
+        setup_result = setup(root)  # type: ignore[operator]
+        manifest_path = _resolve_case_manifest(root, setup_result, admitted_profile)
+        baseline = validator.validate_incomplete_target_set_journals(root, manifest_path)
         if not baseline:
             raise AssertionError(f"mutation {name} has no failing baseline")
         original = getattr(validator, attribute)
         setattr(validator, attribute, replacement)
         try:
-            mutated = validator.validate_incomplete_target_set_journals(root)
+            mutated = validator.validate_incomplete_target_set_journals(root, manifest_path)
         finally:
             setattr(validator, attribute, original)
         if mutated:
@@ -432,12 +564,35 @@ def _assert_journal_mutation_killed(
     print(f"Legacy journal mutation: {name}: KILLED")
 
 
+def _assert_journal_false_positive_mutation_killed(
+    name: str,
+    setup: object,
+    attribute: str,
+    replacement: object,
+) -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-legacy-selector-mutation-") as temp_dir:
+        root = Path(temp_dir)
+        setup_result = setup(root)  # type: ignore[operator]
+        manifest_path = _resolve_case_manifest(root, setup_result, None)
+        baseline = validator.validate_incomplete_target_set_journals(root, manifest_path)
+        if baseline:
+            raise AssertionError(f"mutation {name} has no passing baseline:\n" + "\n".join(baseline))
+        original = getattr(validator, attribute)
+        setattr(validator, attribute, replacement)
+        try:
+            mutated = validator.validate_incomplete_target_set_journals(root, manifest_path)
+        finally:
+            setattr(validator, attribute, original)
+        if not mutated:
+            raise AssertionError(f"mutation {name} survived the focused suite")
+    print(f"Legacy journal mutation: {name}: KILLED")
+
+
 def _run_legacy_journal_compatibility_fixtures() -> None:
     complete = [
         "External State Item Status=Complete",
         "Current Validation State=PASS",
     ]
-    complete_with_final = [*complete, "Final Disposition=Complete"]
     positive_cases = [
         (
             "exact immutable legacy receipt 1 completion profile",
@@ -451,17 +606,6 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "exact immutable legacy receipt 3 completion profile",
             lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-3"),
         ),
-        (
-            "every target row carries canonical completion",
-            lambda root: _write_legacy_completion_matrix_fixture(root, [complete] * 3),
-        ),
-        (
-            "multiple accepted completion fields agree",
-            lambda root: _write_legacy_completion_matrix_fixture(
-                root,
-                [complete_with_final] * 3,
-            ),
-        ),
         ("modern Committed journal", lambda root: _write_modern_journal_fixture(root)),
         (
             "unrelated historical audit",
@@ -471,14 +615,86 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
-            "legacy receipt with modern-looking filename",
-            lambda root: _write_legacy_journal_fixture(root, filename="current-journal.json"),
+            "unrelated audit mentions target-set phrase only in Notes",
+            lambda root: atomic_write_json(
+                root / "audit_log" / "notes-only.json",
+                {
+                    "External State Schema": "external-state-v1",
+                    "Transition": "Other audit",
+                    "Notes": validator.TARGET_SET_TRANSITION,
+                },
+            ),
+        ),
+        (
+            "malformed unrelated audit mentions target-set phrase only in Notes",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "malformed-notes-only.json").write_text(
+                    '{"Transition":"Other audit","Notes":"'
+                    + validator.TARGET_SET_TRANSITION
+                    + '",',
+                    encoding="utf-8",
+                ),
+            ),
+        ),
+        (
+            "malformed Notes contain an escaped Transition fragment",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "malformed-escaped-notes.json").write_text(
+                    '{"Transition":"Other audit","Notes":"\\"Transition\\":\\"'
+                    + validator.TARGET_SET_TRANSITION
+                    + '\\"",',
+                    encoding="utf-8",
+                ),
+            ),
         ),
     ]
     for name, setup in positive_cases:
-        _run_journal_case(name, setup, should_pass=True)
+        receipt = next(
+            (
+                receipt_name
+                for receipt_name in PROFILE_BY_RECEIPT
+                if f"receipt {receipt_name[-1]}" in name
+            ),
+            None,
+        )
+        _run_journal_case(
+            name,
+            setup,
+            should_pass=True,
+            admitted_profile=PROFILE_BY_RECEIPT.get(receipt or ""),
+        )
 
     negative_cases = [
+        (
+            "new state-less legacy-shaped receipt with generic Complete/PASS",
+            lambda root: _write_legacy_completion_matrix_fixture(root, [complete] * 3),
+        ),
+        (
+            "generic Complete/PASS receipt with historical-looking filename",
+            lambda root: _write_legacy_journal_fixture(
+                root,
+                filename="legacy-completed-20200101.json",
+                completion_assignments=complete,
+            ),
+        ),
+        (
+            "generic Complete/PASS receipt with modern-looking filename",
+            lambda root: _write_legacy_journal_fixture(
+                root,
+                filename="current-journal.json",
+                completion_assignments=complete,
+            ),
+        ),
+        (
+            "admitted receipt copied or renamed to another audit path",
+            _write_renamed_admitted_receipt_fixture,
+        ),
+        (
+            "admitted receipt path with altered bytes",
+            _write_tampered_admitted_receipt_fixture,
+        ),
         (
             "modern journal missing Transaction State",
             lambda root: _write_modern_journal_fixture(root, include_state=False),
@@ -686,13 +902,39 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         ),
     ]
     for name, setup in negative_cases:
-        _run_journal_case(name, setup, should_pass=False)
+        needs_admitted_identity = name.startswith(
+            (
+                "legacy-looking receipt with recovery",
+                "legacy receipt with",
+                "only one target",
+                "one target",
+                "one row",
+                "completion phrase rejected",
+                "contradictory completion",
+                "positive completion",
+                "positive row",
+                "historical target",
+                "unknown target",
+            )
+        )
+        _run_journal_case(
+            name,
+            setup,
+            should_pass=False,
+            admitted_profile=(
+                PROFILE_BY_RECEIPT["receipt-1"] if needs_admitted_identity else None
+            ),
+        )
 
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
     accept_modern_state = lambda _payload: []
-    accept_completion_set = lambda _rows: []
-    accept_completion_profile = lambda _values: "mutated-complete"
+    accept_completion_set = lambda *_args: []
+    accept_completion_profile = lambda _values: PROFILE_BY_RECEIPT["receipt-1"]
+    accept_unregistered_identity = lambda *_args, **_kwargs: (
+        PROFILE_BY_RECEIPT["receipt-1"],
+        [],
+    )
     _assert_journal_mutation_killed(
         "accept every missing Transaction State",
         negative_setups["modern journal missing Transaction State"],
@@ -731,60 +973,117 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["legacy receipt with active lock evidence"],
         "_validate_legacy_lock_evidence",
         lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "any one completed row greens the target set",
         negative_setups["only one target row has completion evidence"],
         "_validate_legacy_completion_evidence",
         accept_completion_set,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "missing row-level completion ignored",
         negative_setups["one target row has no completion disposition"],
         "_validate_legacy_completion_evidence",
         accept_completion_set,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "contradictory completion fields ignored",
         negative_setups["contradictory completion fields in one row"],
         "_legacy_completion_profile",
         accept_completion_profile,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "any occurrence of pass accepted",
         negative_setups["completion phrase rejected: pending pass"],
         "_legacy_completion_profile",
         accept_completion_profile,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "any occurrence of complete accepted",
         negative_setups["completion phrase rejected: will complete after review"],
         "_legacy_completion_profile",
         accept_completion_profile,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "negation checked only immediately before positive word",
         negative_setups["completion phrase rejected: not yet complete"],
         "_legacy_completion_profile",
         accept_completion_profile,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "pending future conditional wording accepted",
         negative_setups["completion phrase rejected: complete only after USER review"],
         "_legacy_completion_profile",
         accept_completion_profile,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "released lock accepted without coherent receipt completion",
         negative_setups["legacy receipt lacking completion evidence"],
         "_validate_legacy_completion_evidence",
         accept_completion_set,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "historical provenance checks skipped",
         negative_setups["legacy receipt with inconsistent snapshot hash"],
         "_validate_legacy_snapshot_evidence",
         lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "path match accepted without immutable hash match",
+        _write_tampered_admitted_receipt_fixture,
+        "_validate_legacy_receipt_identity",
+        _accept_registered_path_without_hash,
+    )
+    _assert_journal_mutation_killed(
+        "immutable hash accepted at another audit path",
+        _write_renamed_admitted_receipt_fixture,
+        "_validate_legacy_receipt_identity",
+        _accept_registered_hash_without_path,
+    )
+    _assert_journal_mutation_killed(
+        "immutable identity registry skipped",
+        lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-1"),
+        "_validate_legacy_receipt_identity",
+        accept_unregistered_identity,
+    )
+    _assert_journal_mutation_killed(
+        "filename or age heuristic admits an unregistered receipt",
+        lambda root: _write_legacy_journal_fixture(
+            root,
+            filename="legacy-completed-20200101.json",
+        ),
+        "_validate_legacy_receipt_identity",
+        accept_unregistered_identity,
+    )
+    _assert_journal_mutation_killed(
+        "generic Complete/PASS profile admitted in production",
+        negative_setups["new state-less legacy-shaped receipt with generic Complete/PASS"],
+        "_legacy_completion_profile",
+        accept_completion_profile,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_false_positive_mutation_killed(
+        "raw substring discovery selects phrase-only Notes",
+        lambda root: atomic_write_json(
+            root / "audit_log" / "notes-only.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Transition": "Other audit",
+                "Notes": validator.TARGET_SET_TRANSITION,
+            },
+        ),
+        "_is_target_set_transaction",
+        lambda payload: validator.TARGET_SET_TRANSITION in json.dumps(payload),
     )
 
 
