@@ -21294,35 +21294,68 @@ def _normalized_confinement_claim(value: str) -> str:
 def _durable_collision_clear(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     blocking_terms = (
-        "collision detected",
-        "collision present",
         "another active owner",
         "second active owner",
         "parallel owner",
         "parallel worktree coordination missing",
         "conflict detected",
+        "but",
+        "however",
+        "although",
+        "yet",
+        "except",
     )
-    affirmative = (
-        re.search(
-            r"\bno(?: same-worktree| same-branch| worktree| branch)? collision\b",
-            normalized,
-        )
-        is not None
-        or "no second writer" in normalized
-        or "no other active owner" in normalized
-        or normalized == "clear"
-        or normalized.startswith("clear -")
-        or normalized.startswith("clear:")
+    collision_match = re.search(
+        r"\bno(?: same-worktree| same-branch| worktree| branch)? collision\b",
+        normalized,
     )
-    return bool(affirmative and not any(term in normalized for term in blocking_terms))
+    explicit_owner_clear = any(
+        term in normalized for term in ("no second writer", "no other active owner")
+    )
+    clear_prefix = normalized == "clear" or normalized.startswith(("clear -", "clear:"))
+    residual = normalized
+    if collision_match:
+        residual = normalized[: collision_match.start()] + normalized[collision_match.end() :]
+    residual = residual.replace("no second writer", "").replace("no other active owner", "")
+    if clear_prefix:
+        residual = re.sub(r"^clear(?:\s*[-:])?", "", residual).strip()
+    affirmative = collision_match is not None or explicit_owner_clear or clear_prefix
+    return bool(
+        affirmative
+        and "collision" not in residual
+        and not any(term in normalized for term in blocking_terms)
+    )
 
 
 def _durable_off_worktree_routing_is_blocked(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
-    permissive_terms = ("allowed", "authorized", "granted", "permitted")
-    blocked_terms = ("blocked", "route", "routes", "context only", "read-only")
-    return any(term in normalized for term in blocked_terms) and not any(
-        term in normalized for term in permissive_terms
+    permissive_terms = (
+        "allowed",
+        "authorized",
+        "granted",
+        "permitted",
+        "not blocked",
+        "unblocked",
+        "directly to the sibling",
+        "directly to sibling",
+        "can proceed",
+        "may proceed",
+        "can mutate",
+        "may mutate",
+        "without routing",
+    )
+    explicitly_blocked = normalized.startswith("blocked")
+    safe_route = (
+        any(term in normalized for term in ("route", "routes"))
+        and any(
+            destination in normalized
+            for destination in ("governance", "owning carrier", "legal carrier", "owning lane")
+        )
+    )
+    context_only = "context only" in normalized or "read-only" in normalized
+    return bool(
+        (explicitly_blocked or safe_route or context_only)
+        and not any(term in normalized for term in permissive_terms)
     )
 
 
@@ -21330,13 +21363,23 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     invalid_terms = (
         "no user approval required",
+        "no approval exists",
+        "approval does not exist",
+        "approval is missing",
+        "approval missing",
+        "not approved",
+        "without approval",
         "without user approval",
         "codex may create",
         "self-authorized",
         "automatically approved",
     )
-    user_gate = re.search(
-        r"\buser (?:approval (?:is )?(?:required|pending)|approval required|must approve|approved)\b",
+    required_user_gate = re.search(
+        r"\b(?:user approval (?:is )?(?:required|pending)|pending user approval|user must approve)\b",
+        normalized,
+    )
+    approved_worktree_decision = re.search(
+        r"\b(?:user approved.{0,80}(?:new|existing) worktree|(?:new|existing) worktree.{0,80}user approved)\b",
         normalized,
     )
     closed_no_creation = (
@@ -21345,7 +21388,7 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         and any(term in normalized for term in ("requested", "required", "needed", "created"))
     )
     return bool(
-        (user_gate or closed_no_creation)
+        (required_user_gate or approved_worktree_decision or closed_no_creation)
         and not any(term in normalized for term in invalid_terms)
     )
 
@@ -21361,22 +21404,31 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
         "authorized",
         "granted",
         "permitted",
+        "can proceed",
+        "may proceed",
+        "can mutate",
+        "may mutate",
     )
     negated_affirmative = re.search(
         r"\b(?:not|never|no)\b(?:\s+\w+){0,3}\s+(?:confirmed|blocked|prohibited)\b",
         normalized,
     )
+    explicit_safe_state = any(
+        term in normalized
+        for term in (
+            "does not mutate",
+            "no cross-worktree mutation",
+            "cross-worktree mutation is blocked",
+            "cross-worktree mutation blocked",
+            "cross-worktree mutation is prohibited",
+            "cross-worktree mutation prohibited",
+        )
+    )
     affirmative = (
-        normalized.startswith("confirmed")
+        (normalized.startswith("confirmed") and explicit_safe_state)
         or normalized.startswith("blocked")
         or normalized.startswith("prohibited")
-        or (
-            normalized.startswith("pass")
-            and any(
-                term in normalized
-                for term in ("does not mutate", "no cross-worktree mutation", "blocked", "prohibited")
-            )
-        )
+        or (normalized.startswith("pass") and explicit_safe_state)
     )
     return bool(
         affirmative
@@ -21835,7 +21887,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         else None,
         durable_fixture,
         durable_fixture_text.replace(
-            "Confirmed for the bounded fixture carrier.",
+            "Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.",
             "Allowed for the bounded fixture carrier.",
         ),
         "feature/governance-fixture",
@@ -21853,8 +21905,18 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "does not prove a clear collision outcome",
         ),
         (
+            "Same Worktree / Same Branch Collision Check: `No collision.`",
+            "Same Worktree / Same Branch Collision Check: `No collision, but collision exists.`",
+            "does not prove a clear collision outcome",
+        ),
+        (
             "Off-Worktree Work Routing: `Blocked; route through Governance.`",
             "Off-Worktree Work Routing: `Allowed.`",
+            "does not block or route off-worktree work",
+        ),
+        (
+            "Off-Worktree Work Routing: `Blocked; route through Governance.`",
+            "Off-Worktree Work Routing: `Not blocked; route directly to the sibling worktree.`",
             "does not block or route off-worktree work",
         ),
         (
@@ -21863,18 +21925,28 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "does not preserve the USER-owned new-worktree gate",
         ),
         (
-            "No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`",
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approved release, but no approval exists for a new worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Not confirmed for this carrier.`",
             "does not prove no cross-worktree mutation",
         ),
         (
-            "No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Not prohibited for this carrier.`",
             "does not prove no cross-worktree mutation",
         ),
         (
-            "No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Confirmed but not currently prohibited.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation can proceed.`",
             "does not prove no cross-worktree mutation",
         ),
     )

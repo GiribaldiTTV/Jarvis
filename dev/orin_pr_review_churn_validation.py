@@ -143,6 +143,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "modern evidence path",
             "journal target",
             "journal read",
+            "snapshot manifest belongs",
             "surrogate code point",
             "json decoder",
             "deeply nested audit",
@@ -155,13 +156,15 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable confinement",
             "durable receipt",
             "historical carrier",
-            "historical receipt",
             "historical authority claim",
             "historical absence claim",
             "historical-receipt classifier",
             "historical/no-active",
             "receipt subsection heading",
             "durable authority pointer",
+            "collision-clear claim",
+            "off-worktree routing",
+            "new-worktree decision",
             "no-cross-worktree",
             "no cross-worktree",
         ),
@@ -487,6 +490,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "exact scope comments",
             "multi-family comments",
             "multi family comments",
+            "mixed comments",
+            "strongly matched rar families",
             "genuine rar families",
             "genuine repo-live-state family",
             "genuine repo live state family",
@@ -678,6 +683,7 @@ def _classify_comment(body: str) -> list[str]:
         keyword in normalized for keyword in CLASSIFIER_CONTEXT_KEYWORDS
     )
     families: list[str] = []
+    strong_family_matches: set[str] = set()
     for rule in FAMILY_RULES:
         matched_keywords = [
             keyword for keyword in rule.keywords if keyword in normalized
@@ -710,6 +716,24 @@ def _classify_comment(body: str) -> list[str]:
             )
         ):
             matched_keywords.append("before text")
+        if (
+            rule.family_id == "durable-carrier-confinement-parser"
+            and "historical receipt" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "carrier",
+                    "admission",
+                    "confinement",
+                    "worktree",
+                    "active assignment",
+                    "fold-down",
+                    "fold down",
+                    "durable authority",
+                )
+            )
+        ):
+            matched_keywords.append("historical receipt")
         if not matched_keywords:
             continue
         strong_keywords = [
@@ -727,6 +751,8 @@ def _classify_comment(body: str) -> list[str]:
             or explicit_rar_status
         ):
             families.append(rule.family_id)
+            if strong_keywords or explicit_rar_status:
+                strong_family_matches.add(rule.family_id)
     classifier_priority_keywords = (
         "comment-family",
         "comment family",
@@ -761,6 +787,8 @@ def _classify_comment(body: str) -> list[str]:
         "exact scope comments",
         "multi-family comments",
         "multi family comments",
+        "mixed comments",
+        "strongly matched rar families",
         "genuine rar families",
         "genuine repo-live-state family",
         "genuine repo live state family",
@@ -804,6 +832,7 @@ def _classify_comment(body: str) -> list[str]:
             )
             and (
                 not family.startswith("rar-")
+                or family in strong_family_matches
                 or re.search(r"\brar\b", normalized) is not None
             )
         ]
@@ -855,6 +884,16 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Modern host-path semantics review did not classify into the external-state evidence family"
         )
+    snapshot_root_comment = (
+        "Verify the snapshot manifest belongs to this root before accepting a modern "
+        "Committed journal."
+    )
+    if _classify_comment(snapshot_root_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Snapshot-manifest root-binding review did not classify into the external-state evidence family"
+        )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."
@@ -890,6 +929,20 @@ def _classifier_guardrail_failures() -> list[str]:
     }.issubset(genuine_rar_families):
         failures.append(
             "Genuine exact-scope and RAR review lost one of its families"
+        )
+    genuine_code_to_visual_multi_family_comment = (
+        "A modern Committed journal has invalid snapshot evidence, and a Code-To-Visual "
+        "row records Visual Match as Mismatch."
+    )
+    genuine_code_to_visual_families = _classify_comment(
+        genuine_code_to_visual_multi_family_comment
+    )
+    if not {
+        "external-state-transaction-evidence-parser",
+        "rar-code-to-visual-reference-parser",
+    }.issubset(genuine_code_to_visual_families):
+        failures.append(
+            "Strong exact-scope and code-to-visual matches were not both preserved"
         )
     genuine_repo_live_multi_family_comment = (
         "A modern Committed journal has invalid snapshot evidence, and the repo "
@@ -964,6 +1017,24 @@ def _classifier_guardrail_failures() -> list[str]:
     if _classify_comment(unrelated_surrogate) != ["unknown"]:
         failures.append(
             "Comment-family classifier overmatched ordinary database surrogate wording"
+        )
+    unrelated_historical_receipt = (
+        "The legacy external-state historical receipt has a snapshot hash mismatch."
+    )
+    if "durable-carrier-confinement-parser" in _classify_comment(
+        unrelated_historical_receipt
+    ):
+        failures.append(
+            "Comment-family classifier overmatched a non-carrier historical receipt"
+        )
+    carrier_historical_receipt = (
+        "Reject a historical receipt that retains active worktree assignment after carrier fold-down."
+    )
+    if "durable-carrier-confinement-parser" not in _classify_comment(
+        carrier_historical_receipt
+    ):
+        failures.append(
+            "Contextual historical carrier receipt did not classify into the durable family"
         )
     journal_before_text = (
         "Reject recoverable Before Text in a modern journal because recovery payload "

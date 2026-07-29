@@ -968,6 +968,11 @@ decoder resource exhaustion into a normal fail-closed validation result rather
 than allowing a traceback to terminate the external-state CLI. Fixture mutation
 stubs must use the same host-path normalization as the validator so POSIX case
 semantics are exercised instead of accidentally lowercased away.
+Every accepted snapshot manifest must bind its `Root` to the resolved current
+external-state root; copied bytes and hashes from another root are not valid
+recovery provenance. Transition selection must treat whitespace-trimmed key or
+value matches as candidates and then reject them unless the original key and
+value are exactly canonical.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -998,11 +1003,20 @@ outcomes. Marker presence alone cannot admit a receipt that reports a collision,
 allows off-worktree work, removes the USER-owned new-worktree gate, or negates
 the no-cross-worktree claim with wording such as `Not confirmed` or
 `Not prohibited`.
+Safe-state parsing must reject a positive prefix followed by a contradictory
+clause: collision still exists, routing is not blocked or goes directly to a
+sibling, USER approval concerns another decision or is explicitly absent for the
+new worktree, or cross-worktree mutation can proceed. The accepted claim must
+name the safe outcome itself.
 
 Comment-family matching must treat generic UI prose such as `before text` as
 unknown unless journal, target-set, audit, external-state, or recovery context
 proves that the phrase names transaction evidence. A generic phrase cannot consume
 the external-state same-family review budget by itself.
+Likewise, `historical receipt` requires carrier, admission, confinement, worktree,
+assignment, fold-down, or durable-authority context before it maps to the durable
+carrier family. When an exact-scope comment also strongly matches another covered
+family, preserve both matches even if the prose omits that family's acronym.
 
 - source references:
   - `dev/orin_external_state_validation.py`

@@ -250,6 +250,7 @@ def _write_legacy_journal_fixture(
         snapshot_root / "snapshot_manifest.json",
         {
             "External State Schema": "external-state-v1",
+            "Root": str(root.resolve()),
             "Copied Files": copied_files,
             "Last Updated": "2026-07-27T19:59:00Z",
         },
@@ -547,6 +548,7 @@ def _write_modern_journal_fixture(
         snapshot_root / "snapshot_manifest.json",
         {
             "External State Schema": "external-state-v1",
+            "Root": str(root.resolve()),
             "Copied Files": [
                 {
                     "path": target_relative,
@@ -648,6 +650,18 @@ def _write_modern_target_value_fixture(root: Path, value: object) -> Path:
 def _write_modern_missing_snapshot_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     (root / "snapshots" / "modern-fixture" / "snapshot_manifest.json").unlink()
+    return path
+
+
+def _write_modern_snapshot_root_fixture(root: Path, value: str | None) -> Path:
+    path = _write_modern_journal_fixture(root)
+    manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if value is None:
+        manifest.pop("Root", None)
+    else:
+        manifest["Root"] = value
+    atomic_write_json(manifest_path, manifest)
     return path
 
 
@@ -1392,6 +1406,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 value=validator.TARGET_SET_TRANSITION.upper(),
             ),
         ),
+        *[
+            (
+                f"modern journal with whitespace-variant Transition {location}",
+                lambda root, key=key, value=value: _write_modern_noncanonical_transition_fixture(
+                    root,
+                    key=key,
+                    value=value,
+                ),
+            )
+            for location, key, value in (
+                ("key leading", " Transition", validator.TARGET_SET_TRANSITION),
+                ("key trailing", "Transition ", validator.TARGET_SET_TRANSITION),
+                ("value leading", "Transition", " " + validator.TARGET_SET_TRANSITION),
+                ("value trailing", "Transition", validator.TARGET_SET_TRANSITION + " "),
+            )
+        ],
         (
             "modern journal invalid schema",
             lambda root: _write_modern_journal_fixture(root, schema="external-state-v0"),
@@ -1425,6 +1455,17 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "modern Committed journal with missing snapshot manifest",
             _write_modern_missing_snapshot_fixture,
+        ),
+        (
+            "modern Committed journal with missing snapshot Root",
+            lambda root: _write_modern_snapshot_root_fixture(root, None),
+        ),
+        (
+            "modern Committed journal with foreign snapshot Root",
+            lambda root: _write_modern_snapshot_root_fixture(
+                root,
+                str(root.parent / "other-external-state-root"),
+            ),
         ),
         (
             "modern Committed journal with tampered snapshot copy",

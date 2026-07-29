@@ -1899,6 +1899,20 @@ def _validate_snapshot_evidence(
         return [f"{evidence_label} snapshot manifest is not an object: {manifest_path}"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
+    manifest_root = manifest.get("Root")
+    try:
+        root_key = _host_path_key(str(root.resolve(strict=False)))
+        manifest_root_key = (
+            _host_path_key(str(Path(manifest_root).resolve(strict=False)))
+            if isinstance(manifest_root, str) and manifest_root.strip() == manifest_root
+            else ""
+        )
+    except (OSError, RuntimeError, ValueError):
+        manifest_root_key = ""
+    if not manifest_root_key or manifest_root_key != root_key:
+        issues.append(
+            f"{evidence_label} snapshot manifest Root does not match the current external-state root"
+        )
     copied_files = manifest.get("Copied Files")
     if not isinstance(copied_files, list) or not copied_files:
         issues.append(f"{evidence_label} snapshot manifest has no copied-file evidence")
@@ -2322,7 +2336,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         index = key_end
         if not isinstance(key, str) or stack != ["{"]:
             continue
-        transition_key = key.casefold() == "transition"
+        transition_key = key.strip().casefold() == "transition"
         cursor = key_end
         while cursor < len(text) and text[cursor].isspace():
             cursor += 1
@@ -2347,7 +2361,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         if transition_key:
             if not isinstance(value, str):
                 return True
-            if value.casefold() == TARGET_SET_TRANSITION.casefold():
+            if value.strip().casefold() == TARGET_SET_TRANSITION.casefold():
                 return True
     return False
 
@@ -2358,11 +2372,11 @@ def _is_target_set_transaction(payload: dict[str, object]) -> bool:
 
 def _has_noncanonical_target_set_transition(payload: dict[str, object]) -> bool:
     for key, value in payload.items():
-        if not isinstance(key, str) or key.casefold() != "transition":
+        if not isinstance(key, str) or key.strip().casefold() != "transition":
             continue
         if not isinstance(value, str):
-            continue
-        if value.casefold() != TARGET_SET_TRANSITION.casefold():
+            return True
+        if value.strip().casefold() != TARGET_SET_TRANSITION.casefold():
             continue
         return key != "Transition" or value != TARGET_SET_TRANSITION
     return False

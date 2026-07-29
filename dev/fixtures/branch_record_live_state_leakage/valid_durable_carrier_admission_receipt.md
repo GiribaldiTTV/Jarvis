@@ -32,7 +32,7 @@
 - Off-Worktree Work Routing: `Blocked; route through Governance.`
 - Governance Routing Barrier: `Active outside this bounded fixture carrier.`
 - New Worktree Decision Gate: `USER approval required.`
-- No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`
+- No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`
 - GitHub Desktop-bound worktree: `C:\Nexus Worktrees\Governance-Fixture`
 - Worktree Escape User Waiver: `Not required; expected and actual roots match.`
 - Worktree Escape User Waiver Missing: `Not applicable; no worktree escape is requested.`

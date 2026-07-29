@@ -138,15 +138,19 @@
       },
       {
         "pr": 310,
-        "connector_comments": 47,
+        "connector_comments": 55,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 15,
-          "external-state-transaction-evidence-parser": 27,
-          "pr2-comment-family-classifier": 5
+          "durable-carrier-confinement-parser": 19,
+          "external-state-transaction-evidence-parser": 29,
+          "pr2-comment-family-classifier": 7,
+          "rar-code-to-visual-reference-parser": 1,
+          "rar-path-suffix-parser": 9,
+          "rar-phase-advancement-parser": 1,
+          "rar-table-row-parser": 9
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, and classifier-precision families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact lock write-set equality and exact evidence-path spelling under host case semantics, binds snapshot and journal reads to confinement-checked stable file handles, rejects surrogate evidence paths and decoder resource exhaustion, proves semantic collision/routing/new-worktree/no-cross-worktree outcomes instead of marker presence, requires journal context for Before Text classification, rejects whole-claim historical contradictions and historical receipts used as current authority, preserves every genuine family including explicit RAR and repo-live-state families in multi-family comments, and records the exact live 47-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, and classifier-precision families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact lock write-set equality, same-root snapshot provenance, and exact evidence-path spelling under host case semantics, binds snapshot and journal reads to confinement-checked stable file handles, rejects surrogate evidence paths, decoder resource exhaustion, and whitespace transition aliases, proves explicit non-contradictory collision/routing/new-worktree/no-cross-worktree outcomes instead of marker or prefix presence, requires journal context for Before Text and carrier context for historical receipt classification, preserves every strongly matched family in mixed comments, rejects whole-claim historical contradictions and historical receipts used as current authority, and records the exact live 55-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -162,7 +166,10 @@
           "dev/orin_branch_governance_validation.py rejects historical/no-active receipts as current authority and accepts a matching external live authority only when it carries complete branch/worktree confinement and points to the exact durable repo receipt.",
           "dev/orin_branch_governance_validation.py validates affirmative, non-contradictory collision, off-worktree routing, new-worktree USER gate, and no-cross-worktree outcomes before durable admission.",
           "dev/orin_external_state_validation.py rejects surrogate evidence paths and converts JSON decoder recursion/resource failures into fail-closed validation results.",
-          "dev/orin_pr_review_churn_validation.py requires transaction-journal or recovery context before classifying the generic phrase Before Text into the external-state family."
+          "dev/orin_pr_review_churn_validation.py requires transaction-journal or recovery context before classifying the generic phrase Before Text into the external-state family.",
+          "dev/orin_external_state_validation.py binds every accepted snapshot manifest Root to the resolved current external-state root and rejects trimmed Transition key/value aliases.",
+          "dev/orin_branch_governance_validation.py requires explicit safe-state grammar and rejects contradictory collision, routing, approval, and mutation-permission clauses.",
+          "dev/orin_pr_review_churn_validation.py retains strongly matched mixed RAR families and requires carrier/admission/confinement context for historical receipt matching."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -457,6 +464,38 @@
       {
         "family_id": "external-state-transaction-evidence-parser",
         "comment": "Handle JSON decoder depth failures as target-set validation results instead of allowing a deeply nested audit entry to terminate the external-state CLI."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Verify the snapshot manifest Root resolves to the current external-state root before accepting modern Committed recovery evidence."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Preserve strongly matched RAR families in mixed comments so Code-To-Visual mismatch evidence remains alongside an exact modern journal family."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject contradictory collision-clear claims such as No collision, but collision exists."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject negated off-worktree routing claims such as Not blocked; route directly to the sibling worktree."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Bind USER approval to the new-worktree decision and reject unrelated release approval followed by no approval exists for a new worktree."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject a No Cross-Worktree Mutation claim that says Confirmed while cross-worktree mutation can proceed."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Treat whitespace variants of the target-set Transition key or value as noncanonical candidates instead of ignoring a Prepared journal."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Require carrier context for historical-receipt matching so a legacy external-state historical receipt does not consume the durable-carrier same-family budget or root-cause receipt."
       }
     ],
     "unknown_comment_guardrails": [
@@ -1150,7 +1189,7 @@
         "missing/tampered/unreadable snapshot evidence, active or wrong-write-set lock evidence including omitted and unexpected entries, and equal before/after hashes",
         "whitespace-padded journal, snapshot, manifest, and lock paths plus snapshot replacement between confinement check and handle open",
         "POSIX case-distinct immutable receipt and modern journal/snapshot/lock paths plus journal replacement between confinement check and handle open",
-        "surrogate path components, deeply nested target-set JSON, and deeply nested unrelated JSON resource handling"
+        "surrogate path components, deeply nested target-set JSON, deeply nested unrelated JSON resource handling, missing/foreign snapshot Root, and whitespace-padded Transition key/value aliases"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -1159,7 +1198,8 @@
         "exact released-lock write-set equality rejects unrelated extra targets",
         "exact evidence-path spelling and handle-bound snapshot hashing reject normalization and replacement races",
         "host filesystem case semantics and handle-bound journal reads reject case-alias and pathname replacement races",
-        "POSIX mutation stubs preserve exact case while surrogate paths and decoder recursion fail closed without tracebacks"
+        "POSIX mutation stubs preserve exact case while surrogate paths and decoder recursion fail closed without tracebacks",
+        "modern and legacy snapshot manifests bind to the resolved current root while trimmed Transition aliases remain fail-closed candidates"
       ]
     },
     {
@@ -1189,12 +1229,12 @@
         "each required active collision, routing, waiver, and confinement marker removed individually",
         "each forbidden historical assignment marker retained with blank and nonblank values plus full-sentence contradictory None-prefixed authority claims",
         "prefix-colliding subsection names, nested confinement-section retention, cross-branch authority pointers, blank upstream identity, ambiguous No-prefixed missing-waiver claims, and historical receipts presented as current authority",
-        "collision-present, off-worktree-allowed, no-USER-approval-required, Not confirmed, Not prohibited, and delayed-negation semantic outcome mutations"
+        "collision-present, contradictory collision-clear, off-worktree-allowed, negated direct-sibling routing, no-USER-approval-required, unrelated USER approval, Not confirmed, Not prohibited, delayed negation, and can-proceed semantic outcome mutations"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
         "historical carrier fold-down with no active assignment authority",
-        "normalized worktree identity, required upstream identity, exact branch pointer matching, closed complete missing-waiver states, affirmative confinement outcomes, and external live authority backed by a non-authoritative durable historical receipt pointer"
+        "normalized worktree identity, required upstream identity, exact branch pointer matching, closed complete missing-waiver states, explicit non-contradictory confinement outcomes, and external live authority backed by a non-authoritative durable historical receipt pointer"
       ]
     },
     {
@@ -1320,7 +1360,9 @@
         "multi-family Connector comments retain every genuine exact and competing family",
         "exact-scope plus explicit RAR status comments retain both families without substring false positives",
         "exact-scope plus explicit repo live-state comments retain both families while meta-classifier review remains classifier-owned",
-        "ordinary UI before-text wording remains unknown while journal and recovery Before Text evidence maps to the external-state family"
+        "ordinary UI before-text wording remains unknown while journal and recovery Before Text evidence maps to the external-state family",
+        "strong Code-To-Visual matches survive exact-family combination without requiring the RAR acronym",
+        "historical receipt requires carrier, admission, confinement, worktree, assignment, fold-down, or durable-authority context"
       ]
     },
     {
