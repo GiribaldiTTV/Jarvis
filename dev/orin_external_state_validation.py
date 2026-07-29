@@ -2206,6 +2206,18 @@ def _is_target_set_transaction(payload: dict[str, object]) -> bool:
     return payload.get("Transition") == TARGET_SET_TRANSITION
 
 
+def _has_noncanonical_target_set_transition(payload: dict[str, object]) -> bool:
+    for key, value in payload.items():
+        if not isinstance(key, str) or key.casefold() != "transition":
+            continue
+        if not isinstance(value, str):
+            continue
+        if value.casefold() != TARGET_SET_TRANSITION.casefold():
+            continue
+        return key != "Transition" or value != TARGET_SET_TRANSITION
+    return False
+
+
 def _is_json_audit_entry(path: Path) -> bool:
     return path.suffix.casefold() == ".json"
 
@@ -2266,6 +2278,12 @@ def validate_incomplete_target_set_journals(
                 )
             continue
         if not isinstance(payload, dict):
+            continue
+        if _has_noncanonical_target_set_transition(payload):
+            failures.append(
+                "Target-set transaction journal uses a noncanonical Transition key or value: "
+                f"{path}"
+            )
             continue
         if not _is_target_set_transaction(payload):
             continue

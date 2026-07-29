@@ -21012,15 +21012,44 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
     )
 
 
+def _carrier_admission_receipt_history_section(registry_text: str) -> str:
+    heading = re.search(r"^## Carrier Admission Receipt History\s*$", registry_text, flags=re.M)
+    if not heading:
+        return ""
+    start = heading.end()
+    end = len(registry_text)
+    for next_heading in re.finditer(r"^## ([^#\r\n].*?)\s*$", registry_text[start:], flags=re.M):
+        if next_heading.group(1).strip() == "Assigned Worktree Confinement":
+            continue
+        end = start + next_heading.start()
+        break
+    return registry_text[start:end].strip()
+
+
 def _durable_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[str, str]:
     registry_path = Path("Docs/worktree_slots.md")
-    receipts = _section(_read_text(registry_path), "Durable Carrier Admission Receipts")
+    receipts = _carrier_admission_receipt_history_section(_read_text(registry_path))
     if len(re.findall(rf"^### {re.escape(branch_name)}\s*$", receipts, flags=re.M)) != 1:
         return "", ""
     receipt = _exact_subsection(receipts, branch_name)
     if _extract_exact_marker_value(receipt, "Branch") != branch_name:
         return "", ""
     return f"{registry_path}#{branch_name}", receipt
+
+
+def _is_complete_historical_absence_claim(
+    value: str,
+    required_negative_patterns: tuple[str, ...],
+) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold()).strip()
+    if not normalized.startswith("none;"):
+        return False
+    claim = normalized.removeprefix("none;").strip()
+    if claim.endswith("."):
+        claim = claim[:-1].rstrip()
+    if not claim or ";" in claim or "." in claim:
+        return False
+    return any(re.search(pattern, claim) for pattern in required_negative_patterns)
 
 
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
@@ -21110,9 +21139,34 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         and "current worktree assignment" in live_boundary
         and worktree.casefold() in confinement
         and "no active slot" in fold_down
-        and assignment_claim.startswith("none;")
-        and owner_claim.startswith("none;")
-        and write_claim.startswith("none;")
+        and _is_complete_historical_absence_claim(
+            assignment_claim,
+            (
+                r"\bis not assigned\b",
+                r"\bdoes not assign\b",
+                r"\bno current assignment\b",
+                r"\bno (?:slot|worktree|current) assignment is retained\b",
+            ),
+        )
+        and _is_complete_historical_absence_claim(
+            owner_claim,
+            (
+                r"\bdoes not retain (?:a )?task owner\b",
+                r"\bhas no (?:current )?task owner\b",
+                r"\bno current task owner\b",
+                r"\bno (?:current )?task owner is retained\b",
+            ),
+        )
+        and _is_complete_historical_absence_claim(
+            write_claim,
+            (
+                r"\bdoes not retain (?:a )?(?:write set|mutation authority|write authority)\b",
+                r"\bhas no (?:current )?(?:write|mutation) authority\b",
+                r"\bno current (?:write|mutation) authority\b",
+                r"\bis not authorized\b",
+                r"\bno (?:current )?(?:write|mutation) authority is retained\b",
+            ),
+        )
         and "not reserved" in slot_reuse
         and all(
             boundary in non_includes
@@ -21129,7 +21183,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
 
 def _historical_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[str, str]:
     registry_path = Path("Docs/worktree_slots.md")
-    receipts = _section(_read_text(registry_path), "Carrier Admission Receipt History")
+    receipts = _carrier_admission_receipt_history_section(_read_text(registry_path))
     if len(re.findall(rf"^### {re.escape(branch_name)}\s*$", receipts, flags=re.M)) != 1:
         return "", ""
     receipt = _exact_subsection(receipts, branch_name)
@@ -21395,6 +21449,40 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_durable_carrier_admission_receipt(durable_fixture_text),
         f"{durable_fixture}: exact durable carrier admission receipt must classify",
     )
+    durable_registry_body = re.sub(
+        r"(?ms)^# .*?\n\n## Branch Identity\s*\n",
+        "",
+        durable_fixture_text,
+        count=1,
+    ).strip()
+    synthetic_carrier_history = (
+        "## Carrier Admission Receipt History\n\n"
+        "### feature/governance-fixture\n\n"
+        f"{durable_registry_body}\n\n"
+        "## Active Thread Ownership And Collision Recovery\n\n"
+        "Unrelated registry law.\n"
+    )
+    synthetic_receipts = _carrier_admission_receipt_history_section(
+        synthetic_carrier_history
+    )
+    synthetic_durable_receipt = _exact_subsection(
+        synthetic_receipts,
+        "feature/governance-fixture",
+    )
+    require(
+        _is_durable_carrier_admission_receipt(synthetic_durable_receipt)
+        and bool(
+            _extract_exact_marker_value(
+                synthetic_durable_receipt,
+                "Assigned Worktree Confinement",
+            )
+        )
+        and "Unrelated registry law." not in synthetic_durable_receipt,
+        (
+            "durable carrier lookup must use Carrier Admission Receipt History, "
+            "retain its Assigned Worktree Confinement section, and stop at later registry law"
+        ),
+    )
     mismatched_pointer_fixture = durable_fixture_text.replace(
         "Docs/worktree_slots.md#feature/governance-fixture",
         "Docs/worktree_slots.md#feature/other-fixture",
@@ -21530,6 +21618,30 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
+    contradictory_historical_claims = (
+        (
+            "None; no slot assignment is retained.",
+            "None; runtime-active-2 is currently assigned by this receipt.",
+        ),
+        (
+            "None; no task owner is retained.",
+            "None; this receipt does not retain a task owner; current task ownership remains active.",
+        ),
+        (
+            "None; no write authority is retained.",
+            "None; current mutation remains authorized.",
+        ),
+    )
+    for valid_claim, contradictory_claim in contradictory_historical_claims:
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(valid_claim, contradictory_claim)
+            ),
+            (
+                f"{historical_fixture}: contradictory historical absence claim "
+                f"{contradictory_claim!r} must fail classification"
+            ),
+        )
     for forbidden_marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS:
         blank_forbidden_marker_fixture = (
             historical_fixture_text + f"\n- {forbidden_marker}:\n"

@@ -947,8 +947,10 @@ prove a standards-compliant JSON shape, a top-level transition, canonical
 string targets, distinct before/after hashes, a confined and hash-valid
 snapshot, a released exact-write-set lock, no recovery payload at any depth,
 confined case-insensitive audit discovery, and fail-closed handling for BOMs,
-reparse points, impossible path characters, and evidence read races. PR
-Readiness must map this family separately from repo/live-state ownership and
+reparse points, impossible path characters, and evidence read races.
+Any case-insensitive match to the exact target-set transition is a journal
+candidate and must fail unless both the `Transition` key and value are canonical.
+PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
 
@@ -957,7 +959,11 @@ family. PR Readiness must prove exact branch/subsection identity, complete
 collision and confinement markers for active durable admission, exact authority
 pointers, and the complete absence of active assignment markers after
 historical fold-down. Generic worktree-confinement wording is not sufficient
-family coverage for compact-receipt parsing.
+family coverage for compact-receipt parsing. Lookup must use the documented
+`Carrier Admission Receipt History` section, retain a receipt's nested
+`Assigned Worktree Confinement` section, and stop before later registry law.
+`None;` is not sufficient historical proof when the remainder of the same
+claim assigns ownership or authorizes mutation.
 
 - source references:
   - `dev/orin_external_state_validation.py`

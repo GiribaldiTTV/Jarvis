@@ -114,20 +114,24 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         "external-state-transaction-evidence-parser",
         (
             "target-set journal",
+            "target-set transaction",
+            "target-set transition",
             "modern journal",
+            "modern committed",
+            "modern target",
             "committed journal",
             "malformed journal",
             "modern lock",
-            "snapshot evidence",
-            "snapshot hash",
+            "snapshot hash read",
             "before text",
             "before sha256",
             "after sha256",
             "transaction state",
             "target-scoped currentness",
             "audit_log",
-            "audit root",
-            "audit-root",
+            "modern audit",
+            "journal extension",
+            "bom-prefixed target-set",
         ),
     ),
     FamilyRule(
@@ -136,6 +140,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable carrier",
             "durable receipt",
             "historical carrier",
+            "historical receipt",
+            "historical authority claim",
             "historical-receipt classifier",
             "receipt subsection heading",
             "durable authority pointer",
@@ -453,6 +459,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "changed family",
             "fixture-only",
             "fixture only",
+            "exact-family override",
+            "exact family override",
         ),
     ),
     FamilyRule(
@@ -662,6 +670,38 @@ def _classify_comment(body: str) -> list[str]:
         ]
         if strong_keywords or (has_classifier_context and len(matched_keywords) >= 2):
             families.append(rule.family_id)
+    classifier_priority_keywords = (
+        "comment-family",
+        "comment family",
+        "family matching",
+        "substring matcher",
+        "unknown observed families",
+        "churn gate",
+        "review-churn budget",
+        "review churn budget",
+        "same-family budget",
+        "same family budget",
+        "total budget",
+        "root-cause receipt",
+        "root cause receipt",
+        "pre-pr firewall",
+        "pre pr firewall",
+        "adversarial firewall",
+        "portable python",
+        "python launcher",
+        "windows py launcher",
+        "current interpreter",
+        "changed-family",
+        "changed family",
+        "fixture-only",
+        "fixture only",
+        "exact-family override",
+        "exact family override",
+    )
+    if "pr2-comment-family-classifier" in families and any(
+        keyword in normalized for keyword in classifier_priority_keywords
+    ):
+        return ["pr2-comment-family-classifier"]
     exact_scope_families = [
         family
         for family in families
@@ -672,6 +712,15 @@ def _classify_comment(body: str) -> list[str]:
         }
     ]
     if exact_scope_families:
+        competing_families = [
+            family
+            for family in families
+            if family not in exact_scope_families
+            and not family.startswith("rar-")
+            and family != "repo-live-state-boundary-parser"
+        ]
+        if competing_families:
+            return competing_families
         return exact_scope_families
     return families or ["unknown"]
 
@@ -697,6 +746,27 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Durable carrier confinement comment did not classify into its exact family"
+        )
+    ambiguous_snapshot_comment = (
+        "A visual acceptance review says snapshot evidence cannot replace an accepted "
+        "reference set."
+    )
+    ambiguous_snapshot_families = _classify_comment(ambiguous_snapshot_comment)
+    if (
+        "external-state-transaction-evidence-parser" in ambiguous_snapshot_families
+        or "visual-acceptance-proof-chain-parser" not in ambiguous_snapshot_families
+    ):
+        failures.append(
+            "Exact-family override hid a competing visual acceptance family"
+        )
+    exact_override_comment = (
+        "Restrict the exact-family override so another covered family is not hidden."
+    )
+    if _classify_comment(exact_override_comment) != [
+        "pr2-comment-family-classifier"
+    ]:
+        failures.append(
+            "Exact-family override review did not classify as the PR2 classifier family"
         )
     unrelated = "A database migration status row has mixed case after cleanup."
     if _classify_comment(unrelated) != ["unknown"]:

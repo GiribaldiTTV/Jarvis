@@ -484,6 +484,20 @@ def _write_modern_case_alias_fixture(root: Path) -> Path:
     return audit_path
 
 
+def _write_modern_noncanonical_transition_fixture(
+    root: Path,
+    *,
+    key: str = "transition",
+    value: str | None = None,
+) -> Path:
+    audit_path = _write_modern_journal_fixture(root)
+    payload = json.loads(audit_path.read_text(encoding="utf-8"))
+    payload.pop("Transition")
+    payload[key] = value or validator.TARGET_SET_TRANSITION
+    atomic_write_json(audit_path, payload)
+    return audit_path
+
+
 def _write_modern_journal_fixture(
     root: Path,
     *,
@@ -1165,6 +1179,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "modern Prepared journal",
             lambda root: _write_modern_journal_fixture(root, state="Prepared"),
+        ),
+        (
+            "modern journal with noncanonical transition key casing",
+            _write_modern_noncanonical_transition_fixture,
+        ),
+        (
+            "modern journal with noncanonical transition value casing",
+            lambda root: _write_modern_noncanonical_transition_fixture(
+                root,
+                key="Transition",
+                value=validator.TARGET_SET_TRANSITION.upper(),
+            ),
         ),
         (
             "modern journal invalid schema",
