@@ -21287,6 +21287,104 @@ def _validate_historical_worktree_receipt_confinement(
     )
 
 
+def _normalized_confinement_claim(value: str) -> str:
+    return re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+
+
+def _durable_collision_clear(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    blocking_terms = (
+        "collision detected",
+        "collision present",
+        "another active owner",
+        "second active owner",
+        "parallel owner",
+        "parallel worktree coordination missing",
+        "conflict detected",
+    )
+    affirmative = (
+        re.search(
+            r"\bno(?: same-worktree| same-branch| worktree| branch)? collision\b",
+            normalized,
+        )
+        is not None
+        or "no second writer" in normalized
+        or "no other active owner" in normalized
+        or normalized == "clear"
+        or normalized.startswith("clear -")
+        or normalized.startswith("clear:")
+    )
+    return bool(affirmative and not any(term in normalized for term in blocking_terms))
+
+
+def _durable_off_worktree_routing_is_blocked(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    permissive_terms = ("allowed", "authorized", "granted", "permitted")
+    blocked_terms = ("blocked", "route", "routes", "context only", "read-only")
+    return any(term in normalized for term in blocked_terms) and not any(
+        term in normalized for term in permissive_terms
+    )
+
+
+def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    invalid_terms = (
+        "no user approval required",
+        "without user approval",
+        "codex may create",
+        "self-authorized",
+        "automatically approved",
+    )
+    user_gate = re.search(
+        r"\buser (?:approval (?:is )?(?:required|pending)|approval required|must approve|approved)\b",
+        normalized,
+    )
+    closed_no_creation = (
+        "not applicable" in normalized
+        and "no new worktree" in normalized
+        and any(term in normalized for term in ("requested", "required", "needed", "created"))
+    )
+    return bool(
+        (user_gate or closed_no_creation)
+        and not any(term in normalized for term in invalid_terms)
+    )
+
+
+def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    invalid_terms = (
+        "not confirmed",
+        "unconfirmed",
+        "not blocked",
+        "not prohibited",
+        "allowed",
+        "authorized",
+        "granted",
+        "permitted",
+    )
+    negated_affirmative = re.search(
+        r"\b(?:not|never|no)\b(?:\s+\w+){0,3}\s+(?:confirmed|blocked|prohibited)\b",
+        normalized,
+    )
+    affirmative = (
+        normalized.startswith("confirmed")
+        or normalized.startswith("blocked")
+        or normalized.startswith("prohibited")
+        or (
+            normalized.startswith("pass")
+            and any(
+                term in normalized
+                for term in ("does not mutate", "no cross-worktree mutation", "blocked", "prohibited")
+            )
+        )
+    )
+    return bool(
+        affirmative
+        and negated_affirmative is None
+        and not any(term in normalized for term in invalid_terms)
+    )
+
+
 def _validate_durable_carrier_admission_receipt_confinement(
     require,
     record_path: str | Path,
@@ -21339,15 +21437,36 @@ def _validate_durable_carrier_admission_receipt_confinement(
         confinement,
         DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS,
     )
+    collision_state = _extract_exact_marker_value(
+        confinement,
+        "Same Worktree / Same Branch Collision Check",
+    )
+    require(
+        _durable_collision_clear(collision_state),
+        f"{record_path}: durable carrier receipt does not prove a clear collision outcome",
+    )
+    off_worktree_routing = _extract_exact_marker_value(
+        confinement,
+        "Off-Worktree Work Routing",
+    )
+    require(
+        _durable_off_worktree_routing_is_blocked(off_worktree_routing),
+        f"{record_path}: durable carrier receipt does not block or route off-worktree work",
+    )
+    new_worktree_gate = _extract_exact_marker_value(
+        confinement,
+        "New Worktree Decision Gate",
+    )
+    require(
+        _durable_new_worktree_gate_is_user_owned(new_worktree_gate),
+        f"{record_path}: durable carrier receipt does not preserve the USER-owned new-worktree gate",
+    )
     no_cross_worktree = _extract_exact_marker_value(
         confinement,
         "No Cross-Worktree Mutation",
-    ).casefold()
+    )
     require(
-        any(term in no_cross_worktree for term in ("confirmed", "blocked", "prohibited"))
-        and not any(
-            term in no_cross_worktree for term in ("allowed", "authorized", "granted")
-        ),
+        _durable_no_cross_worktree_is_affirmative(no_cross_worktree),
         f"{record_path}: durable carrier receipt does not prove no cross-worktree mutation",
     )
     desktop_root = _extract_exact_marker_value(
@@ -21727,6 +21846,54 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         any("does not prove no cross-worktree mutation" in message for message in cross_worktree_failures),
         f"{durable_fixture}: permissive cross-worktree wording must fail closed",
     )
+    semantic_confinement_mutations = (
+        (
+            "Same Worktree / Same Branch Collision Check: `No collision.`",
+            "Same Worktree / Same Branch Collision Check: `Collision detected with another active owner.`",
+            "does not prove a clear collision outcome",
+        ),
+        (
+            "Off-Worktree Work Routing: `Blocked; route through Governance.`",
+            "Off-Worktree Work Routing: `Allowed.`",
+            "does not block or route off-worktree work",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `No USER approval required.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Not confirmed for this carrier.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Not prohibited for this carrier.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Confirmed but not currently prohibited.`",
+            "does not prove no cross-worktree mutation",
+        ),
+    )
+    for accepted_claim, invalid_claim, expected_failure in semantic_confinement_mutations:
+        semantic_failures: list[str] = []
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: semantic_failures.append(message)
+            if not condition
+            else None,
+            durable_fixture,
+            durable_fixture_text.replace(accepted_claim, invalid_claim),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            "origin/feature/governance-fixture",
+        )
+        require(
+            any(expected_failure in message for message in semantic_failures),
+            f"{durable_fixture}: semantic confinement mutation must fail closed: {invalid_claim}",
+        )
     for required_marker in (
         "No Cross-Worktree Mutation",
         "GitHub Desktop-bound worktree",

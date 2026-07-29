@@ -962,6 +962,12 @@ semantics: case-insensitive on Windows and case-sensitive on POSIX. Journal byte
 must also be read through the same no-follow confined handle whose component and
 file identity is checked before and after the read; a pathname check followed by
 a separate pathname read leaves an alias-replacement race.
+Surrogate code points are invalid evidence-path input and must be rejected before
+any filesystem operation. Strict JSON decoding must convert excessive nesting or
+decoder resource exhaustion into a normal fail-closed validation result rather
+than allowing a traceback to terminate the external-state CLI. Fixture mutation
+stubs must use the same host-path normalization as the validator so POSIX case
+semantics are exercised instead of accidentally lowercased away.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -987,6 +993,16 @@ is external, the external record must carry the complete current branch,
 worktree, owner, collision, write-set, routing, and waiver contract and may point
 to the exact historical repo receipt only as durable identity evidence; the
 pointer does not reactivate the receipt.
+Active durable confinement markers must also prove affirmative, non-contradictory
+outcomes. Marker presence alone cannot admit a receipt that reports a collision,
+allows off-worktree work, removes the USER-owned new-worktree gate, or negates
+the no-cross-worktree claim with wording such as `Not confirmed` or
+`Not prohibited`.
+
+Comment-family matching must treat generic UI prose such as `before text` as
+unknown unless journal, target-set, audit, external-state, or recovery context
+proves that the phrase names transaction evidence. A generic phrase cannot consume
+the external-state same-family review budget by itself.
 
 - source references:
   - `dev/orin_external_state_validation.py`

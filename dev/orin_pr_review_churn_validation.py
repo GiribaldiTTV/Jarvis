@@ -127,7 +127,6 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "confinement-safe file handle",
             "same handle before hashing",
             "snapshot copy can be swapped",
-            "before text",
             "before sha256",
             "after sha256",
             "transaction state",
@@ -140,15 +139,20 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "registered immutable path",
             "compatibility registry key",
             "case-sensitive external-state root",
+            "host case semantics",
             "modern evidence path",
             "journal target",
             "journal read",
+            "surrogate code point",
+            "json decoder",
+            "deeply nested audit",
         ),
     ),
     FamilyRule(
         "durable-carrier-confinement-parser",
         (
             "durable carrier",
+            "durable confinement",
             "durable receipt",
             "historical carrier",
             "historical receipt",
@@ -158,6 +162,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "historical/no-active",
             "receipt subsection heading",
             "durable authority pointer",
+            "no-cross-worktree",
+            "no cross-worktree",
         ),
     ),
     FamilyRule(
@@ -686,6 +692,24 @@ def _classify_comment(body: str) -> list[str]:
                     for context_keyword in REPO_LIVE_STATE_CURRENT_CYCLE_CONTEXT
                 )
             ]
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and "before text" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "target-set",
+                    "target set",
+                    "recovery payload",
+                    "recoverable",
+                    "external-state",
+                    "external state",
+                    "audit_log",
+                )
+            )
+        ):
+            matched_keywords.append("before text")
         if not matched_keywords:
             continue
         strong_keywords = [
@@ -930,6 +954,26 @@ def _classifier_guardrail_failures() -> list[str]:
     if _classify_comment(unrelated_decision_surface) != ["unknown"]:
         failures.append(
             "Comment-family classifier overmatched unrelated decision-surface wording"
+        )
+    unrelated_before_text = "Render the icon before text in the settings dialog."
+    if _classify_comment(unrelated_before_text) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched ordinary UI before-text wording"
+        )
+    unrelated_surrogate = "Use a surrogate key for the customer table migration."
+    if _classify_comment(unrelated_surrogate) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched ordinary database surrogate wording"
+        )
+    journal_before_text = (
+        "Reject recoverable Before Text in a modern journal because recovery payload "
+        "must never survive a committed target-set transaction."
+    )
+    if _classify_comment(journal_before_text) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Contextual Before Text evidence did not classify into the external-state family"
         )
     visual_comment = (
         "A Code-To-Visual row records Visual Match as Mismatch and Behavior Match "

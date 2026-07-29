@@ -740,6 +740,20 @@ def _write_modern_nonstandard_constant_fixture(root: Path, location: str) -> Pat
     return path
 
 
+def _write_deeply_nested_json_fixture(root: Path, *, target_set: bool) -> Path:
+    filename = "deep-target-set.json" if target_set else "deep-unrelated.json"
+    path = root / "audit_log" / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    prefix = (
+        '{"Transition":"' + validator.TARGET_SET_TRANSITION + '","Nested":'
+        if target_set
+        else '{"Nested":'
+    )
+    depth = 100_000
+    path.write_text(prefix + "[" * depth + "0" + "]" * depth + "}", encoding="utf-8")
+    return path
+
+
 def _write_malformed_nested_transition_fixture(root: Path) -> Path:
     path = root / "audit_log" / "malformed-nested-transition.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1300,6 +1314,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "malformed unrelated audit has nested target-set Transition",
             _write_malformed_nested_transition_fixture,
         ),
+        (
+            "deeply nested unrelated audit is safely ignored",
+            lambda root: _write_deeply_nested_json_fixture(root, target_set=False),
+        ),
     ]
     for name, setup in positive_cases:
         receipt = next(
@@ -1474,8 +1492,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 ("trailing-dot", "worktrees/Bad./state.md"),
                 ("trailing-space", "worktrees/Bad /state.md"),
                 ("reserved-name", "worktrees/NUL/state.md"),
+                ("surrogate", "worktrees/Bad\ud800Name/state.md"),
             )
         ],
+        (
+            "deeply nested target-set audit reports a validation failure",
+            lambda root: _write_deeply_nested_json_fixture(root, target_set=True),
+        ),
         (
             "matching malformed JSON",
             lambda root: (
@@ -1922,9 +1945,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 if not first_before_hash and isinstance(before_hash, str):
                     first_before_hash = before_hash.casefold()
                 if parts and isinstance(before_hash, str):
-                    target_before_hashes["/".join(parts).casefold()] = before_hash.casefold()
+                    target_before_hashes[
+                        validator._host_path_key("/".join(parts))
+                    ] = before_hash.casefold()
             if not target_before_hashes and first_before_hash:
-                target_before_hashes["worktrees/fixture/worktree_state.md"] = first_before_hash
+                target_before_hashes[
+                    validator._host_path_key("worktrees/Fixture/worktree_state.md")
+                ] = first_before_hash
         return []
     accept_completion_set = lambda *_args: []
     accept_completion_profile = lambda _values: PROFILE_BY_RECEIPT["receipt-1"]

@@ -146,11 +146,14 @@ def _strict_json_loads(text: str) -> object:
     def reject_constant(value: str) -> object:
         raise StrictJSONError(f"non-standard JSON numeric constant {value!r}")
 
-    return json.loads(
-        text,
-        object_pairs_hook=_strict_json_object,
-        parse_constant=reject_constant,
-    )
+    try:
+        return json.loads(
+            text,
+            object_pairs_hook=_strict_json_object,
+            parse_constant=reject_constant,
+        )
+    except (RecursionError, MemoryError) as exc:
+        raise StrictJSONError("JSON exceeds safe decoder resource limits") from exc
 
 
 def _strict_json_load_bytes(path: Path, raw_bytes: bytes) -> object:
@@ -1501,6 +1504,10 @@ def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
         or normalized.endswith("/")
         or any(":" in part for part in parts)
         or any(any(ord(character) < 32 for character in part) for part in parts)
+        or any(
+            any(0xD800 <= ord(character) <= 0xDFFF for character in part)
+            for part in parts
+        )
         or any(any(character in '<>"|?*' for character in part) for part in parts)
         or any(part.endswith((" ", ".")) for part in parts)
         or any(part.split(".", 1)[0].casefold() in reserved_names for part in parts)
