@@ -16,6 +16,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 RENDERER = ROOT / "desktop" / "desktop_renderer.py"
 CONTROLLER = ROOT / "dev" / "fam003_option_d_performance_controller.py"
 FIXTURES = ROOT / "dev" / "fixtures" / "fam003_option_g_lifecycle_retention_negative_cases.json"
