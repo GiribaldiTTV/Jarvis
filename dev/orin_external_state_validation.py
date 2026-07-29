@@ -2432,10 +2432,21 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         return False
     index = 0
     stack: list[str] = []
+    awaiting_root_member = False
     while index < len(text):
         character = text[index]
+        if character == "{" and stack == ["{"] and awaiting_root_member:
+            # A container cannot begin an object member. Ignore the stray token so
+            # malformed syntax cannot make a later root Transition look nested.
+            index += 1
+            continue
+        if character == "[" and stack == ["{"] and awaiting_root_member:
+            index += 1
+            continue
         if character == "{":
             stack.append("{")
+            if len(stack) == 1:
+                awaiting_root_member = True
             index += 1
             continue
         if character == "[":
@@ -2452,6 +2463,10 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
                 stack.pop()
             index += 1
             continue
+        if character == "," and stack == ["{"]:
+            awaiting_root_member = True
+            index += 1
+            continue
         if character != '"':
             index += 1
             continue
@@ -2464,6 +2479,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         index = key_end
         if not isinstance(key, str) or stack != ["{"]:
             continue
+        awaiting_root_member = False
         transition_key = key.strip().casefold() == "transition"
         cursor = key_end
         while cursor < len(text) and text[cursor].isspace():
@@ -2471,6 +2487,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         if cursor >= len(text) or text[cursor] != ":":
             if transition_key:
                 return True
+            awaiting_root_member = True
             continue
         cursor += 1
         while cursor < len(text) and text[cursor].isspace():
@@ -2496,11 +2513,14 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
                 if text[cursor] == '"'
                 else _tolerant_json_member_continuation(text, cursor)
             )
+            if text[cursor] != '"':
+                awaiting_root_member = True
             continue
         except (RecursionError, MemoryError):
             if transition_key:
                 return True
             index = _tolerant_json_member_continuation(text, cursor)
+            awaiting_root_member = True
             continue
         except ValueError as exc:
             if not _is_json_integer_resource_limit(exc):
@@ -2508,6 +2528,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
             if transition_key:
                 return True
             index = _tolerant_json_member_continuation(text, cursor)
+            awaiting_root_member = True
             continue
         index = value_end
         if transition_key:
@@ -2520,6 +2541,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
             delimiter += 1
         if delimiter < len(text) and text[delimiter] not in ",}":
             index = _tolerant_json_member_continuation(text, delimiter)
+            awaiting_root_member = True
     return False
 
 

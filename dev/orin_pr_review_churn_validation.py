@@ -50,6 +50,7 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "row",
     "table",
     "malformed",
+    "malformed json string",
     "surrogate code point",
     "blocked",
     "resolved",
@@ -125,6 +126,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "malformed journal",
             "malformed json string",
             "illegal container",
+            "stray container",
             "whitespace-padded transaction state",
             "oversized integer",
             "case-ambiguous snapshot root",
@@ -144,6 +146,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "journal extension",
             "bom-prefixed target-set",
             "immutable receipt path",
+            "immutable receipt registry",
+            "immutable legacy receipt compatibility registry",
             "registered immutable path",
             "compatibility registry key",
             "case-sensitive external-state root",
@@ -173,6 +177,12 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "permissive non-includes",
             "worktree ownership ledger",
             "historical singleton",
+            "stale active-owner",
+            "stale active owner",
+            "concrete intended write set",
+            "intended write set",
+            "duplicate external record class",
+            "routes from governance",
             "historical carrier",
             "historical authority claim",
             "historical absence claim",
@@ -509,6 +519,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "false exact-scope match",
             "surrogate-code-point matches",
             "surrogate code point matches",
+            "malformed-json matches",
+            "malformed json matches",
+            "malformed-json-string matches",
+            "malformed json string matches",
             "multi-family comments",
             "multi family comments",
             "mixed comments",
@@ -756,6 +770,23 @@ def _classify_comment(body: str) -> list[str]:
             matched_keywords.append("json decoder")
         if (
             rule.family_id == "external-state-transaction-evidence-parser"
+            and "malformed json string" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "audit",
+                    "target-set",
+                    "target set",
+                    "transaction",
+                    "external-state",
+                    "external state",
+                )
+            )
+        ):
+            matched_keywords.append("contextual malformed json string")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
             and "surrogate code point" in normalized
             and any(
                 context in normalized
@@ -842,6 +873,10 @@ def _classify_comment(body: str) -> list[str]:
         "false exact-scope match",
         "surrogate-code-point matches",
         "surrogate code point matches",
+        "malformed-json matches",
+        "malformed json matches",
+        "malformed-json-string matches",
+        "malformed json string matches",
         "multi-family comments",
         "multi family comments",
         "mixed comments",
@@ -1039,6 +1074,22 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Contextual surrogate-code-point review did not classify into the external-state family"
+        )
+    unrelated_malformed_profile = (
+        "The profile import accepts a malformed JSON string in a customer name."
+    )
+    if _classify_comment(unrelated_malformed_profile) != ["unknown"]:
+        failures.append(
+            "Unrelated malformed-JSON-string prose must remain unknown without external-state context"
+        )
+    external_malformed_journal = (
+        "A malformed JSON string in the external-state journal hides a target-set Transition."
+    )
+    if _classify_comment(external_malformed_journal) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Contextual malformed-JSON-string review did not classify into the external-state family"
         )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
@@ -1402,9 +1453,11 @@ def _classifier_guardrail_failures() -> list[str]:
         "Restore active worktree confinement markers such as Active Thread Owner, "
         "Thread Assignment Status, and Intended Write Set."
     )
-    if "repo-live-state-boundary-parser" not in _classify_comment(worktree_confinement_comment):
+    if "durable-carrier-confinement-parser" not in _classify_comment(
+        worktree_confinement_comment
+    ):
         failures.append(
-            "Comment-family classifier did not classify standing worktree confinement drift"
+            "Comment-family classifier did not classify exact worktree confinement drift"
         )
     helper_source = Path(__file__).read_text(encoding="utf-8")
     helper_lines = helper_source.splitlines()

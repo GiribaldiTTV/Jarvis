@@ -8522,8 +8522,14 @@ def _external_state_has_current_confinement(
     state_identity = _section(state_text, "Branch Identity")
     state_identity_branch = _extract_exact_marker_value(state_identity, "Branch")
     state_identity_worktree = _extract_exact_marker_value(state_identity, "Worktree")
+    record_class_markers = re.findall(
+        r"^[ \t]*(?:-[ \t]*)?Record Class:[ \t]*[^ \t\r\n][^\r\n]*$",
+        state_text,
+        flags=re.M,
+    )
     return bool(
-        _extract_exact_marker_value(state_text, "Record Class")
+        len(record_class_markers) == 1
+        and _extract_exact_marker_value(state_text, "Record Class")
         == "Live Branch Projection"
         and state_identity_branch == branch_name
         and state_identity_worktree
@@ -21397,18 +21403,25 @@ def _durable_off_worktree_routing_is_blocked(value: str) -> bool:
         "may mutate",
         "without routing",
     )
+    sibling_destinations = (
+        "from governance",
+        "sibling worktree",
+        "sibling carrier",
+        "sibling lane",
+        "another worktree",
+        "other worktree",
+    )
     explicitly_blocked = normalized.startswith("blocked")
-    safe_route = (
-        any(term in normalized for term in ("route", "routes"))
-        and any(
-            destination in normalized
-            for destination in ("governance", "owning carrier", "legal carrier", "owning lane")
-        )
+    safe_route = re.search(
+        r"\broutes?\s+(?:through|to)\s+(?:the\s+)?"
+        r"(?:governance|owning carrier|legal carrier|owning lane)\b",
+        normalized,
     )
     context_only = "context only" in normalized or "read-only" in normalized
     return bool(
         (explicitly_blocked or safe_route or context_only)
         and not any(term in normalized for term in permissive_terms)
+        and not any(destination in normalized for destination in sibling_destinations)
     )
 
 
@@ -21507,7 +21520,9 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     denied = re.search(
         r"\b(?:none|no (?:active )?(?:thread )?owner(?: exists)?|unassigned|"
-        r"not assigned|owner (?:is )?(?:absent|missing|unknown))\b",
+        r"not assigned|owner (?:is )?(?:absent|missing|unknown)|revoked|expired|"
+        r"historical|inactive|previous(?:ly)?|former(?:ly)?|prior|no longer active|"
+        r"(?:owner|ownership) (?:ended|closed|terminated))\b",
         normalized,
     )
     identifies_owner = re.search(r"\b(?:codex|thread|workload|owner|user)\b", normalized)
@@ -21542,14 +21557,25 @@ def _durable_write_set_is_bounded(value: str) -> bool:
     denied = re.search(
         r"\b(?:none|no (?:approved )?write set|write set (?:is )?"
         r"(?:absent|missing|unknown|unapproved|not approved)|unbounded|unrestricted|"
-        r"all files|any file|entire (?:repo|repository|worktree))\b",
+        r"all files|any file|entire (?:repo|repository|worktree)|to be determined|"
+        r"tbd|unspecified|not (?:yet )?(?:named|selected|identified)|"
+        r"(?:named|selected|identified) later|as needed|relevant files|applicable files)\b",
         normalized,
     )
     boundary = re.search(r"\b(?:bounded|exact|named|only)\b", normalized)
-    scope = re.search(r"\b(?:files?|validators?|targets?|docs|dev)\b", normalized) or any(
-        separator in normalized for separator in ("/", "\\", ";")
+    concrete_path = re.search(
+        r"(?:^|[ ;])(?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+(?:\.[a-z0-9]+)?(?:$|[ ;])|"
+        r"\b[a-z0-9_.-]+\.(?:py|md|json|ps1|txt|toml|ya?ml)\b",
+        normalized,
     )
-    return bool(boundary and scope and denied is None)
+    named_scope = re.search(
+        r"\bfixture\s+validator\s+files?\b|"
+        r"\b(?:external-state|target-currentness|branch-state|source-truth|review-churn)\b"
+        r"(?:\s+[a-z0-9._-]+){0,3}\s+"
+        r"(?:files?|validators?|targets?|helpers?|fixtures?|audits?|projections?)\b",
+        normalized,
+    )
+    return bool(boundary and (concrete_path or named_scope) and denied is None)
 
 
 def _durable_carrier_pr_review_started(
@@ -21927,8 +21953,17 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             ),
             "feature/governance-fixture",
             "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "Record Class: `Live Branch Projection`",
+                "Record Class: `Historical Receipt`\n"
+                "Record Class: `Live Branch Projection`",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
         ),
-        "external authority must reject wrong branch, wrong worktree, missing confinement, and non-live record class",
+        "external authority must reject wrong branch, wrong worktree, missing confinement, non-live record class, and duplicate record-class markers",
     )
     durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
@@ -22179,6 +22214,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no explicit active thread owner",
         ),
         (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Historical Codex owner; no longer active.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Prior Codex owner; owner ended.`",
+            "has no explicit active thread owner",
+        ),
+        (
             "Thread Assignment Status: `Single fixture owner assigned.`",
             "Thread Assignment Status: `No owner assigned.`",
             "has no active thread assignment",
@@ -22224,6 +22269,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no bounded intended write set",
         ),
         (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only files to be determined later.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only governance files.`",
+            "has no bounded intended write set",
+        ),
+        (
             "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
             "Dirty Worktree Recovery Packet:",
             "exactly one nonblank 'Dirty Worktree Recovery Packet:' marker",
@@ -22246,6 +22301,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Off-Worktree Work Routing: `Blocked; route through Governance.`",
             "Off-Worktree Work Routing: `Not blocked; route directly to the sibling worktree.`",
+            "does not block or route off-worktree work",
+        ),
+        (
+            "Off-Worktree Work Routing: `Blocked; route through Governance.`",
+            "Off-Worktree Work Routing: `Route from Governance to the sibling worktree.`",
             "does not block or route off-worktree work",
         ),
         (

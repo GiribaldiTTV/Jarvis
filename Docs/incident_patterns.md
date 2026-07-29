@@ -983,6 +983,9 @@ decoded member value followed by an illegal container must likewise remain
 malformed member syntax instead of changing structural depth. An unterminated
 container used as a malformed member value must resume at the next apparent
 root-member delimiter instead of trapping later root-level transition evidence.
+While awaiting the next root member, including after a malformed key, stray object
+or array openers are malformed tokens and must not alter structural depth or hide
+a later root `Transition`.
 Decoder integer
 digit-limit failures must become fail-closed validation results rather than
 tracebacks. `Transaction State` evidence is canonical-byte evidence: leading or
@@ -1030,7 +1033,11 @@ the no-cross-worktree claim with wording such as `Not confirmed` or
 write-set markers must prove those semantics rather than merely remain nonblank.
 Assignment evidence that is revoked, expired, inactive, former, or historical is
 not active assignment authority; the same stale-state rejection applies to USER
-admission approval and worktree ownership-ledger evidence. `Non-Includes` must be
+admission approval, active-owner claims, and worktree ownership-ledger evidence.
+An intended write set must name a concrete path, validator, target, or similarly
+specific artifact; `files to be determined later` is not bounded scope. Routing
+must point through or to the owning/legal carrier and must reject Governance-to-
+sibling or other-worktree destinations. `Non-Includes` must be
 prohibitive, not a noun checklist that later says mutation is allowed or not
 excluded. Marker parsing and required-marker cardinality
 must use horizontal whitespace around same-line values; a blank marker must never
@@ -1041,6 +1048,9 @@ case and must reject a distinct case-variant path.
 Historical singleton admission, scope, confinement, write-set, collision, and
 waiver receipts use the same physical-line rule; blank historical provenance
 cannot borrow the following marker and still classify as a valid fold-down.
+External live authority requires exactly one nonblank `Record Class` marker with
+the canonical `Live Branch Projection` value; duplicate historical/live markers
+cannot be resolved by last-value-wins parsing.
 Safe-state parsing must reject a positive prefix followed by a contradictory
 clause: collision still exists, routing is not blocked or goes directly to a
 sibling, USER approval concerns another decision or is explicitly absent for the
@@ -1063,9 +1073,13 @@ carrier family. When an exact-scope comment also strongly matches another covere
 family, preserve both matches even if the prose omits that family's acronym.
 Generic `json decoder` wording likewise requires journal, audit, transaction,
 target-set, or external-state context before it maps to transaction evidence.
+The same context rule applies to generic `malformed JSON string` wording.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains
 unknown unless the classifier-review wording itself routes it to the classifier family.
+The immutable legacy-receipt compatibility registry changes which audit identities
+are admitted and is therefore a changed-file-gated implementation surface, not an
+ungated data file.
 
 - source references:
   - `dev/orin_external_state_validation.py`

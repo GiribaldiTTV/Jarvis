@@ -915,6 +915,42 @@ def _write_malformed_container_value_transition_fixture(root: Path) -> Path:
     return path
 
 
+def _write_stray_container_after_delimiter_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "stray-container-after-delimiter-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":1, {, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_stray_array_after_delimiter_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "stray-array-after-delimiter-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":1, [, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_stray_container_after_malformed_key_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "stray-container-after-malformed-key.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":1, "Broken" {, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_oversized_integer_transition_fixture(root: Path) -> Path:
     path = root / "audit_log" / "oversized-integer-transition.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1801,6 +1837,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             _write_malformed_container_value_transition_fixture,
         ),
         (
+            "matching malformed JSON with stray container after member delimiter",
+            _write_stray_container_after_delimiter_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with stray array after member delimiter",
+            _write_stray_array_after_delimiter_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with stray container after malformed key",
+            _write_stray_container_after_malformed_key_fixture,
+        ),
+        (
             "matching malformed JSON with oversized integer",
             _write_oversized_integer_transition_fixture,
         ),
@@ -2520,6 +2568,30 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "unterminated container value hides top-level Transition",
         negative_setups["matching malformed JSON with unterminated container value"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "stray container after member delimiter hides top-level Transition",
+        negative_setups[
+            "matching malformed JSON with stray container after member delimiter"
+        ],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "stray array after member delimiter hides top-level Transition",
+        negative_setups[
+            "matching malformed JSON with stray array after member delimiter"
+        ],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "stray container after malformed key hides top-level Transition",
+        negative_setups[
+            "matching malformed JSON with stray container after malformed key"
+        ],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )
