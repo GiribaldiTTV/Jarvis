@@ -797,6 +797,29 @@ def _write_modern_non_string_lock_identity_fixture(root: Path, field: str) -> Pa
     return path
 
 
+def _write_modern_deep_unrelated_metadata_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    nested: object = "unrelated metadata"
+    for _ in range(500):
+        nested = [nested]
+    payload["Metadata"] = nested
+    atomic_write_json(path, payload)
+    return path
+
+
+def _write_nested_malformed_value_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "nested-malformed-value-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":[1, {bad}], "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -1569,6 +1592,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "deeply nested unrelated audit is safely ignored",
             lambda root: _write_deeply_nested_json_fixture(root, target_set=False),
         ),
+        (
+            "modern journal deeply nested unrelated metadata is safely scanned",
+            _write_modern_deep_unrelated_metadata_fixture,
+        ),
     ]
     for name, setup in positive_cases:
         receipt = next(
@@ -1878,6 +1905,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON with stray container after malformed key",
             _write_stray_container_after_malformed_key_fixture,
+        ),
+        (
+            "matching malformed JSON with nested malformed value",
+            _write_nested_malformed_value_transition_fixture,
         ),
         (
             "matching malformed JSON with oversized integer",

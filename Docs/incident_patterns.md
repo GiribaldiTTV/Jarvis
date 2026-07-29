@@ -994,6 +994,8 @@ trailing whitespace is invalid. Snapshot manifests must reject case-ambiguous
 Modern committed journals require canonical `Last Updated` and nonblank
 `Last Updated By` attribution, and they must reject nested recovery, rollback,
 pre-write, or original-target payload aliases as recoverable pre-write content.
+Recovery-payload discovery must use bounded iterative traversal so deeply nested
+unrelated metadata cannot terminate validation with recursion exhaustion.
 Modern released-lock binding requires string-typed `Lock ID` and `Workload ID`
 evidence; numeric JSON values cannot match journal strings through coercion.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
@@ -1057,11 +1059,19 @@ requires exactly one nonblank `Branch` and one nonblank `Worktree`; foreign/expe
 duplicates are contradictory authority, not a selectable final value. When the
 projection header repeats either identity, the singular header and section values
 must agree.
+The external projection must also carry every required Assigned Worktree
+Confinement marker exactly once, and its expected, actual, and GitHub
+Desktop-bound worktree roots must all match the current checkout before the
+durable-pointer route can supply mutation authority.
 Safe-state parsing must reject a positive prefix followed by a contradictory
 clause: collision still exists, routing is not blocked or goes directly to a
 sibling, USER approval concerns another decision or is explicitly absent for the
 new worktree, or cross-worktree mutation can proceed. The accepted claim must
 name the safe outcome itself.
+Pending, prospective, candidate, future, or awaiting owner/assignment/ownership
+claims are not active authority. Likewise, `no collision check` or wording that
+the check is pending, incomplete, unperformed, or unverified is not a
+collision-clear result.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,
@@ -1085,6 +1095,8 @@ target-set, or external-state context before it maps to transaction evidence.
 The same context rule applies to generic `malformed JSON string` wording.
 Generic `oversized integer` wording likewise requires journal, audit, JSON-decoder,
 transaction, target-set, or external-state context.
+Malformed-value recovery must track nested containers until an outer-object member
+delimiter is reached; an inner comma or brace cannot hide a later root Transition.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains
 unknown unless the classifier-review wording itself routes it to the classifier family.

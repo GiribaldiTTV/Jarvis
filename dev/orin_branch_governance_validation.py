@@ -8560,6 +8560,37 @@ def _external_state_has_current_confinement(
         state_text,
         flags=re.M,
     )
+    confinement = _section(state_text, "Assigned Worktree Confinement")
+    confinement_marker_counts = {
+        marker: len(
+            re.findall(
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                confinement,
+                flags=re.M,
+            )
+        )
+        for marker in ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS
+    }
+    confinement_roots = tuple(
+        _extract_exact_marker_value(confinement, marker)
+        for marker in (
+            "Expected Worktree Root",
+            "Actual Worktree Root",
+            "GitHub Desktop-bound worktree",
+        )
+    )
+    confinement_matches_current_root = bool(
+        confinement
+        and all(count == 1 for count in confinement_marker_counts.values())
+        and all(confinement_roots)
+        and (
+            not actual_root
+            or all(
+                _normalized_local_path(root) == _normalized_local_path(actual_root)
+                for root in confinement_roots
+            )
+        )
+    )
     return bool(
         len(record_class_markers) == 1
         and all(count == 1 for count in identity_marker_counts.values())
@@ -8573,7 +8604,7 @@ def _external_state_has_current_confinement(
             or _normalized_local_path(state_identity_worktree)
             == _normalized_local_path(actual_root)
         )
-        and _section(state_text, "Assigned Worktree Confinement")
+        and confinement_matches_current_root
     )
 
 
@@ -21402,9 +21433,22 @@ def _durable_collision_clear(value: str) -> bool:
         "although",
         "yet",
         "except",
+        "no collision check",
+        "not checked",
+        "not completed",
+        "never completed",
+        "never ran",
+        "not run",
+        "unperformed",
+        "not performed",
+        "pending",
+        "incomplete",
+        "unverified",
+        "not verified",
+        "awaiting",
     )
     collision_match = re.search(
-        r"\bno(?: same-worktree| same-branch| worktree| branch)? collision\b",
+        r"\bno(?: same-worktree| same-branch| worktree| branch)? collision\b(?!\s+check\b)",
         normalized,
     )
     explicit_owner_clear = any(
@@ -21572,6 +21616,8 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
         r"\b(?:none|no (?:active )?(?:thread )?owner(?: exists)?|unassigned|"
         r"not assigned|owner (?:is )?(?:absent|missing|unknown)|revoked|expired|"
         r"historical|inactive|previous(?:ly)?|former(?:ly)?|prior|no longer active|"
+        r"pending|prospective|candidate|future|awaiting|not yet assigned|"
+        r"to be (?:assigned|selected|determined|confirmed)|"
         r"(?:owner|ownership) (?:ended|closed|terminated))\b",
         normalized,
     )
@@ -21584,7 +21630,9 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
     denied = re.search(
         r"\b(?:none|unassigned|not assigned|no (?:active )?(?:thread )?owner(?: assigned)?|"
         r"revoked|expired|historical|inactive|previously assigned|formerly assigned|"
-        r"no longer assigned|assignment (?:ended|closed|terminated))\b",
+        r"pending|prospective|candidate|future|awaiting|not yet assigned|"
+        r"to be (?:assigned|selected|determined|confirmed)|no longer assigned|"
+        r"assignment (?:ended|closed|terminated))\b",
         normalized,
     )
     return bool(re.search(r"\bassigned\b", normalized) and denied is None)
@@ -21595,7 +21643,9 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
     denied = re.search(
         r"\b(?:none|no (?:active )?owner(?: exists)?|owner (?:is )?(?:absent|missing|unknown)|"
         r"unowned|not owned|revoked|expired|historical|inactive|previously owned|"
-        r"formerly owned|no longer owned|ownership (?:ended|closed|terminated))\b",
+        r"formerly owned|pending|prospective|candidate|future|awaiting|not yet owned|"
+        r"to be (?:owned|assigned|selected|determined|confirmed)|no longer owned|"
+        r"ownership (?:ended|closed|terminated))\b",
         normalized,
     )
     ownership = "owned by" in normalized or "ownership" in normalized
@@ -21968,6 +22018,22 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`\n\n"
         "## Assigned Worktree Confinement\n\n"
         "Assigned Worktree Confinement: `Active external authority fixture`\n"
+        "Active Thread Owner: `Fixture Codex workload`\n"
+        "Thread Assignment Status: `Single fixture owner assigned`\n"
+        "Worktree Ownership Ledger: `Owned by the fixture workload`\n"
+        "Intended Write Set: `dev/orin_branch_governance_validation.py`\n"
+        "Same Worktree / Same Branch Collision Check: `No collision`\n"
+        "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`\n"
+        "Dirty Worktree Recovery Packet: `Not required for the fixture`\n"
+        "Off-Worktree Work Routing: `Blocked; route through the owning carrier`\n"
+        "Governance Routing Barrier: `Active`\n"
+        "New Worktree Decision Gate: `USER approval required`\n"
+        "Expected Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`\n"
+        "Actual Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`\n"
+        "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited`\n"
+        "GitHub Desktop-bound worktree: `C:\\Nexus Worktrees\\Governance-Fixture`\n"
+        "Worktree Escape User Waiver: `Not required; expected and actual worktree roots match`\n"
+        "Worktree Escape User Waiver Missing: `Not applicable; no worktree escape requested`\n"
     )
     require(
         _external_state_has_current_confinement(
@@ -22046,8 +22112,24 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             ),
             "feature/governance-fixture",
             "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "Expected Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "Expected Worktree Root: `C:\\Nexus Worktrees\\Foreign-Fixture`",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "Actual Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`\n",
+                "",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
         ),
-        "external authority must reject wrong, duplicate, or header-conflicting identity, missing confinement, non-live record class, and duplicate record-class markers",
+        "external authority must reject wrong, duplicate, or header-conflicting identity, incomplete or foreign-root confinement, non-live record class, and duplicate record-class markers",
     )
     durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
@@ -22308,6 +22390,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no explicit active thread owner",
         ),
         (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Pending owner selection.`",
+            "has no explicit active thread owner",
+        ),
+        (
             "Thread Assignment Status: `Single fixture owner assigned.`",
             "Thread Assignment Status: `No owner assigned.`",
             "has no active thread assignment",
@@ -22328,6 +22415,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no active thread assignment",
         ),
         (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Future owner to be assigned.`",
+            "has no active thread assignment",
+        ),
+        (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `No owner exists.`",
             "has no active worktree ownership ledger",
@@ -22340,6 +22432,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `Historical ownership only.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Prospective owner candidate.`",
             "has no active worktree ownership ledger",
         ),
         (
@@ -22375,6 +22472,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Same Worktree / Same Branch Collision Check: `No collision.`",
             "Same Worktree / Same Branch Collision Check: `No collision, but collision exists.`",
+            "does not prove a clear collision outcome",
+        ),
+        (
+            "Same Worktree / Same Branch Collision Check: `No collision.`",
+            "Same Worktree / Same Branch Collision Check: `No collision check has been completed.`",
             "does not prove a clear collision outcome",
         ),
         (

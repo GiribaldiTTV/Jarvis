@@ -53,6 +53,7 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "malformed json string",
     "oversized integer",
     "surrogate code point",
+    "traversal",
     "blocked",
     "resolved",
     "unresolved",
@@ -126,6 +127,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "committed journal",
             "malformed journal",
             "malformed json string",
+            "nested malformed values",
+            "malformed-value nesting",
+            "root-member delimiter",
+            "outer-object delimiter",
             "illegal container",
             "stray container",
             "whitespace-padded transaction state",
@@ -849,6 +854,25 @@ def _classify_comment(body: str) -> list[str]:
             )
         ):
             matched_keywords.append("historical receipt")
+        if (
+            rule.family_id == "rar-path-suffix-parser"
+            and "traversal" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "path suffix",
+                    "path-suffix",
+                    "suffix parser",
+                    "terminal punctuation",
+                    "inline-code",
+                    "inline code",
+                    ".tmp",
+                    ".md",
+                    ".zip",
+                )
+            )
+        ):
+            matched_keywords.append("contextual path traversal")
         if not matched_keywords:
             continue
         strong_keywords = [
@@ -1137,6 +1161,30 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Contextual oversized-integer review did not classify into the external-state family"
         )
+    nested_malformed_value = (
+        "Track nested malformed values so an inner comma is not treated as a "
+        "root-member delimiter."
+    )
+    if _classify_comment(nested_malformed_value) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Nested malformed-value review did not classify into the external-state family"
+        )
+    unrelated_iterative_traversal = (
+        "Use iterative traversal while scanning deeply nested modern journal recovery payloads."
+    )
+    if _classify_comment(unrelated_iterative_traversal) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "External iterative traversal must not acquire the RAR path-suffix family"
+        )
+    rar_path_traversal = (
+        "The RAR path-suffix parser must reject traversal hidden by terminal punctuation."
+    )
+    if _classify_comment(rar_path_traversal) != ["rar-path-suffix-parser"]:
+        failures.append("Contextual RAR path traversal did not retain its path-suffix family")
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."

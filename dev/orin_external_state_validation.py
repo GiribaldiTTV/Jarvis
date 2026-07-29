@@ -2197,31 +2197,31 @@ def _validate_legacy_completed_target_set_receipt(
 
 
 def _contains_recovery_payload_field(value: object) -> bool:
-    if isinstance(value, dict):
-        return any(
-            (
-                isinstance(key, str)
-                and (
-                    (normalized_key := re.sub(r"[-_/]+", " ", key.casefold()).strip())
-                    == "before text"
-                    or any(
-                        marker in normalized_key
-                        for marker in ("recovery", "rollback", "pre write", "prewrite")
-                    )
-                    or (
-                        "original target" in normalized_key
-                        and any(
-                            payload_term in normalized_key
-                            for payload_term in ("data", "text", "content")
+    pending = [value]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, dict):
+            for key, nested in current.items():
+                if isinstance(key, str):
+                    normalized_key = re.sub(r"[-_/]+", " ", key.casefold()).strip()
+                    if (
+                        normalized_key == "before text"
+                        or any(
+                            marker in normalized_key
+                            for marker in ("recovery", "rollback", "pre write", "prewrite")
                         )
-                    )
-                )
-            )
-            or _contains_recovery_payload_field(nested)
-            for key, nested in value.items()
-        )
-    if isinstance(value, list):
-        return any(_contains_recovery_payload_field(item) for item in value)
+                        or (
+                            "original target" in normalized_key
+                            and any(
+                                payload_term in normalized_key
+                                for payload_term in ("data", "text", "content")
+                            )
+                        )
+                    ):
+                        return True
+                pending.append(nested)
+        elif isinstance(current, list):
+            pending.extend(current)
     return False
 
 
@@ -2410,16 +2410,44 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
 
     index = start
     first_closing_brace: int | None = None
+    nested_stack: list[str] = []
+    nested_has_content: list[bool] = []
+    malformed_nesting = False
     while index < len(text):
         character = text[index]
         if character == '"':
             index = _tolerant_json_string_end(text, index)
+            if nested_has_content:
+                nested_has_content[-1] = True
+            continue
+        if character in "{[":
+            if nested_has_content:
+                nested_has_content[-1] = True
+            nested_stack.append(character)
+            nested_has_content.append(False)
+            index += 1
+            continue
+        if character in "}]":
+            expected = "{" if character == "}" else "["
+            if nested_stack and nested_stack[-1] == expected:
+                nested_stack.pop()
+                nested_has_content.pop()
+                if nested_has_content:
+                    nested_has_content[-1] = True
+            elif nested_stack:
+                malformed_nesting = True
+            elif character == "}" and first_closing_brace is None:
+                first_closing_brace = index
+            index += 1
             continue
         if character == ",":
-            return index + 1
-        if character == "}":
-            if first_closing_brace is None:
-                first_closing_brace = index
+            if not nested_stack or malformed_nesting or not nested_has_content[-1]:
+                return index + 1
+            nested_has_content[-1] = False
+            index += 1
+            continue
+        if nested_has_content and not character.isspace():
+            nested_has_content[-1] = True
         index += 1
     return first_closing_brace if first_closing_brace is not None else len(text)
 
