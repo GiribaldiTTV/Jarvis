@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import argparse
 import ast
+import datetime as dt
 import hashlib
 import json
 import re
+import statistics
 import subprocess
 import sys
 from pathlib import Path
@@ -17,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RENDERER = ROOT / "desktop" / "desktop_renderer.py"
 CONTROLLER = ROOT / "dev" / "fam003_option_d_performance_controller.py"
 FIXTURES = ROOT / "dev" / "fixtures" / "fam003_option_g_lifecycle_retention_negative_cases.json"
+LOG_ROOT = ROOT / "dev" / "logs" / "fam003_option_g_lifecycle_retention"
 DEFAULT_IMPLEMENTATION_BASE = "0242816c7f179684f50cd510c2961ce2c109da11"
 EXPECTED_RECORDING_CLASS_SHA256 = "8990492939ED174C4920283674811C63DD8F7F688E26A8EBD1796BEA04276970"
 ALLOWED_RENDERER_REGIONS = {
@@ -317,6 +320,7 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
     failures: list[str] = []
     if len(sessions) < 3:
         failures.append(f"OPTG-EVIDENCE-SESSIONS:{len(sessions)}")
+    all_observations: list[dict[str, Any]] = []
     for index, session in enumerate(sessions, start=1):
         prefix = f"OPTG-EVIDENCE-S{index:02d}"
         if session.get("sourceHead") != expected_head:
@@ -330,6 +334,7 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
         if session.get("utsRequested") is not False:
             failures.append(f"{prefix}-UTS")
         observations = session.get("observations", [])
+        all_observations.extend(observations)
         states = [row.get("state") for row in observations]
         required_counts = {
             "startup-resident-idle": 1,
@@ -346,6 +351,24 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
                 observation.get("surfaceInventoryBefore", {}),
                 observation.get("surfaceInventoryAfter", {}),
             ]
+            raw_samples = observation.get("rawSamples", [])
+            if observation.get("rawSampleCount") != len(raw_samples):
+                failures.append(f"{prefix}-RAW-SAMPLE-COUNT-{state}")
+            if any(
+                sample.get("productProcessCount") != len(sample.get("productProcesses", []))
+                for sample in raw_samples
+            ):
+                failures.append(f"{prefix}-RAW-PROCESS-COUNT-{state}")
+            process_rows = observation.get("perProcess", [])
+            reproduced_cpu = round(
+                sum(float(row.get("cpuTimeSeconds") or 0.0) for row in process_rows), 6
+            )
+            reported_cpu = round(
+                float((observation.get("totalProductTree") or {}).get("cpuTimeSeconds") or 0.0),
+                6,
+            )
+            if reproduced_cpu != reported_cpu:
+                failures.append(f"{prefix}-RAW-CPU-PARITY-{state}")
             for inventory in inventories:
                 hud = _surface(inventory, "hud-dashboard")
                 log_viewer = _surface(inventory, "nexus-log-viewer")
@@ -375,7 +398,80 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
             failures.append(f"{prefix}-CALLBACK-COUNTS")
         if counts.get("recording-studio-resize-hover", 0) != 0:
             failures.append(f"{prefix}-RECORDING-CALLBACK")
+    product_cpu = [
+        float((row.get("totalProductTree") or {}).get("cpuCoreEquivalentPercent") or 0.0)
+        for row in all_observations
+    ]
+    observer_cpu = [
+        float((row.get("observerOverhead") or {}).get("cpuCoreEquivalentPercent") or 0.0)
+        for row in all_observations
+    ]
+    relative_overhead = (
+        statistics.median(observer_cpu) / statistics.median(product_cpu) * 100.0
+        if product_cpu and statistics.median(product_cpu) > 0
+        else None
+    )
+    if relative_overhead is None or relative_overhead > 5.0:
+        failures.append(
+            "OPTG-EVIDENCE-OBSERVER-OVERHEAD:"
+            f"{relative_overhead if relative_overhead is not None else 'missing'}"
+        )
     return failures
+
+
+def _git(*args: str) -> str:
+    return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+
+
+def run_sessions(run_count: int, output_root: Path | None) -> tuple[Path, str]:
+    from dev.orin_fam003_option_d_nonintrusive_performance_validation import (
+        _launch_session,
+        _runtime_processes,
+        resolve_desktop_shortcut_for_current_root,
+    )
+
+    if run_count < 3:
+        raise RuntimeError("Option G lifecycle proof requires at least three normal-launch sessions")
+    head = _git("rev-parse", "HEAD")
+    branch = _git("branch", "--show-current")
+    if branch != "feature/fam-003-settings-resize-proof":
+        raise RuntimeError(f"wrong FAM-003 carrier: {branch}")
+    resolution = resolve_desktop_shortcut_for_current_root(ROOT)
+    if resolution.get("mode") != "actual-desktop-shortcut-current-root":
+        raise RuntimeError(f"exact current-root Desktop shortcut unavailable: {resolution}")
+    if _runtime_processes():
+        raise RuntimeError("an active FAM-003 desktop runtime would contaminate measurement")
+    root = (
+        output_root.resolve()
+        if output_root is not None
+        else LOG_ROOT / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    )
+    root.mkdir(parents=True, exist_ok=False)
+    sessions = [
+        _launch_session(str(resolution["path"]), root, head, index)
+        for index in range(1, run_count + 1)
+    ]
+    manifest = root / "fam003_option_g_lifecycle_retention_manifest.json"
+    payload = {
+        "schema": "fam003-option-g-lifecycle-retention-workstream-v1",
+        "status": "PENDING_VALIDATION",
+        "branch": branch,
+        "sourceHead": head,
+        "normalLauncher": resolution,
+        "normalLauncherSessions": sessions,
+        "formalH1Entered": False,
+        "formalLiveValidationEntered": False,
+        "utsRequested": False,
+        "optionDTemporary": True,
+    }
+    manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    failures = validate_evidence(manifest, head)
+    payload["status"] = "PASS" if not failures else "FAIL"
+    payload["validationFailures"] = failures
+    manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if failures:
+        raise RuntimeError(f"Option G lifecycle evidence failed: {failures}")
+    return manifest, head
 
 
 def main() -> int:
@@ -383,6 +479,8 @@ def main() -> int:
     parser.add_argument("--implementation-base", default=DEFAULT_IMPLEMENTATION_BASE)
     parser.add_argument("--evidence-manifest", type=Path)
     parser.add_argument("--expected-head", default="")
+    parser.add_argument("--run-sessions", type=int, default=0)
+    parser.add_argument("--output-root", type=Path)
     parser.add_argument("--skip-fixtures", action="store_true")
     args = parser.parse_args()
 
@@ -395,6 +493,16 @@ def main() -> int:
         fixture_payload = json.loads(FIXTURES.read_text(encoding="utf-8"))
         fixture_count = len(fixture_payload.get("cases", []))
         failures.extend(validate_negative_fixtures(renderer, controller))
+    if args.run_sessions:
+        try:
+            generated_manifest, generated_head = run_sessions(
+                args.run_sessions, args.output_root
+            )
+        except RuntimeError as exc:
+            failures.append(f"OPTG-EVIDENCE-RUN:{exc}")
+        else:
+            args.evidence_manifest = generated_manifest
+            args.expected_head = generated_head
     if args.evidence_manifest:
         if not args.expected_head:
             failures.append("OPTG-EVIDENCE-EXPECTED-HEAD-MISSING")

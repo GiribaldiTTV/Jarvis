@@ -17,6 +17,7 @@ import psutil
 METHODOLOGY_VERSION = "fam003-option-d-nonintrusive-performance-v4"
 DEFAULT_TIMEOUT_SECONDS = 420
 USS_SAMPLE_EVERY_N_INTERVALS = 8
+PROCESS_TREE_REFRESH_EVERY_N_INTERVALS = 4
 
 
 def _atomic_json(path: Path, payload: dict[str, Any]) -> None:
@@ -161,11 +162,12 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
     observer_memory_samples: list[dict[str, int | str | None]] = []
     process_accumulator: dict[int, dict[str, Any]] = {}
     raw_samples: list[dict[str, Any]] = []
-    initial_pids = {process.pid for process in _product_tree(root_pid)}
+    cached_processes = {process.pid: process for process in _product_tree(root_pid)}
+    initial_pids = set(cached_processes)
     started = time.perf_counter()
     previous_cpu: dict[int, float] = {}
     metadata_cache: dict[int, dict[str, Any]] = {}
-    for process in _product_tree(root_pid):
+    for process in cached_processes.values():
         try:
             previous_cpu[process.pid] = _cpu_seconds(process)
         except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -179,8 +181,11 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
         interval_duration = max(0.001, time.perf_counter() - interval_started)
         include_uss = sample_index % USS_SAMPLE_EVERY_N_INTERVALS == 0 or remaining <= interval_ms
         rows: list[dict[str, Any]] = []
-        current_processes = _product_tree(root_pid)
-        current_pids = {process.pid for process in current_processes}
+        if sample_index % PROCESS_TREE_REFRESH_EVERY_N_INTERVALS == 0:
+            cached_processes = {
+                process.pid: process for process in _product_tree(root_pid)
+            }
+        current_processes = list(cached_processes.values())
         for process in current_processes:
             snapshot = _process_snapshot(
                 process,
@@ -226,6 +231,7 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
                 value = row.get(field)
                 if value is not None:
                     aggregate[field].append(int(value))
+        current_pids = {int(row["pid"]) for row in rows}
         observer_memory_samples.append(_memory(observer, include_uss=include_uss))
         raw_samples.append(
             {
