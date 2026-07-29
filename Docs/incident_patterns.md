@@ -1093,6 +1093,14 @@ claim those changes for the active owner or prove that no unowned tracked files
 exist. Merely mentioning `current owner` is insufficient when the same value says
 foreign or unowned files remain, ownership is unknown, or the current owner does
 not claim the files.
+Off-worktree routing must likewise name a substantive safe route or read-only
+boundary and remain contradiction-free; a `Blocked` prefix cannot hide `in name
+only`, `can occur`, or another permission to mutate outside the carrier.
+The new-worktree decision gate must reject any clause that lets Codex, automation,
+or another agent create, open, provision, spawn, initialize, or establish a
+worktree before the required USER approval. An ownership ledger must identify an
+actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
+or an unidentified party is not active ownership evidence.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,

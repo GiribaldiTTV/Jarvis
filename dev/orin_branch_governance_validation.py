@@ -21484,6 +21484,20 @@ def _durable_off_worktree_routing_is_blocked(value: str) -> bool:
         "may proceed",
         "can mutate",
         "may mutate",
+        "can occur",
+        "may occur",
+        "can happen",
+        "may happen",
+        "remains possible",
+        "is possible",
+        "in name only",
+        "on paper only",
+        "not actually",
+        "but",
+        "however",
+        "although",
+        "yet",
+        "except",
         "without routing",
     )
     sibling_destinations = (
@@ -21520,6 +21534,8 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         "without approval",
         "without user approval",
         "codex may create",
+        "codex can create",
+        "codex will create",
         "self-authorized",
         "automatically approved",
         "revoked",
@@ -21547,8 +21563,21 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         and "no new worktree" in normalized
         and any(term in normalized for term in ("requested", "required", "needed", "created"))
     )
+    preapproval_creation = re.search(
+        r"\b(?:(?:codex|agent|automation|system)\b.{0,40}\b"
+        r"(?:can|may|will|allowed|authorized|permitted)\b.{0,30}\b"
+        r"(?:creat(?:e|es|ed|ing)|open(?:s|ed|ing)?|establish(?:es|ed|ing)?|"
+        r"provision(?:s|ed|ing)?|spawn(?:s|ed|ing)?|initializ(?:e|es|ed|ing)|"
+        r"make|makes|made|making)|"
+        r"(?:creat(?:e|es|ed|ing)|open(?:s|ed|ing)?|establish(?:es|ed|ing)?|"
+        r"provision(?:s|ed|ing)?|spawn(?:s|ed|ing)?|initializ(?:e|es|ed|ing)|"
+        r"make|makes|made|making)\b.{0,40}\b"
+        r"(?:before|prior to|without|pending)\b.{0,20}\b(?:user )?approval)\b",
+        normalized,
+    )
     return bool(
         (required_user_gate or approved_worktree_decision or closed_no_creation)
+        and preapproval_creation is None
         and not any(term in normalized for term in invalid_terms)
     )
 
@@ -21691,14 +21720,20 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     denied = re.search(
         r"\b(?:none|no (?:active )?owner(?: exists)?|owner (?:is )?(?:absent|missing|unknown)|"
-        r"unowned|not owned|revoked|expired|historical|inactive|previously owned|"
+        r"unowned|not owned|ownerless|owned by (?:none|nobody|no one|no (?:thread|workload|task|owner))|"
+        r"(?:ownership|owner) (?:belongs to )?(?:none|nobody|no one)|"
+        r"does not belong|revoked|expired|historical|inactive|previously owned|"
         r"formerly owned|pending|prospective|candidate|future|awaiting|not yet owned|"
         r"to be (?:owned|assigned|selected|determined|confirmed)|no longer owned|"
         r"ownership (?:ended|closed|terminated))\b",
         normalized,
     )
-    ownership = "owned by" in normalized or "ownership" in normalized
-    return bool(ownership and denied is None)
+    ownership_relation = "owned by" in normalized or "ownership" in normalized
+    identifies_owner = re.search(
+        r"\b(?:codex|thread|workload|user|owner|branch|carrier)\b",
+        normalized,
+    )
+    return bool(ownership_relation and identifies_owner and denied is None)
 
 
 def _durable_write_set_is_bounded(value: str) -> bool:
@@ -22527,6 +22562,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no active worktree ownership ledger",
         ),
         (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Owned by nobody.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Owned by no workload.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Ownerless worktree; ownership belongs to no one.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Owned by an unidentified party.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
             "Intended Write Set: `Bounded fixture validator files only.`",
             "Intended Write Set: `No write set approved.`",
             "has no bounded intended write set",
@@ -22582,6 +22637,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "does not block or route off-worktree work",
         ),
         (
+            "Off-Worktree Work Routing: `Blocked; route through Governance.`",
+            "Off-Worktree Work Routing: `Blocked in name only; off-worktree mutation can occur.`",
+            "does not block or route off-worktree work",
+        ),
+        (
+            "Off-Worktree Work Routing: `Blocked; route through Governance.`",
+            "Off-Worktree Work Routing: `Blocked, but off-worktree mutation remains possible.`",
+            "does not block or route off-worktree work",
+        ),
+        (
             "New Worktree Decision Gate: `USER approval required.`",
             "New Worktree Decision Gate: `No USER approval required.`",
             "does not preserve the USER-owned new-worktree gate",
@@ -22604,6 +22669,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "New Worktree Decision Gate: `USER approval required.`",
             "New Worktree Decision Gate: `USER approved the existing worktree; decision cancelled.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required; Codex can create a new worktree before approval.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required; the agent may provision a worktree before USER approval.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required; creating a worktree is permitted pending approval.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required; automation will spawn a worktree prior to approval.`",
             "does not preserve the USER-owned new-worktree gate",
         ),
         (

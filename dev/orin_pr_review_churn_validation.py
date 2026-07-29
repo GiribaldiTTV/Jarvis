@@ -206,7 +206,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable authority pointer",
             "collision-clear claim",
             "off-worktree routing",
+            "off-worktree work routing",
             "new-worktree decision",
+            "new worktree decision",
             "no-cross-worktree",
             "no cross-worktree",
         ),
@@ -1106,6 +1108,9 @@ def _classifier_guardrail_failures() -> list[str]:
     new_durable_guardrails = (
         "Reject revoked durable-carrier assignments as inactive historical authority.",
         "Keep blank confinement markers from consuming the next line.",
+        "Reject Off-Worktree Work Routing that is blocked in name only while mutation can occur.",
+        "Reject a New Worktree Decision Gate that permits Codex creation before USER approval.",
+        "Reject a Worktree Ownership Ledger that is owned by nobody.",
     )
     for comment in new_durable_guardrails:
         if _classify_comment(comment) != [
