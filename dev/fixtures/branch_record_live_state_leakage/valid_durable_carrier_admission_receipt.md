@@ -22,3 +22,13 @@
 ## Assigned Worktree Confinement
 
 - Assigned Worktree Confinement: `Admission proof only.`
+- Active Thread Owner: `Fixture Codex workload.`
+- Thread Assignment Status: `Single fixture owner assigned.`
+- Worktree Ownership Ledger: `C:\Nexus Worktrees\Governance-Fixture is owned by the fixture workload.`
+- Intended Write Set: `Bounded fixture validator files only.`
+- Same Worktree / Same Branch Collision Check: `No collision.`
+- Dirty Worktree Collision Check: `No unowned tracked files; fixture owner claimed.`
+- Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`
+- Off-Worktree Work Routing: `Blocked; route through Governance.`
+- Governance Routing Barrier: `Active outside this bounded fixture carrier.`
+- New Worktree Decision Gate: `USER approval required.`

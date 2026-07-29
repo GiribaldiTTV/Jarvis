@@ -3226,7 +3226,7 @@ ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
     "No Cross-Worktree Mutation",
     "GitHub Desktop-bound worktree",
 )
-ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
+ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS = (
     "Assigned Worktree Confinement",
     "Active Thread Owner",
     "Thread Assignment Status",
@@ -3238,6 +3238,9 @@ ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Off-Worktree Work Routing",
     "Governance Routing Barrier",
     "New Worktree Decision Gate",
+)
+ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
+    *ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS,
     "Expected Worktree Root",
     "Actual Worktree Root",
     "No Cross-Worktree Mutation",
@@ -7069,6 +7072,14 @@ def _section(text: str, heading: str) -> str:
 
 def _subsection(text: str, heading_prefix: str) -> str:
     match = re.search(rf"(?ms)^### {re.escape(heading_prefix)}.*?\n(.*?)(?=^### |\Z)", text)
+    return match.group(0).strip() if match else ""
+
+
+def _exact_subsection(text: str, heading: str) -> str:
+    match = re.search(
+        rf"(?ms)^### {re.escape(heading)}[ \t]*$\n(.*?)(?=^### |\Z)",
+        text,
+    )
     return match.group(0).strip() if match else ""
 
 
@@ -20984,7 +20995,7 @@ def _durable_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[str
     receipts = _section(_read_text(registry_path), "Durable Carrier Admission Receipts")
     if len(re.findall(rf"^### {re.escape(branch_name)}\s*$", receipts, flags=re.M)) != 1:
         return "", ""
-    receipt = _subsection(receipts, branch_name)
+    receipt = _exact_subsection(receipts, branch_name)
     if _extract_exact_marker_value(receipt, "Branch") != branch_name:
         return "", ""
     return f"{registry_path}#{branch_name}", receipt
@@ -21112,7 +21123,7 @@ def _historical_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[
     receipts = _section(_read_text(registry_path), "Carrier Admission Receipt History")
     if len(re.findall(rf"^### {re.escape(branch_name)}\s*$", receipts, flags=re.M)) != 1:
         return "", ""
-    receipt = _subsection(receipts, branch_name)
+    receipt = _exact_subsection(receipts, branch_name)
     if _extract_exact_marker_value(receipt, "Historical Branch") != branch_name:
         return "", ""
     return f"{registry_path}#{branch_name}", receipt
@@ -21182,12 +21193,65 @@ def _validate_durable_carrier_admission_receipt_confinement(
         bool(_extract_exact_marker_value(record_text, "Assigned Worktree Confinement")),
         f"{record_path}: durable carrier receipt has no confinement receipt",
     )
+    _validate_assigned_worktree_collision_contract(
+        require,
+        record_path,
+        _section(record_text, "Assigned Worktree Confinement"),
+    )
     if branch_name and upstream_branch:
         require(
             upstream_branch == f"origin/{branch_name}",
             (
                 "Durable carrier confinement fallback requires the branch upstream to match "
                 f"`origin/{branch_name}`, found `{upstream_branch}`"
+            ),
+        )
+
+
+def _validate_assigned_worktree_collision_contract(
+    require,
+    record_path: str | Path,
+    confinement: str,
+) -> None:
+    for marker in ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS:
+        occurrences = re.findall(
+            rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
+            confinement,
+            flags=re.M,
+        )
+        require(
+            len(occurrences) == 1,
+            (
+                f"{record_path}: Assigned Worktree Confinement requires exactly one "
+                f"nonblank '{marker}:' marker"
+            ),
+        )
+
+    explicit_values = {
+        marker: _extract_exact_marker_value(confinement, marker)
+        for marker in ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS[1:]
+    }
+    for marker, value in explicit_values.items():
+        normalized_value = value.casefold()
+        require(
+            bool(value)
+            and "unknown" not in normalized_value
+            and "not checked" not in normalized_value
+            and "not recorded" not in normalized_value,
+            f"{record_path}: Assigned Worktree Confinement '{marker}:' must be explicit before mutation",
+        )
+
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    if tracked_status:
+        dirty_collision_state = explicit_values["Dirty Worktree Collision Check"]
+        normalized_dirty = dirty_collision_state.casefold()
+        require(
+            "owner claimed" in normalized_dirty
+            or "current owner" in normalized_dirty
+            or "no unowned" in normalized_dirty,
+            (
+                "Dirty Worktree Collision Check must name the active owner before "
+                f"continuing with dirty tracked files: {tracked_status}"
             ),
         )
 
@@ -21288,6 +21352,46 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "C:\\Nexus Worktrees\\Governance-Fixture",
         "origin/feature/governance-fixture",
     )
+    missing_collision_failures: list[str] = []
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: missing_collision_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        durable_fixture_text.replace(
+            "- Same Worktree / Same Branch Collision Check: `No collision.`\n",
+            "",
+        ),
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+    )
+    require(
+        any(
+            "Same Worktree / Same Branch Collision Check" in message
+            for message in missing_collision_failures
+        ),
+        f"{durable_fixture}: missing durable collision evidence must fail closed",
+    )
+    duplicate_collision_failures: list[str] = []
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: duplicate_collision_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        durable_fixture_text
+        + "\n- Same Worktree / Same Branch Collision Check: `Duplicate claim.`\n",
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+    )
+    require(
+        any(
+            "exactly one nonblank 'Same Worktree / Same Branch Collision Check:'" in message
+            for message in duplicate_collision_failures
+        ),
+        f"{durable_fixture}: duplicate durable collision evidence must fail closed",
+    )
     durable_root_failures: list[str] = []
     _validate_durable_carrier_admission_receipt_confinement(
         lambda condition, message: durable_root_failures.append(message)
@@ -21337,6 +21441,18 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     require(
         not _is_historical_carrier_admission_receipt(invalid_historical_fixture_text),
         f"{invalid_historical_fixture}: retained active slot marker must fail classification",
+    )
+    prefixed_receipts = (
+        "### feature/foo-extra\n\n- Branch: `feature/foo-extra`\n\n"
+        "### feature/foo\n\n- Branch: `feature/foo`\n"
+    )
+    require(
+        _extract_exact_marker_value(
+            _exact_subsection(prefixed_receipts, "feature/foo"),
+            "Branch",
+        )
+        == "feature/foo",
+        "carrier receipt lookup must select an exact subsection heading, not a branch prefix",
     )
 
 
@@ -21487,54 +21603,7 @@ def _run_worktree_confinement_gate(require) -> None:
             marker in confinement,
             f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
         )
-
-    owner_state = _extract_marker_value(confinement, "Active Thread Owner")
-    assignment_state = _extract_marker_value(confinement, "Thread Assignment Status")
-    ledger_state = _extract_marker_value(confinement, "Worktree Ownership Ledger")
-    write_set = _extract_marker_value(confinement, "Intended Write Set")
-    same_worktree_state = _extract_marker_value(
-        confinement, "Same Worktree / Same Branch Collision Check"
-    )
-    dirty_collision_state = _extract_marker_value(
-        confinement, "Dirty Worktree Collision Check"
-    )
-    recovery_packet = _extract_marker_value(confinement, "Dirty Worktree Recovery Packet")
-    off_worktree_routing = _extract_marker_value(confinement, "Off-Worktree Work Routing")
-    governance_barrier = _extract_marker_value(confinement, "Governance Routing Barrier")
-    new_worktree_gate = _extract_marker_value(confinement, "New Worktree Decision Gate")
-    for marker, value in (
-        ("Active Thread Owner", owner_state),
-        ("Thread Assignment Status", assignment_state),
-        ("Worktree Ownership Ledger", ledger_state),
-        ("Intended Write Set", write_set),
-        ("Same Worktree / Same Branch Collision Check", same_worktree_state),
-        ("Dirty Worktree Collision Check", dirty_collision_state),
-        ("Dirty Worktree Recovery Packet", recovery_packet),
-        ("Off-Worktree Work Routing", off_worktree_routing),
-        ("Governance Routing Barrier", governance_barrier),
-        ("New Worktree Decision Gate", new_worktree_gate),
-    ):
-        normalized_value = value.casefold()
-        require(
-            bool(value)
-            and "unknown" not in normalized_value
-            and "not checked" not in normalized_value
-            and "not recorded" not in normalized_value,
-            f"{record_path}: Assigned Worktree Confinement '{marker}:' must be explicit before mutation",
-        )
-
-    tracked_status = _git_status_porcelain(tracked_only=True)
-    if tracked_status:
-        normalized_dirty = dirty_collision_state.casefold()
-        require(
-            "owner claimed" in normalized_dirty
-            or "current owner" in normalized_dirty
-            or "no unowned" in normalized_dirty,
-            (
-                "Dirty Worktree Collision Check must name the active owner before "
-                f"continuing with dirty tracked files: {tracked_status}"
-            ),
-        )
+    _validate_assigned_worktree_collision_contract(require, record_path, confinement)
 
     if expected_root and actual_root:
         roots_match = _normalized_local_path(expected_root) == _normalized_local_path(actual_root)

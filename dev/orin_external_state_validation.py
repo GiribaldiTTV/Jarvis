@@ -1970,6 +1970,18 @@ def _validate_legacy_completed_target_set_receipt(
     return issues
 
 
+def _contains_recovery_payload_field(value: object) -> bool:
+    if isinstance(value, dict):
+        return any(
+            (isinstance(key, str) and key.casefold() == "before text")
+            or _contains_recovery_payload_field(nested)
+            for key, nested in value.items()
+        )
+    if isinstance(value, list):
+        return any(_contains_recovery_payload_field(item) for item in value)
+    return False
+
+
 def _validate_modern_target_set_journal(
     payload: dict[str, object],
     target_before_hashes: dict[str, str] | None = None,
@@ -1988,6 +2000,8 @@ def _validate_modern_target_set_journal(
         return [*issues, "incomplete target-set transaction journal requires locked recovery"]
     if state != "Committed":
         return [*issues, f"target-set transaction journal has invalid state {state!r}"]
+    if _contains_recovery_payload_field(payload):
+        issues.append("modern Committed journal retains recoverable Before Text")
     for field in ("Lock ID", "Workload ID", "Snapshot"):
         if not str(payload.get(field, "")).strip():
             issues.append(f"modern Committed journal is missing {field}")
@@ -2007,15 +2021,10 @@ def _validate_modern_target_set_journal(
             issues.append(f"modern Committed journal target row {index} has unsafe/duplicate target")
         else:
             seen.add(relative_key)
-        if any(
-            isinstance(key, str) and key.casefold() == "before text"
-            for key in row
-        ):
-            issues.append(f"modern Committed journal target row {index} retains recoverable Before Text")
         normalized_hashes: dict[str, str] = {}
         for hash_field in ("Before SHA256", "After SHA256"):
-            value = str(row.get(hash_field, ""))
-            if not SHA256_PATTERN.fullmatch(value):
+            value = row.get(hash_field)
+            if not isinstance(value, str) or not SHA256_PATTERN.fullmatch(value):
                 issues.append(
                     f"modern Committed journal target row {index} has malformed {hash_field}"
                 )
@@ -2133,12 +2142,14 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
             stack.append("[")
             index += 1
             continue
-        if character == "}" and stack and stack[-1] == "{":
-            stack.pop()
-            index += 1
-            continue
-        if character == "]" and stack and stack[-1] == "[":
-            stack.pop()
+        if character in "}]":
+            expected = "{" if character == "}" else "["
+            if stack and stack[-1] == expected:
+                stack.pop()
+            elif len(stack) > 1:
+                # Parsing already failed. Drop the innermost malformed container so a
+                # later explicit root-level Transition cannot evade fail-closed recovery.
+                stack.pop()
             index += 1
             continue
         if character != '"':
@@ -2152,27 +2163,33 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         index = key_end
         if not isinstance(key, str) or stack != ["{"]:
             continue
+        transition_key = key.casefold() == "transition"
         cursor = key_end
         while cursor < len(text) and text[cursor].isspace():
             cursor += 1
         if cursor >= len(text) or text[cursor] != ":":
+            if transition_key:
+                return True
             continue
         cursor += 1
         while cursor < len(text) and text[cursor].isspace():
             cursor += 1
         if cursor >= len(text) or text[cursor] != '"':
+            if transition_key:
+                return True
             continue
         try:
             value, value_end = decoder.raw_decode(text, cursor)
         except json.JSONDecodeError:
+            if transition_key:
+                return True
             continue
         index = value_end
-        if (
-            key.casefold() == "transition"
-            and isinstance(value, str)
-            and value.casefold() == TARGET_SET_TRANSITION.casefold()
-        ):
-            return True
+        if transition_key:
+            if not isinstance(value, str):
+                return True
+            if value.casefold() == TARGET_SET_TRANSITION.casefold():
+                return True
     return False
 
 

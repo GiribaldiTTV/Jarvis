@@ -570,10 +570,31 @@ def _write_modern_recovery_alias_fixture(root: Path) -> Path:
     return path
 
 
+def _write_modern_recovery_payload_fixture(root: Path, location: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if location == "top-level":
+        payload["Before Text"] = "recoverable target contents"
+    elif location == "nested":
+        payload["Metadata"] = {"before text": "recoverable target contents"}
+    else:
+        raise AssertionError(f"unknown recovery payload location {location!r}")
+    atomic_write_json(path, payload)
+    return path
+
+
 def _write_modern_equal_hash_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["Targets"][0]["After SHA256"] = payload["Targets"][0]["Before SHA256"]
+    atomic_write_json(path, payload)
+    return path
+
+
+def _write_modern_non_string_hash_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Targets"][0]["After SHA256"] = int("1" * 64)
     atomic_write_json(path, payload)
     return path
 
@@ -653,6 +674,25 @@ def _write_malformed_nested_transition_fixture(root: Path) -> Path:
         + '"},',
         encoding="utf-8",
     )
+    return path
+
+
+def _write_mismatched_delimiter_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "mismatched-delimiter-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"junk":[},"Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_malformed_transition_value_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "malformed-transition-value.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('{"Transition":', encoding="utf-8")
     return path
 
 
@@ -1083,9 +1123,23 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern journal with case-variant recoverable Before Text",
             _write_modern_recovery_alias_fixture,
         ),
+        *[
+            (
+                f"modern journal with recoverable Before Text at {location}",
+                lambda root, location=location: _write_modern_recovery_payload_fixture(
+                    root,
+                    location,
+                ),
+            )
+            for location in ("top-level", "nested")
+        ],
         (
             "modern journal with unchanged target hash",
             _write_modern_equal_hash_fixture,
+        ),
+        (
+            "modern journal with non-string SHA256 that stringifies as hexadecimal",
+            _write_modern_non_string_hash_fixture,
         ),
         (
             "modern Committed journal with active lock evidence",
@@ -1161,6 +1215,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON with escaped Transition value",
             lambda root: _write_malformed_transition_fixture(root, escaped_value=True),
+        ),
+        (
+            "matching malformed JSON after mismatched delimiter",
+            _write_mismatched_delimiter_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with unreadable Transition value",
+            _write_malformed_transition_value_fixture,
         ),
         (
             "duplicate Transition exact then unrelated",
@@ -1670,8 +1732,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         accept_modern_state,
     )
     _assert_journal_mutation_killed(
+        "nested recovery payload ignored",
+        negative_setups["modern journal with recoverable Before Text at nested"],
+        "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
         "unchanged modern target hash accepted",
         negative_setups["modern journal with unchanged target hash"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "non-string modern SHA256 coerced",
+        negative_setups[
+            "modern journal with non-string SHA256 that stringifies as hexadecimal"
+        ],
         "_validate_modern_target_set_journal",
         accept_modern_state,
     )
@@ -1722,6 +1798,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         _write_malformed_nested_transition_fixture,
         "_raw_text_has_target_set_transition",
         lambda text: validator.TARGET_SET_TRANSITION in text,
+    )
+    _assert_journal_mutation_killed(
+        "mismatched delimiter hides top-level Transition",
+        negative_setups["matching malformed JSON after mismatched delimiter"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "unreadable top-level Transition value ignored",
+        negative_setups["matching malformed JSON with unreadable Transition value"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
     )
     _assert_journal_mutation_killed(
         "escaped malformed Transition key ignored",
