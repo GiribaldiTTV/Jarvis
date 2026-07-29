@@ -10690,7 +10690,11 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._resize_hover_timer.setInterval(max(8, self._studio_resize_frame_interval_ms()))
         self._resize_hover_timer.timeout.connect(self._poll_native_edge_resize_hover_cursor)
         if self.STUDIO_RESIZABLE:
-            self._resize_hover_timer.start()
+            self.winId()
+            window_handle = self.windowHandle()
+            if window_handle is not None:
+                window_handle.visibilityChanged.connect(self._sync_resize_hover_polling_lifecycle)
+                window_handle.windowStateChanged.connect(self._sync_resize_hover_polling_lifecycle)
 
     def _on_studio_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
@@ -11032,8 +11036,28 @@ class MonitoringHudStudioWebWindow(QWidget):
             return
         self._finish_native_edge_resize()
 
+    def _sync_resize_hover_polling_lifecycle(self, *_args) -> bool:
+        should_run = bool(
+            self.STUDIO_RESIZABLE
+            and self.isVisible()
+            and not self.isMinimized()
+        )
+        if should_run:
+            if not self._resize_hover_timer.isActive():
+                self._resize_hover_timer.start()
+        else:
+            if self._resize_hover_timer.isActive():
+                self._resize_hover_timer.stop()
+            if not self._resize_edges:
+                self._reset_native_edge_resize_cursor()
+        return should_run
+
     def _poll_native_edge_resize_hover_cursor(self) -> None:
-        if not self.STUDIO_RESIZABLE or self._resize_edges or self._drag_offset is not None:
+        if (
+            not self._sync_resize_hover_polling_lifecycle()
+            or self._resize_edges
+            or self._drag_offset is not None
+        ):
             return
         _, edges = self._resize_edges_under_cursor()
         if edges:
@@ -11265,6 +11289,7 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._save_current_geometry()
 
     def closeEvent(self, event):
+        self._resize_hover_timer.stop()
         self._drag_offset = None
         self._finish_native_edge_resize()
         self._reset_native_edge_resize_cursor()
@@ -11282,6 +11307,7 @@ class MonitoringHudStudioWebWindow(QWidget):
             self.show()
         self.raise_()
         self.activateWindow()
+        self._sync_resize_hover_polling_lifecycle()
 
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
@@ -13154,6 +13180,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_recording_control_click_bridge_timer.timeout.connect(
             self._poll_monitoring_hud_recording_control_click_bridge
         )
+        self._monitoring_hud_lifecycle_transition_generation = 0
+        self._monitoring_hud_lifecycle_timer_signature = None
         self._monitoring_hud_recording_control_click_bridge_down = False
         self._monitoring_hud_recording_control_click_bridge_press_point = QPoint()
         self._monitoring_hud_recording_control_click_bridge_last_activation_at = 0.0
@@ -13240,8 +13268,19 @@ class DesktopRuntimeWindow(QWidget):
         self.webview.installEventFilter(self)
         QApplication.instance().installEventFilter(self)
         if self.surface_role == "hud":
-            self._monitoring_hud_resize_hover_timer.start()
-            self._monitoring_hud_recording_control_click_bridge_timer.start()
+            self.winId()
+            window_handle = self.windowHandle()
+            if window_handle is not None:
+                window_handle.visibilityChanged.connect(
+                    lambda *_args: QTimer.singleShot(
+                        0, self._apply_monitoring_hud_window_interaction_state
+                    )
+                )
+                window_handle.windowStateChanged.connect(
+                    lambda *_args: QTimer.singleShot(
+                        0, self._apply_monitoring_hud_window_interaction_state
+                    )
+                )
         self.webview.hide()
 
         self.webview.page().setBackgroundColor(
@@ -16510,6 +16549,42 @@ class DesktopRuntimeWindow(QWidget):
             self.show()
             if self._page_ready and not self._monitoring_hud_control_sync_timer.isActive():
                 self._monitoring_hud_control_sync_timer.start(500)
+        lifecycle_ready = bool(
+            self.surface_role == "hud"
+            and dashboard_visible
+            and self.desktop_mode
+            and not self._is_shutting_down
+            and self._page_ready
+            and self.isVisible()
+            and not self.isMinimized()
+            and self.webview.isVisible()
+        )
+        lifecycle_signature = (
+            lifecycle_ready,
+            feature_enabled,
+            dashboard_visible,
+            self.desktop_mode,
+            self._page_ready,
+            self.isVisible(),
+            self.isMinimized(),
+            self.webview.isVisible(),
+            self._is_shutting_down,
+        )
+        if lifecycle_signature != self._monitoring_hud_lifecycle_timer_signature:
+            self._monitoring_hud_lifecycle_transition_generation += 1
+            self._monitoring_hud_lifecycle_timer_signature = lifecycle_signature
+        if not lifecycle_ready:
+            self._reset_monitoring_hud_resize_cursor()
+            self._monitoring_hud_recording_control_click_bridge_down = False
+            self._monitoring_hud_recording_control_click_bridge_press_point = QPoint()
+        for timer in (
+            self._monitoring_hud_resize_hover_timer,
+            self._monitoring_hud_recording_control_click_bridge_timer,
+        ):
+            if lifecycle_ready and not timer.isActive():
+                timer.start()
+            elif not lifecycle_ready and timer.isActive():
+                timer.stop()
         self._emit_runtime_signal(
             "MONITORING_HUD_INTERACTION_MODE_READY",
             package="PKG-006",
@@ -29381,6 +29456,23 @@ class DesktopRuntimeWindow(QWidget):
         self._log_event("RENDERER_MAIN|RENDERER_SHUTDOWN_BEGIN")
         self._monitoring_hud_access_adapter.begin_shutdown(source="renderer_request_shutdown")
         self._is_shutting_down = True
+        self._reset_monitoring_hud_resize_cursor()
+        self._monitoring_hud_recording_control_click_bridge_down = False
+        self._monitoring_hud_recording_control_click_bridge_press_point = QPoint()
+        self._monitoring_hud_resize_hover_timer.stop()
+        self._monitoring_hud_recording_control_click_bridge_timer.stop()
+        try:
+            self._monitoring_hud_resize_hover_timer.timeout.disconnect(
+                self._poll_monitoring_hud_resize_hover_cursor
+            )
+        except (RuntimeError, TypeError):
+            pass
+        try:
+            self._monitoring_hud_recording_control_click_bridge_timer.timeout.disconnect(
+                self._poll_monitoring_hud_recording_control_click_bridge
+            )
+        except (RuntimeError, TypeError):
+            pass
         self._result_close_timer.stop()
         self._monitoring_hud_poll_timer.stop()
         self._monitoring_hud_control_sync_timer.stop()

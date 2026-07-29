@@ -23,6 +23,7 @@ EXPECTED_FLAG = "--disable-gpu"
 EXPECTED_POLICY = "temporary-shared-runtime-safety-policy"
 EXPECTED_CLASSIFICATION = "shared-desktop-runtime-not-fam003-only"
 SETTLE_DURATION_MS = 5_000
+LONG_SETTLE_DURATION_MS = 20_000
 SAMPLE_DURATION_MS = 10_000
 SAMPLE_INTERVAL_MS = 250
 POLL_INTERVAL_MS = 500
@@ -80,6 +81,9 @@ class NonintrusivePerformanceController(QtCore.QObject):
         self._heartbeat_callback_ns = 0
         self._poll_callback_ns = 0
         self._workload_callback_ns = 0
+        self._lifecycle_callback_ns = 0
+        self._lifecycle_callback_counts: dict[str, int] = {}
+        self._lifecycle_timer_bindings: list[tuple[QtCore.QTimer, Callable[[], None]]] = []
         self._heartbeat_timer = QtCore.QTimer(self)
         self._heartbeat_timer.setInterval(HEARTBEAT_INTERVAL_MS)
         self._heartbeat_timer.timeout.connect(self._heartbeat)
@@ -91,10 +95,78 @@ class NonintrusivePerformanceController(QtCore.QObject):
         self._workload_timer.timeout.connect(self._active_workload_tick)
 
     def start(self) -> None:
+        self._attach_lifecycle_timer_probes()
         self.runtime_milestone(
             "RENDERER_MAIN|FAM003_OPTION_D_NONINTRUSIVE_PROBE_STARTED|formal_lv=false"
         )
         QtCore.QTimer.singleShot(SETTLE_DURATION_MS, self._request_startup_idle)
+
+    def _lifecycle_timer_targets(self) -> tuple[tuple[str, object, str], ...]:
+        return (
+            ("hud-resize-hover", self.window, "_monitoring_hud_resize_hover_timer"),
+            (
+                "hud-recording-control-click-bridge",
+                self.window,
+                "_monitoring_hud_recording_control_click_bridge_timer",
+            ),
+            (
+                "log-viewer-resize-hover",
+                getattr(self.window, "_monitoring_hud_log_viewer_studio_window", None),
+                "_resize_hover_timer",
+            ),
+            (
+                "recording-studio-resize-hover",
+                getattr(self.window, "_monitoring_hud_recording_studio_window", None),
+                "_resize_hover_timer",
+            ),
+        )
+
+    def _record_lifecycle_timer_callback(self, timer_id: str) -> None:
+        started = time.perf_counter_ns()
+        self._lifecycle_callback_counts[timer_id] = (
+            self._lifecycle_callback_counts.get(timer_id, 0) + 1
+        )
+        self._lifecycle_callback_ns += time.perf_counter_ns() - started
+
+    def _attach_lifecycle_timer_probes(self) -> None:
+        if self._lifecycle_timer_bindings:
+            return
+        for timer_id, owner, attribute in self._lifecycle_timer_targets():
+            timer = getattr(owner, attribute, None) if owner is not None else None
+            if not isinstance(timer, QtCore.QTimer):
+                continue
+            callback = lambda timer_id=timer_id: self._record_lifecycle_timer_callback(timer_id)
+            timer.timeout.connect(callback)
+            self._lifecycle_timer_bindings.append((timer, callback))
+            self._lifecycle_callback_counts.setdefault(timer_id, 0)
+
+    def _detach_lifecycle_timer_probes(self) -> None:
+        for timer, callback in self._lifecycle_timer_bindings:
+            try:
+                timer.timeout.disconnect(callback)
+            except (RuntimeError, TypeError):
+                pass
+        self._lifecycle_timer_bindings.clear()
+
+    def _lifecycle_timer_state(self, owner, attribute: str, timer_id: str) -> dict[str, Any]:
+        timer = getattr(owner, attribute, None) if owner is not None else None
+        if not isinstance(timer, QtCore.QTimer):
+            return {
+                "timerId": timer_id,
+                "exists": False,
+                "active": False,
+                "intervalMs": None,
+                "remainingTimeMs": None,
+                "callbackCount": self._lifecycle_callback_counts.get(timer_id, 0),
+            }
+        return {
+            "timerId": timer_id,
+            "exists": True,
+            "active": timer.isActive(),
+            "intervalMs": timer.interval(),
+            "remainingTimeMs": timer.remainingTime(),
+            "callbackCount": self._lifecycle_callback_counts.get(timer_id, 0),
+        }
 
     def _surface_inventory(self, state_label: str) -> dict[str, Any]:
         candidates = (
@@ -112,11 +184,47 @@ class NonintrusivePerformanceController(QtCore.QObject):
                 visible = bool(exists and widget.isVisible())
                 minimized = bool(exists and widget.isMinimized())
                 page_ready = getattr(widget, "_page_ready", None) if exists else None
+                width = int(widget.width()) if exists else None
+                height = int(widget.height()) if exists else None
+                studio_resizable = getattr(widget, "STUDIO_RESIZABLE", None) if exists else None
             except RuntimeError:
                 exists = False
                 visible = False
                 minimized = False
                 page_ready = None
+                width = None
+                height = None
+                studio_resizable = None
+            lifecycle_timers: list[dict[str, Any]] = []
+            if surface_id == "hud-dashboard":
+                lifecycle_timers = [
+                    self._lifecycle_timer_state(
+                        widget,
+                        "_monitoring_hud_resize_hover_timer",
+                        "hud-resize-hover",
+                    ),
+                    self._lifecycle_timer_state(
+                        widget,
+                        "_monitoring_hud_recording_control_click_bridge_timer",
+                        "hud-recording-control-click-bridge",
+                    ),
+                ]
+            elif surface_id == "nexus-log-viewer":
+                lifecycle_timers = [
+                    self._lifecycle_timer_state(
+                        widget,
+                        "_resize_hover_timer",
+                        "log-viewer-resize-hover",
+                    )
+                ]
+            elif surface_id == "nexus-recording-suite":
+                lifecycle_timers = [
+                    self._lifecycle_timer_state(
+                        widget,
+                        "_resize_hover_timer",
+                        "recording-studio-resize-hover",
+                    )
+                ]
             rows.append(
                 {
                     "surfaceId": surface_id,
@@ -126,7 +234,16 @@ class NonintrusivePerformanceController(QtCore.QObject):
                     "hidden": bool(exists and not visible),
                     "minimized": minimized,
                     "pageReady": page_ready,
+                    "width": width,
+                    "height": height,
+                    "studioResizable": studio_resizable,
                     "intentionallyPersistent": intentionally_persistent,
+                    "lifecycleTimers": lifecycle_timers,
+                    "lifecycleTransitionGeneration": (
+                        getattr(widget, "_monitoring_hud_lifecycle_transition_generation", None)
+                        if surface_id == "hud-dashboard"
+                        else None
+                    ),
                 }
             )
         tray_icon = getattr(self.tray_entry, "tray_icon", None)
@@ -306,7 +423,10 @@ class NonintrusivePerformanceController(QtCore.QObject):
                 self.current_cycle += 1
                 QtCore.QTimer.singleShot(750, self._open_active_surfaces)
             else:
-                self._finish()
+                QtCore.QTimer.singleShot(LONG_SETTLE_DURATION_MS, self._request_long_settle)
+            return
+        if state == "long-settle-resident-idle":
+            self._finish()
 
     def _open_active_surfaces(self) -> None:
         opened_at = time.perf_counter_ns()
@@ -454,6 +574,29 @@ class NonintrusivePerformanceController(QtCore.QObject):
             },
         )
 
+    def _request_long_settle(self) -> None:
+        inventory = self._surface_inventory("long-settle-resident-idle-before")
+        if inventory["onDemandVisible"]:
+            self._fail(
+                "long-settle on-demand surfaces remained visible: "
+                f"{inventory['onDemandVisible']}"
+            )
+            return
+        self._request_observation(
+            state="long-settle-resident-idle",
+            cycle_index=self.current_cycle,
+            expected_on_demand=False,
+            workload={
+                "classification": "IDLE_LONG_SETTLE",
+                "operation": "none",
+                "inputCadenceMs": None,
+                "settleDurationMs": LONG_SETTLE_DURATION_MS,
+                "expectedRenderingWork": (
+                    "normal persistent ORIN Core and resident tray after the final long settle"
+                ),
+            },
+        )
+
     def _startup_timeline(self) -> dict[str, Any]:
         launch_started_ns = int(os.environ.get(LAUNCH_STARTED_NS_ENV, "0") or 0)
         controller_started_ns = int(self.started_at * 1_000_000_000)
@@ -489,6 +632,9 @@ class NonintrusivePerformanceController(QtCore.QObject):
         startup = next(row for row in self.pending_results if row["state"] == "startup-resident-idle")
         post_rows = [row for row in self.pending_results if row["state"] == "post-use-resident-idle"]
         active_rows = [row for row in self.pending_results if row["state"] == "representative-active"]
+        long_settle = next(
+            row for row in self.pending_results if row["state"] == "long-settle-resident-idle"
+        )
         startup_uss = float(startup["totalProductTree"]["ussMedianMiBSum"])
         post_uss = [float(row["totalProductTree"]["ussMedianMiBSum"]) for row in post_rows]
         repeated_cycle_trend = {
@@ -526,11 +672,20 @@ class NonintrusivePerformanceController(QtCore.QObject):
             "startupResidentIdle": startup,
             "representativeActiveCycles": active_rows,
             "postUseResidentIdleCycles": post_rows,
+            "longSettleResidentIdle": long_settle,
             "repeatedCycleTrend": repeated_cycle_trend,
             "surfaceTimelines": self.surface_timelines,
             "activeWorkloadEvents": self.active_workload_events,
             "cycleResults": self.cycle_results,
             "observerRequestCount": self.request_count,
+            "lifecycleTimerInstrumentation": {
+                "callbackCounts": dict(sorted(self._lifecycle_callback_counts.items())),
+                "callbackCpuEstimateMs": round(
+                    self._lifecycle_callback_ns / 1_000_000.0, 6
+                ),
+                "includedInProductTotals": True,
+                "purpose": "Option G named-timer lifecycle attribution only",
+            },
             "formalH1Entered": False,
             "formalLiveValidationEntered": False,
             "utsRequested": False,
@@ -550,6 +705,7 @@ class NonintrusivePerformanceController(QtCore.QObject):
         }
         _atomic_json(self.session_root / "observer_stop.json", stop)
         _atomic_json(self.manifest_path, payload)
+        self._detach_lifecycle_timer_probes()
         self.runtime_milestone(
             f"RENDERER_MAIN|FAM003_OPTION_D_NONINTRUSIVE_PROBE_WRITTEN|status=PASS|manifest={self.manifest_path}|formal_lv=false"
         )
@@ -559,6 +715,7 @@ class NonintrusivePerformanceController(QtCore.QObject):
         self._heartbeat_timer.stop()
         self._poll_timer.stop()
         self._workload_timer.stop()
+        self._detach_lifecycle_timer_probes()
         _atomic_json(
             self.manifest_path,
             {
