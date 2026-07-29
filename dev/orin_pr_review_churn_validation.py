@@ -111,6 +111,37 @@ class FamilyRule:
 
 FAMILY_RULES: tuple[FamilyRule, ...] = (
     FamilyRule(
+        "external-state-transaction-evidence-parser",
+        (
+            "target-set journal",
+            "modern journal",
+            "committed journal",
+            "malformed journal",
+            "modern lock",
+            "snapshot evidence",
+            "snapshot hash",
+            "before text",
+            "before sha256",
+            "after sha256",
+            "transaction state",
+            "target-scoped currentness",
+            "audit_log",
+            "audit root",
+            "audit-root",
+        ),
+    ),
+    FamilyRule(
+        "durable-carrier-confinement-parser",
+        (
+            "durable carrier",
+            "durable receipt",
+            "historical carrier",
+            "historical-receipt classifier",
+            "receipt subsection heading",
+            "durable authority pointer",
+        ),
+    ),
+    FamilyRule(
         "fam003-settings-focus-routing",
         (
             "residentaccesssettingsdialog",
@@ -631,11 +662,42 @@ def _classify_comment(body: str) -> list[str]:
         ]
         if strong_keywords or (has_classifier_context and len(matched_keywords) >= 2):
             families.append(rule.family_id)
+    exact_scope_families = [
+        family
+        for family in families
+        if family
+        in {
+            "external-state-transaction-evidence-parser",
+            "durable-carrier-confinement-parser",
+        }
+    ]
+    if exact_scope_families:
+        return exact_scope_families
     return families or ["unknown"]
 
 
 def _classifier_guardrail_failures() -> list[str]:
     failures: list[str] = []
+    external_transaction_comment = (
+        "Reject a modern Committed journal when snapshot evidence or the released "
+        "lock does not prove the exact target-set journal."
+    )
+    if _classify_comment(external_transaction_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "External-state transaction evidence comment did not classify into its exact family"
+        )
+    durable_carrier_comment = (
+        "Reject a Durable Carrier Admission Receipt when the durable receipt omits "
+        "complete confinement markers."
+    )
+    if _classify_comment(durable_carrier_comment) != [
+        "durable-carrier-confinement-parser"
+    ]:
+        failures.append(
+            "Durable carrier confinement comment did not classify into its exact family"
+        )
     unrelated = "A database migration status row has mixed case after cleanup."
     if _classify_comment(unrelated) != ["unknown"]:
         failures.append(

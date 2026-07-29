@@ -941,6 +941,24 @@ identities or degrade into accepting every missing-state, old, copied, renamed,
 tampered, duplicate-key, case-ambiguous, partial-target, contradictory, or
 token-bearing record.
 
+The modern-journal path is a separate evidence family and must not inherit a
+weaker contract from legacy compatibility. A modern committed journal must
+prove a standards-compliant JSON shape, a top-level transition, canonical
+string targets, distinct before/after hashes, a confined and hash-valid
+snapshot, a released exact-write-set lock, no recovery payload at any depth,
+confined case-insensitive audit discovery, and fail-closed handling for BOMs,
+reparse points, impossible path characters, and evidence read races. PR
+Readiness must map this family separately from repo/live-state ownership and
+generic table-row parsing, then run the target-currentness adversarial fixture
+suite before the Connector becomes the first structural or evidence fuzzer.
+
+A durable or historical carrier-admission receipt is also a separate parser
+family. PR Readiness must prove exact branch/subsection identity, complete
+collision and confinement markers for active durable admission, exact authority
+pointers, and the complete absence of active assignment markers after
+historical fold-down. Generic worktree-confinement wording is not sufficient
+family coverage for compact-receipt parsing.
+
 - source references:
   - `dev/orin_external_state_validation.py`
   - `dev/orin_external_state_legacy_receipt_compatibility.json`
