@@ -996,9 +996,12 @@ claim assigns ownership or authorizes mutation, including a contradictory
 nonblank upstream equal to `origin/<branch>`; an untracked local carrier cannot
 use the fallback. Missing-waiver proof must match a closed complete absence
 state; a fragment beginning with `No` does not pass when its remainder says
-waiver evidence was not recorded. A folded `Historical/no-active` receipt is
-identity and admission history only and can never authorize a resumed workload
-or PR repair. Current work requires a new active authority. When that authority
+waiver evidence was not recorded. The active waiver marker itself must also
+match a closed whole-value absence state; a `None`, `Not required`, or
+`Not applicable` prefix cannot hide approval, authorization, grant, or other
+active-waiver wording later in the same value. A folded `Historical/no-active`
+receipt is identity and admission history only and can never authorize a resumed
+workload or PR repair. Current work requires a new active authority. When that authority
 is external, the external record must carry the complete current branch,
 worktree, owner, collision, write-set, routing, and waiver contract and may point
 to the exact historical repo receipt only as durable identity evidence; the

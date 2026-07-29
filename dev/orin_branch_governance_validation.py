@@ -21467,6 +21467,19 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
     )
 
 
+def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    return bool(
+        re.fullmatch(
+            r"(?:none|not required|not applicable)"
+            r"(?:\s*(?:;|-|:)\s*(?:expected and actual (?:worktree )?roots match|"
+            r"no (?:off-worktree mutation|worktree escape)(?: is)? "
+            r"(?:requested|required|attempted|needed|performed)))?",
+            normalized,
+        )
+    )
+
+
 def _durable_carrier_pr_review_started(
     record_text: str,
     pr_info: dict[str, object] | None,
@@ -21606,14 +21619,13 @@ def _validate_durable_carrier_admission_receipt_confinement(
     waiver_state = _extract_exact_marker_value(
         confinement,
         "Worktree Escape User Waiver",
-    ).casefold()
+    )
     missing_waiver_state = _extract_exact_marker_value(
         confinement,
         "Worktree Escape User Waiver Missing",
     ).casefold()
     require(
-        "granted" not in waiver_state
-        and any(term in waiver_state for term in ("not required", "none", "not applicable")),
+        _durable_worktree_escape_waiver_is_absent(waiver_state),
         f"{record_path}: durable carrier receipt must not retain an active worktree escape waiver",
     )
     require(
@@ -22160,6 +22172,37 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         any("unresolved worktree escape waiver gap" in message for message in ambiguous_waiver_failures),
         f"{durable_fixture}: ambiguous missing-waiver wording must fail closed",
     )
+    for contradictory_waiver_state in (
+        "None; USER approved an active worktree escape waiver.",
+        "Not required; USER authorization retains an active waiver.",
+        "Not applicable; the worktree escape waiver is active.",
+        "None; waiver granted.",
+    ):
+        contradictory_waiver_failures: list[str] = []
+        contradictory_waiver_text = durable_fixture_text.replace(
+            "Worktree Escape User Waiver: `Not required; expected and actual roots match.`",
+            f"Worktree Escape User Waiver: `{contradictory_waiver_state}`",
+        )
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: contradictory_waiver_failures.append(message)
+            if not condition
+            else None,
+            durable_fixture,
+            contradictory_waiver_text,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            "origin/feature/governance-fixture",
+        )
+        require(
+            any(
+                "must not retain an active worktree escape waiver" in message
+                for message in contradictory_waiver_failures
+            ),
+            (
+                f"{durable_fixture}: contradictory active-waiver wording must fail closed: "
+                f"{contradictory_waiver_state}"
+            ),
+        )
     invalid_durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "invalid_durable_carrier_admission_receipt.md"
