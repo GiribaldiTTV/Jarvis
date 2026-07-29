@@ -8519,9 +8519,42 @@ def _external_state_has_current_confinement(
     branch_name: str,
     actual_root: str,
 ) -> bool:
+    state_header = re.split(r"^##\s+", state_text, maxsplit=1, flags=re.M)[0]
     state_identity = _section(state_text, "Branch Identity")
     state_identity_branch = _extract_exact_marker_value(state_identity, "Branch")
     state_identity_worktree = _extract_exact_marker_value(state_identity, "Worktree")
+    identity_marker_counts = {
+        marker: len(
+            re.findall(
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                state_identity,
+                flags=re.M,
+            )
+        )
+        for marker in ("Branch", "Worktree")
+    }
+    header_marker_counts = {
+        marker: len(
+            re.findall(
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                state_header,
+                flags=re.M,
+            )
+        )
+        for marker in ("Branch", "Worktree")
+    }
+    state_header_branch = _extract_exact_marker_value(state_header, "Branch")
+    state_header_worktree = _extract_exact_marker_value(state_header, "Worktree")
+    header_identity_is_consistent = (
+        header_marker_counts["Branch"] in {0, 1}
+        and header_marker_counts["Worktree"] in {0, 1}
+        and (not state_header_branch or state_header_branch == state_identity_branch)
+        and (
+            not state_header_worktree
+            or _normalized_local_path(state_header_worktree)
+            == _normalized_local_path(state_identity_worktree)
+        )
+    )
     record_class_markers = re.findall(
         r"^[ \t]*(?:-[ \t]*)?Record Class:[ \t]*[^ \t\r\n][^\r\n]*$",
         state_text,
@@ -8529,6 +8562,8 @@ def _external_state_has_current_confinement(
     )
     return bool(
         len(record_class_markers) == 1
+        and all(count == 1 for count in identity_marker_counts.values())
+        and header_identity_is_consistent
         and _extract_exact_marker_value(state_text, "Record Class")
         == "Live Branch Projection"
         and state_identity_branch == branch_name
@@ -21041,8 +21076,12 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
         "withdrawn",
         "expired",
         "superseded",
+        "cancelled",
+        "canceled",
+        "terminated",
         "no longer active",
         "no longer valid",
+        "no longer approved",
     )
     approval = (
         re.search(r"\buser(?: explicitly)?(?:-| )approved\b", normalized) is not None
@@ -21439,6 +21478,17 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         "codex may create",
         "self-authorized",
         "automatically approved",
+        "revoked",
+        "rescinded",
+        "expired",
+        "withdrawn",
+        "superseded",
+        "cancelled",
+        "canceled",
+        "terminated",
+        "no longer active",
+        "no longer valid",
+        "no longer approved",
     )
     required_user_gate = re.search(
         r"\b(?:user approval (?:is )?(?:required|pending)|pending user approval|user must approve)\b",
@@ -21962,8 +22012,42 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             ),
             "feature/governance-fixture",
             "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "- Branch: `feature/governance-fixture`",
+                "- Branch: `feature/foreign-fixture`\n"
+                "- Branch: `feature/governance-fixture`",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "- Worktree: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "- Worktree: `C:\\Nexus Worktrees\\Foreign-Fixture`\n"
+                "- Worktree: `C:\\Nexus Worktrees\\Governance-Fixture`",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "## Branch Identity",
+                "Branch: `feature/foreign-fixture`\n\n## Branch Identity",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "## Branch Identity",
+                "Worktree: `C:\\Nexus Worktrees\\Foreign-Fixture`\n\n## Branch Identity",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
         ),
-        "external authority must reject wrong branch, wrong worktree, missing confinement, non-live record class, and duplicate record-class markers",
+        "external authority must reject wrong, duplicate, or header-conflicting identity, missing confinement, non-live record class, and duplicate record-class markers",
     )
     durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
@@ -22316,6 +22400,21 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "New Worktree Decision Gate: `USER approval required.`",
             "New Worktree Decision Gate: `USER approved release, but no approval exists for a new worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approved the existing worktree; approval later revoked.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approved the existing worktree; approval expired.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approved the existing worktree; decision cancelled.`",
             "does not preserve the USER-owned new-worktree gate",
         ),
         (

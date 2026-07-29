@@ -994,6 +994,8 @@ trailing whitespace is invalid. Snapshot manifests must reject case-ambiguous
 Modern committed journals require canonical `Last Updated` and nonblank
 `Last Updated By` attribution, and they must reject nested recovery, rollback,
 pre-write, or original-target payload aliases as recoverable pre-write content.
+Modern released-lock binding requires string-typed `Lock ID` and `Workload ID`
+evidence; numeric JSON values cannot match journal strings through coercion.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
@@ -1050,7 +1052,11 @@ waiver receipts use the same physical-line rule; blank historical provenance
 cannot borrow the following marker and still classify as a valid fold-down.
 External live authority requires exactly one nonblank `Record Class` marker with
 the canonical `Live Branch Projection` value; duplicate historical/live markers
-cannot be resolved by last-value-wins parsing.
+cannot be resolved by last-value-wins parsing. Its `Branch Identity` section also
+requires exactly one nonblank `Branch` and one nonblank `Worktree`; foreign/expected
+duplicates are contradictory authority, not a selectable final value. When the
+projection header repeats either identity, the singular header and section values
+must agree.
 Safe-state parsing must reject a positive prefix followed by a contradictory
 clause: collision still exists, routing is not blocked or goes directly to a
 sibling, USER approval concerns another decision or is explicitly absent for the
@@ -1058,6 +1064,9 @@ new worktree, or cross-worktree mutation can proceed. The accepted claim must
 name the safe outcome itself.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
+The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,
+rescinded, expired, withdrawn, superseded, cancelled, terminated, or no-longer-
+active approval is not a current USER-owned gate decision.
 The receipt is pre-PR evidence only and must fail once PR review or PR Readiness
 review state begins unless it has already folded into historical/no-active form.
 A no-open-PR response is insufficient when the all-state fallback fails; absence
@@ -1074,6 +1083,8 @@ family, preserve both matches even if the prose omits that family's acronym.
 Generic `json decoder` wording likewise requires journal, audit, transaction,
 target-set, or external-state context before it maps to transaction evidence.
 The same context rule applies to generic `malformed JSON string` wording.
+Generic `oversized integer` wording likewise requires journal, audit, JSON-decoder,
+transaction, target-set, or external-state context.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains
 unknown unless the classifier-review wording itself routes it to the classifier family.

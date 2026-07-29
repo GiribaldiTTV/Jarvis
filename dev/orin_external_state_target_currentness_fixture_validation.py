@@ -776,6 +776,27 @@ def _write_modern_lock_write_set_extra_fixture(root: Path) -> Path:
     return path
 
 
+def _write_modern_non_string_lock_identity_fixture(root: Path, field: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    original_lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(original_lock_path.read_text(encoding="utf-8"))
+    if field == "Workload ID":
+        payload[field] = "123"
+        lock[field] = 123
+        lock_path = original_lock_path
+    elif field == "Lock ID":
+        payload[field] = "123"
+        lock[field] = 123
+        lock_path = root / "locks" / "123.json"
+        original_lock_path.unlink()
+    else:
+        raise AssertionError(f"unknown modern lock identity field {field!r}")
+    atomic_write_json(path, payload)
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -1743,6 +1764,16 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern lock write set includes unexpected target",
             _write_modern_lock_write_set_extra_fixture,
         ),
+        *[
+            (
+                f"modern lock has non-string {field}",
+                lambda root, field=field: _write_modern_non_string_lock_identity_fixture(
+                    root,
+                    field,
+                ),
+            )
+            for field in ("Lock ID", "Workload ID")
+        ],
         *[
             (
                 f"modern evidence has whitespace-padded {location}",

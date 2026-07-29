@@ -2324,7 +2324,8 @@ def _validate_modern_lock_evidence(
         "Retain Between Workloads": "No",
     }
     for field, expected in expected_values.items():
-        if str(lock.get(field, "")).strip() != expected:
+        actual = lock.get(field)
+        if not isinstance(actual, str) or actual.strip() != expected:
             issues.append(
                 f"modern Committed journal lock evidence has {field}={lock.get(field)!r}, "
                 f"expected {expected!r}"

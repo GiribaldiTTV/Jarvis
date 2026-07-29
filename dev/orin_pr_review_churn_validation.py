@@ -51,6 +51,7 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "table",
     "malformed",
     "malformed json string",
+    "oversized integer",
     "surrogate code point",
     "blocked",
     "resolved",
@@ -131,6 +132,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "oversized integer",
             "case-ambiguous snapshot root",
             "modern lock",
+            "released-lock evidence",
+            "string-typed lock id",
+            "workload id identities",
             "exact lock write set",
             "legacy lock write set",
             "snapshot hash read",
@@ -182,6 +186,11 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "concrete intended write set",
             "intended write set",
             "duplicate external record class",
+            "duplicate branch and worktree authority markers",
+            "duplicate branch",
+            "duplicate worktree",
+            "duplicate foreign and expected branch",
+            "worktree authority markers",
             "routes from governance",
             "historical carrier",
             "historical authority claim",
@@ -523,6 +532,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "malformed json matches",
             "malformed-json-string matches",
             "malformed json string matches",
+            "oversized-integer matches",
+            "oversized integer matches",
             "multi-family comments",
             "multi family comments",
             "mixed comments",
@@ -787,6 +798,25 @@ def _classify_comment(body: str) -> list[str]:
             matched_keywords.append("contextual malformed json string")
         if (
             rule.family_id == "external-state-transaction-evidence-parser"
+            and "oversized integer" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "audit",
+                    "json decoder",
+                    "json-decoder",
+                    "transaction",
+                    "target-set",
+                    "target set",
+                    "external-state",
+                    "external state",
+                )
+            )
+        ):
+            matched_keywords.append("contextual oversized integer")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
             and "surrogate code point" in normalized
             and any(
                 context in normalized
@@ -877,6 +907,8 @@ def _classify_comment(body: str) -> list[str]:
         "malformed json matches",
         "malformed-json-string matches",
         "malformed json string matches",
+        "oversized-integer matches",
+        "oversized integer matches",
         "multi-family comments",
         "multi family comments",
         "mixed comments",
@@ -1090,6 +1122,20 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Contextual malformed-JSON-string review did not classify into the external-state family"
+        )
+    unrelated_oversized_profile = "The user profile API crashes on an oversized integer."
+    if _classify_comment(unrelated_oversized_profile) != ["unknown"]:
+        failures.append(
+            "Unrelated oversized-integer prose must remain unknown without transaction context"
+        )
+    external_oversized_journal = (
+        "The external-state journal JSON decoder fails on an oversized integer."
+    )
+    if _classify_comment(external_oversized_journal) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Contextual oversized-integer review did not classify into the external-state family"
         )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
