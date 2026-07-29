@@ -1781,7 +1781,14 @@ def _validate_snapshot_evidence(
             manifest_path.parent,
             relative_parts,
         )
-        if snapshot_copy is None or sha256_file(snapshot_copy).casefold() != digest.casefold():
+        try:
+            snapshot_digest = sha256_file(snapshot_copy) if snapshot_copy is not None else ""
+        except OSError as exc:
+            issues.append(
+                f"{evidence_label} snapshot copy is unreadable for {relative}: {exc}"
+            )
+            continue
+        if snapshot_copy is None or snapshot_digest.casefold() != digest.casefold():
             issues.append(
                 f"{evidence_label} snapshot copy is missing or disagrees with its manifest for "
                 f"{relative}"
@@ -2126,6 +2133,8 @@ def _validate_modern_lock_evidence(
 
 
 def _raw_text_has_target_set_transition(text: str) -> bool:
+    if text.startswith("\ufeff"):
+        text = text.removeprefix("\ufeff")
     decoder = json.JSONDecoder()
     first_token = next((character for character in text if not character.isspace()), "")
     if first_token != "{":
@@ -2197,20 +2206,40 @@ def _is_target_set_transaction(payload: dict[str, object]) -> bool:
     return payload.get("Transition") == TARGET_SET_TRANSITION
 
 
+def _is_json_audit_entry(path: Path) -> bool:
+    return path.suffix.casefold() == ".json"
+
+
 def validate_incomplete_target_set_journals(
     root: Path,
     compatibility_manifest_path: Path = LEGACY_RECEIPT_COMPATIBILITY_MANIFEST,
 ) -> list[str]:
     failures: list[str] = []
     audit_root = root / "audit_log"
-    if not audit_root.exists():
-        return failures
-    if not audit_root.is_dir() or _has_reparse_point(audit_root):
+    if _has_reparse_point(audit_root):
         return [
             "Target-set transaction audit root is not a confined regular directory: "
             f"{audit_root}"
         ]
-    for discovered_path in sorted(audit_root.glob("*.json")):
+    if os.path.lexists(audit_root) and not audit_root.exists():
+        return [
+            "Target-set transaction audit root is an unresolved filesystem alias: "
+            f"{audit_root}"
+        ]
+    if not audit_root.exists():
+        return failures
+    if not audit_root.is_dir():
+        return [
+            "Target-set transaction audit root is not a confined regular directory: "
+            f"{audit_root}"
+        ]
+    try:
+        discovered_paths = sorted(
+            path for path in audit_root.iterdir() if _is_json_audit_entry(path)
+        )
+    except OSError as exc:
+        return [f"Target-set transaction audit root is unreadable: {audit_root}: {exc}"]
+    for discovered_path in discovered_paths:
         path = _confined_evidence_file(root, ("audit_log", discovered_path.name))
         if path is None:
             failures.append(

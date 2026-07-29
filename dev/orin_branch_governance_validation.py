@@ -3248,6 +3248,29 @@ ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS = (
     "Worktree Escape User Waiver",
     "Worktree Escape User Waiver Missing",
 )
+DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS = (
+    *ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS,
+    "No Cross-Worktree Mutation",
+    "GitHub Desktop-bound worktree",
+    "Worktree Escape User Waiver",
+    "Worktree Escape User Waiver Missing",
+)
+HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS = (
+    "Branch",
+    "Branch Class",
+    "Worktree",
+    "Slot ID",
+    "Assigned Branch",
+    "Assigned Family / Workstream",
+    "Branch Authority Record",
+    "Branch Runtime Engineering Plan",
+    "USER Decision Pointer",
+    "USER Assignment Decision",
+    "Assignment Status",
+    "Merge-Stable Fold-Down",
+    "Non-Includes",
+    *ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS,
+)
 
 FAMILY_SCOPED_BRANCH_READINESS_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -20959,9 +20982,8 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         and bool(worktree)
         and _extract_exact_marker_value(record_text, "Assigned Branch") == branch
         and bool(_extract_exact_marker_value(record_text, "Assigned Family / Workstream"))
-        and _extract_exact_marker_value(record_text, "Branch Authority Record").startswith(
-            "Docs/worktree_slots.md#"
-        )
+        and _extract_exact_marker_value(record_text, "Branch Authority Record")
+        == f"Docs/worktree_slots.md#{branch}"
         and _extract_exact_marker_value(record_text, "Expected Worktree Root") == worktree
         and _extract_exact_marker_value(record_text, "Actual Worktree Root") == worktree
         and re.fullmatch(
@@ -21038,26 +21060,13 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         for marker in singleton_markers
     ):
         return False
-    forbidden_active_markers = (
-        "Branch",
-        "Worktree",
-        "Slot ID",
-        "Assigned Branch",
-        "Active Thread Owner",
-        "Thread Assignment Status",
-        "Worktree Ownership Ledger",
-        "Intended Write Set",
-        "Expected Worktree Root",
-        "Actual Worktree Root",
-        "Assignment Status",
-    )
     if any(
         re.search(
             rf"^\s*(?:-\s*)?{re.escape(marker)}\s*:",
             record_text,
             flags=re.M,
         )
-        for marker in forbidden_active_markers
+        for marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS
     ):
         return False
     live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
@@ -21193,10 +21202,51 @@ def _validate_durable_carrier_admission_receipt_confinement(
         bool(_extract_exact_marker_value(record_text, "Assigned Worktree Confinement")),
         f"{record_path}: durable carrier receipt has no confinement receipt",
     )
-    _validate_assigned_worktree_collision_contract(
+    confinement = _section(record_text, "Assigned Worktree Confinement")
+    _validate_assigned_worktree_confinement_contract(
         require,
         record_path,
-        _section(record_text, "Assigned Worktree Confinement"),
+        confinement,
+        DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS,
+    )
+    no_cross_worktree = _extract_exact_marker_value(
+        confinement,
+        "No Cross-Worktree Mutation",
+    ).casefold()
+    require(
+        any(term in no_cross_worktree for term in ("confirmed", "blocked", "prohibited"))
+        and not any(
+            term in no_cross_worktree for term in ("allowed", "authorized", "granted")
+        ),
+        f"{record_path}: durable carrier receipt does not prove no cross-worktree mutation",
+    )
+    desktop_root = _extract_exact_marker_value(
+        confinement,
+        "GitHub Desktop-bound worktree",
+    )
+    require(
+        _normalized_local_path(desktop_root) == _normalized_local_path(actual_root),
+        (
+            f"{record_path}: durable carrier GitHub Desktop-bound worktree does not match "
+            f"current worktree {actual_root!r}"
+        ),
+    )
+    waiver_state = _extract_exact_marker_value(
+        confinement,
+        "Worktree Escape User Waiver",
+    ).casefold()
+    missing_waiver_state = _extract_exact_marker_value(
+        confinement,
+        "Worktree Escape User Waiver Missing",
+    ).casefold()
+    require(
+        "granted" not in waiver_state
+        and any(term in waiver_state for term in ("not required", "none", "not applicable")),
+        f"{record_path}: durable carrier receipt must not retain an active worktree escape waiver",
+    )
+    require(
+        any(term in missing_waiver_state for term in ("not applicable", "none", "no ")),
+        f"{record_path}: durable carrier receipt has an unresolved worktree escape waiver gap",
     )
     if branch_name and upstream_branch:
         require(
@@ -21208,12 +21258,13 @@ def _validate_durable_carrier_admission_receipt_confinement(
         )
 
 
-def _validate_assigned_worktree_collision_contract(
+def _validate_assigned_worktree_confinement_contract(
     require,
     record_path: str | Path,
     confinement: str,
+    required_markers: tuple[str, ...] = ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS,
 ) -> None:
-    for marker in ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS:
+    for marker in required_markers:
         occurrences = re.findall(
             rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
             confinement,
@@ -21229,7 +21280,7 @@ def _validate_assigned_worktree_collision_contract(
 
     explicit_values = {
         marker: _extract_exact_marker_value(confinement, marker)
-        for marker in ASSIGNED_WORKTREE_COLLISION_RECORD_MARKERS[1:]
+        for marker in required_markers[1:]
     }
     for marker, value in explicit_values.items():
         normalized_value = value.casefold()
@@ -21344,6 +21395,14 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_durable_carrier_admission_receipt(durable_fixture_text),
         f"{durable_fixture}: exact durable carrier admission receipt must classify",
     )
+    mismatched_pointer_fixture = durable_fixture_text.replace(
+        "Docs/worktree_slots.md#feature/governance-fixture",
+        "Docs/worktree_slots.md#feature/other-fixture",
+    )
+    require(
+        not _is_durable_carrier_admission_receipt(mismatched_pointer_fixture),
+        f"{durable_fixture}: durable authority pointer must match the receipt branch",
+    )
     _validate_durable_carrier_admission_receipt_confinement(
         require,
         durable_fixture,
@@ -21392,6 +21451,51 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         f"{durable_fixture}: duplicate durable collision evidence must fail closed",
     )
+    cross_worktree_failures: list[str] = []
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: cross_worktree_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        durable_fixture_text.replace(
+            "Confirmed for the bounded fixture carrier.",
+            "Allowed for the bounded fixture carrier.",
+        ),
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+    )
+    require(
+        any("does not prove no cross-worktree mutation" in message for message in cross_worktree_failures),
+        f"{durable_fixture}: permissive cross-worktree wording must fail closed",
+    )
+    for required_marker in (
+        "No Cross-Worktree Mutation",
+        "GitHub Desktop-bound worktree",
+        "Worktree Escape User Waiver",
+        "Worktree Escape User Waiver Missing",
+    ):
+        missing_marker_failures: list[str] = []
+        durable_without_marker = re.sub(
+            rf"^\s*-\s*{re.escape(required_marker)}:.*\n?",
+            "",
+            durable_fixture_text,
+            flags=re.M,
+        )
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: missing_marker_failures.append(message)
+            if not condition
+            else None,
+            durable_fixture,
+            durable_without_marker,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            "origin/feature/governance-fixture",
+        )
+        require(
+            any(required_marker in message for message in missing_marker_failures),
+            f"{durable_fixture}: missing {required_marker!r} must fail closed",
+        )
     durable_root_failures: list[str] = []
     _validate_durable_carrier_admission_receipt_confinement(
         lambda condition, message: durable_root_failures.append(message)
@@ -21404,7 +21508,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "origin/feature/governance-fixture",
     )
     require(
-        len(durable_root_failures) == 3
+        len(durable_root_failures) == 4
         and all("does not match current worktree" in message for message in durable_root_failures),
         f"{durable_fixture}: mismatched durable carrier worktree roots must fail closed",
     )
@@ -21426,13 +21530,19 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
-    blank_forbidden_marker_fixture = (
-        historical_fixture_text + "\n- Active Thread Owner:\n"
-    )
-    require(
-        not _is_historical_carrier_admission_receipt(blank_forbidden_marker_fixture),
-        f"{historical_fixture}: blank forbidden active markers must fail classification",
-    )
+    for forbidden_marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS:
+        blank_forbidden_marker_fixture = (
+            historical_fixture_text + f"\n- {forbidden_marker}:\n"
+        )
+        require(
+            not _is_historical_carrier_admission_receipt(
+                blank_forbidden_marker_fixture
+            ),
+            (
+                f"{historical_fixture}: blank forbidden active marker "
+                f"{forbidden_marker!r} must fail classification"
+            ),
+        )
     invalid_historical_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "invalid_historical_carrier_admission_receipt.md"
@@ -21603,7 +21713,11 @@ def _run_worktree_confinement_gate(require) -> None:
             marker in confinement,
             f"{record_path}: Assigned Worktree Confinement is missing '{marker}:'",
         )
-    _validate_assigned_worktree_collision_contract(require, record_path, confinement)
+    _validate_assigned_worktree_confinement_contract(
+        require,
+        record_path,
+        confinement,
+    )
 
     if expected_root and actual_root:
         roots_match = _normalized_local_path(expected_root) == _normalized_local_path(actual_root)

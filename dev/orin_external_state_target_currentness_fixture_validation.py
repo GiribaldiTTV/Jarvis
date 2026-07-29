@@ -696,6 +696,20 @@ def _write_malformed_transition_value_fixture(root: Path) -> Path:
     return path
 
 
+def _write_bom_prepared_journal_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root, state="Prepared")
+    path.write_text("\ufeff" + path.read_text(encoding="utf-8"), encoding="utf-8")
+    return path
+
+
+def _write_uppercase_extension_prepared_fixture(root: Path) -> Path:
+    return _write_modern_journal_fixture(
+        root,
+        filename="pending.JSON",
+        state="Prepared",
+    )
+
+
 def _write_malformed_transition_fixture(
     root: Path,
     *,
@@ -976,6 +990,43 @@ def _assert_modern_audit_reparse_rejected(name: str, component: str) -> None:
     print(f"Modern audit reparse fixture: {name}: PASS")
 
 
+def _assert_broken_audit_reparse_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-broken-audit-reparse-") as temp_dir:
+        root = Path(temp_dir)
+        audit_root = root / "audit_log"
+        original = validator._has_reparse_point
+        validator._has_reparse_point = lambda path: path == audit_root or original(path)
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._has_reparse_point = original
+        if not any("not a confined regular" in failure for failure in failures):
+            raise AssertionError(
+                "broken audit-root reparse fixture unexpectedly passed:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit reparse fixture: broken audit_log alias: PASS")
+
+
+def _assert_snapshot_hash_read_failure_reported() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-hash-read-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        original = validator.sha256_file
+        validator.sha256_file = lambda _path: (_ for _ in ()).throw(
+            OSError("simulated snapshot read failure")
+        )
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.sha256_file = original
+        if not any("snapshot copy is unreadable" in failure for failure in failures):
+            raise AssertionError(
+                "snapshot hash read failure escaped validation:\n" + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: hash read failure reported: PASS")
+
+
 def _assert_nonstandard_json_constants_rejected() -> None:
     for constant in ("NaN", "Infinity", "-Infinity"):
         try:
@@ -1223,6 +1274,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON with unreadable Transition value",
             _write_malformed_transition_value_fixture,
+        ),
+        (
+            "BOM-prefixed modern Prepared journal",
+            _write_bom_prepared_journal_fixture,
+        ),
+        (
+            "uppercase-extension modern Prepared journal",
+            _write_uppercase_extension_prepared_fixture,
         ),
         (
             "duplicate Transition exact then unrelated",
@@ -1613,6 +1672,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         "journal file reparse boundary",
         "file",
     )
+    _assert_broken_audit_reparse_rejected()
+    _assert_snapshot_hash_read_failure_reported()
 
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
@@ -1810,6 +1871,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["matching malformed JSON with unreadable Transition value"],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "BOM-prefixed target-set journal ignored",
+        negative_setups["BOM-prefixed modern Prepared journal"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "uppercase JSON audit extension ignored",
+        negative_setups["uppercase-extension modern Prepared journal"],
+        "_is_json_audit_entry",
+        lambda path: path.suffix == ".json",
     )
     _assert_journal_mutation_killed(
         "escaped malformed Transition key ignored",
