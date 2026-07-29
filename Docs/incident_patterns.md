@@ -63,7 +63,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   stop PR continuation on `Review Churn Root-Cause Gate Active`, build a Review-Comment Pattern Matrix from all same-family comments, identify the missing source-truth rule, parser assumption, helper/validator seam, fixture family, generated mutation/adversarial case, and sibling-risk set, then repair the durable owner and validator harness before any further review request. After the repair, run the local pre-PR adversarial firewall so changed helper/validator/parser files, corpus comments, unknown-comment guardrails, generated mutation variants, and sibling replay variants are green before another `@codex` request.
 - validation pattern:
   require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, every GitHub review-thread page and every pull-review-comment page inspected, total/resolved/unresolved/outdated/unresolved-current thread counts reported, every Codex Connector review comment clustered into a covered family, changed helper/validator/parser file coverage proven, review-churn budget status reported, exact root-cause receipt proof when the budget is exceeded, current-head green/approval latch handling that includes Codex Connector thumbs-up reactions when that is the live approval proof, a final local Codex Connector simulation digest listing remaining sibling risks as cleared, waived, routed, or blocked, and a pre-PR firewall result from `dev/orin_pr_review_churn_validation.py --pre-pr-firewall` before PR creation or another review request when helper/validator/parser-family files changed. Pre-PR firewall manifests must run nested Python validation through the portable `{python}` token so Windows-only or POSIX-only launcher assumptions cannot become the first PR-bot finding.
-  budget and parser precision checks must also include sibling false-red coverage: total-comment budget overruns and same-family budget overruns are independent receipt triggers, and no-decision wording must not negate affirmative proof/receipt text unless the proof or receipt itself is pending, missing, unrecorded, or unverified. A genuinely multi-family Connector comment must retain every matched covered family; keyword disambiguation may remove a false-positive family but must not discard a real exact-scope family merely because another family also matches.
+  budget and parser precision checks must also include sibling false-red coverage: total-comment budget overruns and same-family budget overruns are independent receipt triggers, and no-decision wording must not negate affirmative proof/receipt text unless the proof or receipt itself is pending, missing, unrecorded, or unverified. A genuinely multi-family Connector comment must retain every matched covered family; keyword disambiguation may remove a false-positive family but must not discard a real exact-scope family merely because another family also matches. Exact-scope comments with explicit whole-word `RAR` context must retain genuine RAR families; incidental letter sequences such as `rar` inside `arbitrary` are not RAR context.
 - source references:
   - `Docs/phase_governance.md`
   - `Docs/validation_helper_registry.md`
@@ -952,6 +952,11 @@ Any case-insensitive match to the exact target-set transition is a journal
 candidate and must fail unless both the `Transition` key and value are canonical.
 The released lock's normalized write set must equal the journal audit, snapshot,
 and target set exactly; subset proof does not cover an unjournaled extra target.
+Evidence-relative paths must use their exact recorded spelling; leading or trailing
+whitespace is invalid rather than normalization input. Snapshot content hashing
+must remain bound to the same confined regular-file handle across the pathname
+check, open, read, and post-read identity check so a replacement cannot redirect
+hashing outside the evidence root.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -968,7 +973,9 @@ family coverage for compact-receipt parsing. Lookup must use the documented
 claim assigns ownership or authorizes mutation, including a contradictory
 `but` clause in the same sentence. Active durable admission also requires a
 nonblank upstream equal to `origin/<branch>`; an untracked local carrier cannot
-use the fallback.
+use the fallback. Missing-waiver proof must match a closed complete absence
+state; a fragment beginning with `No` does not pass when its remainder says
+waiver evidence was not recorded.
 
 - source references:
   - `dev/orin_external_state_validation.py`

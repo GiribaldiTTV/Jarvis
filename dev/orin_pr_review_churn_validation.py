@@ -124,6 +124,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "modern lock",
             "exact lock write set",
             "snapshot hash read",
+            "confinement-safe file handle",
+            "same handle before hashing",
+            "snapshot copy can be swapped",
             "before text",
             "before sha256",
             "after sha256",
@@ -466,8 +469,11 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "exact-scope families",
             "exact scope families",
             "exact families",
+            "exact-scope comments",
+            "exact scope comments",
             "multi-family comments",
             "multi family comments",
+            "genuine rar families",
         ),
     ),
     FamilyRule(
@@ -675,7 +681,15 @@ def _classify_comment(body: str) -> list[str]:
             for keyword in matched_keywords
             if keyword not in GENERIC_CLASSIFIER_KEYWORDS
         ]
-        if strong_keywords or (has_classifier_context and len(matched_keywords) >= 2):
+        explicit_rar_status = (
+            rule.family_id == "rar-status-green-parser"
+            and re.search(r"\brar\b", normalized) is not None
+        )
+        if (
+            strong_keywords
+            or (has_classifier_context and len(matched_keywords) >= 2)
+            or explicit_rar_status
+        ):
             families.append(rule.family_id)
     classifier_priority_keywords = (
         "comment-family",
@@ -707,8 +721,11 @@ def _classify_comment(body: str) -> list[str]:
         "exact-scope families",
         "exact scope families",
         "exact families",
+        "exact-scope comments",
+        "exact scope comments",
         "multi-family comments",
         "multi family comments",
+        "genuine rar families",
     )
     if "pr2-comment-family-classifier" in families and any(
         keyword in normalized for keyword in classifier_priority_keywords
@@ -728,8 +745,11 @@ def _classify_comment(body: str) -> list[str]:
             family
             for family in families
             if family not in exact_scope_families
-            and not family.startswith("rar-")
             and family != "repo-live-state-boundary-parser"
+            and (
+                not family.startswith("rar-")
+                or re.search(r"\brar\b", normalized) is not None
+            )
         ]
         if competing_families:
             return [*exact_scope_families, *competing_families]
@@ -782,6 +802,18 @@ def _classifier_guardrail_failures() -> list[str]:
     }.issubset(genuine_multi_families):
         failures.append(
             "Genuine multi-family review lost an exact or competing family"
+        )
+    genuine_rar_multi_family_comment = (
+        "A modern Committed journal has invalid snapshot evidence, and RAR reports "
+        "green despite a blocker."
+    )
+    genuine_rar_families = _classify_comment(genuine_rar_multi_family_comment)
+    if not {
+        "external-state-transaction-evidence-parser",
+        "rar-status-green-parser",
+    }.issubset(genuine_rar_families):
+        failures.append(
+            "Genuine exact-scope and RAR review lost one of its families"
         )
     exact_override_comment = (
         "Restrict the exact-family override so another covered family is not hidden."

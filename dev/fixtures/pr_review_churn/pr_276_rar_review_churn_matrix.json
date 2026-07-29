@@ -138,15 +138,15 @@
       },
       {
         "pr": 310,
-        "connector_comments": 32,
+        "connector_comments": 36,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 11,
-          "external-state-transaction-evidence-parser": 19,
-          "pr2-comment-family-classifier": 2
+          "durable-carrier-confinement-parser": 12,
+          "external-state-transaction-evidence-parser": 21,
+          "pr2-comment-family-classifier": 3
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, and classifier-precision families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact lock write-set equality, rejects whole-claim historical contradictions and missing durable upstream identity, preserves every genuine family in multi-family comments, and records the exact live 32-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, and classifier-precision families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact lock write-set equality and exact evidence-path spelling, hashes snapshot evidence through a confinement-checked stable file handle, rejects whole-claim historical contradictions, ambiguous waiver states, and missing durable upstream identity, preserves every genuine family including explicit RAR families in multi-family comments, and records the exact live 36-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -155,8 +155,9 @@
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json maps both families through source truth, implementation, fixtures, generated mutations, sibling replays, connector corpus rows, and executable validation commands.",
           "dev/orin_external_state_target_currentness_fixture_validation.py exercises malformed JSON, strict types, canonical paths, lock/write-set proof, snapshot integrity, case-insensitive discovery, BOM, reparse, and read-race failures for modern journals.",
           "dev/orin_external_state_validation.py requires the modern released lock write set to equal the journal, snapshot, and target evidence set, rejecting both omissions and unrelated additions.",
-          "dev/orin_branch_governance_validation.py and branch-record fixtures exercise documented Carrier Admission Receipt History lookup, nested confinement-section retention, complete active durable-receipt confinement, nonblank exact upstream identity, and whole-claim historical fold-down without contradictory active assignment authority.",
-          "dev/orin_pr_review_churn_validation.py preserves exact-scope and competing families together when a genuine multi-family Connector comment matches both."
+          "dev/orin_external_state_validation.py rejects whitespace-padded evidence paths and hashes snapshot copies through a confinement-checked stable file handle that detects replacement after the pathname check.",
+          "dev/orin_branch_governance_validation.py and branch-record fixtures exercise documented Carrier Admission Receipt History lookup, nested confinement-section retention, complete active durable-receipt confinement, a closed set of complete missing-waiver states, nonblank exact upstream identity, and whole-claim historical fold-down without contradictory active assignment authority.",
+          "dev/orin_pr_review_churn_validation.py preserves exact-scope and competing families together when a genuine multi-family Connector comment matches both, including explicit whole-word RAR context without matching the letters rar inside unrelated words."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -391,6 +392,22 @@
       {
         "family_id": "durable-carrier-confinement-parser",
         "comment": "Reject a durable carrier receipt whose branch has no nonblank upstream identity."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Reject whitespace-padded evidence paths instead of silently trimming a modern journal or supporting snapshot path."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Preserve genuine RAR families in exact-scope comments while suppressing only demonstrably incidental coarse matches."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Require a durable receipt to carry an unambiguous missing-waiver state and reject wording such as No waiver evidence was recorded."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Hash through a confinement-safe file handle and reject a snapshot copy replaced after the path check."
       }
     ],
     "unknown_comment_guardrails": [
@@ -1081,13 +1098,15 @@
       "generated_mutation_coverage": [
         "standards-invalid numeric constants, duplicate/case-aliased fields including a lone noncanonical Transition key, and mismatched delimiters",
         "BOM, uppercase extension, broken reparse point, impossible path characters, and escaped transition spelling",
-        "missing/tampered/unreadable snapshot evidence, active or wrong-write-set lock evidence including omitted and unexpected entries, and equal before/after hashes"
+        "missing/tampered/unreadable snapshot evidence, active or wrong-write-set lock evidence including omitted and unexpected entries, and equal before/after hashes",
+        "whitespace-padded journal, snapshot, manifest, and lock paths plus snapshot replacement between confinement check and handle open"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
         "malformed candidate selection and top-level transition detection",
         "filesystem confinement and evidence read-race failures",
-        "exact released-lock write-set equality rejects unrelated extra targets"
+        "exact released-lock write-set equality rejects unrelated extra targets",
+        "exact evidence-path spelling and handle-bound snapshot hashing reject normalization and replacement races"
       ]
     },
     {
@@ -1116,12 +1135,12 @@
       "generated_mutation_coverage": [
         "each required active collision, routing, waiver, and confinement marker removed individually",
         "each forbidden historical assignment marker retained with blank and nonblank values plus full-sentence contradictory None-prefixed authority claims",
-        "prefix-colliding subsection names, nested confinement-section retention, cross-branch authority pointers, and blank upstream identity"
+        "prefix-colliding subsection names, nested confinement-section retention, cross-branch authority pointers, blank upstream identity, and ambiguous No-prefixed missing-waiver claims"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
         "historical carrier fold-down with no active assignment authority",
-        "normalized worktree identity, required upstream identity, and exact branch pointer matching"
+        "normalized worktree identity, required upstream identity, exact branch pointer matching, and closed complete missing-waiver states"
       ]
     },
     {
@@ -1233,7 +1252,8 @@
         "pre-PR firewall portable Python launcher comment maps to PR2 classifier/churn family",
         "Python validation command using py instead of {python} fails manifest validation",
         "non-Python gated fixture-only changed-family comment maps to PR2 classifier/churn family",
-        "genuine exact-scope and competing-family matches are both preserved"
+        "genuine exact-scope and competing-family matches are both preserved",
+        "explicit whole-word RAR context preserves genuine RAR families while arbitrary does not match RAR"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",
@@ -1242,7 +1262,8 @@
         "classifier comments are not hidden under broad RAR parser keywords",
         "nested pre-PR firewall validation uses the current interpreter on Windows and POSIX runners",
         "source-truth docs and Markdown/JSON fixtures are included in changed-family firewall coverage",
-        "multi-family Connector comments retain every genuine exact and competing family"
+        "multi-family Connector comments retain every genuine exact and competing family",
+        "exact-scope plus explicit RAR status comments retain both families without substring false positives"
       ]
     },
     {

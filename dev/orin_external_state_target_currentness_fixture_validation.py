@@ -667,6 +667,34 @@ def _write_modern_lock_write_set_extra_fixture(root: Path) -> Path:
     return path
 
 
+def _write_modern_whitespace_evidence_path_fixture(root: Path, location: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    if location == "journal target":
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["Targets"][0]["Target"] = " " + payload["Targets"][0]["Target"]
+        atomic_write_json(path, payload)
+    elif location == "snapshot root":
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["Snapshot"] += " "
+        atomic_write_json(path, payload)
+    elif location == "snapshot manifest path":
+        manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["Copied Files"][0]["path"] += " "
+        atomic_write_json(manifest_path, manifest)
+    elif location == "lock write set":
+        lock_path = root / "locks" / "branch-modern-fixture.json"
+        lock = json.loads(lock_path.read_text(encoding="utf-8"))
+        lock["Intended Write Set"] = str(lock["Intended Write Set"]).replace(
+            ";worktrees/Fixture/worktree_state.md",
+            "; worktrees/Fixture/worktree_state.md",
+        )
+        atomic_write_json(lock_path, lock)
+    else:
+        raise AssertionError(f"unknown whitespace evidence location {location!r}")
+    return path
+
+
 def _write_modern_nonstandard_constant_fixture(root: Path, location: str) -> Path:
     path = _write_modern_journal_fixture(root)
     if location == "journal":
@@ -1035,19 +1063,68 @@ def _assert_snapshot_hash_read_failure_reported() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-snapshot-hash-read-") as temp_dir:
         root = Path(temp_dir)
         _write_modern_journal_fixture(root)
-        original = validator.sha256_file
-        validator.sha256_file = lambda _path: (_ for _ in ()).throw(
+        original = validator._sha256_confined_evidence_file
+        validator._sha256_confined_evidence_file = lambda *_args: (_ for _ in ()).throw(
             OSError("simulated snapshot read failure")
         )
         try:
             failures = validator.validate_incomplete_target_set_journals(root)
         finally:
-            validator.sha256_file = original
+            validator._sha256_confined_evidence_file = original
         if not any("snapshot copy is unreadable" in failure for failure in failures):
             raise AssertionError(
                 "snapshot hash read failure escaped validation:\n" + "\n".join(failures)
             )
     print("Modern snapshot fixture: hash read failure reported: PASS")
+
+
+def _assert_snapshot_hash_replacement_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-hash-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        snapshot_copy = (
+            root
+            / "snapshots"
+            / "modern-fixture"
+            / "worktrees"
+            / "Fixture"
+            / "worktree_state.md"
+        )
+        descriptor, outside_name = tempfile.mkstemp(
+            prefix="ndai-outside-snapshot-",
+            suffix=".bin",
+            dir=root.parent,
+        )
+        os.close(descriptor)
+        outside_path = Path(outside_name)
+        outside_path.write_bytes(b"modern fixture before\n")
+        original_open = validator.os.open
+        swapped = False
+
+        def replace_before_open(
+            path: object,
+            flags: int,
+            *args: object,
+            **kwargs: object,
+        ) -> int:
+            nonlocal swapped
+            if not swapped and Path(path) == snapshot_copy:
+                snapshot_copy.unlink()
+                os.link(outside_path, snapshot_copy)
+                swapped = True
+            return original_open(path, flags, *args, **kwargs)
+
+        validator.os.open = replace_before_open
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.open = original_open
+            outside_path.unlink(missing_ok=True)
+        if not any("changed between confinement check and open" in item for item in failures):
+            raise AssertionError(
+                "snapshot hash replacement race escaped validation:\n" + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: confinement/open replacement race rejected: PASS")
 
 
 def _assert_nonstandard_json_constants_rejected() -> None:
@@ -1253,6 +1330,21 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern lock write set includes unexpected target",
             _write_modern_lock_write_set_extra_fixture,
         ),
+        *[
+            (
+                f"modern evidence has whitespace-padded {location}",
+                lambda root, location=location: _write_modern_whitespace_evidence_path_fixture(
+                    root,
+                    location,
+                ),
+            )
+            for location in (
+                "journal target",
+                "snapshot root",
+                "snapshot manifest path",
+                "lock write set",
+            )
+        ],
         *[
             (
                 f"modern evidence contains non-standard numeric constant in {location}",
@@ -1713,6 +1805,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     )
     _assert_broken_audit_reparse_rejected()
     _assert_snapshot_hash_read_failure_reported()
+    _assert_snapshot_hash_replacement_race_rejected()
 
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
@@ -1898,6 +1991,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["modern lock write set includes unexpected target"],
         "_validate_modern_lock_evidence",
         lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "whitespace-padded modern target path normalized",
+        negative_setups["modern evidence has whitespace-padded journal target"],
+        "_safe_external_relative_parts",
+        lambda value: tuple(value.strip().replace("\\", "/").split("/"))
+        if isinstance(value, str) and value.strip()
+        else None,
     )
     _assert_journal_mutation_killed(
         "non-standard journal numeric constant accepted",

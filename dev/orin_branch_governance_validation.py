@@ -21297,7 +21297,14 @@ def _validate_durable_carrier_admission_receipt_confinement(
         f"{record_path}: durable carrier receipt must not retain an active worktree escape waiver",
     )
     require(
-        any(term in missing_waiver_state for term in ("not applicable", "none", "no ")),
+        bool(
+            re.fullmatch(
+                r"(?:not applicable|none)(?:\s*(?:;|-|:)\s*no "
+                r"(?:off-worktree mutation|worktree escape)(?: is)? "
+                r"(?:requested|required|attempted|needed|performed))?\.?",
+                missing_waiver_state,
+            )
+        ),
         f"{record_path}: durable carrier receipt has an unresolved worktree escape waiver gap",
     )
     if branch_name:
@@ -21617,6 +21624,25 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     require(
         any("requires a configured branch upstream" in message for message in missing_upstream_failures),
         f"{durable_fixture}: missing durable carrier upstream must fail closed",
+    )
+    ambiguous_waiver_failures: list[str] = []
+    ambiguous_waiver_text = durable_fixture_text.replace(
+        "Worktree Escape User Waiver Missing: `Not applicable; no worktree escape is requested.`",
+        "Worktree Escape User Waiver Missing: `No waiver evidence was recorded.`",
+    )
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: ambiguous_waiver_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        ambiguous_waiver_text,
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+    )
+    require(
+        any("unresolved worktree escape waiver gap" in message for message in ambiguous_waiver_failures),
+        f"{durable_fixture}: ambiguous missing-waiver wording must fail closed",
     )
     invalid_durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR

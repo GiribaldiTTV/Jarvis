@@ -1487,6 +1487,7 @@ def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
     }
     if (
         not raw
+        or raw != value
         or Path(raw).is_absolute()
         or candidate.is_absolute()
         or candidate.drive
@@ -1517,6 +1518,66 @@ def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
         if cursor.exists() and _has_reparse_point(cursor):
             return None
     return candidate if candidate.is_file() else None
+
+
+def _confined_component_states(
+    base: Path,
+    parts: tuple[str, ...],
+) -> tuple[Path, list[os.stat_result]]:
+    cursor = Path(os.path.abspath(base))
+    components = [cursor]
+    for part in parts:
+        cursor /= part
+        components.append(cursor)
+    states: list[os.stat_result] = []
+    for component in components:
+        metadata = os.stat(component, follow_symlinks=False)
+        if _has_reparse_point(component):
+            raise OSError("evidence path traverses a reparse point")
+        states.append(metadata)
+    return cursor, states
+
+
+def _sha256_confined_evidence_file(base: Path, parts: tuple[str, ...]) -> str:
+    candidate = _confined_evidence_file(base, parts)
+    if candidate is None:
+        raise OSError("evidence file is missing or escapes through a reparse point")
+    checked_candidate, before_states = _confined_component_states(base, parts)
+    if checked_candidate.resolve(strict=False) != candidate:
+        raise OSError("evidence path changed during confinement check")
+    before = before_states[-1]
+    if not stat.S_ISREG(before.st_mode) or _has_reparse_point(candidate):
+        raise OSError("evidence file is not a regular confined file")
+
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(candidate, flags)
+    try:
+        opened_before = os.fstat(descriptor)
+        if not os.path.samestat(before, opened_before):
+            raise OSError("evidence file changed between confinement check and open")
+        digest = hashlib.sha256()
+        while chunk := os.read(descriptor, 1024 * 1024):
+            digest.update(chunk)
+        opened_after = os.fstat(descriptor)
+        if (
+            not os.path.samestat(opened_before, opened_after)
+            or opened_before.st_size != opened_after.st_size
+            or opened_before.st_mtime_ns != opened_after.st_mtime_ns
+        ):
+            raise OSError("evidence file changed while hashing")
+        after_candidate, after_states = _confined_component_states(base, parts)
+        if (
+            after_candidate != checked_candidate
+            or len(after_states) != len(before_states)
+            or any(
+                not os.path.samestat(before_state, after_state)
+                for before_state, after_state in zip(before_states, after_states)
+            )
+        ):
+            raise OSError("evidence path changed while hashing")
+        return digest.hexdigest()
+    finally:
+        os.close(descriptor)
 
 
 def _load_legacy_receipt_compatibility_registry(
@@ -1777,18 +1838,17 @@ def _validate_snapshot_evidence(
         if not relative_parts or not SHA256_PATTERN.fullmatch(digest):
             issues.append(f"{evidence_label} snapshot manifest contains invalid path/hash evidence")
             continue
-        snapshot_copy = _confined_evidence_file(
-            manifest_path.parent,
-            relative_parts,
-        )
         try:
-            snapshot_digest = sha256_file(snapshot_copy) if snapshot_copy is not None else ""
+            snapshot_digest = _sha256_confined_evidence_file(
+                root,
+                (*snapshot_parts, *relative_parts),
+            )
         except OSError as exc:
             issues.append(
                 f"{evidence_label} snapshot copy is unreadable for {relative}: {exc}"
             )
             continue
-        if snapshot_copy is None or snapshot_digest.casefold() != digest.casefold():
+        if snapshot_digest.casefold() != digest.casefold():
             issues.append(
                 f"{evidence_label} snapshot copy is missing or disagrees with its manifest for "
                 f"{relative}"
@@ -2095,8 +2155,13 @@ def _validate_modern_lock_evidence(
         issues.append("modern Committed journal lock evidence has malformed Intended Write Set")
     else:
         for item in write_set_value.split(";"):
-            item = item.strip()
             if not item:
+                continue
+            if item != item.strip():
+                issues.append(
+                    "modern Committed journal lock evidence has whitespace-padded "
+                    "Intended Write Set entry"
+                )
                 continue
             parts = _safe_external_relative_parts(item)
             if not parts:
