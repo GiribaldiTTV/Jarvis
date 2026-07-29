@@ -492,6 +492,7 @@ def _write_modern_journal_fixture(
     include_state: bool = True,
     last_updated: str = "2026-07-28T00:00:00Z",
     schema: str = "external-state-v1",
+    lock_state: str = "Released",
 ) -> Path:
     path = root / "audit_log" / filename
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -514,6 +515,60 @@ def _write_modern_journal_fixture(
     if include_state:
         payload["Transaction State"] = state
     atomic_write_json(path, payload)
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write_json(
+        lock_path,
+        {
+            "External State Schema": "external-state-v1",
+            "Lock ID": "branch-modern-fixture",
+            "Lock State": lock_state,
+            "Workload ID": "modern-fixture-workload",
+            "Workload State": "Completed",
+            "Retain Between Workloads": "No",
+            "Released At": "2026-07-28T00:00:01Z",
+        },
+    )
+    return path
+
+
+def _write_modern_recovery_alias_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Targets"][0]["before text"] = "recoverable target contents"
+    atomic_write_json(path, payload)
+    return path
+
+
+def _write_modern_equal_hash_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Targets"][0]["After SHA256"] = payload["Targets"][0]["Before SHA256"]
+    atomic_write_json(path, payload)
+    return path
+
+
+def _write_modern_non_string_target_fixture(root: Path, value: object) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Targets"][0]["Target"] = value
+    atomic_write_json(path, payload)
+    return path
+
+
+def _write_malformed_transition_fixture(
+    root: Path,
+    *,
+    escaped_key: bool = False,
+    escaped_value: bool = False,
+) -> Path:
+    key = "Transi\\u0074ion" if escaped_key else "Transition"
+    value = validator.TARGET_SET_TRANSITION
+    if escaped_value:
+        value = value.replace("reconciliation", "reconcili\\u0061tion")
+    path = root / "audit_log" / "malformed-escaped-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f'{{"{key}":"{value}",', encoding="utf-8")
     return path
 
 
@@ -892,6 +947,29 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_modern_journal_fixture(root, schema="external-state-v0"),
         ),
         (
+            "modern journal with case-variant recoverable Before Text",
+            _write_modern_recovery_alias_fixture,
+        ),
+        (
+            "modern journal with unchanged target hash",
+            _write_modern_equal_hash_fixture,
+        ),
+        (
+            "modern Committed journal with active lock evidence",
+            lambda root: _write_modern_journal_fixture(root, lock_state="Locked"),
+        ),
+        *[
+            (
+                f"modern journal with non-string Target {kind}",
+                lambda root, value=value: _write_modern_non_string_target_fixture(root, value),
+            )
+            for kind, value in (
+                ("boolean", True),
+                ("integer", 7),
+                ("list", ["worktrees/Fixture/worktree_state.md"]),
+            )
+        ],
+        (
             "matching malformed JSON",
             lambda root: (
                 (root / "audit_log").mkdir(parents=True, exist_ok=True),
@@ -900,6 +978,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                     encoding="utf-8",
                 ),
             ),
+        ),
+        (
+            "matching malformed JSON with escaped Transition key",
+            lambda root: _write_malformed_transition_fixture(root, escaped_key=True),
+        ),
+        (
+            "matching malformed JSON with escaped Transition value",
+            lambda root: _write_malformed_transition_fixture(root, escaped_value=True),
         ),
         (
             "duplicate Transition exact then unrelated",
@@ -1392,6 +1478,42 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["modern journal unknown Transaction State"],
         "_validate_modern_target_set_journal",
         accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "case-variant recoverable Before Text ignored",
+        negative_setups["modern journal with case-variant recoverable Before Text"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "unchanged modern target hash accepted",
+        negative_setups["modern journal with unchanged target hash"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "non-string modern target coerced",
+        negative_setups["modern journal with non-string Target boolean"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "modern active-lock evidence ignored",
+        negative_setups["modern Committed journal with active lock evidence"],
+        "_validate_modern_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "escaped malformed Transition key ignored",
+        negative_setups["matching malformed JSON with escaped Transition key"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "escaped malformed Transition value ignored",
+        negative_setups["matching malformed JSON with escaped Transition value"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
     )
     _assert_journal_mutation_killed(
         "active-lock evidence ignored",

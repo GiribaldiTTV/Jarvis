@@ -41,10 +41,6 @@ REQUIRED_STAGE4_RECORDS = [
 ]
 
 TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
-TARGET_SET_TRANSITION_FIELD_PATTERN = re.compile(
-    rf'(?:^|[{{,])\s*"Transition"\s*:\s*"{re.escape(TARGET_SET_TRANSITION)}"',
-    flags=re.IGNORECASE,
-)
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
 LEGACY_RECEIPT_COMPATIBILITY_MANIFEST = Path(__file__).with_name(
     "orin_external_state_legacy_receipt_compatibility.json"
@@ -1471,7 +1467,9 @@ def validate_released_locks(root: Path) -> list[str]:
 
 
 def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
-    raw = str(value or "").strip()
+    if not isinstance(value, str):
+        return None
+    raw = value.strip()
     candidate = PureWindowsPath(raw)
     normalized = raw.replace("\\", "/")
     parts = normalized.split("/")
@@ -1958,14 +1956,107 @@ def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]
             issues.append(f"modern Committed journal target row {index} has unsafe/duplicate target")
         else:
             seen.add(relative.casefold())
-        if "Before Text" in row:
+        if any(
+            isinstance(key, str) and key.casefold() == "before text"
+            for key in row
+        ):
             issues.append(f"modern Committed journal target row {index} retains recoverable Before Text")
+        normalized_hashes: dict[str, str] = {}
         for hash_field in ("Before SHA256", "After SHA256"):
-            if not SHA256_PATTERN.fullmatch(str(row.get(hash_field, ""))):
+            value = str(row.get(hash_field, ""))
+            if not SHA256_PATTERN.fullmatch(value):
                 issues.append(
                     f"modern Committed journal target row {index} has malformed {hash_field}"
                 )
+            else:
+                normalized_hashes[hash_field] = value.casefold()
+        if (
+            len(normalized_hashes) == 2
+            and normalized_hashes["Before SHA256"] == normalized_hashes["After SHA256"]
+        ):
+            issues.append(
+                f"modern Committed journal target row {index} has no before/after transition"
+            )
     return issues
+
+
+def _validate_modern_lock_evidence(
+    root: Path,
+    payload: dict[str, object],
+) -> list[str]:
+    lock_id = payload.get("Lock ID")
+    workload_id = payload.get("Workload ID")
+    if not isinstance(lock_id, str) or not re.fullmatch(r"[A-Za-z0-9._-]+", lock_id):
+        return ["modern Committed journal Lock ID is missing or unsafe"]
+    if not isinstance(workload_id, str) or not workload_id.strip():
+        return ["modern Committed journal Workload ID is missing"]
+    lock_path = _confined_evidence_file(root, ("locks", f"{lock_id}.json"))
+    if lock_path is None:
+        return ["modern Committed journal lock evidence is missing or escapes through a reparse point"]
+    try:
+        lock = _strict_json_load_path(lock_path)
+    except Exception as exc:  # noqa: BLE001 - ambiguous lock evidence must fail closed
+        return [f"modern Committed journal lock evidence is malformed: {lock_path}: {exc}"]
+    if not isinstance(lock, dict):
+        return [f"modern Committed journal lock evidence is not an object: {lock_path}"]
+
+    issues: list[str] = []
+    expected_values = {
+        "External State Schema": DEFAULT_SCHEMA_VERSION,
+        "Lock ID": lock_id,
+        "Lock State": "Released",
+        "Workload ID": workload_id.strip(),
+        "Workload State": "Completed",
+        "Retain Between Workloads": "No",
+    }
+    for field, expected in expected_values.items():
+        if str(lock.get(field, "")).strip() != expected:
+            issues.append(
+                f"modern Committed journal lock evidence has {field}={lock.get(field)!r}, "
+                f"expected {expected!r}"
+            )
+    if not str(lock.get("Released At", "")).strip():
+        issues.append("modern Committed journal lock evidence has no Released At timestamp")
+    return issues
+
+
+def _raw_text_has_target_set_transition(text: str) -> bool:
+    decoder = json.JSONDecoder()
+    index = 0
+    while index < len(text):
+        if text[index] != '"':
+            index += 1
+            continue
+        try:
+            key, key_end = decoder.raw_decode(text, index)
+        except json.JSONDecodeError:
+            index += 1
+            continue
+        index = key_end
+        if not isinstance(key, str):
+            continue
+        cursor = key_end
+        while cursor < len(text) and text[cursor].isspace():
+            cursor += 1
+        if cursor >= len(text) or text[cursor] != ":":
+            continue
+        cursor += 1
+        while cursor < len(text) and text[cursor].isspace():
+            cursor += 1
+        if cursor >= len(text) or text[cursor] != '"':
+            continue
+        try:
+            value, value_end = decoder.raw_decode(text, cursor)
+        except json.JSONDecodeError:
+            continue
+        index = value_end
+        if (
+            key.casefold() == "transition"
+            and isinstance(value, str)
+            and value.casefold() == TARGET_SET_TRANSITION.casefold()
+        ):
+            return True
+    return False
 
 
 def _is_target_set_transaction(payload: dict[str, object]) -> bool:
@@ -1994,7 +2085,7 @@ def validate_incomplete_target_set_journals(
         try:
             payload = _strict_json_loads(text)
         except (json.JSONDecodeError, StrictJSONError) as exc:
-            if TARGET_SET_TRANSITION_FIELD_PATTERN.search(text):
+            if _raw_text_has_target_set_transition(text):
                 failures.append(
                     f"Target-set transaction journal is malformed or ambiguous: {path}: {exc}"
                 )
@@ -2005,6 +2096,9 @@ def validate_incomplete_target_set_journals(
             continue
         if "Transaction State" in payload:
             journal_issues = _validate_modern_target_set_journal(payload)
+            state = payload.get("Transaction State")
+            if isinstance(state, str) and state.strip() == "Committed":
+                journal_issues.extend(_validate_modern_lock_evidence(root, payload))
         else:
             journal_issues = _validate_legacy_completed_target_set_receipt(
                 root,
