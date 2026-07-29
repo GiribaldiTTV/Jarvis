@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timedelta
 import hashlib
 import json
 import os
@@ -42,6 +43,9 @@ REQUIRED_STAGE4_RECORDS = [
 
 TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
+CANONICAL_UTC_TIMESTAMP_PATTERN = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|\+00:00)$"
+)
 LEGACY_RECEIPT_COMPATIBILITY_MANIFEST = Path(__file__).with_name(
     "orin_external_state_legacy_receipt_compatibility.json"
 )
@@ -1520,6 +1524,17 @@ def _host_path_key(value: str) -> str:
     return os.path.normcase(value.replace("/", os.sep)).replace("\\", "/")
 
 
+def _is_canonical_utc_timestamp(value: object) -> bool:
+    if not isinstance(value, str) or not CANONICAL_UTC_TIMESTAMP_PATTERN.fullmatch(value):
+        return False
+    normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return False
+    return parsed.utcoffset() == timedelta(0)
+
+
 def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
     base_resolved = base.resolve(strict=False)
     candidate = base.joinpath(*parts).resolve(strict=False)
@@ -2024,24 +2039,53 @@ def _validate_legacy_lock_evidence(
             )
     if not str(lock.get("Released At", "")).strip():
         issues.append("legacy receipt lock evidence has no Released At completion timestamp")
-    write_set = {
-        _host_path_key(item.strip().replace("\\", "/"))
-        for item in str(lock.get("Intended Write Set", "")).split(";")
-        if item.strip()
-    }
+    write_set_value = lock.get("Intended Write Set")
+    write_set: set[str] = set()
+    if not isinstance(write_set_value, str):
+        issues.append("legacy receipt lock evidence has malformed Intended Write Set")
+    else:
+        for item in write_set_value.split(";"):
+            if not item:
+                continue
+            if item != item.strip():
+                issues.append(
+                    "legacy receipt lock evidence has whitespace-padded Intended Write Set entry"
+                )
+                continue
+            parts = _safe_external_relative_parts(item)
+            if not parts:
+                issues.append("legacy receipt lock evidence has unsafe Intended Write Set entry")
+                continue
+            normalized = _host_path_key("/".join(parts))
+            if normalized in write_set:
+                issues.append(
+                    "legacy receipt lock evidence duplicates Intended Write Set entry "
+                    f"{item}"
+                )
+                continue
+            write_set.add(normalized)
     try:
         audit_relative = audit_path.relative_to(root).as_posix()
     except ValueError:
         audit_relative = ""
+    snapshot_parts = _safe_external_relative_parts(snapshot)
+    snapshot_relative = _host_path_key("/".join(snapshot_parts or ()))
     required_write_set = {
         _host_path_key(audit_relative),
-        _host_path_key(str(snapshot or "").replace("\\", "/")),
+        snapshot_relative,
         *(_host_path_key(target) for target in targets),
     }
-    missing = sorted(item for item in required_write_set if item and item not in write_set)
+    expected_write_set = {item for item in required_write_set if item}
+    missing = sorted(expected_write_set - write_set)
     if missing:
         issues.append(
             "legacy receipt lock write set omits receipt evidence: " + ", ".join(missing)
+        )
+    unexpected = sorted(write_set - expected_write_set)
+    if unexpected:
+        issues.append(
+            "legacy receipt lock write set contains unexpected evidence: "
+            + ", ".join(unexpected)
         )
     return issues
 
@@ -2239,8 +2283,10 @@ def _validate_modern_lock_evidence(
                 f"expected {expected!r}"
             )
     released_at = lock.get("Released At")
-    if not isinstance(released_at, str) or not released_at.strip():
-        issues.append("modern Committed journal lock evidence has no Released At timestamp")
+    if not _is_canonical_utc_timestamp(released_at):
+        issues.append(
+            "modern Committed journal lock evidence has no canonical UTC Released At timestamp"
+        )
     write_set_value = lock.get("Intended Write Set")
     write_set: set[str] = set()
     if not isinstance(write_set_value, str):

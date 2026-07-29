@@ -286,6 +286,16 @@ def _write_legacy_journal_fixture(
     return audit_path
 
 
+def _write_legacy_lock_write_set_extra_fixture(root: Path) -> Path:
+    path = _write_legacy_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    lock_path = root / "locks" / f"{payload['Lock ID']}.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Intended Write Set"] += ";worktrees/Unjournaled/state.md"
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_legacy_completion_matrix_fixture(
     root: Path,
     completion_rows: list[list[object]],
@@ -701,6 +711,15 @@ def _write_modern_lock_write_set_extra_fixture(root: Path) -> Path:
     lock_path = root / "locks" / "branch-modern-fixture.json"
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
     lock["Intended Write Set"] += ";worktrees/Unjournaled/worktree_state.md"
+    atomic_write_json(lock_path, lock)
+    return path
+
+
+def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
+    path = _write_modern_journal_fixture(root)
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Released At"] = value
     atomic_write_json(lock_path, lock)
     return path
 
@@ -1453,6 +1472,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_modern_journal_fixture(root, lock_state="Locked"),
         ),
         (
+            "modern Committed journal with malformed release timestamp",
+            lambda root: _write_modern_released_at_fixture(root, "No release occurred"),
+        ),
+        (
             "modern Committed journal with missing snapshot manifest",
             _write_modern_missing_snapshot_fixture,
         ),
@@ -1761,6 +1784,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "legacy receipt with active lock evidence",
             lambda root: _write_legacy_journal_fixture(root, lock_state="Locked"),
+        ),
+        (
+            "legacy receipt with unexpected lock write-set target",
+            _write_legacy_lock_write_set_extra_fixture,
         ),
         (
             "legacy receipt with ambiguous workload evidence",
@@ -2141,6 +2168,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: [],
     )
     _assert_journal_mutation_killed(
+        "malformed modern release timestamp accepted",
+        negative_setups["modern Committed journal with malformed release timestamp"],
+        "_validate_modern_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
         "modern snapshot evidence ignored",
         negative_setups["modern Committed journal with missing snapshot manifest"],
         "_validate_modern_snapshot_evidence",
@@ -2157,6 +2190,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["modern lock write set includes unexpected target"],
         "_validate_modern_lock_evidence",
         lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "unexpected legacy lock write-set evidence ignored",
+        negative_setups["legacy receipt with unexpected lock write-set target"],
+        "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "whitespace-padded modern target path normalized",

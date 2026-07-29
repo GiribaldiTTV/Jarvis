@@ -973,6 +973,9 @@ external-state root; copied bytes and hashes from another root are not valid
 recovery provenance. Transition selection must treat whitespace-trimmed key or
 value matches as candidates and then reject them unless the original key and
 value are exactly canonical.
+Legacy and modern released-lock evidence must prove the exact journal, snapshot,
+and target write set with no unjournaled additions. Modern `Released At` evidence
+must be a canonical UTC timestamp, not merely nonblank text.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -1008,6 +1011,10 @@ clause: collision still exists, routing is not blocked or goes directly to a
 sibling, USER approval concerns another decision or is explicitly absent for the
 new worktree, or cross-worktree mutation can proceed. The accepted claim must
 name the safe outcome itself.
+A durable bootstrap receipt must point to a specific affirmative USER-approved
+bounded carrier admission; pending or absent decision prose is not approval.
+The receipt is pre-PR evidence only and must fail once PR review or PR Readiness
+review state begins unless it has already folded into historical/no-active form.
 
 Comment-family matching must treat generic UI prose such as `before text` as
 unknown unless journal, target-set, audit, external-state, or recovery context
@@ -1017,6 +1024,8 @@ Likewise, `historical receipt` requires carrier, admission, confinement, worktre
 assignment, fold-down, or durable-authority context before it maps to the durable
 carrier family. When an exact-scope comment also strongly matches another covered
 family, preserve both matches even if the prose omits that family's acronym.
+Generic `json decoder` wording likewise requires journal, audit, transaction,
+target-set, or external-state context before it maps to transaction evidence.
 
 - source references:
   - `dev/orin_external_state_validation.py`

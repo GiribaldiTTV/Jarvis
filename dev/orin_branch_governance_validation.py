@@ -21014,6 +21014,34 @@ def _is_historical_worktree_receipt(record_text: str) -> bool:
     )
 
 
+def _durable_user_decision_pointer_is_approved(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    rejected = (
+        "pending",
+        "no approval",
+        "not approved",
+        "approval missing",
+        "approval not recorded",
+        "no decision",
+        "denied",
+    )
+    approval = (
+        re.search(r"\buser(?: explicitly)?(?:-| )approved\b", normalized) is not None
+        or re.search(r"\bapproved by (?:the )?user\b", normalized) is not None
+    )
+    bounded = any(term in normalized for term in ("bounded", "one-time", "specific"))
+    admission = any(
+        term in normalized
+        for term in (
+            "carrier admission",
+            "bootstrap admission",
+            "carrier reassignment",
+            "worktree assignment",
+        )
+    )
+    return approval and bounded and admission and not any(term in normalized for term in rejected)
+
+
 def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Branch",
@@ -21069,7 +21097,9 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
             _extract_exact_marker_value(record_text, "Slot ID"),
         )
         is not None
-        and bool(_extract_exact_marker_value(record_text, "USER Decision Pointer"))
+        and _durable_user_decision_pointer_is_approved(
+            _extract_exact_marker_value(record_text, "USER Decision Pointer")
+        )
         and "derived" in _extract_exact_marker_value(
             record_text,
             "Assignment Status",
@@ -21437,6 +21467,31 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
     )
 
 
+def _durable_carrier_pr_review_started(
+    record_text: str,
+    pr_info: dict[str, object] | None,
+) -> bool:
+    status = _extract_exact_marker_value(record_text, "Status").casefold()
+    phase_started = "pr readiness" in status or "pr review" in status
+    pr_exists = bool(
+        pr_info
+        and (
+            pr_info.get("number")
+            or str(pr_info.get("state") or "").casefold()
+            in {"open", "closed", "merged"}
+        )
+    )
+    return phase_started or pr_exists
+
+
+def _pr_lookup_proves_no_pull_request(error: str) -> bool:
+    normalized = error.casefold()
+    return any(
+        marker in normalized
+        for marker in ("no pull requests found", "no open pull request")
+    )
+
+
 def _validate_durable_carrier_admission_receipt_confinement(
     require,
     record_path: str | Path,
@@ -21444,12 +21499,28 @@ def _validate_durable_carrier_admission_receipt_confinement(
     branch_name: str,
     actual_root: str,
     upstream_branch: str,
+    pr_info: dict[str, object] | None = None,
+    pr_lookup_error: str = "no pull requests found",
 ) -> None:
     require(
         _is_durable_carrier_admission_receipt(record_text),
         (
             f"{record_path}: durable carrier confinement fallback requires "
             "an exact non-live Durable Carrier Admission Receipt"
+        ),
+    )
+    require(
+        not _durable_carrier_pr_review_started(record_text, pr_info),
+        (
+            f"{record_path}: Durable Carrier Admission Receipt must fold into "
+            "Historical/no-active posture before PR review begins"
+        ),
+    )
+    require(
+        bool(pr_info) or _pr_lookup_proves_no_pull_request(pr_lookup_error),
+        (
+            f"{record_path}: durable carrier fallback cannot prove that PR review "
+            f"has not begun: {pr_lookup_error or 'pull-request lookup returned no proof'}"
         ),
     )
     require(
@@ -21763,6 +21834,43 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     require(
         _is_durable_carrier_admission_receipt(durable_fixture_text),
         f"{durable_fixture}: exact durable carrier admission receipt must classify",
+    )
+    pending_decision_fixture = durable_fixture_text.replace(
+        "USER approved this one-time bounded carrier admission for the fixture worktree assignment.",
+        "Pending USER decision; no approval recorded.",
+    )
+    require(
+        not _is_durable_carrier_admission_receipt(pending_decision_fixture),
+        f"{durable_fixture}: pending USER decision text must not prove bootstrap admission",
+    )
+    require(
+        _durable_carrier_pr_review_started(
+            durable_fixture_text,
+            {"number": 310, "state": "OPEN"},
+        )
+        and _durable_carrier_pr_review_started(
+            durable_fixture_text + "\n- Status: `PR Readiness`\n",
+            None,
+        )
+        and not _durable_carrier_pr_review_started(durable_fixture_text, None),
+        "durable carrier receipt expiry must detect live PR or PR Readiness review state",
+    )
+    durable_pr_failures: list[str] = []
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: durable_pr_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        durable_fixture_text,
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+        {"number": 310, "state": "OPEN"},
+        "",
+    )
+    require(
+        any("before PR review begins" in item for item in durable_pr_failures),
+        f"{durable_fixture}: live PR must expire the durable carrier fallback",
     )
     durable_registry_body = re.sub(
         r"(?ms)^# .*?\n\n## Branch Identity\s*\n",
@@ -22271,6 +22379,7 @@ def _run_worktree_confinement_gate(require) -> None:
         return
 
     if durable_admission_receipt:
+        durable_pr_info, durable_pr_error = _gh_pr_view_for_branch(branch_name)
         _validate_durable_carrier_admission_receipt_confinement(
             require,
             record_path,
@@ -22278,6 +22387,8 @@ def _run_worktree_confinement_gate(require) -> None:
             branch_name,
             actual_root,
             upstream_branch,
+            durable_pr_info,
+            durable_pr_error,
         )
         return
 

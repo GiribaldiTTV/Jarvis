@@ -123,6 +123,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "malformed journal",
             "modern lock",
             "exact lock write set",
+            "legacy lock write set",
             "snapshot hash read",
             "confinement-safe file handle",
             "same handle before hashing",
@@ -145,7 +146,6 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "journal read",
             "snapshot manifest belongs",
             "surrogate code point",
-            "json decoder",
             "deeply nested audit",
         ),
     ),
@@ -717,6 +717,23 @@ def _classify_comment(body: str) -> list[str]:
         ):
             matched_keywords.append("before text")
         if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and "json decoder" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "audit",
+                    "target-set",
+                    "target set",
+                    "transaction",
+                    "external-state",
+                    "external state",
+                )
+            )
+        ):
+            matched_keywords.append("json decoder")
+        if (
             rule.family_id == "durable-carrier-confinement-parser"
             and "historical receipt" in normalized
             and any(
@@ -1017,6 +1034,20 @@ def _classifier_guardrail_failures() -> list[str]:
     if _classify_comment(unrelated_surrogate) != ["unknown"]:
         failures.append(
             "Comment-family classifier overmatched ordinary database surrogate wording"
+        )
+    unrelated_json_decoder = "The JSON decoder accepts duplicate user profile fields."
+    if _classify_comment(unrelated_json_decoder) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched JSON decoder wording without external-state context"
+        )
+    external_json_decoder = (
+        "The external-state JSON decoder must reject a deeply nested target-set audit."
+    )
+    if _classify_comment(external_json_decoder) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Contextual external-state JSON decoder review did not classify into its exact family"
         )
     unrelated_historical_receipt = (
         "The legacy external-state historical receipt has a snapshot hash mismatch."
