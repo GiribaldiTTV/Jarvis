@@ -928,12 +928,18 @@ receipts, one positive-looking token, negated or future prose, and one completed
 row cannot prove immutable identity or the complete target set. A malformed JSON
 record that explicitly declares the exact transition remains blocked, while the
 same phrase in notes or another field does not select an unrelated audit.
+Every candidate journal, compatibility-registry object, nested target row, and
+supporting lock/snapshot object must be decoded with ordered-pair duplicate
+detection. Exact duplicate names and case-ambiguous security-critical aliases
+must fail closed rather than inherit the JSON parser's last-value-wins result.
+Journal parsing and immutable-receipt SHA256 binding must use the same byte read.
 Ambiguous shapes or assignments, active locks, partial or contradictory
 completion evidence, recovery payloads, and inconsistent hashes must remain
 blocked. Temporary-root fixtures, live read-only receipt checks, and controlled
 mutations must prove that compatibility cannot expand beyond the exact three
 identities or degrade into accepting every missing-state, old, copied, renamed,
-tampered, partial-target, contradictory, or token-bearing record.
+tampered, duplicate-key, case-ambiguous, partial-target, contradictory, or
+token-bearing record.
 
 - source references:
   - `dev/orin_external_state_validation.py`

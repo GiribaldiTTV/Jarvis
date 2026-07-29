@@ -212,7 +212,13 @@ or a path match with altered bytes are not production compatibility identities.
 Journal discovery parses JSON and selects only an exact
 `Transition == "Bounded coherent target-set reconciliation"`; malformed JSON
 that explicitly declares that field fails closed, while phrase-only notes or
-other fields do not select an unrelated audit.
+other fields do not select an unrelated audit. Candidate journals, the
+compatibility registry, nested target rows, and supporting lock/snapshot
+objects use duplicate-aware JSON decoding. Repeated object names fail closed;
+case-ambiguous names for the same security-critical semantic field fail closed;
+and no first-value-wins or last-value-wins interpretation is permitted. Journal
+selection, validation, and raw SHA256 binding must operate from one byte read so
+the parsed document cannot differ from the bytes whose identity is checked.
 
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,

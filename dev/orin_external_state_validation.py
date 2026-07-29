@@ -42,7 +42,8 @@ REQUIRED_STAGE4_RECORDS = [
 
 TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
 TARGET_SET_TRANSITION_FIELD_PATTERN = re.compile(
-    rf'(?:^|[{{,])\s*"Transition"\s*:\s*"{re.escape(TARGET_SET_TRANSITION)}"'
+    rf'(?:^|[{{,])\s*"Transition"\s*:\s*"{re.escape(TARGET_SET_TRANSITION)}"',
+    flags=re.IGNORECASE,
 )
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
 LEGACY_RECEIPT_COMPATIBILITY_MANIFEST = Path(__file__).with_name(
@@ -79,6 +80,89 @@ LEGACY_REQUIRED_COMPLETION_FIELDS = {
     "current validation state",
     "external state item status",
 }
+
+STRICT_JSON_CASE_AMBIGUOUS_FIELDS = frozenset(
+    field.casefold()
+    for field in {
+        "Additions",
+        "After SHA256",
+        "Assignments",
+        "Audit Path",
+        "Before SHA256",
+        "Before Text",
+        "Compatibility Profile",
+        "Copied Files",
+        "External State Schema",
+        "Immutable Purpose",
+        "Last Updated",
+        "Last Updated By",
+        "Lock ID",
+        "Lock State",
+        "Path",
+        "Post Record State",
+        "Purpose",
+        "Receipt Class",
+        "Receipts",
+        "Released At",
+        "Retain Between Workloads",
+        "Schema",
+        "Section Renames",
+        "SHA256",
+        "Size",
+        "Snapshot",
+        "Target",
+        "Targets",
+        "Transaction State",
+        "Transition",
+        "Workload State",
+        "Workload ID",
+        "Intended Write Set",
+    }
+)
+
+
+class StrictJSONError(ValueError):
+    pass
+
+
+def _strict_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    payload: dict[str, object] = {}
+    case_spellings: dict[str, str] = {}
+    for key, value in pairs:
+        if key in payload:
+            raise StrictJSONError(f"duplicate JSON field {key!r}")
+        folded = key.casefold()
+        prior = case_spellings.get(folded)
+        if (
+            prior is not None
+            and prior != key
+            and folded in STRICT_JSON_CASE_AMBIGUOUS_FIELDS
+        ):
+            raise StrictJSONError(
+                f"case-ambiguous JSON fields {prior!r} and {key!r}"
+            )
+        payload[key] = value
+        case_spellings.setdefault(folded, key)
+    return payload
+
+
+def _strict_json_loads(text: str) -> object:
+    return json.loads(text, object_pairs_hook=_strict_json_object)
+
+
+def _strict_json_load_path(path: Path) -> object:
+    try:
+        raw_bytes = path.read_bytes()
+    except OSError as exc:
+        raise StrictJSONError(f"{path}: unreadable JSON: {exc}") from exc
+    try:
+        text = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise StrictJSONError(f"{path}: JSON is not UTF-8: {exc}") from exc
+    try:
+        return _strict_json_loads(text)
+    except (json.JSONDecodeError, StrictJSONError) as exc:
+        raise StrictJSONError(f"{path}: {exc}") from exc
 
 # These profiles are exact normalized states from the three immutable pre-state
 # receipts. Receipt admission is additionally bound to the registry path and hash.
@@ -1425,7 +1509,7 @@ def _load_legacy_receipt_compatibility_registry(
     manifest_path: Path,
 ) -> tuple[dict[str, dict[str, str]], list[str]]:
     try:
-        payload = load_json(manifest_path)
+        payload = _strict_json_load_path(manifest_path)
     except Exception as exc:  # noqa: BLE001 - compatibility identity must fail closed
         return {}, [f"legacy receipt compatibility registry is unreadable: {manifest_path}: {exc}"]
     if not isinstance(payload, dict):
@@ -1653,9 +1737,11 @@ def _validate_legacy_snapshot_evidence(
     if manifest_path is None:
         return ["legacy receipt snapshot manifest is missing or escapes through a reparse point"]
     try:
-        manifest = load_json(manifest_path)
+        manifest = _strict_json_load_path(manifest_path)
     except Exception as exc:  # noqa: BLE001 - corrupt provenance must fail closed
         return [f"legacy receipt snapshot manifest is malformed: {manifest_path}: {exc}"]
+    if not isinstance(manifest, dict):
+        return [f"legacy receipt snapshot manifest is not an object: {manifest_path}"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append("legacy receipt snapshot manifest schema is not external-state-v1")
     copied_files = manifest.get("Copied Files")
@@ -1716,9 +1802,11 @@ def _validate_legacy_lock_evidence(
     if lock_path is None:
         return ["legacy receipt lock evidence is missing or escapes through a reparse point"]
     try:
-        lock = load_json(lock_path)
+        lock = _strict_json_load_path(lock_path)
     except Exception as exc:  # noqa: BLE001 - ambiguous lock evidence must fail closed
         return [f"legacy receipt lock evidence is malformed: {lock_path}: {exc}"]
+    if not isinstance(lock, dict):
+        return [f"legacy receipt lock evidence is not an object: {lock_path}"]
     expected_values = {
         "External State Schema": DEFAULT_SCHEMA_VERSION,
         "Lock ID": lock_text,
@@ -1904,10 +1992,12 @@ def validate_incomplete_target_set_journals(
             failures.append(f"Target-set transaction journal is not UTF-8: {path}: {exc}")
             continue
         try:
-            payload = json.loads(text)
-        except json.JSONDecodeError as exc:
+            payload = _strict_json_loads(text)
+        except (json.JSONDecodeError, StrictJSONError) as exc:
             if TARGET_SET_TRANSITION_FIELD_PATTERN.search(text):
-                failures.append(f"Target-set transaction journal is malformed: {path}: {exc}")
+                failures.append(
+                    f"Target-set transaction journal is malformed or ambiguous: {path}: {exc}"
+                )
             continue
         if not isinstance(payload, dict):
             continue

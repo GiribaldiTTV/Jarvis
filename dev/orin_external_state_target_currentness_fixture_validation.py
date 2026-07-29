@@ -517,6 +517,181 @@ def _write_modern_journal_fixture(
     return path
 
 
+def _json_object_with_field_pair(
+    payload: dict[str, object],
+    field: str,
+    first_value: object,
+    second_value: object,
+    *,
+    second_key: str | None = None,
+) -> str:
+    if field not in payload:
+        raise AssertionError(f"fixture field {field!r} not found")
+    members: list[str] = []
+    for key, value in payload.items():
+        if key == field:
+            members.append(f"{json.dumps(field)}:{json.dumps(first_value)}")
+            members.append(f"{json.dumps(second_key or field)}:{json.dumps(second_value)}")
+        else:
+            members.append(f"{json.dumps(key)}:{json.dumps(value)}")
+    return "{" + ",".join(members) + "}"
+
+
+def _write_json_with_field_pair(
+    path: Path,
+    payload: dict[str, object],
+    field: str,
+    first_value: object,
+    second_value: object,
+    *,
+    second_key: str | None = None,
+    collection_field: str | None = None,
+) -> Path:
+    if collection_field is None:
+        text = _json_object_with_field_pair(
+            payload,
+            field,
+            first_value,
+            second_value,
+            second_key=second_key,
+        )
+    else:
+        rows = payload.get(collection_field)
+        if not isinstance(rows, list) or not rows or not isinstance(rows[0], dict):
+            raise AssertionError(f"fixture collection {collection_field!r} is invalid")
+        first_row = _json_object_with_field_pair(
+            rows[0],
+            field,
+            first_value,
+            second_value,
+            second_key=second_key,
+        )
+        collection_text = "[" + ",".join(
+            [first_row, *(json.dumps(row) for row in rows[1:])]
+        ) + "]"
+        members = [
+            f"{json.dumps(key)}:{collection_text if key == collection_field else json.dumps(value)}"
+            for key, value in payload.items()
+        ]
+        text = "{" + ",".join(members) + "}"
+    path.write_text(text + "\n", encoding="utf-8")
+    return path
+
+
+def _write_modern_ambiguous_json_fixture(
+    root: Path,
+    field: str,
+    first_value: object,
+    *,
+    second_value: object | None = None,
+    second_key: str | None = None,
+    nested: bool = False,
+    existing_value: object | None = None,
+) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    container = payload["Targets"][0] if nested else payload
+    if field not in container:
+        container[field] = existing_value
+        atomic_write_json(path, payload)
+    actual_second = container[field] if second_value is None else second_value
+    return _write_json_with_field_pair(
+        path,
+        payload,
+        field,
+        first_value,
+        actual_second,
+        second_key=second_key,
+        collection_field="Targets" if nested else None,
+    )
+
+
+def _write_ambiguous_registry_fixture(
+    root: Path,
+    field: str,
+    first_value: object,
+    *,
+    second_key: str | None = None,
+    row_field: bool = False,
+) -> tuple[Path, Path]:
+    audit_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    manifest_path = _write_fixture_compatibility_manifest(
+        root,
+        audit_path,
+        PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    container = payload["Receipts"][0] if row_field else payload
+    return audit_path, _write_json_with_field_pair(
+        manifest_path,
+        payload,
+        field,
+        first_value,
+        container[field],
+        second_key=second_key,
+        collection_field="Receipts" if row_field else None,
+    )
+
+
+def _write_unique_registry_fixture(root: Path) -> tuple[Path, Path]:
+    audit_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    return audit_path, _write_fixture_compatibility_manifest(
+        root,
+        audit_path,
+        PROFILE_BY_RECEIPT["receipt-1"],
+    )
+
+
+def _write_ambiguous_legacy_evidence_fixture(
+    root: Path,
+    evidence: str,
+    *,
+    second_key: str | None = None,
+) -> Path:
+    audit_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    if evidence == "lock":
+        evidence_path = root / "locks" / f"{audit['Lock ID']}.json"
+        payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+        return_path = _write_json_with_field_pair(
+            evidence_path,
+            payload,
+            "Lock State",
+            "Locked",
+            "Released",
+            second_key=second_key,
+        )
+    elif evidence == "snapshot":
+        evidence_path = root / str(audit["Snapshot"]) / "snapshot_manifest.json"
+        snapshot = json.loads(evidence_path.read_text(encoding="utf-8"))
+        return_path = _write_json_with_field_pair(
+            evidence_path,
+            snapshot,
+            "Copied Files",
+            [],
+            snapshot["Copied Files"],
+            second_key=second_key,
+        )
+    else:
+        raise AssertionError(f"unknown evidence fixture {evidence!r}")
+    if not return_path.exists():
+        raise AssertionError(f"ambiguous evidence fixture was not written: {return_path}")
+    return audit_path
+
+
+def _write_non_object_legacy_evidence_fixture(root: Path, evidence: str) -> Path:
+    audit_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    if evidence == "lock":
+        evidence_path = root / "locks" / f"{audit['Lock ID']}.json"
+    elif evidence == "snapshot":
+        evidence_path = root / str(audit["Snapshot"]) / "snapshot_manifest.json"
+    else:
+        raise AssertionError(f"unknown evidence fixture {evidence!r}")
+    evidence_path.write_text("[]\n", encoding="utf-8")
+    return audit_path
+
+
 def _run_journal_case(
     name: str,
     setup: object,
@@ -607,6 +782,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-3"),
         ),
         ("modern Committed journal", lambda root: _write_modern_journal_fixture(root)),
+        ("strict compatibility registry with unique keys", _write_unique_registry_fixture),
         (
             "unrelated historical audit",
             lambda root: atomic_write_json(
@@ -724,6 +900,186 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                     encoding="utf-8",
                 ),
             ),
+        ),
+        (
+            "duplicate Transition exact then unrelated",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Transition",
+                validator.TARGET_SET_TRANSITION,
+                second_value="Other audit",
+            ),
+        ),
+        (
+            "duplicate Transition unrelated then exact",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Transition",
+                "Other audit",
+                second_value=validator.TARGET_SET_TRANSITION,
+            ),
+        ),
+        (
+            "duplicate Transaction State Prepared then Committed",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root, "Transaction State", "Prepared"
+            ),
+        ),
+        (
+            "duplicate Transaction State Committed then Prepared",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Transaction State",
+                "Committed",
+                second_value="Prepared",
+            ),
+        ),
+        *[
+            (
+                f"duplicate modern journal field {field}",
+                lambda root, field=field, first=first: _write_modern_ambiguous_json_fixture(
+                    root, field, first
+                ),
+            )
+            for field, first in (
+                ("Lock ID", "hidden-lock"),
+                ("Workload ID", "hidden-workload"),
+                ("Snapshot", "hidden-snapshot"),
+                ("Targets", []),
+            )
+        ],
+        *[
+            (
+                f"duplicate nested target field {field}",
+                lambda root, field=field, first=first, existing=existing: _write_modern_ambiguous_json_fixture(
+                    root,
+                    field,
+                    first,
+                    nested=True,
+                    existing_value=existing,
+                ),
+            )
+            for field, first, existing in (
+                ("Target", "hidden/target.md", None),
+                ("Before SHA256", "0" * 64, None),
+                ("After SHA256", "0" * 64, None),
+                ("Assignments", [], ["State Version=2"]),
+                ("Post Record State", "historical-receipt", "live"),
+            )
+        ],
+        *[
+            (
+                f"duplicate compatibility registry field {field}",
+                lambda root, field=field, first=first, row_field=row_field: _write_ambiguous_registry_fixture(
+                    root,
+                    field,
+                    first,
+                    row_field=row_field,
+                ),
+            )
+            for field, first, row_field in (
+                ("Schema", "invalid-schema", False),
+                ("Purpose", "invalid-purpose", False),
+                ("Receipts", [], False),
+                ("Audit Path", "audit_log/hidden.json", True),
+                ("SHA256", "0" * 64, True),
+                ("Compatibility Profile", "hidden-profile", True),
+                ("Receipt Class", "hidden-class", True),
+                ("Immutable Purpose", "hidden-purpose", True),
+            )
+        ],
+        (
+            "case-ambiguous Transition field",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Transition",
+                validator.TARGET_SET_TRANSITION,
+                second_value="Other audit",
+                second_key="transition",
+            ),
+        ),
+        (
+            "case-ambiguous Transaction State field",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Transaction State",
+                "Committed",
+                second_value="Prepared",
+                second_key="transaction state",
+            ),
+        ),
+        (
+            "case-ambiguous nested Target field",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Target",
+                "worktrees/Fixture/worktree_state.md",
+                second_value="hidden/target.md",
+                second_key="target",
+                nested=True,
+            ),
+        ),
+        (
+            "case-ambiguous nested SHA256 field",
+            lambda root: _write_modern_ambiguous_json_fixture(
+                root,
+                "Before SHA256",
+                "a" * 64,
+                second_value="0" * 64,
+                second_key="before sha256",
+                nested=True,
+            ),
+        ),
+        (
+            "case-ambiguous compatibility registry Schema",
+            lambda root: _write_ambiguous_registry_fixture(
+                root,
+                "Schema",
+                validator.LEGACY_RECEIPT_COMPATIBILITY_SCHEMA,
+                second_key="schema",
+            ),
+        ),
+        (
+            "case-ambiguous compatibility registry SHA256",
+            lambda root: _write_ambiguous_registry_fixture(
+                root,
+                "SHA256",
+                "0" * 64,
+                second_key="sha256",
+                row_field=True,
+            ),
+        ),
+        (
+            "legacy receipt with duplicate lock evidence",
+            lambda root: _write_ambiguous_legacy_evidence_fixture(root, "lock"),
+        ),
+        (
+            "legacy receipt with duplicate snapshot evidence",
+            lambda root: _write_ambiguous_legacy_evidence_fixture(root, "snapshot"),
+        ),
+        (
+            "legacy receipt with case-ambiguous lock evidence",
+            lambda root: _write_ambiguous_legacy_evidence_fixture(
+                root,
+                "lock",
+                second_key="lock state",
+            ),
+        ),
+        (
+            "legacy receipt with case-ambiguous snapshot evidence",
+            lambda root: _write_ambiguous_legacy_evidence_fixture(
+                root,
+                "snapshot",
+                second_key="copied files",
+            ),
+        ),
+        (
+            "legacy receipt with non-object lock evidence",
+            lambda root: _write_non_object_legacy_evidence_fixture(root, "lock"),
+        ),
+        (
+            "legacy receipt with non-object snapshot evidence",
+            lambda root: _write_non_object_legacy_evidence_fixture(root, "snapshot"),
         ),
         (
             "legacy-looking receipt with recovery payload",
@@ -934,6 +1290,75 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     accept_unregistered_identity = lambda *_args, **_kwargs: (
         PROFILE_BY_RECEIPT["receipt-1"],
         [],
+    )
+    permissive_json_loads = lambda text: json.loads(text)
+    permissive_json_path = lambda path: validator.load_json(path)
+    _assert_journal_mutation_killed(
+        "ordinary json.loads last-value-wins restored",
+        negative_setups["duplicate modern journal field Lock ID"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_mutation_killed(
+        "duplicate Transition ignored",
+        negative_setups["duplicate Transition exact then unrelated"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_mutation_killed(
+        "duplicate Transaction State ignored",
+        negative_setups["duplicate Transaction State Prepared then Committed"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_mutation_killed(
+        "Prepared hidden by later Committed",
+        negative_setups["duplicate Transaction State Prepared then Committed"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_mutation_killed(
+        "duplicate nested target fields ignored",
+        negative_setups["duplicate nested target field Target"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_mutation_killed(
+        "duplicate compatibility registry fields ignored",
+        negative_setups["duplicate compatibility registry field Audit Path"],
+        "_strict_json_load_path",
+        permissive_json_path,
+    )
+    _assert_journal_mutation_killed(
+        "duplicate supporting lock fields ignored",
+        negative_setups["legacy receipt with duplicate lock evidence"],
+        "_strict_json_load_path",
+        permissive_json_path,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "duplicate supporting snapshot fields ignored",
+        negative_setups["legacy receipt with duplicate snapshot evidence"],
+        "_strict_json_load_path",
+        permissive_json_path,
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "case-ambiguous critical names accepted",
+        negative_setups["case-ambiguous Transition field"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_false_positive_mutation_killed(
+        "strict parsing and raw hashing use different bytes",
+        _write_unique_registry_fixture,
+        "_strict_json_loads",
+        lambda text: json.loads(
+            text.replace(
+                "worktrees/Fixture-1/worktree_state.md",
+                "worktrees/Changed-1/worktree_state.md",
+            )
+        ),
     )
     _assert_journal_mutation_killed(
         "accept every missing Transaction State",
