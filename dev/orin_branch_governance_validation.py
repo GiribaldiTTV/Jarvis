@@ -21568,6 +21568,20 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
         "may proceed",
         "can mutate",
         "may mutate",
+        "can occur",
+        "may occur",
+        "can happen",
+        "may happen",
+        "remains possible",
+        "is possible",
+        "in name only",
+        "on paper only",
+        "not actually",
+        "but",
+        "however",
+        "although",
+        "yet",
+        "except",
     )
     negated_affirmative = re.search(
         r"\b(?:not|never|no)\b(?:\s+\w+){0,3}\s+(?:confirmed|blocked|prohibited)\b",
@@ -21584,12 +21598,7 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
             "cross-worktree mutation prohibited",
         )
     )
-    affirmative = (
-        (normalized.startswith("confirmed") and explicit_safe_state)
-        or normalized.startswith("blocked")
-        or normalized.startswith("prohibited")
-        or (normalized.startswith("pass") and explicit_safe_state)
-    )
+    affirmative = explicit_safe_state
     return bool(
         affirmative
         and negated_affirmative is None
@@ -21618,6 +21627,9 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
         r"historical|inactive|previous(?:ly)?|former(?:ly)?|prior|no longer active|"
         r"pending|prospective|candidate|future|awaiting|not yet assigned|"
         r"to be (?:assigned|selected|determined|confirmed)|"
+        r"not (?:the |an |active |current )?owner|owner is not|"
+        r"does not (?:own|hold|control)|owns? no|without (?:an |active |current )?owner|"
+        r"no ownership|ownership denied|"
         r"(?:owner|ownership) (?:ended|closed|terminated))\b",
         normalized,
     )
@@ -21632,6 +21644,10 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
         r"revoked|expired|historical|inactive|previously assigned|formerly assigned|"
         r"pending|prospective|candidate|future|awaiting|not yet assigned|"
         r"to be (?:assigned|selected|determined|confirmed)|no longer assigned|"
+        r"assigned to (?:none|no (?:thread|workload|task|worktree))|"
+        r"no (?:thread|workload|task|worktree) (?:is )?assigned|"
+        r"without (?:a )?(?:thread|workload|task|worktree) assignment|"
+        r"does not assign|assignment has no (?:thread|workload|task|worktree)|"
         r"assignment (?:ended|closed|terminated))\b",
         normalized,
     )
@@ -22395,6 +22411,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no explicit active thread owner",
         ),
         (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex is not the owner.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex does not own this workload.`",
+            "has no explicit active thread owner",
+        ),
+        (
             "Thread Assignment Status: `Single fixture owner assigned.`",
             "Thread Assignment Status: `No owner assigned.`",
             "has no active thread assignment",
@@ -22417,6 +22443,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Thread Assignment Status: `Single fixture owner assigned.`",
             "Thread Assignment Status: `Future owner to be assigned.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Fixture owner is assigned to no thread.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `No workload is assigned.`",
             "has no active thread assignment",
         ),
         (
@@ -22537,6 +22573,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation can proceed.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Blocked in name only; cross-worktree mutation can occur.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Cross-worktree mutation is prohibited, but remains possible.`",
             "does not prove no cross-worktree mutation",
         ),
     )

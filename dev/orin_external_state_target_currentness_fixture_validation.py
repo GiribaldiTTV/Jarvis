@@ -797,6 +797,21 @@ def _write_modern_non_string_lock_identity_fixture(root: Path, field: str) -> Pa
     return path
 
 
+def _write_modern_padded_lock_field_fixture(root: Path, field: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    if field == "Workload ID":
+        payload[field] = str(payload[field]) + " "
+        lock[field] = str(lock[field]) + " "
+        atomic_write_json(path, payload)
+    else:
+        lock[field] = str(lock[field]) + " "
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_modern_deep_unrelated_metadata_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -1800,6 +1815,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 ),
             )
             for field in ("Lock ID", "Workload ID")
+        ],
+        *[
+            (
+                f"modern lock has whitespace-padded {field}",
+                lambda root, field=field: _write_modern_padded_lock_field_fixture(
+                    root,
+                    field,
+                ),
+            )
+            for field in (
+                "External State Schema",
+                "Lock State",
+                "Workload State",
+                "Retain Between Workloads",
+                "Workload ID",
+            )
         ],
         *[
             (

@@ -2304,6 +2304,8 @@ def _validate_modern_lock_evidence(
         return ["modern Committed journal Lock ID is missing or unsafe"]
     if not isinstance(workload_id, str) or not workload_id.strip():
         return ["modern Committed journal Workload ID is missing"]
+    if workload_id != workload_id.strip():
+        return ["modern Committed journal Workload ID is not canonical"]
     try:
         lock_path, lock = _strict_json_load_confined(
             root,
@@ -2319,13 +2321,13 @@ def _validate_modern_lock_evidence(
         "External State Schema": DEFAULT_SCHEMA_VERSION,
         "Lock ID": lock_id,
         "Lock State": "Released",
-        "Workload ID": workload_id.strip(),
+        "Workload ID": workload_id,
         "Workload State": "Completed",
         "Retain Between Workloads": "No",
     }
     for field, expected in expected_values.items():
         actual = lock.get(field)
-        if not isinstance(actual, str) or actual.strip() != expected:
+        if not isinstance(actual, str) or actual != expected:
             issues.append(
                 f"modern Committed journal lock evidence has {field}={lock.get(field)!r}, "
                 f"expected {expected!r}"

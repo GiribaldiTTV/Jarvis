@@ -998,6 +998,9 @@ Recovery-payload discovery must use bounded iterative traversal so deeply nested
 unrelated metadata cannot terminate validation with recursion exhaustion.
 Modern released-lock binding requires string-typed `Lock ID` and `Workload ID`
 evidence; numeric JSON values cannot match journal strings through coercion.
+Canonical modern lock fields and the journal `Workload ID` must match their
+required byte values exactly. Leading or trailing whitespace is invalid and
+must not be normalized away before journal-to-lock identity comparison.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
@@ -1069,9 +1072,16 @@ sibling, USER approval concerns another decision or is explicitly absent for the
 new worktree, or cross-worktree mutation can proceed. The accepted claim must
 name the safe outcome itself.
 Pending, prospective, candidate, future, or awaiting owner/assignment/ownership
-claims are not active authority. Likewise, `no collision check` or wording that
+claims are not active authority. Direct denials such as `is not the owner`,
+`does not own this workload`, `assigned to no thread`, or `no workload is
+assigned` are not active authority merely because owner or assignment nouns are
+present. Likewise, `no collision check` or wording that
 the check is pending, incomplete, unperformed, or unverified is not a
 collision-clear result.
+No-cross-worktree evidence must name the substantive prohibited/blocked safe
+state and remain contradiction-free; a `Blocked` or `Prohibited` prefix followed
+by `in name only`, `can occur`, `but remains possible`, or an equivalent escape
+does not prove confinement.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,
