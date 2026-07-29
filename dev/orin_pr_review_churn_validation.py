@@ -122,6 +122,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "committed journal",
             "malformed journal",
             "modern lock",
+            "exact lock write set",
             "snapshot hash read",
             "before text",
             "before sha256",
@@ -142,6 +143,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "historical carrier",
             "historical receipt",
             "historical authority claim",
+            "historical absence claim",
             "historical-receipt classifier",
             "receipt subsection heading",
             "durable authority pointer",
@@ -461,6 +463,11 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "fixture only",
             "exact-family override",
             "exact family override",
+            "exact-scope families",
+            "exact scope families",
+            "exact families",
+            "multi-family comments",
+            "multi family comments",
         ),
     ),
     FamilyRule(
@@ -697,6 +704,11 @@ def _classify_comment(body: str) -> list[str]:
         "fixture only",
         "exact-family override",
         "exact family override",
+        "exact-scope families",
+        "exact scope families",
+        "exact families",
+        "multi-family comments",
+        "multi family comments",
     )
     if "pr2-comment-family-classifier" in families and any(
         keyword in normalized for keyword in classifier_priority_keywords
@@ -720,7 +732,7 @@ def _classify_comment(body: str) -> list[str]:
             and family != "repo-live-state-boundary-parser"
         ]
         if competing_families:
-            return competing_families
+            return [*exact_scope_families, *competing_families]
         return exact_scope_families
     return families or ["unknown"]
 
@@ -758,6 +770,18 @@ def _classifier_guardrail_failures() -> list[str]:
     ):
         failures.append(
             "Exact-family override hid a competing visual acceptance family"
+        )
+    genuine_multi_family_comment = (
+        "A modern Committed journal has invalid snapshot evidence, and the visual "
+        "acceptance surface also lacks its accepted reference set."
+    )
+    genuine_multi_families = _classify_comment(genuine_multi_family_comment)
+    if not {
+        "external-state-transaction-evidence-parser",
+        "visual-acceptance-proof-chain-parser",
+    }.issubset(genuine_multi_families):
+        failures.append(
+            "Genuine multi-family review lost an exact or competing family"
         )
     exact_override_comment = (
         "Restrict the exact-family override so another covered family is not hidden."

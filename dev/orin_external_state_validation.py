@@ -2123,11 +2123,18 @@ def _validate_modern_lock_evidence(
         snapshot_relative,
         *(target.casefold() for target in targets),
     }
-    missing = sorted(item for item in required_write_set if item and item not in write_set)
+    expected_write_set = {item for item in required_write_set if item}
+    missing = sorted(expected_write_set - write_set)
     if missing:
         issues.append(
             "modern Committed journal lock write set omits journal evidence: "
             + ", ".join(missing)
+        )
+    unexpected = sorted(write_set - expected_write_set)
+    if unexpected:
+        issues.append(
+            "modern Committed journal lock write set contains unexpected evidence: "
+            + ", ".join(unexpected)
         )
     return issues
 

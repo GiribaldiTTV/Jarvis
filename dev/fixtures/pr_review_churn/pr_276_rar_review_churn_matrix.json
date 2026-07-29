@@ -138,15 +138,15 @@
       },
       {
         "pr": 310,
-        "connector_comments": 28,
+        "connector_comments": 32,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 9,
-          "external-state-transaction-evidence-parser": 18,
-          "pr2-comment-family-classifier": 1
+          "durable-carrier-confinement-parser": 11,
+          "external-state-transaction-evidence-parser": 19,
+          "pr2-comment-family-classifier": 2
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, and classifier-precision families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, and records the exact live 28-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, and classifier-precision families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact lock write-set equality, rejects whole-claim historical contradictions and missing durable upstream identity, preserves every genuine family in multi-family comments, and records the exact live 32-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -154,7 +154,9 @@
           "dev/orin_pr_review_churn_validation.py limits exact-family precedence to unambiguous matches and preserves a real competing family when broad evidence vocabulary appears outside external-state transaction review.",
           "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json maps both families through source truth, implementation, fixtures, generated mutations, sibling replays, connector corpus rows, and executable validation commands.",
           "dev/orin_external_state_target_currentness_fixture_validation.py exercises malformed JSON, strict types, canonical paths, lock/write-set proof, snapshot integrity, case-insensitive discovery, BOM, reparse, and read-race failures for modern journals.",
-          "dev/orin_branch_governance_validation.py and branch-record fixtures exercise documented Carrier Admission Receipt History lookup, nested confinement-section retention, complete active durable-receipt confinement, and exact historical fold-down without contradictory active assignment authority."
+          "dev/orin_external_state_validation.py requires the modern released lock write set to equal the journal, snapshot, and target evidence set, rejecting both omissions and unrelated additions.",
+          "dev/orin_branch_governance_validation.py and branch-record fixtures exercise documented Carrier Admission Receipt History lookup, nested confinement-section retention, complete active durable-receipt confinement, nonblank exact upstream identity, and whole-claim historical fold-down without contradictory active assignment authority.",
+          "dev/orin_pr_review_churn_validation.py preserves exact-scope and competing families together when a genuine multi-family Connector comment matches both."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -373,6 +375,22 @@
       {
         "family_id": "pr2-comment-family-classifier",
         "comment": "Restrict the exact-family override so snapshot evidence in a visual acceptance comment does not hide the real covered family."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject contradictory historical absence claims such as None; no current mutation authority, but current mutation remains authorized."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Require an exact lock write set and reject a modern released lock that includes an unrelated extra target."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "Preserve exact families in multi-family comments when modern committed journal evidence and visual acceptance proof are both genuinely reviewed."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject a durable carrier receipt whose branch has no nonblank upstream identity."
       }
     ],
     "unknown_comment_guardrails": [
@@ -1063,12 +1081,13 @@
       "generated_mutation_coverage": [
         "standards-invalid numeric constants, duplicate/case-aliased fields including a lone noncanonical Transition key, and mismatched delimiters",
         "BOM, uppercase extension, broken reparse point, impossible path characters, and escaped transition spelling",
-        "missing/tampered/unreadable snapshot evidence, active or wrong-write-set lock evidence, and equal before/after hashes"
+        "missing/tampered/unreadable snapshot evidence, active or wrong-write-set lock evidence including omitted and unexpected entries, and equal before/after hashes"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
         "malformed candidate selection and top-level transition detection",
-        "filesystem confinement and evidence read-race failures"
+        "filesystem confinement and evidence read-race failures",
+        "exact released-lock write-set equality rejects unrelated extra targets"
       ]
     },
     {
@@ -1096,13 +1115,13 @@
       ],
       "generated_mutation_coverage": [
         "each required active collision, routing, waiver, and confinement marker removed individually",
-        "each forbidden historical assignment marker retained with blank and nonblank values plus contradictory None-prefixed authority claims",
-        "prefix-colliding subsection names, nested confinement-section retention, and cross-branch authority pointers"
+        "each forbidden historical assignment marker retained with blank and nonblank values plus full-sentence contradictory None-prefixed authority claims",
+        "prefix-colliding subsection names, nested confinement-section retention, cross-branch authority pointers, and blank upstream identity"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
         "historical carrier fold-down with no active assignment authority",
-        "normalized worktree identity and exact branch pointer matching"
+        "normalized worktree identity, required upstream identity, and exact branch pointer matching"
       ]
     },
     {
@@ -1213,7 +1232,8 @@
         "total-only churn receipt comment maps to PR2 classifier/churn family",
         "pre-PR firewall portable Python launcher comment maps to PR2 classifier/churn family",
         "Python validation command using py instead of {python} fails manifest validation",
-        "non-Python gated fixture-only changed-family comment maps to PR2 classifier/churn family"
+        "non-Python gated fixture-only changed-family comment maps to PR2 classifier/churn family",
+        "genuine exact-scope and competing-family matches are both preserved"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",
@@ -1221,7 +1241,8 @@
         "new unknown family must block until matrix coverage is added",
         "classifier comments are not hidden under broad RAR parser keywords",
         "nested pre-PR firewall validation uses the current interpreter on Windows and POSIX runners",
-        "source-truth docs and Markdown/JSON fixtures are included in changed-family firewall coverage"
+        "source-truth docs and Markdown/JSON fixtures are included in changed-family firewall coverage",
+        "multi-family Connector comments retain every genuine exact and competing family"
       ]
     },
     {

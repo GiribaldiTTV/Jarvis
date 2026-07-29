@@ -21049,7 +21049,7 @@ def _is_complete_historical_absence_claim(
         claim = claim[:-1].rstrip()
     if not claim or ";" in claim or "." in claim:
         return False
-    return any(re.search(pattern, claim) for pattern in required_negative_patterns)
+    return any(re.fullmatch(pattern, claim) for pattern in required_negative_patterns)
 
 
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
@@ -21142,29 +21142,27 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         and _is_complete_historical_absence_claim(
             assignment_claim,
             (
-                r"\bis not assigned\b",
-                r"\bdoes not assign\b",
-                r"\bno current assignment\b",
-                r"\bno (?:slot|worktree|current) assignment is retained\b",
+                r"(?:[a-z0-9._/-]+ )?is not assigned(?: by this receipt)?",
+                r"this receipt does not assign (?:a |the )?(?:slot|worktree|task|write set)",
+                r"no current assignment",
+                r"no (?:slot|worktree|current) assignment is retained",
             ),
         )
         and _is_complete_historical_absence_claim(
             owner_claim,
             (
-                r"\bdoes not retain (?:a )?task owner\b",
-                r"\bhas no (?:current )?task owner\b",
-                r"\bno current task owner\b",
-                r"\bno (?:current )?task owner is retained\b",
+                r"this receipt does not retain (?:a )?task owner",
+                r"(?:this receipt )?has no (?:current )?task owner",
+                r"no (?:current )?task owner(?: is retained)?",
             ),
         )
         and _is_complete_historical_absence_claim(
             write_claim,
             (
-                r"\bdoes not retain (?:a )?(?:write set|mutation authority|write authority)\b",
-                r"\bhas no (?:current )?(?:write|mutation) authority\b",
-                r"\bno current (?:write|mutation) authority\b",
-                r"\bis not authorized\b",
-                r"\bno (?:current )?(?:write|mutation) authority is retained\b",
+                r"this receipt does not retain (?:a )?(?:write set|mutation authority|write authority)(?: or (?:mutation|write) authority)?",
+                r"(?:this receipt )?has no (?:current )?(?:write|mutation) authority",
+                r"no (?:current )?(?:write|mutation) authority(?: is retained)?",
+                r"(?:this receipt )?is not authorized(?: to mutate)?",
             ),
         )
         and "not reserved" in slot_reuse
@@ -21302,14 +21300,19 @@ def _validate_durable_carrier_admission_receipt_confinement(
         any(term in missing_waiver_state for term in ("not applicable", "none", "no ")),
         f"{record_path}: durable carrier receipt has an unresolved worktree escape waiver gap",
     )
-    if branch_name and upstream_branch:
+    if branch_name:
         require(
-            upstream_branch == f"origin/{branch_name}",
-            (
-                "Durable carrier confinement fallback requires the branch upstream to match "
-                f"`origin/{branch_name}`, found `{upstream_branch}`"
-            ),
+            bool(upstream_branch),
+            "Durable carrier confinement fallback requires a configured branch upstream",
         )
+        if upstream_branch:
+            require(
+                upstream_branch == f"origin/{branch_name}",
+                (
+                    "Durable carrier confinement fallback requires the branch upstream to match "
+                    f"`origin/{branch_name}`, found `{upstream_branch}`"
+                ),
+            )
 
 
 def _validate_assigned_worktree_confinement_contract(
@@ -21600,6 +21603,21 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         and all("does not match current worktree" in message for message in durable_root_failures),
         f"{durable_fixture}: mismatched durable carrier worktree roots must fail closed",
     )
+    missing_upstream_failures: list[str] = []
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: missing_upstream_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        durable_fixture_text,
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "",
+    )
+    require(
+        any("requires a configured branch upstream" in message for message in missing_upstream_failures),
+        f"{durable_fixture}: missing durable carrier upstream must fail closed",
+    )
     invalid_durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "invalid_durable_carrier_admission_receipt.md"
@@ -21630,6 +21648,18 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "None; no write authority is retained.",
             "None; current mutation remains authorized.",
+        ),
+        (
+            "None; no slot assignment is retained.",
+            "None; no slot assignment is retained but runtime-active-2 is currently assigned.",
+        ),
+        (
+            "None; no task owner is retained.",
+            "None; no task owner is retained but current task ownership remains active.",
+        ),
+        (
+            "None; no write authority is retained.",
+            "None; no current write authority is retained but current mutation remains authorized.",
         ),
     )
     for valid_claim, contradictory_claim in contradictory_historical_claims:

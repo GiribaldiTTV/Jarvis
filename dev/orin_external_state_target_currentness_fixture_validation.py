@@ -658,6 +658,15 @@ def _write_modern_lock_write_set_omission_fixture(root: Path, omitted: str) -> P
     return path
 
 
+def _write_modern_lock_write_set_extra_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Intended Write Set"] += ";worktrees/Unjournaled/worktree_state.md"
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_modern_nonstandard_constant_fixture(root: Path, location: str) -> Path:
     path = _write_modern_journal_fixture(root)
     if location == "journal":
@@ -1240,6 +1249,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             )
             for omitted in ("audit", "snapshot", "target")
         ],
+        (
+            "modern lock write set includes unexpected target",
+            _write_modern_lock_write_set_extra_fixture,
+        ),
         *[
             (
                 f"modern evidence contains non-standard numeric constant in {location}",
@@ -1703,7 +1716,25 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
 
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
-    accept_modern_state = lambda *_args, **_kwargs: []
+    def accept_modern_state(
+        payload: dict[str, object],
+        target_before_hashes: dict[str, str] | None = None,
+    ) -> list[str]:
+        if target_before_hashes is not None:
+            first_before_hash = ""
+            rows = payload.get("Targets")
+            for row in rows if isinstance(rows, list) else []:
+                if not isinstance(row, dict):
+                    continue
+                parts = validator._safe_external_relative_parts(row.get("Target"))
+                before_hash = row.get("Before SHA256")
+                if not first_before_hash and isinstance(before_hash, str):
+                    first_before_hash = before_hash.casefold()
+                if parts and isinstance(before_hash, str):
+                    target_before_hashes["/".join(parts).casefold()] = before_hash.casefold()
+            if not target_before_hashes and first_before_hash:
+                target_before_hashes["worktrees/fixture/worktree_state.md"] = first_before_hash
+        return []
     accept_completion_set = lambda *_args: []
     accept_completion_profile = lambda _values: PROFILE_BY_RECEIPT["receipt-1"]
     accept_unregistered_identity = lambda *_args, **_kwargs: (
@@ -1859,6 +1890,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "modern lock write-set evidence ignored",
         negative_setups["modern lock write set omits target"],
+        "_validate_modern_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "unexpected modern lock write-set evidence ignored",
+        negative_setups["modern lock write set includes unexpected target"],
         "_validate_modern_lock_evidence",
         lambda *_args, **_kwargs: [],
     )
