@@ -913,11 +913,18 @@ as incomplete active transactions. Prevention requires a shape-based classifier
 instead of filename or age heuristics: current journals remain fail-closed,
 while a state-less legacy receipt is compatible only when its exact legacy
 fields, safe unique targets, released lock, completed workload, non-retention
-posture, snapshot manifest, copied-file hashes, and receipt-level completion
-assignment all agree. Matching malformed JSON, ambiguous shapes, active locks,
-missing completion evidence, recovery payloads, and inconsistent hashes must
-remain blocked. Temporary-root fixtures and mutation probes must prove that the
-compatibility rule cannot degrade into accepting every missing-state or old
+posture, snapshot manifest, copied-file hashes, and complete target-row
+completion evidence all agree. Every live target row must carry the required
+completion fields, every completion-bearing field must match one exact accepted
+profile, and all live rows must resolve to the same profile. Explicit
+`historical-receipt` rows carry no live completion evidence. Loose searches for
+`pass`, `complete`, or `completed` are invalid because one positive-looking
+token, negated or future prose, and one completed row cannot prove the complete
+target set. Matching malformed JSON, ambiguous shapes or assignments, active
+locks, partial or contradictory completion evidence, recovery payloads, and
+inconsistent hashes must remain blocked. Temporary-root fixtures and controlled
+mutations must prove that the compatibility rule cannot degrade into accepting
+every missing-state, old, partial-target, contradictory, or token-bearing
 record.
 
 - source references:

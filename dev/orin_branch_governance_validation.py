@@ -20990,6 +20990,127 @@ def _durable_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[str
     return f"{registry_path}#{branch_name}", receipt
 
 
+def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
+    singleton_markers = (
+        "Historical Branch",
+        "Historical Worktree Receipt",
+        "Historical Slot Receipt",
+        "Record Class",
+        "Record State",
+        "Phase",
+        "Repo Live-State Boundary",
+        "Admission Decision Pointer",
+        "Admission Scope Receipt",
+        "Admission Confinement Receipt",
+        "Historical Branch Authority Pointer",
+        "Historical Write Set Receipt",
+        "Historical Collision Proof",
+        "Historical Escape Waiver Receipt",
+        "Fold-Down Result",
+        "Current Assignment Claim",
+        "Current Task Owner Claim",
+        "Current Write Authority Claim",
+        "Slot Reuse Posture",
+        "Operational Truth Source",
+        "Historical Non-Includes",
+        "Future Gate Boundary Receipt",
+    )
+    if any(
+        len(
+            re.findall(
+                rf"^\s*(?:-\s*)?{re.escape(marker)}:\s*.+$",
+                record_text,
+                flags=re.M,
+            )
+        )
+        != 1
+        for marker in singleton_markers
+    ):
+        return False
+    forbidden_active_markers = (
+        "Branch",
+        "Worktree",
+        "Slot ID",
+        "Assigned Branch",
+        "Active Thread Owner",
+        "Thread Assignment Status",
+        "Worktree Ownership Ledger",
+        "Intended Write Set",
+        "Expected Worktree Root",
+        "Actual Worktree Root",
+        "Assignment Status",
+    )
+    if any(_extract_exact_marker_value(record_text, marker) for marker in forbidden_active_markers):
+        return False
+    live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
+    fold_down = _extract_exact_marker_value(record_text, "Fold-Down Result").casefold()
+    assignment_claim = _extract_exact_marker_value(record_text, "Current Assignment Claim").casefold()
+    owner_claim = _extract_exact_marker_value(record_text, "Current Task Owner Claim").casefold()
+    write_claim = _extract_exact_marker_value(record_text, "Current Write Authority Claim").casefold()
+    slot_reuse = _extract_exact_marker_value(record_text, "Slot Reuse Posture").casefold()
+    branch = _extract_exact_marker_value(record_text, "Historical Branch")
+    worktree = _extract_exact_marker_value(record_text, "Historical Worktree Receipt")
+    confinement = _extract_exact_marker_value(
+        record_text,
+        "Admission Confinement Receipt",
+    ).casefold()
+    non_includes = _extract_exact_marker_value(
+        record_text,
+        "Historical Non-Includes",
+    ).casefold()
+    future_gate = _extract_exact_marker_value(
+        record_text,
+        "Future Gate Boundary Receipt",
+    ).casefold()
+    return (
+        _extract_exact_marker_value(record_text, "Record Class")
+        == "Historical Carrier Admission Receipt"
+        and _extract_exact_marker_value(record_text, "Record State") == "Historical/no-active"
+        and _extract_exact_marker_value(record_text, "Phase") == "Historical Traceability"
+        and bool(branch)
+        and bool(worktree)
+        and re.fullmatch(
+            r"runtime-active-[1-3]",
+            _extract_exact_marker_value(record_text, "Historical Slot Receipt"),
+        )
+        is not None
+        and _extract_exact_marker_value(
+            record_text,
+            "Historical Branch Authority Pointer",
+        )
+        == f"Docs/worktree_slots.md#{branch}"
+        and "does not own" in live_boundary
+        and "current worktree assignment" in live_boundary
+        and worktree.casefold() in confinement
+        and "no active slot" in fold_down
+        and assignment_claim.startswith("none;")
+        and owner_claim.startswith("none;")
+        and write_claim.startswith("none;")
+        and "not reserved" in slot_reuse
+        and all(
+            boundary in non_includes
+            for boundary in ("external-state mutation", "pr creation", "merge", "release")
+        )
+        and "pr creation" in future_gate
+        and "user decision" in future_gate
+        and "not a live-state source" in _extract_exact_marker_value(
+            record_text,
+            "Operational Truth Source",
+        ).casefold()
+    )
+
+
+def _historical_carrier_admission_receipt_for_branch(branch_name: str) -> tuple[str, str]:
+    registry_path = Path("Docs/worktree_slots.md")
+    receipts = _section(_read_text(registry_path), "Carrier Admission Receipt History")
+    if len(re.findall(rf"^### {re.escape(branch_name)}\s*$", receipts, flags=re.M)) != 1:
+        return "", ""
+    receipt = _subsection(receipts, branch_name)
+    if _extract_exact_marker_value(receipt, "Historical Branch") != branch_name:
+        return "", ""
+    return f"{registry_path}#{branch_name}", receipt
+
+
 def _validate_historical_worktree_receipt_confinement(
     require,
     record_path: str | Path,
@@ -21106,6 +21227,24 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         not _is_durable_carrier_admission_receipt(invalid_durable_fixture_text),
         f"{invalid_durable_fixture}: missing live-state boundary must fail classification",
     )
+    historical_fixture = (
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+        / "valid_historical_carrier_admission_receipt.md"
+    )
+    historical_fixture_text = _read_text(historical_fixture)
+    require(
+        _is_historical_carrier_admission_receipt(historical_fixture_text),
+        f"{historical_fixture}: exact historical carrier admission receipt must classify",
+    )
+    invalid_historical_fixture = (
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+        / "invalid_historical_carrier_admission_receipt.md"
+    )
+    invalid_historical_fixture_text = _read_text(invalid_historical_fixture)
+    require(
+        not _is_historical_carrier_admission_receipt(invalid_historical_fixture_text),
+        f"{invalid_historical_fixture}: retained active slot marker must fail classification",
+    )
 
 
 def _run_worktree_confinement_gate(require) -> None:
@@ -21153,6 +21292,36 @@ def _run_worktree_confinement_gate(require) -> None:
                 record_path, record_text = durable_record_path, durable_record_text
                 durable_admission_receipt = True
     if not record_text:
+        historical_record_path, historical_record_text = (
+            _historical_carrier_admission_receipt_for_branch(branch_name)
+        )
+        if historical_record_text:
+            valid_historical_receipt = _is_historical_carrier_admission_receipt(
+                historical_record_text
+            )
+            require(
+                valid_historical_receipt,
+                (
+                    f"{historical_record_path}: historical carrier confinement fallback requires "
+                    "an exact non-live Historical Carrier Admission Receipt"
+                ),
+            )
+            require(
+                _normalized_local_path(
+                    _extract_exact_marker_value(
+                        historical_record_text,
+                        "Historical Worktree Receipt",
+                    )
+                )
+                == _normalized_local_path(actual_root),
+                (
+                    f"{historical_record_path}: historical carrier worktree receipt does not "
+                    f"match current worktree {actual_root!r}"
+                ),
+            )
+            if valid_historical_receipt:
+                return
+    if not record_text:
         historical_branch_record_paths = _collect_branch_record_paths(
             branch_record_index_text,
             "Historical Branch Authority Records",
@@ -21191,7 +21360,7 @@ def _run_worktree_confinement_gate(require) -> None:
         (
             "Assigned Worktree Confinement gate requires the current branch to have an "
             "active branch authority record, matching external branch-state record, "
-            "exact durable carrier admission receipt, or a PR Readiness Stage 1 "
+            "exact durable or historical carrier admission receipt, or a PR Readiness Stage 1 "
             "historical authority projection"
         ),
     )

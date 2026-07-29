@@ -60,6 +60,80 @@ LEGACY_TARGET_ROW_FIELDS = {
     "Target",
 }
 LEGACY_TARGET_ROW_OPTIONAL_FIELDS = {"Post Record State"}
+LEGACY_COMPLETION_FIELDS = {
+    "current validation state",
+    "external state item status",
+    "final disposition",
+}
+LEGACY_REQUIRED_COMPLETION_FIELDS = {
+    "current validation state",
+    "external state item status",
+}
+
+# These profiles are exact normalized states from the three immutable pre-state
+# receipts. New fixtures use the compact canonical profile instead of prose.
+LEGACY_COMPLETION_PROFILES = {
+    "canonical-complete": {
+        "external state item status": "complete",
+        "current validation state": "pass",
+        "final disposition": "complete",
+    },
+    "rri-20260727-001-current-gate": {
+        "external state item status": (
+            "rri-20260727-001 current-gate autonomous-repair implementation and validation "
+            "complete in the governance worktree; durability is blocked only by the "
+            "standing-gate neutral-main fast-forward requirement"
+        ),
+        "current validation state": (
+            "current-gate semantic contract, canonical publication, target-set rollback, lock "
+            "lifecycle, governance, source-owner, packet false-green, public boundary, and "
+            "external currentness checks pass; standing governance intake gate is expected red "
+            "only for dirty tracked files and stale neutral main"
+        ),
+        "final disposition": (
+            "current-gate implementation and validation are complete but not durable; one "
+            "consolidated user decision for neutral-main fast-forward is required before "
+            "standing-gate validation, commit, and push can complete"
+        ),
+    },
+    "rri-20260727-001-durability-final": {
+        "external state item status": (
+            "rri-20260727-001 current-gate autonomous-repair implementation, same-gate allowlist "
+            "repair, validation, commit, and feature-branch push are complete; pr readiness "
+            "stage 1 is not started"
+        ),
+        "current validation state": (
+            "complete routed validation contract pass at pushed head "
+            "52fd1238145fedf222c79371f42e601dac833680, including the 7114-check standing "
+            "governance intake gate; clean worktree and explicit feature-branch push verified"
+        ),
+        "final disposition": (
+            "rri-20260727-001 current-gate repair is durable at pushed head "
+            "52fd1238145fedf222c79371f42e601dac833680; no pr exists; next gate is separate user "
+            "approval for pr readiness stage 1 analysis only"
+        ),
+    },
+    "rri-20260727-001-pr1-projection": {
+        "external state item status": (
+            "pr readiness stage 1 projection-ownership false green is repaired, committed, "
+            "pushed, packeted, and externally reconciled; stage 1 is ready for separate stage 2 "
+            "user review"
+        ),
+        "current validation state": (
+            "complete routed pr readiness stage 1 contract pass at pushed commit "
+            "771caab90b0be290227ea67ba2778c41496a06f9; omitted-live-projection and historical-route "
+            "negative fixtures pass; canonical packet parity/current identity pass; governed "
+            "four-record target-set publication pass"
+        ),
+        "final disposition": (
+            "pr readiness stage 1 is complete at pushed commit "
+            "771caab90b0be290227ea67ba2778c41496a06f9 with canonical packet "
+            "c:\\nexus user\\governance-20260727-162840.zip; stale pr_readiness_state.md is "
+            "historical receipt evidence only; no pr exists; next gate is separate user approval "
+            "for stage 2 and pr creation only"
+        ),
+    },
+}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1342,22 +1416,97 @@ def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
     return candidate if candidate.is_file() else None
 
 
-def _legacy_completion_assignment_present(assignments: list[object]) -> bool:
-    completion_fields = {
-        "current validation state",
-        "external state item status",
-        "final disposition",
-    }
-    for raw_assignment in assignments:
-        if not isinstance(raw_assignment, str) or "=" not in raw_assignment:
+def _normalized_legacy_assignment_value(value: str) -> str:
+    return " ".join(value.casefold().split())
+
+
+def _legacy_completion_profile(values: dict[str, str]) -> str | None:
+    for profile_name, profile in LEGACY_COMPLETION_PROFILES.items():
+        if all(values.get(field) == profile[field] for field in LEGACY_REQUIRED_COMPLETION_FIELDS):
+            final_disposition = values.get("final disposition")
+            if final_disposition is None or final_disposition == profile["final disposition"]:
+                return profile_name
+    return None
+
+
+def _validate_legacy_completion_evidence(rows: list[object]) -> list[str]:
+    issues: list[str] = []
+    live_profiles: list[tuple[int, str]] = []
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
             continue
-        field, value = raw_assignment.split("=", 1)
-        if field.strip().casefold() not in completion_fields:
+        post_record_state = row.get("Post Record State", "live")
+        if not isinstance(post_record_state, str) or post_record_state not in {
+            "live",
+            "historical-receipt",
+        }:
+            issues.append(
+                f"legacy receipt target row {index} has invalid Post Record State"
+            )
+            post_record_state = "live"
+
+        assignments = row.get("Assignments")
+        if not isinstance(assignments, list):
             continue
-        normalized_value = " ".join(value.casefold().split())
-        if re.search(r"(?<!not )\b(?:complete|completed|pass)\b", normalized_value):
-            return True
-    return False
+        parsed: dict[str, str] = {}
+        malformed = False
+        for raw_assignment in assignments:
+            if not isinstance(raw_assignment, str) or "=" not in raw_assignment:
+                issues.append(
+                    f"legacy receipt target row {index} has malformed or ambiguous assignment"
+                )
+                malformed = True
+                continue
+            field, value = raw_assignment.split("=", 1)
+            normalized_field = field.strip().casefold()
+            normalized_value = _normalized_legacy_assignment_value(value)
+            if not normalized_field or not normalized_value:
+                issues.append(
+                    f"legacy receipt target row {index} has malformed or ambiguous assignment"
+                )
+                malformed = True
+                continue
+            if normalized_field in parsed:
+                issues.append(
+                    f"legacy receipt target row {index} duplicates assignment field {field.strip()!r}"
+                )
+                malformed = True
+                continue
+            parsed[normalized_field] = normalized_value
+
+        completion_values = {
+            field: parsed[field]
+            for field in LEGACY_COMPLETION_FIELDS
+            if field in parsed
+        }
+        if post_record_state == "historical-receipt":
+            if completion_values:
+                issues.append(
+                    f"legacy receipt historical target row {index} carries live completion evidence"
+                )
+            continue
+        missing_fields = sorted(LEGACY_REQUIRED_COMPLETION_FIELDS - completion_values.keys())
+        if missing_fields:
+            issues.append(
+                f"legacy receipt live target row {index} lacks completion field(s): "
+                + ", ".join(missing_fields)
+            )
+            continue
+        if malformed:
+            continue
+        profile = _legacy_completion_profile(completion_values)
+        if profile is None:
+            issues.append(
+                f"legacy receipt live target row {index} has no exact accepted completion profile"
+            )
+            continue
+        live_profiles.append((index, profile))
+
+    if not live_profiles:
+        issues.append("legacy receipt has no live target row with exact completion evidence")
+    elif len({profile for _, profile in live_profiles}) != 1:
+        issues.append("legacy receipt completion profiles disagree across its live target set")
+    return issues
 
 
 def _validate_legacy_snapshot_evidence(
@@ -1391,6 +1540,7 @@ def _validate_legacy_snapshot_evidence(
             issues.append("legacy receipt snapshot manifest contains a malformed copied-file row")
             continue
         relative = str(row.get("path", "")).replace("\\", "/")
+        relative_key = relative.casefold()
         digest = str(row.get("sha256", ""))
         if _safe_external_relative_parts(relative) is None or not SHA256_PATTERN.fullmatch(digest):
             issues.append("legacy receipt snapshot manifest contains invalid path/hash evidence")
@@ -1406,12 +1556,12 @@ def _validate_legacy_snapshot_evidence(
                 f"{relative}"
             )
             continue
-        if relative in copied_hashes:
+        if relative_key in copied_hashes:
             issues.append(f"legacy receipt snapshot manifest duplicates target {relative}")
             continue
-        copied_hashes[relative] = digest.casefold()
+        copied_hashes[relative_key] = digest.casefold()
     for relative, before_hash in target_before_hashes.items():
-        if copied_hashes.get(relative) != before_hash.casefold():
+        if copied_hashes.get(relative.casefold()) != before_hash.casefold():
             issues.append(
                 "legacy receipt Before SHA256 does not match its snapshot manifest for "
                 f"{relative}"
@@ -1457,7 +1607,7 @@ def _validate_legacy_lock_evidence(
     if not str(lock.get("Released At", "")).strip():
         issues.append("legacy receipt lock evidence has no Released At completion timestamp")
     write_set = {
-        item.strip().replace("\\", "/")
+        item.strip().replace("\\", "/").casefold()
         for item in str(lock.get("Intended Write Set", "")).split(";")
         if item.strip()
     }
@@ -1466,9 +1616,9 @@ def _validate_legacy_lock_evidence(
     except ValueError:
         audit_relative = ""
     required_write_set = {
-        audit_relative,
-        str(snapshot or "").replace("\\", "/"),
-        *targets,
+        audit_relative.casefold(),
+        str(snapshot or "").replace("\\", "/").casefold(),
+        *(target.casefold() for target in targets),
     }
     missing = sorted(item for item in required_write_set if item and item not in write_set)
     if missing:
@@ -1496,7 +1646,6 @@ def _validate_legacy_completed_target_set_receipt(
 
     rows = payload.get("Targets")
     target_before_hashes: dict[str, str] = {}
-    completion_assignment_found = False
     if not isinstance(rows, list) or not rows:
         issues.append("legacy receipt has no target rows")
         return issues
@@ -1515,7 +1664,7 @@ def _validate_legacy_completed_target_set_receipt(
         relative = "/".join(relative_parts or ())
         if not relative_parts:
             issues.append(f"legacy receipt target row {index} has an unsafe target path")
-        elif relative in target_before_hashes:
+        elif relative.casefold() in target_before_hashes:
             issues.append(f"legacy receipt duplicates target {relative}")
         before_hash = str(row.get("Before SHA256", ""))
         after_hash = str(row.get("After SHA256", ""))
@@ -1524,14 +1673,13 @@ def _validate_legacy_completed_target_set_receipt(
         elif before_hash.casefold() == after_hash.casefold():
             issues.append(f"legacy receipt target row {index} has no before/after transition")
         if relative_parts:
-            target_before_hashes[relative] = before_hash
+            target_before_hashes[relative.casefold()] = before_hash
         for list_field in ("Additions", "Assignments", "Section Renames"):
             value = row.get(list_field)
             if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 issues.append(f"legacy receipt target row {index} has malformed {list_field}")
-        assignments = row.get("Assignments")
-        if isinstance(assignments, list) and _legacy_completion_assignment_present(assignments):
-            completion_assignment_found = True
+
+    issues.extend(_validate_legacy_completion_evidence(rows))
 
     if target_before_hashes:
         issues.extend(
@@ -1551,8 +1699,6 @@ def _validate_legacy_completed_target_set_receipt(
                 set(target_before_hashes),
             )
         )
-    if not completion_assignment_found:
-        issues.append("legacy receipt lacks explicit completion evidence across its target set")
     return issues
 
 
@@ -1583,10 +1729,10 @@ def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]
             continue
         relative_parts = _safe_external_relative_parts(row.get("Target"))
         relative = "/".join(relative_parts or ())
-        if not relative_parts or relative in seen:
+        if not relative_parts or relative.casefold() in seen:
             issues.append(f"modern Committed journal target row {index} has unsafe/duplicate target")
         else:
-            seen.add(relative)
+            seen.add(relative.casefold())
         if "Before Text" in row:
             issues.append(f"modern Committed journal target row {index} retains recoverable Before Text")
         for hash_field in ("Before SHA256", "After SHA256"):

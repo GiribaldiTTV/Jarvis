@@ -23,6 +23,24 @@ ORIGIN_MAIN = "b" * 40
 WORKTREE_PATH = r"C:\Nexus Worktrees\Governance"
 SLOT = "governance-standing"
 
+REAL_LEGACY_COMPLETION_ASSIGNMENTS = {
+    "receipt-1": [
+        "External State Item Status=RRI-20260727-001 current-gate autonomous-repair implementation and validation complete in the Governance worktree; durability is blocked only by the standing-gate neutral-main fast-forward requirement",
+        "Current Validation State=Current-gate semantic contract, canonical publication, target-set rollback, lock lifecycle, governance, source-owner, packet false-green, public boundary, and external currentness checks PASS; standing Governance intake gate is expected RED only for dirty tracked files and stale neutral main",
+        "Final Disposition=Current-gate implementation and validation are complete but not durable; one consolidated USER decision for neutral-main fast-forward is required before standing-gate validation, commit, and push can complete",
+    ],
+    "receipt-2": [
+        "External State Item Status=RRI-20260727-001 current-gate autonomous-repair implementation, same-gate allowlist repair, validation, commit, and feature-branch push are complete; PR Readiness Stage 1 is not started",
+        "Final Disposition=RRI-20260727-001 current-gate repair is durable at pushed HEAD 52fd1238145fedf222c79371f42e601dac833680; no PR exists; next gate is separate USER approval for PR Readiness Stage 1 analysis only",
+        "Current Validation State=Complete routed validation contract PASS at pushed HEAD 52fd1238145fedf222c79371f42e601dac833680, including the 7114-check standing Governance intake gate; clean worktree and explicit feature-branch push verified",
+    ],
+    "receipt-3": [
+        "External State Item Status=PR Readiness Stage 1 projection-ownership false green is repaired, committed, pushed, packeted, and externally reconciled; Stage 1 is ready for separate Stage 2 USER review",
+        "Current Validation State=Complete routed PR Readiness Stage 1 contract PASS at pushed commit 771caab90b0be290227ea67ba2778c41496a06f9; omitted-live-projection and historical-route negative fixtures PASS; canonical packet parity/current identity PASS; governed four-record target-set publication PASS",
+        r"Final Disposition=PR Readiness Stage 1 is complete at pushed commit 771caab90b0be290227ea67ba2778c41496a06f9 with canonical packet C:\Nexus USER\Governance-20260727-162840.zip; stale pr_readiness_state.md is historical receipt evidence only; no PR exists; next gate is separate USER approval for Stage 2 and PR creation only",
+    ],
+}
+
 
 def _target_path(root: Path) -> Path:
     """Build fixture targets with the host platform's path semantics."""
@@ -165,9 +183,8 @@ def _write_legacy_journal_fixture(
     target_count: int = 3,
     include_post_record_state: bool = False,
     completion_assignment: bool = True,
-    completion_assignment_value: str = (
-        "External State Item Status=Fixture transaction complete and validated"
-    ),
+    completion_assignment_value: str | None = None,
+    completion_assignments: list[str] | None = None,
     lock_state: str = "Released",
     lock_workload_id: str | None = None,
     recovery_payload: bool = False,
@@ -200,7 +217,17 @@ def _write_legacy_journal_fixture(
             "Last Updated By=fixture",
         ]
         if completion_assignment:
-            assignments.append(completion_assignment_value)
+            assignments.extend(
+                completion_assignments
+                or (
+                    [completion_assignment_value]
+                    if completion_assignment_value is not None
+                    else [
+                        "External State Item Status=Complete",
+                        "Current Validation State=PASS",
+                    ]
+                )
+            )
         row: dict[str, object] = {
             "Additions": [],
             "After SHA256": after_hash,
@@ -253,6 +280,80 @@ def _write_legacy_journal_fixture(
             "Workload ID": workload_id,
         },
     )
+    return audit_path
+
+
+def _write_legacy_completion_matrix_fixture(
+    root: Path,
+    completion_rows: list[list[object]],
+    *,
+    post_record_states: list[str | None] | None = None,
+) -> Path:
+    audit_path = _write_legacy_journal_fixture(root, target_count=len(completion_rows))
+    payload = json.loads(audit_path.read_text(encoding="utf-8"))
+    for index, (row, completion_assignments) in enumerate(
+        zip(payload["Targets"], completion_rows)
+    ):
+        row["Assignments"] = [
+            assignment
+            for assignment in row["Assignments"]
+            if not isinstance(assignment, str)
+            or "=" not in assignment
+            or assignment.split("=", 1)[0].strip().casefold()
+            not in validator.LEGACY_COMPLETION_FIELDS
+        ]
+        row["Assignments"].extend(completion_assignments)
+        if post_record_states is not None:
+            state = post_record_states[index]
+            if state is None:
+                row.pop("Post Record State", None)
+            else:
+                row["Post Record State"] = state
+    atomic_write_json(audit_path, payload)
+    return audit_path
+
+
+def _write_exact_real_legacy_receipt_fixture(root: Path, receipt: str) -> Path:
+    if receipt == "receipt-1":
+        rows = [
+            REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt][0:2],
+            REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt],
+            REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt],
+        ]
+        return _write_legacy_completion_matrix_fixture(root, rows)
+    if receipt == "receipt-2":
+        return _write_legacy_completion_matrix_fixture(
+            root,
+            [REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt]] * 3,
+        )
+    rows = [
+        REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt],
+        REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt],
+        REAL_LEGACY_COMPLETION_ASSIGNMENTS[receipt],
+        [],
+    ]
+    return _write_legacy_completion_matrix_fixture(
+        root,
+        rows,
+        post_record_states=["live", "live", "live", "historical-receipt"],
+    )
+
+
+def _write_legacy_case_alias_fixture(root: Path) -> Path:
+    audit_path = _write_legacy_journal_fixture(root, target_count=2)
+    payload = json.loads(audit_path.read_text(encoding="utf-8"))
+    payload["Targets"][1]["Target"] = payload["Targets"][0]["Target"].swapcase()
+    atomic_write_json(audit_path, payload)
+    return audit_path
+
+
+def _write_modern_case_alias_fixture(root: Path) -> Path:
+    audit_path = _write_modern_journal_fixture(root)
+    payload = json.loads(audit_path.read_text(encoding="utf-8"))
+    alias = dict(payload["Targets"][0])
+    alias["Target"] = alias["Target"].swapcase()
+    payload["Targets"].append(alias)
+    atomic_write_json(audit_path, payload)
     return audit_path
 
 
@@ -332,16 +433,33 @@ def _assert_journal_mutation_killed(
 
 
 def _run_legacy_journal_compatibility_fixtures() -> None:
+    complete = [
+        "External State Item Status=Complete",
+        "Current Validation State=PASS",
+    ]
+    complete_with_final = [*complete, "Final Disposition=Complete"]
     positive_cases = [
-        ("legacy completed shape 1", lambda root: _write_legacy_journal_fixture(root)),
         (
-            "legacy completed shape 2",
-            lambda root: _write_legacy_journal_fixture(root, target_count=3),
+            "exact immutable legacy receipt 1 completion profile",
+            lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-1"),
         ),
         (
-            "legacy completed shape 3",
-            lambda root: _write_legacy_journal_fixture(
-                root, target_count=4, include_post_record_state=True
+            "exact immutable legacy receipt 2 completion profile",
+            lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-2"),
+        ),
+        (
+            "exact immutable legacy receipt 3 completion profile",
+            lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-3"),
+        ),
+        (
+            "every target row carries canonical completion",
+            lambda root: _write_legacy_completion_matrix_fixture(root, [complete] * 3),
+        ),
+        (
+            "multiple accepted completion fields agree",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [complete_with_final] * 3,
             ),
         ),
         ("modern Committed journal", lambda root: _write_modern_journal_fixture(root)),
@@ -410,17 +528,127 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_legacy_journal_fixture(root, completion_assignment=False),
         ),
         (
-            "legacy receipt with negated completion evidence",
-            lambda root: _write_legacy_journal_fixture(
+            "only one target row has completion evidence",
+            lambda root: _write_legacy_completion_matrix_fixture(
                 root,
-                completion_assignment_value="External State Item Status=Workload is not complete",
+                [complete, [], []],
             ),
         ),
         (
-            "legacy receipt with substring-only completion evidence",
-            lambda root: _write_legacy_journal_fixture(
+            "one target row has no completion disposition",
+            lambda root: _write_legacy_completion_matrix_fixture(
                 root,
-                completion_assignment_value="Current Validation State=Bypass recorded",
+                [complete, [], complete],
+            ),
+        ),
+        (
+            "one row PASS while another Pending",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [
+                    complete,
+                    [
+                        "External State Item Status=Complete",
+                        "Current Validation State=Pending",
+                    ],
+                    complete,
+                ],
+            ),
+        ),
+        (
+            "one row Complete while another Not complete",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [
+                    complete,
+                    [
+                        "External State Item Status=Not complete",
+                        "Current Validation State=PASS",
+                    ],
+                    complete,
+                ],
+            ),
+        ),
+        *[
+            (
+                f"completion phrase rejected: {phrase}",
+                lambda root, phrase=phrase: _write_legacy_completion_matrix_fixture(
+                    root,
+                    [
+                        [
+                            "External State Item Status=Complete",
+                            f"Current Validation State={phrase}",
+                        ]
+                    ]
+                    * 3,
+                ),
+            )
+            for phrase in (
+                "not yet complete",
+                "pending pass",
+                "pass pending validation",
+                "will complete after review",
+                "complete only after USER review",
+                "failed; pass expected",
+                "completion unproven",
+                "no pass recorded",
+            )
+        ],
+        (
+            "contradictory completion fields in one row",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [
+                    [
+                        "External State Item Status=Complete",
+                        "Current Validation State=Pending",
+                        "Final Disposition=Complete",
+                    ]
+                ]
+                * 3,
+            ),
+        ),
+        (
+            "positive completion token in descriptive prose",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [
+                    [
+                        "External State Item Status=Report mentions complete migration",
+                        "Current Validation State=PASS expected after review",
+                    ]
+                ]
+                * 3,
+            ),
+        ),
+        (
+            "positive row paired with malformed assignment",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [complete, [*complete, 17], complete],
+            ),
+        ),
+        (
+            "positive row paired with ambiguous assignment",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [complete, [*complete, "Validation required"], complete],
+            ),
+        ),
+        (
+            "historical target row carries live completion",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [complete, complete],
+                post_record_states=["live", "historical-receipt"],
+            ),
+        ),
+        (
+            "unknown target Post Record State",
+            lambda root: _write_legacy_completion_matrix_fixture(
+                root,
+                [complete],
+                post_record_states=["pending"],
             ),
         ),
         (
@@ -429,6 +657,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 root,
                 first_target_override="worktrees/Fixture-1/worktree_state.md:stream",
             ),
+        ),
+        (
+            "legacy receipt with case-alias duplicate target",
+            _write_legacy_case_alias_fixture,
+        ),
+        (
+            "modern journal with case-alias duplicate target",
+            _write_modern_case_alias_fixture,
         ),
         (
             "legacy receipt with inconsistent snapshot hash",
@@ -455,6 +691,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
     accept_modern_state = lambda _payload: []
+    accept_completion_set = lambda _rows: []
+    accept_completion_profile = lambda _values: "mutated-complete"
     _assert_journal_mutation_killed(
         "accept every missing Transaction State",
         negative_setups["modern journal missing Transaction State"],
@@ -493,6 +731,54 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["legacy receipt with active lock evidence"],
         "_validate_legacy_lock_evidence",
         lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "any one completed row greens the target set",
+        negative_setups["only one target row has completion evidence"],
+        "_validate_legacy_completion_evidence",
+        accept_completion_set,
+    )
+    _assert_journal_mutation_killed(
+        "missing row-level completion ignored",
+        negative_setups["one target row has no completion disposition"],
+        "_validate_legacy_completion_evidence",
+        accept_completion_set,
+    )
+    _assert_journal_mutation_killed(
+        "contradictory completion fields ignored",
+        negative_setups["contradictory completion fields in one row"],
+        "_legacy_completion_profile",
+        accept_completion_profile,
+    )
+    _assert_journal_mutation_killed(
+        "any occurrence of pass accepted",
+        negative_setups["completion phrase rejected: pending pass"],
+        "_legacy_completion_profile",
+        accept_completion_profile,
+    )
+    _assert_journal_mutation_killed(
+        "any occurrence of complete accepted",
+        negative_setups["completion phrase rejected: will complete after review"],
+        "_legacy_completion_profile",
+        accept_completion_profile,
+    )
+    _assert_journal_mutation_killed(
+        "negation checked only immediately before positive word",
+        negative_setups["completion phrase rejected: not yet complete"],
+        "_legacy_completion_profile",
+        accept_completion_profile,
+    )
+    _assert_journal_mutation_killed(
+        "pending future conditional wording accepted",
+        negative_setups["completion phrase rejected: complete only after USER review"],
+        "_legacy_completion_profile",
+        accept_completion_profile,
+    )
+    _assert_journal_mutation_killed(
+        "released lock accepted without coherent receipt completion",
+        negative_setups["legacy receipt lacking completion evidence"],
+        "_validate_legacy_completion_evidence",
+        accept_completion_set,
     )
     _assert_journal_mutation_killed(
         "historical provenance checks skipped",
