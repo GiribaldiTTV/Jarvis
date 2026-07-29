@@ -8471,6 +8471,69 @@ def _branch_record_for_branch(
     return "", ""
 
 
+def _repo_durable_receipt_pointer_matches(
+    branch_name: str,
+    pointer: str,
+    actual_root: str,
+) -> bool:
+    expected_pointer = f"Docs/worktree_slots.md#{branch_name}"
+    if pointer != expected_pointer:
+        return False
+    durable_path, durable_text = _durable_carrier_admission_receipt_for_branch(branch_name)
+    historical_path, historical_text = _historical_carrier_admission_receipt_for_branch(
+        branch_name
+    )
+    durable_worktree = _extract_exact_marker_value(durable_text, "Worktree")
+    historical_worktree = _extract_exact_marker_value(
+        historical_text,
+        "Historical Worktree Receipt",
+    )
+    return bool(
+        (
+            durable_text
+            and durable_path.replace("\\", "/") == expected_pointer
+            and _is_durable_carrier_admission_receipt(durable_text)
+            and (
+                not actual_root
+                or _normalized_local_path(durable_worktree)
+                == _normalized_local_path(actual_root)
+            )
+        )
+        or (
+            historical_text
+            and historical_path.replace("\\", "/") == expected_pointer
+            and _is_historical_carrier_admission_receipt(historical_text)
+            and (
+                not actual_root
+                or _normalized_local_path(historical_worktree)
+                == _normalized_local_path(actual_root)
+            )
+        )
+    )
+
+
+def _external_state_has_current_confinement(
+    state_text: str,
+    branch_name: str,
+    actual_root: str,
+) -> bool:
+    state_identity = _section(state_text, "Branch Identity")
+    state_identity_branch = _extract_exact_marker_value(state_identity, "Branch")
+    state_identity_worktree = _extract_exact_marker_value(state_identity, "Worktree")
+    return bool(
+        _extract_exact_marker_value(state_text, "Record Class")
+        == "Live Branch Projection"
+        and state_identity_branch == branch_name
+        and state_identity_worktree
+        and (
+            not actual_root
+            or _normalized_local_path(state_identity_worktree)
+            == _normalized_local_path(actual_root)
+        )
+        and _section(state_text, "Assigned Worktree Confinement")
+    )
+
+
 def _external_branch_state_record_for_branch(
     branch_name: str,
     actual_root: str,
@@ -8497,6 +8560,25 @@ def _external_branch_state_record_for_branch(
         and _normalized_local_path(state_worktree) != _normalized_local_path(actual_root)
     ):
         return "", ""
+    state_identity = _section(state_text, "Branch Identity")
+    state_has_current_confinement = _external_state_has_current_confinement(
+        state_text,
+        branch_name,
+        actual_root,
+    )
+
+    durable_pointer = _extract_exact_marker_value(state_text, "Repo Durable Receipt Pointer")
+    if durable_pointer:
+        if not _repo_durable_receipt_pointer_matches(
+            branch_name,
+            durable_pointer,
+            actual_root,
+        ):
+            return "", ""
+        if state_has_current_confinement:
+            return str(state_path), state_text
+        return "", ""
+
     record_pointer = _extract_exact_marker_value(state_text, "Repo Branch Record Pointer")
     if not record_pointer:
         return "", ""
@@ -8507,16 +8589,12 @@ def _external_branch_state_record_for_branch(
     if _extract_branch_identity_branch(record_text) != branch_name:
         return "", ""
     record_identity = _section(record_text, "Branch Identity")
-    state_identity = _section(state_text, "Branch Identity")
     if _extract_exact_marker_value(record_identity, "Worktree") and _section(
         record_text,
         "Assigned Worktree Confinement",
     ):
         return record_pointer, record_text
-    if _extract_exact_marker_value(state_identity, "Worktree") and _section(
-        state_text,
-        "Assigned Worktree Confinement",
-    ):
+    if state_has_current_confinement:
         return str(state_path), state_text
     return record_pointer, record_text
 
@@ -21371,6 +21449,16 @@ def _validate_assigned_worktree_confinement_contract(
         )
 
 
+def _reject_historical_receipt_as_active_authority(require, record_path: str | Path) -> None:
+    require(
+        False,
+        (
+            f"{record_path}: historical/no-active receipt is evidence only and cannot "
+            "authorize current worktree mutation or PR work; establish new active authority"
+        ),
+    )
+
+
 def _run_worktree_confinement_regression_fixtures(require) -> None:
     fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
@@ -21450,6 +21538,52 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         == "C:\\Nexus Worktrees\\FAM-007",
         "Assigned Worktree Confinement external-state fixture must not parse `Worktree State:` as `Worktree:`",
     )
+    current_external_authority_fixture = (
+        "Record Class: `Live Branch Projection`\n\n"
+        "## Branch Identity\n\n"
+        "- Branch: `feature/governance-fixture`\n"
+        "- Worktree: `C:\\Nexus Worktrees\\Governance-Fixture`\n"
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`\n\n"
+        "## Assigned Worktree Confinement\n\n"
+        "Assigned Worktree Confinement: `Active external authority fixture`\n"
+    )
+    require(
+        _external_state_has_current_confinement(
+            current_external_authority_fixture,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        ),
+        "external live authority fixture must prove exact branch/worktree confinement",
+    )
+    require(
+        not _external_state_has_current_confinement(
+            current_external_authority_fixture,
+            "feature/other-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Other-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "## Assigned Worktree Confinement",
+                "## Historical Confinement Receipt",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "Live Branch Projection",
+                "Historical Receipt",
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        ),
+        "external authority must reject wrong branch, wrong worktree, missing confinement, and non-live record class",
+    )
     durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "valid_durable_carrier_admission_receipt.md"
@@ -21500,6 +21634,32 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     require(
         not _is_durable_carrier_admission_receipt(mismatched_pointer_fixture),
         f"{durable_fixture}: durable authority pointer must match the receipt branch",
+    )
+    n0_branch = "feature/governance-external-projection-compatibility"
+    n0_pointer = f"Docs/worktree_slots.md#{n0_branch}"
+    require(
+        _repo_durable_receipt_pointer_matches(
+            n0_branch,
+            n0_pointer,
+            "C:\\Nexus Worktrees\\Governance-N0",
+        ),
+        "external live authority must be able to bind the exact N0 durable historical receipt pointer",
+    )
+    require(
+        not _repo_durable_receipt_pointer_matches(
+            n0_branch,
+            "Docs/worktree_slots.md#feature/other-carrier",
+            "C:\\Nexus Worktrees\\Governance-N0",
+        ),
+        "external live authority must reject a cross-branch durable receipt pointer",
+    )
+    require(
+        not _repo_durable_receipt_pointer_matches(
+            n0_branch,
+            n0_pointer,
+            "C:\\Nexus Worktrees\\Other-N0",
+        ),
+        "external live authority must reject a durable receipt from another worktree",
     )
     _validate_durable_carrier_admission_receipt_confinement(
         require,
@@ -21662,6 +21822,17 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
+    historical_authority_failures: list[str] = []
+    _reject_historical_receipt_as_active_authority(
+        lambda condition, message: historical_authority_failures.append(message)
+        if not condition
+        else None,
+        historical_fixture,
+    )
+    require(
+        any("cannot authorize current worktree mutation or PR work" in message for message in historical_authority_failures),
+        f"{historical_fixture}: historical receipt must never authorize current work",
+    )
     contradictory_historical_claims = (
         (
             "None; no slot assignment is retained.",
@@ -21761,6 +21932,7 @@ def _run_worktree_confinement_gate(require) -> None:
                 external_record_path,
                 external_record_text,
             )
+            _reject_historical_receipt_as_active_authority(require, external_record_path)
             return
         record_path, record_text = external_record_path, external_record_text
     if not record_text:
@@ -21807,6 +21979,10 @@ def _run_worktree_confinement_gate(require) -> None:
                 ),
             )
             if valid_historical_receipt:
+                _reject_historical_receipt_as_active_authority(
+                    require,
+                    historical_record_path,
+                )
                 return
     if not record_text:
         historical_branch_record_paths = _collect_branch_record_paths(
@@ -21825,6 +22001,7 @@ def _run_worktree_confinement_gate(require) -> None:
                 record_path,
                 record_text,
             )
+            _reject_historical_receipt_as_active_authority(require, record_path)
             return
         if (
             historical_record_text
@@ -21847,7 +22024,7 @@ def _run_worktree_confinement_gate(require) -> None:
         (
             "Assigned Worktree Confinement gate requires the current branch to have an "
             "active branch authority record, matching external branch-state record, "
-            "exact durable or historical carrier admission receipt, or a PR Readiness Stage 1 "
+            "exact durable carrier admission receipt, or a PR Readiness Stage 1 "
             "historical authority projection"
         ),
     )

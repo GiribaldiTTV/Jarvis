@@ -956,7 +956,12 @@ Evidence-relative paths must use their exact recorded spelling; leading or trail
 whitespace is invalid rather than normalization input. Snapshot content hashing
 must remain bound to the same confined regular-file handle across the pathname
 check, open, read, and post-read identity check so a replacement cannot redirect
-hashing outside the evidence root.
+hashing outside the evidence root. Immutable-receipt registry lookup and modern
+journal, snapshot, and lock path comparison must use host filesystem case
+semantics: case-insensitive on Windows and case-sensitive on POSIX. Journal bytes
+must also be read through the same no-follow confined handle whose component and
+file identity is checked before and after the read; a pathname check followed by
+a separate pathname read leaves an alias-replacement race.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -975,7 +980,13 @@ claim assigns ownership or authorizes mutation, including a contradictory
 nonblank upstream equal to `origin/<branch>`; an untracked local carrier cannot
 use the fallback. Missing-waiver proof must match a closed complete absence
 state; a fragment beginning with `No` does not pass when its remainder says
-waiver evidence was not recorded.
+waiver evidence was not recorded. A folded `Historical/no-active` receipt is
+identity and admission history only and can never authorize a resumed workload
+or PR repair. Current work requires a new active authority. When that authority
+is external, the external record must carry the complete current branch,
+worktree, owner, collision, write-set, routing, and waiver contract and may point
+to the exact historical repo receipt only as durable identity evidence; the
+pointer does not reactivate the receipt.
 
 - source references:
   - `dev/orin_external_state_validation.py`

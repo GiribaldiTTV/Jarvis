@@ -153,11 +153,7 @@ def _strict_json_loads(text: str) -> object:
     )
 
 
-def _strict_json_load_path(path: Path) -> object:
-    try:
-        raw_bytes = path.read_bytes()
-    except OSError as exc:
-        raise StrictJSONError(f"{path}: unreadable JSON: {exc}") from exc
+def _strict_json_load_bytes(path: Path, raw_bytes: bytes) -> object:
     try:
         text = raw_bytes.decode("utf-8")
     except UnicodeDecodeError as exc:
@@ -166,6 +162,14 @@ def _strict_json_load_path(path: Path) -> object:
         return _strict_json_loads(text)
     except (json.JSONDecodeError, StrictJSONError) as exc:
         raise StrictJSONError(f"{path}: {exc}") from exc
+
+
+def _strict_json_load_path(path: Path) -> object:
+    try:
+        raw_bytes = path.read_bytes()
+    except OSError as exc:
+        raise StrictJSONError(f"{path}: unreadable JSON: {exc}") from exc
+    return _strict_json_load_bytes(path, raw_bytes)
 
 # These profiles are exact normalized states from the three immutable pre-state
 # receipts. Receipt admission is additionally bound to the registry path and hash.
@@ -1505,6 +1509,10 @@ def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
     return tuple(parts)
 
 
+def _host_path_key(value: str) -> str:
+    return os.path.normcase(value.replace("/", os.sep)).replace("\\", "/")
+
+
 def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
     base_resolved = base.resolve(strict=False)
     candidate = base.joinpath(*parts).resolve(strict=False)
@@ -1538,7 +1546,10 @@ def _confined_component_states(
     return cursor, states
 
 
-def _sha256_confined_evidence_file(base: Path, parts: tuple[str, ...]) -> str:
+def _open_confined_evidence_file(
+    base: Path,
+    parts: tuple[str, ...],
+) -> tuple[Path, int, list[os.stat_result], os.stat_result]:
     candidate = _confined_evidence_file(base, parts)
     if candidate is None:
         raise OSError("evidence file is missing or escapes through a reparse point")
@@ -1555,26 +1566,89 @@ def _sha256_confined_evidence_file(base: Path, parts: tuple[str, ...]) -> str:
         opened_before = os.fstat(descriptor)
         if not os.path.samestat(before, opened_before):
             raise OSError("evidence file changed between confinement check and open")
+        return checked_candidate, descriptor, before_states, opened_before
+    except Exception:
+        os.close(descriptor)
+        raise
+
+
+def _verify_confined_evidence_file(
+    base: Path,
+    parts: tuple[str, ...],
+    checked_candidate: Path,
+    descriptor: int,
+    before_states: list[os.stat_result],
+    opened_before: os.stat_result,
+) -> None:
+    opened_after = os.fstat(descriptor)
+    if (
+        not os.path.samestat(opened_before, opened_after)
+        or opened_before.st_size != opened_after.st_size
+        or opened_before.st_mtime_ns != opened_after.st_mtime_ns
+    ):
+        raise OSError("evidence file changed while reading")
+    after_candidate, after_states = _confined_component_states(base, parts)
+    if (
+        after_candidate != checked_candidate
+        or len(after_states) != len(before_states)
+        or any(
+            not os.path.samestat(before_state, after_state)
+            for before_state, after_state in zip(before_states, after_states)
+        )
+    ):
+        raise OSError("evidence path changed while reading")
+
+
+def _read_confined_evidence_file(
+    base: Path,
+    parts: tuple[str, ...],
+) -> tuple[Path, bytes]:
+    candidate, descriptor, before_states, opened_before = _open_confined_evidence_file(
+        base,
+        parts,
+    )
+    try:
+        chunks: list[bytes] = []
+        while chunk := os.read(descriptor, 1024 * 1024):
+            chunks.append(chunk)
+        _verify_confined_evidence_file(
+            base,
+            parts,
+            candidate,
+            descriptor,
+            before_states,
+            opened_before,
+        )
+        return candidate, b"".join(chunks)
+    finally:
+        os.close(descriptor)
+
+
+def _strict_json_load_confined(
+    base: Path,
+    parts: tuple[str, ...],
+) -> tuple[Path, object]:
+    path, raw_bytes = _read_confined_evidence_file(base, parts)
+    return path, _strict_json_load_bytes(path, raw_bytes)
+
+
+def _sha256_confined_evidence_file(base: Path, parts: tuple[str, ...]) -> str:
+    candidate, descriptor, before_states, opened_before = _open_confined_evidence_file(
+        base,
+        parts,
+    )
+    try:
         digest = hashlib.sha256()
         while chunk := os.read(descriptor, 1024 * 1024):
             digest.update(chunk)
-        opened_after = os.fstat(descriptor)
-        if (
-            not os.path.samestat(opened_before, opened_after)
-            or opened_before.st_size != opened_after.st_size
-            or opened_before.st_mtime_ns != opened_after.st_mtime_ns
-        ):
-            raise OSError("evidence file changed while hashing")
-        after_candidate, after_states = _confined_component_states(base, parts)
-        if (
-            after_candidate != checked_candidate
-            or len(after_states) != len(before_states)
-            or any(
-                not os.path.samestat(before_state, after_state)
-                for before_state, after_state in zip(before_states, after_states)
-            )
-        ):
-            raise OSError("evidence path changed while hashing")
+        _verify_confined_evidence_file(
+            base,
+            parts,
+            candidate,
+            descriptor,
+            before_states,
+            opened_before,
+        )
         return digest.hexdigest()
     finally:
         os.close(descriptor)
@@ -1626,7 +1700,7 @@ def _load_legacy_receipt_compatibility_registry(
             issues.append(f"legacy receipt compatibility row {index} has an invalid Audit Path")
             continue
         normalized_path = "/".join(path_parts)
-        path_key = normalized_path.casefold()
+        path_key = _host_path_key(normalized_path)
         digest = str(row.get("SHA256", ""))
         digest_key = digest.casefold()
         profile = str(row.get("Compatibility Profile", ""))
@@ -1679,7 +1753,7 @@ def _validate_legacy_receipt_identity(
     if not path_parts:
         return None, ["legacy receipt audit path is unsafe"]
     normalized_path = "/".join(path_parts)
-    entry = registry.get(normalized_path.casefold())
+    entry = registry.get(_host_path_key(normalized_path))
     if entry is None:
         return None, [
             "state-less target-set record is not an admitted immutable receipt path: "
@@ -1807,16 +1881,13 @@ def _validate_snapshot_evidence(
     snapshot_parts = _safe_external_relative_parts(snapshot)
     if not snapshot_parts or snapshot_parts[0].casefold() != "snapshots":
         return [f"{evidence_label} Snapshot is not a safe snapshots-relative path"]
-    manifest_path = _confined_evidence_file(
-        root,
-        (*snapshot_parts, "snapshot_manifest.json"),
-    )
-    if manifest_path is None:
-        return [f"{evidence_label} snapshot manifest is missing or escapes through a reparse point"]
     try:
-        manifest = _strict_json_load_path(manifest_path)
+        manifest_path, manifest = _strict_json_load_confined(
+            root,
+            (*snapshot_parts, "snapshot_manifest.json"),
+        )
     except Exception as exc:  # noqa: BLE001 - corrupt provenance must fail closed
-        return [f"{evidence_label} snapshot manifest is malformed: {manifest_path}: {exc}"]
+        return [f"{evidence_label} snapshot manifest is missing, unconfined, or malformed: {exc}"]
     if not isinstance(manifest, dict):
         return [f"{evidence_label} snapshot manifest is not an object: {manifest_path}"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
@@ -1832,7 +1903,7 @@ def _validate_snapshot_evidence(
             continue
         relative_parts = _safe_external_relative_parts(row.get("path"))
         relative = "/".join(relative_parts or ())
-        relative_key = relative.casefold()
+        relative_key = _host_path_key(relative)
         digest_value = row.get("sha256")
         digest = digest_value if isinstance(digest_value, str) else ""
         if not relative_parts or not SHA256_PATTERN.fullmatch(digest):
@@ -1859,7 +1930,7 @@ def _validate_snapshot_evidence(
             continue
         copied_hashes[relative_key] = digest.casefold()
     for relative, before_hash in target_before_hashes.items():
-        if copied_hashes.get(relative.casefold()) != before_hash.casefold():
+        if copied_hashes.get(_host_path_key(relative)) != before_hash.casefold():
             issues.append(
                 f"{evidence_label} Before SHA256 does not match its snapshot manifest for "
                 f"{relative}"
@@ -1908,13 +1979,13 @@ def _validate_legacy_lock_evidence(
         return ["legacy receipt Lock ID is missing or unsafe"]
     if not workload_text:
         return ["legacy receipt Workload ID is missing"]
-    lock_path = _confined_evidence_file(root, ("locks", f"{lock_text}.json"))
-    if lock_path is None:
-        return ["legacy receipt lock evidence is missing or escapes through a reparse point"]
     try:
-        lock = _strict_json_load_path(lock_path)
+        lock_path, lock = _strict_json_load_confined(
+            root,
+            ("locks", f"{lock_text}.json"),
+        )
     except Exception as exc:  # noqa: BLE001 - ambiguous lock evidence must fail closed
-        return [f"legacy receipt lock evidence is malformed: {lock_path}: {exc}"]
+        return [f"legacy receipt lock evidence is missing, unconfined, or malformed: {exc}"]
     if not isinstance(lock, dict):
         return [f"legacy receipt lock evidence is not an object: {lock_path}"]
     expected_values = {
@@ -1933,7 +2004,7 @@ def _validate_legacy_lock_evidence(
     if not str(lock.get("Released At", "")).strip():
         issues.append("legacy receipt lock evidence has no Released At completion timestamp")
     write_set = {
-        item.strip().replace("\\", "/").casefold()
+        _host_path_key(item.strip().replace("\\", "/"))
         for item in str(lock.get("Intended Write Set", "")).split(";")
         if item.strip()
     }
@@ -1942,9 +2013,9 @@ def _validate_legacy_lock_evidence(
     except ValueError:
         audit_relative = ""
     required_write_set = {
-        audit_relative.casefold(),
-        str(snapshot or "").replace("\\", "/").casefold(),
-        *(target.casefold() for target in targets),
+        _host_path_key(audit_relative),
+        _host_path_key(str(snapshot or "").replace("\\", "/")),
+        *(_host_path_key(target) for target in targets),
     }
     missing = sorted(item for item in required_write_set if item and item not in write_set)
     if missing:
@@ -1999,7 +2070,7 @@ def _validate_legacy_completed_target_set_receipt(
         relative = "/".join(relative_parts or ())
         if not relative_parts:
             issues.append(f"legacy receipt target row {index} has an unsafe target path")
-        elif relative.casefold() in target_before_hashes:
+        elif _host_path_key(relative) in target_before_hashes:
             issues.append(f"legacy receipt duplicates target {relative}")
         before_hash = str(row.get("Before SHA256", ""))
         after_hash = str(row.get("After SHA256", ""))
@@ -2008,7 +2079,7 @@ def _validate_legacy_completed_target_set_receipt(
         elif before_hash.casefold() == after_hash.casefold():
             issues.append(f"legacy receipt target row {index} has no before/after transition")
         if relative_parts:
-            target_before_hashes[relative.casefold()] = before_hash
+            target_before_hashes[_host_path_key(relative)] = before_hash
         for list_field in ("Additions", "Assignments", "Section Renames"):
             value = row.get(list_field)
             if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
@@ -2082,7 +2153,7 @@ def _validate_modern_target_set_journal(
             continue
         relative_parts = _safe_external_relative_parts(row.get("Target"))
         relative = "/".join(relative_parts or ())
-        relative_key = relative.casefold()
+        relative_key = _host_path_key(relative)
         target_is_unique = bool(relative_parts) and relative_key not in seen
         if not target_is_unique:
             issues.append(f"modern Committed journal target row {index} has unsafe/duplicate target")
@@ -2121,13 +2192,13 @@ def _validate_modern_lock_evidence(
         return ["modern Committed journal Lock ID is missing or unsafe"]
     if not isinstance(workload_id, str) or not workload_id.strip():
         return ["modern Committed journal Workload ID is missing"]
-    lock_path = _confined_evidence_file(root, ("locks", f"{lock_id}.json"))
-    if lock_path is None:
-        return ["modern Committed journal lock evidence is missing or escapes through a reparse point"]
     try:
-        lock = _strict_json_load_path(lock_path)
+        lock_path, lock = _strict_json_load_confined(
+            root,
+            ("locks", f"{lock_id}.json"),
+        )
     except Exception as exc:  # noqa: BLE001 - ambiguous lock evidence must fail closed
-        return [f"modern Committed journal lock evidence is malformed: {lock_path}: {exc}"]
+        return [f"modern Committed journal lock evidence is missing, unconfined, or malformed: {exc}"]
     if not isinstance(lock, dict):
         return [f"modern Committed journal lock evidence is not an object: {lock_path}"]
 
@@ -2169,7 +2240,7 @@ def _validate_modern_lock_evidence(
                     "modern Committed journal lock evidence has unsafe Intended Write Set entry"
                 )
                 continue
-            normalized = "/".join(parts).casefold()
+            normalized = _host_path_key("/".join(parts))
             if normalized in write_set:
                 issues.append(
                     "modern Committed journal lock evidence duplicates Intended Write Set entry "
@@ -2178,15 +2249,15 @@ def _validate_modern_lock_evidence(
                 continue
             write_set.add(normalized)
     try:
-        audit_relative = audit_path.relative_to(root).as_posix().casefold()
+        audit_relative = _host_path_key(audit_path.relative_to(root).as_posix())
     except ValueError:
         audit_relative = ""
     snapshot_parts = _safe_external_relative_parts(payload.get("Snapshot"))
-    snapshot_relative = "/".join(snapshot_parts or ()).casefold()
+    snapshot_relative = _host_path_key("/".join(snapshot_parts or ()))
     required_write_set = {
         audit_relative,
         snapshot_relative,
-        *(target.casefold() for target in targets),
+        *(_host_path_key(target) for target in targets),
     }
     expected_write_set = {item for item in required_write_set if item}
     missing = sorted(expected_write_set - write_set)
@@ -2324,17 +2395,16 @@ def validate_incomplete_target_set_journals(
     except OSError as exc:
         return [f"Target-set transaction audit root is unreadable: {audit_root}: {exc}"]
     for discovered_path in discovered_paths:
-        path = _confined_evidence_file(root, ("audit_log", discovered_path.name))
-        if path is None:
+        try:
+            path, raw_bytes = _read_confined_evidence_file(
+                root,
+                ("audit_log", discovered_path.name),
+            )
+        except OSError as exc:
             failures.append(
                 "Target-set transaction journal is not a confined regular file: "
-                f"{discovered_path}"
+                f"{discovered_path}: {exc}"
             )
-            continue
-        try:
-            raw_bytes = path.read_bytes()
-        except OSError as exc:
-            failures.append(f"Target-set transaction journal is unreadable: {path}: {exc}")
             continue
         try:
             text = raw_bytes.decode("utf-8")

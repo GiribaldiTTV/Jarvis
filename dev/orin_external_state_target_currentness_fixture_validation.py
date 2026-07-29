@@ -435,6 +435,30 @@ def _write_renamed_admitted_receipt_fixture(root: Path) -> tuple[Path, Path]:
     return copied_path, manifest_path
 
 
+def _write_case_renamed_admitted_receipt_fixture(root: Path) -> tuple[Path, Path]:
+    original_path = _write_exact_real_legacy_receipt_fixture(root, "receipt-1")
+    manifest_path = _write_fixture_compatibility_manifest(
+        root,
+        original_path,
+        PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    payload = json.loads(original_path.read_text(encoding="utf-8"))
+    case_path = original_path.with_name(original_path.name.swapcase())
+    intermediate = original_path.with_name("case-rename-intermediate.tmp")
+    original_relative = original_path.relative_to(root).as_posix()
+    case_relative = case_path.relative_to(root).as_posix()
+    original_path.rename(intermediate)
+    intermediate.rename(case_path)
+    lock_path = root / "locks" / f"{payload['Lock ID']}.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Intended Write Set"] = str(lock["Intended Write Set"]).replace(
+        original_relative,
+        case_relative,
+    )
+    atomic_write_json(lock_path, lock)
+    return case_path, manifest_path
+
+
 def _accept_registered_path_without_hash(
     root: Path,
     audit_path: Path,
@@ -1127,6 +1151,78 @@ def _assert_snapshot_hash_replacement_race_rejected() -> None:
     print("Modern snapshot fixture: confinement/open replacement race rejected: PASS")
 
 
+def _assert_journal_read_replacement_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-journal-read-race-") as temp_dir:
+        root = Path(temp_dir)
+        audit_path = _write_modern_journal_fixture(root)
+        descriptor, outside_name = tempfile.mkstemp(
+            prefix="ndai-outside-journal-",
+            suffix=".json",
+            dir=root.parent,
+        )
+        os.close(descriptor)
+        outside_path = Path(outside_name)
+        outside_path.write_bytes(audit_path.read_bytes())
+        original_open = validator.os.open
+        swapped = False
+
+        def replace_before_open(
+            path: object,
+            flags: int,
+            *args: object,
+            **kwargs: object,
+        ) -> int:
+            nonlocal swapped
+            if not swapped and Path(path) == audit_path:
+                audit_path.unlink()
+                os.link(outside_path, audit_path)
+                swapped = True
+            return original_open(path, flags, *args, **kwargs)
+
+        validator.os.open = replace_before_open
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.open = original_open
+            outside_path.unlink(missing_ok=True)
+        if not any("changed between confinement check and open" in item for item in failures):
+            raise AssertionError(
+                "journal read replacement race escaped validation:\n" + "\n".join(failures)
+            )
+    print("Modern journal fixture: confinement/open replacement race rejected: PASS")
+
+
+def _assert_posix_case_sensitive_evidence_paths() -> None:
+    original_host_path_key = validator._host_path_key
+    posix_path_key = lambda value: value.replace("\\", "/")
+    try:
+        validator._host_path_key = posix_path_key
+        with tempfile.TemporaryDirectory(prefix="ndai-posix-modern-case-") as temp_dir:
+            root = Path(temp_dir)
+            audit_path = _write_modern_journal_fixture(root)
+            payload = json.loads(audit_path.read_text(encoding="utf-8"))
+            payload["Targets"][0]["Target"] = payload["Targets"][0]["Target"].swapcase()
+            atomic_write_json(audit_path, payload)
+            failures = validator.validate_incomplete_target_set_journals(root)
+            if not failures:
+                raise AssertionError("POSIX modern case-distinct target unexpectedly passed")
+        with tempfile.TemporaryDirectory(prefix="ndai-posix-legacy-case-") as temp_dir:
+            root = Path(temp_dir)
+            _, manifest_path = _write_case_renamed_admitted_receipt_fixture(root)
+            failures = validator.validate_incomplete_target_set_journals(
+                root,
+                manifest_path,
+            )
+            if not any("not an admitted immutable receipt path" in item for item in failures):
+                raise AssertionError(
+                    "POSIX case-renamed immutable receipt unexpectedly passed:\n"
+                    + "\n".join(failures)
+                )
+    finally:
+        validator._host_path_key = original_host_path_key
+    print("Host path semantics fixture: POSIX case-distinct evidence rejected: PASS")
+
+
 def _assert_nonstandard_json_constants_rejected() -> None:
     for constant in ("NaN", "Infinity", "-Infinity"):
         try:
@@ -1806,6 +1902,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_broken_audit_reparse_rejected()
     _assert_snapshot_hash_read_failure_reported()
     _assert_snapshot_hash_replacement_race_rejected()
+    _assert_journal_read_replacement_race_rejected()
+    _assert_posix_case_sensitive_evidence_paths()
 
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
@@ -1875,15 +1973,15 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "duplicate supporting lock fields ignored",
         negative_setups["legacy receipt with duplicate lock evidence"],
-        "_strict_json_load_path",
-        permissive_json_path,
+        "_strict_json_loads",
+        permissive_json_loads,
         admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
         "duplicate supporting snapshot fields ignored",
         negative_setups["legacy receipt with duplicate snapshot evidence"],
-        "_strict_json_load_path",
-        permissive_json_path,
+        "_strict_json_loads",
+        permissive_json_loads,
         admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
@@ -2009,8 +2107,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "non-standard snapshot numeric constant accepted",
         negative_setups["modern evidence contains non-standard numeric constant in snapshot"],
-        "_strict_json_load_path",
-        permissive_json_path,
+        "_strict_json_loads",
+        permissive_json_loads,
     )
     _assert_journal_mutation_killed(
         "impossible modern target path accepted",

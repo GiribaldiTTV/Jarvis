@@ -136,6 +136,13 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "modern audit",
             "journal extension",
             "bom-prefixed target-set",
+            "immutable receipt path",
+            "registered immutable path",
+            "compatibility registry key",
+            "case-sensitive external-state root",
+            "modern evidence path",
+            "journal target",
+            "journal read",
         ),
     ),
     FamilyRule(
@@ -148,6 +155,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "historical authority claim",
             "historical absence claim",
             "historical-receipt classifier",
+            "historical/no-active",
             "receipt subsection heading",
             "durable authority pointer",
         ),
@@ -474,6 +482,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "multi-family comments",
             "multi family comments",
             "genuine rar families",
+            "genuine repo-live-state family",
+            "genuine repo live state family",
+            "repo-live-state family matches",
+            "repo live state family matches",
         ),
     ),
     FamilyRule(
@@ -726,6 +738,10 @@ def _classify_comment(body: str) -> list[str]:
         "multi-family comments",
         "multi family comments",
         "genuine rar families",
+        "genuine repo-live-state family",
+        "genuine repo live state family",
+        "repo-live-state family matches",
+        "repo live state family matches",
     )
     if "pr2-comment-family-classifier" in families and any(
         keyword in normalized for keyword in classifier_priority_keywords
@@ -741,11 +757,27 @@ def _classify_comment(body: str) -> list[str]:
         }
     ]
     if exact_scope_families:
+        explicit_repo_live_context = any(
+            keyword in normalized
+            for keyword in (
+                "repo live-state",
+                "repo live state",
+                "repo active rri cycle",
+                "active rri cycle",
+                "live-state leak",
+                "live state leak",
+                "repo branch record",
+                "external rri gate",
+            )
+        )
         competing_families = [
             family
             for family in families
             if family not in exact_scope_families
-            and family != "repo-live-state-boundary-parser"
+            and (
+                family != "repo-live-state-boundary-parser"
+                or explicit_repo_live_context
+            )
             and (
                 not family.startswith("rar-")
                 or re.search(r"\brar\b", normalized) is not None
@@ -778,6 +810,26 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Durable carrier confinement comment did not classify into its exact family"
+        )
+    immutable_receipt_path_comment = (
+        "Keep immutable receipt paths case-sensitive on a POSIX external-state root; "
+        "a case-renamed path must not reuse the compatibility registry key."
+    )
+    if _classify_comment(immutable_receipt_path_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Immutable legacy-receipt path review did not classify into the external-state evidence family"
+        )
+    modern_host_path_comment = (
+        "Compare modern evidence paths with host case semantics so a journal target "
+        "cannot bind a distinct snapshot manifest and lock write set on POSIX."
+    )
+    if _classify_comment(modern_host_path_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Modern host-path semantics review did not classify into the external-state evidence family"
         )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
@@ -814,6 +866,20 @@ def _classifier_guardrail_failures() -> list[str]:
     }.issubset(genuine_rar_families):
         failures.append(
             "Genuine exact-scope and RAR review lost one of its families"
+        )
+    genuine_repo_live_multi_family_comment = (
+        "A modern Committed journal has invalid snapshot evidence, and the repo "
+        "Active RRI Cycle still leaks live state."
+    )
+    genuine_repo_live_families = _classify_comment(
+        genuine_repo_live_multi_family_comment
+    )
+    if not {
+        "external-state-transaction-evidence-parser",
+        "repo-live-state-boundary-parser",
+    }.issubset(genuine_repo_live_families):
+        failures.append(
+            "Genuine exact-scope and repo-live-state review lost one of its families"
         )
     exact_override_comment = (
         "Restrict the exact-family override so another covered family is not hidden."
