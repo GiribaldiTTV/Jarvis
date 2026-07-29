@@ -993,7 +993,9 @@ trailing whitespace is invalid. Snapshot manifests must reject case-ambiguous
 `Root` aliases because `Root` binds recovery evidence to the active state root.
 Modern committed journals require canonical `Last Updated` and nonblank
 `Last Updated By` attribution, and they must reject nested recovery, rollback,
-pre-write, or original-target payload aliases as recoverable pre-write content.
+pre-write, original-target, backup, undo, restore, revert, saved, archived,
+old-content, previous-content, or prior-content payload aliases as recoverable
+pre-write content.
 Recovery-payload discovery must use bounded iterative traversal so deeply nested
 unrelated metadata cannot terminate validation with recursion exhaustion.
 Modern released-lock binding requires string-typed `Lock ID` and `Workload ID`
@@ -1004,6 +1006,10 @@ must not be normalized away before journal-to-lock identity comparison.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
+Snapshot manifest copied-file evidence and the physical snapshot-file inventory
+must equal the journal target set exactly; a valid hash for an unrelated extra
+file, or an unmanifested physical file, is retained pre-write material, not
+permission to broaden the bounded transaction snapshot.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -1082,6 +1088,11 @@ No-cross-worktree evidence must name the substantive prohibited/blocked safe
 state and remain contradiction-free; a `Blocked` or `Prohibited` prefix followed
 by `in name only`, `can occur`, `but remains possible`, or an equivalent escape
 does not prove confinement.
+When tracked changes exist, dirty-worktree collision evidence must affirmatively
+claim those changes for the active owner or prove that no unowned tracked files
+exist. Merely mentioning `current owner` is insufficient when the same value says
+foreign or unowned files remain, ownership is unknown, or the current owner does
+not claim the files.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,

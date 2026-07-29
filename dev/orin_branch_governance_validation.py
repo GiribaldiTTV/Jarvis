@@ -21606,6 +21606,39 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
     )
 
 
+def _durable_dirty_worktree_ownership_is_affirmative(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    closed_no_unowned = re.search(
+        r"\bno unowned (?:dirty )?(?:tracked )?(?:file|files|change|changes)"
+        r"(?: (?:remain|exist|are present|were found))?\b",
+        normalized,
+    )
+    without_closed_absence = (
+        normalized[: closed_no_unowned.start()]
+        + normalized[closed_no_unowned.end() :]
+        if closed_no_unowned
+        else normalized
+    )
+    denied = re.search(
+        r"\b(?:foreign|unowned|unclaimed|not claimed|not owned|ownership unknown|"
+        r"owner unknown|does not claim|doesn't claim|fails? to claim|"
+        r"claims? (?:no|none)|owns? (?:no|none)|controls? (?:no|none)|"
+        r"another owner|other owner|not checked|not verified|unverified|"
+        r"not recorded|evidence missing|no proof)\b",
+        without_closed_absence,
+    )
+    affirmative = bool(
+        re.search(
+            r"\b(?:current|active|fixture) owner (?:claims?|claimed|owns?|owned|controls?|controlled)\b|"
+            r"\b(?:claims?|claimed|owned|controlled) by (?:the )?(?:current|active|fixture) owner\b|"
+            r"\bno unowned (?:dirty )?(?:tracked )?(?:file|files|change|changes)"
+            r"(?: (?:remain|exist|are present|were found))?\b",
+            normalized,
+        )
+    )
+    return bool(affirmative and denied is None)
+
+
 def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     return bool(
@@ -21925,11 +21958,8 @@ def _validate_assigned_worktree_confinement_contract(
     tracked_status = _git_status_porcelain(tracked_only=True)
     if tracked_status:
         dirty_collision_state = explicit_values["Dirty Worktree Collision Check"]
-        normalized_dirty = dirty_collision_state.casefold()
         require(
-            "owner claimed" in normalized_dirty
-            or "current owner" in normalized_dirty
-            or "no unowned" in normalized_dirty,
+            _durable_dirty_worktree_ownership_is_affirmative(dirty_collision_state),
             (
                 "Dirty Worktree Collision Check must name the active owner before "
                 f"continuing with dirty tracked files: {tracked_status}"
@@ -22389,6 +22419,27 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         any("does not prove no cross-worktree mutation" in message for message in cross_worktree_failures),
         f"{durable_fixture}: permissive cross-worktree wording must fail closed",
     )
+    for accepted_dirty_claim in (
+        "PASS - current owner claims all fixture changes.",
+        "No unowned tracked files; fixture owner claimed.",
+        "All dirty tracked files are claimed by the active owner.",
+    ):
+        require(
+            _durable_dirty_worktree_ownership_is_affirmative(accepted_dirty_claim),
+            f"{durable_fixture}: affirmative dirty-worktree ownership claim must pass: {accepted_dirty_claim}",
+        )
+    for denied_dirty_claim in (
+        "Foreign unowned tracked files remain; current owner does not claim them.",
+        "Current owner is named but does not claim the dirty files.",
+        "Current owner claims no dirty tracked files.",
+        "Another owner controls the remaining tracked changes.",
+        "Dirty-file ownership unknown.",
+        "No unowned tracked files were verified; evidence is unverified.",
+    ):
+        require(
+            not _durable_dirty_worktree_ownership_is_affirmative(denied_dirty_claim),
+            f"{durable_fixture}: contradictory dirty-worktree ownership claim must fail: {denied_dirty_claim}",
+        )
     semantic_confinement_mutations = (
         (
             "Active Thread Owner: `Fixture Codex workload.`",

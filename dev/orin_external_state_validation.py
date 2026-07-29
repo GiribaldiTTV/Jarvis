@@ -1930,6 +1930,7 @@ def _validate_snapshot_evidence(
         return [f"{evidence_label} snapshot manifest is missing, unconfined, or malformed: {exc}"]
     if not isinstance(manifest, dict):
         return [f"{evidence_label} snapshot manifest is not an object: {manifest_path}"]
+    snapshot_path = manifest_path.parent
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
     manifest_root = manifest.get("Root")
@@ -1992,6 +1993,51 @@ def _validate_snapshot_evidence(
                 f"{evidence_label} Before SHA256 does not match its snapshot manifest for "
                 f"{relative}"
             )
+    expected_snapshot_targets = {
+        _host_path_key(relative) for relative in target_before_hashes
+    }
+    unexpected_snapshot_targets = sorted(
+        set(copied_hashes) - expected_snapshot_targets
+    )
+    if unexpected_snapshot_targets:
+        issues.append(
+            f"{evidence_label} snapshot manifest contains unexpected files outside "
+            "the journal target set: " + ", ".join(unexpected_snapshot_targets)
+        )
+    physical_snapshot_files: set[str] = set()
+    for current_root, directory_names, file_names in os.walk(
+        snapshot_path,
+        followlinks=False,
+    ):
+        current_path = Path(current_root)
+        for directory_name in tuple(directory_names):
+            directory_path = current_path / directory_name
+            if _has_reparse_point(directory_path):
+                issues.append(
+                    f"{evidence_label} snapshot contains an unconfined reparse directory: "
+                    f"{directory_path.relative_to(snapshot_path).as_posix()}"
+                )
+                directory_names.remove(directory_name)
+        for file_name in file_names:
+            file_path = current_path / file_name
+            relative_file = file_path.relative_to(snapshot_path).as_posix()
+            if relative_file == "snapshot_manifest.json":
+                continue
+            if _has_reparse_point(file_path):
+                issues.append(
+                    f"{evidence_label} snapshot contains an unconfined reparse file: "
+                    f"{relative_file}"
+                )
+                continue
+            physical_snapshot_files.add(_host_path_key(relative_file))
+    unmanifested_snapshot_files = sorted(
+        physical_snapshot_files - set(copied_hashes)
+    )
+    if unmanifested_snapshot_files:
+        issues.append(
+            f"{evidence_label} snapshot contains unmanifested files: "
+            + ", ".join(unmanifested_snapshot_files)
+        )
     return issues
 
 
@@ -2214,7 +2260,41 @@ def _contains_recovery_payload_field(value: object) -> bool:
                             "original target" in normalized_key
                             and any(
                                 payload_term in normalized_key
-                                for payload_term in ("data", "text", "content")
+                                for payload_term in ("data", "text", "content", "payload", "copy")
+                            )
+                        )
+                        or (
+                            bool(
+                                set(normalized_key.split())
+                                & {
+                                    "archive",
+                                    "archived",
+                                    "backup",
+                                    "backups",
+                                    "old",
+                                    "original",
+                                    "previous",
+                                    "prior",
+                                    "restore",
+                                    "revert",
+                                    "saved",
+                                    "undo",
+                                }
+                            )
+                            and any(
+                                payload_term in normalized_key
+                                for payload_term in (
+                                    "bytes",
+                                    "data",
+                                    "file",
+                                    "text",
+                                    "content",
+                                    "payload",
+                                    "copy",
+                                    "snapshot",
+                                    "state",
+                                    "value",
+                                )
                             )
                         )
                     ):

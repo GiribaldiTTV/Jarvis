@@ -750,6 +750,35 @@ def _write_modern_tampered_snapshot_fixture(root: Path) -> Path:
     return path
 
 
+def _write_modern_snapshot_extra_file_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    snapshot_root = root / "snapshots" / "modern-fixture"
+    extra_relative = "secrets.txt"
+    extra_bytes = b"unrelated recoverable material\n"
+    (snapshot_root / extra_relative).write_bytes(extra_bytes)
+    manifest_path = snapshot_root / "snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["Copied Files"].append(
+        {
+            "path": extra_relative,
+            "sha256": hashlib.sha256(extra_bytes).hexdigest(),
+            "size": len(extra_bytes),
+        }
+    )
+    atomic_write_json(manifest_path, manifest)
+    return path
+
+
+def _write_modern_snapshot_unmanifested_file_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    snapshot_root = root / "snapshots" / "modern-fixture"
+    (snapshot_root / "unmanifested-secret.txt").write_text(
+        "unrelated unmanifested recoverable material\n",
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_modern_lock_write_set_omission_fixture(root: Path, omitted: str) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -1737,6 +1766,17 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 "Rollback Data",
                 "Pre-Write Content",
                 "Original Target Text",
+                "Backup Content",
+                "Backup Data",
+                "Undo Payload",
+                "Previous Target Text",
+                "Prior Content Copy",
+                "Restore Data",
+                "Revert Content",
+                "Saved State",
+                "Archived Payload",
+                "Old Value",
+                "Original Content",
             )
         ],
         *[
@@ -1791,6 +1831,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "modern Committed journal with tampered snapshot copy",
             _write_modern_tampered_snapshot_fixture,
+        ),
+        (
+            "modern Committed journal snapshot contains an unexpected file",
+            _write_modern_snapshot_extra_file_fixture,
+        ),
+        (
+            "modern Committed journal snapshot contains an unmanifested file",
+            _write_modern_snapshot_unmanifested_file_fixture,
         ),
         *[
             (
@@ -2523,6 +2571,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(
+        "backup recovery payload alias ignored",
+        negative_setups[
+            "modern journal with nested recovery payload alias Backup Content"
+        ],
+        "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
         "modern committed journal audit metadata ignored",
         negative_setups["modern journal missing audit metadata Last Updated"],
         "_validate_modern_target_set_journal",
@@ -2563,6 +2619,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "modern snapshot evidence ignored",
         negative_setups["modern Committed journal with missing snapshot manifest"],
+        "_validate_modern_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "unexpected modern snapshot file accepted",
+        negative_setups[
+            "modern Committed journal snapshot contains an unexpected file"
+        ],
+        "_validate_modern_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "unmanifested modern snapshot file accepted",
+        negative_setups[
+            "modern Committed journal snapshot contains an unmanifested file"
+        ],
         "_validate_modern_snapshot_evidence",
         lambda *_args, **_kwargs: [],
     )
