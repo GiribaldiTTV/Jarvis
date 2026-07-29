@@ -1901,8 +1901,14 @@ def _validate_snapshot_evidence(
 ) -> list[str]:
     issues: list[str] = []
     snapshot_parts = _safe_external_relative_parts(snapshot)
-    if not snapshot_parts or _host_path_key(snapshot_parts[0]) != _host_path_key("snapshots"):
-        return [f"{evidence_label} Snapshot is not a safe snapshots-relative path"]
+    if (
+        not snapshot_parts
+        or len(snapshot_parts) != 2
+        or _host_path_key(snapshot_parts[0]) != _host_path_key("snapshots")
+    ):
+        return [
+            f"{evidence_label} Snapshot is not a safe isolated snapshots/<snapshot-id> path"
+        ]
     try:
         manifest_path, manifest = _strict_json_load_confined(
             root,
@@ -2347,6 +2353,21 @@ def _validate_modern_lock_evidence(
     return issues
 
 
+def _tolerant_json_string_end(text: str, start: int) -> int:
+    """Skip one JSON-like string without treating invalid escapes as structure."""
+
+    index = start + 1
+    while index < len(text):
+        character = text[index]
+        if character == "\\":
+            index += 2
+            continue
+        if character == '"':
+            return index + 1
+        index += 1
+    return len(text)
+
+
 def _raw_text_has_target_set_transition(text: str) -> bool:
     if text.startswith("\ufeff"):
         text = text.removeprefix("\ufeff")
@@ -2379,10 +2400,11 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         if character != '"':
             index += 1
             continue
+        tolerant_key_end = _tolerant_json_string_end(text, index)
         try:
             key, key_end = decoder.raw_decode(text, index)
         except json.JSONDecodeError:
-            index += 1
+            index = tolerant_key_end
             continue
         index = key_end
         if not isinstance(key, str) or stack != ["{"]:
@@ -2402,11 +2424,13 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
             if transition_key:
                 return True
             continue
+        tolerant_value_end = _tolerant_json_string_end(text, cursor)
         try:
             value, value_end = decoder.raw_decode(text, cursor)
         except json.JSONDecodeError:
             if transition_key:
                 return True
+            index = tolerant_value_end
             continue
         index = value_end
         if transition_key:

@@ -685,6 +685,26 @@ def _write_modern_snapshot_root_fixture(root: Path, value: str | None) -> Path:
     return path
 
 
+def _write_modern_snapshot_namespace_root_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    snapshot_namespace = root / "snapshots"
+    snapshot_root = snapshot_namespace / "modern-fixture"
+    for item in list(snapshot_root.iterdir()):
+        item.rename(snapshot_namespace / item.name)
+    snapshot_root.rmdir()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Snapshot"] = "snapshots"
+    atomic_write_json(path, payload)
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Intended Write Set"] = str(lock["Intended Write Set"]).replace(
+        "snapshots/modern-fixture",
+        "snapshots",
+    )
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_modern_tampered_snapshot_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     snapshot_copy = (
@@ -825,6 +845,18 @@ def _write_malformed_transition_value_fixture(root: Path) -> Path:
     path = root / "audit_log" / "malformed-transition-value.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text('{"Transition":', encoding="utf-8")
+    return path
+
+
+def _write_invalid_escape_brace_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "invalid-escape-brace-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":"bad\\q {", "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
     return path
 
 
@@ -1283,7 +1315,10 @@ def _assert_posix_case_sensitive_evidence_paths() -> None:
             )
             atomic_write_json(lock_path, lock)
             failures = validator.validate_incomplete_target_set_journals(root)
-            if not any("not a safe snapshots-relative path" in item for item in failures):
+            if not any(
+                "not a safe isolated snapshots/<snapshot-id> path" in item
+                for item in failures
+            ):
                 raise AssertionError(
                     "POSIX case-distinct snapshots namespace unexpectedly passed:\n"
                     + "\n".join(failures)
@@ -1546,6 +1581,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
+            "modern Committed journal uses the shared snapshots namespace root",
+            _write_modern_snapshot_namespace_root_fixture,
+        ),
+        (
             "modern Committed journal with tampered snapshot copy",
             _write_modern_tampered_snapshot_fixture,
         ),
@@ -1643,6 +1682,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON with unreadable Transition value",
             _write_malformed_transition_value_fixture,
+        ),
+        (
+            "matching malformed JSON after invalid string escape and brace",
+            _write_invalid_escape_brace_transition_fixture,
         ),
         (
             "BOM-prefixed modern Prepared journal",
@@ -2240,6 +2283,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: [],
     )
     _assert_journal_mutation_killed(
+        "shared snapshots namespace root accepted as isolated evidence",
+        negative_setups[
+            "modern Committed journal uses the shared snapshots namespace root"
+        ],
+        "_validate_modern_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
         "modern lock write-set evidence ignored",
         negative_setups["modern lock write set omits target"],
         "_validate_modern_lock_evidence",
@@ -2306,6 +2357,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "unreadable top-level Transition value ignored",
         negative_setups["matching malformed JSON with unreadable Transition value"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "invalid string escape and brace hide top-level Transition",
+        negative_setups["matching malformed JSON after invalid string escape and brace"],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

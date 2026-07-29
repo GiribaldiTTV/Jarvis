@@ -49,6 +49,7 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "case",
     "row",
     "table",
+    "malformed",
     "blocked",
     "resolved",
     "unresolved",
@@ -121,6 +122,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "modern target",
             "committed journal",
             "malformed journal",
+            "malformed json string",
             "modern lock",
             "exact lock write set",
             "legacy lock write set",
@@ -157,6 +159,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable carrier",
             "durable confinement",
             "durable receipt",
+            "durable fallback",
+            "durable worktree comparison",
             "historical carrier",
             "historical authority claim",
             "historical absence claim",
@@ -930,6 +934,35 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Relative snapshot-manifest root review did not classify into the external-state family"
+        )
+    malformed_string_comment = (
+        "Ignore braces inside malformed JSON strings so an invalid escape cannot hide a "
+        "root-level target-set Transition."
+    )
+    if _classify_comment(malformed_string_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Malformed JSON-string transition review did not classify into the external-state family"
+        )
+    durable_owner_scope_comment = (
+        "Reject a durable fallback without an active owner, assignment, ownership ledger, "
+        "or bounded write scope."
+    )
+    if _classify_comment(durable_owner_scope_comment) != [
+        "durable-carrier-confinement-parser"
+    ]:
+        failures.append(
+            "Durable owner/write-scope review did not classify into the carrier-confinement family"
+        )
+    durable_posix_path_comment = (
+        "Preserve POSIX case in durable worktree comparisons so a case-distinct root fails."
+    )
+    if _classify_comment(durable_posix_path_comment) != [
+        "durable-carrier-confinement-parser"
+    ]:
+        failures.append(
+            "Durable POSIX worktree-comparison review did not classify into the carrier family"
         )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "

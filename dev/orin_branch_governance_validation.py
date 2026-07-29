@@ -1,6 +1,8 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=branch-governance-validator; status=shared
 import json
+import ntpath
 import os
+import posixpath
 import re
 import sqlite3
 import subprocess
@@ -17024,15 +17026,19 @@ def _git_upstream_branch() -> str:
     return completed.stdout.strip()
 
 
-def _normalized_local_path(value: str) -> str:
-    normalized = value.strip().strip("`").strip('"').replace("/", "\\")
+def _normalized_local_path(value: str, *, host_os_name: str | None = None) -> str:
+    normalized = value.strip().strip("`").strip('"')
     if not normalized:
         return ""
-    try:
-        normalized = str(Path(normalized).resolve(strict=False))
-    except (OSError, RuntimeError, ValueError):
-        pass
-    return normalized.rstrip("\\").casefold()
+    host_os_name = os.name if host_os_name is None else host_os_name
+    path_module = ntpath if host_os_name == "nt" else posixpath
+    if host_os_name == os.name:
+        try:
+            normalized = str(Path(normalized).resolve(strict=False))
+        except (OSError, RuntimeError, ValueError):
+            pass
+    normalized = path_module.normcase(path_module.normpath(normalized))
+    return normalized.rstrip("\\/")
 
 
 def _git_head_sha() -> str:
@@ -21480,6 +21486,52 @@ def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
     )
 
 
+def _durable_active_owner_is_explicit(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    denied = re.search(
+        r"\b(?:none|no (?:active )?(?:thread )?owner(?: exists)?|unassigned|"
+        r"not assigned|owner (?:is )?(?:absent|missing|unknown))\b",
+        normalized,
+    )
+    identifies_owner = re.search(r"\b(?:codex|thread|workload|owner|user)\b", normalized)
+    return bool(normalized and denied is None and identifies_owner)
+
+
+def _durable_thread_assignment_is_active(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    denied = re.search(
+        r"\b(?:none|unassigned|not assigned|no (?:active )?(?:thread )?owner(?: assigned)?)\b",
+        normalized,
+    )
+    return bool(re.search(r"\bassigned\b", normalized) and denied is None)
+
+
+def _durable_ownership_ledger_is_active(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    denied = re.search(
+        r"\b(?:none|no (?:active )?owner(?: exists)?|owner (?:is )?(?:absent|missing|unknown)|"
+        r"unowned|not owned)\b",
+        normalized,
+    )
+    ownership = "owned by" in normalized or "ownership" in normalized
+    return bool(ownership and denied is None)
+
+
+def _durable_write_set_is_bounded(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    denied = re.search(
+        r"\b(?:none|no (?:approved )?write set|write set (?:is )?"
+        r"(?:absent|missing|unknown|unapproved|not approved)|unbounded|unrestricted|"
+        r"all files|any file|entire (?:repo|repository|worktree))\b",
+        normalized,
+    )
+    boundary = re.search(r"\b(?:bounded|exact|named|only)\b", normalized)
+    scope = re.search(r"\b(?:files?|validators?|targets?|docs|dev)\b", normalized) or any(
+        separator in normalized for separator in ("/", "\\", ";")
+    )
+    return bool(boundary and scope and denied is None)
+
+
 def _durable_carrier_pr_review_started(
     record_text: str,
     pr_info: dict[str, object] | None,
@@ -21572,6 +21624,26 @@ def _validate_durable_carrier_admission_receipt_confinement(
         record_path,
         confinement,
         DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS,
+    )
+    active_owner = _extract_exact_marker_value(confinement, "Active Thread Owner")
+    require(
+        _durable_active_owner_is_explicit(active_owner),
+        f"{record_path}: durable carrier receipt has no explicit active thread owner",
+    )
+    assignment_status = _extract_exact_marker_value(confinement, "Thread Assignment Status")
+    require(
+        _durable_thread_assignment_is_active(assignment_status),
+        f"{record_path}: durable carrier receipt has no active thread assignment",
+    )
+    ownership_ledger = _extract_exact_marker_value(confinement, "Worktree Ownership Ledger")
+    require(
+        _durable_ownership_ledger_is_active(ownership_ledger),
+        f"{record_path}: durable carrier receipt has no active worktree ownership ledger",
+    )
+    intended_write_set = _extract_exact_marker_value(confinement, "Intended Write Set")
+    require(
+        _durable_write_set_is_bounded(intended_write_set),
+        f"{record_path}: durable carrier receipt has no bounded intended write set",
     )
     collision_state = _extract_exact_marker_value(
         confinement,
@@ -21876,6 +21948,25 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         "durable carrier fallback must require successful all-state PR absence proof",
     )
+    require(
+        _normalized_local_path(
+            "/tmp/Governance-N0",
+            host_os_name="posix",
+        )
+        != _normalized_local_path(
+            "/tmp/governance-n0",
+            host_os_name="posix",
+        )
+        and _normalized_local_path(
+            r"C:\Nexus Worktrees\Governance-N0",
+            host_os_name="nt",
+        )
+        == _normalized_local_path(
+            r"c:\nexus worktrees\governance-n0",
+            host_os_name="nt",
+        ),
+        "durable carrier path comparison must preserve host filesystem case semantics",
+    )
     durable_pr_failures: list[str] = []
     _validate_durable_carrier_admission_receipt_confinement(
         lambda condition, message: durable_pr_failures.append(message)
@@ -22028,6 +22119,31 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         f"{durable_fixture}: permissive cross-worktree wording must fail closed",
     )
     semantic_confinement_mutations = (
+        (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `None`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `No owner assigned.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `No owner exists.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `No write set approved.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Unbounded access to all repository files.`",
+            "has no bounded intended write set",
+        ),
         (
             "Same Worktree / Same Branch Collision Check: `No collision.`",
             "Same Worktree / Same Branch Collision Check: `Collision detected with another active owner.`",
