@@ -1901,7 +1901,7 @@ def _validate_snapshot_evidence(
 ) -> list[str]:
     issues: list[str] = []
     snapshot_parts = _safe_external_relative_parts(snapshot)
-    if not snapshot_parts or snapshot_parts[0].casefold() != "snapshots":
+    if not snapshot_parts or _host_path_key(snapshot_parts[0]) != _host_path_key("snapshots"):
         return [f"{evidence_label} Snapshot is not a safe snapshots-relative path"]
     try:
         manifest_path, manifest = _strict_json_load_confined(
@@ -1916,10 +1916,13 @@ def _validate_snapshot_evidence(
         issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
     manifest_root = manifest.get("Root")
     try:
+        manifest_root_path = Path(manifest_root) if isinstance(manifest_root, str) else None
         root_key = _host_path_key(str(root.resolve(strict=False)))
         manifest_root_key = (
-            _host_path_key(str(Path(manifest_root).resolve(strict=False)))
-            if isinstance(manifest_root, str) and manifest_root.strip() == manifest_root
+            _host_path_key(str(manifest_root_path.resolve(strict=False)))
+            if manifest_root_path is not None
+            and manifest_root.strip() == manifest_root
+            and manifest_root_path.is_absolute()
             else ""
         )
     except (OSError, RuntimeError, ValueError):
@@ -2037,8 +2040,10 @@ def _validate_legacy_lock_evidence(
             issues.append(
                 f"legacy receipt lock evidence has {field}={lock.get(field)!r}, expected {expected!r}"
             )
-    if not str(lock.get("Released At", "")).strip():
-        issues.append("legacy receipt lock evidence has no Released At completion timestamp")
+    if not _is_canonical_utc_timestamp(lock.get("Released At")):
+        issues.append(
+            "legacy receipt lock evidence has no canonical UTC Released At timestamp"
+        )
     write_set_value = lock.get("Intended Write Set")
     write_set: set[str] = set()
     if not isinstance(write_set_value, str):

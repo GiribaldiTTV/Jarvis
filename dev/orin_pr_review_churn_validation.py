@@ -145,6 +145,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "journal target",
             "journal read",
             "snapshot manifest belongs",
+            "snapshots namespace",
+            "relative snapshot manifest root",
             "surrogate code point",
             "deeply nested audit",
         ),
@@ -910,6 +912,24 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Snapshot-manifest root-binding review did not classify into the external-state evidence family"
+        )
+    snapshot_namespace_comment = (
+        "Enforce host semantics for the snapshots namespace before accepting journal evidence."
+    )
+    if _classify_comment(snapshot_namespace_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Snapshots-namespace host-semantics review did not classify into the external-state family"
+        )
+    relative_snapshot_root_comment = (
+        "Reject relative snapshot manifest roots before resolving recovery provenance."
+    )
+    if _classify_comment(relative_snapshot_root_comment) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Relative snapshot-manifest root review did not classify into the external-state family"
         )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "

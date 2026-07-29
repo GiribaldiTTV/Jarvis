@@ -970,12 +970,14 @@ stubs must use the same host-path normalization as the validator so POSIX case
 semantics are exercised instead of accidentally lowercased away.
 Every accepted snapshot manifest must bind its `Root` to the resolved current
 external-state root; copied bytes and hashes from another root are not valid
-recovery provenance. Transition selection must treat whitespace-trimmed key or
+recovery provenance. The manifest root must be absolute before resolution, and
+the leading `snapshots/` namespace must use host filesystem case semantics.
+Transition selection must treat whitespace-trimmed key or
 value matches as candidates and then reject them unless the original key and
 value are exactly canonical.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
-and target write set with no unjournaled additions. Modern `Released At` evidence
-must be a canonical UTC timestamp, not merely nonblank text.
+and target write set with no unjournaled additions. Both legacy and modern
+`Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -1015,6 +1017,8 @@ A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The receipt is pre-PR evidence only and must fail once PR review or PR Readiness
 review state begins unless it has already folded into historical/no-active form.
+A no-open-PR response is insufficient when the all-state fallback fails; absence
+proof must come from a successful all-state lookup that finds no PR for the branch.
 
 Comment-family matching must treat generic UI prose such as `before text` as
 unknown unless journal, target-set, audit, external-state, or recovery context

@@ -21486,9 +21486,9 @@ def _durable_carrier_pr_review_started(
 
 def _pr_lookup_proves_no_pull_request(error: str) -> bool:
     normalized = error.casefold()
-    return any(
-        marker in normalized
-        for marker in ("no pull requests found", "no open pull request")
+    return bool(
+        "rest pull lookup found no pr for branch" in normalized
+        and "rest pull lookup failed" not in normalized
     )
 
 
@@ -21500,7 +21500,7 @@ def _validate_durable_carrier_admission_receipt_confinement(
     actual_root: str,
     upstream_branch: str,
     pr_info: dict[str, object] | None = None,
-    pr_lookup_error: str = "no pull requests found",
+    pr_lookup_error: str = "REST pull lookup found no PR for branch 'fixture'",
 ) -> None:
     require(
         _is_durable_carrier_admission_receipt(record_text),
@@ -21854,6 +21854,15 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         )
         and not _durable_carrier_pr_review_started(durable_fixture_text, None),
         "durable carrier receipt expiry must detect live PR or PR Readiness review state",
+    )
+    require(
+        _pr_lookup_proves_no_pull_request(
+            "no open pull request; REST pull lookup found no PR for branch 'fixture'"
+        )
+        and not _pr_lookup_proves_no_pull_request(
+            "no open pull request; REST pull lookup failed: service unavailable"
+        ),
+        "durable carrier fallback must require successful all-state PR absence proof",
     )
     durable_pr_failures: list[str] = []
     _validate_durable_carrier_admission_receipt_confinement(

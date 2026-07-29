@@ -296,6 +296,16 @@ def _write_legacy_lock_write_set_extra_fixture(root: Path) -> Path:
     return path
 
 
+def _write_legacy_released_at_fixture(root: Path, value: object) -> Path:
+    path = _write_legacy_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    lock_path = root / "locks" / f"{payload['Lock ID']}.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Released At"] = value
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_legacy_completion_matrix_fixture(
     root: Path,
     completion_rows: list[list[object]],
@@ -1253,6 +1263,31 @@ def _assert_posix_case_sensitive_evidence_paths() -> None:
             failures = validator.validate_incomplete_target_set_journals(root)
             if not failures:
                 raise AssertionError("POSIX modern case-distinct target unexpectedly passed")
+        with tempfile.TemporaryDirectory(prefix="ndai-posix-snapshot-namespace-") as temp_dir:
+            root = Path(temp_dir)
+            audit_path = _write_modern_journal_fixture(root)
+            snapshot_root = root / "snapshots"
+            intermediate = root / "snapshot-case-intermediate"
+            uppercase_root = root / "SNAPSHOTS"
+            snapshot_root.rename(intermediate)
+            intermediate.rename(uppercase_root)
+            payload = json.loads(audit_path.read_text(encoding="utf-8"))
+            payload["Snapshot"] = payload["Snapshot"].replace(
+                "snapshots/", "SNAPSHOTS/", 1
+            )
+            atomic_write_json(audit_path, payload)
+            lock_path = root / "locks" / "branch-modern-fixture.json"
+            lock = json.loads(lock_path.read_text(encoding="utf-8"))
+            lock["Intended Write Set"] = lock["Intended Write Set"].replace(
+                "snapshots/", "SNAPSHOTS/", 1
+            )
+            atomic_write_json(lock_path, lock)
+            failures = validator.validate_incomplete_target_set_journals(root)
+            if not any("not a safe snapshots-relative path" in item for item in failures):
+                raise AssertionError(
+                    "POSIX case-distinct snapshots namespace unexpectedly passed:\n"
+                    + "\n".join(failures)
+                )
         with tempfile.TemporaryDirectory(prefix="ndai-posix-legacy-case-") as temp_dir:
             root = Path(temp_dir)
             _, manifest_path = _write_case_renamed_admitted_receipt_fixture(root)
@@ -1268,6 +1303,26 @@ def _assert_posix_case_sensitive_evidence_paths() -> None:
     finally:
         validator._host_path_key = original_host_path_key
     print("Host path semantics fixture: POSIX case-distinct evidence rejected: PASS")
+
+
+def _assert_relative_snapshot_manifest_root_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-relative-snapshot-root-") as temp_dir:
+        root = Path(temp_dir)
+        audit_path = _write_modern_snapshot_root_fixture(root, ".")
+        original_cwd = Path.cwd()
+        try:
+            os.chdir(root)
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            os.chdir(original_cwd)
+        if not any("Root does not match" in item for item in failures):
+            raise AssertionError(
+                "relative snapshot manifest Root unexpectedly passed from root CWD:\n"
+                + "\n".join(failures)
+            )
+        if not audit_path.is_file():
+            raise AssertionError("relative-root fixture audit disappeared")
+    print("Modern snapshot fixture: relative manifest Root rejected: PASS")
 
 
 def _assert_nonstandard_json_constants_rejected() -> None:
@@ -1786,6 +1841,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_legacy_journal_fixture(root, lock_state="Locked"),
         ),
         (
+            "legacy receipt with malformed release timestamp",
+            lambda root: _write_legacy_released_at_fixture(root, "No release occurred"),
+        ),
+        (
             "legacy receipt with unexpected lock write-set target",
             _write_legacy_lock_write_set_extra_fixture,
         ),
@@ -1995,6 +2054,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_hash_replacement_race_rejected()
     _assert_journal_read_replacement_race_rejected()
     _assert_posix_case_sensitive_evidence_paths()
+    _assert_relative_snapshot_manifest_root_rejected()
 
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
@@ -2194,6 +2254,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "unexpected legacy lock write-set evidence ignored",
         negative_setups["legacy receipt with unexpected lock write-set target"],
+        "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "malformed legacy release timestamp accepted",
+        negative_setups["legacy receipt with malformed release timestamp"],
         "_validate_legacy_lock_evidence",
         lambda *_args, **_kwargs: [],
         admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
