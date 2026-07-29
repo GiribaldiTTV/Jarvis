@@ -14,7 +14,7 @@ from typing import Any
 import psutil
 
 
-METHODOLOGY_VERSION = "fam003-option-d-nonintrusive-performance-v4"
+METHODOLOGY_VERSION = "fam003-option-g-owner-attribution-v5"
 DEFAULT_TIMEOUT_SECONDS = 420
 USS_SAMPLE_EVERY_N_INTERVALS = 8
 PROCESS_TREE_REFRESH_EVERY_N_INTERVALS = 4
@@ -167,6 +167,12 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
     started = time.perf_counter()
     previous_cpu: dict[int, float] = {}
     metadata_cache: dict[int, dict[str, Any]] = {}
+    surface_renderer_map = list(request.get("surfaceRendererMap") or [])
+    surface_rows_by_pid: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for surface_row in surface_renderer_map:
+        renderer_pid = int(surface_row.get("rendererPid") or 0)
+        if renderer_pid > 0:
+            surface_rows_by_pid[renderer_pid].append(surface_row)
     for process in cached_processes.values():
         try:
             previous_cpu[process.pid] = _cpu_seconds(process)
@@ -205,12 +211,31 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
                 "cpuCoreEquivalentPercent": round(core_equivalent, 3),
                 "cpuWholeMachinePercent": round(core_equivalent / logical_cpu_count, 3),
                 "persistedFromIntervalStart": process.pid in initial_pids,
+                "attributedSurfaceIds": sorted(
+                    row["surfaceId"] for row in surface_rows_by_pid.get(process.pid, [])
+                ),
+                "attributedOwnerClassifications": sorted(
+                    {
+                        row["ownerClassification"]
+                        for row in surface_rows_by_pid.get(process.pid, [])
+                    }
+                ),
+                "surfaceAttributionBasis": (
+                    "DIRECT_QWEBENGINEPAGE_RENDER_PROCESS_PID"
+                    if surface_rows_by_pid.get(process.pid)
+                    else "NO_DIRECT_SURFACE_PID_MATCH"
+                ),
             }
             rows.append(row)
             aggregate = process_accumulator.setdefault(
                 process.pid,
                 {
                     **{key: value for key, value in snapshot.items() if not key.endswith("Bytes")},
+                    "attributedSurfaceIds": row["attributedSurfaceIds"],
+                    "attributedOwnerClassifications": row[
+                        "attributedOwnerClassifications"
+                    ],
+                    "surfaceAttributionBasis": row["surfaceAttributionBasis"],
                     "cpuTimeSeconds": 0.0,
                     "rssBytes": [],
                     "workingSetBytes": [],
@@ -302,12 +327,15 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
         "requestId": request["requestId"],
         "state": request["state"],
         "cycleIndex": request.get("cycleIndex", 0),
+        "attributionCondition": request.get("attributionCondition", "resident-baseline"),
         "rootPid": root_pid,
         "sampleDurationMs": round(duration_seconds * 1000.0, 3),
         "requiredMinimumDurationMs": duration_ms,
         "sampleIntervalMs": interval_ms,
         "ussSampleIntervalMs": interval_ms * USS_SAMPLE_EVERY_N_INTERVALS,
         "rawSampleCount": len(raw_samples),
+        "invalidSampleCount": 0,
+        "droppedSampleCount": 0,
         "logicalProcessorCount": logical_cpu_count,
         "cpuNormalization": {
             "coreEquivalentPercent": "100 percent equals one logical processor occupied for the measured wall interval",
@@ -321,6 +349,10 @@ def _observe(request: dict[str, Any], observer: psutil.Process) -> dict[str, Any
             "sharedWorkingSetEstimate": "derived RSS minus USS; labeled estimate and not summed as private memory",
         },
         "surfaceInventoryBefore": request["surfaceInventoryBefore"],
+        "surfaceRendererMap": surface_renderer_map,
+        "controllerMemoryBeforeObservation": request.get(
+            "controllerMemoryBeforeObservation", {}
+        ),
         "workload": request["workload"],
         "rawSamples": raw_samples,
         "perProcess": per_process,

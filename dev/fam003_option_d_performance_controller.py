@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import statistics
+import sys
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -30,6 +32,38 @@ POLL_INTERVAL_MS = 500
 HEARTBEAT_INTERVAL_MS = 100
 WORKLOAD_INTERVAL_MS = 750
 REPEATED_CYCLE_COUNT = 3
+ATTRIBUTION_CONDITIONS = (
+    "hud-dashboard-only",
+    "log-viewer-only",
+    "hud-log-viewer-bundle",
+)
+ATTRIBUTION_SEQUENCE = (
+    "hud-dashboard-only",
+    "log-viewer-only",
+    *("hud-log-viewer-bundle",) * REPEATED_CYCLE_COUNT,
+)
+
+
+def _deep_size(value: Any) -> int:
+    seen: set[int] = set()
+
+    def visit(item: Any) -> int:
+        identity = id(item)
+        if identity in seen:
+            return 0
+        seen.add(identity)
+        size = sys.getsizeof(item)
+        if isinstance(item, dict):
+            return size + sum(visit(key) + visit(child) for key, child in item.items())
+        if isinstance(item, (list, tuple, set, frozenset)):
+            return size + sum(visit(child) for child in item)
+        return size
+
+    return visit(value)
+
+
+def _json_bytes(payload: Any) -> bytes:
+    return (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
 def _atomic_json(path: Path, payload: dict[str, Any]) -> None:
@@ -75,6 +109,7 @@ class NonintrusivePerformanceController(QtCore.QObject):
         self.surface_timelines: dict[str, Any] = {}
         self.cycle_results: list[dict[str, Any]] = []
         self.active_workload_events: list[dict[str, Any]] = []
+        self.raw_sample_receipts: list[dict[str, Any]] = []
         self._workload_index = 0
         self._hud_original_geometry = None
         self._heartbeat_timestamps: list[int] = []
@@ -93,6 +128,100 @@ class NonintrusivePerformanceController(QtCore.QObject):
         self._workload_timer = QtCore.QTimer(self)
         self._workload_timer.setInterval(WORKLOAD_INTERVAL_MS)
         self._workload_timer.timeout.connect(self._active_workload_tick)
+
+    def _controller_memory_snapshot(self, label: str) -> dict[str, Any]:
+        memory = psutil.Process(os.getpid()).memory_full_info()
+        structures = {
+            "pendingResults": self.pending_results,
+            "surfaceTimelines": self.surface_timelines,
+            "cycleResults": self.cycle_results,
+            "activeWorkloadEvents": self.active_workload_events,
+            "rawSampleReceipts": self.raw_sample_receipts,
+        }
+        return {
+            "label": label,
+            "capturedAtEpoch": time.time(),
+            "desktopParentRssBytes": int(getattr(memory, "rss", 0)),
+            "desktopParentUssBytes": int(getattr(memory, "uss", 0)),
+            "retainedStructureDeepBytes": {
+                key: _deep_size(value) for key, value in structures.items()
+            },
+            "pendingResultCount": len(self.pending_results),
+            "retainedRawSampleCount": sum(
+                len(row.get("rawSamples", [])) for row in self.pending_results
+            ),
+        }
+
+    def _surface_renderer_map(self) -> list[dict[str, Any]]:
+        candidates = (
+            ("orin-core-visualization", self.core_window, "ORIN-CORE-UNRESOLVED"),
+            ("hud-dashboard", self.window, "FAM-006-SURFACE/FAM-003-LIFECYCLE-CARRIER"),
+            (
+                "nexus-recording-suite",
+                getattr(self.window, "_monitoring_hud_recording_studio_window", None),
+                "FAM-006-PROTECTED",
+            ),
+            (
+                "nexus-log-viewer",
+                getattr(self.window, "_monitoring_hud_log_viewer_studio_window", None),
+                "FAM-006-SURFACE/FAM-003-LIFECYCLE-CARRIER",
+            ),
+            (
+                "ai-status-command-center",
+                getattr(self.window, "_ai_control_center_dialog", None),
+                "FAM-007",
+            ),
+        )
+        rows: list[dict[str, Any]] = []
+        for surface_id, widget, owner_classification in candidates:
+            webview = getattr(widget, "webview", None) if widget is not None else None
+            page = webview.page() if webview is not None else None
+            try:
+                pid = int(page.renderProcessPid()) if page is not None else 0
+                url = webview.url().toString() if webview is not None else ""
+            except RuntimeError:
+                pid = 0
+                url = ""
+            rows.append(
+                {
+                    "surfaceId": surface_id,
+                    "rendererPid": pid,
+                    "pageUrl": url,
+                    "ownerClassification": owner_classification,
+                    "proofBasis": "QWebEnginePage.renderProcessPid measurement-only query",
+                }
+            )
+        return rows
+
+    def _externalize_raw_samples(self, result: dict[str, Any]) -> dict[str, Any]:
+        raw_samples = result.pop("rawSamples", [])
+        raw_payload = {
+            "schema": "fam003-option-g-externalized-raw-samples-v1",
+            "sourceHead": self.source_head,
+            "sessionIndex": self.session_index,
+            "requestId": result["requestId"],
+            "state": result["state"],
+            "cycleIndex": result.get("cycleIndex", 0),
+            "attributionCondition": result.get("attributionCondition", "resident-baseline"),
+            "rawSamples": raw_samples,
+        }
+        encoded = _json_bytes(raw_payload)
+        relative_path = Path("raw_samples") / f"{result['requestId']}.json"
+        target = self.session_root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_suffix(target.suffix + ".tmp")
+        temporary.write_bytes(encoded)
+        temporary.replace(target)
+        receipt = {
+            "relativePath": relative_path.as_posix(),
+            "sha256": hashlib.sha256(encoded).hexdigest().upper(),
+            "byteCount": len(encoded),
+            "rawSampleCount": len(raw_samples),
+            "rawSampleDeepBytesBeforeRelease": _deep_size(raw_samples),
+        }
+        self.raw_sample_receipts.append(receipt)
+        result["rawSamplesReference"] = receipt
+        return receipt
 
     def start(self) -> None:
         self._attach_lifecycle_timer_probes()
@@ -169,6 +298,9 @@ class NonintrusivePerformanceController(QtCore.QObject):
         }
 
     def _surface_inventory(self, state_label: str) -> dict[str, Any]:
+        renderer_rows = {
+            row["surfaceId"]: row for row in self._surface_renderer_map()
+        }
         candidates = (
             ("orin-core-visualization", self.core_window, "startup-resident-webengine", True),
             ("hud-dashboard", self.window, "on-demand-webengine", False),
@@ -244,6 +376,12 @@ class NonintrusivePerformanceController(QtCore.QObject):
                         if surface_id == "hud-dashboard"
                         else None
                     ),
+                    "rendererProcessPid": (
+                        renderer_rows.get(surface_id, {}).get("rendererPid")
+                    ),
+                    "rendererPageUrl": (
+                        renderer_rows.get(surface_id, {}).get("pageUrl")
+                    ),
                 }
             )
         tray_icon = getattr(self.tray_entry, "tray_icon", None)
@@ -288,6 +426,21 @@ class NonintrusivePerformanceController(QtCore.QObject):
             },
         )
 
+    def _attribution_condition(self) -> str:
+        if self.current_cycle <= 0:
+            return "resident-baseline"
+        return ATTRIBUTION_SEQUENCE[self.current_cycle - 1]
+
+    def _condition_surface_ids(self) -> tuple[str, ...]:
+        condition = self._attribution_condition()
+        if condition == "hud-dashboard-only":
+            return ("hud-dashboard",)
+        if condition == "log-viewer-only":
+            return ("nexus-log-viewer",)
+        if condition == "hud-log-viewer-bundle":
+            return ("hud-dashboard", "nexus-log-viewer")
+        return ()
+
     def _request_observation(
         self,
         *,
@@ -307,10 +460,19 @@ class NonintrusivePerformanceController(QtCore.QObject):
             "sessionIndex": self.session_index,
             "state": state,
             "cycleIndex": cycle_index,
+            "attributionCondition": (
+                self._attribution_condition()
+                if state in {"representative-active", "post-use-resident-idle"}
+                else "resident-baseline"
+            ),
             "rootPid": os.getpid(),
             "sampleDurationMs": SAMPLE_DURATION_MS,
             "sampleIntervalMs": SAMPLE_INTERVAL_MS,
             "surfaceInventoryBefore": inventory,
+            "surfaceRendererMap": self._surface_renderer_map(),
+            "controllerMemoryBeforeObservation": self._controller_memory_snapshot(
+                f"{state}-cycle-{cycle_index}-before-observation"
+            ),
             "expectedOnDemandVisible": expected_on_demand,
             "workload": workload,
             "productEventLoop": "normal QApplication.exec lifecycle",
@@ -390,6 +552,14 @@ class NonintrusivePerformanceController(QtCore.QObject):
                     },
                 }
             )
+            raw_receipt = self._externalize_raw_samples(result)
+            result["controllerMemoryAfterRawExternalization"] = (
+                self._controller_memory_snapshot(
+                    f"{result['state']}-cycle-{result.get('cycleIndex', 0)}-after-raw-externalization"
+                )
+            )
+            result["controllerInstrumentation"]["rawSamplesExternalized"] = True
+            result["controllerInstrumentation"]["rawSamplesReference"] = raw_receipt
             self.pending_results.append(result)
             self.runtime_milestone(
                 f"RENDERER_MAIN|FAM003_OPTION_D_OBSERVATION_COMPLETE|state={result['state']}|cycle={result.get('cycleIndex', 0)}"
@@ -419,7 +589,7 @@ class NonintrusivePerformanceController(QtCore.QObject):
                     "postUseRequestId": result["requestId"],
                 }
             )
-            if self.current_cycle < REPEATED_CYCLE_COUNT:
+            if self.current_cycle < len(ATTRIBUTION_SEQUENCE):
                 self.current_cycle += 1
                 QtCore.QTimer.singleShot(750, self._open_active_surfaces)
             else:
@@ -430,27 +600,21 @@ class NonintrusivePerformanceController(QtCore.QObject):
 
     def _open_active_surfaces(self) -> None:
         opened_at = time.perf_counter_ns()
-        self.window.set_monitoring_hud_feature_enabled(True, source="fam003-option-d-performance")
-        self.window.open_or_restore_monitoring_hud_dashboard(source="fam003-option-d-performance")
-        recording = getattr(self.window, "_monitoring_hud_recording_studio_window", None)
-        if recording is not None:
-            recording.update_product_state(
-                request_id=1000 + self.current_cycle,
-                active_profile_name="Performance observation",
-                target_count=0,
-                target_names="",
-                target_state="observation-only",
-                activate_window=True,
-                parent_geometry=self.window.geometry(),
+        condition_surfaces = set(self._condition_surface_ids())
+        if "hud-dashboard" in condition_surfaces:
+            self.window.set_monitoring_hud_feature_enabled(
+                True, source="fam003-option-g-attribution"
+            )
+            self.window.open_or_restore_monitoring_hud_dashboard(
+                source="fam003-option-g-attribution"
             )
         log_viewer = getattr(self.window, "_monitoring_hud_log_viewer_studio_window", None)
-        if log_viewer is not None:
+        if "nexus-log-viewer" in condition_surfaces and log_viewer is not None:
             log_viewer.update_product_state(
-                request_id=f"performance-cycle-{self.current_cycle}",
+                request_id=f"attribution-cycle-{self.current_cycle}",
                 activate_window=True,
                 parent_geometry=self.window.geometry(),
             )
-        self.tray_entry.ai_status_action.trigger()
         self._hud_original_geometry = self.window.geometry()
         QtCore.QTimer.singleShot(
             1_500,
@@ -460,13 +624,8 @@ class NonintrusivePerformanceController(QtCore.QObject):
     def _active_surfaces_ready(self, opened_at: int) -> None:
         inventory = self._surface_inventory(f"active-cycle-{self.current_cycle}-ready")
         visible = set(inventory["onDemandVisible"])
-        required = {
-            "hud-dashboard",
-            "nexus-recording-suite",
-            "nexus-log-viewer",
-            "ai-status-command-center",
-        }
-        if not required.issubset(visible):
+        required = set(self._condition_surface_ids())
+        if visible != required:
             self._fail(f"active surfaces failed to open: expected={sorted(required)} visible={sorted(visible)}")
             return
         elapsed_ms = (time.perf_counter_ns() - opened_at) / 1_000_000.0
@@ -485,28 +644,26 @@ class NonintrusivePerformanceController(QtCore.QObject):
             expected_on_demand=True,
             workload={
                 "classification": "MEANINGFUL_SURFACE_SPECIFIC_ACTIVE",
-                "operation": "320px alternating scroll across five WebEngine views plus bounded HUD resize",
+                "operation": "320px bounded scroll on the active attribution surface set plus HUD-only bounded resize",
                 "inputCadenceMs": WORKLOAD_INTERVAL_MS,
                 "expectedRenderingWork": "WebEngine repaint/composition, HUD relayout, and child-window rendering",
-                "surfaces": [
-                    "orin-core-visualization",
-                    "hud-dashboard",
-                    "nexus-recording-suite",
-                    "nexus-log-viewer",
-                    "ai-status-command-center",
-                ],
+                "attributionCondition": self._attribution_condition(),
+                "surfaces": sorted(required),
             },
         )
 
     def _active_workload_tick(self) -> None:
         started = time.perf_counter_ns()
         try:
+            candidate_map = {
+                "hud-dashboard": self.window,
+                "nexus-log-viewer": getattr(
+                    self.window, "_monitoring_hud_log_viewer_studio_window", None
+                ),
+            }
             candidates = [
-                ("orin-core-visualization", self.core_window),
-                ("hud-dashboard", self.window),
-                ("nexus-recording-suite", getattr(self.window, "_monitoring_hud_recording_studio_window", None)),
-                ("nexus-log-viewer", getattr(self.window, "_monitoring_hud_log_viewer_studio_window", None)),
-                ("ai-status-command-center", getattr(self.window, "_ai_control_center_dialog", None)),
+                (surface_id, candidate_map[surface_id])
+                for surface_id in self._condition_surface_ids()
             ]
             surface_id, widget = candidates[self._workload_index % len(candidates)]
             direction = 320 if (self._workload_index // len(candidates)) % 2 == 0 else -320
@@ -521,7 +678,11 @@ class NonintrusivePerformanceController(QtCore.QObject):
                         "distancePx": direction,
                     }
                 )
-            if self._workload_index % 4 == 0 and self._hud_original_geometry is not None:
+            if (
+                surface_id == "hud-dashboard"
+                and self._workload_index % 4 == 0
+                and self._hud_original_geometry is not None
+            ):
                 original = self._hud_original_geometry
                 grow = (self._workload_index // 4) % 2 == 0
                 self.window.resize(
@@ -545,12 +706,9 @@ class NonintrusivePerformanceController(QtCore.QObject):
     def _close_active_surfaces(self) -> None:
         if self._hud_original_geometry is not None:
             self.window.setGeometry(self._hud_original_geometry)
-        self.window.close_monitoring_hud_dashboard(source="fam003-option-d-performance")
+        self.window.close_monitoring_hud_dashboard(source="fam003-option-g-attribution")
         for attribute in (
-            "_monitoring_hud_recording_studio_window",
             "_monitoring_hud_log_viewer_studio_window",
-            "_ai_control_center_dialog",
-            "_resident_access_settings_dialog",
         ):
             widget = getattr(self.window, attribute, None)
             if widget is not None:
@@ -571,6 +729,7 @@ class NonintrusivePerformanceController(QtCore.QObject):
                 "operation": "none",
                 "inputCadenceMs": None,
                 "expectedRenderingWork": "normal persistent ORIN Core and resident tray after normal close/hide",
+                "attributionCondition": self._attribution_condition(),
             },
         )
 
@@ -644,6 +803,31 @@ class NonintrusivePerformanceController(QtCore.QObject):
             "monotonicPostUseGrowth": all(right > left for left, right in zip(post_uss, post_uss[1:])),
             "classification": "MEASURED_NOT_AUTOMATICALLY_A_LEAK",
         }
+        controller_memory_accounting = self._controller_memory_snapshot(
+            "final-before-manifest-write"
+        )
+        controller_memory_accounting.update(
+            {
+                "rawSamplesExternalizedToDisk": True,
+                "rawSampleFileCount": len(self.raw_sample_receipts),
+                "rawSampleDiskByteCount": sum(
+                    int(row["byteCount"]) for row in self.raw_sample_receipts
+                ),
+                "rawSampleDeepBytesBeforeRelease": sum(
+                    int(row["rawSampleDeepBytesBeforeRelease"])
+                    for row in self.raw_sample_receipts
+                ),
+                "retainedRawSampleCount": 0,
+                "classification": (
+                    "MEASUREMENT_RAW_SAMPLES_STREAMED_TO_DISK_"
+                    "NO_LONG_LIVED_RAW_SAMPLE_RETENTION"
+                ),
+                "scope": (
+                    "controller-owned Python structures only; desktop-parent USS "
+                    "also includes product/runtime allocations"
+                ),
+            }
+        )
         payload = {
             "schema": "fam003-option-d-nonintrusive-runtime-session-v1",
             "status": "PASS",
@@ -677,6 +861,11 @@ class NonintrusivePerformanceController(QtCore.QObject):
             "surfaceTimelines": self.surface_timelines,
             "activeWorkloadEvents": self.active_workload_events,
             "cycleResults": self.cycle_results,
+            "attributionConditions": list(ATTRIBUTION_CONDITIONS),
+            "attributionSequence": list(ATTRIBUTION_SEQUENCE),
+            "finalSurfaceRendererMap": self._surface_renderer_map(),
+            "controllerMemoryAccounting": controller_memory_accounting,
+            "rawSampleReceipts": self.raw_sample_receipts,
             "observerRequestCount": self.request_count,
             "lifecycleTimerInstrumentation": {
                 "callbackCounts": dict(sorted(self._lifecycle_callback_counts.items())),

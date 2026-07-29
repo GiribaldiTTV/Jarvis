@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 RENDERER = ROOT / "desktop" / "desktop_renderer.py"
 CONTROLLER = ROOT / "dev" / "fam003_option_d_performance_controller.py"
+OBSERVER = ROOT / "dev" / "fam003_option_d_performance_observer.py"
 FIXTURES = ROOT / "dev" / "fixtures" / "fam003_option_g_lifecycle_retention_negative_cases.json"
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_option_g_lifecycle_retention"
 DEFAULT_IMPLEMENTATION_BASE = "0242816c7f179684f50cd510c2961ce2c109da11"
@@ -78,7 +79,7 @@ def _contains_all(text: str, fragments: tuple[str, ...]) -> bool:
     return all(fragment in text for fragment in fragments)
 
 
-def validate_sources(renderer: str, controller: str) -> list[str]:
+def validate_sources(renderer: str, controller: str, observer: str = "") -> list[str]:
     failures: list[str] = []
     try:
         renderer_tree = ast.parse(renderer)
@@ -121,6 +122,9 @@ def validate_sources(renderer: str, controller: str) -> list[str]:
         "DesktopRuntimeWindow", "_apply_monitoring_hud_window_interaction_state"
     )
     shutdown = method_source("DesktopRuntimeWindow", "request_shutdown")
+    controller_open = _method_source(
+        controller, "NonintrusivePerformanceController", "_open_active_surfaces"
+    )
 
     checks = {
         "OPTG-FG-01": "self._resize_hover_timer.start()" not in studio_init,
@@ -229,6 +233,33 @@ def validate_sources(renderer: str, controller: str) -> list[str]:
             'EXPECTED_POLICY = "temporary-shared-runtime-safety-policy"' in controller
             and '"temporary": True' in controller
         ),
+        "OPTG-FG-35": (
+            "page.renderProcessPid()" in controller
+            and '"surfaceRendererMap": self._surface_renderer_map()' in controller
+            and '"DIRECT_QWEBENGINEPAGE_RENDER_PROCESS_PID"' in observer
+        ),
+        "OPTG-FG-36": (
+            "def _externalize_raw_samples" in controller
+            and '"retainedRawSampleCount": 0' in controller
+            and '"rawSamplesReference"' in controller
+        ),
+        "OPTG-FG-37": (
+            '"hud-dashboard-only"' in controller
+            and '"log-viewer-only"' in controller
+            and '*("hud-log-viewer-bundle",) * REPEATED_CYCLE_COUNT' in controller
+            and "ai_status_action" not in controller_open
+            and "_monitoring_hud_recording_studio_window" not in controller_open
+        ),
+        "OPTG-FG-38": (
+            "def _controller_memory_snapshot(self, label: str)" in controller
+            and '"controllerMemoryAccounting": controller_memory_accounting' in controller
+            and '"rawSampleDeepBytesBeforeRelease": sum(' in controller
+        ),
+        "OPTG-FG-39": (
+            'METHODOLOGY_VERSION = "fam003-option-g-owner-attribution-v5"' in observer
+            and '"invalidSampleCount": 0' in observer
+            and '"droppedSampleCount": 0' in observer
+        ),
     }
     for code, passed in checks.items():
         if not passed:
@@ -285,18 +316,22 @@ def validate_changed_regions(renderer: str, implementation_base: str) -> list[st
     ]
 
 
-def validate_negative_fixtures(renderer: str, controller: str) -> list[str]:
+def validate_negative_fixtures(
+    renderer: str, controller: str, observer: str = ""
+) -> list[str]:
     payload = json.loads(FIXTURES.read_text(encoding="utf-8"))
     failures: list[str] = []
     for case in payload.get("cases", []):
-        target = renderer if case["target"] == "renderer" else controller
+        targets = {"renderer": renderer, "controller": controller, "observer": observer}
+        target = targets[case["target"]]
         if target.count(case["find"]) != 1:
             failures.append(f"{case['id']}:fixture-anchor-count={target.count(case['find'])}")
             continue
         mutated = target.replace(case["find"], case["replace"], 1)
         mutated_renderer = mutated if case["target"] == "renderer" else renderer
         mutated_controller = mutated if case["target"] == "controller" else controller
-        observed = validate_sources(mutated_renderer, mutated_controller)
+        mutated_observer = mutated if case["target"] == "observer" else observer
+        observed = validate_sources(mutated_renderer, mutated_controller, mutated_observer)
         if case["expected"] not in observed:
             failures.append(f"{case['id']}:unexpected-green:{case['expected']}")
     return failures
@@ -314,6 +349,38 @@ def _timer(surface: dict[str, Any], timer_id: str) -> dict[str, Any]:
         (row for row in surface.get("lifecycleTimers", []) if row.get("timerId") == timer_id),
         {},
     )
+
+
+def _externalized_raw_samples(
+    session: dict[str, Any], observation: dict[str, Any], prefix: str
+) -> tuple[list[dict[str, Any]], list[str]]:
+    failures: list[str] = []
+    reference = observation.get("rawSamplesReference") or {}
+    manifest_path = Path(str(session.get("manifestPath") or ""))
+    if not manifest_path.is_absolute():
+        return [], [f"{prefix}-RAW-MANIFEST-PATH"]
+    session_root = manifest_path.resolve().parent
+    relative = Path(str(reference.get("relativePath") or ""))
+    target = (session_root / relative).resolve()
+    try:
+        target.relative_to(session_root)
+    except ValueError:
+        return [], [f"{prefix}-RAW-PATH-ESCAPE"]
+    if not target.is_file():
+        return [], [f"{prefix}-RAW-FILE-MISSING"]
+    encoded = target.read_bytes()
+    if hashlib.sha256(encoded).hexdigest().upper() != reference.get("sha256"):
+        failures.append(f"{prefix}-RAW-HASH")
+    if len(encoded) != reference.get("byteCount"):
+        failures.append(f"{prefix}-RAW-BYTES")
+    try:
+        payload = json.loads(encoded.decode("utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return [], [*failures, f"{prefix}-RAW-JSON"]
+    raw_samples = payload.get("rawSamples", [])
+    if len(raw_samples) != reference.get("rawSampleCount"):
+        failures.append(f"{prefix}-RAW-REFERENCE-COUNT")
+    return raw_samples, failures
 
 
 def validate_evidence(path: Path, expected_head: str) -> list[str]:
@@ -340,8 +407,8 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
         states = [row.get("state") for row in observations]
         required_counts = {
             "startup-resident-idle": 1,
-            "representative-active": 3,
-            "post-use-resident-idle": 3,
+            "representative-active": 5,
+            "post-use-resident-idle": 5,
             "long-settle-resident-idle": 1,
         }
         for state, count in required_counts.items():
@@ -349,13 +416,21 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
                 failures.append(f"{prefix}-STATE-{state}:{states.count(state)}")
         for observation in observations:
             state = observation.get("state")
+            condition = observation.get("attributionCondition", "resident-baseline")
             inventories = [
                 observation.get("surfaceInventoryBefore", {}),
                 observation.get("surfaceInventoryAfter", {}),
             ]
-            raw_samples = observation.get("rawSamples", [])
+            raw_samples, raw_failures = _externalized_raw_samples(
+                session, observation, f"{prefix}-{state}-{condition}"
+            )
+            failures.extend(raw_failures)
             if observation.get("rawSampleCount") != len(raw_samples):
                 failures.append(f"{prefix}-RAW-SAMPLE-COUNT-{state}")
+            if observation.get("invalidSampleCount") != 0:
+                failures.append(f"{prefix}-INVALID-SAMPLE-{state}")
+            if observation.get("droppedSampleCount") != 0:
+                failures.append(f"{prefix}-DROPPED-SAMPLE-{state}")
             if any(
                 sample.get("productProcessCount") != len(sample.get("productProcesses", []))
                 for sample in raw_samples
@@ -371,18 +446,64 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
             )
             if reproduced_cpu != reported_cpu:
                 failures.append(f"{prefix}-RAW-CPU-PARITY-{state}")
+            renderer_map = observation.get("surfaceRendererMap", [])
+            mapped_by_surface = {
+                row.get("surfaceId"): int(row.get("rendererPid") or 0)
+                for row in renderer_map
+            }
+            expected_visible: set[str] = set()
+            if state == "representative-active":
+                if condition in {"hud-dashboard-only", "hud-log-viewer-bundle"}:
+                    expected_visible.add("hud-dashboard")
+                if condition in {"log-viewer-only", "hud-log-viewer-bundle"}:
+                    expected_visible.add("nexus-log-viewer")
+            for surface_id in expected_visible:
+                renderer_pid = mapped_by_surface.get(surface_id, 0)
+                if renderer_pid <= 0:
+                    failures.append(f"{prefix}-RENDERER-PID-{state}-{surface_id}")
+                    continue
+                process_row = next(
+                    (row for row in process_rows if row.get("pid") == renderer_pid),
+                    {},
+                )
+                if process_row.get("role") != "webengine-renderer":
+                    failures.append(
+                        f"{prefix}-RENDERER-PROCESS-{state}-{surface_id}"
+                    )
+                if surface_id not in process_row.get("attributedSurfaceIds", []):
+                    failures.append(
+                        f"{prefix}-RENDERER-DIRECT-MAP-{state}-{surface_id}"
+                    )
+            memory_after = observation.get(
+                "controllerMemoryAfterRawExternalization", {}
+            )
+            if memory_after.get("retainedRawSampleCount") != 0:
+                failures.append(f"{prefix}-CONTROLLER-RAW-RETAINED-{state}")
             for inventory in inventories:
                 hud = _surface(inventory, "hud-dashboard")
                 log_viewer = _surface(inventory, "nexus-log-viewer")
                 recording = _surface(inventory, "nexus-recording-suite")
-                timer_rows = (
-                    _timer(hud, "hud-resize-hover"),
-                    _timer(hud, "hud-recording-control-click-bridge"),
-                    _timer(log_viewer, "log-viewer-resize-hover"),
-                )
-                expected_active = state == "representative-active"
-                if any(timer.get("active") is not expected_active for timer in timer_rows):
-                    failures.append(f"{prefix}-TIMER-{state}")
+                hud_expected = state == "representative-active" and condition in {
+                    "hud-dashboard-only",
+                    "hud-log-viewer-bundle",
+                }
+                log_expected = state == "representative-active" and condition in {
+                    "log-viewer-only",
+                    "hud-log-viewer-bundle",
+                }
+                if any(
+                    timer.get("active") is not hud_expected
+                    for timer in (
+                        _timer(hud, "hud-resize-hover"),
+                        _timer(hud, "hud-recording-control-click-bridge"),
+                    )
+                ):
+                    failures.append(f"{prefix}-HUD-TIMER-{state}-{condition}")
+                if (
+                    _timer(log_viewer, "log-viewer-resize-hover").get("active")
+                    is not log_expected
+                ):
+                    failures.append(f"{prefix}-LOG-TIMER-{state}-{condition}")
                 recording_timer = _timer(recording, "recording-studio-resize-hover")
                 if recording_timer.get("active") is not False:
                     failures.append(f"{prefix}-RECORDING-TIMER-{state}")
@@ -390,6 +511,36 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
                     failures.append(f"{prefix}-RECORDING-RESIZABLE-{state}")
                 if recording.get("width") != 432 or recording.get("height") != 154:
                     failures.append(f"{prefix}-RECORDING-GEOMETRY-{state}")
+        if session.get("attributionSequence") != [
+            "hud-dashboard-only",
+            "log-viewer-only",
+            "hud-log-viewer-bundle",
+            "hud-log-viewer-bundle",
+            "hud-log-viewer-bundle",
+        ]:
+            failures.append(f"{prefix}-ATTRIBUTION-SEQUENCE")
+        condition_rows = [
+            row.get("attributionCondition")
+            for row in observations
+            if row.get("state") == "representative-active"
+        ]
+        if condition_rows != session.get("attributionSequence"):
+            failures.append(f"{prefix}-ATTRIBUTION-ORDER")
+        controller_memory = session.get("controllerMemoryAccounting", {})
+        if controller_memory.get("retainedRawSampleCount") != 0:
+            failures.append(f"{prefix}-CONTROLLER-FINAL-RAW")
+        if controller_memory.get("rawSamplesExternalizedToDisk") is not True:
+            failures.append(f"{prefix}-CONTROLLER-STREAMING")
+        if controller_memory.get("rawSampleFileCount") != len(observations):
+            failures.append(f"{prefix}-CONTROLLER-RAW-FILE-COUNT")
+        if not isinstance(
+            controller_memory.get("retainedStructureDeepBytes"), dict
+        ):
+            failures.append(f"{prefix}-CONTROLLER-DEEP-SIZE")
+        for observation in observations:
+            overhead = observation.get("observerOverhead", {})
+            if (overhead.get("ussMiB") or {}).get("median") is None:
+                failures.append(f"{prefix}-OBSERVER-MEMORY")
         instrumentation = session.get("lifecycleTimerInstrumentation", {})
         counts = instrumentation.get("callbackCounts", {})
         if any(counts.get(timer_id, 0) <= 0 for timer_id in (
@@ -418,6 +569,248 @@ def validate_evidence(path: Path, expected_head: str) -> list[str]:
             "OPTG-EVIDENCE-OBSERVER-OVERHEAD:"
             f"{relative_overhead if relative_overhead is not None else 'missing'}"
         )
+    return failures
+
+
+def _build_ws04_attribution_ledger(
+    sessions: list[dict[str, Any]], root: Path, source_head: str
+) -> dict[str, Any]:
+    process_rows: list[dict[str, Any]] = []
+    controller_rows: list[dict[str, Any]] = []
+    monotonic_renderer_rows: list[dict[str, Any]] = []
+    for session in sessions:
+        session_index = int(session.get("sessionIndex") or 0)
+        for observation in session.get("observations", []):
+            condition = observation.get("attributionCondition", "resident-baseline")
+            state = observation.get("state")
+            for process in observation.get("perProcess", []):
+                if process.get("role") not in {
+                    "webengine-renderer",
+                    "desktop-python-parent",
+                }:
+                    continue
+                memory = process.get("memoryMiB") or {}
+                process_rows.append(
+                    {
+                        "sessionIndex": session_index,
+                        "requestId": observation.get("requestId"),
+                        "state": state,
+                        "cycleIndex": observation.get("cycleIndex"),
+                        "attributionCondition": condition,
+                        "pid": process.get("pid"),
+                        "parentPid": process.get("parentPid"),
+                        "creationTimeEpoch": process.get("creationTimeEpoch"),
+                        "role": process.get("role"),
+                        "attributedSurfaceIds": process.get(
+                            "attributedSurfaceIds", []
+                        ),
+                        "ownerClassifications": process.get(
+                            "attributedOwnerClassifications", []
+                        ),
+                        "attributionBasis": process.get(
+                            "surfaceAttributionBasis"
+                        ),
+                        "ussMedianMiB": (memory.get("ussBytes") or {}).get(
+                            "median"
+                        ),
+                        "privateCommitMedianMiB": (
+                            memory.get("privateCommitBytes") or {}
+                        ).get("median"),
+                        "rssMedianMiB": (memory.get("rssBytes") or {}).get(
+                            "median"
+                        ),
+                        "presentAtEnd": process.get("presentAtEnd"),
+                        "evidencePath": observation.get("rawSamplesReference", {}).get(
+                            "relativePath"
+                        ),
+                    }
+                )
+            controller_rows.append(
+                {
+                    "sessionIndex": session_index,
+                    "requestId": observation.get("requestId"),
+                    "state": state,
+                    "cycleIndex": observation.get("cycleIndex"),
+                    "attributionCondition": condition,
+                    "controllerMemoryAfterRawExternalization": observation.get(
+                        "controllerMemoryAfterRawExternalization", {}
+                    ),
+                    "rawSamplesReference": observation.get(
+                        "rawSamplesReference", {}
+                    ),
+                }
+            )
+        bundle_post = [
+            row
+            for row in session.get("observations", [])
+            if row.get("state") == "post-use-resident-idle"
+            and row.get("attributionCondition") == "hud-log-viewer-bundle"
+        ]
+        renderer_pids = sorted(
+            {
+                int(process.get("pid"))
+                for row in bundle_post
+                for process in row.get("perProcess", [])
+                if process.get("role") == "webengine-renderer"
+            }
+        )
+        for pid in renderer_pids:
+            pid_rows = [
+                next(
+                    (
+                        process
+                        for process in row.get("perProcess", [])
+                        if process.get("role") == "webengine-renderer"
+                        and int(process.get("pid")) == pid
+                    ),
+                    {},
+                )
+                for row in bundle_post
+            ]
+            uss_values = [
+                float((row.get("memoryMiB", {}).get("ussBytes") or {}).get("median"))
+                for row in pid_rows
+                if (row.get("memoryMiB", {}).get("ussBytes") or {}).get("median")
+                is not None
+            ]
+            surface_ids = sorted(
+                {
+                    surface_id
+                    for row in pid_rows
+                    for surface_id in row.get("attributedSurfaceIds", [])
+                }
+            )
+            owners = sorted(
+                {
+                    owner
+                    for row in pid_rows
+                    for owner in row.get("attributedOwnerClassifications", [])
+                }
+            )
+            monotonic = len(uss_values) == 3 and all(
+                right > left for left, right in zip(uss_values, uss_values[1:])
+            )
+            if monotonic:
+                monotonic_renderer_rows.append(
+                    {
+                        "sessionIndex": session_index,
+                        "pid": pid,
+                        "ussMedianMiBByRepeatedBundleClose": uss_values,
+                        "attributedSurfaceIds": surface_ids,
+                        "ownerClassifications": owners,
+                        "directAttribution": bool(surface_ids),
+                        "sharedRendererReuse": len(surface_ids) > 1,
+                        "classification": "REPEATED_BUNDLE_CLOSE_MONOTONIC_USS_GROWTH",
+                    }
+                )
+
+    foreign_or_excluded = [
+        row
+        for row in monotonic_renderer_rows
+        if not row["directAttribution"]
+        or row["sharedRendererReuse"]
+        or any(
+            owner.startswith("FAM-006")
+            or owner in {"ORIN-CORE-UNRESOLVED", "FAM-007"}
+            for owner in row["ownerClassifications"]
+        )
+    ]
+    controller_final_rows = [
+        session.get("controllerMemoryAccounting", {}) for session in sessions
+    ]
+    controller_raw_retention_excluded = all(
+        row.get("retainedRawSampleCount") == 0
+        and row.get("rawSamplesExternalizedToDisk") is True
+        for row in controller_final_rows
+    )
+    if foreign_or_excluded:
+        outcome = "FOREIGN_SHARED_OR_EXCLUDED_OWNER_BLOCKER"
+    elif monotonic_renderer_rows:
+        outcome = "UNKNOWN_OWNER_BLOCKER"
+    else:
+        outcome = "ACCEPTED_MEASUREMENT_INSTRUMENTATION_ONLY_NO_PRODUCT_REPAIR"
+    allowlist_rows = [f"OPTG-ALLOW-{index:02d}" for index in range(1, 9)]
+    payload = {
+        "schema": "fam003-option-g-ws04-attribution-ledger-v1",
+        "sourceHead": source_head,
+        "sessionCount": len(sessions),
+        "measurementMethodology": "DIRECT_PAGE_PID_PLUS_CONTROLLED_SURFACE_SEQUENCE_V5",
+        "processRows": process_rows,
+        "controllerRows": controller_rows,
+        "controllerFinalAccounting": controller_final_rows,
+        "controllerRawRetentionExcluded": controller_raw_retention_excluded,
+        "monotonicRendererRows": monotonic_renderer_rows,
+        "foreignSharedOrExcludedRows": foreign_or_excluded,
+        "activatedAllowlistRows": [],
+        "nonactivatedAllowlistRows": allowlist_rows,
+        "allowlistTriggerDisposition": (
+            "No named timer/lifecycle trigger remains active; renderer memory "
+            "association does not activate timer allowlist repair."
+        ),
+        "recordingStudioDisposition": (
+            "PROTECTED_NOT_OPENED_BY_ATTRIBUTION_SEQUENCE; STATIC_AND_TIMER_"
+            "INVARIANTS_REVALIDATED"
+        ),
+        "ws04Outcome": outcome,
+        "ws05Disposition": (
+            "BLOCKED_NO_PRODUCT_MUTATION"
+            if outcome.endswith("BLOCKER")
+            else "SKIPPED_NO_PRODUCT_REPAIR_TRIGGER"
+        ),
+        "remainingUncertainty": (
+            "Monotonic retained renderer memory maps to a foreign, shared, "
+            "generic, or unresolved owner boundary."
+            if outcome.endswith("BLOCKER")
+            else "No repeated-bundle monotonic renderer growth remained after raw-sample externalization."
+        ),
+    }
+    ledger_path = root / "fam003_option_g_ws04_attribution_ledger.json"
+    ledger_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    markdown = root / "FAM003_OPTION_G_WS04_ATTRIBUTION_LEDGER.md"
+    markdown.write_text(
+        "# FAM-003 Option G WS04 Attribution Ledger\n\n"
+        f"Source HEAD: `{source_head}`\n\n"
+        f"Sessions: `{len(sessions)}`\n\n"
+        f"WS04 Outcome: `{outcome}`\n\n"
+        f"Controller Raw Retention Excluded: `{str(controller_raw_retention_excluded).upper()}`\n\n"
+        f"Monotonic Renderer Rows: `{len(monotonic_renderer_rows)}`\n\n"
+        f"Foreign / Shared / Excluded Rows: `{len(foreign_or_excluded)}`\n\n"
+        "Activated Allowlist Rows: `NONE`\n\n"
+        "WS05: `"
+        + payload["ws05Disposition"]
+        + "`\n\n"
+        "The JSON ledger beside this review owns the complete per-process and "
+        "controller-accounting evidence rows. It is generated evidence, not a "
+        "new canonical planning owner.\n",
+        encoding="utf-8",
+    )
+    payload["jsonPath"] = str(ledger_path)
+    payload["markdownPath"] = str(markdown)
+    payload["jsonSha256"] = hashlib.sha256(ledger_path.read_bytes()).hexdigest().upper()
+    return payload
+
+
+def _validate_attribution_ledger(ledger: dict[str, Any], expected_head: str) -> list[str]:
+    failures: list[str] = []
+    if ledger.get("sourceHead") != expected_head:
+        failures.append("OPTG-ATTRIBUTION-HEAD")
+    if ledger.get("sessionCount", 0) < 3:
+        failures.append("OPTG-ATTRIBUTION-SESSIONS")
+    if ledger.get("controllerRawRetentionExcluded") is not True:
+        failures.append("OPTG-ATTRIBUTION-CONTROLLER-CONTAMINATION")
+    if ledger.get("activatedAllowlistRows"):
+        failures.append("OPTG-ATTRIBUTION-UNPROVEN-ALLOWLIST-ACTIVATION")
+    allowed_outcomes = {
+        "ACCEPTED_MEASUREMENT_INSTRUMENTATION_ONLY_NO_PRODUCT_REPAIR",
+        "FOREIGN_SHARED_OR_EXCLUDED_OWNER_BLOCKER",
+        "UNKNOWN_OWNER_BLOCKER",
+    }
+    if ledger.get("ws04Outcome") not in allowed_outcomes:
+        failures.append("OPTG-ATTRIBUTION-OUTCOME")
+    if not ledger.get("processRows") or not ledger.get("controllerRows"):
+        failures.append("OPTG-ATTRIBUTION-ROWS")
     return failures
 
 
@@ -466,8 +859,11 @@ def run_sessions(run_count: int, output_root: Path | None) -> tuple[Path, str]:
         "utsRequested": False,
         "optionDTemporary": True,
     }
+    attribution_ledger = _build_ws04_attribution_ledger(sessions, root, head)
+    payload["ws04AttributionLedger"] = attribution_ledger
     manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     failures = validate_evidence(manifest, head)
+    failures.extend(_validate_attribution_ledger(attribution_ledger, head))
     payload["status"] = "PASS" if not failures else "FAIL"
     payload["validationFailures"] = failures
     manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -488,13 +884,14 @@ def main() -> int:
 
     renderer = RENDERER.read_text(encoding="utf-8")
     controller = CONTROLLER.read_text(encoding="utf-8")
-    failures = validate_sources(renderer, controller)
+    observer = OBSERVER.read_text(encoding="utf-8")
+    failures = validate_sources(renderer, controller, observer)
     failures.extend(validate_changed_regions(renderer, args.implementation_base))
     fixture_count = 0
     if not args.skip_fixtures:
         fixture_payload = json.loads(FIXTURES.read_text(encoding="utf-8"))
         fixture_count = len(fixture_payload.get("cases", []))
-        failures.extend(validate_negative_fixtures(renderer, controller))
+        failures.extend(validate_negative_fixtures(renderer, controller, observer))
     if args.run_sessions:
         try:
             generated_manifest, generated_head = run_sessions(
