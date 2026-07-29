@@ -21040,7 +21040,14 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         "Actual Worktree Root",
         "Assignment Status",
     )
-    if any(_extract_exact_marker_value(record_text, marker) for marker in forbidden_active_markers):
+    if any(
+        re.search(
+            rf"^\s*(?:-\s*)?{re.escape(marker)}\s*:",
+            record_text,
+            flags=re.M,
+        )
+        for marker in forbidden_active_markers
+    ):
         return False
     live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
     fold_down = _extract_exact_marker_value(record_text, "Fold-Down Result").casefold()
@@ -21314,6 +21321,13 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     require(
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
+    )
+    blank_forbidden_marker_fixture = (
+        historical_fixture_text + "\n- Active Thread Owner:\n"
+    )
+    require(
+        not _is_historical_carrier_admission_receipt(blank_forbidden_marker_fixture),
+        f"{historical_fixture}: blank forbidden active markers must fail classification",
     )
     invalid_historical_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR

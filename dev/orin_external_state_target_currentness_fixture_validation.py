@@ -496,17 +496,40 @@ def _write_modern_journal_fixture(
 ) -> Path:
     path = root / "audit_log" / filename
     path.parent.mkdir(parents=True, exist_ok=True)
+    target_relative = "worktrees/Fixture/worktree_state.md"
+    before_bytes = b"modern fixture before\n"
+    before_hash = hashlib.sha256(before_bytes).hexdigest()
+    after_hash = hashlib.sha256(b"modern fixture after\n").hexdigest()
+    snapshot_relative = "snapshots/modern-fixture"
+    snapshot_root = root.joinpath(*snapshot_relative.split("/"))
+    snapshot_copy = snapshot_root.joinpath(*target_relative.split("/"))
+    snapshot_copy.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_copy.write_bytes(before_bytes)
+    atomic_write_json(
+        snapshot_root / "snapshot_manifest.json",
+        {
+            "External State Schema": "external-state-v1",
+            "Copied Files": [
+                {
+                    "path": target_relative,
+                    "sha256": before_hash,
+                    "size": len(before_bytes),
+                }
+            ],
+            "Last Updated": "2026-07-27T23:59:59Z",
+        },
+    )
     payload: dict[str, object] = {
         "External State Schema": schema,
         "Transition": validator.TARGET_SET_TRANSITION,
         "Lock ID": "branch-modern-fixture",
         "Workload ID": "modern-fixture-workload",
-        "Snapshot": "snapshots/modern-fixture",
+        "Snapshot": snapshot_relative,
         "Targets": [
             {
-                "Target": "worktrees/Fixture/worktree_state.md",
-                "Before SHA256": "a" * 64,
-                "After SHA256": "b" * 64,
+                "Target": target_relative,
+                "Before SHA256": before_hash,
+                "After SHA256": after_hash,
             }
         ],
         "Last Updated": last_updated,
@@ -527,6 +550,13 @@ def _write_modern_journal_fixture(
             "Workload State": "Completed",
             "Retain Between Workloads": "No",
             "Released At": "2026-07-28T00:00:01Z",
+            "Intended Write Set": ";".join(
+                [
+                    path.relative_to(root).as_posix(),
+                    snapshot_relative,
+                    target_relative,
+                ]
+            ),
         },
     )
     return path
@@ -548,11 +578,81 @@ def _write_modern_equal_hash_fixture(root: Path) -> Path:
     return path
 
 
-def _write_modern_non_string_target_fixture(root: Path, value: object) -> Path:
+def _write_modern_target_value_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["Targets"][0]["Target"] = value
     atomic_write_json(path, payload)
+    return path
+
+
+def _write_modern_missing_snapshot_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    (root / "snapshots" / "modern-fixture" / "snapshot_manifest.json").unlink()
+    return path
+
+
+def _write_modern_tampered_snapshot_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root)
+    snapshot_copy = (
+        root
+        / "snapshots"
+        / "modern-fixture"
+        / "worktrees"
+        / "Fixture"
+        / "worktree_state.md"
+    )
+    snapshot_copy.write_text("tampered modern fixture\n", encoding="utf-8")
+    return path
+
+
+def _write_modern_lock_write_set_omission_fixture(root: Path, omitted: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    entries = str(lock["Intended Write Set"]).split(";")
+    omission_map = {
+        "audit": path.relative_to(root).as_posix(),
+        "snapshot": "snapshots/modern-fixture",
+        "target": "worktrees/Fixture/worktree_state.md",
+    }
+    lock["Intended Write Set"] = ";".join(
+        entry for entry in entries if entry != omission_map[omitted]
+    )
+    atomic_write_json(lock_path, lock)
+    return path
+
+
+def _write_modern_nonstandard_constant_fixture(root: Path, location: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    if location == "journal":
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["Unchecked Metadata"] = float("nan")
+        atomic_write_json(path, payload)
+    elif location == "lock":
+        lock_path = root / "locks" / "branch-modern-fixture.json"
+        lock = json.loads(lock_path.read_text(encoding="utf-8"))
+        lock["Released At"] = float("nan")
+        atomic_write_json(lock_path, lock)
+    elif location == "snapshot":
+        manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["Unchecked Metadata"] = float("inf")
+        atomic_write_json(manifest_path, manifest)
+    else:
+        raise AssertionError(f"unknown non-standard constant location {location!r}")
+    return path
+
+
+def _write_malformed_nested_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "malformed-nested-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Metadata":{"Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"},',
+        encoding="utf-8",
+    )
     return path
 
 
@@ -818,7 +918,36 @@ def _assert_journal_false_positive_mutation_killed(
     print(f"Legacy journal mutation: {name}: KILLED")
 
 
+def _assert_modern_audit_reparse_rejected(name: str, component: str) -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-modern-audit-reparse-") as temp_dir:
+        root = Path(temp_dir)
+        audit_path = _write_modern_journal_fixture(root)
+        reparse_path = root / "audit_log" if component == "directory" else audit_path
+        original = validator._has_reparse_point
+        validator._has_reparse_point = lambda path: path == reparse_path or original(path)
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._has_reparse_point = original
+        if not any("not a confined regular" in failure for failure in failures):
+            raise AssertionError(
+                f"{name} unexpectedly passed:\n" + "\n".join(failures)
+            )
+    print(f"Modern audit reparse fixture: {name}: PASS")
+
+
+def _assert_nonstandard_json_constants_rejected() -> None:
+    for constant in ("NaN", "Infinity", "-Infinity"):
+        try:
+            validator._strict_json_loads(f'{{"value":{constant}}}')
+        except validator.StrictJSONError:
+            continue
+        raise AssertionError(f"strict JSON unexpectedly accepted {constant}")
+    print("Strict JSON constants: NaN / Infinity / -Infinity: REJECTED")
+
+
 def _run_legacy_journal_compatibility_fixtures() -> None:
+    _assert_nonstandard_json_constants_rejected()
     complete = [
         "External State Item Status=Complete",
         "Current Validation State=PASS",
@@ -879,6 +1008,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                     encoding="utf-8",
                 ),
             ),
+        ),
+        (
+            "malformed unrelated audit has nested target-set Transition",
+            _write_malformed_nested_transition_fixture,
         ),
     ]
     for name, setup in positive_cases:
@@ -958,15 +1091,57 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern Committed journal with active lock evidence",
             lambda root: _write_modern_journal_fixture(root, lock_state="Locked"),
         ),
+        (
+            "modern Committed journal with missing snapshot manifest",
+            _write_modern_missing_snapshot_fixture,
+        ),
+        (
+            "modern Committed journal with tampered snapshot copy",
+            _write_modern_tampered_snapshot_fixture,
+        ),
+        *[
+            (
+                f"modern lock write set omits {omitted}",
+                lambda root, omitted=omitted: _write_modern_lock_write_set_omission_fixture(
+                    root,
+                    omitted,
+                ),
+            )
+            for omitted in ("audit", "snapshot", "target")
+        ],
+        *[
+            (
+                f"modern evidence contains non-standard numeric constant in {location}",
+                lambda root, location=location: _write_modern_nonstandard_constant_fixture(
+                    root,
+                    location,
+                ),
+            )
+            for location in ("journal", "lock", "snapshot")
+        ],
         *[
             (
                 f"modern journal with non-string Target {kind}",
-                lambda root, value=value: _write_modern_non_string_target_fixture(root, value),
+                lambda root, value=value: _write_modern_target_value_fixture(root, value),
             )
             for kind, value in (
                 ("boolean", True),
                 ("integer", 7),
                 ("list", ["worktrees/Fixture/worktree_state.md"]),
+            )
+        ],
+        *[
+            (
+                f"modern journal with impossible Target {kind}",
+                lambda root, value=value: _write_modern_target_value_fixture(root, value),
+            )
+            for kind, value in (
+                ("NUL", "worktrees/Bad\x00Name/state.md"),
+                ("control", "worktrees/Bad\x1fName/state.md"),
+                ("wildcard", "worktrees/Bad*/state.md"),
+                ("trailing-dot", "worktrees/Bad./state.md"),
+                ("trailing-space", "worktrees/Bad /state.md"),
+                ("reserved-name", "worktrees/NUL/state.md"),
             )
         ],
         (
@@ -1368,9 +1543,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         )
 
+    _assert_modern_audit_reparse_rejected(
+        "audit_log directory reparse boundary",
+        "directory",
+    )
+    _assert_modern_audit_reparse_rejected(
+        "journal file reparse boundary",
+        "file",
+    )
+
     negative_setups = dict(negative_cases)
     accept_missing_state = lambda *_args, **_kwargs: []
-    accept_modern_state = lambda _payload: []
+    accept_modern_state = lambda *_args, **_kwargs: []
     accept_completion_set = lambda *_args: []
     accept_completion_profile = lambda _values: PROFILE_BY_RECEIPT["receipt-1"]
     accept_unregistered_identity = lambda *_args, **_kwargs: (
@@ -1502,6 +1686,42 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["modern Committed journal with active lock evidence"],
         "_validate_modern_lock_evidence",
         lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "modern snapshot evidence ignored",
+        negative_setups["modern Committed journal with missing snapshot manifest"],
+        "_validate_modern_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "modern lock write-set evidence ignored",
+        negative_setups["modern lock write set omits target"],
+        "_validate_modern_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "non-standard journal numeric constant accepted",
+        negative_setups["modern evidence contains non-standard numeric constant in journal"],
+        "_strict_json_loads",
+        permissive_json_loads,
+    )
+    _assert_journal_mutation_killed(
+        "non-standard snapshot numeric constant accepted",
+        negative_setups["modern evidence contains non-standard numeric constant in snapshot"],
+        "_strict_json_load_path",
+        permissive_json_path,
+    )
+    _assert_journal_mutation_killed(
+        "impossible modern target path accepted",
+        negative_setups["modern journal with impossible Target NUL"],
+        "_validate_modern_target_set_journal",
+        accept_modern_state,
+    )
+    _assert_journal_false_positive_mutation_killed(
+        "nested malformed Transition treated as top-level",
+        _write_malformed_nested_transition_fixture,
+        "_raw_text_has_target_set_transition",
+        lambda text: validator.TARGET_SET_TRANSITION in text,
     )
     _assert_journal_mutation_killed(
         "escaped malformed Transition key ignored",

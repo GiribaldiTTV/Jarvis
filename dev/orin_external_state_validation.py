@@ -143,7 +143,14 @@ def _strict_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
 
 
 def _strict_json_loads(text: str) -> object:
-    return json.loads(text, object_pairs_hook=_strict_json_object)
+    def reject_constant(value: str) -> object:
+        raise StrictJSONError(f"non-standard JSON numeric constant {value!r}")
+
+    return json.loads(
+        text,
+        object_pairs_hook=_strict_json_object,
+        parse_constant=reject_constant,
+    )
 
 
 def _strict_json_load_path(path: Path) -> object:
@@ -1473,6 +1480,11 @@ def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
     candidate = PureWindowsPath(raw)
     normalized = raw.replace("\\", "/")
     parts = normalized.split("/")
+    reserved_names = {"con", "prn", "aux", "nul"} | {
+        f"{prefix}{index}"
+        for prefix in ("com", "lpt")
+        for index in range(1, 10)
+    }
     if (
         not raw
         or Path(raw).is_absolute()
@@ -1483,6 +1495,10 @@ def _safe_external_relative_parts(value: object) -> tuple[str, ...] | None:
         or ("/" in raw and "\\" in raw)
         or normalized.endswith("/")
         or any(":" in part for part in parts)
+        or any(any(ord(character) < 32 for character in part) for part in parts)
+        or any(any(character in '<>"|?*' for character in part) for part in parts)
+        or any(part.endswith((" ", ".")) for part in parts)
+        or any(part.split(".", 1)[0].casefold() in reserved_names for part in parts)
     ):
         return None
     return tuple(parts)
@@ -1719,66 +1735,95 @@ def _validate_legacy_completion_evidence(
     return issues
 
 
-def _validate_legacy_snapshot_evidence(
+def _validate_snapshot_evidence(
     root: Path,
     snapshot: object,
     target_before_hashes: dict[str, str],
+    *,
+    evidence_label: str,
 ) -> list[str]:
     issues: list[str] = []
     snapshot_parts = _safe_external_relative_parts(snapshot)
     if not snapshot_parts or snapshot_parts[0].casefold() != "snapshots":
-        return ["legacy receipt Snapshot is not a safe snapshots-relative path"]
+        return [f"{evidence_label} Snapshot is not a safe snapshots-relative path"]
     manifest_path = _confined_evidence_file(
         root,
         (*snapshot_parts, "snapshot_manifest.json"),
     )
     if manifest_path is None:
-        return ["legacy receipt snapshot manifest is missing or escapes through a reparse point"]
+        return [f"{evidence_label} snapshot manifest is missing or escapes through a reparse point"]
     try:
         manifest = _strict_json_load_path(manifest_path)
     except Exception as exc:  # noqa: BLE001 - corrupt provenance must fail closed
-        return [f"legacy receipt snapshot manifest is malformed: {manifest_path}: {exc}"]
+        return [f"{evidence_label} snapshot manifest is malformed: {manifest_path}: {exc}"]
     if not isinstance(manifest, dict):
-        return [f"legacy receipt snapshot manifest is not an object: {manifest_path}"]
+        return [f"{evidence_label} snapshot manifest is not an object: {manifest_path}"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
-        issues.append("legacy receipt snapshot manifest schema is not external-state-v1")
+        issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
     copied_files = manifest.get("Copied Files")
     if not isinstance(copied_files, list) or not copied_files:
-        issues.append("legacy receipt snapshot manifest has no copied-file evidence")
+        issues.append(f"{evidence_label} snapshot manifest has no copied-file evidence")
         return issues
     copied_hashes: dict[str, str] = {}
     for row in copied_files:
         if not isinstance(row, dict):
-            issues.append("legacy receipt snapshot manifest contains a malformed copied-file row")
+            issues.append(f"{evidence_label} snapshot manifest contains a malformed copied-file row")
             continue
-        relative = str(row.get("path", "")).replace("\\", "/")
+        relative_parts = _safe_external_relative_parts(row.get("path"))
+        relative = "/".join(relative_parts or ())
         relative_key = relative.casefold()
-        digest = str(row.get("sha256", ""))
-        if _safe_external_relative_parts(relative) is None or not SHA256_PATTERN.fullmatch(digest):
-            issues.append("legacy receipt snapshot manifest contains invalid path/hash evidence")
+        digest_value = row.get("sha256")
+        digest = digest_value if isinstance(digest_value, str) else ""
+        if not relative_parts or not SHA256_PATTERN.fullmatch(digest):
+            issues.append(f"{evidence_label} snapshot manifest contains invalid path/hash evidence")
             continue
-        snapshot_relative_parts = _safe_external_relative_parts(relative)
         snapshot_copy = _confined_evidence_file(
             manifest_path.parent,
-            snapshot_relative_parts or (),
+            relative_parts,
         )
         if snapshot_copy is None or sha256_file(snapshot_copy).casefold() != digest.casefold():
             issues.append(
-                "legacy receipt snapshot copy is missing or disagrees with its manifest for "
+                f"{evidence_label} snapshot copy is missing or disagrees with its manifest for "
                 f"{relative}"
             )
             continue
         if relative_key in copied_hashes:
-            issues.append(f"legacy receipt snapshot manifest duplicates target {relative}")
+            issues.append(f"{evidence_label} snapshot manifest duplicates target {relative}")
             continue
         copied_hashes[relative_key] = digest.casefold()
     for relative, before_hash in target_before_hashes.items():
         if copied_hashes.get(relative.casefold()) != before_hash.casefold():
             issues.append(
-                "legacy receipt Before SHA256 does not match its snapshot manifest for "
+                f"{evidence_label} Before SHA256 does not match its snapshot manifest for "
                 f"{relative}"
             )
     return issues
+
+
+def _validate_legacy_snapshot_evidence(
+    root: Path,
+    snapshot: object,
+    target_before_hashes: dict[str, str],
+) -> list[str]:
+    return _validate_snapshot_evidence(
+        root,
+        snapshot,
+        target_before_hashes,
+        evidence_label="legacy receipt",
+    )
+
+
+def _validate_modern_snapshot_evidence(
+    root: Path,
+    snapshot: object,
+    target_before_hashes: dict[str, str],
+) -> list[str]:
+    return _validate_snapshot_evidence(
+        root,
+        snapshot,
+        target_before_hashes,
+        evidence_label="modern Committed journal",
+    )
 
 
 def _validate_legacy_lock_evidence(
@@ -1925,8 +1970,12 @@ def _validate_legacy_completed_target_set_receipt(
     return issues
 
 
-def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]:
+def _validate_modern_target_set_journal(
+    payload: dict[str, object],
+    target_before_hashes: dict[str, str] | None = None,
+) -> list[str]:
     issues: list[str] = []
+    before_hashes = target_before_hashes if target_before_hashes is not None else {}
     if payload.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append("modern target-set transaction journal has an invalid Schema")
     if payload.get("Transition") != TARGET_SET_TRANSITION:
@@ -1952,10 +2001,12 @@ def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]
             continue
         relative_parts = _safe_external_relative_parts(row.get("Target"))
         relative = "/".join(relative_parts or ())
-        if not relative_parts or relative.casefold() in seen:
+        relative_key = relative.casefold()
+        target_is_unique = bool(relative_parts) and relative_key not in seen
+        if not target_is_unique:
             issues.append(f"modern Committed journal target row {index} has unsafe/duplicate target")
         else:
-            seen.add(relative.casefold())
+            seen.add(relative_key)
         if any(
             isinstance(key, str) and key.casefold() == "before text"
             for key in row
@@ -1970,6 +2021,8 @@ def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]
                 )
             else:
                 normalized_hashes[hash_field] = value.casefold()
+        if target_is_unique and "Before SHA256" in normalized_hashes:
+            before_hashes[relative_key] = normalized_hashes["Before SHA256"]
         if (
             len(normalized_hashes) == 2
             and normalized_hashes["Before SHA256"] == normalized_hashes["After SHA256"]
@@ -1982,7 +2035,9 @@ def _validate_modern_target_set_journal(payload: dict[str, object]) -> list[str]
 
 def _validate_modern_lock_evidence(
     root: Path,
+    audit_path: Path,
     payload: dict[str, object],
+    targets: set[str],
 ) -> list[str]:
     lock_id = payload.get("Lock ID")
     workload_id = payload.get("Workload ID")
@@ -2015,16 +2070,78 @@ def _validate_modern_lock_evidence(
                 f"modern Committed journal lock evidence has {field}={lock.get(field)!r}, "
                 f"expected {expected!r}"
             )
-    if not str(lock.get("Released At", "")).strip():
+    released_at = lock.get("Released At")
+    if not isinstance(released_at, str) or not released_at.strip():
         issues.append("modern Committed journal lock evidence has no Released At timestamp")
+    write_set_value = lock.get("Intended Write Set")
+    write_set: set[str] = set()
+    if not isinstance(write_set_value, str):
+        issues.append("modern Committed journal lock evidence has malformed Intended Write Set")
+    else:
+        for item in write_set_value.split(";"):
+            item = item.strip()
+            if not item:
+                continue
+            parts = _safe_external_relative_parts(item)
+            if not parts:
+                issues.append(
+                    "modern Committed journal lock evidence has unsafe Intended Write Set entry"
+                )
+                continue
+            normalized = "/".join(parts).casefold()
+            if normalized in write_set:
+                issues.append(
+                    "modern Committed journal lock evidence duplicates Intended Write Set entry "
+                    f"{item}"
+                )
+                continue
+            write_set.add(normalized)
+    try:
+        audit_relative = audit_path.relative_to(root).as_posix().casefold()
+    except ValueError:
+        audit_relative = ""
+    snapshot_parts = _safe_external_relative_parts(payload.get("Snapshot"))
+    snapshot_relative = "/".join(snapshot_parts or ()).casefold()
+    required_write_set = {
+        audit_relative,
+        snapshot_relative,
+        *(target.casefold() for target in targets),
+    }
+    missing = sorted(item for item in required_write_set if item and item not in write_set)
+    if missing:
+        issues.append(
+            "modern Committed journal lock write set omits journal evidence: "
+            + ", ".join(missing)
+        )
     return issues
 
 
 def _raw_text_has_target_set_transition(text: str) -> bool:
     decoder = json.JSONDecoder()
+    first_token = next((character for character in text if not character.isspace()), "")
+    if first_token != "{":
+        return False
     index = 0
+    stack: list[str] = []
     while index < len(text):
-        if text[index] != '"':
+        character = text[index]
+        if character == "{":
+            stack.append("{")
+            index += 1
+            continue
+        if character == "[":
+            stack.append("[")
+            index += 1
+            continue
+        if character == "}" and stack and stack[-1] == "{":
+            stack.pop()
+            index += 1
+            continue
+        if character == "]" and stack and stack[-1] == "[":
+            stack.pop()
+            index += 1
+            continue
+        if character != '"':
             index += 1
             continue
         try:
@@ -2033,7 +2150,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
             index += 1
             continue
         index = key_end
-        if not isinstance(key, str):
+        if not isinstance(key, str) or stack != ["{"]:
             continue
         cursor = key_end
         while cursor < len(text) and text[cursor].isspace():
@@ -2069,9 +2186,21 @@ def validate_incomplete_target_set_journals(
 ) -> list[str]:
     failures: list[str] = []
     audit_root = root / "audit_log"
-    if not audit_root.is_dir():
+    if not audit_root.exists():
         return failures
-    for path in sorted(audit_root.glob("*.json")):
+    if not audit_root.is_dir() or _has_reparse_point(audit_root):
+        return [
+            "Target-set transaction audit root is not a confined regular directory: "
+            f"{audit_root}"
+        ]
+    for discovered_path in sorted(audit_root.glob("*.json")):
+        path = _confined_evidence_file(root, ("audit_log", discovered_path.name))
+        if path is None:
+            failures.append(
+                "Target-set transaction journal is not a confined regular file: "
+                f"{discovered_path}"
+            )
+            continue
         try:
             raw_bytes = path.read_bytes()
         except OSError as exc:
@@ -2095,10 +2224,29 @@ def validate_incomplete_target_set_journals(
         if not _is_target_set_transaction(payload):
             continue
         if "Transaction State" in payload:
-            journal_issues = _validate_modern_target_set_journal(payload)
+            target_before_hashes: dict[str, str] = {}
+            journal_issues = _validate_modern_target_set_journal(
+                payload,
+                target_before_hashes,
+            )
             state = payload.get("Transaction State")
             if isinstance(state, str) and state.strip() == "Committed":
-                journal_issues.extend(_validate_modern_lock_evidence(root, payload))
+                if target_before_hashes:
+                    journal_issues.extend(
+                        _validate_modern_snapshot_evidence(
+                            root,
+                            payload.get("Snapshot"),
+                            target_before_hashes,
+                        )
+                    )
+                journal_issues.extend(
+                    _validate_modern_lock_evidence(
+                        root,
+                        path,
+                        payload,
+                        set(target_before_hashes),
+                    )
+                )
         else:
             journal_issues = _validate_legacy_completed_target_set_receipt(
                 root,
