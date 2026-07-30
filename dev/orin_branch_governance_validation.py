@@ -7095,6 +7095,16 @@ def _section(text: str, heading: str) -> str:
     return match.group(1).strip() if match else ""
 
 
+def _section_heading_count(text: str, heading: str) -> int:
+    return len(
+        re.findall(
+            rf"^##[ \t]+{re.escape(heading)}[ \t]*$",
+            text,
+            flags=re.M,
+        )
+    )
+
+
 def _subsection(text: str, heading_prefix: str) -> str:
     match = re.search(rf"(?ms)^### {re.escape(heading_prefix)}.*?\n(.*?)(?=^### |\Z)", text)
     return match.group(0).strip() if match else ""
@@ -8576,6 +8586,10 @@ def _external_state_has_current_confinement(
         state_text,
         flags=re.M,
     )
+    confinement_heading_count = _section_heading_count(
+        state_text,
+        "Assigned Worktree Confinement",
+    )
     confinement = _section(state_text, "Assigned Worktree Confinement")
     confinement_marker_counts = {
         marker: len(
@@ -8613,6 +8627,7 @@ def _external_state_has_current_confinement(
     )
     return bool(
         len(record_class_markers) == 1
+        and confinement_heading_count == 1
         and all(count == 1 for count in identity_marker_counts.values())
         and header_identity_is_consistent
         and _extract_exact_marker_value(state_text, "Record Class")
@@ -21315,6 +21330,8 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         "Operational Truth Source",
         "Non-Includes",
     )
+    if _section_heading_count(record_text, "Assigned Worktree Confinement") != 1:
+        return False
     if any(
         len(
             re.findall(
@@ -22150,7 +22167,9 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
         r"without (?:a )?(?:thread|workload|task|worktree) assignment|"
         r"does not assign|assignment has no (?:thread|workload|task|worktree)|"
         r"assignment (?:is )?(?:ended|closed|terminated|invalid|invalidated|void)|"
-        r"(?:invalid|invalidated|void) assignment)\b",
+        r"(?:invalid|invalidated|void) assignment|nominal(?:ly)?|"
+        r"(?:only )?on paper|paper[- ]only|ceremonial|simulated|placeholder|"
+        r"non[- ]operational|not operational|assignment exists only in (?:name|prose))\b",
         normalized,
     )
     return bool(re.search(r"\bassigned\b", normalized) and denied is None)
@@ -22158,6 +22177,12 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
 
 def _durable_governance_routing_barrier_is_active(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
+    closed_denials_scrubbed = re.sub(
+        r"\b(?:no|not|never)\s+(?:governance\s+|routing\s+)?bypass(?:es|ing)?"
+        r"(?:\s+is)?\s+(?:permitted|allowed|authorized|approved|available|possible)\b",
+        "",
+        normalized,
+    )
     affirmative = re.match(r"^(?:active|enforced|blocked)\b", normalized)
     boundary = re.search(
         r"\b(?:outside|off-worktree|out-of-scope|governance|carrier|sibling|worktree)\b",
@@ -22165,8 +22190,13 @@ def _durable_governance_routing_barrier_is_active(value: str) -> bool:
     )
     denied = re.search(
         r"\b(?:disabled|inactive|optional|not active|not enforced|not blocked|"
-        r"bypassed|waived|may bypass|can bypass|may proceed|can proceed)\b",
-        normalized,
+        r"bypassed|waived|may bypass|can bypass|could bypass|may be bypassed|"
+        r"can be bypassed|could be bypassed|bypass (?:is )?"
+        r"(?:permitted|allowed|authorized|approved|available|possible)|"
+        r"permission to bypass|bypass permission|bypass exception|"
+        r"(?:exception|waiver) (?:is )?(?:permitted|allowed|available|retained)|"
+        r"may proceed|can proceed|could proceed|unless|except(?:ion)?)\b",
+        closed_denials_scrubbed,
     )
     return bool(
         affirmative
@@ -22279,6 +22309,13 @@ def _validate_durable_carrier_admission_receipt_confinement(
     pr_info: dict[str, object] | None = None,
     pr_lookup_error: str = "REST pull lookup found no PR for branch 'fixture'",
 ) -> None:
+    require(
+        _section_heading_count(record_text, "Assigned Worktree Confinement") == 1,
+        (
+            f"{record_path}: Durable Carrier Admission Receipt requires exactly one "
+            "## Assigned Worktree Confinement section"
+        ),
+    )
     require(
         _is_durable_carrier_admission_receipt(record_text),
         (
@@ -23406,6 +23443,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no active thread assignment",
         ),
         (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Single fixture owner assigned only on paper.`",
+            "has no active thread assignment",
+        ),
+        (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `No owner exists.`",
             "has no active worktree ownership ledger",
@@ -23586,6 +23628,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no active governance routing barrier",
         ),
         (
+            "Governance Routing Barrier: `Active outside this bounded fixture carrier.`",
+            "Governance Routing Barrier: `Active governance barrier; bypass is permitted.`",
+            "has no active governance routing barrier",
+        ),
+        (
             "New Worktree Decision Gate: `USER approval required.`",
             "New Worktree Decision Gate: `No USER approval required.`",
             "does not preserve the USER-owned new-worktree gate",
@@ -23712,6 +23759,30 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             any(expected_failure in message for message in semantic_failures),
             f"{durable_fixture}: semantic confinement mutation must fail closed: {invalid_claim}",
         )
+    duplicate_confinement_failures: list[str] = []
+    duplicate_confinement_text = (
+        durable_fixture_text
+        + "\n\n## Assigned Worktree Confinement\n\n"
+        + "Active Thread Owner: `None`\n"
+        + "Thread Assignment Status: `Unassigned`\n"
+    )
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: duplicate_confinement_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        duplicate_confinement_text,
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+    )
+    require(
+        any(
+            "requires exactly one ## Assigned Worktree Confinement section" in message
+            for message in duplicate_confinement_failures
+        ),
+        f"{durable_fixture}: duplicate confinement sections must fail closed",
+    )
     for required_marker in (
         "No Cross-Worktree Mutation",
         "GitHub Desktop-bound worktree",

@@ -1180,7 +1180,11 @@ Pending, prospective, candidate, future, or awaiting owner/assignment/ownership
 claims are not active authority. Direct denials such as `is not the owner`,
 `does not own this workload`, `assigned to no thread`, or `no workload is
 assigned` are not active authority merely because owner or assignment nouns are
-present. Likewise, `no collision check` or wording that
+present. Nominal, ceremonial, simulated, placeholder, non-operational, or
+paper-only assignments are likewise not active assignments. A durable carrier
+or external live authority record must contain exactly one
+`## Assigned Worktree Confinement` section; a valid first section cannot hide
+contradictory authority in a duplicate section. Likewise, `no collision check` or wording that
 the check is pending, incomplete, unperformed, or unverified is not a
 collision-clear result.
 No-cross-worktree evidence must name the substantive prohibited/blocked safe
@@ -1197,6 +1201,9 @@ because the validator's own checkout happens to be clean.
 Off-worktree routing must likewise name a substantive safe route or read-only
 boundary and remain contradiction-free; a `Blocked` prefix cannot hide `in name
 only`, `can occur`, or another permission to mutate outside the carrier.
+The Governance Routing Barrier is also a closed affirmative contract. An
+`Active` prefix followed by permission, availability, exception, waiver, or
+retained possibility to bypass the barrier fails closed.
 The new-worktree decision gate must reject any clause that lets Codex, automation,
 or another agent create, open, provision, spawn, initialize, or establish a
 worktree before the required USER approval, including clauses that schedule the
@@ -1249,6 +1256,9 @@ Generic `oversized integer` wording likewise requires journal, audit, JSON-decod
 transaction, target-set, or external-state context.
 Malformed-value recovery must track nested containers until an outer-object member
 delimiter is reached; an inner comma or brace cannot hide a later root Transition.
+A decoded member value followed directly by another plausible root member without
+the required comma must resume scanning at that member; the missing comma makes the
+audit malformed, but it cannot make a target-set `Transition` invisible.
 A mismatched closer must reconcile only the container depth it can account for.
 An unmatched closer may terminate an empty malformed container but must not
 discard accountable malformed-value depth, and recovery may resume only at a
@@ -1272,6 +1282,9 @@ Classifier-review priority is additive: a comment about the classifier must reta
 every genuine exact external-state or durable-carrier family it also identifies.
 Generic `modern target` wording likewise requires journal, transaction, audit,
 target-set, external-state, or snapshot-manifest context.
+Recovery-payload field matching must split camelCase and PascalCase boundaries
+before semantic comparison, so `BeforeText`, `RecoveryPayload`, and equivalent
+aliases cannot preserve recoverable target bytes in a committed journal.
 
 Committed transaction chronology is part of evidence integrity. A snapshot
 manifest may not postdate the journal transaction it proves, and the released

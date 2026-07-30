@@ -925,6 +925,18 @@ def _write_nested_malformed_value_transition_fixture(root: Path) -> Path:
     return path
 
 
+def _write_missing_comma_before_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "missing-comma-before-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"x":1 "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '","Transaction State":"Prepared"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_mismatched_nested_comma_transition_fixture(root: Path) -> Path:
     path = root / "audit_log" / "mismatched-nested-comma-transition.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -2442,10 +2454,16 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             for key in (
                 "Recovery",
                 "Recovery Payload",
+                "BeforeText",
+                "RecoveryPayload",
                 "Rollback Data",
+                "RollbackData",
                 "Pre-Write Content",
+                "PreWriteContent",
                 "Original Target Text",
+                "OriginalTargetText",
                 "Backup Content",
+                "BackupContent",
                 "Backup Data",
                 "Undo Payload",
                 "Previous Target Text",
@@ -2702,6 +2720,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "matching malformed JSON with nested malformed value",
             _write_nested_malformed_value_transition_fixture,
+        ),
+        (
+            "matching malformed JSON with missing comma before Transition",
+            _write_missing_comma_before_transition_fixture,
         ),
         (
             "matching malformed JSON after mismatched nested comma",
@@ -3355,6 +3377,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(
+        "camelCase recovery payload alias ignored",
+        negative_setups[
+            "modern journal with nested recovery payload alias BeforeText"
+        ],
+        "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
         "backup recovery payload alias ignored",
         negative_setups[
             "modern journal with nested recovery payload alias Backup Content"
@@ -3527,6 +3557,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "mismatched delimiter hides top-level Transition",
         negative_setups["matching malformed JSON after mismatched delimiter"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "missing comma hides a plausible top-level Transition member",
+        negative_setups[
+            "matching malformed JSON with missing comma before Transition"
+        ],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

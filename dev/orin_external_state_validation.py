@@ -2509,7 +2509,16 @@ def _contains_recovery_payload_field(value: object) -> bool:
         if isinstance(current, dict):
             for key, nested in current.items():
                 if isinstance(key, str):
-                    normalized_key = re.sub(r"[-_/]+", " ", key.casefold()).strip()
+                    key_with_word_boundaries = re.sub(
+                        r"(?<=[a-z0-9])(?=[A-Z])",
+                        " ",
+                        key,
+                    )
+                    normalized_key = re.sub(
+                        r"[-_/]+",
+                        " ",
+                        key_with_word_boundaries.casefold(),
+                    ).strip()
                     if (
                         normalized_key == "before text"
                         or any(
@@ -3034,7 +3043,12 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         while delimiter < len(text) and text[delimiter].isspace():
             delimiter += 1
         if delimiter < len(text) and text[delimiter] not in ",}":
-            index = _tolerant_json_member_continuation(text, delimiter)
+            index = (
+                delimiter
+                if stack == ["{"]
+                and _tolerant_json_member_starts_at(text, delimiter)
+                else _tolerant_json_member_continuation(text, delimiter)
+            )
             awaiting_root_member = True
     return False
 

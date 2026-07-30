@@ -138,21 +138,21 @@
       },
       {
         "pr": 310,
-        "connector_comments": 181,
+        "connector_comments": 186,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 89,
-          "external-state-transaction-evidence-parser": 94,
+          "durable-carrier-confinement-parser": 92,
+          "external-state-transaction-evidence-parser": 96,
           "pr-readiness-review-risk-parser": 3,
           "pr2-comment-family-classifier": 14,
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-code-to-visual-reference-parser": 2,
           "rar-phase-advancement-parser": 1,
-          "rar-table-row-parser": 3,
+          "rar-table-row-parser": 4,
           "repo-live-state-boundary-parser": 3
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, classifier-precision, PR-readiness review-risk, and repo-live-state-boundary families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact modern and legacy lock write-set equality, string-typed and byte-canonical lock/workload identities and lock-state fields, stable post-validation lock-receipt digests, exact journal-to-manifest-to-physical-snapshot file-set equality, fail-closed snapshot traversal with stable directory identity plus post-inventory copied-file and manifest revalidation, bounded single-buffer reads and bounded streaming hashes, isolated absolute same-root snapshot provenance, canonical modern and legacy transaction and snapshot timestamps that preserve pre-write chronology, host-semantic namespace and path comparison, canonical transaction states, stable pre/post audit inventories plus per-file digest revalidation, audit attribution, and modern and legacy release timestamps that do not predate their transactions, strict case-unique snapshot-root evidence, and exact evidence-path spelling, binds snapshot and journal reads to confinement-checked stable file handles, lexes malformed strings and nested malformed values, scans structural object candidates after leading or quoted junk, preserves an immutable malformed-audit root frame, reconciles mismatched closer depth without discarding accountable content, resumes only at plausible root-object members, and handles unterminated containers, stray root-member containers, and illegal post-value containers without allowing malformed structure to hide root transitions, converts decoder integer and memory limits into validation results, scans deeply nested recovery payloads iteratively, rejects recovery/rollback/pre-write/original-target/backup/undo/restore/revert/saved/archived/old/previous/prior payload aliases, surrogate evidence paths, and whitespace transition aliases, treats a missing initialized audit namespace as corrupt evidence, gates the immutable compatibility registry, requires exactly one affirmative non-negated live Record Role and exactly one unconditional protective Historical Receipt Boundary, proves authentic non-revoked USER-approved bounded carrier admission with affirmative bounded historical scope and new-worktree decisions plus closed affirmative thread Assignment Status, mandatory whole-value historical/no-active fold-down, an active governance routing barrier, a non-authoritative Repo Live-State Boundary, owner-preserving dirty-worktree recovery for durable and live external authority, semantic current owner/assignment/ledger/closed-concrete-write-scope evidence, affirmative dirty-worktree ownership, a closed affirmative Git/helper truth-source contract, affirmative historical admission evidence, whole-value historical confinement, no-active fold-down, future-USER-decision gating, and live-state non-ownership, closed historical collision proof, closed historical escape-waiver evidence, closed minimal or expanded Non-Includes inventories, one live external Record Class and one Branch/Worktree identity, singular durable/branch authority pointers, a complete same-root external confinement contract whose values satisfy the durable semantic predicates, owning-carrier routing, same-line nonblank active and historical singleton markers, and canonical Status/Current Phase/Phase review-start markers, rejects stale, pending, directly negated, forged, fabricated, foreign, unowned, unknown, invalid, claims-no-files, unverified, nobody/no-workload/unidentified-owner, destructive-recovery, or contradictory owner/assignment/ownership claims, Git-status read failures, arbitrary additive files, duplicate status markers, failed or unperformed collision checks, failed or escaped historical confinement, retained-active historical fold-down, optional or negated future gates, disabled/optional governance barriers, nominally blocked off-worktree routes, pre-approval or post-creation-approval worktree creation, negated/unverified Git truth sources, denied or revoked historical admission, contradictory historical live-state boundaries, non-clear historical collision proof, active historical escape waivers, permissive retained capabilities, conditional exceptions, receipt-derived live authority, and contradictory collision/routing/new-worktree/no-cross-worktree/no-active-waiver outcomes, requires substantive contradiction-free routing and no-cross-worktree evidence instead of a safe-looking prefix, expires durable bootstrap receipts before PR review only after successful all-state PR absence proof and canonical review-phase inspection, requires journal context for Before Text, JSON decoder, malformed-JSON, oversized-integer, and generic modern-target wording, target-path/audit/external-state context for surrogate-code-point wording, carrier context for historical receipt classification, and path-suffix context for traversal wording, preserves classifier-review plus every genuine exact family and every strongly matched family in mixed comments while treating generic malformed, oversized, modern-target, traversal, or surrogate wording as non-exact, rejects whole-claim historical contradictions and historical receipts used as current authority, requires bounded concrete historical write-set entries, whole-value non-reserved slot reuse, external Git/helper operational truth without receipt-owned exceptions, complete semantic validation for external durable pointers, a second post-hash snapshot inventory plus final-boundary snapshot contract revalidation after later journal checks, a flat audit-log transaction namespace with post-hash inventory re-enumeration, initial and final committed live-target After SHA256 binding, closed affirmative live Record Role semantics, closed Non-Includes and bounded write sets without permissive authority suffixes, path-context-gated suffix classification, context-gated generic transaction keywords, requires final-boundary released-lock revalidation, noun-form post-creation USER-gate rejection, whole-value historical-waiver expiry without renewal, present-tense active-owner evidence, and records the exact live 181-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, classifier-precision, PR-readiness review-risk, and repo-live-state-boundary families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact modern and legacy lock write-set equality, string-typed and byte-canonical lock/workload identities and lock-state fields, stable post-validation lock-receipt digests, exact journal-to-manifest-to-physical-snapshot file-set equality, fail-closed snapshot traversal with stable directory identity plus post-inventory copied-file and manifest revalidation, bounded single-buffer reads and bounded streaming hashes, isolated absolute same-root snapshot provenance, canonical modern and legacy transaction and snapshot timestamps that preserve pre-write chronology, host-semantic namespace and path comparison, canonical transaction states, stable pre/post audit inventories plus per-file digest revalidation, audit attribution, and modern and legacy release timestamps that do not predate their transactions, strict case-unique snapshot-root evidence, and exact evidence-path spelling, binds snapshot and journal reads to confinement-checked stable file handles, lexes malformed strings and nested malformed values, scans structural object candidates after leading or quoted junk, preserves an immutable malformed-audit root frame, reconciles mismatched closer depth without discarding accountable content, resumes only at plausible root-object members, and handles unterminated containers, stray root-member containers, illegal post-value containers, and missing member commas without allowing malformed structure to hide root transitions, converts decoder integer and memory limits into validation results, scans deeply nested recovery payloads iteratively, normalizes camelCase and PascalCase recovery field boundaries, rejects recovery/rollback/pre-write/original-target/backup/undo/restore/revert/saved/archived/old/previous/prior payload aliases, surrogate evidence paths, and whitespace transition aliases, treats a missing initialized audit namespace as corrupt evidence, gates the immutable compatibility registry, requires exactly one affirmative non-negated live Record Role and exactly one unconditional protective Historical Receipt Boundary, proves authentic non-revoked USER-approved bounded carrier admission with affirmative bounded historical scope and new-worktree decisions plus closed affirmative thread Assignment Status, mandatory whole-value historical/no-active fold-down, an active governance routing barrier, a non-authoritative Repo Live-State Boundary, owner-preserving dirty-worktree recovery for durable and live external authority, semantic current owner/assignment/ledger/closed-concrete-write-scope evidence, affirmative dirty-worktree ownership, a closed affirmative Git/helper truth-source contract, affirmative historical admission evidence, whole-value historical confinement, no-active fold-down, future-USER-decision gating, and live-state non-ownership, closed historical collision proof, closed historical escape-waiver evidence, closed minimal or expanded Non-Includes inventories, one live external Record Class and one Branch/Worktree identity, singular durable/branch authority pointers, exactly one complete same-root external confinement section whose values satisfy the durable semantic predicates, owning-carrier routing, same-line nonblank active and historical singleton markers, and canonical Status/Current Phase/Phase review-start markers, rejects stale, pending, directly negated, forged, fabricated, foreign, unowned, unknown, invalid, claims-no-files, unverified, nobody/no-workload/unidentified-owner, destructive-recovery, nominal, paper-only, or contradictory owner/assignment/ownership claims, Git-status read failures, arbitrary additive files, duplicate status markers or confinement sections, failed or unperformed collision checks, failed or escaped historical confinement, retained-active historical fold-down, optional, disabled, or bypass-permitted governance barriers, nominally blocked off-worktree routes, pre-approval or post-creation-approval worktree creation, negated/unverified Git truth sources, denied or revoked historical admission, contradictory historical live-state boundaries, non-clear historical collision proof, active historical escape waivers, permissive retained capabilities, conditional exceptions, receipt-derived live authority, and contradictory collision/routing/new-worktree/no-cross-worktree/no-active-waiver outcomes, requires substantive contradiction-free routing and no-cross-worktree evidence instead of a safe-looking prefix, expires durable bootstrap receipts before PR review only after successful all-state PR absence proof and canonical review-phase inspection, requires journal context for Before Text, JSON decoder, malformed-JSON, oversized-integer, and generic modern-target wording, target-path/audit/external-state context for surrogate-code-point wording, carrier context for historical receipt classification, and path-suffix context for traversal wording, preserves classifier-review plus every genuine exact family and every strongly matched family in mixed comments while treating generic malformed, oversized, modern-target, traversal, or surrogate wording as non-exact, rejects whole-claim historical contradictions and historical receipts used as current authority, requires bounded concrete historical write-set entries, whole-value non-reserved slot reuse, external Git/helper operational truth without receipt-owned exceptions, complete semantic validation for external durable pointers, a second post-hash snapshot inventory plus final-boundary snapshot contract revalidation after later journal checks, a flat audit-log transaction namespace with post-hash inventory re-enumeration, initial and final committed live-target After SHA256 binding, closed affirmative live Record Role semantics, closed Non-Includes and bounded write sets without permissive authority suffixes, path-context-gated suffix classification, context-gated generic transaction keywords, requires final-boundary released-lock revalidation, noun-form post-creation USER-gate rejection, whole-value historical-waiver expiry without renewal, present-tense active-owner evidence, deterministic dirty-confinement fixtures, and records the exact live 186-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -275,7 +275,12 @@
           "dev/orin_branch_governance_validation.py rejects verb-form and noun-form new-worktree gates that postpone USER approval until after creation or provisioning.",
           "dev/orin_branch_governance_validation.py treats a historical escape-waiver receipt as a closed whole-value contract and rejects renewal or reactivation after expiry.",
           "dev/orin_branch_governance_validation.py requires present-tense current ownership evidence and rejects past-tense claims such as Codex was the owner.",
-          "dev/orin_branch_governance_validation.py injects deterministic tracked-change status for external dirty-collision and recovery mutations so clean checkouts cannot skip those negative fixtures."
+          "dev/orin_branch_governance_validation.py injects deterministic tracked-change status for external dirty-collision and recovery mutations so clean checkouts cannot skip those negative fixtures.",
+          "dev/orin_branch_governance_validation.py rejects nominal, paper-only, ceremonial, simulated, placeholder, and non-operational thread assignments.",
+          "dev/orin_branch_governance_validation.py requires exactly one Assigned Worktree Confinement section for durable and external live authority.",
+          "dev/orin_branch_governance_validation.py treats Governance Routing Barrier as a closed affirmative contract and rejects permission or exceptions to bypass it.",
+          "dev/orin_external_state_validation.py splits camelCase and PascalCase recovery-payload field boundaries before semantic alias detection.",
+          "dev/orin_external_state_validation.py resumes malformed-audit scanning when a missing comma is followed directly by a plausible root object member."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1118,6 +1123,30 @@
       {
         "family_id": "repo-live-state-boundary-parser",
         "comment": "Require Active Thread Owner to affirm current ownership and reject the past-tense claim Codex was the owner."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject a nominal Thread Assignment Status that says a fixture owner is assigned only on paper."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Detect camelCase recovery payload fields such as BeforeText in a modern Committed target-set journal."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject an otherwise valid durable receipt with duplicate Assigned Worktree Confinement sections that preserve contradictory active authority."
+      },
+      {
+        "family_id": "rar-table-row-parser",
+        "comment": "Detect camelCase recovery payload fields in a modern Committed journal when separator-only normalization leaves BeforeText unrecognized."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject an Active Governance Routing Barrier whose same value says bypass is permitted."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Resume malformed audit scanning at a plausible root member after a missing comma so a target-set Transition cannot be hidden."
       }
     ],
     "unknown_comment_guardrails": [
@@ -1844,7 +1873,9 @@
         "modern Committed live targets mutated after the first After SHA256 verification but before final journal validation",
         "Prepared target-set journals created after second audit inventory but during final audit-file hashing",
         "modern Committed snapshots mutated during later lock, live-target, or audit validation after their initial complete inventory and hash pass",
-        "modern released-lock replacement or reacquisition during later live-target, audit, or snapshot validation"
+        "modern released-lock replacement or reacquisition during later live-target, audit, or snapshot validation",
+        "camelCase and PascalCase recovery-payload aliases including BeforeText, RecoveryPayload, RollbackData, PreWriteContent, OriginalTargetText, and BackupContent",
+        "a decoded malformed-audit member value followed directly by a plausible root Transition member without the required comma"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -1885,7 +1916,9 @@
         "live Record Role authority rejects nominal, paper-only, forged, invalid, unverified, simulated, placeholder, and non-operational qualifiers",
         "every modern Committed snapshot contract is retained and revalidated after all later journal evidence checks",
         "legacy snapshot and released-lock review wording maps to the exact external transaction family and chronology checks cannot be bypassed by immutable receipt admission",
-        "every modern Committed released-lock contract is retained and revalidated after all later journal evidence checks"
+        "every modern Committed released-lock contract is retained and revalidated after all later journal evidence checks",
+        "recovery-payload matching splits camelCase and PascalCase word boundaries before semantic alias comparison",
+        "missing-comma recovery resumes at an immediately plausible root object member instead of skipping that member"
       ]
     },
     {
@@ -1924,7 +1957,10 @@
         "closed Non-Includes inventories followed by full, broad, global, unbounded, unrestricted, repository-wide, retained, or ongoing authority or access",
         "bounded, exact, named, or only intended write sets followed by broad, global, repository-wide, arbitrary, or open-ended authority, access, permission, scope, writes, or mutation",
         "noun-form after-creation or after-provisioning USER approval gates, expiry followed by waiver renewal or reactivation, and past-tense active-owner claims",
-        "external dirty-collision and destructive-recovery mutations under deterministic tracked-change status even when the validator checkout is clean"
+        "external dirty-collision and destructive-recovery mutations under deterministic tracked-change status even when the validator checkout is clean",
+        "nominal, paper-only, ceremonial, simulated, placeholder, and non-operational thread assignment claims",
+        "duplicate Assigned Worktree Confinement sections with contradictory authority in a later section",
+        "active-looking Governance Routing Barrier values that permit, authorize, or retain an exception to bypass"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
@@ -1939,7 +1975,9 @@
         "new-worktree gating rejects both verb-form creation-before-approval and noun-form approval-after-creation sequencing",
         "historical escape-waiver evidence is a whole-value expired-or-absent contract with no renewal suffix",
         "active-owner evidence contains an affirmative present-tense ownership relation",
-        "dirty-state fixture outcomes are independent of ambient repository cleanliness"
+        "dirty-state fixture outcomes are independent of ambient repository cleanliness",
+        "durable and external live authority contains exactly one Assigned Worktree Confinement section",
+        "thread assignments are operational rather than nominal or paper-only, and active Governance Routing Barriers retain no bypass permission or exception"
       ]
     },
     {
