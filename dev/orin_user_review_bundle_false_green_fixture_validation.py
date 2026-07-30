@@ -6312,11 +6312,138 @@ def _assert_fam003_option_g_workstream_phase_review_guards() -> None:
     expect_failure("workstream-substantive-manifest-role-stale", mutated, "role is not current")
 
 
+def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
+    option_a = bundle.FAM003_REVISED_BP1_OPTION_A
+    option_b = bundle.FAM003_REVISED_BP1_OPTION_B
+    fields = (
+        "Current Phase: `BP1 Branch Vision Revision USER review`",
+        "Next Legal Phase: `BP2 revision preparation only after explicit USER acceptance of revised BP1`",
+        "Why This Phase Is Next: `Returned review changed the accepted behavior and visual target.`",
+        "Approval Required: `Explicit USER acceptance of Option A or Option B.`",
+        f"Exact USER Approval Text: {option_a}",
+        "Allowed Scope: `Independent review of the revised BP1 target only.`",
+        "Explicit Exclusions: `BP2 acceptance; BP3; Workstream implementation; runtime mutation; H1; LV; UTS; issue; PR; merge; release; cleanup; sibling; Governance.`",
+        "Validation Required: `Exact-decision, packet, and external-currentness validation.`",
+        "Stop Conditions: `Missing USER decision, drift, wrong carrier, or foreign lock.`",
+        "USER Plan Review Gate: `USER may accept, revise, waive, or reject; review is pending.`",
+        "USER Inspection Files: `USER Review/USER_BRANCH_VISION_REVIEW.md; Review Aids/FORMAL_NEXT_LEGAL_PHASE_DIGEST.md.`",
+        "Review Required Because: `The revised BP1 product target remains unaccepted.`",
+        "Implementation Blocker: `Revised BP1 is not USER accepted; implementation remains unauthorized.`",
+        "Review Waiver Reason: `Not waived`",
+    )
+    digest = (
+        "# Formal Next Legal Phase Digest\n\n"
+        + "\n".join(fields)
+        + "\n\n## Alternative Exact USER Approval Text - Option B\n\n"
+        + f"Alternative Exact USER Approval Text: {option_b}\n"
+    )
+    support = (
+        "# Current supporting evidence\n\n"
+        "Current Gate: `BP1 Branch Vision Revision USER review pending`\n\n"
+        "## Next Legal Phase Digest\n\n"
+        + "\n".join(fields)
+        + "\n\n### Alternative Exact USER Approval Text - Option B\n\n"
+        + f"Alternative Exact USER Approval Text: {option_b}\n\n"
+        "Historical Receipt Boundary: `Older evidence follows.`\n"
+    )
+    primary = (
+        f"{bundle.FAM003_REVISED_BP1_PRIMARY_TITLE}\n\n"
+        "Current Gate: `BP1 Branch Vision Revision USER review pending`\n\n"
+        "## Exact USER Decision Text\n\n"
+        f"Recommended Option A:\n\n> {option_a}\n\n"
+        f"Option B:\n\n> {option_b}\n"
+    )
+    packet = {
+        "START_HERE.md": "# FAM-003 BP1 Branch Vision Review\n",
+        "USER Review/USER_BRANCH_VISION_REVIEW.md": primary,
+        bundle.FAM003_REVISED_BP1_DIGEST_FILE: digest,
+        (
+            "Source Truth Context/Active External Snapshot/"
+            + bundle.FAM003_REVISED_BP1_SUPPORT_FILE
+        ): support,
+    }
+
+    def expect_failure(case_id: str, candidate: dict[str, str], expected: str) -> None:
+        failures = bundle._fam003_revised_bp1_exact_decision_failures(candidate)
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    positive = bundle._fam003_revised_bp1_exact_decision_failures(packet)
+    if positive:
+        raise AssertionError(
+            "valid FAM-003 revised-BP1 exact-decision fixture failed:\n"
+            + "\n".join(positive)
+        )
+
+    mutated = dict(packet)
+    mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.replace(
+        f"Exact USER Approval Text: {option_a}",
+        "Exact USER Approval Text: `Use one exact option text in the primary review.`",
+        1,
+    )
+    expect_failure("revised-bp1-pointer-only", mutated, "pointer-only")
+
+    mutated = dict(packet)
+    mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.replace(
+        f"Exact USER Approval Text: {option_a}", "Exact USER Approval Text:", 1
+    )
+    expect_failure("revised-bp1-blank-exact", mutated, "nonblank")
+
+    mutated = dict(packet)
+    mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.replace(
+        f"Exact USER Approval Text: {option_a}",
+        "Exact USER Approval Text: I accept Option A.",
+        1,
+    )
+    expect_failure("revised-bp1-abbreviated-exact", mutated, "full recommended")
+
+    mutated = dict(packet)
+    exact_line = f"Exact USER Approval Text: {option_a}\n"
+    mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.replace(exact_line, "", 1)
+    mutated["START_HERE.md"] += "\n" + exact_line
+    expect_failure("revised-bp1-exact-outside-digest", mutated, "nonblank")
+
+    mutated = dict(packet)
+    mutated["USER Review/USER_BRANCH_VISION_REVIEW.md"] = primary.replace(
+        option_a, option_a.replace("closes", "keeps open"), 1
+    )
+    expect_failure("revised-bp1-primary-recommendation-drift", mutated, "recommended Option A")
+
+    mutated = dict(packet)
+    mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.split(
+        "## Alternative Exact USER Approval Text - Option B", 1
+    )[0]
+    expect_failure("revised-bp1-option-b-missing", mutated, "Option B")
+
+    mutated = dict(packet)
+    mutated["USER Review/USER_BRANCH_VISION_REVIEW.md"] = primary.replace(
+        ", cleanup, sibling, Governance, or runtime mutation.", ".", 1
+    )
+    expect_failure("revised-bp1-exclusions-omitted", mutated, "recommended Option A")
+
+    mutated = dict(packet)
+    mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.replace(
+        "This acceptance authorizes BP2 revision preparation only.",
+        "This acceptance authorizes Workstream implementation.",
+        1,
+    )
+    expect_failure("revised-bp1-implementation-grant", mutated, "full recommended")
+
+    return_text = "BP1 REVISION PACKET READY - USER REVIEW PENDING\n\n"
+    return_failures = bundle._fam003_revised_bp1_codex_return_digest_failures(return_text)
+    if not any("exactly one" in failure.casefold() for failure in return_failures):
+        raise AssertionError(
+            "revised-bp1 Codex return missing-digest fixture did not fail closed: "
+            f"{return_failures}"
+        )
+
+
 def main() -> int:
     _assert_fam003_option_g_bp2_planning_guards()
     _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown()
     _assert_external_historical_evidence_mapping_boundary()
     _assert_fam003_option_g_workstream_phase_review_guards()
+    _assert_fam003_revised_bp1_exact_decision_guards()
     _assert_fam003_option_g_bp3_orchestration_guards()
     _assert_fam003_option_g_workstream_approval_closure_guards()
     _assert_migrated_live_header_ignores_historical_receipt_metadata()
@@ -6850,6 +6977,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "1 Workstream phase-review positive + 23 Workstream phase-review negatives + "
+        "1 revised-BP1 exact-decision positive + 9 revised-BP1 exact-decision negatives + "
         "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
         "1 consolidated-decision positive + 42 consolidated-decision negatives + "
         "38 consolidated mandatory-contract negatives + "

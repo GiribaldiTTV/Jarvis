@@ -1155,6 +1155,7 @@ def _validate_export_zip(
         *_bp1_packet_phase_language_failures(generated_packet_files),
         *_fam006_bp3_support_context_failures(generated_packet_files),
         *_user_branch_vision_substantive_failures(generated_packet_files),
+        *_fam003_revised_bp1_exact_decision_failures(packet_files),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
         *_pr_stage1_packet_coherence_failures(generated_packet_files),
@@ -5409,6 +5410,7 @@ def validate_local_user_packet(
     failures.extend(_fam007_bp2_support_bp1_context_failures(generated_packet_files))
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
+    failures.extend(_fam003_revised_bp1_exact_decision_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_fam003_option_g_bp2_planning_failures(packet_files))
     packet_status = _packet_text_status("\n".join(generated_packet_files.values()))
@@ -8696,6 +8698,213 @@ def _fam003_option_g_validation_provenance_failures(
             "disagrees with the executed check"
         )
     return failures
+
+
+FAM003_REVISED_BP1_PRIMARY_TITLE = "# FAM-003 Revised BP1 Branch Vision Review"
+FAM003_REVISED_BP1_DIGEST_FILE = "Review Aids/FORMAL_NEXT_LEGAL_PHASE_DIGEST.md"
+FAM003_REVISED_BP1_SUPPORT_FILE = (
+    "decision2_option_g_bp3_final_supporting_evidence_20260727.md"
+)
+FAM003_REVISED_BP1_OPTION_A = (
+    "I accept the FAM-003 revised BP1 Branch Vision and Visual Acceptance Target for "
+    "`feature/fam-003-settings-resize-proof`, including enable-without-open, HUD "
+    "parent ownership of current controls, a visible empty future-gated HUD Dashboard "
+    "child for FAM-006, the readability/UIREF-002/status/splitter target, and "
+    "disable-while-open Option A: disabling HUD closes an already-open HUD Dashboard. "
+    "This acceptance authorizes BP2 revision preparation only. It does not authorize "
+    "BP2 acceptance, BP3, Workstream implementation, H1, LV, UTS, issue, PR, merge, "
+    "release, cleanup, sibling, Governance, or runtime mutation."
+)
+FAM003_REVISED_BP1_OPTION_B = (
+    "I accept the FAM-003 revised BP1 Branch Vision and Visual Acceptance Target for "
+    "`feature/fam-003-settings-resize-proof`, including enable-without-open, HUD "
+    "parent ownership of current controls, a visible empty future-gated HUD Dashboard "
+    "child for FAM-006, the readability/UIREF-002/status/splitter target, and "
+    "disable-while-open Option B: disabling HUD blocks future opens but leaves an "
+    "already-open HUD Dashboard open until the USER closes it. This acceptance "
+    "authorizes BP2 revision preparation only. It does not authorize BP2 acceptance, "
+    "BP3, Workstream implementation, H1, LV, UTS, issue, PR, merge, release, cleanup, "
+    "sibling, Governance, or runtime mutation."
+)
+
+
+def _normalized_contract_text(value: str) -> str:
+    return re.sub(r"\s+", " ", value).strip().strip("`")
+
+
+def _fam003_revised_bp1_digest_surface_failures(
+    text: str,
+    *,
+    file_name: str,
+    heading: str,
+) -> list[str]:
+    failures: list[str] = []
+    active = text.partition("Historical Receipt Boundary:")[0]
+    if _markdown_section_count(active, heading) != 1:
+        return [
+            f"FAM-003 revised BP1: {file_name} must contain exactly one {heading}"
+        ]
+    section = active.split(heading, 1)[1]
+    alternative_match = re.search(
+        r"(?m)^#{2,3} Alternative Exact USER Approval Text - Option B\s*$",
+        section,
+    )
+    digest_fields = section[: alternative_match.start()] if alternative_match else section
+    positions: list[int] = []
+    values: dict[str, str] = {}
+    for marker in FAM003_OPTION_G_NEXT_PHASE_FIELDS:
+        matches = list(
+            re.finditer(rf"(?m)^{re.escape(marker)}[ \t]*(.*?)[ \t]*$", digest_fields)
+        )
+        if len(matches) != 1 or not matches[0].group(1).strip().strip("`"):
+            failures.append(
+                f"FAM-003 revised BP1: {file_name} Formal Next Legal Phase Digest "
+                f"must contain exactly one nonblank {marker} field"
+            )
+            continue
+        values[marker] = matches[0].group(1).strip().strip("`")
+        positions.append(matches[0].start())
+    if positions != sorted(positions):
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Formal Next Legal Phase Digest fields are out of order"
+        )
+
+    exact_value = _normalized_contract_text(values.get("Exact USER Approval Text:", ""))
+    expected_a = _normalized_contract_text(FAM003_REVISED_BP1_OPTION_A)
+    if exact_value != expected_a:
+        pointer_terms = ("use one", "see ", "contained in", "primary review", "decision above")
+        reason = (
+            "is pointer-only"
+            if any(term in exact_value.casefold() for term in pointer_terms)
+            else "differs from the full recommended Option A decision"
+        )
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Exact USER Approval Text {reason}"
+        )
+
+    if not alternative_match:
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} is missing the full Option B alternative section"
+        )
+    else:
+        alternative = section[alternative_match.end() :]
+        matches = list(
+            re.finditer(
+                r"(?m)^Alternative Exact USER Approval Text:[ \t]*(.*?)[ \t]*$",
+                alternative,
+            )
+        )
+        if (
+            len(matches) != 1
+            or _normalized_contract_text(matches[0].group(1))
+            != _normalized_contract_text(FAM003_REVISED_BP1_OPTION_B)
+        ):
+            failures.append(
+                f"FAM-003 revised BP1: {file_name} Option B alternative must contain the full verbatim decision"
+            )
+
+    if values.get("Review Waiver Reason:", "").casefold() != "not waived":
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Review Waiver Reason must be Not waived"
+        )
+    current_phase = values.get("Current Phase:", "").casefold()
+    next_phase = values.get("Next Legal Phase:", "").casefold()
+    allowed_scope = values.get("Allowed Scope:", "").casefold()
+    exclusions = values.get("Explicit Exclusions:", "").casefold()
+    blocker = values.get("Implementation Blocker:", "").casefold()
+    if not all(term in current_phase for term in ("bp1", "revision", "user", "review")):
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Current Phase does not preserve the pending revised-BP1 USER gate"
+        )
+    if not all(term in next_phase for term in ("bp2", "revision", "accept")):
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Next Legal Phase must remain BP2 revision preparation after acceptance"
+        )
+    if "review" not in allowed_scope or "implementation" in allowed_scope:
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Allowed Scope is not review-only"
+        )
+    required_exclusions = (
+        "bp2 acceptance",
+        "bp3",
+        "workstream implementation",
+        "runtime",
+        "h1",
+        "lv",
+        "uts",
+        "issue",
+        "pr",
+        "merge",
+        "release",
+        "cleanup",
+        "sibling",
+        "governance",
+    )
+    if any(term not in exclusions for term in required_exclusions):
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Explicit Exclusions omit a blocked phase or carrier"
+        )
+    if "revised bp1" not in blocker or not any(
+        term in blocker
+        for term in ("not user accepted", "not accepted", "unauthorized", "does not exist")
+    ):
+        failures.append(
+            f"FAM-003 revised BP1: {file_name} Implementation Blocker does not preserve the unaccepted revised-BP1 boundary"
+        )
+    return failures
+
+
+def _fam003_revised_bp1_exact_decision_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    primary = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if FAM003_REVISED_BP1_PRIMARY_TITLE not in primary:
+        return []
+    failures: list[str] = []
+    digest = packet_files.get(FAM003_REVISED_BP1_DIGEST_FILE, "")
+    failures.extend(
+        _fam003_revised_bp1_digest_surface_failures(
+            digest,
+            file_name=FAM003_REVISED_BP1_DIGEST_FILE,
+            heading="# Formal Next Legal Phase Digest",
+        )
+    )
+    normalized_primary = _normalized_contract_text(primary)
+    expected_a = _normalized_contract_text(FAM003_REVISED_BP1_OPTION_A)
+    expected_b = _normalized_contract_text(FAM003_REVISED_BP1_OPTION_B)
+    if normalized_primary.count(expected_a) != 1:
+        failures.append(
+            "FAM-003 revised BP1: primary review must contain exactly one full recommended Option A decision matching the Formal Digest"
+        )
+    if normalized_primary.count(expected_b) != 1:
+        failures.append(
+            "FAM-003 revised BP1: primary review must contain exactly one full Option B alternative"
+        )
+
+    for support_path, support_text in _packet_file_items(
+        packet_files, FAM003_REVISED_BP1_SUPPORT_FILE
+    ):
+        active = support_text.partition("Historical Receipt Boundary:")[0]
+        if "BP1 Branch Vision Revision USER review" not in active:
+            continue
+        failures.extend(
+            _fam003_revised_bp1_digest_surface_failures(
+                support_text,
+                file_name=support_path,
+                heading="## Next Legal Phase Digest",
+            )
+        )
+    return failures
+
+
+def _fam003_revised_bp1_codex_return_digest_failures(text: str) -> list[str]:
+    if "BP1 REVISION PACKET READY" not in text:
+        return []
+    return _fam003_revised_bp1_digest_surface_failures(
+        text,
+        file_name="Codex return",
+        heading="## Formal Next Legal Phase Digest",
+    )
 
 
 FAM003_OPTION_G_APPROVED_REPAIR_FILES = {
@@ -18646,6 +18855,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_pr_stage1_review_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
+    failures.extend(_fam003_revised_bp1_exact_decision_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if not _packet_file_present(packet_files, required_file):
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -19222,6 +19432,7 @@ def build_bundle(
             ),
         ),
         *_user_branch_vision_substantive_failures(generated_packet_files),
+        *_fam003_revised_bp1_exact_decision_failures(packet_files),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
     ]
