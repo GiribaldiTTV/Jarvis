@@ -2345,9 +2345,10 @@ def _validate_legacy_lock_evidence(
         "Retain Between Workloads": "No",
     }
     for field, expected in expected_values.items():
-        if str(lock.get(field, "")).strip() != expected:
+        actual = lock.get(field)
+        if not isinstance(actual, str) or actual != expected:
             issues.append(
-                f"legacy receipt lock evidence has {field}={lock.get(field)!r}, expected {expected!r}"
+                f"legacy receipt lock evidence has {field}={actual!r}, expected {expected!r}"
             )
     released_timestamp = _canonical_utc_datetime(lock.get("Released At"))
     if released_timestamp is None:
@@ -2979,6 +2980,27 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
             index += 1
             continue
         if character != '"':
+            if stack == ["{"] and awaiting_root_member:
+                bare_transition = re.match(
+                    r"transition\s*:\s*",
+                    text[index:],
+                    flags=re.I,
+                )
+                if bare_transition:
+                    cursor = index + bare_transition.end()
+                    if cursor >= len(text) or text[cursor] != '"':
+                        return True
+                    try:
+                        value, value_end = decoder.raw_decode(text, cursor)
+                    except (json.JSONDecodeError, RecursionError, MemoryError, ValueError):
+                        return True
+                    if not isinstance(value, str):
+                        return True
+                    if value.strip().casefold() == TARGET_SET_TRANSITION.casefold():
+                        return True
+                    index = value_end
+                    awaiting_root_member = False
+                    continue
             index += 1
             continue
         tolerant_key_end = _tolerant_json_string_end(text, index)

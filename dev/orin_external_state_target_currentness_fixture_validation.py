@@ -297,6 +297,16 @@ def _write_legacy_lock_write_set_extra_fixture(root: Path) -> Path:
     return path
 
 
+def _write_legacy_padded_lock_field_fixture(root: Path, field: str) -> Path:
+    path = _write_legacy_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    lock_path = root / "locks" / f"{payload['Lock ID']}.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock[field] = f" {lock[field]} "
+    atomic_write_json(lock_path, lock)
+    return path
+
+
 def _write_legacy_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_legacy_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -930,6 +940,18 @@ def _write_missing_comma_before_transition_fixture(root: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         '{"x":1 "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '","Transaction State":"Prepared"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_bare_transition_key_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "bare-transition-key.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{Transition:"'
         + validator.TARGET_SET_TRANSITION
         + '","Transaction State":"Prepared"}',
         encoding="utf-8",
@@ -2726,6 +2748,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             _write_missing_comma_before_transition_fixture,
         ),
         (
+            "matching malformed JSON with unquoted Transition key",
+            _write_bare_transition_key_fixture,
+        ),
+        (
             "matching malformed JSON after mismatched nested comma",
             _write_mismatched_nested_comma_transition_fixture,
         ),
@@ -2957,6 +2983,23 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "legacy receipt with active lock evidence",
             lambda root: _write_legacy_journal_fixture(root, lock_state="Locked"),
         ),
+        *[
+            (
+                f"legacy receipt lock has whitespace-padded {field}",
+                lambda root, field=field: _write_legacy_padded_lock_field_fixture(
+                    root,
+                    field,
+                ),
+            )
+            for field in (
+                "External State Schema",
+                "Lock ID",
+                "Lock State",
+                "Workload ID",
+                "Workload State",
+                "Retain Between Workloads",
+            )
+        ],
         (
             "legacy receipt with malformed release timestamp",
             lambda root: _write_legacy_released_at_fixture(root, "No release occurred"),
@@ -3502,6 +3545,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )
     _assert_journal_mutation_killed(
+        "whitespace-padded legacy lock state accepted",
+        negative_setups["legacy receipt lock has whitespace-padded Lock State"],
+        "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
         "malformed legacy release timestamp accepted",
         negative_setups["legacy receipt with malformed release timestamp"],
         "_validate_legacy_lock_evidence",
@@ -3565,6 +3615,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups[
             "matching malformed JSON with missing comma before Transition"
         ],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "unquoted Transition key hides a target-set transaction",
+        negative_setups["matching malformed JSON with unquoted Transition key"],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

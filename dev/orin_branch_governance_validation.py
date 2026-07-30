@@ -1,4 +1,5 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=branch-governance-validator; status=shared
+import ast
 import json
 import ntpath
 import os
@@ -8623,6 +8624,7 @@ def _external_state_has_current_confinement(
         and _assigned_worktree_confinement_semantics_are_safe(
             confinement,
             actual_root,
+            _extract_exact_marker_value(state_text, "Current Write Set"),
         )
     )
     return bool(
@@ -8641,6 +8643,18 @@ def _external_state_has_current_confinement(
         )
         and confinement_matches_current_root
     )
+
+
+def _external_authority_pointer_contract_is_singular(state_text: str) -> bool:
+    durable_pointers = _extract_exact_marker_values(
+        state_text,
+        "Repo Durable Receipt Pointer",
+    )
+    record_pointers = _extract_exact_marker_values(
+        state_text,
+        "Repo Branch Record Pointer",
+    )
+    return (len(durable_pointers), len(record_pointers)) in {(1, 0), (0, 1)}
 
 
 def _external_branch_state_record_for_branch(
@@ -8680,7 +8694,11 @@ def _external_branch_state_record_for_branch(
         state_text,
         "Repo Durable Receipt Pointer",
     )
-    if len(durable_pointers) > 1:
+    record_pointers = _extract_exact_marker_values(
+        state_text,
+        "Repo Branch Record Pointer",
+    )
+    if not _external_authority_pointer_contract_is_singular(state_text):
         return "", ""
     durable_pointer = durable_pointers[0] if durable_pointers else ""
     if durable_pointer:
@@ -8694,9 +8712,6 @@ def _external_branch_state_record_for_branch(
             return str(state_path), state_text
         return "", ""
 
-    record_pointers = _extract_exact_marker_values(state_text, "Repo Branch Record Pointer")
-    if len(record_pointers) > 1:
-        return "", ""
     record_pointer = record_pointers[0] if record_pointers else ""
     if not record_pointer:
         return "", ""
@@ -17036,7 +17051,7 @@ def _git_status_porcelain(*, tracked_only: bool = False) -> str:
     )
     if completed.returncode != 0:
         return f"__GIT_STATUS_ERROR__ {completed.stderr.strip()}"
-    return completed.stdout.strip()
+    return completed.stdout.rstrip("\r\n")
 
 
 def _git_status_read_failed(status_output: str) -> bool:
@@ -21526,7 +21541,9 @@ def _historical_write_set_is_bounded(value: str) -> bool:
         r"\b(?:none|no (?:approved )?write set|write set (?:is )?"
         r"(?:absent|missing|unknown|unapproved|not approved)|unbounded|unrestricted|"
         r"repo-wide|repository-wide|entire (?:repo|repository|worktree)|"
-        r"whole (?:repo|repository|worktree)|(?:all|any|every) (?:repository )?files?|"
+        r"whole (?:repo|repository|worktree)|"
+        r"(?:all|any|every)(?: [a-z0-9_.-]+){0,4} "
+        r"(?:files?|paths?|artifacts?|targets?|changes?|mutations?)|"
         r"to be determined|tbd|unspecified|not (?:yet )?(?:named|selected|identified)|"
         r"(?:named|selected|identified) later|as needed|relevant files|applicable files|"
         r"(?:any|all|other|additional|extra|more|arbitrary|whatever|miscellaneous|"
@@ -21614,7 +21631,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
             re.findall(
                 rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
                 record_text,
-                flags=re.M,
+                flags=re.M | re.I,
             )
         )
         != 1
@@ -21625,7 +21642,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         re.search(
             rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}[ \t]*:",
             record_text,
-            flags=re.M,
+            flags=re.M | re.I,
         )
         for marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS
     ):
@@ -22086,20 +22103,97 @@ def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
     )
 
 
+def _repo_relative_path_key(value: str) -> str:
+    normalized = value.strip().strip("`").replace("\\", "/")
+    if not normalized or normalized.startswith("/") or re.match(r"^[a-z]:/", normalized, re.I):
+        return ""
+    parts = normalized.split("/")
+    if any(not part or part in {".", ".."} for part in parts):
+        return ""
+    return "/".join(parts).casefold()
+
+
+def _decode_git_porcelain_path(value: str) -> str:
+    candidate = value.strip()
+    if not candidate.startswith('"'):
+        return candidate
+    try:
+        decoded = ast.literal_eval(candidate)
+    except (SyntaxError, ValueError):
+        return ""
+    return decoded if isinstance(decoded, str) else ""
+
+
+def _tracked_dirty_paths_from_porcelain(status_output: str) -> set[str] | None:
+    if _git_status_read_failed(status_output):
+        return None
+    paths: set[str] = set()
+    for line in status_output.splitlines():
+        if not line:
+            continue
+        if len(line) < 4 or line[2] != " ":
+            return None
+        payload = line[3:]
+        candidates = (
+            payload.split(" -> ", 1)
+            if any(code in line[:2] for code in ("R", "C"))
+            else [payload]
+        )
+        for candidate in candidates:
+            path_key = _repo_relative_path_key(_decode_git_porcelain_path(candidate))
+            if not path_key:
+                return None
+            paths.add(path_key)
+    return paths
+
+
+def _declared_repo_write_paths(value: str) -> set[str]:
+    candidates = re.findall(
+        r"(?<![a-z0-9_.-])((?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+"
+        r"(?:\.[a-z0-9]+)?)(?![a-z0-9_.-])",
+        value,
+        flags=re.I,
+    )
+    return {
+        path_key
+        for candidate in candidates
+        if (path_key := _repo_relative_path_key(candidate))
+    }
+
+
+def _tracked_dirty_paths_are_declared(
+    status_output: str,
+    declared_write_set: str,
+) -> bool:
+    dirty_paths = _tracked_dirty_paths_from_porcelain(status_output)
+    declared_paths = _declared_repo_write_paths(declared_write_set)
+    return bool(
+        dirty_paths is not None
+        and declared_paths
+        and dirty_paths.issubset(declared_paths)
+    )
+
+
 def _assigned_worktree_confinement_semantics_are_safe(
     confinement: str,
     actual_root: str,
+    declared_write_set: str = "",
 ) -> bool:
     value = lambda marker: _extract_exact_marker_value(confinement, marker)
     dirty_state = value("Dirty Worktree Collision Check")
     missing_waiver_state = value("Worktree Escape User Waiver Missing").casefold()
     tracked_status = _git_status_porcelain(tracked_only=True)
+    effective_write_set = declared_write_set or value("Intended Write Set")
     return bool(
         _durable_active_owner_is_explicit(value("Active Thread Owner"))
         and not _git_status_read_failed(tracked_status)
         and _durable_thread_assignment_is_active(value("Thread Assignment Status"))
         and _durable_ownership_ledger_is_active(value("Worktree Ownership Ledger"))
         and _durable_write_set_is_bounded(value("Intended Write Set"))
+        and (
+            not tracked_status
+            or _tracked_dirty_paths_are_declared(tracked_status, effective_write_set)
+        )
         and _durable_collision_clear(value("Same Worktree / Same Branch Collision Check"))
         and (
             not tracked_status
@@ -22401,6 +22495,7 @@ def _validate_durable_carrier_admission_receipt_confinement(
         record_path,
         confinement,
         DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS,
+        _extract_exact_marker_value(record_text, "Current Write Set"),
     )
     active_owner = _extract_exact_marker_value(confinement, "Active Thread Owner")
     require(
@@ -22528,6 +22623,7 @@ def _validate_assigned_worktree_confinement_contract(
     record_path: str | Path,
     confinement: str,
     required_markers: tuple[str, ...] = ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS,
+    declared_write_set: str = "",
 ) -> None:
     for marker in required_markers:
         occurrences = re.findall(
@@ -22564,6 +22660,14 @@ def _validate_assigned_worktree_confinement_contract(
         f"Git status could not be read before worktree confinement validation: {tracked_status}",
     )
     if tracked_status and not status_failed:
+        effective_write_set = declared_write_set or explicit_values["Intended Write Set"]
+        require(
+            _tracked_dirty_paths_are_declared(tracked_status, effective_write_set),
+            (
+                "Dirty tracked paths must all be named by the active Current/Intended "
+                f"Write Set before mutation: {tracked_status}"
+            ),
+        )
         dirty_collision_state = explicit_values["Dirty Worktree Collision Check"]
         require(
             _durable_dirty_worktree_ownership_is_affirmative(dirty_collision_state),
@@ -22695,6 +22799,20 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "C:\\Nexus Worktrees\\Governance-Fixture",
         ),
         "external live authority fixture must prove exact branch/worktree confinement",
+    )
+    mixed_pointer_fixture = current_external_authority_fixture.replace(
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`\n"
+        "- Repo Branch Record Pointer: `Docs/branch_records/feature_governance_fixture.md`",
+    )
+    require(
+        _external_authority_pointer_contract_is_singular(
+            current_external_authority_fixture
+        )
+        and not _external_authority_pointer_contract_is_singular(
+            mixed_pointer_fixture
+        ),
+        "external live authority must select exactly one pointer type",
     )
     duplicate_durable_pointer_fixture = current_external_authority_fixture.replace(
         "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
@@ -23371,6 +23489,34 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             not _durable_dirty_worktree_ownership_is_affirmative(denied_dirty_claim),
             f"{durable_fixture}: contradictory dirty-worktree ownership claim must fail: {denied_dirty_claim}",
         )
+    require(
+        _tracked_dirty_paths_are_declared(
+            " M dev/orin_branch_governance_validation.py",
+            "Only dev/orin_branch_governance_validation.py",
+        ),
+        f"{durable_fixture}: declared dirty path must pass write-set coverage",
+    )
+    require(
+        not _tracked_dirty_paths_are_declared(
+            " M src/app.py",
+            "Only dev/orin_branch_governance_validation.py",
+        ),
+        f"{durable_fixture}: out-of-scope dirty path must fail write-set coverage",
+    )
+    require(
+        _tracked_dirty_paths_are_declared(
+            "R  dev/old_validator.py -> dev/new_validator.py",
+            "Exact dev/old_validator.py; dev/new_validator.py",
+        ),
+        f"{durable_fixture}: both sides of a declared rename must pass write-set coverage",
+    )
+    require(
+        not _tracked_dirty_paths_are_declared(
+            "R  dev/old_validator.py -> src/new_validator.py",
+            "Exact dev/old_validator.py; dev/new_validator.py",
+        ),
+        f"{durable_fixture}: out-of-scope rename destination must fail write-set coverage",
+    )
     semantic_confinement_mutations = (
         (
             "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
@@ -24076,6 +24222,9 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         )
     for invalid_historical_write_set in (
         "All repository files; unrestricted mutation.",
+        "All validation files.",
+        "All source truth files.",
+        "Every governance artifact.",
         "Fixture source truth and validation plus any other files.",
         "Repository-wide validation artifacts.",
         "Fixture source truth and validation as needed.",
@@ -24253,18 +24402,19 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             f"{historical_fixture}: blank required historical marker {required_marker!r} must fail classification",
         )
     for forbidden_marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS:
-        blank_forbidden_marker_fixture = (
-            historical_fixture_text + f"\n- {forbidden_marker}:\n"
-        )
-        require(
-            not _is_historical_carrier_admission_receipt(
-                blank_forbidden_marker_fixture
-            ),
-            (
-                f"{historical_fixture}: blank forbidden active marker "
-                f"{forbidden_marker!r} must fail classification"
-            ),
-        )
+        for marker_spelling in (forbidden_marker, forbidden_marker.casefold()):
+            blank_forbidden_marker_fixture = (
+                historical_fixture_text + f"\n- {marker_spelling}:\n"
+            )
+            require(
+                not _is_historical_carrier_admission_receipt(
+                    blank_forbidden_marker_fixture
+                ),
+                (
+                    f"{historical_fixture}: blank forbidden active marker "
+                    f"{marker_spelling!r} must fail classification"
+                ),
+            )
     invalid_historical_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "invalid_historical_carrier_admission_receipt.md"
@@ -24289,7 +24439,14 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
 
 
 def _run_worktree_confinement_gate(require) -> None:
-    _run_worktree_confinement_regression_fixtures(require)
+    original_git_status_porcelain = globals()["_git_status_porcelain"]
+    try:
+        globals()["_git_status_porcelain"] = (
+            lambda *, tracked_only=False: ""
+        )
+        _run_worktree_confinement_regression_fixtures(require)
+    finally:
+        globals()["_git_status_porcelain"] = original_git_status_porcelain
 
     branch_name = _git_current_branch()
     actual_root = _git_top_level()
@@ -24448,6 +24605,7 @@ def _run_worktree_confinement_gate(require) -> None:
         require,
         record_path,
         confinement,
+        declared_write_set=_extract_exact_marker_value(record_text, "Current Write Set"),
     )
 
     if expected_root and actual_root:

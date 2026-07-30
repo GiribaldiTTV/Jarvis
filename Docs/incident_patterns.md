@@ -1217,6 +1217,10 @@ An intended write set is not bounded when a concrete path and `bounded`, `exact`
 `named`, or `only` prefix is followed by broad, global, repository-wide,
 arbitrary, or open-ended write/mutation authority, access, permission, or scope.
 The entire value must remain a closed bounded inventory.
+When tracked files are dirty, the active `Current Write Set` or `Intended Write
+Set` must enumerate every dirty repo-relative path. Ownership and recovery prose
+cannot authorize a dirty path outside that inventory; both source and destination
+of a rename or copy must be covered.
 An external Live Branch Projection must satisfy the same semantic owner,
 assignment, ownership, bounded-write-set, collision, routing, USER-gate,
 cross-worktree, Desktop-root, and waiver predicates as durable confinement
@@ -1239,6 +1243,13 @@ rescinded, expired, withdrawn, superseded, cancelled, terminated, or no-longer-
 active approval is not a current USER-owned gate decision.
 The receipt is pre-PR evidence only and must fail once PR review or PR Readiness
 review state begins unless it has already folded into historical/no-active form.
+A historical write-set receipt may use bounded named categories only when it does
+not quantify an entire category. `All validation files`, `every governance
+artifact`, and equivalent qualified all/any/every forms are unbounded.
+Historical forbidden-active marker and singleton-cardinality scans are
+case-insensitive; lowercase marker spelling cannot retain live authority.
+A live external projection must select exactly one repo authority source:
+`Repo Durable Receipt Pointer` or `Repo Branch Record Pointer`, never both.
 A no-open-PR response is insufficient when the all-state fallback fails; absence
 proof must come from a successful all-state lookup that finds no PR for the branch.
 
@@ -1260,6 +1271,8 @@ delimiter is reached; an inner comma or brace cannot hide a later root Transitio
 A decoded member value followed directly by another plausible root member without
 the required comma must resume scanning at that member; the missing comma makes the
 audit malformed, but it cannot make a target-set `Transition` invisible.
+Likewise, a root-level bare `Transition:` identifier in malformed JSON must be
+examined for the canonical target-set value instead of skipped as ordinary junk.
 A mismatched closer must reconcile only the container depth it can account for.
 An unmatched closer may terminate an empty malformed container but must not
 discard accountable malformed-value depth, and recovery may resume only at a
@@ -1294,6 +1307,9 @@ Committed transaction chronology is part of evidence integrity. A snapshot
 manifest may not postdate the journal transaction it proves, and the released
 lock receipt may not predate that transaction. Canonical timestamp syntax alone
 does not establish this ordering.
+Modern and admitted legacy lock contracts use the same byte-canonical field
+semantics. Whitespace-padded schema, lock ID/state, workload ID/state, or
+retention values are not normalized into valid released-lock evidence.
 
 Live target authority markers are singleton contracts, including blank or
 contradictory duplicate rows: one valid first row cannot hide another `Record
