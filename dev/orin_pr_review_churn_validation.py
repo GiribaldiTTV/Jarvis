@@ -1001,6 +1001,51 @@ def _classify_comment(body: str, path: str = "") -> list[str]:
         ):
             matched_keywords.append("contextual surrogate code point")
         if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and any(
+                phrase in normalized
+                for phrase in (
+                    "recovery-field",
+                    "recovery field",
+                    "recovery payload field",
+                )
+            )
+            and any(
+                context in context_normalized
+                for context in (
+                    "external-state",
+                    "external state",
+                    "target-set",
+                    "target set",
+                    "modern committed",
+                    "modern journal",
+                    "audit",
+                )
+            )
+        ):
+            matched_keywords.append("contextual recovery field")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and any(
+                subject in normalized
+                for subject in (
+                    "historical receipt",
+                    "historical receipts",
+                    "receipt boundary",
+                )
+            )
+            and any(
+                denial in normalized
+                for denial in (
+                    "not authoritative",
+                    "non-authoritative",
+                    "no authority",
+                )
+            )
+            and _has_external_state_context(context_normalized)
+        ):
+            matched_keywords.append("contextual direct receipt non-authority")
+        if (
             rule.family_id == "durable-carrier-confinement-parser"
             and "historical receipt" in normalized
             and any(
@@ -1046,6 +1091,30 @@ def _classify_comment(body: str, path: str = "") -> list[str]:
             )
         ):
             matched_keywords.append("contextual exception-qualified write set")
+        if (
+            rule.family_id == "durable-carrier-confinement-parser"
+            and any(
+                phrase in normalized
+                for phrase in (
+                    "extensionless",
+                    "root-level write path",
+                    "root-level file",
+                    "root level write path",
+                    "root level file",
+                )
+            )
+            and any(
+                context in context_normalized
+                for context in (
+                    "confinement",
+                    "write set",
+                    "write-set",
+                    "declared repo write paths",
+                    "tracked dirty",
+                )
+            )
+        ):
+            matched_keywords.append("contextual extensionless root path")
         if rule.family_id == "rar-path-suffix-parser" and not any(
             context in normalized
             for context in (
@@ -1264,6 +1333,22 @@ def _classifier_guardrail_failures() -> list[str]:
             "live-role continuity wording",
             "Distinguish a current target-currentness Record Role that will remain active from authority that will activate only later.",
         ),
+        (
+            "restrictive historical-only role",
+            "Reject an external-state Record Role whose current authority is active solely in historical receipts.",
+        ),
+        (
+            "direct non-authority receipt boundary",
+            "Accept a target-currentness Historical Receipt Boundary that says historical receipts have no authority over current state.",
+        ),
+        (
+            "Unicode-whitespace recovery field",
+            "Normalize Unicode whitespace in modern committed journal recovery-field names such as Before Text.",
+        ),
+        (
+            "immutable historical section field",
+            "Prevent target-reconcile set-section-field updates from rewriting immutable Historical Receipts evidence.",
+        ),
     ):
         if "external-state-transaction-evidence-parser" not in _classify_comment(comment):
             failures.append(
@@ -1291,6 +1376,14 @@ def _classifier_guardrail_failures() -> list[str]:
         (
             "other-than carve-out",
             "Tracked dirty paths are declared only when the confinement gate rejects an other than write-set carve-out.",
+        ),
+        (
+            "extensionless root write path",
+            "The confinement gate must recognize an exact extensionless root-level write path such as Makefile.",
+        ),
+        (
+            "current authority on historical carrier",
+            "Reject Current Branch, Current HEAD, and Current Write Set markers on a historical carrier fold-down receipt.",
         ),
     ):
         if "durable-carrier-confinement-parser" not in _classify_comment(comment):
@@ -1541,6 +1634,8 @@ def _classifier_guardrail_failures() -> list[str]:
         "The database record role grants authority to the wrong tenant.",
         "The document is UTF-32 and contains NUL bytes.",
         "The database record role will remain active.",
+        "The editor normalizes Unicode whitespace in a recovery field.",
+        "The documentation mentions an extensionless root-level file.",
         "A checksum report lists after SHA256 for an unrelated asset.",
         "The deployment planner selected a modern target for customer notifications.",
     ):

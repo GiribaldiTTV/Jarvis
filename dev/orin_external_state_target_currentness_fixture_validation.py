@@ -2940,11 +2940,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 "BeforeContent",
                 "Before Bytes",
                 "BeforeBytes",
+                "Before\tText",
+                "Before\u00a0Text",
                 "RecoveryPayload",
                 "Rollback Data",
                 "RollbackData",
                 "Pre-Write Content",
                 "PreWriteContent",
+                "Pre\u2003Write Content",
                 "Original Target Text",
                 "OriginalTargetText",
                 "Backup Content",
@@ -3926,6 +3929,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(
+        "Unicode-whitespace recovery payload alias ignored",
+        negative_setups[
+            "modern journal with nested recovery payload alias Before\u00a0Text"
+        ],
+        "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
         "non-JSON target-set audit entry ignored",
         negative_setups[
             "target-set transaction stored in a non-JSON audit entry"
@@ -4668,6 +4679,11 @@ def main() -> int:
             "Historical receipts never control active ownership.",
             "Historical identity evidence only and does not grant current assignment or write authority.",
             "Live authority is not granted by historical receipts.",
+            "Historical receipts are not authoritative for current state.",
+            "Historical receipts have no authority over current state.",
+            "Historical receipts do not have authority over current state.",
+            "Historical receipts lack authority over current state.",
+            "Historical receipts are without authority over current state.",
         ):
             target.write_text(
                 target.read_text(encoding="utf-8").replace(
@@ -4695,6 +4711,21 @@ def main() -> int:
                 "Record Role: `Historical receipt only`",
                 "Record Role is not affirmative live authority",
             ),
+            *[
+                (
+                    f"restrictive historical-only record role: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current authority is active solely in historical receipts",
+                    "Current authority exists exclusively in historical receipts",
+                    "Current authority is active in historical receipts alone",
+                    "Current authority is limited to historical receipts",
+                    "Current authority is confined only to archived receipts",
+                )
+            ],
             (
                 "negated record role authority",
                 "Record Role: `Current worktree assignment projection`",
@@ -4937,6 +4968,12 @@ def main() -> int:
                 "receipt-derived ownership historical boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary: `Historical receipts do not redefine live fields; receipt-derived ownership remains active.`",
+                "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "direct non-authority boundary with trailing contradiction",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts are not authoritative for current state; historical receipts remain authoritative.`",
                 "Historical Receipt Boundary does not prevent",
             ),
             *[
@@ -5221,6 +5258,30 @@ def main() -> int:
                 ["assigned worktree confinement=Renamed Confinement"],
                 "cannot be renamed and have a field replaced",
             ),
+            (
+                "historical receipt section assignment",
+                [
+                    "Historical Receipts::Source Repo HEAD=rewritten-history",
+                ],
+                [],
+                "Historical receipt sections cannot be modified",
+            ),
+            (
+                "receipt-history section assignment",
+                [
+                    "Carrier Admission Receipt History::Before SHA256=rewritten-history",
+                ],
+                [],
+                "Historical receipt sections cannot be modified",
+            ),
+            (
+                "archived-receipt section assignment",
+                [
+                    "Archived Receipts::Before SHA256=rewritten-history",
+                ],
+                [],
+                "Historical receipt sections cannot be modified",
+            ),
         ):
             ok, messages, audit = reconciler.reconcile_target(
                 root=root,
@@ -5272,6 +5333,26 @@ def main() -> int:
         )
         if not any("inside section" in item for item in ambiguous_field_failures):
             raise AssertionError("case-variant duplicate section field was not rejected")
+
+        immutable_section_result, immutable_section_failures = (
+            reconciler._replace_existing_section_fields(
+                normalized_before_text,
+                {
+                    ("Historical Receipts", "Source Repo HEAD"):
+                    "rewritten-history"
+                },
+            )
+        )
+        if (
+            immutable_section_result != normalized_before_text
+            or not any(
+                "Historical receipt sections cannot be modified" in item
+                for item in immutable_section_failures
+            )
+        ):
+            raise AssertionError(
+                "direct section-field replacement rewrote immutable receipt history"
+            )
 
         fenced_only_section_text = normalized_before_text.replace(
             "Intended Write Set: `Only dev/original.py`\n",

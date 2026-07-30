@@ -3261,6 +3261,22 @@ DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS = (
 HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS = (
     "Branch",
     "Branch Class",
+    "Current Branch",
+    "Current Branch Name",
+    "HEAD",
+    "Repo HEAD",
+    "Source Repo HEAD",
+    "PR Head",
+    "Current HEAD",
+    "Current Repo HEAD",
+    "Current Source Repo HEAD",
+    "Current PR Head",
+    "Current Write Set",
+    "Current Intended Write Set",
+    "Current Write Scope",
+    "Current Write Authority",
+    "Current Mutation Authority",
+    "Current Commit",
     "Worktree",
     "Slot ID",
     "Assigned Branch",
@@ -21706,6 +21722,35 @@ def _historical_operational_truth_source_is_external(value: str) -> bool:
     )
 
 
+def _historical_receipt_has_current_authority_marker(record_text: str) -> bool:
+    allowed_current_claims = {
+        "current assignment claim",
+        "current task owner claim",
+        "current write authority claim",
+    }
+    for match in re.finditer(
+        r"^[ \t]*(?:-[ \t]*)?(?P<label>[^:\r\n]+):",
+        record_text,
+        flags=re.M,
+    ):
+        label = re.sub(r"\s+", " ", match.group("label").casefold()).strip()
+        if label in allowed_current_claims or not label.startswith(
+            ("active ", "current ", "live ")
+        ):
+            continue
+        tokens = set(re.findall(r"[a-z0-9]+", label))
+        if tokens & {"branch", "commit", "head"}:
+            return True
+        if tokens & {"write", "mutation"} and tokens & {
+            "authority",
+            "permission",
+            "scope",
+            "set",
+        }:
+            return True
+    return False
+
+
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Historical Branch",
@@ -21750,7 +21795,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
             flags=re.M | re.I,
         )
         for marker in HISTORICAL_RECEIPT_FORBIDDEN_ACTIVE_MARKERS
-    ):
+    ) or _historical_receipt_has_current_authority_marker(record_text):
         return False
     live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
     fold_down = _extract_exact_marker_value(record_text, "Fold-Down Result")
@@ -22471,6 +22516,18 @@ def _declared_repo_write_paths(
         r")(?![a-z0-9_.-])",
         flags=re.I,
     )
+    exact_root_filename_pattern = re.compile(
+        r"(?:^|[;,\n\r])\s*(?:only|exact|bounded)\s*:?\s+"
+        r"(?P<path>[a-z0-9][a-z0-9_.-]*)\s*(?=$|[;,\n\r])",
+        flags=re.I,
+    )
+    exact_root_filename_list_pattern = re.compile(
+        r"(?:^|[;\n\r])\s*(?:only|exact|bounded)\s*:?\s+"
+        r"(?P<paths>[a-z0-9][a-z0-9_.-]*"
+        r"(?:\s*(?:,|\band\b)\s*[a-z0-9][a-z0-9_.-]*)+)"
+        r"\s*(?=$|[;\n\r])",
+        flags=re.I,
+    )
     exclusion_pattern = re.compile(
         r"\b(?:exclude(?:d|s|ing)?|not\s+included|not\s+in\s+(?:the\s+)?"
         r"(?:write\s+set|scope)|out(?:side)?\s+(?:of\s+)?scope|read[- ]only|"
@@ -22494,6 +22551,19 @@ def _declared_repo_write_paths(
         if exclusion_pattern.search(clause):
             continue
         candidates.append(match.group("path"))
+    candidates.extend(
+        match.group("path") for match in exact_root_filename_pattern.finditer(value)
+    )
+    for match in exact_root_filename_list_pattern.finditer(value):
+        candidates.extend(
+            candidate
+            for candidate in re.split(
+                r"\s*(?:,|\band\b)\s*",
+                match.group("paths"),
+                flags=re.I,
+            )
+            if candidate
+        )
     return {
         path_key
         for candidate in candidates
@@ -24455,7 +24525,15 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         f"{durable_fixture}: declared dirty path must pass write-set coverage",
     )
-    for root_file in ("README.md", "main.py", ".gitignore"):
+    for root_file in (
+        "README.md",
+        "main.py",
+        ".gitignore",
+        "Makefile",
+        "Dockerfile",
+        "LICENSE",
+        "BUILD",
+    ):
         require(
             _tracked_dirty_paths_are_declared(
                 f" M {root_file}",
@@ -24464,6 +24542,43 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 f"{durable_fixture}: declared root-level file must pass "
                 f"write-set coverage: {root_file}"
+            ),
+        )
+    for descriptive_write_set in (
+        "Only current files are writable",
+        "Exact source files are listed elsewhere",
+        "Bounded repository files only",
+    ):
+        require(
+            not _declared_repo_write_paths(descriptive_write_set),
+            (
+                f"{durable_fixture}: descriptive write-set prose must not become "
+                f"an extensionless root-file path: {descriptive_write_set}"
+            ),
+        )
+    for declared_root_files, expected_paths in (
+        ("Only Makefile and LICENSE", {"Makefile", "LICENSE"}),
+        ("Exact Dockerfile, BUILD", {"Dockerfile", "BUILD"}),
+    ):
+        require(
+            _declared_repo_write_paths(declared_root_files)
+            == {
+                _repo_relative_path_key(path)
+                for path in expected_paths
+            }
+            and _declared_repo_write_paths(
+                declared_root_files,
+                host_os_name="nt",
+            )
+            == {path.casefold() for path in expected_paths}
+            and _declared_repo_write_paths(
+                declared_root_files,
+                host_os_name="posix",
+            )
+            == expected_paths,
+            (
+                f"{durable_fixture}: bounded extensionless root-file list must "
+                f"remain exact: {declared_root_files}"
             ),
         )
     require(
@@ -25698,6 +25813,23 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                     f"{marker_spelling!r} must fail classification"
                 ),
             )
+    for semantic_current_marker in (
+        "Current Branch Pointer: `feature/evil`",
+        "Current Release HEAD: `deadbeef`",
+        "Active Branch Pointer: `feature/evil`",
+        "Live Commit Authority: `deadbeef`",
+        "Current Mutation Permission: `Granted`",
+        "Current Write Scope: `Only dev/x.py`",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text + f"\n- {semantic_current_marker}\n"
+            ),
+            (
+                f"{historical_fixture}: semantic current-authority marker must "
+                f"fail historical classification: {semantic_current_marker}"
+            ),
+        )
     invalid_historical_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "invalid_historical_carrier_admission_receipt.md"

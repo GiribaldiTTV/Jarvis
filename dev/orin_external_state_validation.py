@@ -662,8 +662,12 @@ def _target_record_role_is_live(value: str | None) -> bool:
         normalized,
     )
     historical_only = re.search(
-        r"\b(?:historical|receipt|archive|archived)\b.{0,30}\b(?:only|exclusive)\b|"
-        r"\b(?:only|exclusive)\b.{0,30}\b(?:historical|receipt|archive|archived)\b",
+        r"\b(?:historical|receipts?|archives?|archived)\b.{0,30}\b"
+        r"(?:only|exclusive|solely|exclusively|alone)\b|"
+        r"\b(?:only|exclusive|solely|exclusively)\b.{0,30}\b"
+        r"(?:historical|receipts?|archives?|archived)\b|"
+        r"\b(?:limited|restricted|confined)\s+(?:only\s+)?to\b.{0,30}\b"
+        r"(?:historical|receipts?|archives?|archived)\b",
         normalized,
     )
     denied = re.search(
@@ -747,18 +751,38 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
         r"(?:redefine|override|replace|restore|renew|reinstate|reactivate|resume|"
         r"reopen|grant|own|control|retain|preserve|source|supply|carry)"
     )
+    historical_receipt_subject = (
+        r"(?:\bhistorical\b[^.;]{0,20}\breceipts?\b|"
+        r"\breceipts?\b[^.;]{0,20}\bhistorical\b)"
+    )
+    direct_non_authority = (
+        rf"{historical_receipt_subject}[^.;]{{0,15}}\b(?:is|are|remains?)\s+"
+        rf"(?:not|never|non[- ]?)\s*authoritative\b[^.;]{{0,20}}?"
+        rf"{protected_live_authority}|"
+        rf"{historical_receipt_subject}[^.;]{{0,15}}\b"
+        rf"(?:has|have|holds?|retains?|carries?)\s+no\s+authority\b"
+        rf"[^.;]{{0,20}}?{protected_live_authority}|"
+        rf"{historical_receipt_subject}[^.;]{{0,15}}\b(?:do|does)\s+not\s+"
+        rf"(?:have|hold|retain|carry)\s+authority\b[^.;]{{0,20}}?"
+        rf"{protected_live_authority}|"
+        rf"{historical_receipt_subject}[^.;]{{0,15}}\b"
+        rf"(?:lacks?|is\s+without|are\s+without)\s+authority\b"
+        rf"[^.;]{{0,20}}?{protected_live_authority}"
+    )
     protective_clause = (
         rf"\b(?:do not|does not|cannot|can not|must not|never)\b[^.;]{{0,45}}?\b"
         rf"{protective_action}\b[^.;]{{0,45}}?{protected_live_authority}|"
         rf"{protected_live_authority}[^.;]{{0,45}}?\b(?:is|are)\s+"
         rf"(?:not|never)\s+(?:redefined|overridden|replaced|restored|renewed|"
         rf"reinstated|reactivated|resumed|reopened|granted|owned|controlled|"
-        rf"retained|preserved|sourced|supplied|carried)\b"
+        rf"retained|preserved|sourced|supplied|carried)\b|"
+        rf"{direct_non_authority}"
     )
     protective = re.search(protective_clause, normalized)
     scrubbed = re.sub(protective_clause, "", normalized)
     contradictory = re.search(
-        r"\b(?:redefine|override|replace|reactivate|grant|own|control)(?:s|ed|ing)?\b",
+        r"\b(?:redefine|override|replace|reactivate|grant|own|control)(?:s|ed|ing)?\b|"
+        r"\b(?:is|are|remain|remains)\s+authoritative\b",
         scrubbed,
     )
     retained_authority = re.search(
@@ -2706,7 +2730,7 @@ def _contains_recovery_payload_field(value: object) -> bool:
                         key,
                     )
                     normalized_key = re.sub(
-                        r"[-_/]+",
+                        r"(?:\s|[-_/])+",
                         " ",
                         key_with_word_boundaries.casefold(),
                     ).strip()

@@ -172,6 +172,14 @@ def _parse_section_renames(raw_renames: list[str]) -> tuple[dict[str, str], list
     return values, failures
 
 
+def _section_is_immutable_receipt_history(section: str) -> bool:
+    tokens = set(re.findall(r"[a-z0-9]+", section.casefold()))
+    has_receipt = bool(tokens & {"receipt", "receipts"})
+    return has_receipt and bool(
+        tokens & {"archive", "archived", "historical", "history", "immutable"}
+    )
+
+
 def _parse_section_assignments(
     raw_assignments: list[str],
 ) -> tuple[dict[tuple[str, str], str], list[str]]:
@@ -201,6 +209,12 @@ def _parse_section_assignments(
             or normalized_key in normalized_keys
         ):
             failures.append(f"Invalid --set-section-field assignment: {raw!r}")
+            continue
+        if _section_is_immutable_receipt_history(section):
+            failures.append(
+                "Historical receipt sections cannot be modified by "
+                f"--set-section-field: {section!r}"
+            )
             continue
         values[key] = value
         normalized_keys.add(normalized_key)
@@ -387,6 +401,20 @@ def _replace_existing_section_fields(
     failures: list[str] = []
     if not _markdown_fences_are_balanced(lines):
         return text, ["Target transition Markdown contains an unterminated fenced block"]
+    immutable_sections = sorted(
+        {
+            section
+            for section, _ in updates
+            if _section_is_immutable_receipt_history(section)
+        },
+        key=str.casefold,
+    )
+    if immutable_sections:
+        return text, [
+            "Historical receipt sections cannot be modified by "
+            "--set-section-field: "
+            + ", ".join(repr(section) for section in immutable_sections)
+        ]
     section_ranges: dict[str, tuple[int, int]] = {}
     for section, _ in updates:
         heading = f"## {section}"
