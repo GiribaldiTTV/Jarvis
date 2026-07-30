@@ -245,6 +245,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 
 ## Durable Branch Receipt Records
 
+- `Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md`
 - `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md`
 - `Docs/branch_records/feature_fam_007_ai_control_center_readiness_diagnostics.md`
 - `Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md`

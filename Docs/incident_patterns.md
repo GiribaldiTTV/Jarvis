@@ -89,6 +89,23 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Support Context Must Not Masquerade As A USER Gate
+
+- symptom:
+  a PR Readiness Stage 1 generator emits `USER Gate State: Context Only` in a planning aid that explicitly says it is supporting context and not a USER gate, then the packet validator rejects the helper's own output because `Context Only` is correctly absent from the canonical USER-gate values
+- layer:
+  USER review packet generation, Stage 1 support-artifact classification, gate-state validation, and PR Readiness packet proof
+- root-cause pattern:
+  a non-primary support artifact reused the decision-field name from its earlier BP2 role. The generator and validator therefore disagreed about the artifact's semantic role, and adding the support value to the USER-gate enum would have hidden the contradiction by weakening real decision enforcement.
+- fix pattern:
+  give Stage 1-ready support artifacts the distinct `Support Context State: Context Only` contract, keep `BRANCH_PLANNING_USER_GATE_VALUES` closed to real USER decisions, require the dedicated primary Stage 1 artifact to retain its canonical USER gate, and reject support state in primary artifacts, USER-gate state in context-only artifacts, mixed or duplicate state fields, and positive authority claims in support context
+- validation pattern:
+  generate the canonical Stage 1 packet without manual edits; validate the support field and primary gate by artifact role; run canonical USER-gate siblings, support-value case/whitespace siblings, unsupported/blank/duplicate/case-ambiguous/cross-placement/contradiction negatives, a global USER-gate-enum-widening mutation, and active-review identity plus folder/ZIP parity validation
+- source references:
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+
 ## Pattern: USER Packet Folder/ZIP Drift Can Hide Stale Review Evidence
 
 - symptom:

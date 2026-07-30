@@ -373,6 +373,7 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
             "does user approve pr readiness stage 1 analysis",
             "pending user response - bp2 gate remains open",
             "accept the bp2 engineering plan as written",
+            "## user gate state",
         ):
             if forbidden in support_text:
                 raise AssertionError(
@@ -381,6 +382,7 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
                 )
         for required in (
             "context only",
+            "## support context state",
             "stage 1 is ready for the separate stage 2 user decision",
             "stage 2 remains pending",
         ):
@@ -389,6 +391,250 @@ def _assert_stage1_primary_for_stage2_decision() -> None:
                     "Governance Stage 1-ready support context omitted required wording: "
                     + required
                 )
+
+
+def _assert_support_context_state_contract() -> None:
+    def stage1_packet(support_text: str) -> dict[str, str]:
+        return {
+            "START_HERE.md": (
+                "Primary USER Review File: `USER Review/PR_READINESS_STAGE1_REVIEW.md`\n"
+                "Decision Path Summary: pr readiness stage1 approval review - "
+                "Stage 1 Ready For Stage 2.\n"
+            ),
+            "USER Review/PR_READINESS_STAGE1_REVIEW.md": (
+                "# PR Readiness Stage 1 Review\n\n"
+                "## Review Status\nReviewable\n\n"
+                "## Contract Status\nComplete\n\n"
+                "## Packet Reviewability State\nReviewable\n\n"
+                "## USER Gate State\nPending USER Review\n\n"
+                "## Current-Gate Purpose\nReview Stage 1.\n\n"
+                "## Scope And Authority\nStage 2 remains pending.\n\n"
+                "## Transition-Safety Review\nTarget-currentness is required.\n\n"
+                "## Adversarial And False-Green Review\nMutations must fail.\n\n"
+                "## Stage 1 Outcome\nStage 1 Ready For Stage 2\n\n"
+                "## Exact USER Decision Supported\nReview Stage 2 separately.\n"
+            ),
+            "Review Aids/USER_BRANCH_VISION_REVIEW.md": (
+                "# BP1 supporting context\n\n"
+                "## Packet Reviewability State\nReviewable\n\n"
+                "## USER Gate State\nPending USER Review\n"
+            ),
+            "Review Aids/USER_BRANCH_PLAN_REVIEW.md": support_text,
+        }
+
+    def support_failures(packet_files: dict[str, str]) -> list[str]:
+        return [
+            *bundle._branch_planning_review_gate_state_failures(packet_files),
+            *bundle._pr_stage1_review_failures(packet_files),
+        ]
+
+    def assert_fails(
+        name: str,
+        packet_files: dict[str, str],
+        needle: str,
+    ) -> None:
+        failures = support_failures(packet_files)
+        if not any(needle in failure for failure in failures):
+            raise AssertionError(
+                f"{name} did not fail on {needle!r}:\n" + "\n".join(failures)
+            )
+
+    with tempfile.TemporaryDirectory(
+        prefix="ndai-stage1-support-context-contract-"
+    ) as temp_dir:
+        target = Path(temp_dir)
+        generated = bundle._write_stage1_ready_support_context(
+            target=target,
+            title="Support Context Contract",
+            review_purpose="Review Stage 1 support semantics.",
+            exact_user_decision="Review Stage 2 separately.",
+            pending_user_decisions=["Stage 2 remains pending USER approval."],
+            copied=[],
+        )
+        canonical_support = generated.read_text(encoding="utf-8")
+
+    if "## Support Context State" not in canonical_support:
+        raise AssertionError("generated Stage 1 support omitted Support Context State")
+    if "## USER Gate State" in canonical_support:
+        raise AssertionError("generated Stage 1 support retained USER Gate State")
+    if "context only" in bundle.BRANCH_PLANNING_USER_GATE_VALUES:
+        raise AssertionError("Context Only leaked into the canonical USER-gate enum")
+
+    canonical_packet = stage1_packet(canonical_support)
+    failures = support_failures(canonical_packet)
+    if failures:
+        raise AssertionError(
+            "generated support context failed its own validator:\n"
+            + "\n".join(failures)
+        )
+
+    for variant in ("Context Only", "CONTEXT ONLY", "  Context    Only  "):
+        variant_support = canonical_support.replace(
+            "Context Only - this file is not a USER gate",
+            f"{variant} - this file is not a USER gate",
+        )
+        failures = support_failures(stage1_packet(variant_support))
+        if failures:
+            raise AssertionError(
+                f"normalized support-context sibling {variant!r} failed:\n"
+                + "\n".join(failures)
+            )
+
+    for user_gate_value in sorted(bundle.BRANCH_PLANNING_USER_GATE_VALUES):
+        user_gate_packet = {
+            "START_HERE.md": "Current Gate: BP2 USER Branch Plan Review\n",
+            "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+                "# BP2 USER Branch Plan Review\n\n"
+                "## Packet Reviewability State\nReviewable\n\n"
+                f"## USER Gate State\n{user_gate_value}\n"
+            ),
+        }
+        gate_failures = bundle._branch_planning_review_gate_state_failures(
+            user_gate_packet
+        )
+        if any("invalid USER Gate State" in failure for failure in gate_failures):
+            raise AssertionError(
+                f"canonical USER-gate value {user_gate_value!r} was rejected:\n"
+                + "\n".join(gate_failures)
+            )
+
+    old_generator_output = canonical_support.replace(
+        "## Support Context State",
+        "## USER Gate State",
+    )
+    assert_fails(
+        "support-as-user-gate",
+        stage1_packet(old_generator_output),
+        "misclassified as USER Gate State",
+    )
+
+    original_user_values = set(bundle.BRANCH_PLANNING_USER_GATE_VALUES)
+    bundle.BRANCH_PLANNING_USER_GATE_VALUES.add("context only")
+    try:
+        assert_fails(
+            "global-user-gate-enum-expansion",
+            stage1_packet(old_generator_output),
+            "misclassified as USER Gate State",
+        )
+    finally:
+        bundle.BRANCH_PLANNING_USER_GATE_VALUES.clear()
+        bundle.BRANCH_PLANNING_USER_GATE_VALUES.update(original_user_values)
+
+    unsupported_support = canonical_support.replace(
+        "Context Only - this file is not a USER gate",
+        "Validator Rejected - this file is not a USER gate",
+    )
+    assert_fails(
+        "unsupported-support-context",
+        stage1_packet(unsupported_support),
+        "invalid Support Context State",
+    )
+
+    user_gate_as_support = canonical_support.replace(
+        "Context Only - this file is not a USER gate",
+        "USER Approved - this file is not a USER gate",
+    )
+    assert_fails(
+        "user-gate-as-support-context",
+        stage1_packet(user_gate_as_support),
+        "misclassified as Support Context State",
+    )
+
+    blank_support = canonical_support.replace(
+        "Context Only - this file is not a USER gate and records no new BP2 acceptance.",
+        "",
+    )
+    assert_fails(
+        "blank-support-context",
+        stage1_packet(blank_support),
+        "blank required Support Context State",
+    )
+
+    duplicate_support = canonical_support.replace(
+        "## Review Purpose",
+        "## support context state\n\nContext Only\n\n## Review Purpose",
+    )
+    assert_fails(
+        "duplicate-case-ambiguous-support-context",
+        stage1_packet(duplicate_support),
+        "duplicate or case-ambiguous Support Context State",
+    )
+
+    support_and_gate = canonical_support.replace(
+        "## Review Purpose",
+        "## USER Gate State\n\nPending USER Review\n\n## Review Purpose",
+    )
+    assert_fails(
+        "support-and-user-gate-coexist",
+        stage1_packet(support_and_gate),
+        "cannot coexist",
+    )
+
+    for verb in ("authorizes", "approves", "permits", "grants", "enables"):
+        authorizing_support = (
+            canonical_support
+            + f"\nThis support context {verb} Stage 2 and implementation.\n"
+        )
+        assert_fails(
+            f"support-context-{verb}-stage2",
+            stage1_packet(authorizing_support),
+            "attempts to authorize a USER-gated action",
+        )
+
+    context_in_primary = dict(canonical_packet)
+    context_in_primary["USER Review/PR_READINESS_STAGE1_REVIEW.md"] += (
+        "\n## Support Context State\nContext Only\n"
+    )
+    assert_fails(
+        "support-context-in-primary",
+        context_in_primary,
+        "not allowed in a primary USER decision artifact",
+    )
+
+    context_only_primary = dict(canonical_packet)
+    context_only_primary["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        context_only_primary["USER Review/PR_READINESS_STAGE1_REVIEW.md"].replace(
+            "Pending USER Review",
+            "Context Only",
+        )
+    )
+    assert_fails(
+        "primary-user-gate-as-context",
+        context_only_primary,
+        "misclassified as USER Gate State",
+    )
+
+    missing_support = dict(canonical_packet)
+    del missing_support["Review Aids/USER_BRANCH_PLAN_REVIEW.md"]
+    assert_fails(
+        "missing-stage1-support-artifact",
+        missing_support,
+        "supporting planning context is missing",
+    )
+
+    support_only = {
+        "START_HERE.md": "Current Gate: BP2 support context\n",
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": canonical_support,
+    }
+    assert_fails(
+        "support-context-cannot-satisfy-user-gate",
+        support_only,
+        "appears without USER Gate State",
+    )
+
+    unsupported_user_gate = {
+        "START_HERE.md": "Current Gate: BP2 USER Branch Plan Review\n",
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "# BP2 USER Branch Plan Review\n\n"
+            "## Packet Reviewability State\nReviewable\n\n"
+            "## USER Gate State\nUnsupported Decision\n"
+        ),
+    }
+    assert_fails(
+        "unsupported-user-gate",
+        unsupported_user_gate,
+        "invalid USER Gate State",
+    )
 
 
 def _assert_non_fam007_stage2_wording_requires_ready_stage1() -> None:
@@ -979,6 +1225,7 @@ def main() -> int:
         expected_origin_main="UNKNOWN",
     )
     _assert_stage1_primary_for_stage2_decision()
+    _assert_support_context_state_contract()
     _assert_misrouted_stage1_primary_runs_all_guards()
     _assert_stage1_zip_start_here_contract()
     _assert_stale_primary_aid_is_not_skipped()

@@ -237,6 +237,9 @@ BRANCH_PLANNING_USER_GATE_VALUES = {
     "user blocked",
     "superseded",
 }
+BRANCH_PLANNING_SUPPORT_CONTEXT_VALUES = {
+    "context only",
+}
 BRANCH_PLANNING_PENDING_USER_GATE_VALUES = {
     "pending user review",
     "user revision requested",
@@ -5536,7 +5539,7 @@ def _write_stage1_ready_support_context(
         "",
         "Reviewable - this file supports the dedicated Stage 1 primary review artifact.",
         "",
-        "## USER Gate State",
+        "## Support Context State",
         "",
         "Context Only - this file is not a USER gate and records no new BP2 acceptance.",
         "",
@@ -11584,15 +11587,39 @@ def _field_value(text: str, field_name: str) -> str:
 
 
 def _review_marker_or_section_value(text: str, marker: str) -> str:
-    line_value = _field_value(text, marker)
+    field_name = marker.removesuffix(":")
+    line_value = _field_value(text, field_name)
     if line_value:
         return line_value
-    return _section(text, marker.removesuffix(":")).strip()
+    return _section(text, field_name).strip()
 
 
 def _normalized_gate_value(value: str) -> str:
     normalized = re.sub(r"\s+", " ", value).strip().casefold()
-    return normalized.split(" - ", 1)[0].strip()
+    return normalized.split(" - ", 1)[0].strip().rstrip(".")
+
+
+def _state_marker_count(text: str, marker: str) -> int:
+    field_name = marker.removesuffix(":")
+    pattern = re.compile(
+        rf"^(?:##\s+{re.escape(field_name)}\s*|{re.escape(field_name)}\s*:.*)$",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    return len(pattern.findall(text))
+
+
+def _support_context_authority_failures(file_name: str, text: str) -> list[str]:
+    normalized = re.sub(r"\s+", " ", text).casefold()
+    authority_patterns = (
+        r"\b(?:this\s+)?support (?:context|file|artifact)\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\b",
+        r"\b(?:stage 2|implementation|pr creation|merge|release)\s+(?:is\s+)?(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\b",
+        r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
+    )
+    if any(re.search(pattern, normalized) for pattern in authority_patterns):
+        return [
+            f"{file_name}: support context attempts to authorize a USER-gated action"
+        ]
+    return []
 
 
 def _exact_decision_text(packet_files: Mapping[str, str]) -> str:
@@ -11636,10 +11663,43 @@ def _branch_planning_review_gate_state_failures(
     if not branch_planning_context:
         return failures
 
+    stage1_posture = _is_pr_stage1_packet_posture(packet_files)
+    stage1_primary = _packet_file_text(
+        packet_files,
+        PR_READINESS_STAGE1_REVIEW_FILE,
+    )
+    stage1_ready = (
+        stage1_posture
+        and "stage 1 ready for stage 2" in stage1_primary.casefold()
+    )
     reviewability_values: list[tuple[str, str]] = []
     user_gate_values: list[tuple[str, str]] = []
     for file_name, text in sorted(generated_files.items()):
-        reviewability_value = _field_value(text, "Packet Reviewability State")
+        if _packet_file_basename(file_name) in {
+            USER_BRANCH_VISION_REVIEW_FILE,
+            USER_BRANCH_PLAN_REVIEW_FILE,
+            PR_READINESS_STAGE1_REVIEW_FILE,
+        }:
+            for marker in (
+                "Packet Reviewability State:",
+                "USER Gate State:",
+                "Support Context State:",
+            ):
+                count = _state_marker_count(text, marker)
+                if count > 1:
+                    failures.append(
+                        f"{file_name}: duplicate or case-ambiguous "
+                        f"{marker.removesuffix(':')}"
+                    )
+                if count and not _review_marker_or_section_value(text, marker):
+                    failures.append(
+                        f"{file_name}: blank required {marker.removesuffix(':')}"
+                    )
+
+        reviewability_value = _review_marker_or_section_value(
+            text,
+            "Packet Reviewability State:",
+        )
         if reviewability_value:
             normalized = _normalized_gate_value(reviewability_value)
             reviewability_values.append((file_name, normalized))
@@ -11647,12 +11707,44 @@ def _branch_planning_review_gate_state_failures(
                 failures.append(
                     f"{file_name}: invalid Packet Reviewability State '{reviewability_value}'"
                 )
-        user_gate_value = _field_value(text, "USER Gate State")
+        user_gate_value = _review_marker_or_section_value(text, "USER Gate State:")
         if user_gate_value:
             normalized = _normalized_gate_value(user_gate_value)
             user_gate_values.append((file_name, normalized))
-            if normalized not in BRANCH_PLANNING_USER_GATE_VALUES:
+            if normalized in BRANCH_PLANNING_SUPPORT_CONTEXT_VALUES:
+                failures.append(
+                    f"{file_name}: Support Context State '{user_gate_value}' "
+                    "is misclassified as USER Gate State"
+                )
+            elif normalized not in BRANCH_PLANNING_USER_GATE_VALUES:
                 failures.append(f"{file_name}: invalid USER Gate State '{user_gate_value}'")
+        support_context_value = _review_marker_or_section_value(
+            text,
+            "Support Context State:",
+        )
+        if support_context_value:
+            normalized = _normalized_gate_value(support_context_value)
+            if normalized not in BRANCH_PLANNING_SUPPORT_CONTEXT_VALUES:
+                failures.append(
+                    f"{file_name}: invalid Support Context State "
+                    f"'{support_context_value}'"
+                )
+            if normalized in BRANCH_PLANNING_USER_GATE_VALUES:
+                failures.append(
+                    f"{file_name}: USER Gate State '{support_context_value}' "
+                    "is misclassified as Support Context State"
+                )
+            if _packet_file_basename(file_name) != USER_BRANCH_PLAN_REVIEW_FILE:
+                failures.append(
+                    f"{file_name}: Support Context State is not allowed in a "
+                    "primary USER decision artifact"
+                )
+            if user_gate_value:
+                failures.append(
+                    f"{file_name}: support context and USER gate states cannot "
+                    "coexist in the same artifact"
+                )
+            failures.extend(_support_context_authority_failures(file_name, text))
 
     if reviewability_values and not user_gate_values:
         failures.append(
@@ -11663,6 +11755,36 @@ def _branch_planning_review_gate_state_failures(
         failures.append(
             "USER Review Packet Phase-State Conflict: USER Gate State appears "
             "without Packet Reviewability State"
+        )
+
+    branch_plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    branch_plan_display_name = _packet_file_path(
+        packet_files,
+        USER_BRANCH_PLAN_REVIEW_FILE,
+    )
+    branch_plan_support_count = _state_marker_count(
+        branch_plan_review,
+        "Support Context State:",
+    )
+    branch_plan_user_gate_count = _state_marker_count(
+        branch_plan_review,
+        "USER Gate State:",
+    )
+    if stage1_ready and branch_plan_review:
+        if branch_plan_support_count != 1:
+            failures.append(
+                f"{branch_plan_display_name}: Stage 1-ready support artifact must "
+                "contain exactly one Support Context State"
+            )
+        if branch_plan_user_gate_count:
+            failures.append(
+                f"{branch_plan_display_name}: Stage 1-ready support artifact must "
+                "not contain USER Gate State"
+            )
+    elif branch_plan_support_count:
+        failures.append(
+            f"{branch_plan_display_name}: Support Context State is allowed only "
+            "for Stage 1-ready supporting context"
         )
 
     implementation_requested = any(
@@ -11711,7 +11833,6 @@ def _branch_planning_review_gate_state_failures(
                 f"{display_name} USER Gate State is '{user_gate_state}'"
             )
 
-    branch_plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     if branch_plan_review:
         contract_status = _normalized_gate_value(
             _review_marker_or_section_value(branch_plan_review, "Contract Status:")
