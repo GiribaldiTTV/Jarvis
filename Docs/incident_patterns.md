@@ -1089,6 +1089,11 @@ USER admission decision. Live external confinement must apply the same
 owner-preserving dirty-recovery semantics as the durable receipt whenever tracked
 changes exist. An initialized external-state scaffold with no `audit_log`
 directory is corrupt transaction evidence, not an empty successful inventory.
+Historical repo live-state boundaries must use the same affirmative whole-value
+non-ownership contract as durable receipts, and historical collision proof must
+be one closed collision-clear result. Durable carrier expiry must inspect
+canonical `Current Phase:` and `Phase:` markers as well as optional `Status:`
+rows so PR Readiness cannot hide behind an omitted generic status.
 An intended write set must name a concrete path, validator, target, or similarly
 specific artifact; `files to be determined later` is not bounded scope. A named
 or bounded prefix cannot be extended with `any other files`, additional files,

@@ -8,7 +8,7 @@
 - Record Class: `Historical Carrier Admission Receipt`
 - Record State: `Historical/no-active`
 - Phase: `Historical Traceability`
-- Repo Live-State Boundary: `This receipt does not own current operational facts or current worktree assignment.`
+- Repo Live-State Boundary: `This receipt does not own current operational facts or current worktree assignment; those facts remain Git and helper derived.`
 - Admission Decision Pointer: `USER-approved one-time bounded carrier admission for the fixture.`
 - Admission Scope Receipt: `Bounded fixture repair.`
 - Admission Confinement Receipt: `Tracked mutation stayed in C:\Nexus Worktrees\Governance-Fixture.`

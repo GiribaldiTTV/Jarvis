@@ -21415,6 +21415,19 @@ def _historical_escape_waiver_is_closed(value: str) -> bool:
     return bool(closed is not None and denied is None)
 
 
+def _historical_collision_proof_is_clear(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    return (
+        re.fullmatch(
+            r"(?:no collision at admission|"
+            r"admission checks found no same-worktree, same-branch, "
+            r"dirty-file, or active-owner collision)",
+            normalized,
+        )
+        is not None
+    )
+
+
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Historical Branch",
@@ -21489,6 +21502,10 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         record_text,
         "Admission Decision Pointer",
     )
+    collision_proof = _extract_exact_marker_value(
+        record_text,
+        "Historical Collision Proof",
+    )
     return (
         _extract_exact_marker_value(record_text, "Record Class")
         == "Historical Carrier Admission Receipt"
@@ -21507,8 +21524,8 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         )
         == f"Docs/worktree_slots.md#{branch}"
         and _durable_user_decision_pointer_is_approved(admission_decision)
-        and "does not own" in live_boundary
-        and "current worktree assignment" in live_boundary
+        and _durable_repo_live_state_boundary_is_non_authoritative(live_boundary)
+        and _historical_collision_proof_is_clear(collision_proof)
         and worktree.casefold() in confinement
         and "no active slot" in fold_down
         and _is_complete_historical_absence_claim(
@@ -22052,9 +22069,14 @@ def _durable_carrier_pr_review_started(
             flags=re.M | re.I,
         )
     ]
+    phases = [
+        value.casefold()
+        for marker in ("Current Phase", "Phase")
+        for value in _extract_exact_marker_values(record_text, marker)
+    ]
     phase_started = any(
-        "pr readiness" in status or "pr review" in status
-        for status in statuses
+        "pr readiness" in value or "pr review" in value
+        for value in (*statuses, *phases)
     )
     pr_exists = bool(
         pr_info
@@ -22795,6 +22817,14 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             durable_fixture_text + "\n- Status: `PR Readiness`\n",
             None,
         )
+        and _durable_carrier_pr_review_started(
+            durable_fixture_text + "\n- Current Phase: `PR Readiness Stage 1`\n",
+            None,
+        )
+        and _durable_carrier_pr_review_started(
+            durable_fixture_text + "\n- Phase: `PR Review`\n",
+            None,
+        )
         and not _durable_carrier_pr_review_started(durable_fixture_text, None),
         "durable carrier receipt expiry must detect live PR or PR Readiness review state",
     )
@@ -23497,6 +23527,39 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
+    for contradictory_historical_boundary in (
+        "This receipt does not own nothing; current worktree assignment remains controlled by this receipt.",
+        "This receipt does not own current operational facts or current worktree assignment unless needed.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Repo Live-State Boundary: `This receipt does not own current operational facts or current worktree assignment; those facts remain Git and helper derived.`",
+                    f"Repo Live-State Boundary: `{contradictory_historical_boundary}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: contradictory historical live-state boundary "
+                f"must fail classification: {contradictory_historical_boundary}"
+            ),
+        )
+    for invalid_historical_collision in (
+        "Collision was found at admission.",
+        "No collision was found, but an active-owner collision remains.",
+        "Collision check pending.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Historical Collision Proof: `No collision at admission.`",
+                    f"Historical Collision Proof: `{invalid_historical_collision}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: non-clear historical collision proof "
+                f"must fail classification: {invalid_historical_collision}"
+            ),
+        )
     for invalid_historical_decision in (
         "USER approval was denied.",
         "The USER-approved carrier admission was revoked.",
