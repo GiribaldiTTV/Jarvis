@@ -1008,6 +1008,10 @@ must not be normalized away before journal-to-lock identity comparison.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
+Every modern `Committed` target row must also bind the live confined target bytes
+to its recorded `After SHA256`. A missing target, retained before-image, unrelated
+content, reparse, or read failure is incomplete transaction evidence even when
+snapshot and released-lock proof are valid.
 Snapshot manifest copied-file evidence and the physical snapshot-file inventory
 must equal the journal target set exactly; a valid hash for an unrelated extra
 file, or an unmanifested physical file, is retained pre-write material, not
@@ -1026,7 +1030,12 @@ was complete. Released
 lock evidence must likewise retain the digest parsed by validation through the
 final completion decision. Audit-log discovery must compare pre/post directory
 identity and JSON inventory, then rehash every discovered JSON file; a journal
-that appears or is replaced under the same filename blocks a green result.
+that appears or is replaced under the same filename blocks a green result. A
+second-pass enumeration failure must remain a validation failure, not escape as
+an unhandled error. The
+`audit_log` namespace is flat transaction evidence: any nested directory or
+filesystem alias is corrupt because a non-recursive scan could otherwise hide a
+Prepared or malformed journal below the authoritative audit root.
 Target-scoped live projections must also carry an affirmative current/live/active
 `Record Role` and a `Historical Receipt Boundary` that explicitly prevents
 historical receipts from redefining or granting live authority. Negated role
@@ -1185,7 +1194,9 @@ affirmatively begin with Git and name helper evidence; negated, unavailable,
 unknown, or unverified Git claims fail closed. `Non-Includes` may be a minimal or
 expanded bare exclusion inventory, or use explicit prohibitive wording, but
 `possible`, `not forbidden`, `may occur`, and equivalent retained permissions
-invalidate the whole claim. An unreadable `git status` is an authority failure,
+invalidate the whole claim. A closed-looking inventory followed by full, broad,
+unrestricted, unbounded, retained, or ongoing write/mutation/repository authority
+or access also invalidates the whole value. An unreadable `git status` is an authority failure,
 not an ordinary dirty checkout that ownership prose can satisfy. Optional durable
 `Status` evidence must be absent or singular, and every present status value must
 participate in PR-review-start detection rather than last-value-wins parsing.

@@ -2547,9 +2547,11 @@ def _contains_recovery_payload_field(value: object) -> bool:
 def _validate_modern_target_set_journal(
     payload: dict[str, object],
     target_before_hashes: dict[str, str] | None = None,
+    target_after_hashes: dict[str, str] | None = None,
 ) -> list[str]:
     issues: list[str] = []
     before_hashes = target_before_hashes if target_before_hashes is not None else {}
+    after_hashes = target_after_hashes if target_after_hashes is not None else {}
     if payload.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append("modern target-set transaction journal has an invalid Schema")
     if payload.get("Transition") != TARGET_SET_TRANSITION:
@@ -2601,12 +2603,42 @@ def _validate_modern_target_set_journal(
                 normalized_hashes[hash_field] = value.casefold()
         if target_is_unique and "Before SHA256" in normalized_hashes:
             before_hashes[relative_key] = normalized_hashes["Before SHA256"]
+        if target_is_unique and "After SHA256" in normalized_hashes:
+            after_hashes[relative] = normalized_hashes["After SHA256"]
         if (
             len(normalized_hashes) == 2
             and normalized_hashes["Before SHA256"] == normalized_hashes["After SHA256"]
         ):
             issues.append(
                 f"modern Committed journal target row {index} has no before/after transition"
+            )
+    return issues
+
+
+def _validate_modern_committed_target_evidence(
+    root: Path,
+    target_after_hashes: dict[str, str],
+) -> list[str]:
+    issues: list[str] = []
+    for relative, expected_digest in target_after_hashes.items():
+        relative_parts = _safe_external_relative_parts(relative)
+        if not relative_parts:
+            issues.append(
+                f"modern Committed journal target has an unsafe live path: {relative}"
+            )
+            continue
+        try:
+            actual_digest = _sha256_confined_evidence_file(root, relative_parts)
+        except OSError as exc:
+            issues.append(
+                f"modern Committed journal live target is missing or unconfined for "
+                f"{relative}: {exc}"
+            )
+            continue
+        if actual_digest.casefold() != expected_digest.casefold():
+            issues.append(
+                f"modern Committed journal live target does not match After SHA256 for "
+                f"{relative}"
             )
     return issues
 
@@ -3040,14 +3072,34 @@ def validate_incomplete_target_set_journals(
     except OSError as exc:
         return [f"Target-set transaction audit root is unconfined: {audit_root}: {exc}"]
     try:
-        discovered_paths = sorted(
-            path for path in audit_root.iterdir() if _is_json_audit_entry(path)
-        )
+        discovered_entries = sorted(audit_root.iterdir())
     except OSError as exc:
         return [f"Target-set transaction audit root is unreadable: {audit_root}: {exc}"]
+    discovered_paths = [
+        path for path in discovered_entries if _is_json_audit_entry(path)
+    ]
     discovered_inventory = {
-        _host_path_key(path.name) for path in discovered_paths
+        (
+            _host_path_key(path.name),
+            "reparse"
+            if _has_reparse_point(path)
+            else "directory"
+            if path.is_dir()
+            else "entry",
+        )
+        for path in discovered_entries
     }
+    for discovered_entry in discovered_entries:
+        if _has_reparse_point(discovered_entry):
+            failures.append(
+                "Target-set transaction audit root contains an unconfined filesystem "
+                f"alias: {discovered_entry}"
+            )
+        elif discovered_entry.is_dir():
+            failures.append(
+                "Target-set transaction audit root contains a nested directory; "
+                f"audit evidence must be flat: {discovered_entry}"
+            )
     discovered_hashes: dict[str, str] = {}
     for discovered_path in discovered_paths:
         try:
@@ -3094,9 +3146,11 @@ def validate_incomplete_target_set_journals(
             continue
         if "Transaction State" in payload:
             target_before_hashes: dict[str, str] = {}
+            target_after_hashes: dict[str, str] = {}
             journal_issues = _validate_modern_target_set_journal(
                 payload,
                 target_before_hashes,
+                target_after_hashes,
             )
             state = payload.get("Transaction State")
             if isinstance(state, str) and state.strip() == "Committed":
@@ -3117,6 +3171,12 @@ def validate_incomplete_target_set_journals(
                         set(target_before_hashes),
                     )
                 )
+                journal_issues.extend(
+                    _validate_modern_committed_target_evidence(
+                        root,
+                        target_after_hashes,
+                    )
+                )
         else:
             journal_issues = _validate_legacy_completed_target_set_receipt(
                 root,
@@ -3126,16 +3186,26 @@ def validate_incomplete_target_set_journals(
                 hashlib.sha256(raw_bytes).hexdigest(),
             )
         failures.extend(f"Target-set transaction journal invalid: {path}: {issue}" for issue in journal_issues)
+    rediscovered_paths: list[Path] = []
     try:
-        rediscovered_paths = sorted(
-            path for path in audit_root.iterdir() if _is_json_audit_entry(path)
-        )
+        rediscovered_entries = sorted(audit_root.iterdir())
+        rediscovered_paths = [
+            path for path in rediscovered_entries if _is_json_audit_entry(path)
+        ]
         audit_path_after, audit_after_states = _confined_component_states(
             root,
             ("audit_log",),
         )
         rediscovered_inventory = {
-            _host_path_key(path.name) for path in rediscovered_paths
+            (
+                _host_path_key(path.name),
+                "reparse"
+                if _has_reparse_point(path)
+                else "directory"
+                if path.is_dir()
+                else "entry",
+            )
+            for path in rediscovered_entries
         }
         audit_inventory_changed = (
             audit_path_after != audit_path_before

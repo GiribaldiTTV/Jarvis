@@ -942,6 +942,24 @@ def _classify_comment(body: str) -> list[str]:
             )
         ):
             matched_keywords.append("historical receipt")
+        if rule.family_id == "rar-path-suffix-parser" and not any(
+            context in normalized
+            for context in (
+                "path suffix",
+                "path-suffix",
+                "path traversal",
+                "packet path",
+                "zip path",
+                "folder path",
+                "packet folder",
+                "user packet",
+                "upload zip",
+                "zip token",
+                "matched folder",
+                "c:\\nexus user",
+            )
+        ):
+            matched_keywords = []
         if (
             rule.family_id == "rar-path-suffix-parser"
             and "traversal" in normalized
@@ -1319,6 +1337,16 @@ def _classifier_guardrail_failures() -> list[str]:
     )
     if _classify_comment(rar_path_traversal) != ["rar-path-suffix-parser"]:
         failures.append("Contextual RAR path traversal did not retain its path-suffix family")
+    non_include_suffix = (
+        "Reject permissive suffixes in Non-Includes because a durable carrier receipt "
+        "retains full write authority after its closed exclusion inventory."
+    )
+    if _classify_comment(non_include_suffix) != [
+        "durable-carrier-confinement-parser"
+    ]:
+        failures.append(
+            "A durable Non-Includes suffix finding acquired the unrelated RAR path-suffix family"
+        )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."

@@ -558,8 +558,9 @@ def _write_modern_journal_fixture(
     path.parent.mkdir(parents=True, exist_ok=True)
     target_relative = "worktrees/Fixture/worktree_state.md"
     before_bytes = b"modern fixture before\n"
+    after_bytes = b"modern fixture after\n"
     before_hash = hashlib.sha256(before_bytes).hexdigest()
-    after_hash = hashlib.sha256(b"modern fixture after\n").hexdigest()
+    after_hash = hashlib.sha256(after_bytes).hexdigest()
     snapshot_relative = "snapshots/modern-fixture"
     snapshot_root = root.joinpath(*snapshot_relative.split("/"))
     snapshot_copy = snapshot_root.joinpath(*target_relative.split("/"))
@@ -580,6 +581,9 @@ def _write_modern_journal_fixture(
             "Last Updated": "2026-07-27T23:59:59Z",
         },
     )
+    live_target = root.joinpath(*target_relative.split("/"))
+    live_target.parent.mkdir(parents=True, exist_ok=True)
+    live_target.write_bytes(after_bytes)
     payload: dict[str, object] = {
         "External State Schema": schema,
         "Transition": validator.TARGET_SET_TRANSITION,
@@ -621,6 +625,28 @@ def _write_modern_journal_fixture(
         },
     )
     return path
+
+
+def _write_modern_live_target_mismatch_fixture(root: Path, state: str) -> Path:
+    path = _write_modern_journal_fixture(root)
+    target = root / "worktrees" / "Fixture" / "worktree_state.md"
+    if state == "missing":
+        target.unlink()
+    elif state == "before":
+        target.write_bytes(b"modern fixture before\n")
+    elif state == "unrelated":
+        target.write_bytes(b"unrelated live target contents\n")
+    else:
+        raise AssertionError(f"unknown live target mismatch state {state!r}")
+    return path
+
+
+def _write_modern_nested_audit_directory_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root, state="Prepared")
+    nested_path = root / "audit_log" / "hidden" / "prepared.json"
+    nested_path.parent.mkdir(parents=True, exist_ok=True)
+    path.replace(nested_path)
+    return nested_path
 
 
 def _write_modern_recovery_alias_fixture(root: Path) -> Path:
@@ -1591,6 +1617,37 @@ def _assert_audit_inventory_creation_race_rejected() -> None:
     print("Modern audit fixture: inventory creation race rejected: PASS")
 
 
+def _assert_audit_rediscovery_failure_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-audit-rediscovery-failure-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        audit_root = root / "audit_log"
+        original_iterdir = Path.iterdir
+        audit_enumerations = 0
+
+        def fail_rediscovery(path: Path):
+            nonlocal audit_enumerations
+            if path == audit_root:
+                audit_enumerations += 1
+                if audit_enumerations == 2:
+                    raise OSError("fixture audit rediscovery failure")
+            return original_iterdir(path)
+
+        Path.iterdir = fail_rediscovery
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            Path.iterdir = original_iterdir
+        if audit_enumerations < 2 or not any(
+            "audit inventory changed during validation" in item for item in failures
+        ):
+            raise AssertionError(
+                "audit rediscovery failure escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit fixture: rediscovery failure rejected: PASS")
+
+
 def _assert_audit_file_replacement_race_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-audit-file-race-") as temp_dir:
         root = Path(temp_dir)
@@ -2168,6 +2225,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 value=validator.TARGET_SET_TRANSITION.upper(),
             ),
         ),
+        (
+            "Prepared target-set journal below a nested audit directory",
+            _write_modern_nested_audit_directory_fixture,
+        ),
         *[
             (
                 f"modern journal with whitespace-variant Transition {location}",
@@ -2262,6 +2323,16 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 "2026-07-27T23:59:59Z",
             ),
         ),
+        *[
+            (
+                f"modern Committed journal with {state} live target",
+                lambda root, state=state: _write_modern_live_target_mismatch_fixture(
+                    root,
+                    state,
+                ),
+            )
+            for state in ("missing", "before", "unrelated")
+        ],
         (
             "modern Committed journal with missing snapshot manifest",
             _write_modern_missing_snapshot_fixture,
@@ -2912,6 +2983,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_child_mutation_race_rejected()
     _assert_snapshot_inventory_creation_race_rejected()
     _assert_audit_inventory_creation_race_rejected()
+    _assert_audit_rediscovery_failure_rejected()
     _assert_audit_file_replacement_race_rejected()
     _assert_snapshot_manifest_replacement_race_rejected()
     _assert_lock_replacement_race_rejected()
@@ -2928,6 +3000,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     def accept_modern_state(
         payload: dict[str, object],
         target_before_hashes: dict[str, str] | None = None,
+        target_after_hashes: dict[str, str] | None = None,
     ) -> list[str]:
         if target_before_hashes is not None:
             first_before_hash = ""
@@ -3154,6 +3227,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern Committed journal snapshot postdates the transaction"
         ],
         "_validate_modern_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "modern committed live-target After SHA256 evidence ignored",
+        negative_setups["modern Committed journal with unrelated live target"],
+        "_validate_modern_committed_target_evidence",
         lambda *_args, **_kwargs: [],
     )
     _assert_journal_mutation_killed(

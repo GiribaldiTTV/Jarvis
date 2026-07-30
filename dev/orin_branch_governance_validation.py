@@ -21280,7 +21280,12 @@ def _carrier_non_includes_are_prohibitive(value: str) -> bool:
         r"\b(?:allowed|authorized|permitted|approved|granted|included|not excluded|"
         r"not forbidden|not prohibited|not blocked|in scope|possible|remains possible|"
         r"may proceed|can proceed|could proceed|may mutate|can mutate|could mutate|"
-        r"may occur|can occur|could occur|still available)\b",
+        r"may occur|can occur|could occur|still available|"
+        r"(?:full|broad|global|unbounded|unrestricted|repo-wide|repository-wide|"
+        r"retained|ongoing) (?:write |mutation |repository |repo )?"
+        r"(?:authority|access|permission)|"
+        r"(?:write|mutation|repository|repo) authority (?:remains|continues|is retained)|"
+        r"authority (?:remains|continues|is retained))\b",
         permission_scrubbed,
     )
     return bool(
@@ -22936,6 +22941,10 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "External-state mutation; PR creation; merge; release are not forbidden.",
         "External-state mutation; PR creation; merge; release may occur.",
         "External-state mutation; PR creation; merge; release are still available.",
+        "External-state mutation; PR creation; merge; release; full write authority remains.",
+        "External-state mutation; PR creation; merge; release; unrestricted mutation authority.",
+        "External-state mutation; PR creation; merge; release; retained write authority.",
+        "External-state mutation; PR creation; merge; release; broad repository access remains.",
     ):
         require(
             not _is_durable_carrier_admission_receipt(
@@ -23906,6 +23915,23 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 f"{historical_fixture}: receipt-owned operational authority must "
                 f"fail classification: {invalid_operational_truth}"
+            ),
+        )
+    for permissive_historical_non_include in (
+        "External-state mutation; PR creation; merge; release; full write authority remains.",
+        "External-state mutation; PR creation; merge; release; unrestricted mutation authority.",
+        "External-state mutation; PR creation; merge; release; retained write authority.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Historical Non-Includes: `External-state mutation; PR creation; merge; release.`",
+                    f"Historical Non-Includes: `{permissive_historical_non_include}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: permissive historical Non-Includes must "
+                f"fail classification: {permissive_historical_non_include}"
             ),
         )
     for invalid_future_gate in (
