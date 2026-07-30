@@ -888,6 +888,42 @@ def _write_mismatched_nested_string_transition_fixture(root: Path) -> Path:
     return path
 
 
+def _write_mismatched_nested_member_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "mismatched-nested-member-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":[1,{bad],"x":1}], "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_unmatched_inner_closer_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "unmatched-inner-closer-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":{bad],"x":1}, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_unmatched_inner_closer_array_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "unmatched-inner-closer-array-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":[bad},"x"], "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -2022,6 +2058,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             _write_mismatched_nested_string_transition_fixture,
         ),
         (
+            "matching malformed JSON after mismatched nested member",
+            _write_mismatched_nested_member_transition_fixture,
+        ),
+        (
+            "matching malformed JSON after unmatched inner closer",
+            _write_unmatched_inner_closer_transition_fixture,
+        ),
+        (
+            "matching malformed JSON after unmatched inner closer in array",
+            _write_unmatched_inner_closer_array_transition_fixture,
+        ),
+        (
             "matching malformed JSON with oversized integer",
             _write_oversized_integer_transition_fixture,
         ),
@@ -2745,6 +2793,18 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "mismatched nested delimiter returns at an inner comma",
         negative_setups["matching malformed JSON after mismatched nested comma"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "mismatched nested delimiter discards a nonempty inner container",
+        negative_setups["matching malformed JSON after mismatched nested member"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "unmatched inner closer discards accountable malformed depth",
+        negative_setups["matching malformed JSON after unmatched inner closer"],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

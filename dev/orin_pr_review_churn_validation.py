@@ -129,6 +129,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "malformed json string",
             "nested malformed values",
             "malformed-value nesting",
+            "unmatched inner closer",
             "root-member delimiter",
             "outer-object delimiter",
             "illegal container",

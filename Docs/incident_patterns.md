@@ -1048,7 +1048,9 @@ Assignment evidence that is revoked, expired, inactive, former, or historical is
 not active assignment authority; the same stale-state rejection applies to USER
 admission approval, active-owner claims, and worktree ownership-ledger evidence.
 An intended write set must name a concrete path, validator, target, or similarly
-specific artifact; `files to be determined later` is not bounded scope. Routing
+specific artifact; `files to be determined later` is not bounded scope. A named
+or bounded prefix cannot be extended with `any other files`, additional files,
+arbitrary files, or equivalent open-ended additions. Routing
 must point through or to the owning/legal carrier and must reject Governance-to-
 sibling or other-worktree destinations. `Non-Includes` must be
 prohibitive, not a noun checklist that later says mutation is allowed or not
@@ -1110,7 +1112,10 @@ affirmatively begin with Git and name helper evidence; negated, unavailable,
 unknown, or unverified Git claims fail closed. `Non-Includes` may be a minimal or
 expanded bare exclusion inventory, or use explicit prohibitive wording, but
 `possible`, `not forbidden`, `may occur`, and equivalent retained permissions
-invalidate the whole claim.
+invalidate the whole claim. An unreadable `git status` is an authority failure,
+not an ordinary dirty checkout that ownership prose can satisfy. Optional durable
+`Status` evidence must be absent or singular, and every present status value must
+participate in PR-review-start detection rather than last-value-wins parsing.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,
@@ -1136,8 +1141,10 @@ Generic `oversized integer` wording likewise requires journal, audit, JSON-decod
 transaction, target-set, or external-state context.
 Malformed-value recovery must track nested containers until an outer-object member
 delimiter is reached; an inner comma or brace cannot hide a later root Transition.
-A mismatched closer must reconcile only the container depth it can account for,
-and recovery may resume only at a comma followed by a plausible object member.
+A mismatched closer must reconcile only the container depth it can account for.
+An unmatched closer may terminate an empty malformed container but must not
+discard accountable malformed-value depth, and recovery may resume only at a
+comma followed by a plausible object member.
 An inner comma followed by a bare token or array value is not root-member proof.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains

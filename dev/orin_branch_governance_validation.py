@@ -16994,6 +16994,10 @@ def _git_status_porcelain(*, tracked_only: bool = False) -> str:
     return completed.stdout.strip()
 
 
+def _git_status_read_failed(status_output: str) -> bool:
+    return status_output.startswith("__GIT_STATUS_ERROR__")
+
+
 def _git_output_at(cwd: Path, args: tuple[str, ...]) -> tuple[str, str]:
     completed = subprocess.run(
         ("git", *args),
@@ -21215,6 +21219,18 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         for marker in singleton_markers
     ):
         return False
+    status_markers = re.findall(
+        r"^[ \t]*(?:-[ \t]*)?status:[^\r\n]*$",
+        record_text,
+        flags=re.M | re.I,
+    )
+    canonical_status_markers = re.findall(
+        r"^[ \t]*(?:-[ \t]*)?Status:[ \t]*[^ \t\r\n][^\r\n]*$",
+        record_text,
+        flags=re.M,
+    )
+    if len(status_markers) > 1 or len(status_markers) != len(canonical_status_markers):
+        return False
     record_class = _extract_exact_marker_value(record_text, "Record Class")
     live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
     fold_down = _extract_exact_marker_value(record_text, "Merge-Stable Fold-Down").casefold()
@@ -21743,6 +21759,7 @@ def _assigned_worktree_confinement_semantics_are_safe(
     tracked_status = _git_status_porcelain(tracked_only=True)
     return bool(
         _durable_active_owner_is_explicit(value("Active Thread Owner"))
+        and not _git_status_read_failed(tracked_status)
         and _durable_thread_assignment_is_active(value("Thread Assignment Status"))
         and _durable_ownership_ledger_is_active(value("Worktree Ownership Ledger"))
         and _durable_write_set_is_bounded(value("Intended Write Set"))
@@ -21832,7 +21849,12 @@ def _durable_write_set_is_bounded(value: str) -> bool:
         r"(?:absent|missing|unknown|unapproved|not approved)|unbounded|unrestricted|"
         r"all files|any file|entire (?:repo|repository|worktree)|to be determined|"
         r"tbd|unspecified|not (?:yet )?(?:named|selected|identified)|"
-        r"(?:named|selected|identified) later|as needed|relevant files|applicable files)\b",
+        r"(?:named|selected|identified) later|as needed|relevant files|applicable files|"
+        r"(?:any|all|other|additional|extra|more|arbitrary|whatever|miscellaneous|"
+        r"remaining|supplemental|ancillary|unnamed|unlisted|undisclosed|future) "
+        r"(?:other )?(?:files?|paths?|artifacts?|targets?|changes?)|"
+        r"anything (?:else|required|needed)|whatever (?:else|is needed)|"
+        r"(?:the )?rest of (?:the )?(?:repo|repository|worktree))\b",
         normalized,
     )
     boundary = re.search(r"\b(?:bounded|exact|named|only)\b", normalized)
@@ -21855,8 +21877,18 @@ def _durable_carrier_pr_review_started(
     record_text: str,
     pr_info: dict[str, object] | None,
 ) -> bool:
-    status = _extract_exact_marker_value(record_text, "Status").casefold()
-    phase_started = "pr readiness" in status or "pr review" in status
+    statuses = [
+        match.strip().strip("`").strip().casefold()
+        for match in re.findall(
+            r"^[ \t]*(?:-[ \t]*)?Status:[ \t]*`?([^\r\n]+?)`?[ \t]*$",
+            record_text,
+            flags=re.M | re.I,
+        )
+    ]
+    phase_started = any(
+        "pr readiness" in status or "pr review" in status
+        for status in statuses
+    )
     pr_exists = bool(
         pr_info
         and (
@@ -22081,7 +22113,12 @@ def _validate_assigned_worktree_confinement_contract(
         )
 
     tracked_status = _git_status_porcelain(tracked_only=True)
-    if tracked_status:
+    status_failed = _git_status_read_failed(tracked_status)
+    require(
+        not status_failed,
+        f"Git status could not be read before worktree confinement validation: {tracked_status}",
+    )
+    if tracked_status and not status_failed:
         dirty_collision_state = explicit_values["Dirty Worktree Collision Check"]
         require(
             _durable_dirty_worktree_ownership_is_affirmative(dirty_collision_state),
@@ -22365,6 +22402,36 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_durable_carrier_admission_receipt(durable_fixture_text),
         f"{durable_fixture}: exact durable carrier admission receipt must classify",
     )
+    original_git_status_porcelain = globals()["_git_status_porcelain"]
+    git_status_failures: list[str] = []
+    try:
+        globals()["_git_status_porcelain"] = (
+            lambda *, tracked_only=False: "__GIT_STATUS_ERROR__ fixture index unreadable"
+        )
+        require(
+            not _external_state_has_current_confinement(
+                current_external_authority_fixture,
+                "feature/governance-fixture",
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+            ),
+            "external live authority must fail closed when Git status cannot be read",
+        )
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: git_status_failures.append(message)
+            if not condition
+            else None,
+            durable_fixture,
+            durable_fixture_text,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            "origin/feature/governance-fixture",
+        )
+    finally:
+        globals()["_git_status_porcelain"] = original_git_status_porcelain
+    require(
+        any("Git status could not be read" in item for item in git_status_failures),
+        f"{durable_fixture}: Git-status failure must block durable confinement authority",
+    )
     pending_decision_fixture = durable_fixture_text.replace(
         "USER approved this one-time bounded carrier admission for the fixture worktree assignment.",
         "Pending USER decision; no approval recorded.",
@@ -22447,6 +22514,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         )
         and not _durable_carrier_pr_review_started(durable_fixture_text, None),
         "durable carrier receipt expiry must detect live PR or PR Readiness review state",
+    )
+    duplicate_status_fixture = (
+        durable_fixture_text
+        + "\n- Status: `PR Readiness`\n"
+        + "- Status: `Implementation`\n"
+    )
+    require(
+        not _is_durable_carrier_admission_receipt(duplicate_status_fixture)
+        and _durable_carrier_pr_review_started(duplicate_status_fixture, None)
+        and _is_durable_carrier_admission_receipt(
+            durable_fixture_text + "\n- Status: `Implementation`\n"
+        )
+        and not _is_durable_carrier_admission_receipt(
+            durable_fixture_text + "\n- status: `Implementation`\n"
+        )
+        and _durable_carrier_pr_review_started(
+            durable_fixture_text + "\n- status: `PR Readiness`\n",
+            None,
+        ),
+        "durable carrier receipt must reject duplicate Status markers while preserving one optional non-review status",
     )
     require(
         _pr_lookup_proves_no_pull_request(
@@ -22772,6 +22859,36 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Intended Write Set: `Bounded fixture validator files only.`",
             "Intended Write Set: `Only governance files.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Bounded fixture validator files only, plus any other files.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only fixture validator files and additional files.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Exact fixture validator files, or whatever files are needed.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Bounded fixture validator files plus miscellaneous artifacts.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Named fixture validator files and the rest of the repository.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only fixture validator files plus whatever else.`",
             "has no bounded intended write set",
         ),
         (

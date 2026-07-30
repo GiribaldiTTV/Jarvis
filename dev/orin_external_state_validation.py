@@ -2542,11 +2542,19 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
                     None,
                 )
                 if matching_index is None:
-                    nested_stack.pop()
-                    nested_has_content.pop()
+                    # An unmatched closer can terminate an empty malformed
+                    # container, but it cannot discard depth that already
+                    # contains accountable malformed-value content.
+                    if not nested_has_content[-1]:
+                        nested_stack.pop()
+                        nested_has_content.pop()
                 else:
-                    del nested_stack[matching_index:]
-                    del nested_has_content[matching_index:]
+                    intervening_has_content = any(
+                        nested_has_content[matching_index + 1 :]
+                    )
+                    if not intervening_has_content:
+                        del nested_stack[matching_index:]
+                        del nested_has_content[matching_index:]
                 if nested_has_content:
                     nested_has_content[-1] = True
             elif character == "}" and first_closing_brace is None:
