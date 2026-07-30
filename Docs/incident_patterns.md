@@ -955,8 +955,11 @@ when a nominally valid UTF-8 decode contains NUL structure; successful UTF-8
 decoding alone cannot suppress the UTF-16 evidence path. Strictly decoded JSON
 with a non-object root remains malformed target-set evidence when any nested
 object declares the target-set transition; an array root cannot make that
-transaction disappear. Unrelated UTF-16 text and unrelated JSON arrays remain
-outside the target-set family.
+transaction disappear. An object envelope cannot hide the same evidence either:
+when the root is not itself the transaction but a nested value declares the
+target-set transition, the entry is malformed wrapped transaction evidence.
+Unrelated UTF-16 text, arrays, and object envelopes remain outside the target-set
+family.
 Any case-insensitive match to the exact target-set transition is a journal
 candidate and must fail unless both the `Transition` key and value are canonical.
 The released lock's normalized write set must equal the journal audit, snapshot,
@@ -1250,6 +1253,9 @@ Path extraction must also preserve clause polarity. A path in `is excluded`,
 `not included`, `outside scope`, `read-only`, or equivalent negative wording is
 not declared write authority. A separate positive path clause may coexist with a
 general all-other-files exclusion, but only paths from positive clauses count.
+Positive inventories may name safe root-level files such as `README.md`,
+`main.py`, or `.gitignore`; requiring a directory separator would falsely reject
+an exact declared mutation at the repository root.
 When tracked files are dirty, the active `Current Write Set` or `Intended Write
 Set` must enumerate every dirty repo-relative path. Ownership and recovery prose
 cannot authorize a dirty path outside that inventory; both source and destination
@@ -1281,7 +1287,9 @@ review state begins unless it has already folded into historical/no-active form.
 A durable `USER Decision Pointer` must be a whole-value approval contract bound
 to the receipt's exact branch, worktree, and slot. Generic approval text, an
 approval naming another carrier, or a valid prefix followed by retained foreign
-admission cannot authorize the current receipt.
+admission cannot authorize the current receipt. When the pointer includes an
+optional date prefix, that date must be a real calendar date no later than the
+current UTC date; impossible or future dates cannot prove prior USER approval.
 A historical `Admission Decision Pointer` must preserve that same exact carrier
 identity binding; fold-down changes authority posture, not which USER decision
 the receipt proves.
@@ -1315,6 +1323,8 @@ Likewise, `historical receipt` requires carrier, admission, confinement, worktre
 assignment, fold-down, or durable-authority context before it maps to the durable
 carrier family. When an exact-scope comment also strongly matches another covered
 family, preserve both matches even if the prose omits that family's acronym.
+`External branch state` is explicit repo-live-state context, so a mixed comment
+that also names an exact external transaction family must retain both families.
 Generic `json decoder` wording likewise requires journal, audit, transaction,
 target-set, or external-state context before it maps to transaction evidence.
 The same context rule applies to generic `malformed JSON string` wording.

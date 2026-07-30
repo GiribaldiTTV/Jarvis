@@ -1145,6 +1145,7 @@ def _classify_comment(body: str) -> list[str]:
                 "live state leak",
                 "repo branch record",
                 "external rri gate",
+                "external branch state",
             )
         )
         competing_families = [
@@ -1497,6 +1498,19 @@ def _classifier_guardrail_failures() -> list[str]:
     }.issubset(genuine_repo_live_families):
         failures.append(
             "Genuine exact-scope and repo-live-state review lost one of its families"
+        )
+    external_branch_state_multi_family_comment = (
+        "Reject an invalid modern journal and a stale external branch state Current Cycle."
+    )
+    external_branch_state_families = _classify_comment(
+        external_branch_state_multi_family_comment
+    )
+    if not {
+        "external-state-transaction-evidence-parser",
+        "repo-live-state-boundary-parser",
+    }.issubset(external_branch_state_families):
+        failures.append(
+            "External branch state context did not preserve the exact and repo-live families"
         )
     exact_override_comment = (
         "Restrict the exact-family override so another covered family is not hidden."

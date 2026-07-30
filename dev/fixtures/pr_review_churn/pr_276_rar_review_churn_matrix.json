@@ -138,21 +138,21 @@
       },
       {
         "pr": 310,
-        "connector_comments": 217,
+        "connector_comments": 221,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 110,
-          "external-state-transaction-evidence-parser": 110,
+          "durable-carrier-confinement-parser": 112,
+          "external-state-transaction-evidence-parser": 112,
           "pr-readiness-review-risk-parser": 4,
-          "pr2-comment-family-classifier": 15,
+          "pr2-comment-family-classifier": 16,
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-code-to-visual-reference-parser": 2,
           "rar-phase-advancement-parser": 1,
-          "rar-table-row-parser": 5,
-          "repo-live-state-boundary-parser": 6
+          "rar-table-row-parser": 6,
+          "repo-live-state-boundary-parser": 9
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, ended live-role rejection, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, positive-clause-only write-path authorization, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for active and historical admission receipts. Its classifier family requires explicit external-state transaction context and leaves generic payment or database journals unknown. The receipt records the exact live 217-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, ended live-role rejection, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots and object envelopes containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, positive-clause-only write-path authorization including safe root-level files, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot with valid non-future optional dates for active and historical admission receipts. Its classifier family requires explicit external-state transaction context, preserves external branch state in genuine mixed-family findings, and leaves generic payment or database journals unknown. The receipt records the exact live 221-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -307,7 +307,11 @@
           "dev/orin_branch_governance_validation.py derives declared write paths only from positive clauses, so excluded, not-included, outside-scope, read-only, and no-write path clauses cannot authorize dirty files.",
           "dev/orin_branch_governance_validation.py normalizes punctuation and separators in durable Status, Current Phase, and Phase values before detecting PR Readiness or PR Review expiry.",
           "dev/orin_external_state_validation.py scans BOM-less UTF-16 little- and big-endian candidates when a nominal UTF-8 decode contains NULs, and the fixture suite kills a naive-UTF-8 decoder mutant while preserving unrelated encoded text.",
-          "dev/orin_external_state_validation.py rejects non-object JSON roots that contain nested target-set transition evidence, and the fixture suite kills a disabled-root-detection mutant while preserving unrelated arrays as non-candidates."
+          "dev/orin_external_state_validation.py rejects non-object JSON roots that contain nested target-set transition evidence, and the fixture suite kills a disabled-root-detection mutant while preserving unrelated arrays as non-candidates.",
+          "dev/orin_external_state_validation.py rejects object envelopes that wrap target-set transition evidence, while unrelated nested objects remain non-candidates and a disabled nested-detection mutant is killed.",
+          "dev/orin_branch_governance_validation.py recognizes safe root-level file paths in positive write-set clauses without treating excluded root files as mutation authority.",
+          "dev/orin_pr_review_churn_validation.py preserves repo-live-state coverage for external branch state wording in mixed exact-scope comments.",
+          "dev/orin_branch_governance_validation.py validates optional durable and historical USER decision dates and rejects impossible or future approval evidence."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1214,6 +1218,22 @@
       {
         "family_id": "external-state-transaction-evidence-parser",
         "comment": "Reject a valid JSON array or other non-object root when nested object evidence declares the canonical target-set transition."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Reject target-set transactions wrapped in an object envelope instead of inspecting only the root dictionary."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Recognize safe root-level files such as README.md, main.py, and .gitignore in a durable Intended Write Set."
+      },
+      {
+        "family_id": "repo-live-state-boundary-parser",
+        "comment": "Preserve external branch state Current Cycle matches when the same comment also reports an invalid modern journal."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject future-dated or impossible USER Decision Pointer evidence in durable and historical carrier admission receipts."
       }
     ],
     "unknown_comment_guardrails": [

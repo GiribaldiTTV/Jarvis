@@ -830,6 +830,20 @@ def _write_non_object_target_set_transaction_fixture(root: Path) -> Path:
     return path
 
 
+def _write_wrapped_target_set_transaction_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "prepared-envelope.json"
+    atomic_write_json(
+        path,
+        {
+            "Envelope": {
+                "Transition": validator.TARGET_SET_TRANSITION,
+                "Transaction State": "Prepared",
+            }
+        },
+    )
+    return path
+
+
 def _write_modern_recovery_alias_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -2568,6 +2582,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
+            "unrelated nested JSON object audit",
+            lambda root: atomic_write_json(
+                root / "audit_log" / "unrelated-envelope.json",
+                {"Envelope": {"Transition": "Other audit", "State": "Complete"}},
+            ),
+        ),
+        (
             "unrelated non-JSON audit names target-set phrase only in Notes",
             lambda root: (
                 (root / "audit_log").mkdir(parents=True, exist_ok=True),
@@ -2707,6 +2728,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "target-set transaction stored below a non-object JSON root",
             _write_non_object_target_set_transaction_fixture,
+        ),
+        (
+            "target-set transaction wrapped below an object JSON root",
+            _write_wrapped_target_set_transaction_fixture,
         ),
         *[
             (
@@ -3767,6 +3792,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         "non-object JSON target-set root ignored",
         negative_setups[
             "target-set transaction stored below a non-object JSON root"
+        ],
+        "_json_value_has_target_set_transition",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
+        "wrapped JSON target-set object ignored",
+        negative_setups[
+            "target-set transaction wrapped below an object JSON root"
         ],
         "_json_value_has_target_set_transition",
         lambda *_args, **_kwargs: False,

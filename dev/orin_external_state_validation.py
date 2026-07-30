@@ -3406,6 +3406,11 @@ def validate_incomplete_target_set_journals(
             )
             continue
         if not _is_target_set_transaction(payload):
+            if _json_value_has_target_set_transition(payload):
+                failures.append(
+                    "Target-set transaction journal is wrapped below the JSON root: "
+                    f"{path}"
+                )
             continue
         if "Transaction State" in payload:
             target_before_hashes: dict[str, str] = {}

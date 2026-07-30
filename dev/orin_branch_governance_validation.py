@@ -21221,16 +21221,29 @@ def _durable_user_decision_pointer_matches_carrier(
         return False
     normalized = re.sub(r"\s+", " ", value.strip(" `\t\r\n."))
     identity_contract = re.fullmatch(
-        r"(?:\d{4}-\d{2}-\d{2} )?USER approved this one-time bounded carrier "
+        r"(?:(?P<decision_date>\d{4}-\d{2}-\d{2}) )?"
+        r"USER approved this one-time bounded carrier "
         r"admission for branch "
         r"(?P<branch>\S+) in worktree (?P<worktree>.+?) at slot "
         r"(?P<slot>runtime-active-[1-3])",
         normalized,
         flags=re.I,
     )
+    if identity_contract is None:
+        return False
+    decision_date = identity_contract.group("decision_date")
+    if decision_date is not None:
+        try:
+            parsed_decision_date = datetime.strptime(
+                decision_date,
+                "%Y-%m-%d",
+            ).date()
+        except ValueError:
+            return False
+        if parsed_decision_date > datetime.now(timezone.utc).date():
+            return False
     return bool(
-        identity_contract is not None
-        and identity_contract.group("branch") == branch
+        identity_contract.group("branch") == branch
         and identity_contract.group("slot") == slot_id
         and _normalized_local_path(identity_contract.group("worktree"))
         == _normalized_local_path(worktree)
@@ -22221,8 +22234,11 @@ def _declared_repo_write_paths(
     host_os_name: str | None = None,
 ) -> set[str]:
     candidate_pattern = re.compile(
-        r"(?<![a-z0-9_.-])((?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+"
-        r"(?:\.[a-z0-9]+)?)(?![a-z0-9_.-])",
+        r"(?<![a-z0-9_.-])(?P<path>"
+        r"(?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+(?:\.[a-z0-9]+)?|"
+        r"\.[a-z0-9][a-z0-9_.-]*|"
+        r"[a-z0-9][a-z0-9_.-]*\.[a-z0-9][a-z0-9_.-]*"
+        r")(?![a-z0-9_.-])",
         flags=re.I,
     )
     exclusion_pattern = re.compile(
@@ -22246,7 +22262,7 @@ def _declared_repo_write_paths(
         clause = value[clause_start:clause_end]
         if exclusion_pattern.search(clause):
             continue
-        candidates.append(match.group(1))
+        candidates.append(match.group("path"))
     return {
         path_key
         for candidate in candidates
@@ -23208,6 +23224,29 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         not _is_durable_carrier_admission_receipt(pending_decision_fixture),
         f"{durable_fixture}: pending USER decision text must not prove bootstrap admission",
     )
+    dated_user_decision = "2000-01-01 " + valid_user_decision
+    require(
+        _is_durable_carrier_admission_receipt(
+            durable_fixture_text.replace(valid_user_decision, dated_user_decision)
+        ),
+        f"{durable_fixture}: a valid non-future USER decision date must classify",
+    )
+    for invalid_dated_decision in (
+        "2099-01-01 " + valid_user_decision,
+        "2026-13-99 " + valid_user_decision,
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    valid_user_decision,
+                    invalid_dated_decision,
+                )
+            ),
+            (
+                f"{durable_fixture}: future or invalid USER decision date must "
+                f"fail closed: {invalid_dated_decision}"
+            ),
+        )
     require(
         _durable_assignment_status_is_derived(
             "Durable receipt; live status is derived."
@@ -23688,6 +23727,17 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         f"{durable_fixture}: declared dirty path must pass write-set coverage",
     )
+    for root_file in ("README.md", "main.py", ".gitignore"):
+        require(
+            _tracked_dirty_paths_are_declared(
+                f" M {root_file}",
+                f"Only {root_file}",
+            ),
+            (
+                f"{durable_fixture}: declared root-level file must pass "
+                f"write-set coverage: {root_file}"
+            ),
+        )
     require(
         not _tracked_dirty_paths_are_declared(
             " M src/app.py",
@@ -23699,6 +23749,9 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "Only src/app.py is excluded",
         "Bounded: src/app.py is not included",
         "Exact src/app.py is outside scope",
+        "Only README.md is excluded",
+        "Bounded: main.py is not included",
+        "Exact .gitignore is outside scope",
     ):
         require(
             not _durable_write_set_is_bounded(excluded_write_set)
@@ -24368,6 +24421,32 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
+    dated_historical_decision = "2000-01-01 " + valid_historical_decision
+    require(
+        _is_historical_carrier_admission_receipt(
+            historical_fixture_text.replace(
+                valid_historical_decision,
+                dated_historical_decision,
+            )
+        ),
+        f"{historical_fixture}: a valid non-future decision date must classify",
+    )
+    for invalid_dated_decision in (
+        "2099-01-01 " + valid_historical_decision,
+        "2026-13-99 " + valid_historical_decision,
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    valid_historical_decision,
+                    invalid_dated_decision,
+                )
+            ),
+            (
+                f"{historical_fixture}: future or invalid USER decision date must "
+                f"fail closed: {invalid_dated_decision}"
+            ),
+        )
     for contradictory_historical_boundary in (
         "This receipt does not own nothing; current worktree assignment remains controlled by this receipt.",
         "This receipt does not own current operational facts or current worktree assignment unless needed.",
