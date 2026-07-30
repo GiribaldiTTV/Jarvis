@@ -3049,6 +3049,9 @@ def validate_incomplete_target_set_journals(
 ) -> list[str]:
     failures: list[str] = []
     committed_target_after_hash_sets: list[dict[str, str]] = []
+    committed_snapshot_evidence: list[
+        tuple[object, dict[str, str], object]
+    ] = []
     audit_root = root / "audit_log"
     if _has_reparse_point(audit_root):
         return [
@@ -3161,12 +3164,21 @@ def validate_incomplete_target_set_journals(
             state = payload.get("Transaction State")
             if isinstance(state, str) and state.strip() == "Committed":
                 if target_before_hashes:
+                    snapshot = payload.get("Snapshot")
+                    transaction_updated = payload.get("Last Updated")
                     journal_issues.extend(
                         _validate_modern_snapshot_evidence(
                             root,
-                            payload.get("Snapshot"),
+                            snapshot,
                             target_before_hashes,
-                            payload.get("Last Updated"),
+                            transaction_updated,
+                        )
+                    )
+                    committed_snapshot_evidence.append(
+                        (
+                            snapshot,
+                            dict(target_before_hashes),
+                            transaction_updated,
                         )
                     )
                 journal_issues.extend(
@@ -3293,6 +3305,16 @@ def validate_incomplete_target_set_journals(
             for issue in _validate_modern_committed_target_evidence(
                 root,
                 target_after_hashes,
+            )
+        )
+    for snapshot, target_before_hashes, transaction_updated in committed_snapshot_evidence:
+        failures.extend(
+            "Target-set transaction snapshot changed during validation: " + issue
+            for issue in _validate_modern_snapshot_evidence(
+                root,
+                snapshot,
+                target_before_hashes,
+                transaction_updated,
             )
         )
     return failures

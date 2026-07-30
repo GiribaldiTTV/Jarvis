@@ -1721,6 +1721,41 @@ def _assert_live_target_final_revalidation_rejected() -> None:
     print("Modern live-target fixture: final revalidation race rejected: PASS")
 
 
+def _assert_snapshot_final_revalidation_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-final-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        snapshot_root = root / "snapshots" / "modern-fixture"
+        original_lock_validation = validator._validate_modern_lock_evidence
+        lock_validations = 0
+
+        def mutate_during_later_validation(*args, **kwargs):
+            nonlocal lock_validations
+            issues = original_lock_validation(*args, **kwargs)
+            lock_validations += 1
+            if lock_validations == 1:
+                (snapshot_root / "late-unmanifested.txt").write_bytes(
+                    b"late snapshot bytes\n"
+                )
+            return issues
+
+        validator._validate_modern_lock_evidence = mutate_during_later_validation
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._validate_modern_lock_evidence = original_lock_validation
+        if lock_validations != 1 or not any(
+            "snapshot changed during validation" in item
+            and "unmanifested files" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "post-snapshot lock-phase mutation escaped final validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: final revalidation race rejected: PASS")
+
+
 def _assert_audit_file_replacement_race_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-audit-file-race-") as temp_dir:
         root = Path(temp_dir)
@@ -3059,6 +3094,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_audit_final_inventory_creation_race_rejected()
     _assert_audit_rediscovery_failure_rejected()
     _assert_live_target_final_revalidation_rejected()
+    _assert_snapshot_final_revalidation_rejected()
     _assert_audit_file_replacement_race_rejected()
     _assert_snapshot_manifest_replacement_race_rejected()
     _assert_lock_replacement_race_rejected()

@@ -1028,7 +1028,10 @@ the manifest itself must retain the same digest through that traversal. After
 those final hashes, the complete physical inventory must be enumerated again and
 compared with both the first inventory and the manifest. A file created, removed,
 or substituted during hashing blocks a green result even when the first inventory
-was complete. Released
+was complete. The complete snapshot contract must then be revalidated again at
+the final journal-validation boundary after lock, live-target, and audit checks;
+a snapshot changed during any later validation phase cannot inherit the earlier
+green result. Released
 lock evidence must likewise retain the digest parsed by validation through the
 final completion decision. Audit-log discovery must compare pre/post directory
 identity and JSON inventory, then rehash every discovered JSON file; a journal
