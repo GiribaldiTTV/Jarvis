@@ -1077,7 +1077,14 @@ closed, ceased, or lapsed, roles that are revoked, withdrawn, cancelled, frozen,
 suspended, disabled, paused, deactivated, dormant, halted, stopped, or on hold,
 roles that were never active, have not started, or failed to activate, and
 conditional boundary exceptions such as `unless` remain negative evidence. A
-protective historical boundary also fails when a
+live-role identity and authority shape must be proven by whole tokens; embedded
+substrings such as `Delivery authority`, `Delivery state`, or `Current
+statement` are not current/live/active authority. `Not authoritative` is an
+explicit denial even when the same value also says `current authority`. A
+protective historical boundary must bind its prohibited action to live/current
+authority, assignment, ownership, control, role, state, or fields. An unrelated
+statement such as `Historical receipts do not redefine archived notes` is not a
+live-authority boundary. A protective historical boundary also fails when a
 later clause restores, renews, reinstates, reactivates, resumes, or reopens the
 authority it first denied. Explicit denials such as `has not expired` and
 `does not restore live authority` remain protective rather than being mistaken
@@ -1252,11 +1259,19 @@ or another agent create, open, provision, spawn, initialize, or establish a
 worktree before the required USER approval, including clauses that schedule the
 approval only after creation. Noun-form sequencing such as `after worktree
 creation`, `following creation of the worktree`, or `after worktree provisioning`
-is the same prohibited post-creation gate. `Unless`, `except`, `other than`, and
-equivalent exception clauses also invalidate the gate even when USER approval is
-otherwise stated. An ownership ledger must identify an
+is the same prohibited post-creation gate. Retroactive, retrospective,
+after-the-fact, post-hoc, or eventual approval is likewise not pre-creation USER
+authority. `Unless`, `except`, `other than`, and equivalent exception clauses
+also invalidate the gate even when USER approval is otherwise stated. An
+ownership ledger must identify an
 actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
 or an unidentified party is not active ownership evidence.
+
+Ordinary active branch authority records must run the same complete semantic
+confinement contract as durable and external-live authority. Marker presence,
+nonblank values, and clean Git status cannot admit an active record whose USER
+gate, routing barrier, cross-worktree prohibition, owner, assignment, write set,
+collision, root, or waiver semantics are unsafe.
 An intended write set is not bounded when a concrete path and `bounded`, `exact`,
 `named`, or `only` prefix is followed by broad, global, repository-wide,
 arbitrary, or open-ended write/mutation authority, access, permission, or scope.

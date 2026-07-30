@@ -4336,6 +4336,25 @@ def main() -> int:
         )
         _assert_pass("explicitly non-restoring historical boundary", _run(root))
         _record(root)
+        for protective_boundary in (
+            "Historical receipts do not redefine current state.",
+            "Historical receipts never control active ownership.",
+            "Historical identity evidence only and does not grant current assignment or write authority.",
+            "Live authority is not granted by historical receipts.",
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8").replace(
+                    "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                    f"Historical Receipt Boundary: `{protective_boundary}`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_pass(
+                f"live-authority-bound historical boundary: {protective_boundary}",
+                _run(root),
+            )
+            _record(root)
         for label, original, replacement, expected_failure in (
             (
                 "blank record role",
@@ -4355,6 +4374,32 @@ def main() -> int:
                 "Record Role: `Current state has no authority.`",
                 "Record Role is not affirmative live authority",
             ),
+            *[
+                (
+                    f"explicitly non-authoritative record role: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current authority is not authoritative",
+                    "Current assignment is not an authoritative role",
+                    "Current projection remains not authoritative",
+                )
+            ],
+            *[
+                (
+                    f"embedded live-identity token record role: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Delivery authority",
+                    "Delivery state",
+                    "Current statement",
+                )
+            ],
             (
                 "future-gated record role authority",
                 "Record Role: `Current worktree assignment projection`",
@@ -4479,6 +4524,20 @@ def main() -> int:
                 "Historical Receipt Boundary: `Historical receipts cannot redefine live authority unless approved.`",
                 "Historical Receipt Boundary does not prevent",
             ),
+            *[
+                (
+                    f"irrelevant historical boundary: {value}",
+                    "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                    f"Historical Receipt Boundary: `{value}`",
+                    "Historical Receipt Boundary does not prevent",
+                )
+                for value in (
+                    "Historical receipts do not redefine archived notes",
+                    "Historical receipts do not own old metadata",
+                    "Historical receipts never control formatting",
+                    "Historical receipts do not retain archived settings",
+                )
+            ],
             (
                 "retained active assignment historical boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",

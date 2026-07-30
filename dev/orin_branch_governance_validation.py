@@ -22051,6 +22051,14 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         r"of (?:the )?(?:new )?worktree)\b",
         normalized,
     )
+    retroactive_approval = re.search(
+        r"\b(?:user )?approval\b.{0,60}\b(?:retroactiv(?:e|ely)|"
+        r"retrospectiv(?:e|ely)|after[- ]the[- ]fact|post[- ]hoc|"
+        r"eventual(?:ly)?)\b|"
+        r"\b(?:retroactiv(?:e|ely)|retrospectiv(?:e|ely)|after[- ]the[- ]fact|"
+        r"post[- ]hoc|eventual(?:ly)?)\b.{0,60}\b(?:user )?approval\b",
+        normalized,
+    )
     conditional_exception = re.search(
         r"\b(?:unless|except(?:ions?)?|excluding|other than|save for|apart from)\b",
         exception_checked,
@@ -22064,6 +22072,7 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         )
         and preapproval_creation is None
         and post_creation_approval is None
+        and retroactive_approval is None
         and conditional_exception is None
         and not any(term in normalized for term in invalid_terms)
     )
@@ -22646,6 +22655,7 @@ def _validate_durable_carrier_admission_receipt_confinement(
         require,
         record_path,
         confinement,
+        actual_root,
         DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS,
         _extract_exact_marker_value(record_text, "Current Write Set"),
     )
@@ -22774,6 +22784,7 @@ def _validate_assigned_worktree_confinement_contract(
     require,
     record_path: str | Path,
     confinement: str,
+    actual_root: str,
     required_markers: tuple[str, ...] = ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS,
     declared_write_set: str = "",
 ) -> None:
@@ -22828,6 +22839,18 @@ def _validate_assigned_worktree_confinement_contract(
                 f"continuing with dirty tracked files: {tracked_status}"
             ),
         )
+    require(
+        _assigned_worktree_confinement_semantics_are_safe(
+            confinement,
+            actual_root,
+            declared_write_set,
+        ),
+        (
+            f"{record_path}: active Assigned Worktree Confinement contract "
+            "does not satisfy the complete owner, assignment, write-set, collision, "
+            "routing, USER-gate, root, and waiver semantics"
+        ),
+    )
 
 
 def _reject_historical_receipt_as_active_authority(require, record_path: str | Path) -> None:
@@ -23175,6 +23198,18 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 "New Worktree Decision Gate: `USER approval required other than for temporary worktrees`",
             ),
             (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `USER approval required retroactively for a new worktree`",
+            ),
+            (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `USER approval required after-the-fact for a new worktree`",
+            ),
+            (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `Eventual USER approval required for a new worktree`",
+            ),
+            (
                 "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited`",
                 "No Cross-Worktree Mutation: `Cross-worktree mutation is allowed`",
             ),
@@ -23187,14 +23222,55 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 "Worktree Escape User Waiver Missing: `Approval pending`",
             ),
         )
+        active_contract_failures: list[str] = []
+        _validate_assigned_worktree_confinement_contract(
+            lambda condition, message: active_contract_failures.append(message)
+            if not condition
+            else None,
+            "active-branch-fixture",
+            _section(current_external_authority_fixture, "Assigned Worktree Confinement"),
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            declared_write_set="Only dev/orin_branch_governance_validation.py",
+        )
+        require(
+            not active_contract_failures,
+            (
+                "ordinary active branch-record path must accept the complete safe "
+                f"confinement contract: {active_contract_failures}"
+            ),
+        )
         for original, replacement in semantic_external_mutations:
+            mutated_external_authority = current_external_authority_fixture.replace(
+                original,
+                replacement,
+            )
             require(
                 not _external_state_has_current_confinement(
-                    current_external_authority_fixture.replace(original, replacement),
+                    mutated_external_authority,
                     "feature/governance-fixture",
                     "C:\\Nexus Worktrees\\Governance-Fixture",
                 ),
                 f"external live authority must reject unsafe confinement semantics: {replacement}",
+            )
+            active_contract_failures = []
+            _validate_assigned_worktree_confinement_contract(
+                lambda condition, message: active_contract_failures.append(message)
+                if not condition
+                else None,
+                "active-branch-fixture",
+                _section(mutated_external_authority, "Assigned Worktree Confinement"),
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+                declared_write_set="Only dev/orin_branch_governance_validation.py",
+            )
+            require(
+                any(
+                    "does not satisfy the complete owner, assignment, write-set" in message
+                    for message in active_contract_failures
+                ),
+                (
+                    "ordinary active branch-record path must reject unsafe confinement "
+                    f"semantics: {replacement}"
+                ),
             )
     finally:
         globals()["_git_status_porcelain"] = original_git_status_porcelain
@@ -24376,6 +24452,21 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "does not preserve the USER-owned new-worktree gate",
         ),
         (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required retroactively for a new worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required after-the-fact for a new worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `Eventual USER approval required for a new worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
             "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Not confirmed for this carrier.`",
             "does not prove no cross-worktree mutation",
@@ -24536,8 +24627,15 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "origin/feature/governance-fixture",
     )
     require(
-        len(durable_root_failures) == 4
-        and all("does not match current worktree" in message for message in durable_root_failures),
+        sum(
+            "does not match current worktree" in message
+            for message in durable_root_failures
+        )
+        == 4
+        and any(
+            "does not satisfy the complete owner, assignment, write-set" in message
+            for message in durable_root_failures
+        ),
         f"{durable_fixture}: mismatched durable carrier worktree roots must fail closed",
     )
     missing_upstream_failures: list[str] = []
@@ -25169,6 +25267,7 @@ def _run_worktree_confinement_gate(require) -> None:
         require,
         record_path,
         confinement,
+        actual_root,
         declared_write_set=_extract_exact_marker_value(record_text, "Current Write Set"),
     )
 

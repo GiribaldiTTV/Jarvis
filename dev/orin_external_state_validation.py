@@ -605,10 +605,10 @@ def _target_record_role_is_live(value: str | None) -> bool:
         "",
         normalized,
     )
-    live_identity = any(term in normalized for term in ("current", "live", "active"))
-    authority_shape = any(
-        term in normalized
-        for term in ("projection", "assignment", "state", "authority")
+    live_identity = re.search(r"\b(?:current|live|active)\b", normalized)
+    authority_shape = re.search(
+        r"\b(?:projection|assignment|state|authority)\b",
+        normalized,
     )
     historical_only = re.search(
         r"\b(?:historical|receipt|archive|archived)\b.{0,30}\b(?:only|exclusive)\b|"
@@ -653,6 +653,10 @@ def _target_record_role_is_live(value: str | None) -> bool:
         r"(?:authority|assignment|projection|state|role)\b",
         normalized,
     )
+    explicitly_non_authoritative = re.search(
+        r"\b(?:not\s+(?:an?\s+)?authoritative|non[- ]authoritative)\b",
+        normalized,
+    )
     return bool(
         live_identity
         and authority_shape
@@ -660,6 +664,7 @@ def _target_record_role_is_live(value: str | None) -> bool:
         and denied is None
         and future_gated is None
         and never_activated is None
+        and explicitly_non_authoritative is None
     )
 
 
@@ -667,12 +672,23 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
     normalized = re.sub(r"\s+", " ", (value or "").casefold().strip(" `\t\r\n."))
     if "historical" not in normalized:
         return False
-    protective_clause = (
-        r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}?\b"
+    protected_live_authority = (
+        r"(?:\b(?:live|current|active)\b[^.;]{0,20}?\b"
+        r"(?:authority|assignment|ownership|control|role|state|fields?)\b|"
+        r"\b(?:authority|assignment|ownership|control|role|state|fields?)\b"
+        r"[^.;]{0,20}?\b(?:live|current|active)\b)"
+    )
+    protective_action = (
         r"(?:redefine|override|replace|restore|renew|reinstate|reactivate|resume|"
-        r"reopen|grant|own|control|retain|"
-        r"preserve|source|supply|carry)\b|"
-        r"\bhistorical identity evidence only\b"
+        r"reopen|grant|own|control|retain|preserve|source|supply|carry)"
+    )
+    protective_clause = (
+        rf"\b(?:do not|does not|cannot|can not|must not|never)\b[^.;]{{0,45}}?\b"
+        rf"{protective_action}\b[^.;]{{0,45}}?{protected_live_authority}|"
+        rf"{protected_live_authority}[^.;]{{0,45}}?\b(?:is|are)\s+"
+        rf"(?:not|never)\s+(?:redefined|overridden|replaced|restored|renewed|"
+        rf"reinstated|reactivated|resumed|reopened|granted|owned|controlled|"
+        rf"retained|preserved|sourced|supplied|carried)\b"
     )
     protective = re.search(protective_clause, normalized)
     scrubbed = re.sub(protective_clause, "", normalized)

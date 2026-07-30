@@ -138,10 +138,10 @@
       },
       {
         "pr": 310,
-        "connector_comments": 228,
+        "connector_comments": 233,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 117,
-          "external-state-transaction-evidence-parser": 114,
+          "durable-carrier-confinement-parser": 119,
+          "external-state-transaction-evidence-parser": 117,
           "pr-readiness-review-risk-parser": 4,
           "pr2-comment-family-classifier": 16,
           "pr2-thread-pagination-and-approval-latch": 1,
@@ -152,7 +152,7 @@
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, ended, held, or never-activated live-role rejection, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots and object envelopes containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts with case-insensitive section and marker cardinality, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, positive-clause-only write-path authorization including safe root-level files while rejecting absolute path truncation, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, never-active assignment rejection, exception-free new-worktree USER gates, no dirty-ownership carve-outs, and whole-value USER approval bound to the exact branch, worktree, and slot with valid non-future optional dates for active and historical admission receipts. Its classifier family requires explicit external-state transaction context, preserves external branch state in genuine mixed-family findings, and leaves generic payment or database journals unknown. The receipt records the exact live 228-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, whole-token live-role identity and authority shape, explicit non-authoritative, ended, held, or never-activated live-role rejection, live-authority-bound historical boundary proof, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots and object envelopes containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts on active branch, external-live, and durable receipt routes, with case-insensitive section and marker cardinality, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, positive-clause-only write-path authorization including safe root-level files while rejecting absolute path truncation, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, never-active assignment rejection, exception-free and non-retroactive new-worktree USER gates, no dirty-ownership carve-outs, and whole-value USER approval bound to the exact branch, worktree, and slot with valid non-future optional dates for active and historical admission receipts. Its classifier family requires explicit external-state transaction context, preserves external branch state in genuine mixed-family findings, and leaves generic payment or database journals unknown. The receipt records the exact live 233-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -319,7 +319,12 @@
           "dev/orin_branch_governance_validation.py rejects POSIX absolute, Windows drive, and UNC write-set candidates before relative-path extraction can truncate them.",
           "dev/orin_external_state_validation.py rejects revoked, withdrawn, cancelled, frozen, suspended, disabled, paused, deactivated, dormant, halted, stopped, and on-hold live Record Roles while retaining explicit not-held positives.",
           "dev/orin_branch_governance_validation.py counts Assigned Worktree Confinement headings case-insensitively before selecting one authoritative section.",
-          "dev/orin_pr_review_churn_validation.py maps Assigned Worktree Confinement section-cardinality findings into the exact durable-carrier family before the firewall can pass."
+          "dev/orin_pr_review_churn_validation.py maps Assigned Worktree Confinement section-cardinality findings into the exact durable-carrier family before the firewall can pass.",
+          "dev/orin_external_state_validation.py requires whole-token current/live/active identity and authority-shape terms and rejects explicitly not-authoritative roles.",
+          "dev/orin_external_state_validation.py binds every protective historical-boundary action to live/current authority, assignment, ownership, control, role, state, or fields.",
+          "dev/orin_branch_governance_validation.py rejects retroactive, retrospective, after-the-fact, post-hoc, and eventual new-worktree USER approval.",
+          "dev/orin_branch_governance_validation.py applies the complete semantic confinement contract to the ordinary active branch-record path as well as external-live and durable-admission paths.",
+          "dev/orin_pr_review_churn_validation.py maps all five current-head follow-up findings into their exact existing parser families with zero unknown comments."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1270,6 +1275,26 @@
       {
         "family_id": "durable-carrier-confinement-parser",
         "comment": "Count duplicate Assigned Worktree Confinement section headings case-insensitively before selecting the authoritative contract."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Reject explicitly non-authoritative Record Roles such as Current authority is not authoritative."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Reject retroactive, after-the-fact, or eventual USER approval in a New Worktree Decision Gate."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Enforce complete confinement semantics for the ordinary active branch-record path instead of checking only marker shape."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Match live Record Role identities as whole tokens so Delivery authority and Delivery state are not live roles."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Require Historical Receipt Boundary prohibitions to protect live authority rather than archived notes, old metadata, or formatting."
       }
     ],
     "unknown_comment_guardrails": [
@@ -2009,7 +2034,9 @@
         "Prepared target-set transaction evidence stored in a non-JSON audit entry",
         "line-oriented target-set Transition fields stored in UTF-8 or UTF-16 non-JSON audit entries",
         "future-gated, pending-activation, never-active, has-not-started, activation-failed, revoked, withdrawn, cancelled, frozen, suspended, disabled, paused, deactivated, dormant, halted, stopped, or on-hold live Record Role claims",
-        "future-dated modern and admitted-legacy lock release timestamps"
+        "future-dated modern and admitted-legacy lock release timestamps",
+        "explicitly not-authoritative live-role claims and live/authority substrings embedded in unrelated words such as Delivery or statement",
+        "historical boundary denials about archived notes, old metadata, formatting, or settings that never bind the prohibition to live authority"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -2061,7 +2088,9 @@
         "flat non-JSON UTF-8 and UTF-16 audit entries are bounded, hashed, conservatively parsed, and revalidated with the complete audit inventory",
         "line-oriented non-JSON Transition fields cannot hide target-set transaction evidence while Notes-only mentions remain unrelated",
         "live Record Role evidence must be present-tense and operational rather than pending, future-gated, never-active, not-started, activation-failed, revoked, withdrawn, cancelled, frozen, suspended, disabled, paused, deactivated, dormant, halted, stopped, or on-hold, while explicit not-held wording remains protective",
-        "released-lock evidence cannot be dated beyond the bounded UTC clock-skew allowance"
+        "released-lock evidence cannot be dated beyond the bounded UTC clock-skew allowance",
+        "live-role identity and authority-shape terms are whole tokens, and explicit not-authoritative wording fails closed",
+        "historical boundary actions must protect live/current authority semantics rather than an unrelated historical artifact"
       ]
     },
     {
@@ -2121,7 +2150,9 @@
         "new-worktree USER gates qualified by unless, except, other-than, or save-for escape clauses",
         "dirty-worktree ownership claims that exclude, except, save, or set apart one or more tracked paths",
         "POSIX absolute, Windows drive, forward-slash drive, and UNC intended write paths whose suffixes resemble repository-relative paths",
-        "lowercase, uppercase, mixed-case, indented, and closing-hash duplicate Assigned Worktree Confinement headings"
+        "lowercase, uppercase, mixed-case, indented, and closing-hash duplicate Assigned Worktree Confinement headings",
+        "retroactive, retrospective, after-the-fact, post-hoc, and eventual new-worktree USER approval",
+        "ordinary active branch records with unsafe USER-gate, routing-barrier, or cross-worktree semantics under clean Git status"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
@@ -2154,7 +2185,9 @@
         "USER-owned new-worktree gates reject explicit escape clauses while preserving closed no-exception wording",
         "dirty ownership covers every tracked path and rejects exception-qualified path carve-outs",
         "declared write-path extraction accepts exact repo-relative and safe root-level files but never truncates an absolute path into authority",
-        "Assigned Worktree Confinement section cardinality is case-insensitive before canonical section extraction"
+        "Assigned Worktree Confinement section cardinality is case-insensitive before canonical section extraction",
+        "new-worktree gating requires approval before creation and rejects every retroactive or eventual approval synonym",
+        "ordinary active branch records execute the same complete semantic confinement validator as external-live and durable-admission authority"
       ]
     },
     {
