@@ -3994,6 +3994,27 @@ def _normalized_packet_text(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
+def _utf8_identity_text(data: bytes) -> str | None:
+    """Decode source text without allowing binary data into newline normalization."""
+
+    if b"\x00" in data:
+        return None
+    try:
+        return data.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+
+def _source_copy_matches_expected(actual: bytes, expected: bytes) -> bool:
+    if actual == expected:
+        return True
+    actual_text = _utf8_identity_text(actual)
+    expected_text = _utf8_identity_text(expected)
+    if actual_text is None or expected_text is None:
+        return False
+    return _normalized_packet_text(actual_text) == _normalized_packet_text(expected_text)
+
+
 def _requires_source_context_mapping(path: str) -> bool:
     """Distinguish copied repo files from generated evidence context."""
 
@@ -4064,11 +4085,7 @@ def _packet_identity_failures(
     )
 
     for source_path, copied_path in file_mappings.items():
-        if (
-            packet_binary_files is not None
-            and copied_path in packet_binary_files
-            and PurePosixPath(copied_path).suffix.lower() not in {".md", ".txt", ".json"}
-        ):
+        if packet_binary_files is not None and copied_path in packet_binary_files:
             expected_bytes = _git_file_bytes(expected_head, source_path)
             if expected_bytes is None:
                 failures.append(
@@ -4076,7 +4093,9 @@ def _packet_identity_failures(
                     f"{source_path}"
                 )
                 continue
-            if packet_binary_files[copied_path] != expected_bytes:
+            if not _source_copy_matches_expected(
+                packet_binary_files[copied_path], expected_bytes
+            ):
                 failures.append(
                     "Packet identity: copied file does not match expected HEAD content: "
                     f"{copied_path} from {source_path}"

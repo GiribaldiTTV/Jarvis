@@ -276,6 +276,48 @@ def _assert_active_identity_arguments_required() -> None:
         )
 
 
+def _assert_binary_identity_remains_exact() -> None:
+    copied_path = "Source Truth Context/fixture.bin"
+    source_path = "fixtures/fixture.bin"
+    packet_files = {
+        "START_HERE.md": (
+            "| Source path | Copied path |\n"
+            "| --- | --- |\n"
+            f"| `{source_path}` | `{copied_path}` |\n"
+        )
+    }
+    packet_binary_files = {
+        copied_path: b"\x89BINARY\r\n\x00actual",
+    }
+    expected_bytes = b"\x89BINARY\n\x00expected"
+    original_git_file_bytes = bundle._git_file_bytes
+
+    def fixture_git_file_bytes(ref: str, path: str) -> bytes | None:
+        if path == source_path:
+            return expected_bytes
+        return original_git_file_bytes(ref, path)
+
+    bundle._git_file_bytes = fixture_git_file_bytes
+    try:
+        failures = bundle._packet_identity_failures(
+            packet_files,
+            packet_binary_files=packet_binary_files,
+            expected_branch=_current_branch(),
+            expected_head=_current_head(),
+            expected_origin_main=_current_origin_main(),
+        )
+    finally:
+        bundle._git_file_bytes = original_git_file_bytes
+    if not any(
+        "copied file does not match expected HEAD content" in failure
+        for failure in failures
+    ):
+        raise AssertionError(
+            "binary packet identity accepted a non-identical source copy:\n"
+            + "\n".join(failures)
+        )
+
+
 def _assert_stage1_primary_for_stage2_decision() -> None:
     decision = (
         "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
@@ -1236,6 +1278,7 @@ def main() -> int:
     _assert_stage1_coherence_guards()
     _assert_local_stage1_validation_replays_stage1_checks()
     _assert_active_identity_arguments_required()
+    _assert_binary_identity_remains_exact()
     _assert_failure(
         "active-review-wrong-branch",
         "Folder active-review identity: Packet identity: expected branch",
@@ -1442,6 +1485,31 @@ def main() -> int:
     _assert_success(
         "source-context-code-is-not-user-facing-template-shell",
         _legitimate_source_context_shell_tokens,
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=None,
+    )
+
+    def _crlf_text_source_context(packet: Path) -> None:
+        copied_source = "Source Truth Context/helper_source.py"
+        source_bytes = bundle._git_file_bytes(
+            _current_head(), "dev/orin_user_review_bundle.py"
+        )
+        if source_bytes is None:
+            raise AssertionError("fixture source file is missing at the expected HEAD")
+        crlf_source = bundle._normalized_packet_text(
+            source_bytes.decode("utf-8")
+        ).replace("\n", "\r\n").encode("utf-8")
+        (packet / copied_source).write_bytes(crlf_source)
+        (packet / "START_HERE.md").write_text(
+            (packet / "START_HERE.md").read_text(encoding="utf-8")
+            + "\n| `dev/orin_user_review_bundle.py` | "
+            + f"`{copied_source}` |\n",
+            encoding="utf-8",
+        )
+
+    _assert_success(
+        "source-context-code-crlf-checkout-matches-lf-git-blob",
+        _crlf_text_source_context,
         validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
         external_state_files=None,
     )
