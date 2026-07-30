@@ -295,7 +295,7 @@
           "dev/orin_branch_governance_validation.py binds durable USER approval to the receipt's exact branch, worktree, and slot.",
           "dev/orin_branch_governance_validation.py applies the same exact carrier binding to historical Admission Decision Pointer evidence.",
           "dev/orin_external_state_validation.py rejects before-content and before-bytes recovery aliases in spaced and camelCase forms.",
-          "dev/orin_external_state_validation.py scans flat non-JSON UTF-8 and UTF-16 audit entries conservatively for target-set transactions."
+          "dev/orin_external_state_validation.py scans flat non-JSON UTF-8 and UTF-16 audit entries conservatively for JSON-shaped and line-oriented target-set transactions."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1896,7 +1896,8 @@
         "root-level unquoted Transition identifiers carrying canonical target-set, malformed, or non-string values",
         "internally consistent modern transaction, snapshot, and lock evidence dated beyond the bounded UTC clock-skew allowance",
         "Before Content, BeforeContent, Before Bytes, and BeforeBytes recovery payload aliases",
-        "Prepared target-set transaction evidence stored in a non-JSON audit entry"
+        "Prepared target-set transaction evidence stored in a non-JSON audit entry",
+        "line-oriented target-set Transition fields stored in UTF-8 or UTF-16 non-JSON audit entries"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -1945,7 +1946,8 @@
         "malformed journals cannot hide target-set evidence behind an unquoted Transition identifier",
         "canonical transaction chronology is also bounded against current UTC rather than only against related evidence",
         "before-content and before-bytes aliases are treated as recoverable pre-write payloads in spaced and camelCase forms",
-        "flat non-JSON UTF-8 and UTF-16 audit entries are bounded, hashed, conservatively parsed, and revalidated with the complete audit inventory"
+        "flat non-JSON UTF-8 and UTF-16 audit entries are bounded, hashed, conservatively parsed, and revalidated with the complete audit inventory",
+        "line-oriented non-JSON Transition fields cannot hide target-set transaction evidence while Notes-only mentions remain unrelated"
       ]
     },
     {

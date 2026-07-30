@@ -2955,6 +2955,23 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
 def _raw_text_has_target_set_transition(text: str) -> bool:
     if text.startswith("\ufeff"):
         text = text.removeprefix("\ufeff")
+    for line in text.splitlines():
+        field_match = re.match(
+            r"^\s*(?:[-*]\s*)?`?transition`?\s*:\s*(?P<value>.+?)\s*$",
+            line,
+            flags=re.I,
+        )
+        if not field_match:
+            continue
+        field_value = field_match.group("value").strip()
+        if (
+            len(field_value) >= 2
+            and field_value[0] in {"`", '"', "'"}
+            and field_value[-1] == field_value[0]
+        ):
+            field_value = field_value[1:-1].strip()
+        if field_value.casefold() == TARGET_SET_TRANSITION.casefold():
+            return True
     decoder = json.JSONDecoder()
     first_object = _first_structural_json_object_start(text)
     if first_object < 0:

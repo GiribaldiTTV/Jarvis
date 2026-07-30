@@ -947,8 +947,9 @@ prove a standards-compliant JSON shape, a top-level transition, canonical
 string targets, distinct before/after hashes, a confined and hash-valid
 snapshot, a released exact-write-set lock, no recovery payload at any depth,
 confined case-insensitive JSON discovery, conservative scanning of flat non-JSON
-UTF-8 or UTF-16 audit entries, and fail-closed handling for BOMs, reparse points,
-impossible path characters, and evidence read races.
+UTF-8 or UTF-16 audit entries including line-oriented `Transition:` fields, and
+fail-closed handling for BOMs, reparse points, impossible path characters, and
+evidence read races.
 Any case-insensitive match to the exact target-set transition is a journal
 candidate and must fail unless both the `Transition` key and value are canonical.
 The released lock's normalized write set must equal the journal audit, snapshot,

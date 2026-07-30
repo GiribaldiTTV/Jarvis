@@ -695,6 +695,23 @@ def _write_utf16_non_json_target_set_transaction_fixture(root: Path) -> Path:
     return non_json_path
 
 
+def _write_plain_text_target_set_transaction_fixture(
+    root: Path,
+    *,
+    encoding: str = "utf-8",
+) -> Path:
+    audit_root = root / "audit_log"
+    audit_root.mkdir(parents=True, exist_ok=True)
+    suffix = ".log" if encoding == "utf-16" else ".txt"
+    path = audit_root / f"prepared-plain{suffix}"
+    path.write_text(
+        "Transition: Bounded coherent target-set reconciliation\n"
+        "Transaction State: Prepared\n",
+        encoding=encoding,
+    )
+    return path
+
+
 def _write_modern_recovery_alias_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -2398,6 +2415,16 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
+            "unrelated non-JSON audit names target-set phrase only in Notes",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical.txt").write_text(
+                    "Notes: Bounded coherent target-set reconciliation\n",
+                    encoding="utf-8",
+                ),
+            ),
+        ),
+        (
             "malformed unrelated audit has nested target-set Transition",
             _write_malformed_nested_transition_fixture,
         ),
@@ -2498,6 +2525,17 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "target-set transaction stored in a UTF-16 non-JSON audit entry",
             _write_utf16_non_json_target_set_transaction_fixture,
+        ),
+        (
+            "plain-text target-set transaction stored in a non-JSON audit entry",
+            _write_plain_text_target_set_transaction_fixture,
+        ),
+        (
+            "plain-text target-set transaction stored in a UTF-16 audit entry",
+            lambda root: _write_plain_text_target_set_transaction_fixture(
+                root,
+                encoding="utf-16",
+            ),
         ),
         *[
             (
@@ -3509,6 +3547,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "target-set transaction stored in a non-JSON audit entry"
         ],
         "_is_non_json_audit_entry",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
+        "plain-text target-set audit entry ignored",
+        negative_setups[
+            "plain-text target-set transaction stored in a non-JSON audit entry"
+        ],
+        "_raw_text_has_target_set_transition",
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(

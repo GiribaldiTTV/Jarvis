@@ -184,7 +184,8 @@ inventory. Modern and legacy released-lock evidence must retain the parsed diges
 through the final decision. Audit discovery must retain the same pre/post confined
 directory identity and complete flat-entry inventory, then rehash every discovered
 file. JSON entries remain strict UTF-8; non-JSON regular entries must be scanned
-conservatively as bounded UTF-8 or BOM-aware UTF-16 text for target-set evidence.
+conservatively as bounded UTF-8 or BOM-aware UTF-16 text for JSON-shaped or
+line-oriented target-set transition evidence.
 Target `Record Role` evidence must be affirmative and non-negated, while the
 historical boundary must be unconditional and must reject retained, remaining,
 persistent, continued, inherited, or receipt-sourced live authority.
