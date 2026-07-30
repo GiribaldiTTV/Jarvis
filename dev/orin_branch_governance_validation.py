@@ -7091,8 +7091,57 @@ def _line_number(text: str, needle: str) -> int:
     return text.count("\n", 0, index) + 1
 
 
+def _markdown_fence_states(lines: list[str]) -> list[bool]:
+    """Mark fenced code-block lines so examples cannot become live authority."""
+
+    states: list[bool] = []
+    active_marker = ""
+    active_length = 0
+    for line in lines:
+        content = line.rstrip("\r\n")
+        marker_match = re.match(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$", content)
+        if active_marker:
+            states.append(True)
+            if (
+                marker_match
+                and marker_match.group(1)[0] == active_marker
+                and len(marker_match.group(1)) >= active_length
+                and not marker_match.group(2).strip()
+            ):
+                active_marker = ""
+                active_length = 0
+            continue
+        if marker_match:
+            marker = marker_match.group(1)
+            active_marker = marker[0]
+            active_length = len(marker)
+            states.append(True)
+            continue
+        states.append(False)
+    return states
+
+
+def _live_markdown_text(text: str) -> str:
+    """Mask fenced examples while preserving live line boundaries."""
+
+    lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
+    live_lines: list[str] = []
+    for line, is_fenced in zip(lines, fenced, strict=True):
+        if not is_fenced:
+            live_lines.append(line)
+        elif line.endswith("\r\n"):
+            live_lines.append("\r\n")
+        elif line.endswith(("\n", "\r")):
+            live_lines.append(line[-1])
+        else:
+            live_lines.append("")
+    return "".join(live_lines)
+
+
 def _section(text: str, heading: str) -> str:
-    match = re.search(rf"(?ms)^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", text)
+    live_text = _live_markdown_text(text)
+    match = re.search(rf"(?ms)^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", live_text)
     return match.group(1).strip() if match else ""
 
 
@@ -7100,7 +7149,7 @@ def _section_heading_count(text: str, heading: str) -> int:
     return len(
         re.findall(
             rf"^ {{0,3}}##[ \t]+{re.escape(heading)}(?:[ \t]+#+)?[ \t]*$",
-            text,
+            _live_markdown_text(text),
             flags=re.M | re.I,
         )
     )
@@ -8745,7 +8794,7 @@ def _user_test_summary_section(text: str) -> str:
 def _extract_marker_value(block: str, label: str) -> str:
     matches = re.findall(
         rf"^\s*(?:-\s*)?{re.escape(label)}:?\s*`?(.+?)`?\s*$",
-        block,
+        _live_markdown_text(block),
         flags=re.M,
     )
     if not matches:
@@ -8764,7 +8813,7 @@ def _extract_exact_marker_values(block: str, label: str) -> list[str]:
     normalized_label = label.rstrip(":")
     matches = re.findall(
         rf"^[ \t]*(?:-[ \t]*)?{re.escape(normalized_label)}:[ \t]*`?([^\r\n]+?)`?[ \t]*$",
-        block,
+        _live_markdown_text(block),
         flags=re.M,
     )
     return [match.strip().strip("`").strip() for match in matches]
@@ -22985,10 +23034,11 @@ def _validate_assigned_worktree_confinement_contract(
     identity_expected_root: str = "",
     identity_actual_root: str = "",
 ) -> None:
+    live_confinement = _live_markdown_text(confinement)
     for marker in required_markers:
         occurrences = re.findall(
             rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
-            confinement,
+            live_confinement,
             flags=re.M | re.I,
         )
         require(
@@ -23716,6 +23766,75 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         / "valid_durable_carrier_admission_receipt.md"
     )
     durable_fixture_text = _read_text(durable_fixture)
+    for opener, closer in (("```markdown", "```"), ("~~~~markdown", "~~~~")):
+        fenced_authority_example = (
+            f"{opener}\n"
+            "## Branch Identity\n\n"
+            "- Branch: `feature/governance-fixture`\n\n"
+            "## Assigned Worktree Confinement\n\n"
+            "- Assigned Worktree Confinement: `Admission proof only.`\n"
+            f"{closer}\n"
+        )
+        require(
+            _section_heading_count(
+                fenced_authority_example,
+                "Assigned Worktree Confinement",
+            )
+            == 0
+            and not _section(
+                fenced_authority_example,
+                "Assigned Worktree Confinement",
+            )
+            and not _extract_exact_marker_value(
+                fenced_authority_example,
+                "Branch",
+            )
+            and not _extract_exact_marker_value(
+                fenced_authority_example,
+                "Assigned Worktree Confinement",
+            ),
+            (
+                f"{durable_fixture}: {opener[0]} fenced headings and markers "
+                "must remain non-authoritative"
+            ),
+        )
+    fenced_durable_fixture_text = (
+        durable_fixture_text.replace(
+            "## Branch Identity\n\n",
+            "## Branch Identity\n\n```markdown\n",
+            1,
+        )
+        .replace(
+            "\n\n## Assigned Worktree Confinement\n\n",
+            "\n```\n\n## Assigned Worktree Confinement\n\n```markdown\n",
+            1,
+        )
+        + "\n```\n"
+    )
+    fenced_durable_failures: list[str] = []
+    _validate_durable_carrier_admission_receipt_confinement(
+        lambda condition, message: fenced_durable_failures.append(message)
+        if not condition
+        else None,
+        durable_fixture,
+        fenced_durable_fixture_text,
+        "feature/governance-fixture",
+        "C:\\Nexus Worktrees\\Governance-Fixture",
+        "origin/feature/governance-fixture",
+    )
+    require(
+        not _is_durable_carrier_admission_receipt(fenced_durable_fixture_text)
+        and not _extract_exact_marker_value(fenced_durable_fixture_text, "Branch")
+        and any(
+            "does not match current branch" in message
+            or "requires exactly one nonblank" in message
+            for message in fenced_durable_failures
+        ),
+        (
+            f"{durable_fixture}: a receipt with all identity and confinement "
+            "markers fenced must fail full durable confinement validation"
+        ),
+    )
     valid_user_decision = (
         "USER approved this one-time bounded carrier admission for branch "
         "feature/governance-fixture in worktree "
