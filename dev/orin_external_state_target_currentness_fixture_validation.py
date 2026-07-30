@@ -702,6 +702,21 @@ def _write_modern_snapshot_root_fixture(root: Path, value: str | None) -> Path:
     return path
 
 
+def _write_modern_snapshot_timestamp_fixture(
+    root: Path,
+    value: object | None,
+) -> Path:
+    path = _write_modern_journal_fixture(root)
+    manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if value is None:
+        manifest.pop("Last Updated", None)
+    else:
+        manifest["Last Updated"] = value
+    atomic_write_json(manifest_path, manifest)
+    return path
+
+
 def _write_modern_case_ambiguous_snapshot_root_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
@@ -1456,6 +1471,74 @@ def _assert_snapshot_directory_replacement_race_rejected() -> None:
     print("Modern snapshot fixture: directory replacement race rejected: PASS")
 
 
+def _assert_snapshot_child_mutation_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-child-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        snapshot_path = root / "snapshots" / "modern-fixture"
+        snapshot_copy = snapshot_path / "worktrees" / "Fixture" / "worktree_state.md"
+        original_walk = validator.os.walk
+        mutated = False
+
+        def mutate_before_inventory(top: object, *args: object, **kwargs: object):
+            nonlocal mutated
+            if not mutated and Path(top) == snapshot_path:
+                snapshot_copy.write_text("mutated after initial hash\n", encoding="utf-8")
+                mutated = True
+            return original_walk(top, *args, **kwargs)
+
+        validator.os.walk = mutate_before_inventory
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.walk = original_walk
+        if not mutated or not any(
+            "snapshot copy changed after inventory" in item for item in failures
+        ):
+            raise AssertionError(
+                "snapshot child-mutation race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: child mutation race rejected: PASS")
+
+
+def _assert_audit_inventory_creation_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-audit-inventory-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        audit_root = root / "audit_log"
+        original_iterdir = Path.iterdir
+        audit_enumerations = 0
+
+        def create_before_recheck(path: Path):
+            nonlocal audit_enumerations
+            if path == audit_root:
+                audit_enumerations += 1
+                if audit_enumerations == 2:
+                    atomic_write_json(
+                        audit_root / "new-prepared-transaction.json",
+                        {
+                            "Transition": validator.TARGET_SET_TRANSITION,
+                            "Transaction State": "Prepared",
+                        },
+                    )
+            return original_iterdir(path)
+
+        Path.iterdir = create_before_recheck
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            Path.iterdir = original_iterdir
+        if audit_enumerations < 2 or not any(
+            "audit inventory changed during validation" in item for item in failures
+        ):
+            raise AssertionError(
+                "audit inventory creation race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit fixture: inventory creation race rejected: PASS")
+
+
 def _assert_oversized_evidence_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-oversized-evidence-") as temp_dir:
         root = Path(temp_dir)
@@ -2000,6 +2083,17 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         (
             "modern Committed journal with missing snapshot Root",
             lambda root: _write_modern_snapshot_root_fixture(root, None),
+        ),
+        (
+            "modern Committed journal with missing snapshot Last Updated",
+            lambda root: _write_modern_snapshot_timestamp_fixture(root, None),
+        ),
+        (
+            "modern Committed journal with malformed snapshot Last Updated",
+            lambda root: _write_modern_snapshot_timestamp_fixture(
+                root,
+                "not-a-canonical-timestamp",
+            ),
         ),
         (
             "modern Committed journal with foreign snapshot Root",
@@ -2618,6 +2712,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_hash_read_failure_reported()
     _assert_snapshot_walk_error_reported()
     _assert_snapshot_directory_replacement_race_rejected()
+    _assert_snapshot_child_mutation_race_rejected()
+    _assert_audit_inventory_creation_race_rejected()
     _assert_oversized_evidence_rejected()
     _assert_evidence_read_memory_error_reported()
     _assert_snapshot_hash_replacement_race_rejected()
@@ -3193,6 +3289,38 @@ def main() -> int:
             "hash precondition failed",
             _run(root, expected_target_sha256="f" * 64),
         )
+        for label, original, replacement, expected_failure in (
+            (
+                "blank record role",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role:",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "historical-only record role",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Historical receipt only`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "blank historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary:",
+                "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "contradictory historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts redefine the live fields.`",
+                "Historical Receipt Boundary does not prevent",
+            ),
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8").replace(original, replacement, 1),
+                encoding="utf-8",
+            )
+            _assert_failure(label, expected_failure, _run(root))
+            _record(root)
         _assert_failure(
             "missing target",
             "selected target is missing",

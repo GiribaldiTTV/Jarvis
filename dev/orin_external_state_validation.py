@@ -570,11 +570,57 @@ def validate_target_currentness(
                 f"Target Currentness: {relative} {label} mismatch: expected {expected!r}, found {actual!r}"
             )
 
-    if markdown_field_value(live_text, "Record Role") is None:
-        failures.append(f"Target Currentness: {relative} is missing Record Role classification")
-    if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
-        failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
+    record_role = markdown_field_value(live_text, "Record Role")
+    if not _target_record_role_is_live(record_role):
+        failures.append(
+            f"Target Currentness: {relative} Record Role is not affirmative live authority"
+        )
+    historical_boundary = markdown_field_value(live_text, "Historical Receipt Boundary")
+    if not _historical_receipt_boundary_is_protective(historical_boundary):
+        failures.append(
+            f"Target Currentness: {relative} Historical Receipt Boundary does not "
+            "prevent historical receipts from redefining live authority"
+        )
     return failures
+
+
+def _target_record_role_is_live(value: str | None) -> bool:
+    normalized = re.sub(r"\s+", " ", (value or "").casefold().strip(" `\t\r\n."))
+    live_identity = any(term in normalized for term in ("current", "live", "active"))
+    authority_shape = any(
+        term in normalized
+        for term in ("projection", "assignment", "state", "authority")
+    )
+    historical_only = re.search(
+        r"\b(?:historical|receipt|archive|archived)\b.{0,30}\b(?:only|exclusive)\b|"
+        r"\b(?:only|exclusive)\b.{0,30}\b(?:historical|receipt|archive|archived)\b",
+        normalized,
+    )
+    return bool(live_identity and authority_shape and historical_only is None)
+
+
+def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
+    normalized = re.sub(r"\s+", " ", (value or "").casefold().strip(" `\t\r\n."))
+    if "historical" not in normalized:
+        return False
+    protective = re.search(
+        r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}\b"
+        r"(?:redefine|override|replace|reactivate|grant|own|control)\b|"
+        r"\bhistorical identity evidence only\b",
+        normalized,
+    )
+    scrubbed = re.sub(
+        r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}\b"
+        r"(?:redefine|override|replace|reactivate|grant|own|control)\b|"
+        r"\bhistorical identity evidence only\b",
+        "",
+        normalized,
+    )
+    contradictory = re.search(
+        r"\b(?:redefine|override|replace|reactivate|grant|own|control)(?:s|ed|ing)?\b",
+        scrubbed,
+    )
+    return bool(protective is not None and contradictory is None)
 
 
 def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
@@ -1960,6 +2006,8 @@ def _validate_snapshot_evidence(
         return [f"{evidence_label} snapshot directory changed before manifest validation"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
+    if not _is_canonical_utc_timestamp(manifest.get("Last Updated")):
+        issues.append(f"{evidence_label} snapshot manifest Last Updated is not canonical UTC")
     manifest_root = manifest.get("Root")
     try:
         manifest_root_path = Path(manifest_root) if isinstance(manifest_root, str) else None
@@ -1982,6 +2030,7 @@ def _validate_snapshot_evidence(
         issues.append(f"{evidence_label} snapshot manifest has no copied-file evidence")
         return issues
     copied_hashes: dict[str, str] = {}
+    copied_paths: dict[str, tuple[str, ...]] = {}
     for row in copied_files:
         if not isinstance(row, dict):
             issues.append(f"{evidence_label} snapshot manifest contains a malformed copied-file row")
@@ -2014,6 +2063,7 @@ def _validate_snapshot_evidence(
             issues.append(f"{evidence_label} snapshot manifest duplicates target {relative}")
             continue
         copied_hashes[relative_key] = digest.casefold()
+        copied_paths[relative_key] = relative_parts
     for relative, before_hash in target_before_hashes.items():
         if copied_hashes.get(_host_path_key(relative)) != before_hash.casefold():
             issues.append(
@@ -2083,6 +2133,22 @@ def _validate_snapshot_evidence(
         snapshot_identity_changed = True
     if snapshot_identity_changed:
         issues.append(f"{evidence_label} snapshot directory changed during validation")
+    for relative_key, digest in copied_hashes.items():
+        try:
+            revalidated_digest = _sha256_confined_evidence_file(
+                root,
+                (*snapshot_parts, *copied_paths[relative_key]),
+            )
+        except OSError as exc:
+            issues.append(
+                f"{evidence_label} snapshot copy changed after inventory for "
+                f"{relative_key}: {exc}"
+            )
+            continue
+        if revalidated_digest.casefold() != digest:
+            issues.append(
+                f"{evidence_label} snapshot copy changed after inventory for {relative_key}"
+            )
     for error in snapshot_walk_errors:
         issues.append(f"{evidence_label} snapshot traversal failed: {error}")
     unmanifested_snapshot_files = sorted(
@@ -2810,11 +2876,21 @@ def validate_incomplete_target_set_journals(
             f"{audit_root}"
         ]
     try:
+        audit_path_before, audit_before_states = _confined_component_states(
+            root,
+            ("audit_log",),
+        )
+    except OSError as exc:
+        return [f"Target-set transaction audit root is unconfined: {audit_root}: {exc}"]
+    try:
         discovered_paths = sorted(
             path for path in audit_root.iterdir() if _is_json_audit_entry(path)
         )
     except OSError as exc:
         return [f"Target-set transaction audit root is unreadable: {audit_root}: {exc}"]
+    discovered_inventory = {
+        _host_path_key(path.name) for path in discovered_paths
+    }
     for discovered_path in discovered_paths:
         try:
             path, raw_bytes = _read_confined_evidence_file(
@@ -2888,6 +2964,33 @@ def validate_incomplete_target_set_journals(
                 hashlib.sha256(raw_bytes).hexdigest(),
             )
         failures.extend(f"Target-set transaction journal invalid: {path}: {issue}" for issue in journal_issues)
+    try:
+        rediscovered_paths = sorted(
+            path for path in audit_root.iterdir() if _is_json_audit_entry(path)
+        )
+        audit_path_after, audit_after_states = _confined_component_states(
+            root,
+            ("audit_log",),
+        )
+        rediscovered_inventory = {
+            _host_path_key(path.name) for path in rediscovered_paths
+        }
+        audit_inventory_changed = (
+            audit_path_after != audit_path_before
+            or len(audit_after_states) != len(audit_before_states)
+            or any(
+                not os.path.samestat(before_state, after_state)
+                for before_state, after_state in zip(
+                    audit_before_states,
+                    audit_after_states,
+                )
+            )
+            or rediscovered_inventory != discovered_inventory
+        )
+    except OSError:
+        audit_inventory_changed = True
+    if audit_inventory_changed:
+        failures.append("Target-set transaction audit inventory changed during validation")
     return failures
 
 

@@ -996,6 +996,8 @@ Modern committed journals require canonical `Last Updated` and nonblank
 pre-write, original-target, backup, undo, restore, revert, saved, archived,
 old-content, previous-content, or prior-content payload aliases as recoverable
 pre-write content.
+Committed snapshot manifests likewise require a canonical UTC `Last Updated`;
+missing or malformed snapshot time cannot prove pre-write provenance.
 Recovery-payload discovery must use bounded iterative traversal so deeply nested
 unrelated metadata cannot terminate validation with recursion exhaustion.
 Modern released-lock binding requires string-typed `Lock ID` and `Workload ID`
@@ -1014,7 +1016,13 @@ enumeration must fail closed on every snapshot traversal error; an unreadable
 child directory cannot be silently omitted from the inventory. Snapshot
 manifest, copied-file hashes, and physical inventory must remain bound to one
 pre/post directory identity; replacing the snapshot tree during traversal is a
-validation failure. Confined JSON
+validation failure. Every copied file must be rehashed through the confined
+reader after inventory so child mutation cannot preserve a stale manifest hash.
+Audit-log discovery must compare pre/post directory identity and JSON inventory;
+a transaction journal that appears during validation blocks a green result.
+Target-scoped live projections must also carry an affirmative current/live/active
+`Record Role` and a `Historical Receipt Boundary` that explicitly prevents
+historical receipts from redefining or granting live authority. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
 buffer, and translate allocation or decode exhaustion into a validation issue.
 PR Readiness must map this family separately from repo/live-state ownership and
