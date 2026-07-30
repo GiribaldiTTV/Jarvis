@@ -1256,6 +1256,14 @@ def _classifier_guardrail_failures() -> list[str]:
             "blank authority duplicate",
             "Count a blank external-state Record Role marker when enforcing live-header authority cardinality.",
         ),
+        (
+            "UTF-32 NUL-bearing audit entry",
+            "Reject a NUL-bearing UTF-32 external-state audit entry that hides a target-set Transition.",
+        ),
+        (
+            "live-role continuity wording",
+            "Distinguish a current target-currentness Record Role that will remain active from authority that will activate only later.",
+        ),
     ):
         if "external-state-transaction-evidence-parser" not in _classify_comment(comment):
             failures.append(
@@ -1531,6 +1539,8 @@ def _classifier_guardrail_failures() -> list[str]:
         "Preserve transaction state after a payment retry.",
         "The profile table records the record role for display.",
         "The database record role grants authority to the wrong tenant.",
+        "The document is UTF-32 and contains NUL bytes.",
+        "The database record role will remain active.",
         "A checksum report lists after SHA256 for an unrelated asset.",
         "The deployment planner selected a modern target for customer notifications.",
     ):

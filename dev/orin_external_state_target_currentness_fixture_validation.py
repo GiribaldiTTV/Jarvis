@@ -812,7 +812,7 @@ def _write_plain_text_target_set_transaction_fixture(
 ) -> Path:
     audit_root = root / "audit_log"
     audit_root.mkdir(parents=True, exist_ok=True)
-    suffix = ".log" if encoding == "utf-16" else ".txt"
+    suffix = ".log" if encoding in {"utf-16", "utf-32"} else ".txt"
     path = audit_root / f"prepared-plain{suffix}"
     path.write_text(
         "Transition: Bounded coherent target-set reconciliation\n"
@@ -2674,6 +2674,36 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
+            "unrelated UTF-32 non-JSON audit text",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical-utf32.log").write_text(
+                    "Historical audit note only.",
+                    encoding="utf-32",
+                ),
+            ),
+        ),
+        (
+            "unrelated BOM-less UTF-32LE non-JSON audit text",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical-utf32-le.txt").write_text(
+                    "Historical audit note only.",
+                    encoding="utf-32-le",
+                ),
+            ),
+        ),
+        (
+            "unrelated BOM-less UTF-32BE non-JSON audit text",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical-utf32-be.txt").write_text(
+                    "Historical audit note only.",
+                    encoding="utf-32-be",
+                ),
+            ),
+        ),
+        (
             "unrelated JSON array audit",
             lambda root: atomic_write_json(
                 root / "audit_log" / "unrelated-array.json",
@@ -2822,6 +2852,34 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_plain_text_target_set_transaction_fixture(
                 root,
                 encoding="utf-16-be",
+            ),
+        ),
+        (
+            "plain-text target-set transaction stored in UTF-32",
+            lambda root: _write_plain_text_target_set_transaction_fixture(
+                root,
+                encoding="utf-32",
+            ),
+        ),
+        (
+            "plain-text target-set transaction stored in BOM-less UTF-32LE",
+            lambda root: _write_plain_text_target_set_transaction_fixture(
+                root,
+                encoding="utf-32-le",
+            ),
+        ),
+        (
+            "plain-text target-set transaction stored in BOM-less UTF-32BE",
+            lambda root: _write_plain_text_target_set_transaction_fixture(
+                root,
+                encoding="utf-32-be",
+            ),
+        ),
+        (
+            "unscannable NUL-bearing non-JSON audit entry",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "unscannable.bin").write_bytes(b"\x00"),
             ),
         ),
         (
@@ -3892,6 +3950,20 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda raw_bytes: raw_bytes.decode("utf-8"),
     )
     _assert_journal_mutation_killed(
+        "BOM-less UTF-32 target-set audit accepted as NUL-bearing UTF-8",
+        negative_setups[
+            "plain-text target-set transaction stored in BOM-less UTF-32LE"
+        ],
+        "_decode_non_json_audit_text",
+        lambda raw_bytes: raw_bytes.decode("utf-8"),
+    )
+    _assert_journal_mutation_killed(
+        "unscannable NUL-bearing audit entry silently ignored",
+        negative_setups["unscannable NUL-bearing non-JSON audit entry"],
+        "_decode_non_json_audit_text",
+        lambda _raw_bytes: "",
+    )
+    _assert_journal_mutation_killed(
         "non-object JSON target-set root ignored",
         negative_setups[
             "target-set transaction stored below a non-object JSON root"
@@ -4549,6 +4621,21 @@ def main() -> int:
         )
         _assert_pass("explicitly non-expired live role", _run(root))
         _record(root)
+        for continuing_role in (
+            "Current authority is active and will not expire",
+            "Current authority will remain active",
+            "Live assignment will continue without interruption",
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8").replace(
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{continuing_role}`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_pass(f"continuing live role: {continuing_role}", _run(root))
+            _record(root)
         for protective_role in (
             "Current authority is not suspended",
             "Current live authority is not disabled",
@@ -4667,6 +4754,21 @@ def main() -> int:
                 "Record Role: `Current state authority is pending activation`",
                 "Record Role is not affirmative live authority",
             ),
+            *[
+                (
+                    f"modal future-activation record role authority: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current authority would activate later",
+                    "Current state may become active after approval",
+                    "Current authority will be active after USER approval",
+                    "Current assignment can go live after USER approval",
+                    "Current projection will take effect tomorrow",
+                )
+            ],
             *[
                 (
                     f"ended record role authority: {value}",

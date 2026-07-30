@@ -686,11 +686,18 @@ def _target_record_role_is_live(value: str | None) -> bool:
         r"only on paper)\b",
         status_checked,
     )
+    future_activation = (
+        r"(?:activate|activation|begin|start|commence|take effect|go live|"
+        r"become active|be (?:active|live|current)|be approved|receive approval)"
+    )
     future_gated = re.search(
         r"\b(?:authority|assignment|projection|state|role)\b.{0,45}\b"
-        r"(?:will|would|may|might|can|could|pending|awaiting|deferred|future)\b|"
+        r"(?:pending|awaiting|deferred|future)\b|"
         r"\b(?:pending|awaiting|deferred|future)\b.{0,45}\b"
-        r"(?:authority|assignment|projection|state|role|activation|approval)\b",
+        r"(?:authority|assignment|projection|state|role|activation|approval)\b|"
+        r"\b(?:authority|assignment|projection|state|role)\b.{0,45}\b"
+        r"(?:will|would|may|might|can|could)\b.{0,30}\b"
+        rf"{future_activation}\b",
         normalized,
     )
     never_activated = re.search(
@@ -3372,21 +3379,48 @@ def _decode_non_json_audit_text(raw_bytes: bytes) -> str:
     try:
         utf8_text = raw_bytes.decode("utf-8")
     except UnicodeDecodeError:
-        return raw_bytes.decode("utf-16")
+        utf8_text = None
 
-    if "\x00" not in utf8_text:
+    if utf8_text is not None and "\x00" not in utf8_text:
         return utf8_text
 
-    # BOM-less UTF-16 containing ASCII-range evidence is valid UTF-8 bytes with
-    # interspersed NULs, so scan both byte orders before accepting that decode.
-    for encoding in ("utf-16-le", "utf-16-be"):
+    # BOM-less UTF-16/32 ASCII evidence is valid NUL-bearing UTF-8. Decode every
+    # supported wide-text form and prefer the candidate that exposes a target
+    # transition; otherwise retain the most ASCII-like scannable text.
+    candidates: list[str] = []
+    for encoding in (
+        "utf-32",
+        "utf-32-le",
+        "utf-32-be",
+        "utf-16",
+        "utf-16-le",
+        "utf-16-be",
+    ):
         try:
             candidate = raw_bytes.decode(encoding)
         except UnicodeDecodeError:
             continue
+        if "\x00" in candidate:
+            continue
         if _raw_text_has_target_set_transition(candidate):
             return candidate
-    return utf8_text
+        candidates.append(candidate)
+    if candidates:
+        return max(
+            candidates,
+            key=lambda text: sum(
+                character.isascii()
+                and (character.isprintable() or character.isspace())
+                for character in text
+            ),
+        )
+    raise UnicodeDecodeError(
+        "external-state-audit",
+        raw_bytes,
+        0,
+        len(raw_bytes),
+        "not scannable as UTF-8, UTF-16, or UTF-32 text",
+    )
 
 
 def _json_value_has_target_set_transition(value: object) -> bool:
