@@ -22474,7 +22474,8 @@ def _declared_repo_write_paths(
     exclusion_pattern = re.compile(
         r"\b(?:exclude(?:d|s|ing)?|not\s+included|not\s+in\s+(?:the\s+)?"
         r"(?:write\s+set|scope)|out(?:side)?\s+(?:of\s+)?scope|read[- ]only|"
-        r"no\s+write)\b",
+        r"no\s+write|unless|except(?:ed|ing|ions?|s)?|other\s+than|save\s+for|"
+        r"apart\s+from)\b",
         flags=re.I,
     )
     candidates: list[str] = []
@@ -24509,6 +24510,50 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             ),
             f"{durable_fixture}: excluded path must not become write authority: {excluded_write_set}",
         )
+    for exception_write_set in (
+        "Only src/a.py and src/b.py except src/b.py",
+        "Only src/a.py and src/b.py excepted src/b.py",
+        "Only src/a.py and src/b.py excepting src/b.py",
+        "Only src/a.py and src/b.py excepts src/b.py",
+        "Only src/a.py and src/b.py other than src/b.py",
+        "Only src/a.py and src/b.py save for src/b.py",
+        "Only src/a.py and src/b.py apart from src/b.py",
+        "Only src/a.py and src/b.py unless src/b.py",
+    ):
+        require(
+            not _declared_repo_write_paths(exception_write_set)
+            and not _durable_write_set_is_bounded(exception_write_set)
+            and not _tracked_dirty_paths_are_declared(
+                " M src/b.py",
+                exception_write_set,
+            )
+            and not _write_set_authorities_are_coherent(
+                exception_write_set,
+                exception_write_set,
+            ),
+            (
+                f"{durable_fixture}: exception-qualified write-set clause must "
+                f"contribute no authority: {exception_write_set}"
+            ),
+        )
+    mixed_exception_write_set = (
+        "Only src/a.py; src/b.py except src/b.py"
+    )
+    require(
+        _declared_repo_write_paths(mixed_exception_write_set) == {"src/a.py"}
+        and _tracked_dirty_paths_are_declared(
+            " M src/a.py",
+            mixed_exception_write_set,
+        )
+        and not _tracked_dirty_paths_are_declared(
+            " M src/b.py",
+            mixed_exception_write_set,
+        ),
+        (
+            f"{durable_fixture}: a separate positive clause may remain bounded "
+            "while an exception-qualified clause contributes no path authority"
+        ),
+    )
     require(
         _durable_write_set_is_bounded(
             "Only src/app.py; all other files are excluded"

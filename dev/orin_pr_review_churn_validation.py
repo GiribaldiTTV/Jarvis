@@ -1018,6 +1018,34 @@ def _classify_comment(body: str, path: str = "") -> list[str]:
             )
         ):
             matched_keywords.append("historical receipt")
+        if (
+            rule.family_id == "durable-carrier-confinement-parser"
+            and any(term in normalized for term in ("write set", "write-set"))
+            and any(
+                qualifier in normalized
+                for qualifier in (
+                    "unless",
+                    "except",
+                    "excepted",
+                    "excepting",
+                    "exception",
+                    "other than",
+                    "save for",
+                    "apart from",
+                )
+            )
+            and any(
+                context in normalized
+                for context in (
+                    "confinement gate",
+                    "confinement authority",
+                    "declared repo write paths",
+                    "tracked dirty paths are declared",
+                    "write authority",
+                )
+            )
+        ):
+            matched_keywords.append("contextual exception-qualified write set")
         if rule.family_id == "rar-path-suffix-parser" and not any(
             context in normalized
             for context in (
@@ -1243,6 +1271,33 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Durable carrier confinement comment did not classify into its exact family"
         )
+    for label, comment in (
+        (
+            "except carve-out",
+            "Reject exception-qualified write-set entries when a confinement gate treats paths after except as declared write authority.",
+        ),
+        (
+            "excepted carve-out",
+            "The declared repo write paths parser must reject a write set whose confinement authority is excepted for one dirty path.",
+        ),
+        (
+            "other-than carve-out",
+            "Tracked dirty paths are declared only when the confinement gate rejects an other than write-set carve-out.",
+        ),
+    ):
+        if "durable-carrier-confinement-parser" not in _classify_comment(comment):
+            failures.append(
+                f"{label} review did not classify into the durable confinement family"
+            )
+    for comment in (
+        "The application write set excludes an optional export item.",
+        "A database write set excepts one archived row from synchronization.",
+        "The editor shows all files other than the selected document.",
+    ):
+        if _classify_comment(comment) != ["unknown"]:
+            failures.append(
+                "Generic exception/write-set prose must remain outside the durable confinement family"
+            )
     immutable_receipt_path_comment = (
         "Keep immutable receipt paths case-sensitive on a POSIX external-state root; "
         "a case-renamed path must not reuse the compatibility registry key."
