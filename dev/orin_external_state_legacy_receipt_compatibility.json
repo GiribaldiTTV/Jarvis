@@ -1,0 +1,23 @@
+{
+  "schema": "legacy-audit-compatibility-v1",
+  "compatibilityClass": "immutable-pre-transaction-state-completion-receipt",
+  "externalStateSchema": "external-state-v1",
+  "transition": "Bounded coherent target-set reconciliation",
+  "receipts": [
+    {
+      "path": "audit_log/current-gate-autonomous-repair-rri-20260727-001.json",
+      "sha256": "E5C88425E10A3D78D3B2A63063CE3425D03676E9A939F03BCE7847FBD7D6C492",
+      "profile": "rri-20260727-001-current-gate"
+    },
+    {
+      "path": "audit_log/rri-20260727-001-durability-final.json",
+      "sha256": "0D1E0B868A3838F8E9329A40F89EAF5735A639D45F2664435C20F1E22C080D68",
+      "profile": "rri-20260727-001-durability-final"
+    },
+    {
+      "path": "audit_log/rri-20260727-001-pr1-projection-ownership-1384f20e.json",
+      "sha256": "3C308ACB25820E5A25172FD56E06CE82C45EFD448A923A412882E45EC4ACC057",
+      "profile": "rri-20260727-001-pr1-projection-ownership"
+    }
+  ]
+}

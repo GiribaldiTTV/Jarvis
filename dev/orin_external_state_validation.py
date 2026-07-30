@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import stat
 import re
-from pathlib import PureWindowsPath
+from pathlib import PurePosixPath, PureWindowsPath
 
 from orin_external_state_common import (
     DEFAULT_EXTERNAL_STATE_ROOT,
@@ -38,6 +39,300 @@ REQUIRED_STAGE4_RECORDS = [
     "promotion_packets/stage4_active_state_migration_execution_20260526.md",
     "acknowledgements/Governance/stage4_active_state_migration_execution_ack.md",
 ]
+
+LEGACY_AUDIT_COMPATIBILITY_REGISTRY = Path(__file__).with_name(
+    "orin_external_state_legacy_receipt_compatibility.json"
+)
+LEGACY_AUDIT_COMPATIBILITY_REGISTRY_SHA256 = (
+    "670BBBA9D485E5499BEA8EBDD95EC80A088F22963B5F38EC8ECD6C29C682C33F"
+)
+LEGACY_AUDIT_COMPATIBILITY_SCHEMA = "legacy-audit-compatibility-v1"
+LEGACY_AUDIT_COMPATIBILITY_CLASS = (
+    "immutable-pre-transaction-state-completion-receipt"
+)
+LEGACY_AUDIT_RECEIPT_FIELDS = frozenset(
+    {
+        "External State Schema",
+        "Last Updated",
+        "Last Updated By",
+        "Lock ID",
+        "Snapshot",
+        "Targets",
+        "Transition",
+        "Workload ID",
+    }
+)
+LEGACY_AUDIT_SIGNATURE_FIELDS = frozenset(
+    {"External State Schema", "Lock ID", "Snapshot", "Targets", "Transition", "Workload ID"}
+)
+LEGACY_AUDIT_TRANSITION = "Bounded coherent target-set reconciliation"
+SHA256_UPPER_PATTERN = re.compile(r"^[0-9A-F]{64}$")
+AUDIT_SECURITY_CRITICAL_FIELDS = frozenset(
+    {
+        "External State Schema",
+        "Lock ID",
+        "Snapshot",
+        "Targets",
+        "Transaction State",
+        "Transition",
+        "Workload ID",
+    }
+)
+
+
+def _strict_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    payload: dict[str, object] = {}
+    for key, value in pairs:
+        if key in payload:
+            raise ValueError(f"duplicate JSON object key: {key!r}")
+        payload[key] = value
+    return payload
+
+
+def _reject_nonstandard_json_constant(value: str) -> None:
+    raise ValueError(f"non-standard JSON numeric constant: {value}")
+
+
+def _read_strict_json_bytes(path: Path) -> tuple[bytes, dict[str, object]]:
+    raw = path.read_bytes()
+    payload = json.loads(
+        raw.decode("utf-8"),
+        object_pairs_hook=_strict_json_object,
+        parse_constant=_reject_nonstandard_json_constant,
+    )
+    if not isinstance(payload, dict):
+        raise ValueError("JSON root must be an object")
+    return raw, payload
+
+
+def _case_ambiguous_json_keys(
+    value: object,
+    critical_fields: frozenset[str],
+) -> list[str]:
+    critical_by_folded = {field.casefold(): field for field in critical_fields}
+    issues: list[str] = []
+
+    def visit(candidate: object) -> None:
+        if isinstance(candidate, dict):
+            folded: dict[str, str] = {}
+            for key, nested in candidate.items():
+                normalized = key.casefold()
+                canonical = critical_by_folded.get(normalized)
+                if canonical is not None and key != canonical:
+                    issues.append(f"case-aliased JSON object key: {key!r}; expected {canonical!r}")
+                prior = folded.get(normalized)
+                if prior is not None and normalized in critical_by_folded:
+                    issues.append(f"case-ambiguous JSON object keys: {prior!r} and {key!r}")
+                folded[normalized] = key
+                visit(nested)
+        elif isinstance(candidate, list):
+            for nested in candidate:
+                visit(nested)
+
+    visit(value)
+    return issues
+
+
+def _canonical_registry_audit_path(root: Path, value: object) -> str:
+    if not isinstance(value, str) or not value:
+        raise ValueError("registry audit path must be a non-empty string")
+    if any(token in value for token in ("\\", "*", "?", "[", "]")):
+        raise ValueError(f"registry audit path is not exact: {value!r}")
+    relative = PurePosixPath(value)
+    if relative.is_absolute() or len(relative.parts) != 2:
+        raise ValueError(f"registry audit path is not canonical: {value!r}")
+    if relative.parts[0] != "audit_log" or relative.parts[1] in {"", ".", ".."}:
+        raise ValueError(f"registry audit path is outside audit_log: {value!r}")
+    if relative.parts[1].casefold().endswith(".json") is False:
+        raise ValueError(f"registry audit path is not JSON: {value!r}")
+    candidate = (root / Path(*relative.parts)).resolve(strict=False)
+    audit_root = (root / "audit_log").resolve(strict=False)
+    if candidate.parent != audit_root or candidate.name != relative.parts[1]:
+        raise ValueError(f"registry audit path resolves outside its canonical location: {value!r}")
+    return relative.as_posix()
+
+
+def _load_legacy_audit_registry(
+    root: Path,
+    registry_path: Path,
+    expected_registry_sha256: str,
+) -> tuple[dict[str, dict[str, str]], list[str]]:
+    try:
+        raw, payload = _read_strict_json_bytes(registry_path)
+    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
+        return {}, [f"Legacy audit compatibility registry is invalid: {registry_path}: {exc}"]
+
+    issues: list[str] = []
+    registry_aliases = _case_ambiguous_json_keys(payload, frozenset({
+        "schema",
+        "compatibilityClass",
+        "externalStateSchema",
+        "transition",
+        "receipts",
+        "path",
+        "sha256",
+        "profile",
+    }))
+    issues.extend(f"Legacy audit compatibility registry {issue}" for issue in registry_aliases)
+    actual_registry_sha = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest().upper()
+    if actual_registry_sha != expected_registry_sha256:
+        issues.append(
+            "Legacy audit compatibility registry identity mismatch: "
+            f"expected {expected_registry_sha256}, found {actual_registry_sha}"
+        )
+    expected_keys = {
+        "schema",
+        "compatibilityClass",
+        "externalStateSchema",
+        "transition",
+        "receipts",
+    }
+    if set(payload) != expected_keys:
+        issues.append("Legacy audit compatibility registry has an unsupported top-level shape")
+    if payload.get("schema") != LEGACY_AUDIT_COMPATIBILITY_SCHEMA:
+        issues.append("Legacy audit compatibility registry schema is invalid")
+    if payload.get("compatibilityClass") != LEGACY_AUDIT_COMPATIBILITY_CLASS:
+        issues.append("Legacy audit compatibility registry class is invalid")
+    if payload.get("externalStateSchema") != DEFAULT_SCHEMA_VERSION:
+        issues.append("Legacy audit compatibility registry external-state schema is invalid")
+    if payload.get("transition") != LEGACY_AUDIT_TRANSITION:
+        issues.append("Legacy audit compatibility registry transition is invalid")
+
+    rows = payload.get("receipts")
+    if not isinstance(rows, list) or len(rows) != 3:
+        return {}, [*issues, "Legacy audit compatibility registry must contain exactly three receipts"]
+
+    registry: dict[str, dict[str, str]] = {}
+    hashes: set[str] = set()
+    profiles: set[str] = set()
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict) or set(row) != {"path", "sha256", "profile"}:
+            issues.append(f"Legacy audit compatibility registry row {index} has an invalid shape")
+            continue
+        try:
+            relative = _canonical_registry_audit_path(root, row.get("path"))
+        except ValueError as exc:
+            issues.append(str(exc))
+            continue
+        digest = row.get("sha256")
+        profile = row.get("profile")
+        if not isinstance(digest, str) or SHA256_UPPER_PATTERN.fullmatch(digest) is None:
+            issues.append(f"Legacy audit compatibility registry row {index} has an invalid SHA256")
+            continue
+        if not isinstance(profile, str) or not profile or any(char.isspace() for char in profile):
+            issues.append(f"Legacy audit compatibility registry row {index} has an invalid profile")
+            continue
+        if relative in registry:
+            issues.append(f"Legacy audit compatibility registry duplicates path {relative}")
+        if digest in hashes:
+            issues.append(f"Legacy audit compatibility registry duplicates SHA256 {digest}")
+        if profile in profiles:
+            issues.append(f"Legacy audit compatibility registry duplicates profile {profile}")
+        registry[relative] = {"sha256": digest, "profile": profile}
+        hashes.add(digest)
+        profiles.add(profile)
+    return ({}, issues) if issues else (registry, [])
+
+
+def _has_legacy_audit_signature(payload: dict[str, object]) -> bool:
+    keys = {key.casefold() for key in payload}
+    return (
+        "transaction state" not in keys
+        and {field.casefold() for field in LEGACY_AUDIT_SIGNATURE_FIELDS}.issubset(keys)
+    )
+
+
+def validate_legacy_audit_compatibility(
+    root: Path,
+    registry_path: Path = LEGACY_AUDIT_COMPATIBILITY_REGISTRY,
+    expected_registry_sha256: str = LEGACY_AUDIT_COMPATIBILITY_REGISTRY_SHA256,
+) -> list[str]:
+    root = resolve_path(root)
+    registry, issues = _load_legacy_audit_registry(root, registry_path, expected_registry_sha256)
+    if issues:
+        return issues
+
+    audit_root = root / "audit_log"
+    if not audit_root.is_dir():
+        return [f"Legacy audit compatibility namespace is missing: {audit_root}"]
+    if audit_root.is_symlink() or (
+        hasattr(audit_root, "is_junction") and audit_root.is_junction()
+    ):
+        return [f"Legacy audit compatibility namespace is an alias: {audit_root}"]
+    resolved_audit_root = audit_root.resolve(strict=True)
+    seen: set[str] = set()
+    candidates: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(audit_root, followlinks=False):
+        directory = Path(dirpath)
+        for dirname in list(dirnames):
+            candidate = directory / dirname
+            if candidate.is_symlink() or (
+                hasattr(candidate, "is_junction") and candidate.is_junction()
+            ):
+                issues.append(
+                    "Legacy audit compatibility namespace contains a directory alias: "
+                    f"{candidate.relative_to(root).as_posix()}"
+                )
+                dirnames.remove(dirname)
+        candidates.extend(
+            directory / filename
+            for filename in filenames
+            if Path(filename).suffix.lower() == ".json"
+        )
+
+    for path in sorted(
+        candidates,
+        key=lambda candidate: candidate.relative_to(root).as_posix().casefold(),
+    ):
+        relative = path.relative_to(root).as_posix()
+        try:
+            resolved_path = path.resolve(strict=True)
+            if path.is_symlink() or not resolved_path.is_relative_to(resolved_audit_root):
+                raise ValueError("path is an alias or resolves outside the canonical audit namespace")
+            raw, payload = _read_strict_json_bytes(path)
+        except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
+            issues.append(f"Authoritative audit JSON is invalid: {relative}: {exc}")
+            continue
+
+        entry = registry.get(relative)
+        legacy_signature = _has_legacy_audit_signature(payload)
+        has_transaction_state = any(
+            key.casefold() == "transaction state" for key in payload
+        )
+        alias_issues = (
+            _case_ambiguous_json_keys(payload, AUDIT_SECURITY_CRITICAL_FIELDS)
+            if entry is not None or legacy_signature or has_transaction_state
+            else []
+        )
+        if alias_issues:
+            issues.extend(
+                f"Authoritative audit JSON is invalid: {relative}: {issue}"
+                for issue in alias_issues
+            )
+            continue
+
+        if entry is None:
+            if legacy_signature:
+                issues.append(f"Unregistered state-less target-set receipt is blocked: {relative}")
+            continue
+
+        seen.add(relative)
+        actual_digest = hashlib.sha256(raw).hexdigest().upper()
+        if actual_digest != entry["sha256"]:
+            issues.append(
+                f"Legacy audit receipt identity mismatch: {relative}: "
+                f"expected {entry['sha256']}, found {actual_digest}"
+            )
+        if set(payload) != LEGACY_AUDIT_RECEIPT_FIELDS:
+            issues.append(f"Legacy audit receipt shape is invalid: {relative}")
+        if payload.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
+            issues.append(f"Legacy audit receipt schema is invalid: {relative}")
+        if payload.get("Transition") != LEGACY_AUDIT_TRANSITION:
+            issues.append(f"Legacy audit receipt transition is invalid: {relative}")
+
+    for relative in sorted(set(registry) - seen):
+        issues.append(f"Registered legacy audit receipt is missing: {relative}")
+    return issues
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1314,6 +1609,14 @@ def main() -> int:
             return 1
         print("Clean Clone Boundary: PASS - missing root is not a repo validation failure")
         return 0
+
+    if not args.target_currentness:
+        audit_issues = validate_legacy_audit_compatibility(root)
+        if audit_issues:
+            print("Validation Result: BLOCKED")
+            for issue in audit_issues:
+                print(issue)
+            return 1
 
     if args.target_currentness:
         if args.require_stage4_records:
