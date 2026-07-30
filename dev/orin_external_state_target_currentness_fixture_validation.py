@@ -816,6 +816,20 @@ def _write_plain_text_target_set_transaction_fixture(
     return path
 
 
+def _write_non_object_target_set_transaction_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "prepared-array.json"
+    atomic_write_json(
+        path,
+        [
+            {
+                "Transition": validator.TARGET_SET_TRANSITION,
+                "Transaction State": "Prepared",
+            }
+        ],
+    )
+    return path
+
+
 def _write_modern_recovery_alias_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -2527,6 +2541,33 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
+            "unrelated BOM-less UTF-16LE non-JSON audit text",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical-bomless.txt").write_text(
+                    "Historical audit note only.",
+                    encoding="utf-16-le",
+                ),
+            ),
+        ),
+        (
+            "unrelated BOM-less UTF-16BE non-JSON audit text",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical-bomless-be.txt").write_text(
+                    "Historical audit note only.",
+                    encoding="utf-16-be",
+                ),
+            ),
+        ),
+        (
+            "unrelated JSON array audit",
+            lambda root: atomic_write_json(
+                root / "audit_log" / "unrelated-array.json",
+                [{"Transition": "Other audit", "State": "Complete"}],
+            ),
+        ),
+        (
             "unrelated non-JSON audit names target-set phrase only in Notes",
             lambda root: (
                 (root / "audit_log").mkdir(parents=True, exist_ok=True),
@@ -2648,6 +2689,24 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 root,
                 encoding="utf-16",
             ),
+        ),
+        (
+            "plain-text target-set transaction stored in BOM-less UTF-16LE",
+            lambda root: _write_plain_text_target_set_transaction_fixture(
+                root,
+                encoding="utf-16-le",
+            ),
+        ),
+        (
+            "plain-text target-set transaction stored in BOM-less UTF-16BE",
+            lambda root: _write_plain_text_target_set_transaction_fixture(
+                root,
+                encoding="utf-16-be",
+            ),
+        ),
+        (
+            "target-set transaction stored below a non-object JSON root",
+            _write_non_object_target_set_transaction_fixture,
         ),
         *[
             (
@@ -3694,6 +3753,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "plain-text target-set transaction stored in a non-JSON audit entry"
         ],
         "_raw_text_has_target_set_transition",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
+        "BOM-less UTF-16 target-set audit accepted as NUL-bearing UTF-8",
+        negative_setups[
+            "plain-text target-set transaction stored in BOM-less UTF-16LE"
+        ],
+        "_decode_non_json_audit_text",
+        lambda raw_bytes: raw_bytes.decode("utf-8"),
+    )
+    _assert_journal_mutation_killed(
+        "non-object JSON target-set root ignored",
+        negative_setups[
+            "target-set transaction stored below a non-object JSON root"
+        ],
+        "_json_value_has_target_set_transition",
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(

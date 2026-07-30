@@ -950,6 +950,13 @@ confined case-insensitive JSON discovery, conservative scanning of flat non-JSON
 UTF-8 or UTF-16 audit entries including line-oriented `Transition:` fields, and
 fail-closed handling for BOMs, reparse points, impossible path characters, and
 evidence read races.
+Non-JSON scanning must inspect BOM-less UTF-16 little- and big-endian candidates
+when a nominally valid UTF-8 decode contains NUL structure; successful UTF-8
+decoding alone cannot suppress the UTF-16 evidence path. Strictly decoded JSON
+with a non-object root remains malformed target-set evidence when any nested
+object declares the target-set transition; an array root cannot make that
+transaction disappear. Unrelated UTF-16 text and unrelated JSON arrays remain
+outside the target-set family.
 Any case-insensitive match to the exact target-set transition is a journal
 candidate and must fail unless both the `Transition` key and value are canonical.
 The released lock's normalized write set must equal the journal audit, snapshot,

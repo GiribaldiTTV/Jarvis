@@ -3233,6 +3233,47 @@ def _is_non_json_audit_entry(path: Path) -> bool:
     return path.suffix.casefold() != ".json"
 
 
+def _decode_non_json_audit_text(raw_bytes: bytes) -> str:
+    try:
+        utf8_text = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw_bytes.decode("utf-16")
+
+    if "\x00" not in utf8_text:
+        return utf8_text
+
+    # BOM-less UTF-16 containing ASCII-range evidence is valid UTF-8 bytes with
+    # interspersed NULs, so scan both byte orders before accepting that decode.
+    for encoding in ("utf-16-le", "utf-16-be"):
+        try:
+            candidate = raw_bytes.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+        if _raw_text_has_target_set_transition(candidate):
+            return candidate
+    return utf8_text
+
+
+def _json_value_has_target_set_transition(value: object) -> bool:
+    pending = [value]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, dict):
+            for key, child in current.items():
+                if (
+                    isinstance(key, str)
+                    and key.strip().casefold() == "transition"
+                    and isinstance(child, str)
+                    and child.strip().casefold()
+                    == TARGET_SET_TRANSITION.casefold()
+                ):
+                    return True
+                pending.append(child)
+        elif isinstance(current, list):
+            pending.extend(current)
+    return False
+
+
 def validate_incomplete_target_set_journals(
     root: Path,
     compatibility_manifest_path: Path = LEGACY_RECEIPT_COMPATIBILITY_MANIFEST,
@@ -3323,27 +3364,21 @@ def validate_incomplete_target_set_journals(
             raw_bytes
         ).hexdigest()
         try:
-            text = raw_bytes.decode("utf-8")
+            if _is_json_audit_entry(discovered_path):
+                text = raw_bytes.decode("utf-8")
+            else:
+                text = _decode_non_json_audit_text(raw_bytes)
         except UnicodeDecodeError as exc:
             if _is_json_audit_entry(discovered_path):
                 failures.append(
                     f"Target-set transaction journal is not UTF-8: {path}: {exc}"
                 )
-                continue
-            try:
-                text = raw_bytes.decode("utf-16")
-            except UnicodeDecodeError as non_json_exc:
+            else:
                 failures.append(
                     "Non-JSON target-set audit evidence is not scannable text: "
-                    f"{path}: {non_json_exc}"
+                    f"{path}: {exc}"
                 )
-                continue
-            except MemoryError:
-                failures.append(
-                    "Non-JSON target-set audit evidence exceeds safe decoder "
-                    f"resource limits: {path}"
-                )
-                continue
+            continue
         except MemoryError:
             failures.append(
                 f"Target-set transaction journal exceeds safe decoder resource limits: {path}"
@@ -3358,6 +3393,11 @@ def validate_incomplete_target_set_journals(
                 )
             continue
         if not isinstance(payload, dict):
+            if _json_value_has_target_set_transition(payload):
+                failures.append(
+                    "Target-set transaction journal has a non-object JSON root: "
+                    f"{path}"
+                )
             continue
         if _has_noncanonical_target_set_transition(payload):
             failures.append(

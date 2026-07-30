@@ -138,10 +138,10 @@
       },
       {
         "pr": 310,
-        "connector_comments": 215,
+        "connector_comments": 217,
         "observed_family_counts": {
           "durable-carrier-confinement-parser": 110,
-          "external-state-transaction-evidence-parser": 108,
+          "external-state-transaction-evidence-parser": 110,
           "pr-readiness-review-risk-parser": 4,
           "pr2-comment-family-classifier": 15,
           "pr2-thread-pagination-and-approval-latch": 1,
@@ -152,7 +152,7 @@
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, ended live-role rejection, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, positive-clause-only write-path authorization, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for active and historical admission receipts. Its classifier family requires explicit external-state transaction context and leaves generic payment or database journals unknown. The receipt records the exact live 215-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, ended live-role rejection, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, positive-clause-only write-path authorization, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for active and historical admission receipts. Its classifier family requires explicit external-state transaction context and leaves generic payment or database journals unknown. The receipt records the exact live 217-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -305,7 +305,9 @@
           "dev/orin_external_state_validation.py resolves retained modern Committed journals into one chronological hash chain per target, rejects ambiguous timestamps, forks, reversals, and discontinuities, and binds only the newest chain tail to current live bytes.",
           "dev/orin_branch_governance_validation.py counts durable-receipt and branch-record authority-pointer labels case-insensitively before enforcing singularity and mutual exclusivity.",
           "dev/orin_branch_governance_validation.py derives declared write paths only from positive clauses, so excluded, not-included, outside-scope, read-only, and no-write path clauses cannot authorize dirty files.",
-          "dev/orin_branch_governance_validation.py normalizes punctuation and separators in durable Status, Current Phase, and Phase values before detecting PR Readiness or PR Review expiry."
+          "dev/orin_branch_governance_validation.py normalizes punctuation and separators in durable Status, Current Phase, and Phase values before detecting PR Readiness or PR Review expiry.",
+          "dev/orin_external_state_validation.py scans BOM-less UTF-16 little- and big-endian candidates when a nominal UTF-8 decode contains NULs, and the fixture suite kills a naive-UTF-8 decoder mutant while preserving unrelated encoded text.",
+          "dev/orin_external_state_validation.py rejects non-object JSON roots that contain nested target-set transition evidence, and the fixture suite kills a disabled-root-detection mutant while preserving unrelated arrays as non-candidates."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1204,6 +1206,14 @@
       {
         "family_id": "durable-carrier-confinement-parser",
         "comment": "Normalize a durable carrier receipt Phase value such as PR-Readiness or PR_Review before deciding whether pre-PR fallback has expired."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Decode BOM-less UTF-16LE or UTF-16BE non-JSON audit entries before a NUL-bearing but successful UTF-8 decode can hide target-set transition evidence."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Reject a valid JSON array or other non-object root when nested object evidence declares the canonical target-set transition."
       }
     ],
     "unknown_comment_guardrails": [
