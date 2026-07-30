@@ -21179,6 +21179,18 @@ def _durable_repo_live_state_boundary_is_non_authoritative(value: str) -> bool:
     )
 
 
+def _durable_fold_down_is_mandatory(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    return (
+        re.fullmatch(
+            r"before any future pr can be green, this receipt must "
+            r"(?:move|transition|fold down) to historical/no-active posture",
+            normalized,
+        )
+        is not None
+    )
+
+
 def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
     freeze_first = re.search(r"\b(?:freeze|stop|preserve)\b", normalized)
@@ -21335,8 +21347,7 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
             _extract_exact_marker_value(record_text, "Operational Truth Source")
         )
         and _durable_repo_live_state_boundary_is_non_authoritative(live_boundary)
-        and "before any future pr can be green" in fold_down
-        and "historical/no-active" in fold_down
+        and _durable_fold_down_is_mandatory(fold_down)
         and bool(_extract_exact_marker_value(record_text, "Assigned Worktree Confinement"))
         and _carrier_non_includes_are_prohibitive(non_includes)
     )
@@ -21861,6 +21872,9 @@ def _assigned_worktree_confinement_semantics_are_safe(
             or _durable_dirty_worktree_ownership_is_affirmative(dirty_state)
         )
         and _durable_off_worktree_routing_is_blocked(value("Off-Worktree Work Routing"))
+        and _durable_governance_routing_barrier_is_active(
+            value("Governance Routing Barrier")
+        )
         and _durable_new_worktree_gate_is_user_owned(value("New Worktree Decision Gate"))
         and _durable_no_cross_worktree_is_affirmative(value("No Cross-Worktree Mutation"))
         and _normalized_local_path(value("GitHub Desktop-bound worktree"))
@@ -21911,10 +21925,30 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
         r"no (?:thread|workload|task|worktree) (?:is )?assigned|"
         r"without (?:a )?(?:thread|workload|task|worktree) assignment|"
         r"does not assign|assignment has no (?:thread|workload|task|worktree)|"
-        r"assignment (?:ended|closed|terminated))\b",
+        r"assignment (?:is )?(?:ended|closed|terminated|invalid|invalidated|void)|"
+        r"(?:invalid|invalidated|void) assignment)\b",
         normalized,
     )
     return bool(re.search(r"\bassigned\b", normalized) and denied is None)
+
+
+def _durable_governance_routing_barrier_is_active(value: str) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    affirmative = re.match(r"^(?:active|enforced|blocked)\b", normalized)
+    boundary = re.search(
+        r"\b(?:outside|off-worktree|out-of-scope|governance|carrier|sibling|worktree)\b",
+        normalized,
+    )
+    denied = re.search(
+        r"\b(?:disabled|inactive|optional|not active|not enforced|not blocked|"
+        r"bypassed|waived|may bypass|can bypass|may proceed|can proceed)\b",
+        normalized,
+    )
+    return bool(
+        affirmative
+        and (normalized in {"active", "enforced", "blocked"} or boundary)
+        and denied is None
+    )
 
 
 def _durable_ownership_ledger_is_active(value: str) -> bool:
@@ -22117,6 +22151,14 @@ def _validate_durable_carrier_admission_receipt_confinement(
     require(
         _durable_off_worktree_routing_is_blocked(off_worktree_routing),
         f"{record_path}: durable carrier receipt does not block or route off-worktree work",
+    )
+    governance_barrier = _extract_exact_marker_value(
+        confinement,
+        "Governance Routing Barrier",
+    )
+    require(
+        _durable_governance_routing_barrier_is_active(governance_barrier),
+        f"{record_path}: durable carrier receipt has no active governance routing barrier",
     )
     new_worktree_gate = _extract_exact_marker_value(
         confinement,
@@ -22477,6 +22519,10 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "Thread Assignment Status: `Fixture owner is assigned to no workload`",
         ),
         (
+            "Thread Assignment Status: `Single fixture owner assigned`",
+            "Thread Assignment Status: `Single fixture owner assigned, but the assignment is invalid`",
+        ),
+        (
             "Worktree Ownership Ledger: `Owned by the fixture workload`",
             "Worktree Ownership Ledger: `Owned by nobody`",
         ),
@@ -22495,6 +22541,10 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Off-Worktree Work Routing: `Blocked; route through the owning carrier`",
             "Off-Worktree Work Routing: `Blocked in name only; mutation can occur`",
+        ),
+        (
+            "Governance Routing Barrier: `Active`",
+            "Governance Routing Barrier: `Disabled; off-worktree governance routing is optional`",
         ),
         (
             "New Worktree Decision Gate: `USER approval required`",
@@ -22623,6 +22673,23 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 f"{durable_fixture}: contradictory Repo Live-State Boundary must "
                 f"fail closed: {contradictory_live_boundary}"
+            ),
+        )
+    for invalid_fold_down in (
+        "Before any future PR can be green, historical/no-active posture is not required.",
+        "Before any future PR can be green, this receipt may move to historical/no-active posture.",
+        "Historical/no-active fold-down is optional before future PR review.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    "Before any future PR can be green, this receipt must move to historical/no-active posture.",
+                    invalid_fold_down,
+                )
+            ),
+            (
+                f"{durable_fixture}: non-mandatory Merge-Stable Fold-Down must "
+                f"fail closed: {invalid_fold_down}"
             ),
         )
     require(
@@ -22983,6 +23050,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no active thread assignment",
         ),
         (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Single fixture owner assigned, but the assignment is invalid.`",
+            "has no active thread assignment",
+        ),
+        (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `No owner exists.`",
             "has no active worktree ownership ledger",
@@ -23136,6 +23208,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "Off-Worktree Work Routing: `Blocked; route through Governance.`",
             "Off-Worktree Work Routing: `Blocked, but off-worktree mutation remains possible.`",
             "does not block or route off-worktree work",
+        ),
+        (
+            "Governance Routing Barrier: `Active outside this bounded fixture carrier.`",
+            "Governance Routing Barrier: `Disabled; off-worktree governance routing is optional.`",
+            "has no active governance routing barrier",
         ),
         (
             "New Worktree Decision Gate: `USER approval required.`",

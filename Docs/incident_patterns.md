@@ -1029,7 +1029,8 @@ historical receipts from redefining or granting live authority. Negated role
 claims and conditional boundary exceptions such as `unless` remain negative
 evidence. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
-buffer, and translate allocation or decode exhaustion into a validation issue.
+buffer, enforce the same bound during streaming hashes, and translate allocation,
+decode, or continuously growing evidence into a validation issue.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -1077,6 +1078,10 @@ boundary must state whole-value non-ownership and external Git/helper derivation
 double negation or receipt-derived live authority is contradictory. Dirty-worktree
 recovery must be owner-preserving and freeze-first, with reconciliation before
 continuation; destructive deletion or unilateral continuation is never recovery.
+The merge-stable fold-down is one mandatory whole-value obligation rather than
+two searchable phrases. Thread assignment must reject explicit invalid/void
+qualifiers, and the Governance Routing Barrier must be affirmatively active or
+enforced; disabled or optional routing is negative evidence.
 An intended write set must name a concrete path, validator, target, or similarly
 specific artifact; `files to be determined later` is not bounded scope. A named
 or bounded prefix cannot be extended with `any other files`, additional files,

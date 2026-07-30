@@ -222,6 +222,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "user decision pointer",
             "repo live-state boundary",
             "dirty worktree recovery",
+            "governance routing barrier",
+            "thread assignment status",
+            "merge-stable fold-down",
         ),
     ),
     FamilyRule(
@@ -815,6 +818,21 @@ def _classify_comment(body: str) -> list[str]:
             )
         ):
             matched_keywords.append("contextual snapshot manifest")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and "snapshot file" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "hash",
+                    "bounded",
+                    "evidence",
+                    "target-currentness",
+                    "target currentness",
+                )
+            )
+        ):
+            matched_keywords.append("contextual snapshot file")
         if (
             rule.family_id == "external-state-transaction-evidence-parser"
             and "before text" in normalized

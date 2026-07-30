@@ -1648,13 +1648,28 @@ def _assert_oversized_evidence_rejected() -> None:
         validator.MAX_EXTERNAL_STATE_EVIDENCE_BYTES = 128
         try:
             failures = validator.validate_incomplete_target_set_journals(root)
+            hash_path = root / "hash-only-evidence.bin"
+            hash_path.write_bytes(b"x" * 256)
+            try:
+                validator._sha256_confined_evidence_file(
+                    root,
+                    (hash_path.name,),
+                )
+            except OSError as exc:
+                bounded_hash_rejected = "bounded hash limit" in str(exc)
+            else:
+                bounded_hash_rejected = False
         finally:
             validator.MAX_EXTERNAL_STATE_EVIDENCE_BYTES = original_limit
-        if not any("bounded read limit" in item for item in failures):
+        if (
+            not any("bounded read limit" in item for item in failures)
+            or not bounded_hash_rejected
+        ):
             raise AssertionError(
-                "oversized evidence unexpectedly passed:\n" + "\n".join(failures)
+                "oversized read or hash evidence unexpectedly passed:\n"
+                + "\n".join(failures)
             )
-    print("Modern journal fixture: oversized evidence rejected before buffering: PASS")
+    print("Modern journal fixture: oversized read/hash evidence rejected: PASS")
 
 
 def _assert_evidence_read_memory_error_reported() -> None:

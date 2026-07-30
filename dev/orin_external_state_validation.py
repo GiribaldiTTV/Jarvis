@@ -1769,8 +1769,20 @@ def _sha256_confined_evidence_file(base: Path, parts: tuple[str, ...]) -> str:
         parts,
     )
     try:
+        if opened_before.st_size > MAX_EXTERNAL_STATE_EVIDENCE_BYTES:
+            raise OSError(
+                "evidence file exceeds the bounded hash limit of "
+                f"{MAX_EXTERNAL_STATE_EVIDENCE_BYTES} bytes"
+            )
         digest = hashlib.sha256()
+        hashed_size = 0
         while chunk := os.read(descriptor, 1024 * 1024):
+            hashed_size += len(chunk)
+            if hashed_size > MAX_EXTERNAL_STATE_EVIDENCE_BYTES:
+                raise OSError(
+                    "evidence file grew beyond the bounded hash limit of "
+                    f"{MAX_EXTERNAL_STATE_EVIDENCE_BYTES} bytes"
+                )
             digest.update(chunk)
         _verify_confined_evidence_file(
             base,
