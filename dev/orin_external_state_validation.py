@@ -596,7 +596,20 @@ def _target_record_role_is_live(value: str | None) -> bool:
         r"\b(?:only|exclusive)\b.{0,30}\b(?:historical|receipt|archive|archived)\b",
         normalized,
     )
-    return bool(live_identity and authority_shape and historical_only is None)
+    denied = re.search(
+        r"\b(?:no|not|never|without|lacks?|missing|unavailable|inactive|"
+        r"non[- ]authoritative|unauthori[sz]ed)\b.{0,30}\b"
+        r"(?:authority|assignment|projection|state|role)\b|"
+        r"\b(?:authority|assignment|projection|state|role)\b.{0,30}\b"
+        r"(?:none|absent|denied|revoked|inactive|unavailable)\b",
+        normalized,
+    )
+    return bool(
+        live_identity
+        and authority_shape
+        and historical_only is None
+        and denied is None
+    )
 
 
 def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
@@ -620,7 +633,16 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
         r"\b(?:redefine|override|replace|reactivate|grant|own|control)(?:s|ed|ing)?\b",
         scrubbed,
     )
-    return bool(protective is not None and contradictory is None)
+    conditional_exception = re.search(
+        r"\b(?:unless|except|provided|subject to|until|if approved|when approved|"
+        r"may|might|can still|could still)\b",
+        scrubbed,
+    )
+    return bool(
+        protective is not None
+        and contradictory is None
+        and conditional_exception is None
+    )
 
 
 def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
@@ -1725,8 +1747,20 @@ def _strict_json_load_confined(
     base: Path,
     parts: tuple[str, ...],
 ) -> tuple[Path, object]:
+    path, payload, _ = _strict_json_load_confined_with_digest(base, parts)
+    return path, payload
+
+
+def _strict_json_load_confined_with_digest(
+    base: Path,
+    parts: tuple[str, ...],
+) -> tuple[Path, object, str]:
     path, raw_bytes = _read_confined_evidence_file(base, parts)
-    return path, _strict_json_load_bytes(path, raw_bytes)
+    return (
+        path,
+        _strict_json_load_bytes(path, raw_bytes),
+        hashlib.sha256(raw_bytes).hexdigest(),
+    )
 
 
 def _sha256_confined_evidence_file(base: Path, parts: tuple[str, ...]) -> str:
@@ -1994,7 +2028,7 @@ def _validate_snapshot_evidence(
     except OSError as exc:
         return [f"{evidence_label} snapshot directory is missing or unconfined: {exc}"]
     try:
-        manifest_path, manifest = _strict_json_load_confined(
+        manifest_path, manifest, manifest_digest = _strict_json_load_confined_with_digest(
             root,
             (*snapshot_parts, "snapshot_manifest.json"),
         )
@@ -2149,6 +2183,18 @@ def _validate_snapshot_evidence(
             issues.append(
                 f"{evidence_label} snapshot copy changed after inventory for {relative_key}"
             )
+    try:
+        revalidated_manifest_digest = _sha256_confined_evidence_file(
+            root,
+            (*snapshot_parts, "snapshot_manifest.json"),
+        )
+    except OSError as exc:
+        issues.append(
+            f"{evidence_label} snapshot manifest changed after inventory: {exc}"
+        )
+    else:
+        if revalidated_manifest_digest.casefold() != manifest_digest.casefold():
+            issues.append(f"{evidence_label} snapshot manifest changed after inventory")
     for error in snapshot_walk_errors:
         issues.append(f"{evidence_label} snapshot traversal failed: {error}")
     unmanifested_snapshot_files = sorted(
@@ -2204,7 +2250,7 @@ def _validate_legacy_lock_evidence(
     if not workload_text:
         return ["legacy receipt Workload ID is missing"]
     try:
-        lock_path, lock = _strict_json_load_confined(
+        lock_path, lock, lock_digest = _strict_json_load_confined_with_digest(
             root,
             ("locks", f"{lock_text}.json"),
         )
@@ -2277,6 +2323,16 @@ def _validate_legacy_lock_evidence(
             "legacy receipt lock write set contains unexpected evidence: "
             + ", ".join(unexpected)
         )
+    try:
+        revalidated_lock_digest = _sha256_confined_evidence_file(
+            root,
+            ("locks", f"{lock_text}.json"),
+        )
+    except OSError as exc:
+        issues.append(f"legacy receipt lock evidence changed during validation: {exc}")
+    else:
+        if revalidated_lock_digest.casefold() != lock_digest.casefold():
+            issues.append("legacy receipt lock evidence changed during validation")
     return issues
 
 
@@ -2508,7 +2564,7 @@ def _validate_modern_lock_evidence(
     if workload_id != workload_id.strip():
         return ["modern Committed journal Workload ID is not canonical"]
     try:
-        lock_path, lock = _strict_json_load_confined(
+        lock_path, lock, lock_digest = _strict_json_load_confined_with_digest(
             root,
             ("locks", f"{lock_id}.json"),
         )
@@ -2590,6 +2646,20 @@ def _validate_modern_lock_evidence(
             "modern Committed journal lock write set contains unexpected evidence: "
             + ", ".join(unexpected)
         )
+    try:
+        revalidated_lock_digest = _sha256_confined_evidence_file(
+            root,
+            ("locks", f"{lock_id}.json"),
+        )
+    except OSError as exc:
+        issues.append(
+            f"modern Committed journal lock evidence changed during validation: {exc}"
+        )
+    else:
+        if revalidated_lock_digest.casefold() != lock_digest.casefold():
+            issues.append(
+                "modern Committed journal lock evidence changed during validation"
+            )
     return issues
 
 
@@ -2891,6 +2961,7 @@ def validate_incomplete_target_set_journals(
     discovered_inventory = {
         _host_path_key(path.name) for path in discovered_paths
     }
+    discovered_hashes: dict[str, str] = {}
     for discovered_path in discovered_paths:
         try:
             path, raw_bytes = _read_confined_evidence_file(
@@ -2903,6 +2974,9 @@ def validate_incomplete_target_set_journals(
                 f"{discovered_path}: {exc}"
             )
             continue
+        discovered_hashes[_host_path_key(discovered_path.name)] = hashlib.sha256(
+            raw_bytes
+        ).hexdigest()
         try:
             text = raw_bytes.decode("utf-8")
         except UnicodeDecodeError as exc:
@@ -2991,6 +3065,27 @@ def validate_incomplete_target_set_journals(
         audit_inventory_changed = True
     if audit_inventory_changed:
         failures.append("Target-set transaction audit inventory changed during validation")
+    for discovered_path in discovered_paths:
+        relative_key = _host_path_key(discovered_path.name)
+        expected_digest = discovered_hashes.get(relative_key)
+        if expected_digest is None:
+            continue
+        try:
+            revalidated_digest = _sha256_confined_evidence_file(
+                root,
+                ("audit_log", discovered_path.name),
+            )
+        except OSError as exc:
+            failures.append(
+                "Target-set transaction audit file changed during validation: "
+                f"{discovered_path}: {exc}"
+            )
+            continue
+        if revalidated_digest.casefold() != expected_digest.casefold():
+            failures.append(
+                "Target-set transaction audit file changed during validation: "
+                f"{discovered_path}"
+            )
     return failures
 
 

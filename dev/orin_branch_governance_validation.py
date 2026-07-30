@@ -21135,6 +21135,14 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
         "no longer active",
         "no longer valid",
         "no longer approved",
+        "forged",
+        "fabricated",
+        "falsified",
+        "counterfeit",
+        "invalid approval",
+        "invalidated",
+        "unauthorized",
+        "unverified approval",
     )
     approval = (
         re.search(r"\buser(?: explicitly)?(?:-| )approved\b", normalized) is not None
@@ -21151,6 +21159,50 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
         )
     )
     return approval and bounded and admission and not any(term in normalized for term in rejected)
+
+
+def _durable_repo_live_state_boundary_is_non_authoritative(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    contract = re.fullmatch(
+        r"this receipt does not own (?:active|current) operational facts"
+        r"(?: or current worktree assignment)?; (?:current|those) facts remain "
+        r"(?P<sources>[a-z0-9, /-]+) derived",
+        normalized,
+    )
+    if contract is None:
+        return False
+    sources = contract.group("sources")
+    return bool(
+        "git" in sources
+        and any(source in sources for source in ("helper", "github", "codex"))
+        and "receipt" not in sources
+    )
+
+
+def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    freeze_first = re.search(r"\b(?:freeze|stop|preserve)\b", normalized)
+    reconciliation = re.search(r"\breconcil\w*\b", normalized)
+    owner_boundary = re.search(r"\b(?:owner|user approval)\b", normalized)
+    before_continuation = re.search(
+        r"\bbefore\b.{0,35}\b(?:continuation|continue|resum\w*|mutation)\b",
+        normalized,
+    )
+    destructive = re.search(
+        r"\b(?:delete|discard|drop|erase|overwrite|reset|revert|checkout|clean|remove)\b"
+        r".{0,35}\b(?:change|file|worktree|state|content)s?\b|"
+        r"\b(?:continue|proceed|resume)\b.{0,35}\b"
+        r"(?:without|before|skip|ignore|unilateral)\b.{0,25}\b"
+        r"(?:reconcil\w*|owner|approval|review)\b",
+        normalized,
+    )
+    return bool(
+        freeze_first is not None
+        and reconciliation is not None
+        and owner_boundary is not None
+        and before_continuation is not None
+        and destructive is None
+    )
 
 
 def _durable_operational_truth_source_is_affirmative(value: str) -> bool:
@@ -21282,8 +21334,7 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         and _durable_operational_truth_source_is_affirmative(
             _extract_exact_marker_value(record_text, "Operational Truth Source")
         )
-        and "does not own" in live_boundary
-        and "derived" in live_boundary
+        and _durable_repo_live_state_boundary_is_non_authoritative(live_boundary)
         and "before any future pr can be green" in fold_down
         and "historical/no-active" in fold_down
         and bool(_extract_exact_marker_value(record_text, "Assigned Worktree Confinement"))
@@ -22035,6 +22086,17 @@ def _validate_durable_carrier_admission_receipt_confinement(
         _durable_ownership_ledger_is_active(ownership_ledger),
         f"{record_path}: durable carrier receipt has no active worktree ownership ledger",
     )
+    dirty_recovery = _extract_exact_marker_value(
+        confinement,
+        "Dirty Worktree Recovery Packet",
+    )
+    require(
+        _durable_dirty_recovery_is_owner_preserving(dirty_recovery),
+        (
+            f"{record_path}: durable carrier receipt has no owner-preserving "
+            "dirty-worktree recovery packet"
+        ),
+    )
     intended_write_set = _extract_exact_marker_value(confinement, "Intended Write Set")
     require(
         _durable_write_set_is_bounded(intended_write_set),
@@ -22534,6 +22596,8 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "USER approved this one-time bounded carrier admission; approval later revoked.",
         "USER approved this specific carrier admission; approval is now expired.",
         "USER approved this bounded carrier admission; approval was withdrawn.",
+        "USER-approved bounded carrier admission, though approval was forged.",
+        "USER approved this bounded carrier admission; the approval was falsified.",
     ):
         require(
             not _is_durable_carrier_admission_receipt(
@@ -22543,6 +22607,23 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 )
             ),
             f"{durable_fixture}: revoked USER admission must fail closed: {revoked_decision}",
+        )
+    for contradictory_live_boundary in (
+        "This receipt does not own nothing; live authority is derived from this receipt.",
+        "This receipt does not own current operational facts; current authority is owned by this receipt.",
+        "This receipt does not own active operational facts; current state is derived from this receipt.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    "This receipt does not own active operational facts; current facts remain Git and helper derived.",
+                    contradictory_live_boundary,
+                )
+            ),
+            (
+                f"{durable_fixture}: contradictory Repo Live-State Boundary must "
+                f"fail closed: {contradictory_live_boundary}"
+            ),
         )
     require(
         _durable_operational_truth_source_is_affirmative("Git and helper output."),
@@ -22995,6 +23076,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
             "Dirty Worktree Recovery Packet:",
             "exactly one nonblank 'Dirty Worktree Recovery Packet:' marker",
+        ),
+        (
+            "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
+            "Dirty Worktree Recovery Packet: `Delete foreign changes and continue without reconciliation.`",
+            "has no owner-preserving dirty-worktree recovery packet",
+        ),
+        (
+            "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
+            "Dirty Worktree Recovery Packet: `Resume unilaterally before owner review.`",
+            "has no owner-preserving dirty-worktree recovery packet",
         ),
         (
             "Same Worktree / Same Branch Collision Check: `No collision.`",

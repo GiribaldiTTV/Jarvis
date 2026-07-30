@@ -1539,6 +1539,107 @@ def _assert_audit_inventory_creation_race_rejected() -> None:
     print("Modern audit fixture: inventory creation race rejected: PASS")
 
 
+def _assert_audit_file_replacement_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-audit-file-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        audit_path = root / "audit_log" / "same.json"
+        atomic_write_json(audit_path, {"Notes": "unrelated initial evidence"})
+        original_read = validator._read_confined_evidence_file
+        replaced = False
+
+        def replace_after_read(base: Path, parts: tuple[str, ...]):
+            nonlocal replaced
+            result = original_read(base, parts)
+            if not replaced and parts == ("audit_log", "same.json"):
+                atomic_write_json(
+                    audit_path,
+                    {
+                        "Transition": validator.TARGET_SET_TRANSITION,
+                        "Transaction State": "Prepared",
+                    },
+                )
+                replaced = True
+            return result
+
+        validator._read_confined_evidence_file = replace_after_read
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._read_confined_evidence_file = original_read
+        if not replaced or not any(
+            "audit file changed during validation" in item for item in failures
+        ):
+            raise AssertionError(
+                "same-name audit replacement race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit fixture: same-name replacement race rejected: PASS")
+
+
+def _assert_snapshot_manifest_replacement_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-manifest-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        snapshot_path = root / "snapshots" / "modern-fixture"
+        manifest_path = snapshot_path / "snapshot_manifest.json"
+        original_walk = validator.os.walk
+        replaced = False
+
+        def replace_before_inventory(top: object, *args: object, **kwargs: object):
+            nonlocal replaced
+            if not replaced and Path(top) == snapshot_path:
+                atomic_write_json(manifest_path, {"replaced": True})
+                replaced = True
+            return original_walk(top, *args, **kwargs)
+
+        validator.os.walk = replace_before_inventory
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.walk = original_walk
+        if not replaced or not any(
+            "snapshot manifest changed after inventory" in item for item in failures
+        ):
+            raise AssertionError(
+                "snapshot-manifest replacement race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: manifest replacement race rejected: PASS")
+
+
+def _assert_lock_replacement_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-lock-replacement-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        lock_path = root / "locks" / "branch-modern-fixture.json"
+        original_load = validator._strict_json_load_confined_with_digest
+        replaced = False
+
+        def replace_after_load(base: Path, parts: tuple[str, ...]):
+            nonlocal replaced
+            result = original_load(base, parts)
+            if not replaced and parts == ("locks", "branch-modern-fixture.json"):
+                payload = json.loads(lock_path.read_text(encoding="utf-8"))
+                payload["Lock State"] = "Locked"
+                atomic_write_json(lock_path, payload)
+                replaced = True
+            return result
+
+        validator._strict_json_load_confined_with_digest = replace_after_load
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._strict_json_load_confined_with_digest = original_load
+        if not replaced or not any(
+            "lock evidence changed during validation" in item for item in failures
+        ):
+            raise AssertionError(
+                "lock replacement race escaped validation:\n" + "\n".join(failures)
+            )
+    print("Modern lock fixture: replacement race rejected: PASS")
+
+
 def _assert_oversized_evidence_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-oversized-evidence-") as temp_dir:
         root = Path(temp_dir)
@@ -2714,6 +2815,9 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_directory_replacement_race_rejected()
     _assert_snapshot_child_mutation_race_rejected()
     _assert_audit_inventory_creation_race_rejected()
+    _assert_audit_file_replacement_race_rejected()
+    _assert_snapshot_manifest_replacement_race_rejected()
+    _assert_lock_replacement_race_rejected()
     _assert_oversized_evidence_rejected()
     _assert_evidence_read_memory_error_reported()
     _assert_snapshot_hash_replacement_race_rejected()
@@ -3303,6 +3407,12 @@ def main() -> int:
                 "Record Role is not affirmative live authority",
             ),
             (
+                "negated record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current state has no authority.`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
                 "blank historical boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary:",
@@ -3312,6 +3422,12 @@ def main() -> int:
                 "contradictory historical boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary: `Historical receipts redefine the live fields.`",
+                "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "conditional historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts cannot redefine live authority unless approved.`",
                 "Historical Receipt Boundary does not prevent",
             ),
         ):

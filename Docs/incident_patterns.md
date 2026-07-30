@@ -1017,12 +1017,17 @@ child directory cannot be silently omitted from the inventory. Snapshot
 manifest, copied-file hashes, and physical inventory must remain bound to one
 pre/post directory identity; replacing the snapshot tree during traversal is a
 validation failure. Every copied file must be rehashed through the confined
-reader after inventory so child mutation cannot preserve a stale manifest hash.
-Audit-log discovery must compare pre/post directory identity and JSON inventory;
-a transaction journal that appears during validation blocks a green result.
+reader after inventory so child mutation cannot preserve a stale manifest hash;
+the manifest itself must retain the same digest through that traversal. Released
+lock evidence must likewise retain the digest parsed by validation through the
+final completion decision. Audit-log discovery must compare pre/post directory
+identity and JSON inventory, then rehash every discovered JSON file; a journal
+that appears or is replaced under the same filename blocks a green result.
 Target-scoped live projections must also carry an affirmative current/live/active
 `Record Role` and a `Historical Receipt Boundary` that explicitly prevents
-historical receipts from redefining or granting live authority. Confined JSON
+historical receipts from redefining or granting live authority. Negated role
+claims and conditional boundary exceptions such as `unless` remain negative
+evidence. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
 buffer, and translate allocation or decode exhaustion into a validation issue.
 PR Readiness must map this family separately from repo/live-state ownership and
@@ -1066,6 +1071,12 @@ write-set markers must prove those semantics rather than merely remain nonblank.
 Assignment evidence that is revoked, expired, inactive, former, or historical is
 not active assignment authority; the same stale-state rejection applies to USER
 admission approval, active-owner claims, and worktree ownership-ledger evidence.
+Forged, fabricated, falsified, invalidated, unauthorized, or unverified approval
+cannot satisfy the durable USER decision pointer. The durable repo live-state
+boundary must state whole-value non-ownership and external Git/helper derivation;
+double negation or receipt-derived live authority is contradictory. Dirty-worktree
+recovery must be owner-preserving and freeze-first, with reconciliation before
+continuation; destructive deletion or unilateral continuation is never recovery.
 An intended write set must name a concrete path, validator, target, or similarly
 specific artifact; `files to be determined later` is not bounded scope. A named
 or bounded prefix cannot be extended with `any other files`, additional files,

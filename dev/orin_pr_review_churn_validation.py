@@ -154,6 +154,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "after sha256",
             "transaction state",
             "target-scoped currentness",
+            "record role",
+            "historical receipt boundary",
             "audit_log",
             "modern audit",
             "journal extension",
@@ -217,6 +219,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "no cross-worktree",
             "external live confinement",
             "operational truth source",
+            "user decision pointer",
+            "repo live-state boundary",
+            "dirty worktree recovery",
         ),
     ),
     FamilyRule(
@@ -792,6 +797,24 @@ def _classify_comment(body: str) -> list[str]:
             )
         ):
             matched_keywords.append("contextual snapshot directory")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and "snapshot manifest" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "external-state",
+                    "external state",
+                    "inventory",
+                    "traversal",
+                    "copied file",
+                    "revalidate",
+                    "committed",
+                )
+            )
+        ):
+            matched_keywords.append("contextual snapshot manifest")
         if (
             rule.family_id == "external-state-transaction-evidence-parser"
             and "before text" in normalized
