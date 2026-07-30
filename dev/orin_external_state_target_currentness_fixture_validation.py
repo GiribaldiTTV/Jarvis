@@ -1763,7 +1763,7 @@ def _assert_snapshot_final_revalidation_rejected() -> None:
             failures = validator.validate_incomplete_target_set_journals(root)
         finally:
             validator._validate_modern_lock_evidence = original_lock_validation
-        if lock_validations != 1 or not any(
+        if lock_validations < 2 or not any(
             "snapshot changed during validation" in item
             and "unmanifested files" in item
             for item in failures
@@ -1773,6 +1773,47 @@ def _assert_snapshot_final_revalidation_rejected() -> None:
                 + "\n".join(failures)
             )
     print("Modern snapshot fixture: final revalidation race rejected: PASS")
+
+
+def _assert_lock_final_revalidation_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-lock-final-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        lock_path = root / "locks" / "branch-modern-fixture.json"
+        original_target_validation = validator._validate_modern_committed_target_evidence
+        target_validations = 0
+
+        def reacquire_during_later_validation(*args, **kwargs):
+            nonlocal target_validations
+            issues = original_target_validation(*args, **kwargs)
+            target_validations += 1
+            if target_validations == 1:
+                lock = json.loads(lock_path.read_text(encoding="utf-8"))
+                lock["Lock State"] = "Locked"
+                lock["Workload State"] = "Active"
+                lock.pop("Released At", None)
+                atomic_write_json(lock_path, lock)
+            return issues
+
+        validator._validate_modern_committed_target_evidence = (
+            reacquire_during_later_validation
+        )
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._validate_modern_committed_target_evidence = (
+                original_target_validation
+            )
+        if target_validations < 2 or not any(
+            "lock changed during validation" in item
+            and "Lock State='Locked'" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "post-lock live-target-phase reacquisition escaped final validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern lock fixture: final revalidation race rejected: PASS")
 
 
 def _assert_audit_file_replacement_race_rejected() -> None:
@@ -3135,6 +3176,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_audit_rediscovery_failure_rejected()
     _assert_live_target_final_revalidation_rejected()
     _assert_snapshot_final_revalidation_rejected()
+    _assert_lock_final_revalidation_rejected()
     _assert_audit_file_replacement_race_rejected()
     _assert_snapshot_manifest_replacement_race_rejected()
     _assert_lock_replacement_race_rejected()

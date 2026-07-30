@@ -1035,10 +1035,11 @@ or substituted during hashing blocks a green result even when the first inventor
 was complete. The complete snapshot contract must then be revalidated again at
 the final journal-validation boundary after lock, live-target, and audit checks;
 a snapshot changed during any later validation phase cannot inherit the earlier
-green result. Released
-lock evidence must likewise retain the digest parsed by validation through the
-final completion decision. Audit-log discovery must compare pre/post directory
-identity and JSON inventory, then rehash every discovered JSON file; a journal
+green result. Every accepted released-lock contract must likewise be retained and
+revalidated at the final journal boundary after live-target, audit, and snapshot
+checks; replacement, reacquisition, state change, or digest change after the first
+lock pass cannot inherit the earlier green result. Audit-log discovery must
+compare pre/post directory identity and JSON inventory, then rehash every discovered JSON file; a journal
 that appears or is replaced under the same filename blocks a green result. A
 second-pass enumeration failure must remain a validation failure, not escape as
 an unhandled error. After final audit-file hashes, the full typed inventory must
@@ -1094,8 +1095,11 @@ allows off-worktree work, removes the USER-owned new-worktree gate, or negates
 the no-cross-worktree claim with wording such as `Not confirmed` or
 `Not prohibited`. Failed collision checks, USER approval scheduled after
 worktree creation, conditional `unless` exceptions, and owners that cannot be
-identified are negative evidence. External live authority must carry at most one
-durable-receipt pointer and at most one branch-record pointer. Active owner,
+identified are negative evidence. Active-owner evidence must state a present-tense
+ownership relation; `Codex was the owner`, formerly owned, or previously owned
+wording is historical evidence, not a current active owner. External live
+authority must carry at most one durable-receipt pointer and at most one
+branch-record pointer. Active owner,
 thread assignment, ownership-ledger, and bounded
 write-set markers must prove those semantics rather than merely remain nonblank.
 Assignment evidence that is revoked, expired, inactive, former, or historical is
@@ -1112,7 +1116,8 @@ two searchable phrases. Thread assignment must reject explicit invalid/void
 qualifiers, and the Governance Routing Barrier must be affirmatively active or
 enforced; disabled or optional routing is negative evidence. Operational truth
 must use a closed affirmative Git/helper contract, and a historical escape-waiver
-receipt must prove expiry or absence rather than carry active authority.
+receipt must prove expiry or absence as a whole-value closed contract rather than
+carry renewed, reactivated, or currently valid authority after an expiry clause.
 Historical admission pointers must retain an affirmative, bounded, non-revoked
 USER admission decision. Live external confinement must apply the same
 owner-preserving dirty-recovery semantics as the durable receipt whenever tracked
@@ -1193,7 +1198,9 @@ only`, `can occur`, or another permission to mutate outside the carrier.
 The new-worktree decision gate must reject any clause that lets Codex, automation,
 or another agent create, open, provision, spawn, initialize, or establish a
 worktree before the required USER approval, including clauses that schedule the
-approval only after creation. An ownership ledger must identify an
+approval only after creation. Noun-form sequencing such as `after worktree
+creation`, `following creation of the worktree`, or `after worktree provisioning`
+is the same prohibited post-creation gate. An ownership ledger must identify an
 actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
 or an unidentified party is not active ownership evidence.
 An intended write set is not bounded when a concrete path and `bounded`, `exact`,

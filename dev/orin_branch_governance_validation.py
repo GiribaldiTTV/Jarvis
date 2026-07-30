@@ -21420,20 +21420,15 @@ def _is_complete_historical_absence_claim(
 
 def _historical_escape_waiver_is_closed(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
-    denied = re.search(
-        r"\b(?:not expired|unexpired|still active|remains active|currently active|"
-        r"active (?:user )?waiver (?:still )?authorizes|"
-        r"retains? (?:an? )?(?:active )?(?:user )?waiver|"
-        r"waiver (?:still )?authorizes)\b",
-        normalized,
+    return bool(
+        re.fullmatch(
+            r"(?:expired at carrier completion|"
+            r"the bounded waiver from [^.;]+ expired at carrier completion|"
+            r"no active (?:user )?(?:worktree escape )?waiver is retained|"
+            r"no (?:user )?(?:worktree escape )?waiver is retained)",
+            normalized,
+        )
     )
-    closed = re.search(
-        r"\b(?:expired at carrier completion|"
-        r"no active (?:user )?(?:worktree escape )?waiver is retained|"
-        r"no (?:user )?(?:worktree escape )?waiver is retained)\b",
-        normalized,
-    )
-    return bool(closed is not None and denied is None)
 
 
 def _historical_collision_proof_is_clear(value: str) -> bool:
@@ -21935,7 +21930,11 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         r"provision(?:s|ed|ing)?|spawn(?:s|ed|ing)?|initializ(?:e|es|ed|ing)|"
         r"make|makes|made|making)\b.{0,20}\b(?:the )?(?:new )?worktree|"
         r"(?:the )?(?:new )?worktree\b.{0,30}\b"
-        r"(?:created|opened|established|provisioned|spawned|initialized|exists?|is present))\b",
+        r"(?:created|opened|established|provisioned|spawned|initialized|exists?|is present)|"
+        r"(?:the )?(?:new )?worktree\b.{0,20}\b"
+        r"(?:creation|opening|establishment|provisioning|initialization)|"
+        r"(?:creation|opening|establishment|provisioning|initialization)\b.{0,20}\b"
+        r"of (?:the )?(?:new )?worktree)\b",
         normalized,
     )
     return bool(
@@ -22117,11 +22116,26 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
         r"(?:owner|ownership) (?:is )?(?:unidentified|indeterminate)|"
         r"does not (?:own|hold|control)|owns? no|without (?:an |active |current )?owner|"
         r"no ownership|ownership denied|"
-        r"(?:owner|ownership) (?:ended|closed|terminated))\b",
+        r"(?:owner|ownership) (?:ended|closed|terminated)|nobody|no one|"
+        r"was (?:the |an )?(?:current |active )?(?:thread |workload )?owner|previously owned|"
+        r"formerly owned|used to own|had ownership)\b",
         normalized,
     )
     identifies_owner = re.search(r"\b(?:codex|thread|workload|owner|user)\b", normalized)
-    return bool(normalized and denied is None and identifies_owner)
+    current_relation = re.search(
+        r"\b(?:currently|actively) (?:owns?|controls?|holds?)\b|"
+        r"\b(?:owns?|controls?|holds?) (?:the )?current\b|"
+        r"\bis (?:the )?(?:sole )?(?:(?:current|active) ){1,2}"
+        r"(?:(?:thread|workload) )?owner\b|"
+        r"\b(?:current|active) (?:(?:thread|workload) )?owner is\b",
+        normalized,
+    )
+    return bool(
+        normalized
+        and denied is None
+        and identifies_owner is not None
+        and current_relation is not None
+    )
 
 
 def _durable_thread_assignment_is_active(value: str) -> bool:
@@ -22592,7 +22606,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`\n\n"
         "## Assigned Worktree Confinement\n\n"
         "Assigned Worktree Confinement: `Active external authority fixture`\n"
-        "Active Thread Owner: `Fixture Codex workload`\n"
+        "Active Thread Owner: `Fixture Codex workload currently owns this carrier`\n"
         "Thread Assignment Status: `Single fixture owner assigned`\n"
         "Worktree Ownership Ledger: `Owned by the fixture workload`\n"
         "Intended Write Set: `Only dev/orin_branch_governance_validation.py`\n"
@@ -22729,7 +22743,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     )
     for original, replacement in (
         (
-            "Active Thread Owner: `Fixture Codex workload`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier`",
             "Active Thread Owner: `No active owner exists`",
         ),
         (
@@ -23283,43 +23297,63 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         )
     semantic_confinement_mutations = (
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `None`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Historical Codex owner; no longer active.`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Prior Codex owner; owner ended.`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Pending owner selection.`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Fixture Codex is not the owner.`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Fixture Codex does not own this workload.`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Owner cannot be identified.`",
             "has no explicit active thread owner",
         ),
         (
-            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Thread owner could not be determined.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
+            "Active Thread Owner: `Codex was the owner.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
+            "Active Thread Owner: `Codex was the current owner.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
+            "Active Thread Owner: `Codex previously owned this workload.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
+            "Active Thread Owner: `Codex formerly owned this carrier.`",
             "has no explicit active thread owner",
         ),
         (
@@ -23595,6 +23629,21 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "New Worktree Decision Gate: `USER approval required.`",
             "New Worktree Decision Gate: `USER approval is required once the worktree has been created.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval is required after worktree creation.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval follows creation of the worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval is required after worktree provisioning.`",
             "does not preserve the USER-owned new-worktree gate",
         ),
         (
@@ -23979,6 +24028,9 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "The worktree escape waiver remains active.",
         "The waiver is not expired at carrier completion.",
         "This receipt retains an active USER waiver.",
+        "The bounded waiver expired at carrier completion but was renewed and remains valid.",
+        "The bounded waiver expired at carrier completion but was reactivated.",
+        "The bounded waiver expired at carrier completion and is currently valid again.",
     ):
         require(
             not _is_historical_carrier_admission_receipt(

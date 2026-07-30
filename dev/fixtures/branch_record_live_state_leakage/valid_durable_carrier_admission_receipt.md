@@ -22,7 +22,7 @@
 ## Assigned Worktree Confinement
 
 - Assigned Worktree Confinement: `Admission proof only.`
-- Active Thread Owner: `Fixture Codex workload.`
+- Active Thread Owner: `Fixture Codex workload currently owns this carrier.`
 - Thread Assignment Status: `Single fixture owner assigned.`
 - Worktree Ownership Ledger: `C:\Nexus Worktrees\Governance-Fixture is owned by the fixture workload.`
 - Intended Write Set: `Bounded fixture validator files only.`

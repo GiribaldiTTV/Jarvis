@@ -3068,6 +3068,9 @@ def validate_incomplete_target_set_journals(
     committed_snapshot_evidence: list[
         tuple[object, dict[str, str], object]
     ] = []
+    committed_lock_evidence: list[
+        tuple[Path, dict[str, object], set[str]]
+    ] = []
     audit_root = root / "audit_log"
     if _has_reparse_point(audit_root):
         return [
@@ -3205,6 +3208,13 @@ def validate_incomplete_target_set_journals(
                         set(target_before_hashes),
                     )
                 )
+                committed_lock_evidence.append(
+                    (
+                        path,
+                        dict(payload),
+                        set(target_before_hashes),
+                    )
+                )
                 journal_issues.extend(
                     _validate_modern_committed_target_evidence(
                         root,
@@ -3331,6 +3341,16 @@ def validate_incomplete_target_set_journals(
                 snapshot,
                 target_before_hashes,
                 transaction_updated,
+            )
+        )
+    for audit_path, payload, target_before_hashes in committed_lock_evidence:
+        failures.extend(
+            "Target-set transaction lock changed during validation: " + issue
+            for issue in _validate_modern_lock_evidence(
+                root,
+                audit_path,
+                payload,
+                target_before_hashes,
             )
         )
     return failures
