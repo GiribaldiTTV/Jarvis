@@ -2005,9 +2005,15 @@ def _validate_snapshot_evidence(
             "the journal target set: " + ", ".join(unexpected_snapshot_targets)
         )
     physical_snapshot_files: set[str] = set()
+    snapshot_walk_errors: list[OSError] = []
+
+    def record_snapshot_walk_error(error: OSError) -> None:
+        snapshot_walk_errors.append(error)
+
     for current_root, directory_names, file_names in os.walk(
         snapshot_path,
         followlinks=False,
+        onerror=record_snapshot_walk_error,
     ):
         current_path = Path(current_root)
         for directory_name in tuple(directory_names):
@@ -2030,6 +2036,8 @@ def _validate_snapshot_evidence(
                 )
                 continue
             physical_snapshot_files.add(_host_path_key(relative_file))
+    for error in snapshot_walk_errors:
+        issues.append(f"{evidence_label} snapshot traversal failed: {error}")
     unmanifested_snapshot_files = sorted(
         physical_snapshot_files - set(copied_hashes)
     )
@@ -2509,8 +2517,10 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
 
     index = start
     first_closing_brace: int | None = None
-    nested_stack: list[str] = []
-    nested_has_content: list[bool] = []
+    # The caller is recovering a malformed value inside the root object. Keep that
+    # root as an immutable sentinel so malformed nested closers cannot consume it.
+    nested_stack: list[str] = ["{"]
+    nested_has_content: list[bool] = [True]
     while index < len(text):
         character = text[index]
         if character == '"':
@@ -2528,9 +2538,12 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
         if character in "}]":
             expected = "{" if character == "}" else "["
             if nested_stack and nested_stack[-1] == expected:
-                nested_stack.pop()
-                nested_has_content.pop()
-                if nested_has_content:
+                if len(nested_stack) == 1:
+                    if character == "}" and first_closing_brace is None:
+                        first_closing_brace = index
+                else:
+                    nested_stack.pop()
+                    nested_has_content.pop()
                     nested_has_content[-1] = True
             elif nested_stack:
                 matching_index = next(
@@ -2541,7 +2554,12 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
                     ),
                     None,
                 )
-                if matching_index is None:
+                if matching_index == 0:
+                    # The closer points at the immutable root through malformed
+                    # nested depth. Discard one malformed child frame, never root.
+                    nested_stack.pop()
+                    nested_has_content.pop()
+                elif matching_index is None:
                     # An unmatched closer can terminate an empty malformed
                     # container, but it cannot discard depth that already
                     # contains accountable malformed-value content.
@@ -2555,16 +2573,13 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
                     if not intervening_has_content:
                         del nested_stack[matching_index:]
                         del nested_has_content[matching_index:]
-                if nested_has_content:
-                    nested_has_content[-1] = True
-            elif character == "}" and first_closing_brace is None:
-                first_closing_brace = index
+                nested_has_content[-1] = True
             index += 1
             continue
         if character == ",":
             plausible_member = _tolerant_json_member_starts_at(text, index + 1)
             if plausible_member and (
-                not nested_stack or not nested_has_content[-1]
+                nested_stack == ["{"] or not nested_has_content[-1]
             ):
                 return index + 1
             if nested_has_content:
@@ -2610,7 +2625,12 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
         if character in "}]":
             expected = "{" if character == "}" else "["
             if stack and stack[-1] == expected:
-                stack.pop()
+                if len(stack) == 1:
+                    # Keep the root frame immutable during malformed recovery. A
+                    # later plausible member must remain visible after extra closers.
+                    awaiting_root_member = True
+                else:
+                    stack.pop()
             elif len(stack) > 1:
                 # Parsing already failed. Drop the innermost malformed container so a
                 # later explicit root-level Transition cannot evade fail-closed recovery.

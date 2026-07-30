@@ -130,6 +130,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "nested malformed values",
             "malformed-value nesting",
             "unmatched inner closer",
+            "root frame",
             "root-member delimiter",
             "outer-object delimiter",
             "illegal container",
@@ -144,6 +145,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "exact lock write set",
             "legacy lock write set",
             "snapshot hash read",
+            "snapshot traversal",
             "confinement-safe file handle",
             "same handle before hashing",
             "snapshot copy can be swapped",
@@ -1099,6 +1101,8 @@ def _classifier_guardrail_failures() -> list[str]:
         "Reject whitespace-padded Transaction State evidence instead of trimming it into canonical form.",
         "Convert oversized integer decoder failures into fail-closed external-state validation results.",
         "Reject case-ambiguous snapshot Root fields in recovery evidence.",
+        "Fail closed on snapshot traversal errors so unreadable child directories cannot hide unmanifested files.",
+        "Preserve the root frame after mismatched closers so a later target-set Transition remains visible.",
     )
     for comment in new_external_guardrails:
         if _classify_comment(comment) != [

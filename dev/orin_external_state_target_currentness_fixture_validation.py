@@ -924,6 +924,18 @@ def _write_unmatched_inner_closer_array_transition_fixture(root: Path) -> Path:
     return path
 
 
+def _write_root_frame_mismatched_closer_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "root-frame-mismatched-closer-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '{"Notes":[1}}, "Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -1365,6 +1377,32 @@ def _assert_journal_mutation_killed(
                 f"mutation {name} survived the focused suite:\n" + "\n".join(mutated)
             )
     print(f"Legacy journal mutation: {name}: KILLED")
+
+
+def _assert_snapshot_walk_error_reported() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-walk-error-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        original_walk = validator.os.walk
+
+        def walk_with_denied_child(*args: object, **kwargs: object):
+            onerror = kwargs.get("onerror")
+            if not callable(onerror):
+                raise AssertionError("snapshot traversal did not supply os.walk onerror")
+            denied_child = root / "snapshots" / "modern-fixture" / "denied-child"
+            onerror(PermissionError(13, "Permission denied", str(denied_child)))
+            yield from original_walk(*args, **kwargs)
+
+        validator.os.walk = walk_with_denied_child
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.walk = original_walk
+        if not any("snapshot traversal failed" in item for item in failures):
+            raise AssertionError(
+                "snapshot traversal error unexpectedly passed:\n" + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: traversal error rejected: PASS")
 
 
 def _assert_journal_false_positive_mutation_killed(
@@ -2070,6 +2108,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             _write_unmatched_inner_closer_array_transition_fixture,
         ),
         (
+            "matching malformed JSON after mismatched closers reach root frame",
+            _write_root_frame_mismatched_closer_transition_fixture,
+        ),
+        (
             "matching malformed JSON with oversized integer",
             _write_oversized_integer_transition_fixture,
         ),
@@ -2480,6 +2522,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     )
     _assert_broken_audit_reparse_rejected()
     _assert_snapshot_hash_read_failure_reported()
+    _assert_snapshot_walk_error_reported()
     _assert_snapshot_hash_replacement_race_rejected()
     _assert_journal_read_replacement_race_rejected()
     _assert_posix_case_sensitive_evidence_paths()
@@ -2805,6 +2848,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "unmatched inner closer discards accountable malformed depth",
         negative_setups["matching malformed JSON after unmatched inner closer"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "mismatched closer consumes the malformed-audit root frame",
+        negative_setups[
+            "matching malformed JSON after mismatched closers reach root frame"
+        ],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )
