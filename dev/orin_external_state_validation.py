@@ -2277,12 +2277,14 @@ def _validate_legacy_snapshot_evidence(
     root: Path,
     snapshot: object,
     target_before_hashes: dict[str, str],
+    transaction_updated: object,
 ) -> list[str]:
     return _validate_snapshot_evidence(
         root,
         snapshot,
         target_before_hashes,
         evidence_label="legacy receipt",
+        transaction_updated=transaction_updated,
     )
 
 
@@ -2308,6 +2310,7 @@ def _validate_legacy_lock_evidence(
     workload_id: object,
     snapshot: object,
     targets: set[str],
+    transaction_updated: object,
 ) -> list[str]:
     issues: list[str] = []
     lock_text = str(lock_id or "").strip()
@@ -2338,10 +2341,18 @@ def _validate_legacy_lock_evidence(
             issues.append(
                 f"legacy receipt lock evidence has {field}={lock.get(field)!r}, expected {expected!r}"
             )
-    if not _is_canonical_utc_timestamp(lock.get("Released At")):
+    released_timestamp = _canonical_utc_datetime(lock.get("Released At"))
+    if released_timestamp is None:
         issues.append(
             "legacy receipt lock evidence has no canonical UTC Released At timestamp"
         )
+    transaction_timestamp = _canonical_utc_datetime(transaction_updated)
+    if (
+        released_timestamp is not None
+        and transaction_timestamp is not None
+        and released_timestamp < transaction_timestamp
+    ):
+        issues.append("legacy receipt lock evidence was released before the transaction")
     write_set_value = lock.get("Intended Write Set")
     write_set: set[str] = set()
     if not isinstance(write_set_value, str):
@@ -2427,6 +2438,9 @@ def _validate_legacy_completed_target_set_receipt(
     for field in ("Last Updated", "Last Updated By", "Lock ID", "Snapshot", "Workload ID"):
         if not str(payload.get(field, "")).strip():
             issues.append(f"legacy receipt is missing {field}")
+    transaction_updated = payload.get("Last Updated")
+    if _canonical_utc_datetime(transaction_updated) is None:
+        issues.append("legacy receipt Last Updated is not canonical UTC")
 
     rows = payload.get("Targets")
     target_before_hashes: dict[str, str] = {}
@@ -2471,6 +2485,7 @@ def _validate_legacy_completed_target_set_receipt(
                 root,
                 payload.get("Snapshot"),
                 target_before_hashes,
+                transaction_updated,
             )
         )
         issues.extend(
@@ -2481,6 +2496,7 @@ def _validate_legacy_completed_target_set_receipt(
                 payload.get("Workload ID"),
                 payload.get("Snapshot"),
                 set(target_before_hashes),
+                transaction_updated,
             )
         )
     return issues

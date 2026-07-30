@@ -307,6 +307,25 @@ def _write_legacy_released_at_fixture(root: Path, value: object) -> Path:
     return path
 
 
+def _write_legacy_snapshot_updated_fixture(root: Path, value: object) -> Path:
+    path = _write_legacy_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    snapshot_root = root.joinpath(*payload["Snapshot"].split("/"))
+    manifest_path = snapshot_root / "snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["Last Updated"] = value
+    atomic_write_json(manifest_path, manifest)
+    return path
+
+
+def _write_legacy_receipt_updated_fixture(root: Path, value: object) -> Path:
+    path = _write_legacy_journal_fixture(root)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["Last Updated"] = value
+    atomic_write_json(path, payload)
+    return path
+
+
 def _write_legacy_completion_matrix_fixture(
     root: Path,
     completion_rows: list[list[object]],
@@ -2880,6 +2899,27 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_legacy_released_at_fixture(root, "No release occurred"),
         ),
         (
+            "legacy receipt with lock released before transaction",
+            lambda root: _write_legacy_released_at_fixture(
+                root,
+                "2000-01-01T00:00:00Z",
+            ),
+        ),
+        (
+            "legacy receipt with snapshot created after transaction",
+            lambda root: _write_legacy_snapshot_updated_fixture(
+                root,
+                "2099-01-01T00:00:00Z",
+            ),
+        ),
+        (
+            "legacy receipt with malformed transaction timestamp",
+            lambda root: _write_legacy_receipt_updated_fixture(
+                root,
+                "No transaction occurred",
+            ),
+        ),
+        (
             "legacy receipt with unexpected lock write-set target",
             _write_legacy_lock_write_set_extra_fixture,
         ),
@@ -3393,6 +3433,20 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         "malformed legacy release timestamp accepted",
         negative_setups["legacy receipt with malformed release timestamp"],
         "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "legacy lock release chronology ignored",
+        negative_setups["legacy receipt with lock released before transaction"],
+        "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "legacy snapshot transaction chronology ignored",
+        negative_setups["legacy receipt with snapshot created after transaction"],
+        "_validate_legacy_snapshot_evidence",
         lambda *_args, **_kwargs: [],
         admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
     )

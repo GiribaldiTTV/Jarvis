@@ -1008,6 +1008,10 @@ must not be normalized away before journal-to-lock identity comparison.
 Legacy and modern released-lock evidence must prove the exact journal, snapshot,
 and target write set with no unjournaled additions. Both legacy and modern
 `Released At` evidence must be a canonical UTC timestamp, not merely nonblank text.
+Legacy compatibility receipts must also carry a canonical UTC `Last Updated`,
+their snapshot manifest must not postdate that receipt time, and their released
+lock must not predate it. Immutable receipt admission does not waive supporting
+evidence chronology.
 Every modern `Committed` target row must also bind the live confined target bytes
 to its recorded `After SHA256`. A missing target, retained before-image, unrelated
 content, reparse, or read failure is incomplete transaction evidence even when

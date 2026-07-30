@@ -140,6 +140,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "oversized integer",
             "case-ambiguous snapshot root",
             "modern lock",
+            "legacy lock",
+            "legacy snapshot",
             "released-lock evidence",
             "string-typed lock id",
             "workload id identities",
