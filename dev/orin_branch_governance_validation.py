@@ -22741,72 +22741,81 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         "external authority must reject wrong, duplicate, or header-conflicting identity, incomplete or foreign-root confinement, non-live record class, and duplicate record-class markers",
     )
-    for original, replacement in (
-        (
-            "Active Thread Owner: `Fixture Codex workload currently owns this carrier`",
-            "Active Thread Owner: `No active owner exists`",
-        ),
-        (
-            "Thread Assignment Status: `Single fixture owner assigned`",
-            "Thread Assignment Status: `Fixture owner is assigned to no workload`",
-        ),
-        (
-            "Thread Assignment Status: `Single fixture owner assigned`",
-            "Thread Assignment Status: `Single fixture owner assigned, but the assignment is invalid`",
-        ),
-        (
-            "Worktree Ownership Ledger: `Owned by the fixture workload`",
-            "Worktree Ownership Ledger: `Owned by nobody`",
-        ),
-        (
-            "Intended Write Set: `Only dev/orin_branch_governance_validation.py`",
-            "Intended Write Set: `Unbounded; any file as needed`",
-        ),
-        (
-            "Same Worktree / Same Branch Collision Check: `No collision`",
-            "Same Worktree / Same Branch Collision Check: `Conflict detected`",
-        ),
-        (
-            "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`",
-            "Dirty Worktree Collision Check: `Foreign unowned changes remain`",
-        ),
-        (
-            "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation`",
-            "Dirty Worktree Recovery Packet: `Delete foreign changes and continue without reconciliation`",
-        ),
-        (
-            "Off-Worktree Work Routing: `Blocked; route through the owning carrier`",
-            "Off-Worktree Work Routing: `Blocked in name only; mutation can occur`",
-        ),
-        (
-            "Governance Routing Barrier: `Active`",
-            "Governance Routing Barrier: `Disabled; off-worktree governance routing is optional`",
-        ),
-        (
-            "New Worktree Decision Gate: `USER approval required`",
-            "New Worktree Decision Gate: `USER approval required; Codex can create before approval`",
-        ),
-        (
-            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited`",
-            "No Cross-Worktree Mutation: `Cross-worktree mutation is allowed`",
-        ),
-        (
-            "Worktree Escape User Waiver: `Not required; expected and actual worktree roots match`",
-            "Worktree Escape User Waiver: `USER-approved active waiver`",
-        ),
-        (
-            "Worktree Escape User Waiver Missing: `Not applicable; no worktree escape requested`",
-            "Worktree Escape User Waiver Missing: `Approval pending`",
-        ),
-    ):
-        require(
-            not _external_state_has_current_confinement(
-                current_external_authority_fixture.replace(original, replacement),
-                "feature/governance-fixture",
-                "C:\\Nexus Worktrees\\Governance-Fixture",
-            ),
-            f"external live authority must reject unsafe confinement semantics: {replacement}",
+    original_git_status_porcelain = globals()["_git_status_porcelain"]
+    try:
+        # Dirty-state mutations must not depend on whether the validator checkout is clean.
+        globals()["_git_status_porcelain"] = (
+            lambda *, tracked_only=False: " M dev/fixture-owned-change.py"
         )
+        semantic_external_mutations = (
+            (
+                "Active Thread Owner: `Fixture Codex workload currently owns this carrier`",
+                "Active Thread Owner: `No active owner exists`",
+            ),
+            (
+                "Thread Assignment Status: `Single fixture owner assigned`",
+                "Thread Assignment Status: `Fixture owner is assigned to no workload`",
+            ),
+            (
+                "Thread Assignment Status: `Single fixture owner assigned`",
+                "Thread Assignment Status: `Single fixture owner assigned, but the assignment is invalid`",
+            ),
+            (
+                "Worktree Ownership Ledger: `Owned by the fixture workload`",
+                "Worktree Ownership Ledger: `Owned by nobody`",
+            ),
+            (
+                "Intended Write Set: `Only dev/orin_branch_governance_validation.py`",
+                "Intended Write Set: `Unbounded; any file as needed`",
+            ),
+            (
+                "Same Worktree / Same Branch Collision Check: `No collision`",
+                "Same Worktree / Same Branch Collision Check: `Conflict detected`",
+            ),
+            (
+                "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`",
+                "Dirty Worktree Collision Check: `Foreign unowned changes remain`",
+            ),
+            (
+                "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation`",
+                "Dirty Worktree Recovery Packet: `Delete foreign changes and continue without reconciliation`",
+            ),
+            (
+                "Off-Worktree Work Routing: `Blocked; route through the owning carrier`",
+                "Off-Worktree Work Routing: `Blocked in name only; mutation can occur`",
+            ),
+            (
+                "Governance Routing Barrier: `Active`",
+                "Governance Routing Barrier: `Disabled; off-worktree governance routing is optional`",
+            ),
+            (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `USER approval required; Codex can create before approval`",
+            ),
+            (
+                "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited`",
+                "No Cross-Worktree Mutation: `Cross-worktree mutation is allowed`",
+            ),
+            (
+                "Worktree Escape User Waiver: `Not required; expected and actual worktree roots match`",
+                "Worktree Escape User Waiver: `USER-approved active waiver`",
+            ),
+            (
+                "Worktree Escape User Waiver Missing: `Not applicable; no worktree escape requested`",
+                "Worktree Escape User Waiver Missing: `Approval pending`",
+            ),
+        )
+        for original, replacement in semantic_external_mutations:
+            require(
+                not _external_state_has_current_confinement(
+                    current_external_authority_fixture.replace(original, replacement),
+                    "feature/governance-fixture",
+                    "C:\\Nexus Worktrees\\Governance-Fixture",
+                ),
+                f"external live authority must reject unsafe confinement semantics: {replacement}",
+            )
+    finally:
+        globals()["_git_status_porcelain"] = original_git_status_porcelain
     durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "valid_durable_carrier_admission_receipt.md"

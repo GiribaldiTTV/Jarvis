@@ -274,7 +274,8 @@
           "dev/orin_external_state_validation.py retains every accepted modern released-lock contract and revalidates it last at the final journal boundary after live-target, audit, and snapshot checks.",
           "dev/orin_branch_governance_validation.py rejects verb-form and noun-form new-worktree gates that postpone USER approval until after creation or provisioning.",
           "dev/orin_branch_governance_validation.py treats a historical escape-waiver receipt as a closed whole-value contract and rejects renewal or reactivation after expiry.",
-          "dev/orin_branch_governance_validation.py requires present-tense current ownership evidence and rejects past-tense claims such as Codex was the owner."
+          "dev/orin_branch_governance_validation.py requires present-tense current ownership evidence and rejects past-tense claims such as Codex was the owner.",
+          "dev/orin_branch_governance_validation.py injects deterministic tracked-change status for external dirty-collision and recovery mutations so clean checkouts cannot skip those negative fixtures."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1922,7 +1923,8 @@
         "active external durable pointers whose referenced receipt fails owner, assignment, recovery, write-set, collision, routing, or worktree confinement semantics",
         "closed Non-Includes inventories followed by full, broad, global, unbounded, unrestricted, repository-wide, retained, or ongoing authority or access",
         "bounded, exact, named, or only intended write sets followed by broad, global, repository-wide, arbitrary, or open-ended authority, access, permission, scope, writes, or mutation",
-        "noun-form after-creation or after-provisioning USER approval gates, expiry followed by waiver renewal or reactivation, and past-tense active-owner claims"
+        "noun-form after-creation or after-provisioning USER approval gates, expiry followed by waiver renewal or reactivation, and past-tense active-owner claims",
+        "external dirty-collision and destructive-recovery mutations under deterministic tracked-change status even when the validator checkout is clean"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
@@ -1936,7 +1938,8 @@
         "durable intended write sets remain closed bounded inventories without broad or global authority suffixes",
         "new-worktree gating rejects both verb-form creation-before-approval and noun-form approval-after-creation sequencing",
         "historical escape-waiver evidence is a whole-value expired-or-absent contract with no renewal suffix",
-        "active-owner evidence contains an affirmative present-tense ownership relation"
+        "active-owner evidence contains an affirmative present-tense ownership relation",
+        "dirty-state fixture outcomes are independent of ambient repository cleanliness"
       ]
     },
     {

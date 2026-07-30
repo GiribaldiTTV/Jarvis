@@ -1191,7 +1191,9 @@ When tracked changes exist, dirty-worktree collision evidence must affirmatively
 claim those changes for the active owner or prove that no unowned tracked files
 exist. Merely mentioning `current owner` is insufficient when the same value says
 foreign or unowned files remain, ownership is unknown, or the current owner does
-not claim the files.
+not claim the files. Regression fixtures for this contract must inject a
+deterministic tracked-change status; they must not skip dirty-state semantics just
+because the validator's own checkout happens to be clean.
 Off-worktree routing must likewise name a substantive safe route or read-only
 boundary and remain contradiction-free; a `Blocked` prefix cannot hide `in name
 only`, `can occur`, or another permission to mutate outside the carrier.
