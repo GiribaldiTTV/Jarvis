@@ -8590,6 +8590,10 @@ def _external_state_has_current_confinement(
                 for root in confinement_roots
             )
         )
+        and _assigned_worktree_confinement_semantics_are_safe(
+            confinement,
+            actual_root,
+        )
     )
     return bool(
         len(record_class_markers) == 1
@@ -21131,20 +21135,52 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
     return approval and bounded and admission and not any(term in normalized for term in rejected)
 
 
+def _durable_operational_truth_source_is_affirmative(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    denied = re.search(
+        r"\b(?:not git|no git|without git|git (?:is )?(?:missing|absent|unknown|"
+        r"unavailable|unverified|not verified|not checked|not confirmed|not authoritative)|"
+        r"unverified|not verified|not checked|unknown|receipt text only|repo text only)\b",
+        normalized,
+    )
+    return bool(
+        re.match(r"^git\b", normalized)
+        and re.search(r"\bhelper(?:s| evidence| output)?\b", normalized)
+        and denied is None
+    )
+
+
 def _carrier_non_includes_are_prohibitive(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
     required = ("external-state mutation", "pr creation", "merge", "release")
+    bare_items = {
+        item.strip(" `\t\r\n.")
+        for item in normalized.split(";")
+        if item.strip(" `\t\r\n.")
+    }
+    bare_inventory = set(required).issubset(bare_items)
+    explicit_prohibition = re.search(
+        r"\b(?:(?:not|never) (?:allowed|authorized|permitted|approved|granted|included|"
+        r"in scope)|excluded|out of scope|prohibited|blocked|must not|does not include)\b",
+        normalized,
+    )
     permission_scrubbed = re.sub(
-        r"\b(?:not|never)\s+(?:allowed|authorized|permitted|approved|granted|included)\b",
+        r"\b(?:not|never)\s+(?:allowed|authorized|permitted|approved|granted|included|in scope)\b",
         "",
         normalized,
     )
     permissive = re.search(
         r"\b(?:allowed|authorized|permitted|approved|granted|included|not excluded|"
-        r"in scope|may proceed|can proceed|may mutate|can mutate)\b",
+        r"not forbidden|not prohibited|not blocked|in scope|possible|remains possible|"
+        r"may proceed|can proceed|could proceed|may mutate|can mutate|could mutate|"
+        r"may occur|can occur|could occur|still available)\b",
         permission_scrubbed,
     )
-    return all(boundary in normalized for boundary in required) and permissive is None
+    return bool(
+        all(boundary in normalized for boundary in required)
+        and permissive is None
+        and (bare_inventory or explicit_prohibition)
+    )
 
 
 def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
@@ -21209,10 +21245,9 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
             record_text,
             "Assignment Status",
         ).casefold()
-        and "git" in _extract_exact_marker_value(
-            record_text,
-            "Operational Truth Source",
-        ).casefold()
+        and _durable_operational_truth_source_is_affirmative(
+            _extract_exact_marker_value(record_text, "Operational Truth Source")
+        )
         and "does not own" in live_boundary
         and "derived" in live_boundary
         and "before any future pr can be green" in fold_down
@@ -21451,21 +21486,25 @@ def _durable_collision_clear(value: str) -> bool:
         r"\bno(?: same-worktree| same-branch| worktree| branch)? collision\b(?!\s+check\b)",
         normalized,
     )
-    explicit_owner_clear = any(
-        term in normalized for term in ("no second writer", "no other active owner")
+    explicit_owner_clear_terms = (
+        "no second writer",
+        "no other active owner",
+        "no second active owner",
     )
+    explicit_owner_clear = any(term in normalized for term in explicit_owner_clear_terms)
     clear_prefix = normalized == "clear" or normalized.startswith(("clear -", "clear:"))
     residual = normalized
     if collision_match:
         residual = normalized[: collision_match.start()] + normalized[collision_match.end() :]
-    residual = residual.replace("no second writer", "").replace("no other active owner", "")
+    for safe_term in explicit_owner_clear_terms:
+        residual = residual.replace(safe_term, "")
     if clear_prefix:
         residual = re.sub(r"^clear(?:\s*[-:])?", "", residual).strip()
     affirmative = collision_match is not None or explicit_owner_clear or clear_prefix
     return bool(
         affirmative
         and "collision" not in residual
-        and not any(term in normalized for term in blocking_terms)
+        and not any(term in residual for term in blocking_terms)
     )
 
 
@@ -21563,6 +21602,13 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         and "no new worktree" in normalized
         and any(term in normalized for term in ("requested", "required", "needed", "created"))
     )
+    closed_existing_carrier = bool(
+        normalized.startswith("closed")
+        and "user" in normalized
+        and any(term in normalized for term in ("directed", "approved"))
+        and "existing" in normalized
+        and any(term in normalized for term in ("carrier", "worktree"))
+    )
     preapproval_creation = re.search(
         r"\b(?:(?:codex|agent|automation|system)\b.{0,40}\b"
         r"(?:can|may|will|allowed|authorized|permitted)\b.{0,30}\b"
@@ -21576,7 +21622,12 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         normalized,
     )
     return bool(
-        (required_user_gate or approved_worktree_decision or closed_no_creation)
+        (
+            required_user_gate
+            or approved_worktree_decision
+            or closed_no_creation
+            or closed_existing_carrier
+        )
         and preapproval_creation is None
         and not any(term in normalized for term in invalid_terms)
     )
@@ -21625,6 +21676,7 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
             "cross-worktree mutation blocked",
             "cross-worktree mutation is prohibited",
             "cross-worktree mutation prohibited",
+            "confirmed and prohibited",
         )
     )
     affirmative = explicit_safe_state
@@ -21678,6 +21730,43 @@ def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
             r"(?:requested|required|attempted|needed|performed)))?",
             normalized,
         )
+    )
+
+
+def _assigned_worktree_confinement_semantics_are_safe(
+    confinement: str,
+    actual_root: str,
+) -> bool:
+    value = lambda marker: _extract_exact_marker_value(confinement, marker)
+    dirty_state = value("Dirty Worktree Collision Check")
+    missing_waiver_state = value("Worktree Escape User Waiver Missing").casefold()
+    tracked_status = _git_status_porcelain(tracked_only=True)
+    return bool(
+        _durable_active_owner_is_explicit(value("Active Thread Owner"))
+        and _durable_thread_assignment_is_active(value("Thread Assignment Status"))
+        and _durable_ownership_ledger_is_active(value("Worktree Ownership Ledger"))
+        and _durable_write_set_is_bounded(value("Intended Write Set"))
+        and _durable_collision_clear(value("Same Worktree / Same Branch Collision Check"))
+        and (
+            not tracked_status
+            or _durable_dirty_worktree_ownership_is_affirmative(dirty_state)
+        )
+        and _durable_off_worktree_routing_is_blocked(value("Off-Worktree Work Routing"))
+        and _durable_new_worktree_gate_is_user_owned(value("New Worktree Decision Gate"))
+        and _durable_no_cross_worktree_is_affirmative(value("No Cross-Worktree Mutation"))
+        and _normalized_local_path(value("GitHub Desktop-bound worktree"))
+        == _normalized_local_path(actual_root)
+        and _durable_worktree_escape_waiver_is_absent(
+            value("Worktree Escape User Waiver")
+        )
+        and re.fullmatch(
+            r"(?:not applicable|none)(?:\s*(?:;|-|:)\s*no "
+            r"(?:off-worktree (?:repo )?mutation|worktree escape)(?: is)? "
+            r"(?:requested|required|attempted|needed|performed)"
+            r"(?: or (?:requested|required|attempted|needed|performed))*)?\.?",
+            missing_waiver_state,
+        )
+        is not None
     )
 
 
@@ -21934,8 +22023,9 @@ def _validate_durable_carrier_admission_receipt_confinement(
         bool(
             re.fullmatch(
                 r"(?:not applicable|none)(?:\s*(?:;|-|:)\s*no "
-                r"(?:off-worktree mutation|worktree escape)(?: is)? "
-                r"(?:requested|required|attempted|needed|performed))?\.?",
+                r"(?:off-worktree (?:repo )?mutation|worktree escape)(?: is)? "
+                r"(?:requested|required|attempted|needed|performed)"
+                r"(?: or (?:requested|required|attempted|needed|performed))*)?\.?",
                 missing_waiver_state,
             )
         ),
@@ -22102,7 +22192,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "Active Thread Owner: `Fixture Codex workload`\n"
         "Thread Assignment Status: `Single fixture owner assigned`\n"
         "Worktree Ownership Ledger: `Owned by the fixture workload`\n"
-        "Intended Write Set: `dev/orin_branch_governance_validation.py`\n"
+        "Intended Write Set: `Only dev/orin_branch_governance_validation.py`\n"
         "Same Worktree / Same Branch Collision Check: `No collision`\n"
         "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`\n"
         "Dirty Worktree Recovery Packet: `Not required for the fixture`\n"
@@ -22212,6 +22302,60 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         "external authority must reject wrong, duplicate, or header-conflicting identity, incomplete or foreign-root confinement, non-live record class, and duplicate record-class markers",
     )
+    for original, replacement in (
+        (
+            "Active Thread Owner: `Fixture Codex workload`",
+            "Active Thread Owner: `No active owner exists`",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned`",
+            "Thread Assignment Status: `Fixture owner is assigned to no workload`",
+        ),
+        (
+            "Worktree Ownership Ledger: `Owned by the fixture workload`",
+            "Worktree Ownership Ledger: `Owned by nobody`",
+        ),
+        (
+            "Intended Write Set: `Only dev/orin_branch_governance_validation.py`",
+            "Intended Write Set: `Unbounded; any file as needed`",
+        ),
+        (
+            "Same Worktree / Same Branch Collision Check: `No collision`",
+            "Same Worktree / Same Branch Collision Check: `Conflict detected`",
+        ),
+        (
+            "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`",
+            "Dirty Worktree Collision Check: `Foreign unowned changes remain`",
+        ),
+        (
+            "Off-Worktree Work Routing: `Blocked; route through the owning carrier`",
+            "Off-Worktree Work Routing: `Blocked in name only; mutation can occur`",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required`",
+            "New Worktree Decision Gate: `USER approval required; Codex can create before approval`",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited`",
+            "No Cross-Worktree Mutation: `Cross-worktree mutation is allowed`",
+        ),
+        (
+            "Worktree Escape User Waiver: `Not required; expected and actual worktree roots match`",
+            "Worktree Escape User Waiver: `USER-approved active waiver`",
+        ),
+        (
+            "Worktree Escape User Waiver Missing: `Not applicable; no worktree escape requested`",
+            "Worktree Escape User Waiver Missing: `Approval pending`",
+        ),
+    ):
+        require(
+            not _external_state_has_current_confinement(
+                current_external_authority_fixture.replace(original, replacement),
+                "feature/governance-fixture",
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+            ),
+            f"external live authority must reject unsafe confinement semantics: {replacement}",
+        )
     durable_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "valid_durable_carrier_admission_receipt.md"
@@ -22243,10 +22387,33 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             ),
             f"{durable_fixture}: revoked USER admission must fail closed: {revoked_decision}",
         )
+    require(
+        _durable_operational_truth_source_is_affirmative("Git and helper output."),
+        f"{durable_fixture}: affirmative Git/helper truth source must remain valid",
+    )
+    for invalid_truth_source in (
+        "Not Git; unverified receipt text.",
+        "Git is unavailable; helper output is unverified.",
+        "Git and helper output are not verified.",
+        "Receipt text only; no Git or helper validation.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    "Operational Truth Source: `Git and helper output.`",
+                    f"Operational Truth Source: `{invalid_truth_source}`",
+                )
+            ),
+            f"{durable_fixture}: non-affirmative operational truth source must fail closed: {invalid_truth_source}",
+        )
     for permissive_non_include in (
         "External-state mutation is allowed; PR creation; merge; release.",
         "External-state mutation allowed; PR creation; merge; release.",
         "External-state mutation is not excluded; PR creation; merge; release.",
+        "External-state mutation; PR creation; merge; release remain possible.",
+        "External-state mutation; PR creation; merge; release are not forbidden.",
+        "External-state mutation; PR creation; merge; release may occur.",
+        "External-state mutation; PR creation; merge; release are still available.",
     ):
         require(
             not _is_durable_carrier_admission_receipt(
@@ -22262,6 +22429,12 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "External-state mutation is not allowed; PR creation; merge; release."
         ),
         f"{durable_fixture}: explicit prohibition must remain a valid Non-Includes claim",
+    )
+    require(
+        _carrier_non_includes_are_prohibitive(
+            "External-state mutation; packet work; PR creation; Connector review; merge; release."
+        ),
+        f"{durable_fixture}: an expanded bare exclusion inventory must remain valid",
     )
     require(
         _durable_carrier_pr_review_started(

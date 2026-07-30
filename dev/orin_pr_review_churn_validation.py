@@ -211,6 +211,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "new worktree decision",
             "no-cross-worktree",
             "no cross-worktree",
+            "external live confinement",
+            "operational truth source",
         ),
     ),
     FamilyRule(

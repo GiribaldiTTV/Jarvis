@@ -2487,6 +2487,23 @@ def _tolerant_json_string_end(text: str, start: int) -> int:
     return len(text)
 
 
+def _tolerant_json_member_starts_at(text: str, start: int) -> bool:
+    """Return whether text after a comma can begin a JSON object member."""
+
+    cursor = start
+    while cursor < len(text) and text[cursor].isspace():
+        cursor += 1
+    if cursor >= len(text) or text[cursor] != '"':
+        return False
+    key_end = _tolerant_json_string_end(text, cursor)
+    if key_end > len(text) or key_end == 0 or text[key_end - 1] != '"':
+        return False
+    cursor = key_end
+    while cursor < len(text) and text[cursor].isspace():
+        cursor += 1
+    return cursor < len(text) and text[cursor] == ":"
+
+
 def _tolerant_json_member_continuation(text: str, start: int) -> int:
     """Resume at the next apparent root-member delimiter after malformed syntax."""
 
@@ -2494,7 +2511,6 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
     first_closing_brace: int | None = None
     nested_stack: list[str] = []
     nested_has_content: list[bool] = []
-    malformed_nesting = False
     while index < len(text):
         character = text[index]
         if character == '"':
@@ -2517,15 +2533,34 @@ def _tolerant_json_member_continuation(text: str, start: int) -> int:
                 if nested_has_content:
                     nested_has_content[-1] = True
             elif nested_stack:
-                malformed_nesting = True
+                matching_index = next(
+                    (
+                        candidate
+                        for candidate in range(len(nested_stack) - 1, -1, -1)
+                        if nested_stack[candidate] == expected
+                    ),
+                    None,
+                )
+                if matching_index is None:
+                    nested_stack.pop()
+                    nested_has_content.pop()
+                else:
+                    del nested_stack[matching_index:]
+                    del nested_has_content[matching_index:]
+                if nested_has_content:
+                    nested_has_content[-1] = True
             elif character == "}" and first_closing_brace is None:
                 first_closing_brace = index
             index += 1
             continue
         if character == ",":
-            if not nested_stack or malformed_nesting or not nested_has_content[-1]:
+            plausible_member = _tolerant_json_member_starts_at(text, index + 1)
+            if plausible_member and (
+                not nested_stack or not nested_has_content[-1]
+            ):
                 return index + 1
-            nested_has_content[-1] = False
+            if nested_has_content:
+                nested_has_content[-1] = False
             index += 1
             continue
         if nested_has_content and not character.isspace():

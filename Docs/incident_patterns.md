@@ -1101,6 +1101,16 @@ or another agent create, open, provision, spawn, initialize, or establish a
 worktree before the required USER approval. An ownership ledger must identify an
 actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
 or an unidentified party is not active ownership evidence.
+An external Live Branch Projection must satisfy the same semantic owner,
+assignment, ownership, bounded-write-set, collision, routing, USER-gate,
+cross-worktree, Desktop-root, and waiver predicates as durable confinement
+evidence. Exact marker cardinality and matching roots cannot make explicitly
+unsafe values authoritative. The durable operational truth source must
+affirmatively begin with Git and name helper evidence; negated, unavailable,
+unknown, or unverified Git claims fail closed. `Non-Includes` may be a minimal or
+expanded bare exclusion inventory, or use explicit prohibitive wording, but
+`possible`, `not forbidden`, `may occur`, and equivalent retained permissions
+invalidate the whole claim.
 A durable bootstrap receipt must point to a specific affirmative USER-approved
 bounded carrier admission; pending or absent decision prose is not approval.
 The same stale-decision rule applies to a `New Worktree Decision Gate`: revoked,
@@ -1126,6 +1136,9 @@ Generic `oversized integer` wording likewise requires journal, audit, JSON-decod
 transaction, target-set, or external-state context.
 Malformed-value recovery must track nested containers until an outer-object member
 delimiter is reached; an inner comma or brace cannot hide a later root Transition.
+A mismatched closer must reconcile only the container depth it can account for,
+and recovery may resume only at a comma followed by a plausible object member.
+An inner comma followed by a bare token or array value is not root-member proof.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains
 unknown unless the classifier-review wording itself routes it to the classifier family.
