@@ -1939,6 +1939,15 @@ def _validate_snapshot_evidence(
             f"{evidence_label} Snapshot is not a safe isolated snapshots/<snapshot-id> path"
         ]
     try:
+        snapshot_path, snapshot_before_states = _confined_component_states(
+            root,
+            snapshot_parts,
+        )
+        if not stat.S_ISDIR(snapshot_before_states[-1].st_mode):
+            raise OSError("snapshot evidence path is not a directory")
+    except OSError as exc:
+        return [f"{evidence_label} snapshot directory is missing or unconfined: {exc}"]
+    try:
         manifest_path, manifest = _strict_json_load_confined(
             root,
             (*snapshot_parts, "snapshot_manifest.json"),
@@ -1947,7 +1956,8 @@ def _validate_snapshot_evidence(
         return [f"{evidence_label} snapshot manifest is missing, unconfined, or malformed: {exc}"]
     if not isinstance(manifest, dict):
         return [f"{evidence_label} snapshot manifest is not an object: {manifest_path}"]
-    snapshot_path = manifest_path.parent
+    if manifest_path.parent != snapshot_path:
+        return [f"{evidence_label} snapshot directory changed before manifest validation"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
     manifest_root = manifest.get("Root")
@@ -2053,6 +2063,26 @@ def _validate_snapshot_evidence(
                 )
                 continue
             physical_snapshot_files.add(_host_path_key(relative_file))
+    try:
+        snapshot_after_path, snapshot_after_states = _confined_component_states(
+            root,
+            snapshot_parts,
+        )
+        snapshot_identity_changed = (
+            snapshot_after_path != snapshot_path
+            or len(snapshot_after_states) != len(snapshot_before_states)
+            or any(
+                not os.path.samestat(before_state, after_state)
+                for before_state, after_state in zip(
+                    snapshot_before_states,
+                    snapshot_after_states,
+                )
+            )
+        )
+    except OSError:
+        snapshot_identity_changed = True
+    if snapshot_identity_changed:
+        issues.append(f"{evidence_label} snapshot directory changed during validation")
     for error in snapshot_walk_errors:
         issues.append(f"{evidence_label} snapshot traversal failed: {error}")
     unmanifested_snapshot_files = sorted(

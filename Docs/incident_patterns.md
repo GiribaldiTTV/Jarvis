@@ -1011,7 +1011,10 @@ must equal the journal target set exactly; a valid hash for an unrelated extra
 file, or an unmanifested physical file, is retained pre-write material, not
 permission to broaden the bounded transaction snapshot. Physical inventory
 enumeration must fail closed on every snapshot traversal error; an unreadable
-child directory cannot be silently omitted from the inventory. Confined JSON
+child directory cannot be silently omitted from the inventory. Snapshot
+manifest, copied-file hashes, and physical inventory must remain bound to one
+pre/post directory identity; replacing the snapshot tree during traversal is a
+validation failure. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
 buffer, and translate allocation or decode exhaustion into a validation issue.
 PR Readiness must map this family separately from repo/live-state ownership and
@@ -1046,7 +1049,11 @@ Active durable confinement markers must also prove affirmative, non-contradictor
 outcomes. Marker presence alone cannot admit a receipt that reports a collision,
 allows off-worktree work, removes the USER-owned new-worktree gate, or negates
 the no-cross-worktree claim with wording such as `Not confirmed` or
-`Not prohibited`. Active owner, thread assignment, ownership-ledger, and bounded
+`Not prohibited`. Failed collision checks, USER approval scheduled after
+worktree creation, conditional `unless` exceptions, and owners that cannot be
+identified are negative evidence. External live authority must carry at most one
+durable-receipt pointer and at most one branch-record pointer. Active owner,
+thread assignment, ownership-ledger, and bounded
 write-set markers must prove those semantics rather than merely remain nonblank.
 Assignment evidence that is revoked, expired, inactive, former, or historical is
 not active assignment authority; the same stale-state rejection applies to USER
@@ -1104,7 +1111,8 @@ boundary and remain contradiction-free; a `Blocked` prefix cannot hide `in name
 only`, `can occur`, or another permission to mutate outside the carrier.
 The new-worktree decision gate must reject any clause that lets Codex, automation,
 or another agent create, open, provision, spawn, initialize, or establish a
-worktree before the required USER approval. An ownership ledger must identify an
+worktree before the required USER approval, including clauses that schedule the
+approval only after creation. An ownership ledger must identify an
 actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
 or an unidentified party is not active ownership evidence.
 An external Live Branch Projection must satisfy the same semantic owner,
@@ -1163,6 +1171,8 @@ are admitted and is therefore a changed-file-gated implementation surface, not a
 ungated data file.
 Classifier-review priority is additive: a comment about the classifier must retain
 every genuine exact external-state or durable-carrier family it also identifies.
+Generic `modern target` wording likewise requires journal, transaction, audit,
+target-set, external-state, or snapshot-manifest context.
 
 - source references:
   - `dev/orin_external_state_validation.py`

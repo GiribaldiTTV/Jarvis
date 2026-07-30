@@ -54,6 +54,7 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "oversized integer",
     "surrogate code point",
     "traversal",
+    "modern target",
     "blocked",
     "resolved",
     "unresolved",
@@ -758,6 +759,41 @@ def _classify_comment(body: str) -> list[str]:
             ]
         if (
             rule.family_id == "external-state-transaction-evidence-parser"
+            and "modern target" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "journal",
+                    "transaction",
+                    "target-set",
+                    "target set",
+                    "audit",
+                    "external-state",
+                    "external state",
+                    "snapshot manifest",
+                )
+            )
+        ):
+            matched_keywords.append("contextual modern target")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
+            and "snapshot directory" in normalized
+            and any(
+                context in normalized
+                for context in (
+                    "manifest",
+                    "journal",
+                    "target-set",
+                    "target set",
+                    "external-state",
+                    "external state",
+                    "inventory traversal",
+                )
+            )
+        ):
+            matched_keywords.append("contextual snapshot directory")
+        if (
+            rule.family_id == "external-state-transaction-evidence-parser"
             and "before text" in normalized
             and any(
                 context in normalized
@@ -1196,6 +1232,23 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Classifier-review priority discarded a genuine exact external-state family"
+        )
+    unrelated_modern_target = "The modern target browser has a pagination bug."
+    if "external-state-transaction-evidence-parser" in _classify_comment(
+        unrelated_modern_target
+    ):
+        failures.append(
+            "Generic modern-target wording overmatched the external-state family"
+        )
+    snapshot_identity_review = (
+        "Keep snapshot directory identity stable through manifest hashing and "
+        "inventory traversal."
+    )
+    if _classify_comment(snapshot_identity_review) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Snapshot-directory identity review did not classify into the external-state family"
         )
     nested_malformed_value = (
         "Track nested malformed values so an inner comma is not treated as a "

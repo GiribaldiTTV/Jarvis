@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -1417,6 +1418,44 @@ def _assert_snapshot_walk_error_reported() -> None:
     print("Modern snapshot fixture: traversal error rejected: PASS")
 
 
+def _assert_snapshot_directory_replacement_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-directory-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        snapshot_path = root / "snapshots" / "modern-fixture"
+        unexpected_path = snapshot_path / "unexpected-retained-state.txt"
+        unexpected_path.write_text("retained pre-write material", encoding="utf-8")
+        replacement_path = root / "snapshot-replacement"
+        original_path = root / "snapshot-original"
+        shutil.copytree(snapshot_path, replacement_path)
+        (replacement_path / unexpected_path.name).unlink()
+        original_walk = validator.os.walk
+        replaced = False
+
+        def replace_before_inventory(top: object, *args: object, **kwargs: object):
+            nonlocal replaced
+            if not replaced and Path(top) == snapshot_path:
+                snapshot_path.rename(original_path)
+                replacement_path.rename(snapshot_path)
+                replaced = True
+            return original_walk(top, *args, **kwargs)
+
+        validator.os.walk = replace_before_inventory
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.walk = original_walk
+        if not replaced or not any(
+            "snapshot directory changed during validation" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "snapshot-directory replacement race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: directory replacement race rejected: PASS")
+
+
 def _assert_oversized_evidence_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-oversized-evidence-") as temp_dir:
         root = Path(temp_dir)
@@ -2578,6 +2617,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_broken_audit_reparse_rejected()
     _assert_snapshot_hash_read_failure_reported()
     _assert_snapshot_walk_error_reported()
+    _assert_snapshot_directory_replacement_race_rejected()
     _assert_oversized_evidence_rejected()
     _assert_evidence_read_memory_error_reported()
     _assert_snapshot_hash_replacement_race_rejected()

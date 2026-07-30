@@ -8645,7 +8645,13 @@ def _external_branch_state_record_for_branch(
         actual_root,
     )
 
-    durable_pointer = _extract_exact_marker_value(state_text, "Repo Durable Receipt Pointer")
+    durable_pointers = _extract_exact_marker_values(
+        state_text,
+        "Repo Durable Receipt Pointer",
+    )
+    if len(durable_pointers) > 1:
+        return "", ""
+    durable_pointer = durable_pointers[0] if durable_pointers else ""
     if durable_pointer:
         if not _repo_durable_receipt_pointer_matches(
             branch_name,
@@ -8657,7 +8663,10 @@ def _external_branch_state_record_for_branch(
             return str(state_path), state_text
         return "", ""
 
-    record_pointer = _extract_exact_marker_value(state_text, "Repo Branch Record Pointer")
+    record_pointers = _extract_exact_marker_values(state_text, "Repo Branch Record Pointer")
+    if len(record_pointers) > 1:
+        return "", ""
+    record_pointer = record_pointers[0] if record_pointers else ""
     if not record_pointer:
         return "", ""
     record_path = ROOT_DIR / Path(record_pointer)
@@ -8693,15 +8702,20 @@ def _extract_marker_value(block: str, label: str) -> str:
 
 
 def _extract_exact_marker_value(block: str, label: str) -> str:
+    matches = _extract_exact_marker_values(block, label)
+    if not matches:
+        return ""
+    return matches[-1]
+
+
+def _extract_exact_marker_values(block: str, label: str) -> list[str]:
     normalized_label = label.rstrip(":")
     matches = re.findall(
         rf"^[ \t]*(?:-[ \t]*)?{re.escape(normalized_label)}:[ \t]*`?([^\r\n]+?)`?[ \t]*$",
         block,
         flags=re.M,
     )
-    if not matches:
-        return ""
-    return matches[-1].strip().strip("`").strip()
+    return [match.strip().strip("`").strip() for match in matches]
 
 
 def _parse_delta_classes(value: str) -> set[str]:
@@ -21484,10 +21498,17 @@ def _durable_collision_clear(value: str) -> bool:
         "parallel worktree coordination missing",
         "conflict detected",
         "but",
+        "though",
         "however",
         "although",
         "yet",
         "except",
+        "check failed",
+        "check failure",
+        "verification failed",
+        "validation failed",
+        "verification failure",
+        "validation failure",
         "no collision check",
         "not checked",
         "not completed",
@@ -21641,6 +21662,16 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         r"(?:before|prior to|without|pending)\b.{0,20}\b(?:user )?approval)\b",
         normalized,
     )
+    post_creation_approval = re.search(
+        r"\b(?:user )?approval\b.{0,60}\b(?:after|following|once)\b.{0,80}\b"
+        r"(?:(?:(?:codex|agent|automation|system)\b.{0,30}\b)?"
+        r"(?:creat(?:e|es|ed|ing)|open(?:s|ed|ing)?|establish(?:es|ed|ing)?|"
+        r"provision(?:s|ed|ing)?|spawn(?:s|ed|ing)?|initializ(?:e|es|ed|ing)|"
+        r"make|makes|made|making)\b.{0,20}\b(?:the )?(?:new )?worktree|"
+        r"(?:the )?(?:new )?worktree\b.{0,30}\b"
+        r"(?:created|opened|established|provisioned|spawned|initialized|exists?|is present))\b",
+        normalized,
+    )
     return bool(
         (
             required_user_gate
@@ -21649,6 +21680,7 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
             or closed_existing_carrier
         )
         and preapproval_creation is None
+        and post_creation_approval is None
         and not any(term in normalized for term in invalid_terms)
     )
 
@@ -21682,6 +21714,9 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
         "although",
         "yet",
         "except",
+        "unless",
+        "provided that",
+        "subject to",
     )
     negated_affirmative = re.search(
         r"\b(?:not|never|no)\b(?:\s+\w+){0,3}\s+(?:confirmed|blocked|prohibited)\b",
@@ -21699,10 +21734,12 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
             "confirmed and prohibited",
         )
     )
+    conditional_exception = re.search(r"\bconditional(?:ly)?\b", normalized)
     affirmative = explicit_safe_state
     return bool(
         affirmative
         and negated_affirmative is None
+        and conditional_exception is None
         and not any(term in normalized for term in invalid_terms)
     )
 
@@ -21800,6 +21837,9 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
         r"pending|prospective|candidate|future|awaiting|not yet assigned|"
         r"to be (?:assigned|selected|determined|confirmed)|"
         r"not (?:the |an |active |current )?owner|owner is not|"
+        r"(?:owner|thread owner|workload owner) (?:cannot|can not|could not) be "
+        r"(?:identified|determined|confirmed)|cannot identify (?:the )?owner|"
+        r"(?:owner|ownership) (?:is )?(?:unidentified|indeterminate)|"
         r"does not (?:own|hold|control)|owns? no|without (?:an |active |current )?owner|"
         r"no ownership|ownership denied|"
         r"(?:owner|ownership) (?:ended|closed|terminated))\b",
@@ -22254,6 +22294,28 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "C:\\Nexus Worktrees\\Governance-Fixture",
         ),
         "external live authority fixture must prove exact branch/worktree confinement",
+    )
+    duplicate_durable_pointer_fixture = current_external_authority_fixture.replace(
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/foreign-fixture`\n"
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
+    )
+    require(
+        len(
+            _extract_exact_marker_values(
+                current_external_authority_fixture,
+                "Repo Durable Receipt Pointer",
+            )
+        )
+        == 1
+        and len(
+            _extract_exact_marker_values(
+                duplicate_durable_pointer_fixture,
+                "Repo Durable Receipt Pointer",
+            )
+        )
+        == 2,
+        "external live authority fixture must expose duplicate durable receipt pointers",
     )
     require(
         not _external_state_has_current_confinement(
@@ -22795,6 +22857,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no explicit active thread owner",
         ),
         (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Owner cannot be identified.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload.`",
+            "Active Thread Owner: `Thread owner could not be determined.`",
+            "has no explicit active thread owner",
+        ),
+        (
             "Thread Assignment Status: `Single fixture owner assigned.`",
             "Thread Assignment Status: `No owner assigned.`",
             "has no active thread assignment",
@@ -22940,6 +23012,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "does not prove a clear collision outcome",
         ),
         (
+            "Same Worktree / Same Branch Collision Check: `No collision.`",
+            "Same Worktree / Same Branch Collision Check: `No collision was found, though the check failed.`",
+            "does not prove a clear collision outcome",
+        ),
+        (
+            "Same Worktree / Same Branch Collision Check: `No collision.`",
+            "Same Worktree / Same Branch Collision Check: `No collision was found; verification failed.`",
+            "does not prove a clear collision outcome",
+        ),
+        (
             "Off-Worktree Work Routing: `Blocked; route through Governance.`",
             "Off-Worktree Work Routing: `Allowed.`",
             "does not block or route off-worktree work",
@@ -23010,6 +23092,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "does not preserve the USER-owned new-worktree gate",
         ),
         (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required after Codex creates the worktree.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval is required once the worktree has been created.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
             "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Not confirmed for this carrier.`",
             "does not prove no cross-worktree mutation",
@@ -23037,6 +23129,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Cross-worktree mutation is prohibited, but remains possible.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Cross-worktree mutation is prohibited unless convenient.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Cross-worktree mutation is prohibited subject to a convenience exception.`",
             "does not prove no cross-worktree mutation",
         ),
     )
