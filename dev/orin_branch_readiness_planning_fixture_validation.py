@@ -10259,6 +10259,78 @@ def validate() -> list[str]:
             + "; ".join(valid_vision_failures[:5])
         )
 
+    valid_vision_text = VALID_BRANCH_VISION_CONTRACT_FIXTURE.read_text(encoding="utf-8")
+    revision_pending_vision = (
+        "Current Gate: `BP1 Branch Vision Revision USER review pending; implementation blocked`\n\n"
+        + valid_vision_text
+        .replace(
+            "Branch Vision Snapshot Status: Accepted by USER - USER reviewed the product direction, accepted Codex's recommendation with explicit future-gated boundaries, and kept implementation scope bounded.",
+            "Branch Vision Snapshot Status: Revision Pending",
+            1,
+        )
+        .replace(
+            "Open Vision Questions: None - all required vision questions are accepted by USER, and Level 1 future ideas are queued for later family planning.",
+            "Open Vision Questions: Disable-while-open Option A or Option B",
+            1,
+        )
+        .replace(
+            "USER Vision Green: Yes - USER accepted this branch vision snapshot before Workstream implementation and kept runtime execution approval separately gated.",
+            "USER Vision Green: No / USER review pending",
+            1,
+        )
+        .replace(
+            "Implementation Scope: Accepted - the branch may implement only the accepted setup readiness workflow, status labels, local-only consent boundary, validator proof, and no-provider fallback copy.",
+            "Implementation Scope: Revised BP1 planning only; no implementation authority",
+            1,
+        )
+        .replace(
+            "Design Assumption Ledger: Accepted by USER rows define privacy-first defaults, honest no-provider copy, local-only setup consent, and future-gated execution; Codex proposed and ChatGPT recommended items remain proposed until USER accepts.",
+            "Design Assumption Ledger: USER-directed revision pending formal BP1 acceptance.",
+            1,
+        )
+        .replace(
+            "Branch Plan Revision Packet: Required USER decision if accepted vision, implementation scope, seam map, validation proof, or user-facing behavior changes during Workstream.",
+            "Branch Plan Revision Packet: C:\\Nexus USER\\FAM-003-fixture.zip; USER decision required.",
+            1,
+        )
+    )
+    revision_pending_failures = _validate_branch_vision_contract_text(
+        revision_pending_vision
+    )
+    if revision_pending_failures:
+        failures.append(
+            "Valid revision-pending Branch Vision fixture unexpectedly failed: "
+            + "; ".join(revision_pending_failures[:5])
+        )
+    revision_without_blocker_failures = _validate_branch_vision_contract_text(
+        revision_pending_vision.replace(
+            "Implementation Scope: Revised BP1 planning only; no implementation authority",
+            "Implementation Scope: Revised BP1 implementation may proceed",
+            1,
+        )
+    )
+    if not any(
+        "explicit implementation blocker" in item
+        for item in revision_without_blocker_failures
+    ):
+        failures.append(
+            "Revision-pending Branch Vision fixture without an implementation blocker unexpectedly passed"
+        )
+    revision_false_green_failures = _validate_branch_vision_contract_text(
+        revision_pending_vision.replace(
+            "USER Vision Green: No / USER review pending",
+            "USER Vision Green: Yes",
+            1,
+        )
+    )
+    if not any(
+        "cannot claim USER Vision Green" in item
+        for item in revision_false_green_failures
+    ):
+        failures.append(
+            "Revision-pending Branch Vision fixture with false USER green unexpectedly passed"
+        )
+
     governance_source = (ROOT / "dev" / "orin_branch_governance_validation.py").read_text(
         encoding="utf-8"
     )

@@ -10773,44 +10773,96 @@ def _validate_branch_vision_contract_snapshot(
     revision_packet = _normalized_planning_value(
         _extract_marker_value(vision_section, "Branch Plan Revision Packet:")
     )
+    implementation_scope = _normalized_planning_value(
+        _extract_marker_value(vision_section, "Implementation Scope:")
+    )
+    current_gate = _normalized_planning_value(
+        _extract_marker_value(text, "Current Gate:")
+    )
+
+    revision_pending = "revision" in status and "pending" in status
+    revision_pending_gate = (
+        revision_pending
+        and "bp1" in current_gate
+        and "user review" in current_gate
+        and "pending" in current_gate
+        and (
+            "no implementation authority" in implementation_scope
+            or "implementation blocked" in implementation_scope
+            or "implementation authority blocked" in implementation_scope
+        )
+    )
 
     is_required = "yes" in required or "required" in required
     if is_required:
+        if revision_pending:
+            require(
+                revision_pending_gate,
+                (
+                    f"{source_path}: revision-pending Branch Vision requires a BP1 "
+                    "USER review pending gate and explicit implementation blocker"
+                ),
+            )
+            require(
+                bool(open_questions)
+                and open_questions not in {"none", "none; no blocking vision questions"},
+                (
+                    f"{source_path}: revision-pending Branch Vision must name the "
+                    "remaining USER vision decision"
+                ),
+            )
+            require(
+                ("no" in user_green or "pending" in user_green)
+                and not any(term in user_green for term in ("yes", "green", "accepted", "waived")),
+                (
+                    f"{source_path}: revision-pending Branch Vision cannot claim "
+                    "USER Vision Green"
+                ),
+            )
+        else:
+            require(
+                any(term in status for term in BRANCH_VISION_SAFE_STATE_TERMS),
+                (
+                    f"{source_path}: Branch Vision Snapshot Status must be accepted, "
+                    "revised, deferred with waiver, waived, or not required before "
+                    "implementation-safe planning"
+                ),
+            )
+            require(
+                any(term in user_green for term in ("yes", "green", "accepted", "waived")),
+                (
+                    f"{source_path}: USER Vision Green must be Yes/Green/Accepted "
+                    "or explicitly waived before implementation-safe planning"
+                ),
+            )
+
+    if not revision_pending_gate:
         require(
-            any(term in status for term in BRANCH_VISION_SAFE_STATE_TERMS),
+            not any(term in status for term in BRANCH_VISION_UNSAFE_STATE_TERMS),
             (
-                f"{source_path}: Branch Vision Snapshot Status must be accepted, "
-                "revised, deferred with waiver, waived, or not required before "
+                f"{source_path}: Branch Vision Snapshot Status cannot stay Proposed, "
+                "Recommended, Pending, Blocking, or Needs USER Decision for "
                 "implementation-safe planning"
             ),
         )
         require(
-            any(term in user_green for term in ("yes", "green", "accepted", "waived")),
+            "blocking" not in open_questions
+            and "needs user" not in open_questions
+            and "unanswered" not in open_questions,
             (
-                f"{source_path}: USER Vision Green must be Yes/Green/Accepted "
-                "or explicitly waived before implementation-safe planning"
+                f"{source_path}: Open Vision Questions must be None, queued "
+                "non-blocking, or Deferred With Waiver before implementation-safe planning"
             ),
         )
-
     require(
-        not any(term in status for term in BRANCH_VISION_UNSAFE_STATE_TERMS),
-        (
-            f"{source_path}: Branch Vision Snapshot Status cannot stay Proposed, "
-            "Recommended, Pending, Blocking, or Needs USER Decision for "
-            "implementation-safe planning"
-        ),
-    )
-    require(
-        "blocking" not in open_questions
-        and "needs user" not in open_questions
-        and "unanswered" not in open_questions,
-        (
-            f"{source_path}: Open Vision Questions must be None, queued "
-            "non-blocking, or Deferred With Waiver before implementation-safe planning"
-        ),
-    )
-    require(
-        any(term in assumption_ledger for term in ("accepted by user", "revised by user", "deferred with waiver", "waived", "not required")),
+        any(term in assumption_ledger for term in (
+            "accepted by user",
+            "revised by user",
+            "user-directed",
+            "deferred with waiver",
+            "waived",
+            "not required",
+        )),
         (
             f"{source_path}: Design Assumption Ledger must show USER-accepted, "
             "USER-revised, USER-deferred-with-waiver, waived, or not-required "
