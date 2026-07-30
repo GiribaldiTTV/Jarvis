@@ -9,7 +9,7 @@
 - Record State: `Historical/no-active`
 - Phase: `Historical Traceability`
 - Repo Live-State Boundary: `This receipt does not own current operational facts or current worktree assignment.`
-- Admission Decision Pointer: `Fixture USER decision.`
+- Admission Decision Pointer: `USER-approved one-time bounded carrier admission for the fixture.`
 - Admission Scope Receipt: `Bounded fixture repair.`
 - Admission Confinement Receipt: `Tracked mutation stayed in C:\Nexus Worktrees\Governance-Fixture.`
 - Historical Branch Authority Pointer: `Docs/worktree_slots.md#feature/governance-fixture`

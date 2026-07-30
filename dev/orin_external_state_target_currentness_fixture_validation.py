@@ -1672,6 +1672,17 @@ def _assert_oversized_evidence_rejected() -> None:
     print("Modern journal fixture: oversized read/hash evidence rejected: PASS")
 
 
+def _assert_missing_audit_root_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-missing-audit-root-") as temp_dir:
+        root = Path(temp_dir)
+        failures = validator.validate_incomplete_target_set_journals(root)
+        if not any("audit root is missing" in item for item in failures):
+            raise AssertionError(
+                "missing audit root unexpectedly passed:\n" + "\n".join(failures)
+            )
+    print("Modern audit fixture: missing audit root rejected: PASS")
+
+
 def _assert_evidence_read_memory_error_reported() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-evidence-memory-error-") as temp_dir:
         root = Path(temp_dir)
@@ -2834,6 +2845,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_manifest_replacement_race_rejected()
     _assert_lock_replacement_race_rejected()
     _assert_oversized_evidence_rejected()
+    _assert_missing_audit_root_rejected()
     _assert_evidence_read_memory_error_reported()
     _assert_snapshot_hash_replacement_race_rejected()
     _assert_journal_read_replacement_race_rejected()

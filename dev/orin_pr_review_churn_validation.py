@@ -220,6 +220,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "external live confinement",
             "operational truth source",
             "historical escape waiver receipt",
+            "admission decision pointer",
+            "admission decision",
             "user decision pointer",
             "repo live-state boundary",
             "dirty worktree recovery",

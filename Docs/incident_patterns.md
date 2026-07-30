@@ -1084,6 +1084,11 @@ qualifiers, and the Governance Routing Barrier must be affirmatively active or
 enforced; disabled or optional routing is negative evidence. Operational truth
 must use a closed affirmative Git/helper contract, and a historical escape-waiver
 receipt must prove expiry or absence rather than carry active authority.
+Historical admission pointers must retain an affirmative, bounded, non-revoked
+USER admission decision. Live external confinement must apply the same
+owner-preserving dirty-recovery semantics as the durable receipt whenever tracked
+changes exist. An initialized external-state scaffold with no `audit_log`
+directory is corrupt transaction evidence, not an empty successful inventory.
 An intended write set must name a concrete path, validator, target, or similarly
 specific artifact; `files to be determined later` is not bounded scope. A named
 or bounded prefix cannot be extended with `any other files`, additional files,

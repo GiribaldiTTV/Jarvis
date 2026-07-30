@@ -21193,6 +21193,11 @@ def _durable_fold_down_is_mandatory(value: str) -> bool:
 
 def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    owned_no_recovery = re.fullmatch(
+        r"not required; all dirty tracked files are owned by (?:this(?: current)?|the current) "
+        r"(?:workload|owner) and remain reviewable in git",
+        normalized,
+    )
     freeze_first = re.search(r"\b(?:freeze|stop|preserve)\b", normalized)
     reconciliation = re.search(r"\breconcil\w*\b", normalized)
     owner_boundary = re.search(r"\b(?:owner|user approval)\b", normalized)
@@ -21209,11 +21214,14 @@ def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
         normalized,
     )
     return bool(
-        freeze_first is not None
-        and reconciliation is not None
-        and owner_boundary is not None
-        and before_continuation is not None
-        and destructive is None
+        owned_no_recovery is not None
+        or (
+            freeze_first is not None
+            and reconciliation is not None
+            and owner_boundary is not None
+            and before_continuation is not None
+            and destructive is None
+        )
     )
 
 
@@ -21477,6 +21485,10 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         record_text,
         "Historical Escape Waiver Receipt",
     )
+    admission_decision = _extract_exact_marker_value(
+        record_text,
+        "Admission Decision Pointer",
+    )
     return (
         _extract_exact_marker_value(record_text, "Record Class")
         == "Historical Carrier Admission Receipt"
@@ -21494,6 +21506,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
             "Historical Branch Authority Pointer",
         )
         == f"Docs/worktree_slots.md#{branch}"
+        and _durable_user_decision_pointer_is_approved(admission_decision)
         and "does not own" in live_boundary
         and "current worktree assignment" in live_boundary
         and worktree.casefold() in confinement
@@ -21889,6 +21902,12 @@ def _assigned_worktree_confinement_semantics_are_safe(
         and (
             not tracked_status
             or _durable_dirty_worktree_ownership_is_affirmative(dirty_state)
+        )
+        and (
+            not tracked_status
+            or _durable_dirty_recovery_is_owner_preserving(
+                value("Dirty Worktree Recovery Packet")
+            )
         )
         and _durable_off_worktree_routing_is_blocked(value("Off-Worktree Work Routing"))
         and _durable_governance_routing_barrier_is_active(
@@ -22399,7 +22418,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "Intended Write Set: `Only dev/orin_branch_governance_validation.py`\n"
         "Same Worktree / Same Branch Collision Check: `No collision`\n"
         "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`\n"
-        "Dirty Worktree Recovery Packet: `Not required for the fixture`\n"
+        "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation`\n"
         "Off-Worktree Work Routing: `Blocked; route through the owning carrier`\n"
         "Governance Routing Barrier: `Active`\n"
         "New Worktree Decision Gate: `USER approval required`\n"
@@ -22556,6 +22575,10 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`",
             "Dirty Worktree Collision Check: `Foreign unowned changes remain`",
+        ),
+        (
+            "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation`",
+            "Dirty Worktree Recovery Packet: `Delete foreign changes and continue without reconciliation`",
         ),
         (
             "Off-Worktree Work Routing: `Blocked; route through the owning carrier`",
@@ -23474,6 +23497,24 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
+    for invalid_historical_decision in (
+        "USER approval was denied.",
+        "The USER-approved carrier admission was revoked.",
+        "Approval is pending for this bounded carrier admission.",
+        "No USER admission decision exists.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Admission Decision Pointer: `USER-approved one-time bounded carrier admission for the fixture.`",
+                    f"Admission Decision Pointer: `{invalid_historical_decision}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: non-affirmative historical admission decision "
+                f"must fail classification: {invalid_historical_decision}"
+            ),
+        )
     for active_historical_waiver in (
         "An active USER waiver still authorizes worktree escape.",
         "The worktree escape waiver remains active.",

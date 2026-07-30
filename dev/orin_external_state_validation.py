@@ -2951,7 +2951,10 @@ def validate_incomplete_target_set_journals(
             f"{audit_root}"
         ]
     if not audit_root.exists():
-        return failures
+        return [
+            "Target-set transaction audit root is missing from the initialized "
+            f"external-state scaffold: {audit_root}"
+        ]
     if not audit_root.is_dir():
         return [
             "Target-set transaction audit root is not a confined regular directory: "
