@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import inspect
 import json
+import re
 import subprocess
 import tempfile
 import zipfile
@@ -287,9 +288,9 @@ def _assert_binary_identity_remains_exact() -> None:
         )
     }
     packet_binary_files = {
-        copied_path: b"\x89BINARY\r\n\x00actual",
+        copied_path: b"BINARY\r\npayload",
     }
-    expected_bytes = b"\x89BINARY\n\x00expected"
+    expected_bytes = b"BINARY\npayload"
     original_git_file_bytes = bundle._git_file_bytes
 
     def fixture_git_file_bytes(ref: str, path: str) -> bytes | None:
@@ -622,6 +623,133 @@ def _assert_support_context_state_contract() -> None:
             stage1_packet(authorizing_support),
             "attempts to authorize a USER-gated action",
         )
+
+    for subject in (
+        "This file",
+        "This artifact",
+        "This document",
+        "This packet",
+        "This review aid",
+        "A support artifact",
+    ):
+        for verb in ("authorizes", "approves", "permits", "grants", "enables"):
+            direct_authority = (
+                canonical_support
+                + f"\n{subject} {verb} Stage 2, PR creation, and implementation.\n"
+            )
+
+    for non_authorizing_text in (
+        "This file does not authorize Stage 2 or PR creation.",
+        "This artifact cannot approve implementation or merge.",
+        "No support context grants release authority.",
+    ):
+        negative_authority_failures = support_failures(
+            stage1_packet(canonical_support + "\n" + non_authorizing_text + "\n")
+        )
+        if negative_authority_failures:
+            raise AssertionError(
+                f"negative authority wording was treated as approval: {non_authorizing_text!r}\n"
+                + "\n".join(negative_authority_failures)
+            )
+            assert_fails(
+                f"direct-authority-{subject}-{verb}",
+                stage1_packet(direct_authority),
+                "attempts to authorize a USER-gated action",
+            )
+
+    fenced_example = canonical_support + (
+        "\n```markdown\n"
+        "## Support Context State\n\nUnsupported Example\n\n"
+        "This file authorizes Stage 2 and PR creation.\n"
+        "```\n"
+    )
+    fenced_example_failures = support_failures(stage1_packet(fenced_example))
+    if fenced_example_failures:
+        raise AssertionError(
+            "fenced Markdown example affected semantic support state:\n"
+            + "\n".join(fenced_example_failures)
+        )
+
+    semantic_state = (
+        "## Support Context State\n\n"
+        "Context Only - this file is not a USER gate and records no new BP2 acceptance.\n"
+    )
+    if semantic_state not in canonical_support:
+        raise AssertionError("canonical support fixture state section changed unexpectedly")
+    fenced_only_state = canonical_support.replace(
+        semantic_state,
+        f"```markdown\n{semantic_state}```\n",
+        1,
+    )
+    assert_fails(
+        "fenced-only-support-context-state",
+        stage1_packet(fenced_only_state),
+        "must contain exactly one Support Context State",
+    )
+
+    repair_primary = stage1_packet(canonical_support)[
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md"
+    ].replace(
+        "## Stage 1 Outcome\nStage 1 Ready For Stage 2",
+        "## Stage 1 Outcome\nPR Readiness Stage 1 Repair Required",
+        1,
+    )
+    repair_primary += (
+        "\nDo not mark Stage 1 Ready For Stage 2 until the repair passes.\n"
+    )
+    repair_branch_plan = (
+        "# Planning Review\n\n"
+        "## Packet Reviewability State\nReviewable\n\n"
+        "## USER Gate State\nPending USER Review\n"
+    )
+    repair_packet = stage1_packet(repair_branch_plan)
+    repair_packet["START_HERE.md"] = repair_packet["START_HERE.md"].replace(
+        "Stage 1 Ready For Stage 2",
+        "Stage 1 remains held",
+    )
+    repair_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = repair_primary
+    repair_failures = support_failures(repair_packet)
+    if repair_failures:
+        raise AssertionError(
+            "repair-required outcome was misclassified as Stage 1 ready:\n"
+            + "\n".join(repair_failures)
+        )
+
+    keywordless_packet = {
+        file_name: re.sub(
+            r"\b(?:bp1|bp2|bp3)\b|user_branch_(?:vision|plan)_review\.md|"
+            r"user branch (?:vision|plan) review|workstream entry / orchestration",
+            "supporting context",
+            text,
+            flags=re.IGNORECASE,
+        )
+        for file_name, text in stage1_packet(old_generator_output).items()
+    }
+    if not bundle._is_pr_stage1_packet_posture(keywordless_packet):
+        raise AssertionError("keywordless fixture lost its explicit Stage 1 packet posture")
+    if any(
+        marker in re.sub(
+            r"\s+",
+            " ",
+            bundle._exact_decision_text(keywordless_packet),
+        ).casefold()
+        for marker in (
+            "bp1",
+            "bp2",
+            "bp3",
+            "user_branch_vision_review.md",
+            "user_branch_plan_review.md",
+            "user branch vision review",
+            "user branch plan review",
+            "workstream entry / orchestration",
+        )
+    ):
+        raise AssertionError("keywordless fixture retained a planning-context marker")
+    assert_fails(
+        "stage1-checks-without-planning-keywords",
+        keywordless_packet,
+        "misclassified as USER Gate State",
+    )
 
     context_in_primary = dict(canonical_packet)
     context_in_primary["USER Review/PR_READINESS_STAGE1_REVIEW.md"] += (

@@ -60,6 +60,45 @@ PACKET_VALIDATION_MODES = (
     PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
     PACKET_VALIDATION_MODE_NEXT_GATE,
 )
+PACKET_TEXT_IDENTITY_SUFFIXES = frozenset(
+    {
+        ".bat",
+        ".cfg",
+        ".cmd",
+        ".css",
+        ".csv",
+        ".html",
+        ".ini",
+        ".js",
+        ".json",
+        ".jsx",
+        ".md",
+        ".ps1",
+        ".psm1",
+        ".py",
+        ".rst",
+        ".sh",
+        ".sql",
+        ".toml",
+        ".ts",
+        ".tsv",
+        ".tsx",
+        ".txt",
+        ".xml",
+        ".yaml",
+        ".yml",
+    }
+)
+PACKET_TEXT_IDENTITY_NAMES = frozenset(
+    {
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore",
+        "dockerfile",
+        "license",
+        "makefile",
+    }
+)
 
 
 def _is_dev_owner_live_validation_lv1_packet(
@@ -4005,9 +4044,21 @@ def _utf8_identity_text(data: bytes) -> str | None:
         return None
 
 
-def _source_copy_matches_expected(actual: bytes, expected: bytes) -> bool:
+def _source_copy_matches_expected(
+    actual: bytes,
+    expected: bytes,
+    *,
+    source_path: str,
+) -> bool:
     if actual == expected:
         return True
+    source_name = PurePosixPath(source_path).name.casefold()
+    source_suffix = PurePosixPath(source_path).suffix.casefold()
+    if (
+        source_name not in PACKET_TEXT_IDENTITY_NAMES
+        and source_suffix not in PACKET_TEXT_IDENTITY_SUFFIXES
+    ):
+        return False
     actual_text = _utf8_identity_text(actual)
     expected_text = _utf8_identity_text(expected)
     if actual_text is None or expected_text is None:
@@ -4094,7 +4145,9 @@ def _packet_identity_failures(
                 )
                 continue
             if not _source_copy_matches_expected(
-                packet_binary_files[copied_path], expected_bytes
+                packet_binary_files[copied_path],
+                expected_bytes,
+                source_path=source_path,
             ):
                 failures.append(
                     "Packet identity: copied file does not match expected HEAD content: "
@@ -11606,6 +11659,7 @@ def _field_value(text: str, field_name: str) -> str:
 
 
 def _review_marker_or_section_value(text: str, marker: str) -> str:
+    text = _markdown_semantic_text(text)
     field_name = marker.removesuffix(":")
     line_value = _field_value(text, field_name)
     if line_value:
@@ -11618,19 +11672,49 @@ def _normalized_gate_value(value: str) -> str:
     return normalized.split(" - ", 1)[0].strip().rstrip(".")
 
 
+def _markdown_semantic_text(text: str) -> str:
+    """Remove fenced examples before interpreting Markdown state or authority."""
+
+    semantic_lines: list[str] = []
+    fence_character = ""
+    fence_length = 0
+    for line in text.splitlines(keepends=True):
+        fence_match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
+        if not fence_character:
+            if fence_match:
+                fence_character = fence_match.group(1)[0]
+                fence_length = len(fence_match.group(1))
+                semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
+            else:
+                semantic_lines.append(line)
+            continue
+
+        closing_match = re.match(
+            rf"^[ \t]{{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*(?:\r?\n)?$",
+            line,
+        )
+        if closing_match:
+            fence_character = ""
+            fence_length = 0
+        semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
+    return "".join(semantic_lines)
+
+
 def _state_marker_count(text: str, marker: str) -> int:
     field_name = marker.removesuffix(":")
+    semantic_text = _markdown_semantic_text(text)
     pattern = re.compile(
         rf"^(?:##\s+{re.escape(field_name)}\s*|{re.escape(field_name)}\s*:.*)$",
         re.IGNORECASE | re.MULTILINE,
     )
-    return len(pattern.findall(text))
+    return len(pattern.findall(semantic_text))
 
 
 def _support_context_authority_failures(file_name: str, text: str) -> list[str]:
-    normalized = re.sub(r"\s+", " ", text).casefold()
+    normalized = re.sub(r"\s+", " ", _markdown_semantic_text(text)).casefold()
     authority_patterns = (
-        r"\b(?:this\s+)?support (?:context|file|artifact)\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\b",
+        r"\b(?:this|the|a|an)\s+(?:support(?:\s+(?:context|file|artifact))?|file|artifact|document|packet|review aid)\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\b",
+        r"(?:^|[.!?]\s+)support (?:context|file|artifact)\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\b",
         r"\b(?:stage 2|implementation|pr creation|merge|release)\s+(?:is\s+)?(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\b",
         r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
     )
@@ -11666,6 +11750,7 @@ def _branch_planning_review_gate_state_failures(
     }
     all_review_text = _exact_decision_text(packet_files)
     normalized_all_review_text = re.sub(r"\s+", " ", all_review_text).casefold()
+    stage1_posture = _is_pr_stage1_packet_posture(packet_files)
     branch_planning_context = any(
         marker in normalized_all_review_text
         for marker in (
@@ -11679,18 +11764,17 @@ def _branch_planning_review_gate_state_failures(
             "workstream entry / orchestration",
         )
     )
-    if not branch_planning_context:
+    if not branch_planning_context and not stage1_posture:
         return failures
 
-    stage1_posture = _is_pr_stage1_packet_posture(packet_files)
     stage1_primary = _packet_file_text(
         packet_files,
         PR_READINESS_STAGE1_REVIEW_FILE,
     )
-    stage1_ready = (
-        stage1_posture
-        and "stage 1 ready for stage 2" in stage1_primary.casefold()
+    stage1_outcome = _normalized_gate_value(
+        _review_marker_or_section_value(stage1_primary, "Stage 1 Outcome:")
     )
+    stage1_ready = stage1_posture and stage1_outcome == PR_STAGE1_OUTCOME_READY.casefold()
     reviewability_values: list[tuple[str, str]] = []
     user_gate_values: list[tuple[str, str]] = []
     for file_name, text in sorted(generated_files.items()):
