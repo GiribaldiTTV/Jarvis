@@ -172,7 +172,7 @@ Those facts remain Git/GitHub/helper/Codex-derived.
 - Record State: `Historical/no-active`
 - Phase: `Historical Traceability`
 - Repo Live-State Boundary: `This receipt does not own current operational facts or current worktree assignment; those facts remain Git, GitHub, approved-helper, and current-Codex derived.`
-- Admission Decision Pointer: `2026-07-28 USER-approved N0 carrier reassignment to runtime-active-2 for one bounded Governance compatibility repair.`
+- Admission Decision Pointer: `2026-07-28 USER approved this one-time bounded carrier admission for branch feature/governance-external-projection-compatibility in worktree C:\Nexus Worktrees\Governance-N0 at slot runtime-active-2.`
 - Admission Scope Receipt: `Bounded Governance N0 external-audit compatibility repair only.`
 - Admission Confinement Receipt: `Tracked mutation was confined to C:\Nexus Worktrees\Governance-N0; frozen Governance, FAM, sibling, neutral-main, and external-state targets remained read-only.`
 - Historical Branch Authority Pointer: `Docs/worktree_slots.md#feature/governance-external-projection-compatibility`

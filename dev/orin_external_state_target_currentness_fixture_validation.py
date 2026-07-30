@@ -679,6 +679,22 @@ def _write_modern_nested_audit_directory_fixture(root: Path) -> Path:
     return nested_path
 
 
+def _write_non_json_target_set_transaction_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root, state="Prepared")
+    non_json_path = root / "audit_log" / "prepared.txt"
+    path.replace(non_json_path)
+    return non_json_path
+
+
+def _write_utf16_non_json_target_set_transaction_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(root, state="Prepared")
+    text = path.read_text(encoding="utf-8")
+    path.unlink()
+    non_json_path = root / "audit_log" / "prepared.log"
+    non_json_path.write_text(text, encoding="utf-16")
+    return non_json_path
+
+
 def _write_modern_recovery_alias_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -2372,6 +2388,16 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             ),
         ),
         (
+            "unrelated UTF-16 non-JSON audit text",
+            lambda root: (
+                (root / "audit_log").mkdir(parents=True, exist_ok=True),
+                (root / "audit_log" / "historical.log").write_text(
+                    "Historical audit note only.",
+                    encoding="utf-16",
+                ),
+            ),
+        ),
+        (
             "malformed unrelated audit has nested target-set Transition",
             _write_malformed_nested_transition_fixture,
         ),
@@ -2465,6 +2491,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "Prepared target-set journal below a nested audit directory",
             _write_modern_nested_audit_directory_fixture,
         ),
+        (
+            "target-set transaction stored in a non-JSON audit entry",
+            _write_non_json_target_set_transaction_fixture,
+        ),
+        (
+            "target-set transaction stored in a UTF-16 non-JSON audit entry",
+            _write_utf16_non_json_target_set_transaction_fixture,
+        ),
         *[
             (
                 f"modern journal with whitespace-variant Transition {location}",
@@ -2511,6 +2545,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 "Recovery",
                 "Recovery Payload",
                 "BeforeText",
+                "Before Content",
+                "BeforeContent",
+                "Before Bytes",
+                "BeforeBytes",
                 "RecoveryPayload",
                 "Rollback Data",
                 "RollbackData",
@@ -3455,6 +3493,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern journal with nested recovery payload alias Recovery Payload"
         ],
         "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
+        "before-content recovery payload alias ignored",
+        negative_setups[
+            "modern journal with nested recovery payload alias Before Content"
+        ],
+        "_contains_recovery_payload_field",
+        lambda *_args, **_kwargs: False,
+    )
+    _assert_journal_mutation_killed(
+        "non-JSON target-set audit entry ignored",
+        negative_setups[
+            "target-set transaction stored in a non-JSON audit entry"
+        ],
+        "_is_non_json_audit_entry",
         lambda *_args, **_kwargs: False,
     )
     _assert_journal_mutation_killed(

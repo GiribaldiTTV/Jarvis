@@ -138,10 +138,10 @@
       },
       {
         "pr": 310,
-        "connector_comments": 198,
+        "connector_comments": 201,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 100,
-          "external-state-transaction-evidence-parser": 101,
+          "durable-carrier-confinement-parser": 101,
+          "external-state-transaction-evidence-parser": 103,
           "pr-readiness-review-risk-parser": 3,
           "pr2-comment-family-classifier": 14,
           "pr2-thread-pagination-and-approval-latch": 1,
@@ -152,7 +152,7 @@
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The churn harness now classifies PR #310 into exact external-state-transaction-evidence, durable-carrier-confinement, classifier-precision, PR-readiness review-risk, and repo-live-state-boundary families, gives the repaired families source-truth, implementation, static fixture, generated mutation, sibling replay, and executable validation coverage, requires exact modern and legacy lock write-set equality, string-typed and byte-canonical lock/workload identities and lock-state fields, stable post-validation lock-receipt digests, exact journal-to-manifest-to-physical-snapshot file-set equality, fail-closed snapshot traversal with stable directory identity plus post-inventory copied-file and manifest revalidation, bounded single-buffer reads and bounded streaming hashes, isolated absolute same-root snapshot provenance, canonical modern and legacy transaction and snapshot timestamps that preserve pre-write chronology, host-semantic namespace and path comparison, canonical transaction states, stable pre/post audit inventories plus per-file digest revalidation, audit attribution, and modern and legacy release timestamps that do not predate their transactions, strict case-unique snapshot-root evidence, and exact evidence-path spelling, binds snapshot and journal reads to confinement-checked stable file handles, lexes malformed strings and nested malformed values, scans structural object candidates after leading or quoted junk, preserves an immutable malformed-audit root frame, reconciles mismatched closer depth without discarding accountable content, resumes only at plausible root-object members, and handles unterminated containers, stray root-member containers, illegal post-value containers, and missing member commas without allowing malformed structure to hide root transitions, converts decoder integer and memory limits into validation results, scans deeply nested recovery payloads iteratively, normalizes camelCase and PascalCase recovery field boundaries, rejects recovery/rollback/pre-write/original-target/backup/undo/restore/revert/saved/archived/old/previous/prior payload aliases, surrogate evidence paths, and whitespace transition aliases, treats a missing initialized audit namespace as corrupt evidence, gates the immutable compatibility registry, requires exactly one affirmative non-negated live Record Role and exactly one unconditional protective Historical Receipt Boundary, proves authentic non-revoked USER-approved bounded carrier admission with affirmative bounded historical scope and new-worktree decisions plus closed affirmative thread Assignment Status, mandatory whole-value historical/no-active fold-down, an active governance routing barrier, a non-authoritative Repo Live-State Boundary, owner-preserving dirty-worktree recovery for durable and live external authority, semantic current owner/assignment/ledger/closed-concrete-write-scope evidence, affirmative dirty-worktree ownership, a closed affirmative Git/helper truth-source contract, affirmative historical admission evidence, whole-value historical confinement, no-active fold-down, future-USER-decision gating, and live-state non-ownership, closed historical collision proof, closed historical escape-waiver evidence, closed minimal or expanded Non-Includes inventories, one live external Record Class and one Branch/Worktree identity, singular durable/branch authority pointers, exactly one complete same-root external confinement section whose values satisfy the durable semantic predicates, owning-carrier routing, same-line nonblank active and historical singleton markers, and canonical Status/Current Phase/Phase review-start markers, rejects stale, pending, directly negated, forged, fabricated, foreign, unowned, unknown, invalid, claims-no-files, unverified, nobody/no-workload/unidentified-owner, destructive-recovery, nominal, paper-only, or contradictory owner/assignment/ownership claims, Git-status read failures, arbitrary additive files, duplicate status markers or confinement sections, failed or unperformed collision checks, failed or escaped historical confinement, retained-active historical fold-down, optional, disabled, or bypass-permitted governance barriers, nominally blocked off-worktree routes, pre-approval or post-creation-approval worktree creation, negated/unverified Git truth sources, denied or revoked historical admission, contradictory historical live-state boundaries, non-clear historical collision proof, active historical escape waivers, permissive retained capabilities, conditional exceptions, receipt-derived live authority, and contradictory collision/routing/new-worktree/no-cross-worktree/no-active-waiver outcomes, requires substantive contradiction-free routing and no-cross-worktree evidence instead of a safe-looking prefix, expires durable bootstrap receipts before PR review only after successful all-state PR absence proof and canonical review-phase inspection, requires journal context for Before Text, JSON decoder, malformed-JSON, oversized-integer, and generic modern-target wording, target-path/audit/external-state context for surrogate-code-point wording, carrier context for historical receipt classification, and path-suffix context for traversal wording, preserves classifier-review plus every genuine exact family and every strongly matched family in mixed comments while treating generic malformed, oversized, modern-target, traversal, or surrogate wording as non-exact, rejects whole-claim historical contradictions and historical receipts used as current authority, requires bounded concrete historical write-set entries, whole-value non-reserved slot reuse, external Git/helper operational truth without receipt-owned exceptions, complete semantic validation for external durable pointers, a second post-hash snapshot inventory plus final-boundary snapshot contract revalidation after later journal checks, a flat audit-log transaction namespace with post-hash inventory re-enumeration, initial and final committed live-target After SHA256 binding, closed affirmative live Record Role semantics, closed Non-Includes and bounded write sets without permissive authority suffixes, path-context-gated suffix classification, context-gated generic transaction keywords, requires final-boundary released-lock revalidation, noun-form post-creation USER-gate rejection, whole-value historical-waiver expiry without renewal, present-tense active-owner evidence, deterministic dirty-confinement fixtures, operational ownership-ledger semantics that reject nominal or forged authority, protective historical boundaries that reject retained or receipt-sourced live authority, category-wide historical quantifier rejection, mutually exclusive external authority-pointer types, byte-exact legacy lock fields, case-insensitive historical active-marker scanning, bare Transition identifier detection, exact tracked-dirty-path coverage by the active write-set inventory, case-insensitive confinement-marker cardinality, host-semantic dirty-path comparison, bounded future-transaction rejection, and exact USER-decision identity binding, and records the exact live 198-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases including Before Content and Before Bytes, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, bounded write sets, historical fold-down, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for both active durable and historical admission receipts. The receipt records the exact live 201-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -292,7 +292,10 @@
           "dev/orin_branch_governance_validation.py counts Assigned Worktree Confinement marker cardinality case-insensitively.",
           "dev/orin_branch_governance_validation.py preserves host filesystem/Git case semantics when comparing dirty and declared repo paths.",
           "dev/orin_external_state_validation.py rejects future-dated modern transactions beyond the bounded UTC clock-skew allowance.",
-          "dev/orin_branch_governance_validation.py binds durable USER approval to the receipt's exact branch, worktree, and slot."
+          "dev/orin_branch_governance_validation.py binds durable USER approval to the receipt's exact branch, worktree, and slot.",
+          "dev/orin_branch_governance_validation.py applies the same exact carrier binding to historical Admission Decision Pointer evidence.",
+          "dev/orin_external_state_validation.py rejects before-content and before-bytes recovery aliases in spaced and camelCase forms.",
+          "dev/orin_external_state_validation.py scans flat non-JSON UTF-8 and UTF-16 audit entries conservatively for target-set transactions."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1891,7 +1894,9 @@
         "protective-looking Historical Receipt Boundary values followed by retained, remaining, persistent, continued, inherited, or receipt-sourced live authority",
         "whitespace-padded legacy lock schema, identity, lock-state, workload-state, and retention fields",
         "root-level unquoted Transition identifiers carrying canonical target-set, malformed, or non-string values",
-        "internally consistent modern transaction, snapshot, and lock evidence dated beyond the bounded UTC clock-skew allowance"
+        "internally consistent modern transaction, snapshot, and lock evidence dated beyond the bounded UTC clock-skew allowance",
+        "Before Content, BeforeContent, Before Bytes, and BeforeBytes recovery payload aliases",
+        "Prepared target-set transaction evidence stored in a non-JSON audit entry"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -1938,7 +1943,9 @@
         "historical receipt boundaries reject retained or receipt-sourced live authority even when an earlier protective clause is valid",
         "legacy lock compatibility fields remain byte-exact typed strings without trim normalization",
         "malformed journals cannot hide target-set evidence behind an unquoted Transition identifier",
-        "canonical transaction chronology is also bounded against current UTC rather than only against related evidence"
+        "canonical transaction chronology is also bounded against current UTC rather than only against related evidence",
+        "before-content and before-bytes aliases are treated as recoverable pre-write payloads in spaced and camelCase forms",
+        "flat non-JSON UTF-8 and UTF-16 audit entries are bounded, hashed, conservatively parsed, and revalidated with the complete audit inventory"
       ]
     },
     {
@@ -1988,7 +1995,8 @@
         "tracked dirty paths and rename endpoints absent from the active Current or Intended Write Set",
         "case-variant duplicate Assigned Worktree Confinement markers",
         "case-distinct dirty and declared repo paths on a case-sensitive host",
-        "USER approval text naming a foreign branch, worktree, or slot"
+        "USER approval text naming a foreign branch, worktree, or slot",
+        "historical Admission Decision Pointer text naming a foreign branch, worktree, or slot"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
@@ -2012,7 +2020,8 @@
         "every tracked dirty path, including rename source and destination, is declared by the active write-set inventory",
         "required confinement marker cardinality is case-insensitive",
         "dirty-path comparison mirrors Windows case folding and POSIX case preservation",
-        "durable USER decisions name the exact branch, worktree, and slot admitted by the receipt"
+        "durable USER decisions name the exact branch, worktree, and slot admitted by the receipt",
+        "historical USER admission decisions preserve the exact branch, worktree, and slot identity after fold-down"
       ]
     },
     {

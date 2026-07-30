@@ -946,8 +946,9 @@ weaker contract from legacy compatibility. A modern committed journal must
 prove a standards-compliant JSON shape, a top-level transition, canonical
 string targets, distinct before/after hashes, a confined and hash-valid
 snapshot, a released exact-write-set lock, no recovery payload at any depth,
-confined case-insensitive audit discovery, and fail-closed handling for BOMs,
-reparse points, impossible path characters, and evidence read races.
+confined case-insensitive JSON discovery, conservative scanning of flat non-JSON
+UTF-8 or UTF-16 audit entries, and fail-closed handling for BOMs, reparse points,
+impossible path characters, and evidence read races.
 Any case-insensitive match to the exact target-set transition is a journal
 candidate and must fail unless both the `Transition` key and value are canonical.
 The released lock's normalized write set must equal the journal audit, snapshot,
@@ -994,8 +995,8 @@ trailing whitespace is invalid. Snapshot manifests must reject case-ambiguous
 Modern committed journals require canonical `Last Updated` and nonblank
 `Last Updated By` attribution, and they must reject nested recovery, rollback,
 pre-write, original-target, backup, undo, restore, revert, saved, archived,
-old-content, previous-content, or prior-content payload aliases as recoverable
-pre-write content.
+before-content, before-bytes, old-content, previous-content, or prior-content
+payload aliases as recoverable pre-write content.
 Committed snapshot manifests likewise require a canonical UTC `Last Updated`;
 missing or malformed snapshot time cannot prove pre-write provenance.
 Recovery-payload discovery must use bounded iterative traversal so deeply nested
@@ -1249,6 +1250,9 @@ A durable `USER Decision Pointer` must be a whole-value approval contract bound
 to the receipt's exact branch, worktree, and slot. Generic approval text, an
 approval naming another carrier, or a valid prefix followed by retained foreign
 admission cannot authorize the current receipt.
+A historical `Admission Decision Pointer` must preserve that same exact carrier
+identity binding; fold-down changes authority posture, not which USER decision
+the receipt proves.
 A historical write-set receipt may use bounded named categories only when it does
 not quantify an entire category. `All validation files`, `every governance
 artifact`, and equivalent qualified all/any/every forms are unbounded.

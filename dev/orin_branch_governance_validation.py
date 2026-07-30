@@ -21217,7 +21217,8 @@ def _durable_user_decision_pointer_matches_carrier(
         return False
     normalized = re.sub(r"\s+", " ", value.strip(" `\t\r\n."))
     identity_contract = re.fullmatch(
-        r"USER approved this one-time bounded carrier admission for branch "
+        r"(?:\d{4}-\d{2}-\d{2} )?USER approved this one-time bounded carrier "
+        r"admission for branch "
         r"(?P<branch>\S+) in worktree (?P<worktree>.+?) at slot "
         r"(?P<slot>runtime-active-[1-3])",
         normalized,
@@ -21738,7 +21739,12 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
             "Historical Branch Authority Pointer",
         )
         == f"Docs/worktree_slots.md#{branch}"
-        and _durable_user_decision_pointer_is_approved(admission_decision)
+        and _durable_user_decision_pointer_matches_carrier(
+            admission_decision,
+            branch,
+            worktree,
+            historical_slot,
+        )
         and _historical_admission_scope_is_bounded(admission_scope)
         and _durable_repo_live_state_boundary_is_non_authoritative(live_boundary)
         and _historical_collision_proof_is_clear(collision_proof)
@@ -24245,6 +24251,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         / "valid_historical_carrier_admission_receipt.md"
     )
     historical_fixture_text = _read_text(historical_fixture)
+    valid_historical_decision = (
+        "USER approved this one-time bounded carrier admission for branch "
+        "feature/governance-fixture in worktree "
+        "C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2."
+    )
     require(
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
@@ -24291,13 +24302,33 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         require(
             not _is_historical_carrier_admission_receipt(
                 historical_fixture_text.replace(
-                    "Admission Decision Pointer: `USER-approved one-time bounded carrier admission for the fixture.`",
+                    f"Admission Decision Pointer: `{valid_historical_decision}`",
                     f"Admission Decision Pointer: `{invalid_historical_decision}`",
                 )
             ),
             (
                 f"{historical_fixture}: non-affirmative historical admission decision "
                 f"must fail classification: {invalid_historical_decision}"
+            ),
+        )
+    for mismatched_historical_decision in (
+        "USER approved this one-time bounded carrier admission for branch feature/foreign in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2.",
+        "USER approved this one-time bounded carrier admission for branch FEATURE/GOVERNANCE-FIXTURE in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Foreign-Fixture at slot runtime-active-2.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-3.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot RUNTIME-ACTIVE-2.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2 while feature/foreign also remains admitted.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    valid_historical_decision,
+                    mismatched_historical_decision,
+                )
+            ),
+            (
+                f"{historical_fixture}: historical USER decision for another "
+                f"carrier identity must fail closed: {mismatched_historical_decision}"
             ),
         )
     for invalid_historical_scope in (

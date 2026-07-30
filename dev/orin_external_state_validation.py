@@ -2546,7 +2546,8 @@ def _contains_recovery_payload_field(value: object) -> bool:
                         key_with_word_boundaries.casefold(),
                     ).strip()
                     if (
-                        normalized_key == "before text"
+                        normalized_key
+                        in {"before text", "before content", "before bytes"}
                         or any(
                             marker in normalized_key
                             for marker in ("recovery", "rollback", "pre write", "prewrite")
@@ -3124,6 +3125,10 @@ def _is_json_audit_entry(path: Path) -> bool:
     return path.suffix.casefold() == ".json"
 
 
+def _is_non_json_audit_entry(path: Path) -> bool:
+    return path.suffix.casefold() != ".json"
+
+
 def validate_incomplete_target_set_journals(
     root: Path,
     compatibility_manifest_path: Path = LEGACY_RECEIPT_COMPATIBILITY_MANIFEST,
@@ -3169,7 +3174,9 @@ def validate_incomplete_target_set_journals(
     except OSError as exc:
         return [f"Target-set transaction audit root is unreadable: {audit_root}: {exc}"]
     discovered_paths = [
-        path for path in discovered_entries if _is_json_audit_entry(path)
+        path
+        for path in discovered_entries
+        if _is_json_audit_entry(path) or _is_non_json_audit_entry(path)
     ]
     discovered_inventory = {
         (
@@ -3212,8 +3219,25 @@ def validate_incomplete_target_set_journals(
         try:
             text = raw_bytes.decode("utf-8")
         except UnicodeDecodeError as exc:
-            failures.append(f"Target-set transaction journal is not UTF-8: {path}: {exc}")
-            continue
+            if _is_json_audit_entry(discovered_path):
+                failures.append(
+                    f"Target-set transaction journal is not UTF-8: {path}: {exc}"
+                )
+                continue
+            try:
+                text = raw_bytes.decode("utf-16")
+            except UnicodeDecodeError as non_json_exc:
+                failures.append(
+                    "Non-JSON target-set audit evidence is not scannable text: "
+                    f"{path}: {non_json_exc}"
+                )
+                continue
+            except MemoryError:
+                failures.append(
+                    "Non-JSON target-set audit evidence exceeds safe decoder "
+                    f"resource limits: {path}"
+                )
+                continue
         except MemoryError:
             failures.append(
                 f"Target-set transaction journal exceeds safe decoder resource limits: {path}"
@@ -3301,7 +3325,9 @@ def validate_incomplete_target_set_journals(
     try:
         rediscovered_entries = sorted(audit_root.iterdir())
         rediscovered_paths = [
-            path for path in rediscovered_entries if _is_json_audit_entry(path)
+            path
+            for path in rediscovered_entries
+            if _is_json_audit_entry(path) or _is_non_json_audit_entry(path)
         ]
         audit_path_after, audit_after_states = _confined_component_states(
             root,
