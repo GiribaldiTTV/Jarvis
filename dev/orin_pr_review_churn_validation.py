@@ -746,6 +746,32 @@ def _normalize(text: str) -> str:
     return f"{base} {separator_normalized}".strip()
 
 
+def _has_external_state_context(normalized: str) -> bool:
+    return any(
+        context in normalized
+        for context in (
+            "external-state",
+            "external state",
+            "target-set",
+            "target set",
+            "target-currentness",
+            "target currentness",
+            "audit_log",
+            "audit evidence",
+            "modern audit",
+            "modern committed",
+            "committed live target",
+            "modern journal",
+            "committed journal",
+            "target-set journal",
+            "target set journal",
+            "released-lock",
+            "released lock",
+            "snapshot manifest",
+        )
+    )
+
+
 def _is_connector_login(login: str) -> bool:
     normalized = login.casefold().removesuffix("[bot]")
     return normalized in CONNECTOR_LOGINS
@@ -763,25 +789,7 @@ def _classify_comment(body: str) -> list[str]:
             keyword for keyword in rule.keywords if keyword in normalized
         ]
         if rule.family_id == "external-state-transaction-evidence-parser":
-            external_context = any(
-                context in normalized
-                for context in (
-                    "external-state",
-                    "external state",
-                    "journal",
-                    "target-set",
-                    "target set",
-                    "target-currentness",
-                    "target currentness",
-                    "audit_log",
-                    "audit evidence",
-                    "modern audit",
-                    "modern committed",
-                    "released-lock",
-                    "released lock",
-                    "snapshot manifest",
-                )
-            )
+            external_context = _has_external_state_context(normalized)
             record_role_authority_context = (
                 "record role" in normalized
                 and any(
@@ -823,7 +831,6 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
                     "transaction",
                     "target-set",
                     "target set",
@@ -842,7 +849,8 @@ def _classify_comment(body: str) -> list[str]:
                 context in normalized
                 for context in (
                     "manifest",
-                    "journal",
+                    "modern journal",
+                    "committed journal",
                     "target-set",
                     "target set",
                     "external-state",
@@ -858,7 +866,8 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
+                    "modern journal",
+                    "committed journal",
                     "external-state",
                     "external state",
                     "inventory",
@@ -891,7 +900,8 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
+                    "modern journal",
+                    "committed journal",
                     "target-set",
                     "target set",
                     "recovery payload",
@@ -909,7 +919,6 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
                     "audit",
                     "target-set",
                     "target set",
@@ -926,7 +935,6 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
                     "audit",
                     "target-set",
                     "target set",
@@ -943,7 +951,6 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
                     "audit",
                     "json decoder",
                     "json-decoder",
@@ -962,10 +969,12 @@ def _classify_comment(body: str) -> list[str]:
             and any(
                 context in normalized
                 for context in (
-                    "journal",
                     "target path",
                     "target-path",
                     "audit",
+                    "snapshot",
+                    "lock",
+                    "immutable evidence",
                     "external-state",
                     "external state",
                 )
@@ -1407,6 +1416,24 @@ def _classifier_guardrail_failures() -> list[str]:
                 "Generic transaction wording acquired external-state parser coverage: "
                 + unrelated_transaction_phrase
             )
+    for unrelated_journal in (
+        "The payment journal has an invalid transaction state.",
+        "The database journal contains a malformed JSON string.",
+    ):
+        if _classify_comment(unrelated_journal) != ["unknown"]:
+            failures.append(
+                "Generic business journal wording acquired external-state parser coverage: "
+                + unrelated_journal
+            )
+    external_state_journal = (
+        "The external-state journal has an invalid Transaction State and must fail closed."
+    )
+    if _classify_comment(external_state_journal) != [
+        "external-state-transaction-evidence-parser"
+    ]:
+        failures.append(
+            "Explicit external-state journal wording lost external transaction coverage"
+        )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."

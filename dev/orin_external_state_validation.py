@@ -597,6 +597,11 @@ def validate_target_currentness(
 
 def _target_record_role_is_live(value: str | None) -> bool:
     normalized = re.sub(r"\s+", " ", (value or "").casefold().strip(" `\t\r\n."))
+    status_checked = re.sub(
+        r"\b(?:not|never)\s+(?:ended|terminated|expired|closed|ceased|lapsed)\b",
+        "",
+        normalized,
+    )
     live_identity = any(term in normalized for term in ("current", "live", "active"))
     authority_shape = any(
         term in normalized
@@ -608,17 +613,19 @@ def _target_record_role_is_live(value: str | None) -> bool:
         normalized,
     )
     denied = re.search(
-        r"\b(?:no|not|never|without|lacks?|missing|unavailable|inactive|"
+        r"\b(?:no|not|never|without|lacks?|missing|unavailable|inactive|ended|"
+        r"terminated|expired|closed|ceased|lapsed|"
         r"non[- ]authoritative|non[- ]operational|unauthori[sz]ed|nominal|"
         r"forged|fabricated|falsified|counterfeit|invalid|unverified|purported|"
         r"alleged|simulated|placeholder|paper[- ]only)\b.{0,30}\b"
         r"(?:authority|assignment|projection|state|role)\b|"
         r"\b(?:authority|assignment|projection|state|role)\b.{0,30}\b"
-        r"(?:none|absent|denied|revoked|inactive|unavailable|nominal|forged|"
+        r"(?:none|absent|denied|revoked|inactive|unavailable|ended|terminated|"
+        r"expired|closed|ceased|lapsed|no longer (?:active|current|live)|nominal|forged|"
         r"fabricated|falsified|counterfeit|invalid|unverified|purported|alleged|"
         r"simulated|placeholder|non[- ]operational|exists? only on paper|"
         r"only on paper)\b",
-        normalized,
+        status_checked,
     )
     future_gated = re.search(
         r"\b(?:authority|assignment|projection|state|role)\b.{0,45}\b"
@@ -641,8 +648,9 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
     if "historical" not in normalized:
         return False
     protective_clause = (
-        r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}\b"
-        r"(?:redefine|override|replace|reactivate|grant|own|control|retain|"
+        r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}?\b"
+        r"(?:redefine|override|replace|restore|renew|reinstate|reactivate|resume|"
+        r"reopen|grant|own|control|retain|"
         r"preserve|source|supply|carry)\b|"
         r"\bhistorical identity evidence only\b"
     )
@@ -664,6 +672,15 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
         r".{0,30}\b(?:authority|assignment|ownership|control|role|state)\b",
         scrubbed,
     )
+    restored_authority = re.search(
+        r"\b(?:restor(?:e|es|ed|ing)|renew(?:s|ed|ing)?|reinstat(?:e|es|ed|ing)|"
+        r"reactivat(?:e|es|ed|ing)|resum(?:e|es|ed|ing)|reopen(?:s|ed|ing)?)\b"
+        r".{0,45}\b(?:active|live|current|authority|assignment|ownership|control|role|state)\b|"
+        r"\b(?:active|live|current|authority|assignment|ownership|control|role|state)\b"
+        r".{0,45}\b(?:restor(?:e|es|ed|ing)|renew(?:s|ed|ing)?|reinstat(?:e|es|ed|ing)|"
+        r"reactivat(?:e|es|ed|ing)|resum(?:e|es|ed|ing)|reopen(?:s|ed|ing)?)\b",
+        scrubbed,
+    )
     conditional_exception = re.search(
         r"\b(?:unless|except|provided|subject to|until|if approved|when approved|"
         r"may|might|can still|could still)\b",
@@ -673,6 +690,7 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
         protective is not None
         and contradictory is None
         and retained_authority is None
+        and restored_authority is None
         and conditional_exception is None
     )
 
@@ -2719,6 +2737,54 @@ def _validate_modern_committed_target_evidence(
     return issues
 
 
+def _resolve_modern_committed_target_chains(
+    journals: list[
+        tuple[Path, object, dict[str, str], dict[str, str]]
+    ],
+) -> tuple[dict[str, str], list[str]]:
+    grouped: dict[
+        str,
+        list[tuple[datetime, Path, str, str, str]],
+    ] = {}
+    issues: list[str] = []
+    for audit_path, updated_value, before_hashes, after_hashes in journals:
+        updated = _canonical_utc_datetime(updated_value)
+        if updated is None:
+            continue
+        for relative, after_digest in after_hashes.items():
+            key = _host_path_key(relative)
+            before_digest = before_hashes.get(key)
+            if before_digest is None:
+                continue
+            grouped.setdefault(key, []).append(
+                (updated, audit_path, relative, before_digest, after_digest)
+            )
+
+    latest_after_hashes: dict[str, str] = {}
+    for entries in grouped.values():
+        entries.sort(key=lambda entry: (entry[0], _host_path_key(entry[1].name)))
+        relative = entries[-1][2]
+        chain_invalid = False
+        for previous, current in zip(entries, entries[1:]):
+            if previous[0] == current[0]:
+                issues.append(
+                    "modern Committed journal chain has ambiguous equal timestamps for "
+                    f"{relative}: {previous[1]} and {current[1]}"
+                )
+                chain_invalid = True
+                continue
+            if previous[4].casefold() != current[3].casefold():
+                issues.append(
+                    "modern Committed journal chain is discontinuous for "
+                    f"{relative}: {previous[1]} After SHA256 does not match "
+                    f"{current[1]} Before SHA256"
+                )
+                chain_invalid = True
+        if not chain_invalid:
+            latest_after_hashes[relative] = entries[-1][4]
+    return latest_after_hashes, issues
+
+
 def _validate_modern_lock_evidence(
     root: Path,
     audit_path: Path,
@@ -3172,7 +3238,9 @@ def validate_incomplete_target_set_journals(
     compatibility_manifest_path: Path = LEGACY_RECEIPT_COMPATIBILITY_MANIFEST,
 ) -> list[str]:
     failures: list[str] = []
-    committed_target_after_hash_sets: list[dict[str, str]] = []
+    committed_target_journals: list[
+        tuple[Path, object, dict[str, str], dict[str, str]]
+    ] = []
     committed_snapshot_evidence: list[
         tuple[object, dict[str, str], object]
     ] = []
@@ -3342,13 +3410,14 @@ def validate_incomplete_target_set_journals(
                         set(target_before_hashes),
                     )
                 )
-                journal_issues.extend(
-                    _validate_modern_committed_target_evidence(
-                        root,
-                        target_after_hashes,
+                committed_target_journals.append(
+                    (
+                        path,
+                        payload.get("Last Updated"),
+                        dict(target_before_hashes),
+                        dict(target_after_hashes),
                     )
                 )
-                committed_target_after_hash_sets.append(dict(target_after_hashes))
         else:
             journal_issues = _validate_legacy_completed_target_set_receipt(
                 root,
@@ -3358,6 +3427,20 @@ def validate_incomplete_target_set_journals(
                 hashlib.sha256(raw_bytes).hexdigest(),
             )
         failures.extend(f"Target-set transaction journal invalid: {path}: {issue}" for issue in journal_issues)
+    latest_target_after_hashes, chain_issues = _resolve_modern_committed_target_chains(
+        committed_target_journals
+    )
+    failures.extend(
+        "Target-set transaction journal chain invalid: " + issue
+        for issue in chain_issues
+    )
+    failures.extend(
+        "Target-set transaction journal live target invalid: " + issue
+        for issue in _validate_modern_committed_target_evidence(
+            root,
+            latest_target_after_hashes,
+        )
+    )
     rediscovered_paths: list[Path] = []
     rediscovered_inventory = discovered_inventory
     try:
@@ -3454,14 +3537,13 @@ def validate_incomplete_target_set_journals(
         failures.append(
             "Target-set transaction audit inventory changed after final hashing"
         )
-    for target_after_hashes in committed_target_after_hash_sets:
-        failures.extend(
-            "Target-set transaction live target changed during validation: " + issue
-            for issue in _validate_modern_committed_target_evidence(
-                root,
-                target_after_hashes,
-            )
+    failures.extend(
+        "Target-set transaction live target changed during validation: " + issue
+        for issue in _validate_modern_committed_target_evidence(
+            root,
+            latest_target_after_hashes,
         )
+    )
     for snapshot, target_before_hashes, transaction_updated in committed_snapshot_evidence:
         failures.extend(
             "Target-set transaction snapshot changed during validation: " + issue

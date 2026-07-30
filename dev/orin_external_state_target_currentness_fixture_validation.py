@@ -671,6 +671,110 @@ def _write_modern_live_target_mismatch_fixture(root: Path, state: str) -> Path:
     return path
 
 
+def _write_modern_journal_chain_fixture(root: Path, variant: str = "valid") -> Path:
+    target_relative = "worktrees/Fixture/worktree_state.md"
+    state_0 = b"modern chain state 0\n"
+    state_1 = b"modern chain state 1\n"
+    state_2 = b"modern chain state 2\n"
+    disconnected = b"modern chain disconnected state\n"
+    transitions = [
+        ("chain-1", state_0, state_1, "2026-07-28T00:01:00Z"),
+        ("chain-2", state_1, state_2, "2026-07-28T00:02:00Z"),
+    ]
+    if variant == "discontinuous":
+        transitions[1] = ("chain-2", disconnected, state_2, "2026-07-28T00:02:00Z")
+    elif variant == "ambiguous-timestamp":
+        transitions[1] = ("chain-2", state_1, state_2, "2026-07-28T00:01:00Z")
+    elif variant == "forked":
+        transitions[1] = ("chain-2", state_0, state_2, "2026-07-28T00:02:00Z")
+    elif variant == "reversed-chronology":
+        transitions[0] = ("chain-1", state_0, state_1, "2026-07-28T00:02:00Z")
+        transitions[1] = ("chain-2", state_1, state_2, "2026-07-28T00:01:00Z")
+    elif variant not in {"valid", "latest-live-mismatch"}:
+        raise AssertionError(f"unknown modern journal chain variant {variant!r}")
+
+    for name, before_bytes, after_bytes, updated in transitions:
+        before_hash = hashlib.sha256(before_bytes).hexdigest()
+        after_hash = hashlib.sha256(after_bytes).hexdigest()
+        audit_relative = f"audit_log/{name}.json"
+        snapshot_relative = f"snapshots/{name}"
+        lock_id = f"branch-{name}"
+        workload_id = f"{name}-workload"
+        snapshot_root = root.joinpath(*snapshot_relative.split("/"))
+        snapshot_copy = snapshot_root.joinpath(*target_relative.split("/"))
+        snapshot_copy.parent.mkdir(parents=True, exist_ok=True)
+        snapshot_copy.write_bytes(before_bytes)
+        updated_time = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+        snapshot_updated = (updated_time - timedelta(seconds=30)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        atomic_write_json(
+            snapshot_root / "snapshot_manifest.json",
+            {
+                "External State Schema": "external-state-v1",
+                "Root": str(root.resolve()),
+                "Copied Files": [
+                    {
+                        "path": target_relative,
+                        "sha256": before_hash,
+                        "size": len(before_bytes),
+                    }
+                ],
+                "Last Updated": snapshot_updated,
+            },
+        )
+        audit_path = root.joinpath(*audit_relative.split("/"))
+        audit_path.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(
+            audit_path,
+            {
+                "External State Schema": "external-state-v1",
+                "Transition": validator.TARGET_SET_TRANSITION,
+                "Lock ID": lock_id,
+                "Workload ID": workload_id,
+                "Snapshot": snapshot_relative,
+                "Targets": [
+                    {
+                        "Target": target_relative,
+                        "Before SHA256": before_hash,
+                        "After SHA256": after_hash,
+                    }
+                ],
+                "Last Updated": updated,
+                "Last Updated By": "fixture",
+                "Transaction State": "Committed",
+            },
+        )
+        lock_path = root / "locks" / f"{lock_id}.json"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(
+            lock_path,
+            {
+                "External State Schema": "external-state-v1",
+                "Lock ID": lock_id,
+                "Lock State": "Released",
+                "Workload ID": workload_id,
+                "Workload State": "Completed",
+                "Retain Between Workloads": "No",
+                "Released At": (updated_time + timedelta(seconds=30)).strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                ),
+                "Intended Write Set": ";".join(
+                    [audit_relative, snapshot_relative, target_relative]
+                ),
+            },
+        )
+
+    live_target = root.joinpath(*target_relative.split("/"))
+    live_target.parent.mkdir(parents=True, exist_ok=True)
+    live_target.write_bytes(
+        b"modern chain unrelated live bytes\n"
+        if variant == "latest-live-mismatch"
+        else state_2
+    )
+    return root / "audit_log" / "chain-2.json"
+
+
 def _write_modern_nested_audit_directory_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root, state="Prepared")
     nested_path = root / "audit_log" / "hidden" / "prepared.json"
@@ -2365,6 +2469,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_exact_real_legacy_receipt_fixture(root, "receipt-3"),
         ),
         ("modern Committed journal", lambda root: _write_modern_journal_fixture(root)),
+        (
+            "sequential modern Committed journal chain",
+            lambda root: _write_modern_journal_chain_fixture(root),
+        ),
         ("strict compatibility registry with unique keys", _write_unique_registry_fixture),
         (
             "unrelated historical audit",
@@ -2626,6 +2734,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             "modern journal with future transaction timestamp",
             _write_modern_future_transaction_fixture,
         ),
+        *[
+            (
+                f"modern Committed journal chain {variant}",
+                lambda root, variant=variant: _write_modern_journal_chain_fixture(
+                    root,
+                    variant,
+                ),
+            )
+            for variant in (
+                "discontinuous",
+                "ambiguous-timestamp",
+                "forked",
+                "reversed-chronology",
+                "latest-live-mismatch",
+            )
+        ],
         (
             "modern journal with unchanged target hash",
             _write_modern_equal_hash_fixture,
@@ -4067,6 +4191,26 @@ def main() -> int:
             "hash precondition failed",
             _run(root, expected_target_sha256="f" * 64),
         )
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection has not expired`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass("explicitly non-expired live role", _run(root))
+        _record(root)
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts do not restore live authority.`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass("explicitly non-restoring historical boundary", _run(root))
+        _record(root)
         for label, original, replacement, expected_failure in (
             (
                 "blank record role",
@@ -4098,6 +4242,20 @@ def main() -> int:
                 "Record Role: `Current state authority is pending activation`",
                 "Record Role is not affirmative live authority",
             ),
+            *[
+                (
+                    f"ended record role authority: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current state authority has ended",
+                    "Current live assignment was terminated",
+                    "Active projection has expired",
+                    "Closed current state authority",
+                )
+            ],
             (
                 "nominal record role authority",
                 "Record Role: `Current worktree assignment projection`",
@@ -4176,6 +4334,20 @@ def main() -> int:
                 "Historical Receipt Boundary: `Historical receipts do not redefine live fields; receipt-derived ownership remains active.`",
                 "Historical Receipt Boundary does not prevent",
             ),
+            *[
+                (
+                    f"restored authority historical boundary: {value}",
+                    "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                    f"Historical Receipt Boundary: `Historical receipts do not redefine live fields; {value}.`",
+                    "Historical Receipt Boundary does not prevent",
+                )
+                for value in (
+                    "active assignment is restored",
+                    "authority was renewed",
+                    "ownership is reinstated",
+                    "live control was reactivated",
+                )
+            ],
             (
                 "duplicate historical receipt boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",

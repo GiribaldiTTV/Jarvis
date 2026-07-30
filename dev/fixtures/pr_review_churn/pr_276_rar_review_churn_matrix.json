@@ -138,21 +138,21 @@
       },
       {
         "pr": 310,
-        "connector_comments": 207,
+        "connector_comments": 212,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 105,
-          "external-state-transaction-evidence-parser": 105,
+          "durable-carrier-confinement-parser": 107,
+          "external-state-transaction-evidence-parser": 108,
           "pr-readiness-review-risk-parser": 3,
-          "pr2-comment-family-classifier": 14,
+          "pr2-comment-family-classifier": 15,
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-code-to-visual-reference-parser": 2,
           "rar-phase-advancement-parser": 1,
           "rar-table-row-parser": 4,
-          "repo-live-state-boundary-parser": 4
+          "repo-live-state-boundary-parser": 5
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, present-tense live authority, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, bounded write sets, historical fold-down, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for active and historical admission receipts. The receipt records the exact live 207-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, ended live-role rejection, restored historical-authority rejection, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for active and historical admission receipts. Its classifier family requires explicit external-state transaction context and leaves generic payment or database journals unknown. The receipt records the exact live 212-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -297,7 +297,12 @@
           "dev/orin_external_state_validation.py rejects before-content and before-bytes recovery aliases in spaced and camelCase forms.",
           "dev/orin_external_state_validation.py scans flat non-JSON UTF-8 and UTF-16 audit entries conservatively for JSON-shaped and line-oriented target-set transactions.",
           "dev/orin_external_state_validation.py rejects future-gated live Record Roles and future-dated modern or legacy lock releases.",
-          "dev/orin_branch_governance_validation.py requires distinct Git source evidence, freeze-first dirty recovery, inspected-writer collision clearance, and unconditional cross-worktree prohibition."
+          "dev/orin_branch_governance_validation.py requires distinct Git source evidence, freeze-first dirty recovery, inspected-writer collision clearance, and unconditional cross-worktree prohibition.",
+          "dev/orin_external_state_validation.py rejects ended, terminated, expired, closed, ceased, or lapsed target-scoped Record Roles even when current/live/active wording is also present.",
+          "dev/orin_external_state_validation.py rejects Historical Receipt Boundary values that later restore, renew, reinstate, reactivate, resume, or reopen historical authority.",
+          "dev/orin_branch_governance_validation.py tokenizes historical Operational Truth Source values so helperless, githubless, and codexless cannot satisfy helper, GitHub, or Codex source requirements by substring.",
+          "dev/orin_pr_review_churn_validation.py excludes bare business-domain journals from external-state classification unless explicit external-state transaction context is present.",
+          "dev/orin_external_state_validation.py resolves retained modern Committed journals into one chronological hash chain per target, rejects ambiguous timestamps, forks, reversals, and discontinuities, and binds only the newest chain tail to current live bytes."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1164,6 +1169,26 @@
       {
         "family_id": "external-state-transaction-evidence-parser",
         "comment": "Resume malformed audit scanning at a plausible root member after a missing comma so a target-set Transition cannot be hidden."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Reject external-state target-scoped Record Role values that say active now but ended, terminated, expired, closed, ceased, or lapsed."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Reject Historical Receipt Boundary values that prohibit current authority before restoring, renewing, reinstating, reactivating, resuming, or reopening it later in the same value."
+      },
+      {
+        "family_id": "durable-carrier-confinement-parser",
+        "comment": "Require historical Operational Truth Source companion names as exact tokens so helperless, githubless, and codexless are not accepted as helper, GitHub, or Codex evidence."
+      },
+      {
+        "family_id": "pr2-comment-family-classifier",
+        "comment": "The comment-family classifier must keep generic payment and database journal defects outside external-state review unless explicit external-state transaction context is present."
+      },
+      {
+        "family_id": "external-state-transaction-evidence-parser",
+        "comment": "Validate retained sequential modern Committed journals as one per-target chronological hash chain and compare only the newest chain tail with current live bytes."
       }
     ],
     "unknown_comment_guardrails": [
@@ -1179,7 +1204,9 @@
       "Preserve transaction state after a payment retry.",
       "The profile table records the record role for display.",
       "A checksum report lists after SHA256 for an unrelated asset.",
-      "The deployment planner selected a modern target for customer notifications."
+      "The deployment planner selected a modern target for customer notifications.",
+      "The payment journal has an invalid transaction state.",
+      "The database journal contains a malformed JSON string."
     ]
   },
   "changed_file_coverage": {

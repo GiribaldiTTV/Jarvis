@@ -21623,6 +21623,7 @@ def _historical_operational_truth_source_is_external(value: str) -> bool:
     if contract is None:
         return False
     sources = contract.group("sources")
+    source_tokens = set(re.findall(r"[a-z0-9]+", sources))
     denied = re.search(
         r"\b(?:not git|git (?:is )?(?:unavailable|unverified|unknown|invalid)|"
         r"unverified|forged|fabricated|falsified|invalid|receipt-owned|"
@@ -21631,8 +21632,8 @@ def _historical_operational_truth_source_is_external(value: str) -> bool:
     )
     return bool(
         re.match(r"^(?:current )?git\b", sources)
-        and any(source in sources for source in ("helper", "github", "codex"))
-        and "receipt" not in sources
+        and bool(source_tokens & {"helper", "github", "codex"})
+        and "receipt" not in source_tokens
         and denied is None
     )
 
@@ -24469,6 +24470,9 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "Receipt and Git evidence; this receipt is not a live-state source.",
         "Not Git and helper evidence; this receipt is not a live-state source.",
         "Git unavailable and helper evidence; this receipt is not a live-state source.",
+        "Git and helperless evidence; this historical receipt is not a live-state source.",
+        "Git and githubless evidence; this historical receipt is not a live-state source.",
+        "Git and codexless evidence; this historical receipt is not a live-state source.",
     ):
         require(
             not _is_historical_carrier_admission_receipt(

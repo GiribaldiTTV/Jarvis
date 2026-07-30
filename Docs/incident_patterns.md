@@ -1023,6 +1023,12 @@ content, reparse, or read failure is incomplete transaction evidence even when
 snapshot and released-lock proof are valid. Every accepted live-target digest
 must be revalidated again at the final journal-validation boundary so a target
 changed during later audit checks cannot inherit a stale green result.
+When more than one retained modern `Committed` journal names the same target,
+the journals form one chronological hash chain rather than independent live-byte
+claims. Canonical `Last Updated` values must establish a unique order, each older
+row's `After SHA256` must equal the next row's `Before SHA256`, and only the newest
+chain tail may bind current live bytes. Equal timestamps, discontinuities, forks,
+reversed chronology, or a newest-tail/live-byte mismatch fail closed.
 Snapshot manifest copied-file evidence and the physical snapshot-file inventory
 must equal the journal target set exactly; a valid hash for an unrelated extra
 file, or an unmanifested physical file, is retained pre-write material, not
@@ -1056,8 +1062,13 @@ Target-scoped live projections must also carry an affirmative current/live/activ
 `Record Role` and a `Historical Receipt Boundary` that explicitly prevents
 historical receipts from redefining or granting live authority. Negated role
 claims, nominal or paper-only roles, forged/fabricated/invalid/unverified roles,
-non-operational placeholders, and conditional boundary exceptions such as
-`unless` remain negative evidence. Confined JSON
+non-operational placeholders, roles that also say ended, terminated, expired,
+closed, ceased, or lapsed, and conditional boundary exceptions such as `unless`
+remain negative evidence. A protective historical boundary also fails when a
+later clause restores, renews, reinstates, reactivates, resumes, or reopens the
+authority it first denied. Explicit denials such as `has not expired` and
+`does not restore live authority` remain protective rather than being mistaken
+for the prohibited affirmative state. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
 buffer, enforce the same bound during streaming hashes, and translate allocation,
 decode, or continuously growing evidence into a validation issue.
@@ -1279,6 +1290,10 @@ Comment-family matching must treat generic UI prose such as `before text` as
 unknown unless journal, target-set, audit, external-state, or recovery context
 proves that the phrase names transaction evidence. A generic phrase cannot consume
 the external-state same-family review budget by itself.
+Bare `journal` wording is likewise insufficient: payment, database, accounting,
+or other business-domain journals remain unknown unless an external-state-specific
+qualifier such as modern committed journal, target-set journal, audit evidence,
+released lock, snapshot manifest, or external-state currentness is present.
 Likewise, `historical receipt` requires carrier, admission, confinement, worktree,
 assignment, fold-down, or durable-authority context before it maps to the durable
 carrier family. When an exact-scope comment also strongly matches another covered
@@ -1323,7 +1338,11 @@ before semantic comparison, so `BeforeText`, `RecoveryPayload`, and equivalent
 aliases cannot preserve recoverable target bytes in a committed journal.
 Historical receipt boundaries are closed whole-value contracts. A protective
 prefix cannot be followed by retained, remaining, persistent, continued, or
-receipt-sourced live authority, assignment, ownership, control, role, or state.
+receipt-sourced live authority, assignment, ownership, control, role, or state,
+nor by restored, renewed, reinstated, reactivated, resumed, or reopened authority.
+Historical companion truth-source names must match exact source tokens; substrings
+inside `helperless`, `githubless`, `codexless`, or equivalent denial words do not
+prove helper, GitHub, or Codex evidence.
 
 Committed transaction chronology is part of evidence integrity. A snapshot
 manifest may not postdate the journal transaction it proves, and the released
