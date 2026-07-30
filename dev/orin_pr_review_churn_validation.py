@@ -184,6 +184,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "section field",
             "target reconciler",
             "target reconcile",
+            "reconcile target",
+            "rename section",
             "section rename destination",
             "fenced markdown",
         ),
@@ -246,11 +248,15 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "worktree escape user waiver",
             "granted-waiver",
             "granted waiver",
+            "granted escape waiver",
+            "waiver segment",
             "expected worktree root",
             "actual worktree root",
             "declared confinement roots",
             "ordinary active branch-record",
             "complete confinement semantics",
+            "external identity marker",
+            "branch authorities",
         ),
     ),
     FamilyRule(
@@ -788,6 +794,10 @@ def _has_external_state_context(normalized: str) -> bool:
             "released-lock",
             "released lock",
             "snapshot manifest",
+            "live header",
+            "live-header",
+            "target reconcile",
+            "reconcile target",
         )
     )
 
@@ -797,8 +807,9 @@ def _is_connector_login(login: str) -> bool:
     return normalized in CONNECTOR_LOGINS
 
 
-def _classify_comment(body: str) -> list[str]:
+def _classify_comment(body: str, path: str = "") -> list[str]:
     normalized = _normalize(body)
+    context_normalized = f"{normalized} {_normalize(path)}".strip()
     has_classifier_context = any(
         keyword in normalized for keyword in CLASSIFIER_CONTEXT_KEYWORDS
     )
@@ -809,19 +820,7 @@ def _classify_comment(body: str) -> list[str]:
             keyword for keyword in rule.keywords if keyword in normalized
         ]
         if rule.family_id == "external-state-transaction-evidence-parser":
-            external_context = _has_external_state_context(normalized)
-            record_role_authority_context = (
-                "record role" in normalized
-                and any(
-                    context in normalized
-                    for context in (
-                        "authority",
-                        "live header",
-                        "current worktree assignment projection",
-                    )
-                )
-            )
-            external_context = external_context or record_role_authority_context
+            external_context = _has_external_state_context(context_normalized)
             if not external_context:
                 matched_keywords = [
                     keyword
@@ -1217,6 +1216,18 @@ def _classifier_guardrail_failures() -> list[str]:
             "case-variant rename destination",
             "Compare external-state target-reconcile section rename destinations case-insensitively before replacing a live heading.",
         ),
+        (
+            "normalized rename no-loss identity",
+            "Normalize a target-reconcile source heading to its actual matched spelling before the no-loss comparison.",
+        ),
+        (
+            "tab-delimited live-header boundary",
+            "Treat a target-currentness tab-delimited level-two heading as the end of the live header before reading Record Role authority.",
+        ),
+        (
+            "blank authority duplicate",
+            "Count a blank external-state Record Role marker when enforcing live-header authority cardinality.",
+        ),
     ):
         if "external-state-transaction-evidence-parser" not in _classify_comment(comment):
             failures.append(
@@ -1317,7 +1328,7 @@ def _classifier_guardrail_failures() -> list[str]:
         "Fail closed on snapshot traversal errors so unreadable child directories cannot hide unmanifested files.",
         "Preserve the root frame after mismatched closers so a later target-set Transition remains visible.",
         "Reject exceptions inside a Historical Receipt Boundary protective clause before substitution removes unless approved.",
-        "Reject Record Role values that explicitly say current authority is not active, current, or live.",
+        "Reject target-currentness Record Role values that explicitly say current authority is not active, current, or live.",
         "Reject a Historical Receipt Boundary whose trailing clause says historical receipts are authoritative or own live authority.",
         "Ignore non-string Transition values in unrelated external-state audits because they cannot equal the target-set transition identity.",
         "Ignore fenced Markdown examples when the target reconciler replaces a uniquely scoped section field.",
@@ -1342,6 +1353,8 @@ def _classifier_guardrail_failures() -> list[str]:
         "Preserve a complete USER-granted Worktree Escape User Waiver path in shared confinement semantics.",
         "Require Expected Worktree Root and Actual Worktree Root to match the active root unless a valid waiver applies.",
         "Reject an inactive Worktree Ownership Ledger and require an affirmative present-tense ownership relation.",
+        "Reject duplicate or unknown segments in a granted escape waiver before authorizing an off-worktree root.",
+        "Count case-variant external identity markers before accepting contradictory branch authorities.",
     )
     for comment in new_durable_guardrails:
         if _classify_comment(comment) != [
@@ -1462,6 +1475,7 @@ def _classifier_guardrail_failures() -> list[str]:
     for unrelated_transaction_phrase in (
         "Preserve transaction state after a payment retry.",
         "The profile table records the record role for display.",
+        "The database record role grants authority to the wrong tenant.",
         "A checksum report lists after SHA256 for an unrelated asset.",
         "The deployment planner selected a modern target for customer notifications.",
     ):
@@ -1470,6 +1484,27 @@ def _classifier_guardrail_failures() -> list[str]:
                 "Generic transaction wording acquired external-state parser coverage: "
                 + unrelated_transaction_phrase
             )
+    path_bound_record_role = (
+        "Reject Record Role values that explicitly say current authority is not active."
+    )
+    if _classify_comment(path_bound_record_role) != ["unknown"]:
+        failures.append(
+            "Unqualified Record Role authority did not remain unknown without path context"
+        )
+    if _classify_comment(
+        path_bound_record_role,
+        "dev/orin_external_state_validation.py",
+    ) != ["external-state-transaction-evidence-parser"]:
+        failures.append(
+            "External-state validator path did not provide exact live review context"
+        )
+    if _classify_comment(
+        "The database record role grants authority to the wrong tenant.",
+        "app/database_roles.py",
+    ) != ["unknown"]:
+        failures.append(
+            "Unrelated database path incorrectly supplied external-state review context"
+        )
     for unrelated_journal in (
         "The payment journal has an invalid transaction state.",
         "The database journal contains a malformed JSON string.",
@@ -1488,6 +1523,18 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Explicit external-state journal wording lost external transaction coverage"
         )
+    for contextual_record_role in (
+        "The external-state Record Role grants authority from a duplicate marker.",
+        "The target-currentness live header contains a blank Record Role authority marker.",
+        "The modern committed journal audit accepted a receipt-owned Record Role authority.",
+    ):
+        if "external-state-transaction-evidence-parser" not in _classify_comment(
+            contextual_record_role
+        ):
+            failures.append(
+                "Contextual Record Role review lost external-state parser coverage: "
+                + contextual_record_role
+            )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."
@@ -1934,7 +1981,7 @@ def _connector_review_comments(review_comments: list[dict[str, Any]]) -> list[di
             "url": comment.get("html_url") or "",
             "isResolved": False,
             "isOutdated": False,
-            "families": _classify_comment(body),
+            "families": _classify_comment(body, comment.get("path") or ""),
         }
         comments.append(item)
     return comments

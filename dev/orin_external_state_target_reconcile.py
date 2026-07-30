@@ -490,9 +490,11 @@ def _rename_sections(
                 f"Target transition section rename destination already exists: {new_heading!r}"
             )
             continue
-        newline = _line_ending(lines[matches[0]])
-        lines[matches[0]] = f"{new_heading}{newline}"
-        renamed.append((old_heading, new_heading))
+        source_index = matches[0]
+        actual_old_heading = lines[source_index].rstrip("\r\n")
+        newline = _line_ending(lines[source_index])
+        lines[source_index] = f"{new_heading}{newline}"
+        renamed.append((actual_old_heading, new_heading))
     return "".join(lines), failures, renamed
 
 

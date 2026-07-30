@@ -138,21 +138,21 @@
       },
       {
         "pr": 310,
-        "connector_comments": 246,
+        "connector_comments": 252,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 124,
-          "external-state-transaction-evidence-parser": 126,
+          "durable-carrier-confinement-parser": 126,
+          "external-state-transaction-evidence-parser": 130,
           "pr-readiness-review-risk-parser": 4,
-          "pr2-comment-family-classifier": 16,
+          "pr2-comment-family-classifier": 17,
           "pr2-thread-pagination-and-approval-latch": 1,
           "rar-code-to-visual-reference-parser": 2,
           "rar-phase-advancement-parser": 1,
-          "rar-table-row-parser": 7,
+          "rar-table-row-parser": 8,
           "repo-live-state-boundary-parser": 9
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, acyclic per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, fence-aware live target-currentness authority extraction, case-insensitive live section-rename collision checks, post-snapshot/lock final audit inventory and digest closure, whole-token live-role identity and authority shape, explicit non-authoritative, inactive-identity, ended, held, or never-activated live-role rejection, live-authority-bound historical boundary proof with original-clause exception detection, positive receipt-owned and restored historical-authority rejection, unrelated non-string Transition values, fence-aware target-reconcile selection with unbalanced-fence blocking, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots and object envelopes containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts on active branch, external-live, and durable receipt routes, coherent bounded current/intended write authority, exact normal-root validation, complete USER-granted escape-waiver validation, case-insensitive section and marker cardinality, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, affirmative present-tense ownership-ledger relations, positive-clause-only write-path authorization including safe root-level files while rejecting absolute path truncation, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, never-active assignment rejection, exception-free and non-retroactive new-worktree USER gates, no dirty-ownership carve-outs, and whole-value USER approval bound to the exact branch, worktree, and slot with valid non-future optional dates for active and historical admission receipts. Its classifier family requires explicit external-state transaction context, recognizes current-write-set, waiver, declared-root, receipt-owned authority, and fenced section-field reviews, preserves external branch state in genuine mixed-family findings, and leaves generic payment or database journals unknown. The receipt records the exact live 246-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, acyclic per-target retained-journal hash-chain continuity with only the newest chain tail bound to live bytes, fence-aware live target-currentness authority extraction with space/tab heading parity and blank-marker cardinality, case-insensitive live section-rename collision checks with actual-source heading identity for no-loss comparison, post-snapshot/lock final audit inventory and digest closure, whole-token live-role identity and authority shape, explicit non-authoritative, inactive-identity, ended, held, or never-activated live-role rejection, live-authority-bound historical boundary proof with original-clause exception detection, positive receipt-owned and restored historical-authority rejection, unrelated non-string Transition values, fence-aware target-reconcile selection with unbalanced-fence blocking, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, BOM-less UTF-16 evidence hidden behind successful NUL-bearing UTF-8 decoding, non-object JSON roots and object envelopes containing nested target-set evidence, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts on active branch, external-live, and durable receipt routes, coherent bounded current/intended write authority, exact normal-root validation, complete exact-set duplicate-aware USER-granted escape-waiver validation, case-insensitive section, external identity, and marker cardinality, case-insensitive authority-pointer cardinality, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, affirmative present-tense ownership-ledger relations, positive-clause-only write-path authorization including safe root-level files while rejecting absolute path truncation, separator-normalized PR Readiness expiry, bounded write sets, historical fold-down, exact-token companion truth sources, exact authority pointers, host-semantic dirty-path coverage, never-active assignment rejection, exception-free and non-retroactive new-worktree USER gates, no dirty-ownership carve-outs, and whole-value USER approval bound to the exact branch, worktree, and slot with valid non-future optional dates for active and historical admission receipts. Its classifier family requires explicit external-state, target-currentness, journal, live-header, or target-reconcile context, recognizes current-write-set, waiver, declared-root, receipt-owned authority, and fenced section-field reviews, preserves external branch state in genuine mixed-family findings, and leaves generic payment or database journals and generic database Record Role authority unknown. The receipt records the exact live 252-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -339,7 +339,13 @@
           "dev/orin_external_state_validation.py performs its terminal audit inventory and digest closure after final live-target, snapshot, and released-lock validation, then re-enumerates once more after those hashes.",
           "dev/orin_external_state_validation.py excludes backtick and tilde fenced examples from target-currentness identity, Record Role, Historical Receipt Boundary, marker-cardinality, and live-header extraction and rejects unterminated fences.",
           "dev/orin_external_state_target_reconcile.py compares both section-rename sources and destinations case-insensitively while excluding fenced headings from collision authority.",
-          "dev/orin_pr_review_churn_validation.py maps all four request-5133010585 current-head findings into the external-transaction family with zero unknown comments."
+          "dev/orin_pr_review_churn_validation.py maps all four request-5133010585 current-head findings into the external-transaction family with zero unknown comments.",
+          "dev/orin_external_state_validation.py recognizes space- or tab-delimited level-two headings as live-header boundaries and counts blank authority markers during exact cardinality validation.",
+          "dev/orin_external_state_target_reconcile.py records the actual matched source heading, including case and trailing whitespace, so supported section renames remain lossless and auditable.",
+          "dev/orin_branch_governance_validation.py parses USER-granted worktree escape waivers as an exact duplicate-aware segment set and rejects unknown, missing, blank, or unlabeled clauses.",
+          "dev/orin_branch_governance_validation.py counts external Record Class, Branch, Worktree, and confinement authority markers case-insensitively before accepting current confinement.",
+          "dev/orin_pr_review_churn_validation.py requires external-state, target-currentness, journal, live-header, or target-reconcile context before Record Role wording enters the external transaction family.",
+          "dev/orin_pr_review_churn_validation.py maps all six request-5133331428 current-head findings into the exact external-transaction, durable-carrier, or classifier family with zero unknown comments."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -989,7 +995,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Reject a negated Record Role that says the current state has no authority."
+        "comment": "Reject a target-currentness Record Role that says the current state has no authority."
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
@@ -1137,7 +1143,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Reject a nominal Record Role where a current worktree assignment projection exists only on paper instead of proving operational live authority."
+        "comment": "Reject a nominal target-currentness Record Role where a current worktree assignment projection exists only on paper instead of proving operational live authority."
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
@@ -1265,7 +1271,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Reject a target Record Role that says current authority was never active, has not started, or failed to activate."
+        "comment": "Reject a target-currentness Record Role that says current authority was never active, has not started, or failed to activate."
       },
       {
         "family_id": "durable-carrier-confinement-parser",
@@ -1285,7 +1291,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Reject a target Record Role whose current authority is suspended, disabled, paused, deactivated, dormant, halted, stopped, or on hold."
+        "comment": "Reject a target-currentness Record Role whose current authority is suspended, disabled, paused, deactivated, dormant, halted, stopped, or on hold."
       },
       {
         "family_id": "durable-carrier-confinement-parser",
@@ -1293,7 +1299,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Reject explicitly non-authoritative Record Roles such as Current authority is not authoritative."
+        "comment": "Reject explicitly non-authoritative target-currentness Record Roles such as Current authority is not authoritative."
       },
       {
         "family_id": "durable-carrier-confinement-parser",
@@ -1305,7 +1311,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Match live Record Role identities as whole tokens so Delivery authority and Delivery state are not live roles."
+        "comment": "Match live-header Record Role identities as whole tokens so Delivery authority and Delivery state are not live roles."
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
@@ -1329,7 +1335,7 @@
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
-        "comment": "Reject Record Role values that explicitly say current authority is not active, current, or live."
+        "comment": "Reject target-currentness Record Role values that explicitly say current authority is not active, current, or live."
       },
       {
         "family_id": "external-state-transaction-evidence-parser",
@@ -2041,7 +2047,10 @@
         "Retained committed-journal After SHA256 evidence closes a hash cycle",
         "A late audit entry appears during final snapshot or lock validation",
         "Fenced Markdown examples are treated as live target-currentness authority",
-        "A section rename collides with a case-variant live destination"
+        "A section rename collides with a case-variant live destination",
+        "A tab-delimited receipt heading fails to end the live target header",
+        "A blank duplicate authority marker escapes exact cardinality",
+        "A supported case-insensitive or trailing-space section rename false-fails no-loss comparison"
       ],
       "source_truth": [
         "Docs/incident_patterns.md",
@@ -2102,7 +2111,9 @@
         "two-step and longer committed-journal chains whose final After SHA256 returns to any earlier target digest",
         "Prepared journals created during final snapshot or released-lock revalidation and during terminal audit hashing",
         "target-currentness identity fields, Record Role, Historical Receipt Boundary, duplicate markers, and level-two receipt headings present only inside balanced backtick or tilde fences plus unterminated fences",
-        "target-reconcile rename destinations that differ from an existing live heading only by case while fenced destination examples remain non-authoritative"
+        "target-reconcile rename destinations that differ from an existing live heading only by case while fenced destination examples remain non-authoritative",
+        "space- and tab-delimited level-two receipt headings plus blank duplicate Record Role and Historical Receipt Boundary markers",
+        "case-insensitive and trailing-space section sources whose audit and no-loss allowlist preserve the actual matched heading"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -2165,7 +2176,9 @@
         "retained-journal state digests form an acyclic sequence, so A-to-B-to-A and A-to-B-to-C-to-A chains fail even when adjacent hashes are continuous",
         "the final audit inventory and every original digest are checked only after live-target, snapshot, and lock revalidation, followed by one last post-hash inventory comparison",
         "target-currentness authority extraction ignores fenced fields and headings, accepts real fields plus fenced duplicates, and blocks unbalanced fences",
-        "section rename source and destination cardinality uses case-insensitive live headings while fenced headings remain examples"
+        "section rename source and destination cardinality uses case-insensitive live headings while fenced headings remain examples",
+        "target-currentness live-header extraction shares the reconciler's level-two heading grammar and counts blank authority duplicates",
+        "section-rename no-loss comparison and audit identity use the actual matched source heading rather than argument-derived spelling"
       ]
     },
     {
@@ -2175,7 +2188,9 @@
         "Durable receipt omits collision, waiver, or Desktop-bound confinement markers",
         "Historical carrier receipt retains active assignment authority",
         "Receipt subsection or authority pointer resolves to another branch",
-        "Post-creation USER gates, renewed historical waivers, or past-tense active owners pass as current authority"
+        "Post-creation USER gates, renewed historical waivers, or past-tense active owners pass as current authority",
+        "Granted worktree escape waivers accept duplicate, unknown, missing, blank, or unlabeled segments",
+        "Case-variant external Record Class, Branch, or Worktree markers escape authority cardinality"
       ],
       "source_truth": [
         "Docs/incident_patterns.md",
@@ -2232,7 +2247,7 @@
         "ordinary active branch records with unsafe USER-gate, routing-barrier, or cross-worktree semantics under clean Git status",
         "broad or foreign Current Write Set values that override or disagree with bounded Intended Write Set authority",
         "normal active records with foreign expected or actual confinement roots",
-        "granted escape waivers with wrong roots, broad allowed scope, no stop condition, waived validation, or foreign return path",
+        "granted escape waivers with wrong roots, broad allowed scope, no stop condition, waived validation, foreign return path, duplicate aliases, unknown labels, unlabeled suffixes, blank segments, or missing required segments",
         "Worktree Ownership Ledger values that say ownership is not active, suspended, past-tense, or formerly held"
       ],
       "sibling_variant_replay": [
@@ -2272,6 +2287,8 @@
         "effective current write authority is bounded and remains a concrete subset of intended authority",
         "normal root contracts require expected, actual, and Desktop roots to match the checkout while complete USER-granted waivers preserve the documented escape path",
         "active identity expected root and confinement expected root remain exactly bound",
+        "external Record Class, Branch, Worktree, and confinement marker cardinality rejects case-variant contradictory duplicates",
+        "one supported alias per granted-waiver segment is accepted while duplicate canonical aliases and unrecognized clauses fail closed",
         "Worktree Ownership Ledger authority contains an affirmative present-tense ownership relation and no inactive or historical qualifier"
       ]
     },
@@ -2397,7 +2414,8 @@
         "classifier-review priority preserves any genuine exact external-state or durable-carrier family in the same comment",
         "generic modern-target wording requires journal, transaction, audit, target-set, external-state, or snapshot-manifest context",
         "generic suffix wording outside USER-packet path context remains excluded from the RAR path-suffix family",
-        "generic transaction-state, Record Role, Before/After SHA256, and modern-target wording remains unknown without external transaction context"
+        "generic transaction-state, Record Role, Before/After SHA256, and modern-target wording remains unknown without external transaction context",
+        "database Record Role authority remains unknown while external-state, target-currentness, journal, live-header, target-reconcile, and reviewed external-state path qualifiers retain exact-family coverage"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",
@@ -2419,7 +2437,7 @@
         "revoked durable assignment and blank confinement markers map to the durable carrier family",
         "surrogate-code-point prose requires journal, target-path, audit, or external-state context and classifier-defect wording remains classifier-owned",
         "durable Non-Includes permissive-suffix findings remain durable-only while genuine USER-packet path suffixes remain RAR path-suffix findings",
-        "payment transaction state, profile Record Role, unrelated After SHA256, and notification modern-target prose remain unknown while contextual journal variants map to external transaction evidence"
+        "payment transaction state, profile Record Role, database role authority, unrelated After SHA256, and notification modern-target prose remain unknown while contextual journal, live-header, and target-reconcile variants map to external transaction evidence"
       ]
     },
     {

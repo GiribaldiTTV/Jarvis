@@ -1088,7 +1088,11 @@ explicit denial even when the same value also says `current authority`.
 Backtick and tilde fenced Markdown examples cannot supply identity fields,
 `Record Role`, `Historical Receipt Boundary`, marker cardinality, or a live-header
 boundary. A real live field plus a fenced duplicate remains singular, and an
-unterminated fence blocks target-currentness validation.
+unterminated fence blocks target-currentness validation. Both `## ` and
+`##\t` begin a level-two receipt section; the target validator and reconciler
+must share that heading grammar. Blank authority markers still count toward
+cardinality, so a valid marker followed by a blank duplicate fails exact-one
+validation instead of silently discarding the contradiction.
 Direct identity denials such as `Current authority is not active`, `Current
 authority is not current`, and `Active authority is not live` also fail closed;
 current/live/active nouns cannot outweigh their own negation. A
@@ -1133,6 +1137,14 @@ is external, the external record must carry the complete current branch,
 worktree, owner, collision, write-set, routing, and waiver contract and may point
 to the exact historical repo receipt only as durable identity evidence; the
 pointer does not reactivate the receipt.
+A USER-granted worktree escape waiver is one exact duplicate-aware contract:
+expected root, actual root, target root, bounded allowed commands/files,
+expiration or stop condition, required validation, and return path must each
+appear exactly once under a supported label. Unknown, repeated, blank, missing,
+or unlabeled segments fail closed even when a safe first occurrence exists.
+External live Record Class, Branch, Worktree, and confinement marker
+cardinality is case-insensitive; a case-variant duplicate is conflicting
+authority rather than an invisible row.
 An active external pointer to a still-durable receipt must run that referenced
 receipt through the same complete owner, assignment, recovery, write-set,
 collision, routing, worktree-root, waiver, upstream, and pre-PR confinement

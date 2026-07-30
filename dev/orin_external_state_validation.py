@@ -353,6 +353,10 @@ def _markdown_fences_are_balanced(lines: list[str]) -> bool:
     return not _markdown_fence_states([*lines, "NDAI fence-balance sentinel"])[-1]
 
 
+def _is_level_two_heading(line: str) -> bool:
+    return re.match(r"^##[ \t]+", line.rstrip("\r\n")) is not None
+
+
 def markdown_field_value(text: str, field: str) -> str | None:
     lines = text.splitlines()
     fenced = _markdown_fence_states(lines)
@@ -413,7 +417,7 @@ def _live_header_text(text: str) -> str:
         (
             index
             for index, line in enumerate(lines)
-            if not fenced[index] and line.rstrip("\r\n").startswith("## ")
+            if not fenced[index] and _is_level_two_heading(line)
         ),
         len(lines),
     )
@@ -435,8 +439,7 @@ def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str
             value = match.group(1).strip()
             if value.startswith("`") and value.endswith("`") and value.count("`") == 2:
                 value = value[1:-1].strip()
-            if value:
-                values.append((field, value))
+            values.append((field, value))
     return values
 
 

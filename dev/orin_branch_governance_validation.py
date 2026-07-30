@@ -8553,9 +8553,9 @@ def _external_state_has_current_confinement(
     identity_marker_counts = {
         marker: len(
             re.findall(
-                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[^\r\n]*$",
                 state_identity,
-                flags=re.M,
+                flags=re.M | re.I,
             )
         )
         for marker in ("Branch", "Worktree")
@@ -8563,9 +8563,9 @@ def _external_state_has_current_confinement(
     header_marker_counts = {
         marker: len(
             re.findall(
-                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[^\r\n]*$",
                 state_header,
-                flags=re.M,
+                flags=re.M | re.I,
             )
         )
         for marker in ("Branch", "Worktree")
@@ -8575,6 +8575,8 @@ def _external_state_has_current_confinement(
     header_identity_is_consistent = (
         header_marker_counts["Branch"] in {0, 1}
         and header_marker_counts["Worktree"] in {0, 1}
+        and (header_marker_counts["Branch"] == 0 or bool(state_header_branch))
+        and (header_marker_counts["Worktree"] == 0 or bool(state_header_worktree))
         and (not state_header_branch or state_header_branch == state_identity_branch)
         and (
             not state_header_worktree
@@ -8583,9 +8585,9 @@ def _external_state_has_current_confinement(
         )
     )
     record_class_markers = re.findall(
-        r"^[ \t]*(?:-[ \t]*)?Record Class:[ \t]*[^ \t\r\n][^\r\n]*$",
+        r"^[ \t]*(?:-[ \t]*)?Record Class:[^\r\n]*$",
         state_text,
-        flags=re.M,
+        flags=re.M | re.I,
     )
     confinement_heading_count = _section_heading_count(
         state_text,
@@ -8595,9 +8597,9 @@ def _external_state_has_current_confinement(
     confinement_marker_counts = {
         marker: len(
             re.findall(
-                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[^\r\n]*$",
                 confinement,
-                flags=re.M,
+                flags=re.M | re.I,
             )
         )
         for marker in ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS
@@ -22195,13 +22197,44 @@ def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
     )
 
 
-def _worktree_escape_waiver_segment(value: str, label: str) -> str:
-    match = re.search(
-        rf"(?:^|;)\s*{label}\s*:\s*([^;]+)",
-        value.strip().strip("`"),
-        flags=re.I,
-    )
-    return match.group(1).strip() if match else ""
+def _worktree_escape_waiver_segments(value: str) -> dict[str, str] | None:
+    raw = value.strip().strip("`")
+    parts = [part.strip() for part in raw.split(";")]
+    if (
+        not parts
+        or any(not part for part in parts)
+        or re.fullmatch(r"granted(?:\s+by)?\s+user", parts[0], flags=re.I) is None
+    ):
+        return None
+
+    label_patterns = {
+        "expected_root": r"Expected (?:Worktree )?Root",
+        "actual_root": r"Actual (?:Worktree )?Root",
+        "target_root": r"Target Root",
+        "allowed_scope": r"Allowed (?:Commands|Files|Commands/Files|Commands And Files)",
+        "stop_condition": r"(?:Expiration|Stop Condition|Expiration Or Stop Condition)",
+        "validation": r"(?:Required )?Validation",
+        "return_path": r"Return Path",
+    }
+    segments: dict[str, str] = {}
+    for part in parts[1:]:
+        label, separator, segment_value = part.partition(":")
+        label = re.sub(r"\s+", " ", label.strip())
+        segment_value = segment_value.strip()
+        if not separator or not label or not segment_value:
+            return None
+        canonical = next(
+            (
+                key
+                for key, pattern in label_patterns.items()
+                if re.fullmatch(pattern, label, flags=re.I)
+            ),
+            None,
+        )
+        if canonical is None or canonical in segments:
+            return None
+        segments[canonical] = segment_value
+    return segments if set(segments) == set(label_patterns) else None
 
 
 def _granted_worktree_escape_waiver_is_bounded(
@@ -22210,33 +22243,19 @@ def _granted_worktree_escape_waiver_is_bounded(
     actual_root: str,
 ) -> bool:
     raw = value.strip().strip("`")
-    expected_claim = _worktree_escape_waiver_segment(
-        raw,
-        r"Expected (?:Worktree )?Root",
-    )
-    actual_claim = _worktree_escape_waiver_segment(
-        raw,
-        r"Actual (?:Worktree )?Root",
-    )
-    target_claim = _worktree_escape_waiver_segment(raw, r"Target Root")
-    allowed_scope = _worktree_escape_waiver_segment(
-        raw,
-        r"Allowed (?:Commands|Files|Commands/Files|Commands And Files)",
-    )
-    stop_condition = _worktree_escape_waiver_segment(
-        raw,
-        r"(?:Expiration|Stop Condition|Expiration Or Stop Condition)",
-    )
-    validation = _worktree_escape_waiver_segment(
-        raw,
-        r"(?:Required )?Validation",
-    )
-    return_path = _worktree_escape_waiver_segment(raw, r"Return Path")
+    segments = _worktree_escape_waiver_segments(raw)
+    if segments is None:
+        return False
+    expected_claim = segments["expected_root"]
+    actual_claim = segments["actual_root"]
+    target_claim = segments["target_root"]
+    allowed_scope = segments["allowed_scope"]
+    stop_condition = segments["stop_condition"]
+    validation = segments["validation"]
+    return_path = segments["return_path"]
     normalized_scope = _normalized_confinement_claim(allowed_scope)
     return bool(
-        re.match(r"^granted\b", raw, flags=re.I)
-        and re.search(r"\buser\b", raw, flags=re.I)
-        and _normalized_local_path(expected_claim)
+        _normalized_local_path(expected_claim)
         == _normalized_local_path(expected_root)
         and _normalized_local_path(actual_claim)
         == _normalized_local_path(actual_root)
@@ -23156,6 +23175,72 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         "external live authority fixture must prove exact branch/worktree confinement",
     )
+    for label, original, duplicate in (
+        (
+            "Record Class",
+            "Record Class: `Live Branch Projection`",
+            "record class: `Historical Receipt`",
+        ),
+        (
+            "Branch",
+            "- Branch: `feature/governance-fixture`",
+            "- branch: `feature/foreign-fixture`",
+        ),
+        (
+            "Worktree",
+            "- Worktree: `C:\\Nexus Worktrees\\Governance-Fixture`",
+            "- worktree: `C:\\Nexus Worktrees\\Foreign-Fixture`",
+        ),
+        (
+            "blank Record Class",
+            "Record Class: `Live Branch Projection`",
+            "record class:",
+        ),
+        (
+            "blank Branch",
+            "- Branch: `feature/governance-fixture`",
+            "- branch:",
+        ),
+        (
+            "blank Worktree",
+            "- Worktree: `C:\\Nexus Worktrees\\Governance-Fixture`",
+            "- worktree:",
+        ),
+    ):
+        require(
+            not _external_state_has_current_confinement(
+                current_external_authority_fixture.replace(
+                    original,
+                    f"{original}\n{duplicate}",
+                    1,
+                ),
+                "feature/governance-fixture",
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+            ),
+            f"external live authority must reject case-variant duplicate {label} markers",
+        )
+    require(
+        not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "## Branch Identity",
+                "branch:\n\n## Branch Identity",
+                1,
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        )
+        and not _external_state_has_current_confinement(
+            current_external_authority_fixture.replace(
+                "Expected Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "Expected Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`\n"
+                "expected worktree root:",
+                1,
+            ),
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+        ),
+        "external live authority must count blank header and confinement markers",
+    )
     mixed_pointer_fixture = current_external_authority_fixture.replace(
         "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
         "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`\n"
@@ -23548,6 +23633,63 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                     "C:\\Nexus Worktrees\\Escape-Fixture",
                 ),
                 f"granted worktree escape waiver must reject incomplete scope: {replacement}",
+            )
+        granted_waiver = _extract_exact_marker_value(
+            granted_escape_confinement,
+            "Worktree Escape User Waiver",
+        )
+        alias_waiver = (
+            granted_waiver.replace("Expected Root:", "Expected Worktree Root:")
+            .replace("Actual Root:", "Actual Worktree Root:")
+            .replace("Allowed Commands/Files:", "Allowed Commands And Files:")
+            .replace("Stop Condition:", "Expiration Or Stop Condition:")
+            .replace("Required Validation:", "Validation:")
+        )
+        require(
+            _granted_worktree_escape_waiver_is_bounded(
+                alias_waiver,
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+                "C:\\Nexus Worktrees\\Escape-Fixture",
+            ),
+            "granted worktree escape waiver must accept one exact supported alias per segment",
+        )
+        for label, malformed_waiver in (
+            (
+                "duplicate allowed scope",
+                granted_waiver
+                + "; Allowed Commands/Files: unrestricted repository-wide mutation",
+            ),
+            (
+                "duplicate target root",
+                granted_waiver + "; Target Root: C:\\Nexus Worktrees\\Foreign-Fixture",
+            ),
+            (
+                "unknown segment",
+                granted_waiver + "; Scope Override: repository-wide mutation",
+            ),
+            (
+                "unlabeled trailing clause",
+                granted_waiver + "; repository-wide mutation",
+            ),
+            (
+                "empty trailing segment",
+                granted_waiver + ";",
+            ),
+            (
+                "missing return path",
+                granted_waiver.replace(
+                    "; Return Path: C:\\Nexus Worktrees\\Governance-Fixture",
+                    "",
+                ),
+            ),
+        ):
+            require(
+                not _granted_worktree_escape_waiver_is_bounded(
+                    malformed_waiver,
+                    "C:\\Nexus Worktrees\\Governance-Fixture",
+                    "C:\\Nexus Worktrees\\Escape-Fixture",
+                ),
+                f"granted worktree escape waiver must reject {label}",
             )
         foreign_confinement_roots = _section(
             current_external_authority_fixture.replace(

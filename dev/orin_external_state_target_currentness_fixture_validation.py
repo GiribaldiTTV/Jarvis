@@ -4440,7 +4440,9 @@ def main() -> int:
                     [
                         opener,
                         "Record Role: `Historical receipt only`",
+                        "Record Role:",
                         "Historical Receipt Boundary: `Historical receipts redefine live authority.`",
+                        "Historical Receipt Boundary:",
                         "Branch: `feature/wrong-fenced-branch`",
                         f"Source Repo HEAD: `{'f' * 40}`",
                         "## Historical Receipts",
@@ -4463,6 +4465,36 @@ def main() -> int:
             encoding="utf-8",
         )
         _assert_pass("fenced level-two heading does not terminate live authority", _run(root))
+        _record(root)
+
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + "##\tHistorical Receipts\n"
+            + "Record Role: `Historical receipt only`\n"
+            + "Historical Receipt Boundary: `Historical receipts redefine live authority.`\n",
+            encoding="utf-8",
+        )
+        _assert_pass("tab-delimited receipt heading terminates live authority", _run(root))
+        _record(root)
+
+        tab_receipt_only_authority = (
+            target.read_text(encoding="utf-8")
+            .replace("Record Role: `Current worktree assignment projection`\n", "", 1)
+            .replace(
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n",
+                "",
+                1,
+            )
+            + "##\tHistorical Receipts\n"
+            + "Record Role: `Current worktree assignment projection`\n"
+            + "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\n"
+        )
+        target.write_text(tab_receipt_only_authority, encoding="utf-8")
+        _assert_failure(
+            "tab-delimited receipt section cannot supply live authority",
+            "requires exactly one Record Role marker",
+            _run(root),
+        )
         _record(root)
 
         target.write_text(
@@ -4730,10 +4762,22 @@ def main() -> int:
                 "requires exactly one Record Role marker",
             ),
             (
+                "blank duplicate record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection`\nRecord Role:",
+                "requires exactly one Record Role marker",
+            ),
+            (
                 "blank historical boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary:",
                 "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "blank duplicate historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\nHistorical Receipt Boundary:",
+                "requires exactly one Historical Receipt Boundary marker",
             ),
             (
                 "contradictory historical boundary",
@@ -5253,7 +5297,7 @@ def main() -> int:
             )
         )
         if case_source_failures or case_source_renamed != [
-            ("## historical receipts", "## Historical Archive")
+            ("## Historical Receipts", "## Historical Archive")
         ] or "## Historical Archive\n" not in case_source_result:
             raise AssertionError(
                 "a unique case-variant section source was not renamed deterministically:\n"
@@ -5504,6 +5548,46 @@ def main() -> int:
             {"Before": "## Historical Receipts", "After": "## Historical Receipt"}
         ]:
             raise AssertionError("target writer audit omitted the section rename")
+
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + "\n## Case Variant Source   \ncase-variant fixture section\n",
+            encoding="utf-8",
+        )
+        normalized_rename_snapshot = _snapshot(
+            root,
+            target,
+            "fixture-normalized-section-rename",
+        )
+        normalized_rename_expectations = _expectations(target)
+        ok, messages, normalized_rename_audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot=normalized_rename_snapshot.relative_to(root).as_posix(),
+            assignments=[],
+            additions=[],
+            section_renames=["case variant source=Case Variant Destination"],
+            apply=True,
+            **normalized_rename_expectations,
+        )
+        if not ok or normalized_rename_audit is None:
+            raise AssertionError(
+                "case-insensitive trailing-space section rename false-failed no-loss:\n"
+                + "\n".join(messages)
+            )
+        normalized_rename_payload = json.loads(
+            normalized_rename_audit.read_text(encoding="utf-8")
+        )
+        if normalized_rename_payload.get("Renamed Sections") != [
+            {
+                "Before": "## Case Variant Source   ",
+                "After": "## Case Variant Destination",
+            }
+        ]:
+            raise AssertionError(
+                "section-rename audit did not preserve the actual matched source heading"
+            )
 
         target.write_text(
             target.read_text(encoding="utf-8") + "\n## Rename Me\nfixture section\n",
