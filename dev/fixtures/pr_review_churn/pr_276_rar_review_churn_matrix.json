@@ -138,10 +138,10 @@
       },
       {
         "pr": 310,
-        "connector_comments": 201,
+        "connector_comments": 207,
         "observed_family_counts": {
-          "durable-carrier-confinement-parser": 101,
-          "external-state-transaction-evidence-parser": 103,
+          "durable-carrier-confinement-parser": 105,
+          "external-state-transaction-evidence-parser": 105,
           "pr-readiness-review-risk-parser": 3,
           "pr2-comment-family-classifier": 14,
           "pr2-thread-pagination-and-approval-latch": 1,
@@ -152,7 +152,7 @@
         },
         "pr_readiness_stage_1_failure": true,
         "root_cause": "PR #310 PR Readiness Stage 1 mapped external transaction-integrity and durable carrier-receipt work into the coarse repo-live-state-boundary family, so its local adversarial pass did not model the exact modern-journal evidence shape or the compact carrier-admission schema. PR2 then closed each literal Connector finding without immediately recognizing that the repeated siblings formed two unmodeled parser families, allowing GitHub review to become the first structural, filesystem-confinement, and evidence-integrity fuzzer.",
-        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases including Before Content and Before Bytes, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, bounded write sets, historical fold-down, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for both active durable and historical admission receipts. The receipt records the exact live 201-comment family counts before any further review request or green claim.",
+        "prevention_summary": "The PR #310 churn firewall maps every live Connector finding into exact parser families and requires source truth, implementation, static fixtures, generated mutations, sibling replay, and executable validation before another review request. Its external-transaction family now covers strict modern and admitted-legacy journal shape, exact lock/snapshot/target identity and chronology, present-tense live authority, future-time bounds, stable confined reads and inventories, malformed recovery, bounded resources, host path semantics, recovery-payload aliases, and conservative UTF-8 or UTF-16 scanning of flat non-JSON audit entries. Its durable-carrier family now covers complete collision and confinement contracts, distinct Git sourcing, freeze-first dirty recovery, unconditional cross-worktree prohibition, bounded write sets, historical fold-down, exact authority pointers, host-semantic dirty-path coverage, and whole-value USER approval bound to the exact branch, worktree, and slot for active and historical admission receipts. The receipt records the exact live 207-comment family counts before any further review request or green claim.",
         "preventive_changes": [
           "Docs/incident_patterns.md separates modern committed-journal evidence integrity from legacy compatibility and from generic repo/live-state ownership parsing.",
           "Docs/incident_patterns.md separates durable and historical carrier-admission receipt parsing from generic worktree-confinement wording.",
@@ -295,7 +295,9 @@
           "dev/orin_branch_governance_validation.py binds durable USER approval to the receipt's exact branch, worktree, and slot.",
           "dev/orin_branch_governance_validation.py applies the same exact carrier binding to historical Admission Decision Pointer evidence.",
           "dev/orin_external_state_validation.py rejects before-content and before-bytes recovery aliases in spaced and camelCase forms.",
-          "dev/orin_external_state_validation.py scans flat non-JSON UTF-8 and UTF-16 audit entries conservatively for JSON-shaped and line-oriented target-set transactions."
+          "dev/orin_external_state_validation.py scans flat non-JSON UTF-8 and UTF-16 audit entries conservatively for JSON-shaped and line-oriented target-set transactions.",
+          "dev/orin_external_state_validation.py rejects future-gated live Record Roles and future-dated modern or legacy lock releases.",
+          "dev/orin_branch_governance_validation.py requires distinct Git source evidence, freeze-first dirty recovery, inspected-writer collision clearance, and unconditional cross-worktree prohibition."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
         "receipt_marker": "PR #310 Review-Churn Root-Cause Receipt"
@@ -1897,7 +1899,9 @@
         "internally consistent modern transaction, snapshot, and lock evidence dated beyond the bounded UTC clock-skew allowance",
         "Before Content, BeforeContent, Before Bytes, and BeforeBytes recovery payload aliases",
         "Prepared target-set transaction evidence stored in a non-JSON audit entry",
-        "line-oriented target-set Transition fields stored in UTF-8 or UTF-16 non-JSON audit entries"
+        "line-oriented target-set Transition fields stored in UTF-8 or UTF-16 non-JSON audit entries",
+        "future-gated or pending-activation live Record Role claims",
+        "future-dated modern and admitted-legacy lock release timestamps"
       ],
       "sibling_variant_replay": [
         "modern committed journal structure and evidence matrix",
@@ -1947,7 +1951,9 @@
         "canonical transaction chronology is also bounded against current UTC rather than only against related evidence",
         "before-content and before-bytes aliases are treated as recoverable pre-write payloads in spaced and camelCase forms",
         "flat non-JSON UTF-8 and UTF-16 audit entries are bounded, hashed, conservatively parsed, and revalidated with the complete audit inventory",
-        "line-oriented non-JSON Transition fields cannot hide target-set transaction evidence while Notes-only mentions remain unrelated"
+        "line-oriented non-JSON Transition fields cannot hide target-set transaction evidence while Notes-only mentions remain unrelated",
+        "live Record Role evidence must be present-tense rather than pending or future-gated",
+        "released-lock evidence cannot be dated beyond the bounded UTC clock-skew allowance"
       ]
     },
     {
@@ -1998,7 +2004,11 @@
         "case-variant duplicate Assigned Worktree Confinement markers",
         "case-distinct dirty and declared repo paths on a case-sensitive host",
         "USER approval text naming a foreign branch, worktree, or slot",
-        "historical Admission Decision Pointer text naming a foreign branch, worktree, or slot"
+        "historical Admission Decision Pointer text naming a foreign branch, worktree, or slot",
+        "GitHub-only live-state boundaries that do not name Git as a distinct source",
+        "dirty recovery that permits mutation before freeze",
+        "temporary cross-worktree prohibitions limited to before or until approval",
+        "collision claims that say no second writer was checked"
       ],
       "sibling_variant_replay": [
         "active durable carrier admission with complete exact marker cardinality",
@@ -2023,7 +2033,10 @@
         "required confinement marker cardinality is case-insensitive",
         "dirty-path comparison mirrors Windows case folding and POSIX case preservation",
         "durable USER decisions name the exact branch, worktree, and slot admitted by the receipt",
-        "historical USER admission decisions preserve the exact branch, worktree, and slot identity after fold-down"
+        "historical USER admission decisions preserve the exact branch, worktree, and slot identity after fold-down",
+        "repo live-state boundaries tokenize Git separately from GitHub and other current sources",
+        "dirty recovery freezes before mutation and cross-worktree prohibition has no future approval window",
+        "collision clearance proves other writers were inspected rather than merely absent from wording"
       ]
     },
     {

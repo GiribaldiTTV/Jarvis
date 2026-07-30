@@ -21243,11 +21243,11 @@ def _durable_repo_live_state_boundary_is_non_authoritative(value: str) -> bool:
     )
     if contract is None:
         return False
-    sources = contract.group("sources")
+    source_tokens = set(re.findall(r"[a-z0-9]+", contract.group("sources")))
     return bool(
-        "git" in sources
-        and any(source in sources for source in ("helper", "github", "codex"))
-        and "receipt" not in sources
+        "git" in source_tokens
+        and source_tokens.intersection({"helper", "helpers", "github", "codex"})
+        and "receipt" not in source_tokens
     )
 
 
@@ -21285,6 +21285,11 @@ def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
         r"(?:reconcil\w*|owner|approval|review)\b",
         normalized,
     )
+    mutation_before_freeze = re.search(
+        r"\b(?:mutat\w*|writ\w*|chang\w*|continu\w*|proceed\w*|resum\w*)\b"
+        r".{0,35}\bbefore\b.{0,25}\b(?:freez\w*|stop\w*|preserv\w*)\b",
+        normalized,
+    )
     return bool(
         owned_no_recovery is not None
         or (
@@ -21293,6 +21298,7 @@ def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
             and owner_boundary is not None
             and before_continuation is not None
             and destructive is None
+            and mutation_before_freeze is None
         )
     )
 
@@ -21873,6 +21879,11 @@ def _durable_collision_clear(value: str) -> bool:
         "no second active owner",
     )
     explicit_owner_clear = any(term in normalized for term in explicit_owner_clear_terms)
+    uninspected_owner = re.search(
+        r"\bno (?:second writer|other active owner|second active owner)\b.{0,12}\b"
+        r"(?:checked|verified|inspected|reviewed)\b",
+        normalized,
+    )
     clear_prefix = normalized == "clear" or normalized.startswith(("clear -", "clear:"))
     residual = normalized
     if collision_match:
@@ -21884,6 +21895,7 @@ def _durable_collision_clear(value: str) -> bool:
     affirmative = collision_match is not None or explicit_owner_clear or clear_prefix
     return bool(
         affirmative
+        and uninspected_owner is None
         and "collision" not in residual
         and not any(term in residual for term in blocking_terms)
     )
@@ -22078,7 +22090,10 @@ def _durable_no_cross_worktree_is_affirmative(value: str) -> bool:
             "confirmed and prohibited",
         )
     )
-    conditional_exception = re.search(r"\bconditional(?:ly)?\b", normalized)
+    conditional_exception = re.search(
+        r"\b(?:conditional(?:ly)?|before|until|pending|after|once|when|if)\b",
+        normalized,
+    )
     affirmative = explicit_safe_state
     return bool(
         affirmative
@@ -23217,6 +23232,8 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "This receipt does not own nothing; live authority is derived from this receipt.",
         "This receipt does not own current operational facts; current authority is owned by this receipt.",
         "This receipt does not own active operational facts; current state is derived from this receipt.",
+        "This receipt does not own active operational facts; current facts remain GitHub derived.",
+        "This receipt does not own active operational facts; current facts remain GitHub and Codex derived.",
     ):
         require(
             not _is_durable_carrier_admission_receipt(
@@ -23919,6 +23936,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "has no owner-preserving dirty-worktree recovery packet",
         ),
         (
+            "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
+            "Dirty Worktree Recovery Packet: `Mutation occurs before freeze; preserve owner reconciliation before continuation.`",
+            "has no owner-preserving dirty-worktree recovery packet",
+        ),
+        (
             "Same Worktree / Same Branch Collision Check: `No collision.`",
             "Same Worktree / Same Branch Collision Check: `Collision detected with another active owner.`",
             "does not prove a clear collision outcome",
@@ -23941,6 +23963,11 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Same Worktree / Same Branch Collision Check: `No collision.`",
             "Same Worktree / Same Branch Collision Check: `No collision was found; verification failed.`",
+            "does not prove a clear collision outcome",
+        ),
+        (
+            "Same Worktree / Same Branch Collision Check: `No collision.`",
+            "Same Worktree / Same Branch Collision Check: `No second writer was checked.`",
             "does not prove a clear collision outcome",
         ),
         (
@@ -24086,6 +24113,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
             "No Cross-Worktree Mutation: `Cross-worktree mutation is prohibited subject to a convenience exception.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `No cross-worktree mutation before USER approval.`",
+            "does not prove no cross-worktree mutation",
+        ),
+        (
+            "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited for the bounded fixture carrier.`",
+            "No Cross-Worktree Mutation: `Cross-worktree mutation is blocked until approval.`",
             "does not prove no cross-worktree mutation",
         ),
     )
@@ -24263,6 +24300,8 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     for contradictory_historical_boundary in (
         "This receipt does not own nothing; current worktree assignment remains controlled by this receipt.",
         "This receipt does not own current operational facts or current worktree assignment unless needed.",
+        "This receipt does not own current operational facts or current worktree assignment; those facts remain GitHub derived.",
+        "This receipt does not own current operational facts or current worktree assignment; those facts remain GitHub and Codex derived.",
     ):
         require(
             not _is_historical_carrier_admission_receipt(

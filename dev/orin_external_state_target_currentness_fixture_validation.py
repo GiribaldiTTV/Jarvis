@@ -765,6 +765,10 @@ def _write_modern_future_transaction_fixture(root: Path) -> Path:
     return path
 
 
+def _write_modern_future_release_fixture(root: Path) -> Path:
+    return _write_modern_released_at_fixture(root, "2099-01-01T00:00:00Z")
+
+
 def _write_modern_equal_hash_fixture(root: Path) -> Path:
     path = _write_modern_journal_fixture(root)
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -2645,6 +2649,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 "2026-07-27T23:59:59Z",
             ),
         ),
+        (
+            "modern Committed journal lock released in the future",
+            _write_modern_future_release_fixture,
+        ),
         *[
             (
                 f"modern Committed journal with {state} live target",
@@ -3123,6 +3131,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_legacy_released_at_fixture(
                 root,
                 "2000-01-01T00:00:00Z",
+            ),
+        ),
+        (
+            "legacy receipt with lock released in the future",
+            lambda root: _write_legacy_released_at_fixture(
+                root,
+                "2099-01-01T00:00:00Z",
             ),
         ),
         (
@@ -3626,6 +3641,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: [],
     )
     _assert_journal_mutation_killed(
+        "future modern lock release accepted",
+        negative_setups["modern Committed journal lock released in the future"],
+        "_validate_modern_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
         "modern snapshot evidence ignored",
         negative_setups["modern Committed journal with missing snapshot manifest"],
         "_validate_modern_snapshot_evidence",
@@ -3705,6 +3726,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "legacy lock release chronology ignored",
         negative_setups["legacy receipt with lock released before transaction"],
+        "_validate_legacy_lock_evidence",
+        lambda *_args, **_kwargs: [],
+        admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
+    )
+    _assert_journal_mutation_killed(
+        "future legacy lock release accepted",
+        negative_setups["legacy receipt with lock released in the future"],
         "_validate_legacy_lock_evidence",
         lambda *_args, **_kwargs: [],
         admitted_profile=PROFILE_BY_RECEIPT["receipt-1"],
@@ -4056,6 +4084,18 @@ def main() -> int:
                 "negated record role authority",
                 "Record Role: `Current worktree assignment projection`",
                 "Record Role: `Current state has no authority.`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "future-gated record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current state authority will begin after USER approval`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "pending-activation record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current state authority is pending activation`",
                 "Record Role is not affirmative live authority",
             ),
             (

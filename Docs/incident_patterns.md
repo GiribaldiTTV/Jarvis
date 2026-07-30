@@ -1000,6 +1000,9 @@ before-content, before-bytes, old-content, previous-content, or prior-content
 payload aliases as recoverable pre-write content.
 Committed snapshot manifests likewise require a canonical UTC `Last Updated`;
 missing or malformed snapshot time cannot prove pre-write provenance.
+Released-lock evidence is also time-bounded: `Released At` must not predate its
+transaction or exceed the same allowed UTC clock skew, for modern and admitted
+legacy evidence alike.
 Recovery-payload discovery must use bounded iterative traversal so deeply nested
 unrelated metadata cannot terminate validation with recursion exhaustion.
 Modern released-lock binding requires string-typed `Lock ID` and `Workload ID`
@@ -1254,6 +1257,11 @@ admission cannot authorize the current receipt.
 A historical `Admission Decision Pointer` must preserve that same exact carrier
 identity binding; fold-down changes authority posture, not which USER decision
 the receipt proves.
+Repo live-state boundaries must name Git as a distinct source token plus a
+separate current source; the `git` prefix inside `GitHub` is not Git evidence.
+A dirty-recovery contract must freeze before mutation, collision clearance must
+prove other writers were actually checked, and cross-worktree prohibition must
+be unconditional rather than limited to before or until a later approval.
 A historical write-set receipt may use bounded named categories only when it does
 not quantify an entire category. `All validation files`, `every governance
 artifact`, and equivalent qualified all/any/every forms are unbounded.

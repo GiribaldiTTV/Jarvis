@@ -620,11 +620,19 @@ def _target_record_role_is_live(value: str | None) -> bool:
         r"only on paper)\b",
         normalized,
     )
+    future_gated = re.search(
+        r"\b(?:authority|assignment|projection|state|role)\b.{0,45}\b"
+        r"(?:will|would|may|might|can|could|pending|awaiting|deferred|future)\b|"
+        r"\b(?:pending|awaiting|deferred|future)\b.{0,45}\b"
+        r"(?:authority|assignment|projection|state|role|activation|approval)\b",
+        normalized,
+    )
     return bool(
         live_identity
         and authority_shape
         and historical_only is None
         and denied is None
+        and future_gated is None
     )
 
 
@@ -2367,7 +2375,8 @@ def _validate_legacy_lock_evidence(
             issues.append(
                 f"legacy receipt lock evidence has {field}={actual!r}, expected {expected!r}"
             )
-    released_timestamp = _canonical_utc_datetime(lock.get("Released At"))
+    released_at = lock.get("Released At")
+    released_timestamp = _canonical_utc_datetime(released_at)
     if released_timestamp is None:
         issues.append(
             "legacy receipt lock evidence has no canonical UTC Released At timestamp"
@@ -2379,6 +2388,12 @@ def _validate_legacy_lock_evidence(
         and released_timestamp < transaction_timestamp
     ):
         issues.append("legacy receipt lock evidence was released before the transaction")
+    if released_timestamp is not None and not _transaction_timestamp_is_not_future(
+        released_at
+    ):
+        issues.append(
+            "legacy receipt lock evidence Released At is beyond the allowed UTC clock skew"
+        )
     write_set_value = lock.get("Intended Write Set")
     write_set: set[str] = set()
     if not isinstance(write_set_value, str):
@@ -2758,6 +2773,12 @@ def _validate_modern_lock_evidence(
     ):
         issues.append(
             "modern Committed journal lock evidence was released before the transaction"
+        )
+    if released_timestamp is not None and not _transaction_timestamp_is_not_future(
+        released_at
+    ):
+        issues.append(
+            "modern Committed journal lock evidence Released At is beyond the allowed UTC clock skew"
         )
     write_set_value = lock.get("Intended Write Set")
     write_set: set[str] = set()
