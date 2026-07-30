@@ -992,6 +992,65 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         "required Option G row UFD-FAM003-20260724-018",
         validate(original.replace(_ufd_fixture_rows()[-1], additional, 1)),
     )
+    revision_pending = (
+        original.replace(
+            "USER Feedback Disposition Required: `Yes`",
+            "Current Gate: `BP1 Branch Vision Revision USER review pending; implementation blocked`\n"
+            "USER Feedback Disposition Required: `Yes`",
+            1,
+        )
+        .replace(
+            "Branch Vision Snapshot Status: `Accepted`",
+            "Branch Vision Snapshot Status: `Revision Pending`",
+            1,
+        )
+        .replace(
+            "Open Vision Questions: `None`",
+            "Open Vision Questions: `Disable-while-open Option A or Option B`",
+            1,
+        )
+        .replace(
+            "USER Vision Green: `Yes`",
+            "USER Vision Green: `No / USER review pending`",
+            1,
+        )
+        .replace(
+            "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`",
+            "Implementation Scope: `Revised BP1 planning only; no implementation authority`",
+            1,
+        )
+    )
+    _assert_pass(
+        "revision-pending Branch Vision snapshot with one named decision and blocked implementation",
+        validate(revision_pending),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision snapshot conceals open decision",
+        "must name the open vision decision",
+        validate(revision_pending.replace(
+            "Open Vision Questions: `Disable-while-open Option A or Option B`",
+            "Open Vision Questions: `None`",
+            1,
+        )),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision snapshot falsely claims USER green",
+        "USER Vision Green must be No or Pending",
+        validate(revision_pending.replace(
+            "USER Vision Green: `No / USER review pending`",
+            "USER Vision Green: `Yes`",
+            1,
+        )),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision snapshot grants implementation",
+        "must identify BP1 and block implementation authority",
+        validate(revision_pending.replace(
+            "Implementation Scope: `Revised BP1 planning only; no implementation authority`",
+            "Implementation Scope: `Revised BP1 workstream implementation approved`",
+            1,
+        )),
+    )
     matrix = _element_to_phase_fixture()
     vision_block = (
         "## Branch Vision Contract Snapshot"
@@ -2568,7 +2627,8 @@ def main() -> int:
 
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
-        "(24 canonical-UFD + 6 Branch Vision + 12 Element-to-Phase negative + "
+        "(24 canonical-UFD + 1 revision-pending Branch Vision positive + "
+        "9 Branch Vision negative + 12 Element-to-Phase negative + "
         "3 non-plan projection ownership + 1 accepted-BP3 identity positive + "
         "3 accepted-BP3 identity negative fixtures)"
     )

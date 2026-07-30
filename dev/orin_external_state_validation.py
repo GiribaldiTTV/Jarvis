@@ -722,24 +722,57 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
     user_green = (markdown_field_value(section, "USER Vision Green") or "").casefold()
     if "yes" not in required:
         failures.append("Branch Vision Contract Snapshot: FAM-003 runtime branch must say required Yes")
-    if "accepted" not in status:
-        failures.append("Branch Vision Contract Snapshot: accepted BP1 carrydown must use Accepted status")
-    if questions not in {"none", "none; no blocking vision questions"}:
-        failures.append("Branch Vision Contract Snapshot: Open Vision Questions must be None")
-    if user_green not in {"yes", "green", "accepted"}:
-        failures.append("Branch Vision Contract Snapshot: USER Vision Green must be Yes")
+    accepted_snapshot = "accepted" in status
+    revision_pending_snapshot = "revision" in status and "pending" in status
+    if not accepted_snapshot and not revision_pending_snapshot:
+        failures.append(
+            "Branch Vision Contract Snapshot: status must be Accepted or Revision Pending"
+        )
+    if accepted_snapshot:
+        if questions not in {"none", "none; no blocking vision questions"}:
+            failures.append(
+                "Branch Vision Contract Snapshot: accepted snapshot Open Vision Questions must be None"
+            )
+        if user_green not in {"yes", "green", "accepted"}:
+            failures.append(
+                "Branch Vision Contract Snapshot: accepted snapshot USER Vision Green must be Yes"
+            )
+    elif revision_pending_snapshot:
+        current_gate = (markdown_field_value(live_text, "Current Gate") or "").casefold()
+        if "bp1" not in current_gate or "user review" not in current_gate or "pending" not in current_gate:
+            failures.append(
+                "Branch Vision Contract Snapshot: revision-pending snapshot requires a BP1 USER review pending gate"
+            )
+        if questions in {"", "none", "none; no blocking vision questions"}:
+            failures.append(
+                "Branch Vision Contract Snapshot: revision-pending snapshot must name the open vision decision"
+            )
+        if user_green in {"yes", "green", "accepted"} or not (
+            "no" in user_green or "pending" in user_green
+        ):
+            failures.append(
+                "Branch Vision Contract Snapshot: revision-pending snapshot USER Vision Green must be No or Pending"
+            )
     implementation_scope = (
         markdown_field_value(section, "Implementation Scope") or ""
     ).casefold()
     seam_map = (markdown_field_value(section, "Seam Map") or "").casefold()
-    if (
-        "accepted bp1" not in implementation_scope
-        or "accepted bp2" not in implementation_scope
-        or "workstream implementation" in implementation_scope
-    ):
-        failures.append(
-            "Branch Vision Contract Snapshot: implementation scope exceeds accepted BP1/BP2 carrydown"
-        )
+    if accepted_snapshot:
+        if (
+            "accepted bp1" not in implementation_scope
+            or "accepted bp2" not in implementation_scope
+            or "workstream implementation" in implementation_scope
+        ):
+            failures.append(
+                "Branch Vision Contract Snapshot: implementation scope exceeds accepted BP1/BP2 carrydown"
+            )
+    elif revision_pending_snapshot:
+        if "bp1" not in implementation_scope or not (
+            "blocked" in implementation_scope or "no implementation authority" in implementation_scope
+        ):
+            failures.append(
+                "Branch Vision Contract Snapshot: revision-pending implementation scope must identify BP1 and block implementation authority"
+            )
     if not all(
         marker.casefold() in seam_map
         for marker in ("F3-OPTG-D01", "OPTG-WS01", "OPTG-WS07", "OPTG-ALLOW-08")
