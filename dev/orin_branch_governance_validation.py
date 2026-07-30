@@ -22195,6 +22195,144 @@ def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
     )
 
 
+def _worktree_escape_waiver_segment(value: str, label: str) -> str:
+    match = re.search(
+        rf"(?:^|;)\s*{label}\s*:\s*([^;]+)",
+        value.strip().strip("`"),
+        flags=re.I,
+    )
+    return match.group(1).strip() if match else ""
+
+
+def _granted_worktree_escape_waiver_is_bounded(
+    value: str,
+    expected_root: str,
+    actual_root: str,
+) -> bool:
+    raw = value.strip().strip("`")
+    expected_claim = _worktree_escape_waiver_segment(
+        raw,
+        r"Expected (?:Worktree )?Root",
+    )
+    actual_claim = _worktree_escape_waiver_segment(
+        raw,
+        r"Actual (?:Worktree )?Root",
+    )
+    target_claim = _worktree_escape_waiver_segment(raw, r"Target Root")
+    allowed_scope = _worktree_escape_waiver_segment(
+        raw,
+        r"Allowed (?:Commands|Files|Commands/Files|Commands And Files)",
+    )
+    stop_condition = _worktree_escape_waiver_segment(
+        raw,
+        r"(?:Expiration|Stop Condition|Expiration Or Stop Condition)",
+    )
+    validation = _worktree_escape_waiver_segment(
+        raw,
+        r"(?:Required )?Validation",
+    )
+    return_path = _worktree_escape_waiver_segment(raw, r"Return Path")
+    normalized_scope = _normalized_confinement_claim(allowed_scope)
+    return bool(
+        re.match(r"^granted\b", raw, flags=re.I)
+        and re.search(r"\buser\b", raw, flags=re.I)
+        and _normalized_local_path(expected_claim)
+        == _normalized_local_path(expected_root)
+        and _normalized_local_path(actual_claim)
+        == _normalized_local_path(actual_root)
+        and _normalized_local_path(target_claim)
+        == _normalized_local_path(actual_root)
+        and allowed_scope
+        and _durable_write_set_is_bounded(allowed_scope)
+        and not re.search(
+            r"\b(?:all|any|unbounded|unrestricted|repo(?:sitory)?[- ]wide|"
+            r"whatever|as needed)\b",
+            normalized_scope,
+        )
+        and stop_condition
+        and not re.search(r"\b(?:none|never|unbounded|indefinite)\b", stop_condition, re.I)
+        and validation
+        and not re.search(r"\b(?:none|not required|skipped|waived)\b", validation, re.I)
+        and _normalized_local_path(return_path)
+        == _normalized_local_path(expected_root)
+    )
+
+
+def _worktree_escape_waiver_missing_is_closed(value: str, *, granted: bool) -> bool:
+    normalized = _normalized_confinement_claim(value)
+    if granted:
+        return bool(
+            re.fullmatch(
+                r"(?:not applicable|none)(?:\s*(?:;|-|:)\s*"
+                r"(?:user (?:escape )?waiver (?:is )?granted|"
+                r"no (?:escape )?waiver is missing))\.?",
+                normalized,
+            )
+        )
+    return bool(
+        re.fullmatch(
+            r"(?:not applicable|none)(?:\s*(?:;|-|:)\s*no "
+            r"(?:off-worktree (?:repo )?mutation|worktree escape)(?: is)? "
+            r"(?:requested|required|attempted|needed|performed)"
+            r"(?: or (?:requested|required|attempted|needed|performed))*)?\.?",
+            normalized,
+        )
+    )
+
+
+def _worktree_root_and_waiver_contract_is_safe(
+    confinement: str,
+    actual_root: str,
+    *,
+    identity_expected_root: str = "",
+    identity_actual_root: str = "",
+) -> bool:
+    value = lambda marker: _extract_exact_marker_value(confinement, marker)
+    expected_claim = value("Expected Worktree Root") or identity_expected_root
+    actual_claim = value("Actual Worktree Root") or identity_actual_root
+    desktop_claim = value("GitHub Desktop-bound worktree")
+    waiver = value("Worktree Escape User Waiver")
+    roots_match = bool(
+        expected_claim
+        and _normalized_local_path(expected_claim) == _normalized_local_path(actual_root)
+        and _normalized_local_path(actual_claim) == _normalized_local_path(actual_root)
+        and _normalized_local_path(desktop_claim) == _normalized_local_path(actual_root)
+    )
+    granted = bool(
+        expected_claim
+        and _normalized_local_path(expected_claim) != _normalized_local_path(actual_root)
+        and _normalized_local_path(actual_claim) == _normalized_local_path(actual_root)
+        and _normalized_local_path(desktop_claim) == _normalized_local_path(actual_root)
+        and _granted_worktree_escape_waiver_is_bounded(
+            waiver,
+            expected_claim,
+            actual_root,
+        )
+    )
+    return bool(
+        ((roots_match and _durable_worktree_escape_waiver_is_absent(waiver)) or granted)
+        and _worktree_escape_waiver_missing_is_closed(
+            value("Worktree Escape User Waiver Missing"),
+            granted=granted,
+        )
+    )
+
+
+def _active_record_root_contract_is_safe(
+    identity_expected_root: str,
+    confinement: str,
+    actual_root: str,
+) -> bool:
+    return bool(
+        identity_expected_root
+        and _normalized_local_path(
+            _extract_exact_marker_value(confinement, "Expected Worktree Root")
+        )
+        == _normalized_local_path(identity_expected_root)
+        and _worktree_root_and_waiver_contract_is_safe(confinement, actual_root)
+    )
+
+
 def _repo_relative_path_key(
     value: str,
     *,
@@ -22320,22 +22458,52 @@ def _tracked_dirty_paths_are_declared(
     )
 
 
+def _write_set_authorities_are_coherent(
+    intended_write_set: str,
+    current_write_set: str,
+) -> bool:
+    if not _durable_write_set_is_bounded(intended_write_set):
+        return False
+    if not current_write_set:
+        return True
+    if not _durable_write_set_is_bounded(current_write_set):
+        return False
+    intended_paths = _declared_repo_write_paths(intended_write_set)
+    current_paths = _declared_repo_write_paths(current_write_set)
+    if intended_paths or current_paths:
+        return bool(
+            intended_paths
+            and current_paths
+            and current_paths.issubset(intended_paths)
+        )
+    return _normalized_confinement_claim(current_write_set) == _normalized_confinement_claim(
+        intended_write_set
+    )
+
+
 def _assigned_worktree_confinement_semantics_are_safe(
     confinement: str,
     actual_root: str,
     declared_write_set: str = "",
+    *,
+    identity_expected_root: str = "",
+    identity_actual_root: str = "",
 ) -> bool:
     value = lambda marker: _extract_exact_marker_value(confinement, marker)
     dirty_state = value("Dirty Worktree Collision Check")
-    missing_waiver_state = value("Worktree Escape User Waiver Missing").casefold()
     tracked_status = _git_status_porcelain(tracked_only=True)
-    effective_write_set = declared_write_set or value("Intended Write Set")
+    intended_write_set = value("Intended Write Set")
+    effective_write_set = declared_write_set or intended_write_set
     return bool(
         _durable_active_owner_is_explicit(value("Active Thread Owner"))
         and not _git_status_read_failed(tracked_status)
         and _durable_thread_assignment_is_active(value("Thread Assignment Status"))
         and _durable_ownership_ledger_is_active(value("Worktree Ownership Ledger"))
-        and _durable_write_set_is_bounded(value("Intended Write Set"))
+        and _write_set_authorities_are_coherent(
+            intended_write_set,
+            declared_write_set,
+        )
+        and _durable_write_set_is_bounded(effective_write_set)
         and (
             not tracked_status
             or _tracked_dirty_paths_are_declared(tracked_status, effective_write_set)
@@ -22357,19 +22525,12 @@ def _assigned_worktree_confinement_semantics_are_safe(
         )
         and _durable_new_worktree_gate_is_user_owned(value("New Worktree Decision Gate"))
         and _durable_no_cross_worktree_is_affirmative(value("No Cross-Worktree Mutation"))
-        and _normalized_local_path(value("GitHub Desktop-bound worktree"))
-        == _normalized_local_path(actual_root)
-        and _durable_worktree_escape_waiver_is_absent(
-            value("Worktree Escape User Waiver")
+        and _worktree_root_and_waiver_contract_is_safe(
+            confinement,
+            actual_root,
+            identity_expected_root=identity_expected_root,
+            identity_actual_root=identity_actual_root,
         )
-        and re.fullmatch(
-            r"(?:not applicable|none)(?:\s*(?:;|-|:)\s*no "
-            r"(?:off-worktree (?:repo )?mutation|worktree escape)(?: is)? "
-            r"(?:requested|required|attempted|needed|performed)"
-            r"(?: or (?:requested|required|attempted|needed|performed))*)?\.?",
-            missing_waiver_state,
-        )
-        is not None
     )
 
 
@@ -22658,6 +22819,8 @@ def _validate_durable_carrier_admission_receipt_confinement(
         actual_root,
         DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS,
         _extract_exact_marker_value(record_text, "Current Write Set"),
+        identity_expected_root=expected_roots[1],
+        identity_actual_root=expected_roots[2],
     )
     active_owner = _extract_exact_marker_value(confinement, "Active Thread Owner")
     require(
@@ -22787,6 +22950,9 @@ def _validate_assigned_worktree_confinement_contract(
     actual_root: str,
     required_markers: tuple[str, ...] = ASSIGNED_WORKTREE_CONFINEMENT_RECORD_MARKERS,
     declared_write_set: str = "",
+    *,
+    identity_expected_root: str = "",
+    identity_actual_root: str = "",
 ) -> None:
     for marker in required_markers:
         occurrences = re.findall(
@@ -22844,6 +23010,8 @@ def _validate_assigned_worktree_confinement_contract(
             confinement,
             actual_root,
             declared_write_set,
+            identity_expected_root=identity_expected_root,
+            identity_actual_root=identity_actual_root,
         ),
         (
             f"{record_path}: active Assigned Worktree Confinement contract "
@@ -22944,6 +23112,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     )
     current_external_authority_fixture = (
         "Record Class: `Live Branch Projection`\n\n"
+        "Current Write Set: `Only dev/orin_branch_governance_validation.py`\n\n"
         "## Branch Identity\n\n"
         "- Branch: `feature/governance-fixture`\n"
         "- Worktree: `C:\\Nexus Worktrees\\Governance-Fixture`\n"
@@ -23154,6 +23323,14 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 "Intended Write Set: `Unbounded; any file as needed`",
             ),
             (
+                "Current Write Set: `Only dev/orin_branch_governance_validation.py`",
+                "Current Write Set: `Repo-wide write authority; dev/orin_branch_governance_validation.py`",
+            ),
+            (
+                "Current Write Set: `Only dev/orin_branch_governance_validation.py`",
+                "Current Write Set: `Only dev/foreign_validator.py`",
+            ),
+            (
                 "Same Worktree / Same Branch Collision Check: `No collision`",
                 "Same Worktree / Same Branch Collision Check: `Conflict detected`",
             ),
@@ -23230,7 +23407,10 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "active-branch-fixture",
             _section(current_external_authority_fixture, "Assigned Worktree Confinement"),
             "C:\\Nexus Worktrees\\Governance-Fixture",
-            declared_write_set="Only dev/orin_branch_governance_validation.py",
+            declared_write_set=_extract_exact_marker_value(
+                current_external_authority_fixture,
+                "Current Write Set",
+            ),
         )
         require(
             not active_contract_failures,
@@ -23260,7 +23440,10 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 "active-branch-fixture",
                 _section(mutated_external_authority, "Assigned Worktree Confinement"),
                 "C:\\Nexus Worktrees\\Governance-Fixture",
-                declared_write_set="Only dev/orin_branch_governance_validation.py",
+                declared_write_set=_extract_exact_marker_value(
+                    mutated_external_authority,
+                    "Current Write Set",
+                ),
             )
             require(
                 any(
@@ -23272,6 +23455,106 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                     f"semantics: {replacement}"
                 ),
             )
+        granted_escape_fixture = (
+            current_external_authority_fixture.replace(
+                "Actual Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "Actual Worktree Root: `C:\\Nexus Worktrees\\Escape-Fixture`",
+            )
+            .replace(
+                "GitHub Desktop-bound worktree: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "GitHub Desktop-bound worktree: `C:\\Nexus Worktrees\\Escape-Fixture`",
+            )
+            .replace(
+                "Worktree Escape User Waiver: `Not required; expected and actual worktree roots match`",
+                "Worktree Escape User Waiver: `Granted by USER; Expected Root: C:\\Nexus Worktrees\\Governance-Fixture; Actual Root: C:\\Nexus Worktrees\\Escape-Fixture; Target Root: C:\\Nexus Worktrees\\Escape-Fixture; Allowed Commands/Files: Only dev/orin_branch_governance_validation.py; Stop Condition: after bounded validation; Required Validation: worktree-confinement gate; Return Path: C:\\Nexus Worktrees\\Governance-Fixture`",
+            )
+            .replace(
+                "Worktree Escape User Waiver Missing: `Not applicable; no worktree escape requested`",
+                "Worktree Escape User Waiver Missing: `Not applicable; USER waiver is granted`",
+            )
+        )
+        granted_escape_confinement = _section(
+            granted_escape_fixture,
+            "Assigned Worktree Confinement",
+        )
+        granted_escape_failures: list[str] = []
+        _validate_assigned_worktree_confinement_contract(
+            lambda condition, message: granted_escape_failures.append(message)
+            if not condition
+            else None,
+            "active-branch-granted-waiver-fixture",
+            granted_escape_confinement,
+            "C:\\Nexus Worktrees\\Escape-Fixture",
+            declared_write_set=_extract_exact_marker_value(
+                granted_escape_fixture,
+                "Current Write Set",
+            ),
+        )
+        require(
+            not granted_escape_failures
+            and _active_record_root_contract_is_safe(
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+                granted_escape_confinement,
+                "C:\\Nexus Worktrees\\Escape-Fixture",
+            ),
+            (
+                "ordinary active branch-record path must preserve a complete USER-granted "
+                f"escape waiver: {granted_escape_failures}"
+            ),
+        )
+        invalid_granted_waiver_mutations = (
+            (
+                "Target Root: C:\\Nexus Worktrees\\Escape-Fixture",
+                "Target Root: C:\\Nexus Worktrees\\Foreign-Fixture",
+            ),
+            (
+                "Allowed Commands/Files: Only dev/orin_branch_governance_validation.py",
+                "Allowed Commands/Files: unrestricted repository-wide mutation",
+            ),
+            (
+                "Stop Condition: after bounded validation",
+                "Stop Condition: never",
+            ),
+            (
+                "Required Validation: worktree-confinement gate",
+                "Required Validation: waived",
+            ),
+            (
+                "Return Path: C:\\Nexus Worktrees\\Governance-Fixture",
+                "Return Path: C:\\Nexus Worktrees\\Foreign-Fixture",
+            ),
+        )
+        for original, replacement in invalid_granted_waiver_mutations:
+            invalid_escape_confinement = granted_escape_confinement.replace(
+                original,
+                replacement,
+            )
+            require(
+                not _active_record_root_contract_is_safe(
+                    "C:\\Nexus Worktrees\\Governance-Fixture",
+                    invalid_escape_confinement,
+                    "C:\\Nexus Worktrees\\Escape-Fixture",
+                ),
+                f"granted worktree escape waiver must reject incomplete scope: {replacement}",
+            )
+        foreign_confinement_roots = _section(
+            current_external_authority_fixture.replace(
+                "Expected Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "Expected Worktree Root: `C:\\Nexus Worktrees\\Foreign-Fixture`",
+            ).replace(
+                "Actual Worktree Root: `C:\\Nexus Worktrees\\Governance-Fixture`",
+                "Actual Worktree Root: `C:\\Nexus Worktrees\\Foreign-Fixture`",
+            ),
+            "Assigned Worktree Confinement",
+        )
+        require(
+            not _active_record_root_contract_is_safe(
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+                foreign_confinement_roots,
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+            ),
+            "ordinary active branch record must reject foreign expected and actual confinement roots",
+        )
     finally:
         globals()["_git_status_porcelain"] = original_git_status_porcelain
     durable_fixture = (
@@ -25272,21 +25555,20 @@ def _run_worktree_confinement_gate(require) -> None:
     )
 
     if expected_root and actual_root:
-        roots_match = _normalized_local_path(expected_root) == _normalized_local_path(actual_root)
-        waiver_state = _extract_marker_value(confinement, "Worktree Escape User Waiver")
-        if roots_match:
-            require(True, "Assigned Worktree Confinement root match")
-        else:
-            require(
-                waiver_state.startswith("Granted") and actual_root in confinement,
-                (
-                    "Worktree Escape User Waiver Missing: active git root does not match "
-                    f"the assigned worktree. Expected `{expected_root}`, actual `{actual_root}`. "
-                    "Stop before mutation unless USER grants `Worktree Escape User Waiver: Granted` "
-                    "with expected root, actual root, target root, allowed commands/files, expiration, "
-                    "validation, and return path."
-                ),
-            )
+        require(
+            _active_record_root_contract_is_safe(
+                expected_root,
+                confinement,
+                actual_root,
+            ),
+            (
+                "Worktree Escape User Waiver Missing or invalid: active git root and declared "
+                f"confinement do not match the assigned worktree. Expected `{expected_root}`, "
+                f"actual `{actual_root}`. A granted waiver must name expected, actual, and target "
+                "roots, bounded allowed commands/files, expiration or stop condition, required "
+                "validation, and return path."
+            ),
+        )
 
     current_phase = _extract_marker_value(_section(record_text, "Current Phase"), "Phase")
     if current_phase == "Branch Readiness" and "fam-" in branch_name.casefold():

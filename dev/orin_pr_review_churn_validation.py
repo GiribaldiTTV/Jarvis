@@ -198,6 +198,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "stale active owner",
             "concrete intended write set",
             "intended write set",
+            "current write set",
             "duplicate external record class",
             "duplicate branch and worktree authority markers",
             "duplicate branch",
@@ -233,6 +234,12 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "governance routing barrier",
             "thread assignment status",
             "merge-stable fold-down",
+            "worktree escape user waiver",
+            "granted-waiver",
+            "granted waiver",
+            "expected worktree root",
+            "actual worktree root",
+            "declared confinement roots",
         ),
     ),
     FamilyRule(
@@ -1276,6 +1283,7 @@ def _classifier_guardrail_failures() -> list[str]:
         "Reject case-ambiguous snapshot Root fields in recovery evidence.",
         "Fail closed on snapshot traversal errors so unreadable child directories cannot hide unmanifested files.",
         "Preserve the root frame after mismatched closers so a later target-set Transition remains visible.",
+        "Reject exceptions inside a Historical Receipt Boundary protective clause before substitution removes unless approved.",
     )
     for comment in new_external_guardrails:
         if _classify_comment(comment) != [
@@ -1293,6 +1301,9 @@ def _classifier_guardrail_failures() -> list[str]:
         "Reject a Worktree Ownership Ledger that is owned by nobody.",
         "Reject a Dirty Worktree Collision Check that excludes one tracked path from ownership.",
         "Count Assigned Worktree Confinement headings case-insensitively before selecting one contract.",
+        "Validate the effective Current Write Set against the bounded Intended Write Set before using it.",
+        "Preserve a complete USER-granted Worktree Escape User Waiver path in shared confinement semantics.",
+        "Require Expected Worktree Root and Actual Worktree Root to match the active root unless a valid waiver applies.",
     )
     for comment in new_durable_guardrails:
         if _classify_comment(comment) != [

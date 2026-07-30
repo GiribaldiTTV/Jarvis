@@ -3711,6 +3711,15 @@ Every assigned branch authority record must carry:
 - Worktree Escape User Waiver: Granted only when USER explicitly names the expected root, actual root, target root, allowed commands/files, expiration or stop condition, required validation, and return path
 - Worktree Escape User Waiver Missing: Blocks mutation, branch/worktree changes, runtime launch, shortcut/provider/model actions, PR/release actions, and GitHub Desktop handoff outside the assigned worktree
 
+When `Current Write Set:` is present in the active authority projection, it is a
+bounded current subset of `Intended Write Set:`, not an independent source of
+broader authority. Both values must be semantically bounded, and every concrete
+current repo path must appear in the intended inventory. Without a granted
+escape waiver, expected, actual, and GitHub Desktop-bound roots must all equal
+the active Git root. With a grant, actual and Desktop roots must equal the active
+Git root, expected root must remain equal to the assigned identity root, and the
+waiver must carry every named scope and return field above.
+
 Read-only identity checks may inspect `git worktree list`, remotes, branch names, dirty-file inventory, and GitHub Desktop binding evidence from the assigned root. Any write, branch switch, cleanup, runtime launch, shortcut edit, or helper execution against a sibling worktree or parked clone is `No Cross-Worktree Mutation` scope and must stop on `Worktree Escape User Waiver Missing` unless the USER grants the waiver in clear text.
 
 Dirty worktree collision recovery is mandatory when a target worktree is dirty before a new owner claims it. Freeze mutation, inventory dirty files, identify which thread owns each file, preserve or discard only with USER approval, and resume with exactly one active owner recorded in the worktree ownership ledger.

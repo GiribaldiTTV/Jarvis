@@ -720,7 +720,7 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
     conditional_exception = re.search(
         r"\b(?:unless|except|provided|subject to|until|if approved|when approved|"
         r"may|might|can still|could still)\b",
-        scrubbed,
+        normalized,
     )
     return bool(
         protective is not None

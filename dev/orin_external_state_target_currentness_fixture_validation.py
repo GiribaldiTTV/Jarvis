@@ -4526,6 +4526,20 @@ def main() -> int:
             ),
             *[
                 (
+                    f"in-clause conditional historical boundary: {value}",
+                    "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                    f"Historical Receipt Boundary: `{value}`",
+                    "Historical Receipt Boundary does not prevent",
+                )
+                for value in (
+                    "Historical receipts do not unless approved redefine live authority",
+                    "Historical receipts do not redefine unless approved live authority",
+                    "Historical receipts do not redefine live authority if approved",
+                    "Historical receipts subject to approval do not redefine current state",
+                )
+            ],
+            *[
+                (
                     f"irrelevant historical boundary: {value}",
                     "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                     f"Historical Receipt Boundary: `{value}`",
@@ -4749,7 +4763,9 @@ def main() -> int:
         target = _record(root)
         target.write_text(
             target.read_text(encoding="utf-8")
-            + "## Historical Receipts\nSource Repo HEAD: `historical-receipt-head`\n",
+            + "## Historical Receipts\nSource Repo HEAD: `historical-receipt-head`\n"
+            + "## Assigned Worktree Confinement\n"
+            + "Intended Write Set: `Only dev/original.py`\n",
             encoding="utf-8",
         )
         snapshot = root / "snapshots" / "fixture-snapshot"
@@ -4775,10 +4791,104 @@ def main() -> int:
             snapshot="snapshots/fixture-snapshot",
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
             additions=["Added Fixture Field=added"],
+            section_assignments=[
+                "Assigned Worktree Confinement::Intended Write Set=Only dev/updated.py"
+            ],
             apply=False,
             **expectations,
         )
         _assert_pass("target writer dry run", [] if ok and audit is None and target.read_bytes() == before else messages)
+
+        ok, messages, audit = reconciler.reconcile_target(
+            root=root,
+            target=TARGET,
+            lock_id=lock_id,
+            snapshot="snapshots/fixture-snapshot",
+            assignments=[],
+            additions=[],
+            section_assignments=[
+                "Assigned Worktree Confinement::Intended Write Set=unsafe\nInjected Field: injected"
+            ],
+            apply=False,
+            **expectations,
+        )
+        if ok or audit is not None or not any(
+            "Invalid --set-section-field assignment" in item for item in messages
+        ):
+            raise AssertionError(
+                "newline section assignment was accepted or mutated the target:\n"
+                + "\n".join(messages)
+            )
+
+        for label, section_assignments, section_renames, expected_fragment in (
+            (
+                "case-duplicate section assignment",
+                [
+                    "Assigned Worktree Confinement::Intended Write Set=Only dev/a.py",
+                    "assigned worktree confinement::intended write set=Only dev/b.py",
+                ],
+                [],
+                "Invalid --set-section-field assignment",
+            ),
+            (
+                "section update and rename overlap",
+                [
+                    "Assigned Worktree Confinement::Intended Write Set=Only dev/a.py",
+                ],
+                ["assigned worktree confinement=Renamed Confinement"],
+                "cannot be renamed and have a field replaced",
+            ),
+        ):
+            ok, messages, audit = reconciler.reconcile_target(
+                root=root,
+                target=TARGET,
+                lock_id=lock_id,
+                snapshot="snapshots/fixture-snapshot",
+                assignments=[],
+                additions=[],
+                section_assignments=section_assignments,
+                section_renames=section_renames,
+                apply=False,
+                **expectations,
+            )
+            if ok or audit is not None or not any(
+                expected_fragment in item for item in messages
+            ):
+                raise AssertionError(
+                    f"{label} was accepted or mutated the target:\n" + "\n".join(messages)
+                )
+
+        normalized_before_text = before.decode("utf-8").replace("\r\n", "\n")
+        ambiguous_section_text = normalized_before_text.replace(
+            "## Assigned Worktree Confinement\n",
+            "## assigned worktree confinement\n"
+            "Intended Write Set: `Only dev/duplicate-section.py`\n"
+            "## Assigned Worktree Confinement\n",
+        )
+        _, ambiguous_section_failures = reconciler._replace_existing_section_fields(
+            ambiguous_section_text,
+            {
+                ("Assigned Worktree Confinement", "Intended Write Set"):
+                "Only dev/updated.py"
+            },
+        )
+        if not any("exactly one section" in item for item in ambiguous_section_failures):
+            raise AssertionError("case-variant duplicate section was not rejected")
+
+        ambiguous_field_text = normalized_before_text.replace(
+            "Intended Write Set: `Only dev/original.py`\n",
+            "Intended Write Set: `Only dev/original.py`\n"
+            "intended write set: `Only dev/duplicate-field.py`\n",
+        )
+        _, ambiguous_field_failures = reconciler._replace_existing_section_fields(
+            ambiguous_field_text,
+            {
+                ("Assigned Worktree Confinement", "Intended Write Set"):
+                "Only dev/updated.py"
+            },
+        )
+        if not any("inside section" in item for item in ambiguous_field_failures):
+            raise AssertionError("case-variant duplicate section field was not rejected")
 
         for label, assignments, additions in (
             (
@@ -4922,6 +5032,9 @@ def main() -> int:
             snapshot="snapshots/fixture-snapshot",
             assignments=["Last Updated=2026-01-02T00:00:00Z"],
             additions=["Added Fixture Field=added"],
+            section_assignments=[
+                "Assigned Worktree Confinement::Intended Write Set=Only dev/updated.py"
+            ],
             apply=True,
             section_renames=["Historical Receipts=Historical Receipt"],
             **expectations,
@@ -4933,6 +5046,20 @@ def main() -> int:
         audit_payload = json.loads(audit.read_text(encoding="utf-8"))
         if "Added Fixture Field" not in audit_payload["Changed Fields"]:
             raise AssertionError("target writer audit omitted an added field")
+        section_field = "Assigned Worktree Confinement::Intended Write Set"
+        if section_field not in audit_payload["Changed Fields"]:
+            raise AssertionError("target writer audit omitted a replaced section field")
+        section_detail = next(
+            item
+            for item in audit_payload["Changed Field Details"]
+            if item["Field"] == section_field
+        )
+        if section_detail != {
+            "Field": section_field,
+            "Before": "Only dev/original.py",
+            "After": "Only dev/updated.py",
+        }:
+            raise AssertionError("target writer audit lost section-field before/after identity")
         added_detail = next(
             item
             for item in audit_payload["Changed Field Details"]

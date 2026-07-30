@@ -69,6 +69,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Add one missing top-level Markdown field; repeat for multiple fields",
     )
     parser.add_argument(
+        "--set-section-field",
+        action="append",
+        default=[],
+        metavar="SECTION::FIELD=VALUE",
+        help=(
+            "Replace one existing field inside one exact level-two Markdown section; "
+            "repeat for multiple fields"
+        ),
+    )
+    parser.add_argument(
         "--rename-section",
         action="append",
         default=[],
@@ -159,6 +169,41 @@ def _parse_section_renames(raw_renames: list[str]) -> tuple[dict[str, str], list
             failures.append(f"Invalid --rename-section assignment: {raw!r}")
             continue
         values[old] = new
+    return values, failures
+
+
+def _parse_section_assignments(
+    raw_assignments: list[str],
+) -> tuple[dict[tuple[str, str], str], list[str]]:
+    values: dict[tuple[str, str], str] = {}
+    normalized_keys: set[tuple[str, str]] = set()
+    failures: list[str] = []
+    for raw in raw_assignments:
+        selector, equals, value = raw.partition("=")
+        section, separator, field = selector.partition("::")
+        section = section.strip()
+        field = field.strip()
+        value = value.strip()
+        key = (section, field)
+        normalized_key = (section.casefold(), field.casefold())
+        if (
+            not equals
+            or not separator
+            or not section
+            or not field
+            or not value
+            or section.startswith("#")
+            or "`" in section
+            or "`" in field
+            or "`" in value
+            or "\r" in raw
+            or "\n" in raw
+            or normalized_key in normalized_keys
+        ):
+            failures.append(f"Invalid --set-section-field assignment: {raw!r}")
+            continue
+        values[key] = value
+        normalized_keys.add(normalized_key)
     return values, failures
 
 
@@ -288,6 +333,68 @@ def _replace_existing_fields(
         additions_text = [f"{field}: `{value}`{newline}" for field, value in additions.items()]
         lines[insert_at:insert_at] = additions_text
     return "".join(lines), failures
+
+
+def _replace_existing_section_fields(
+    text: str,
+    updates: dict[tuple[str, str], str],
+) -> tuple[str, list[str]]:
+    lines = text.splitlines(keepends=True)
+    failures: list[str] = []
+    section_ranges: dict[str, tuple[int, int]] = {}
+    for section, _ in updates:
+        heading = f"## {section}"
+        matches = [
+            index
+            for index, line in enumerate(lines)
+            if re.fullmatch(
+                rf"##[ \t]+{re.escape(section)}[ \t]*",
+                line.rstrip("\r\n"),
+                flags=re.I,
+            )
+        ]
+        if len(matches) != 1:
+            failures.append(
+                f"Target transition requires exactly one section {heading!r}: found {len(matches)}"
+            )
+            continue
+        start = matches[0] + 1
+        end = next(
+            (
+                index
+                for index in range(start, len(lines))
+                if re.match(r"^##[ \t]+", lines[index].rstrip("\r\n"))
+            ),
+            len(lines),
+        )
+        section_ranges[section] = (start, end)
+    if failures:
+        return text, failures
+
+    for (section, field), value in updates.items():
+        start, end = section_ranges[section]
+        matches = []
+        for index in range(start, end):
+            content = lines[index].rstrip("\r\n")
+            match = re.match(
+                rf"^(\s*(?:-\s*)?{re.escape(field)}:\s*).*$",
+                content,
+                flags=re.I,
+            )
+            if match:
+                matches.append((index, match.group(1)))
+        if len(matches) != 1:
+            failures.append(
+                f"Target transition requires exactly one existing field {field} "
+                f"inside section '## {section}': found {len(matches)}"
+            )
+            continue
+        index, prefix = matches[0]
+        newline = _line_ending(lines[index])
+        lines[index] = f"{prefix}`{value}`{newline}"
+    if failures:
+        return text, failures
+    return "".join(lines), []
 
 
 def _rename_sections(
@@ -454,6 +561,33 @@ def _live_field_value(text: str, field: str) -> str:
     return "MISSING"
 
 
+def _section_field_value(text: str, section: str, field: str) -> str:
+    lines = text.splitlines()
+    matches = [
+        index
+        for index, line in enumerate(lines)
+        if re.fullmatch(rf"##[ \t]+{re.escape(section)}[ \t]*", line, flags=re.I)
+    ]
+    if len(matches) != 1:
+        return "MISSING"
+    start = matches[0] + 1
+    end = next(
+        (index for index in range(start, len(lines)) if re.match(r"^##[ \t]+", lines[index])),
+        len(lines),
+    )
+    values = []
+    for line in lines[start:end]:
+        if re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", line, flags=re.I):
+            value = re.sub(
+                rf"^\s*(?:-\s*)?{re.escape(field)}:\s*",
+                "",
+                line,
+                flags=re.I,
+            ).strip()
+            values.append(value[1:-1] if value.startswith("`") and value.endswith("`") else value)
+    return values[0] if len(values) == 1 else "MISSING"
+
+
 def _non_updated_lines(text: str, fields: set[str]) -> list[str]:
     result: list[str] = []
     for line in text.splitlines(keepends=True):
@@ -468,13 +602,29 @@ def _non_updated_lines_with_sections(
     text: str,
     fields: set[str],
     section_headings: set[str],
+    section_fields: set[tuple[str, str]] | None = None,
 ) -> list[str]:
     result: list[str] = []
+    active_section = ""
+    section_fields = section_fields or set()
     for line in text.splitlines(keepends=True):
         content = line.rstrip("\r\n")
+        section_match = re.match(r"^##[ \t]+(.+?)[ \t]*$", content)
+        if section_match:
+            active_section = section_match.group(1).casefold()
         if content in section_headings:
             continue
         if any(re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", content) for field in fields):
+            continue
+        if any(
+            active_section == section.casefold()
+            and re.match(
+                rf"^\s*(?:-\s*)?{re.escape(field)}:\s*",
+                content,
+                flags=re.I,
+            )
+            for section, field in section_fields
+        ):
             continue
         result.append(line)
     return result
@@ -495,6 +645,7 @@ def reconcile_target(
     assignments: list[str],
     additions: list[str],
     apply: bool,
+    section_assignments: list[str] | None = None,
     section_renames: list[str] | None = None,
     post_expected_source_head: str | None = None,
     post_expected_origin_main: str | None = None,
@@ -507,15 +658,32 @@ def reconcile_target(
         return False, failures, None
 
     section_renames_map, section_rename_failures = _parse_section_renames(section_renames or [])
+    section_updates, section_assignment_failures = _parse_section_assignments(
+        section_assignments or []
+    )
     updates, assignment_failures = _parse_assignments(
         assignments,
-        required=not additions and not section_renames_map,
+        required=not additions and not section_updates and not section_renames_map,
     )
     additions_map, addition_failures = _parse_assignments(additions) if additions else ({}, [])
     if set(updates) & set(additions_map):
         assignment_failures.append("A field cannot be both --set-field and --add-field: " + ", ".join(sorted(set(updates) & set(additions_map))))
+    renamed_section_keys = {section.casefold() for section in section_renames_map}
+    overlapping_section_updates = sorted(
+        {
+            section
+            for section, _ in section_updates
+            if section.casefold() in renamed_section_keys
+        }
+    )
+    if overlapping_section_updates:
+        section_assignment_failures.append(
+            "A section cannot be renamed and have a field replaced in the same transition: "
+            + ", ".join(overlapping_section_updates)
+        )
     failures.extend(assignment_failures)
     failures.extend(addition_failures)
+    failures.extend(section_assignment_failures)
     failures.extend(section_rename_failures)
     snapshot_path, snapshot_failures = _safe_relative_path(root, snapshot, "Snapshot path")
     failures.extend(snapshot_failures)
@@ -591,12 +759,29 @@ def reconcile_target(
     after_text, replacement_failures = _replace_existing_fields(before_text, updates, additions_map)
     if replacement_failures:
         return False, replacement_failures, None
+    after_text, section_replacement_failures = _replace_existing_section_fields(
+        after_text,
+        section_updates,
+    )
+    if section_replacement_failures:
+        return False, section_replacement_failures, None
     after_text, section_failures, renamed_sections = _rename_sections(after_text, section_renames_map)
     if section_failures:
         return False, section_failures, None
     changed_fields = set(updates) | set(additions_map)
+    changed_section_fields = set(section_updates)
     allowed_section_lines = {heading for pair in renamed_sections for heading in pair}
-    if _non_updated_lines_with_sections(before_text, changed_fields, allowed_section_lines) != _non_updated_lines_with_sections(after_text, changed_fields, allowed_section_lines):
+    if _non_updated_lines_with_sections(
+        before_text,
+        changed_fields,
+        allowed_section_lines,
+        changed_section_fields,
+    ) != _non_updated_lines_with_sections(
+        after_text,
+        changed_fields,
+        allowed_section_lines,
+        changed_section_fields,
+    ):
         return False, ["No-loss comparison failed: an unselected target line changed"], None
     after_hash = hashlib.sha256(after_text.encode("utf-8")).hexdigest()
 
@@ -680,6 +865,17 @@ def reconcile_target(
         }
         for field in sorted(changed_fields)
     ]
+    changed_field_details.extend(
+        {
+            "Field": f"{section}::{field}",
+            "Before": _section_field_value(before_text, section, field),
+            "After": _section_field_value(after_text, section, field),
+        }
+        for section, field in sorted(changed_section_fields)
+    )
+    changed_field_labels = sorted(changed_fields) + [
+        f"{section}::{field}" for section, field in sorted(changed_section_fields)
+    ]
     audit_payload = {
         "External State Schema": DEFAULT_SCHEMA_VERSION,
         "Transition": "Target-scoped live projection reconciliation",
@@ -688,8 +884,11 @@ def reconcile_target(
         "Snapshot": snapshot,
         "Before SHA256": before_hash,
         "After SHA256": actual_after_hash,
-        "Changed Fields": sorted(changed_fields),
+        "Changed Fields": changed_field_labels,
         "Replaced Fields": sorted(updates),
+        "Replaced Section Fields": [
+            f"{section}::{field}" for section, field in sorted(changed_section_fields)
+        ],
         "Added Fields": sorted(additions_map),
         "Renamed Sections": [
             {"Before": old, "After": new}
@@ -743,6 +942,7 @@ def main() -> int:
         expected_target_sha256=args.expected_target_sha256,
         assignments=args.set_field,
         additions=args.add_field,
+        section_assignments=args.set_section_field,
         section_renames=args.rename_section,
         apply=args.apply,
     )

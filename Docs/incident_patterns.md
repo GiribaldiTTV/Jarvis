@@ -1291,12 +1291,21 @@ Set` must enumerate every dirty repo-relative path. Ownership and recovery prose
 cannot authorize a dirty path outside that inventory; both source and destination
 of a rename or copy must be covered. Path comparison follows host filesystem/Git
 case semantics: Windows aliases case, while a case-sensitive checkout preserves
-case-distinct repo paths.
+case-distinct repo paths. When both current and intended values exist, each must
+be bounded and the concrete current path set must be a subset of the intended
+path set. A broad, unrelated, or contradictory current value cannot override a
+safe intended value merely because it names the dirty path.
 An external Live Branch Projection must satisfy the same semantic owner,
 assignment, ownership, bounded-write-set, collision, routing, USER-gate,
 cross-worktree, Desktop-root, and waiver predicates as durable confinement
 evidence. Exact marker cardinality and matching roots cannot make explicitly
-unsafe values authoritative. The durable operational truth source must
+unsafe values authoritative. Ordinary active records must bind confinement
+expected root to the assigned identity root. Without an escape grant, expected,
+actual, and Desktop roots must equal the active Git root. A granted escape is
+valid only when it names exact expected, actual, and target roots, bounded allowed
+commands/files, an expiration or stop condition, required validation, and the
+return path; incomplete grant prose is not waiver authority. The durable
+operational truth source must
 affirmatively begin with Git and name helper evidence; negated, unavailable,
 unknown, or unverified Git claims fail closed. `Non-Includes` may be a minimal or
 expanded bare exclusion inventory, or use explicit prohibitive wording, but
