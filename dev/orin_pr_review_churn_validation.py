@@ -953,7 +953,20 @@ def _classify_comment(body: str) -> list[str]:
     if "pr2-comment-family-classifier" in families and any(
         keyword in normalized for keyword in classifier_priority_keywords
     ):
-        return ["pr2-comment-family-classifier"]
+        return sorted(
+            {
+                "pr2-comment-family-classifier",
+                *(
+                    family
+                    for family in families
+                    if family
+                    in {
+                        "external-state-transaction-evidence-parser",
+                        "durable-carrier-confinement-parser",
+                    }
+                ),
+            }
+        )
     exact_scope_families = [
         family
         for family in families
@@ -1172,6 +1185,17 @@ def _classifier_guardrail_failures() -> list[str]:
     ]:
         failures.append(
             "Contextual oversized-integer review did not classify into the external-state family"
+        )
+    classifier_with_exact_external = (
+        "The comment-family classifier misclassifies this modern Committed journal; "
+        "its snapshot manifest also contains an unexpected target."
+    )
+    if _classify_comment(classifier_with_exact_external) != [
+        "external-state-transaction-evidence-parser",
+        "pr2-comment-family-classifier",
+    ]:
+        failures.append(
+            "Classifier-review priority discarded a genuine exact external-state family"
         )
     nested_malformed_value = (
         "Track nested malformed values so an inner comma is not treated as a "

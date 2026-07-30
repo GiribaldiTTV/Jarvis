@@ -936,6 +936,18 @@ def _write_root_frame_mismatched_closer_transition_fixture(root: Path) -> Path:
     return path
 
 
+def _write_leading_junk_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "leading-junk-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        'x{"Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '","Transaction State":"Prepared"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -1403,6 +1415,45 @@ def _assert_snapshot_walk_error_reported() -> None:
                 "snapshot traversal error unexpectedly passed:\n" + "\n".join(failures)
             )
     print("Modern snapshot fixture: traversal error rejected: PASS")
+
+
+def _assert_oversized_evidence_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-oversized-evidence-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        original_limit = validator.MAX_EXTERNAL_STATE_EVIDENCE_BYTES
+        validator.MAX_EXTERNAL_STATE_EVIDENCE_BYTES = 128
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.MAX_EXTERNAL_STATE_EVIDENCE_BYTES = original_limit
+        if not any("bounded read limit" in item for item in failures):
+            raise AssertionError(
+                "oversized evidence unexpectedly passed:\n" + "\n".join(failures)
+            )
+    print("Modern journal fixture: oversized evidence rejected before buffering: PASS")
+
+
+def _assert_evidence_read_memory_error_reported() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-evidence-memory-error-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        original_read = validator.os.read
+
+        def fail_evidence_read(_descriptor: int, _size: int) -> bytes:
+            raise MemoryError("forced evidence read exhaustion")
+
+        validator.os.read = fail_evidence_read
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.read = original_read
+        if not any("safe resource limits" in item for item in failures):
+            raise AssertionError(
+                "evidence-read MemoryError escaped fail-closed validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern journal fixture: evidence-read MemoryError reported: PASS")
 
 
 def _assert_journal_false_positive_mutation_killed(
@@ -2112,6 +2163,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             _write_root_frame_mismatched_closer_transition_fixture,
         ),
         (
+            "matching malformed JSON after leading junk",
+            _write_leading_junk_transition_fixture,
+        ),
+        (
             "matching malformed JSON with oversized integer",
             _write_oversized_integer_transition_fixture,
         ),
@@ -2523,6 +2578,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_broken_audit_reparse_rejected()
     _assert_snapshot_hash_read_failure_reported()
     _assert_snapshot_walk_error_reported()
+    _assert_oversized_evidence_rejected()
+    _assert_evidence_read_memory_error_reported()
     _assert_snapshot_hash_replacement_race_rejected()
     _assert_journal_read_replacement_race_rejected()
     _assert_posix_case_sensitive_evidence_paths()
@@ -2856,6 +2913,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups[
             "matching malformed JSON after mismatched closers reach root frame"
         ],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "leading junk hides a target-set Transition",
+        negative_setups["matching malformed JSON after leading junk"],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

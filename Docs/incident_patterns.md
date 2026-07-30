@@ -1011,7 +1011,9 @@ must equal the journal target set exactly; a valid hash for an unrelated extra
 file, or an unmanifested physical file, is retained pre-write material, not
 permission to broaden the bounded transaction snapshot. Physical inventory
 enumeration must fail closed on every snapshot traversal error; an unreadable
-child directory cannot be silently omitted from the inventory.
+child directory cannot be silently omitted from the inventory. Confined JSON
+evidence reads must enforce a fixed byte bound before buffering, use one bounded
+buffer, and translate allocation or decode exhaustion into a validation issue.
 PR Readiness must map this family separately from repo/live-state ownership and
 generic table-row parsing, then run the target-currentness adversarial fixture
 suite before the Connector becomes the first structural or evidence fuzzer.
@@ -1150,6 +1152,8 @@ comma followed by a plausible object member.
 The malformed-audit root object is an immutable recovery frame. Mismatched or
 repeated closers may reconcile malformed child depth but may never consume that
 root frame and hide a later plausible root-level target-set `Transition`.
+Malformed audit scanning must begin at the first object candidate after invalid
+leading material; a junk prefix cannot hide a canonical target-set transition.
 An inner comma followed by a bare token or array value is not root-member proof.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains
@@ -1157,6 +1161,8 @@ unknown unless the classifier-review wording itself routes it to the classifier 
 The immutable legacy-receipt compatibility registry changes which audit identities
 are admitted and is therefore a changed-file-gated implementation surface, not an
 ungated data file.
+Classifier-review priority is additive: a comment about the classifier must retain
+every genuine exact external-state or durable-carrier family it also identifies.
 
 - source references:
   - `dev/orin_external_state_validation.py`

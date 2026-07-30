@@ -21154,6 +21154,11 @@ def _durable_operational_truth_source_is_affirmative(value: str) -> bool:
     )
 
 
+def _durable_assignment_status_is_derived(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    return re.fullmatch(r"durable receipt; live status is derived", normalized) is not None
+
+
 def _carrier_non_includes_are_prohibitive(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
     required = ("external-state mutation", "pr creation", "merge", "release")
@@ -21257,10 +21262,9 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         and _durable_user_decision_pointer_is_approved(
             _extract_exact_marker_value(record_text, "USER Decision Pointer")
         )
-        and "derived" in _extract_exact_marker_value(
-            record_text,
-            "Assignment Status",
-        ).casefold()
+        and _durable_assignment_status_is_derived(
+            _extract_exact_marker_value(record_text, "Assignment Status")
+        )
         and _durable_operational_truth_source_is_affirmative(
             _extract_exact_marker_value(record_text, "Operational Truth Source")
         )
@@ -22440,6 +22444,30 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         not _is_durable_carrier_admission_receipt(pending_decision_fixture),
         f"{durable_fixture}: pending USER decision text must not prove bootstrap admission",
     )
+    require(
+        _durable_assignment_status_is_derived(
+            "Durable receipt; live status is derived."
+        ),
+        f"{durable_fixture}: exact derived-live-status boundary must remain valid",
+    )
+    for invalid_assignment_status in (
+        "Live status is not derived; it is asserted by this receipt.",
+        "Durable receipt; live status is derived and asserted by this receipt.",
+        "Durable receipt; derived status is pending.",
+        "Receipt text owns the derived live status.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    "Assignment Status: `Durable receipt; live status is derived.`",
+                    f"Assignment Status: `{invalid_assignment_status}`",
+                )
+            ),
+            (
+                f"{durable_fixture}: noncanonical or negated Assignment Status must "
+                f"fail closed: {invalid_assignment_status}"
+            ),
+        )
     for revoked_decision in (
         "USER approved this one-time bounded carrier admission; approval later revoked.",
         "USER approved this specific carrier admission; approval is now expired.",

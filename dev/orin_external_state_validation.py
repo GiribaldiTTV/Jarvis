@@ -42,6 +42,7 @@ REQUIRED_STAGE4_RECORDS = [
 ]
 
 TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
+MAX_EXTERNAL_STATE_EVIDENCE_BYTES = 16 * 1024 * 1024
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
 CANONICAL_UTC_TIMESTAMP_PATTERN = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|\+00:00)$"
@@ -177,6 +178,8 @@ def _strict_json_load_bytes(path: Path, raw_bytes: bytes) -> object:
         text = raw_bytes.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise StrictJSONError(f"{path}: JSON is not UTF-8: {exc}") from exc
+    except MemoryError as exc:
+        raise StrictJSONError(f"{path}: JSON exceeds safe decoder resource limits") from exc
     try:
         return _strict_json_loads(text)
     except (json.JSONDecodeError, StrictJSONError) as exc:
@@ -1642,9 +1645,23 @@ def _read_confined_evidence_file(
         parts,
     )
     try:
-        chunks: list[bytes] = []
-        while chunk := os.read(descriptor, 1024 * 1024):
-            chunks.append(chunk)
+        if opened_before.st_size > MAX_EXTERNAL_STATE_EVIDENCE_BYTES:
+            raise OSError(
+                "evidence file exceeds the bounded read limit of "
+                f"{MAX_EXTERNAL_STATE_EVIDENCE_BYTES} bytes"
+            )
+        payload = bytearray()
+        try:
+            while chunk := os.read(descriptor, 1024 * 1024):
+                if len(payload) + len(chunk) > MAX_EXTERNAL_STATE_EVIDENCE_BYTES:
+                    raise OSError(
+                        "evidence file grew beyond the bounded read limit of "
+                        f"{MAX_EXTERNAL_STATE_EVIDENCE_BYTES} bytes"
+                    )
+                payload.extend(chunk)
+            raw_bytes = bytes(payload)
+        except MemoryError as exc:
+            raise OSError("evidence file read exceeded safe resource limits") from exc
         _verify_confined_evidence_file(
             base,
             parts,
@@ -1653,7 +1670,7 @@ def _read_confined_evidence_file(
             before_states,
             opened_before,
         )
-        return candidate, b"".join(chunks)
+        return candidate, raw_bytes
     finally:
         os.close(descriptor)
 
@@ -2596,10 +2613,10 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
     if text.startswith("\ufeff"):
         text = text.removeprefix("\ufeff")
     decoder = json.JSONDecoder()
-    first_token = next((character for character in text if not character.isspace()), "")
-    if first_token != "{":
+    first_object = text.find("{")
+    if first_object < 0:
         return False
-    index = 0
+    index = first_object
     stack: list[str] = []
     awaiting_root_member = False
     while index < len(text):
@@ -2784,6 +2801,11 @@ def validate_incomplete_target_set_journals(
             text = raw_bytes.decode("utf-8")
         except UnicodeDecodeError as exc:
             failures.append(f"Target-set transaction journal is not UTF-8: {path}: {exc}")
+            continue
+        except MemoryError:
+            failures.append(
+                f"Target-set transaction journal exceeds safe decoder resource limits: {path}"
+            )
             continue
         try:
             payload = _strict_json_loads(text)

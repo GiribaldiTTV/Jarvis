@@ -177,7 +177,10 @@ malformed records, unsupported or historical record classes, identity
 mismatches, stale hashes, and target changes during validation.
 Modern snapshot proof must fail closed when any child directory cannot be
 enumerated, and malformed-audit transition recovery must preserve an immutable
-root frame across mismatched or repeated closers.
+root frame across mismatched or repeated closers. Confined evidence reads must
+reject files above the fixed byte limit before buffering, report memory/decode
+resource exhaustion as validation issues, and scan malformed objects after
+invalid leading material for canonical target-set transitions.
 
 Target output must identify the selected target and state explicitly that
 `Target PASS Is Root-Wide PASS: NO`. The root manifest is reported as a
