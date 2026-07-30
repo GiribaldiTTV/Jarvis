@@ -575,6 +575,41 @@ def _ufd_fixture_rows() -> list[str]:
     return rows
 
 
+def _additional_ufd_fixture_row(
+    item_id: str = "UFD-FAM003-20260730-019",
+    *,
+    status: str = "Open",
+    decision_state: str = "Needs USER Decision",
+) -> str:
+    return "\n".join(
+        (
+            f"### UFD Item: {item_id}",
+            f"Feedback ID: `{item_id}`",
+            "Feedback Summary: `Additional current FAM-003 direction`",
+            "Feedback Source: `USER direction`",
+            "Feedback Phase: `BP1 revision`",
+            "Disposition Type: `Current Branch Requirement`",
+            f"USER Decision State: `{decision_state}`",
+            "Owner Class: `Branch Plan`",
+            f"Canonical Owner File: `{UFD_OWNER}`",
+            "Workstream Severity: `Level 2 seam-blocking`",
+            f"Status: `{status}`",
+            f"Fold-Down Target: `{UFD_FOLD_DOWN_TARGET}`",
+            "Pointer Locations: `Supporting packet and evidence copies`",
+            "Source / Date: `USER / 2026-07-30`",
+            "USER Direction Or Finding: `Preserve additional current feedback`",
+            "Affected Scope: `FAM-003 BP1 revision`",
+            "Affected Artifact: `Branch Vision planning`",
+            "Classification: `Incorporated`",
+            "Owner: `FAM-003`",
+            f"Carrier: `{UFD_BRANCH}`",
+            "Planning Or Implementation Effect: `Planning carrydown only`",
+            "Proof / Closure Requirement: `Canonical owner and copy-equivalence proof`",
+            "Remaining USER Decision: `BP1 revision only`",
+        )
+    )
+
+
 def _element_to_phase_fixture() -> str:
     classifications = (
         "Touched",
@@ -770,7 +805,7 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
             expected_schema="external-state-v1",
         )
 
-    _assert_pass("canonical UFD owner with 18 physical rows", validate(original))
+    _assert_pass("canonical UFD owner with required 18 physical rows", validate(original))
     allowlist = _option_g_allowlist_fixture()
 
     def allowlist_row(values: tuple[str, ...]) -> str:
@@ -850,6 +885,113 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         validate(original.replace("current State 54 contract", "active State 48 plan", 1)),
     )
     rows = "\n\n".join(_ufd_fixture_rows())
+    additional = _additional_ufd_fixture_row()
+    fixture_history_boundary = (
+        "Historical Receipt Boundary: "
+        "`Historical receipts below do not redefine live fields.`\n"
+    )
+
+    def with_additional(
+        row: str,
+        *,
+        declared_count: int = 19,
+        open_count: int = 1,
+        blocking_count: int = 0,
+    ) -> str:
+        return (
+            original.replace("UFD Item Count: `18`", f"UFD Item Count: `{declared_count}`", 1)
+            .replace("Open UFD Count: `0`", f"Open UFD Count: `{open_count}`", 1)
+            .replace("Blocking UFD Count: `0`", f"Blocking UFD Count: `{blocking_count}`", 1)
+            .replace(rows + "\n\n", rows + "\n\n" + row + "\n\n", 1)
+        )
+
+    extended = with_additional(additional)
+    _assert_pass(
+        "canonical UFD owner with required 18 plus one lawful additional row",
+        validate(extended),
+    )
+    _assert_failure(
+        "additional row has malformed ID",
+        "is not a valid current FAM-003 UFD ID",
+        validate(
+            with_additional(
+                additional.replace(
+                    "UFD-FAM003-20260730-019",
+                    "UFD-FAM003-20260730-ABC",
+                )
+            )
+        ),
+    )
+    _assert_failure(
+        "duplicate additional row",
+        "duplicate atomic row",
+        validate(
+            with_additional(
+                additional + "\n\n" + additional,
+                declared_count=20,
+                open_count=2,
+            )
+        ),
+    )
+    _assert_failure(
+        "additional row missing required field",
+        "missing or blank required field Proof / Closure Requirement:",
+        validate(
+            with_additional(
+                additional.replace(
+                    "Proof / Closure Requirement: `Canonical owner and copy-equivalence proof`",
+                    "Proof / Closure Requirement: ``",
+                )
+            )
+        ),
+    )
+    _assert_failure(
+        "additional row Feedback ID mismatch",
+        "Feedback ID does not match its heading",
+        validate(
+            with_additional(
+                additional.replace(
+                    "Feedback ID: `UFD-FAM003-20260730-019`",
+                    "Feedback ID: `UFD-FAM003-20260730-020`",
+                )
+            )
+        ),
+    )
+    _assert_failure(
+        "additional row invalid status vocabulary",
+        "uses invalid Status",
+        validate(with_additional(additional.replace("Status: `Open`", "Status: `Open / Advisory`"))),
+    )
+    _assert_failure(
+        "additional row invalid decision vocabulary",
+        "uses invalid USER Decision State",
+        validate(
+            with_additional(
+                additional.replace(
+                    "USER Decision State: `Needs USER Decision`",
+                    "USER Decision State: `Pending Revised BP1 Selection`",
+                )
+            )
+        ),
+    )
+    _assert_failure(
+        "historical-only additional row counted as current",
+        "declared UFD Item Count does not match",
+        validate(
+            original.replace("UFD Item Count: `18`", "UFD Item Count: `19`", 1)
+            .replace("Open UFD Count: `0`", "Open UFD Count: `1`", 1)
+            .replace(
+                fixture_history_boundary,
+                fixture_history_boundary + additional + "\n",
+                1,
+            )
+        ),
+    )
+    _assert_failure(
+        "additional row silently replaces an original row",
+        "required Option G row UFD-FAM003-20260724-018",
+        validate(original.replace(_ufd_fixture_rows()[-1], additional, 1)),
+    )
     matrix = _element_to_phase_fixture()
     vision_block = (
         "## Branch Vision Contract Snapshot"
@@ -903,7 +1045,7 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         (
             "declared owner without atomic rows",
             original.replace(rows + "\n\n", ""),
-            "exactly 18 physical atomic rows",
+            "required Option G row",
         ),
         (
             "canonical UFD row uses BP3 acceptance vocabulary",
@@ -934,12 +1076,12 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
                 historical,
                 historical + rows + "\n",
             ),
-            "exactly 18 physical atomic rows",
+            "required Option G row",
         ),
         (
             "atomic row missing required field",
             original.replace("Proof / Closure Requirement:", "Proof Closure Requirement:", 1),
-            "missing required field Proof / Closure Requirement:",
+            "missing or blank required field Proof / Closure Requirement:",
         ),
         (
             "open count disagrees with rows",

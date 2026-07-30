@@ -9092,7 +9092,7 @@ def _fam003_option_g_supporting_carrier_failures(
         r"^## Accepted Planning Authority$",
         r"^## Packet Lineage And Closure$",
         r"^## USER Feedback Disposition$",
-        r"^### UFD Item: UFD-FAM003-20260724-\d{3}$",
+        r"^### UFD Item: UFD-FAM003-\d{8}-\d{3}$",
         r"^## Element-to-Phase Proof Matrix$",
         r"^## Next Legal Phase Digest$",
     )
@@ -10318,8 +10318,6 @@ def _fam003_option_g_bp3_orchestration_failures(
             "`C:\\Nexus Governance State\\branches\\"
             "feature_fam_003_settings_resize_proof\\branch_plan.md`"
         ),
-        "UFD open count": "Open UFD Count: `0`",
-        "UFD blocking count": "Blocking UFD Count: `0`",
         "UFD fold-down": "Fold-Down Status: `Pending`",
         "BP2 authority reconciled": "Accepted BP2 Authority: `RECONCILED`",
         "historical BP2 ZIP not reconstructed": (
@@ -10371,7 +10369,7 @@ def _fam003_option_g_bp3_orchestration_failures(
         else ""
     )
 
-    def _ufd_rows(text: str, *, live_only: bool = False) -> dict[str, str]:
+    def _ufd_entries(text: str, *, live_only: bool = False) -> list[tuple[str, str]]:
         if live_only:
             text = text.partition("Historical Receipt Boundary:")[0]
         matches = re.finditer(
@@ -10379,15 +10377,24 @@ def _fam003_option_g_bp3_orchestration_failures(
             r"(.*?)(?=^### UFD Item:|^## |^Historical Receipt Boundary:|\Z)",
             text,
         )
-        return {
-            match.group(1).strip(): re.sub(
+        return [
+            (
+                match.group(1).strip(),
+                re.sub(
                 r"[ \t]+\n",
                 "\n",
                 match.group(2).replace("\r\n", "\n"),
-            ).strip()
+                ).strip(),
+            )
             for match in matches
-        }
+        ]
 
+    def _ufd_rows(text: str, *, live_only: bool = False) -> dict[str, str]:
+        return dict(_ufd_entries(text, live_only=live_only))
+
+    canonical_ufd_entries = _ufd_entries(canonical_ufd_plan, live_only=True)
+    aid_ufd_entries = _ufd_entries(ufd_text)
+    supporting_ufd_entries = _ufd_entries(supporting_ufd_record)
     canonical_ufd_rows = _ufd_rows(canonical_ufd_plan, live_only=True)
     aid_ufd_rows = _ufd_rows(ufd_text)
     supporting_ufd_rows = _ufd_rows(supporting_ufd_record)
@@ -10467,11 +10474,33 @@ def _fam003_option_g_bp3_orchestration_failures(
             "FAM-003 Option G BP3: canonical branch plan redirects UFD detail to a "
             "supporting record instead of physically owning the atomic rows"
         )
-    if len(canonical_ufd_rows) != 18:
-        failures.append(
-            "FAM-003 Option G BP3: canonical active external branch plan must "
-            f"physically contain exactly 18 atomic UFD rows; found {len(canonical_ufd_rows)}"
+    required_ufd_ids = tuple(
+        f"UFD-FAM003-20260724-{index:03d}" for index in range(1, 19)
+    )
+    for source_label, entries in (
+        ("canonical", canonical_ufd_entries),
+        ("packet review copy", aid_ufd_entries),
+        ("supporting evidence copy", supporting_ufd_entries),
+    ):
+        entry_ids = [item_id for item_id, _ in entries]
+        normalized_ids = [item_id.casefold() for item_id in entry_ids]
+        duplicate_ids = sorted(
+            item_id
+            for item_id, count in Counter(normalized_ids).items()
+            if count > 1
         )
+        if duplicate_ids:
+            failures.append(
+                f"FAM-003 Option G BP3: {source_label} contains duplicate atomic UFD rows: "
+                + ", ".join(duplicate_ids)
+            )
+        for required_id in required_ufd_ids:
+            occurrences = normalized_ids.count(required_id.casefold())
+            if occurrences != 1:
+                failures.append(
+                    f"FAM-003 Option G BP3: {source_label} required Option G row "
+                    f"{required_id} must be present exactly once; found {occurrences}"
+                )
     context_relative_location_re = re.compile(
         r"\b(?:this|the)\s+annex\b"
         r"|\bthis supporting record\b"
@@ -10523,22 +10552,28 @@ def _fam003_option_g_bp3_orchestration_failures(
                 "FAM-003 Option G BP3: repo branch record must point to the active "
                 "external branch-plan owner while fold-down is pending"
             )
-    declared_canonical_count = _markdown_field_value(canonical_live, "UFD Item Count")
-    if declared_canonical_count != "18":
+    declared_canonical_count_text = _markdown_field_value(canonical_live, "UFD Item Count")
+    declared_canonical_count_match = re.fullmatch(
+        r"\d+", (declared_canonical_count_text or "").strip()
+    )
+    declared_canonical_count = (
+        int(declared_canonical_count_match.group(0))
+        if declared_canonical_count_match
+        else None
+    )
+    if declared_canonical_count != len(canonical_ufd_entries):
         failures.append(
-            "FAM-003 Option G BP3: canonical branch plan UFD Item Count must be 18"
+            "FAM-003 Option G BP3: canonical branch plan UFD Item Count must match "
+            f"physical current rows; declared {declared_canonical_count}, "
+            f"found {len(canonical_ufd_entries)}"
         )
     canonical_open_count = sum(
-        any(term in _markdown_field_value(row, "Status").casefold() for term in (
-            "open",
-            "queued",
-            "blocking",
-            "deferred",
-        ))
+        _markdown_field_value(row, "Status").strip().casefold()
+        in {"open", "queued", "blocking", "deferred"}
         for row in canonical_ufd_rows.values()
     )
     canonical_blocking_count = sum(
-        "blocking" in _markdown_field_value(row, "Status").casefold()
+        _markdown_field_value(row, "Status").strip().casefold() == "blocking"
         for row in canonical_ufd_rows.values()
     )
     if _markdown_field_value(canonical_live, "Open UFD Count") != str(canonical_open_count):
@@ -10602,11 +10637,6 @@ def _fam003_option_g_bp3_orchestration_failures(
                     f"FAM-003 Option G BP3: {source_label} {item_id} uses BP3 "
                     "acceptance where the current decision requires BP3 approval"
                 )
-    if len(ufd_item_matches) < 18:
-        failures.append(
-            "FAM-003 Option G BP3: active UFD ledger must contain at least "
-            f"18 atomic UFD rows; found {len(ufd_item_matches)}"
-        )
     ufd_item_markers = (
         "Feedback ID:",
         "Feedback Summary:",
@@ -10631,21 +10661,82 @@ def _fam003_option_g_bp3_orchestration_failures(
         "Proof / Closure Requirement:",
         "Remaining USER Decision:",
     )
+    allowed_ufd_decision_states = {
+        "proposed by codex",
+        "recommended by chatgpt",
+        "accepted by user",
+        "revised by user",
+        "rejected by user",
+        "deferred by user",
+        "deferred with waiver",
+        "superseded",
+        "needs user decision",
+    }
+    allowed_ufd_statuses = {
+        "open",
+        "queued",
+        "blocking",
+        "closed",
+        "folded down",
+        "deferred",
+        "superseded",
+    }
+    for source_label, entries, source_text in (
+        ("canonical", canonical_ufd_entries, canonical_live),
+        ("packet review copy", aid_ufd_entries, ufd_text),
+        ("supporting evidence copy", supporting_ufd_entries, supporting_ufd_record),
+    ):
+        declared_text = _markdown_field_value(source_text, "UFD Item Count")
+        declared_match = re.fullmatch(r"\d+", (declared_text or "").strip())
+        declared_count = int(declared_match.group(0)) if declared_match else None
+        if declared_count != len(entries):
+            failures.append(
+                f"FAM-003 Option G BP3: {source_label} UFD Item Count must match "
+                f"physical rows; declared {declared_count}, found {len(entries)}"
+            )
+        for item_id, item_text in entries:
+            if not re.fullmatch(r"UFD-FAM003-\d{8}-\d{3}", item_id):
+                failures.append(
+                    f"FAM-003 Option G BP3: {source_label} {item_id} is not a valid "
+                    "current FAM-003 UFD ID"
+                )
+            for marker in ufd_item_markers:
+                value = _markdown_field_value(item_text, marker.rstrip(":"))
+                if marker not in item_text or not value.strip():
+                    failures.append(
+                        f"FAM-003 Option G BP3: {source_label} {item_id} is missing "
+                        f"or blank UFD field {marker}"
+                    )
+            feedback_id = _markdown_field_value(item_text, "Feedback ID")
+            if feedback_id.casefold() != item_id.casefold():
+                failures.append(
+                    f"FAM-003 Option G BP3: {source_label} {item_id} Feedback ID "
+                    "does not match its heading"
+                )
+            decision_state = _markdown_field_value(
+                item_text, "USER Decision State"
+            ).strip().casefold()
+            if decision_state not in allowed_ufd_decision_states:
+                failures.append(
+                    f"FAM-003 Option G BP3: {source_label} {item_id} uses invalid "
+                    f"USER Decision State {decision_state or 'MISSING'!r}"
+                )
+            item_status = _markdown_field_value(item_text, "Status").strip().casefold()
+            if item_status not in allowed_ufd_statuses:
+                failures.append(
+                    f"FAM-003 Option G BP3: {source_label} {item_id} uses invalid "
+                    f"Status {item_status or 'MISSING'!r}"
+                )
     open_ufd_rows = 0
     blocking_ufd_rows = 0
     for item_match in ufd_item_matches:
         item_id = item_match.group(1).strip()
         item_text = item_match.group(2)
-        for marker in ufd_item_markers:
-            if marker not in item_text:
-                failures.append(
-                    f"FAM-003 Option G BP3: {item_id} is missing UFD field {marker}"
-                )
         status_match = re.search(r"(?m)^Status:\s*`?([^`\n]+)", item_text)
         item_status = status_match.group(1).strip().casefold() if status_match else ""
-        if any(term in item_status for term in ("open", "queued", "blocking", "deferred")):
+        if item_status in {"open", "queued", "blocking", "deferred"}:
             open_ufd_rows += 1
-        if "blocking" in item_status:
+        if item_status == "blocking":
             blocking_ufd_rows += 1
 
     def _declared_ufd_count(marker: str) -> int | None:

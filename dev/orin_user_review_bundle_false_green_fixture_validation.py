@@ -1567,6 +1567,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "UFD Supporting Evidence Copy: `C:\\Nexus Governance State\\branches\\"
         "feature_fam_003_settings_resize_proof\\"
         "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md`\n"
+        "UFD Item Count: `18`\n"
         "Open UFD Count: `0`\n"
         "Blocking UFD Count: `0`\n"
         "Fold-Down Status: `Pending`\n"
@@ -1797,7 +1798,8 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
         "Option G BP3: 1 BP2 carrydown applicability positive + 26 formal-digest "
         "+ 13 Branch Vision + 11 inventory + 15 packet-lineage + "
         "21 supporting-carrier + 8 defect-ledger + 22 proof-carrydown + "
-        "34 decision-surface + 19 active-metadata + 41 canonical-UFD + "
+        "34 decision-surface + 19 active-metadata + 1 expandable-UFD positive + "
+        "42 canonical-UFD negatives + "
         "12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases"
@@ -3725,13 +3727,107 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
                 f"{case_id} did not fail on {expected!r}: {failures}"
             )
 
+    additional_ufd_row = (
+        "### UFD Item: UFD-FAM003-20260730-019\n"
+        "Feedback ID: `UFD-FAM003-20260730-019`\n"
+        "Feedback Summary: `Additional current FAM-003 direction`\n"
+        "Feedback Source: `USER direction`\n"
+        "Feedback Phase: `BP1 revision`\n"
+        "Disposition Type: `Current Branch Requirement`\n"
+        "USER Decision State: `Needs USER Decision`\n"
+        "Owner Class: `Branch Plan`\n"
+        f"Canonical Owner File: `{canonical_ufd_owner}`\n"
+        "Workstream Severity: `Level 2 seam-blocking`\n"
+        "Status: `Open`\n"
+        "Fold-Down Target: `Docs/branch_records/"
+        "feature_fam_003_settings_resize_proof.md`\n"
+        "Pointer Locations: `Supporting packet and evidence copies`\n"
+        "Source / Date: `USER / 2026-07-30`\n"
+        "USER Direction Or Finding: `Preserve additional current feedback`\n"
+        "Affected Scope: `FAM-003 BP1 revision`\n"
+        "Affected Artifact: `Branch Vision planning`\n"
+        "Classification: `Incorporated`\n"
+        "Owner: `FAM-003`\n"
+        "Carrier: `feature/fam-003-settings-resize-proof`\n"
+        "Planning Or Implementation Effect: `Planning carrydown only`\n"
+        "Proof / Closure Requirement: `Canonical owner and copy-equivalence proof`\n"
+        "Remaining USER Decision: `BP1 revision only`\n"
+    )
+    expanded_valid = dict(valid)
+    canonical_path = "Source Truth Context/current_external_branch_plan.md"
+    packet_copy_path = "Review Aids/OPTION_G_UFD_AND_FOLD_DOWN.md"
+    support_copy_path = (
+        "Source Truth Context/Active External Snapshot/"
+        "decision2_option_g_bp3_packet_lineage_support_closure_20260727.md"
+    )
+    for path in (canonical_path, packet_copy_path, support_copy_path):
+        expanded_valid[path] = (
+            expanded_valid[path]
+            .replace("UFD Item Count: `18`", "UFD Item Count: `19`", 1)
+            .replace("Open UFD Count: `0`", "Open UFD Count: `1`", 1)
+        )
+    expanded_valid[canonical_path] = expanded_valid[canonical_path].replace(
+        "\n".join(ufd_rows) + f"\n{element_section}",
+        "\n".join(ufd_rows) + "\n" + additional_ufd_row + f"\n{element_section}",
+        1,
+    )
+    expanded_valid[packet_copy_path] = (
+        expanded_valid[packet_copy_path].rstrip()
+        + "\n"
+        + additional_ufd_row
+    )
+    expanded_valid[support_copy_path] = expanded_valid[support_copy_path].replace(
+        "\n".join(ufd_rows) + f"\n{element_section}",
+        "\n".join(ufd_rows) + "\n" + additional_ufd_row + f"\n{element_section}",
+        1,
+    )
+    expanded_support_active = (
+        expanded_valid[support_copy_path]
+        .partition("## Historical / Superseded Evidence")[0]
+        .replace("\r\n", "\n")
+        .rstrip()
+        + "\n"
+    )
+    expanded_manifest = json.loads(expanded_valid[manifest_path])
+    expanded_manifest["Current Support"]["activeSectionSha256"] = hashlib.sha256(
+        expanded_support_active.encode("utf-8")
+    ).hexdigest().upper()
+    expanded_valid[manifest_path] = json.dumps(expanded_manifest, indent=2)
+    expanded_failures = bundle._fam003_option_g_bp3_orchestration_failures(
+        expanded_valid,
+        status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if expanded_failures:
+        raise AssertionError(
+            "OPTG-BP3-UFD-POS-01 rejected a lawful additional current UFD row: "
+            f"{expanded_failures}"
+        )
+    expanded_mismatch = dict(expanded_valid)
+    expanded_mismatch[support_copy_path] = expanded_mismatch[support_copy_path].replace(
+        "USER Direction Or Finding: `Preserve additional current feedback`",
+        "USER Direction Or Finding: `Divergent additional feedback copy`",
+        1,
+    )
+    expanded_mismatch_failures = bundle._fam003_option_g_bp3_orchestration_failures(
+        expanded_mismatch,
+        status=bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+    )
+    if not any(
+        "differs from the canonical" in failure.casefold()
+        for failure in expanded_mismatch_failures
+    ):
+        raise AssertionError(
+            "OPTG-BP3-UFD-FG-42 did not reject a divergent lawful additional row: "
+            f"{expanded_mismatch_failures}"
+        )
+
     canonical_ufd_cases = (
         (
             "OPTG-BP3-UFD-FG-01",
             "Source Truth Context/current_external_branch_plan.md",
             "\n".join(ufd_rows),
             "",
-            "physically contain exactly 18",
+            "required Option G row",
         ),
         (
             "OPTG-BP3-UFD-FG-02",
@@ -3769,14 +3865,14 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Source Truth Context/current_external_branch_plan.md",
             "UFD Item Count: `18`",
             "UFD Item Count: `17`",
-            "UFD Item Count must be 18",
+            "UFD Item Count must match physical current rows",
         ),
         (
             "OPTG-BP3-UFD-FG-07",
             "Source Truth Context/current_external_branch_plan.md",
             ufd_rows[-1],
             "",
-            "physically contain exactly 18",
+            "required Option G row",
         ),
         (
             "OPTG-BP3-UFD-FG-08",
@@ -3833,7 +3929,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             + "Historical Receipt Boundary: `Historical content follows.`\n"
             + "\n".join(ufd_rows)
             + "\n",
-            "physically contain exactly 18",
+            "required Option G row",
         ),
         (
             "OPTG-BP3-UFD-FG-15",
@@ -3847,7 +3943,7 @@ def _assert_fam003_option_g_bp3_orchestration_guards() -> None:
             "Source Truth Context/current_external_branch_plan.md",
             ufd_rows[-1],
             ufd_rows[-2],
-            "physically contain exactly 18",
+            "required Option G row",
         ),
         (
             "OPTG-BP3-UFD-FG-17",
@@ -6756,7 +6852,8 @@ def main() -> int:
         "26 formal-digest + 13 Branch Vision + 11 inventory + "
         "15 packet-lineage + 10 final-closure + 21 supporting-carrier + 8 defect-ledger + "
         "22 proof-carrydown + 34 decision-surface + 19 active-metadata + "
-        "41 canonical-UFD + 12 Element-to-Phase + 55 provenance + "
+        "1 expandable-UFD positive + 42 canonical-UFD negatives + "
+        "12 Element-to-Phase + 55 provenance + "
         "10 active-rollback negatives + 1 labeled-history positive + "
         "2 byte-exact projection cases)"
     )

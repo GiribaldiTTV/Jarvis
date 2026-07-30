@@ -212,7 +212,9 @@ def _live_header_text(text: str) -> str:
 
 
 FAM003_OPTION_G_BRANCH = "feature/fam-003-settings-resize-proof"
-FAM003_OPTION_G_UFD_COUNT = 18
+FAM003_OPTION_G_REQUIRED_UFD_IDS = tuple(
+    f"UFD-FAM003-20260724-{index:03d}" for index in range(1, 19)
+)
 FAM003_OPTION_G_UFD_FOLD_DOWN_TARGET = (
     "Docs/branch_records/feature_fam_003_settings_resize_proof.md"
 )
@@ -275,6 +277,27 @@ FAM003_OPTION_G_UFD_ITEM_MARKERS = (
     "Proof / Closure Requirement:",
     "Remaining USER Decision:",
 )
+UFD_ALLOWED_DECISION_STATES = {
+    "proposed by codex",
+    "recommended by chatgpt",
+    "accepted by user",
+    "revised by user",
+    "rejected by user",
+    "deferred by user",
+    "deferred with waiver",
+    "superseded",
+    "needs user decision",
+}
+UFD_ALLOWED_ITEM_STATUSES = {
+    "open",
+    "queued",
+    "blocking",
+    "closed",
+    "folded down",
+    "deferred",
+    "superseded",
+}
+UFD_OPEN_ITEM_STATUSES = {"open", "queued", "blocking", "deferred"}
 ELEMENT_TO_PHASE_HEADING = "## Element-to-Phase Proof Matrix"
 ELEMENT_TO_PHASE_HEADER = (
     "Element ID",
@@ -547,12 +570,6 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
             "Canonical UFD Ownership: declared UFD Item Count does not match physical "
             f"atomic rows: declared {declared_count}, found {len(item_matches)}"
         )
-    if branch == FAM003_OPTION_G_BRANCH and len(item_matches) != FAM003_OPTION_G_UFD_COUNT:
-        failures.append(
-            "Canonical UFD Ownership: FAM-003 Option G requires exactly "
-            f"{FAM003_OPTION_G_UFD_COUNT} physical atomic rows; found {len(item_matches)}"
-        )
-
     open_items = 0
     blocking_items = 0
     seen_ids: set[str] = set()
@@ -568,10 +585,17 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
         if normalized_id in seen_ids:
             failures.append(f"Canonical UFD Ownership: duplicate atomic row {item_id}")
         seen_ids.add(normalized_id)
+        if branch == FAM003_OPTION_G_BRANCH and not re.fullmatch(
+            r"UFD-FAM003-\d{8}-\d{3}", item_id
+        ):
+            failures.append(
+                f"Canonical UFD Ownership: {item_id} is not a valid current FAM-003 UFD ID"
+            )
         for marker in required_markers:
-            if marker not in item_text:
+            value = markdown_field_value(item_text, marker.rstrip(":"))
+            if marker not in item_text or not (value or "").strip():
                 failures.append(
-                    f"Canonical UFD Ownership: {item_id} is missing required field {marker}"
+                    f"Canonical UFD Ownership: {item_id} is missing or blank required field {marker}"
                 )
         feedback_id = markdown_field_value(item_text, "Feedback ID") or ""
         if feedback_id.casefold() != normalized_id:
@@ -621,11 +645,37 @@ def _validate_active_branch_plan_ufd(relative: str, live_text: str) -> list[str]
                 f"Canonical UFD Vocabulary: {item_id} uses BP3 acceptance where "
                 "the actionable BP3 state is USER Approved; use 'BP3 approval only'"
             )
-        status = (markdown_field_value(item_text, "Status") or "").casefold()
-        if any(term in status for term in ("open", "queued", "blocking", "deferred")):
+        decision_state = (
+            markdown_field_value(item_text, "USER Decision State") or ""
+        ).strip().casefold()
+        if decision_state not in UFD_ALLOWED_DECISION_STATES:
+            failures.append(
+                f"Canonical UFD Schema: {item_id} uses invalid USER Decision State "
+                f"{decision_state or 'MISSING'!r}"
+            )
+        status = (markdown_field_value(item_text, "Status") or "").strip().casefold()
+        if status not in UFD_ALLOWED_ITEM_STATUSES:
+            failures.append(
+                f"Canonical UFD Schema: {item_id} uses invalid Status "
+                f"{status or 'MISSING'!r}"
+            )
+        if status in UFD_OPEN_ITEM_STATUSES:
             open_items += 1
-        if "blocking" in status:
+        if status == "blocking":
             blocking_items += 1
+
+    if branch == FAM003_OPTION_G_BRANCH:
+        for required_id in FAM003_OPTION_G_REQUIRED_UFD_IDS:
+            occurrences = sum(
+                1
+                for item_match in item_matches
+                if item_match.group(1).strip().casefold() == required_id.casefold()
+            )
+            if occurrences != 1:
+                failures.append(
+                    "Canonical UFD Ownership: required Option G row "
+                    f"{required_id} must be present exactly once; found {occurrences}"
+                )
 
     for marker, actual in (
         ("Open UFD Count", open_items),
