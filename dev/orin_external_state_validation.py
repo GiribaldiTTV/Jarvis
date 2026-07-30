@@ -319,13 +319,53 @@ def validate_manifest(manifest_path: Path, expected_schema: str) -> list[str]:
     return issues
 
 
+def _markdown_fence_states(lines: list[str]) -> list[bool]:
+    """Mark fenced code-block lines so examples cannot become live authority."""
+
+    states: list[bool] = []
+    active_marker = ""
+    active_length = 0
+    for line in lines:
+        content = line.rstrip("\r\n")
+        marker_match = re.match(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$", content)
+        if active_marker:
+            states.append(True)
+            if (
+                marker_match
+                and marker_match.group(1)[0] == active_marker
+                and len(marker_match.group(1)) >= active_length
+                and not marker_match.group(2).strip()
+            ):
+                active_marker = ""
+                active_length = 0
+            continue
+        if marker_match:
+            marker = marker_match.group(1)
+            active_marker = marker[0]
+            active_length = len(marker)
+            states.append(True)
+            continue
+        states.append(False)
+    return states
+
+
+def _markdown_fences_are_balanced(lines: list[str]) -> bool:
+    return not _markdown_fence_states([*lines, "NDAI fence-balance sentinel"])[-1]
+
+
 def markdown_field_value(text: str, field: str) -> str | None:
-    pattern = re.compile(
-        rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$",
-        re.MULTILINE,
+    lines = text.splitlines()
+    fenced = _markdown_fence_states(lines)
+    pattern = re.compile(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$")
+    match = next(
+        (
+            candidate
+            for index, line in enumerate(lines)
+            if not fenced[index] and (candidate := pattern.match(line))
+        ),
+        None,
     )
-    match = pattern.search(text)
-    if not match:
+    if match is None:
         return None
     value = match.group(1).strip()
     if value.startswith("`") and value.endswith("`") and value.count("`") == 2:
@@ -368,11 +408,12 @@ def _live_header_text(text: str) -> str:
     """Restrict currentness parsing to the live header before receipt sections."""
 
     lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
     live_end = next(
         (
             index
             for index, line in enumerate(lines)
-            if line.rstrip("\r\n").startswith("## ")
+            if not fenced[index] and line.rstrip("\r\n").startswith("## ")
         ),
         len(lines),
     )
@@ -381,12 +422,16 @@ def _live_header_text(text: str) -> str:
 
 def _markdown_field_values(text: str, fields: tuple[str, ...]) -> list[tuple[str, str]]:
     values: list[tuple[str, str]] = []
+    lines = text.splitlines()
+    fenced = _markdown_fence_states(lines)
     for field in fields:
         pattern = re.compile(
             rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$",
-            re.MULTILINE,
+            re.IGNORECASE,
         )
-        for match in pattern.finditer(text):
+        for index, line in enumerate(lines):
+            if fenced[index] or not (match := pattern.match(line)):
+                continue
             value = match.group(1).strip()
             if value.startswith("`") and value.endswith("`") and value.count("`") == 2:
                 value = value[1:-1].strip()
@@ -529,6 +574,13 @@ def validate_target_currentness(
     if failures:
         return failures
 
+    lines = text.splitlines(keepends=True)
+    if not _markdown_fences_are_balanced(lines):
+        failures.append(
+            f"Target Currentness: selected target contains an unterminated fenced block: {relative}"
+        )
+        return failures
+
     live_text = _live_header_text(text)
     failures.extend(_field_alias_failures(relative, live_text, ("Branch", "Current Branch")))
     failures.extend(_field_alias_failures(relative, live_text, ("Source Repo HEAD", "Current HEAD")))
@@ -573,11 +625,7 @@ def validate_target_currentness(
 
     record_role = markdown_field_value(live_text, "Record Role")
     for authority_marker in ("Record Role", "Historical Receipt Boundary"):
-        marker_rows = re.findall(
-            rf"^[ \t]*(?:-[ \t]*)?{re.escape(authority_marker)}:[^\r\n]*(?=\r?$)",
-            live_text,
-            flags=re.M | re.I,
-        )
+        marker_rows = _markdown_field_values(live_text, (authority_marker,))
         if len(marker_rows) != 1:
             failures.append(
                 f"Target Currentness: {relative} requires exactly one {authority_marker} marker"
@@ -771,7 +819,10 @@ def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
     )
     any_field_pattern = re.compile(r"^\s*(?:-\s*)?[A-Za-z][A-Za-z0-9 /_-]*:\s*")
     lines = text.splitlines()
+    fenced = _markdown_fence_states(lines)
     for index, line in enumerate(lines):
+        if fenced[index]:
+            continue
         match = marker_pattern.match(line)
         if not match:
             continue
@@ -779,7 +830,9 @@ def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
         first_value = match.group(1).strip()
         if first_value:
             values.append(first_value)
-        for next_line in lines[index + 1 :]:
+        for next_index, next_line in enumerate(lines[index + 1 :], start=index + 1):
+            if fenced[next_index]:
+                break
             stripped = next_line.strip()
             if not stripped:
                 break
@@ -2834,6 +2887,16 @@ def _resolve_modern_committed_target_chains(
         entries.sort(key=lambda entry: (entry[0], _host_path_key(entry[1].name)))
         relative = entries[-1][2]
         chain_invalid = False
+        seen_digests = {entries[0][3].casefold()}
+        for entry in entries:
+            after_digest = entry[4].casefold()
+            if after_digest in seen_digests:
+                issues.append(
+                    "modern Committed journal chain repeats an earlier target digest for "
+                    f"{relative}: {entry[1]} After SHA256 closes a hash cycle"
+                )
+                chain_invalid = True
+            seen_digests.add(after_digest)
         for previous, current in zip(entries, entries[1:]):
             if previous[0] == current[0]:
                 issues.append(
@@ -3616,6 +3679,33 @@ def validate_incomplete_target_set_journals(
                 "Target-set transaction audit file changed during validation: "
                 f"{discovered_path}"
             )
+    failures.extend(
+        "Target-set transaction live target changed during validation: " + issue
+        for issue in _validate_modern_committed_target_evidence(
+            root,
+            latest_target_after_hashes,
+        )
+    )
+    for snapshot, target_before_hashes, transaction_updated in committed_snapshot_evidence:
+        failures.extend(
+            "Target-set transaction snapshot changed during validation: " + issue
+            for issue in _validate_modern_snapshot_evidence(
+                root,
+                snapshot,
+                target_before_hashes,
+                transaction_updated,
+            )
+        )
+    for audit_path, payload, target_before_hashes in committed_lock_evidence:
+        failures.extend(
+            "Target-set transaction lock changed during validation: " + issue
+            for issue in _validate_modern_lock_evidence(
+                root,
+                audit_path,
+                payload,
+                target_before_hashes,
+            )
+        )
     try:
         final_entries = sorted(audit_root.iterdir())
         final_audit_path, final_audit_states = _confined_component_states(
@@ -3643,40 +3733,72 @@ def validate_incomplete_target_set_journals(
                     final_audit_states,
                 )
             )
-            or final_inventory != rediscovered_inventory
+            or final_inventory != discovered_inventory
         )
     except OSError:
+        final_entries = []
+        final_inventory = set()
+        final_audit_path = audit_path_before
+        final_audit_states = audit_before_states
         final_inventory_changed = True
     if final_inventory_changed:
         failures.append(
-            "Target-set transaction audit inventory changed after final hashing"
+            "Target-set transaction audit inventory changed after final evidence validation"
         )
-    failures.extend(
-        "Target-set transaction live target changed during validation: " + issue
-        for issue in _validate_modern_committed_target_evidence(
+    for final_path in final_entries:
+        expected_digest = discovered_hashes.get(_host_path_key(final_path.name))
+        if expected_digest is None:
+            continue
+        try:
+            final_digest = _sha256_confined_evidence_file(
+                root,
+                ("audit_log", final_path.name),
+            )
+        except OSError as exc:
+            failures.append(
+                "Target-set transaction audit file changed during final validation: "
+                f"{final_path}: {exc}"
+            )
+            continue
+        if final_digest.casefold() != expected_digest.casefold():
+            failures.append(
+                "Target-set transaction audit file changed during final validation: "
+                f"{final_path}"
+            )
+    try:
+        post_hash_entries = sorted(audit_root.iterdir())
+        post_hash_audit_path, post_hash_audit_states = _confined_component_states(
             root,
-            latest_target_after_hashes,
+            ("audit_log",),
         )
-    )
-    for snapshot, target_before_hashes, transaction_updated in committed_snapshot_evidence:
-        failures.extend(
-            "Target-set transaction snapshot changed during validation: " + issue
-            for issue in _validate_modern_snapshot_evidence(
-                root,
-                snapshot,
-                target_before_hashes,
-                transaction_updated,
+        post_hash_inventory = {
+            (
+                _host_path_key(path.name),
+                "reparse"
+                if _has_reparse_point(path)
+                else "directory"
+                if path.is_dir()
+                else "entry",
             )
+            for path in post_hash_entries
+        }
+        post_hash_inventory_changed = (
+            post_hash_audit_path != final_audit_path
+            or len(post_hash_audit_states) != len(final_audit_states)
+            or any(
+                not os.path.samestat(final_state, post_hash_state)
+                for final_state, post_hash_state in zip(
+                    final_audit_states,
+                    post_hash_audit_states,
+                )
+            )
+            or post_hash_inventory != final_inventory
         )
-    for audit_path, payload, target_before_hashes in committed_lock_evidence:
-        failures.extend(
-            "Target-set transaction lock changed during validation: " + issue
-            for issue in _validate_modern_lock_evidence(
-                root,
-                audit_path,
-                payload,
-                target_before_hashes,
-            )
+    except OSError:
+        post_hash_inventory_changed = True
+    if post_hash_inventory_changed:
+        failures.append(
+            "Target-set transaction audit inventory changed after final hashing"
         )
     return failures
 

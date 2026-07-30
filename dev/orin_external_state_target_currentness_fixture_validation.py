@@ -690,6 +690,10 @@ def _write_modern_journal_chain_fixture(root: Path, variant: str = "valid") -> P
     elif variant == "reversed-chronology":
         transitions[0] = ("chain-1", state_0, state_1, "2026-07-28T00:02:00Z")
         transitions[1] = ("chain-2", state_1, state_2, "2026-07-28T00:01:00Z")
+    elif variant == "two-step-cycle":
+        transitions[1] = ("chain-2", state_1, state_0, "2026-07-28T00:02:00Z")
+    elif variant == "longer-cycle":
+        transitions.append(("chain-3", state_2, state_0, "2026-07-28T00:03:00Z"))
     elif variant not in {"valid", "latest-live-mismatch"}:
         raise AssertionError(f"unknown modern journal chain variant {variant!r}")
 
@@ -770,9 +774,11 @@ def _write_modern_journal_chain_fixture(root: Path, variant: str = "valid") -> P
     live_target.write_bytes(
         b"modern chain unrelated live bytes\n"
         if variant == "latest-live-mismatch"
+        else state_0
+        if variant in {"two-step-cycle", "longer-cycle"}
         else state_2
     )
-    return root / "audit_log" / "chain-2.json"
+    return root / "audit_log" / f"{transitions[-1][0]}.json"
 
 
 def _write_modern_nested_audit_directory_fixture(root: Path) -> Path:
@@ -1884,14 +1890,91 @@ def _assert_audit_final_inventory_creation_race_rejected() -> None:
         finally:
             Path.iterdir = original_iterdir
         if audit_enumerations < 3 or not any(
+            "audit inventory changed after final evidence validation" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "post-evidence audit inventory-creation race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit fixture: post-evidence inventory creation race rejected: PASS")
+
+
+def _assert_audit_creation_during_final_lock_validation_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-audit-final-lock-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        audit_root = root / "audit_log"
+        original_validate_lock = validator._validate_modern_lock_evidence
+        lock_validations = 0
+
+        def create_during_final_lock_validation(*args: object, **kwargs: object):
+            nonlocal lock_validations
+            issues = original_validate_lock(*args, **kwargs)
+            lock_validations += 1
+            if lock_validations == 2:
+                atomic_write_json(
+                    audit_root / "prepared-during-final-lock-validation.json",
+                    {
+                        "Transition": validator.TARGET_SET_TRANSITION,
+                        "Transaction State": "Prepared",
+                    },
+                )
+            return issues
+
+        validator._validate_modern_lock_evidence = create_during_final_lock_validation
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._validate_modern_lock_evidence = original_validate_lock
+        if lock_validations < 2 or not any(
+            "audit inventory changed after final evidence validation" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "audit creation during final lock validation escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit fixture: final-lock creation race rejected: PASS")
+
+
+def _assert_audit_creation_during_final_hash_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-audit-final-hash-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        audit_root = root / "audit_log"
+        original_hash = validator._sha256_confined_evidence_file
+        audit_hashes = 0
+
+        def create_during_final_hash(base: Path, parts: tuple[str, ...]) -> str:
+            nonlocal audit_hashes
+            digest = original_hash(base, parts)
+            if base == root and parts and parts[0] == "audit_log":
+                audit_hashes += 1
+                if audit_hashes == 2:
+                    atomic_write_json(
+                        audit_root / "prepared-during-final-hash.json",
+                        {
+                            "Transition": validator.TARGET_SET_TRANSITION,
+                            "Transaction State": "Prepared",
+                        },
+                    )
+            return digest
+
+        validator._sha256_confined_evidence_file = create_during_final_hash
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._sha256_confined_evidence_file = original_hash
+        if audit_hashes < 2 or not any(
             "audit inventory changed after final hashing" in item
             for item in failures
         ):
             raise AssertionError(
-                "post-hash audit inventory-creation race escaped validation:\n"
+                "audit creation during final hashing escaped validation:\n"
                 + "\n".join(failures)
             )
-    print("Modern audit fixture: post-hash inventory creation race rejected: PASS")
+    print("Modern audit fixture: final-hash creation race rejected: PASS")
 
 
 def _assert_audit_rediscovery_failure_rejected() -> None:
@@ -2847,6 +2930,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 "ambiguous-timestamp",
                 "forked",
                 "reversed-chronology",
+                "two-step-cycle",
+                "longer-cycle",
                 "latest-live-mismatch",
             )
         ],
@@ -3591,6 +3676,8 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_inventory_creation_race_rejected()
     _assert_audit_inventory_creation_race_rejected()
     _assert_audit_final_inventory_creation_race_rejected()
+    _assert_audit_creation_during_final_lock_validation_rejected()
+    _assert_audit_creation_during_final_hash_rejected()
     _assert_audit_rediscovery_failure_rejected()
     _assert_live_target_final_revalidation_rejected()
     _assert_snapshot_final_revalidation_rejected()
@@ -4284,6 +4371,111 @@ def main() -> int:
         target = _record(root)
         _assert_pass("valid selected live projection", _run(root))
         _assert_pass("stale root manifest is separate posture", _run(root))
+
+        for label, original, expected_failure in (
+            (
+                "fenced-only schema field",
+                "External State Schema: `external-state-v1`",
+                "External State Schema Conflict",
+            ),
+            (
+                "fenced-only record class",
+                "Record Class: `Live Worktree Projection`",
+                "unsupported or missing live Record Class",
+            ),
+            (
+                "fenced-only record role",
+                "Record Role: `Current worktree assignment projection`",
+                "requires exactly one Record Role marker",
+            ),
+            (
+                "fenced-only historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "requires exactly one Historical Receipt Boundary marker",
+            ),
+            (
+                "fenced-only branch identity",
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "missing required field Branch",
+            ),
+            (
+                "fenced-only source-head identity",
+                f"Source Repo HEAD: `{HEAD}`",
+                "missing required field Source Repo HEAD",
+            ),
+            (
+                "fenced-only origin-main identity",
+                f"Origin/Main: `{ORIGIN_MAIN}`",
+                "missing required field Origin/Main",
+            ),
+            (
+                "fenced-only worktree identity",
+                f"Worktree Path: `{WORKTREE_PATH}`",
+                "missing required field Worktree Path",
+            ),
+            (
+                "fenced-only slot identity",
+                f"Slot ID: `{SLOT}`",
+                "missing required field Slot ID",
+            ),
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8").replace(
+                    original,
+                    f"```text\n{original}\n```",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_failure(label, expected_failure, _run(root))
+            _record(root)
+
+        for label, opener, closer in (
+            ("backtick-fenced duplicate authority examples", "```text", "```"),
+            ("tilde-fenced duplicate authority examples", "~~~text", "~~~~"),
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8")
+                + "\n".join(
+                    [
+                        opener,
+                        "Record Role: `Historical receipt only`",
+                        "Historical Receipt Boundary: `Historical receipts redefine live authority.`",
+                        "Branch: `feature/wrong-fenced-branch`",
+                        f"Source Repo HEAD: `{'f' * 40}`",
+                        "## Historical Receipts",
+                        closer,
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            _assert_pass(label, _run(root))
+            _record(root)
+
+        target.write_text(
+            target.read_text(encoding="utf-8").replace(
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                "```markdown\n## Historical Receipts\nBranch: `feature/wrong-fenced-branch`\n```\n"
+                "Branch: `feature/release-readiness-source-truth-intake`",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        _assert_pass("fenced level-two heading does not terminate live authority", _run(root))
+        _record(root)
+
+        target.write_text(
+            target.read_text(encoding="utf-8")
+            + "```text\nBranch: `feature/wrong-fenced-branch`\n",
+            encoding="utf-8",
+        )
+        _assert_failure(
+            "unterminated target-currentness fence",
+            "unterminated fenced block",
+            _run(root),
+        )
+        _record(root)
 
         _assert_failure(
             "wrong branch",
@@ -5040,6 +5232,54 @@ def main() -> int:
             )
         if fenced_rename_result.count("## Historical Receipts") != 1:
             raise AssertionError("a fenced heading example was renamed")
+
+        case_collision_result, case_collision_failures, case_collision_renamed = (
+            reconciler._rename_sections(
+                normalized_before_text,
+                {"Assigned Worktree Confinement": "historical receipts"},
+            )
+        )
+        if (
+            case_collision_result != normalized_before_text
+            or case_collision_renamed
+            or not any("destination already exists" in item for item in case_collision_failures)
+        ):
+            raise AssertionError("a case-variant section rename destination collision was accepted")
+
+        case_source_result, case_source_failures, case_source_renamed = (
+            reconciler._rename_sections(
+                normalized_before_text,
+                {"historical receipts": "Historical Archive"},
+            )
+        )
+        if case_source_failures or case_source_renamed != [
+            ("## historical receipts", "## Historical Archive")
+        ] or "## Historical Archive\n" not in case_source_result:
+            raise AssertionError(
+                "a unique case-variant section source was not renamed deterministically:\n"
+                + "\n".join(case_source_failures)
+            )
+
+        fenced_destination_text = normalized_before_text.replace(
+            "## Historical Receipts\n",
+            "```markdown\n## Historical Archive\n```\n## Historical Receipts\n",
+            1,
+        )
+        fenced_destination_result, fenced_destination_failures, fenced_destination_renamed = (
+            reconciler._rename_sections(
+                fenced_destination_text,
+                {"Historical Receipts": "historical archive"},
+            )
+        )
+        if fenced_destination_failures or fenced_destination_renamed != [
+            ("## Historical Receipts", "## historical archive")
+        ]:
+            raise AssertionError(
+                "a fenced rename destination was treated as a live collision:\n"
+                + "\n".join(fenced_destination_failures)
+            )
+        if fenced_destination_result.count("## Historical Archive") != 1:
+            raise AssertionError("a fenced rename destination example was modified")
 
         for label, unterminated_text in (
             (

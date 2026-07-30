@@ -1038,7 +1038,8 @@ the journals form one chronological hash chain rather than independent live-byte
 claims. Canonical `Last Updated` values must establish a unique order, each older
 row's `After SHA256` must equal the next row's `Before SHA256`, and only the newest
 chain tail may bind current live bytes. Equal timestamps, discontinuities, forks,
-reversed chronology, or a newest-tail/live-byte mismatch fail closed.
+reversed chronology, any repeated state digest that closes a two-step or longer
+hash cycle, or a newest-tail/live-byte mismatch fail closed.
 Snapshot manifest copied-file evidence and the physical snapshot-file inventory
 must equal the journal target set exactly; a valid hash for an unrelated extra
 file, or an unmanifested physical file, is retained pre-write material, not
@@ -1063,8 +1064,11 @@ lock pass cannot inherit the earlier green result. Audit-log discovery must
 compare pre/post directory identity and JSON inventory, then rehash every discovered JSON file; a journal
 that appears or is replaced under the same filename blocks a green result. A
 second-pass enumeration failure must remain a validation failure, not escape as
-an unhandled error. After final audit-file hashes, the full typed inventory must
-be enumerated once more; a late Prepared journal or other entry blocks green. The
+an unhandled error. The terminal audit inventory and digest pass must run after
+final live-target, snapshot, and released-lock revalidation; otherwise a journal
+created during those later checks can escape an earlier nominally final inventory.
+After those terminal audit-file hashes, the full typed inventory must be enumerated
+once more; a late Prepared journal or other entry blocks green. The
 `audit_log` namespace is flat transaction evidence: any nested directory or
 filesystem alias is corrupt because a non-recursive scan could otherwise hide a
 Prepared or malformed journal below the authoritative audit root.
@@ -1081,6 +1085,10 @@ live-role identity and authority shape must be proven by whole tokens; embedded
 substrings such as `Delivery authority`, `Delivery state`, or `Current
 statement` are not current/live/active authority. `Not authoritative` is an
 explicit denial even when the same value also says `current authority`.
+Backtick and tilde fenced Markdown examples cannot supply identity fields,
+`Record Role`, `Historical Receipt Boundary`, marker cardinality, or a live-header
+boundary. A real live field plus a fenced duplicate remains singular, and an
+unterminated fence blocks target-currentness validation.
 Direct identity denials such as `Current authority is not active`, `Current
 authority is not current`, and `Active authority is not live` also fail closed;
 current/live/active nouns cannot outweigh their own negation. A

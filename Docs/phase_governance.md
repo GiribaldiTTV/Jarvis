@@ -2549,7 +2549,12 @@ record classes, identity mismatches, stale hashes, and target changes during
 validation. A target-scoped `Record Role` must affirm present-tense live authority
 without direct not-active/current/live wording, and its historical boundary must
 not later grant receipts or archives authority, assignment, ownership, control,
-role, or active state. Windows path comparison is case-insensitive and
+role, or active state. Backtick and tilde fenced examples cannot supply live
+identity, role, boundary, marker-cardinality, or header evidence; unterminated
+fences fail closed. Retained committed-journal state digests must form an acyclic
+chain, and terminal audit inventory plus digest validation must occur after final
+live-target, snapshot, and released-lock checks with one post-hash inventory pass.
+Windows path comparison is case-insensitive and
 slash-normalized.
 
 `state_manifest.json` remains a root initialization/index anchor. Its source
@@ -2563,7 +2568,8 @@ first be admitted by the External State Transition Gate and use
 record-specific equivalent) with the accepted record-specific lock, snapshot,
 atomic replacement, audit, rollback/no-loss, and post-write validation
 procedure. Writer field/section selectors must ignore fenced Markdown examples,
-preserve fenced bytes, and fail closed on unterminated fences. Canonical target-set
+preserve fenced bytes, fail closed on unterminated fences, and compare live
+section-rename sources and destinations case-insensitively. Canonical target-set
 Transition spelling applies only to string values that normalize to that
 transition; unrelated non-string Transition values remain outside the target-set
 journal class. Release the lock through

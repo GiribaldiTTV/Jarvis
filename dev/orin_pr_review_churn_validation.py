@@ -183,6 +183,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "section-field",
             "section field",
             "target reconciler",
+            "target reconcile",
+            "section rename destination",
             "fenced markdown",
         ),
     ),
@@ -1198,6 +1200,28 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "External-state transaction evidence comment did not classify into its exact family"
         )
+    for label, comment in (
+        (
+            "retained-journal hash cycle",
+            "Reject hash cycles in retained modern Committed journal chains when an After SHA256 returns to an earlier target digest.",
+        ),
+        (
+            "late audit creation",
+            "Recheck the audit inventory after final snapshot and released-lock evidence validation so a late Prepared target-set journal blocks green.",
+        ),
+        (
+            "fenced target authority",
+            "Ignore fenced Markdown Record Role, Historical Receipt Boundary, and branch identity examples during target-currentness validation.",
+        ),
+        (
+            "case-variant rename destination",
+            "Compare external-state target-reconcile section rename destinations case-insensitively before replacing a live heading.",
+        ),
+    ):
+        if "external-state-transaction-evidence-parser" not in _classify_comment(comment):
+            failures.append(
+                f"{label} review did not classify into the external-state evidence family"
+            )
     durable_carrier_comment = (
         "Reject a Durable Carrier Admission Receipt when the durable receipt omits "
         "complete confinement markers."

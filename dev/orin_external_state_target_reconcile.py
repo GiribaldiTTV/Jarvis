@@ -467,6 +467,7 @@ def _rename_sections(
             and re.fullmatch(
                 rf"{re.escape(old_heading)}[ \t]*",
                 line.rstrip("\r\n"),
+                flags=re.I,
             )
         ]
         if len(matches) != 1:
@@ -481,6 +482,7 @@ def _rename_sections(
             and re.fullmatch(
                 rf"{re.escape(new_heading)}[ \t]*",
                 line.rstrip("\r\n"),
+                flags=re.I,
             )
         ]
         if any(index != matches[0] for index in destination_matches):
