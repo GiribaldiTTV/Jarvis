@@ -8646,15 +8646,19 @@ def _external_state_has_current_confinement(
 
 
 def _external_authority_pointer_contract_is_singular(state_text: str) -> bool:
-    durable_pointers = _extract_exact_marker_values(
-        state_text,
-        "Repo Durable Receipt Pointer",
-    )
-    record_pointers = _extract_exact_marker_values(
-        state_text,
-        "Repo Branch Record Pointer",
-    )
-    return (len(durable_pointers), len(record_pointers)) in {(1, 0), (0, 1)}
+    def marker_count(label: str) -> int:
+        return len(
+            re.findall(
+                rf"^[ \t]*(?:-[ \t]*)?{re.escape(label)}:[ \t]*[^ \t\r\n][^\r\n]*$",
+                state_text,
+                flags=re.M | re.I,
+            )
+        )
+
+    return (
+        marker_count("Repo Durable Receipt Pointer"),
+        marker_count("Repo Branch Record Pointer"),
+    ) in {(1, 0), (0, 1)}
 
 
 def _external_branch_state_record_for_branch(
@@ -22216,12 +22220,33 @@ def _declared_repo_write_paths(
     *,
     host_os_name: str | None = None,
 ) -> set[str]:
-    candidates = re.findall(
+    candidate_pattern = re.compile(
         r"(?<![a-z0-9_.-])((?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+"
         r"(?:\.[a-z0-9]+)?)(?![a-z0-9_.-])",
-        value,
         flags=re.I,
     )
+    exclusion_pattern = re.compile(
+        r"\b(?:exclude(?:d|s|ing)?|not\s+included|not\s+in\s+(?:the\s+)?"
+        r"(?:write\s+set|scope)|out(?:side)?\s+(?:of\s+)?scope|read[- ]only|"
+        r"no\s+write)\b",
+        flags=re.I,
+    )
+    candidates: list[str] = []
+    for match in candidate_pattern.finditer(value):
+        clause_start = max(
+            value.rfind(separator, 0, match.start())
+            for separator in (";", ",", "\n", "\r")
+        ) + 1
+        following_boundaries = [
+            boundary
+            for separator in (";", ",", "\n", "\r")
+            if (boundary := value.find(separator, match.end())) >= 0
+        ]
+        clause_end = min(following_boundaries, default=len(value))
+        clause = value[clause_start:clause_end]
+        if exclusion_pattern.search(clause):
+            continue
+        candidates.append(match.group(1))
     return {
         path_key
         for candidate in candidates
@@ -22430,6 +22455,13 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
 
 def _durable_write_set_is_bounded(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
+    denial_checked = re.sub(
+        r"(?:^|[;,])\s*(?:all|any) other (?:files?|paths?|artifacts?|targets?)\s+"
+        r"(?:are\s+)?(?:excluded|not included|outside scope|out of scope|read[- ]only)"
+        r"\s*(?=$|[;,])",
+        "",
+        normalized,
+    )
     denied = re.search(
         r"\b(?:none|no (?:approved )?write set|write set (?:is )?"
         r"(?:absent|missing|unknown|unapproved|not approved)|unbounded|unrestricted|"
@@ -22444,14 +22476,10 @@ def _durable_write_set_is_bounded(value: str) -> bool:
         r"(?:broad|global|repo-wide|repository-wide|arbitrary|open-ended) "
         r"(?:(?:write|mutation|repository|repo) )?"
         r"(?:authority|access|permission|scope|writes?|mutation))\b",
-        normalized,
+        denial_checked,
     )
     boundary = re.search(r"\b(?:bounded|exact|named|only)\b", normalized)
-    concrete_path = re.search(
-        r"(?:^|[ ;])(?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+(?:\.[a-z0-9]+)?(?:$|[ ;])|"
-        r"\b[a-z0-9_.-]+\.(?:py|md|json|ps1|txt|toml|ya?ml)\b",
-        normalized,
-    )
+    concrete_path = bool(_declared_repo_write_paths(normalized))
     named_scope = re.search(
         r"\bfixture\s+validator\s+files?\b|"
         r"\b(?:external-state|target-currentness|branch-state|source-truth|review-churn)\b"
@@ -22467,7 +22495,7 @@ def _durable_carrier_pr_review_started(
     pr_info: dict[str, object] | None,
 ) -> bool:
     statuses = [
-        match.strip().strip("`").strip().casefold()
+        re.sub(r"[^a-z0-9]+", " ", match.casefold()).strip()
         for match in re.findall(
             r"^[ \t]*(?:-[ \t]*)?Status:[ \t]*`?([^\r\n]+?)`?[ \t]*$",
             record_text,
@@ -22475,7 +22503,7 @@ def _durable_carrier_pr_review_started(
         )
     ]
     phases = [
-        value.casefold()
+        re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
         for marker in ("Current Phase", "Phase")
         for value in _extract_exact_marker_values(record_text, marker)
     ]
@@ -22894,6 +22922,17 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             mixed_pointer_fixture
         ),
         "external live authority must select exactly one pointer type",
+    )
+    case_variant_mixed_pointer_fixture = current_external_authority_fixture.replace(
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
+        "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`\n"
+        "- repo branch record pointer: `Docs/branch_records/foreign.md`",
+    )
+    require(
+        not _external_authority_pointer_contract_is_singular(
+            case_variant_mixed_pointer_fixture
+        ),
+        "external live authority pointer cardinality must be case-insensitive",
     )
     duplicate_durable_pointer_fixture = current_external_authority_fixture.replace(
         "- Repo Durable Receipt Pointer: `Docs/worktree_slots.md#feature/governance-fixture`",
@@ -23338,6 +23377,14 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             durable_fixture_text + "\n- Phase: `PR Review`\n",
             None,
         )
+        and _durable_carrier_pr_review_started(
+            durable_fixture_text + "\n- Phase: `PR-Readiness Stage 1`\n",
+            None,
+        )
+        and _durable_carrier_pr_review_started(
+            durable_fixture_text + "\n- Phase: `PR_Review`\n",
+            None,
+        )
         and not _durable_carrier_pr_review_started(durable_fixture_text, None),
         "durable carrier receipt expiry must detect live PR or PR Readiness review state",
     )
@@ -23647,6 +23694,29 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "Only dev/orin_branch_governance_validation.py",
         ),
         f"{durable_fixture}: out-of-scope dirty path must fail write-set coverage",
+    )
+    for excluded_write_set in (
+        "Only src/app.py is excluded",
+        "Bounded: src/app.py is not included",
+        "Exact src/app.py is outside scope",
+    ):
+        require(
+            not _durable_write_set_is_bounded(excluded_write_set)
+            and not _tracked_dirty_paths_are_declared(
+                " M src/app.py",
+                excluded_write_set,
+            ),
+            f"{durable_fixture}: excluded path must not become write authority: {excluded_write_set}",
+        )
+    require(
+        _durable_write_set_is_bounded(
+            "Only src/app.py; all other files are excluded"
+        )
+        and _tracked_dirty_paths_are_declared(
+            " M src/app.py",
+            "Only src/app.py; all other files are excluded",
+        ),
+        f"{durable_fixture}: a positive path clause may retain a separate general exclusion",
     )
     require(
         _tracked_dirty_paths_are_declared(

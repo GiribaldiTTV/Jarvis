@@ -1105,6 +1105,12 @@ receipt through the same complete owner, assignment, recovery, write-set,
 collision, routing, worktree-root, waiver, upstream, and pre-PR confinement
 validator as direct durable authority. Shape classification alone cannot make a
 semantically unsafe receipt authoritative.
+Durable-receipt and branch-record authority-pointer labels must be counted
+case-insensitively before singularity and mutual exclusivity are enforced. A
+case-variant second pointer is conflicting authority, not an invisible marker.
+Pre-PR durable fallback expiry must normalize punctuation and separators in
+`Status`, `Current Phase`, and `Phase`; `PR Readiness`, `PR-Readiness`,
+`PR_Readiness`, and corresponding PR Review forms all end fallback authority.
 Active durable confinement markers must also prove affirmative, non-contradictory
 outcomes. Marker presence alone cannot admit a receipt that reports a collision,
 allows off-worktree work, removes the USER-owned new-worktree gate, or negates
@@ -1233,6 +1239,10 @@ An intended write set is not bounded when a concrete path and `bounded`, `exact`
 `named`, or `only` prefix is followed by broad, global, repository-wide,
 arbitrary, or open-ended write/mutation authority, access, permission, or scope.
 The entire value must remain a closed bounded inventory.
+Path extraction must also preserve clause polarity. A path in `is excluded`,
+`not included`, `outside scope`, `read-only`, or equivalent negative wording is
+not declared write authority. A separate positive path clause may coexist with a
+general all-other-files exclusion, but only paths from positive clauses count.
 When tracked files are dirty, the active `Current Write Set` or `Intended Write
 Set` must enumerate every dirty repo-relative path. Ownership and recovery prose
 cannot authorize a dirty path outside that inventory; both source and destination
