@@ -4364,6 +4364,24 @@ def main() -> int:
                     "Closed current state authority",
                 )
             ],
+            *[
+                (
+                    f"never-active record role authority: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current authority was never active",
+                    "Current authority has not started",
+                    "Current live authority failed to activate",
+                    "Active projection never became active",
+                    "Current authority did not activate",
+                    "Current projection is not activated",
+                    "Current authority never active",
+                    "Current assignment failed activation",
+                )
+            ],
             (
                 "nominal record role authority",
                 "Record Role: `Current worktree assignment projection`",

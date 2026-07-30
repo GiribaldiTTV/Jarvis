@@ -634,12 +634,24 @@ def _target_record_role_is_live(value: str | None) -> bool:
         r"(?:authority|assignment|projection|state|role|activation|approval)\b",
         normalized,
     )
+    never_activated = re.search(
+        r"\b(?:authority|assignment|projection|state|role)\b.{0,45}\b"
+        r"(?:never active|was never active|never became active|has not started|"
+        r"had not started|not started|did not start|failed to activate|"
+        r"failed activation|activation failed|activation did not succeed|"
+        r"did not activate|never activated|not activated)\b|"
+        r"\b(?:never active|never activated|failed activation|activation failed|"
+        r"activation did not succeed)\b.{0,45}\b"
+        r"(?:authority|assignment|projection|state|role)\b",
+        normalized,
+    )
     return bool(
         live_identity
         and authority_shape
         and historical_only is None
         and denied is None
         and future_gated is None
+        and never_activated is None
     )
 
 

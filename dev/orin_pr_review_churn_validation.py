@@ -228,6 +228,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "user decision pointer",
             "repo live-state boundary",
             "dirty worktree recovery",
+            "dirty worktree collision check",
             "governance routing barrier",
             "thread assignment status",
             "merge-stable fold-down",
@@ -1289,6 +1290,7 @@ def _classifier_guardrail_failures() -> list[str]:
         "Reject Off-Worktree Work Routing that is blocked in name only while mutation can occur.",
         "Reject a New Worktree Decision Gate that permits Codex creation before USER approval.",
         "Reject a Worktree Ownership Ledger that is owned by nobody.",
+        "Reject a Dirty Worktree Collision Check that excludes one tracked path from ownership.",
     )
     for comment in new_durable_guardrails:
         if _classify_comment(comment) != [

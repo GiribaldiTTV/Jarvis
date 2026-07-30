@@ -21974,6 +21974,11 @@ def _durable_off_worktree_routing_is_blocked(value: str) -> bool:
 
 def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
+    exception_checked = re.sub(
+        r"\b(?:no|without)\s+(?:approved\s+)?exceptions?\b",
+        "",
+        normalized,
+    )
     invalid_terms = (
         "no user approval required",
         "no approval exists",
@@ -22046,6 +22051,10 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         r"of (?:the )?(?:new )?worktree)\b",
         normalized,
     )
+    conditional_exception = re.search(
+        r"\b(?:unless|except(?:ions?)?|excluding|other than|save for|apart from)\b",
+        exception_checked,
+    )
     return bool(
         (
             required_user_gate
@@ -22055,6 +22064,7 @@ def _durable_new_worktree_gate_is_user_owned(value: str) -> bool:
         )
         and preapproval_creation is None
         and post_creation_approval is None
+        and conditional_exception is None
         and not any(term in normalized for term in invalid_terms)
     )
 
@@ -22142,6 +22152,10 @@ def _durable_dirty_worktree_ownership_is_affirmative(value: str) -> bool:
         r"not recorded|evidence missing|no proof)\b",
         without_closed_absence,
     )
+    ownership_exception = re.search(
+        r"\b(?:except(?:ing)?|excluding|other than|save for|apart from)\b",
+        without_closed_absence,
+    )
     affirmative = bool(
         re.search(
             r"\b(?:current|active|fixture) owner (?:claims?|claimed|owns?|owned|controls?|controlled)\b|"
@@ -22154,6 +22168,7 @@ def _durable_dirty_worktree_ownership_is_affirmative(value: str) -> bool:
     return bool(
         affirmative
         and denied is None
+        and ownership_exception is None
         and not _confinement_claim_has_nonoperational_qualifier(normalized)
     )
 
@@ -22403,9 +22418,21 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
         r"non[- ]operational|not operational|assignment exists only in (?:name|prose))\b",
         normalized,
     )
+    never_activated = re.search(
+        r"\b(?:assigned|assignment)\b.{0,45}\b"
+        r"(?:without becoming active|never active|was never active|never became active|"
+        r"has not started|had not started|not started|did not start|"
+        r"failed to activate|failed activation|activation failed|"
+        r"activation did not succeed|did not activate|never activated|not activated)\b|"
+        r"\b(?:activation failed|failed activation|activation did not succeed|"
+        r"never active|never activated)\b.{0,45}\b"
+        r"(?:assigned|assignment)\b",
+        normalized,
+    )
     return bool(
         re.search(r"\bassigned\b", normalized)
         and denied is None
+        and never_activated is None
         and not _confinement_claim_has_nonoperational_qualifier(normalized)
     )
 
@@ -23080,6 +23107,22 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 "Thread Assignment Status: `Single fixture owner assigned, but the assignment is invalid`",
             ),
             (
+                "Thread Assignment Status: `Single fixture owner assigned`",
+                "Thread Assignment Status: `Assigned without becoming active`",
+            ),
+            (
+                "Thread Assignment Status: `Single fixture owner assigned`",
+                "Thread Assignment Status: `Assigned but activation failed`",
+            ),
+            (
+                "Thread Assignment Status: `Single fixture owner assigned`",
+                "Thread Assignment Status: `Assignment has not started`",
+            ),
+            (
+                "Thread Assignment Status: `Single fixture owner assigned`",
+                "Thread Assignment Status: `Assigned but never became active`",
+            ),
+            (
                 "Worktree Ownership Ledger: `Owned by the fixture workload`",
                 "Worktree Ownership Ledger: `Owned by nobody`",
             ),
@@ -23096,6 +23139,14 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
                 "Dirty Worktree Collision Check: `Foreign unowned changes remain`",
             ),
             (
+                "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`",
+                "Dirty Worktree Collision Check: `No unowned tracked files remain except dev/orin_branch_governance_validation.py`",
+            ),
+            (
+                "Dirty Worktree Collision Check: `PASS - current owner claims all fixture changes`",
+                "Dirty Worktree Collision Check: `No unowned tracked files remain save for dev/orin_branch_governance_validation.py`",
+            ),
+            (
                 "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation`",
                 "Dirty Worktree Recovery Packet: `Delete foreign changes and continue without reconciliation`",
             ),
@@ -23110,6 +23161,18 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 "New Worktree Decision Gate: `USER approval required`",
                 "New Worktree Decision Gate: `USER approval required; Codex can create before approval`",
+            ),
+            (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `USER approval required unless Codex creates it`",
+            ),
+            (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `USER must approve except for temporary worktrees`",
+            ),
+            (
+                "New Worktree Decision Gate: `USER approval required`",
+                "New Worktree Decision Gate: `USER approval required other than for temporary worktrees`",
             ),
             (
                 "No Cross-Worktree Mutation: `Confirmed; cross-worktree mutation is prohibited`",
@@ -23715,10 +23778,42 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "No unowned tracked files were verified; evidence is unverified.",
         "Current owner claims all fixture changes only on paper.",
         "Current owner claims all fixture changes through a forged ledger.",
+        "No unowned tracked files remain except src/secret.py.",
+        "No unowned tracked files remain excluding src/secret.py.",
+        "No unowned tracked files remain other than src/secret.py.",
+        "No unowned tracked files remain save for src/secret.py.",
+        "No unowned tracked files remain apart from src/secret.py.",
     ):
         require(
             not _durable_dirty_worktree_ownership_is_affirmative(denied_dirty_claim),
             f"{durable_fixture}: contradictory dirty-worktree ownership claim must fail: {denied_dirty_claim}",
+        )
+    for accepted_new_worktree_gate in (
+        "USER approval required.",
+        "USER approval required with no exceptions.",
+        "USER must approve; no approved exception exists.",
+    ):
+        require(
+            _durable_new_worktree_gate_is_user_owned(accepted_new_worktree_gate),
+            (
+                f"{durable_fixture}: closed USER-owned new-worktree gate must pass: "
+                f"{accepted_new_worktree_gate}"
+            ),
+        )
+    for denied_new_worktree_gate in (
+        "USER approval required unless Codex creates it.",
+        "USER must approve except for temporary worktrees.",
+        "USER approval required other than for temporary worktrees.",
+        "USER approval required save for automation-created worktrees.",
+        "USER approval required excluding temporary worktrees.",
+        "USER approval required apart from emergency worktrees.",
+    ):
+        require(
+            not _durable_new_worktree_gate_is_user_owned(denied_new_worktree_gate),
+            (
+                f"{durable_fixture}: exception-qualified new-worktree gate must fail: "
+                f"{denied_new_worktree_gate}"
+            ),
         )
     require(
         _tracked_dirty_paths_are_declared(
@@ -23912,6 +24007,36 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Thread Assignment Status: `Single fixture owner assigned.`",
             "Thread Assignment Status: `Single fixture owner assigned only on paper.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assigned without becoming active.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assigned but activation failed.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assignment has not started.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assigned but never became active.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assigned but never active.`",
+            "has no active thread assignment",
+        ),
+        (
+            "Thread Assignment Status: `Single fixture owner assigned.`",
+            "Thread Assignment Status: `Assignment failed activation.`",
             "has no active thread assignment",
         ),
         (
@@ -24197,6 +24322,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "New Worktree Decision Gate: `USER approval required.`",
             "New Worktree Decision Gate: `USER approval is required after worktree provisioning.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required unless Codex creates it.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER must approve except for temporary worktrees.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required other than for temporary worktrees.`",
+            "does not preserve the USER-owned new-worktree gate",
+        ),
+        (
+            "New Worktree Decision Gate: `USER approval required.`",
+            "New Worktree Decision Gate: `USER approval required save for automation-created worktrees.`",
             "does not preserve the USER-owned new-worktree gate",
         ),
         (

@@ -1073,8 +1073,9 @@ Target-scoped live projections must also carry an affirmative current/live/activ
 historical receipts from redefining or granting live authority. Negated role
 claims, nominal or paper-only roles, forged/fabricated/invalid/unverified roles,
 non-operational placeholders, roles that also say ended, terminated, expired,
-closed, ceased, or lapsed, and conditional boundary exceptions such as `unless`
-remain negative evidence. A protective historical boundary also fails when a
+closed, ceased, or lapsed, roles that were never active, have not started, or
+failed to activate, and conditional boundary exceptions such as `unless` remain
+negative evidence. A protective historical boundary also fails when a
 later clause restores, renews, reinstates, reactivates, resumes, or reopens the
 authority it first denied. Explicit denials such as `has not expired` and
 `does not restore live authority` remain protective rather than being mistaken
@@ -1212,7 +1213,9 @@ Pending, prospective, candidate, future, or awaiting owner/assignment/ownership
 claims are not active authority. Direct denials such as `is not the owner`,
 `does not own this workload`, `assigned to no thread`, or `no workload is
 assigned` are not active authority merely because owner or assignment nouns are
-present. Nominal, ceremonial, simulated, placeholder, forged, invalid,
+present. An assignment that never became active, has not started, or failed to
+activate is likewise not active assignment authority. Nominal, ceremonial,
+simulated, placeholder, forged, invalid,
 unverified, non-operational, or paper-only owner, assignment, dirty-ownership,
 and ownership-ledger claims are likewise not active authority. A durable carrier
 or external live authority record must contain exactly one
@@ -1228,7 +1231,9 @@ When tracked changes exist, dirty-worktree collision evidence must affirmatively
 claim those changes for the active owner or prove that no unowned tracked files
 exist. Merely mentioning `current owner` is insufficient when the same value says
 foreign or unowned files remain, ownership is unknown, or the current owner does
-not claim the files. Regression fixtures for this contract must inject a
+not claim the files. An explicit exception such as `except src/secret.py`,
+`excluding`, or `other than` defeats a no-unowned-files claim. Regression
+fixtures for this contract must inject a
 deterministic tracked-change status; they must not skip dirty-state semantics just
 because the validator's own checkout happens to be clean.
 Off-worktree routing must likewise name a substantive safe route or read-only
@@ -1242,7 +1247,9 @@ or another agent create, open, provision, spawn, initialize, or establish a
 worktree before the required USER approval, including clauses that schedule the
 approval only after creation. Noun-form sequencing such as `after worktree
 creation`, `following creation of the worktree`, or `after worktree provisioning`
-is the same prohibited post-creation gate. An ownership ledger must identify an
+is the same prohibited post-creation gate. `Unless`, `except`, `other than`, and
+equivalent exception clauses also invalidate the gate even when USER approval is
+otherwise stated. An ownership ledger must identify an
 actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
 or an unidentified party is not active ownership evidence.
 An intended write set is not bounded when a concrete path and `bounded`, `exact`,
