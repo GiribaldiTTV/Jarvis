@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import os
@@ -43,6 +43,7 @@ REQUIRED_STAGE4_RECORDS = [
 
 TARGET_SET_TRANSITION = "Bounded coherent target-set reconciliation"
 MAX_EXTERNAL_STATE_EVIDENCE_BYTES = 16 * 1024 * 1024
+MAX_TRANSACTION_CLOCK_SKEW = timedelta(minutes=5)
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
 CANONICAL_UTC_TIMESTAMP_PATTERN = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|\+00:00)$"
@@ -1645,6 +1646,22 @@ def _is_canonical_utc_timestamp(value: object) -> bool:
     return _canonical_utc_datetime(value) is not None
 
 
+def _transaction_timestamp_is_not_future(
+    value: object,
+    *,
+    now: datetime | None = None,
+) -> bool:
+    timestamp = _canonical_utc_datetime(value)
+    if timestamp is None:
+        return False
+    reference = (
+        datetime.now(timezone.utc)
+        if now is None
+        else now.astimezone(timezone.utc)
+    )
+    return timestamp <= reference + MAX_TRANSACTION_CLOCK_SKEW
+
+
 def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
     base_resolved = base.resolve(strict=False)
     candidate = base.joinpath(*parts).resolve(strict=False)
@@ -2599,6 +2616,10 @@ def _validate_modern_target_set_journal(
     if not _is_canonical_utc_timestamp(last_updated):
         issues.append(
             "modern target-set transaction journal has no canonical Last Updated timestamp"
+        )
+    elif not _transaction_timestamp_is_not_future(last_updated):
+        issues.append(
+            "modern target-set transaction journal Last Updated is beyond the allowed UTC clock skew"
         )
     last_updated_by = payload.get("Last Updated By")
     if not isinstance(last_updated_by, str) or not last_updated_by.strip():

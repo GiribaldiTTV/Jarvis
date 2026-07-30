@@ -1220,7 +1220,9 @@ The entire value must remain a closed bounded inventory.
 When tracked files are dirty, the active `Current Write Set` or `Intended Write
 Set` must enumerate every dirty repo-relative path. Ownership and recovery prose
 cannot authorize a dirty path outside that inventory; both source and destination
-of a rename or copy must be covered.
+of a rename or copy must be covered. Path comparison follows host filesystem/Git
+case semantics: Windows aliases case, while a case-sensitive checkout preserves
+case-distinct repo paths.
 An external Live Branch Projection must satisfy the same semantic owner,
 assignment, ownership, bounded-write-set, collision, routing, USER-gate,
 cross-worktree, Desktop-root, and waiver predicates as durable confinement
@@ -1243,11 +1245,18 @@ rescinded, expired, withdrawn, superseded, cancelled, terminated, or no-longer-
 active approval is not a current USER-owned gate decision.
 The receipt is pre-PR evidence only and must fail once PR review or PR Readiness
 review state begins unless it has already folded into historical/no-active form.
+A durable `USER Decision Pointer` must be a whole-value approval contract bound
+to the receipt's exact branch, worktree, and slot. Generic approval text, an
+approval naming another carrier, or a valid prefix followed by retained foreign
+admission cannot authorize the current receipt.
 A historical write-set receipt may use bounded named categories only when it does
 not quantify an entire category. `All validation files`, `every governance
 artifact`, and equivalent qualified all/any/every forms are unbounded.
 Historical forbidden-active marker and singleton-cardinality scans are
 case-insensitive; lowercase marker spelling cannot retain live authority.
+A complete Assigned Worktree Confinement contract also counts every required
+marker case-insensitively, so a lowercase duplicate cannot hide contradictory
+authority behind a canonical first value.
 A live external projection must select exactly one repo authority source:
 `Repo Durable Receipt Pointer` or `Repo Branch Record Pointer`, never both.
 A no-open-PR response is insufficient when the all-state fallback fails; absence
@@ -1306,7 +1315,9 @@ receipt-sourced live authority, assignment, ownership, control, role, or state.
 Committed transaction chronology is part of evidence integrity. A snapshot
 manifest may not postdate the journal transaction it proves, and the released
 lock receipt may not predate that transaction. Canonical timestamp syntax alone
-does not establish this ordering.
+does not establish this ordering. A modern transaction timestamp must also be no
+later than current UTC plus the bounded validator clock-skew allowance; internally
+consistent future-dated evidence is not proof that a transaction occurred.
 Modern and admitted legacy lock contracts use the same byte-canonical field
 semantics. Whitespace-padded schema, lock ID/state, workload ID/state, or
 retention values are not normalized into valid released-lock evidence.

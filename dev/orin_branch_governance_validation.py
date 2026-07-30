@@ -21207,6 +21207,31 @@ def _durable_user_decision_pointer_is_approved(value: str) -> bool:
     return approval and bounded and admission and not any(term in normalized for term in rejected)
 
 
+def _durable_user_decision_pointer_matches_carrier(
+    value: str,
+    branch: str,
+    worktree: str,
+    slot_id: str,
+) -> bool:
+    if not _durable_user_decision_pointer_is_approved(value):
+        return False
+    normalized = re.sub(r"\s+", " ", value.strip(" `\t\r\n."))
+    identity_contract = re.fullmatch(
+        r"USER approved this one-time bounded carrier admission for branch "
+        r"(?P<branch>\S+) in worktree (?P<worktree>.+?) at slot "
+        r"(?P<slot>runtime-active-[1-3])",
+        normalized,
+        flags=re.I,
+    )
+    return bool(
+        identity_contract is not None
+        and identity_contract.group("branch") == branch
+        and identity_contract.group("slot") == slot_id
+        and _normalized_local_path(identity_contract.group("worktree"))
+        == _normalized_local_path(worktree)
+    )
+
+
 def _durable_repo_live_state_boundary_is_non_authoritative(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
     contract = re.fullmatch(
@@ -21352,7 +21377,7 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
             re.findall(
                 rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
                 record_text,
-                flags=re.M,
+                flags=re.M | re.I,
             )
         )
         != 1
@@ -21377,6 +21402,7 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
     non_includes = _extract_exact_marker_value(record_text, "Non-Includes").casefold()
     branch = _extract_exact_marker_value(record_text, "Branch")
     worktree = _extract_exact_marker_value(record_text, "Worktree")
+    slot_id = _extract_exact_marker_value(record_text, "Slot ID")
     return (
         record_class == "Durable Carrier Admission Receipt"
         and _extract_exact_marker_value(record_text, "Branch Class")
@@ -21391,11 +21417,14 @@ def _is_durable_carrier_admission_receipt(record_text: str) -> bool:
         and _extract_exact_marker_value(record_text, "Actual Worktree Root") == worktree
         and re.fullmatch(
             r"runtime-active-[1-3]",
-            _extract_exact_marker_value(record_text, "Slot ID"),
+            slot_id,
         )
         is not None
-        and _durable_user_decision_pointer_is_approved(
-            _extract_exact_marker_value(record_text, "USER Decision Pointer")
+        and _durable_user_decision_pointer_matches_carrier(
+            _extract_exact_marker_value(record_text, "USER Decision Pointer"),
+            branch,
+            worktree,
+            slot_id,
         )
         and _durable_assignment_status_is_derived(
             _extract_exact_marker_value(record_text, "Assignment Status")
@@ -22103,14 +22132,20 @@ def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
     )
 
 
-def _repo_relative_path_key(value: str) -> str:
+def _repo_relative_path_key(
+    value: str,
+    *,
+    host_os_name: str | None = None,
+) -> str:
     normalized = value.strip().strip("`").replace("\\", "/")
     if not normalized or normalized.startswith("/") or re.match(r"^[a-z]:/", normalized, re.I):
         return ""
     parts = normalized.split("/")
     if any(not part or part in {".", ".."} for part in parts):
         return ""
-    return "/".join(parts).casefold()
+    normalized = "/".join(parts)
+    host_os_name = os.name if host_os_name is None else host_os_name
+    return normalized.casefold() if host_os_name == "nt" else normalized
 
 
 def _decode_git_porcelain_path(value: str) -> str:
@@ -22124,7 +22159,11 @@ def _decode_git_porcelain_path(value: str) -> str:
     return decoded if isinstance(decoded, str) else ""
 
 
-def _tracked_dirty_paths_from_porcelain(status_output: str) -> set[str] | None:
+def _tracked_dirty_paths_from_porcelain(
+    status_output: str,
+    *,
+    host_os_name: str | None = None,
+) -> set[str] | None:
     if _git_status_read_failed(status_output):
         return None
     paths: set[str] = set()
@@ -22140,14 +22179,21 @@ def _tracked_dirty_paths_from_porcelain(status_output: str) -> set[str] | None:
             else [payload]
         )
         for candidate in candidates:
-            path_key = _repo_relative_path_key(_decode_git_porcelain_path(candidate))
+            path_key = _repo_relative_path_key(
+                _decode_git_porcelain_path(candidate),
+                host_os_name=host_os_name,
+            )
             if not path_key:
                 return None
             paths.add(path_key)
     return paths
 
 
-def _declared_repo_write_paths(value: str) -> set[str]:
+def _declared_repo_write_paths(
+    value: str,
+    *,
+    host_os_name: str | None = None,
+) -> set[str]:
     candidates = re.findall(
         r"(?<![a-z0-9_.-])((?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+"
         r"(?:\.[a-z0-9]+)?)(?![a-z0-9_.-])",
@@ -22157,16 +22203,29 @@ def _declared_repo_write_paths(value: str) -> set[str]:
     return {
         path_key
         for candidate in candidates
-        if (path_key := _repo_relative_path_key(candidate))
+        if (
+            path_key := _repo_relative_path_key(
+                candidate,
+                host_os_name=host_os_name,
+            )
+        )
     }
 
 
 def _tracked_dirty_paths_are_declared(
     status_output: str,
     declared_write_set: str,
+    *,
+    host_os_name: str | None = None,
 ) -> bool:
-    dirty_paths = _tracked_dirty_paths_from_porcelain(status_output)
-    declared_paths = _declared_repo_write_paths(declared_write_set)
+    dirty_paths = _tracked_dirty_paths_from_porcelain(
+        status_output,
+        host_os_name=host_os_name,
+    )
+    declared_paths = _declared_repo_write_paths(
+        declared_write_set,
+        host_os_name=host_os_name,
+    )
     return bool(
         dirty_paths is not None
         and declared_paths
@@ -22629,7 +22688,7 @@ def _validate_assigned_worktree_confinement_contract(
         occurrences = re.findall(
             rf"^[ \t]*(?:-[ \t]*)?{re.escape(marker)}:[ \t]*[^ \t\r\n][^\r\n]*$",
             confinement,
-            flags=re.M,
+            flags=re.M | re.I,
         )
         require(
             len(occurrences) == 1,
@@ -23004,10 +23063,52 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         / "valid_durable_carrier_admission_receipt.md"
     )
     durable_fixture_text = _read_text(durable_fixture)
+    valid_user_decision = (
+        "USER approved this one-time bounded carrier admission for branch "
+        "feature/governance-fixture in worktree "
+        "C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2."
+    )
     require(
         _is_durable_carrier_admission_receipt(durable_fixture_text),
         f"{durable_fixture}: exact durable carrier admission receipt must classify",
     )
+    for marker in DURABLE_CARRIER_CONFINEMENT_RECORD_MARKERS:
+        duplicate_marker_failures: list[str] = []
+        case_variant_duplicate = (
+            durable_fixture_text
+            + f"\n- {marker.casefold()}: `contradictory duplicate`\n"
+        )
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: duplicate_marker_failures.append(message)
+            if not condition
+            else None,
+            durable_fixture,
+            case_variant_duplicate,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            "origin/feature/governance-fixture",
+        )
+        require(
+            any(
+                "requires exactly one" in message and marker in message
+                for message in duplicate_marker_failures
+            ),
+            (
+                f"{durable_fixture}: case-variant duplicate {marker!r} "
+                "must fail cardinality validation"
+            ),
+        )
+    for marker in ("Expected Worktree Root", "Actual Worktree Root"):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text
+                + f"\n- {marker.casefold()}: `contradictory duplicate`\n"
+            ),
+            (
+                f"{durable_fixture}: case-variant duplicate top-level {marker!r} "
+                "must fail receipt classification"
+            ),
+        )
     original_git_status_porcelain = globals()["_git_status_porcelain"]
     git_status_failures: list[str] = []
     try:
@@ -23039,7 +23140,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         f"{durable_fixture}: Git-status failure must block durable confinement authority",
     )
     pending_decision_fixture = durable_fixture_text.replace(
-        "USER approved this one-time bounded carrier admission for the fixture worktree assignment.",
+        valid_user_decision,
         "Pending USER decision; no approval recorded.",
     )
     require(
@@ -23080,11 +23181,31 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         require(
             not _is_durable_carrier_admission_receipt(
                 durable_fixture_text.replace(
-                    "USER approved this one-time bounded carrier admission for the fixture worktree assignment.",
+                    valid_user_decision,
                     revoked_decision,
                 )
             ),
             f"{durable_fixture}: revoked USER admission must fail closed: {revoked_decision}",
+        )
+    for mismatched_decision in (
+        "USER approved this one-time bounded carrier admission for branch feature/foreign in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2.",
+        "USER approved this one-time bounded carrier admission for branch FEATURE/GOVERNANCE-FIXTURE in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Foreign-Fixture at slot runtime-active-2.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-3.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot RUNTIME-ACTIVE-2.",
+        "USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\\Nexus Worktrees\\Governance-Fixture at slot runtime-active-2 while feature/foreign also remains admitted.",
+    ):
+        require(
+            not _is_durable_carrier_admission_receipt(
+                durable_fixture_text.replace(
+                    valid_user_decision,
+                    mismatched_decision,
+                )
+            ),
+            (
+                f"{durable_fixture}: USER decision for another carrier identity "
+                f"must fail closed: {mismatched_decision}"
+            ),
         )
     for contradictory_live_boundary in (
         "This receipt does not own nothing; live authority is derived from this receipt.",
@@ -23516,6 +23637,19 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "Exact dev/old_validator.py; dev/new_validator.py",
         ),
         f"{durable_fixture}: out-of-scope rename destination must fail write-set coverage",
+    )
+    require(
+        not _tracked_dirty_paths_are_declared(
+            " M src/App.py",
+            "Only src/app.py",
+            host_os_name="posix",
+        )
+        and _tracked_dirty_paths_are_declared(
+            " M src/App.py",
+            "Only src/app.py",
+            host_os_name="nt",
+        ),
+        f"{durable_fixture}: dirty-path comparison must preserve host case semantics",
     )
     semantic_confinement_mutations = (
         (

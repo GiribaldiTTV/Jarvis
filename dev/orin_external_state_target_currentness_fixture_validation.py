@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import orin_external_state_validation as validator
@@ -712,6 +713,22 @@ def _write_modern_missing_audit_metadata_fixture(root: Path, field: str) -> Path
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload.pop(field, None)
     atomic_write_json(path, payload)
+    return path
+
+
+def _write_modern_future_transaction_fixture(root: Path) -> Path:
+    path = _write_modern_journal_fixture(
+        root,
+        last_updated="2099-01-01T00:00:00Z",
+    )
+    manifest_path = root / "snapshots" / "modern-fixture" / "snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["Last Updated"] = "2098-12-31T23:59:59Z"
+    atomic_write_json(manifest_path, manifest)
+    lock_path = root / "locks" / "branch-modern-fixture.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["Released At"] = "2099-01-01T00:00:01Z"
+    atomic_write_json(lock_path, lock)
     return path
 
 
@@ -2275,6 +2292,23 @@ def _assert_nonstandard_json_constants_rejected() -> None:
 
 
 def _run_legacy_journal_compatibility_fixtures() -> None:
+    clock_reference = datetime(2026, 7, 30, tzinfo=timezone.utc)
+    within_skew = validator._transaction_timestamp_is_not_future(
+        (clock_reference + validator.MAX_TRANSACTION_CLOCK_SKEW).isoformat(),
+        now=clock_reference,
+    )
+    beyond_skew = validator._transaction_timestamp_is_not_future(
+        (
+            clock_reference
+            + validator.MAX_TRANSACTION_CLOCK_SKEW
+            + timedelta(microseconds=1)
+        ).isoformat(),
+        now=clock_reference,
+    )
+    if not within_skew or beyond_skew:
+        raise AssertionError("bounded UTC clock-skew boundary is not enforced exactly")
+    print("Modern journal fixture: bounded UTC clock-skew boundary: PASS")
+
     _assert_nonstandard_json_constants_rejected()
     complete = [
         "External State Item Status=Complete",
@@ -2508,6 +2542,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             )
             for field in ("Last Updated", "Last Updated By")
         ],
+        (
+            "modern journal with future transaction timestamp",
+            _write_modern_future_transaction_fixture,
+        ),
         (
             "modern journal with unchanged target hash",
             _write_modern_equal_hash_fixture,
@@ -3440,6 +3478,12 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         negative_setups["modern journal missing audit metadata Last Updated"],
         "_validate_modern_target_set_journal",
         accept_modern_state,
+    )
+    _assert_journal_mutation_killed(
+        "future modern transaction timestamp accepted",
+        negative_setups["modern journal with future transaction timestamp"],
+        "_transaction_timestamp_is_not_future",
+        lambda *_args, **_kwargs: True,
     )
     _assert_journal_mutation_killed(
         "unchanged modern target hash accepted",

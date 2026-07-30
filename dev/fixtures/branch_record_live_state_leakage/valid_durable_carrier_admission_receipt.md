@@ -12,7 +12,7 @@
 - Assigned Branch: `feature/governance-fixture`
 - Assigned Family / Workstream: `bounded fixture repair`
 - Branch Authority Record: `Docs/worktree_slots.md#feature/governance-fixture`
-- USER Decision Pointer: `USER approved this one-time bounded carrier admission for the fixture worktree assignment.`
+- USER Decision Pointer: `USER approved this one-time bounded carrier admission for branch feature/governance-fixture in worktree C:\Nexus Worktrees\Governance-Fixture at slot runtime-active-2.`
 - Expected Worktree Root: `C:\Nexus Worktrees\Governance-Fixture`
 - Actual Worktree Root: `C:\Nexus Worktrees\Governance-Fixture`
 - Assignment Status: `Durable receipt; live status is derived.`
