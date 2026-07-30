@@ -7099,9 +7099,9 @@ def _section(text: str, heading: str) -> str:
 def _section_heading_count(text: str, heading: str) -> int:
     return len(
         re.findall(
-            rf"^##[ \t]+{re.escape(heading)}[ \t]*$",
+            rf"^ {{0,3}}##[ \t]+{re.escape(heading)}(?:[ \t]+#+)?[ \t]*$",
             text,
-            flags=re.M,
+            flags=re.M | re.I,
         )
     )
 
@@ -22249,7 +22249,7 @@ def _declared_repo_write_paths(
     host_os_name: str | None = None,
 ) -> set[str]:
     candidate_pattern = re.compile(
-        r"(?<![a-z0-9_.-])(?P<path>"
+        r"(?<![a-z0-9_.-])(?<![/\\:$%~])(?P<path>"
         r"(?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+(?:\.[a-z0-9]+)?|"
         r"\.[a-z0-9][a-z0-9_.-]*|"
         r"[a-z0-9][a-z0-9_.-]*\.[a-z0-9][a-z0-9_.-]*"
@@ -23091,7 +23091,7 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
     try:
         # Dirty-state mutations must not depend on whether the validator checkout is clean.
         globals()["_git_status_porcelain"] = (
-            lambda *, tracked_only=False: " M dev/fixture-owned-change.py"
+            lambda *, tracked_only=False: " M dev/orin_branch_governance_validation.py"
         )
         semantic_external_mutations = (
             (
@@ -23840,6 +23840,27 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         f"{durable_fixture}: out-of-scope dirty path must fail write-set coverage",
     )
+    for absolute_write_set, truncated_dirty_path in (
+        ("Only /etc/bar.py", "etc/bar.py"),
+        (r"Only C:\other\bar.py", "other/bar.py"),
+        (r"Only \\server\share\bar.py", "server/share/bar.py"),
+        ("Only C:/other/bar.py", "other/bar.py"),
+        ("Only $HOME/repo/bar.py", "HOME/repo/bar.py"),
+        (r"Only %USERPROFILE%\repo\bar.py", "USERPROFILE/repo/bar.py"),
+        ("Only ~/repo/bar.py", "repo/bar.py"),
+    ):
+        require(
+            not _declared_repo_write_paths(absolute_write_set)
+            and not _durable_write_set_is_bounded(absolute_write_set)
+            and not _tracked_dirty_paths_are_declared(
+                f" M {truncated_dirty_path}",
+                absolute_write_set,
+            ),
+            (
+                f"{durable_fixture}: absolute write-set path must not authorize "
+                f"a truncated repo-relative path: {absolute_write_set}"
+            ),
+        )
     for excluded_write_set in (
         "Only src/app.py is excluded",
         "Bounded: src/app.py is not included",
@@ -24166,6 +24187,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         (
             "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only /etc/bar.py`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only C:\\other\\bar.py`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
             "Intended Write Set: `Only fixture validator files plus whatever else.`",
             "has no bounded intended write set",
         ),
@@ -24435,6 +24466,37 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         ),
         f"{durable_fixture}: duplicate confinement sections must fail closed",
     )
+    for duplicate_heading_line in (
+        "## assigned worktree confinement",
+        "## ASSIGNED WORKTREE CONFINEMENT ##",
+        "  ## Assigned WORKTREE Confinement #",
+    ):
+        case_variant_failures: list[str] = []
+        case_variant_text = (
+            durable_fixture_text
+            + f"\n\n{duplicate_heading_line}\n\n"
+            + "No Cross-Worktree Mutation: `Allowed`\n"
+        )
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: case_variant_failures.append(message)
+            if not condition
+            else None,
+            durable_fixture,
+            case_variant_text,
+            "feature/governance-fixture",
+            "C:\\Nexus Worktrees\\Governance-Fixture",
+            "origin/feature/governance-fixture",
+        )
+        require(
+            any(
+                "requires exactly one ## Assigned Worktree Confinement section" in message
+                for message in case_variant_failures
+            ),
+            (
+                f"{durable_fixture}: case-variant duplicate confinement section "
+                f"must fail closed: {duplicate_heading_line}"
+            ),
+        )
     for required_marker in (
         "No Cross-Worktree Mutation",
         "GitHub Desktop-bound worktree",

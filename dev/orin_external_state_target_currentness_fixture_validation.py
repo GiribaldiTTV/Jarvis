@@ -4309,6 +4309,23 @@ def main() -> int:
         )
         _assert_pass("explicitly non-expired live role", _run(root))
         _record(root)
+        for protective_role in (
+            "Current authority is not suspended",
+            "Current live authority is not disabled",
+            "Current projection is not on hold",
+            "Current authority is not revoked",
+            "Current assignment is not frozen",
+        ):
+            target.write_text(
+                target.read_text(encoding="utf-8").replace(
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{protective_role}`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            _assert_pass(f"protective live role: {protective_role}", _run(root))
+            _record(root)
         target.write_text(
             target.read_text(encoding="utf-8").replace(
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
@@ -4380,6 +4397,26 @@ def main() -> int:
                     "Current projection is not activated",
                     "Current authority never active",
                     "Current assignment failed activation",
+                )
+            ],
+            *[
+                (
+                    f"held record role authority: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current authority is suspended",
+                    "Current live authority is disabled",
+                    "Current authority is paused",
+                    "Current assignment was deactivated",
+                    "Current authority remains dormant",
+                    "Current projection is on hold",
+                    "Current authority is frozen",
+                    "Revoked current authority projection",
+                    "Current assignment was withdrawn",
+                    "Current projection was cancelled",
                 )
             ],
             (

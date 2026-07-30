@@ -598,7 +598,10 @@ def validate_target_currentness(
 def _target_record_role_is_live(value: str | None) -> bool:
     normalized = re.sub(r"\s+", " ", (value or "").casefold().strip(" `\t\r\n."))
     status_checked = re.sub(
-        r"\b(?:not|never)\s+(?:ended|terminated|expired|closed|ceased|lapsed)\b",
+        r"\b(?:not|never)\s+(?:ended|terminated|expired|closed|ceased|lapsed|"
+        r"revoked|rescinded|withdrawn|cancelled|canceled|voided|abandoned|retired|"
+        r"suspended|disabled|paused|deactivated|dormant|halted|stopped|frozen|"
+        r"quiesced|shelved|on hold)\b",
         "",
         normalized,
     )
@@ -614,14 +617,19 @@ def _target_record_role_is_live(value: str | None) -> bool:
     )
     denied = re.search(
         r"\b(?:no|not|never|without|lacks?|missing|unavailable|inactive|ended|"
-        r"terminated|expired|closed|ceased|lapsed|"
+        r"terminated|expired|closed|ceased|lapsed|revoked|rescinded|withdrawn|"
+        r"cancelled|canceled|voided|abandoned|retired|suspended|disabled|paused|"
+        r"deactivated|dormant|halted|stopped|frozen|quiesced|shelved|on hold|"
         r"non[- ]authoritative|non[- ]operational|unauthori[sz]ed|nominal|"
         r"forged|fabricated|falsified|counterfeit|invalid|unverified|purported|"
         r"alleged|simulated|placeholder|paper[- ]only)\b.{0,30}\b"
         r"(?:authority|assignment|projection|state|role)\b|"
         r"\b(?:authority|assignment|projection|state|role)\b.{0,30}\b"
         r"(?:none|absent|denied|revoked|inactive|unavailable|ended|terminated|"
-        r"expired|closed|ceased|lapsed|no longer (?:active|current|live)|nominal|forged|"
+        r"expired|closed|ceased|lapsed|rescinded|withdrawn|cancelled|canceled|"
+        r"voided|abandoned|retired|suspended|disabled|paused|deactivated|dormant|"
+        r"halted|stopped|frozen|quiesced|shelved|on hold|"
+        r"no longer (?:active|current|live)|nominal|forged|"
         r"fabricated|falsified|counterfeit|invalid|unverified|purported|alleged|"
         r"simulated|placeholder|non[- ]operational|exists? only on paper|"
         r"only on paper)\b",

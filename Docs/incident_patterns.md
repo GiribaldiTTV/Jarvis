@@ -1073,9 +1073,11 @@ Target-scoped live projections must also carry an affirmative current/live/activ
 historical receipts from redefining or granting live authority. Negated role
 claims, nominal or paper-only roles, forged/fabricated/invalid/unverified roles,
 non-operational placeholders, roles that also say ended, terminated, expired,
-closed, ceased, or lapsed, roles that were never active, have not started, or
-failed to activate, and conditional boundary exceptions such as `unless` remain
-negative evidence. A protective historical boundary also fails when a
+closed, ceased, or lapsed, roles that are revoked, withdrawn, cancelled, frozen,
+suspended, disabled, paused, deactivated, dormant, halted, stopped, or on hold,
+roles that were never active, have not started, or failed to activate, and
+conditional boundary exceptions such as `unless` remain negative evidence. A
+protective historical boundary also fails when a
 later clause restores, renews, reinstates, reactivates, resumes, or reopens the
 authority it first denied. Explicit denials such as `has not expired` and
 `does not restore live authority` remain protective rather than being mistaken
@@ -1220,7 +1222,10 @@ unverified, non-operational, or paper-only owner, assignment, dirty-ownership,
 and ownership-ledger claims are likewise not active authority. A durable carrier
 or external live authority record must contain exactly one
 `## Assigned Worktree Confinement` section; a valid first section cannot hide
-contradictory authority in a duplicate section. Likewise, `no collision check` or wording that
+contradictory authority in a duplicate section. Section-heading cardinality is
+case-insensitive and recognizes Markdown-equivalent indentation and closing
+hashes, so a lowercase, mixed-case, or decorated duplicate is still a duplicate.
+Likewise, `no collision check` or wording that
 the check is pending, incomplete, unperformed, or unverified is not a
 collision-clear result.
 No-cross-worktree evidence must name the substantive prohibited/blocked safe
@@ -1262,7 +1267,10 @@ not declared write authority. A separate positive path clause may coexist with a
 general all-other-files exclusion, but only paths from positive clauses count.
 Positive inventories may name safe root-level files such as `README.md`,
 `main.py`, or `.gitignore`; requiring a directory separator would falsely reject
-an exact declared mutation at the repository root.
+an exact declared mutation at the repository root. POSIX absolute paths, Windows
+drive paths, and UNC paths are never repo-relative write authority, and path
+extraction must reject them before any suffix can be truncated into a plausible
+repository path.
 When tracked files are dirty, the active `Current Write Set` or `Intended Write
 Set` must enumerate every dirty repo-relative path. Ownership and recovery prose
 cannot authorize a dirty path outside that inventory; both source and destination
