@@ -21767,6 +21767,16 @@ def _normalized_confinement_claim(value: str) -> str:
     return re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
 
 
+def _confinement_claim_has_nonoperational_qualifier(normalized: str) -> bool:
+    return re.search(
+        r"\b(?:nominal(?:ly)?|(?:only )?on paper|paper[- ]only|ceremonial|"
+        r"simulated|placeholder|non[- ]operational|not operational|forged|"
+        r"fabricated|falsified|counterfeit|invalid(?:ated)?|unauthori[sz]ed|"
+        r"unverified|purported|alleged|exists only in (?:name|prose))\b",
+        normalized,
+    ) is not None
+
+
 def _durable_collision_clear(value: str) -> bool:
     normalized = _normalized_confinement_claim(value)
     blocking_terms = (
@@ -22056,7 +22066,11 @@ def _durable_dirty_worktree_ownership_is_affirmative(value: str) -> bool:
             normalized,
         )
     )
-    return bool(affirmative and denied is None)
+    return bool(
+        affirmative
+        and denied is None
+        and not _confinement_claim_has_nonoperational_qualifier(normalized)
+    )
 
 
 def _durable_worktree_escape_waiver_is_absent(value: str) -> bool:
@@ -22150,6 +22164,7 @@ def _durable_active_owner_is_explicit(value: str) -> bool:
     return bool(
         normalized
         and denied is None
+        and not _confinement_claim_has_nonoperational_qualifier(normalized)
         and identifies_owner is not None
         and current_relation is not None
     )
@@ -22172,7 +22187,11 @@ def _durable_thread_assignment_is_active(value: str) -> bool:
         r"non[- ]operational|not operational|assignment exists only in (?:name|prose))\b",
         normalized,
     )
-    return bool(re.search(r"\bassigned\b", normalized) and denied is None)
+    return bool(
+        re.search(r"\bassigned\b", normalized)
+        and denied is None
+        and not _confinement_claim_has_nonoperational_qualifier(normalized)
+    )
 
 
 def _durable_governance_routing_barrier_is_active(value: str) -> bool:
@@ -22214,7 +22233,11 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
         r"does not belong|revoked|expired|historical|inactive|previously owned|"
         r"formerly owned|pending|prospective|candidate|future|awaiting|not yet owned|"
         r"to be (?:owned|assigned|selected|determined|confirmed)|no longer owned|"
-        r"ownership (?:ended|closed|terminated))\b",
+        r"ownership (?:ended|closed|terminated)|nominal(?:ly)?|(?:only )?on paper|"
+        r"paper[- ]only|ceremonial|simulated|placeholder|non[- ]operational|"
+        r"not operational|forged|fabricated|falsified|counterfeit|invalid(?:ated)?|"
+        r"unauthori[sz]ed|unverified|purported|alleged|"
+        r"ownership exists only in (?:name|prose))\b",
         normalized,
     )
     ownership_relation = "owned by" in normalized or "ownership" in normalized
@@ -22222,7 +22245,12 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
         r"\b(?:codex|thread|workload|user|owner|branch|carrier)\b",
         normalized,
     )
-    return bool(ownership_relation and identifies_owner and denied is None)
+    return bool(
+        ownership_relation
+        and identifies_owner
+        and denied is None
+        and not _confinement_claim_has_nonoperational_qualifier(normalized)
+    )
 
 
 def _durable_write_set_is_bounded(value: str) -> bool:
@@ -23336,6 +23364,8 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "Another owner controls the remaining tracked changes.",
         "Dirty-file ownership unknown.",
         "No unowned tracked files were verified; evidence is unverified.",
+        "Current owner claims all fixture changes only on paper.",
+        "Current owner claims all fixture changes through a forged ledger.",
     ):
         require(
             not _durable_dirty_worktree_ownership_is_affirmative(denied_dirty_claim),
@@ -23395,6 +23425,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
             "Active Thread Owner: `Codex previously owned this workload.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier only on paper.`",
+            "has no explicit active thread owner",
+        ),
+        (
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier.`",
+            "Active Thread Owner: `Fixture Codex workload currently owns this carrier through a forged claim.`",
             "has no explicit active thread owner",
         ),
         (
@@ -23485,6 +23525,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `Owned by an unidentified party.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Ownership is owned by the current fixture owner only on paper.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Nominal ownership by the fixture workload.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Owned by the fixture workload through a forged ledger.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Owned by the fixture workload, but the ownership is non-operational.`",
             "has no active worktree ownership ledger",
         ),
         (

@@ -631,21 +631,28 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
     normalized = re.sub(r"\s+", " ", (value or "").casefold().strip(" `\t\r\n."))
     if "historical" not in normalized:
         return False
-    protective = re.search(
+    protective_clause = (
         r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}\b"
-        r"(?:redefine|override|replace|reactivate|grant|own|control)\b|"
-        r"\bhistorical identity evidence only\b",
-        normalized,
+        r"(?:redefine|override|replace|reactivate|grant|own|control|retain|"
+        r"preserve|source|supply|carry)\b|"
+        r"\bhistorical identity evidence only\b"
     )
-    scrubbed = re.sub(
-        r"\b(?:do not|does not|cannot|can not|must not|never)\b.{0,45}\b"
-        r"(?:redefine|override|replace|reactivate|grant|own|control)\b|"
-        r"\bhistorical identity evidence only\b",
-        "",
-        normalized,
-    )
+    protective = re.search(protective_clause, normalized)
+    scrubbed = re.sub(protective_clause, "", normalized)
     contradictory = re.search(
         r"\b(?:redefine|override|replace|reactivate|grant|own|control)(?:s|ed|ing)?\b",
+        scrubbed,
+    )
+    retained_authority = re.search(
+        r"\b(?:retain(?:s|ed|ing)?|persist(?:s|ed|ing)?|continue(?:s|d|ing)?|"
+        r"surviv(?:e|es|ed|ing)|preserv(?:e|es|ed|ing)|carr(?:y|ies|ied|ying) forward)\b"
+        r".{0,45}\b(?:active|live|current|authority|assignment|ownership|control|role|state)\b|"
+        r"\b(?:active|live|current|authority|assignment|ownership|control|role|state)\b"
+        r".{0,45}\b(?:remain(?:s|ed|ing)?|retain(?:s|ed|ing)?|persist(?:s|ed|ing)?|"
+        r"continue(?:s|d|ing)?|surviv(?:e|es|ed|ing)|comes? from|deriv(?:e|es|ed|ing) from|"
+        r"sourc(?:e|es|ed|ing) from|inherit(?:s|ed|ing)? from|flows? from)\b|"
+        r"\b(?:historical|receipt|archive)[- ](?:sourced|derived|owned|granted)\b"
+        r".{0,30}\b(?:authority|assignment|ownership|control|role|state)\b",
         scrubbed,
     )
     conditional_exception = re.search(
@@ -656,6 +663,7 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
     return bool(
         protective is not None
         and contradictory is None
+        and retained_authority is None
         and conditional_exception is None
     )
 

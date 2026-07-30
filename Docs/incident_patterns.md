@@ -1180,8 +1180,9 @@ Pending, prospective, candidate, future, or awaiting owner/assignment/ownership
 claims are not active authority. Direct denials such as `is not the owner`,
 `does not own this workload`, `assigned to no thread`, or `no workload is
 assigned` are not active authority merely because owner or assignment nouns are
-present. Nominal, ceremonial, simulated, placeholder, non-operational, or
-paper-only assignments are likewise not active assignments. A durable carrier
+present. Nominal, ceremonial, simulated, placeholder, forged, invalid,
+unverified, non-operational, or paper-only owner, assignment, dirty-ownership,
+and ownership-ledger claims are likewise not active authority. A durable carrier
 or external live authority record must contain exactly one
 `## Assigned Worktree Confinement` section; a valid first section cannot hide
 contradictory authority in a duplicate section. Likewise, `no collision check` or wording that
@@ -1285,6 +1286,9 @@ target-set, external-state, or snapshot-manifest context.
 Recovery-payload field matching must split camelCase and PascalCase boundaries
 before semantic comparison, so `BeforeText`, `RecoveryPayload`, and equivalent
 aliases cannot preserve recoverable target bytes in a committed journal.
+Historical receipt boundaries are closed whole-value contracts. A protective
+prefix cannot be followed by retained, remaining, persistent, continued, or
+receipt-sourced live authority, assignment, ownership, control, role, or state.
 
 Committed transaction chronology is part of evidence integrity. A snapshot
 manifest may not postdate the journal transaction it proves, and the released

@@ -184,8 +184,10 @@ inventory. Modern and legacy released-lock evidence must retain the parsed diges
 through the final decision. Audit discovery must retain the same pre/post confined
 directory identity and JSON filename inventory, then rehash every discovered file.
 Target `Record Role` evidence must be affirmative and non-negated, while the
-historical boundary must be unconditional. Malformed-audit transition recovery must
-preserve an immutable root frame across mismatched or repeated closers. Confined evidence reads must
+historical boundary must be unconditional and must reject retained, remaining,
+persistent, continued, inherited, or receipt-sourced live authority.
+Malformed-audit transition recovery must preserve an immutable root frame across
+mismatched or repeated closers. Confined evidence reads must
 reject files above the fixed byte limit before buffering, report memory/decode
 resource exhaustion as validation issues, enforce the same fixed limit during
 streaming hashes, and scan malformed objects after

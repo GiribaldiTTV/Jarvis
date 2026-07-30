@@ -3919,6 +3919,24 @@ def main() -> int:
                 "Historical Receipt Boundary does not prevent",
             ),
             (
+                "retained active assignment historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts do not redefine live fields; retained active assignment remains.`",
+                "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "receipt-sourced authority historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts do not redefine live fields; current authority comes from the receipt.`",
+                "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "receipt-derived ownership historical boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts do not redefine live fields; receipt-derived ownership remains active.`",
+                "Historical Receipt Boundary does not prevent",
+            ),
+            (
                 "duplicate historical receipt boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\nHistorical Receipt Boundary: `Historical receipts redefine the live fields.`",
