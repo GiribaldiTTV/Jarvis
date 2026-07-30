@@ -22193,7 +22193,10 @@ def _durable_write_set_is_bounded(value: str) -> bool:
         r"remaining|supplemental|ancillary|unnamed|unlisted|undisclosed|future) "
         r"(?:other )?(?:files?|paths?|artifacts?|targets?|changes?)|"
         r"anything (?:else|required|needed)|whatever (?:else|is needed)|"
-        r"(?:the )?rest of (?:the )?(?:repo|repository|worktree))\b",
+        r"(?:the )?rest of (?:the )?(?:repo|repository|worktree)|"
+        r"(?:broad|global|repo-wide|repository-wide|arbitrary|open-ended) "
+        r"(?:(?:write|mutation|repository|repo) )?"
+        r"(?:authority|access|permission|scope|writes?|mutation))\b",
         normalized,
     )
     boundary = re.search(r"\b(?:bounded|exact|named|only)\b", normalized)
@@ -23407,6 +23410,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Intended Write Set: `Bounded fixture validator files only.`",
             "Intended Write Set: `Unbounded access to all repository files.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Bounded dev/validator.py; global mutation authority.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Exact dev/validator.py; broad write access.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Only dev/validator.py; arbitrary repository mutation.`",
+            "has no bounded intended write set",
+        ),
+        (
+            "Intended Write Set: `Bounded fixture validator files only.`",
+            "Intended Write Set: `Named dev/validator.py; repo-wide write permission.`",
             "has no bounded intended write set",
         ),
         (

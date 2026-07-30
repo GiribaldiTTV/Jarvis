@@ -568,6 +568,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "genuine repo live state family",
             "repo-live-state family matches",
             "repo live state family matches",
+            "generic transaction state",
         ),
     ),
     FamilyRule(
@@ -759,6 +760,51 @@ def _classify_comment(body: str) -> list[str]:
         matched_keywords = [
             keyword for keyword in rule.keywords if keyword in normalized
         ]
+        if rule.family_id == "external-state-transaction-evidence-parser":
+            external_context = any(
+                context in normalized
+                for context in (
+                    "external-state",
+                    "external state",
+                    "journal",
+                    "target-set",
+                    "target set",
+                    "target-currentness",
+                    "target currentness",
+                    "audit_log",
+                    "audit evidence",
+                    "modern audit",
+                    "modern committed",
+                    "released-lock",
+                    "released lock",
+                    "snapshot manifest",
+                )
+            )
+            record_role_authority_context = (
+                "record role" in normalized
+                and any(
+                    context in normalized
+                    for context in (
+                        "authority",
+                        "live header",
+                        "current worktree assignment projection",
+                    )
+                )
+            )
+            external_context = external_context or record_role_authority_context
+            if not external_context:
+                matched_keywords = [
+                    keyword
+                    for keyword in matched_keywords
+                    if keyword
+                    not in {
+                        "modern target",
+                        "before sha256",
+                        "after sha256",
+                        "transaction state",
+                        "record role",
+                    }
+                ]
         if rule.family_id == "repo-live-state-boundary-parser":
             matched_keywords = [
                 keyword
@@ -1048,6 +1094,7 @@ def _classify_comment(body: str) -> list[str]:
         "genuine repo live state family",
         "repo-live-state family matches",
         "repo live state family matches",
+        "generic transaction state",
     )
     if "pr2-comment-family-classifier" in families and any(
         keyword in normalized for keyword in classifier_priority_keywords
@@ -1347,6 +1394,17 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "A durable Non-Includes suffix finding acquired the unrelated RAR path-suffix family"
         )
+    for unrelated_transaction_phrase in (
+        "Preserve transaction state after a payment retry.",
+        "The profile table records the record role for display.",
+        "A checksum report lists after SHA256 for an unrelated asset.",
+        "The deployment planner selected a modern target for customer notifications.",
+    ):
+        if _classify_comment(unrelated_transaction_phrase) != ["unknown"]:
+            failures.append(
+                "Generic transaction wording acquired external-state parser coverage: "
+                + unrelated_transaction_phrase
+            )
     ambiguous_snapshot_comment = (
         "A visual acceptance review says snapshot evidence cannot replace an accepted "
         "reference set."

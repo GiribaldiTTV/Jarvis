@@ -1617,6 +1617,44 @@ def _assert_audit_inventory_creation_race_rejected() -> None:
     print("Modern audit fixture: inventory creation race rejected: PASS")
 
 
+def _assert_audit_final_inventory_creation_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-audit-final-inventory-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        audit_root = root / "audit_log"
+        original_iterdir = Path.iterdir
+        audit_enumerations = 0
+
+        def create_after_final_hashes(path: Path):
+            nonlocal audit_enumerations
+            if path == audit_root:
+                audit_enumerations += 1
+                if audit_enumerations == 3:
+                    atomic_write_json(
+                        audit_root / "late-prepared-transaction.json",
+                        {
+                            "Transition": validator.TARGET_SET_TRANSITION,
+                            "Transaction State": "Prepared",
+                        },
+                    )
+            return original_iterdir(path)
+
+        Path.iterdir = create_after_final_hashes
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            Path.iterdir = original_iterdir
+        if audit_enumerations < 3 or not any(
+            "audit inventory changed after final hashing" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "post-hash audit inventory-creation race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern audit fixture: post-hash inventory creation race rejected: PASS")
+
+
 def _assert_audit_rediscovery_failure_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-audit-rediscovery-failure-") as temp_dir:
         root = Path(temp_dir)
@@ -1646,6 +1684,41 @@ def _assert_audit_rediscovery_failure_rejected() -> None:
                 + "\n".join(failures)
             )
     print("Modern audit fixture: rediscovery failure rejected: PASS")
+
+
+def _assert_live_target_final_revalidation_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-live-target-final-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        target = root / "worktrees" / "Fixture" / "worktree_state.md"
+        target_parts = ("worktrees", "Fixture", "worktree_state.md")
+        original_hash = validator._sha256_confined_evidence_file
+        target_hashes = 0
+
+        def mutate_after_first_hash(base: Path, parts: tuple[str, ...]):
+            nonlocal target_hashes
+            digest = original_hash(base, parts)
+            if base == root and parts == target_parts:
+                target_hashes += 1
+                if target_hashes == 1:
+                    target.write_bytes(b"late unrelated live target bytes\n")
+            return digest
+
+        validator._sha256_confined_evidence_file = mutate_after_first_hash
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator._sha256_confined_evidence_file = original_hash
+        if target_hashes < 2 or not any(
+            "live target changed during validation" in item
+            and "does not match After SHA256" in item
+            for item in failures
+        ):
+            raise AssertionError(
+                "final live-target mutation escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern live-target fixture: final revalidation race rejected: PASS")
 
 
 def _assert_audit_file_replacement_race_rejected() -> None:
@@ -2983,7 +3056,9 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_child_mutation_race_rejected()
     _assert_snapshot_inventory_creation_race_rejected()
     _assert_audit_inventory_creation_race_rejected()
+    _assert_audit_final_inventory_creation_race_rejected()
     _assert_audit_rediscovery_failure_rejected()
+    _assert_live_target_final_revalidation_rejected()
     _assert_audit_file_replacement_race_rejected()
     _assert_snapshot_manifest_replacement_race_rejected()
     _assert_lock_replacement_race_rejected()
@@ -3611,6 +3686,36 @@ def main() -> int:
                 "negated record role authority",
                 "Record Role: `Current worktree assignment projection`",
                 "Record Role: `Current state has no authority.`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "nominal record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection exists only on paper`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "forged record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Forged current worktree assignment projection`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "invalid record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection is invalid`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "unverified record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Unverified current worktree assignment projection`",
+                "Record Role is not affirmative live authority",
+            ),
+            (
+                "non-operational record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection is non-operational`",
                 "Record Role is not affirmative live authority",
             ),
             (

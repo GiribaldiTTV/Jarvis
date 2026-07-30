@@ -608,10 +608,15 @@ def _target_record_role_is_live(value: str | None) -> bool:
     )
     denied = re.search(
         r"\b(?:no|not|never|without|lacks?|missing|unavailable|inactive|"
-        r"non[- ]authoritative|unauthori[sz]ed)\b.{0,30}\b"
+        r"non[- ]authoritative|non[- ]operational|unauthori[sz]ed|nominal|"
+        r"forged|fabricated|falsified|counterfeit|invalid|unverified|purported|"
+        r"alleged|simulated|placeholder|paper[- ]only)\b.{0,30}\b"
         r"(?:authority|assignment|projection|state|role)\b|"
         r"\b(?:authority|assignment|projection|state|role)\b.{0,30}\b"
-        r"(?:none|absent|denied|revoked|inactive|unavailable)\b",
+        r"(?:none|absent|denied|revoked|inactive|unavailable|nominal|forged|"
+        r"fabricated|falsified|counterfeit|invalid|unverified|purported|alleged|"
+        r"simulated|placeholder|non[- ]operational|exists? only on paper|"
+        r"only on paper)\b",
         normalized,
     )
     return bool(
@@ -3043,6 +3048,7 @@ def validate_incomplete_target_set_journals(
     compatibility_manifest_path: Path = LEGACY_RECEIPT_COMPATIBILITY_MANIFEST,
 ) -> list[str]:
     failures: list[str] = []
+    committed_target_after_hash_sets: list[dict[str, str]] = []
     audit_root = root / "audit_log"
     if _has_reparse_point(audit_root):
         return [
@@ -3177,6 +3183,7 @@ def validate_incomplete_target_set_journals(
                         target_after_hashes,
                     )
                 )
+                committed_target_after_hash_sets.append(dict(target_after_hashes))
         else:
             journal_issues = _validate_legacy_completed_target_set_receipt(
                 root,
@@ -3187,6 +3194,7 @@ def validate_incomplete_target_set_journals(
             )
         failures.extend(f"Target-set transaction journal invalid: {path}: {issue}" for issue in journal_issues)
     rediscovered_paths: list[Path] = []
+    rediscovered_inventory = discovered_inventory
     try:
         rediscovered_entries = sorted(audit_root.iterdir())
         rediscovered_paths = [
@@ -3244,6 +3252,49 @@ def validate_incomplete_target_set_journals(
                 "Target-set transaction audit file changed during validation: "
                 f"{discovered_path}"
             )
+    try:
+        final_entries = sorted(audit_root.iterdir())
+        final_audit_path, final_audit_states = _confined_component_states(
+            root,
+            ("audit_log",),
+        )
+        final_inventory = {
+            (
+                _host_path_key(path.name),
+                "reparse"
+                if _has_reparse_point(path)
+                else "directory"
+                if path.is_dir()
+                else "entry",
+            )
+            for path in final_entries
+        }
+        final_inventory_changed = (
+            final_audit_path != audit_path_before
+            or len(final_audit_states) != len(audit_before_states)
+            or any(
+                not os.path.samestat(before_state, final_state)
+                for before_state, final_state in zip(
+                    audit_before_states,
+                    final_audit_states,
+                )
+            )
+            or final_inventory != rediscovered_inventory
+        )
+    except OSError:
+        final_inventory_changed = True
+    if final_inventory_changed:
+        failures.append(
+            "Target-set transaction audit inventory changed after final hashing"
+        )
+    for target_after_hashes in committed_target_after_hash_sets:
+        failures.extend(
+            "Target-set transaction live target changed during validation: " + issue
+            for issue in _validate_modern_committed_target_evidence(
+                root,
+                target_after_hashes,
+            )
+        )
     return failures
 
 

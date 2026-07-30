@@ -1011,7 +1011,9 @@ and target write set with no unjournaled additions. Both legacy and modern
 Every modern `Committed` target row must also bind the live confined target bytes
 to its recorded `After SHA256`. A missing target, retained before-image, unrelated
 content, reparse, or read failure is incomplete transaction evidence even when
-snapshot and released-lock proof are valid.
+snapshot and released-lock proof are valid. Every accepted live-target digest
+must be revalidated again at the final journal-validation boundary so a target
+changed during later audit checks cannot inherit a stale green result.
 Snapshot manifest copied-file evidence and the physical snapshot-file inventory
 must equal the journal target set exactly; a valid hash for an unrelated extra
 file, or an unmanifested physical file, is retained pre-write material, not
@@ -1032,15 +1034,17 @@ final completion decision. Audit-log discovery must compare pre/post directory
 identity and JSON inventory, then rehash every discovered JSON file; a journal
 that appears or is replaced under the same filename blocks a green result. A
 second-pass enumeration failure must remain a validation failure, not escape as
-an unhandled error. The
+an unhandled error. After final audit-file hashes, the full typed inventory must
+be enumerated once more; a late Prepared journal or other entry blocks green. The
 `audit_log` namespace is flat transaction evidence: any nested directory or
 filesystem alias is corrupt because a non-recursive scan could otherwise hide a
 Prepared or malformed journal below the authoritative audit root.
 Target-scoped live projections must also carry an affirmative current/live/active
 `Record Role` and a `Historical Receipt Boundary` that explicitly prevents
 historical receipts from redefining or granting live authority. Negated role
-claims and conditional boundary exceptions such as `unless` remain negative
-evidence. Confined JSON
+claims, nominal or paper-only roles, forged/fabricated/invalid/unverified roles,
+non-operational placeholders, and conditional boundary exceptions such as
+`unless` remain negative evidence. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
 buffer, enforce the same bound during streaming hashes, and translate allocation,
 decode, or continuously growing evidence into a validation issue.
@@ -1185,6 +1189,10 @@ worktree before the required USER approval, including clauses that schedule the
 approval only after creation. An ownership ledger must identify an
 actual owner or workload; `owned by nobody`, `ownerless`, `owned by no workload`,
 or an unidentified party is not active ownership evidence.
+An intended write set is not bounded when a concrete path and `bounded`, `exact`,
+`named`, or `only` prefix is followed by broad, global, repository-wide,
+arbitrary, or open-ended write/mutation authority, access, permission, or scope.
+The entire value must remain a closed bounded inventory.
 An external Live Branch Projection must satisfy the same semantic owner,
 assignment, ownership, bounded-write-set, collision, routing, USER-gate,
 cross-worktree, Desktop-root, and waiver predicates as durable confinement
