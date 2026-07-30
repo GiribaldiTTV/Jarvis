@@ -657,6 +657,12 @@ def _target_record_role_is_live(value: str | None) -> bool:
         r"\b(?:not\s+(?:an?\s+)?authoritative|non[- ]authoritative)\b",
         normalized,
     )
+    explicitly_inactive_live_identity = re.search(
+        r"\b(?:not|no longer)\s+(?:active|current|live)\b|"
+        r"\b(?:active|current|live)\b.{0,30}\b(?:is|are|remains?)\s+"
+        r"(?:not|no longer)\s+(?:active|current|live)\b",
+        normalized,
+    )
     return bool(
         live_identity
         and authority_shape
@@ -665,6 +671,7 @@ def _target_record_role_is_live(value: str | None) -> bool:
         and future_gated is None
         and never_activated is None
         and explicitly_non_authoritative is None
+        and explicitly_inactive_live_identity is None
     )
 
 
@@ -722,12 +729,38 @@ def _historical_receipt_boundary_is_protective(value: str | None) -> bool:
         r"may|might|can still|could still)\b",
         normalized,
     )
+    receipt_owned_authority = False
+    for clause in re.split(r"[.;]", scrubbed):
+        if not re.search(r"\b(?:historical|receipts?|archives?)\b", clause):
+            continue
+        if not re.search(
+            r"\b(?:authority|authoritative|assignment|ownership|control|role|state|fields?)\b",
+            clause,
+        ):
+            continue
+        if re.search(
+            r"\b(?:no|not|never|cannot|can not|does not|do not|must not|without|"
+            r"non[- ]authoritative)\b",
+            clause,
+        ):
+            continue
+        if re.search(
+            r"\b(?:is|are|remains?|becomes?)\s+authoritative\b|"
+            r"\b(?:has|have|holds?|owns?|controls?|grants?|supplies?|carries?|sources?)\b"
+            r".{0,35}\b(?:authority|assignment|ownership|control|role|state|fields?)\b|"
+            r"\b(?:authority|assignment|ownership|control|role|state|fields?)\b"
+            r".{0,35}\b(?:comes?|derives?|flows?)\s+from\b",
+            clause,
+        ):
+            receipt_owned_authority = True
+            break
     return bool(
         protective is not None
         and contradictory is None
         and retained_authority is None
         and restored_authority is None
         and conditional_exception is None
+        and not receipt_owned_authority
     )
 
 
@@ -3254,7 +3287,7 @@ def _has_noncanonical_target_set_transition(payload: dict[str, object]) -> bool:
         if not isinstance(key, str) or key.strip().casefold() != "transition":
             continue
         if not isinstance(value, str):
-            return True
+            continue
         if value.strip().casefold() != TARGET_SET_TRANSITION.casefold():
             continue
         return key != "Transition" or value != TARGET_SET_TRANSITION

@@ -2509,6 +2509,22 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
                 {"External State Schema": "external-state-v1", "Transition": "Other audit"},
             ),
         ),
+        *[
+            (
+                f"unrelated audit with non-string Transition value {label}",
+                lambda root, value=value, label=label: atomic_write_json(
+                    root / "audit_log" / f"unrelated-non-string-{label}.json",
+                    {"External State Schema": "external-state-v1", "Transition": value},
+                ),
+            )
+            for label, value in (
+                ("integer", 1),
+                ("null", None),
+                ("boolean", True),
+                ("array", [validator.TARGET_SET_TRANSITION]),
+                ("object", {"Value": validator.TARGET_SET_TRANSITION}),
+            )
+        ],
         (
             "unrelated audit mentions target-set phrase only in Notes",
             lambda root: atomic_write_json(
@@ -4389,6 +4405,21 @@ def main() -> int:
             ],
             *[
                 (
+                    f"explicitly inactive live-role identity: {value}",
+                    "Record Role: `Current worktree assignment projection`",
+                    f"Record Role: `{value}`",
+                    "Record Role is not affirmative live authority",
+                )
+                for value in (
+                    "Current authority is not active",
+                    "Current authority is not current",
+                    "Active authority is not live",
+                    "Current projection is no longer live",
+                    "Live assignment remains not current",
+                )
+            ],
+            *[
+                (
                     f"embedded live-identity token record role: {value}",
                     "Record Role: `Current worktree assignment projection`",
                     f"Record Role: `{value}`",
@@ -4570,6 +4601,20 @@ def main() -> int:
                 "Historical Receipt Boundary: `Historical receipts do not redefine live fields; receipt-derived ownership remains active.`",
                 "Historical Receipt Boundary does not prevent",
             ),
+            *[
+                (
+                    f"positive receipt-owned authority historical boundary: {value}",
+                    "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                    f"Historical Receipt Boundary: `{value}`",
+                    "Historical Receipt Boundary does not prevent",
+                )
+                for value in (
+                    "Historical receipts do not redefine live authority; historical receipts are authoritative",
+                    "Historical receipts do not redefine live authority; historical receipt has live authority",
+                    "Historical receipts do not redefine live authority; historical evidence owns current assignment",
+                    "Historical receipts do not redefine live authority; archive controls active state",
+                )
+            ],
             *[
                 (
                     f"restored authority historical boundary: {value}",
@@ -4889,6 +4934,150 @@ def main() -> int:
         )
         if not any("inside section" in item for item in ambiguous_field_failures):
             raise AssertionError("case-variant duplicate section field was not rejected")
+
+        fenced_only_section_text = normalized_before_text.replace(
+            "Intended Write Set: `Only dev/original.py`\n",
+            "```text\n"
+            "Intended Write Set: `Only dev/example.py`\n"
+            "```\n",
+        )
+        fenced_only_result, fenced_only_failures = reconciler._replace_existing_section_fields(
+            fenced_only_section_text,
+            {
+                ("Assigned Worktree Confinement", "Intended Write Set"):
+                "Only dev/updated.py"
+            },
+        )
+        if (
+            fenced_only_result != fenced_only_section_text
+            or not any("inside section" in item for item in fenced_only_failures)
+        ):
+            raise AssertionError("a fenced section-field example was treated as live authority")
+
+        real_and_fenced_section_text = normalized_before_text.replace(
+            "Intended Write Set: `Only dev/original.py`\n",
+            "Intended Write Set: `Only dev/original.py`\n"
+            "~~~text\n"
+            "Intended Write Set: `Only dev/example.py`\n"
+            "~~~~\n",
+        )
+        real_and_fenced_result, real_and_fenced_failures = (
+            reconciler._replace_existing_section_fields(
+                real_and_fenced_section_text,
+                {
+                    ("Assigned Worktree Confinement", "Intended Write Set"):
+                    "Only dev/updated.py"
+                },
+            )
+        )
+        if real_and_fenced_failures:
+            raise AssertionError(
+                "a real section field plus a fenced example was rejected:\n"
+                + "\n".join(real_and_fenced_failures)
+            )
+        if (
+            "Intended Write Set: `Only dev/updated.py`" not in real_and_fenced_result
+            or "Intended Write Set: `Only dev/example.py`" not in real_and_fenced_result
+            or real_and_fenced_result.count("Only dev/updated.py") != 1
+        ):
+            raise AssertionError("section-field replacement changed or selected fenced example text")
+
+        fenced_duplicate_heading_text = normalized_before_text.replace(
+            "## Assigned Worktree Confinement\n",
+            "```markdown\n"
+            "## Assigned Worktree Confinement\n"
+            "Intended Write Set: `Only dev/example.py`\n"
+            "```\n"
+            "## Assigned Worktree Confinement\n",
+            1,
+        )
+        _, fenced_duplicate_heading_failures = reconciler._replace_existing_section_fields(
+            fenced_duplicate_heading_text,
+            {
+                ("Assigned Worktree Confinement", "Intended Write Set"):
+                "Only dev/updated.py"
+            },
+        )
+        if fenced_duplicate_heading_failures:
+            raise AssertionError(
+                "a fenced duplicate heading changed live section cardinality:\n"
+                + "\n".join(fenced_duplicate_heading_failures)
+            )
+
+        fenced_only_top_field = normalized_before_text.replace(
+            "Last Updated: `2026-01-01T00:00:00Z`\n",
+            "```text\n"
+            "Last Updated: `2026-01-01T00:00:00Z`\n"
+            "```\n",
+            1,
+        )
+        fenced_top_result, fenced_top_failures = reconciler._replace_existing_fields(
+            fenced_only_top_field,
+            {"Last Updated": "2026-01-02T00:00:00Z"},
+            {},
+        )
+        if (
+            fenced_top_result != fenced_only_top_field
+            or not any("exactly one existing field" in item for item in fenced_top_failures)
+        ):
+            raise AssertionError("a fenced top-level field example was treated as live authority")
+
+        fenced_rename_text = normalized_before_text.replace(
+            "## Historical Receipts\n",
+            "```markdown\n## Historical Receipts\n```\n## Historical Receipts\n",
+            1,
+        )
+        fenced_rename_result, fenced_rename_failures, fenced_renamed = reconciler._rename_sections(
+            fenced_rename_text,
+            {"Historical Receipts": "Historical Receipt"},
+        )
+        if fenced_rename_failures or fenced_renamed != [
+            ("## Historical Receipts", "## Historical Receipt")
+        ]:
+            raise AssertionError(
+                "a fenced rename example changed live heading selection:\n"
+                + "\n".join(fenced_rename_failures)
+            )
+        if fenced_rename_result.count("## Historical Receipts") != 1:
+            raise AssertionError("a fenced heading example was renamed")
+
+        for label, unterminated_text in (
+            (
+                "backtick",
+                normalized_before_text
+                + "```text\nIntended Write Set: `Only dev/example.py`\n",
+            ),
+            (
+                "tilde",
+                normalized_before_text
+                + "~~~text\nIntended Write Set: `Only dev/example.py`\n",
+            ),
+        ):
+            _, unterminated_section_failures = reconciler._replace_existing_section_fields(
+                unterminated_text,
+                {
+                    ("Assigned Worktree Confinement", "Intended Write Set"):
+                    "Only dev/updated.py"
+                },
+            )
+            _, unterminated_top_failures = reconciler._replace_existing_fields(
+                unterminated_text,
+                {"Last Updated": "2026-01-02T00:00:00Z"},
+                {},
+            )
+            _, unterminated_rename_failures, _ = reconciler._rename_sections(
+                unterminated_text,
+                {"Historical Receipts": "Historical Receipt"},
+            )
+            for operation, failures in (
+                ("section field", unterminated_section_failures),
+                ("top-level field", unterminated_top_failures),
+                ("section rename", unterminated_rename_failures),
+            ):
+                if not any("unterminated fenced block" in item for item in failures):
+                    raise AssertionError(
+                        f"unterminated {label} fence did not block {operation} mutation"
+                    )
 
         for label, assignments, additions in (
             (

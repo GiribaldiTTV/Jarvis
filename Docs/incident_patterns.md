@@ -1080,13 +1080,18 @@ conditional boundary exceptions such as `unless` remain negative evidence. A
 live-role identity and authority shape must be proven by whole tokens; embedded
 substrings such as `Delivery authority`, `Delivery state`, or `Current
 statement` are not current/live/active authority. `Not authoritative` is an
-explicit denial even when the same value also says `current authority`. A
+explicit denial even when the same value also says `current authority`.
+Direct identity denials such as `Current authority is not active`, `Current
+authority is not current`, and `Active authority is not live` also fail closed;
+current/live/active nouns cannot outweigh their own negation. A
 protective historical boundary must bind its prohibited action to live/current
 authority, assignment, ownership, control, role, state, or fields. An unrelated
 statement such as `Historical receipts do not redefine archived notes` is not a
 live-authority boundary. A protective historical boundary also fails when a
 later clause restores, renews, reinstates, reactivates, resumes, or reopens the
-authority it first denied. Explicit denials such as `has not expired` and
+authority it first denied, or affirmatively says that a historical receipt is
+authoritative, has live authority, owns current assignment, or controls active
+state. Explicit denials such as `has not expired` and
 `does not restore live authority` remain protective rather than being mistaken
 for the prohibited affirmative state. Confined JSON
 evidence reads must enforce a fixed byte bound before buffering, use one bounded
@@ -1226,7 +1231,10 @@ present. An assignment that never became active, has not started, or failed to
 activate is likewise not active assignment authority. Nominal, ceremonial,
 simulated, placeholder, forged, invalid,
 unverified, non-operational, or paper-only owner, assignment, dirty-ownership,
-and ownership-ledger claims are likewise not active authority. A durable carrier
+and ownership-ledger claims are likewise not active authority. A Worktree
+Ownership Ledger must state an affirmative present-tense ownership relation;
+`ownership is not active`, suspended ownership, and `ownership was active` are
+historical or inactive evidence even when branch/workload nouns are present. A durable carrier
 or external live authority record must contain exactly one
 `## Assigned Worktree Confinement` section; a valid first section cannot hide
 contradictory authority in a duplicate section. Section-heading cardinality is
@@ -1399,6 +1407,14 @@ Classifier-review priority is additive: a comment about the classifier must reta
 every genuine exact external-state or durable-carrier family it also identifies.
 Generic `modern target` wording likewise requires journal, transaction, audit,
 target-set, external-state, or snapshot-manifest context.
+Canonical-spelling checks for a JSON `Transition` field apply only when its
+value is a string that normalizes to the target-set transition identity. An
+integer, null, boolean, array, or object `Transition` in an unrelated audit is
+not a malformed target-set journal merely because it reuses the field name.
+Target-reconcile selectors must parse live Markdown structure rather than raw
+matching text: fenced backtick or tilde examples cannot supply top-level fields,
+section headings, section fields, or rename targets, fenced bytes remain
+unchanged, and an unterminated fence blocks mutation.
 Recovery-payload field matching must split camelCase and PascalCase boundaries
 before semantic comparison, so `BeforeText`, `RecoveryPayload`, and equivalent
 aliases cannot preserve recoverable target bytes in a committed journal.

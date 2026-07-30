@@ -22643,23 +22643,35 @@ def _durable_ownership_ledger_is_active(value: str) -> bool:
         r"\b(?:none|no (?:active )?owner(?: exists)?|owner (?:is )?(?:absent|missing|unknown)|"
         r"unowned|not owned|ownerless|owned by (?:none|nobody|no one|no (?:thread|workload|task|owner))|"
         r"(?:ownership|owner) (?:belongs to )?(?:none|nobody|no one)|"
-        r"does not belong|revoked|expired|historical|inactive|previously owned|"
+        r"does not belong|revoked|expired|historical|inactive|not active|suspended|"
+        r"disabled|paused|deactivated|dormant|halted|stopped|on hold|previously owned|"
         r"formerly owned|pending|prospective|candidate|future|awaiting|not yet owned|"
         r"to be (?:owned|assigned|selected|determined|confirmed)|no longer owned|"
         r"ownership (?:ended|closed|terminated)|nominal(?:ly)?|(?:only )?on paper|"
         r"paper[- ]only|ceremonial|simulated|placeholder|non[- ]operational|"
         r"not operational|forged|fabricated|falsified|counterfeit|invalid(?:ated)?|"
         r"unauthori[sz]ed|unverified|purported|alleged|"
-        r"ownership exists only in (?:name|prose))\b",
+        r"ownership exists only in (?:name|prose)|was (?:active|current|owned)|"
+        r"were (?:active|current|owned)|had ownership|used to own)\b",
         normalized,
     )
-    ownership_relation = "owned by" in normalized or "ownership" in normalized
+    present_ownership_relation = re.search(
+        r"^(?:currently |actively )?owned by\b|"
+        r"\b(?:is|remains) (?:currently |actively )?owned by\b|"
+        r"\bownership (?:is |remains )?(?:currently |actively )?"
+        r"(?:held|owned|controlled) by\b|"
+        r"\b(?:current|active) (?:owner|workload|thread|branch|carrier) "
+        r"(?:owns?|holds?|controls?)\b|"
+        r"\b(?:owns?|holds?|controls?) (?:the )?(?:current|active) "
+        r"(?:worktree|branch|carrier|assignment)\b",
+        normalized,
+    )
     identifies_owner = re.search(
         r"\b(?:codex|thread|workload|user|owner|branch|carrier)\b",
         normalized,
     )
     return bool(
-        ownership_relation
+        present_ownership_relation
         and identifies_owner
         and denied is None
         and not _confinement_claim_has_nonoperational_qualifier(normalized)
@@ -24477,6 +24489,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         (
             "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
             "Worktree Ownership Ledger: `Owned by the fixture workload, but the ownership is non-operational.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Branch ownership is not active.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Branch ownership is suspended.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `Branch ownership was active.`",
+            "has no active worktree ownership ledger",
+        ),
+        (
+            "Worktree Ownership Ledger: `C:\\Nexus Worktrees\\Governance-Fixture is owned by the fixture workload.`",
+            "Worktree Ownership Ledger: `The fixture workload had ownership.`",
             "has no active worktree ownership ledger",
         ),
         (

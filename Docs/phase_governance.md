@@ -2546,7 +2546,11 @@ and slot identity. It fails closed for missing expectations, duplicate or
 ambiguous targets, absolute/off-root/traversal/alias paths, reparse or
 symlink escapes, missing targets, malformed records, unsupported or historical
 record classes, identity mismatches, stale hashes, and target changes during
-validation. Windows path comparison is case-insensitive and slash-normalized.
+validation. A target-scoped `Record Role` must affirm present-tense live authority
+without direct not-active/current/live wording, and its historical boundary must
+not later grant receipts or archives authority, assignment, ownership, control,
+role, or active state. Windows path comparison is case-insensitive and
+slash-normalized.
 
 `state_manifest.json` remains a root initialization/index anchor. Its source
 HEAD is reported separately and must not be applied as one expected HEAD to
@@ -2558,7 +2562,11 @@ first be admitted by the External State Transition Gate and use
 `dev/orin_external_state_target_reconcile.py` (or a later explicitly admitted
 record-specific equivalent) with the accepted record-specific lock, snapshot,
 atomic replacement, audit, rollback/no-loss, and post-write validation
-procedure. Release the lock through
+procedure. Writer field/section selectors must ignore fenced Markdown examples,
+preserve fenced bytes, and fail closed on unterminated fences. Canonical target-set
+Transition spelling applies only to string values that normalize to that
+transition; unrelated non-string Transition values remain outside the target-set
+journal class. Release the lock through
 `dev/orin_external_state_lock_release.py`; a target transition is incomplete
 while its lock remains held. Historical receipts remain preserved and must not
 be rewritten to satisfy a current target check.

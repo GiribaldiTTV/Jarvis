@@ -122,6 +122,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "target-set journal",
             "target-set transaction",
             "target-set transition",
+            "non-string transition",
             "modern journal",
             "modern committed",
             "modern target",
@@ -158,6 +159,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "target-scoped currentness",
             "record role",
             "historical receipt boundary",
+            "positive historical authority",
+            "receipt-owned authority",
             "audit_log",
             "modern audit",
             "journal extension",
@@ -177,6 +180,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "relative snapshot manifest root",
             "surrogate code point",
             "deeply nested audit",
+            "section-field",
+            "section field",
+            "target reconciler",
+            "fenced markdown",
         ),
     ),
     FamilyRule(
@@ -240,6 +247,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "expected worktree root",
             "actual worktree root",
             "declared confinement roots",
+            "ordinary active branch-record",
+            "complete confinement semantics",
         ),
     ),
     FamilyRule(
@@ -1284,6 +1293,10 @@ def _classifier_guardrail_failures() -> list[str]:
         "Fail closed on snapshot traversal errors so unreadable child directories cannot hide unmanifested files.",
         "Preserve the root frame after mismatched closers so a later target-set Transition remains visible.",
         "Reject exceptions inside a Historical Receipt Boundary protective clause before substitution removes unless approved.",
+        "Reject Record Role values that explicitly say current authority is not active, current, or live.",
+        "Reject a Historical Receipt Boundary whose trailing clause says historical receipts are authoritative or own live authority.",
+        "Ignore non-string Transition values in unrelated external-state audits because they cannot equal the target-set transition identity.",
+        "Ignore fenced Markdown examples when the target reconciler replaces a uniquely scoped section field.",
     )
     for comment in new_external_guardrails:
         if _classify_comment(comment) != [
@@ -1304,6 +1317,7 @@ def _classifier_guardrail_failures() -> list[str]:
         "Validate the effective Current Write Set against the bounded Intended Write Set before using it.",
         "Preserve a complete USER-granted Worktree Escape User Waiver path in shared confinement semantics.",
         "Require Expected Worktree Root and Actual Worktree Root to match the active root unless a valid waiver applies.",
+        "Reject an inactive Worktree Ownership Ledger and require an affirmative present-tense ownership relation.",
     )
     for comment in new_durable_guardrails:
         if _classify_comment(comment) != [

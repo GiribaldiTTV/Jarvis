@@ -231,6 +231,44 @@ def _line_ending(line: str) -> str:
     return ""
 
 
+def _markdown_fence_states(lines: list[str]) -> list[bool]:
+    """Mark fenced code-block lines so examples cannot become live selectors."""
+
+    states: list[bool] = []
+    active_marker = ""
+    active_length = 0
+    for line in lines:
+        content = line.rstrip("\r\n")
+        marker_match = re.match(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$", content)
+        if active_marker:
+            states.append(True)
+            if (
+                marker_match
+                and marker_match.group(1)[0] == active_marker
+                and len(marker_match.group(1)) >= active_length
+                and not marker_match.group(2).strip()
+            ):
+                active_marker = ""
+                active_length = 0
+            continue
+        if marker_match:
+            marker = marker_match.group(1)
+            active_marker = marker[0]
+            active_length = len(marker)
+            states.append(True)
+            continue
+        states.append(False)
+    return states
+
+
+def _is_level_two_heading(content: str) -> bool:
+    return re.match(r"^##[ \t]+", content) is not None
+
+
+def _markdown_fences_are_balanced(lines: list[str]) -> bool:
+    return not _markdown_fence_states([*lines, "NDAI fence-balance sentinel"])[-1]
+
+
 def _path_compare_key(value: object) -> str:
     """Normalize paths without imposing case-insensitivity on POSIX hosts."""
 
@@ -291,18 +329,23 @@ def _replace_existing_fields(
     additions: dict[str, str],
 ) -> tuple[str, list[str]]:
     lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
     failures: list[str] = []
+    if not _markdown_fences_are_balanced(lines):
+        return text, ["Target transition Markdown contains an unterminated fenced block"]
     found: dict[str, int] = {field: 0 for field in {**updates, **additions}}
     replaced: list[str] = []
     live_end = next(
         (
             index
             for index, line in enumerate(lines)
-            if line.rstrip("\r\n").startswith("## ")
+            if not fenced[index] and _is_level_two_heading(line.rstrip("\r\n"))
         ),
         len(lines),
     )
     for index, line in enumerate(lines[:live_end]):
+        if fenced[index]:
+            continue
         content = line.rstrip("\r\n")
         newline = line[len(content) :]
         replacement = None
@@ -340,14 +383,18 @@ def _replace_existing_section_fields(
     updates: dict[tuple[str, str], str],
 ) -> tuple[str, list[str]]:
     lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
     failures: list[str] = []
+    if not _markdown_fences_are_balanced(lines):
+        return text, ["Target transition Markdown contains an unterminated fenced block"]
     section_ranges: dict[str, tuple[int, int]] = {}
     for section, _ in updates:
         heading = f"## {section}"
         matches = [
             index
             for index, line in enumerate(lines)
-            if re.fullmatch(
+            if not fenced[index]
+            and re.fullmatch(
                 rf"##[ \t]+{re.escape(section)}[ \t]*",
                 line.rstrip("\r\n"),
                 flags=re.I,
@@ -363,7 +410,8 @@ def _replace_existing_section_fields(
             (
                 index
                 for index in range(start, len(lines))
-                if re.match(r"^##[ \t]+", lines[index].rstrip("\r\n"))
+                if not fenced[index]
+                and _is_level_two_heading(lines[index].rstrip("\r\n"))
             ),
             len(lines),
         )
@@ -375,6 +423,8 @@ def _replace_existing_section_fields(
         start, end = section_ranges[section]
         matches = []
         for index in range(start, end):
+            if fenced[index]:
+                continue
             content = lines[index].rstrip("\r\n")
             match = re.match(
                 rf"^(\s*(?:-\s*)?{re.escape(field)}:\s*).*$",
@@ -403,27 +453,45 @@ def _rename_sections(
 ) -> tuple[str, list[str], list[tuple[str, str]]]:
     failures: list[str] = []
     renamed: list[tuple[str, str]] = []
-    result = text
+    lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
+    if not _markdown_fences_are_balanced(lines):
+        return text, ["Target transition Markdown contains an unterminated fenced block"], []
     for old, new in renames.items():
         old_heading = old if old.startswith("## ") else f"## {old}"
         new_heading = new if new.startswith("## ") else f"## {new}"
-        pattern = re.compile(rf"(?m)^{re.escape(old_heading)}[ \t]*(\r\n|\n|\r|$)")
-        matches = list(pattern.finditer(result))
+        matches = [
+            index
+            for index, line in enumerate(lines)
+            if not fenced[index]
+            and re.fullmatch(
+                rf"{re.escape(old_heading)}[ \t]*",
+                line.rstrip("\r\n"),
+            )
+        ]
         if len(matches) != 1:
             failures.append(
                 f"Target transition requires exactly one section {old_heading!r}: found {len(matches)}"
             )
             continue
-        destination_pattern = re.compile(rf"(?m)^{re.escape(new_heading)}[ \t]*(\r\n|\n|\r|$)")
-        destination_matches = list(destination_pattern.finditer(result))
-        if any(match.start() != matches[0].start() for match in destination_matches):
+        destination_matches = [
+            index
+            for index, line in enumerate(lines)
+            if not fenced[index]
+            and re.fullmatch(
+                rf"{re.escape(new_heading)}[ \t]*",
+                line.rstrip("\r\n"),
+            )
+        ]
+        if any(index != matches[0] for index in destination_matches):
             failures.append(
                 f"Target transition section rename destination already exists: {new_heading!r}"
             )
             continue
-        result = pattern.sub(lambda match: f"{new_heading}{match.group(1)}", result, count=1)
+        newline = _line_ending(lines[matches[0]])
+        lines[matches[0]] = f"{new_heading}{newline}"
         renamed.append((old_heading, new_heading))
-    return result, failures, renamed
+    return "".join(lines), failures, renamed
 
 
 def _projected_target_validation(
@@ -540,11 +608,12 @@ def _live_header_text(text: str) -> str:
     """Restrict audit field lookup to live fields before historical receipts."""
 
     lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
     live_end = next(
         (
             index
             for index, line in enumerate(lines)
-            if line.rstrip("\r\n").startswith("## ")
+            if not fenced[index] and _is_level_two_heading(line.rstrip("\r\n"))
         ),
         len(lines),
     )
@@ -552,7 +621,11 @@ def _live_header_text(text: str) -> str:
 
 
 def _live_field_value(text: str, field: str) -> str:
-    for line in _live_header_text(text).splitlines():
+    lines = _live_header_text(text).splitlines()
+    fenced = _markdown_fence_states(lines)
+    for index, line in enumerate(lines):
+        if fenced[index]:
+            continue
         if re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", line):
             value = re.sub(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", "", line).strip()
             if value.startswith("`") and value.endswith("`"):
@@ -563,20 +636,29 @@ def _live_field_value(text: str, field: str) -> str:
 
 def _section_field_value(text: str, section: str, field: str) -> str:
     lines = text.splitlines()
+    fenced = _markdown_fence_states(lines)
     matches = [
         index
         for index, line in enumerate(lines)
-        if re.fullmatch(rf"##[ \t]+{re.escape(section)}[ \t]*", line, flags=re.I)
+        if not fenced[index]
+        and re.fullmatch(rf"##[ \t]+{re.escape(section)}[ \t]*", line, flags=re.I)
     ]
     if len(matches) != 1:
         return "MISSING"
     start = matches[0] + 1
     end = next(
-        (index for index in range(start, len(lines)) if re.match(r"^##[ \t]+", lines[index])),
+        (
+            index
+            for index in range(start, len(lines))
+            if not fenced[index] and _is_level_two_heading(lines[index])
+        ),
         len(lines),
     )
     values = []
-    for line in lines[start:end]:
+    for index in range(start, end):
+        if fenced[index]:
+            continue
+        line = lines[index]
         if re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", line, flags=re.I):
             value = re.sub(
                 rf"^\s*(?:-\s*)?{re.escape(field)}:\s*",
@@ -590,9 +672,14 @@ def _section_field_value(text: str, section: str, field: str) -> str:
 
 def _non_updated_lines(text: str, fields: set[str]) -> list[str]:
     result: list[str] = []
-    for line in text.splitlines(keepends=True):
+    lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
+    for index, line in enumerate(lines):
         content = line.rstrip("\r\n")
-        if any(re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", content) for field in fields):
+        if not fenced[index] and any(
+            re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", content)
+            for field in fields
+        ):
             continue
         result.append(line)
     return result
@@ -607,16 +694,25 @@ def _non_updated_lines_with_sections(
     result: list[str] = []
     active_section = ""
     section_fields = section_fields or set()
-    for line in text.splitlines(keepends=True):
+    lines = text.splitlines(keepends=True)
+    fenced = _markdown_fence_states(lines)
+    for index, line in enumerate(lines):
         content = line.rstrip("\r\n")
-        section_match = re.match(r"^##[ \t]+(.+?)[ \t]*$", content)
+        section_match = (
+            None
+            if fenced[index]
+            else re.match(r"^##[ \t]+(.+?)[ \t]*$", content)
+        )
         if section_match:
             active_section = section_match.group(1).casefold()
-        if content in section_headings:
+        if not fenced[index] and content in section_headings:
             continue
-        if any(re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", content) for field in fields):
+        if not fenced[index] and any(
+            re.match(rf"^\s*(?:-\s*)?{re.escape(field)}:\s*", content)
+            for field in fields
+        ):
             continue
-        if any(
+        if not fenced[index] and any(
             active_section == section.casefold()
             and re.match(
                 rf"^\s*(?:-\s*)?{re.escape(field)}:\s*",
