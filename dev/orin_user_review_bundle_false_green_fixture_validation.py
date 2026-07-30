@@ -6029,10 +6029,194 @@ def _assert_external_historical_evidence_mapping_boundary() -> None:
         )
 
 
+def _assert_fam003_option_g_workstream_phase_review_guards() -> None:
+    packet_target = r"C:\Nexus USER\FAM-003-20260730-235959.zip"
+    inspection_files = "; ".join(
+        (
+            "START_HERE.md",
+            bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE,
+            "Review Aids/WORKSTREAM_SEAM_RESULTS.md",
+            "Review Aids/VALIDATION_RESULTS.md",
+            "Source Truth Context/Proof Artifacts/packet_manifest.json",
+        )
+    )
+    digest_lines = (
+        "Current Phase: `Option G Workstream implementation complete; USER Workstream phase review pending`",
+        "Next Legal Phase: `Independent USER review of the complete Option G Workstream phase result`",
+        "Why This Phase Is Next: `The completed Workstream result requires independent USER adjudication before H1.`",
+        "Approval Required: `Yes - USER acceptance, revision, rejection, or waiver of the Workstream phase result only`",
+        f"Exact USER Approval Text: {bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_DECISION}",
+        "Allowed Scope: `Independent USER review and disposition of the completed Option G Workstream phase result only`",
+        "Explicit Exclusions: `H1, Live Validation, UTS, issues, PR Readiness, PR creation, merge, release, cleanup, sibling or Governance mutation, permanent Option D adoption, deferred-owner implementation`",
+        "Validation Required: `Current-gate deterministic validation, adversarial audit, and immutable final-ZIP active review must remain green`",
+        "Stop Conditions: `Stop on revision, rejection, waiver, authority drift, packet drift, or proof contradiction`",
+        "USER Plan Review Gate: `USER may accept, revise, waive, or reject the Workstream phase result`",
+        f"USER Inspection Files: `{inspection_files}`",
+        "Review Required Because: `The Option G Workstream is complete but the USER Workstream phase review remains pending`",
+        "Implementation Blocker: `Workstream implementation is complete; H1 and every downstream phase remain blocked pending separate USER approval`",
+        "Review Waiver Reason: `Not waived`",
+    )
+    digest = "\n## Next Legal Phase Digest\n\n" + "\n".join(digest_lines) + "\n"
+    start_here = (
+        "# FAM-003 Option G Workstream Phase Review\n\n"
+        "Current Gate: `Option G Workstream implementation completed; USER Workstream phase review pending`\n\n"
+        f"Start with `{bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE}`.\n\n"
+        f"Packet Target: `{packet_target}`\n"
+        f"{digest}"
+    )
+    primary = (
+        "# FAM-003 Option G Workstream Phase Review\n\n"
+        "Backlog Completion State: `Implemented Complete Except Future Dependency`\n"
+        "Workstream Implementation: `USER Approved / Complete`\n"
+        "Current Gate: `Option G Workstream implementation completed; USER Workstream phase review pending`\n"
+        "Visible proof disposition: `42 executed PASS / 15 SCOPED_OUT / 0 executed FAIL`\n"
+        "H1 / Live Validation / UTS: `NOT_ENTERED / NOT_ENTERED / NOT_REQUESTED`\n"
+        "Option D: `Temporary`\n\n"
+        "## USER Decision\n\n"
+        f"{bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_DECISION}\n"
+        f"{digest}"
+    )
+    packet: dict[str, str] = {
+        "START_HERE.md": start_here,
+        bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE: primary,
+        "Source Truth Context/Active External Snapshot/workstream_completion.md": (
+            "# Workstream completion\n"
+            f"Packet: `{packet_target}`\n"
+        ),
+        "Source Truth Context/Proof Artifacts/Validation/validation_artifact_roles.json": json.dumps(
+            {
+                "schema": "fam003-workstream-validation-artifact-roles-v1",
+                "coverageComplete": True,
+                "rows": [
+                    {
+                        "roleId": "SUBSTANTIVE_MANIFEST",
+                        "path": "Source Truth Context/Proof Artifacts/manifest.json",
+                        "status": "CURRENT",
+                    }
+                ],
+            },
+            indent=2,
+        ),
+    }
+    for aid_name in bundle.FAM003_OPTION_G_WORKSTREAM_REQUIRED_AIDS:
+        packet[f"Review Aids/{aid_name}"] = f"# {aid_name}\nCurrent evidence.\n"
+    manifest_rows = [
+        {
+            "path": path,
+            "size": len(text.encode("utf-8")),
+            "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest().upper(),
+        }
+        for path, text in sorted(packet.items())
+    ]
+    packet["Source Truth Context/Proof Artifacts/manifest.json"] = json.dumps(
+        {
+            "schema": "fam003-option-g-workstream-phase-review-packet-v6",
+            "sourceHead": "a" * 40,
+            "externalStateVersion": 71,
+            "currentGate": (
+                "Option G Workstream implementation completed; USER Workstream phase review pending"
+            ),
+            "primaryReview": bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE,
+            "manifestSelfExcludedFromRows": True,
+            "rows": manifest_rows,
+        },
+        indent=2,
+    )
+
+    def binary_files(candidate: dict[str, str]) -> dict[str, bytes]:
+        return {path: text.encode("utf-8") for path, text in candidate.items()}
+
+    def expect_failure(
+        case_id: str,
+        candidate: dict[str, str],
+        expected: str,
+    ) -> None:
+        failures = bundle._fam003_option_g_workstream_phase_review_failures(
+            candidate,
+            packet_binary_files=binary_files(candidate),
+        )
+        if not any(expected.casefold() in failure.casefold() for failure in failures):
+            raise AssertionError(f"{case_id} did not fail on {expected!r}: {failures}")
+
+    positive_failures = bundle._fam003_option_g_workstream_phase_review_failures(
+        packet,
+        packet_binary_files=binary_files(packet),
+    )
+    if positive_failures:
+        raise AssertionError(
+            "valid FAM-003 Option G Workstream phase-review fixture failed:\n"
+            + "\n".join(positive_failures)
+        )
+
+    for file_name in (
+        "START_HERE.md",
+        bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE,
+    ):
+        mutated = dict(packet)
+        mutated[file_name] = mutated[file_name].replace(digest, "", 1)
+        expect_failure(f"workstream-digest-missing-{Path(file_name).name}", mutated, "exactly one")
+
+    for marker in bundle.FAM003_OPTION_G_NEXT_PHASE_FIELDS:
+        mutated = dict(packet)
+        line = next(item for item in digest_lines if item.startswith(marker))
+        mutated[bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE] = mutated[
+            bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE
+        ].replace(line + "\n", "", 1)
+        expect_failure(
+            f"workstream-digest-field-{marker.rstrip(':').replace(' ', '-').lower()}",
+            mutated,
+            marker,
+        )
+
+    mutated = dict(packet)
+    mutated["START_HERE.md"] += digest
+    expect_failure("workstream-digest-duplicate", mutated, "exactly one")
+
+    mutated = dict(packet)
+    mutated[bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE] = mutated[
+        bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE
+    ].replace(
+        f"Exact USER Approval Text: {bundle.FAM003_OPTION_G_WORKSTREAM_PHASE_DECISION}",
+        "Exact USER Approval Text: `See the decision above`",
+        1,
+    )
+    expect_failure("workstream-digest-pointer-only-decision", mutated, "differs from the current decision")
+
+    mutated = dict(packet)
+    mutated.pop("Review Aids/WORKSTREAM_SEAM_RESULTS.md")
+    expect_failure("workstream-required-aid-missing", mutated, "missing required current review aid")
+
+    mutated = dict(packet)
+    mutated["Source Truth Context/Active External Snapshot/workstream_completion.md"] = (
+        "# Workstream completion\nPacket: `C:\\Nexus USER\\FAM-003-STALE.zip`\n"
+    )
+    expect_failure("workstream-completion-pointer-stale", mutated, "packet identity disagrees")
+
+    mutated = dict(packet)
+    manifest = json.loads(mutated["Source Truth Context/Proof Artifacts/manifest.json"])
+    manifest["rows"][0]["path"] = "Review Aids/MISSING.md"
+    mutated["Source Truth Context/Proof Artifacts/manifest.json"] = json.dumps(manifest, indent=2)
+    expect_failure("workstream-substantive-manifest-target-missing", mutated, "row target is missing")
+
+    mutated = dict(packet)
+    manifest = json.loads(mutated["Source Truth Context/Proof Artifacts/manifest.json"])
+    manifest["rows"][0]["sha256"] = "0" * 64
+    mutated["Source Truth Context/Proof Artifacts/manifest.json"] = json.dumps(manifest, indent=2)
+    expect_failure("workstream-substantive-manifest-hash-drift", mutated, "SHA256 mismatch")
+
+    mutated = dict(packet)
+    roles_path = "Source Truth Context/Proof Artifacts/Validation/validation_artifact_roles.json"
+    roles = json.loads(mutated[roles_path])
+    roles["rows"][0]["status"] = "HISTORICAL_SUPERSEDED"
+    mutated[roles_path] = json.dumps(roles, indent=2)
+    expect_failure("workstream-substantive-manifest-role-stale", mutated, "role is not current")
+
+
 def main() -> int:
     _assert_fam003_option_g_bp2_planning_guards()
     _assert_fam003_bp2_guard_skips_bp3_accepted_carrydown()
     _assert_external_historical_evidence_mapping_boundary()
+    _assert_fam003_option_g_workstream_phase_review_guards()
     _assert_fam003_option_g_bp3_orchestration_guards()
     _assert_fam003_option_g_workstream_approval_closure_guards()
     _assert_migrated_live_header_ignores_historical_receipt_metadata()
@@ -6565,6 +6749,7 @@ def main() -> int:
     print(
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
+        "1 Workstream phase-review positive + 23 Workstream phase-review negatives + "
         "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
         "1 consolidated-decision positive + 42 consolidated-decision negatives + "
         "38 consolidated mandatory-contract negatives + "

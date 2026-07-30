@@ -443,6 +443,22 @@ enforcement for null closure metadata, duplicate active lineage sections,
 candidate-only or pending audit claims, stale final matrices, nonclosed defect
 rows, audit coverage drift, and missing or mismatched final-byte receipts.
 
+The same already-routed closure contract applies when the completed FAM-003
+Option G Workstream stops for independent USER phase-result review. Both
+`START_HERE.md` and the sole primary Workstream phase review must carry one
+complete `Next Legal Phase Digest` with the ordered fields owned by
+`Docs/phase_governance.md` and the verbatim current USER decision. The active
+Workstream completion record, current packet pointers, substantive manifest,
+packet manifest, and validation-artifact role ledger must agree on the same
+current packet class and resolve every row classified as current. Packet aids
+remain copies, not authority. `dev/orin_user_review_bundle.py` (`Helper Status:
+Reusable`) and `dev/orin_user_review_bundle_false_green_fixture_validation.py`
+own fail-capable enforcement for missing or pointer-only Formal Digests, stale
+Workstream completion packet identities, missing required review aids, current
+substantive-manifest target/hash drift, and current manifest-role drift. This
+registration applies the existing packet, phase-stop, and nonrecursive
+final-byte rules; it does not create a new gate or authorize H1.
+
 Required target fixtures include valid live projections; branch/head/baseline,
 worktree/slot, hash, missing-target, duplicate/alias, traversal,
 absolute/off-root, reparse/symlink, malformed, unsupported-record,

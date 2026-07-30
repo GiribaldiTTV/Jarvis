@@ -5439,6 +5439,12 @@ def validate_local_user_packet(
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_fam003_workstream_review_state_failures(packet_files))
     failures.extend(
+        _fam003_option_g_workstream_phase_review_failures(
+            packet_files,
+            packet_binary_files=zip_binary_files or folder_binary_files,
+        )
+    )
+    failures.extend(
         _fam003_option_g_workstream_approval_closure_failures(packet_files)
     )
     failures.extend(
@@ -6962,6 +6968,38 @@ FAM003_OPTION_G_NEXT_PHASE_FIELDS = (
     "Implementation Blocker:",
     "Review Waiver Reason:",
 )
+FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE = (
+    "USER Review/FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW.md"
+)
+FAM003_OPTION_G_WORKSTREAM_PHASE_DECISION = (
+    "I accept the repaired FAM-003 Decision 2 Option G Workstream phase result on "
+    "`feature/fam-003-settings-resize-proof`, including `Backlog Completion State: "
+    "Implemented Complete Except Future Dependency`, the truthful `42 executed PASS / "
+    "15 SCOPED_OUT / 0 executed FAIL` visible-proof disposition, the WS05 skip, the "
+    "completed WS06/WS07 package, the future FAM-006 / ORIN Core renderer-retention "
+    "handoff, Recording Studio invariants, temporary Option D status, the State 67 "
+    "rollback-baseline correction, the State 68 packet-contract correction, the State 69 "
+    "validation-provenance correction, the State 70 final-artifact active-review and "
+    "Future-Gated Dependency correction, and the State 71 current-gate contract, "
+    "manifest-role, packet-lineage, and Formal Digest closure. This decision does not "
+    "authorize H1, Live Validation, UTS, issues, PR Readiness, PR creation, merge, "
+    "release, cleanup, sibling or Governance mutation, permanent Option D adoption, or "
+    "deferred-owner implementation."
+)
+FAM003_OPTION_G_WORKSTREAM_REQUIRED_AIDS = (
+    "ACTIVE_CARRIER_CENSUS.md",
+    "ATOMIC_DEFECT_LEDGER.md",
+    "CHANGED_FILE_AND_MATERIAL_REGION_LEDGER.md",
+    "CURRENT_GATE_CONTRACT.md",
+    "FINAL_CURRENT_FACT_MATRIX.md",
+    "FUTURE_DEPENDENCY_HANDOFF.md",
+    "MANIFEST_AND_ROLE_LEDGER.md",
+    "PACKET_TOOL_PROVENANCE.md",
+    "PLAN_TO_IMPLEMENTATION_TRACEABILITY.md",
+    "PROOF_DISPOSITION_AND_EVIDENCE_ROUTES.md",
+    "VALIDATION_RESULTS.md",
+    "WORKSTREAM_SEAM_RESULTS.md",
+)
 FAM003_OPTION_G_VISION_MARKERS = (
     "Vision Contract Required:",
     "Vision Contract Requirement Reason:",
@@ -7103,6 +7141,293 @@ def _fam003_option_g_next_phase_digest_failures(
         failures.append(
             f"FAM-003 Option G BP3: {file_name} USER Inspection Files must name "
             "exact inspection files or the local C:\\Nexus USER\\FAM-003 packet"
+        )
+    return failures
+
+
+def _fam003_option_g_workstream_digest_failures(
+    text: str,
+    *,
+    file_name: str,
+) -> list[str]:
+    """Enforce the current Workstream phase-result USER stop contract."""
+
+    failures: list[str] = []
+    active = _current_review_claims(text)
+    if _markdown_section_count(active, FAM003_OPTION_G_NEXT_PHASE_HEADING) != 1:
+        return [
+            f"FAM-003 Option G Workstream: {file_name} must contain exactly one "
+            f"{FAM003_OPTION_G_NEXT_PHASE_HEADING}"
+        ]
+    section = _markdown_section(active, FAM003_OPTION_G_NEXT_PHASE_HEADING)
+    positions: list[int] = []
+    field_values: dict[str, str] = {}
+    for marker in FAM003_OPTION_G_NEXT_PHASE_FIELDS:
+        matches = list(re.finditer(rf"(?m)^{re.escape(marker)}\s*(.+?)\s*$", section))
+        if len(matches) != 1:
+            failures.append(
+                f"FAM-003 Option G Workstream: {file_name} Next Legal Phase Digest "
+                f"must contain exactly one nonblank {marker} field"
+            )
+            continue
+        value = matches[0].group(1).strip().strip("`")
+        field_values[marker] = value
+        if not value:
+            failures.append(
+                f"FAM-003 Option G Workstream: {file_name} Next Legal Phase Digest "
+                f"has a blank {marker} value"
+            )
+        positions.append(matches[0].start())
+    if positions != sorted(positions):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Next Legal Phase Digest fields are out of order"
+        )
+
+    exact_value = re.sub(
+        r"\s+", " ", field_values.get("Exact USER Approval Text:", "")
+    ).strip()
+    expected_decision = re.sub(
+        r"\s+", " ", FAM003_OPTION_G_WORKSTREAM_PHASE_DECISION
+    ).strip()
+    if exact_value != expected_decision:
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Exact USER Approval Text differs from the current decision"
+        )
+
+    current_phase = field_values.get("Current Phase:", "").casefold()
+    next_phase = field_values.get("Next Legal Phase:", "").casefold()
+    approval = field_values.get("Approval Required:", "").casefold()
+    allowed = field_values.get("Allowed Scope:", "").casefold()
+    exclusions = field_values.get("Explicit Exclusions:", "").casefold()
+    blocker = field_values.get("Implementation Blocker:", "").casefold()
+    review_reason = field_values.get("Review Required Because:", "").casefold()
+    plan_gate = field_values.get("USER Plan Review Gate:", "").casefold()
+    if not all(term in current_phase for term in ("workstream", "complete", "user", "review", "pending")):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Current Phase does not identify the completed Workstream and pending USER phase review"
+        )
+    if not all(term in next_phase for term in ("independent", "user", "review", "workstream")):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Next Legal Phase must be independent USER Workstream phase review"
+        )
+    if "yes" not in approval or not any(term in approval for term in ("accept", "disposition")):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Approval Required must identify USER disposition of the Workstream phase result only"
+        )
+    if not all(term in allowed for term in ("review", "workstream", "phase", "result")):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Allowed Scope is inconsistent with Workstream phase-result review only"
+        )
+    required_exclusions = ("h1", "live validation", "uts", "pr", "merge", "release")
+    if any(term not in exclusions for term in required_exclusions):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Explicit Exclusions omit a blocked downstream phase"
+        )
+    if "workstream" not in review_reason or not any(
+        term in review_reason for term in ("user", "review", "pending")
+    ):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Review Required Because does not explain the pending USER Workstream phase review"
+        )
+    if not all(term in plan_gate for term in ("accept", "revise", "waive", "reject")):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} USER Plan Review Gate must allow accept, revise, waive, or reject"
+        )
+    if not all(term in blocker for term in ("workstream", "complete", "h1", "blocked")):
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Implementation Blocker must preserve completed Workstream and blocked H1 routing"
+        )
+    if field_values.get("Review Waiver Reason:", "").casefold() != "not waived":
+        failures.append(
+            f"FAM-003 Option G Workstream: {file_name} Review Waiver Reason must be Not waived"
+        )
+
+    inspection = field_values.get("USER Inspection Files:", "").replace("`", "")
+    for required_path in (
+        "START_HERE.md",
+        FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE,
+        "Review Aids/WORKSTREAM_SEAM_RESULTS.md",
+        "Review Aids/VALIDATION_RESULTS.md",
+        "Source Truth Context/Proof Artifacts/packet_manifest.json",
+    ):
+        if required_path not in inspection:
+            failures.append(
+                f"FAM-003 Option G Workstream: {file_name} USER Inspection Files omits {required_path}"
+            )
+    return failures
+
+
+def _fam003_option_g_workstream_phase_review_failures(
+    packet_files: Mapping[str, str],
+    *,
+    packet_binary_files: Mapping[str, bytes] | None = None,
+) -> list[str]:
+    """Fail closed on current Option G Workstream phase-review packet drift."""
+
+    primary = packet_files.get(FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE, "")
+    if not primary:
+        return []
+    failures: list[str] = []
+    start_here = packet_files.get("START_HERE.md", "")
+    for file_name, text in (
+        ("START_HERE.md", start_here),
+        (FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE, primary),
+    ):
+        failures.extend(
+            _fam003_option_g_workstream_digest_failures(text, file_name=file_name)
+        )
+
+    expected_decision = FAM003_OPTION_G_WORKSTREAM_PHASE_DECISION
+    expected_counts = {
+        "START_HERE.md": 1,
+        FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE: 2,
+    }
+    for file_name, text in (
+        ("START_HERE.md", start_here),
+        (FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE, primary),
+    ):
+        if text.count(expected_decision) != expected_counts[file_name]:
+            failures.append(
+                f"FAM-003 Option G Workstream: exact USER decision must appear exactly {expected_counts[file_name]} time(s) in {file_name}"
+            )
+
+    if FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE not in start_here:
+        failures.append(
+            "FAM-003 Option G Workstream: START_HERE does not route to the exact primary Workstream phase review"
+        )
+    normalized_active = re.sub(r"\s+", " ", f"{start_here}\n{primary}").casefold()
+    for marker in (
+        "implemented complete except future dependency",
+        "42 executed pass / 15 scoped_out / 0 executed fail",
+        "workstream implementation",
+        "complete",
+        "user workstream phase review pending",
+        "h1",
+        "not_entered",
+        "live validation",
+        "uts",
+        "not_requested",
+        "option d",
+        "temporary",
+    ):
+        if marker not in normalized_active:
+            failures.append(
+                f"FAM-003 Option G Workstream: actionable USER surfaces omit current marker {marker!r}"
+            )
+
+    for aid_name in FAM003_OPTION_G_WORKSTREAM_REQUIRED_AIDS:
+        path = f"Review Aids/{aid_name}"
+        if path not in packet_files:
+            failures.append(
+                f"FAM-003 Option G Workstream: missing required current review aid {path}"
+            )
+
+    packet_target_match = re.search(
+        r"(?m)^Packet Target:\s*`([^`]+)`\s*$", start_here
+    )
+    packet_target = packet_target_match.group(1) if packet_target_match else ""
+    if not packet_target:
+        failures.append(
+            "FAM-003 Option G Workstream: START_HERE lacks one exact Packet Target"
+        )
+    completion = _packet_file_text(packet_files, "workstream_completion.md")
+    completion_packet_match = re.search(
+        r"(?m)^Packet:\s*`([^`]+)`\s*$", _current_review_claims(completion)
+    )
+    completion_packet = completion_packet_match.group(1) if completion_packet_match else ""
+    if not completion:
+        failures.append(
+            "FAM-003 Option G Workstream: packet lacks the current Workstream completion record"
+        )
+    elif not completion_packet:
+        failures.append(
+            "FAM-003 Option G Workstream: current Workstream completion record lacks one active Packet field"
+        )
+    elif packet_target and completion_packet != packet_target:
+        failures.append(
+            "FAM-003 Option G Workstream: current Workstream completion record packet identity disagrees with START_HERE"
+        )
+
+    manifest_path = "Source Truth Context/Proof Artifacts/manifest.json"
+    role_path = (
+        "Source Truth Context/Proof Artifacts/Validation/"
+        "validation_artifact_roles.json"
+    )
+    try:
+        manifest = json.loads(packet_files.get(manifest_path, ""))
+    except json.JSONDecodeError:
+        manifest = {}
+        failures.append(
+            "FAM-003 Option G Workstream: substantive manifest is missing or invalid JSON"
+        )
+    if manifest:
+        if manifest.get("primaryReview") != FAM003_OPTION_G_WORKSTREAM_PHASE_REVIEW_FILE:
+            failures.append(
+                "FAM-003 Option G Workstream: substantive manifest primary review is stale"
+            )
+        if manifest.get("currentGate") != (
+            "Option G Workstream implementation completed; USER Workstream phase review pending"
+        ):
+            failures.append(
+                "FAM-003 Option G Workstream: substantive manifest current gate is stale"
+            )
+        rows = manifest.get("rows")
+        if not isinstance(rows, list) or not rows:
+            failures.append(
+                "FAM-003 Option G Workstream: substantive manifest has no current rows"
+            )
+        elif packet_binary_files is not None:
+            seen: set[str] = set()
+            for row in rows:
+                if not isinstance(row, dict):
+                    failures.append(
+                        "FAM-003 Option G Workstream: substantive manifest contains a non-object row"
+                    )
+                    continue
+                path = str(row.get("path", ""))
+                if not path or path in seen:
+                    failures.append(
+                        "FAM-003 Option G Workstream: substantive manifest contains a blank or duplicate path"
+                    )
+                    continue
+                seen.add(path)
+                data = packet_binary_files.get(path)
+                if data is None:
+                    failures.append(
+                        f"FAM-003 Option G Workstream: substantive manifest current row target is missing: {path}"
+                    )
+                    continue
+                if row.get("size") != len(data):
+                    failures.append(
+                        f"FAM-003 Option G Workstream: substantive manifest size mismatch for {path}"
+                    )
+                actual_hash = hashlib.sha256(data).hexdigest().upper()
+                if str(row.get("sha256", "")).upper() != actual_hash:
+                    failures.append(
+                        f"FAM-003 Option G Workstream: substantive manifest SHA256 mismatch for {path}"
+                    )
+
+    try:
+        roles = json.loads(packet_files.get(role_path, ""))
+    except json.JSONDecodeError:
+        roles = {}
+        failures.append(
+            "FAM-003 Option G Workstream: validation artifact role ledger is missing or invalid JSON"
+        )
+    role_rows = roles.get("rows") if isinstance(roles, dict) else None
+    substantive_roles = [
+        row for row in role_rows or []
+        if isinstance(row, dict) and row.get("roleId") == "SUBSTANTIVE_MANIFEST"
+    ]
+    if len(substantive_roles) != 1:
+        failures.append(
+            "FAM-003 Option G Workstream: role ledger must contain exactly one SUBSTANTIVE_MANIFEST row"
+        )
+    elif substantive_roles[0].get("path") != manifest_path or (
+        "CURRENT" not in str(substantive_roles[0].get("status", ""))
+    ):
+        failures.append(
+            "FAM-003 Option G Workstream: substantive manifest role is not current or names the wrong path"
         )
     return failures
 
