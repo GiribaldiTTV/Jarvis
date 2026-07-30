@@ -571,6 +571,16 @@ def validate_target_currentness(
             )
 
     record_role = markdown_field_value(live_text, "Record Role")
+    for authority_marker in ("Record Role", "Historical Receipt Boundary"):
+        marker_rows = re.findall(
+            rf"^[ \t]*(?:-[ \t]*)?{re.escape(authority_marker)}:[^\r\n]*(?=\r?$)",
+            live_text,
+            flags=re.M | re.I,
+        )
+        if len(marker_rows) != 1:
+            failures.append(
+                f"Target Currentness: {relative} requires exactly one {authority_marker} marker"
+            )
     if not _target_record_role_is_live(record_role):
         failures.append(
             f"Target Currentness: {relative} Record Role is not affirmative live authority"
@@ -1607,15 +1617,19 @@ def _host_path_key(value: str) -> str:
     return os.path.normcase(value.replace("/", os.sep)).replace("\\", "/")
 
 
-def _is_canonical_utc_timestamp(value: object) -> bool:
+def _canonical_utc_datetime(value: object) -> datetime | None:
     if not isinstance(value, str) or not CANONICAL_UTC_TIMESTAMP_PATTERN.fullmatch(value):
-        return False
+        return None
     normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
     try:
         parsed = datetime.fromisoformat(normalized)
     except ValueError:
-        return False
-    return parsed.utcoffset() == timedelta(0)
+        return None
+    return parsed if parsed.utcoffset() == timedelta(0) else None
+
+
+def _is_canonical_utc_timestamp(value: object) -> bool:
+    return _canonical_utc_datetime(value) is not None
 
 
 def _confined_evidence_file(base: Path, parts: tuple[str, ...]) -> Path | None:
@@ -2019,6 +2033,7 @@ def _validate_snapshot_evidence(
     target_before_hashes: dict[str, str],
     *,
     evidence_label: str,
+    transaction_updated: object | None = None,
 ) -> list[str]:
     issues: list[str] = []
     snapshot_parts = _safe_external_relative_parts(snapshot)
@@ -2052,8 +2067,16 @@ def _validate_snapshot_evidence(
         return [f"{evidence_label} snapshot directory changed before manifest validation"]
     if manifest.get("External State Schema") != DEFAULT_SCHEMA_VERSION:
         issues.append(f"{evidence_label} snapshot manifest schema is not external-state-v1")
-    if not _is_canonical_utc_timestamp(manifest.get("Last Updated")):
+    manifest_updated = _canonical_utc_datetime(manifest.get("Last Updated"))
+    if manifest_updated is None:
         issues.append(f"{evidence_label} snapshot manifest Last Updated is not canonical UTC")
+    transaction_timestamp = _canonical_utc_datetime(transaction_updated)
+    if (
+        manifest_updated is not None
+        and transaction_timestamp is not None
+        and manifest_updated > transaction_timestamp
+    ):
+        issues.append(f"{evidence_label} snapshot manifest postdates the transaction")
     manifest_root = manifest.get("Root")
     try:
         manifest_root_path = Path(manifest_root) if isinstance(manifest_root, str) else None
@@ -2237,12 +2260,14 @@ def _validate_modern_snapshot_evidence(
     root: Path,
     snapshot: object,
     target_before_hashes: dict[str, str],
+    transaction_updated: object,
 ) -> list[str]:
     return _validate_snapshot_evidence(
         root,
         snapshot,
         target_before_hashes,
         evidence_label="modern Committed journal",
+        transaction_updated=transaction_updated,
     )
 
 
@@ -2602,9 +2627,19 @@ def _validate_modern_lock_evidence(
                 f"expected {expected!r}"
             )
     released_at = lock.get("Released At")
-    if not _is_canonical_utc_timestamp(released_at):
+    released_timestamp = _canonical_utc_datetime(released_at)
+    if released_timestamp is None:
         issues.append(
             "modern Committed journal lock evidence has no canonical UTC Released At timestamp"
+        )
+    transaction_timestamp = _canonical_utc_datetime(payload.get("Last Updated"))
+    if (
+        released_timestamp is not None
+        and transaction_timestamp is not None
+        and released_timestamp < transaction_timestamp
+    ):
+        issues.append(
+            "modern Committed journal lock evidence was released before the transaction"
         )
     write_set_value = lock.get("Intended Write Set")
     write_set: set[str] = set()
@@ -3034,6 +3069,7 @@ def validate_incomplete_target_set_journals(
                             root,
                             payload.get("Snapshot"),
                             target_before_hashes,
+                            payload.get("Last Updated"),
                         )
                     )
                 journal_issues.extend(

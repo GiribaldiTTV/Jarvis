@@ -1210,6 +1210,17 @@ every genuine exact external-state or durable-carrier family it also identifies.
 Generic `modern target` wording likewise requires journal, transaction, audit,
 target-set, external-state, or snapshot-manifest context.
 
+Committed transaction chronology is part of evidence integrity. A snapshot
+manifest may not postdate the journal transaction it proves, and the released
+lock receipt may not predate that transaction. Canonical timestamp syntax alone
+does not establish this ordering.
+
+Live target authority markers are singleton contracts, including blank or
+contradictory duplicate rows: one valid first row cannot hide another `Record
+Role` or `Historical Receipt Boundary`. Historical carrier admission likewise
+requires an affirmative bounded `Admission Scope Receipt`; unrestricted,
+repository-wide, or all-mutation wording is not bounded authority.
+
 - source references:
   - `dev/orin_external_state_validation.py`
   - `dev/orin_external_state_legacy_receipt_compatibility.json`

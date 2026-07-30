@@ -2204,6 +2204,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_modern_released_at_fixture(root, "No release occurred"),
         ),
         (
+            "modern Committed journal lock released before the transaction",
+            lambda root: _write_modern_released_at_fixture(
+                root,
+                "2026-07-27T23:59:59Z",
+            ),
+        ),
+        (
             "modern Committed journal with missing snapshot manifest",
             _write_modern_missing_snapshot_fixture,
         ),
@@ -2220,6 +2227,13 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             lambda root: _write_modern_snapshot_timestamp_fixture(
                 root,
                 "not-a-canonical-timestamp",
+            ),
+        ),
+        (
+            "modern Committed journal snapshot postdates the transaction",
+            lambda root: _write_modern_snapshot_timestamp_fixture(
+                root,
+                "2026-07-29T00:00:00Z",
             ),
         ),
         (
@@ -3064,8 +3078,24 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
         lambda *_args, **_kwargs: [],
     )
     _assert_journal_mutation_killed(
+        "modern lock release chronology ignored",
+        negative_setups[
+            "modern Committed journal lock released before the transaction"
+        ],
+        "_validate_modern_lock_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
         "modern snapshot evidence ignored",
         negative_setups["modern Committed journal with missing snapshot manifest"],
+        "_validate_modern_snapshot_evidence",
+        lambda *_args, **_kwargs: [],
+    )
+    _assert_journal_mutation_killed(
+        "modern snapshot transaction chronology ignored",
+        negative_setups[
+            "modern Committed journal snapshot postdates the transaction"
+        ],
         "_validate_modern_snapshot_evidence",
         lambda *_args, **_kwargs: [],
     )
@@ -3440,6 +3470,18 @@ def main() -> int:
                 "Record Role is not affirmative live authority",
             ),
             (
+                "duplicate record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection`\nRecord Role: `Historical receipt only`",
+                "requires exactly one Record Role marker",
+            ),
+            (
+                "case-variant duplicate record role authority",
+                "Record Role: `Current worktree assignment projection`",
+                "Record Role: `Current worktree assignment projection`\nrecord role: `Historical receipt only`",
+                "requires exactly one Record Role marker",
+            ),
+            (
                 "blank historical boundary",
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary:",
@@ -3456,6 +3498,18 @@ def main() -> int:
                 "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
                 "Historical Receipt Boundary: `Historical receipts cannot redefine live authority unless approved.`",
                 "Historical Receipt Boundary does not prevent",
+            ),
+            (
+                "duplicate historical receipt boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\nHistorical Receipt Boundary: `Historical receipts redefine the live fields.`",
+                "requires exactly one Historical Receipt Boundary marker",
+            ),
+            (
+                "case-variant duplicate historical receipt boundary",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
+                "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`\nhistorical receipt boundary: `Historical receipts redefine the live fields.`",
+                "requires exactly one Historical Receipt Boundary marker",
             ),
         ):
             target.write_text(

@@ -21428,6 +21428,26 @@ def _historical_collision_proof_is_clear(value: str) -> bool:
     )
 
 
+def _historical_admission_scope_is_bounded(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    prohibited = re.search(
+        r"\b(?:unbounded|unrestricted|without (?:restriction|limits?|boundaries)|"
+        r"with no (?:restrictions?|limits?|boundaries)|"
+        r"(?:all|any|every|arbitrary)\b[^.;]*\b(?:repository|repo|files?|mutations?)|"
+        r"entire repository|whole repository|repo-wide|repository-wide)\b",
+        normalized,
+    )
+    concrete_scope = re.search(
+        r"\b(?:fixture|governance|external-audit|compatibility|repair)\b",
+        normalized,
+    )
+    return bool(
+        normalized.startswith("bounded ")
+        and concrete_scope is not None
+        and prohibited is None
+    )
+
+
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Historical Branch",
@@ -21502,6 +21522,10 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         record_text,
         "Admission Decision Pointer",
     )
+    admission_scope = _extract_exact_marker_value(
+        record_text,
+        "Admission Scope Receipt",
+    )
     collision_proof = _extract_exact_marker_value(
         record_text,
         "Historical Collision Proof",
@@ -21524,6 +21548,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         )
         == f"Docs/worktree_slots.md#{branch}"
         and _durable_user_decision_pointer_is_approved(admission_decision)
+        and _historical_admission_scope_is_bounded(admission_scope)
         and _durable_repo_live_state_boundary_is_non_authoritative(live_boundary)
         and _historical_collision_proof_is_clear(collision_proof)
         and worktree.casefold() in confinement
@@ -23576,6 +23601,26 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 f"{historical_fixture}: non-affirmative historical admission decision "
                 f"must fail classification: {invalid_historical_decision}"
+            ),
+        )
+    for invalid_historical_scope in (
+        "All repository mutation was in scope without restriction.",
+        "Unbounded Governance repair.",
+        "Repository-wide compatibility repair.",
+        "Bounded Governance repair plus any mutation.",
+        "Bounded Governance repair covering every repository file.",
+        "Bounded compatibility repair with no limits.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Admission Scope Receipt: `Bounded fixture repair.`",
+                    f"Admission Scope Receipt: `{invalid_historical_scope}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: unrestricted historical admission scope "
+                f"must fail classification: {invalid_historical_scope}"
             ),
         )
     for active_historical_waiver in (
