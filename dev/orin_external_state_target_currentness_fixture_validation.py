@@ -1514,6 +1514,46 @@ def _assert_snapshot_child_mutation_race_rejected() -> None:
     print("Modern snapshot fixture: child mutation race rejected: PASS")
 
 
+def _assert_snapshot_inventory_creation_race_rejected() -> None:
+    with tempfile.TemporaryDirectory(prefix="ndai-snapshot-inventory-race-") as temp_dir:
+        root = Path(temp_dir)
+        _write_modern_journal_fixture(root)
+        snapshot_path = root / "snapshots" / "modern-fixture"
+        late_file = snapshot_path / "created-during-hashing.txt"
+        original_walk = validator.os.walk
+        snapshot_walks = 0
+
+        def create_after_first_inventory(top: object, *args: object, **kwargs: object):
+            nonlocal snapshot_walks
+            yield from original_walk(top, *args, **kwargs)
+            if Path(top) == snapshot_path:
+                snapshot_walks += 1
+                if snapshot_walks == 1:
+                    late_file.write_text(
+                        "unmanifested material created after the first inventory\n",
+                        encoding="utf-8",
+                    )
+
+        validator.os.walk = create_after_first_inventory
+        try:
+            failures = validator.validate_incomplete_target_set_journals(root)
+        finally:
+            validator.os.walk = original_walk
+        if (
+            snapshot_walks < 2
+            or not any(
+                "snapshot inventory changed after hashing" in item
+                for item in failures
+            )
+            or not any("unmanifested files" in item for item in failures)
+        ):
+            raise AssertionError(
+                "snapshot inventory-creation race escaped validation:\n"
+                + "\n".join(failures)
+            )
+    print("Modern snapshot fixture: post-hash inventory creation race rejected: PASS")
+
+
 def _assert_audit_inventory_creation_race_rejected() -> None:
     with tempfile.TemporaryDirectory(prefix="ndai-audit-inventory-race-") as temp_dir:
         root = Path(temp_dir)
@@ -2870,6 +2910,7 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_snapshot_walk_error_reported()
     _assert_snapshot_directory_replacement_race_rejected()
     _assert_snapshot_child_mutation_race_rejected()
+    _assert_snapshot_inventory_creation_race_rejected()
     _assert_audit_inventory_creation_race_rejected()
     _assert_audit_file_replacement_race_rejected()
     _assert_snapshot_manifest_replacement_race_rejected()

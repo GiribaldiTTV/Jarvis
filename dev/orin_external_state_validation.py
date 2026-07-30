@@ -2027,6 +2027,51 @@ def _validate_legacy_completion_evidence(
     return issues
 
 
+def _snapshot_physical_inventory(
+    snapshot_path: Path,
+    *,
+    evidence_label: str,
+) -> tuple[set[str], list[str]]:
+    physical_snapshot_files: set[str] = set()
+    inventory_issues: list[str] = []
+    snapshot_walk_errors: list[OSError] = []
+
+    def record_snapshot_walk_error(error: OSError) -> None:
+        snapshot_walk_errors.append(error)
+
+    for current_root, directory_names, file_names in os.walk(
+        snapshot_path,
+        followlinks=False,
+        onerror=record_snapshot_walk_error,
+    ):
+        current_path = Path(current_root)
+        for directory_name in tuple(directory_names):
+            directory_path = current_path / directory_name
+            if _has_reparse_point(directory_path):
+                inventory_issues.append(
+                    f"{evidence_label} snapshot contains an unconfined reparse directory: "
+                    f"{directory_path.relative_to(snapshot_path).as_posix()}"
+                )
+                directory_names.remove(directory_name)
+        for file_name in file_names:
+            file_path = current_path / file_name
+            relative_file = file_path.relative_to(snapshot_path).as_posix()
+            if relative_file == "snapshot_manifest.json":
+                continue
+            if _has_reparse_point(file_path):
+                inventory_issues.append(
+                    f"{evidence_label} snapshot contains an unconfined reparse file: "
+                    f"{relative_file}"
+                )
+                continue
+            physical_snapshot_files.add(_host_path_key(relative_file))
+    inventory_issues.extend(
+        f"{evidence_label} snapshot traversal failed: {error}"
+        for error in snapshot_walk_errors
+    )
+    return physical_snapshot_files, inventory_issues
+
+
 def _validate_snapshot_evidence(
     root: Path,
     snapshot: object,
@@ -2150,38 +2195,11 @@ def _validate_snapshot_evidence(
             f"{evidence_label} snapshot manifest contains unexpected files outside "
             "the journal target set: " + ", ".join(unexpected_snapshot_targets)
         )
-    physical_snapshot_files: set[str] = set()
-    snapshot_walk_errors: list[OSError] = []
-
-    def record_snapshot_walk_error(error: OSError) -> None:
-        snapshot_walk_errors.append(error)
-
-    for current_root, directory_names, file_names in os.walk(
+    physical_snapshot_files, inventory_issues = _snapshot_physical_inventory(
         snapshot_path,
-        followlinks=False,
-        onerror=record_snapshot_walk_error,
-    ):
-        current_path = Path(current_root)
-        for directory_name in tuple(directory_names):
-            directory_path = current_path / directory_name
-            if _has_reparse_point(directory_path):
-                issues.append(
-                    f"{evidence_label} snapshot contains an unconfined reparse directory: "
-                    f"{directory_path.relative_to(snapshot_path).as_posix()}"
-                )
-                directory_names.remove(directory_name)
-        for file_name in file_names:
-            file_path = current_path / file_name
-            relative_file = file_path.relative_to(snapshot_path).as_posix()
-            if relative_file == "snapshot_manifest.json":
-                continue
-            if _has_reparse_point(file_path):
-                issues.append(
-                    f"{evidence_label} snapshot contains an unconfined reparse file: "
-                    f"{relative_file}"
-                )
-                continue
-            physical_snapshot_files.add(_host_path_key(relative_file))
+        evidence_label=evidence_label,
+    )
+    issues.extend(inventory_issues)
     try:
         snapshot_after_path, snapshot_after_states = _confined_component_states(
             root,
@@ -2230,10 +2248,17 @@ def _validate_snapshot_evidence(
     else:
         if revalidated_manifest_digest.casefold() != manifest_digest.casefold():
             issues.append(f"{evidence_label} snapshot manifest changed after inventory")
-    for error in snapshot_walk_errors:
-        issues.append(f"{evidence_label} snapshot traversal failed: {error}")
+    revalidated_snapshot_files, revalidated_inventory_issues = (
+        _snapshot_physical_inventory(
+            snapshot_path,
+            evidence_label=evidence_label,
+        )
+    )
+    issues.extend(revalidated_inventory_issues)
+    if revalidated_snapshot_files != physical_snapshot_files:
+        issues.append(f"{evidence_label} snapshot inventory changed after hashing")
     unmanifested_snapshot_files = sorted(
-        physical_snapshot_files - set(copied_hashes)
+        revalidated_snapshot_files - set(copied_hashes)
     )
     if unmanifested_snapshot_files:
         issues.append(

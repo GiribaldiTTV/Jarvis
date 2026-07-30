@@ -8490,11 +8490,27 @@ def _repo_durable_receipt_pointer_matches(
         historical_text,
         "Historical Worktree Receipt",
     )
+    durable_confinement_failures: list[str] = []
+    if durable_text:
+        durable_pr_info, durable_pr_error = _gh_pr_view_for_branch(branch_name)
+        _validate_durable_carrier_admission_receipt_confinement(
+            lambda condition, message: durable_confinement_failures.append(message)
+            if not condition
+            else None,
+            durable_path,
+            durable_text,
+            branch_name,
+            actual_root,
+            _git_upstream_branch(),
+            durable_pr_info,
+            durable_pr_error,
+        )
     return bool(
         (
             durable_text
             and durable_path.replace("\\", "/") == expected_pointer
             and _is_durable_carrier_admission_receipt(durable_text)
+            and not durable_confinement_failures
             and (
                 not actual_root
                 or _normalized_local_path(durable_worktree)
@@ -21486,6 +21502,71 @@ def _historical_future_gate_requires_user_decision(value: str) -> bool:
     }
 
 
+def _historical_write_set_is_bounded(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    entries = [entry.strip() for entry in normalized.split(";") if entry.strip()]
+    denied = re.search(
+        r"\b(?:none|no (?:approved )?write set|write set (?:is )?"
+        r"(?:absent|missing|unknown|unapproved|not approved)|unbounded|unrestricted|"
+        r"repo-wide|repository-wide|entire (?:repo|repository|worktree)|"
+        r"whole (?:repo|repository|worktree)|(?:all|any|every) (?:repository )?files?|"
+        r"to be determined|tbd|unspecified|not (?:yet )?(?:named|selected|identified)|"
+        r"(?:named|selected|identified) later|as needed|relevant files|applicable files|"
+        r"(?:any|all|other|additional|extra|more|arbitrary|whatever|miscellaneous|"
+        r"remaining|supplemental|ancillary|unnamed|unlisted|undisclosed|future) "
+        r"(?:other )?(?:files?|paths?|artifacts?|targets?|changes?|mutations?)|"
+        r"anything (?:else|required|needed)|whatever (?:else|is needed)|"
+        r"(?:the )?rest of (?:the )?(?:repo|repository|worktree)|"
+        r"without (?:restriction|limits?))\b",
+        normalized,
+    )
+    concrete = re.compile(
+        r"\b(?:fixture|source truth|validation|slot|index|law|external-state|"
+        r"target-currentness|branch-governance|validator|fixtures?|admission|"
+        r"helper registry|incident pattern)\b|"
+        r"(?:^|[ ;])(?:[a-z0-9_.-]+[/\\])+[a-z0-9_.-]+(?:\.[a-z0-9]+)?(?:$|[ ;])"
+    )
+    return bool(entries and denied is None and all(concrete.search(entry) for entry in entries))
+
+
+def _historical_slot_reuse_is_available(value: str, slot: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    normalized_slot = slot.casefold().strip(" `\t\r\n.")
+    return (
+        re.fullmatch(
+            rf"{re.escape(normalized_slot)} is not reserved by this "
+            r"(?:historical )?receipt(?: and remains reusable when live "
+            r"operational truth confirms availability)?",
+            normalized,
+        )
+        is not None
+    )
+
+
+def _historical_operational_truth_source_is_external(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    contract = re.fullmatch(
+        r"(?P<sources>[a-z0-9, /-]+) evidence; this (?:historical )?receipt "
+        r"is not a live-state source",
+        normalized,
+    )
+    if contract is None:
+        return False
+    sources = contract.group("sources")
+    denied = re.search(
+        r"\b(?:not git|git (?:is )?(?:unavailable|unverified|unknown|invalid)|"
+        r"unverified|forged|fabricated|falsified|invalid|receipt-owned|"
+        r"receipt controlled|not external)\b",
+        sources,
+    )
+    return bool(
+        re.match(r"^(?:current )?git\b", sources)
+        and any(source in sources for source in ("helper", "github", "codex"))
+        and "receipt" not in sources
+        and denied is None
+    )
+
+
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Historical Branch",
@@ -21537,7 +21618,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     assignment_claim = _extract_exact_marker_value(record_text, "Current Assignment Claim").casefold()
     owner_claim = _extract_exact_marker_value(record_text, "Current Task Owner Claim").casefold()
     write_claim = _extract_exact_marker_value(record_text, "Current Write Authority Claim").casefold()
-    slot_reuse = _extract_exact_marker_value(record_text, "Slot Reuse Posture").casefold()
+    slot_reuse = _extract_exact_marker_value(record_text, "Slot Reuse Posture")
     branch = _extract_exact_marker_value(record_text, "Historical Branch")
     worktree = _extract_exact_marker_value(record_text, "Historical Worktree Receipt")
     confinement = _extract_exact_marker_value(
@@ -21552,6 +21633,15 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         record_text,
         "Future Gate Boundary Receipt",
     )
+    historical_write_set = _extract_exact_marker_value(
+        record_text,
+        "Historical Write Set Receipt",
+    )
+    operational_truth = _extract_exact_marker_value(
+        record_text,
+        "Operational Truth Source",
+    )
+    historical_slot = _extract_exact_marker_value(record_text, "Historical Slot Receipt")
     historical_escape_waiver = _extract_exact_marker_value(
         record_text,
         "Historical Escape Waiver Receipt",
@@ -21591,6 +21681,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         and _historical_collision_proof_is_clear(collision_proof)
         and _historical_confinement_is_affirmative(confinement, worktree)
         and _historical_fold_down_is_closed(fold_down)
+        and _historical_write_set_is_bounded(historical_write_set)
         and _is_complete_historical_absence_claim(
             assignment_claim,
             (
@@ -21617,14 +21708,11 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
                 r"(?:this receipt )?is not authorized(?: to mutate)?",
             ),
         )
-        and "not reserved" in slot_reuse
+        and _historical_slot_reuse_is_available(slot_reuse, historical_slot)
         and _carrier_non_includes_are_prohibitive(non_includes)
         and _historical_escape_waiver_is_closed(historical_escape_waiver)
         and _historical_future_gate_requires_user_decision(future_gate)
-        and "not a live-state source" in _extract_exact_marker_value(
-            record_text,
-            "Operational Truth Source",
-        ).casefold()
+        and _historical_operational_truth_source_is_external(operational_truth)
     )
 
 
@@ -22989,6 +23077,77 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             "retain its Assigned Worktree Confinement section, and stop at later registry law"
         ),
     )
+    original_durable_receipt_lookup = globals()[
+        "_durable_carrier_admission_receipt_for_branch"
+    ]
+    original_historical_receipt_lookup = globals()[
+        "_historical_carrier_admission_receipt_for_branch"
+    ]
+    original_pr_lookup = globals()["_gh_pr_view_for_branch"]
+    original_upstream_lookup = globals()["_git_upstream_branch"]
+    synthetic_pointer = "Docs/worktree_slots.md#feature/governance-fixture"
+    try:
+        globals()["_historical_carrier_admission_receipt_for_branch"] = (
+            lambda _branch_name: ("", "")
+        )
+        globals()["_gh_pr_view_for_branch"] = lambda _branch_name: (
+            None,
+            "REST pull lookup found no PR for branch 'feature/governance-fixture'",
+        )
+        globals()["_git_upstream_branch"] = (
+            lambda: "origin/feature/governance-fixture"
+        )
+        globals()["_durable_carrier_admission_receipt_for_branch"] = (
+            lambda _branch_name: (synthetic_pointer, durable_fixture_text)
+        )
+        require(
+            _repo_durable_receipt_pointer_matches(
+                "feature/governance-fixture",
+                synthetic_pointer,
+                "C:\\Nexus Worktrees\\Governance-Fixture",
+            ),
+            "external durable pointer must accept a fully validated active receipt",
+        )
+        for original, replacement in (
+            (
+                "Same Worktree / Same Branch Collision Check: `No collision.`",
+                "Same Worktree / Same Branch Collision Check: `Collision detected with another active owner.`",
+            ),
+            (
+                "Intended Write Set: `Bounded fixture validator files only.`",
+                "Intended Write Set: `Unbounded access to all repository files.`",
+            ),
+            (
+                "Dirty Worktree Recovery Packet: `Freeze and reconcile with the fixture owner before continuation.`",
+                "Dirty Worktree Recovery Packet: `Delete foreign changes and continue without reconciliation.`",
+            ),
+        ):
+            globals()["_durable_carrier_admission_receipt_for_branch"] = (
+                lambda _branch_name, original=original, replacement=replacement: (
+                    synthetic_pointer,
+                    durable_fixture_text.replace(original, replacement),
+                )
+            )
+            require(
+                not _repo_durable_receipt_pointer_matches(
+                    "feature/governance-fixture",
+                    synthetic_pointer,
+                    "C:\\Nexus Worktrees\\Governance-Fixture",
+                ),
+                (
+                    "external durable pointer must reject unsafe confinement "
+                    f"semantics: {replacement}"
+                ),
+            )
+    finally:
+        globals()["_durable_carrier_admission_receipt_for_branch"] = (
+            original_durable_receipt_lookup
+        )
+        globals()["_historical_carrier_admission_receipt_for_branch"] = (
+            original_historical_receipt_lookup
+        )
+        globals()["_gh_pr_view_for_branch"] = original_pr_lookup
+        globals()["_git_upstream_branch"] = original_upstream_lookup
     mismatched_pointer_fixture = durable_fixture_text.replace(
         "Docs/worktree_slots.md#feature/governance-fixture",
         "Docs/worktree_slots.md#feature/other-fixture",
@@ -23692,6 +23851,61 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 f"{historical_fixture}: contradictory historical fold-down "
                 f"must fail classification: {invalid_historical_fold_down}"
+            ),
+        )
+    for invalid_historical_write_set in (
+        "All repository files; unrestricted mutation.",
+        "Fixture source truth and validation plus any other files.",
+        "Repository-wide validation artifacts.",
+        "Fixture source truth and validation as needed.",
+        "Every file in the worktree.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Historical Write Set Receipt: `Fixture source truth and validation.`",
+                    f"Historical Write Set Receipt: `{invalid_historical_write_set}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: unbounded historical write set must "
+                f"fail classification: {invalid_historical_write_set}"
+            ),
+        )
+    for invalid_slot_reuse in (
+        "runtime-active-2 is not reserved by this receipt because it remains permanently assigned to this branch.",
+        "runtime-active-2 remains assigned to this historical branch.",
+        "runtime-active-2 is not reserved by this receipt unless continuation is requested.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Slot Reuse Posture: `runtime-active-2 is not reserved by this receipt.`",
+                    f"Slot Reuse Posture: `{invalid_slot_reuse}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: retained or conditional slot reuse must "
+                f"fail classification: {invalid_slot_reuse}"
+            ),
+        )
+    for invalid_operational_truth in (
+        "This receipt is not a live-state source except that it owns current assignment.",
+        "Git and helper evidence; this receipt is not a live-state source except for current authority.",
+        "Receipt and Git evidence; this receipt is not a live-state source.",
+        "Not Git and helper evidence; this receipt is not a live-state source.",
+        "Git unavailable and helper evidence; this receipt is not a live-state source.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Operational Truth Source: `Git and helper evidence; this receipt is not a live-state source.`",
+                    f"Operational Truth Source: `{invalid_operational_truth}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: receipt-owned operational authority must "
+                f"fail classification: {invalid_operational_truth}"
             ),
         )
     for invalid_future_gate in (

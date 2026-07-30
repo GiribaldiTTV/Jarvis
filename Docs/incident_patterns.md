@@ -1018,7 +1018,11 @@ manifest, copied-file hashes, and physical inventory must remain bound to one
 pre/post directory identity; replacing the snapshot tree during traversal is a
 validation failure. Every copied file must be rehashed through the confined
 reader after inventory so child mutation cannot preserve a stale manifest hash;
-the manifest itself must retain the same digest through that traversal. Released
+the manifest itself must retain the same digest through that traversal. After
+those final hashes, the complete physical inventory must be enumerated again and
+compared with both the first inventory and the manifest. A file created, removed,
+or substituted during hashing blocks a green result even when the first inventory
+was complete. Released
 lock evidence must likewise retain the digest parsed by validation through the
 final completion decision. Audit-log discovery must compare pre/post directory
 identity and JSON inventory, then rehash every discovered JSON file; a journal
@@ -1059,6 +1063,11 @@ is external, the external record must carry the complete current branch,
 worktree, owner, collision, write-set, routing, and waiver contract and may point
 to the exact historical repo receipt only as durable identity evidence; the
 pointer does not reactivate the receipt.
+An active external pointer to a still-durable receipt must run that referenced
+receipt through the same complete owner, assignment, recovery, write-set,
+collision, routing, worktree-root, waiver, upstream, and pre-PR confinement
+validator as direct durable authority. Shape classification alone cannot make a
+semantically unsafe receipt authoritative.
 Active durable confinement markers must also prove affirmative, non-contradictory
 outcomes. Marker presence alone cannot admit a receipt that reports a collision,
 allows off-worktree work, removes the USER-owned new-worktree gate, or negates
@@ -1097,6 +1106,14 @@ the future gate must affirm that PR creation requires a later USER decision.
 Failure, escape, retained-active-authority, negation, optional, or conditional
 wording invalidates the receipt even when the same value contains the expected
 worktree, `no active slot`, `PR creation`, or `USER decision` substrings.
+The historical `Historical Write Set Receipt` must enumerate concrete bounded
+surfaces and reject unrestricted, repository-wide, all-file, arbitrary, or
+open-ended additions. `Slot Reuse Posture` must be a whole-value non-reservation
+contract for the recorded slot; wording that keeps the slot assigned or makes
+reuse conditional is active authority. `Operational Truth Source` must be a
+whole-value external Git/helper evidence contract that denies live-state authority
+to the receipt without an `except`, retained-assignment, or receipt-owned source
+clause.
 Historical repo live-state boundaries must use the same affirmative whole-value
 non-ownership contract as durable receipts, and historical collision proof must
 be one closed collision-clear result. Durable carrier expiry must inspect
