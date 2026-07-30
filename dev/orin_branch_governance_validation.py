@@ -21448,6 +21448,44 @@ def _historical_admission_scope_is_bounded(value: str) -> bool:
     )
 
 
+def _historical_confinement_is_affirmative(value: str, worktree: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    normalized_worktree = worktree.casefold().strip(" `\t\r\n.")
+    return (
+        re.fullmatch(
+            rf"tracked mutation (?:stayed in|was confined to) "
+            rf"{re.escape(normalized_worktree)}(?:; frozen governance, fam, "
+            r"sibling, neutral-main, and external-state targets remained read-only)?",
+            normalized,
+        )
+        is not None
+    )
+
+
+def _historical_fold_down_is_closed(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    return (
+        re.fullmatch(
+            r"(?:historical evidence only|the one-time admission is preserved as "
+            r"historical evidence) with no active slot, worktree, task-owner, "
+            r"or write-set authority",
+            normalized,
+        )
+        is not None
+    )
+
+
+def _historical_future_gate_requires_user_decision(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    return normalized in {
+        "pr creation requires a later user decision",
+        (
+            "the admission decision did not authorize pr creation or bootstrap "
+            "acceptance; each requires a later exact user decision"
+        ),
+    }
+
+
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Historical Branch",
@@ -21495,7 +21533,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     ):
         return False
     live_boundary = _extract_exact_marker_value(record_text, "Repo Live-State Boundary").casefold()
-    fold_down = _extract_exact_marker_value(record_text, "Fold-Down Result").casefold()
+    fold_down = _extract_exact_marker_value(record_text, "Fold-Down Result")
     assignment_claim = _extract_exact_marker_value(record_text, "Current Assignment Claim").casefold()
     owner_claim = _extract_exact_marker_value(record_text, "Current Task Owner Claim").casefold()
     write_claim = _extract_exact_marker_value(record_text, "Current Write Authority Claim").casefold()
@@ -21505,7 +21543,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     confinement = _extract_exact_marker_value(
         record_text,
         "Admission Confinement Receipt",
-    ).casefold()
+    )
     non_includes = _extract_exact_marker_value(
         record_text,
         "Historical Non-Includes",
@@ -21513,7 +21551,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     future_gate = _extract_exact_marker_value(
         record_text,
         "Future Gate Boundary Receipt",
-    ).casefold()
+    )
     historical_escape_waiver = _extract_exact_marker_value(
         record_text,
         "Historical Escape Waiver Receipt",
@@ -21551,8 +21589,8 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         and _historical_admission_scope_is_bounded(admission_scope)
         and _durable_repo_live_state_boundary_is_non_authoritative(live_boundary)
         and _historical_collision_proof_is_clear(collision_proof)
-        and worktree.casefold() in confinement
-        and "no active slot" in fold_down
+        and _historical_confinement_is_affirmative(confinement, worktree)
+        and _historical_fold_down_is_closed(fold_down)
         and _is_complete_historical_absence_claim(
             assignment_claim,
             (
@@ -21582,8 +21620,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         and "not reserved" in slot_reuse
         and _carrier_non_includes_are_prohibitive(non_includes)
         and _historical_escape_waiver_is_closed(historical_escape_waiver)
-        and "pr creation" in future_gate
-        and "user decision" in future_gate
+        and _historical_future_gate_requires_user_decision(future_gate)
         and "not a live-state source" in _extract_exact_marker_value(
             record_text,
             "Operational Truth Source",
@@ -23621,6 +23658,57 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
             (
                 f"{historical_fixture}: unrestricted historical admission scope "
                 f"must fail classification: {invalid_historical_scope}"
+            ),
+        )
+    for invalid_historical_confinement in (
+        "Confinement failed; mutation escaped C:\\Nexus Worktrees\\Governance-Fixture.",
+        "Tracked mutation was not confined to C:\\Nexus Worktrees\\Governance-Fixture.",
+        "Tracked mutation stayed in C:\\Nexus Worktrees\\Governance-Fixture except for a sibling worktree.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Admission Confinement Receipt: `Tracked mutation stayed in C:\\Nexus Worktrees\\Governance-Fixture.`",
+                    f"Admission Confinement Receipt: `{invalid_historical_confinement}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: failed historical confinement "
+                f"must fail classification: {invalid_historical_confinement}"
+            ),
+        )
+    for invalid_historical_fold_down in (
+        "No active slot is required; active slot remains assigned.",
+        "Historical evidence only, but active worktree authority remains assigned.",
+        "Historical evidence with no active slot unless continuation is approved.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Fold-Down Result: `Historical evidence only with no active slot, worktree, task-owner, or write-set authority.`",
+                    f"Fold-Down Result: `{invalid_historical_fold_down}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: contradictory historical fold-down "
+                f"must fail classification: {invalid_historical_fold_down}"
+            ),
+        )
+    for invalid_future_gate in (
+        "PR creation does not require a later USER decision.",
+        "PR creation may proceed without a later USER decision.",
+        "PR creation requires a later USER decision unless automated.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Future Gate Boundary Receipt: `PR creation requires a later USER decision.`",
+                    f"Future Gate Boundary Receipt: `{invalid_future_gate}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: non-affirmative historical future gate "
+                f"must fail classification: {invalid_future_gate}"
             ),
         )
     for active_historical_waiver in (

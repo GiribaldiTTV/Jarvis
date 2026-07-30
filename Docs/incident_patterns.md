@@ -1089,6 +1089,14 @@ USER admission decision. Live external confinement must apply the same
 owner-preserving dirty-recovery semantics as the durable receipt whenever tracked
 changes exist. An initialized external-state scaffold with no `audit_log`
 directory is corrupt transaction evidence, not an empty successful inventory.
+Historical `Admission Confinement Receipt`, `Fold-Down Result`, and `Future Gate
+Boundary Receipt` values are whole-value contracts. Confinement must affirm that
+tracked mutation stayed in the admitted worktree, fold-down must affirm historical
+evidence with no active slot, worktree, task-owner, or write-set authority, and
+the future gate must affirm that PR creation requires a later USER decision.
+Failure, escape, retained-active-authority, negation, optional, or conditional
+wording invalidates the receipt even when the same value contains the expected
+worktree, `no active slot`, `PR creation`, or `USER decision` substrings.
 Historical repo live-state boundaries must use the same affirmative whole-value
 non-ownership contract as durable receipts, and historical collision proof must
 be one closed collision-clear result. Durable carrier expiry must inspect
@@ -1198,6 +1206,9 @@ repeated closers may reconcile malformed child depth but may never consume that
 root frame and hide a later plausible root-level target-set `Transition`.
 Malformed audit scanning must begin at the first object candidate after invalid
 leading material; a junk prefix cannot hide a canonical target-set transition.
+Object discovery must skip quoted strings before choosing that candidate. A
+brace inside quoted junk is data, not the malformed-audit root, and must not hide
+a later structural object that carries the target-set transition.
 An inner comma followed by a bare token or array value is not root-member proof.
 Generic `surrogate code point` wording requires journal, target-path, audit, or
 external-state context; unrelated text-decoder or user-profile prose remains

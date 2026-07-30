@@ -964,6 +964,18 @@ def _write_leading_junk_transition_fixture(root: Path) -> Path:
     return path
 
 
+def _write_quoted_junk_transition_fixture(root: Path) -> Path:
+    path = root / "audit_log" / "quoted-junk-transition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        '"prefix { text" {"Transition":"'
+        + validator.TARGET_SET_TRANSITION
+        + '","Transaction State":"Prepared"}',
+        encoding="utf-8",
+    )
+    return path
+
+
 def _write_modern_released_at_fixture(root: Path, value: object) -> Path:
     path = _write_modern_journal_fixture(root)
     lock_path = root / "locks" / "branch-modern-fixture.json"
@@ -2441,6 +2453,10 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
             _write_leading_junk_transition_fixture,
         ),
         (
+            "matching malformed JSON after quoted junk with a brace",
+            _write_quoted_junk_transition_fixture,
+        ),
+        (
             "matching malformed JSON with oversized integer",
             _write_oversized_integer_transition_fixture,
         ),
@@ -3216,6 +3232,14 @@ def _run_legacy_journal_compatibility_fixtures() -> None:
     _assert_journal_mutation_killed(
         "leading junk hides a target-set Transition",
         negative_setups["matching malformed JSON after leading junk"],
+        "_raw_text_has_target_set_transition",
+        lambda _text: False,
+    )
+    _assert_journal_mutation_killed(
+        "quoted junk brace hides a target-set Transition",
+        negative_setups[
+            "matching malformed JSON after quoted junk with a brace"
+        ],
         "_raw_text_has_target_set_transition",
         lambda _text: False,
     )

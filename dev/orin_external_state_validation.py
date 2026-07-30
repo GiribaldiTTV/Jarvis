@@ -2725,6 +2725,18 @@ def _tolerant_json_string_end(text: str, start: int) -> int:
     return len(text)
 
 
+def _first_structural_json_object_start(text: str) -> int:
+    index = 0
+    while index < len(text):
+        if text[index] == '"':
+            index = _tolerant_json_string_end(text, index)
+            continue
+        if text[index] == "{":
+            return index
+        index += 1
+    return -1
+
+
 def _tolerant_json_member_starts_at(text: str, start: int) -> bool:
     """Return whether text after a comma can begin a JSON object member."""
 
@@ -2826,7 +2838,7 @@ def _raw_text_has_target_set_transition(text: str) -> bool:
     if text.startswith("\ufeff"):
         text = text.removeprefix("\ufeff")
     decoder = json.JSONDecoder()
-    first_object = text.find("{")
+    first_object = _first_structural_json_object_start(text)
     if first_object < 0:
         return False
     index = first_object
