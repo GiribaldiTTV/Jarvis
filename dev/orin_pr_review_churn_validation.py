@@ -219,6 +219,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "no cross-worktree",
             "external live confinement",
             "operational truth source",
+            "historical escape waiver receipt",
             "user decision pointer",
             "repo live-state boundary",
             "dirty worktree recovery",

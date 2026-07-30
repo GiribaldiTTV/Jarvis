@@ -1081,7 +1081,9 @@ continuation; destructive deletion or unilateral continuation is never recovery.
 The merge-stable fold-down is one mandatory whole-value obligation rather than
 two searchable phrases. Thread assignment must reject explicit invalid/void
 qualifiers, and the Governance Routing Barrier must be affirmatively active or
-enforced; disabled or optional routing is negative evidence.
+enforced; disabled or optional routing is negative evidence. Operational truth
+must use a closed affirmative Git/helper contract, and a historical escape-waiver
+receipt must prove expiry or absence rather than carry active authority.
 An intended write set must name a concrete path, validator, target, or similarly
 specific artifact; `files to be determined later` is not bounded scope. A named
 or bounded prefix cannot be extended with `any other files`, additional files,

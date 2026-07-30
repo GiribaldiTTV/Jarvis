@@ -21219,16 +21219,12 @@ def _durable_dirty_recovery_is_owner_preserving(value: str) -> bool:
 
 def _durable_operational_truth_source_is_affirmative(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
-    denied = re.search(
-        r"\b(?:not git|no git|without git|git (?:is )?(?:missing|absent|unknown|"
-        r"unavailable|unverified|not verified|not checked|not confirmed|not authoritative)|"
-        r"unverified|not verified|not checked|unknown|receipt text only|repo text only)\b",
-        normalized,
-    )
-    return bool(
-        re.match(r"^git\b", normalized)
-        and re.search(r"\bhelper(?:s| evidence| output)?\b", normalized)
-        and denied is None
+    return (
+        re.fullmatch(
+            r"git and helper(?:s)?(?: output| evidence)?",
+            normalized,
+        )
+        is not None
     )
 
 
@@ -21393,6 +21389,24 @@ def _is_complete_historical_absence_claim(
     return any(re.fullmatch(pattern, claim) for pattern in required_negative_patterns)
 
 
+def _historical_escape_waiver_is_closed(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value.casefold().strip(" `\t\r\n."))
+    denied = re.search(
+        r"\b(?:not expired|unexpired|still active|remains active|currently active|"
+        r"active (?:user )?waiver (?:still )?authorizes|"
+        r"retains? (?:an? )?(?:active )?(?:user )?waiver|"
+        r"waiver (?:still )?authorizes)\b",
+        normalized,
+    )
+    closed = re.search(
+        r"\b(?:expired at carrier completion|"
+        r"no active (?:user )?(?:worktree escape )?waiver is retained|"
+        r"no (?:user )?(?:worktree escape )?waiver is retained)\b",
+        normalized,
+    )
+    return bool(closed is not None and denied is None)
+
+
 def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
     singleton_markers = (
         "Historical Branch",
@@ -21459,6 +21473,10 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         record_text,
         "Future Gate Boundary Receipt",
     ).casefold()
+    historical_escape_waiver = _extract_exact_marker_value(
+        record_text,
+        "Historical Escape Waiver Receipt",
+    )
     return (
         _extract_exact_marker_value(record_text, "Record Class")
         == "Historical Carrier Admission Receipt"
@@ -21508,6 +21526,7 @@ def _is_historical_carrier_admission_receipt(record_text: str) -> bool:
         )
         and "not reserved" in slot_reuse
         and _carrier_non_includes_are_prohibitive(non_includes)
+        and _historical_escape_waiver_is_closed(historical_escape_waiver)
         and "pr creation" in future_gate
         and "user decision" in future_gate
         and "not a live-state source" in _extract_exact_marker_value(
@@ -22700,6 +22719,9 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "Not Git; unverified receipt text.",
         "Git is unavailable; helper output is unverified.",
         "Git and helper output are not verified.",
+        "Git and helper evidence are forged.",
+        "Git and helper output is fabricated.",
+        "Git and helper evidence is invalid.",
         "Receipt text only; no Git or helper validation.",
     ):
         require(
@@ -23452,6 +23474,24 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_carrier_admission_receipt(historical_fixture_text),
         f"{historical_fixture}: exact historical carrier admission receipt must classify",
     )
+    for active_historical_waiver in (
+        "An active USER waiver still authorizes worktree escape.",
+        "The worktree escape waiver remains active.",
+        "The waiver is not expired at carrier completion.",
+        "This receipt retains an active USER waiver.",
+    ):
+        require(
+            not _is_historical_carrier_admission_receipt(
+                historical_fixture_text.replace(
+                    "Historical Escape Waiver Receipt: `Expired at carrier completion.`",
+                    f"Historical Escape Waiver Receipt: `{active_historical_waiver}`",
+                )
+            ),
+            (
+                f"{historical_fixture}: active historical escape waiver must "
+                f"fail classification: {active_historical_waiver}"
+            ),
+        )
     historical_authority_failures: list[str] = []
     _reject_historical_receipt_as_active_authority(
         lambda condition, message: historical_authority_failures.append(message)
