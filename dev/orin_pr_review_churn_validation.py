@@ -179,6 +179,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "durable confinement/audit record",
             "contradicts the actual committed scope",
             "later review-churn repair files",
+            "validate branch receipts in detached head checkouts",
+            "detached head checkout",
+            "silently skips the new intended write set validation",
         ),
     ),
     FamilyRule(
@@ -188,6 +191,15 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "common review phrase",
             "corrupts observed-family counts",
             "unknown-comment guardrail",
+        ),
+    ),
+    FamilyRule(
+        "user-review-markdown-semantics",
+        (
+            "exclude non-semantic markdown from authority scans",
+            "indented code example",
+            "html comment",
+            "equivalent markdown examples",
         ),
     ),
     FamilyRule(
@@ -751,6 +763,9 @@ def _classifier_guardrail_failures() -> list[str]:
         "user-review-comment-family-precision": (
             "Require fixture context before a common review phrase can bypass the unknown-comment guardrail."
         ),
+        "user-review-markdown-semantics": (
+            "Exclude non-semantic Markdown from authority scans, including an indented code example and HTML comment."
+        ),
     }
     for family_id, comment in user_review_examples.items():
         if family_id not in _classify_comment(comment):
@@ -1228,6 +1243,12 @@ def _branch_receipt_write_set_text_failures(
 def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     record = "Docs/branch_records/feature_example.md"
     changed = [record, "dev/example_validator.py"]
+    matrix = {
+        "changed_file_coverage": {
+            record: ["user-review-write-set-receipt"],
+            "dev/example_validator.py": ["user-review-write-set-receipt"],
+        }
+    }
     exact = (
         "Intended Write Set: `Docs/branch_records/feature_example.md; "
         "dev/example_validator.py`\n"
@@ -1252,24 +1273,78 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     no_field = _branch_receipt_write_set_text_failures(record, "# Branch Receipt\n", changed)
     if not any("omits Intended Write Set" in failure for failure in no_field):
         failures.append("Branch receipt write-set guardrail missed a changed receipt without a field")
+    detached_candidates = _branch_receipt_candidates(changed, matrix, branch="")
+    if detached_candidates != [record]:
+        failures.append(
+            "Branch receipt write-set guardrail did not recover the matrix-routed receipt in detached HEAD"
+        )
+    attached_candidates = _branch_receipt_candidates(
+        changed,
+        matrix,
+        branch="feature/example",
+    )
+    if attached_candidates != [record]:
+        failures.append(
+            "Branch receipt write-set guardrail did not normalize the attached branch or included a non-receipt file"
+        )
     return failures
 
 
-def _branch_receipt_write_set_failures(changed_files: list[str]) -> list[str]:
+def _branch_receipt_candidates(
+    changed_files: list[str],
+    matrix: dict[str, Any],
+    *,
+    branch: str,
+) -> list[str]:
+    changed = {path.replace("\\", "/") for path in changed_files}
+    candidates: set[str] = set()
+    if branch:
+        branch_record = (
+            "Docs/branch_records/"
+            + re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_")
+            + ".md"
+        )
+        if branch_record in changed:
+            candidates.add(branch_record)
+    file_coverage = matrix.get("changed_file_coverage", {})
+    if isinstance(file_coverage, dict):
+        for path, families in file_coverage.items():
+            normalized = str(path).replace("\\", "/")
+            if (
+                normalized in changed
+                and normalized.startswith("Docs/branch_records/")
+                and isinstance(families, list)
+                and "user-review-write-set-receipt" in families
+            ):
+                candidates.add(normalized)
+    return sorted(candidates)
+
+
+def _branch_receipt_write_set_failures(
+    changed_files: list[str],
+    matrix: dict[str, Any],
+) -> list[str]:
     branch = _run(["git", "branch", "--show-current"]).strip()
-    if not branch:
-        return []
-    record_relative = (
-        "Docs/branch_records/" + branch.replace("/", "_").replace("\\", "_") + ".md"
-    )
-    record_path = ROOT / record_relative
-    if not record_path.is_file():
-        return []
-    return _branch_receipt_write_set_text_failures(
-        record_relative,
-        record_path.read_text(encoding="utf-8"),
+    failures: list[str] = []
+    for record_relative in _branch_receipt_candidates(
         changed_files,
-    )
+        matrix,
+        branch=branch,
+    ):
+        record_path = ROOT / record_relative
+        if not record_path.is_file():
+            failures.append(
+                f"{record_relative}: routed branch receipt is missing"
+            )
+            continue
+        failures.extend(
+            _branch_receipt_write_set_text_failures(
+                record_relative,
+                record_path.read_text(encoding="utf-8"),
+                changed_files,
+            )
+        )
+    return failures
 
 
 def _is_helper_validator_parser(path: str) -> bool:
@@ -1879,7 +1954,7 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_matrix_selection_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
-    failures.extend(_branch_receipt_write_set_failures(changed_files))
+    failures.extend(_branch_receipt_write_set_failures(changed_files, matrix))
     failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
     firewall_failures, firewall_lines = _validate_pre_pr_firewall(
         matrix, changed_helper_files, skip_commands=args.skip_pre_pr_commands
@@ -1939,7 +2014,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_matrix_selection_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
-    failures.extend(_branch_receipt_write_set_failures(changed_files))
+    failures.extend(_branch_receipt_write_set_failures(changed_files, matrix))
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     budget_status, budget_failures = _review_churn_budget_result(
         matrix,

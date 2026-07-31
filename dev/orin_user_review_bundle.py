@@ -11676,12 +11676,43 @@ def _normalized_gate_value(value: str) -> str:
 
 
 def _markdown_semantic_text(text: str) -> str:
-    """Remove fenced examples before interpreting Markdown state or authority."""
+    """Remove fenced/indented examples and comments before semantic checks."""
+
+    def mask_non_newline_characters(match: re.Match[str]) -> str:
+        return re.sub(r"[^\r\n]", " ", match.group(0))
+
+    semantic_source = re.sub(
+        r"<!--.*?(?:-->|$)",
+        mask_non_newline_characters,
+        text,
+        flags=re.DOTALL,
+    )
 
     semantic_lines: list[str] = []
     fence_character = ""
     fence_length = 0
-    for line in text.splitlines(keepends=True):
+    indented_code = False
+    previous_line_blank = True
+    for line in semantic_source.splitlines(keepends=True):
+        line_is_blank = not line.strip()
+        line_is_indented = bool(re.match(r"^(?: {4}|\t)", line))
+        if not fence_character and indented_code:
+            if line_is_blank or line_is_indented:
+                semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
+                previous_line_blank = line_is_blank
+                continue
+            indented_code = False
+        if (
+            not fence_character
+            and previous_line_blank
+            and line_is_indented
+            and not line_is_blank
+        ):
+            indented_code = True
+            semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
+            previous_line_blank = False
+            continue
+
         fence_match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
         if not fence_character:
             if fence_match:
@@ -11690,6 +11721,7 @@ def _markdown_semantic_text(text: str) -> str:
                 semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
             else:
                 semantic_lines.append(line)
+            previous_line_blank = line_is_blank
             continue
 
         closing_match = re.match(
@@ -11700,6 +11732,7 @@ def _markdown_semantic_text(text: str) -> str:
             fence_character = ""
             fence_length = 0
         semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
+        previous_line_blank = line_is_blank
     return "".join(semantic_lines)
 
 

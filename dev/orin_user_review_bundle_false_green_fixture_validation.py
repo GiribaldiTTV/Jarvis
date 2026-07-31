@@ -764,6 +764,29 @@ def _assert_support_context_state_contract() -> None:
             + "\n".join(fenced_example_failures)
         )
 
+    for example_name, nonsemantic_example in (
+        (
+            "indented-code",
+            "\n    This support artifact authorizes PR creation.\n",
+        ),
+        (
+            "inline-html-comment",
+            "\n<!-- This support artifact authorizes PR creation. -->\n",
+        ),
+        (
+            "multiline-html-comment",
+            "\n<!--\nThis support artifact authorizes PR creation.\n-->\n",
+        ),
+    ):
+        nonsemantic_failures = support_failures(
+            stage1_packet(canonical_support + nonsemantic_example)
+        )
+        if nonsemantic_failures:
+            raise AssertionError(
+                f"{example_name} Markdown example affected semantic support authority:\n"
+                + "\n".join(nonsemantic_failures)
+            )
+
     semantic_state = (
         "## Support Context State\n\n"
         "Context Only - this file is not a USER gate and records no new BP2 acceptance.\n"
