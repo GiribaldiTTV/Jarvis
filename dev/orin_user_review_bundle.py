@@ -49,6 +49,12 @@ USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 PR_READINESS_STAGE1_REVIEW_FILE = "PR_READINESS_STAGE1_REVIEW.md"
 PR_STAGE1_OUTCOME_REPAIR = "PR Readiness Stage 1 Repair Required"
 PR_STAGE1_OUTCOME_READY = "Stage 1 Ready For Stage 2"
+PR_STAGE1_OUTCOME_VALUES = frozenset(
+    {
+        PR_STAGE1_OUTCOME_REPAIR.casefold(),
+        PR_STAGE1_OUTCOME_READY.casefold(),
+    }
+)
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
@@ -1471,11 +1477,13 @@ def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
             failures.append(
                 f"{support_file}: Stage 1 supporting planning context is missing"
             )
-    normalized = text.casefold()
-    if "pr readiness stage 1 repair required" not in normalized and "stage 1 ready for stage 2" not in normalized:
+    stage1_outcome = _normalized_pr_stage1_outcome(text)
+    if stage1_outcome not in PR_STAGE1_OUTCOME_VALUES:
         failures.append(
-            f"{display_name}: PR Stage 1 artifact is missing an allowed Stage 1 outcome"
+            f"{display_name}: invalid Stage 1 Outcome "
+            f"'{_review_marker_or_section_value(text, 'Stage 1 Outcome:')}'"
         )
+    normalized = text.casefold()
     if "bp2 branch plan contract" in normalized and "supporting planning context" not in normalized:
         failures.append(
             f"{display_name}: PR Stage 1 artifact presents BP2 as the current-gate contract"
@@ -1506,18 +1514,23 @@ def _pr_stage1_packet_coherence_failures(packet_files: Mapping[str, str]) -> lis
     summary = _field_value(start_here, "Decision Path Summary")
     normalized_summary = re.sub(r"\s+", " ", summary).casefold()
     normalized_primary = re.sub(r"\s+", " ", primary).casefold()
-    expected_summary_phrase = (
-        "pr readiness stage1 repair review"
-        if "pr readiness stage 1 repair required" in normalized_primary
-        else "pr readiness stage1 approval review"
-    )
-    stage1_ready = "stage 1 ready for stage 2" in normalized_primary
-    if expected_summary_phrase not in normalized_summary:
+    stage1_outcome = _normalized_pr_stage1_outcome(primary)
+    stage1_ready = stage1_outcome == PR_STAGE1_OUTCOME_READY.casefold()
+    expected_summary_phrase = {
+        PR_STAGE1_OUTCOME_REPAIR.casefold(): "pr readiness stage1 repair review",
+        PR_STAGE1_OUTCOME_READY.casefold(): "pr readiness stage1 approval review",
+    }.get(stage1_outcome)
+    if stage1_outcome not in PR_STAGE1_OUTCOME_VALUES:
+        failures.append(
+            "PR Stage 1 packet: invalid Stage 1 Outcome "
+            f"'{_review_marker_or_section_value(primary, 'Stage 1 Outcome:')}'"
+        )
+    elif expected_summary_phrase not in normalized_summary:
         failures.append(
             "START_HERE.md: Stage 1 packet Decision Path Summary must identify the "
             f"current Stage 1 posture ({expected_summary_phrase})"
         )
-    if "stage 1 ready for stage 2" in normalized_primary:
+    if stage1_ready:
         if "stage 1 ready for stage 2" not in normalized_summary:
             failures.append(
                 "START_HERE.md: Decision Path Summary does not match the primary "
@@ -11718,6 +11731,12 @@ def _normalized_gate_value(value: str) -> str:
     return normalized.split(" - ", 1)[0].strip().rstrip(".")
 
 
+def _normalized_pr_stage1_outcome(text: str) -> str:
+    return _normalized_gate_value(
+        _review_marker_or_section_value(text, "Stage 1 Outcome:")
+    )
+
+
 def _markdown_semantic_text(text: str) -> str:
     """Remove code examples and comments before semantic checks."""
 
@@ -11873,15 +11892,17 @@ def _support_context_authority_failures(
         ]
 
     authority_patterns = [
-        rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
-        r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\s+"
-        r"(?:by|through|via)\s+(?:this\s+)?support\b",
+        rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?{affirmative_modifiers}"
+        r"(?:authorized|approved|permitted|granted|enabled|allowed)\s+"
+        r"(?:by|through|via)\s+(?:(?:this|the|a|an)\s+)?"
+        r"(?:support(?:ing\s+(?:context|file|artifact)|\s+"
+        r"(?:context|file|artifact))?|review\s+aid)\b",
         r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
     ]
     if support_artifact:
         authority_patterns.append(
-            rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
-            r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\b"
+            rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?{affirmative_modifiers}"
+            r"(?:authorized|approved|permitted|granted|enabled|allowed)\b"
         )
     if any(re.search(pattern, normalized) for pattern in authority_patterns):
         return [
@@ -11965,9 +11986,13 @@ def _branch_planning_review_gate_state_failures(
         packet_files,
         PR_READINESS_STAGE1_REVIEW_FILE,
     )
-    stage1_outcome = _normalized_gate_value(
-        _review_marker_or_section_value(stage1_primary, "Stage 1 Outcome:")
-    )
+    stage1_outcome = _normalized_pr_stage1_outcome(stage1_primary)
+    if stage1_posture and stage1_outcome not in PR_STAGE1_OUTCOME_VALUES:
+        failures.append(
+            f"{_packet_file_path(packet_files, PR_READINESS_STAGE1_REVIEW_FILE)}: "
+            "invalid Stage 1 Outcome "
+            f"'{_review_marker_or_section_value(stage1_primary, 'Stage 1 Outcome:')}'"
+        )
     stage1_ready = stage1_posture and stage1_outcome == PR_STAGE1_OUTCOME_READY.casefold()
     reviewability_values: list[tuple[str, str]] = []
     user_gate_values: list[tuple[str, str]] = []

@@ -571,6 +571,29 @@ def _assert_support_context_state_contract() -> None:
             f"must contain exactly one {primary_marker}",
         )
 
+    invalid_outcome_support = re.sub(
+        r"## Support Context State\n\n[^\n]+\n\n",
+        "",
+        canonical_support,
+        count=1,
+    )
+    invalid_outcome_packet = stage1_packet(invalid_outcome_support)
+    invalid_outcome_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        invalid_outcome_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"]
+        .replace(
+            "## Stage 1 Outcome\nStage 1 Ready For Stage 2",
+            "## Stage 1 Outcome\nNonsense",
+            1,
+        )
+        + "\nStage 1 Ready For Stage 2 and PR Readiness Stage 1 Repair Required "
+        "are the only allowed values.\n"
+    )
+    assert_fails(
+        "invalid-stage1-outcome-with-allowed-body-phrases",
+        invalid_outcome_packet,
+        "invalid Stage 1 Outcome 'Nonsense'",
+    )
+
     missing_support_reviewability = re.sub(
         r"## Packet Reviewability State\n\n[^\n]+\n\n",
         "",
@@ -838,6 +861,92 @@ def _assert_support_context_state_contract() -> None:
         raise AssertionError(
             "bare-support-authority regression matrix did not execute all 252 cases"
         )
+
+    passive_authority_case_count = 0
+    for agent in (
+        "support",
+        "this support context",
+        "the supporting context",
+        "a support file",
+        "this supporting artifact",
+        "this review aid",
+        "a review aid",
+    ):
+        for participle in (
+            "authorized",
+            "approved",
+            "permitted",
+            "granted",
+            "enabled",
+            "allowed",
+        ):
+            passive_packet = stage1_packet(canonical_support)
+            passive_packet["START_HERE.md"] += (
+                f"PR creation is {participle} by {agent}.\n"
+            )
+            assert_fails(
+                f"passive-support-authority-{agent}-{participle}",
+                passive_packet,
+                "attempts to authorize a USER-gated action",
+            )
+            passive_authority_case_count += 1
+    if passive_authority_case_count != 42:
+        raise AssertionError(
+            "passive-support-authority regression matrix did not execute all 42 cases"
+        )
+
+    modified_passive_authority_case_count = 0
+    for modifier in (
+        "explicitly",
+        "expressly",
+        "clearly",
+        "directly",
+        "formally",
+        "automatically",
+        "hereby",
+        "now",
+    ):
+        for participle in (
+            "authorized",
+            "approved",
+            "permitted",
+            "granted",
+            "enabled",
+            "allowed",
+        ):
+            modified_passive_packet = stage1_packet(canonical_support)
+            modified_passive_packet["START_HERE.md"] += (
+                f"PR creation is {modifier} {participle} by this supporting context.\n"
+            )
+            assert_fails(
+                f"modified-passive-support-authority-{modifier}-{participle}",
+                modified_passive_packet,
+                "attempts to authorize a USER-gated action",
+            )
+            modified_passive_authority_case_count += 1
+    if modified_passive_authority_case_count != 48:
+        raise AssertionError(
+            "modified-passive-support-authority regression matrix did not execute "
+            "all 48 cases"
+        )
+
+    for negative_passive_authority in (
+        "PR creation is not authorized by this supporting context.",
+        "Implementation is never permitted by this review aid.",
+        "PR creation is not explicitly authorized by this supporting context.",
+        "Implementation is never formally permitted by this review aid.",
+    ):
+        negative_packet = stage1_packet(canonical_support)
+        negative_packet["START_HERE.md"] += negative_passive_authority + "\n"
+        failures = support_failures(negative_packet)
+        if any(
+            "attempts to authorize a USER-gated action" in failure
+            for failure in failures
+        ):
+            raise AssertionError(
+                "negative passive support-authority wording was misclassified:\n"
+                + "\n".join(failures)
+            )
 
     for verbal_target in (
         "creating a PR",
@@ -1393,6 +1502,20 @@ def _assert_stage1_coherence_guards() -> None:
     failures.extend(bundle._pr_stage1_source_coverage_failures(coherent))
     if failures:
         raise AssertionError("coherent Stage 1 packet failed:\n" + "\n".join(failures))
+
+    invalid_outcome = dict(coherent)
+    invalid_outcome["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        "## Stage 1 Outcome\nNonsense\n\n"
+        "## Exact USER Decision Supported\n\n"
+        "Stage 1 Ready For Stage 2 and PR Readiness Stage 1 Repair Required "
+        "are examples of allowed values.\n"
+    )
+    failures = bundle._pr_stage1_packet_coherence_failures(invalid_outcome)
+    if not any("invalid Stage 1 Outcome 'Nonsense'" in failure for failure in failures):
+        raise AssertionError(
+            "Stage 1 coherence accepted an invalid canonical outcome because allowed "
+            "phrases appeared elsewhere:\n" + "\n".join(failures)
+        )
 
     workstream = dict(coherent)
     workstream["START_HERE.md"] = (

@@ -136,6 +136,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "bare support artifact",
             "bare supporting-context authority subjects",
             "supporting context and review aid",
+            "passive supporting-context agents",
+            "authorized by this supporting context",
             "scan coordinated authority targets after benign objects",
             "coordinated authority targets",
             "allow primary decision artifacts to grant approved authority",
@@ -186,6 +188,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "default matrix",
             "matrix is selected",
             "mandatory pre-pr gate",
+            "exclude deleted matrices from automatic selection",
+            "deleted matrix",
         ),
     ),
     FamilyRule(
@@ -228,6 +232,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "require exact markers on the stage 1 primary artifact",
             "lack the canonical primary user-gate field",
             "exactly one marker on the primary artifact",
+            "validate the value of the stage 1 outcome field",
+            "invalid stage 1 outcome",
         ),
     ),
     FamilyRule(
@@ -255,6 +261,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "track each inventory line-count surface separately",
             "each expected surface by identity",
             "undifferentiated occurrences",
+            "inventory removal for deleted receipts",
+            "deleted receipt path",
         ),
     ),
     FamilyRule(
@@ -838,6 +846,50 @@ def _classifier_guardrail_failures() -> list[str]:
             failures.append(
                 f"Comment-family classifier did not classify {family_id}"
             )
+    generic_review_summary = (
+        "### Codex Review\n\n"
+        "Here are some automated review suggestions for this pull request.\n\n"
+        "**Reviewed commit:** `abc123`\n\n<details>boilerplate</details>"
+    )
+    if _substantive_review_summary_body(generic_review_summary):
+        failures.append(
+            "Connector review-summary guardrail treated boilerplate as a finding"
+        )
+    substantive_review_summary = (
+        "### Codex Review\n\n"
+        "**Validate the value of the Stage 1 Outcome field**\n\n"
+        "An invalid Stage 1 Outcome is accepted.\n\n"
+        "<details>boilerplate</details>"
+    )
+    synthetic_summary_comments = _connector_review_summary_comments(
+        [
+            {
+                "id": 1,
+                "user": {"login": "chatgpt-codex-connector[bot]"},
+                "body": substantive_review_summary,
+                "submitted_at": "2026-06-25T19:30:00Z",
+                "commit_id": "head",
+            },
+            {
+                "id": 2,
+                "user": {"login": "chatgpt-codex-connector[bot]"},
+                "body": generic_review_summary,
+                "submitted_at": "2026-06-25T19:31:00Z",
+                "commit_id": "head",
+            },
+        ],
+        {"user-review-primary-marker-cardinality"},
+        "head",
+    )
+    if (
+        len(synthetic_summary_comments) != 1
+        or synthetic_summary_comments[0]["families"]
+        != ["user-review-primary-marker-cardinality"]
+    ):
+        failures.append(
+            "Connector review-summary guardrail did not retain and classify exactly "
+            "one substantive finding"
+        )
     benign_user_review_text = (
         "A review aid enables source-truth comparison and permits inspection."
     )
@@ -1181,6 +1233,69 @@ def _connector_review_comments(
     return comments
 
 
+def _substantive_review_summary_body(body: str) -> str:
+    finding_text = re.split(r"<details\b", body, maxsplit=1, flags=re.IGNORECASE)[0]
+    retained_lines: list[str] = []
+    for line in finding_text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        normalized = stripped.casefold()
+        if normalized.startswith("###") and "codex review" in normalized:
+            continue
+        if normalized.startswith("here are some automated review suggestions"):
+            continue
+        if normalized.startswith("**reviewed commit:**"):
+            continue
+        retained_lines.append(stripped)
+    substantive = "\n".join(retained_lines)
+    if any(
+        phrase in substantive.casefold()
+        for phrase in (
+            "didn't find any major issues",
+            "didn\u2019t find any major issues",
+            "did not find any major issues",
+            "didnt find any major issues",
+            "no major issues",
+            "looks good",
+        )
+    ):
+        return ""
+    return substantive
+
+
+def _connector_review_summary_comments(
+    review_summaries: list[dict[str, Any]],
+    allowed_families: set[str],
+    head_oid: str,
+) -> list[dict[str, Any]]:
+    comments: list[dict[str, Any]] = []
+    for review in review_summaries:
+        author = (review.get("user") or {}).get("login", "")
+        if not _is_connector_login(author):
+            continue
+        body = _substantive_review_summary_body(review.get("body") or "")
+        if not body:
+            continue
+        comments.append(
+            {
+                "id": f"review-{review.get('id') or ''}",
+                "threadId": "",
+                "author": {"login": author},
+                "body": body,
+                "path": "",
+                "line": None,
+                "originalLine": None,
+                "createdAt": review.get("submitted_at") or "",
+                "url": review.get("html_url") or "",
+                "isResolved": False,
+                "isOutdated": review.get("commit_id") not in {None, "", head_oid},
+                "families": _classify_comment(body, allowed_families),
+            }
+        )
+    return comments
+
+
 def _thread_counts(threads: list[dict[str, Any]]) -> dict[str, int]:
     unresolved = [
         thread for thread in threads if not bool(thread.get("isResolved"))
@@ -1230,6 +1345,7 @@ def _select_matrix_path(
             for path in changed_files
             if path.replace("\\", "/").casefold().startswith(matrix_prefix)
             and path.casefold().endswith(".json")
+            and (ROOT / path).is_file()
         }
     )
     if len(changed_matrices) > 1:
@@ -1249,6 +1365,10 @@ def _matrix_selection_guardrail_failures() -> list[str]:
         failures.append("Matrix selection did not preserve the global default")
 
     changed_relative = "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+    deleted_relative = "dev/fixtures/pr_review_churn/pr_deleted_history_matrix.json"
+    deleted_path, deleted_reason = _select_matrix_path(None, [deleted_relative])
+    if deleted_path.resolve() != DEFAULT_MATRIX.resolve() or deleted_reason != "global default":
+        failures.append("Matrix selection treated a deleted matrix as the active matrix")
     changed_path, changed_reason = _select_matrix_path(None, [changed_relative])
     if (
         changed_path.resolve() != (ROOT / changed_relative).resolve()
@@ -1275,6 +1395,17 @@ def _matrix_selection_guardrail_failures() -> list[str]:
         pass
     else:
         failures.append("Matrix selection accepted multiple changed matrices without --matrix")
+    retained_path, retained_reason = _select_matrix_path(
+        None,
+        [changed_relative, deleted_relative],
+    )
+    if (
+        retained_path.resolve() != (ROOT / changed_relative).resolve()
+        or retained_reason != "single changed review-churn matrix"
+    ):
+        failures.append(
+            "Matrix selection did not ignore a deleted matrix beside one retained matrix"
+        )
     return failures
 
 
@@ -1635,6 +1766,17 @@ def _inventory_receipt_line_count_text_failures(
     return []
 
 
+def _inventory_deleted_receipt_text_failures(
+    record_relative: str,
+    audit_text: str,
+) -> list[str]:
+    if record_relative not in audit_text:
+        return []
+    return [
+        f"{record_relative}: generated docs inventory retains a deleted receipt path"
+    ]
+
+
 def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
     record = "Docs/branch_records/feature_example.md"
     record_text = "first\nsecond\n"
@@ -1669,6 +1811,15 @@ def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
         failures.append(
             "Inventory receipt currentness guardrail let duplicate rows substitute for missing surfaces"
         )
+    if _inventory_deleted_receipt_text_failures(record, "# Current inventory\n"):
+        failures.append(
+            "Inventory receipt currentness guardrail rejected removal of a deleted receipt"
+        )
+    retained_deleted = _inventory_deleted_receipt_text_failures(record, exact_audit)
+    if not any("retains a deleted receipt path" in failure for failure in retained_deleted):
+        failures.append(
+            "Inventory receipt currentness guardrail missed a stale deleted-receipt path"
+        )
     missing_audit = _docs_inventory_receipt_currentness_failures([record])
     if not any("requires regenerated docs inventory" in failure for failure in missing_audit):
         failures.append(
@@ -1697,6 +1848,12 @@ def _docs_inventory_receipt_currentness_failures(
     for record_relative in receipt_candidates:
         record_path = ROOT / record_relative
         if not record_path.is_file():
+            failures.extend(
+                _inventory_deleted_receipt_text_failures(
+                    record_relative,
+                    audit_text,
+                )
+            )
             continue
         failures.extend(
             _inventory_receipt_line_count_text_failures(
@@ -2350,10 +2507,21 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     review_comments, review_comment_page_count = _rest_paginated_pages(
         f"repos/{owner}/{name}/pulls/{args.pr}/comments"
     )
+    review_summaries, review_summary_page_count = _rest_paginated_pages(
+        f"repos/{owner}/{name}/pulls/{args.pr}/reviews"
+    )
     changed_files = _changed_files(args.base)
     matrix_path, matrix_selection = _select_matrix_path(args.matrix, changed_files)
     matrix = _load_matrix(matrix_path)
-    comments = _connector_review_comments(review_comments, set(_family_entries(matrix)))
+    allowed_families = set(_family_entries(matrix))
+    comments = _connector_review_comments(review_comments, allowed_families)
+    comments.extend(
+        _connector_review_summary_comments(
+            review_summaries,
+            allowed_families,
+            pull_request["headRefOid"],
+        )
+    )
     thread_counts = _thread_counts(threads)
     changed_helper_files = [
         path for path in changed_files if _is_firewall_gated_path(path, matrix)
@@ -2406,6 +2574,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         f"Mergeability: {pull_request.get('mergeable')} / {pull_request.get('mergeStateStatus')}",
         f"Review-thread pages inspected: {page_count}",
         f"Review-comment pages inspected: {review_comment_page_count}",
+        f"Review-summary pages inspected: {review_summary_page_count}",
         (
             "Review-thread counts: "
             f"total={thread_counts['total']}, "
@@ -2414,7 +2583,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
             f"unresolved_current={thread_counts['unresolved_current']}, "
             f"outdated={thread_counts['outdated']}"
         ),
-        f"Connector review comments collected: {len(comments)}",
+        f"Connector review findings collected: {len(comments)}",
         f"Review-churn budget: {budget_status}",
         "Connector family counts:",
     ]
