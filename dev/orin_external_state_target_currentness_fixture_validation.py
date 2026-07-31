@@ -122,7 +122,8 @@ def _run_fam003_accepted_bp3_identity_fixtures(root: Path) -> None:
     support_path.write_text(
         "Accepted BP3 Decision Basis ZIP: `" + accepted_zip + "`\n"
         "Accepted BP3 Decision Basis SHA256: `" + accepted_hash + "`\n"
-        "Current Workstream Packet: `" + current_zip + "`\n"
+        "Current Replacement Packet: `" + current_zip + "`\n"
+        "Current Workstream Packet: `NOT CURRENT / prior Workstream packet history only`\n"
         "Historical Receipt Boundary: `fixture`\n",
         encoding="utf-8",
     )
@@ -147,6 +148,13 @@ def _run_fam003_accepted_bp3_identity_fixtures(root: Path) -> None:
             "Accepted BP3 Decision Basis ZIP: `" + accepted_zip + "`",
             "Accepted BP3 Decision Basis ZIP: `" + current_zip + "`",
             "supporting evidence has the wrong decision-basis ZIP",
+        ),
+        (
+            "support-current-drift",
+            support_path,
+            "Current Replacement Packet: `" + current_zip + "`",
+            "Current Replacement Packet: `C:\\Nexus USER\\FAM-003-drift.zip`",
+            "current packet disagrees",
         ),
         (
             "approval-current-drift",
@@ -2688,7 +2696,7 @@ def main() -> int:
         "(24 canonical-UFD + 1 revision-pending Branch Vision positive + "
         "13 Branch Vision negative + 12 Element-to-Phase negative + "
         "3 non-plan projection ownership + 1 accepted-BP3 identity positive + "
-        "3 accepted-BP3 identity negative fixtures)"
+        "4 accepted-BP3 identity negative fixtures)"
     )
     return 0
 

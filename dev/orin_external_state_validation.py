@@ -2354,7 +2354,7 @@ def validate_fam003_accepted_bp3_decision_basis_identity(root: Path) -> list[str
             support_path,
             "Accepted BP3 Decision Basis ZIP",
             "Accepted BP3 Decision Basis SHA256",
-            "Current Workstream Packet",
+            "Current Replacement Packet",
         ),
         (
             "BP3 approval / Workstream support",
