@@ -156,6 +156,12 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "past, perfect, and progressive forms",
             "recognize auxiliaries in passive authority claims",
             "passive auxiliaries",
+            "reject instrumental support-authority instructions",
+            "instrumental constructions",
+            "support artifact is used to authorize",
+            "keep semicolons from erasing authority negation",
+            "semicolon as a clause boundary",
+            "new authority predicate after it",
         ),
     ),
     FamilyRule(

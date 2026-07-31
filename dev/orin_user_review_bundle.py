@@ -11975,14 +11975,26 @@ def _support_context_authority_failures(
         rf"(?:support(?:ing)? (?:context|file|artifact)|review aid)\s+"
         rf"{authority_predicate}\b",
     ]
+    instrumental_authority_leads = [
+        rf"\b(?:use|using)\s+{subject}\s+{affirmative_modifiers}to\s+"
+        rf"{affirmative_modifiers}{authority_base_verb}\b",
+        rf"\b{subject}\s+(?:{be_auxiliary}|"
+        rf"{have_auxiliary}\s+{affirmative_modifiers}been|"
+        rf"{affirmative_modal}\s+{affirmative_modifiers}be|"
+        rf"{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}been)\s+{affirmative_modifiers}used\s+"
+        rf"{affirmative_modifiers}to\s+"
+        rf"{affirmative_modifiers}{authority_base_verb}\b",
+        rf"\b(?:the\s+)?use\s+of\s+{subject}\s+{authority_predicate}\b",
+    ]
 
     def lead_governs_positive_target(lead_match: re.Match[str]) -> bool:
         clause = normalized[lead_match.end() : lead_match.end() + 500]
-        clause = re.split(r"[.!?]|\r?\n[ \t]*\r?\n", clause, maxsplit=1)[0]
+        clause = re.split(r"[.!?;]|\r?\n[ \t]*\r?\n", clause, maxsplit=1)[0]
         target_pattern = re.compile(rf"\b(?:the\s+)?{gated_target}\b")
         reset_pattern = re.compile(
             rf"\b(?:but|however|yet|{authority_verb}|{authority_base_verb}|"
-            rf"{authority_past_verb}|{authority_progressive_verb})\b|;"
+            rf"{authority_past_verb}|{authority_progressive_verb})\b"
         )
         for target_match in target_pattern.finditer(clause):
             prefix = clause[: target_match.start()]
@@ -11994,9 +12006,31 @@ def _support_context_authority_failures(
                 return True
         return False
 
+    def instrumental_lead_is_negated(lead_match: re.Match[str]) -> bool:
+        prefix = normalized[max(0, lead_match.start() - 100) : lead_match.start()]
+        current_clause = re.split(
+            r"[.!?;]|\r?\n[ \t]*\r?\n",
+            prefix,
+        )[-1]
+        return bool(
+            re.search(
+                r"\b(?:not|never)\b(?:\s+[a-z][a-z0-9-]*){0,3}\s*$",
+                current_clause,
+            )
+        )
+
     if any(
         lead_governs_positive_target(lead_match)
         for pattern in authority_leads
+        for lead_match in re.finditer(pattern, normalized)
+    ):
+        return [
+            f"{file_name}: support context attempts to authorize a USER-gated action"
+        ]
+    if any(
+        not instrumental_lead_is_negated(lead_match)
+        and lead_governs_positive_target(lead_match)
+        for pattern in instrumental_authority_leads
         for lead_match in re.finditer(pattern, normalized)
     ):
         return [
