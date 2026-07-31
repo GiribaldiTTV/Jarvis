@@ -71,9 +71,9 @@ Assigned Worktree Confinement: `Required for the exact USER-approved helper repa
 Active Thread Owner: `The current Codex PR1 helper-repair task is the sole mutation owner`
 Thread Assignment Status: `Assigned only to C:\Nexus Worktrees\Governance-PR1-Helper for this bounded workload`
 Worktree Ownership Ledger: `Live ownership is projected by the branch/worktree external-state records named in Branch Identity; this section is the durable admission receipt`
-Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md; Docs/governance_docs_full_inventory_reform_audit.md; Docs/governance_docs_reform_user_review_index.md; Docs/incident_patterns.md; Docs/validation_helper_registry.md; dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json; dev/orin_pr_review_churn_validation.py; dev/orin_user_review_bundle.py; dev/orin_user_review_bundle_false_green_fixture_validation.py`
+Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md; Docs/governance_docs_full_inventory_reform_audit.md; Docs/governance_docs_reform_user_review_index.md; Docs/incident_patterns.md; Docs/validation_helper_registry.md; dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json; dev/orin_docs_inventory_reform_audit.py; dev/orin_pr_review_churn_validation.py; dev/orin_user_review_bundle.py; dev/orin_user_review_bundle_false_green_fixture_validation.py`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree, branch, task, or PR claimed this carrier at admission`
-Dirty Worktree Collision Check: `PASS - the current owner claims all ten bounded changed files and no unrelated path`
+Dirty Worktree Collision Check: `PASS - the current owner claims all eleven bounded changed files and no unrelated path`
 Dirty Worktree Recovery Packet: `Not required - every current change is owned and inside the approved bounded write set`
 Off-Worktree Work Routing: `Clean N0, PR #309, PR #310, FAM worktrees, standing Governance, and neutral main are read-only comparators; external-state writes use separate bounded transactions`
 Governance Routing Barrier: `Active - merge, release, issue, selected-next, FAM, clean-N0 source, and preserved-PR mutation remain blocked`
@@ -82,7 +82,7 @@ Expected Worktree Root: `C:\Nexus Worktrees\Governance-PR1-Helper`
 Actual Worktree Root: `C:\Nexus Worktrees\Governance-PR1-Helper`
 No Cross-Worktree Mutation: `Confirmed - source edits are confined to this helper worktree`
 GitHub Desktop-bound worktree: `C:\Nexus Worktrees\Governance-PR1-Helper`
-Worktree Escape User Waiver: `Granted for the exact clean-N0 parking, helper-carrier creation, ten-file repair, validation, commit, push, PR1/PR2, and bounded same-PR Connector repair/comment-resolution cycles until current-head thumbs-up; expires at merge-ready, stop, scope expansion, or clean USER handback`
+Worktree Escape User Waiver: `Granted for the exact clean-N0 parking, helper-carrier creation, eleven-file repair, validation, commit, push, PR1/PR2, and bounded same-PR Connector repair/comment-resolution cycles until current-head thumbs-up; expires at merge-ready, stop, scope expansion, or clean USER handback`
 Worktree Escape User Waiver Missing: `Not applicable - the exact USER waiver is recorded above`
 
 ## Merge-Target Posture

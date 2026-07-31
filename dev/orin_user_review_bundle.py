@@ -11735,9 +11735,46 @@ def _normalized_gate_value(value: str) -> str:
 
 
 def _normalized_pr_stage1_outcome(text: str) -> str:
-    return _normalized_gate_value(
-        _review_marker_or_section_value(text, "Stage 1 Outcome:")
+    value = _review_marker_or_section_value(text, "Stage 1 Outcome:")
+    normalized = re.sub(r"\s+", " ", value).strip().casefold().rstrip(".")
+    canonical_outcomes = (
+        PR_STAGE1_OUTCOME_REPAIR.casefold(),
+        PR_STAGE1_OUTCOME_READY.casefold(),
     )
+    for canonical in canonical_outcomes:
+        if normalized == canonical:
+            return canonical
+        prefix = canonical + " - "
+        if not normalized.startswith(prefix):
+            continue
+        qualifier = normalized[len(prefix) :].strip().rstrip(".")
+        ready_contradictions = (
+            r"\bblockers?\s+(?:remain|exist|open)\b",
+            r"\brepair\s+(?:is\s+)?(?:required|pending|needed|incomplete)\b",
+            r"\b(?:stage 1|stage 2|packet|gate)\s+(?:is\s+)?"
+            r"(?:blocked|held|not ready)\b",
+            r"\bnot\s+(?:ready|complete|green)\b",
+            r"\b(?:cannot|can not|must not|should not)\s+(?:advance|proceed)\b",
+            r"\bstage 2\s+(?:is\s+)?not\s+supported\b",
+        )
+        repair_contradictions = (
+            r"\bstage 1\s+(?:is\s+)?ready for stage 2\b",
+            r"\bstage 2\s+(?:is\s+)?supported\b",
+            r"\brepair\s+(?:is\s+)?complete\b",
+            r"\bno\s+(?:blockers?|repair)\s+remain\b",
+            r"\b(?:may|can|should)\s+(?:now\s+)?(?:advance|proceed)\b",
+        )
+        contradiction_patterns = (
+            ready_contradictions
+            if canonical == PR_STAGE1_OUTCOME_READY.casefold()
+            else repair_contradictions
+        )
+        if qualifier and not any(
+            re.search(pattern, qualifier) for pattern in contradiction_patterns
+        ):
+            return canonical
+        return normalized
+    return normalized
 
 
 MARKDOWN_FIELD_PREFIX = r"[ \t]{0,3}(?:(?:[-+*]|\d+\.)[ \t]+|>[ \t]+)?"
@@ -11897,6 +11934,22 @@ def _support_context_authority_failures(
         rf"{affirmative_modifiers}been\s+{affirmative_modifiers}"
         rf"{authority_past_verb}\s+to)"
     )
+    passive_authority_predicate = (
+        rf"(?:{authority_past_verb}|"
+        rf"{be_auxiliary}\s+{affirmative_modifiers}{authority_past_verb}|"
+        rf"{be_auxiliary}\s+{affirmative_modifiers}being\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}|"
+        rf"{have_auxiliary}\s+{affirmative_modifiers}been\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}|"
+        rf"{affirmative_modal}\s+{affirmative_modifiers}be\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}|"
+        rf"{affirmative_modal}\s+{affirmative_modifiers}be\s+"
+        rf"{affirmative_modifiers}being\s+{affirmative_modifiers}"
+        rf"{authority_past_verb}|"
+        rf"{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}been\s+{affirmative_modifiers}"
+        rf"{authority_past_verb})"
+    )
     authority_leads = [
         rf"\b{subject}\s+{authority_predicate}\b",
         rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+)[ \t]*"
@@ -11933,8 +11986,8 @@ def _support_context_authority_failures(
         ]
 
     authority_patterns = [
-        rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?{affirmative_modifiers}"
-        r"(?:authorized|approved|permitted|granted|enabled|allowed)\s+"
+        rf"\b{gated_target}\s+{affirmative_modifiers}"
+        rf"{passive_authority_predicate}\s+"
         r"(?:by|through|via)\s+(?:(?:this|the|a|an)\s+)?"
         r"(?:support(?:ing\s+(?:context|file|artifact)|\s+"
         r"(?:context|file|artifact))?|review\s+aid)\b",
@@ -11942,8 +11995,8 @@ def _support_context_authority_failures(
     ]
     if support_artifact:
         authority_patterns.append(
-            rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?{affirmative_modifiers}"
-            r"(?:authorized|approved|permitted|granted|enabled|allowed)\b"
+            rf"\b{gated_target}\s+{affirmative_modifiers}"
+            rf"{passive_authority_predicate}\b"
         )
     if any(re.search(pattern, normalized) for pattern in authority_patterns):
         return [

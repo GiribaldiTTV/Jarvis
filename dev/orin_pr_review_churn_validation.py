@@ -18,6 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import orin_docs_inventory_reform_audit as docs_inventory
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX_DIR = ROOT / "dev" / "fixtures" / "pr_review_churn"
@@ -150,6 +152,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "implementing the plan",
             "past-tense support authorization claims",
             "past, perfect, and progressive forms",
+            "recognize auxiliaries in passive authority claims",
+            "passive auxiliaries",
         ),
     ),
     FamilyRule(
@@ -248,6 +252,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "exactly one marker on the primary artifact",
             "validate the value of the stage 1 outcome field",
             "invalid stage 1 outcome",
+            "contradictory stage 1 outcome qualifiers",
+            "outcome qualifier",
         ),
     ),
     FamilyRule(
@@ -279,6 +285,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "undifferentiated occurrences",
             "inventory removal for deleted receipts",
             "deleted receipt path",
+            "validate regenerated inventory content",
+            "not only counts",
         ),
     ),
     FamilyRule(
@@ -1890,6 +1898,247 @@ def _inventory_receipt_line_count_text_failures(
     return []
 
 
+def _inventory_receipt_expected_content(
+    record_relative: str,
+    record_text: str,
+    changed_files: list[str],
+) -> dict[str, str]:
+    changed = {path.replace("\\", "/") for path in changed_files}
+    lines = record_text.count("\n") + (1 if record_text else 0)
+    owner = docs_inventory.owner_for(record_relative)
+    owns, should_record, should_move = docs_inventory.OWNER_DESCRIPTIONS[owner]
+    branch = _run(["git", "branch", "--show-current"]).strip()
+    active_branch_plan_paths = (
+        {docs_inventory.branch_name_to_plan_path(branch)} if branch else set()
+    )
+    action, completed, remaining = docs_inventory.action_for(
+        record_relative,
+        owner,
+        lines,
+        changed,
+        active_branch_plan_paths=active_branch_plan_paths,
+        retired_branch_plan_paths=docs_inventory.retired_branch_plan_paths(),
+    )
+    counts = {
+        name: docs_inventory.count_matches(record_text, patterns)
+        for name, patterns in docs_inventory.PATTERNS.items()
+    }
+    duplicate_classes = [
+        fact
+        for fact, patterns in docs_inventory.FACT_CLASSES.items()
+        if docs_inventory.count_matches(record_text, patterns)
+    ]
+    ambiguity_risk, ambiguity_hits, ambiguity_action = docs_inventory.ambiguity_for(
+        record_text, owner
+    )
+    structure_risk, structure_action = docs_inventory.structure_for(
+        record_text, lines, owner
+    )
+    risk = "Low"
+    if record_relative in {"Docs/feature_backlog.md", "Docs/prebeta_roadmap.md"}:
+        risk = "Critical"
+    elif owner == "branch authority / structured receipt" and lines > 400:
+        risk = "High"
+    elif counts["live"] + counts["pr_release_issue"] > 50 and owner not in {
+        "release closeout receipt",
+        "workstream durable history",
+        "family dossier",
+    }:
+        risk = "High"
+    elif counts["live"] or counts["pr_release_issue"] or counts["branch_phase"] > 10:
+        risk = "Medium"
+    confidence = "High" if owner != "unknown docs reference" else "Medium"
+    row: dict[str, Any] = {
+        "rel": record_relative,
+        "lines": lines,
+        "owner": owner,
+        "action": action,
+        "risk": risk,
+        "confidence": confidence,
+        "counts": counts,
+        "title": docs_inventory.heading_title(record_text, Path(record_relative).stem),
+        "owns": owns,
+        "should_record": should_record,
+        "should_move": should_move,
+        "completed": completed,
+        "remaining": remaining,
+        "duplicate_classes": duplicate_classes,
+        "ambiguity_risk": ambiguity_risk,
+        "ambiguity_hits": ambiguity_hits,
+        "ambiguity_action": ambiguity_action,
+        "structure_risk": structure_risk,
+        "structure_action": structure_action,
+        "active_branch_plan": (
+            owner == "branch runtime engineering plan"
+            and record_relative in active_branch_plan_paths
+        ),
+        "live_fields": docs_inventory.snippets(record_text, docs_inventory.PATTERNS["live"]),
+        "receipt_fields": docs_inventory.snippets(
+            record_text,
+            (
+                r"Historical",
+                r"Receipt",
+                r"USER",
+                r"Decision",
+                r"Approval",
+                r"Closeout",
+                r"Merge Proof",
+            ),
+        ),
+        "current_markers": docs_inventory.snippets(
+            record_text, (r"Current", r"Active", r"Next Legal Phase", r"Phase Status")
+        ),
+        "trace_markers": docs_inventory.snippets(
+            record_text, docs_inventory.PATTERNS["package_slice"]
+        ),
+        "branch_markers": docs_inventory.snippets(
+            record_text, docs_inventory.PATTERNS["branch_phase"]
+        ),
+        "release_markers": docs_inventory.snippets(
+            record_text, docs_inventory.PATTERNS["pr_release_issue"]
+        ),
+    }
+    row["consolidation_target"] = docs_inventory.consolidation_target_for(row)
+    row["deletion_posture"] = docs_inventory.deletion_posture_for(row)
+
+    user_decision = (
+        "Yes"
+        if "USER" in str(row["deletion_posture"]) or "USER" in str(row["action"])
+        else "No"
+    )
+    duplicate_found = bool(row["duplicate_classes"])
+    live_found = bool(row["live_fields"]) or counts["live"] > 0
+    receipt_found = bool(row["receipt_fields"])
+    manifest_tail = (
+        f"`{record_relative}` | {owner} | {lines} | {action} | "
+        f"{risk} | {confidence} |"
+    )
+    cleanup_row = (
+        f"| `{record_relative}` | {owner} | {action} | "
+        f"{docs_inventory.compact_review_value(str(row['consolidation_target']), 140)} | "
+        f"{docs_inventory.compact_review_value(str(row['deletion_posture']), 120)} | "
+        f"{user_decision} |"
+    )
+    ambiguity_row = (
+        f"| `{record_relative}` | {ambiguity_risk} | "
+        f"{docs_inventory.md_list(list(ambiguity_hits))} | "
+        f"{docs_inventory.compact_review_value(str(ambiguity_action), 140)} |"
+    )
+    structure_row = (
+        f"| `{record_relative}` | {structure_risk} | "
+        f"{docs_inventory.compact_review_value(str(structure_action), 150)} |"
+    )
+    file_review_row = (
+        f"| `{record_relative}` | {lines} | "
+        f"{docs_inventory.compact_review_value(str(row['title']))} | {owner} | "
+        f"{docs_inventory.compact_review_value(str(owns))} | "
+        f"{docs_inventory.compact_review_value(str(should_record))} | "
+        f"{docs_inventory.compact_review_value(str(completed))} | "
+        f"{docs_inventory.compact_review_value(str(remaining))} | {action} | "
+        f"{ambiguity_risk} | {structure_risk} | "
+        f"{docs_inventory.bool_text(duplicate_found)} | "
+        f"{docs_inventory.bool_text(live_found)} | "
+        f"{docs_inventory.bool_text(receipt_found)} | "
+        f"{docs_inventory.compact_review_value(docs_inventory.validator_need(owner))} | "
+        "_Add notes here._ |"
+    )
+    repetitive = (
+        "Release/phase/branch marker repetition requires owner-pointer discipline."
+        if counts["branch_phase"] > 20 or counts["pr_release_issue"] > 20
+        else "No major repetitive language flagged by scanner."
+    )
+    duplicates = ", ".join(duplicate_classes) if duplicate_classes else "None found"
+    dossier_lines = [
+        f"- File path: `{record_relative}`",
+        f"- Line count: {lines}",
+        f"- Current purpose: {row['title']}",
+        (
+            f"- Actual observed use: {owner} with markers live={counts['live']}, "
+            f"pr/release/issue={counts['pr_release_issue']}, "
+            f"package/slice={counts['package_slice']}, "
+            f"branch/worktree/phase={counts['branch_phase']}, "
+            f"validator/helper={counts['validator']}."
+        ),
+        f"- Correct owner category: {owner}",
+        f"- What gets recorded here: {owns}.",
+        f"- What should be recorded here: {should_record}.",
+        f"- What should move elsewhere: {should_move}.",
+        f"- Migration target: {should_move}.",
+        f"- Recommendation: {action}.",
+        f"- Consolidation target: {row['consolidation_target']}.",
+        f"- Deletion posture: {row['deletion_posture']}.",
+        f"- Ambiguity risk: {ambiguity_risk}.",
+        f"- Ambiguity signals: {docs_inventory.md_list(list(ambiguity_hits))}",
+        f"- Ambiguity review action: {ambiguity_action}",
+        f"- Structure risk: {structure_risk}.",
+        f"- Structure action: {structure_action}",
+        f"- Duplicate fact classes found: {duplicates}.",
+        f"- Live operational truth fields found: {docs_inventory.md_list(row['live_fields'])}",
+        f"- Governance receipt fields found: {docs_inventory.md_list(row['receipt_fields'])}",
+        f"- Repetitive language found: {repetitive}",
+        f"- Current-state markers found: {docs_inventory.md_list(row['current_markers'])}",
+        f"- Package Trace / Slice Trace markers found: {docs_inventory.md_list(row['trace_markers'])}",
+        f"- Branch/worktree/phase markers found: {docs_inventory.md_list(row['branch_markers'])}",
+        f"- Release/PR/issue markers found: {docs_inventory.md_list(row['release_markers'])}",
+        f"- Validator rule needed: {docs_inventory.validator_need(owner)}",
+        f"- Reform action completed in this branch: {completed}",
+        f"- Remaining action needed after this branch: {remaining}",
+        "- USER review notes: _Add notes here._",
+    ]
+    return {
+        "manifest_tail": manifest_tail,
+        "cleanup_row": cleanup_row,
+        "ambiguity_row": ambiguity_row,
+        "structure_row": structure_row,
+        "file_review_row": file_review_row,
+        "dossier_body": "\n".join(dossier_lines),
+    }
+
+
+def _inventory_receipt_content_text_failures(
+    record_relative: str,
+    record_text: str,
+    audit_text: str,
+    changed_files: list[str],
+) -> list[str]:
+    expected = _inventory_receipt_expected_content(
+        record_relative, record_text, changed_files
+    )
+    failures: list[str] = []
+    manifest_pattern = re.compile(
+        rf"^\| \d+ \| {re.escape(expected['manifest_tail'])}$",
+        flags=re.MULTILINE,
+    )
+    if len(manifest_pattern.findall(audit_text)) != 1:
+        failures.append(
+            f"{record_relative}: generated docs inventory has stale manifest content"
+        )
+    for surface, key in (
+        ("cleanup/disposition", "cleanup_row"),
+        ("ambiguity", "ambiguity_row"),
+        ("structure", "structure_row"),
+        ("file-review", "file_review_row"),
+    ):
+        if audit_text.splitlines().count(expected[key]) != 1:
+            failures.append(
+                f"{record_relative}: generated docs inventory has stale {surface} content"
+            )
+    dossier_pattern = re.compile(
+        rf"^### \d+\. `{re.escape(record_relative)}`\s*$\n\n"
+        r"(?P<body>.*?)(?=^### \d+\. `|^## Remaining Risks\s*$)",
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    dossier_matches = list(dossier_pattern.finditer(audit_text))
+    if (
+        len(dossier_matches) != 1
+        or dossier_matches[0].group("body").strip() != expected["dossier_body"]
+    ):
+        failures.append(
+            f"{record_relative}: generated docs inventory has stale dossier content"
+        )
+    return failures
+
+
 def _inventory_deleted_receipt_text_failures(
     record_relative: str,
     audit_text: str,
@@ -1935,6 +2184,51 @@ def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
         failures.append(
             "Inventory receipt currentness guardrail let duplicate rows substitute for missing surfaces"
         )
+    content_record_text = "# Example Receipt\nStatus: Active\n"
+    expected_content = _inventory_receipt_expected_content(
+        record,
+        content_record_text,
+        [record],
+    )
+    exact_content_audit = "\n".join(
+        (
+            f"| 1 | {expected_content['manifest_tail']}",
+            expected_content["cleanup_row"],
+            expected_content["ambiguity_row"],
+            expected_content["structure_row"],
+            expected_content["file_review_row"],
+            f"### 1. `{record}`",
+            "",
+            expected_content["dossier_body"],
+            "",
+            "## Remaining Risks",
+        )
+    )
+    if _inventory_receipt_content_text_failures(
+        record,
+        content_record_text,
+        exact_content_audit,
+        [record],
+    ):
+        failures.append(
+            "Inventory receipt currentness guardrail rejected exact generated content"
+        )
+    for stale_record_text, stale_surface in (
+        ("# Renamed Receipt\nStatus: Active\n", "title"),
+        ("# Example Receipt\nStatus: Historical\n", "classification"),
+        ("# Example Receipt\nStatus: Current\n", "excerpt"),
+    ):
+        content_failures = _inventory_receipt_content_text_failures(
+            record,
+            stale_record_text,
+            exact_content_audit,
+            [record],
+        )
+        if not any("stale" in failure for failure in content_failures):
+            failures.append(
+                "Inventory receipt currentness guardrail missed stale generated "
+                f"{stale_surface} content"
+            )
     if _inventory_deleted_receipt_text_failures(record, "# Current inventory\n"):
         failures.append(
             "Inventory receipt currentness guardrail rejected removal of a deleted receipt"
@@ -1969,6 +2263,22 @@ def _docs_inventory_receipt_currentness_failures(
         return [f"{audit_relative}: changed generated inventory is missing"]
     audit_text = audit_path.read_text(encoding="utf-8")
     failures: list[str] = []
+    rendered_audit, rendered_index = docs_inventory.generate(
+        write_outputs=False,
+        report=False,
+    )
+    if audit_text != rendered_audit:
+        failures.append(
+            f"{audit_relative}: committed inventory does not match current generator output"
+        )
+    index_relative = "Docs/governance_docs_reform_user_review_index.md"
+    index_path = ROOT / index_relative
+    if not index_path.is_file():
+        failures.append(f"{index_relative}: generated review index is missing")
+    elif index_path.read_text(encoding="utf-8") != rendered_index:
+        failures.append(
+            f"{index_relative}: committed review index does not match current generator output"
+        )
     for record_relative in receipt_candidates:
         record_path = ROOT / record_relative
         if not record_path.is_file():
@@ -1984,6 +2294,14 @@ def _docs_inventory_receipt_currentness_failures(
                 record_relative,
                 record_path.read_text(encoding="utf-8"),
                 audit_text,
+            )
+        )
+        failures.extend(
+            _inventory_receipt_content_text_failures(
+                record_relative,
+                record_path.read_text(encoding="utf-8"),
+                audit_text,
+                changed_files,
             )
         )
     return failures

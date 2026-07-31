@@ -1175,7 +1175,11 @@ def build_user_review_index(
     return "\n".join(out) + "\n"
 
 
-def generate(*, write_outputs: bool = True) -> None:
+def generate(
+    *,
+    write_outputs: bool = True,
+    report: bool = True,
+) -> tuple[str, str]:
     files = sorted(
         [
             path
@@ -2003,19 +2007,22 @@ def generate(*, write_outputs: bool = True) -> None:
         retire_candidates=retire_candidates,
     )
 
+    audit_text = "\n".join(out) + "\n"
     if write_outputs:
-        AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
+        AUDIT.write_text(audit_text, encoding="utf-8")
         INDEX.write_text(index_text, encoding="utf-8")
-        print(
-            f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
-            f"with {len(file_rows)} file entries"
-        )
-    else:
+        if report:
+            print(
+                f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
+                f"with {len(file_rows)} file entries"
+            )
+    elif report:
         print(
             "No-write docs inventory audit: "
             f"would write {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
             f"with {len(file_rows)} file entries"
         )
+    return audit_text, index_text
 
 
 def parse_args() -> argparse.Namespace:

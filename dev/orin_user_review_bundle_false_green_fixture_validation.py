@@ -635,6 +635,66 @@ def _assert_support_context_state_contract() -> None:
         "invalid Stage 1 Outcome 'Nonsense'",
     )
 
+    ready_qualifier_contradictions = (
+        "blockers remain",
+        "PR Readiness Stage 1 Repair Required",
+        "the packet is blocked",
+        "Stage 1 is not ready",
+        "the gate must not advance",
+        "Stage 2 is not supported",
+    )
+    for qualifier in ready_qualifier_contradictions:
+        contradictory_outcome_packet = stage1_packet(canonical_support)
+        contradictory_outcome_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+            contradictory_outcome_packet[
+                "USER Review/PR_READINESS_STAGE1_REVIEW.md"
+            ].replace(
+                "## Stage 1 Outcome\nStage 1 Ready For Stage 2",
+                f"## Stage 1 Outcome\nStage 1 Ready For Stage 2 - {qualifier}",
+                1,
+            )
+        )
+        assert_fails(
+            f"contradictory-ready-outcome-{qualifier}",
+            contradictory_outcome_packet,
+            "invalid Stage 1 Outcome",
+        )
+
+    repair_qualifier_contradictions = (
+        "Stage 1 is ready for Stage 2",
+        "Stage 2 is supported",
+        "repair is complete",
+        "no blockers remain",
+        "the branch may now proceed",
+    )
+    for qualifier in repair_qualifier_contradictions:
+        outcome_text = (
+            "## Stage 1 Outcome\n"
+            f"PR Readiness Stage 1 Repair Required - {qualifier}\n"
+        )
+        normalized = bundle._normalized_pr_stage1_outcome(outcome_text)
+        if normalized in bundle.PR_STAGE1_OUTCOME_VALUES:
+            raise AssertionError(
+                "contradictory repair-required qualifier was accepted: "
+                f"{qualifier!r}"
+            )
+
+    for valid_outcome in (
+        "Stage 1 Ready For Stage 2 - all bounded repair, generated packet, "
+        "external projection, and validation prerequisites are recorded in the "
+        "current Stage 1 digest.",
+        "Stage 1 Ready For Stage 2 - PR creation remains separately USER-gated.",
+        "PR Readiness Stage 1 Repair Required - the current-gate review remains held "
+        "until the bounded repair, generated packet, external projections, and full "
+        "validation are green.",
+    ):
+        outcome_text = f"## Stage 1 Outcome\n{valid_outcome}\n"
+        normalized = bundle._normalized_pr_stage1_outcome(outcome_text)
+        if normalized not in bundle.PR_STAGE1_OUTCOME_VALUES:
+            raise AssertionError(
+                f"consistent Stage 1 outcome qualifier was rejected: {valid_outcome!r}"
+            )
+
     missing_support_reviewability = re.sub(
         r"## Packet Reviewability State\n\n[^\n]+\n\n",
         "",
@@ -1039,11 +1099,68 @@ def _assert_support_context_state_contract() -> None:
             "all 48 cases"
         )
 
+    passive_auxiliary_case_count = 0
+    for auxiliary in (
+        "is",
+        "are",
+        "was",
+        "were",
+        "is being",
+        "was being",
+        "has been",
+        "have been",
+        "had been",
+        "can be",
+        "could be",
+        "may be",
+        "might be",
+        "will be",
+        "would be",
+        "shall be",
+        "should be",
+        "must be",
+        "can have been",
+        "could have been",
+        "may have been",
+        "might have been",
+        "will have been",
+        "would have been",
+        "should have been",
+        "must have been",
+    ):
+        for participle in (
+            "authorized",
+            "approved",
+            "permitted",
+            "granted",
+            "enabled",
+            "allowed",
+        ):
+            passive_auxiliary_packet = stage1_packet(canonical_support)
+            passive_auxiliary_packet["START_HERE.md"] += (
+                f"PR creation {auxiliary} {participle} through this review aid.\n"
+            )
+            assert_fails(
+                f"passive-auxiliary-authority-{auxiliary}-{participle}",
+                passive_auxiliary_packet,
+                "attempts to authorize a USER-gated action",
+            )
+            passive_auxiliary_case_count += 1
+    if passive_auxiliary_case_count != 156:
+        raise AssertionError(
+            "passive-auxiliary authority regression matrix did not execute all 156 cases"
+        )
+
     for negative_passive_authority in (
         "PR creation is not authorized by this supporting context.",
         "Implementation is never permitted by this review aid.",
         "PR creation is not explicitly authorized by this supporting context.",
         "Implementation is never formally permitted by this review aid.",
+        "PR creation was not authorized by this supporting context.",
+        "Implementation has not been permitted by this review aid.",
+        "PR creation can never be approved through this support artifact.",
+        "Implementation could not have been permitted by this review aid.",
+        "PR creation is not being authorized by this supporting context.",
     ):
         negative_packet = stage1_packet(canonical_support)
         negative_packet["START_HERE.md"] += negative_passive_authority + "\n"
