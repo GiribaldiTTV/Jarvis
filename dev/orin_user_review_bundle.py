@@ -11686,7 +11686,7 @@ def _normalized_gate_value(value: str) -> str:
 
 
 def _markdown_semantic_text(text: str) -> str:
-    """Remove fenced/indented examples and comments before semantic checks."""
+    """Remove code examples and comments before semantic checks."""
 
     def mask_non_newline_characters(match: re.Match[str]) -> str:
         return re.sub(r"[^\r\n]", " ", match.group(0))
@@ -11696,6 +11696,9 @@ def _markdown_semantic_text(text: str) -> str:
         mask_non_newline_characters,
         text,
         flags=re.DOTALL,
+    )
+    inline_code_pattern = re.compile(
+        r"(?<![\\`])(`+)(?!`)(.+?)(?<!`)\1(?!`)",
     )
 
     semantic_lines: list[str] = []
@@ -11730,7 +11733,9 @@ def _markdown_semantic_text(text: str) -> str:
                 fence_length = len(fence_match.group(1))
                 semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
             else:
-                semantic_lines.append(line)
+                semantic_lines.append(
+                    inline_code_pattern.sub(mask_non_newline_characters, line)
+                )
             previous_line_blank = line_is_blank
             continue
 
@@ -11764,10 +11769,15 @@ def _support_context_authority_failures(
 ) -> list[str]:
     semantic_text = _markdown_semantic_text(text)
     normalized = re.sub(r"[^\S\r\n]+", " ", semantic_text).casefold()
-    subject = (
+    explicit_support_subject = (
         r"(?:this|the|a|an)\s+"
-        r"(?:support(?:ing)?(?:\s+(?:context|file|artifact))?|"
-        r"file|artifact|document|packet|review aid)"
+        r"(?:support(?:ing)?(?:\s+(?:context|file|artifact))?|review aid)"
+    )
+    generic_artifact_subject = r"(?:this|the|a|an)\s+(?:file|artifact|document|packet)"
+    subject = (
+        rf"(?:{explicit_support_subject}|{generic_artifact_subject})"
+        if support_artifact
+        else explicit_support_subject
     )
     gated_target = (
         r"(?:stage\s*2|implementation(?:\s+(?:work|execution))?|"
@@ -11776,12 +11786,16 @@ def _support_context_authority_failures(
         r"(?!\s+(?:analysis|planning|inspection|review|comparison|assessment|"
         r"preparation|design|proposal|discussion|evidence)\b)"
     )
+    authority_verb = r"(?:authorizes|approves|permits|grants|enables|allows)"
+    governed_target = (
+        rf"(?=(?:(?!\r?\n[ \t]*\r?\n)[^.!?]){{0,500}}"
+        rf"\b(?:the\s+)?{gated_target}\b)"
+    )
     authority_patterns = [
-        rf"\b{subject}\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables|allows)\s+"
-        rf"(?:the\s+)?{gated_target}\b",
+        rf"\b{subject}\s+(?:now\s+)?{authority_verb}\b{governed_target}",
         rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+[ \t]*)"
         rf"support (?:context|file|artifact)\s+(?:now\s+)?"
-        rf"(?:authorizes|approves|permits|grants|enables|allows)\s+(?:the\s+)?{gated_target}\b",
+        rf"{authority_verb}\b{governed_target}",
         rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
         r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\s+"
         r"(?:by|through|via)\s+(?:this\s+)?support\b",
@@ -11839,13 +11853,21 @@ def _branch_planning_review_gate_state_failures(
         )
     )
     for file_name, text in sorted(generated_files.items()):
+        base_name = _packet_file_basename(file_name)
         failures.extend(
             _support_context_authority_failures(
                 file_name,
                 text,
                 support_artifact=(
-                    _packet_file_basename(file_name) == USER_BRANCH_PLAN_REVIEW_FILE
-                    and bool(_state_marker_count(text, "Support Context State:"))
+                    bool(_state_marker_count(text, "Support Context State:"))
+                    or (
+                        stage1_posture
+                        and base_name
+                        in {
+                            USER_BRANCH_VISION_REVIEW_FILE,
+                            USER_BRANCH_PLAN_REVIEW_FILE,
+                        }
+                    )
                 ),
             )
         )

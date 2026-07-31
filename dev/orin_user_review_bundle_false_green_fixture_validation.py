@@ -748,6 +748,16 @@ def _assert_support_context_state_contract() -> None:
             "attempts to authorize a USER-gated action",
         )
 
+    for coordinated_authority in (
+        "This file enables source-truth comparison and PR creation.",
+        "This artifact authorizes release planning plus merge execution.",
+    ):
+        assert_fails(
+            "coordinated-support-authority",
+            stage1_packet(canonical_support + "\n" + coordinated_authority + "\n"),
+            "attempts to authorize a USER-gated action",
+        )
+
     for benign_guidance in (
         "This file enables source-truth comparison.",
         "This review aid permits inspection.",
@@ -781,6 +791,19 @@ def _assert_support_context_state_contract() -> None:
         raise AssertionError(
             "USER-owned authority state outside the support artifact was rejected:\n"
             + "\n".join(user_authority_failures)
+        )
+
+    approved_primary_packet = dict(canonical_packet)
+    approved_primary_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        approved_primary_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"]
+        .replace("Pending USER Review", "USER Approved", 1)
+        + "\nThis document authorizes implementation work.\n"
+    )
+    approved_primary_failures = support_failures(approved_primary_packet)
+    if approved_primary_failures:
+        raise AssertionError(
+            "approved primary USER authority was treated as support authority:\n"
+            + "\n".join(approved_primary_failures)
         )
 
     for non_authorizing_text in (
@@ -822,6 +845,10 @@ def _assert_support_context_state_contract() -> None:
         (
             "multiline-html-comment",
             "\n<!--\nThis support artifact authorizes PR creation.\n-->\n",
+        ),
+        (
+            "inline-code",
+            "\nUse `This support artifact authorizes PR creation` as an invalid wording example.\n",
         ),
     ):
         nonsemantic_failures = support_failures(

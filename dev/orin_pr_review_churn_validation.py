@@ -134,6 +134,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "preserve paragraph boundaries in bare support-authority scans",
             "bare support-authority scans",
             "bare support artifact",
+            "scan coordinated authority targets after benign objects",
+            "coordinated authority targets",
+            "allow primary decision artifacts to grant approved authority",
+            "legitimate primary artifact",
         ),
     ),
     FamilyRule(
@@ -192,6 +196,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "reject duplicate intended write set fields",
             "two intended write set fields",
             "exactly one canonical write-set field",
+            "limit write-set enforcement to active receipts",
+            "historical receipts",
+            "active receipt",
         ),
     ),
     FamilyRule(
@@ -221,6 +228,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "indented code example",
             "html comment",
             "equivalent markdown examples",
+            "mask inline markdown examples before authority matching",
+            "inline code spans",
+            "preserves the code span",
         ),
     ),
     FamilyRule(
@@ -233,6 +243,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "check inventory whenever a branch receipt changes",
             "omits the generated inventory from its diff",
             "changed receipt candidates",
+            "track each inventory line-count surface separately",
+            "each expected surface by identity",
+            "undifferentiated occurrences",
         ),
     ),
     FamilyRule(
@@ -1352,6 +1365,57 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
         failures.append(
             "Branch receipt write-set guardrail did not discover every changed receipt or included the branch-record index"
         )
+    active_receipt = (
+        exact
+        + "\n## Assigned Worktree Confinement\n\n"
+        + "- Active Thread Owner: `Codex`\n"
+        + "- Thread Assignment Status: `Assigned`\n"
+    )
+    if not _is_active_branch_receipt(active_receipt):
+        failures.append("Branch receipt write-set guardrail rejected an active receipt")
+    unbulleted_active_receipt = active_receipt.replace("- Active", "Active").replace(
+        "- Thread", "Thread"
+    )
+    if not _is_active_branch_receipt(unbulleted_active_receipt):
+        failures.append(
+            "Branch receipt write-set guardrail rejected an unbulleted active receipt"
+        )
+    for phase_prefix in ("Phase:", "- Phase:"):
+        historical_receipt = (
+            f"{phase_prefix} `Historical Traceability`\n" + active_receipt
+        )
+        if _is_active_branch_receipt(historical_receipt):
+            failures.append(
+                "Branch receipt write-set guardrail treated a historical receipt as active"
+            )
+    active_with_historical_appendix = (
+        active_receipt
+        + "\n## Historical Phase Receipt\n\n"
+        + "Current Phase: `Historical Traceability`\n"
+    )
+    if not _is_active_branch_receipt(active_with_historical_appendix):
+        failures.append(
+            "Branch receipt write-set guardrail let a historical appendix hide an active current summary"
+        )
+    appendix_only_assignment = (
+        "# Historical Receipt\n\n"
+        "## Historical Worktree Assignment\n\n"
+        + active_receipt
+    )
+    if _is_active_branch_receipt(appendix_only_assignment):
+        failures.append(
+            "Branch receipt write-set guardrail treated historical-only confinement evidence as active"
+        )
+    historical_without_write_set = (
+        "Phase: `Historical Traceability`\n\n"
+        "## Assigned Worktree Confinement\n\n"
+        "- Active Thread Owner: `Historical receipt only`\n"
+        "- Thread Assignment Status: `Closed`\n"
+    )
+    if _is_active_branch_receipt(historical_without_write_set):
+        failures.append(
+            "Branch receipt write-set guardrail required current scope from a historical receipt"
+        )
     return failures
 
 
@@ -1368,6 +1432,40 @@ def _branch_receipt_candidates(
     )
 
 
+def _is_active_branch_receipt(text: str) -> bool:
+    current_summary = re.split(
+        r"^##[^\r\n]*\bhistorical\b[^\r\n]*$",
+        text,
+        maxsplit=1,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )[0]
+    current_summary = "\n".join(current_summary.splitlines()[:200])
+    historical_phase = re.search(
+        r"^(?:-\s*)?(?:Phase|Current Phase|Branch Authority Status|Record Status|Status):"
+        r"\s*`?[^`\r\n]*\bhistorical\b",
+        current_summary,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )
+    return bool(
+        not historical_phase
+        and re.search(
+            r"^## Assigned Worktree Confinement\s*$",
+            current_summary,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )
+        and re.search(
+            r"^(?:-\s*)?Active Thread Owner:\s*`?\S",
+            current_summary,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )
+        and re.search(
+            r"^(?:-\s*)?Thread Assignment Status:\s*`?\S",
+            current_summary,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )
+    )
+
+
 def _branch_receipt_write_set_failures(
     changed_files: list[str],
 ) -> list[str]:
@@ -1379,10 +1477,13 @@ def _branch_receipt_write_set_failures(
                 f"{record_relative}: routed branch receipt is missing"
             )
             continue
+        record_text = record_path.read_text(encoding="utf-8")
+        if not _is_active_branch_receipt(record_text):
+            continue
         failures.extend(
             _branch_receipt_write_set_text_failures(
                 record_relative,
-                record_path.read_text(encoding="utf-8"),
+                record_text,
                 changed_files,
             )
         )
@@ -1395,7 +1496,11 @@ def _inventory_receipt_line_count_text_failures(
     audit_text: str,
 ) -> list[str]:
     quoted_record = f"`{record_relative}`"
-    observed_counts: list[int] = []
+    observed_counts: dict[str, list[int]] = {
+        "inventory table": [],
+        "file-review table": [],
+        "per-file dossier": [],
+    }
     audit_lines = audit_text.splitlines()
     for index, line in enumerate(audit_lines):
         if quoted_record not in line:
@@ -1409,7 +1514,12 @@ def _inventory_receipt_line_count_text_failures(
                 continue
             for cell in cells[record_index + 1 :]:
                 if cell.isdigit():
-                    observed_counts.append(int(cell))
+                    surface = (
+                        "file-review table"
+                        if record_index == 0
+                        else "inventory table"
+                    )
+                    observed_counts[surface].append(int(cell))
                     break
             continue
         if not stripped.startswith("### "):
@@ -1419,15 +1529,28 @@ def _inventory_receipt_line_count_text_failures(
                 break
             match = re.match(r"^- Line count:\s*(\d+)\s*$", detail_line)
             if match:
-                observed_counts.append(int(match.group(1)))
+                observed_counts["per-file dossier"].append(int(match.group(1)))
                 break
 
     expected_count = record_text.count("\n") + (1 if record_text else 0)
-    if len(observed_counts) < 3:
+    invalid_surfaces = [
+        f"{surface}={len(counts)}"
+        for surface, counts in observed_counts.items()
+        if len(counts) != 1
+    ]
+    if invalid_surfaces:
         return [
-            f"{record_relative}: generated docs inventory omits one or more receipt line-count surfaces"
+            f"{record_relative}: generated docs inventory must contain exactly one of each "
+            "receipt line-count surface; " + ", ".join(invalid_surfaces)
         ]
-    stale_counts = sorted({count for count in observed_counts if count != expected_count})
+    stale_counts = sorted(
+        {
+            count
+            for counts in observed_counts.values()
+            for count in counts
+            if count != expected_count
+        }
+    )
     if stale_counts:
         return [
             f"{record_relative}: generated docs inventory has stale line counts "
@@ -1459,8 +1582,17 @@ def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
         record_text,
         exact_audit.split("### 1.", 1)[0],
     )
-    if not any("omits one or more" in failure for failure in missing):
+    if not any("exactly one of each" in failure for failure in missing):
         failures.append("Inventory receipt currentness guardrail missed a generated surface")
+    duplicate_substitution = _inventory_receipt_line_count_text_failures(
+        record,
+        record_text,
+        (f"| 1 | `{record}` | branch receipt | 3 | Keep |\n" * 3),
+    )
+    if not any("exactly one of each" in failure for failure in duplicate_substitution):
+        failures.append(
+            "Inventory receipt currentness guardrail let duplicate rows substitute for missing surfaces"
+        )
     missing_audit = _docs_inventory_receipt_currentness_failures([record])
     if not any("requires regenerated docs inventory" in failure for failure in missing_audit):
         failures.append(
