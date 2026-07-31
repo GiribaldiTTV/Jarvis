@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 import argparse
 import subprocess
+from collections.abc import Iterable
 from pathlib import Path
 
 
@@ -996,10 +997,6 @@ def add_docs_organization_cleanup_pass(
 def build_user_review_index(
     *,
     docs_count: int,
-    branch: str,
-    head: str,
-    origin_main: str,
-    merge_base: str,
     high_risk: list[dict[str, object]],
     migration_candidates: list[dict[str, object]],
     safe_files: list[dict[str, object]],
@@ -1177,6 +1174,8 @@ def build_user_review_index(
 
 def generate(
     *,
+    base: str = "origin/main",
+    changed_files: Iterable[str] | None = None,
     write_outputs: bool = True,
     report: bool = True,
 ) -> tuple[str, str]:
@@ -1188,7 +1187,15 @@ def generate(
         ],
         key=lambda p: p.as_posix().lower(),
     )
-    changed = set(git_output("diff", "--name-only", "origin/main...HEAD").splitlines())
+    changed = (
+        {
+            path.replace("\\", "/")
+            for path in changed_files
+            if path and path.strip()
+        }
+        if changed_files is not None
+        else set(git_output("diff", "--name-only", f"{base}...HEAD").splitlines())
+    )
     changed.update(git_output("diff", "--name-only").splitlines())
     changed.update(git_output("diff", "--cached", "--name-only").splitlines())
     for status_line in git_output("status", "--porcelain").splitlines():
@@ -1204,9 +1211,6 @@ def generate(
                     if child.is_file():
                         changed.add(child.relative_to(ROOT).as_posix())
     branch = git_output("branch", "--show-current")
-    head = git_output("rev-parse", "HEAD")
-    origin_main = git_output("rev-parse", "origin/main")
-    merge_base = git_output("merge-base", "HEAD", "origin/main")
     active_branch_plan_paths = {branch_name_to_plan_path(branch)} if branch else set()
     retired_plan_paths = retired_branch_plan_paths()
 
@@ -1328,10 +1332,6 @@ def generate(
 
     index_text = build_user_review_index(
         docs_count=len(file_rows) + 2,
-        branch=branch,
-        head=head,
-        origin_main=origin_main,
-        merge_base=merge_base,
         high_risk=high_risk,
         migration_candidates=migration_candidates,
         safe_files=safe_files,
@@ -1995,10 +1995,6 @@ def generate(
 
     index_text = build_user_review_index(
         docs_count=len(file_rows),
-        branch=branch,
-        head=head,
-        origin_main=origin_main,
-        merge_base=merge_base,
         high_risk=high_risk,
         migration_candidates=migration_candidates,
         safe_files=safe_files,
@@ -2030,6 +2026,11 @@ def parse_args() -> argparse.Namespace:
         description=(
             "Generate or inspect the full Docs source-truth reform audit dossier."
         )
+    )
+    parser.add_argument(
+        "--base",
+        default="origin/main",
+        help="Git comparison base used to derive changed paths.",
     )
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument(
@@ -2064,7 +2065,7 @@ def main() -> int:
         print("FAIL: Docs directory missing")
         return 1
     write_outputs = not (args.dry_run or args.read_only or args.report_only)
-    generate(write_outputs=write_outputs)
+    generate(base=args.base, write_outputs=write_outputs)
     return 0
 
 

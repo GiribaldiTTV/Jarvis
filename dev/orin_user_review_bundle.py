@@ -11721,12 +11721,16 @@ def _field_value(text: str, field_name: str) -> str:
 
 
 def _review_marker_or_section_value(text: str, marker: str) -> str:
-    text = _markdown_semantic_text(text)
+    text = _markdown_semantic_text(text, mask_inline_code=False)
     field_name = marker.removesuffix(":")
     line_value = _field_value(text, field_name)
     if line_value:
-        return line_value
-    return _section(text, field_name).strip()
+        return _unwrap_full_inline_code_value(line_value)
+    section_value = _section(text, field_name).strip()
+    unwrapped = _unwrap_full_inline_code_value(section_value)
+    if unwrapped != section_value:
+        return unwrapped
+    return _markdown_semantic_text(section_value).strip()
 
 
 def _normalized_gate_value(value: str) -> str:
@@ -11780,8 +11784,22 @@ def _normalized_pr_stage1_outcome(text: str) -> str:
 MARKDOWN_FIELD_PREFIX = r"[ \t]{0,3}(?:(?:[-+*]|\d+\.)[ \t]+|>[ \t]+)?"
 
 
-def _markdown_semantic_text(text: str) -> str:
-    """Remove code examples and comments before semantic checks."""
+def _unwrap_full_inline_code_value(value: str) -> str:
+    stripped = value.strip()
+    match = re.fullmatch(
+        r"(`+)(?!`)(.+?)(?<!`)\1",
+        stripped,
+        flags=re.DOTALL,
+    )
+    return match.group(2).strip() if match else stripped
+
+
+def _markdown_semantic_text(
+    text: str,
+    *,
+    mask_inline_code: bool = True,
+) -> str:
+    """Remove non-semantic Markdown while optionally retaining inline code."""
 
     def mask_non_newline_characters(match: re.Match[str]) -> str:
         return re.sub(r"[^\r\n]", " ", match.group(0))
@@ -11842,10 +11860,10 @@ def _markdown_semantic_text(text: str) -> str:
             fence_length = 0
         semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
         previous_line_blank = line_is_blank
-    return inline_code_pattern.sub(
-        mask_non_newline_characters,
-        "".join(semantic_lines),
-    )
+    structural_text = "".join(semantic_lines)
+    if not mask_inline_code:
+        return structural_text
+    return inline_code_pattern.sub(mask_non_newline_characters, structural_text)
 
 
 def _state_marker_count(text: str, marker: str) -> int:

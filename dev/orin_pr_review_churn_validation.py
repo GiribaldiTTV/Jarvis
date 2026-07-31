@@ -58,6 +58,8 @@ GENERIC_CLASSIFIER_KEYWORDS = {
     "while",
     "blocked",
     "not blocked",
+    "historical receipts",
+    "active receipt",
 }
 HELPER_FILE_PATTERNS = (
     "validation",
@@ -225,7 +227,13 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "active-to-unclassified downgrade",
             "active receipt drops its markers",
             "preserve current confinement and status sections",
+            "preserve current sections after historical receipt headings",
+            "allow deletion or renaming of historical receipts",
+            "inspect a missing changed receipt at the base revision",
             "bulleted intended write set",
+            "fold down the receipt before merge",
+            "committed merge-target state",
+            "assignment fields in a historical section",
         ),
     ),
     FamilyRule(
@@ -242,6 +250,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "standalone no-findings summary",
             "accept the established connector green response",
             "chef's kiss",
+            "require write-set context for receipt keywords",
+            "receipt keywords",
         ),
     ),
     FamilyRule(
@@ -268,6 +278,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "preserves the code span",
             "mask multiline inline-code examples",
             "multiline inline-code",
+            "preserve code-formatted contract values",
+            "code-formatted contract values",
         ),
     ),
     FamilyRule(
@@ -287,6 +299,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "deleted receipt path",
             "validate regenerated inventory content",
             "not only counts",
+            "reuse the requested base for inventory rendering",
+            "requested base",
+            "no-write generator",
         ),
     ),
     FamilyRule(
@@ -830,6 +845,32 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Comment-family classifier overmatched unrelated status/case/row wording"
         )
+    for unrelated_receipt_comment in (
+        "Preserve historical receipts when regenerating the docs index.",
+        "The active receipt title is truncated.",
+    ):
+        if _classify_comment(
+            unrelated_receipt_comment,
+            {"user-review-write-set-receipt"},
+        ) != ["unknown"]:
+            failures.append(
+                "Comment-family classifier treated generic receipt wording as "
+                "write-set confinement evidence: "
+                + unrelated_receipt_comment
+            )
+    for contextual_receipt_comment in (
+        "Preserve current sections after historical receipt headings when active confinement follows.",
+        "Allow deletion or renaming of historical receipts after base-revision classification.",
+    ):
+        if "user-review-write-set-receipt" not in _classify_comment(
+            contextual_receipt_comment,
+            {"user-review-write-set-receipt"},
+        ):
+            failures.append(
+                "Comment-family classifier lost write-set-specific historical receipt "
+                "context: "
+                + contextual_receipt_comment
+            )
     user_review_examples = {
         "user-review-source-copy-identity": (
             "Include repository text formats in newline normalization for copied source-context files."
@@ -2248,6 +2289,8 @@ def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
 
 def _docs_inventory_receipt_currentness_failures(
     changed_files: list[str],
+    *,
+    base: str = "origin/main",
 ) -> list[str]:
     audit_relative = "Docs/governance_docs_full_inventory_reform_audit.md"
     changed = {path.replace("\\", "/") for path in changed_files}
@@ -2264,6 +2307,8 @@ def _docs_inventory_receipt_currentness_failures(
     audit_text = audit_path.read_text(encoding="utf-8")
     failures: list[str] = []
     rendered_audit, rendered_index = docs_inventory.generate(
+        base=base,
+        changed_files=changed_files,
         write_outputs=False,
         report=False,
     )
@@ -2909,7 +2954,12 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_branch_receipt_write_set_guardrail_failures())
     failures.extend(_inventory_receipt_line_count_guardrail_failures())
     failures.extend(_branch_receipt_write_set_failures(changed_files, base=args.base))
-    failures.extend(_docs_inventory_receipt_currentness_failures(changed_files))
+    failures.extend(
+        _docs_inventory_receipt_currentness_failures(
+            changed_files,
+            base=args.base,
+        )
+    )
     failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
     firewall_failures, firewall_lines = _validate_pre_pr_firewall(
         matrix, changed_helper_files, skip_commands=args.skip_pre_pr_commands
@@ -2982,7 +3032,12 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_branch_receipt_write_set_guardrail_failures())
     failures.extend(_inventory_receipt_line_count_guardrail_failures())
     failures.extend(_branch_receipt_write_set_failures(changed_files, base=args.base))
-    failures.extend(_docs_inventory_receipt_currentness_failures(changed_files))
+    failures.extend(
+        _docs_inventory_receipt_currentness_failures(
+            changed_files,
+            base=args.base,
+        )
+    )
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     budget_status, budget_failures = _review_churn_budget_result(
         matrix,

@@ -7,6 +7,7 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=featu
 - Worktree: `C:\Nexus Worktrees\Governance-PR1-Helper`
 - Branch Class: `repair/dev-tooling-governance`
 - Record State: `Durable admission and post-merge repair receipt`
+- Record Status: `Historical Traceability`
 - Live Operational State Owner: `C:\Nexus Governance State\branches\feature_governance_pr1_context_only_packet_fix\branch_state.md`
 - Live Worktree State Owner: `C:\Nexus Governance State\worktrees\Governance-PR1-Helper\worktree_state.md`
 
@@ -54,7 +55,7 @@ live HEAD, slot, lock, worktree cleanliness, PR, review, or merge state.
 
 ## Validation Contract
 
-- compile the three changed Python files
+- compile the four changed Python files
 - run the USER review bundle false-green fixtures
 - run the PR #311 matrix through both the documented default pre-PR firewall
   command and the explicit-matrix live churn command
@@ -65,11 +66,13 @@ live HEAD, slot, lock, worktree cleanliness, PR, review, or merge state.
 - prove one primary USER review artifact and exact folder/ZIP parity
 - run `git diff --check`
 
-## Assigned Worktree Confinement
+## Historical Worktree Assignment Receipt
 
-Assigned Worktree Confinement: `Required for the exact USER-approved helper repair carrier`
-Active Thread Owner: `The current Codex PR1 helper-repair task is the sole mutation owner`
-Thread Assignment Status: `Assigned only to C:\Nexus Worktrees\Governance-PR1-Helper for this bounded workload`
+### Assigned Worktree Confinement
+
+Assigned Worktree Confinement: `Required at admission for the exact USER-approved helper repair carrier`
+Active Thread Owner: `The Codex PR1 helper-repair task was the sole mutation owner at admission`
+Thread Assignment Status: `Assigned only to C:\Nexus Worktrees\Governance-PR1-Helper for the admitted bounded workload`
 Worktree Ownership Ledger: `Live ownership is projected by the branch/worktree external-state records named in Branch Identity; this section is the durable admission receipt`
 Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md; Docs/governance_docs_full_inventory_reform_audit.md; Docs/governance_docs_reform_user_review_index.md; Docs/incident_patterns.md; Docs/validation_helper_registry.md; dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json; dev/orin_docs_inventory_reform_audit.py; dev/orin_pr_review_churn_validation.py; dev/orin_user_review_bundle.py; dev/orin_user_review_bundle_false_green_fixture_validation.py`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree, branch, task, or PR claimed this carrier at admission`

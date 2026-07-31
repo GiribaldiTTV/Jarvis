@@ -543,6 +543,57 @@ def _assert_support_context_state_contract() -> None:
             + "\n".join(failures)
         )
 
+    code_wrapped_packet = dict(canonical_packet)
+    code_wrapped_primary = code_wrapped_packet[
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md"
+    ]
+    for value in (
+        "Reviewable",
+        "Pending USER Review",
+        "Stage 1 Ready For Stage 2",
+    ):
+        code_wrapped_primary = code_wrapped_primary.replace(
+            f"\n{value}\n",
+            f"\n`{value}`\n",
+            1,
+        )
+    code_wrapped_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+        code_wrapped_primary
+    )
+    code_wrapped_support = code_wrapped_packet[
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md"
+    ]
+    for value in (
+        "Reviewable",
+        "Context Only - this file is not a USER gate and records no new BP2 acceptance.",
+    ):
+        code_wrapped_support = code_wrapped_support.replace(
+            f"\n{value}\n",
+            f"\n`{value}`\n",
+            1,
+        )
+    code_wrapped_packet["Review Aids/USER_BRANCH_PLAN_REVIEW.md"] = (
+        code_wrapped_support
+    )
+    code_wrapped_failures = support_failures(code_wrapped_packet)
+    if code_wrapped_failures:
+        raise AssertionError(
+            "code-formatted contract values failed validation:\n"
+            + "\n".join(code_wrapped_failures)
+        )
+    for outcome_text in (
+        "Stage 1 Outcome: `Stage 1 Ready For Stage 2`\n",
+        "## Stage 1 Outcome\n`Stage 1 Ready For Stage 2`\n",
+    ):
+        if (
+            bundle._normalized_pr_stage1_outcome(outcome_text)
+            != bundle.PR_STAGE1_OUTCOME_READY.casefold()
+        ):
+            raise AssertionError(
+                "code-formatted Stage 1 Outcome was not extracted exactly: "
+                + repr(outcome_text)
+            )
+
     canonical_support_state = (
         "## Support Context State\n\n"
         "Context Only - this file is not a USER gate and records no new BP2 acceptance.\n\n"
