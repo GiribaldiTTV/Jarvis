@@ -111,6 +111,49 @@ class FamilyRule:
 
 FAMILY_RULES: tuple[FamilyRule, ...] = (
     FamilyRule(
+        "user-review-source-copy-identity",
+        (
+            "newline normalization",
+            "binary blobs byte-exact",
+            "git-normalized text formats",
+            "copied source-context files",
+        ),
+    ),
+    FamilyRule(
+        "user-review-support-authority",
+        (
+            "direct authorization",
+            "direct-authority",
+            "authority verbs",
+            "support authority",
+            "authority scan",
+            "support artifact authorizes",
+            "support context attempts to authorize",
+        ),
+    ),
+    FamilyRule(
+        "user-review-support-state",
+        (
+            "support context state",
+            "support states",
+            "support-context failure",
+            "support context failure",
+            "planning-keyword",
+            "planning keyword",
+            "semantic state section",
+            "state markers inside fenced markdown",
+        ),
+    ),
+    FamilyRule(
+        "user-review-fixture-execution",
+        (
+            "regression assertions",
+            "never checked",
+            "fixture suite still passes",
+            "run assert_fails",
+        ),
+    ),
+    FamilyRule(
         "fam003-settings-focus-routing",
         (
             "residentaccesssettingsdialog",
@@ -631,7 +674,12 @@ def _classify_comment(body: str) -> list[str]:
         ]
         if strong_keywords or (has_classifier_context and len(matched_keywords) >= 2):
             families.append(rule.family_id)
-    return families or ["unknown"]
+    user_review_families = [
+        family
+        for family in families
+        if family.startswith("user-review-")
+    ]
+    return user_review_families or families or ["unknown"]
 
 
 def _classifier_guardrail_failures() -> list[str]:
@@ -640,6 +688,34 @@ def _classifier_guardrail_failures() -> list[str]:
     if _classify_comment(unrelated) != ["unknown"]:
         failures.append(
             "Comment-family classifier overmatched unrelated status/case/row wording"
+        )
+    user_review_examples = {
+        "user-review-source-copy-identity": (
+            "Include repository text formats in newline normalization for copied source-context files."
+        ),
+        "user-review-support-authority": (
+            "Limit authority verbs to USER-gated targets in support authority claims."
+        ),
+        "user-review-support-state": (
+            "Validate Support Context State before the planning-keyword return."
+        ),
+        "user-review-fixture-execution": (
+            "Execute the direct-authority regression assertions; the cases are never checked."
+        ),
+    }
+    for family_id, comment in user_review_examples.items():
+        if family_id not in _classify_comment(comment):
+            failures.append(
+                f"Comment-family classifier did not classify {family_id}"
+            )
+    benign_user_review_text = (
+        "A review aid enables source-truth comparison and permits inspection."
+    )
+    if "user-review-support-authority" in _classify_comment(
+        benign_user_review_text
+    ):
+        failures.append(
+            "Comment-family classifier overmatched benign review-aid guidance as authority"
         )
     classifier_comment = (
         "Tighten comment-family matching so an unrelated comment containing status "

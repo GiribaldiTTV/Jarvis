@@ -319,6 +319,30 @@ def _assert_binary_identity_remains_exact() -> None:
         )
 
 
+def _assert_repository_text_identity_normalizes_newlines() -> None:
+    worktree_bytes = b"first\r\nsecond\r\n"
+    git_blob_bytes = b"first\nsecond\n"
+    for source_path in (
+        "launchers/nexus.vbs",
+        "desktop/orin_desktop.pyw",
+        "assets/window_frame.svg",
+    ):
+        if not bundle._source_copy_matches_expected(
+            worktree_bytes,
+            git_blob_bytes,
+            source_path=source_path,
+        ):
+            raise AssertionError(
+                f"repository text format did not normalize Git newline identity: {source_path}"
+            )
+    if bundle._source_copy_matches_expected(
+        worktree_bytes,
+        git_blob_bytes,
+        source_path="fixtures/fixture.bin",
+    ):
+        raise AssertionError("opaque .bin identity was incorrectly newline-normalized")
+
+
 def _assert_stage1_primary_for_stage2_decision() -> None:
     decision = (
         "I approve PR Readiness Stage 2 execution on C:\\Nexus Worktrees\\Governance "
@@ -624,6 +648,7 @@ def _assert_support_context_state_contract() -> None:
             "attempts to authorize a USER-gated action",
         )
 
+    direct_authority_case_count = 0
     for subject in (
         "This file",
         "This artifact",
@@ -637,6 +662,48 @@ def _assert_support_context_state_contract() -> None:
                 canonical_support
                 + f"\n{subject} {verb} Stage 2, PR creation, and implementation.\n"
             )
+            assert_fails(
+                f"direct-authority-{subject}-{verb}",
+                stage1_packet(direct_authority),
+                "attempts to authorize a USER-gated action",
+            )
+            direct_authority_case_count += 1
+    if direct_authority_case_count != 30:
+        raise AssertionError(
+            "direct-authority regression matrix did not execute all 30 cases"
+        )
+
+    for benign_guidance in (
+        "This file enables source-truth comparison.",
+        "This review aid permits inspection.",
+        "This document supports implementation analysis without authorizing implementation.",
+    ):
+        benign_failures = support_failures(
+            stage1_packet(canonical_support + "\n" + benign_guidance + "\n")
+        )
+        if benign_failures:
+            raise AssertionError(
+                f"benign support guidance was treated as gated authority: {benign_guidance!r}\n"
+                + "\n".join(benign_failures)
+            )
+
+    passive_authority = canonical_support + "\nStage 2 is now authorized.\n"
+    assert_fails(
+        "passive-authority-inside-support-artifact",
+        stage1_packet(passive_authority),
+        "attempts to authorize a USER-gated action",
+    )
+
+    user_authority_packet = dict(canonical_packet)
+    user_authority_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] += (
+        "\nStage 2 is authorized by the USER in a separate decision.\n"
+    )
+    user_authority_failures = support_failures(user_authority_packet)
+    if user_authority_failures:
+        raise AssertionError(
+            "USER-owned authority state outside the support artifact was rejected:\n"
+            + "\n".join(user_authority_failures)
+        )
 
     for non_authorizing_text in (
         "This file does not authorize Stage 2 or PR creation.",
@@ -650,11 +717,6 @@ def _assert_support_context_state_contract() -> None:
             raise AssertionError(
                 f"negative authority wording was treated as approval: {non_authorizing_text!r}\n"
                 + "\n".join(negative_authority_failures)
-            )
-            assert_fails(
-                f"direct-authority-{subject}-{verb}",
-                stage1_packet(direct_authority),
-                "attempts to authorize a USER-gated action",
             )
 
     fenced_example = canonical_support + (
@@ -750,6 +812,34 @@ def _assert_support_context_state_contract() -> None:
         keywordless_packet,
         "misclassified as USER Gate State",
     )
+
+    keywordless_non_stage1 = {
+        "START_HERE.md": "Current Gate: Current review packet\n",
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md": (
+            "# Supporting material\n\n"
+            "## Support Context State\nContext Only\n"
+        ),
+    }
+    assert_fails(
+        "support-state-before-optional-context-return",
+        keywordless_non_stage1,
+        "Support Context State is allowed only for Stage 1-ready supporting context",
+    )
+
+    for packet_surface in (
+        "START_HERE.md",
+        "USER Review/PR_READINESS_STAGE1_REVIEW.md",
+        "Review Aids/USER_BRANCH_VISION_REVIEW.md",
+    ):
+        packet_level_authority = dict(canonical_packet)
+        packet_level_authority[packet_surface] += (
+            "\nThis support artifact authorizes PR creation.\n"
+        )
+        assert_fails(
+            f"packet-level-support-authority-{packet_surface}",
+            packet_level_authority,
+            "attempts to authorize a USER-gated action",
+        )
 
     context_in_primary = dict(canonical_packet)
     context_in_primary["USER Review/PR_READINESS_STAGE1_REVIEW.md"] += (
@@ -1407,6 +1497,7 @@ def main() -> int:
     _assert_local_stage1_validation_replays_stage1_checks()
     _assert_active_identity_arguments_required()
     _assert_binary_identity_remains_exact()
+    _assert_repository_text_identity_normalizes_newlines()
     _assert_failure(
         "active-review-wrong-branch",
         "Folder active-review identity: Packet identity: expected branch",

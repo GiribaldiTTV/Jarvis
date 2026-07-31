@@ -1,0 +1,260 @@
+{
+  "schema": "nexus-pr-review-churn-matrix-v1",
+  "pr": 311,
+  "scope": "Governance USER review bundle context-only packet repair and PR2 review-churn closure",
+  "purpose": "Prevent PR #311 review from acting as the first adversarial parser by proving all ten Connector findings through source-copy identity, support-authority, support-state, and executable-fixture families before another review request.",
+  "reference_effectiveness_note": "The first repair reference set covered the five original literal examples but was ineffective against sibling repository text suffixes, benign authority-verb targets, packet-level authority placement, keywordless non-Stage-1 state, and dead fixture control flow. This matrix expands each reference into generated and sibling variants and binds the live ten-comment corpus to executable local proof.",
+  "root_cause_receipt_marker": "PR #311 USER Review Bundle Review-Churn Root-Cause Receipt",
+  "review_churn_budget": {
+    "max_connector_comments_before_root_cause_receipt": 12,
+    "max_same_family_comments_before_root_cause_receipt": 3,
+    "root_cause_receipts": [
+      {
+        "pr": 311,
+        "connector_comments": 10,
+        "observed_family_counts": {
+          "user-review-fixture-execution": 1,
+          "user-review-source-copy-identity": 2,
+          "user-review-support-authority": 4,
+          "user-review-support-state": 5
+        },
+        "pr_readiness_stage_1_failure": true,
+        "root_cause": "PR Readiness Stage 1 and the first same-PR repair used literal examples and validator green as family-completion evidence. They did not inventory all Git-normalized repository text suffixes, distinguish authority verbs by gated target, scan support-authority claims across every generated packet surface, validate support state independently of optional planning prose, or prove that the nested direct-authority assertions actually executed.",
+        "prevention_summary": "PR #311 now uses a four-family Review-Comment Pattern Matrix, exact live comment counts, generated mutation and sibling replay, executable regression cardinality, packet-wide authority scanning, state-first validation, repository-format text identity, and a local pre-PR Connector simulation before any later review request.",
+        "preventive_changes": [
+          "dev/orin_user_review_bundle.py classifies the repository's .vbs, .pyw, and .svg sources as Git-normalized text while preserving opaque binary exactness.",
+          "dev/orin_user_review_bundle.py ties direct authority verbs to USER-gated targets and scans support-authority claims across every generated packet surface.",
+          "dev/orin_user_review_bundle.py validates generated state markers before optional branch-planning prose can trigger an early return.",
+          "dev/orin_user_review_bundle_false_green_fixture_validation.py executes all 30 direct subject/verb cases and replays text identity, benign guidance, packet-surface, fenced-state, and keywordless-state siblings.",
+          "dev/orin_pr_review_churn_validation.py classifies all ten PR #311 comments into four precise families while retaining false-positive guardrails."
+        ],
+        "receipt_file": "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json",
+        "receipt_marker": "PR #311 USER Review Bundle Review-Churn Root-Cause Receipt"
+      }
+    ]
+  },
+  "changed_file_coverage": {
+    "Docs/incident_patterns.md": [
+      "user-review-source-copy-identity",
+      "user-review-support-authority",
+      "user-review-support-state",
+      "user-review-fixture-execution"
+    ],
+    "Docs/validation_helper_registry.md": [
+      "user-review-source-copy-identity",
+      "user-review-support-authority",
+      "user-review-support-state",
+      "user-review-fixture-execution"
+    ],
+    "dev/orin_pr_review_churn_validation.py": [
+      "user-review-source-copy-identity",
+      "user-review-support-authority",
+      "user-review-support-state",
+      "user-review-fixture-execution"
+    ],
+    "dev/orin_user_review_bundle.py": [
+      "user-review-source-copy-identity",
+      "user-review-support-authority",
+      "user-review-support-state"
+    ],
+    "dev/orin_user_review_bundle_false_green_fixture_validation.py": [
+      "user-review-source-copy-identity",
+      "user-review-support-authority",
+      "user-review-support-state",
+      "user-review-fixture-execution"
+    ],
+    "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json": [
+      "user-review-source-copy-identity",
+      "user-review-support-authority",
+      "user-review-support-state",
+      "user-review-fixture-execution"
+    ]
+  },
+  "pre_pr_firewall": {
+    "purpose": "Replay the exact PR #311 Connector families, sibling variants, changed-file coverage, and executable USER review bundle fixtures before any later review request.",
+    "validation_commands": [
+      {
+        "name": "USER review bundle false-green fixture suite",
+        "command": [
+          "{python}",
+          "dev/orin_user_review_bundle_false_green_fixture_validation.py"
+        ],
+        "covers_families": [
+          "user-review-source-copy-identity",
+          "user-review-support-authority",
+          "user-review-support-state",
+          "user-review-fixture-execution"
+        ]
+      }
+    ],
+    "connector_corpus_replay": [
+      {
+        "family_id": "user-review-source-copy-identity",
+        "comment": "Keep valid-UTF-8 binary blobs byte-exact while limiting newline normalization to known repository text formats."
+      },
+      {
+        "family_id": "user-review-source-copy-identity",
+        "comment": "Include copied source-context files such as .vbs, .pyw, and .svg in Git-normalized text formats."
+      },
+      {
+        "family_id": "user-review-support-authority",
+        "comment": "Reject direct authorization wording when a support artifact authorizes PR creation."
+      },
+      {
+        "family_id": "user-review-support-authority",
+        "comment": "Limit authority verbs to USER-gated targets and scan packet-level support authority claims."
+      },
+      {
+        "family_id": "user-review-support-state",
+        "comment": "Derive readiness from the Stage 1 Outcome field and validate Support Context State before the planning-keyword return."
+      },
+      {
+        "family_id": "user-review-support-state",
+        "comment": "Ignore state markers inside fenced Markdown and reject a missing semantic state section."
+      },
+      {
+        "family_id": "user-review-fixture-execution",
+        "comment": "Execute the direct-authority regression assertions because the constructed cases were never checked."
+      }
+    ],
+    "unknown_comment_guardrails": [
+      "A database migration status row has mixed case after cleanup.",
+      "A renderer normalizes line endings in an unrelated telemetry label.",
+      "A settings panel enables keyboard inspection without changing product behavior.",
+      "A runtime fixture keeps its existing launch timeout."
+    ]
+  },
+  "families": [
+    {
+      "family_id": "user-review-source-copy-identity",
+      "title": "USER packet copied-source text and binary identity boundary",
+      "representative_comment_patterns": [
+        "Known repository text formats fail identity after Git CRLF conversion",
+        "Valid UTF-8 binary data is incorrectly newline-normalized"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        ".vbs CRLF worktree bytes against LF Git blob",
+        ".pyw CRLF worktree bytes against LF Git blob",
+        ".svg CRLF worktree bytes against LF Git blob",
+        ".bin valid UTF-8 bytes remain byte-exact"
+      ],
+      "sibling_variant_replay": [
+        "named text files such as .gitattributes remain normalized",
+        "opaque source suffixes remain byte-exact"
+      ]
+    },
+    {
+      "family_id": "user-review-support-authority",
+      "title": "Support-context authority target and packet-surface boundary",
+      "representative_comment_patterns": [
+        "Direct support wording grants Stage 2 or PR creation",
+        "Benign review guidance is mistaken for USER-gated authority",
+        "A generated sibling surface claims the support artifact authorizes action"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "six direct subjects by five authority verbs by gated target",
+        "benign enables-comparison and permits-inspection targets",
+        "negative does-not and cannot authority wording",
+        "packet-level claims in START_HERE and both generated review surfaces"
+      ],
+      "sibling_variant_replay": [
+        "canonical support artifact",
+        "primary USER decision artifact",
+        "START_HERE routing surface"
+      ]
+    },
+    {
+      "family_id": "user-review-support-state",
+      "title": "Support-context state ordering and semantic Markdown boundary",
+      "representative_comment_patterns": [
+        "Optional planning prose bypasses support-state validation",
+        "Stage 1 readiness is inferred from warning prose",
+        "Fenced examples count as semantic state"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "keywordless Stage 1 packet with old USER Gate support state",
+        "keywordless non-Stage-1 packet with Support Context State",
+        "repair outcome containing a warning that mentions Stage 1 Ready",
+        "fenced-only and duplicate semantic state sections"
+      ],
+      "sibling_variant_replay": [
+        "Stage 1-ready support aid",
+        "Stage 1 repair packet",
+        "non-Stage-1 current-gate packet"
+      ]
+    },
+    {
+      "family_id": "user-review-fixture-execution",
+      "title": "Adversarial fixture execution and false-green control-flow integrity",
+      "representative_comment_patterns": [
+        "Constructed regression cases are unreachable after an unconditional raise",
+        "A fixture passes although the intended assertions never execute"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "30 direct subject and verb assertions execute",
+        "three packet-level authority placements execute",
+        "three benign authority-target controls execute"
+      ],
+      "sibling_variant_replay": [
+        "nested-loop assertion cardinality guard",
+        "negative authority false-positive guard"
+      ]
+    }
+  ]
+}

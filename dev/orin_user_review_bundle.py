@@ -76,14 +76,17 @@ PACKET_TEXT_IDENTITY_SUFFIXES = frozenset(
         ".ps1",
         ".psm1",
         ".py",
+        ".pyw",
         ".rst",
         ".sh",
         ".sql",
+        ".svg",
         ".toml",
         ".ts",
         ".tsv",
         ".tsx",
         ".txt",
+        ".vbs",
         ".xml",
         ".yaml",
         ".yml",
@@ -11710,14 +11713,36 @@ def _state_marker_count(text: str, marker: str) -> int:
     return len(pattern.findall(semantic_text))
 
 
-def _support_context_authority_failures(file_name: str, text: str) -> list[str]:
+def _support_context_authority_failures(
+    file_name: str,
+    text: str,
+    *,
+    support_artifact: bool = False,
+) -> list[str]:
     normalized = re.sub(r"\s+", " ", _markdown_semantic_text(text)).casefold()
-    authority_patterns = (
-        r"\b(?:this|the|a|an)\s+(?:support(?:\s+(?:context|file|artifact))?|file|artifact|document|packet|review aid)\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\b",
-        r"(?:^|[.!?]\s+)support (?:context|file|artifact)\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\b",
-        r"\b(?:stage 2|implementation|pr creation|merge|release)\s+(?:is\s+)?(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\b",
-        r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
+    subject = (
+        r"(?:this|the|a|an)\s+"
+        r"(?:support(?:\s+(?:context|file|artifact))?|file|artifact|document|packet|review aid)"
     )
+    gated_target = (
+        r"(?:stage\s*2|implementation|pr\s+creation|pull\s+request\s+creation|"
+        r"merge|release)"
+    )
+    authority_patterns = [
+        rf"\b{subject}\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\s+"
+        rf"(?:the\s+)?{gated_target}\b",
+        rf"(?:^|[.!?]\s+)support (?:context|file|artifact)\s+(?:now\s+)?"
+        rf"(?:authorizes|approves|permits|grants|enables)\s+(?:the\s+)?{gated_target}\b",
+        rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
+        r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\s+"
+        r"(?:by|through|via)\s+(?:this\s+)?support\b",
+        r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
+    ]
+    if support_artifact:
+        authority_patterns.append(
+            rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
+            r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\b"
+        )
     if any(re.search(pattern, normalized) for pattern in authority_patterns):
         return [
             f"{file_name}: support context attempts to authorize a USER-gated action"
@@ -11764,7 +11789,27 @@ def _branch_planning_review_gate_state_failures(
             "workstream entry / orchestration",
         )
     )
-    if not branch_planning_context and not stage1_posture:
+    for file_name, text in sorted(generated_files.items()):
+        failures.extend(
+            _support_context_authority_failures(
+                file_name,
+                text,
+                support_artifact=(
+                    _packet_file_basename(file_name) == USER_BRANCH_PLAN_REVIEW_FILE
+                    and bool(_state_marker_count(text, "Support Context State:"))
+                ),
+            )
+        )
+
+    support_state_marker_present = any(
+        _state_marker_count(text, "Support Context State:")
+        for text in generated_files.values()
+    )
+    if (
+        not branch_planning_context
+        and not stage1_posture
+        and not support_state_marker_present
+    ):
         return failures
 
     stage1_primary = _packet_file_text(
@@ -11847,8 +11892,6 @@ def _branch_planning_review_gate_state_failures(
                     f"{file_name}: support context and USER gate states cannot "
                     "coexist in the same artifact"
                 )
-            failures.extend(_support_context_authority_failures(file_name, text))
-
     if reviewability_values and not user_gate_values:
         failures.append(
             "USER Review Packet Phase-State Conflict: Packet Reviewability State "
