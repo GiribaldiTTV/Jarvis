@@ -820,6 +820,33 @@ def _assert_support_context_state_contract() -> None:
                 + "\n".join(negative_authority_failures)
             )
 
+    for verb in ("authorizes", "approves", "permits", "grants", "enables", "allows"):
+        for denied_targets in (
+            "no implementation work",
+            "only inspection, not PR creation",
+            "neither PR creation nor merge",
+        ):
+            non_authorizing_text = f"This support artifact {verb} {denied_targets}."
+            negative_authority_failures = support_failures(
+                stage1_packet(canonical_support + "\n" + non_authorizing_text + "\n")
+            )
+            if negative_authority_failures:
+                raise AssertionError(
+                    "post-verb negative target was treated as approval: "
+                    f"{non_authorizing_text!r}\n"
+                    + "\n".join(negative_authority_failures)
+                )
+
+    for contrast_authority in (
+        "This support artifact authorizes no implementation work, but permits PR creation.",
+        "This support artifact authorizes only inspection, not PR creation, but allows merge execution.",
+    ):
+        assert_fails(
+            "positive-authority-after-negated-target",
+            stage1_packet(canonical_support + "\n" + contrast_authority + "\n"),
+            "attempts to authorize a USER-gated action",
+        )
+
     fenced_example = canonical_support + (
         "\n```markdown\n"
         "## Support Context State\n\nUnsupported Example\n\n"

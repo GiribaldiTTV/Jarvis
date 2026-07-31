@@ -11787,15 +11787,38 @@ def _support_context_authority_failures(
         r"preparation|design|proposal|discussion|evidence)\b)"
     )
     authority_verb = r"(?:authorizes|approves|permits|grants|enables|allows)"
-    governed_target = (
-        rf"(?=(?:(?!\r?\n[ \t]*\r?\n)[^.!?]){{0,500}}"
-        rf"\b(?:the\s+)?{gated_target}\b)"
-    )
-    authority_patterns = [
-        rf"\b{subject}\s+(?:now\s+)?{authority_verb}\b{governed_target}",
+    authority_leads = [
+        rf"\b{subject}\s+(?:now\s+)?{authority_verb}\b",
         rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+[ \t]*)"
         rf"support (?:context|file|artifact)\s+(?:now\s+)?"
-        rf"{authority_verb}\b{governed_target}",
+        rf"{authority_verb}\b",
+    ]
+
+    def lead_governs_positive_target(lead_match: re.Match[str]) -> bool:
+        clause = normalized[lead_match.end() : lead_match.end() + 500]
+        clause = re.split(r"[.!?]|\r?\n[ \t]*\r?\n", clause, maxsplit=1)[0]
+        target_pattern = re.compile(rf"\b(?:the\s+)?{gated_target}\b")
+        reset_pattern = re.compile(rf"\b(?:but|however|yet|{authority_verb})\b|;")
+        for target_match in target_pattern.finditer(clause):
+            prefix = clause[: target_match.start()]
+            reset_matches = list(reset_pattern.finditer(prefix))
+            negation_scope = prefix[
+                reset_matches[-1].end() if reset_matches else 0 :
+            ]
+            if not re.search(r"\b(?:no|not|neither|nor)\b", negation_scope):
+                return True
+        return False
+
+    if any(
+        lead_governs_positive_target(lead_match)
+        for pattern in authority_leads
+        for lead_match in re.finditer(pattern, normalized)
+    ):
+        return [
+            f"{file_name}: support context attempts to authorize a USER-gated action"
+        ]
+
+    authority_patterns = [
         rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
         r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\s+"
         r"(?:by|through|via)\s+(?:this\s+)?support\b",

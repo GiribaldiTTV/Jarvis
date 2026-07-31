@@ -199,6 +199,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "limit write-set enforcement to active receipts",
             "historical receipts",
             "active receipt",
+            "preserve current confinement and status sections",
+            "bulleted intended write set",
         ),
     ),
     FamilyRule(
@@ -1283,7 +1285,7 @@ def _branch_receipt_write_set_text_failures(
     changed_files: list[str],
 ) -> list[str]:
     matches = re.findall(
-        r"^Intended Write Set:\s*`([^`]*)`\s*$",
+        r"^(?:-\s*)?Intended Write Set:\s*`([^`]*)`\s*$",
         text,
         flags=re.IGNORECASE | re.MULTILINE,
     )
@@ -1330,6 +1332,11 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     failures: list[str] = []
     if _branch_receipt_write_set_text_failures(record, exact, changed):
         failures.append("Branch receipt write-set guardrail rejected an exact diff")
+    bulleted_exact = "- " + exact
+    if _branch_receipt_write_set_text_failures(record, bulleted_exact, changed):
+        failures.append(
+            "Branch receipt write-set guardrail rejected a bulleted exact diff"
+        )
     missing = _branch_receipt_write_set_text_failures(
         record,
         "Intended Write Set: `Docs/branch_records/feature_example.md`\n",
@@ -1397,10 +1404,27 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
         failures.append(
             "Branch receipt write-set guardrail let a historical appendix hide an active current summary"
         )
+    active_after_historical_section = (
+        exact
+        + "\n## Current Phase\n\n"
+        + "- Phase: `PR Readiness`\n"
+        + "\n## Historical PR Readiness Stage 2 Execution Packet\n\n"
+        + "- Status: `Historical Traceability`\n"
+        + "\n## Assigned Worktree Confinement\n\n"
+        + "- Active Thread Owner: `Codex`\n"
+        + "- Thread Assignment Status: `Assigned`\n"
+    )
+    if not _is_active_branch_receipt(active_after_historical_section):
+        failures.append(
+            "Branch receipt write-set guardrail discarded current sections after a historical section"
+        )
     appendix_only_assignment = (
         "# Historical Receipt\n\n"
         "## Historical Worktree Assignment\n\n"
-        + active_receipt
+        + exact
+        + "\n### Assigned Worktree Confinement\n\n"
+        + "- Active Thread Owner: `Codex`\n"
+        + "- Thread Assignment Status: `Assigned`\n"
     )
     if _is_active_branch_receipt(appendix_only_assignment):
         failures.append(
@@ -1433,13 +1457,20 @@ def _branch_receipt_candidates(
 
 
 def _is_active_branch_receipt(text: str) -> bool:
-    current_summary = re.split(
-        r"^##[^\r\n]*\bhistorical\b[^\r\n]*$",
-        text,
-        maxsplit=1,
-        flags=re.IGNORECASE | re.MULTILINE,
-    )[0]
-    current_summary = "\n".join(current_summary.splitlines()[:200])
+    current_lines: list[str] = []
+    historical_level: int | None = None
+    for line in text.splitlines():
+        heading = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+        if heading:
+            level = len(heading.group(1))
+            if historical_level is not None and level <= historical_level:
+                historical_level = None
+            if re.search(r"\bhistorical\b", heading.group(2), flags=re.IGNORECASE):
+                historical_level = level
+                continue
+        if historical_level is None:
+            current_lines.append(line)
+    current_summary = "\n".join(current_lines)
     historical_phase = re.search(
         r"^(?:-\s*)?(?:Phase|Current Phase|Branch Authority Status|Record Status|Status):"
         r"\s*`?[^`\r\n]*\bhistorical\b",

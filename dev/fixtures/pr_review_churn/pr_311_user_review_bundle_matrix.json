@@ -2,8 +2,8 @@
   "schema": "nexus-pr-review-churn-matrix-v1",
   "pr": 311,
   "scope": "Governance USER review bundle context-only packet repair and PR2 review-churn closure",
-  "purpose": "Prevent PR #311 review from acting as the first adversarial parser by proving all thirty-one Connector findings through source-copy identity, support-authority, support-state, support-reviewability, primary-marker cardinality, Markdown semantics, inventory currentness, firewall-matrix routing, write-set receipts, classifier precision, and executable-fixture families before another review request.",
-  "reference_effectiveness_note": "The first repair reference set covered the five original literal examples but was ineffective against sibling repository text suffixes, benign authority-verb targets, packet-level authority placement, keywordless non-Stage-1 state, and dead fixture control flow. The second repair proved those ten comments but did not require per-support-artifact reviewability, model natural supporting-subject variants, distinguish gated actions from analysis/planning/inspection nouns, execute the documented default firewall against the changed matrix, keep the durable write-set receipt synchronized, or require fixture context around common review prose. The third repair proved those sixteen comments but did not exclude indented code and HTML comments from semantic authority scans or validate the branch receipt in detached HEAD checkouts. The fourth repair proved those eighteen comments but still relied on matrix registration for detached receipt discovery, omitted direct allows/allowed authority forms, and did not compare the generated inventory against final receipt content. The fifth repair proved those twenty-one comments but collapsed paragraph boundaries in bare authority scans, activated PR-specific classifiers outside their selected matrix, conditioned receipt-inventory currentness on the generated audit already being changed, accepted prefix-only Stage 1 primary markers, and accepted duplicate Intended Write Set fields. The sixth repair proved those twenty-six comments but did not scan coordinated authority targets after benign objects, mask inline Markdown code, distinguish approved primary authority from support authority, limit exact write-set enforcement to active receipts, or identify each generated inventory line-count surface independently. This matrix now binds the live thirty-one-comment corpus to executable local proof for all eleven observed families.",
+  "purpose": "Prevent PR #311 review from acting as the first adversarial parser by proving all thirty-four Connector findings through source-copy identity, support-authority, support-state, support-reviewability, primary-marker cardinality, Markdown semantics, inventory currentness, firewall-matrix routing, write-set receipts, classifier precision, and executable-fixture families before another review request.",
+  "reference_effectiveness_note": "The first repair reference set covered the five original literal examples but was ineffective against sibling repository text suffixes, benign authority-verb targets, packet-level authority placement, keywordless non-Stage-1 state, and dead fixture control flow. The second repair proved those ten comments but did not require per-support-artifact reviewability, model natural supporting-subject variants, distinguish gated actions from analysis/planning/inspection nouns, execute the documented default firewall against the changed matrix, keep the durable write-set receipt synchronized, or require fixture context around common review prose. The third repair proved those sixteen comments but did not exclude indented code and HTML comments from semantic authority scans or validate the branch receipt in detached HEAD checkouts. The fourth repair proved those eighteen comments but still relied on matrix registration for detached receipt discovery, omitted direct allows/allowed authority forms, and did not compare the generated inventory against final receipt content. The fifth repair proved those twenty-one comments but collapsed paragraph boundaries in bare authority scans, activated PR-specific classifiers outside their selected matrix, conditioned receipt-inventory currentness on the generated audit already being changed, accepted prefix-only Stage 1 primary markers, and accepted duplicate Intended Write Set fields. The sixth repair proved those twenty-six comments but did not scan coordinated authority targets after benign objects, mask inline Markdown code, distinguish approved primary authority from support authority, limit exact write-set enforcement to active receipts, or identify each generated inventory line-count surface independently. The seventh repair proved those thirty-one comments but truncated valid current receipt sections after an embedded historical section, rejected normal bulleted Intended Write Set fields, and treated post-verb no/neither/not target clauses as positive authority. This matrix now binds the live thirty-four-comment corpus to executable local proof for all eleven observed families.",
   "root_cause_receipt_marker": "PR #311 USER Review Bundle Review-Churn Root-Cause Receipt",
   "review_churn_budget": {
     "max_connector_comments_before_root_cause_receipt": 12,
@@ -11,7 +11,7 @@
     "root_cause_receipts": [
       {
         "pr": 311,
-        "connector_comments": 31,
+        "connector_comments": 34,
         "observed_family_counts": {
           "user-review-fixture-execution": 1,
           "user-review-firewall-matrix-routing": 3,
@@ -20,22 +20,22 @@
           "user-review-markdown-semantics": 2,
           "user-review-inventory-currentness": 3,
           "user-review-primary-marker-cardinality": 1,
-          "user-review-support-authority": 12,
+          "user-review-support-authority": 13,
           "user-review-support-reviewability": 1,
           "user-review-support-state": 5,
-          "user-review-write-set-receipt": 5
+          "user-review-write-set-receipt": 7
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR Readiness Stage 1 and prior same-PR repair passes used literal examples and validator green as family-completion evidence. They did not inventory all Git-normalized repository text suffixes, distinguish authority verbs by exact gated action including allows/allowed forms, preserve paragraph starts for bare support-authority subjects, scan every coordinated target governed by an authority verb, distinguish approved primary authority from support authority, scan support-authority claims across every generated packet surface and natural supporting-subject variant, exclude fenced, indented, inline-code, and HTML-comment examples from semantic scans, validate support state independently of optional planning prose, require exact primary Stage 1 markers and per-support-artifact reviewability, prove that nested direct-authority assertions actually executed, scope PR-specific classifier families to the selected matrix, bind the documented no-option firewall command to the one changed matrix, discover every changed branch receipt directly from the diff in detached HEAD, limit exact current-diff write-set enforcement to active receipts, reject duplicate Intended Write Set fields, synchronize later firewall files into the branch receipt, trigger generated inventory currentness from receipt changes, identify all three inventory line-count surfaces independently, compare generated inventory counts against final receipt content, or require fixture/assertion context around the common phrase never checked.",
-        "prevention_summary": "PR #311 now uses an eleven-family Review-Comment Pattern Matrix, exact live comment counts, generated mutation and sibling replay, executable regression cardinality, packet-wide role-aware authority scanning with paragraph and coordinated-target preservation, six direct authority verbs, fenced/indented/inline/comment-aware Markdown filtering, exact primary-marker cardinality, state-first and per-role reviewability validation, repository-format text identity, matrix-scoped classification, deterministic changed-matrix selection, active-receipt single-field durable write-set validation, receipt-triggered per-surface generated inventory currentness checks, and context-sensitive comment classification before any later review request.",
+        "root_cause": "PR Readiness Stage 1 and prior same-PR repair passes used literal examples and validator green as family-completion evidence. They did not inventory all Git-normalized repository text suffixes, distinguish authority verbs by exact gated action including allows/allowed forms, preserve paragraph starts for bare support-authority subjects, scan every coordinated target governed by an authority verb, distinguish approved primary authority from support authority, distinguish positive post-verb targets from no/neither/not target clauses, scan support-authority claims across every generated packet surface and natural supporting-subject variant, exclude fenced, indented, inline-code, and HTML-comment examples from semantic scans, validate support state independently of optional planning prose, require exact primary Stage 1 markers and per-support-artifact reviewability, prove that nested direct-authority assertions actually executed, scope PR-specific classifier families to the selected matrix, bind the documented no-option firewall command to the one changed matrix, discover every changed branch receipt directly from the diff in detached HEAD, preserve current receipt sections that follow an embedded historical section, accept normal bulleted Intended Write Set fields, limit exact current-diff write-set enforcement to active receipts, reject duplicate Intended Write Set fields, synchronize later firewall files into the branch receipt, trigger generated inventory currentness from receipt changes, identify all three inventory line-count surfaces independently, compare generated inventory counts against final receipt content, or require fixture/assertion context around the common phrase never checked.",
+        "prevention_summary": "PR #311 now uses an eleven-family Review-Comment Pattern Matrix, exact live comment counts, generated mutation and sibling replay, executable regression cardinality, packet-wide role-aware authority scanning with paragraph, coordinated-target, and post-verb negation handling, six direct authority verbs, fenced/indented/inline/comment-aware Markdown filtering, exact primary-marker cardinality, state-first and per-role reviewability validation, repository-format text identity, matrix-scoped classification, deterministic changed-matrix selection, section-aware active-receipt filtering, bulleted-or-unbulleted single-field durable write-set validation, receipt-triggered per-surface generated inventory currentness checks, and context-sensitive comment classification before any later review request.",
         "preventive_changes": [
           "dev/orin_user_review_bundle.py classifies the repository's .vbs, .pyw, and .svg sources as Git-normalized text while preserving opaque binary exactness.",
-          "dev/orin_user_review_bundle.py ties six direct authority verbs, including allows/allowed forms, to every coordinated USER-gated object, preserves paragraph and line boundaries for bare support subjects, recognizes support and supporting subjects, distinguishes support artifacts from approved primary USER artifacts, excludes analysis/planning/inspection nouns, and scans support-authority claims across every generated packet surface.",
+          "dev/orin_user_review_bundle.py ties six direct authority verbs, including allows/allowed forms, to every coordinated USER-gated object, preserves paragraph and line boundaries for bare support subjects, recognizes support and supporting subjects, distinguishes support artifacts from approved primary USER artifacts, excludes analysis/planning/inspection nouns and post-verb no/neither/not targets, and scans support-authority claims across every generated packet surface.",
           "dev/orin_user_review_bundle.py validates generated state markers before optional branch-planning prose can trigger an early return.",
           "dev/orin_user_review_bundle.py requires exactly one canonical Packet Reviewability State, USER Gate State, and Stage 1 Outcome on the primary Stage 1 artifact and one valid Packet Reviewability State on the Stage 1-ready support artifact.",
           "dev/orin_user_review_bundle.py excludes fenced code, indented code, inline code, and inline or multiline HTML comments from semantic state and authority scans.",
-          "dev/orin_user_review_bundle_false_green_fixture_validation.py executes all 48 direct subject/verb cases and replays text identity, paragraph-boundary and coordinated authority, approved-primary authority, exact primary markers, benign guidance, packet-surface, fenced-state, indented-code, inline-code, HTML-comment, keywordless-state, reviewability, and gated-action siblings.",
-          "dev/orin_pr_review_churn_validation.py auto-selects the single changed review matrix, scopes classification to that matrix, classifies all thirty-one PR #311 comments into eleven precise families, requires fixture context instead of matching never checked alone, discovers every changed non-index branch receipt directly from the diff, limits exact write-set enforcement to active receipts, rejects duplicate Intended Write Set fields, and requires all three generated inventory surfaces whenever a branch receipt changes.",
+          "dev/orin_user_review_bundle_false_green_fixture_validation.py executes all 48 direct subject/verb cases plus all 18 post-verb negation cases and replays text identity, paragraph-boundary and coordinated authority, approved-primary authority, exact primary markers, benign guidance, packet-surface, fenced-state, indented-code, inline-code, HTML-comment, keywordless-state, reviewability, and gated-action siblings.",
+          "dev/orin_pr_review_churn_validation.py auto-selects the single changed review matrix, scopes classification to that matrix, classifies all thirty-four PR #311 comments into eleven precise families, requires fixture context instead of matching never checked alone, discovers every changed non-index branch receipt directly from the diff, removes only historical Markdown sections when determining active receipt state, accepts bulleted and unbulleted Intended Write Set fields, limits exact write-set enforcement to active receipts, rejects duplicate Intended Write Set fields, and requires all three generated inventory surfaces whenever a branch receipt changes.",
           "dev/orin_docs_inventory_reform_audit.py was rerun after the final receipt edits so all generated audit tables report the current receipt line count.",
           "Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md records all ten committed branch files and the bounded repeated Connector repair authority."
         ],
@@ -242,6 +242,18 @@
       {
         "family_id": "user-review-inventory-currentness",
         "comment": "Track each inventory line-count surface separately and require every expected surface by identity."
+      },
+      {
+        "family_id": "user-review-write-set-receipt",
+        "comment": "Preserve current confinement and status sections that follow an embedded historical receipt heading."
+      },
+      {
+        "family_id": "user-review-support-authority",
+        "comment": "Exclude post-verb no, neither, and coordinated not targets from positive support-authority claims."
+      },
+      {
+        "family_id": "user-review-write-set-receipt",
+        "comment": "Accept normal bulleted Intended Write Set fields when their exact paths match the current diff."
       }
     ],
     "unknown_comment_guardrails": [
@@ -295,6 +307,7 @@
         "A bare support claim after a heading or colon loses its paragraph boundary",
         "A benign first object hides a coordinated gated authority target",
         "Generic document authority is confused between support and primary USER roles",
+        "A post-verb no, neither, or coordinated not target is mistaken for positive authority",
         "Benign review guidance is mistaken for USER-gated authority",
         "A generated sibling surface claims the support artifact authorizes action"
       ],
@@ -317,6 +330,8 @@
         "direct and passive allows/allowed wording for gated targets",
         "benign enables-comparison, permits-inspection, implementation-analysis, release-planning, and merge-inspection targets",
         "negative does-not and cannot authority wording",
+        "six authority verbs by post-verb no, neither, and coordinated not target clauses",
+        "positive gated targets after a contrast reset",
         "packet-level claims in START_HERE and both generated review surfaces",
         "bare support authority after a Markdown heading or colon",
         "benign comparison followed by coordinated PR creation",
@@ -540,6 +555,8 @@
         "The Intended Write Set contradicts the actual committed scope",
         "Two Intended Write Set fields expose contradictory scope",
         "A historical receipt is forced to match the active maintenance diff",
+        "A historical section truncates later current confinement fields",
+        "A bulleted Intended Write Set is treated as missing",
         "Detached HEAD skips branch-receipt validation",
         "An unmapped changed receipt is not discovered from the diff"
       ],
@@ -559,7 +576,10 @@
         "later review-churn helper and matrix files are no longer excluded",
         "a changed branch receipt without a synchronized Intended Write Set fails",
         "a changed branch receipt with duplicate Intended Write Set fields fails",
+        "bulleted and unbulleted exact Intended Write Set fields pass",
         "active receipt detection accepts bulleted and unbulleted confinement fields",
+        "current confinement after an embedded historical section remains active",
+        "nested confinement inside a historical section remains excluded",
         "historical phase receipts bypass current-diff write-set enforcement",
         "a detached HEAD checkout discovers every changed non-index branch receipt directly from the diff"
       ],
@@ -567,7 +587,7 @@
         "mapped and unmapped changed branch receipts",
         "detached HEAD without branch-name or matrix identity",
         "missing, duplicate, and stale Intended Write Set entries",
-        "active and historical receipts with preserved confinement evidence",
+        "active and historical receipts with section-aware confinement evidence",
         "the changed branch-record index is not treated as a receipt"
       ]
     },
