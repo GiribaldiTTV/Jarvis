@@ -134,11 +134,16 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "preserve paragraph boundaries in bare support-authority scans",
             "bare support-authority scans",
             "bare support artifact",
+            "bare supporting-context authority subjects",
+            "supporting context and review aid",
             "scan coordinated authority targets after benign objects",
             "coordinated authority targets",
             "allow primary decision artifacts to grant approved authority",
             "legitimate primary artifact",
             "affirmative adverb",
+            "verbal forms of gated authority targets",
+            "creating a pr",
+            "implementing the plan",
         ),
     ),
     FamilyRule(
@@ -1442,6 +1447,20 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
         failures.append(
             "Branch receipt write-set guardrail required current scope from a historical receipt"
         )
+    if _missing_branch_receipt_failures(record, historical_without_write_set):
+        failures.append(
+            "Branch receipt write-set guardrail rejected deletion of a historical receipt"
+        )
+    missing_active = _missing_branch_receipt_failures(record, active_receipt)
+    if not any("missing active branch receipt" in failure for failure in missing_active):
+        failures.append(
+            "Branch receipt write-set guardrail allowed deletion of an active receipt"
+        )
+    missing_untracked = _missing_branch_receipt_failures(record, None)
+    if not any("missing and absent from base" in failure for failure in missing_untracked):
+        failures.append(
+            "Branch receipt write-set guardrail allowed an unexplained missing receipt"
+        )
     return failures
 
 
@@ -1499,15 +1518,39 @@ def _is_active_branch_receipt(text: str) -> bool:
     )
 
 
+def _missing_branch_receipt_failures(
+    record_relative: str,
+    base_text: str | None,
+) -> list[str]:
+    if base_text is None:
+        return [f"{record_relative}: routed branch receipt is missing and absent from base"]
+    if _is_active_branch_receipt(base_text):
+        return [f"{record_relative}: missing active branch receipt from base revision"]
+    return []
+
+
+def _file_text_at_revision(revision: str, relative_path: str) -> str | None:
+    normalized_path = relative_path.replace("\\", "/")
+    code, output = _run_for_status(
+        ["git", "show", f"{revision}:{normalized_path}"]
+    )
+    return output if code == 0 else None
+
+
 def _branch_receipt_write_set_failures(
     changed_files: list[str],
+    *,
+    base: str,
 ) -> list[str]:
     failures: list[str] = []
     for record_relative in _branch_receipt_candidates(changed_files):
         record_path = ROOT / record_relative
         if not record_path.is_file():
-            failures.append(
-                f"{record_relative}: routed branch receipt is missing"
+            failures.extend(
+                _missing_branch_receipt_failures(
+                    record_relative,
+                    _file_text_at_revision(base, record_relative),
+                )
             )
             continue
         record_text = record_path.read_text(encoding="utf-8")
@@ -2274,7 +2317,7 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_matrix_selection_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
     failures.extend(_inventory_receipt_line_count_guardrail_failures())
-    failures.extend(_branch_receipt_write_set_failures(changed_files))
+    failures.extend(_branch_receipt_write_set_failures(changed_files, base=args.base))
     failures.extend(_docs_inventory_receipt_currentness_failures(changed_files))
     failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
     firewall_failures, firewall_lines = _validate_pre_pr_firewall(
@@ -2336,7 +2379,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_matrix_selection_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
     failures.extend(_inventory_receipt_line_count_guardrail_failures())
-    failures.extend(_branch_receipt_write_set_failures(changed_files))
+    failures.extend(_branch_receipt_write_set_failures(changed_files, base=args.base))
     failures.extend(_docs_inventory_receipt_currentness_failures(changed_files))
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     budget_status, budget_failures = _review_churn_budget_result(

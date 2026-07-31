@@ -11814,8 +11814,13 @@ def _support_context_authority_failures(
     )
     gated_target = (
         r"(?:stage\s*2|implementation(?:\s+(?:work|execution))?|"
+        r"implement(?:ing)?|"
         r"pr\s+creation|pull\s+request\s+creation|"
-        r"merge(?:\s+execution)?|release(?:\s+execution)?)"
+        r"creation\s+of\s+(?:(?:a|the)\s+)?(?:prs?|pull\s+requests?)|"
+        r"creat(?:e|ing)\s+(?:(?:a|the)\s+)?(?:prs?|pull\s+requests?)|"
+        r"(?:(?:a|the)\s+)?(?:pr|pull\s+request)\s+(?:to\s+be\s+)?created|"
+        r"merg(?:e|ing)(?:\s+execution)?|"
+        r"releas(?:e|ing)(?:\s+execution)?)"
         r"(?!\s+(?:analysis|planning|inspection|review|comparison|assessment|"
         r"preparation|design|proposal|discussion|evidence)\b)"
     )
@@ -11835,8 +11840,10 @@ def _support_context_authority_failures(
     )
     authority_leads = [
         rf"\b{subject}\s+{authority_predicate}\b",
-        rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+[ \t]*)"
-        rf"support (?:context|file|artifact)\s+{authority_predicate}\b",
+        rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+)[ \t]*"
+        rf"(?:(?:[-+*]|\d+\.)\s+|>\s+)?"
+        rf"(?:support(?:ing)? (?:context|file|artifact)|review aid)\s+"
+        rf"{authority_predicate}\b",
     ]
 
     def lead_governs_positive_target(lead_match: re.Match[str]) -> bool:
