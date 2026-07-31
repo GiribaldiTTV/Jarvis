@@ -138,6 +138,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "coordinated authority targets",
             "allow primary decision artifacts to grant approved authority",
             "legitimate primary artifact",
+            "affirmative adverb",
         ),
     ),
     FamilyRule(

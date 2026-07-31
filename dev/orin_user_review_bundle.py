@@ -11822,9 +11822,16 @@ def _support_context_authority_failures(
     authority_verb = r"(?:authorizes|approves|permits|grants|enables|allows)"
     authority_base_verb = r"(?:authorize|approve|permit|grant|enable|allow)"
     affirmative_modal = r"(?:can|could|may|might|will|would|shall|should|must)"
+    affirmative_modifier = (
+        r"(?!(?:not|never|no|neither|nor|hardly|scarcely|rarely|seldom|barely)\b)"
+        r"(?:[a-z][a-z0-9-]*ly|hereby|now)"
+    )
+    affirmative_modifiers = rf"(?:{affirmative_modifier}\s+){{0,3}}"
     authority_predicate = (
-        rf"(?:(?:now\s+)?{authority_verb}|"
-        rf"{affirmative_modal}\s+(?:now\s+)?{authority_base_verb})"
+        rf"(?:{affirmative_modifiers}{authority_verb}|"
+        rf"{affirmative_modifiers}does\s+{affirmative_modifiers}{authority_base_verb}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+"
+        rf"{affirmative_modifiers}{authority_base_verb})"
     )
     authority_leads = [
         rf"\b{subject}\s+{authority_predicate}\b",
