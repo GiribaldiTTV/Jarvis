@@ -119,6 +119,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         (
             "direct authorization",
             "direct-authority",
+            "direct allows authority wording",
+            "allows pr creation",
             "authority verbs",
             "support authority",
             "authority scan",
@@ -180,6 +182,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "contradicts the actual committed scope",
             "later review-churn repair files",
             "validate branch receipts in detached head checkouts",
+            "discover changed receipts directly in detached head",
+            "changed branch receipt not registered in the selected matrix",
             "detached head checkout",
             "silently skips the new intended write set validation",
         ),
@@ -200,6 +204,15 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "indented code example",
             "html comment",
             "equivalent markdown examples",
+        ),
+    ),
+    FamilyRule(
+        "user-review-inventory-currentness",
+        (
+            "regenerate the inventory after final receipt edits",
+            "inventory generator's current counting formula",
+            "committed audit was produced before the final receipt expansion",
+            "stale generated inventory counts",
         ),
     ),
     FamilyRule(
@@ -766,6 +779,9 @@ def _classifier_guardrail_failures() -> list[str]:
         "user-review-markdown-semantics": (
             "Exclude non-semantic Markdown from authority scans, including an indented code example and HTML comment."
         ),
+        "user-review-inventory-currentness": (
+            "Regenerate the inventory after final receipt edits so stale generated inventory counts cannot survive."
+        ),
     }
     for family_id, comment in user_review_examples.items():
         if family_id not in _classify_comment(comment):
@@ -1243,12 +1259,6 @@ def _branch_receipt_write_set_text_failures(
 def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     record = "Docs/branch_records/feature_example.md"
     changed = [record, "dev/example_validator.py"]
-    matrix = {
-        "changed_file_coverage": {
-            record: ["user-review-write-set-receipt"],
-            "dev/example_validator.py": ["user-review-write-set-receipt"],
-        }
-    }
     exact = (
         "Intended Write Set: `Docs/branch_records/feature_example.md; "
         "dev/example_validator.py`\n"
@@ -1273,64 +1283,38 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     no_field = _branch_receipt_write_set_text_failures(record, "# Branch Receipt\n", changed)
     if not any("omits Intended Write Set" in failure for failure in no_field):
         failures.append("Branch receipt write-set guardrail missed a changed receipt without a field")
-    detached_candidates = _branch_receipt_candidates(changed, matrix, branch="")
-    if detached_candidates != [record]:
+    unmapped_record = "Docs/branch_records/feature_unmapped_example.md"
+    candidate_changed = [
+        *changed,
+        unmapped_record,
+        "Docs/branch_records/index.md",
+    ]
+    candidates = _branch_receipt_candidates(candidate_changed)
+    if candidates != [record, unmapped_record]:
         failures.append(
-            "Branch receipt write-set guardrail did not recover the matrix-routed receipt in detached HEAD"
-        )
-    attached_candidates = _branch_receipt_candidates(
-        changed,
-        matrix,
-        branch="feature/example",
-    )
-    if attached_candidates != [record]:
-        failures.append(
-            "Branch receipt write-set guardrail did not normalize the attached branch or included a non-receipt file"
+            "Branch receipt write-set guardrail did not discover every changed receipt or included the branch-record index"
         )
     return failures
 
 
 def _branch_receipt_candidates(
     changed_files: list[str],
-    matrix: dict[str, Any],
-    *,
-    branch: str,
 ) -> list[str]:
     changed = {path.replace("\\", "/") for path in changed_files}
-    candidates: set[str] = set()
-    if branch:
-        branch_record = (
-            "Docs/branch_records/"
-            + re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_")
-            + ".md"
-        )
-        if branch_record in changed:
-            candidates.add(branch_record)
-    file_coverage = matrix.get("changed_file_coverage", {})
-    if isinstance(file_coverage, dict):
-        for path, families in file_coverage.items():
-            normalized = str(path).replace("\\", "/")
-            if (
-                normalized in changed
-                and normalized.startswith("Docs/branch_records/")
-                and isinstance(families, list)
-                and "user-review-write-set-receipt" in families
-            ):
-                candidates.add(normalized)
-    return sorted(candidates)
+    return sorted(
+        path
+        for path in changed
+        if path.startswith("Docs/branch_records/")
+        and path.casefold().endswith(".md")
+        and Path(path).name.casefold() != "index.md"
+    )
 
 
 def _branch_receipt_write_set_failures(
     changed_files: list[str],
-    matrix: dict[str, Any],
 ) -> list[str]:
-    branch = _run(["git", "branch", "--show-current"]).strip()
     failures: list[str] = []
-    for record_relative in _branch_receipt_candidates(
-        changed_files,
-        matrix,
-        branch=branch,
-    ):
+    for record_relative in _branch_receipt_candidates(changed_files):
         record_path = ROOT / record_relative
         if not record_path.is_file():
             failures.append(
@@ -1342,6 +1326,107 @@ def _branch_receipt_write_set_failures(
                 record_relative,
                 record_path.read_text(encoding="utf-8"),
                 changed_files,
+            )
+        )
+    return failures
+
+
+def _inventory_receipt_line_count_text_failures(
+    record_relative: str,
+    record_text: str,
+    audit_text: str,
+) -> list[str]:
+    quoted_record = f"`{record_relative}`"
+    observed_counts: list[int] = []
+    audit_lines = audit_text.splitlines()
+    for index, line in enumerate(audit_lines):
+        if quoted_record not in line:
+            continue
+        stripped = line.strip()
+        if stripped.startswith("|"):
+            cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+            try:
+                record_index = cells.index(quoted_record)
+            except ValueError:
+                continue
+            for cell in cells[record_index + 1 :]:
+                if cell.isdigit():
+                    observed_counts.append(int(cell))
+                    break
+            continue
+        if not stripped.startswith("### "):
+            continue
+        for detail_line in audit_lines[index + 1 :]:
+            if detail_line.startswith("### "):
+                break
+            match = re.match(r"^- Line count:\s*(\d+)\s*$", detail_line)
+            if match:
+                observed_counts.append(int(match.group(1)))
+                break
+
+    expected_count = record_text.count("\n") + (1 if record_text else 0)
+    if len(observed_counts) < 3:
+        return [
+            f"{record_relative}: generated docs inventory omits one or more receipt line-count surfaces"
+        ]
+    stale_counts = sorted({count for count in observed_counts if count != expected_count})
+    if stale_counts:
+        return [
+            f"{record_relative}: generated docs inventory has stale line counts "
+            f"{stale_counts}; expected {expected_count}"
+        ]
+    return []
+
+
+def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
+    record = "Docs/branch_records/feature_example.md"
+    record_text = "first\nsecond\n"
+    exact_audit = (
+        f"| 1 | `{record}` | branch receipt | 3 | Keep |\n"
+        f"| `{record}` | 3 | Receipt |\n"
+        f"### 1. `{record}`\n\n- Line count: 3\n"
+    )
+    failures: list[str] = []
+    if _inventory_receipt_line_count_text_failures(record, record_text, exact_audit):
+        failures.append("Inventory receipt currentness guardrail rejected exact counts")
+    stale = _inventory_receipt_line_count_text_failures(
+        record,
+        record_text,
+        exact_audit.replace("| 3 | Keep", "| 2 | Keep", 1),
+    )
+    if not any("stale line counts" in failure for failure in stale):
+        failures.append("Inventory receipt currentness guardrail missed a stale count")
+    missing = _inventory_receipt_line_count_text_failures(
+        record,
+        record_text,
+        exact_audit.split("### 1.", 1)[0],
+    )
+    if not any("omits one or more" in failure for failure in missing):
+        failures.append("Inventory receipt currentness guardrail missed a generated surface")
+    return failures
+
+
+def _docs_inventory_receipt_currentness_failures(
+    changed_files: list[str],
+) -> list[str]:
+    audit_relative = "Docs/governance_docs_full_inventory_reform_audit.md"
+    changed = {path.replace("\\", "/") for path in changed_files}
+    if audit_relative not in changed:
+        return []
+    audit_path = ROOT / audit_relative
+    if not audit_path.is_file():
+        return [f"{audit_relative}: changed generated inventory is missing"]
+    audit_text = audit_path.read_text(encoding="utf-8")
+    failures: list[str] = []
+    for record_relative in _branch_receipt_candidates(changed_files):
+        record_path = ROOT / record_relative
+        if not record_path.is_file():
+            continue
+        failures.extend(
+            _inventory_receipt_line_count_text_failures(
+                record_relative,
+                record_path.read_text(encoding="utf-8"),
+                audit_text,
             )
         )
     return failures
@@ -1954,7 +2039,9 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_matrix_selection_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
-    failures.extend(_branch_receipt_write_set_failures(changed_files, matrix))
+    failures.extend(_inventory_receipt_line_count_guardrail_failures())
+    failures.extend(_branch_receipt_write_set_failures(changed_files))
+    failures.extend(_docs_inventory_receipt_currentness_failures(changed_files))
     failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
     firewall_failures, firewall_lines = _validate_pre_pr_firewall(
         matrix, changed_helper_files, skip_commands=args.skip_pre_pr_commands
@@ -2014,7 +2101,9 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_matrix_selection_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
-    failures.extend(_branch_receipt_write_set_failures(changed_files, matrix))
+    failures.extend(_inventory_receipt_line_count_guardrail_failures())
+    failures.extend(_branch_receipt_write_set_failures(changed_files))
+    failures.extend(_docs_inventory_receipt_currentness_failures(changed_files))
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     budget_status, budget_failures = _review_churn_budget_result(
         matrix,

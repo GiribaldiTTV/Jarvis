@@ -649,7 +649,7 @@ def _assert_support_context_state_contract() -> None:
         "cannot coexist",
     )
 
-    for verb in ("authorizes", "approves", "permits", "grants", "enables"):
+    for verb in ("authorizes", "approves", "permits", "grants", "enables", "allows"):
         authorizing_support = (
             canonical_support
             + f"\nThis support context {verb} Stage 2 and implementation.\n"
@@ -671,7 +671,7 @@ def _assert_support_context_state_contract() -> None:
         "This supporting context",
         "The supporting artifact",
     ):
-        for verb in ("authorizes", "approves", "permits", "grants", "enables"):
+        for verb in ("authorizes", "approves", "permits", "grants", "enables", "allows"):
             direct_authority = (
                 canonical_support
                 + f"\n{subject} {verb} Stage 2, PR creation, and implementation.\n"
@@ -682,9 +682,9 @@ def _assert_support_context_state_contract() -> None:
                 "attempts to authorize a USER-gated action",
             )
             direct_authority_case_count += 1
-    if direct_authority_case_count != 40:
+    if direct_authority_case_count != 48:
         raise AssertionError(
-            "direct-authority regression matrix did not execute all 40 cases"
+            "direct-authority regression matrix did not execute all 48 cases"
         )
 
     for gated_action in (

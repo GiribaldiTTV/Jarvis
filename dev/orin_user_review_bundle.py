@@ -11766,19 +11766,19 @@ def _support_context_authority_failures(
         r"preparation|design|proposal|discussion|evidence)\b)"
     )
     authority_patterns = [
-        rf"\b{subject}\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\s+"
+        rf"\b{subject}\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables|allows)\s+"
         rf"(?:the\s+)?{gated_target}\b",
         rf"(?:^|[.!?]\s+)support (?:context|file|artifact)\s+(?:now\s+)?"
-        rf"(?:authorizes|approves|permits|grants|enables)\s+(?:the\s+)?{gated_target}\b",
+        rf"(?:authorizes|approves|permits|grants|enables|allows)\s+(?:the\s+)?{gated_target}\b",
         rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
-        r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\s+"
+        r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\s+"
         r"(?:by|through|via)\s+(?:this\s+)?support\b",
         r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
     ]
     if support_artifact:
         authority_patterns.append(
             rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
-            r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled)\b"
+            r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\b"
         )
     if any(re.search(pattern, normalized) for pattern in authority_patterns):
         return [
