@@ -151,6 +151,7 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "planning keyword",
             "semantic state section",
             "state markers inside fenced markdown",
+            "exact support-state location",
         ),
     ),
     FamilyRule(

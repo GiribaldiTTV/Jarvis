@@ -845,6 +845,10 @@ def _packet_file_basename(file_name: str) -> str:
     return PurePosixPath(file_name.replace("\\", "/")).name
 
 
+def _normalized_packet_relative_path(file_name: str) -> str:
+    return PurePosixPath(file_name.replace("\\", "/")).as_posix()
+
+
 def _packet_file_items(
     packet_files: Mapping[str, str],
     file_name: str,
@@ -1388,6 +1392,34 @@ def _is_pr_stage1_packet_posture(packet_files: Mapping[str, str]) -> bool:
     return current_gate_is_stage1 or decision_path_is_stage1
 
 
+def _pr_stage1_support_location_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    if not _is_pr_stage1_packet_posture(packet_files):
+        return []
+    canonical_path = f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}"
+    canonical_items: list[tuple[str, str]] = []
+    failures: list[str] = []
+    for file_name, text in _packet_file_items(
+        packet_files,
+        USER_BRANCH_PLAN_REVIEW_FILE,
+    ):
+        normalized_path = _normalized_packet_relative_path(file_name)
+        if normalized_path == canonical_path:
+            canonical_items.append((file_name, text))
+            continue
+        if _state_marker_count(text, "Support Context State:"):
+            failures.append(
+                f"{file_name}: Stage 1 Support Context State is allowed only at "
+                f"{canonical_path}"
+            )
+    if len(canonical_items) > 1:
+        failures.append(
+            f"{canonical_path}: Stage 1 packet contains duplicate normalized support paths"
+        )
+    return failures
+
+
 def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
     """Validate the dedicated PR Readiness Stage 1 current-gate artifact."""
 
@@ -1396,6 +1428,7 @@ def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
     if not _is_pr_stage1_packet_posture(packet_files):
         return []
     failures: list[str] = []
+    failures.extend(_pr_stage1_support_location_failures(packet_files))
     if primary_marker not in start_here:
         failures.append(
             "START_HERE.md: PR Stage 1 packet must identify "
@@ -11787,18 +11820,25 @@ def _support_context_authority_failures(
         r"preparation|design|proposal|discussion|evidence)\b)"
     )
     authority_verb = r"(?:authorizes|approves|permits|grants|enables|allows)"
+    authority_base_verb = r"(?:authorize|approve|permit|grant|enable|allow)"
+    affirmative_modal = r"(?:can|could|may|might|will|would|shall|should|must)"
+    authority_predicate = (
+        rf"(?:(?:now\s+)?{authority_verb}|"
+        rf"{affirmative_modal}\s+(?:now\s+)?{authority_base_verb})"
+    )
     authority_leads = [
-        rf"\b{subject}\s+(?:now\s+)?{authority_verb}\b",
+        rf"\b{subject}\s+{authority_predicate}\b",
         rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+[ \t]*)"
-        rf"support (?:context|file|artifact)\s+(?:now\s+)?"
-        rf"{authority_verb}\b",
+        rf"support (?:context|file|artifact)\s+{authority_predicate}\b",
     ]
 
     def lead_governs_positive_target(lead_match: re.Match[str]) -> bool:
         clause = normalized[lead_match.end() : lead_match.end() + 500]
         clause = re.split(r"[.!?]|\r?\n[ \t]*\r?\n", clause, maxsplit=1)[0]
         target_pattern = re.compile(rf"\b(?:the\s+)?{gated_target}\b")
-        reset_pattern = re.compile(rf"\b(?:but|however|yet|{authority_verb})\b|;")
+        reset_pattern = re.compile(
+            rf"\b(?:but|however|yet|{authority_verb}|{authority_base_verb})\b|;"
+        )
         for target_match in target_pattern.finditer(clause):
             prefix = clause[: target_match.start()]
             reset_matches = list(reset_pattern.finditer(prefix))
@@ -11862,6 +11902,7 @@ def _branch_planning_review_gate_state_failures(
     all_review_text = _exact_decision_text(packet_files)
     normalized_all_review_text = re.sub(r"\s+", " ", all_review_text).casefold()
     stage1_posture = _is_pr_stage1_packet_posture(packet_files)
+    failures.extend(_pr_stage1_support_location_failures(packet_files))
     branch_planning_context = any(
         marker in normalized_all_review_text
         for marker in (
@@ -11976,10 +12017,16 @@ def _branch_planning_review_gate_state_failures(
                     f"{file_name}: USER Gate State '{support_context_value}' "
                     "is misclassified as Support Context State"
                 )
-            if _packet_file_basename(file_name) != USER_BRANCH_PLAN_REVIEW_FILE:
+            canonical_support_path = (
+                f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}"
+            )
+            if (
+                _normalized_packet_relative_path(file_name) != canonical_support_path
+                and _packet_file_basename(file_name) != USER_BRANCH_PLAN_REVIEW_FILE
+            ):
                 failures.append(
-                    f"{file_name}: Support Context State is not allowed in a "
-                    "primary USER decision artifact"
+                    f"{file_name}: Support Context State is allowed only at "
+                    f"{canonical_support_path}"
                 )
             if user_gate_value:
                 failures.append(
@@ -11997,10 +12044,19 @@ def _branch_planning_review_gate_state_failures(
             "without Packet Reviewability State"
         )
 
-    branch_plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
-    branch_plan_display_name = _packet_file_path(
-        packet_files,
-        USER_BRANCH_PLAN_REVIEW_FILE,
+    canonical_support_path = f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}"
+    canonical_support_items = [
+        (file_name, text)
+        for file_name, text in _packet_file_items(
+            packet_files,
+            USER_BRANCH_PLAN_REVIEW_FILE,
+        )
+        if _normalized_packet_relative_path(file_name) == canonical_support_path
+    ]
+    branch_plan_display_name, branch_plan_review = (
+        canonical_support_items[0]
+        if canonical_support_items
+        else (canonical_support_path, "")
     )
     branch_plan_support_count = _state_marker_count(
         branch_plan_review,
@@ -12014,7 +12070,11 @@ def _branch_planning_review_gate_state_failures(
         branch_plan_review,
         "Packet Reviewability State:",
     )
-    if stage1_ready and branch_plan_review:
+    if stage1_ready and not branch_plan_review:
+        failures.append(
+            f"{canonical_support_path}: Stage 1-ready support artifact is missing"
+        )
+    elif stage1_ready:
         if branch_plan_reviewability_count != 1:
             failures.append(
                 f"{branch_plan_display_name}: Stage 1-ready support artifact must "

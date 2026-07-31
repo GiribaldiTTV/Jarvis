@@ -723,6 +723,33 @@ def _assert_support_context_state_contract() -> None:
             "direct-authority regression matrix did not execute all 48 cases"
         )
 
+    modal_authority_case_count = 0
+    for modal in (
+        "can",
+        "could",
+        "may",
+        "might",
+        "will",
+        "would",
+        "shall",
+        "should",
+        "must",
+    ):
+        for verb in ("authorize", "approve", "permit", "grant", "enable", "allow"):
+            assert_fails(
+                f"modal-support-authority-{modal}-{verb}",
+                stage1_packet(
+                    canonical_support
+                    + f"\nThis support artifact {modal} {verb} PR creation.\n"
+                ),
+                "attempts to authorize a USER-gated action",
+            )
+            modal_authority_case_count += 1
+    if modal_authority_case_count != 54:
+        raise AssertionError(
+            "modal-authority regression matrix did not execute all 54 cases"
+        )
+
     for gated_action in (
         "implementation work",
         "implementation execution",
@@ -836,6 +863,21 @@ def _assert_support_context_state_contract() -> None:
                     f"{non_authorizing_text!r}\n"
                     + "\n".join(negative_authority_failures)
                 )
+
+    for negative_modal in (
+        "This support artifact cannot authorize Stage 2.",
+        "This support artifact can not authorize Stage 2.",
+        "This supporting context will not permit PR creation.",
+        "This support file may never approve implementation work.",
+    ):
+        negative_modal_failures = support_failures(
+            stage1_packet(canonical_support + "\n" + negative_modal + "\n")
+        )
+        if negative_modal_failures:
+            raise AssertionError(
+                f"negative modal authority was treated as approval: {negative_modal!r}\n"
+                + "\n".join(negative_modal_failures)
+            )
 
     for contrast_authority in (
         "This support artifact authorizes no implementation work, but permits PR creation.",
@@ -996,6 +1038,33 @@ def _assert_support_context_state_contract() -> None:
             "attempts to authorize a USER-gated action",
         )
 
+    misplaced_support = dict(canonical_packet)
+    misplaced_support["USER Review/USER_BRANCH_PLAN_REVIEW.md"] = canonical_support
+    for validator in (
+        bundle._branch_planning_review_gate_state_failures,
+        bundle._pr_stage1_review_failures,
+    ):
+        misplaced_failures = validator(misplaced_support)
+        if not any(
+            "Support Context State is allowed only at "
+            "Review Aids/USER_BRANCH_PLAN_REVIEW.md" in failure
+            for failure in misplaced_failures
+        ):
+            raise AssertionError(
+                f"{validator.__name__} accepted a support-state duplicate in USER Review:\n"
+                + "\n".join(misplaced_failures)
+            )
+
+    normalized_duplicate_support = dict(canonical_packet)
+    normalized_duplicate_support["Review Aids\\USER_BRANCH_PLAN_REVIEW.md"] = (
+        canonical_support
+    )
+    assert_fails(
+        "duplicate-normalized-support-path",
+        normalized_duplicate_support,
+        "duplicate normalized support paths",
+    )
+
     context_in_primary = dict(canonical_packet)
     context_in_primary["USER Review/PR_READINESS_STAGE1_REVIEW.md"] += (
         "\n## Support Context State\nContext Only\n"
@@ -1003,7 +1072,7 @@ def _assert_support_context_state_contract() -> None:
     assert_fails(
         "support-context-in-primary",
         context_in_primary,
-        "not allowed in a primary USER decision artifact",
+        "Support Context State is allowed only at Review Aids/USER_BRANCH_PLAN_REVIEW.md",
     )
 
     context_only_primary = dict(canonical_packet)
