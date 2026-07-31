@@ -535,6 +535,42 @@ def _assert_support_context_state_contract() -> None:
             + "\n".join(failures)
         )
 
+    for primary_marker in (
+        "Packet Reviewability State",
+        "USER Gate State",
+        "Stage 1 Outcome",
+    ):
+        renamed_marker_packet = dict(canonical_packet)
+        renamed_marker_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+            renamed_marker_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"].replace(
+                f"## {primary_marker}\n",
+                f"## {primary_marker} Notes\n",
+                1,
+            )
+        )
+        assert_fails(
+            f"renamed-primary-{primary_marker}",
+            renamed_marker_packet,
+            f"must contain exactly one {primary_marker}",
+        )
+        duplicate_marker_packet = dict(canonical_packet)
+        primary_text = duplicate_marker_packet[
+            "USER Review/PR_READINESS_STAGE1_REVIEW.md"
+        ]
+        canonical_heading = f"## {primary_marker}\n"
+        duplicate_marker_packet["USER Review/PR_READINESS_STAGE1_REVIEW.md"] = (
+            primary_text.replace(
+                canonical_heading,
+                canonical_heading + "Duplicate fixture value\n\n" + canonical_heading,
+                1,
+            )
+        )
+        assert_fails(
+            f"duplicate-primary-{primary_marker}",
+            duplicate_marker_packet,
+            f"must contain exactly one {primary_marker}",
+        )
+
     missing_support_reviewability = re.sub(
         r"## Packet Reviewability State\n\n[^\n]+\n\n",
         "",
@@ -699,6 +735,16 @@ def _assert_support_context_state_contract() -> None:
                 canonical_support
                 + f"\nThis supporting artifact authorizes {gated_action}.\n"
             ),
+            "attempts to authorize a USER-gated action",
+        )
+
+    for paragraph_authority in (
+        "# Authority\n\nSupport artifact authorizes Stage 2.\n",
+        "Authority:\nSupport context allows PR creation.\n",
+    ):
+        assert_fails(
+            "paragraph-boundary-support-authority",
+            stage1_packet(canonical_support + "\n" + paragraph_authority),
             "attempts to authorize a USER-gated action",
         )
 

@@ -1420,6 +1420,16 @@ def _pr_stage1_review_failures(packet_files: Mapping[str, str]) -> list[str]:
     ):
         if heading not in text:
             failures.append(f"{display_name}: PR Stage 1 artifact is missing {heading}")
+    for marker in (
+        "Packet Reviewability State:",
+        "USER Gate State:",
+        "Stage 1 Outcome:",
+    ):
+        if _state_marker_count(text, marker) != 1:
+            failures.append(
+                f"{display_name}: PR Stage 1 primary artifact must contain exactly one "
+                f"{marker.removesuffix(':')}"
+            )
     for support_file in (
         f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}",
         f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}",
@@ -11752,7 +11762,8 @@ def _support_context_authority_failures(
     *,
     support_artifact: bool = False,
 ) -> list[str]:
-    normalized = re.sub(r"\s+", " ", _markdown_semantic_text(text)).casefold()
+    semantic_text = _markdown_semantic_text(text)
+    normalized = re.sub(r"[^\S\r\n]+", " ", semantic_text).casefold()
     subject = (
         r"(?:this|the|a|an)\s+"
         r"(?:support(?:ing)?(?:\s+(?:context|file|artifact))?|"
@@ -11768,7 +11779,8 @@ def _support_context_authority_failures(
     authority_patterns = [
         rf"\b{subject}\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables|allows)\s+"
         rf"(?:the\s+)?{gated_target}\b",
-        rf"(?:^|[.!?]\s+)support (?:context|file|artifact)\s+(?:now\s+)?"
+        rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+[ \t]*)"
+        rf"support (?:context|file|artifact)\s+(?:now\s+)?"
         rf"(?:authorizes|approves|permits|grants|enables|allows)\s+(?:the\s+)?{gated_target}\b",
         rf"\b{gated_target}\s+(?:(?:is|becomes)\s+)?(?!(?:not|never)\b)"
         r"(?:now\s+)?(?:authorized|approved|permitted|granted|enabled|allowed)\s+"

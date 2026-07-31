@@ -131,6 +131,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "gated-action matches",
             "exclude analysis nouns",
             "support context attempts to authorize",
+            "preserve paragraph boundaries in bare support-authority scans",
+            "bare support-authority scans",
+            "bare support artifact",
         ),
     ),
     FamilyRule(
@@ -186,6 +189,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "changed branch receipt not registered in the selected matrix",
             "detached head checkout",
             "silently skips the new intended write set validation",
+            "reject duplicate intended write set fields",
+            "two intended write set fields",
+            "exactly one canonical write-set field",
         ),
     ),
     FamilyRule(
@@ -195,6 +201,17 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "common review phrase",
             "corrupts observed-family counts",
             "unknown-comment guardrail",
+            "scope pr-specific classifier families to their matrix",
+            "pr-specific rules are globally active",
+            "selected matrix defines the corresponding families",
+        ),
+    ),
+    FamilyRule(
+        "user-review-primary-marker-cardinality",
+        (
+            "require exact markers on the stage 1 primary artifact",
+            "lack the canonical primary user-gate field",
+            "exactly one marker on the primary artifact",
         ),
     ),
     FamilyRule(
@@ -213,6 +230,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "inventory generator's current counting formula",
             "committed audit was produced before the final receipt expansion",
             "stale generated inventory counts",
+            "check inventory whenever a branch receipt changes",
+            "omits the generated inventory from its diff",
+            "changed receipt candidates",
         ),
     ),
     FamilyRule(
@@ -707,13 +727,18 @@ def _is_connector_login(login: str) -> bool:
     return normalized in CONNECTOR_LOGINS
 
 
-def _classify_comment(body: str) -> list[str]:
+def _classify_comment(
+    body: str,
+    allowed_families: set[str] | None = None,
+) -> list[str]:
     normalized = _normalize(body)
     has_classifier_context = any(
         keyword in normalized for keyword in CLASSIFIER_CONTEXT_KEYWORDS
     )
     families: list[str] = []
     for rule in FAMILY_RULES:
+        if allowed_families is not None and rule.family_id not in allowed_families:
+            continue
         matched_keywords = [
             keyword for keyword in rule.keywords if keyword in normalized
         ]
@@ -782,6 +807,9 @@ def _classifier_guardrail_failures() -> list[str]:
         "user-review-inventory-currentness": (
             "Regenerate the inventory after final receipt edits so stale generated inventory counts cannot survive."
         ),
+        "user-review-primary-marker-cardinality": (
+            "Require exact markers on the Stage 1 primary artifact so it cannot lack the canonical primary USER-gate field."
+        ),
     }
     for family_id, comment in user_review_examples.items():
         if family_id not in _classify_comment(comment):
@@ -796,6 +824,21 @@ def _classifier_guardrail_failures() -> list[str]:
     ):
         failures.append(
             "Comment-family classifier overmatched benign review-aid guidance as authority"
+        )
+    scoped_comment = (
+        "Scope PR-specific classifier families to their matrix because the default matrix "
+        "must not activate unrelated rules."
+    )
+    if _classify_comment(scoped_comment, {"user-review-support-state"}) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier ignored the selected matrix family scope"
+        )
+    if "user-review-comment-family-precision" not in _classify_comment(
+        scoped_comment,
+        {"user-review-comment-family-precision"},
+    ):
+        failures.append(
+            "Comment-family classifier rejected a family permitted by the selected matrix"
         )
     for unrelated_never_checked in (
         "The subprocess return code is never checked.",
@@ -1088,7 +1131,10 @@ def _classifier_guardrail_failures() -> list[str]:
     return failures
 
 
-def _connector_review_comments(review_comments: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _connector_review_comments(
+    review_comments: list[dict[str, Any]],
+    allowed_families: set[str],
+) -> list[dict[str, Any]]:
     comments: list[dict[str, Any]] = []
     for comment in review_comments:
         author = (comment.get("user") or {}).get("login", "")
@@ -1107,7 +1153,7 @@ def _connector_review_comments(review_comments: list[dict[str, Any]]) -> list[di
             "url": comment.get("html_url") or "",
             "isResolved": False,
             "isOutdated": False,
-            "families": _classify_comment(body),
+            "families": _classify_comment(body, allowed_families),
         }
         comments.append(item)
     return comments
@@ -1223,20 +1269,25 @@ def _branch_receipt_write_set_text_failures(
     text: str,
     changed_files: list[str],
 ) -> list[str]:
-    match = re.search(
+    matches = re.findall(
         r"^Intended Write Set:\s*`([^`]*)`\s*$",
         text,
-        flags=re.MULTILINE,
+        flags=re.IGNORECASE | re.MULTILINE,
     )
-    if match is None:
+    if not matches:
         if record_relative in changed_files:
             return [
                 f"{record_relative}: changed branch receipt omits Intended Write Set"
             ]
         return []
+    if len(matches) != 1:
+        return [
+            f"{record_relative}: changed branch receipt must contain exactly one "
+            "Intended Write Set"
+        ]
     recorded = {
         item.strip().replace("\\", "/")
-        for item in match.group(1).split(";")
+        for item in matches[0].split(";")
         if item.strip()
     }
     changed = {item.replace("\\", "/") for item in changed_files}
@@ -1283,6 +1334,13 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     no_field = _branch_receipt_write_set_text_failures(record, "# Branch Receipt\n", changed)
     if not any("omits Intended Write Set" in failure for failure in no_field):
         failures.append("Branch receipt write-set guardrail missed a changed receipt without a field")
+    duplicate = _branch_receipt_write_set_text_failures(
+        record,
+        exact + exact,
+        changed,
+    )
+    if not any("exactly one Intended Write Set" in failure for failure in duplicate):
+        failures.append("Branch receipt write-set guardrail missed duplicate fields")
     unmapped_record = "Docs/branch_records/feature_unmapped_example.md"
     candidate_changed = [
         *changed,
@@ -1403,6 +1461,11 @@ def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
     )
     if not any("omits one or more" in failure for failure in missing):
         failures.append("Inventory receipt currentness guardrail missed a generated surface")
+    missing_audit = _docs_inventory_receipt_currentness_failures([record])
+    if not any("requires regenerated docs inventory" in failure for failure in missing_audit):
+        failures.append(
+            "Inventory receipt currentness guardrail missed a changed receipt without inventory regeneration"
+        )
     return failures
 
 
@@ -1411,14 +1474,19 @@ def _docs_inventory_receipt_currentness_failures(
 ) -> list[str]:
     audit_relative = "Docs/governance_docs_full_inventory_reform_audit.md"
     changed = {path.replace("\\", "/") for path in changed_files}
-    if audit_relative not in changed:
+    receipt_candidates = _branch_receipt_candidates(changed_files)
+    if not receipt_candidates:
         return []
+    if audit_relative not in changed:
+        return [
+            "Changed branch receipt requires regenerated docs inventory in the current diff"
+        ]
     audit_path = ROOT / audit_relative
     if not audit_path.is_file():
         return [f"{audit_relative}: changed generated inventory is missing"]
     audit_text = audit_path.read_text(encoding="utf-8")
     failures: list[str] = []
-    for record_relative in _branch_receipt_candidates(changed_files):
+    for record_relative in receipt_candidates:
         record_path = ROOT / record_relative
         if not record_path.is_file():
             continue
@@ -1929,6 +1997,7 @@ def _validate_pre_pr_firewall(
 
     changed_families = _families_for_changed_files(matrix, changed_helper_files)
     entries = _family_entries(matrix)
+    allowed_families = set(entries)
     if changed_helper_files and not changed_families:
         failures.append(
             "Pre-PR firewall found changed helper/validator/parser files but no mapped families"
@@ -1967,7 +2036,7 @@ def _validate_pre_pr_firewall(
             if not isinstance(comment, str) or not comment.strip():
                 failures.append(f"connector_corpus_replay row {index} has no comment text")
                 continue
-            classified = set(_classify_comment(comment))
+            classified = set(_classify_comment(comment, allowed_families))
             if family_id not in classified:
                 failures.append(
                     f"connector_corpus_replay row {index} did not classify as {family_id}: {sorted(classified)}"
@@ -1984,7 +2053,7 @@ def _validate_pre_pr_firewall(
             if not isinstance(comment, str) or not comment.strip():
                 failures.append(f"unknown_comment_guardrails row {index} is blank")
                 continue
-            classified = _classify_comment(comment)
+            classified = _classify_comment(comment, allowed_families)
             if classified != ["unknown"]:
                 failures.append(
                     f"unknown_comment_guardrails row {index} overmatched as {classified}"
@@ -2076,7 +2145,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     changed_files = _changed_files(args.base)
     matrix_path, matrix_selection = _select_matrix_path(args.matrix, changed_files)
     matrix = _load_matrix(matrix_path)
-    comments = _connector_review_comments(review_comments)
+    comments = _connector_review_comments(review_comments, set(_family_entries(matrix)))
     thread_counts = _thread_counts(threads)
     changed_helper_files = [
         path for path in changed_files if _is_firewall_gated_path(path, matrix)
