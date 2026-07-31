@@ -996,6 +996,7 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         original.replace(
             "USER Feedback Disposition Required: `Yes`",
             "Current Gate: `BP1 Branch Vision Revision USER review pending; implementation blocked`\n"
+            "Final Replacement Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`\n"
             "USER Feedback Disposition Required: `Yes`",
             1,
         )
@@ -1017,6 +1018,18 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         .replace(
             "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`",
             "Implementation Scope: `Revised BP1 planning only; no implementation authority`",
+            1,
+        )
+        .replace(
+            "Branch Plan Revision Packet: `Required with USER decision for scope changes`",
+            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`\n"
+            "Prior Accepted BP1 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n"
+            "Prior Accepted BP2 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n"
+            "Current Revised BP1 Authority Owner: `C:\\Nexus Governance State\\branches\\feature_fam_003_settings_resize_proof\\branch_plan.md#Branch Vision Contract Snapshot`\n"
+            "Current Revised BP1 Authority Status: `UNACCEPTED / USER review pending`\n"
+            "Current Revised BP1 Primary Artifact: `C:\\Nexus USER\\FAM-003\\USER Review\\USER_BRANCH_VISION_REVIEW.md`\n"
+            "Current Revised BP1 Primary Artifact Role: `USER decision surface / not canonical source truth`\n"
+            "Current Revised BP1 Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`",
             1,
         )
     )
@@ -1048,6 +1061,42 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         validate(revision_pending.replace(
             "Implementation Scope: `Revised BP1 planning only; no implementation authority`",
             "Implementation Scope: `Revised BP1 workstream implementation approved`",
+            1,
+        )),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision snapshot omits prior-baseline classification",
+        "Prior Accepted BP1 Baseline Classification",
+        validate(revision_pending.replace(
+            "Prior Accepted BP1 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n",
+            "",
+            1,
+        )),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision snapshot falsely treats prior BP2 as current",
+        "Prior Accepted BP2 Baseline Classification",
+        validate(revision_pending.replace(
+            "Prior Accepted BP2 Baseline Classification: `Prior accepted baseline / superseded for current revised target`",
+            "Prior Accepted BP2 Baseline Classification: `Current accepted authority`",
+            1,
+        )),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision snapshot claims current candidate accepted",
+        "Current Revised BP1 Authority Status",
+        validate(revision_pending.replace(
+            "Current Revised BP1 Authority Status: `UNACCEPTED / USER review pending`",
+            "Current Revised BP1 Authority Status: `ACCEPTED`",
+            1,
+        )),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision packet lineage disagrees",
+        "packet fields must agree",
+        validate(revision_pending.replace(
+            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`",
+            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-140000.zip`",
             1,
         )),
     )
@@ -2628,7 +2677,7 @@ def main() -> int:
     print(
         "Target-scoped external-state currentness fixture validation: PASS "
         "(24 canonical-UFD + 1 revision-pending Branch Vision positive + "
-        "9 Branch Vision negative + 12 Element-to-Phase negative + "
+        "13 Branch Vision negative + 12 Element-to-Phase negative + "
         "3 non-plan projection ownership + 1 accepted-BP3 identity positive + "
         "3 accepted-BP3 identity negative fixtures)"
     )

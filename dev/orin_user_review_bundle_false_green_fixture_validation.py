@@ -6340,6 +6340,9 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
     support = (
         "# Current supporting evidence\n\n"
         "Current Gate: `BP1 Branch Vision Revision USER review pending`\n\n"
+        "Prior Accepted BP1 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n"
+        "Prior Accepted BP2 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n"
+        "Current Revised BP1 Authority Status: `UNACCEPTED / USER review pending`\n\n"
         "## Next Legal Phase Digest\n\n"
         + "\n".join(fields)
         + "\n\n### Alternative Exact USER Approval Text - Option B\n\n"
@@ -6349,6 +6352,19 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
     primary = (
         f"{bundle.FAM003_REVISED_BP1_PRIMARY_TITLE}\n\n"
         "Current Gate: `BP1 Branch Vision Revision USER review pending`\n\n"
+        "## Contract Status\n\n`REVISION_PENDING`\n\n"
+        "## Contract Revision\n\n`Revised target pending formal BP1 acceptance`\n\n"
+        "## Selected Implementation Route\n\n`Reference-derived implementation after later gates`\n\n"
+        "## Codex Understanding\n\nOnly availability changes on enable.\n\n"
+        "## Current Revised Branch Vision Candidate\n\nCandidate only; not accepted.\n\n"
+        "## Family-Vision Versus Branch-Only Vision Impact\n\nFAM-003 owns the doorway; FAM-006 retains Dashboard internals.\n\n"
+        "## Must-Have Behavior\n\nEnable without open.\n\n"
+        "## Regression-Risk Boundaries\n\nNo runtime or sibling mutation.\n\n"
+        "## Deferred / Future-Gated Ideas\n\nOverlay naming remains deferred.\n\n"
+        "## Vision Question Queue\n\nOnly disable-while-open A/B remains.\n\n"
+        "## Design Assumption Ledger\n\nAll other target details are frozen for this review.\n\n"
+        "## USER Design Questions\n\n"
+        "- Should disable use Option A or Option B for an already-open Dashboard?\n\n"
         "## Exact USER Decision Text\n\n"
         f"Recommended Option A:\n\n> {option_a}\n\n"
         f"Option B:\n\n> {option_b}\n"
@@ -6361,6 +6377,36 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
             "Source Truth Context/Active External Snapshot/"
             + bundle.FAM003_REVISED_BP1_SUPPORT_FILE
         ): support,
+        "Review Aids/SOURCE_TRUTH_LOAD_LEDGER.md": (
+            "# Source Truth Load Ledger\n\n"
+            "`Docs/Main.md` was loaded first. `Docs/nexus_startup_contract.md` was not loaded.\n\n"
+            + "\n".join(
+                f"{index}. `{path}`"
+                for index, path in enumerate(
+                    bundle.FAM003_REVISED_BP1_REQUIRED_SOURCE_LOADS, 1
+                )
+            )
+            + "\n"
+        ),
+        "Review Aids/VISUAL_ACCEPTANCE_CHAIN.md": (
+            "# Visual Acceptance Chain\n\n"
+            "Visual Direction Status: `USER_REVISED / formal BP1 acceptance pending`\n"
+            "Render Authority: `Design Candidate Render`\n"
+            "Implementation Authority: `Reference-Derived Implementation`\n"
+            "Implementation-Match Proof Status: `NOT_STARTED`\n"
+        ),
+        "Review Aids/VISUAL_FAMILY_RELATION_PROOF.md": "# Visual Family Relation Proof\n",
+        "Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md": "# Implementation Authority Table\n",
+        "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md": (
+            "# Functionality Role Contract\n\n"
+            "Concrete USER-facing feature: planned and not delivered by this packet repair.\n"
+            "Governance / packet / documentation: current deliverable.\n"
+            "Proof / validator / helper: current supporting deliverable.\n"
+        ),
+        "Review Aids/REJECTED_PATTERN_LEDGER.md": "# Rejected Pattern Ledger\n",
+        "Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md": "# Source Truth Conflict Classification\n",
+        "Review Aids/SCOPE_COVERAGE_MANIFEST.md": "# Scope Coverage Manifest\n\nCurrent projection reviewed.\n",
+        "Review Aids/ATOMIC_DEFECT_LEDGER.md": "# Atomic Defect Ledger\n\nAll current defects are CLOSED_WITH_PROOF.\n",
     }
 
     def expect_failure(case_id: str, candidate: dict[str, str], expected: str) -> None:
@@ -6428,6 +6474,50 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
         1,
     )
     expect_failure("revised-bp1-implementation-grant", mutated, "full recommended")
+
+    mutated = dict(packet)
+    mutated["USER Review/USER_BRANCH_VISION_REVIEW.md"] = primary.replace(
+        "## Contract Status\n\n`REVISION_PENDING`\n\n", "", 1
+    )
+    expect_failure("revised-bp1-contract-status-missing", mutated, "Contract Status")
+
+    mutated = dict(packet)
+    mutated["USER Review/USER_BRANCH_VISION_REVIEW.md"] = primary.replace(
+        "- Should disable use Option A or Option B for an already-open Dashboard?",
+        "- Should disable use Option A or Option B for an already-open Dashboard?\n"
+        "- Is the proposed readability hierarchy correct?",
+        1,
+    )
+    expect_failure("revised-bp1-frozen-question-reopened", mutated, "only the frozen")
+
+    mutated = dict(packet)
+    mutated["Review Aids/SOURCE_TRUTH_LOAD_LEDGER.md"] = mutated[
+        "Review Aids/SOURCE_TRUTH_LOAD_LEDGER.md"
+    ].replace("Docs/nexus_vision.md", "Docs/nexus_vision-omitted.md", 1)
+    expect_failure("revised-bp1-vision-owner-omitted", mutated, "Docs/nexus_vision.md")
+
+    mutated = dict(packet)
+    del mutated["Review Aids/VISUAL_ACCEPTANCE_CHAIN.md"]
+    expect_failure("revised-bp1-visual-chain-missing", mutated, "VISUAL_ACCEPTANCE_CHAIN.md")
+
+    mutated = dict(packet)
+    mutated["Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md"] = mutated[
+        "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md"
+    ].replace("not delivered by this packet repair", "delivered", 1)
+    expect_failure("revised-bp1-feature-delivery-overclaim", mutated, "not delivered")
+
+    mutated = dict(packet)
+    support_path = next(
+        path for path in mutated if path.endswith(bundle.FAM003_REVISED_BP1_SUPPORT_FILE)
+    )
+    mutated[support_path] = support.replace(
+        "Current Gate:", "Current Workstream Packet: `FAM-003-current.zip`\n\nCurrent Gate:", 1
+    )
+    expect_failure("revised-bp1-workstream-packet-mislabel", mutated, "Workstream packet")
+
+    mutated = dict(packet)
+    mutated["Review Aids/ATOMIC_DEFECT_LEDGER.md"] += "\n`FIXED_PENDING_FINAL_PACKET_PROOF`\n"
+    expect_failure("revised-bp1-final-proof-pending", mutated, "FIXED_PENDING_FINAL_PACKET_PROOF")
 
     return_text = "BP1 REVISION PACKET READY - USER REVIEW PENDING\n\n"
     return_failures = bundle._fam003_revised_bp1_codex_return_digest_failures(return_text)
@@ -6977,7 +7067,7 @@ def main() -> int:
         "False-green fixture validation: PASS "
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "1 Workstream phase-review positive + 23 Workstream phase-review negatives + "
-        "1 revised-BP1 exact-decision positive + 9 revised-BP1 exact-decision negatives + "
+        "1 revised-BP1 exact-decision positive + 16 revised-BP1 exact-decision negatives + "
         "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
         "1 consolidated-decision positive + 42 consolidated-decision negatives + "
         "38 consolidated mandatory-contract negatives + "

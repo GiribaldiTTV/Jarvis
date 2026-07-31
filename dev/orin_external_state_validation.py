@@ -753,6 +753,50 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
             failures.append(
                 "Branch Vision Contract Snapshot: revision-pending snapshot USER Vision Green must be No or Pending"
             )
+        revision_contract = {
+            "Prior Accepted BP1 Baseline Classification": (
+                "prior accepted baseline",
+                "superseded",
+            ),
+            "Prior Accepted BP2 Baseline Classification": (
+                "prior accepted baseline",
+                "superseded",
+            ),
+            "Current Revised BP1 Authority Owner": ("branch_plan.md",),
+            "Current Revised BP1 Authority Status": (
+                "unaccepted",
+                "user review pending",
+            ),
+            "Current Revised BP1 Primary Artifact": (
+                "USER_BRANCH_VISION_REVIEW.md",
+            ),
+            "Current Revised BP1 Primary Artifact Role": (
+                "user decision surface",
+                "not canonical source truth",
+            ),
+            "Current Revised BP1 Packet": ("FAM-003-", ".zip"),
+        }
+        for field, required_terms in revision_contract.items():
+            value = markdown_field_value(section, field) or ""
+            if not value or any(
+                term.casefold() not in value.casefold() for term in required_terms
+            ):
+                failures.append(
+                    "Branch Vision Contract Snapshot: revision-pending snapshot "
+                    f"must carry truthful {field} current-authority classification"
+                )
+        final_packet = markdown_field_value(live_text, "Final Replacement Packet") or ""
+        revision_packet = markdown_field_value(section, "Branch Plan Revision Packet") or ""
+        current_packet = markdown_field_value(section, "Current Revised BP1 Packet") or ""
+        normalized_final = _normalized_windows_value(final_packet)
+        if not normalized_final or any(
+            _normalized_windows_value(value) != normalized_final
+            for value in (revision_packet, current_packet)
+        ):
+            failures.append(
+                "Branch Vision Contract Snapshot: active revised-BP1 packet fields "
+                "must agree with Final Replacement Packet"
+            )
     implementation_scope = (
         markdown_field_value(section, "Implementation Scope") or ""
     ).casefold()

@@ -8705,6 +8705,52 @@ FAM003_REVISED_BP1_DIGEST_FILE = "Review Aids/FORMAL_NEXT_LEGAL_PHASE_DIGEST.md"
 FAM003_REVISED_BP1_SUPPORT_FILE = (
     "decision2_option_g_bp3_final_supporting_evidence_20260727.md"
 )
+FAM003_REVISED_BP1_REQUIRED_PRIMARY_HEADINGS = (
+    "## Contract Status",
+    "## Contract Revision",
+    "## Selected Implementation Route",
+    "## Codex Understanding",
+    "## Current Revised Branch Vision Candidate",
+    "## Family-Vision Versus Branch-Only Vision Impact",
+    "## Must-Have Behavior",
+    "## Regression-Risk Boundaries",
+    "## Deferred / Future-Gated Ideas",
+    "## Vision Question Queue",
+    "## Design Assumption Ledger",
+    "## USER Design Questions",
+    "## Exact USER Decision Text",
+)
+FAM003_REVISED_BP1_REQUIRED_SOURCE_LOADS = (
+    "Docs/Main.md",
+    "Docs/phase_governance.md",
+    "Docs/development_rules.md",
+    "Docs/codex_modes.md",
+    "Docs/branch_plans/README.md",
+    "Docs/validation_helper_registry.md",
+    "Docs/nexus_vision.md",
+    "Docs/family_visions/FAM-002_desktop_interface.md",
+    "Docs/family_visions/FAM-003_interaction_and_actions.md",
+    "Docs/family_visions/FAM-006_monitoring_and_hud.md",
+    "Docs/family_feature_visions/F3-FF01.md",
+    "Docs/ui_reference_catalog/index.md",
+    "Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md",
+    "Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md",
+    "Docs/ui_reference_catalog/UIREF-003_control_state_and_selector_grammar.md",
+    "Docs/ui_reference_catalog/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md",
+    "Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md",
+    "Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md",
+    "bp1_branch_vision_revision_20260715.md",
+    "bp2_hud_page_visual_selection_ledger_20260716.md",
+    "decision2_option_g_bp2_gate_repair_20260724.md",
+)
+FAM003_REVISED_BP1_REQUIRED_VISUAL_CONTRACT_FILES = (
+    "Review Aids/VISUAL_ACCEPTANCE_CHAIN.md",
+    "Review Aids/VISUAL_FAMILY_RELATION_PROOF.md",
+    "Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md",
+    "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md",
+    "Review Aids/REJECTED_PATTERN_LEDGER.md",
+    "Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md",
+)
 FAM003_REVISED_BP1_OPTION_A = (
     "I accept the FAM-003 revised BP1 Branch Vision and Visual Acceptance Target for "
     "`feature/fam-003-settings-resize-proof`, including enable-without-open, HUD "
@@ -8881,12 +8927,143 @@ def _fam003_revised_bp1_exact_decision_failures(
             "FAM-003 revised BP1: primary review must contain exactly one full Option B alternative"
         )
 
+    for heading in FAM003_REVISED_BP1_REQUIRED_PRIMARY_HEADINGS:
+        if _markdown_section_count(primary, heading) != 1:
+            failures.append(
+                "FAM-003 revised BP1: primary review must contain exactly one "
+                f"{heading} section"
+            )
+
+    questions = _markdown_section(primary, "## USER Design Questions")
+    question_rows = [
+        line
+        for line in questions.splitlines()
+        if line.lstrip().startswith(("- ", "* "))
+    ]
+    if len(question_rows) != 1 or not all(
+        term in question_rows[0].casefold()
+        for term in ("option a", "option b", "disable")
+    ):
+        failures.append(
+            "FAM-003 revised BP1: USER Design Questions must contain only the "
+            "frozen disable-while-open Option A/B decision"
+        )
+    for reopened in (
+        "visible empty child communicate",
+        "proposed readability hierarchy",
+        "correct target for the later bp2",
+    ):
+        if reopened in questions.casefold():
+            failures.append(
+                "FAM-003 revised BP1: USER Design Questions reopens a frozen "
+                f"visual-contract decision: {reopened}"
+            )
+
+    source_ledger = _packet_file_text(
+        packet_files, "Review Aids/SOURCE_TRUTH_LOAD_LEDGER.md"
+    )
+    for required_source in FAM003_REVISED_BP1_REQUIRED_SOURCE_LOADS:
+        if required_source not in source_ledger:
+            failures.append(
+                "FAM-003 revised BP1: source-load ledger omits required current "
+                f"authority {required_source}"
+            )
+    if "Docs/nexus_startup_contract.md` was not loaded" not in source_ledger:
+        failures.append(
+            "FAM-003 revised BP1: source-load ledger must explicitly record that "
+            "Docs/nexus_startup_contract.md was not loaded"
+        )
+
+    for required_file in FAM003_REVISED_BP1_REQUIRED_VISUAL_CONTRACT_FILES:
+        if not _packet_file_present(packet_files, required_file):
+            failures.append(
+                "FAM-003 revised BP1: visual-contract packet is missing "
+                f"{required_file}"
+            )
+
+    visual_chain = _packet_file_text(
+        packet_files, "Review Aids/VISUAL_ACCEPTANCE_CHAIN.md"
+    )
+    for marker in (
+        "Visual Direction Status:",
+        "Render Authority:",
+        "Implementation Authority:",
+        "Implementation-Match Proof Status:",
+    ):
+        if marker not in visual_chain:
+            failures.append(
+                "FAM-003 revised BP1: visual acceptance chain is missing "
+                f"{marker}"
+            )
+    if "formal bp1 acceptance pending" not in visual_chain.casefold():
+        failures.append(
+            "FAM-003 revised BP1: visual acceptance chain must preserve formal "
+            "BP1 acceptance pending"
+        )
+
+    role_contract = _packet_file_text(
+        packet_files, "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md"
+    )
+    for classification in (
+        "Concrete USER-facing feature",
+        "Governance / packet / documentation",
+        "Proof / validator / helper",
+    ):
+        if classification not in role_contract:
+            failures.append(
+                "FAM-003 revised BP1: functionality role contract omits "
+                f"{classification} classification"
+            )
+    if "not delivered by this packet repair" not in role_contract.casefold():
+        failures.append(
+            "FAM-003 revised BP1: functionality role contract must say the "
+            "planned USER-facing feature is not delivered by this packet repair"
+        )
+
+    scope_manifest = _packet_file_text(
+        packet_files, "Review Aids/SCOPE_COVERAGE_MANIFEST.md"
+    )
+    if re.search(r"\bState\s+7[0-9]\b", scope_manifest, re.IGNORECASE):
+        failures.append(
+            "FAM-003 revised BP1: scope coverage manifest retains a stale State 7x currentness claim"
+        )
+    defect_ledger = _packet_file_text(
+        packet_files, "Review Aids/ATOMIC_DEFECT_LEDGER.md"
+    )
+    if "FIXED_PENDING_FINAL_PACKET_PROOF" in defect_ledger:
+        failures.append(
+            "FAM-003 revised BP1: final packet cannot retain FIXED_PENDING_FINAL_PACKET_PROOF"
+        )
+
     for support_path, support_text in _packet_file_items(
         packet_files, FAM003_REVISED_BP1_SUPPORT_FILE
     ):
+        boundary_matches = list(
+            re.finditer(r"(?m)^Historical Receipt Boundary:\s*", support_text)
+        )
+        if len(boundary_matches) != 1:
+            failures.append(
+                "FAM-003 revised BP1: supporting evidence must contain exactly one "
+                "standalone Historical Receipt Boundary"
+            )
         active = support_text.partition("Historical Receipt Boundary:")[0]
         if "BP1 Branch Vision Revision USER review" not in active:
             continue
+        if "Current Workstream Packet:" in active:
+            failures.append(
+                "FAM-003 revised BP1: active supporting evidence mislabels the "
+                "current revised-BP1 packet as a Workstream packet"
+            )
+        for marker in (
+            "Prior Accepted BP1 Baseline Classification:",
+            "Prior Accepted BP2 Baseline Classification:",
+            "Current Revised BP1 Authority Status:",
+        ):
+            if marker not in active:
+                failures.append(
+                    "FAM-003 revised BP1: active supporting evidence is missing "
+                    f"{marker}"
+                )
         failures.extend(
             _fam003_revised_bp1_digest_surface_failures(
                 support_text,
