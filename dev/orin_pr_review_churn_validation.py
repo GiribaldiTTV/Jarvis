@@ -112,6 +112,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "binary blobs byte-exact",
             "git-normalized text formats",
             "copied source-context files",
+            "compare bare carriage returns exactly",
+            "bare carriage return",
         ),
     ),
     FamilyRule(
@@ -160,6 +162,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "semantic state section",
             "state markers inside fenced markdown",
             "exact support-state location",
+            "misplaced support state outside stage 1",
+            "support-only state",
         ),
     ),
     FamilyRule(
@@ -224,6 +228,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "scope pr-specific classifier families to their matrix",
             "pr-specific rules are globally active",
             "selected matrix defines the corresponding families",
+            "preserve findings that contain green wording",
+            "standalone no-findings summary",
         ),
     ),
     FamilyRule(
@@ -246,6 +252,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "mask inline markdown examples before authority matching",
             "inline code spans",
             "preserves the code span",
+            "mask multiline inline-code examples",
+            "multiline inline-code",
         ),
     ),
     FamilyRule(
@@ -858,9 +866,17 @@ def _classifier_guardrail_failures() -> list[str]:
     substantive_review_summary = (
         "### Codex Review\n\n"
         "**Validate the value of the Stage 1 Outcome field**\n\n"
-        "An invalid Stage 1 Outcome is accepted.\n\n"
+        "The surrounding logic looks good, but an invalid Stage 1 Outcome is accepted.\n\n"
         "<details>boilerplate</details>"
     )
+    if not _is_standalone_connector_green("Looks good."):
+        failures.append(
+            "Connector green-summary guardrail rejected a standalone green signal"
+        )
+    if _is_standalone_connector_green(substantive_review_summary):
+        failures.append(
+            "Connector green-summary guardrail treated finding prose as green"
+        )
     synthetic_summary_comments = _connector_review_summary_comments(
         [
             {
@@ -1233,7 +1249,7 @@ def _connector_review_comments(
     return comments
 
 
-def _substantive_review_summary_body(body: str) -> str:
+def _connector_review_summary_content(body: str) -> str:
     finding_text = re.split(r"<details\b", body, maxsplit=1, flags=re.IGNORECASE)[0]
     retained_lines: list[str] = []
     for line in finding_text.splitlines():
@@ -1248,20 +1264,29 @@ def _substantive_review_summary_body(body: str) -> str:
         if normalized.startswith("**reviewed commit:**"):
             continue
         retained_lines.append(stripped)
-    substantive = "\n".join(retained_lines)
-    if any(
-        phrase in substantive.casefold()
-        for phrase in (
-            "didn't find any major issues",
-            "didn\u2019t find any major issues",
-            "did not find any major issues",
-            "didnt find any major issues",
-            "no major issues",
-            "looks good",
-        )
-    ):
-        return ""
-    return substantive
+    return "\n".join(retained_lines)
+
+
+def _is_standalone_connector_green(body: str) -> bool:
+    content = _connector_review_summary_content(body).casefold().replace("\u2019", "'")
+    normalized = re.sub(r"[^\w']+", " ", content).strip()
+    return normalized in {
+        "didn't find any major issues",
+        "didnt find any major issues",
+        "did not find any major issues",
+        "no major issues",
+        "looks good",
+        "codex didn't find any major issues",
+        "codex didnt find any major issues",
+        "codex did not find any major issues",
+        "codex found no major issues",
+        "codex review looks good",
+    }
+
+
+def _substantive_review_summary_body(body: str) -> str:
+    substantive = _connector_review_summary_content(body)
+    return "" if _is_standalone_connector_green(substantive) else substantive
 
 
 def _connector_review_summary_comments(
@@ -2025,14 +2050,6 @@ def _extract_latest_green(
     review_summaries = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/reviews")
     if review_comments is None:
         review_comments = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/comments")
-    green_patterns = (
-        "didn't find any major issues",
-        "didn\u2019t find any major issues",
-        "did not find any major issues",
-        "didnt find any major issues",
-        "no major issues",
-        "looks good",
-    )
     candidates: list[tuple[str, str, str]] = []
     latest_request = _latest_review_request_after_head(owner, name, number, head_oid)
     latest_request_created = ""
@@ -2050,7 +2067,7 @@ def _extract_latest_green(
             and _is_at_or_after(created_at, latest_request_created)
             and _green_proof_after_latest_signal(created_at, latest_signal_floor)
             and _is_connector_login(author)
-            and any(pattern in body.casefold() for pattern in green_patterns)
+            and _is_standalone_connector_green(body)
         ):
             candidates.append(
                 (
@@ -2087,8 +2104,8 @@ def _extract_latest_green(
         body = item.get("body") or ""
         commit_id = item.get("commit_id") or ""
         submitted_at = item.get("submitted_at") or ""
-        is_green_summary = _is_connector_login(author) and any(
-            pattern in body.casefold() for pattern in green_patterns
+        is_green_summary = _is_connector_login(author) and _is_standalone_connector_green(
+            body
         )
         if is_green_summary and commit_id == head_oid:
             if not _green_proof_after_latest_request(

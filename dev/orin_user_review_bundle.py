@@ -4089,7 +4089,7 @@ def _git_file_bytes(ref: str, source_path: str) -> bytes | None:
 
 
 def _normalized_packet_text(text: str) -> str:
-    return text.replace("\r\n", "\n").replace("\r", "\n")
+    return text.replace("\r\n", "\n")
 
 
 def _utf8_identity_text(data: bytes) -> str | None:
@@ -11751,6 +11751,7 @@ def _markdown_semantic_text(text: str) -> str:
     )
     inline_code_pattern = re.compile(
         r"(?<![\\`])(`+)(?!`)(.+?)(?<!`)\1(?!`)",
+        re.DOTALL,
     )
 
     semantic_lines: list[str] = []
@@ -11785,9 +11786,7 @@ def _markdown_semantic_text(text: str) -> str:
                 fence_length = len(fence_match.group(1))
                 semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
             else:
-                semantic_lines.append(
-                    inline_code_pattern.sub(mask_non_newline_characters, line)
-                )
+                semantic_lines.append(line)
             previous_line_blank = line_is_blank
             continue
 
@@ -11800,7 +11799,10 @@ def _markdown_semantic_text(text: str) -> str:
             fence_length = 0
         semantic_lines.append("\n" if line.endswith(("\n", "\r")) else "")
         previous_line_blank = line_is_blank
-    return "".join(semantic_lines)
+    return inline_code_pattern.sub(
+        mask_non_newline_characters,
+        "".join(semantic_lines),
+    )
 
 
 def _state_marker_count(text: str, marker: str) -> int:
@@ -12059,10 +12061,7 @@ def _branch_planning_review_gate_state_failures(
             canonical_support_path = (
                 f"{REVIEW_AIDS_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}"
             )
-            if (
-                _normalized_packet_relative_path(file_name) != canonical_support_path
-                and _packet_file_basename(file_name) != USER_BRANCH_PLAN_REVIEW_FILE
-            ):
+            if _normalized_packet_relative_path(file_name) != canonical_support_path:
                 failures.append(
                     f"{file_name}: Support Context State is allowed only at "
                     f"{canonical_support_path}"

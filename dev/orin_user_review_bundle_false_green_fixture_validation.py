@@ -341,6 +341,14 @@ def _assert_repository_text_identity_normalizes_newlines() -> None:
         source_path="fixtures/fixture.bin",
     ):
         raise AssertionError("opaque .bin identity was incorrectly newline-normalized")
+    if bundle._source_copy_matches_expected(
+        b'"a\nb",c\n',
+        b'"a\rb",c\n',
+        source_path="data.csv",
+    ):
+        raise AssertionError(
+            "repository text identity incorrectly normalized an intentional bare CR"
+        )
 
 
 def _assert_stage1_primary_for_stage2_decision() -> None:
@@ -1133,6 +1141,14 @@ def _assert_support_context_state_contract() -> None:
             "inline-code",
             "\nUse `This support artifact authorizes PR creation` as an invalid wording example.\n",
         ),
+        (
+            "multiline-inline-code",
+            "\nUse `This support artifact\nauthorizes PR creation` as an invalid wording example.\n",
+        ),
+        (
+            "multiline-double-backtick-code",
+            "\nUse ``This support artifact\nauthorizes PR creation`` as an invalid wording example.\n",
+        ),
     ):
         nonsemantic_failures = support_failures(
             stage1_packet(canonical_support + nonsemantic_example)
@@ -1235,6 +1251,20 @@ def _assert_support_context_state_contract() -> None:
         "support-state-before-optional-context-return",
         keywordless_non_stage1,
         "Support Context State is allowed only for Stage 1-ready supporting context",
+    )
+
+    misplaced_non_stage1 = {
+        "START_HERE.md": "Current Gate: Current review packet\n",
+        "USER Review/USER_BRANCH_PLAN_REVIEW.md": (
+            "# Misplaced supporting material\n\n"
+            "## Support Context State\nContext Only\n"
+        ),
+    }
+    assert_fails(
+        "misplaced-support-state-outside-stage1",
+        misplaced_non_stage1,
+        "Support Context State is allowed only at "
+        "Review Aids/USER_BRANCH_PLAN_REVIEW.md",
     )
 
     for packet_surface in (
