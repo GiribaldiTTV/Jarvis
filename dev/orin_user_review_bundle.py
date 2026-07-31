@@ -9049,7 +9049,11 @@ def _fam003_revised_bp1_exact_decision_failures(
         active = support_text.partition("Historical Receipt Boundary:")[0]
         if "BP1 Branch Vision Revision USER review" not in active:
             continue
-        if "Current Workstream Packet:" in active:
+        workstream_packet = re.search(
+            r"(?m)^Current Workstream Packet:\s*`?([^`\r\n]+)`?\s*$",
+            active,
+        )
+        if workstream_packet and "not current" not in workstream_packet.group(1).casefold():
             failures.append(
                 "FAM-003 revised BP1: active supporting evidence mislabels the "
                 "current revised-BP1 packet as a Workstream packet"
