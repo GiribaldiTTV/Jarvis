@@ -8761,11 +8761,31 @@ FAM003_REVISED_BP1_REQUIRED_VISUAL_CONTRACT_FILES = (
 FAM003_REVISED_BP1_REQUIRED_PRIMARY_MARKERS = (
     "USER Branch Vision Review:",
     "Review Status:",
+    "Contract Status:",
+    "Contract Revision:",
+    "Project Vision Context:",
+    "Family Vision Context:",
+    "Feature Vision Context:",
+    "Codex Understanding:",
     "USER Response:",
     "Codex Digest:",
     "Accepted Branch Vision:",
+    "Branch Goal:",
+    "End-State Vision:",
+    "What Will I Actually See, And Where Will I See It?:",
+    "How It Will Function:",
+    "User Experience Flow:",
+    "Surface Map:",
+    "Product Options / Design Paths:",
+    "Codex Recommendations:",
+    "Why This Fits The Nexus Vision:",
+    "USER Design Questions:",
+    "Family-Vision Versus Branch-Only Vision Impact:",
+    "Must-Have Behavior:",
     "Must-Not-Do / Regression-Risk Rules:",
     "Deferred And Future-Gated Ideas:",
+    "Vision Question Queue:",
+    "Design Assumption Ledger:",
     "Acceptance / Revision / Rejection / Waiver Decision:",
     "USER Review Response:",
     "Codex Response Digest:",
@@ -8984,9 +9004,20 @@ def _fam003_revised_bp1_exact_decision_failures(
                 f"nonblank exact contract marker {marker}"
             )
     review_status = primary_marker_matches["Review Status:"]
-    if review_status and "pending" not in review_status[0].group(1).casefold():
+    if review_status and not any(
+        term in review_status[0].group(1).casefold()
+        for term in ("pending", "needs user decision", "revised by user")
+    ):
         failures.append(
             "FAM-003 revised BP1: primary Review Status must remain pending USER review"
+        )
+    contract_status = primary_marker_matches["Contract Status:"]
+    if contract_status and not any(
+        term in contract_status[0].group(1).casefold()
+        for term in ("pending user response", "pending user confirmation", "pending")
+    ):
+        failures.append(
+            "FAM-003 revised BP1: primary Contract Status must remain pending USER confirmation"
         )
     acceptance_state = primary_marker_matches[
         "Acceptance / Revision / Rejection / Waiver Decision:"

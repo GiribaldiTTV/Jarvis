@@ -276,6 +276,25 @@ FAM003_REVISED_BP1_VISUAL_FIELDS = (
     "Pre-Live Visual Purpose Conformance:",
     "Packet Reviewability vs Product Acceptance:",
 )
+FAM003_REVISED_BP1_ACTIVE_ROUTE_FIELDS = (
+    "Selected Implementation Route",
+    "Implementation Route Class",
+    "Concrete Deliverable",
+    "Implementation Output",
+    "Infrastructure / Setup Relationship",
+    "USER Action Gate",
+    "Route Disposition",
+    "Retarget / Rename Recommendation",
+)
+FAM003_ALLOWED_FEATURE_CLASSIFICATIONS = {
+    "concrete user-facing feature",
+    "runtime-facing behavior directly supporting a concrete user-facing feature",
+    "foundation / infrastructure",
+    "diagnostic / status / trust-boundary",
+    "proof / validator / helper",
+    "governance / packet / documentation",
+    "cross-fam dependency support",
+}
 UFD_CONTEXT_RELATIVE_LOCATION_RE = re.compile(
     r"\b(?:this|the)\s+annex\b"
     r"|\bthis supporting record\b"
@@ -933,6 +952,69 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
     return failures
 
 
+def _validate_fam003_revised_bp1_active_authority(relative: str, live_text: str) -> list[str]:
+    """Keep revised-BP1 authority and route fields in the live section only."""
+
+    normalized_relative = relative.replace("\\", "/")
+    if not normalized_relative.endswith("/branch_plan.md"):
+        return []
+    if (markdown_field_value(live_text, "Branch") or "") != FAM003_OPTION_G_BRANCH:
+        return []
+    active = live_text.partition("Historical Receipt Boundary:")[0]
+    failures: list[str] = []
+    for stale in (
+        "20260730-181244.zip",
+        "20260730-170247.zip",
+        "Current State 86 Option G",
+        "IMPLEMENTATION COMPLETE",
+        "WORKSTREAM_APPROVAL_CONSUMED_BY_COMPLETION",
+        "BP3 USER_APPROVED",
+        "INTERFACE_BUNDLE_GRANTED",
+    ):
+        if stale.casefold() in active.casefold():
+            failures.append(
+                "FAM-003 revised BP1 active-authority boundary: stale or superseded "
+                f"current-state claim remains above history: {stale}"
+            )
+    for field in FAM003_REVISED_BP1_ACTIVE_ROUTE_FIELDS:
+        matches = re.findall(rf"(?m)^\s*(?:-\s*)?{re.escape(field)}:\s*(\S.*)$", active)
+        if len(matches) != 1 or not matches[0].strip().strip("`"):
+            failures.append(
+                "FAM-003 revised BP1 active-authority route contract: "
+                f"{field}: must occur exactly once with a nonblank value above history"
+            )
+    classification = re.findall(
+        r"(?m)^\s*(?:-\s*)?Concrete USER-Facing Feature Classification:\s*(\S.*)$",
+        active,
+    )
+    if len(classification) != 1:
+        failures.append(
+            "FAM-003 revised BP1 active-authority route contract: Concrete USER-Facing "
+            "Feature Classification must occur exactly once above history"
+        )
+    elif classification[0].strip().strip("`").split(" / ", 1)[0].casefold() not in FAM003_ALLOWED_FEATURE_CLASSIFICATIONS:
+        failures.append(
+            "FAM-003 revised BP1 active-authority route contract: feature classification "
+            "uses a non-routed vocabulary value"
+        )
+    matrix = active.split(ELEMENT_TO_PHASE_HEADING, 1)
+    if len(matrix) == 2:
+        matrix_text = matrix[1].split("\n## ", 1)[0]
+        review_status = (markdown_field_value(matrix_text, "USER Review Status") or "").casefold()
+        matrix_status = (markdown_field_value(matrix_text, "Matrix Status") or "").casefold()
+        if review_status in {"accepted", "revised"} or "workstream approved" in matrix_text.casefold():
+            failures.append(
+                "FAM-003 revised BP1 active-authority boundary: Element-to-Phase matrix "
+                "still presents prior accepted Workstream state as current"
+            )
+        if matrix_status not in {"present", "required", "blocked", "historical"}:
+            failures.append(
+                "FAM-003 revised BP1 active-authority boundary: active Element-to-Phase "
+                "matrix lacks a current BP1-compatible Matrix Status"
+            )
+    return failures
+
+
 def _validate_active_branch_plan_option_g_allowlist(
     relative: str,
     live_text: str,
@@ -1223,6 +1305,7 @@ def validate_target_currentness(
     if markdown_field_value(live_text, "Historical Receipt Boundary") is None:
         failures.append(f"Target Currentness: {relative} is missing Historical Receipt Boundary")
     failures.extend(_validate_active_branch_plan_vision(relative, live_text))
+    failures.extend(_validate_fam003_revised_bp1_active_authority(relative, live_text))
     failures.extend(_validate_active_branch_plan_option_g_allowlist(relative, live_text))
     failures.extend(_validate_active_branch_plan_ufd(relative, live_text))
     failures.extend(_validate_active_branch_plan_element_matrix(relative, live_text))
