@@ -8706,6 +8706,7 @@ FAM003_REVISED_BP1_SUPPORT_FILE = (
     "decision2_option_g_bp3_final_supporting_evidence_20260727.md"
 )
 FAM003_REVISED_BP1_REQUIRED_PRIMARY_HEADINGS = (
+    "## Primary BP1 Contract",
     "## Contract Status",
     "## Contract Revision",
     "## Selected Implementation Route",
@@ -8750,7 +8751,70 @@ FAM003_REVISED_BP1_REQUIRED_VISUAL_CONTRACT_FILES = (
     "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md",
     "Review Aids/REJECTED_PATTERN_LEDGER.md",
     "Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md",
+    "Review Aids/VISUAL_SELECTION_LEDGER.md",
+    "Review Aids/ACCEPTED_REFERENCE_SET_COMPARATIVE_SYNTHESIS.md",
+    "Review Aids/PRE_LIVE_VISUAL_PURPOSE_CONFORMANCE.md",
+    "Review Aids/IMPLEMENTATION_MATCH_PROOF_PLAN.md",
+    "Review Aids/PACKET_REVIEWABILITY_VS_PRODUCT_ACCEPTANCE.md",
+    "Review Aids/VISUAL_TARGET_EXCEPTIONS_AND_WAIVERS.md",
 )
+FAM003_REVISED_BP1_REQUIRED_PRIMARY_MARKERS = (
+    "USER Branch Vision Review:",
+    "Review Status:",
+    "USER Response:",
+    "Codex Digest:",
+    "Accepted Branch Vision:",
+    "Must-Not-Do / Regression-Risk Rules:",
+    "Deferred And Future-Gated Ideas:",
+    "Acceptance / Revision / Rejection / Waiver Decision:",
+    "USER Review Response:",
+    "Codex Response Digest:",
+)
+FAM003_REVISED_BP1_REQUIRED_TABLE_SCHEMAS = {
+    "Review Aids/VISUAL_FAMILY_RELATION_PROOF.md": (
+        "Surface / Window",
+        "Role Classification",
+        "Implementation Authority",
+        "Accepted Reference",
+        "Element Group",
+        "Invariant Traits",
+        "Feature-Specific Traits",
+        "Rendered Evidence",
+        "Visual Match",
+        "Functional Match",
+        "Verdict",
+        "Next Legal Action",
+    ),
+    "Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md": (
+        "Surface / Window",
+        "Approved Template?",
+        "Approved Shared Primitive?",
+        "Promoted Reference Consumed?",
+        "Reference-Derived?",
+        "One-Off?",
+        "Gap / Exception",
+        "Proof Required",
+    ),
+    "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md": (
+        "Window / Surface",
+        "Product Role",
+        "Parent / Launch Source",
+        "Primary Actions",
+        "Secondary Actions",
+        "Non-Goals",
+        "Backend / State Owner",
+        "UI-Visible Truth Mapping",
+        "Recovery / Failure Behavior",
+        "Separate Surface Justification",
+    ),
+    "Review Aids/VISUAL_ACCEPTANCE_CHAIN.md": (
+        "Gate",
+        "Required Visual Proof",
+        "What Cannot Prove It",
+        "Blocking Condition",
+        "USER Decision Needed?",
+    ),
+}
 FAM003_REVISED_BP1_OPTION_A = (
     "I accept the FAM-003 revised BP1 Branch Vision and Visual Acceptance Target for "
     "`feature/fam-003-settings-resize-proof`, including enable-without-open, HUD "
@@ -8907,6 +8971,30 @@ def _fam003_revised_bp1_exact_decision_failures(
     if FAM003_REVISED_BP1_PRIMARY_TITLE not in primary:
         return []
     failures: list[str] = []
+    primary_marker_matches = {
+        marker: list(
+            re.finditer(rf"(?m)^{re.escape(marker)}[ \t]*(.*?)[ \t]*$", primary)
+        )
+        for marker in FAM003_REVISED_BP1_REQUIRED_PRIMARY_MARKERS
+    }
+    for marker, matches in primary_marker_matches.items():
+        if len(matches) != 1 or not matches[0].group(1).strip().strip("`"):
+            failures.append(
+                "FAM-003 revised BP1: primary review must contain exactly one "
+                f"nonblank exact contract marker {marker}"
+            )
+    review_status = primary_marker_matches["Review Status:"]
+    if review_status and "pending" not in review_status[0].group(1).casefold():
+        failures.append(
+            "FAM-003 revised BP1: primary Review Status must remain pending USER review"
+        )
+    acceptance_state = primary_marker_matches[
+        "Acceptance / Revision / Rejection / Waiver Decision:"
+    ]
+    if acceptance_state and "pending" not in acceptance_state[0].group(1).casefold():
+        failures.append(
+            "FAM-003 revised BP1: primary acceptance/revision/rejection/waiver state must remain pending"
+        )
     digest = packet_files.get(FAM003_REVISED_BP1_DIGEST_FILE, "")
     failures.extend(
         _fam003_revised_bp1_digest_surface_failures(
@@ -8979,6 +9067,25 @@ def _fam003_revised_bp1_exact_decision_failures(
             failures.append(
                 "FAM-003 revised BP1: visual-contract packet is missing "
                 f"{required_file}"
+            )
+
+    for file_name, expected_header in FAM003_REVISED_BP1_REQUIRED_TABLE_SCHEMAS.items():
+        table_text = _packet_file_text(packet_files, file_name)
+        table_headers = [
+            tuple(_markdown_table_cells(line))
+            for line in table_text.splitlines()
+            if line.strip().startswith("|")
+        ]
+        matching = [header for header in table_headers if header == expected_header]
+        if len(matching) != 1:
+            failures.append(
+                "FAM-003 revised BP1: "
+                f"{file_name} must contain exactly one current required table schema"
+            )
+        if table_headers and table_headers[0] != expected_header:
+            failures.append(
+                "FAM-003 revised BP1: "
+                f"{file_name} must use the required schema as its first table"
             )
 
     visual_chain = _packet_file_text(

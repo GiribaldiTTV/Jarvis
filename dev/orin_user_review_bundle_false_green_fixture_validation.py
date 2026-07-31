@@ -6352,6 +6352,17 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
     primary = (
         f"{bundle.FAM003_REVISED_BP1_PRIMARY_TITLE}\n\n"
         "Current Gate: `BP1 Branch Vision Revision USER review pending`\n\n"
+        "## Primary BP1 Contract\n\n"
+        "USER Branch Vision Review: `BP1 revised Branch Vision and Visual Acceptance Target`\n"
+        "Review Status: `REVISION_PENDING / UNACCEPTED / USER review required`\n"
+        "USER Response: `Pending USER response`\n"
+        "Codex Digest: `The revised target is frozen for independent USER review.`\n"
+        "Accepted Branch Vision: `Not yet accepted; USER must select Option A or Option B.`\n"
+        "Must-Not-Do / Regression-Risk Rules: `No auto-open, no child controls, no runtime mutation.`\n"
+        "Deferred And Future-Gated Ideas: `Overlay naming and settings remain future-gated.`\n"
+        "Acceptance / Revision / Rejection / Waiver Decision: `Pending USER decision.`\n"
+        "USER Review Response: `Pending USER Review`\n"
+        "Codex Response Digest: `BP1 revision packet ready; later phases remain blocked.`\n\n"
         "## Contract Status\n\n`REVISION_PENDING`\n\n"
         "## Contract Revision\n\n`Revised target pending formal BP1 acceptance`\n\n"
         "## Selected Implementation Route\n\n`Reference-derived implementation after later gates`\n\n"
@@ -6393,18 +6404,40 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
             "Visual Direction Status: `USER_REVISED / formal BP1 acceptance pending`\n"
             "Render Authority: `Design Candidate Render`\n"
             "Implementation Authority: `Reference-Derived Implementation`\n"
-            "Implementation-Match Proof Status: `NOT_STARTED`\n"
+            "Implementation-Match Proof Status: `NOT_STARTED`\n\n"
+            "| Gate | Required Visual Proof | What Cannot Prove It | Blocking Condition | USER Decision Needed? |\n"
+            "| --- | --- | --- | --- | --- |\n"
+            "| BP1 | Target render and element review | Validator green | Pending | Yes |\n"
         ),
-        "Review Aids/VISUAL_FAMILY_RELATION_PROOF.md": "# Visual Family Relation Proof\n",
-        "Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md": "# Implementation Authority Table\n",
+        "Review Aids/VISUAL_FAMILY_RELATION_PROOF.md": (
+            "# Visual Family Relation Proof\n\n"
+            "| Surface / Window | Role Classification | Implementation Authority | Accepted Reference | Element Group | Invariant Traits | Feature-Specific Traits | Rendered Evidence | Visual Match | Functional Match | Verdict | Next Legal Action |\n"
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+            "| Settings | Owned doorway | Later FAM-003 | UIREF-001 | Frame | NDAI chrome | Compact IA | Target | Pending | Not implemented | REVIEW_PENDING | BP2 after acceptance |\n"
+        ),
+        "Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md": (
+            "# Implementation Authority Table\n\n"
+            "| Surface / Window | Approved Template? | Approved Shared Primitive? | Promoted Reference Consumed? | Reference-Derived? | One-Off? | Gap / Exception | Proof Required |\n"
+            "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+            "| Settings | No | No | UIREF comparator | Yes | No | Pending | Later match proof |\n"
+        ),
         "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md": (
             "# Functionality Role Contract\n\n"
+            "| Window / Surface | Product Role | Parent / Launch Source | Primary Actions | Secondary Actions | Non-Goals | Backend / State Owner | UI-Visible Truth Mapping | Recovery / Failure Behavior | Separate Surface Justification |\n"
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+            "| Settings | Concrete USER-facing feature | Global Settings | Review | None | No mutation | FAM-003 | Pending | Later proof | Doorway |\n\n"
             "Concrete USER-facing feature: planned and not delivered by this packet repair.\n"
             "Governance / packet / documentation: current deliverable.\n"
             "Proof / validator / helper: current supporting deliverable.\n"
         ),
         "Review Aids/REJECTED_PATTERN_LEDGER.md": "# Rejected Pattern Ledger\n",
         "Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md": "# Source Truth Conflict Classification\n",
+        "Review Aids/VISUAL_SELECTION_LEDGER.md": "# Visual Selection Ledger\n\nPending Option A/B.\n",
+        "Review Aids/ACCEPTED_REFERENCE_SET_COMPARATIVE_SYNTHESIS.md": "# Accepted Reference Set / Comparative Synthesis\n\nCurrent comparator set loaded.\n",
+        "Review Aids/PRE_LIVE_VISUAL_PURPOSE_CONFORMANCE.md": "# Pre-Live Visual Purpose Conformance\n\nReview purpose only.\n",
+        "Review Aids/IMPLEMENTATION_MATCH_PROOF_PLAN.md": "# Implementation Match Proof Plan\n\nBlocked until later gates.\n",
+        "Review Aids/PACKET_REVIEWABILITY_VS_PRODUCT_ACCEPTANCE.md": "# Packet Reviewability vs Product Acceptance\n\nReviewable, not product accepted.\n",
+        "Review Aids/VISUAL_TARGET_EXCEPTIONS_AND_WAIVERS.md": "# Visual Target Exceptions / Waivers\n\nNo waiver requested.\n",
         "Review Aids/SCOPE_COVERAGE_MANIFEST.md": "# Scope Coverage Manifest\n\nCurrent projection reviewed.\n",
         "Review Aids/ATOMIC_DEFECT_LEDGER.md": "# Atomic Defect Ledger\n\nAll current defects are CLOSED_WITH_PROOF.\n",
     }
@@ -6499,6 +6532,24 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
     mutated = dict(packet)
     del mutated["Review Aids/VISUAL_ACCEPTANCE_CHAIN.md"]
     expect_failure("revised-bp1-visual-chain-missing", mutated, "VISUAL_ACCEPTANCE_CHAIN.md")
+
+    mutated = dict(packet)
+    mutated["USER Review/USER_BRANCH_VISION_REVIEW.md"] = primary.replace(
+        "USER Branch Vision Review:", "Branch Vision Review:", 1
+    )
+    expect_failure("revised-bp1-primary-exact-marker-missing", mutated, "exact contract marker")
+
+    mutated = dict(packet)
+    mutated["Review Aids/VISUAL_FAMILY_RELATION_PROOF.md"] = mutated[
+        "Review Aids/VISUAL_FAMILY_RELATION_PROOF.md"
+    ].replace("Surface / Window", "Surface / Element", 1)
+    expect_failure("revised-bp1-visual-table-schema-missing", mutated, "required table schema")
+
+    mutated = dict(packet)
+    mutated["Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md"] = mutated[
+        "Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md"
+    ].replace("Approved Template?", "Template?", 1)
+    expect_failure("revised-bp1-authority-table-alias-only", mutated, "required table schema")
 
     mutated = dict(packet)
     mutated["Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md"] = mutated[

@@ -716,6 +716,24 @@ def _write_ufd_record(root: Path, text_override: str | None = None) -> Path:
         "Question Severity Policy: `Level 1 non-blocking; Level 2 seam-blocking; Level 3 workstream-breaking`\n"
         "Vision-to-Implementation Traceability: `vision -> branch -> seam -> file -> validator -> proof`\n"
         "Branch Plan Revision Packet: `Required with USER decision for scope changes`\n"
+        "Material Visible Change Classification: `Yes / revised BP1 visible target`\n"
+        "Render Authority Level: `Design Candidate Render / guide only`\n"
+        "Design Candidate Packet Path: `Review Aids/Visual Acceptance Target/VISUAL_TARGET_STATE_BOARD.png`\n"
+        "Reviewable Visual Acceptance Target Path: `Review Aids/Visual Acceptance Target/VISUAL_TARGET_STATE_BOARD.png`\n"
+        "Design Candidate Media Included: `Yes / target renders and state board`\n"
+        "Visual Selection Ledger: `Review Aids/VISUAL_SELECTION_LEDGER.md`\n"
+        "Rejected Pattern Ledger: `Review Aids/REJECTED_PATTERN_LEDGER.md`\n"
+        "USER Visual Target Decision State: `USER_ACCEPTED reference fixture`\n"
+        "Implementation Match Proof Plan: `Review Aids/IMPLEMENTATION_MATCH_PROOF_PLAN.md`\n"
+        "Visual Target Exceptions / Waivers: `None requested`\n"
+        "Visual Target Next Legal Phase: `BP2 revision preparation after USER acceptance`\n"
+        "Visual Acceptance Chain: `Review Aids/VISUAL_ACCEPTANCE_CHAIN.md`\n"
+        "Implementation Authority Classification: `No implementation authority in this fixture`\n"
+        "Implementation Authority Table: `Review Aids/IMPLEMENTATION_AUTHORITY_TABLE.md`\n"
+        "Visual Family Relation Proof: `Review Aids/VISUAL_FAMILY_RELATION_PROOF.md`\n"
+        "Accepted Reference Set / Comparative Synthesis: `Review Aids/ACCEPTED_REFERENCE_SET_COMPARATIVE_SYNTHESIS.md`\n"
+        "Pre-Live Visual Purpose Conformance: `Review Aids/PRE_LIVE_VISUAL_PURPOSE_CONFORMANCE.md`\n"
+        "Packet Reviewability vs Product Acceptance: `Reviewable fixture; not product acceptance`\n"
         "Project Vision Owner: `Docs/nexus_vision.md`\n"
         f"Project Vision SHA256: `{'1' * 64}`\n"
         "FAM-003 Family Vision Owner: `Docs/family_visions/FAM-003_interaction_and_actions.md`\n"
@@ -1026,6 +1044,11 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         .replace(
             "Implementation Scope: `Accepted BP1 and accepted BP2 scope only`",
             "Implementation Scope: `Revised BP1 planning only; no implementation authority`",
+            1,
+        )
+        .replace(
+            "USER Visual Target Decision State: `USER_ACCEPTED reference fixture`",
+            "USER Visual Target Decision State: `UNACCEPTED / USER review pending`",
             1,
         )
         .replace(

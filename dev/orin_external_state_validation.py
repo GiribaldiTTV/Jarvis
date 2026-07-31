@@ -256,6 +256,26 @@ FAM003_OPTION_G_VISION_MARKERS = (
     "Accepted BP2 Acceptance Receipt:",
     "Accepted BP2 Acceptance Receipt SHA256:",
 )
+FAM003_REVISED_BP1_VISUAL_FIELDS = (
+    "Material Visible Change Classification:",
+    "Render Authority Level:",
+    "Design Candidate Packet Path:",
+    "Reviewable Visual Acceptance Target Path:",
+    "Design Candidate Media Included:",
+    "Visual Selection Ledger:",
+    "Rejected Pattern Ledger:",
+    "USER Visual Target Decision State:",
+    "Implementation Match Proof Plan:",
+    "Visual Target Exceptions / Waivers:",
+    "Visual Target Next Legal Phase:",
+    "Visual Acceptance Chain:",
+    "Implementation Authority Classification:",
+    "Implementation Authority Table:",
+    "Visual Family Relation Proof:",
+    "Accepted Reference Set / Comparative Synthesis:",
+    "Pre-Live Visual Purpose Conformance:",
+    "Packet Reviewability vs Product Acceptance:",
+)
 UFD_CONTEXT_RELATIVE_LOCATION_RE = re.compile(
     r"\b(?:this|the)\s+annex\b"
     r"|\bthis supporting record\b"
@@ -725,6 +745,13 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
                 f"Branch Vision Contract Snapshot: active snapshot is missing a "
                 f"nonblank {marker} value"
             )
+    for marker in FAM003_REVISED_BP1_VISUAL_FIELDS:
+        value = markdown_field_value(section, marker.rstrip(":"))
+        if marker not in section or not value:
+            failures.append(
+                "Branch Vision Contract Snapshot: active revised-BP1 visual contract "
+                f"is missing a nonblank {marker} value"
+            )
     required = (markdown_field_value(section, "Vision Contract Required") or "").casefold()
     status = (markdown_field_value(section, "Branch Vision Snapshot Status") or "").casefold()
     questions = (markdown_field_value(section, "Open Vision Questions") or "").casefold()
@@ -762,6 +789,39 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
             failures.append(
                 "Branch Vision Contract Snapshot: revision-pending snapshot USER Vision Green must be No or Pending"
             )
+        for forbidden in (
+            "Accepted Visual Acceptance Target Path:",
+            "Implementation Match Proof Evidence:",
+        ):
+            forbidden_value = markdown_field_value(section, forbidden.rstrip(":"))
+            if forbidden_value and forbidden_value.casefold() not in {
+                "none",
+                "not applicable",
+                "not started",
+                "blocked",
+            }:
+                failures.append(
+                    "Branch Vision Contract Snapshot: revision-pending snapshot must not "
+                    f"claim {forbidden}"
+                )
+        path_fields = (
+            "Design Candidate Packet Path",
+            "Reviewable Visual Acceptance Target Path",
+            "Visual Selection Ledger",
+            "Rejected Pattern Ledger",
+            "Visual Acceptance Chain",
+            "Implementation Authority Table",
+            "Visual Family Relation Proof",
+            "Accepted Reference Set / Comparative Synthesis",
+            "Pre-Live Visual Purpose Conformance",
+        )
+        for field in path_fields:
+            value = markdown_field_value(section, field) or ""
+            if "c:\\nexus user\\fam-003" not in value.casefold() and not value.startswith("Review Aids/"):
+                failures.append(
+                    "Branch Vision Contract Snapshot: revised-BP1 visual path field "
+                    f"{field} must point to the FAM-003 USER packet or a packet-relative aid"
+                )
         revision_contract = {
             "Prior Accepted BP1 Baseline Classification": (
                 "prior accepted baseline",
