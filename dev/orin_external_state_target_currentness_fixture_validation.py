@@ -1022,7 +1022,7 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         )
         .replace(
             "Branch Plan Revision Packet: `Required with USER decision for scope changes`",
-            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`\n"
+            "Branch Plan Revision Packet: `USER decision required | C:\\Nexus USER\\FAM-003-20260730-160000.zip`\n"
             "Prior Accepted BP1 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n"
             "Prior Accepted BP2 Baseline Classification: `Prior accepted baseline / superseded for current revised target`\n"
             "Current Revised BP1 Authority Owner: `C:\\Nexus Governance State\\branches\\feature_fam_003_settings_resize_proof\\branch_plan.md#Branch Vision Contract Snapshot`\n"
@@ -1036,6 +1036,15 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
     _assert_pass(
         "revision-pending Branch Vision snapshot with one named decision and blocked implementation",
         validate(revision_pending),
+    )
+    _assert_failure(
+        "revision-pending Branch Vision packet omits USER-decision classification",
+        "must explicitly require a USER decision",
+        validate(revision_pending.replace(
+            "Branch Plan Revision Packet: `USER decision required | C:\\Nexus USER\\FAM-003-20260730-160000.zip`",
+            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`",
+            1,
+        )),
     )
     _assert_failure(
         "revision-pending Branch Vision snapshot conceals open decision",
@@ -1095,8 +1104,8 @@ def _run_ufd_owner_fixtures(parent: Path) -> None:
         "revision-pending Branch Vision packet lineage disagrees",
         "packet fields must agree",
         validate(revision_pending.replace(
-            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-160000.zip`",
-            "Branch Plan Revision Packet: `C:\\Nexus USER\\FAM-003-20260730-140000.zip`",
+            "Branch Plan Revision Packet: `USER decision required | C:\\Nexus USER\\FAM-003-20260730-160000.zip`",
+            "Branch Plan Revision Packet: `USER decision required | C:\\Nexus USER\\FAM-003-20260730-140000.zip`",
             1,
         )),
     )

@@ -188,6 +188,15 @@ def _normalized_windows_value(value: str | None) -> str:
     return value.strip().strip("`").replace("/", "\\").rstrip("\\").casefold()
 
 
+def _revision_packet_path(value: str | None) -> str:
+    """Extract the exact packet path while preserving its USER-decision classification."""
+
+    if not value:
+        return ""
+    match = re.search(r"(?i)([a-z]:[\\/][^`\r\n]*?\.zip)(?:\s|$)", value)
+    return _normalized_windows_value(match.group(1)) if match else ""
+
+
 def _first_markdown_field(text: str, fields: tuple[str, ...]) -> str | None:
     for field in fields:
         value = markdown_field_value(text, field)
@@ -789,9 +798,15 @@ def _validate_active_branch_plan_vision(relative: str, live_text: str) -> list[s
         revision_packet = markdown_field_value(section, "Branch Plan Revision Packet") or ""
         current_packet = markdown_field_value(section, "Current Revised BP1 Packet") or ""
         normalized_final = _normalized_windows_value(final_packet)
-        if not normalized_final or any(
-            _normalized_windows_value(value) != normalized_final
-            for value in (revision_packet, current_packet)
+        if "user" not in revision_packet.casefold() or "decision" not in revision_packet.casefold():
+            failures.append(
+                "Branch Vision Contract Snapshot: Branch Plan Revision Packet must "
+                "explicitly require a USER decision"
+            )
+        if (
+            not normalized_final
+            or _revision_packet_path(revision_packet) != normalized_final
+            or _normalized_windows_value(current_packet) != normalized_final
         ):
             failures.append(
                 "Branch Vision Contract Snapshot: active revised-BP1 packet fields "
