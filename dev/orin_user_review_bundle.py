@@ -55,10 +55,12 @@ SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
 PACKET_VALIDATION_MODE_ACTIVE_REVIEW = "active-review"
 PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL = "accepted-historical"
 PACKET_VALIDATION_MODE_NEXT_GATE = "next-gate"
+PACKET_VALIDATION_MODE_ACCEPTED_BP1 = "accepted-bp1"
 PACKET_VALIDATION_MODES = (
     PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
     PACKET_VALIDATION_MODE_NEXT_GATE,
+    PACKET_VALIDATION_MODE_ACCEPTED_BP1,
 )
 
 
@@ -5410,7 +5412,10 @@ def validate_local_user_packet(
     failures.extend(_fam007_bp2_support_bp1_context_failures(generated_packet_files))
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
-    failures.extend(_fam003_revised_bp1_exact_decision_failures(packet_files))
+    if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_BP1:
+        failures.extend(_fam003_revised_bp1_accepted_failures(packet_files))
+    elif USER_BRANCH_VISION_REVIEW_FILE in packet_files:
+        failures.extend(_fam003_revised_bp1_exact_decision_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_fam003_option_g_bp2_planning_failures(packet_files))
     packet_status = _packet_text_status("\n".join(generated_packet_files.values()))
@@ -8842,8 +8847,10 @@ FAM003_REVISED_BP1_OPTION_A = (
     "child for FAM-006, the readability/UIREF-002/status/splitter target, and "
     "disable-while-open Option A: disabling HUD closes an already-open HUD Dashboard. "
     "This acceptance authorizes BP2 revision preparation only. It does not authorize "
-    "BP2 acceptance, BP3, Workstream implementation, H1, LV, UTS, issue, PR, merge, "
-    "release, cleanup, sibling, Governance, or runtime mutation."
+    "BP2 acceptance, BP3, Workstream implementation, H1, Live Validation, UTS, issue "
+    "mutation, PR Readiness, PR creation, merge, release, cleanup, sibling or "
+    "Governance mutation, permanent Option D adoption, deferred-owner implementation, "
+    "or runtime/UI mutation."
 )
 FAM003_REVISED_BP1_OPTION_B = (
     "I accept the FAM-003 revised BP1 Branch Vision and Visual Acceptance Target for "
@@ -8853,8 +8860,9 @@ FAM003_REVISED_BP1_OPTION_B = (
     "disable-while-open Option B: disabling HUD blocks future opens but leaves an "
     "already-open HUD Dashboard open until the USER closes it. This acceptance "
     "authorizes BP2 revision preparation only. It does not authorize BP2 acceptance, "
-    "BP3, Workstream implementation, H1, LV, UTS, issue, PR, merge, release, cleanup, "
-    "sibling, Governance, or runtime mutation."
+    "BP3, Workstream implementation, H1, Live Validation, UTS, issue mutation, PR "
+    "Readiness, PR creation, merge, release, cleanup, sibling or Governance mutation, "
+    "permanent Option D adoption, deferred-owner implementation, or runtime/UI mutation."
 )
 
 
@@ -8989,7 +8997,10 @@ def _fam003_revised_bp1_exact_decision_failures(
 ) -> list[str]:
     primary = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
     if FAM003_REVISED_BP1_PRIMARY_TITLE not in primary:
-        return []
+        return ["FAM-003 accepted BP1: primary review title is missing"]
+    review_status = _field_value(primary, "Review Status")
+    if "accepted by user" in review_status.casefold():
+        return _fam003_revised_bp1_accepted_failures(packet_files)
     failures: list[str] = []
     primary_marker_matches = {
         marker: list(
@@ -9224,6 +9235,93 @@ def _fam003_revised_bp1_codex_return_digest_failures(text: str) -> list[str]:
         file_name="Codex return",
         heading="## Formal Next Legal Phase Digest",
     )
+
+
+def _fam003_revised_bp1_accepted_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Validate the closed BP1 Option A contract without treating it as BP2."""
+
+    primary = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if FAM003_REVISED_BP1_PRIMARY_TITLE not in primary:
+        return ["FAM-003 accepted BP1: primary review title is missing"]
+    failures: list[str] = []
+    marker_matches = {
+        marker: list(
+            re.finditer(rf"(?m)^{re.escape(marker)}[ \t]*(.*?)[ \t]*$", primary)
+        )
+        for marker in FAM003_REVISED_BP1_REQUIRED_PRIMARY_MARKERS
+    }
+    for marker, matches in marker_matches.items():
+        if len(matches) != 1 or not matches[0].group(1).strip().strip("`"):
+            failures.append(
+                "FAM-003 accepted BP1: primary review must contain exactly one "
+                f"nonblank contract marker {marker}"
+            )
+
+    def value(marker: str) -> str:
+        matches = marker_matches.get(marker, [])
+        return matches[0].group(1).strip().strip("`") if matches else ""
+
+    required_states = (
+        ("Review Status:", "accepted by user"),
+        ("Contract Status:", "accepted by user"),
+        ("USER Response:", "accepted by user"),
+        ("Accepted Branch Vision:", "accepted by user"),
+        ("Acceptance / Revision / Rejection / Waiver Decision:", "option a"),
+        ("USER Review Response:", "accepted by user"),
+    )
+    for marker, term in required_states:
+        if term not in value(marker).casefold():
+            failures.append(
+                f"FAM-003 accepted BP1: {marker} must record USER acceptance and Option A"
+            )
+    if "pending" in value("Review Status:").casefold() or "pending" in value("Contract Status:").casefold():
+        failures.append("FAM-003 accepted BP1: accepted primary retains pending status")
+    if "option b" not in value("USER Design Questions:").casefold() or "not selected" not in primary.casefold():
+        failures.append("FAM-003 accepted BP1: Option B must be explicitly considered and not selected")
+
+    expected_a = _normalized_contract_text(FAM003_REVISED_BP1_OPTION_A)
+    if _normalized_contract_text(primary).count(expected_a) != 1:
+        failures.append("FAM-003 accepted BP1: primary must contain exactly one full Option A decision")
+    digest = packet_files.get(FAM003_REVISED_BP1_DIGEST_FILE, "")
+    if _markdown_section_count(digest.partition("Historical Receipt Boundary:")[0], "# Formal Next Legal Phase Digest") != 1:
+        failures.append("FAM-003 accepted BP1: accepted packet must contain one formal next-phase digest")
+    elif expected_a not in _normalized_contract_text(digest):
+        failures.append("FAM-003 accepted BP1: formal digest must carry the exact Option A decision")
+    for marker in FAM003_OPTION_G_NEXT_PHASE_FIELDS:
+        matches = re.findall(rf"(?m)^{re.escape(marker)}[ \t]*(.*?)[ \t]*$", digest)
+        if len(matches) != 1 or not matches[0].strip().strip("`"):
+            failures.append(f"FAM-003 accepted BP1: formal digest field {marker} is missing or blank")
+    digest_active = digest.partition("Historical Receipt Boundary:")[0].casefold()
+    for term in ("bp2", "bp3", "workstream", "runtime", "live validation", "uts", "pr", "merge", "release"):
+        if term not in digest_active:
+            failures.append(f"FAM-003 accepted BP1: formal digest omits blocked boundary {term}")
+
+    source_ledger = _packet_file_text(packet_files, "Review Aids/SOURCE_TRUTH_LOAD_LEDGER.md")
+    for required_source in FAM003_REVISED_BP1_REQUIRED_SOURCE_LOADS:
+        if required_source not in source_ledger:
+            failures.append(f"FAM-003 accepted BP1: source-load ledger omits {required_source}")
+    if "Docs/nexus_startup_contract.md` was not loaded" not in source_ledger:
+        failures.append("FAM-003 accepted BP1: source-load ledger must say startup contract was not loaded")
+    for required_file in FAM003_REVISED_BP1_REQUIRED_VISUAL_CONTRACT_FILES:
+        if not _packet_file_present(packet_files, required_file):
+            failures.append(f"FAM-003 accepted BP1: visual-contract packet is missing {required_file}")
+    for file_name, expected_header in FAM003_REVISED_BP1_REQUIRED_TABLE_SCHEMAS.items():
+        table_headers = [
+            tuple(_markdown_table_cells(line))
+            for line in _packet_file_text(packet_files, file_name).splitlines()
+            if line.strip().startswith("|")
+        ]
+        if table_headers[:1] != [expected_header]:
+            failures.append(f"FAM-003 accepted BP1: {file_name} lacks its required first table schema")
+    chain = _packet_file_text(packet_files, "Review Aids/VISUAL_ACCEPTANCE_CHAIN.md")
+    if "formal bp1 acceptance" not in chain.casefold() or "not started" not in chain.casefold():
+        failures.append("FAM-003 accepted BP1: visual acceptance chain must preserve accepted BP1 and unstarted implementation proof")
+    role_contract = _packet_file_text(packet_files, "Review Aids/FUNCTIONALITY_ROLE_CONTRACT.md")
+    if "not delivered by this packet repair" not in role_contract.casefold():
+        failures.append("FAM-003 accepted BP1: role contract must preserve the no-runtime-mutation boundary")
+    return failures
 
 
 FAM003_OPTION_G_APPROVED_REPAIR_FILES = {

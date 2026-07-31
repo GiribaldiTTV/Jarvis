@@ -6473,6 +6473,11 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
             "valid FAM-003 revised-BP1 exact-decision fixture failed:\n"
             + "\n".join(positive)
         )
+    accepted_mode_failures = bundle._fam003_revised_bp1_accepted_failures(packet)
+    if not accepted_mode_failures:
+        raise AssertionError(
+            "pending FAM-003 revised-BP1 fixture incorrectly passed accepted-BP1 mode"
+        )
 
     mutated = dict(packet)
     mutated[bundle.FAM003_REVISED_BP1_DIGEST_FILE] = digest.replace(
@@ -6516,7 +6521,16 @@ def _assert_fam003_revised_bp1_exact_decision_guards() -> None:
 
     mutated = dict(packet)
     mutated["USER Review/USER_BRANCH_VISION_REVIEW.md"] = primary.replace(
-        ", cleanup, sibling, Governance, or runtime mutation.", ".", 1
+        option_a,
+        option_a.replace(
+            "This acceptance authorizes BP2 revision preparation only. It does not authorize "
+            "BP2 acceptance, BP3, Workstream implementation, H1, Live Validation, UTS, "
+            "issue mutation, PR Readiness, PR creation, merge, release, cleanup, sibling "
+            "or Governance mutation, permanent Option D adoption, deferred-owner "
+            "implementation, or runtime/UI mutation.",
+            "This acceptance authorizes BP2 revision preparation only.",
+        ),
+        1,
     )
     expect_failure("revised-bp1-exclusions-omitted", mutated, "recommended Option A")
 
@@ -7139,6 +7153,7 @@ def main() -> int:
         "(Option G BP3: 1 BP2 carrydown applicability positive + "
         "1 Workstream phase-review positive + 23 Workstream phase-review negatives + "
         "1 revised-BP1 exact-decision positive + 16 revised-BP1 exact-decision negatives + "
+        "1 accepted-BP1 stale-packet negative + "
         "1 Workstream-approval closure positive + 35 Workstream-approval closure negatives + "
         "1 consolidated-decision positive + 42 consolidated-decision negatives + "
         "38 consolidated mandatory-contract negatives + "
