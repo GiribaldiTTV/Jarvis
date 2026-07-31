@@ -543,6 +543,39 @@ def _assert_support_context_state_contract() -> None:
             + "\n".join(failures)
         )
 
+    canonical_support_state = (
+        "## Support Context State\n\n"
+        "Context Only - this file is not a USER gate and records no new BP2 acceptance.\n\n"
+    )
+    list_state_case_count = 0
+    for prefix in ("- ", "+ ", "* ", "1. ", "> "):
+        list_state_support = canonical_support.replace(
+            canonical_support_state,
+            prefix
+            + "Support Context State: Context Only - this file is not a USER gate "
+            "and records no new BP2 acceptance.\n\n",
+            1,
+        )
+        list_state_failures = support_failures(stage1_packet(list_state_support))
+        if list_state_failures:
+            raise AssertionError(
+                f"list-prefixed support state {prefix!r} failed:\n"
+                + "\n".join(list_state_failures)
+            )
+        assert_fails(
+            f"contradictory-list-prefixed-user-gate-{prefix!r}",
+            stage1_packet(
+                canonical_support
+                + f"\n{prefix}USER Gate State: USER Approved\n"
+            ),
+            "support context and USER gate states cannot coexist",
+        )
+        list_state_case_count += 1
+    if list_state_case_count != 5:
+        raise AssertionError(
+            "list-prefixed state regression matrix did not execute all 5 cases"
+        )
+
     for primary_marker in (
         "Packet Reviewability State",
         "USER Gate State",
@@ -780,6 +813,74 @@ def _assert_support_context_state_contract() -> None:
         raise AssertionError(
             "modal-authority regression matrix did not execute all 54 cases"
         )
+
+    tense_authority_case_count = 0
+    for base, past, progressive in (
+        ("authorize", "authorized", "authorizing"),
+        ("approve", "approved", "approving"),
+        ("permit", "permitted", "permitting"),
+        ("grant", "granted", "granting"),
+        ("enable", "enabled", "enabling"),
+        ("allow", "allowed", "allowing"),
+    ):
+        for predicate in (
+            past,
+            f"has {past}",
+            f"was {progressive}",
+            f"has been {progressive}",
+            f"could have {past}",
+            f"could be {progressive}",
+            f"could have been {progressive}",
+        ):
+            assert_fails(
+                f"tense-support-authority-{base}-{predicate}",
+                stage1_packet(
+                    canonical_support
+                    + f"\nThis support artifact {predicate} PR creation.\n"
+                ),
+                "attempts to authorize a USER-gated action",
+            )
+            tense_authority_case_count += 1
+        for passive_to in (
+            f"was {past} to",
+            f"has been {past} to",
+            f"could be {past} to",
+            f"could have been {past} to",
+        ):
+            assert_fails(
+                f"passive-to-support-authority-{base}-{passive_to}",
+                stage1_packet(
+                    canonical_support
+                    + f"\nThis support artifact {passive_to} create a PR.\n"
+                ),
+                "attempts to authorize a USER-gated action",
+            )
+            tense_authority_case_count += 1
+    if tense_authority_case_count != 66:
+        raise AssertionError(
+            "tense-authority regression matrix did not execute all 66 cases"
+        )
+
+    for negative_tense_authority in (
+        "This support artifact did not authorize PR creation.",
+        "This support artifact has not authorized PR creation.",
+        "This support artifact was never authorizing PR creation.",
+        "This support artifact could not have authorized PR creation.",
+        "This support artifact was not authorized to create a PR.",
+        "This support artifact has never been authorizing PR creation.",
+    ):
+        negative_tense_failures = support_failures(
+            stage1_packet(canonical_support + "\n" + negative_tense_authority + "\n")
+        )
+        if any(
+            "attempts to authorize a USER-gated action" in failure
+            for failure in negative_tense_failures
+        ):
+            raise AssertionError(
+                "negative tense authority was treated as approval: "
+                f"{negative_tense_authority!r}\n"
+                + "\n".join(negative_tense_failures)
+            )
 
     adverb_authority_case_count = 0
     for modifier in (

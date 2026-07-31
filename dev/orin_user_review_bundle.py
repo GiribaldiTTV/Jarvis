@@ -11704,13 +11704,16 @@ def _packet_text_status(text: str) -> str:
 
 
 def _field_present(text: str, field_name: str) -> bool:
-    pattern = re.compile(rf"^{re.escape(field_name)}\s*:", re.IGNORECASE | re.MULTILINE)
+    pattern = re.compile(
+        rf"^{MARKDOWN_FIELD_PREFIX}{re.escape(field_name)}\s*:",
+        re.IGNORECASE | re.MULTILINE,
+    )
     return bool(pattern.search(text))
 
 
 def _field_value(text: str, field_name: str) -> str:
     pattern = re.compile(
-        rf"^{re.escape(field_name)}\s*:\s*(.+?)\s*$",
+        rf"^{MARKDOWN_FIELD_PREFIX}{re.escape(field_name)}\s*:\s*(.+?)\s*$",
         re.IGNORECASE | re.MULTILINE,
     )
     match = pattern.search(text)
@@ -11735,6 +11738,9 @@ def _normalized_pr_stage1_outcome(text: str) -> str:
     return _normalized_gate_value(
         _review_marker_or_section_value(text, "Stage 1 Outcome:")
     )
+
+
+MARKDOWN_FIELD_PREFIX = r"[ \t]{0,3}(?:(?:[-+*]|\d+\.)[ \t]+|>[ \t]+)?"
 
 
 def _markdown_semantic_text(text: str) -> str:
@@ -11809,7 +11815,8 @@ def _state_marker_count(text: str, marker: str) -> int:
     field_name = marker.removesuffix(":")
     semantic_text = _markdown_semantic_text(text)
     pattern = re.compile(
-        rf"^(?:##\s+{re.escape(field_name)}\s*|{re.escape(field_name)}\s*:.*)$",
+        rf"^(?:##\s+{re.escape(field_name)}\s*|"
+        rf"{MARKDOWN_FIELD_PREFIX}{re.escape(field_name)}\s*:.*)$",
         re.IGNORECASE | re.MULTILINE,
     )
     return len(pattern.findall(semantic_text))
@@ -11847,7 +11854,14 @@ def _support_context_authority_failures(
     )
     authority_verb = r"(?:authorizes|approves|permits|grants|enables|allows)"
     authority_base_verb = r"(?:authorize|approve|permit|grant|enable|allow)"
+    authority_past_verb = r"(?:authorized|approved|permitted|granted|enabled|allowed)"
+    authority_progressive_verb = (
+        r"(?:authorizing|approving|permitting|granting|enabling|allowing)"
+    )
     affirmative_modal = r"(?:can|could|may|might|will|would|shall|should|must)"
+    do_auxiliary = r"(?:do|does|did)"
+    have_auxiliary = r"(?:has|have|had)"
+    be_auxiliary = r"(?:am|is|are|was|were)"
     affirmative_modifier = (
         r"(?!(?:not|never|no|neither|nor|hardly|scarcely|rarely|seldom|barely)\b)"
         r"(?:[a-z][a-z0-9-]*ly|hereby|now)"
@@ -11855,9 +11869,33 @@ def _support_context_authority_failures(
     affirmative_modifiers = rf"(?:{affirmative_modifier}\s+){{0,3}}"
     authority_predicate = (
         rf"(?:{affirmative_modifiers}{authority_verb}|"
-        rf"{affirmative_modifiers}does\s+{affirmative_modifiers}{authority_base_verb}|"
+        rf"{affirmative_modifiers}{authority_past_verb}|"
+        rf"{affirmative_modifiers}{do_auxiliary}\s+"
+        rf"{affirmative_modifiers}{authority_base_verb}|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}|"
+        rf"{affirmative_modifiers}{be_auxiliary}\s+"
+        rf"{affirmative_modifiers}{authority_progressive_verb}|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+{affirmative_modifiers}been\s+"
+        rf"{affirmative_modifiers}{authority_progressive_verb}|"
         rf"{affirmative_modifiers}{affirmative_modal}\s+"
-        rf"{affirmative_modifiers}{authority_base_verb})"
+        rf"{affirmative_modifiers}{authority_base_verb}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}be\s+"
+        rf"{affirmative_modifiers}{authority_progressive_verb}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}been\s+{affirmative_modifiers}"
+        rf"{authority_progressive_verb}|"
+        rf"{affirmative_modifiers}{be_auxiliary}\s+{affirmative_modifiers}"
+        rf"{authority_past_verb}\s+to|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+{affirmative_modifiers}been\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}\s+to|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}be\s+"
+        rf"{affirmative_modifiers}{authority_past_verb}\s+to|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}been\s+{affirmative_modifiers}"
+        rf"{authority_past_verb}\s+to)"
     )
     authority_leads = [
         rf"\b{subject}\s+{authority_predicate}\b",
@@ -11872,7 +11910,8 @@ def _support_context_authority_failures(
         clause = re.split(r"[.!?]|\r?\n[ \t]*\r?\n", clause, maxsplit=1)[0]
         target_pattern = re.compile(rf"\b(?:the\s+)?{gated_target}\b")
         reset_pattern = re.compile(
-            rf"\b(?:but|however|yet|{authority_verb}|{authority_base_verb})\b|;"
+            rf"\b(?:but|however|yet|{authority_verb}|{authority_base_verb}|"
+            rf"{authority_past_verb}|{authority_progressive_verb})\b|;"
         )
         for target_match in target_pattern.finditer(clause):
             prefix = clause[: target_match.start()]

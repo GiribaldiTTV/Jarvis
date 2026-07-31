@@ -148,6 +148,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "verbal forms of gated authority targets",
             "creating a pr",
             "implementing the plan",
+            "past-tense support authorization claims",
+            "past, perfect, and progressive forms",
         ),
     ),
     FamilyRule(
@@ -164,6 +166,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "exact support-state location",
             "misplaced support state outside stage 1",
             "support-only state",
+            "recognize list-prefixed state fields",
+            "list field",
         ),
     ),
     FamilyRule(
@@ -214,6 +218,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "limit write-set enforcement to active receipts",
             "historical receipts",
             "active receipt",
+            "active-to-unclassified downgrade",
+            "active receipt drops its markers",
             "preserve current confinement and status sections",
             "bulleted intended write set",
         ),
@@ -230,6 +236,8 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "selected matrix defines the corresponding families",
             "preserve findings that contain green wording",
             "standalone no-findings summary",
+            "accept the established connector green response",
+            "chef's kiss",
         ),
     ),
     FamilyRule(
@@ -877,6 +885,15 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Connector green-summary guardrail treated finding prose as green"
         )
+    established_green = "Codex Review: Didn't find any major issues. Chef's kiss."
+    if not _is_standalone_connector_green(established_green):
+        failures.append(
+            "Connector green-summary guardrail rejected the established green response"
+        )
+    if _is_standalone_connector_green(established_green + " But one path still fails."):
+        failures.append(
+            "Connector green-summary guardrail accepted a finding appended to green wording"
+        )
     synthetic_summary_comments = _connector_review_summary_comments(
         [
             {
@@ -1281,6 +1298,9 @@ def _is_standalone_connector_green(body: str) -> bool:
         "codex did not find any major issues",
         "codex found no major issues",
         "codex review looks good",
+        "codex review didn't find any major issues chef's kiss",
+        "codex review didnt find any major issues chef's kiss",
+        "codex review did not find any major issues chef's kiss",
     }
 
 
@@ -1543,6 +1563,53 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
     )
     if not _is_active_branch_receipt(active_receipt):
         failures.append("Branch receipt write-set guardrail rejected an active receipt")
+    for marker in (
+        "## Assigned Worktree Confinement\n",
+        "- Active Thread Owner: `Codex`\n",
+        "- Thread Assignment Status: `Assigned`\n",
+    ):
+        downgraded = active_receipt.replace(marker, "", 1)
+        downgrade_failures = _active_receipt_downgrade_failures(
+            record,
+            downgraded,
+            active_receipt,
+        )
+        if not any("active-to-unclassified downgrade" in failure for failure in downgrade_failures):
+            failures.append(
+                "Branch receipt write-set guardrail allowed an active receipt to drop "
+                f"{marker.strip()}"
+            )
+    explicit_historical = "Phase: `Historical Traceability`\n" + active_receipt
+    if _active_receipt_downgrade_failures(
+        record,
+        explicit_historical,
+        active_receipt,
+    ):
+        failures.append(
+            "Branch receipt write-set guardrail rejected an explicit historical transition"
+        )
+    downgraded_receipt = active_receipt.replace(
+        "- Thread Assignment Status: `Assigned`\n", "", 1
+    )
+    for misleading_status in (
+        "Status: `Not Historical`\n",
+        "Record Status: `Non-Historical`\n",
+        "Phase: `No Historical Transition`\n",
+    ):
+        misleading_transition = misleading_status + downgraded_receipt
+        downgrade_failures = _active_receipt_downgrade_failures(
+            record,
+            misleading_transition,
+            active_receipt,
+        )
+        if not any(
+            "active-to-unclassified downgrade" in failure
+            for failure in downgrade_failures
+        ):
+            failures.append(
+                "Branch receipt write-set guardrail treated a negated historical "
+                f"status as an explicit transition: {misleading_status.strip()}"
+            )
     unbulleted_active_receipt = active_receipt.replace("- Active", "Active").replace(
         "- Thread", "Thread"
     )
@@ -1633,7 +1700,7 @@ def _branch_receipt_candidates(
     )
 
 
-def _is_active_branch_receipt(text: str) -> bool:
+def _current_branch_receipt_summary(text: str) -> str:
     current_lines: list[str] = []
     historical_level: int | None = None
     for line in text.splitlines():
@@ -1647,15 +1714,22 @@ def _is_active_branch_receipt(text: str) -> bool:
                 continue
         if historical_level is None:
             current_lines.append(line)
-    current_summary = "\n".join(current_lines)
-    historical_phase = re.search(
+    return "\n".join(current_lines)
+
+
+def _is_historical_branch_receipt(text: str) -> bool:
+    return bool(re.search(
         r"^(?:-\s*)?(?:Phase|Current Phase|Branch Authority Status|Record Status|Status):"
-        r"\s*`?[^`\r\n]*\bhistorical\b",
-        current_summary,
+        r"\s*`?\s*historical\b",
+        _current_branch_receipt_summary(text),
         flags=re.IGNORECASE | re.MULTILINE,
-    )
+    ))
+
+
+def _is_active_branch_receipt(text: str) -> bool:
+    current_summary = _current_branch_receipt_summary(text)
     return bool(
-        not historical_phase
+        not _is_historical_branch_receipt(text)
         and re.search(
             r"^## Assigned Worktree Confinement\s*$",
             current_summary,
@@ -1672,6 +1746,24 @@ def _is_active_branch_receipt(text: str) -> bool:
             flags=re.IGNORECASE | re.MULTILINE,
         )
     )
+
+
+def _active_receipt_downgrade_failures(
+    record_relative: str,
+    current_text: str,
+    base_text: str | None,
+) -> list[str]:
+    if (
+        base_text is None
+        or not _is_active_branch_receipt(base_text)
+        or _is_active_branch_receipt(current_text)
+        or _is_historical_branch_receipt(current_text)
+    ):
+        return []
+    return [
+        f"{record_relative}: active-to-unclassified downgrade removed required "
+        "branch-receipt markers without an explicit historical transition"
+    ]
 
 
 def _missing_branch_receipt_failures(
@@ -1711,6 +1803,13 @@ def _branch_receipt_write_set_failures(
             continue
         record_text = record_path.read_text(encoding="utf-8")
         if not _is_active_branch_receipt(record_text):
+            failures.extend(
+                _active_receipt_downgrade_failures(
+                    record_relative,
+                    record_text,
+                    _file_text_at_revision(base, record_relative),
+                )
+            )
             continue
         failures.extend(
             _branch_receipt_write_set_text_failures(
