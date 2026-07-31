@@ -162,6 +162,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "keep semicolons from erasing authority negation",
             "semicolon as a clause boundary",
             "new authority predicate after it",
+            "scan every generated review aid for authority claims",
+            "additional allowed review aid",
+            "recognize plural support-authority subjects",
+            "plural support artifacts",
         ),
     ),
     FamilyRule(
@@ -240,6 +244,12 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "fold down the receipt before merge",
             "committed merge-target state",
             "assignment fields in a historical section",
+            "include source paths when discovering receipt renames",
+            "status-aware diff",
+            "scope historical status detection to the receipt itself",
+            "canonical historical values",
+            "canonical receipt phase",
+            "generic status prose",
         ),
     ),
     FamilyRule(
@@ -308,6 +318,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "reuse the requested base for inventory rendering",
             "requested base",
             "no-write generator",
+            "make inventory rendering independent of checkout branch state",
+            "detached ci checkout",
+            "stable branch context",
         ),
     ),
     FamilyRule(
@@ -1414,18 +1427,49 @@ def _thread_counts(threads: list[dict[str, Any]]) -> dict[str, int]:
     }
 
 
+def _name_status_paths(raw: str) -> set[str]:
+    paths: set[str] = set()
+    for line in raw.splitlines():
+        fields = line.split("\t")
+        if len(fields) < 2:
+            continue
+        status = fields[0].strip().upper()
+        if status.startswith(("R", "C")) and len(fields) >= 3:
+            paths.update(path.strip() for path in fields[1:3] if path.strip())
+        elif fields[1].strip():
+            paths.add(fields[1].strip())
+    return paths
+
+
 def _changed_files(base: str) -> list[str]:
-    commands = (
-        ["git", "diff", "--name-only", f"{base}...HEAD"],
-        ["git", "diff", "--name-only"],
-        ["git", "diff", "--cached", "--name-only"],
-        ["git", "ls-files", "--others", "--exclude-standard"],
+    status_commands = (
+        ["git", "diff", "--name-status", f"{base}...HEAD"],
+        ["git", "diff", "--name-status"],
+        ["git", "diff", "--cached", "--name-status"],
     )
     paths: set[str] = set()
-    for command in commands:
-        raw = _run(command)
-        paths.update(line.strip() for line in raw.splitlines() if line.strip())
+    for command in status_commands:
+        paths.update(_name_status_paths(_run(command)))
+    untracked = _run(["git", "ls-files", "--others", "--exclude-standard"])
+    paths.update(line.strip() for line in untracked.splitlines() if line.strip())
     return sorted(paths)
+
+
+def _changed_file_discovery_guardrail_failures() -> list[str]:
+    old_receipt = "Docs/branch_records/example_receipt.md"
+    renamed_path = "Docs/archive/example_receipt.md"
+    parsed = _name_status_paths(
+        f"R100\t{old_receipt}\t{renamed_path}\n"
+        "M\tdev/orin_pr_review_churn_validation.py\n"
+    )
+    failures: list[str] = []
+    if old_receipt not in parsed or renamed_path not in parsed:
+        failures.append("Changed-file discovery omitted a rename source or destination")
+    if _branch_receipt_candidates(sorted(parsed)) != [old_receipt]:
+        failures.append(
+            "Branch receipt discovery did not preserve a receipt renamed outside its owner directory"
+        )
+    return failures
 
 
 def _select_matrix_path(
@@ -1650,6 +1694,8 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
         "Status: `Not Historical`\n",
         "Record Status: `Non-Historical`\n",
         "Phase: `No Historical Transition`\n",
+        "Status: `Historical fixture preserved`\n",
+        "Status: `Historical evidence retained`\n",
     ):
         misleading_transition = misleading_status + downgraded_receipt
         downgrade_failures = _active_receipt_downgrade_failures(
@@ -1662,7 +1708,7 @@ def _branch_receipt_write_set_guardrail_failures() -> list[str]:
             for failure in downgrade_failures
         ):
             failures.append(
-                "Branch receipt write-set guardrail treated a negated historical "
+                "Branch receipt write-set guardrail treated an unrelated or negated historical "
                 f"status as an explicit transition: {misleading_status.strip()}"
             )
     unbulleted_active_receipt = active_receipt.replace("- Active", "Active").replace(
@@ -1774,8 +1820,9 @@ def _current_branch_receipt_summary(text: str) -> str:
 
 def _is_historical_branch_receipt(text: str) -> bool:
     return bool(re.search(
-        r"^(?:-\s*)?(?:Phase|Current Phase|Branch Authority Status|Record Status|Status):"
-        r"\s*`?\s*historical\b",
+        r"^(?:-\s*)?(?:Phase|Current Phase|Branch Authority Status|Record Status):"
+        r"\s*`?\s*(?:historical(?:\s+released)?\s+traceability|"
+        r"historical(?:\s+(?:released|rollback|projection))?\s+receipt(?:\s+only)?)\b",
         _current_branch_receipt_summary(text),
         flags=re.IGNORECASE | re.MULTILINE,
     ))
@@ -1954,10 +2001,7 @@ def _inventory_receipt_expected_content(
     lines = record_text.count("\n") + (1 if record_text else 0)
     owner = docs_inventory.owner_for(record_relative)
     owns, should_record, should_move = docs_inventory.OWNER_DESCRIPTIONS[owner]
-    branch = _run(["git", "branch", "--show-current"]).strip()
-    active_branch_plan_paths = (
-        {docs_inventory.branch_name_to_plan_path(branch)} if branch else set()
-    )
+    active_branch_plan_paths: set[str] = set()
     action, completed, remaining = docs_inventory.action_for(
         record_relative,
         owner,
@@ -2291,6 +2335,36 @@ def _inventory_receipt_line_count_guardrail_failures() -> list[str]:
             "Inventory receipt currentness guardrail missed a changed receipt without inventory regeneration"
         )
     return failures
+
+
+def _inventory_checkout_independence_guardrail_failures() -> list[str]:
+    original_git_output = docs_inventory.git_output
+    rendered: list[tuple[str, str]] = []
+    try:
+        for checkout_branch in (
+            "feature/fam-007-local-ai-provider-setup-implementation-foundation",
+            "",
+        ):
+            def checkout_git_output(*args: str, branch: str = checkout_branch) -> str:
+                if args == ("branch", "--show-current"):
+                    return branch
+                return original_git_output(*args)
+
+            docs_inventory.git_output = checkout_git_output
+            rendered.append(
+                docs_inventory.generate(
+                    changed_files=[],
+                    write_outputs=False,
+                    report=False,
+                )
+            )
+    finally:
+        docs_inventory.git_output = original_git_output
+    if rendered[0] != rendered[1]:
+        return [
+            "Docs inventory rendering changes between named-branch and detached checkouts"
+        ]
+    return []
 
 
 def _docs_inventory_receipt_currentness_failures(
@@ -2957,8 +3031,10 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     failures: list[str] = []
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_matrix_selection_guardrail_failures())
+    failures.extend(_changed_file_discovery_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
     failures.extend(_inventory_receipt_line_count_guardrail_failures())
+    failures.extend(_inventory_checkout_independence_guardrail_failures())
     failures.extend(_branch_receipt_write_set_failures(changed_files, base=args.base))
     failures.extend(
         _docs_inventory_receipt_currentness_failures(
@@ -3035,8 +3111,10 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         failures.append("At least one connector review comment was not classified")
     failures.extend(_classifier_guardrail_failures())
     failures.extend(_matrix_selection_guardrail_failures())
+    failures.extend(_changed_file_discovery_guardrail_failures())
     failures.extend(_branch_receipt_write_set_guardrail_failures())
     failures.extend(_inventory_receipt_line_count_guardrail_failures())
+    failures.extend(_inventory_checkout_independence_guardrail_failures())
     failures.extend(_branch_receipt_write_set_failures(changed_files, base=args.base))
     failures.extend(
         _docs_inventory_receipt_currentness_failures(

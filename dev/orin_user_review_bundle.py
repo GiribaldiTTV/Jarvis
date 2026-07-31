@@ -11882,17 +11882,26 @@ def _support_context_authority_failures(
     text: str,
     *,
     support_artifact: bool = False,
+    support_path: bool = False,
 ) -> list[str]:
     semantic_text = _markdown_semantic_text(text)
     normalized = re.sub(r"[^\S\r\n]+", " ", semantic_text).casefold()
-    explicit_support_subject = (
-        r"(?:this|the|a|an)\s+"
-        r"(?:support(?:ing)?(?:\s+(?:context|file|artifact))?|review aid)"
+    bare_support_subject = (
+        r"(?:support(?:ing)?(?:\s+(?:contexts?|files?|artifacts?))?|review aids?)"
     )
-    generic_artifact_subject = r"(?:this|the|a|an)\s+(?:file|artifact|document|packet)"
+    explicit_support_subject = (
+        rf"(?:(?:this|the|a|an)\s+"
+        rf"(?:support(?:ing)?(?:\s+(?:context|file|artifact))?|review aid)|"
+        rf"(?:these|those|the)\s+"
+        rf"(?:support(?:ing)?\s+(?:contexts|files|artifacts)|review aids))"
+    )
+    generic_artifact_subject = (
+        r"(?:(?:this|the|a|an)\s+(?:file|artifact|document|packet)|"
+        r"(?:these|those|the)\s+(?:files|artifacts|documents|packets))"
+    )
     subject = (
         rf"(?:{explicit_support_subject}|{generic_artifact_subject})"
-        if support_artifact
+        if support_artifact or support_path
         else explicit_support_subject
     )
     gated_target = (
@@ -11972,7 +11981,7 @@ def _support_context_authority_failures(
         rf"\b{subject}\s+{authority_predicate}\b",
         rf"(?:^|[.!?:;][ \t]+|(?:\r?\n)+)[ \t]*"
         rf"(?:(?:[-+*]|\d+\.)\s+|>\s+)?"
-        rf"(?:support(?:ing)? (?:context|file|artifact)|review aid)\s+"
+        rf"{bare_support_subject}\s+"
         rf"{authority_predicate}\b",
     ]
     instrumental_authority_leads = [
@@ -12040,9 +12049,8 @@ def _support_context_authority_failures(
     authority_patterns = [
         rf"\b{gated_target}\s+{affirmative_modifiers}"
         rf"{passive_authority_predicate}\s+"
-        r"(?:by|through|via)\s+(?:(?:this|the|a|an)\s+)?"
-        r"(?:support(?:ing\s+(?:context|file|artifact)|\s+"
-        r"(?:context|file|artifact))?|review\s+aid)\b",
+        rf"(?:by|through|via)\s+(?:(?:this|the|a|an|these|those)\s+)?"
+        rf"{bare_support_subject}\b",
         r"\buser (?:accepted|approved|waived) (?:through|by|via) (?:this\s+)?support\b",
     ]
     if support_artifact:
@@ -12078,7 +12086,15 @@ def _branch_planning_review_gate_state_failures(
     generated_files = {
         file_name: text
         for file_name, text in packet_files.items()
-        if _packet_file_basename(file_name) in USER_FACING_GENERATED_FILES
+        if (
+            _packet_file_basename(file_name) in USER_FACING_GENERATED_FILES
+            or _normalized_packet_relative_path(file_name).startswith(
+                f"{USER_REVIEW_DIR_NAME}/"
+            )
+            or _normalized_packet_relative_path(file_name).startswith(
+                f"{REVIEW_AIDS_DIR_NAME}/"
+            )
+        )
     }
     all_review_text = _exact_decision_text(packet_files)
     normalized_all_review_text = re.sub(r"\s+", " ", all_review_text).casefold()
@@ -12099,6 +12115,7 @@ def _branch_planning_review_gate_state_failures(
     )
     for file_name, text in sorted(generated_files.items()):
         base_name = _packet_file_basename(file_name)
+        normalized_path = _normalized_packet_relative_path(file_name)
         failures.extend(
             _support_context_authority_failures(
                 file_name,
@@ -12113,6 +12130,9 @@ def _branch_planning_review_gate_state_failures(
                             USER_BRANCH_PLAN_REVIEW_FILE,
                         }
                     )
+                ),
+                support_path=normalized_path.startswith(
+                    f"{REVIEW_AIDS_DIR_NAME}/"
                 ),
             )
         )

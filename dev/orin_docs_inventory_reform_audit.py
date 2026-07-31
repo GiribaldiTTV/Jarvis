@@ -1210,8 +1210,8 @@ def generate(
                 for child in candidate_path.rglob("*"):
                     if child.is_file():
                         changed.add(child.relative_to(ROOT).as_posix())
-    branch = git_output("branch", "--show-current")
-    active_branch_plan_paths = {branch_name_to_plan_path(branch)} if branch else set()
+    # Committed inventory output must be identical in branch and detached checkouts.
+    active_branch_plan_paths: set[str] = set()
     retired_plan_paths = retired_branch_plan_paths()
 
     file_rows: list[dict[str, object]] = []
