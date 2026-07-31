@@ -11818,6 +11818,10 @@ def _markdown_semantic_text(
     semantic_lines: list[str] = []
     fence_character = ""
     fence_length = 0
+    markdown_container_prefix = (
+        r"[ \t]{0,3}(?:(?:(?:[-+*]|\d+[.)])[ \t]+"
+        r"(?:\[[ xX]\][ \t]+)?|>[ \t]*))*"
+    )
     indented_code = False
     previous_line_blank = True
     for line in semantic_source.splitlines(keepends=True):
@@ -11840,7 +11844,10 @@ def _markdown_semantic_text(
             previous_line_blank = False
             continue
 
-        fence_match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
+        fence_match = re.match(
+            rf"^{markdown_container_prefix}(`{{3,}}|~{{3,}})",
+            line,
+        )
         if not fence_character:
             if fence_match:
                 fence_character = fence_match.group(1)[0]
@@ -11852,7 +11859,8 @@ def _markdown_semantic_text(
             continue
 
         closing_match = re.match(
-            rf"^[ \t]{{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*(?:\r?\n)?$",
+            rf"^{markdown_container_prefix}"
+            rf"{re.escape(fence_character)}{{{fence_length},}}[ \t]*(?:\r?\n)?$",
             line,
         )
         if closing_match:
@@ -11996,6 +12004,81 @@ def _support_context_authority_failures(
         rf"{affirmative_modifiers}{authority_base_verb}\b",
         rf"\b(?:the\s+)?use\s+of\s+{subject}\s+{authority_predicate}\b",
     ]
+    authority_noun = r"(?:authorization|approval|permission|authority)"
+    nominal_authority_modifier = (
+        rf"(?:{affirmative_modifier}|sufficient|adequate|valid|binding|effective|"
+        rf"explicit|direct|full|final|operative|necessary|complete)"
+    )
+    nominal_authority_modifiers = rf"(?:{nominal_authority_modifier}\s+){{0,3}}"
+    nominal_provider_base = (
+        r"(?:provide|give|confer|supply|offer|carry|hold|possess|constitute)"
+    )
+    nominal_provider_present = (
+        r"(?:provides|gives|confers|supplies|offers|carries|holds|possesses|constitutes)"
+    )
+    nominal_provider_past = (
+        r"(?:provided|gave|conferred|supplied|offered|carried|held|possessed|constituted)"
+    )
+    nominal_provider_progressive = (
+        r"(?:providing|giving|conferring|supplying|offering|carrying|holding|"
+        r"possessing|constituting)"
+    )
+    nominal_provider_participle = (
+        r"(?:provided|given|conferred|supplied|offered|carried|held|possessed|"
+        r"constituted|granted)"
+    )
+    nominal_provider_predicate = (
+        rf"(?:{affirmative_modifiers}{nominal_provider_present}|"
+        rf"{affirmative_modifiers}{nominal_provider_past}|"
+        rf"{affirmative_modifiers}(?:has|have|had)|"
+        rf"{affirmative_modifiers}{do_auxiliary}\s+{affirmative_modifiers}"
+        rf"{nominal_provider_base}|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+{affirmative_modifiers}"
+        rf"{nominal_provider_past}|"
+        rf"{affirmative_modifiers}{be_auxiliary}\s+{affirmative_modifiers}"
+        rf"{nominal_provider_progressive}|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+{affirmative_modifiers}been\s+"
+        rf"{affirmative_modifiers}{nominal_provider_progressive}|"
+        rf"{affirmative_modifiers}{be_auxiliary}\s+{affirmative_modifiers}"
+        rf"{nominal_provider_participle}|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+{affirmative_modifiers}been\s+"
+        rf"{affirmative_modifiers}{nominal_provider_participle}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}"
+        rf"{nominal_provider_base}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}{nominal_provider_past}|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}be\s+"
+        rf"{affirmative_modifiers}(?:{nominal_provider_progressive}|"
+        rf"{nominal_provider_participle})|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}been\s+{affirmative_modifiers}"
+        rf"(?:{nominal_provider_progressive}|{nominal_provider_participle}))"
+    )
+    nominal_copula_predicate = (
+        rf"(?:{affirmative_modifiers}{be_auxiliary}|"
+        rf"{affirmative_modifiers}{have_auxiliary}\s+{affirmative_modifiers}been|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}be|"
+        rf"{affirmative_modifiers}{affirmative_modal}\s+{affirmative_modifiers}have\s+"
+        rf"{affirmative_modifiers}been)"
+    )
+    nominal_role_predicate = (
+        rf"{affirmative_modifiers}(?:serves?|served|acts?|acted|counts?|counted)\s+"
+        rf"{affirmative_modifiers}as"
+    )
+    nominal_provider_bridge = (
+        rf"(?:(?:(?!{authority_noun}\b)[a-z][a-z0-9-]*)"
+        rf"(?:\s+(?:(?!{authority_noun}\b)[a-z][a-z0-9-]*)){{0,5}}\s+"
+        rf"(?:and|but)\s+)?"
+    )
+    nominal_authority_leads = [
+        rf"\b{subject}\s+{nominal_provider_predicate}\s+"
+        rf"{nominal_provider_bridge}"
+        rf"(?:(?:an?|the|its|their)\s+)?{nominal_authority_modifiers}{authority_noun}\s+"
+        rf"(?:for|to|over|of)\b",
+        rf"\b{subject}\s+(?:{nominal_copula_predicate}|{nominal_role_predicate})\s+"
+        rf"(?:(?:an?|the|its|their)\s+)?{nominal_authority_modifiers}{authority_noun}\s+"
+        rf"(?:for|to|over|of)\b",
+    ]
 
     def lead_governs_positive_target(lead_match: re.Match[str]) -> bool:
         clause = normalized[lead_match.end() : lead_match.end() + 500]
@@ -12040,6 +12123,14 @@ def _support_context_authority_failures(
         not instrumental_lead_is_negated(lead_match)
         and lead_governs_positive_target(lead_match)
         for pattern in instrumental_authority_leads
+        for lead_match in re.finditer(pattern, normalized)
+    ):
+        return [
+            f"{file_name}: support context attempts to authorize a USER-gated action"
+        ]
+    if any(
+        lead_governs_positive_target(lead_match)
+        for pattern in nominal_authority_leads
         for lead_match in re.finditer(pattern, normalized)
     ):
         return [

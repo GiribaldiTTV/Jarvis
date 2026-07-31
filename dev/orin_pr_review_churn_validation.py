@@ -166,6 +166,10 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "additional allowed review aid",
             "recognize plural support-authority subjects",
             "plural support artifacts",
+            "detect nominal support-authority claims",
+            "nominal support-authority",
+            "provides authorization",
+            "sufficient authorization",
         ),
     ),
     FamilyRule(
@@ -296,6 +300,9 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "multiline inline-code",
             "preserve code-formatted contract values",
             "code-formatted contract values",
+            "mask list-prefixed fenced examples",
+            "list-prefixed fenced blocks",
+            "fence parser should handle list-prefixed",
         ),
     ),
     FamilyRule(
