@@ -11722,11 +11722,15 @@ def _support_context_authority_failures(
     normalized = re.sub(r"\s+", " ", _markdown_semantic_text(text)).casefold()
     subject = (
         r"(?:this|the|a|an)\s+"
-        r"(?:support(?:\s+(?:context|file|artifact))?|file|artifact|document|packet|review aid)"
+        r"(?:support(?:ing)?(?:\s+(?:context|file|artifact))?|"
+        r"file|artifact|document|packet|review aid)"
     )
     gated_target = (
-        r"(?:stage\s*2|implementation|pr\s+creation|pull\s+request\s+creation|"
-        r"merge|release)"
+        r"(?:stage\s*2|implementation(?:\s+(?:work|execution))?|"
+        r"pr\s+creation|pull\s+request\s+creation|"
+        r"merge(?:\s+execution)?|release(?:\s+execution)?)"
+        r"(?!\s+(?:analysis|planning|inspection|review|comparison|assessment|"
+        r"preparation|design|proposal|discussion|evidence)\b)"
     )
     authority_patterns = [
         rf"\b{subject}\s+(?:now\s+)?(?:authorizes|approves|permits|grants|enables)\s+"
@@ -11916,7 +11920,16 @@ def _branch_planning_review_gate_state_failures(
         branch_plan_review,
         "USER Gate State:",
     )
+    branch_plan_reviewability_count = _state_marker_count(
+        branch_plan_review,
+        "Packet Reviewability State:",
+    )
     if stage1_ready and branch_plan_review:
+        if branch_plan_reviewability_count != 1:
+            failures.append(
+                f"{branch_plan_display_name}: Stage 1-ready support artifact must "
+                "contain exactly one Packet Reviewability State"
+            )
         if branch_plan_support_count != 1:
             failures.append(
                 f"{branch_plan_display_name}: Stage 1-ready support artifact must "

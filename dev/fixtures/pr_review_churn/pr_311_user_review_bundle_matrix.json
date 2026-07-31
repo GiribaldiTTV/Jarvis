@@ -2,8 +2,8 @@
   "schema": "nexus-pr-review-churn-matrix-v1",
   "pr": 311,
   "scope": "Governance USER review bundle context-only packet repair and PR2 review-churn closure",
-  "purpose": "Prevent PR #311 review from acting as the first adversarial parser by proving all ten Connector findings through source-copy identity, support-authority, support-state, and executable-fixture families before another review request.",
-  "reference_effectiveness_note": "The first repair reference set covered the five original literal examples but was ineffective against sibling repository text suffixes, benign authority-verb targets, packet-level authority placement, keywordless non-Stage-1 state, and dead fixture control flow. This matrix expands each reference into generated and sibling variants and binds the live ten-comment corpus to executable local proof.",
+  "purpose": "Prevent PR #311 review from acting as the first adversarial parser by proving all sixteen Connector findings through source-copy identity, support-authority, support-state, support-reviewability, firewall-matrix routing, write-set receipts, classifier precision, and executable-fixture families before another review request.",
+  "reference_effectiveness_note": "The first repair reference set covered the five original literal examples but was ineffective against sibling repository text suffixes, benign authority-verb targets, packet-level authority placement, keywordless non-Stage-1 state, and dead fixture control flow. The second repair proved those ten comments but did not require per-support-artifact reviewability, model natural supporting-subject variants, distinguish gated actions from analysis/planning/inspection nouns, execute the documented default firewall against the changed matrix, keep the durable write-set receipt synchronized, or require fixture context around common review prose. This matrix now binds the live sixteen-comment corpus to executable local proof for all eight observed families.",
   "root_cause_receipt_marker": "PR #311 USER Review Bundle Review-Churn Root-Cause Receipt",
   "review_churn_budget": {
     "max_connector_comments_before_root_cause_receipt": 12,
@@ -11,22 +11,28 @@
     "root_cause_receipts": [
       {
         "pr": 311,
-        "connector_comments": 10,
+        "connector_comments": 16,
         "observed_family_counts": {
           "user-review-fixture-execution": 1,
+          "user-review-firewall-matrix-routing": 1,
+          "user-review-comment-family-precision": 1,
           "user-review-source-copy-identity": 2,
-          "user-review-support-authority": 4,
-          "user-review-support-state": 5
+          "user-review-support-authority": 6,
+          "user-review-support-reviewability": 1,
+          "user-review-support-state": 5,
+          "user-review-write-set-receipt": 1
         },
         "pr_readiness_stage_1_failure": true,
-        "root_cause": "PR Readiness Stage 1 and the first same-PR repair used literal examples and validator green as family-completion evidence. They did not inventory all Git-normalized repository text suffixes, distinguish authority verbs by gated target, scan support-authority claims across every generated packet surface, validate support state independently of optional planning prose, or prove that the nested direct-authority assertions actually executed.",
-        "prevention_summary": "PR #311 now uses a four-family Review-Comment Pattern Matrix, exact live comment counts, generated mutation and sibling replay, executable regression cardinality, packet-wide authority scanning, state-first validation, repository-format text identity, and a local pre-PR Connector simulation before any later review request.",
+        "root_cause": "PR Readiness Stage 1 and two same-PR repair passes used literal examples and validator green as family-completion evidence. They did not inventory all Git-normalized repository text suffixes, distinguish authority verbs by exact gated action, scan support-authority claims across every generated packet surface and natural supporting-subject variant, validate support state independently of optional planning prose, require per-support-artifact reviewability, prove that nested direct-authority assertions actually executed, bind the documented no-option firewall command to the one changed matrix, synchronize later firewall files into the branch receipt, or require fixture/assertion context around the common phrase never checked.",
+        "prevention_summary": "PR #311 now uses an eight-family Review-Comment Pattern Matrix, exact live comment counts, generated mutation and sibling replay, executable regression cardinality, packet-wide authority scanning, state-first and per-role reviewability validation, repository-format text identity, deterministic changed-matrix selection, durable write-set synchronization, and context-sensitive comment classification before any later review request.",
         "preventive_changes": [
           "dev/orin_user_review_bundle.py classifies the repository's .vbs, .pyw, and .svg sources as Git-normalized text while preserving opaque binary exactness.",
-          "dev/orin_user_review_bundle.py ties direct authority verbs to USER-gated targets and scans support-authority claims across every generated packet surface.",
+          "dev/orin_user_review_bundle.py ties direct authority verbs to exact USER-gated actions, recognizes support and supporting subjects, excludes analysis/planning/inspection nouns, and scans support-authority claims across every generated packet surface.",
           "dev/orin_user_review_bundle.py validates generated state markers before optional branch-planning prose can trigger an early return.",
-          "dev/orin_user_review_bundle_false_green_fixture_validation.py executes all 30 direct subject/verb cases and replays text identity, benign guidance, packet-surface, fenced-state, and keywordless-state siblings.",
-          "dev/orin_pr_review_churn_validation.py classifies all ten PR #311 comments into four precise families while retaining false-positive guardrails."
+          "dev/orin_user_review_bundle.py requires exactly one valid Packet Reviewability State on the Stage 1-ready support artifact.",
+          "dev/orin_user_review_bundle_false_green_fixture_validation.py executes all 40 direct subject/verb cases and replays text identity, benign guidance, packet-surface, fenced-state, keywordless-state, reviewability, and gated-action siblings.",
+          "dev/orin_pr_review_churn_validation.py auto-selects the single changed review matrix, classifies all sixteen PR #311 comments into eight precise families, and requires fixture context instead of matching never checked alone.",
+          "Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md records all ten committed branch files and the bounded repeated Connector repair authority."
         ],
         "receipt_file": "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json",
         "receipt_marker": "PR #311 USER Review Bundle Review-Churn Root-Cause Receipt"
@@ -34,6 +40,9 @@
     ]
   },
   "changed_file_coverage": {
+    "Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md": [
+      "user-review-write-set-receipt"
+    ],
     "Docs/incident_patterns.md": [
       "user-review-source-copy-identity",
       "user-review-support-authority",
@@ -47,27 +56,37 @@
       "user-review-fixture-execution"
     ],
     "dev/orin_pr_review_churn_validation.py": [
+      "user-review-comment-family-precision",
+      "user-review-firewall-matrix-routing",
       "user-review-source-copy-identity",
       "user-review-support-authority",
+      "user-review-support-reviewability",
       "user-review-support-state",
-      "user-review-fixture-execution"
+      "user-review-fixture-execution",
+      "user-review-write-set-receipt"
     ],
     "dev/orin_user_review_bundle.py": [
       "user-review-source-copy-identity",
       "user-review-support-authority",
+      "user-review-support-reviewability",
       "user-review-support-state"
     ],
     "dev/orin_user_review_bundle_false_green_fixture_validation.py": [
       "user-review-source-copy-identity",
       "user-review-support-authority",
+      "user-review-support-reviewability",
       "user-review-support-state",
       "user-review-fixture-execution"
     ],
     "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json": [
+      "user-review-comment-family-precision",
+      "user-review-firewall-matrix-routing",
       "user-review-source-copy-identity",
       "user-review-support-authority",
+      "user-review-support-reviewability",
       "user-review-support-state",
-      "user-review-fixture-execution"
+      "user-review-fixture-execution",
+      "user-review-write-set-receipt"
     ]
   },
   "pre_pr_firewall": {
@@ -115,13 +134,39 @@
       {
         "family_id": "user-review-fixture-execution",
         "comment": "Execute the direct-authority regression assertions because the constructed cases were never checked."
+      },
+      {
+        "family_id": "user-review-firewall-matrix-routing",
+        "comment": "Load the PR 311 matrix in the mandated firewall because the documented Stage 1 command otherwise uses the default matrix."
+      },
+      {
+        "family_id": "user-review-support-authority",
+        "comment": "Exclude analysis nouns from gated-action matches so implementation analysis, release planning, and merge inspection remain benign."
+      },
+      {
+        "family_id": "user-review-support-authority",
+        "comment": "Recognize supporting-artifact authority subjects such as This supporting context permits PR creation."
+      },
+      {
+        "family_id": "user-review-support-reviewability",
+        "comment": "Require reviewability on the Stage 1 support artifact with exactly one nonblank valid reviewability state."
+      },
+      {
+        "family_id": "user-review-write-set-receipt",
+        "comment": "Record the added firewall work in branch scope because the Intended Write Set must match the actual committed scope."
+      },
+      {
+        "family_id": "user-review-comment-family-precision",
+        "comment": "Require fixture context before the common review phrase never checked can bypass the unknown-comment guardrail."
       }
     ],
     "unknown_comment_guardrails": [
       "A database migration status row has mixed case after cleanup.",
       "A renderer normalizes line endings in an unrelated telemetry label.",
       "A settings panel enables keyboard inspection without changing product behavior.",
-      "A runtime fixture keeps its existing launch timeout."
+      "A runtime fixture keeps its existing launch timeout.",
+      "The subprocess return code is never checked.",
+      "The HTTP response is never checked before decoding."
     ]
   },
   "families": [
@@ -180,8 +225,8 @@
         "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
       ],
       "generated_mutation_coverage": [
-        "six direct subjects by five authority verbs by gated target",
-        "benign enables-comparison and permits-inspection targets",
+        "eight direct subjects by five authority verbs by gated target",
+        "benign enables-comparison, permits-inspection, implementation-analysis, release-planning, and merge-inspection targets",
         "negative does-not and cannot authority wording",
         "packet-level claims in START_HERE and both generated review surfaces"
       ],
@@ -247,13 +292,134 @@
         "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
       ],
       "generated_mutation_coverage": [
-        "30 direct subject and verb assertions execute",
+        "40 direct subject and verb assertions execute",
         "three packet-level authority placements execute",
-        "three benign authority-target controls execute"
+        "six benign authority-target controls execute"
       ],
       "sibling_variant_replay": [
         "nested-loop assertion cardinality guard",
         "negative authority false-positive guard"
+      ]
+    },
+    {
+      "family_id": "user-review-support-reviewability",
+      "title": "Stage 1 support-artifact reviewability state contract",
+      "representative_comment_patterns": [
+        "A Stage 1-ready support artifact omits Packet Reviewability State",
+        "Aggregate packet fields mask a malformed per-role support artifact"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_user_review_bundle.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/orin_user_review_bundle_false_green_fixture_validation.py",
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "Stage 1-ready support artifact with Packet Reviewability State removed",
+        "canonical generated support artifact with exactly one valid reviewability state",
+        "aggregate primary and vision reviewability cannot substitute for support reviewability"
+      ],
+      "sibling_variant_replay": [
+        "aggregate primary and vision reviewability remains present",
+        "support role must independently retain its reviewability field"
+      ]
+    },
+    {
+      "family_id": "user-review-firewall-matrix-routing",
+      "title": "Documented pre-PR firewall matrix-selection contract",
+      "representative_comment_patterns": [
+        "The no-option firewall command loads a stale global matrix",
+        "One changed PR matrix is not selected by the mandated command"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "documented --pre-pr-firewall --base origin/main command with no --matrix",
+        "single changed review matrix selection",
+        "explicit --matrix override",
+        "multiple changed matrices require an explicit selection"
+      ],
+      "sibling_variant_replay": [
+        "global default remains unchanged when no matrix changes",
+        "changed PR-specific matrix owns its exact gated diff"
+      ]
+    },
+    {
+      "family_id": "user-review-write-set-receipt",
+      "title": "Durable branch receipt and committed write-set synchronization",
+      "representative_comment_patterns": [
+        "The branch receipt excludes later review-firewall files",
+        "The Intended Write Set contradicts the actual committed scope"
+      ],
+      "source_truth": [
+        "Docs/branch_records/feature_governance_pr1_context_only_packet_fix.md",
+        "Docs/development_rules.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "all ten origin/main-to-HEAD paths appear in the durable Intended Write Set",
+        "later review-churn helper and matrix files are no longer excluded",
+        "a changed branch receipt without a synchronized Intended Write Set fails"
+      ],
+      "sibling_variant_replay": [
+        "included-scope list",
+        "excluded-scope boundary",
+        "validation contract",
+        "worktree waiver and changed-file cardinality"
+      ]
+    },
+    {
+      "family_id": "user-review-comment-family-precision",
+      "title": "Context-sensitive USER-review comment-family classification",
+      "representative_comment_patterns": [
+        "A common review phrase is treated as fixture execution without fixture context",
+        "Unrelated never-checked prose bypasses the unknown-comment guardrail"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/development_rules.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/incident_patterns.md"
+      ],
+      "implementation": [
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+      ],
+      "generated_mutation_coverage": [
+        "subprocess return code is never checked remains unknown",
+        "HTTP response is never checked remains unknown",
+        "regression assertions plus fixture context still classify as fixture execution"
+      ],
+      "sibling_variant_replay": [
+        "common prose without fixture context",
+        "explicit regression assertion context",
+        "matrix unknown-comment guardrails"
       ]
     }
   ]

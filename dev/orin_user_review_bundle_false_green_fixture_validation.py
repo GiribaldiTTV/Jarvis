@@ -535,6 +535,18 @@ def _assert_support_context_state_contract() -> None:
             + "\n".join(failures)
         )
 
+    missing_support_reviewability = re.sub(
+        r"## Packet Reviewability State\n\n[^\n]+\n\n",
+        "",
+        canonical_support,
+        count=1,
+    )
+    assert_fails(
+        "missing-stage1-support-reviewability",
+        stage1_packet(missing_support_reviewability),
+        "must contain exactly one Packet Reviewability State",
+    )
+
     for variant in ("Context Only", "CONTEXT ONLY", "  Context    Only  "):
         variant_support = canonical_support.replace(
             "Context Only - this file is not a USER gate",
@@ -656,6 +668,8 @@ def _assert_support_context_state_contract() -> None:
         "This packet",
         "This review aid",
         "A support artifact",
+        "This supporting context",
+        "The supporting artifact",
     ):
         for verb in ("authorizes", "approves", "permits", "grants", "enables"):
             direct_authority = (
@@ -668,15 +682,33 @@ def _assert_support_context_state_contract() -> None:
                 "attempts to authorize a USER-gated action",
             )
             direct_authority_case_count += 1
-    if direct_authority_case_count != 30:
+    if direct_authority_case_count != 40:
         raise AssertionError(
-            "direct-authority regression matrix did not execute all 30 cases"
+            "direct-authority regression matrix did not execute all 40 cases"
+        )
+
+    for gated_action in (
+        "implementation work",
+        "implementation execution",
+        "merge execution",
+        "release execution",
+    ):
+        assert_fails(
+            f"gated-action-{gated_action}",
+            stage1_packet(
+                canonical_support
+                + f"\nThis supporting artifact authorizes {gated_action}.\n"
+            ),
+            "attempts to authorize a USER-gated action",
         )
 
     for benign_guidance in (
         "This file enables source-truth comparison.",
         "This review aid permits inspection.",
         "This document supports implementation analysis without authorizing implementation.",
+        "This file enables implementation analysis.",
+        "This review aid permits release planning.",
+        "This document authorizes merge inspection.",
     ):
         benign_failures = support_failures(
             stage1_packet(canonical_support + "\n" + benign_guidance + "\n")

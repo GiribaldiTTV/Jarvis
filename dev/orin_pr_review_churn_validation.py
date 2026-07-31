@@ -20,13 +20,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MATRIX = (
-    ROOT
-    / "dev"
-    / "fixtures"
-    / "pr_review_churn"
-    / "pr_276_rar_review_churn_matrix.json"
-)
+MATRIX_DIR = ROOT / "dev" / "fixtures" / "pr_review_churn"
+DEFAULT_MATRIX = MATRIX_DIR / "pr_276_rar_review_churn_matrix.json"
 DEFAULT_TOTAL_COMMENT_BUDGET = 12
 DEFAULT_SAME_FAMILY_COMMENT_BUDGET = 3
 CONNECTOR_LOGINS = {"chatgpt-codex-connector", "codex"}
@@ -128,6 +123,11 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "support authority",
             "authority scan",
             "support artifact authorizes",
+            "supporting artifact authorizes",
+            "supporting context permits",
+            "supporting-artifact authority",
+            "gated-action matches",
+            "exclude analysis nouns",
             "support context attempts to authorize",
         ),
     ),
@@ -148,9 +148,46 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
         "user-review-fixture-execution",
         (
             "regression assertions",
-            "never checked",
             "fixture suite still passes",
             "run assert_fails",
+        ),
+    ),
+    FamilyRule(
+        "user-review-support-reviewability",
+        (
+            "reviewability on the stage 1 support artifact",
+            "nonblank valid reviewability state",
+            "per-role contract",
+            "reviewability state alongside its support state",
+        ),
+    ),
+    FamilyRule(
+        "user-review-firewall-matrix-routing",
+        (
+            "load the pr 311 matrix",
+            "mandated firewall",
+            "documented stage 1 command",
+            "default matrix",
+            "matrix is selected",
+            "mandatory pre-pr gate",
+        ),
+    ),
+    FamilyRule(
+        "user-review-write-set-receipt",
+        (
+            "record the added firewall work in branch scope",
+            "durable confinement/audit record",
+            "contradicts the actual committed scope",
+            "later review-churn repair files",
+        ),
+    ),
+    FamilyRule(
+        "user-review-comment-family-precision",
+        (
+            "require fixture context",
+            "common review phrase",
+            "corrupts observed-family counts",
+            "unknown-comment guardrail",
         ),
     ),
     FamilyRule(
@@ -702,6 +739,18 @@ def _classifier_guardrail_failures() -> list[str]:
         "user-review-fixture-execution": (
             "Execute the direct-authority regression assertions; the cases are never checked."
         ),
+        "user-review-support-reviewability": (
+            "Require reviewability on the Stage 1 support artifact with one nonblank valid reviewability state."
+        ),
+        "user-review-firewall-matrix-routing": (
+            "Load the PR 311 matrix in the mandated firewall instead of relying on the default matrix."
+        ),
+        "user-review-write-set-receipt": (
+            "Record the added firewall work in branch scope and the Intended Write Set."
+        ),
+        "user-review-comment-family-precision": (
+            "Require fixture context before a common review phrase can bypass the unknown-comment guardrail."
+        ),
     }
     for family_id, comment in user_review_examples.items():
         if family_id not in _classify_comment(comment):
@@ -717,6 +766,15 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Comment-family classifier overmatched benign review-aid guidance as authority"
         )
+    for unrelated_never_checked in (
+        "The subprocess return code is never checked.",
+        "The HTTP response is never checked before decoding.",
+    ):
+        if _classify_comment(unrelated_never_checked) != ["unknown"]:
+            failures.append(
+                "Comment-family classifier treated an unrelated 'never checked' phrase "
+                f"as fixture execution: {unrelated_never_checked}"
+            )
     classifier_comment = (
         "Tighten comment-family matching so an unrelated comment containing status "
         "or row does not pass as a covered family in the churn gate matrix."
@@ -1054,6 +1112,164 @@ def _changed_files(base: str) -> list[str]:
         raw = _run(command)
         paths.update(line.strip() for line in raw.splitlines() if line.strip())
     return sorted(paths)
+
+
+def _select_matrix_path(
+    requested_matrix: str | None,
+    changed_files: list[str],
+) -> tuple[Path, str]:
+    if requested_matrix:
+        requested_path = Path(requested_matrix)
+        if not requested_path.is_absolute():
+            requested_path = ROOT / requested_path
+        return requested_path, "explicit --matrix"
+
+    matrix_prefix = MATRIX_DIR.relative_to(ROOT).as_posix().casefold() + "/"
+    changed_matrices = sorted(
+        {
+            path.replace("\\", "/")
+            for path in changed_files
+            if path.replace("\\", "/").casefold().startswith(matrix_prefix)
+            and path.casefold().endswith(".json")
+        }
+    )
+    if len(changed_matrices) > 1:
+        raise ValueError(
+            "Multiple changed review-churn matrices require an explicit --matrix: "
+            + ", ".join(changed_matrices)
+        )
+    if changed_matrices:
+        return ROOT / changed_matrices[0], "single changed review-churn matrix"
+    return DEFAULT_MATRIX, "global default"
+
+
+def _matrix_selection_guardrail_failures() -> list[str]:
+    failures: list[str] = []
+    default_path, default_reason = _select_matrix_path(None, [])
+    if default_path.resolve() != DEFAULT_MATRIX.resolve() or default_reason != "global default":
+        failures.append("Matrix selection did not preserve the global default")
+
+    changed_relative = "dev/fixtures/pr_review_churn/pr_311_user_review_bundle_matrix.json"
+    changed_path, changed_reason = _select_matrix_path(None, [changed_relative])
+    if (
+        changed_path.resolve() != (ROOT / changed_relative).resolve()
+        or changed_reason != "single changed review-churn matrix"
+    ):
+        failures.append("Matrix selection did not choose the single changed matrix")
+
+    explicit_path, explicit_reason = _select_matrix_path(changed_relative, [])
+    if (
+        explicit_path.resolve() != (ROOT / changed_relative).resolve()
+        or explicit_reason != "explicit --matrix"
+    ):
+        failures.append("Matrix selection did not preserve an explicit matrix override")
+
+    try:
+        _select_matrix_path(
+            None,
+            [
+                changed_relative,
+                "dev/fixtures/pr_review_churn/pr_286_fam003_resident_access_matrix.json",
+            ],
+        )
+    except ValueError:
+        pass
+    else:
+        failures.append("Matrix selection accepted multiple changed matrices without --matrix")
+    return failures
+
+
+def _matrix_display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(resolved)
+
+
+def _branch_receipt_write_set_text_failures(
+    record_relative: str,
+    text: str,
+    changed_files: list[str],
+) -> list[str]:
+    match = re.search(
+        r"^Intended Write Set:\s*`([^`]*)`\s*$",
+        text,
+        flags=re.MULTILINE,
+    )
+    if match is None:
+        if record_relative in changed_files:
+            return [
+                f"{record_relative}: changed branch receipt omits Intended Write Set"
+            ]
+        return []
+    recorded = {
+        item.strip().replace("\\", "/")
+        for item in match.group(1).split(";")
+        if item.strip()
+    }
+    changed = {item.replace("\\", "/") for item in changed_files}
+    failures: list[str] = []
+    missing = sorted(changed - recorded)
+    stale = sorted(recorded - changed)
+    if missing:
+        failures.append(
+            f"{record_relative}: Intended Write Set omits changed files: "
+            + ", ".join(missing)
+        )
+    if stale:
+        failures.append(
+            f"{record_relative}: Intended Write Set lists files outside the current diff: "
+            + ", ".join(stale)
+        )
+    return failures
+
+
+def _branch_receipt_write_set_guardrail_failures() -> list[str]:
+    record = "Docs/branch_records/feature_example.md"
+    changed = [record, "dev/example_validator.py"]
+    exact = (
+        "Intended Write Set: `Docs/branch_records/feature_example.md; "
+        "dev/example_validator.py`\n"
+    )
+    failures: list[str] = []
+    if _branch_receipt_write_set_text_failures(record, exact, changed):
+        failures.append("Branch receipt write-set guardrail rejected an exact diff")
+    missing = _branch_receipt_write_set_text_failures(
+        record,
+        "Intended Write Set: `Docs/branch_records/feature_example.md`\n",
+        changed,
+    )
+    if not any("omits changed files" in failure for failure in missing):
+        failures.append("Branch receipt write-set guardrail missed an omitted changed file")
+    stale = _branch_receipt_write_set_text_failures(
+        record,
+        exact.replace("`\n", "; dev/stale.py`\n"),
+        changed,
+    )
+    if not any("outside the current diff" in failure for failure in stale):
+        failures.append("Branch receipt write-set guardrail missed a stale listed file")
+    no_field = _branch_receipt_write_set_text_failures(record, "# Branch Receipt\n", changed)
+    if not any("omits Intended Write Set" in failure for failure in no_field):
+        failures.append("Branch receipt write-set guardrail missed a changed receipt without a field")
+    return failures
+
+
+def _branch_receipt_write_set_failures(changed_files: list[str]) -> list[str]:
+    branch = _run(["git", "branch", "--show-current"]).strip()
+    if not branch:
+        return []
+    record_relative = (
+        "Docs/branch_records/" + branch.replace("/", "_").replace("\\", "_") + ".md"
+    )
+    record_path = ROOT / record_relative
+    if not record_path.is_file():
+        return []
+    return _branch_receipt_write_set_text_failures(
+        record_relative,
+        record_path.read_text(encoding="utf-8"),
+        changed_files,
+    )
 
 
 def _is_helper_validator_parser(path: str) -> bool:
@@ -1652,14 +1868,18 @@ def _validate_pre_pr_firewall(
 
 
 def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
-    matrix = _load_matrix(Path(args.matrix))
     changed_files = _changed_files(args.base)
+    matrix_path, matrix_selection = _select_matrix_path(args.matrix, changed_files)
+    matrix = _load_matrix(matrix_path)
     changed_helper_files = [
         path for path in changed_files if _is_firewall_gated_path(path, matrix)
     ]
     changed_families = _families_for_changed_files(matrix, changed_helper_files)
     failures: list[str] = []
     failures.extend(_classifier_guardrail_failures())
+    failures.extend(_matrix_selection_guardrail_failures())
+    failures.extend(_branch_receipt_write_set_guardrail_failures())
+    failures.extend(_branch_receipt_write_set_failures(changed_files))
     failures.extend(_validate_matrix(matrix, changed_families, changed_helper_files))
     firewall_failures, firewall_lines = _validate_pre_pr_firewall(
         matrix, changed_helper_files, skip_commands=args.skip_pre_pr_commands
@@ -1669,6 +1889,7 @@ def build_pre_pr_report(args: argparse.Namespace) -> tuple[int, str]:
     lines = [
         "Pre-PR Adversarial Review Firewall",
         f"Base: {args.base}",
+        f"Matrix: {_matrix_display_path(matrix_path)} ({matrix_selection})",
         "Changed pre-PR firewall-gated files:",
         *[f"- {path}" for path in changed_helper_files],
         "Mapped connector families:",
@@ -1690,10 +1911,11 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     review_comments, review_comment_page_count = _rest_paginated_pages(
         f"repos/{owner}/{name}/pulls/{args.pr}/comments"
     )
-    matrix = _load_matrix(Path(args.matrix))
+    changed_files = _changed_files(args.base)
+    matrix_path, matrix_selection = _select_matrix_path(args.matrix, changed_files)
+    matrix = _load_matrix(matrix_path)
     comments = _connector_review_comments(review_comments)
     thread_counts = _thread_counts(threads)
-    changed_files = _changed_files(args.base)
     changed_helper_files = [
         path for path in changed_files if _is_firewall_gated_path(path, matrix)
     ]
@@ -1715,6 +1937,9 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
     if "unknown" in observed_families:
         failures.append("At least one connector review comment was not classified")
     failures.extend(_classifier_guardrail_failures())
+    failures.extend(_matrix_selection_guardrail_failures())
+    failures.extend(_branch_receipt_write_set_guardrail_failures())
+    failures.extend(_branch_receipt_write_set_failures(changed_files))
     failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
     budget_status, budget_failures = _review_churn_budget_result(
         matrix,
@@ -1736,6 +1961,7 @@ def build_report(args: argparse.Namespace) -> tuple[int, str]:
         f"Repository: {args.repo}",
         f"PR: {args.pr}",
         f"Head SHA: {pull_request['headRefOid']}",
+        f"Matrix: {_matrix_display_path(matrix_path)} ({matrix_selection})",
         f"Mergeability: {pull_request.get('mergeable')} / {pull_request.get('mergeStateStatus')}",
         f"Review-thread pages inspected: {page_count}",
         f"Review-comment pages inspected: {review_comment_page_count}",
@@ -1786,7 +2012,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--pr", type=int)
     parser.add_argument("--repo", default="GiribaldiTTV/Nexus-Desktop-AI")
     parser.add_argument("--base", default="origin/main")
-    parser.add_argument("--matrix", default=str(DEFAULT_MATRIX))
+    parser.add_argument(
+        "--matrix",
+        help=(
+            "Review-churn matrix path. When omitted, use the single changed matrix "
+            "or the global default if no matrix changed."
+        ),
+    )
     parser.add_argument(
         "--pre-pr-firewall",
         action="store_true",
