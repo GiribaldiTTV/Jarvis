@@ -1157,7 +1157,11 @@ def _validate_export_zip(
         *_bp1_packet_phase_language_failures(generated_packet_files),
         *_fam006_bp3_support_context_failures(generated_packet_files),
         *_user_branch_vision_substantive_failures(generated_packet_files),
-        *_fam003_revised_bp1_exact_decision_failures(packet_files),
+        *(
+            _fam003_revised_bp1_exact_decision_failures(packet_files)
+            if f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}" in packet_files
+            else []
+        ),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
         *_pr_stage1_packet_coherence_failures(generated_packet_files),
@@ -19272,7 +19276,8 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_pr_stage1_review_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
-    failures.extend(_fam003_revised_bp1_exact_decision_failures(packet_files))
+    if f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}" in packet_files:
+        failures.extend(_fam003_revised_bp1_exact_decision_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if not _packet_file_present(packet_files, required_file):
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -19849,7 +19854,11 @@ def build_bundle(
             ),
         ),
         *_user_branch_vision_substantive_failures(generated_packet_files),
-        *_fam003_revised_bp1_exact_decision_failures(packet_files),
+        *(
+            _fam003_revised_bp1_exact_decision_failures(packet_files)
+            if f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}" in packet_files
+            else []
+        ),
         *_branch_planning_review_gate_state_failures(generated_packet_files),
         *_pr_stage1_review_failures(generated_packet_files),
     ]
