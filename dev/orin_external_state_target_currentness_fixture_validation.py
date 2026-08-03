@@ -26,8 +26,11 @@ ORIGIN_MAIN = "b" * 40
 WORKTREE_PATH = str(GOVERNANCE_WORKTREE)
 SLOT = "governance-standing"
 SEMANTIC_TARGETS = {
+    "central/active_branch_authority_state.md": "central_active",
+    "central/selected_next_state.md": "selected_next",
     "branches/feature_release_readiness_source_truth_intake/branch_state.md": "branch_state",
     "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "branch_plan",
+    "review_bundles/Governance/manifest.md": "review_bundle",
     "worktrees/Governance/worktree_state.md": "worktree_state",
 }
 SEMANTIC_CYCLE = "RRI-20260727-001"
@@ -143,6 +146,14 @@ def _semantic_root(root: Path) -> dict[str, Path]:
         "Final Disposition: `Bounded semantic-currentness and lock-lifecycle reconciliation remains active; neutral-main rebaseline is pending separate USER decision.`",
     ]
     record_contracts = {
+        "central_active": (
+            "Live Central Authority Projection",
+            "Current central active-branch authority projection",
+        ),
+        "selected_next": (
+            "Live Selected-Next Projection",
+            "Current selected-next projection",
+        ),
         "branch_state": (
             "Live Branch Projection",
             "Post-merge Governance branch authority projection",
@@ -150,6 +161,10 @@ def _semantic_root(root: Path) -> dict[str, Path]:
         "branch_plan": (
             "Live Branch Plan Projection",
             "Post-merge Governance branch plan projection",
+        ),
+        "review_bundle": (
+            "Live Review-Bundle Projection",
+            "Current Governance review-bundle projection",
         ),
         "worktree_state": (
             "Live Worktree Projection",
@@ -2013,7 +2028,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="ndai-governance-semantic-currentness-") as temp_dir:
         root = Path(temp_dir)
         paths = _semantic_root(root)
-        _assert_pass("coherent three-record Governance posture", _semantic_failures(root))
+        _assert_pass("coherent expanded Governance posture", _semantic_failures(root))
 
         branch_state = paths["branches/feature_release_readiness_source_truth_intake/branch_state.md"]
         original_branch_state = branch_state.read_text(encoding="utf-8")
@@ -2146,8 +2161,8 @@ def main() -> int:
         )
         pr_state.unlink()
 
-        cross_area_projection = root / "review_bundles" / "Governance" / "manifest.md"
-        cross_area_projection.parent.mkdir(parents=True)
+        cross_area_projection = root / "review_bundles" / "Other" / "manifest.md"
+        cross_area_projection.parent.mkdir(parents=True, exist_ok=True)
         cross_area_projection.write_text(
             "\n".join(
                 [
@@ -2163,7 +2178,7 @@ def main() -> int:
         )
         _assert_failure(
             "same-branch live projection outside branch directory",
-            "review_bundles/Governance/manifest.md (live review-bundle projection)",
+            "review_bundles/Other/manifest.md (live review-bundle projection)",
             _semantic_failures(root),
         )
         cross_area_projection.write_text(

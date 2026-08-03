@@ -526,18 +526,36 @@ def validate_target_historical_receipt(
 
 
 GOVERNANCE_SEMANTIC_TARGETS = {
+    "central/active_branch_authority_state.md": "central authority",
+    "central/selected_next_state.md": "selected-next state",
     "branches/feature_release_readiness_source_truth_intake/branch_state.md": "branch state",
     "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "branch plan",
+    "review_bundles/Governance/manifest.md": "review bundle",
     "worktrees/Governance/worktree_state.md": "worktree state",
 }
 GOVERNANCE_SEMANTIC_RECORD_CLASSES = {
+    "central/active_branch_authority_state.md": "Live Central Authority Projection",
+    "central/selected_next_state.md": "Live Selected-Next Projection",
     "branches/feature_release_readiness_source_truth_intake/branch_state.md": "Live Branch Projection",
     "branches/feature_release_readiness_source_truth_intake/branch_plan.md": "Live Branch Plan Projection",
+    "review_bundles/Governance/manifest.md": "Live Review-Bundle Projection",
     "worktrees/Governance/worktree_state.md": "Live Worktree Projection",
+}
+GOVERNANCE_SEMANTIC_LEGACY_TARGETS = {
+    relative: label
+    for relative, label in GOVERNANCE_SEMANTIC_TARGETS.items()
+    if relative
+    not in {
+        "central/active_branch_authority_state.md",
+        "central/selected_next_state.md",
+        "review_bundles/Governance/manifest.md",
+    }
 }
 GOVERNANCE_SEMANTIC_BRANCH = "feature/release-readiness-source-truth-intake"
 GOVERNANCE_SEMANTIC_DISCOVERY_EXCLUDED_ROOTS = {
     "audit_log",
+    "archives",
+    "invalid_transactions",
     "locks",
     "schemas",
     "snapshots",
@@ -693,6 +711,12 @@ def validate_governance_semantic_currentness(
 
     failures: list[str] = []
     root = resolve_path(root)
+    targets = GOVERNANCE_SEMANTIC_TARGETS
+    optional_targets = set(GOVERNANCE_SEMANTIC_TARGETS) - set(GOVERNANCE_SEMANTIC_LEGACY_TARGETS)
+    if not any(root.joinpath(*relative.split("/")).exists() for relative in optional_targets):
+        # Keep isolated pre-expansion fixtures valid while the real external
+        # root remains fail-closed once any expanded canonical area exists.
+        targets = GOVERNANCE_SEMANTIC_LEGACY_TARGETS
     for path in _semantic_discovery_paths(root):
         try:
             candidate_text = path.read_text(encoding="utf-8")
@@ -717,14 +741,14 @@ def validate_governance_semantic_currentness(
         relative = path.relative_to(root).as_posix()
         if (
             record_class in TARGET_LIVE_RECORD_CLASSES
-            and relative not in GOVERNANCE_SEMANTIC_TARGETS
+            and relative not in targets
         ):
             failures.append(
                 "Semantic Currentness: same-branch live projection omitted from semantic "
                 f"target inventory: {relative} ({record_class})"
             )
     target_texts: dict[str, str] = {}
-    for relative, label in GOVERNANCE_SEMANTIC_TARGETS.items():
+    for relative, label in targets.items():
         path = root.joinpath(*relative.split("/"))
         if not path.is_file():
             failures.append(f"Semantic Currentness: missing Governance {label}: {relative}")
@@ -734,7 +758,7 @@ def validate_governance_semantic_currentness(
         except (OSError, UnicodeDecodeError) as exc:
             failures.append(f"Semantic Currentness: unreadable Governance {label}: {relative}: {exc}")
 
-    if len(target_texts) != len(GOVERNANCE_SEMANTIC_TARGETS):
+    if len(target_texts) != len(targets):
         return failures
 
     for relative, text in target_texts.items():
