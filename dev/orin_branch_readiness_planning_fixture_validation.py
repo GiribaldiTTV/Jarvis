@@ -21,6 +21,7 @@ import orin_branch_governance_validation as governance
 import orin_external_state_validation as external_state
 import orin_external_state_target_currentness_fixture_validation as target_currentness_fixture
 from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT
+from nexus_paths import WORKTREES_ROOT
 import orin_rar_issue_candidate_durability_validation as rar_issue_durability
 import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
@@ -6393,7 +6394,7 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Rebaseline helper did not accept fixture/test overlap with low regression impact and valid ledger",
     )
 
-    fam_role = rebaseline._worktree_role(Path("C:/Nexus Worktrees/FAM-006"))
+    fam_role = rebaseline._worktree_role(WORKTREES_ROOT / "FAM-006")
     require(
         "FAM-006 implementation lane" not in fam_role
         and "runtime-active candidate" in fam_role,

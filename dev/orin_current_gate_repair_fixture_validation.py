@@ -11,6 +11,7 @@ import zipfile
 from pathlib import Path
 
 import orin_branch_governance_validation as branch_validation
+from nexus_paths import USER_HUB_ROOT
 from orin_current_gate_repair import (
     BR1_MATRIX_ARTIFACT,
     CanonicalPacketPublisher,
@@ -41,7 +42,7 @@ REGRESSION_FIXTURE = (
     / "current_gate_repair"
     / "fam007_20260727_165940_invalid_route_class.json"
 )
-LIVE_FAM007_PACKET = Path(r"C:\Nexus USER\FAM-007-20260727-165940.zip")
+LIVE_FAM007_PACKET = USER_HUB_ROOT / "FAM-007-20260727-165940.zip"
 
 
 def _require(condition: bool, message: str) -> None:

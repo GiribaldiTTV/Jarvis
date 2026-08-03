@@ -11,6 +11,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from nexus_paths import GOVERNANCE_WORKTREE
 from orin_external_state_common import ExternalStateError, atomic_write_json
 from orin_external_state_lock import acquire_lock
 import orin_external_state_lock_lifecycle as lock_lifecycle
@@ -24,7 +25,7 @@ from orin_external_state_lock_lifecycle import (
 from orin_external_state_lock_release import release_lock
 
 
-WORKTREE = r"C:\Nexus Worktrees\Governance"
+WORKTREE = str(GOVERNANCE_WORKTREE)
 BRANCH = "feature/release-readiness-source-truth-intake"
 TARGETS = "central/active_branch_authority_state.md;central/selected_next_state.md"
 

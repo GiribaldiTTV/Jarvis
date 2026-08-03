@@ -22,10 +22,16 @@ all use the same phase names, blocker rules, and transition rules.
 
 This is the canonical cross-workstream governance layer.
 It does not replace:
-
 - `Docs/Main.md` as the routing index
 - canonical workstream docs as branch-local feature-state, evidence, and closure records
 - release or rebaseline docs as milestone summaries
+
+## Current Workspace Root Contract
+
+Current root routing is owned by `Docs/nexus_workspace_roots.md`: neutral main
+remains `C:\Nexus Desktop AI`, while active worktrees, external operational
+state, and USER review hubs resolve below `D:\Nexus Desktop AI Data`. Historical
+C-drive paths in receipts and fixtures are not current execution targets.
 
 ## Exact Prompt Contract
 

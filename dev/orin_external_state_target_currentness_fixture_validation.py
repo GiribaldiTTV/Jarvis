@@ -12,6 +12,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
+from nexus_paths import GOVERNANCE_WORKTREE, WORKTREES_ROOT
 import orin_external_state_validation as validator
 import orin_external_state_lock_release as lock_release
 import orin_external_state_snapshot as snapshotter
@@ -22,7 +23,7 @@ from orin_external_state_common import atomic_write_json
 TARGET = "worktrees/Governance/worktree_state.md"
 HEAD = "a" * 40
 ORIGIN_MAIN = "b" * 40
-WORKTREE_PATH = r"C:\Nexus Worktrees\Governance"
+WORKTREE_PATH = str(GOVERNANCE_WORKTREE)
 SLOT = "governance-standing"
 SEMANTIC_TARGETS = {
     "branches/feature_release_readiness_source_truth_intake/branch_state.md": "branch_state",
@@ -123,8 +124,8 @@ def _semantic_root(root: Path) -> dict[str, Path]:
         "Last Updated: `2026-07-27T20:00:00Z`",
         "Last Updated By: `fixture`",
         "Historical Receipt Boundary: `Historical receipts below do not redefine live fields.`",
-        "Worktree: `C:\\Nexus Worktrees\\Governance`",
-        "Worktree Path: `C:\\Nexus Worktrees\\Governance`",
+        f"Worktree: `{WORKTREE_PATH}`",
+        f"Worktree Path: `{WORKTREE_PATH}`",
         "Slot ID: `governance-standing`",
         "Branch: `feature/release-readiness-source-truth-intake`",
         f"Source Repo HEAD: `{HEAD}`",
@@ -344,7 +345,7 @@ def main() -> int:
         _assert_failure(
             "wrong worktree",
             "Worktree Path mismatch",
-            _run(root, expected_worktree_path=r"C:\Nexus Worktrees\FAM-007"),
+            _run(root, expected_worktree_path=str(WORKTREES_ROOT / "FAM-007")),
         )
         _assert_failure(
             "wrong slot",
@@ -458,8 +459,8 @@ def main() -> int:
         for field, replacement in (
             (
                 "Worktree Path",
-                "Worktree Path: `C:\\Nexus Worktrees\\Governance`\n"
-                "Worktree Path: `C:\\Nexus Worktrees\\FAM-007`",
+                f"Worktree Path: `{WORKTREE_PATH}`\n"
+                f"Worktree Path: `{WORKTREES_ROOT / 'FAM-007'}`",
             ),
             (
                 "Slot ID",

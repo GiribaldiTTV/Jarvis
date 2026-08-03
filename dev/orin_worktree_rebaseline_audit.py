@@ -15,6 +15,7 @@ import re
 import subprocess
 from pathlib import Path
 
+from nexus_paths import GOVERNANCE_WORKTREE, NEUTRAL_MAIN_ROOT, WORKTREES_ROOT
 
 SHARED_SOURCE_TRUTH_PREFIXES = (
     "Docs/",
@@ -156,11 +157,11 @@ def _worktree_role(root: Path) -> str:
     slot_role = _slot_role_from_worktree_slots(root, normalized)
     if slot_role:
         return slot_role
-    if normalized.casefold() == Path("C:/Nexus Desktop AI").resolve().as_posix().casefold():
+    if normalized.casefold() == NEUTRAL_MAIN_ROOT.resolve().as_posix().casefold():
         return "neutral-main (neutral main / consolidator workspace)"
-    if normalized.casefold() == Path("C:/Nexus Worktrees/Governance").resolve().as_posix().casefold():
+    if normalized.casefold() == GOVERNANCE_WORKTREE.resolve().as_posix().casefold():
         return "governance-standing (standing governance intake lane)"
-    worktrees_root = Path("C:/Nexus Worktrees").resolve().as_posix().casefold()
+    worktrees_root = WORKTREES_ROOT.resolve().as_posix().casefold()
     if normalized.casefold().startswith(worktrees_root + "/"):
         return "runtime-active candidate / USER-assigned runtime slot"
     return "unregistered worktree"

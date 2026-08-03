@@ -10,6 +10,17 @@ It exists to reduce repeated source-truth updates, shrink routine prompt load, a
 
 This model applies to governance/source-truth/process reform only.
 
+## Current Workspace Root Contract
+
+The current filesystem-root owner is `Docs/nexus_workspace_roots.md`. The
+approved relocation keeps neutral `main` at `C:\Nexus Desktop AI` and moves
+all other substantive Nexus work and evidence to `D:\Nexus Desktop AI Data`:
+active worktrees under `Worktrees`, external operational state under
+`Governance State`, and USER review packets under `USER`. Any C-drive path in a
+historical receipt or fixture is provenance only. Helpers and validators must
+use the current D roots by default and must not silently fall back to a C
+historical root.
+
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
 External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, active-state migration execution planning packets, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup execution, branch-authority routing planning, branch-authority routing cleanup execution, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, broader repo cleanup execution, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. Stage 4 active-state migration execution has seeded approved local external records, Stage 5 validator transition has made local external-state validation explicit, Stage 6 cleanup planning has classified future cleanup lanes, Stage 6A compact pointer cleanup has cleaned backlog/roadmap/worktree-slot compact surfaces, Stage 6B branch-authority routing planning has defined the `Docs/branch_records/index.md` execution packet, Stage 6C branch-authority routing cleanup has routed the index to external active-authority owners, and Stage 6D has planned branch-detail-record / branch-plan cleanup. Stage 6E no-loss cleanup closure may record that branch detail records and branch plans remain durable receipts or transition owners when scanners find zero blocking leakage; it must not bulk rewrite, move, delete, archive, or require external state in clean clones. If a later validator or review finds exact repo live-state leakage in a named branch detail record or branch-plan receipt, a bounded Governance repair may fold that exact surface down to historical/pointer posture without reopening broad cleanup or deleting evidence. Repo Docs movement and mandatory repo-validator enforcement remain separate stages. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.

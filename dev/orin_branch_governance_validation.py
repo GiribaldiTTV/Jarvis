@@ -12,9 +12,10 @@ from urllib import error as urllib_error
 from urllib import parse as urllib_parse
 from urllib import request as urllib_request
 
+from nexus_paths import EXTERNAL_STATE_ROOT, NEUTRAL_MAIN_ROOT
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-NEUTRAL_MAIN_WORKSPACE = Path(r"C:\Nexus Desktop AI")
+NEUTRAL_MAIN_WORKSPACE = NEUTRAL_MAIN_ROOT
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
     "User-Agent": "orin-branch-governance-validation",
@@ -261,9 +262,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING = "Branch Runtime Engineering Plan"
 BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL = "Branch Runtime Engineering Plan:"
 BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL = "Branch Runtime Engineering Plan Path:"
 BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = "Docs/branch_plans/"
-EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = (
-    "C:/Nexus Governance State/branches/"
-)
+EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = f"{EXTERNAL_STATE_ROOT.as_posix()}/branches/"
 EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_FILE = "branch_plan.md"
 EXTERNAL_BRANCH_OPERATIONAL_STATE_FILE = "branch_state.md"
 BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS = 8
@@ -2923,8 +2922,8 @@ STANDING_GOVERNANCE_INTAKE_RECORD = Path(
     "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
 )
 STANDING_GOVERNANCE_INTAKE_RECORD_PATH = STANDING_GOVERNANCE_INTAKE_RECORD.as_posix()
-STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER = (
-    r"C:\Nexus Governance State\branches\feature_release_readiness_source_truth_intake\branch_state.md"
+STANDING_GOVERNANCE_INTAKE_EXTERNAL_STATE_POINTER = str(
+    EXTERNAL_STATE_ROOT / "branches" / "feature_release_readiness_source_truth_intake" / "branch_state.md"
 )
 STANDING_GOVERNANCE_INTAKE_DOCS = (
     Path("Docs/phase_governance.md"),

@@ -9,7 +9,7 @@ Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 It prevents temporary family names such as FAM-006 or FAM-007 from becoming permanent lane concepts. The stable concept is the slot role. The branch, family, and workstream assigned to that slot may change only through USER-approved assignment or retirement.
 
-This document records stable slot definitions and durable assignment receipt schema. Current worktree assignment, active thread ownership, and live branch/worktree state belong to Git/GitHub/helpers and `C:\Nexus Governance State` after the External Operational State Store transition.
+This document records stable slot definitions and durable assignment receipt schema. Current root routing is owned by `Docs/nexus_workspace_roots.md`. Current worktree assignment, active thread ownership, and live branch/worktree state belong to Git/GitHub/helpers and `D:\Nexus Desktop AI Data\Governance State` after the approved single-root relocation. Older C paths below are historical receipt examples unless the root map explicitly says otherwise.
 
 ## Ownership Boundary
 
@@ -64,10 +64,10 @@ Use these slot IDs for current and future workspace planning:
 | Slot ID | Role | Expected Path |
 | --- | --- | --- |
 | `neutral-main` | neutral main / consolidator workspace | `C:\Nexus Desktop AI` |
-| `governance-standing` | standing governance intake lane | `C:\Nexus Worktrees\Governance` |
-| `runtime-active-1` | reusable active runtime/workstream lane | `C:\Nexus Worktrees\<USER-assigned label>` |
-| `runtime-active-2` | reusable active runtime/workstream lane | `C:\Nexus Worktrees\<USER-assigned label>` |
-| `runtime-active-3` | optional USER-approved active runtime/workstream lane | `C:\Nexus Worktrees\<USER-assigned label>` |
+| `governance-standing` | standing governance intake lane | `D:\Nexus Desktop AI Data\Worktrees\Governance` |
+| `runtime-active-1` | reusable active runtime/workstream lane | `D:\Nexus Desktop AI Data\Worktrees\<USER-assigned label>` |
+| `runtime-active-2` | reusable active runtime/workstream lane | `D:\Nexus Desktop AI Data\Worktrees\<USER-assigned label>` |
+| `runtime-active-3` | optional USER-approved active runtime/workstream lane | `D:\Nexus Desktop AI Data\Worktrees\<USER-assigned label>` |
 | `archived-historical` | historical or retired workspace trace | recorded in retirement receipt |
 
 Do not create permanent slot IDs named after a current feature family. A FAM, package, or branch can be assigned to a runtime slot, but the slot itself remains reusable.
@@ -91,7 +91,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 
 - Slot ID: `governance-standing`
 - Role: standing governance intake lane
-- Expected Path: `C:\Nexus Worktrees\Governance`
+- Expected Path: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 - Assignment Status: standing assigned slot
 - Assigned Branch: `feature/release-readiness-source-truth-intake`
 - Assigned Family / Workstream: Standing Governance Intake Branch
@@ -106,7 +106,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 - Role: reusable active runtime/workstream lane
 - Expected Path: `C:\Nexus Worktrees\<USER-assigned label>`
 - Assignment Status: external operational state owns the current assignment; repo record keeps reusable slot definition only
-- Assigned Branch: see `C:\Nexus Governance State\worktrees\<worktree_label>\worktree_state.md` and live Git/GitHub/helper truth
+- Assigned Branch: see `D:\Nexus Desktop AI Data\Governance State\worktrees\<worktree_label>\worktree_state.md` and live Git/GitHub/helper truth
 - Assigned Family / Workstream: see external operational state and the active branch authority record when a branch is admitted
 - Branch Authority Record: resolved by active branch authority or historical receipt, not this slot registry
 - Branch Runtime Engineering Plan: resolved by active branch authority or historical receipt, not this slot registry
