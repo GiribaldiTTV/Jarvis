@@ -632,6 +632,14 @@
       "external-state-lock-lifecycle",
       "external-state-target-publication"
     ],
+    "dev/orin_external_state_common.py": [
+      "repo-live-state-boundary-parser",
+      "external-state-semantic-validation"
+    ],
+    "dev/orin_worktree_rebaseline_audit.py": [
+      "repo-live-state-boundary-parser",
+      "current-gate-repair-transaction"
+    ],
     "dev/orin_external_state_target_currentness_fixture_validation.py": [
       "repo-live-state-boundary-parser",
       "external-state-semantic-validation",
@@ -1199,7 +1207,9 @@
         "dev/orin_external_state_validation.py",
         "dev/orin_external_state_lock.py",
         "dev/orin_external_state_lock_lifecycle.py",
-        "dev/orin_external_state_lock_release.py"
+        "dev/orin_external_state_lock_release.py",
+        "dev/orin_external_state_common.py",
+        "dev/orin_worktree_rebaseline_audit.py"
       ],
       "fixture_coverage": [
         "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_repo_live_state_tracking.md",
@@ -1390,7 +1400,8 @@
       ],
       "implementation": [
         "dev/orin_external_state_validation.py",
-        "dev/orin_pr_review_churn_validation.py"
+        "dev/orin_pr_review_churn_validation.py",
+        "dev/orin_external_state_common.py"
       ],
       "fixture_coverage": [
         "dev/orin_external_state_target_currentness_fixture_validation.py",
@@ -1573,7 +1584,8 @@
       "implementation": [
         "dev/orin_current_gate_repair.py",
         "dev/orin_user_review_bundle.py",
-        "dev/orin_pr_review_churn_validation.py"
+        "dev/orin_pr_review_churn_validation.py",
+        "dev/orin_worktree_rebaseline_audit.py"
       ],
       "fixture_coverage": [
         "dev/orin_current_gate_repair_fixture_validation.py",
