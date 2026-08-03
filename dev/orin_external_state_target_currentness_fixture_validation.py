@@ -15,12 +15,13 @@ import orin_external_state_validation as validator
 import orin_external_state_lock_release as lock_release
 import orin_external_state_target_reconcile as reconciler
 from orin_external_state_common import atomic_write_json
+from nexus_paths import GOVERNANCE_WORKTREE, WORKTREES_ROOT
 
 
 TARGET = "worktrees/Governance/worktree_state.md"
 HEAD = "a" * 40
 ORIGIN_MAIN = "b" * 40
-WORKTREE_PATH = r"C:\Nexus Worktrees\Governance"
+WORKTREE_PATH = str(GOVERNANCE_WORKTREE)
 SLOT = "governance-standing"
 
 
@@ -184,7 +185,7 @@ def main() -> int:
         _assert_failure(
             "wrong worktree",
             "Worktree Path mismatch",
-            _run(root, expected_worktree_path=r"C:\Nexus Worktrees\FAM-007"),
+            _run(root, expected_worktree_path=str(WORKTREES_ROOT / "FAM-007")),
         )
         _assert_failure(
             "wrong slot",

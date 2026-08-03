@@ -5,12 +5,18 @@
 - Branch: `feature/release-readiness-source-truth-intake`
 - Workstream: `Standing Governance Intake Branch`
 - Branch Class: `standing governance intake`
-- Worktree: `C:\Nexus Worktrees\Governance`
+- Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 - Cycle ID Format: `RRI-YYYYMMDD-NNN`
 
 ## Purpose / Why It Exists
 
 This branch is the single standing governance lane for Release Readiness source-truth drift intake, USER-approved non-runtime worktree/automation safety repair, phase-gate prevention repair, and broad governance/source-truth reform. It exists so file-frozen, cross-worktree, or repo-wide governance defects can be repaired through a short PR cycle on the dedicated Governance worktree instead of direct-main mutation, ad hoc cleanup branches, or implementation worktrees that should stay isolated.
+
+Current root routing follows `Docs/nexus_workspace_roots.md`: the active
+Governance worktree is `D:\Nexus Desktop AI Data\Worktrees\Governance`, active
+external state is under `D:\Nexus Desktop AI Data\Governance State`, and the
+current USER hub is under `D:\Nexus Desktop AI Data\USER`. Older C paths in
+historical receipts remain provenance only.
 
 ## Current Phase
 

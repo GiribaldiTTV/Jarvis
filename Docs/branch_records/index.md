@@ -31,7 +31,14 @@ Do not use this layer to replace:
 - active branch names and active branch authority records must not use the `codex/` branch prefix; use `feature/` or another USER-approved non-`codex/` prefix, while historical `codex/` branch records remain traceability only and are not precedent
 - active `Registry-only` backlog branches that still require repo durable admission receipts may use branch records during `Branch Readiness` before promotion, but live active operational posture must be external or derived after Stage 6C. A transition waiver may be preserved only as historical receipt evidence; it must not keep non-standing active operational state in repo docs.
 - active-branch-first remains the default during `pre-Beta`
-- new governance-only branches are not used for Nexus work
+- new governance-only branches are not used for Nexus work. One USER-approved
+  relocation-closure carrier is an explicit exception: it may be created only
+  from fresh `origin/main` to replace an oversized or unsafe relocation
+  carrier, may contain only the approved D-root source-truth/helper/validator
+  relocation closure, and must be folded into historical receipt posture before
+  merge-stable PR green. This exception is single-use and does not authorize a
+  second standing Governance lane, Package A-G work, product/FAM mutation, or
+  future governance-only branch creation by inertia.
 - Exception: exactly one `Standing Governance Intake Branch` is allowed: `feature/release-readiness-source-truth-intake` at `C:\Nexus Worktrees\Governance`. It accepts a `Release Readiness digest` for release-blocker repair, USER-approved `automation/worktree governance intake` for non-runtime multi-worktree safety repair, and USER-approved `phase-gate governance intake` for repeatable non-runtime phase-gate miss prevention, uses cycle IDs shaped `RRI-YYYYMMDD-NNN`, enforces operational `One Active Cycle`, requires a clean `Sync Rule` match to `origin/main` before each new intake, and must emit a `Return Digest` after merge/sync before the originating lane leaves `Waiting For Governance Intake` or `Waiting For Updated Main`; that digest must copy the exact originating branch, originating worktree, operating workspace, expected branch, and `Neutral Main Workspace Rebaseline:` proof from the accepted/closed intake and must stop on `Return Digest Origin Identity Missing` instead of inferring from `C:\Nexus Desktop AI`, `C:\Nexus Worktrees\Governance`, GitHub Desktop, or the current shell CWD. This standing repo record owns durable lane law and pointers only; active `RRI-*` cycle identity, PR posture, return-digest progress, release-window state, and target commit facts live in `C:\Nexus Governance State` or Git/GitHub/helper-derived truth.
 - `No Active Branch` means no active runtime, implementation, release packaging, or repair carrier is selected for normal product work. It does not disable the single standing governance intake authority record; that record is the durable routing exception allowed on merged main while operational cycle state remains external/derived.
 - Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
@@ -168,6 +175,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_governance_d_root_relocation_closure.md`
 - `Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md`
 - `Docs/branch_records/feature_fam_006_dashboard_overlay_profile_persistence_repair.md`
 - `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`

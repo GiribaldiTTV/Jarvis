@@ -11,12 +11,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from nexus_paths import EXTERNAL_STATE_ROOT
 
-DEFAULT_EXTERNAL_STATE_ROOT = (
-    Path(r"C:\Nexus Governance State")
-    if os.name == "nt"
-    else Path.home() / "Nexus Governance State"
-)
+DEFAULT_EXTERNAL_STATE_ROOT = EXTERNAL_STATE_ROOT if os.name == "nt" else Path.home() / "Nexus Governance State"
 DEFAULT_SCHEMA_VERSION = "external-state-v1"
 
 STATE_DIRECTORIES = [

@@ -8,6 +8,13 @@ Use it to generate new-chat, handoff, continuation, bootstrap, review, and Codex
 
 Generated prompts must preserve the Main-first loader chain: load `Docs/Main.md` first, then load `Docs/nexus_startup_contract.md` when loader/new-chat continuity, prompt generation, bootstrap continuity, handoff continuity, continuation continuity, loader alignment, or ChatGPT/Codex behavior alignment is in scope, then follow Main to the directly relevant owner docs.
 
+Compatibility note: the historical loader token
+`C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` remains
+present for migration and validator compatibility only. Current active plans
+resolve below
+`D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`
+through `Docs/nexus_workspace_roots.md`.
+
 `Docs/nexus_startup_contract.md` does not replace the owning canon documents and does not own Codex execution behavior, phase transitions, seam continuation, durability, validation, release rules, branch authority, or stop conditions. Codex execution authority comes from `Docs/Main.md` and the owning source-truth documents after they are loaded.
 
 Local ChatGPT custom instructions should stay compact. This repo loader may hold longer ChatGPT-facing continuity rules and prompt-generation guardrails, but it must remain a routing contract rather than a duplicate governance system.
@@ -29,7 +36,7 @@ This loader owns prompt shape, loader continuity, and ChatGPT prompt-generation 
 - `Docs/governance_efficiency_operating_model.md` owns source-truth split, external operational state, USER review bundle model, and duplicate-governance prevention.
 - `Docs/validation_helper_registry.md` owns helper and validator status, reuse, interpretation boundaries, and evidence handling.
 - `Docs/nexus_vision.md`, `Docs/family_visions/`, and approved family-feature vision owners own project/family/product direction.
-- `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` owns active external branch planning, USER feedback disposition, branch-local engineering detail, and active planning ledgers.
+- `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` owns active external branch planning, USER feedback disposition, branch-local engineering detail, and active planning ledgers. Current root routing is owned by `Docs/nexus_workspace_roots.md`; older C paths in historical receipts are not current routing.
 - Branch records, workstream records, backlog, roadmap, and worktree-slot docs own only the durable record classes Main assigns to them.
 
 If this loader conflicts with Main or an owning canon file, Main and the owner win. Repair this loader through the legal carrier and phase rather than treating the conflict as an execution shortcut.
@@ -43,7 +50,7 @@ Every repo-affecting Codex prompt must say, in substance:
 3. From Main, load the relevant execution, phase, branch, workstream, vision, validation, external-state, and artifact owners.
 4. Treat context docs and review packets as evidence unless Main routes them as source-truth owners.
 
-When vision context matters, route through `Docs/nexus_vision.md`, `Docs/family_visions/`, approved family-feature vision owners when applicable, and the active external branch plan at `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`.
+When vision context matters, route through `Docs/nexus_vision.md`, `Docs/family_visions/`, approved family-feature vision owners when applicable, and the active external branch plan at `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`.
 
 Context docs may explain, summarize, or point to owner docs. They must not become alternate first loaders, duplicate detailed policy, or override Main.
 

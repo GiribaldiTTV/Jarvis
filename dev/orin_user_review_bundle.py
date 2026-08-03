@@ -27,10 +27,12 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Mapping
 
+from nexus_paths import USER_HUB_ROOT
+
 
 ROOT = Path(__file__).resolve().parents[1]
-WINDOWS_USER_HUB_ROOT_TEXT = r"C:\Nexus USER"
-DEFAULT_USER_HUB_ROOT = Path(WINDOWS_USER_HUB_ROOT_TEXT)
+WINDOWS_USER_HUB_ROOT_TEXT = str(USER_HUB_ROOT)
+DEFAULT_USER_HUB_ROOT = USER_HUB_ROOT
 DEFAULT_REVIEW_ROOT_NAME = ""
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (

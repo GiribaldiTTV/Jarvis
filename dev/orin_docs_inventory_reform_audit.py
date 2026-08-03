@@ -298,6 +298,11 @@ OWNER_DESCRIPTIONS = {
         "Docs split target matrix, staged implementation boundaries, and future-work sequencing",
         "active external-state root contents or migrated branch/worktree/release-window state",
     ),
+    "workspace-root source-truth router": (
+        "current workspace-root routing law",
+        "canonical neutral-main and D-drive root map",
+        "active branch, PR, or release status",
+    ),
     "governance support standard": (
         "supporting governance standard",
         "single-purpose governance rules and pointers",
@@ -417,6 +422,8 @@ def owner_for(rel: str) -> str:
         return "family feature vision scaffold"
     if rel.startswith("Docs/ui_reference_catalog/"):
         return "promoted UI reference catalog"
+    if rel == "Docs/nexus_workspace_roots.md":
+        return "workspace-root source-truth router"
     if rel == "Docs/nexus_vision.md":
         return "Nexus Vision Contract"
     if rel == "Docs/ai_runtime_and_trust_architecture.md":

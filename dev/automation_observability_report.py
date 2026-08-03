@@ -9,15 +9,16 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from nexus_paths import GOVERNANCE_WORKTREE, NEUTRAL_MAIN_ROOT, WORKTREES_ROOT
 
 CODEX_HOME = Path.home() / ".codex"
 AUTOMATION_DB = CODEX_HOME / "sqlite" / "codex-dev.db"
 AUTOMATION_DIR = CODEX_HOME / "automations"
 REPO_ROOT = Path(__file__).resolve().parents[1]
-NEUTRAL_MAIN_ROOT = "C:/Nexus Desktop AI"
-GOVERNANCE_ROOT = "C:/Nexus Worktrees/Governance"
-FAM_006_ROOT = "C:/Nexus Worktrees/FAM-006"
-FAM_007_ROOT = "C:/Nexus Worktrees/FAM-007"
+NEUTRAL_MAIN_ROOT_TEXT = NEUTRAL_MAIN_ROOT.as_posix()
+GOVERNANCE_ROOT = GOVERNANCE_WORKTREE.as_posix()
+FAM_006_ROOT = (WORKTREES_ROOT / "FAM-006").as_posix()
+FAM_007_ROOT = (WORKTREES_ROOT / "FAM-007").as_posix()
 LANE_SENSITIVE_PROMPT_MARKERS = (
     "active branch",
     "current phase",

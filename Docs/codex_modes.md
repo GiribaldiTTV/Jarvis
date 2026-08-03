@@ -804,3 +804,9 @@ If the user is asking:
 - carry this approved workstream closure or canon sync
 
 use Workflow mode.
+# Current Workspace Root Override
+
+Current root routing is owned by `Docs/nexus_workspace_roots.md`. Neutral main
+remains `C:\Nexus Desktop AI`; active worktrees, external operational state,
+and USER review hubs use `D:\Nexus Desktop AI Data`. C-drive paths retained in
+historical receipts or fixtures are not current execution targets.
