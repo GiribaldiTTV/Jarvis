@@ -1086,3 +1086,9 @@ If no still-not-closed entries exist, report `Backlog Exhaustion User Decision P
 
 This document defines repo-wide rules.
 The task template defines the structure of a specific request.
+# Current Workspace Root Override
+
+Current root routing is owned by `Docs/nexus_workspace_roots.md`. Neutral main
+remains `C:\Nexus Desktop AI`; active worktrees, external operational state,
+and USER review hubs use `D:\Nexus Desktop AI Data`. C-drive paths retained in
+historical receipts or fixtures are not current execution targets.

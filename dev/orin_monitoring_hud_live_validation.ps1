@@ -191,7 +191,7 @@ function New-Paths {
         ShortVideoFrameRoot = Join-Path $ArtifactRoot "short_video_frames"
         ShortVideo = Join-Path $ArtifactRoot "monitoring_hud_lv1_short_video.mp4"
         ShortVideoEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_lv1_short_video.mp4"
-        UserTestSummary = "C:\Nexus USER\UTS - FAM-006.txt"
+        UserTestSummary = "D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
     }
 }
