@@ -175,6 +175,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_governance_d_root_helper_final_closure.md` - USER-approved final D-root helper-closure transition receipt; active facts remain external and it must fold to historical/no-active posture after merge.
 - `Docs/branch_records/feature_governance_d_root_relocation_closure.md`
 - `Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md`
 - `Docs/branch_records/feature_fam_006_dashboard_overlay_profile_persistence_repair.md`
