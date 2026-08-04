@@ -237,8 +237,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 - Audit Branch: not stored in this audit dossier; derive from Git/helper output at review time.
 - Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.
-- Audit File Count: 221 files under `Docs/`
-- Manifest Files Enumerated: 221
+- Audit File Count: 222 files under `Docs/`
+- Manifest Files Enumerated: 222
 - Manifest Match: PASS - filesystem enumeration and dossier manifest counts match.
 - Mutation Scope: docs/source-truth/governance/validator reform only.
 - Runtime Mutation: none.
@@ -408,119 +408,120 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 106 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | branch authority / structured receipt | 219 | Keep historical receipt | Medium | High |
 | 107 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | branch authority / structured receipt | 221 | Keep historical receipt | Medium | High |
 | 108 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / structured receipt | 328 | Keep historical receipt | High | High |
-| 109 | `Docs/branch_records/feature_governance_d_root_relocation_closure.md` | branch authority / structured receipt | 119 | Keep historical receipt | Medium | High |
-| 110 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 150 | Keep historical receipt | High | High |
-| 111 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 150 | Keep historical receipt | High | High |
-| 112 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 243 | Keep historical receipt | High | High |
-| 113 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | 165 | Keep historical receipt | High | High |
-| 114 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 177 | Keep historical receipt | High | High |
-| 115 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 574 | Keep active standing authority | High | High |
-| 116 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | 498 | Organize structured receipt | High | High |
-| 117 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | branch authority / structured receipt | 118 | Keep active bounded repair authority until PR fold-down | Medium | High |
-| 118 | `Docs/branch_records/index.md` | branch authority router | 261 | Keep | High | High |
-| 119 | `Docs/closeout_guidance.md` | release closeout receipt | 108 | Keep | Medium | High |
-| 120 | `Docs/closeout_index.md` | release closeout receipt | 71 | Keep | Low | High |
-| 121 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | release closeout receipt | 80 | Keep | Medium | High |
-| 122 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.8-prebeta.md` | release closeout receipt | 84 | Keep | Medium | High |
-| 123 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.9-prebeta.md` | release closeout receipt | 89 | Keep | Medium | High |
-| 124 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.0-prebeta.md` | release closeout receipt | 101 | Keep | Medium | High |
-| 125 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md` | release closeout receipt | 116 | Keep | Medium | High |
-| 126 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md` | release closeout receipt | 109 | Keep | Medium | High |
-| 127 | `Docs/closeouts/v1.6.0_closeout.md` | release closeout receipt | 121 | Keep | Low | High |
-| 128 | `Docs/closeouts/v1.7.0_closeout.md` | release closeout receipt | 131 | Keep | Medium | High |
-| 129 | `Docs/closeouts/v1.8.0_closeout.md` | release closeout receipt | 142 | Keep | Medium | High |
-| 130 | `Docs/closeouts/v1.9.0_closeout.md` | release closeout receipt | 168 | Keep | Low | High |
-| 131 | `Docs/closeouts/v2.0_closeout.md` | release closeout receipt | 198 | Keep | Low | High |
-| 132 | `Docs/closeouts/v2.2.0_closeout.md` | release closeout receipt | 132 | Keep | Medium | High |
-| 133 | `Docs/closeouts/v2.2.1_closeout.md` | release closeout receipt | 107 | Keep | Medium | High |
-| 134 | `Docs/codex_modes.md` | Codex mode / behavior mirror | 813 | Keep | High | High |
-| 135 | `Docs/codex_user_guide.md` | operator guide | 155 | Keep | Medium | High |
-| 136 | `Docs/development_rules.md` | Codex execution rule mirror | 1095 | Keep | High | High |
-| 137 | `Docs/external_operational_state_store_reform_plan.md` | external operational state reform plan | 1321 | Keep | High | High |
-| 138 | `Docs/family_feature_visions/F2-FF01.md` | family feature vision scaffold | 36 | Keep as Family Feature Vision scaffold | Medium | High |
-| 139 | `Docs/family_feature_visions/F3-FF01.md` | family feature vision scaffold | 50 | Keep as Family Feature Vision scaffold | Medium | High |
-| 140 | `Docs/family_feature_visions/FAM-006_recording.md` | family feature vision scaffold | 727 | Keep as Family Feature Vision scaffold | Medium | High |
-| 141 | `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md` | family feature vision scaffold | 279 | Keep as Family Feature Vision scaffold | Medium | High |
-| 142 | `Docs/family_feature_visions/index.md` | family feature vision scaffold | 13 | Keep as Family Feature Vision scaffold | Low | High |
-| 143 | `Docs/family_feature_visions/README.md` | family feature vision scaffold | 119 | Keep as Family Feature Vision scaffold | Medium | High |
-| 144 | `Docs/family_feature_visions/TEMPLATE.md` | family feature vision scaffold | 19 | Keep as Family Feature Vision scaffold | Low | High |
-| 145 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | 36 | Keep as family vision owner | Low | High |
-| 146 | `Docs/family_visions/FAM-002_desktop_interface.md` | family vision | 120 | Keep as family vision owner | Medium | High |
-| 147 | `Docs/family_visions/FAM-003_interaction_and_actions.md` | family vision | 50 | Keep as family vision owner | Low | High |
-| 148 | `Docs/family_visions/FAM-004_voice_and_audio.md` | family vision | 28 | Keep as family vision owner | Low | High |
-| 149 | `Docs/family_visions/FAM-005_external_integrations.md` | family vision | 32 | Keep as family vision owner | Low | High |
-| 150 | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | family vision | 94 | Keep as family vision owner | Medium | High |
-| 151 | `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` | family vision | 944 | Keep as family vision owner | Medium | High |
-| 152 | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | family vision | 53 | Keep as family vision owner | Medium | High |
-| 153 | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | 45 | Keep as family vision owner | Low | High |
-| 154 | `Docs/family_visions/FAM-009_workspace_and_data.md` | pending fold-source file | 39 | Pending fold-source review | Medium | High |
-| 155 | `Docs/family_visions/FAM-010_safety_and_privacy.md` | pending fold-source file | 44 | Pending fold-source review | Low | High |
-| 156 | `Docs/family_visions/README.md` | family vision index | 259 | Keep as family vision router | Medium | High |
-| 157 | `Docs/fb_027_overlay_bug_tracker.md` | bug / issue historical tracker | 212 | Keep | Medium | High |
-| 158 | `Docs/feature_backlog.md` | compact product registry | 381 | Keep compact | Critical | High |
-| 159 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | Generated self-reference | Keep | High | High |
-| 160 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 253 | Keep | Medium | High |
-| 161 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 1111 | Keep | High | High |
-| 162 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance support standard | 173 | Keep | Medium | High |
-| 163 | `Docs/governance_phase_lifecycle_reform_context_plan.md` | governance support standard | 171 | Keep | Medium | High |
-| 164 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | 1091 | Keep | High | High |
-| 165 | `Docs/governance_reliability_and_repo_split_reform_candidates.md` | governance support standard | 2364 | Keep | High | High |
-| 166 | `Docs/incident_patterns.md` | governance support standard | 906 | Keep | High | High |
-| 167 | `Docs/Main.md` | recovery map / source-truth router | 659 | Keep | High | High |
-| 168 | `Docs/ncp_hardening_assessment.md` | product / architecture reference | 109 | Keep | Medium | High |
-| 169 | `Docs/nexus_startup_contract.md` | ChatGPT loader / prompt gate | 397 | Keep | Medium | High |
-| 170 | `Docs/nexus_vision.md` | Nexus Vision Contract | 418 | Keep as project-wide vision owner | Medium | High |
-| 171 | `Docs/nexus_workspace_roots.md` | workspace-root source-truth router | 50 | Keep | Medium | High |
-| 172 | `Docs/orchestration.md` | product / architecture reference | 127 | Keep | Medium | High |
-| 173 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | 125 | Keep | Low | High |
-| 174 | `Docs/orin_interaction_architecture.md` | product / architecture reference | 285 | Keep | Medium | High |
-| 175 | `Docs/orin_task_template.md` | prompt template | 1185 | Keep | High | High |
-| 176 | `Docs/ownership_ip_plan.md` | product / architecture reference | 112 | Keep | Medium | High |
-| 177 | `Docs/phase_governance.md` | normative phase governance | 3864 | Keep | High | High |
-| 178 | `Docs/pr_watcher_mode_contract.md` | governance support standard | 104 | Keep | High | High |
-| 179 | `Docs/prebeta_roadmap.md` | release schedule outline | 142 | Keep compact | Critical | High |
-| 180 | `Docs/ui_reference_catalog/index.md` | promoted UI reference catalog | 20 | Keep as promoted UI reference catalog | Low | High |
-| 181 | `Docs/ui_reference_catalog/README.md` | promoted UI reference catalog | 142 | Keep as promoted UI reference catalog | Low | High |
-| 182 | `Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
-| 183 | `Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
-| 184 | `Docs/ui_reference_catalog/UIREF-003_control_state_and_selector_grammar.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
-| 185 | `Docs/ui_reference_catalog/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
-| 186 | `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md` | promoted UI reference catalog | 35 | Keep as promoted UI reference catalog | Low | High |
-| 187 | `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Low | High |
-| 188 | `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md` | promoted UI reference catalog | 136 | Keep as promoted UI reference catalog | Medium | High |
-| 189 | `Docs/user_test_summary_guidance.md` | governance support standard | 376 | Keep | Medium | High |
-| 190 | `Docs/validation_helper_registry.md` | validator/helper registry | 603 | Keep | High | High |
-| 191 | `Docs/workspace_layout_plan.md` | product / architecture reference | 168 | Keep | Low | High |
-| 192 | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | workstream durable history | 741 | Keep / normalize durable history | Medium | High |
-| 193 | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | workstream durable history | 408 | Keep / normalize durable history | Medium | High |
-| 194 | `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` | workstream durable history | 741 | Keep / normalize durable history | Medium | High |
-| 195 | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | 86 | Keep / normalize durable history | Low | High |
-| 196 | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | family dossier | 147 | Keep / expand as durable owner | Medium | High |
-| 197 | `Docs/workstreams/FB-027_interaction_system_baseline.md` | workstream durable history | 751 | Keep / normalize durable history | Medium | High |
-| 198 | `Docs/workstreams/FB-028_history_state_relocation.md` | workstream durable history | 89 | Keep / normalize durable history | Medium | High |
-| 199 | `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md` | workstream durable history | 528 | Keep / normalize durable history | Medium | High |
-| 200 | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` | workstream durable history | 1010 | Keep / normalize durable history | Medium | High |
-| 201 | `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md` | workstream durable history | 501 | Keep / normalize durable history | Medium | High |
-| 202 | `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md` | workstream durable history | 550 | Keep / normalize durable history | Medium | High |
-| 203 | `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | 90 | Keep / normalize durable history | Low | High |
-| 204 | `Docs/workstreams/FB-034_recoverable_diagnostics.md` | workstream durable history | 97 | Keep / normalize durable history | Low | High |
-| 205 | `Docs/workstreams/FB-035_release_context_fallback_hardening.md` | workstream durable history | 100 | Keep / normalize durable history | Medium | High |
-| 206 | `Docs/workstreams/FB-036_saved_action_authoring.md` | workstream durable history | 848 | Keep / normalize durable history | Medium | High |
-| 207 | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | workstream durable history | 424 | Keep / normalize durable history | Medium | High |
-| 208 | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | workstream durable history | 925 | Keep / normalize durable history | Medium | High |
-| 209 | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` | workstream durable history | 1889 | Keep / normalize durable history | Medium | High |
-| 210 | `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md` | workstream durable history | 618 | Keep / normalize durable history | Medium | High |
-| 211 | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | workstream durable history | 274 | Keep / normalize durable history | Medium | High |
-| 212 | `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md` | workstream durable history | 413 | Keep / normalize durable history | Medium | High |
-| 213 | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | family dossier | 129 | Keep / expand as durable owner | Medium | High |
-| 214 | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | workstream durable history | 479 | Keep / normalize durable history | Medium | High |
-| 215 | `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` | workstream durable history | 420 | Keep / normalize durable history | Medium | High |
-| 216 | `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md` | workstream durable history | 444 | Keep / normalize durable history | Medium | High |
-| 217 | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | workstream durable history | 414 | Keep / normalize durable history | Medium | High |
-| 218 | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | workstream durable history | 420 | Keep / normalize durable history | Medium | High |
-| 219 | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | workstream durable history | 493 | Keep / normalize durable history | Medium | High |
-| 220 | `Docs/workstreams/index.md` | workstream index | 223 | Keep | Medium | High |
-| 221 | `Docs/worktree_slots.md` | worktree slot registry | 205 | Keep compact | Medium | High |
+| 109 | `Docs/branch_records/feature_governance_d_root_helper_final_closure.md` | branch authority / structured receipt | 73 | Keep historical receipt | Medium | High |
+| 110 | `Docs/branch_records/feature_governance_d_root_relocation_closure.md` | branch authority / structured receipt | 119 | Keep historical receipt | Medium | High |
+| 111 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 150 | Keep historical receipt | High | High |
+| 112 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 150 | Keep historical receipt | High | High |
+| 113 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 243 | Keep historical receipt | High | High |
+| 114 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | 165 | Keep historical receipt | High | High |
+| 115 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 177 | Keep historical receipt | High | High |
+| 116 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 574 | Keep active standing authority | High | High |
+| 117 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | 498 | Organize structured receipt | High | High |
+| 118 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | branch authority / structured receipt | 118 | Keep active bounded repair authority until PR fold-down | Medium | High |
+| 119 | `Docs/branch_records/index.md` | branch authority router | 262 | Keep | High | High |
+| 120 | `Docs/closeout_guidance.md` | release closeout receipt | 108 | Keep | Medium | High |
+| 121 | `Docs/closeout_index.md` | release closeout receipt | 71 | Keep | Low | High |
+| 122 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | release closeout receipt | 80 | Keep | Medium | High |
+| 123 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.8-prebeta.md` | release closeout receipt | 84 | Keep | Medium | High |
+| 124 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.9-prebeta.md` | release closeout receipt | 89 | Keep | Medium | High |
+| 125 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.0-prebeta.md` | release closeout receipt | 101 | Keep | Medium | High |
+| 126 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md` | release closeout receipt | 116 | Keep | Medium | High |
+| 127 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md` | release closeout receipt | 109 | Keep | Medium | High |
+| 128 | `Docs/closeouts/v1.6.0_closeout.md` | release closeout receipt | 121 | Keep | Low | High |
+| 129 | `Docs/closeouts/v1.7.0_closeout.md` | release closeout receipt | 131 | Keep | Medium | High |
+| 130 | `Docs/closeouts/v1.8.0_closeout.md` | release closeout receipt | 142 | Keep | Medium | High |
+| 131 | `Docs/closeouts/v1.9.0_closeout.md` | release closeout receipt | 168 | Keep | Low | High |
+| 132 | `Docs/closeouts/v2.0_closeout.md` | release closeout receipt | 198 | Keep | Low | High |
+| 133 | `Docs/closeouts/v2.2.0_closeout.md` | release closeout receipt | 132 | Keep | Medium | High |
+| 134 | `Docs/closeouts/v2.2.1_closeout.md` | release closeout receipt | 107 | Keep | Medium | High |
+| 135 | `Docs/codex_modes.md` | Codex mode / behavior mirror | 813 | Keep | High | High |
+| 136 | `Docs/codex_user_guide.md` | operator guide | 155 | Keep | Medium | High |
+| 137 | `Docs/development_rules.md` | Codex execution rule mirror | 1095 | Keep | High | High |
+| 138 | `Docs/external_operational_state_store_reform_plan.md` | external operational state reform plan | 1321 | Keep | High | High |
+| 139 | `Docs/family_feature_visions/F2-FF01.md` | family feature vision scaffold | 36 | Keep as Family Feature Vision scaffold | Medium | High |
+| 140 | `Docs/family_feature_visions/F3-FF01.md` | family feature vision scaffold | 50 | Keep as Family Feature Vision scaffold | Medium | High |
+| 141 | `Docs/family_feature_visions/FAM-006_recording.md` | family feature vision scaffold | 727 | Keep as Family Feature Vision scaffold | Medium | High |
+| 142 | `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md` | family feature vision scaffold | 279 | Keep as Family Feature Vision scaffold | Medium | High |
+| 143 | `Docs/family_feature_visions/index.md` | family feature vision scaffold | 13 | Keep as Family Feature Vision scaffold | Low | High |
+| 144 | `Docs/family_feature_visions/README.md` | family feature vision scaffold | 119 | Keep as Family Feature Vision scaffold | Medium | High |
+| 145 | `Docs/family_feature_visions/TEMPLATE.md` | family feature vision scaffold | 19 | Keep as Family Feature Vision scaffold | Low | High |
+| 146 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | 36 | Keep as family vision owner | Low | High |
+| 147 | `Docs/family_visions/FAM-002_desktop_interface.md` | family vision | 120 | Keep as family vision owner | Medium | High |
+| 148 | `Docs/family_visions/FAM-003_interaction_and_actions.md` | family vision | 50 | Keep as family vision owner | Low | High |
+| 149 | `Docs/family_visions/FAM-004_voice_and_audio.md` | family vision | 28 | Keep as family vision owner | Low | High |
+| 150 | `Docs/family_visions/FAM-005_external_integrations.md` | family vision | 32 | Keep as family vision owner | Low | High |
+| 151 | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | family vision | 94 | Keep as family vision owner | Medium | High |
+| 152 | `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` | family vision | 944 | Keep as family vision owner | Medium | High |
+| 153 | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | family vision | 53 | Keep as family vision owner | Medium | High |
+| 154 | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | 45 | Keep as family vision owner | Low | High |
+| 155 | `Docs/family_visions/FAM-009_workspace_and_data.md` | pending fold-source file | 39 | Pending fold-source review | Medium | High |
+| 156 | `Docs/family_visions/FAM-010_safety_and_privacy.md` | pending fold-source file | 44 | Pending fold-source review | Low | High |
+| 157 | `Docs/family_visions/README.md` | family vision index | 259 | Keep as family vision router | Medium | High |
+| 158 | `Docs/fb_027_overlay_bug_tracker.md` | bug / issue historical tracker | 212 | Keep | Medium | High |
+| 159 | `Docs/feature_backlog.md` | compact product registry | 381 | Keep compact | Critical | High |
+| 160 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | Generated self-reference | Keep | High | High |
+| 161 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 253 | Keep | Medium | High |
+| 162 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 1111 | Keep | High | High |
+| 163 | `Docs/governance_intake_triage_and_digest_profiles.md` | governance support standard | 173 | Keep | Medium | High |
+| 164 | `Docs/governance_phase_lifecycle_reform_context_plan.md` | governance support standard | 171 | Keep | Medium | High |
+| 165 | `Docs/governance_process_efficiency_reform_plan.md` | governance support standard | 1091 | Keep | High | High |
+| 166 | `Docs/governance_reliability_and_repo_split_reform_candidates.md` | governance support standard | 2364 | Keep | High | High |
+| 167 | `Docs/incident_patterns.md` | governance support standard | 906 | Keep | High | High |
+| 168 | `Docs/Main.md` | recovery map / source-truth router | 659 | Keep | High | High |
+| 169 | `Docs/ncp_hardening_assessment.md` | product / architecture reference | 109 | Keep | Medium | High |
+| 170 | `Docs/nexus_startup_contract.md` | ChatGPT loader / prompt gate | 397 | Keep | Medium | High |
+| 171 | `Docs/nexus_vision.md` | Nexus Vision Contract | 418 | Keep as project-wide vision owner | Medium | High |
+| 172 | `Docs/nexus_workspace_roots.md` | workspace-root source-truth router | 50 | Keep | Medium | High |
+| 173 | `Docs/orchestration.md` | product / architecture reference | 127 | Keep | Medium | High |
+| 174 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | 125 | Keep | Low | High |
+| 175 | `Docs/orin_interaction_architecture.md` | product / architecture reference | 285 | Keep | Medium | High |
+| 176 | `Docs/orin_task_template.md` | prompt template | 1185 | Keep | High | High |
+| 177 | `Docs/ownership_ip_plan.md` | product / architecture reference | 112 | Keep | Medium | High |
+| 178 | `Docs/phase_governance.md` | normative phase governance | 3864 | Keep | High | High |
+| 179 | `Docs/pr_watcher_mode_contract.md` | governance support standard | 104 | Keep | High | High |
+| 180 | `Docs/prebeta_roadmap.md` | release schedule outline | 142 | Keep compact | Critical | High |
+| 181 | `Docs/ui_reference_catalog/index.md` | promoted UI reference catalog | 20 | Keep as promoted UI reference catalog | Low | High |
+| 182 | `Docs/ui_reference_catalog/README.md` | promoted UI reference catalog | 142 | Keep as promoted UI reference catalog | Low | High |
+| 183 | `Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
+| 184 | `Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
+| 185 | `Docs/ui_reference_catalog/UIREF-003_control_state_and_selector_grammar.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
+| 186 | `Docs/ui_reference_catalog/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Medium | High |
+| 187 | `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md` | promoted UI reference catalog | 35 | Keep as promoted UI reference catalog | Low | High |
+| 188 | `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md` | promoted UI reference catalog | 33 | Keep as promoted UI reference catalog | Low | High |
+| 189 | `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md` | promoted UI reference catalog | 136 | Keep as promoted UI reference catalog | Medium | High |
+| 190 | `Docs/user_test_summary_guidance.md` | governance support standard | 376 | Keep | Medium | High |
+| 191 | `Docs/validation_helper_registry.md` | validator/helper registry | 603 | Keep | High | High |
+| 192 | `Docs/workspace_layout_plan.md` | product / architecture reference | 168 | Keep | Low | High |
+| 193 | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | workstream durable history | 741 | Keep / normalize durable history | Medium | High |
+| 194 | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | workstream durable history | 408 | Keep / normalize durable history | Medium | High |
+| 195 | `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md` | workstream durable history | 741 | Keep / normalize durable history | Medium | High |
+| 196 | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | 86 | Keep / normalize durable history | Low | High |
+| 197 | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` | family dossier | 147 | Keep / expand as durable owner | Medium | High |
+| 198 | `Docs/workstreams/FB-027_interaction_system_baseline.md` | workstream durable history | 751 | Keep / normalize durable history | Medium | High |
+| 199 | `Docs/workstreams/FB-028_history_state_relocation.md` | workstream durable history | 89 | Keep / normalize durable history | Medium | High |
+| 200 | `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md` | workstream durable history | 528 | Keep / normalize durable history | Medium | High |
+| 201 | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` | workstream durable history | 1010 | Keep / normalize durable history | Medium | High |
+| 202 | `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md` | workstream durable history | 501 | Keep / normalize durable history | Medium | High |
+| 203 | `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md` | workstream durable history | 550 | Keep / normalize durable history | Medium | High |
+| 204 | `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | 90 | Keep / normalize durable history | Low | High |
+| 205 | `Docs/workstreams/FB-034_recoverable_diagnostics.md` | workstream durable history | 97 | Keep / normalize durable history | Low | High |
+| 206 | `Docs/workstreams/FB-035_release_context_fallback_hardening.md` | workstream durable history | 100 | Keep / normalize durable history | Medium | High |
+| 207 | `Docs/workstreams/FB-036_saved_action_authoring.md` | workstream durable history | 848 | Keep / normalize durable history | Medium | High |
+| 208 | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | workstream durable history | 424 | Keep / normalize durable history | Medium | High |
+| 209 | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | workstream durable history | 925 | Keep / normalize durable history | Medium | High |
+| 210 | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` | workstream durable history | 1889 | Keep / normalize durable history | Medium | High |
+| 211 | `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md` | workstream durable history | 618 | Keep / normalize durable history | Medium | High |
+| 212 | `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md` | workstream durable history | 274 | Keep / normalize durable history | Medium | High |
+| 213 | `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md` | workstream durable history | 413 | Keep / normalize durable history | Medium | High |
+| 214 | `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md` | family dossier | 129 | Keep / expand as durable owner | Medium | High |
+| 215 | `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md` | workstream durable history | 479 | Keep / normalize durable history | Medium | High |
+| 216 | `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md` | workstream durable history | 420 | Keep / normalize durable history | Medium | High |
+| 217 | `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md` | workstream durable history | 444 | Keep / normalize durable history | Medium | High |
+| 218 | `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md` | workstream durable history | 414 | Keep / normalize durable history | Medium | High |
+| 219 | `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md` | workstream durable history | 420 | Keep / normalize durable history | Medium | High |
+| 220 | `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | workstream durable history | 493 | Keep / normalize durable history | Medium | High |
+| 221 | `Docs/workstreams/index.md` | workstream index | 223 | Keep | Medium | High |
+| 222 | `Docs/worktree_slots.md` | worktree slot registry | 205 | Keep compact | Medium | High |
 
 ## Complete Docs Cleanup / Disposition Table
 
@@ -636,6 +637,7 @@ This is the full file-by-file cleanup plan. It includes every file under `Docs/`
 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
+| `Docs/branch_records/feature_governance_d_root_helper_final_closure.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_records/feature_governance_d_root_relocation_closure.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | Keep historical receipt | Keep as structured historical branch receipt. | Keep; no deletion recommended in this pass. | No |
@@ -866,6 +868,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | Medium | `volatile-current-wording=42`; `unclear-ownership-wording=8`; `soft-commitment-wording=5`; `state-ledger-wording=12` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | Medium | `volatile-current-wording=34`; `unclear-ownership-wording=8`; `soft-commitment-wording=6`; `state-ledger-wording=12` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | High | `volatile-current-wording=67`; `unclear-ownership-wording=38`; `soft-commitment-wording=5`; `state-ledger-wording=47` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_records/feature_governance_d_root_helper_final_closure.md` | Low | `volatile-current-wording=17`; `unclear-ownership-wording=7`; `soft-commitment-wording=2`; `state-ledger-wording=11` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/branch_records/feature_governance_d_root_relocation_closure.md` | Medium | `volatile-current-wording=19`; `unclear-ownership-wording=14`; `soft-commitment-wording=2`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | Medium | `volatile-current-wording=52`; `unclear-ownership-wording=14`; `state-ledger-wording=23` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | Medium | `volatile-current-wording=50`; `unclear-ownership-wording=12`; `state-ledger-wording=22` | Review for ambiguous current/active/latest/pending ownership language. |
@@ -875,7 +878,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=453`; `unclear-ownership-wording=103`; `soft-commitment-wording=83`; `state-ledger-wording=434` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=131`; `soft-commitment-wording=16`; `state-ledger-wording=160` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | Medium | `volatile-current-wording=33`; `unclear-ownership-wording=24`; `soft-commitment-wording=1`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/branch_records/index.md` | High | `volatile-current-wording=216`; `unclear-ownership-wording=101`; `soft-commitment-wording=35`; `state-ledger-wording=133` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_records/index.md` | High | `volatile-current-wording=218`; `unclear-ownership-wording=101`; `soft-commitment-wording=35`; `state-ledger-wording=134` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/closeout_guidance.md` | Low | `volatile-current-wording=19`; `unclear-ownership-wording=5`; `soft-commitment-wording=3`; `state-ledger-wording=9` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/closeout_index.md` | Low | `volatile-current-wording=3` | No scanner ambiguity markers found. |
 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | Low | `volatile-current-wording=6`; `soft-commitment-wording=1`; `state-ledger-wording=2` | No scanner ambiguity markers found. |
@@ -1096,6 +1099,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | Low | Structure is acceptable for current owner category. |
+| `Docs/branch_records/feature_governance_d_root_helper_final_closure.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_governance_d_root_relocation_closure.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | Low | Structure is acceptable for current owner category. |
 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | Low | Structure is acceptable for current owner category. |
@@ -1322,6 +1326,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_fb_047_active_session_relaunch_decline_preservation.md` | 219 | Branch Authority Record: feature/fb-047-active-session-relaunch-decline-preservation | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_fb_048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md` | 221 | Branch Authority Record: feature/fb-048-active-session-relaunch-signal-failure-and-wait-timeo... | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_fb_049_runtime_branch_readiness.md` | 328 | Branch Authority Record: feature/fb-049-runtime-branch-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_governance_d_root_helper_final_closure.md` | 73 | Historical Branch Authority Record: feature/governance-d-root-helper-final-closure | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Low | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_governance_d_root_relocation_closure.md` | 119 | Branch Authority Record: feature/governance-d-root-relocation-closure | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md` | 150 | Branch Authority Record: feature/pr101-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md` | 150 | Branch Authority Record: feature/pr102-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
@@ -1331,7 +1336,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 574 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | 498 | Branch Authority Record: feature/repo-wide-source-owner-marker-adoption | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | 118 | Branch Authority Record: feature/vision-update-decision-matrix | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Move to historical/no-active posture or otherwise make merge-stable before PR green. | Keep active bounded repair authority until PR fold-down | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/index.md` | 261 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/branch_records/index.md` | 262 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_guidance.md` | 108 | Closeout Guidance | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_index.md` | 71 | Closeout Index | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | 80 | Nexus Pre-Beta Rebaseline Through v1.2.7-prebeta | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1372,7 +1377,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/family_visions/README.md` | 259 | Family Vision Records | family vision index | family vision routing | family vision record index, owner relationship, and fold-down rule | Updated in this reform branch. | Keep as the compact index for family vision records and fold-down rules. | Keep as family vision router | High | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/fb_027_overlay_bug_tracker.md` | 212 | FB-027 Overlay Bug Tracker | bug / issue historical tracker | historical bug/issue evidence | closed issue context and durable historical notes | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/feature_backlog.md` | 381 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM registry rows and compact pointers | Updated in this reform branch. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Medium | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
-| `Docs/governance_docs_full_inventory_reform_audit.md` | Generated self-reference | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | Self-reference is intentionally synthetic so regeneration does not change the dossier by re-s... | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/governance_docs_full_inventory_reform_audit.md` | Generated self-reference | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | Self-reference is intentionally synthetic so regeneration does not change the dossier by re-s... | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_docs_reform_user_review_index.md` | 253 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_efficiency_operating_model.md` | 1111 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | 173 | Governance Intake Triage And Digest Profiles | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1384,7 +1389,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/ncp_hardening_assessment.md` | 109 | NCP Hardening Assessment | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/nexus_startup_contract.md` | 397 | Nexus ChatGPT Loader Prompt Contract | ChatGPT loader / prompt gate | ChatGPT-facing startup/loader contract | loader map and prompt-generation guardrails | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/nexus_vision.md` | 418 | Nexus Vision Contract | Nexus Vision Contract | project-wide vision contract | USER-accepted project-wide product principles, long-term standards, and durable product direc... | Updated in this reform branch. | Keep as project-wide product vision contract; route family-specific durable direction to fami... | Keep as project-wide vision owner | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/nexus_workspace_roots.md` | 50 | Nexus Workspace Roots | workspace-root source-truth router | current workspace-root routing law | canonical neutral-main and D-drive root map | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/nexus_workspace_roots.md` | 50 | Nexus Workspace Roots | workspace-root source-truth router | current workspace-root routing law | canonical neutral-main and D-drive root map | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orchestration.md` | 127 | Nexus Orchestration | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_display_naming_guidance.md` | 125 | ORIN Display Naming Guidance | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_interaction_architecture.md` | 285 | ORIN Interaction Architecture | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1440,15 +1445,15 @@ Structure risk flags files that are too long for their owner role, have too few 
 
 | Fact Class | Correct Owner | Files Where Detected | Risk |
 | --- | --- | ---: | --- |
-| active branch authority | D:\Nexus Desktop AI Data\Governance State plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts | 165 | Medium |
+| active branch authority | D:\Nexus Desktop AI Data\Governance State plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts | 166 | Medium |
 | current branch status | Git/GitHub/helper-derived truth plus external operational branch state | 100 | Medium |
-| next legal phase | phase packet or external operational branch state | 138 | Medium |
+| next legal phase | phase packet or external operational branch state | 139 | Medium |
 | selected-next | Branch/PR Readiness packet and owning branch record only when USER-approved | 127 | Medium |
-| worktree slot assignment | Docs/worktree_slots.md assignment receipt | 35 | Medium |
-| worktree live state | git status / worktree preflight / helper output | 183 | High |
-| origin/main | git fetch + git rev-parse / helper output | 114 | Medium |
-| PR state | GitHub / watcher / gh / GraphQL output | 126 | High |
-| merge status | GitHub PR merge truth plus structured historical receipt | 158 | Medium |
+| worktree slot assignment | Docs/worktree_slots.md assignment receipt | 36 | Medium |
+| worktree live state | git status / worktree preflight / helper output | 184 | High |
+| origin/main | git fetch + git rev-parse / helper output | 115 | Medium |
+| PR state | GitHub / watcher / gh / GraphQL output | 127 | High |
+| merge status | GitHub PR merge truth plus structured historical receipt | 159 | Medium |
 | latest tag/release | GitHub Releases / tags / release validator | 111 | High |
 | release receipt | Docs/closeouts, structured branch receipt, or release body after validation | 84 | Medium |
 | release schedule outline | Docs/prebeta_roadmap.md | 91 | Medium |
@@ -1456,15 +1461,15 @@ Structure risk flags files that are too long for their owner role, have too few 
 | slice trace | Docs/workstreams or family dossiers | 67 | High |
 | issue posture | GitHub issues plus structured historical receipt when needed | 41 | Medium |
 | branch runtime plan | D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md while active; repo branch plans are transition/historical receipts | 81 | Medium |
-| branch phase history | Docs/branch_records/<branch>.md structured receipt | 136 | Medium |
-| branch receipt | Docs/branch_records/<branch>.md | 202 | Medium |
-| workstream durable history | Docs/workstreams/<id>.md or family dossier | 211 | Medium |
+| branch phase history | Docs/branch_records/<branch>.md structured receipt | 137 | Medium |
+| branch receipt | Docs/branch_records/<branch>.md | 203 | Medium |
+| workstream durable history | Docs/workstreams/<id>.md or family dossier | 212 | Medium |
 | family dossier continuity | Docs/workstreams/*_family_dossier.md | 39 | Medium |
 | validator registry | Docs/validation_helper_registry.md | 117 | Medium |
-| helper responsibility | Docs/validation_helper_registry.md | 202 | Medium |
-| phase rules | Docs/phase_governance.md | 201 | Medium |
+| helper responsibility | Docs/validation_helper_registry.md | 203 | Medium |
+| phase rules | Docs/phase_governance.md | 202 | Medium |
 | prompt/Codex mode rules | Docs/orin_task_template.md / Docs/codex_modes.md with owner pointers | 194 | Medium |
-| release note/public body rules | Docs/phase_governance.md and dev/orin_release_body_validation.py | 156 | Medium |
+| release note/public body rules | Docs/phase_governance.md and dev/orin_release_body_validation.py | 157 | Medium |
 
 ## Duplicate Truth Map
 
@@ -5061,7 +5066,39 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 109. `Docs/branch_records/feature_governance_d_root_relocation_closure.md`
+### 109. `Docs/branch_records/feature_governance_d_root_helper_final_closure.md`
+
+- File path: `Docs/branch_records/feature_governance_d_root_helper_final_closure.md`
+- Line count: 73
+- Current purpose: Historical Branch Authority Record: feature/governance-d-root-helper-final-closure
+- Actual observed use: branch authority / structured receipt with markers live=11, pr/release/issue=2, package/slice=0, branch/worktree/phase=26, validator/helper=8.
+- Correct owner category: branch authority / structured receipt
+- What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
+- What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
+- What should move elsewhere: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Migration target: volatile live state, unindexed execution diaries, or reusable family implementation history after promotion.
+- Recommendation: Keep historical receipt.
+- Consolidation target: Keep as structured historical branch receipt..
+- Deletion posture: Keep; no deletion recommended in this pass..
+- Ambiguity risk: Low.
+- Ambiguity signals: `volatile-current-wording=17`; `unclear-ownership-wording=7`; `soft-commitment-wording=2`; `state-ledger-wording=11`
+- Ambiguity review action: Low ambiguity; keep owner labels precise when edited.
+- Structure risk: Low.
+- Structure action: Structure is acceptable for current owner category.
+- Duplicate fact classes found: active branch authority, next legal phase, worktree slot assignment, worktree live state, origin/main, PR state, merge status, branch phase history, branch receipt, workstream durable history, helper responsibility, phase rules, release note/public body rules.
+- Live operational truth fields found: `- Source Base: `origin/main` at `26a4e07062840c55d90dc00c47bce5d4a21765c2``; `- `Final D-root packet, residue, cleanup-gate, and clean-room proof must be green before merge.``; `- `USER approved one fresh D-root Governance closure carrier from current origin/main after PR #312 merge.``; `- Intended Write Set: `Current D-root source-truth owners; registered helpers/validators/fixtures; packet publication and cleanup gate only``; `- Dirty Worktree Collision Check: `Current owner claimed; no unowned tracked or untracked files may proceed``
+- Governance receipt fields found: `# Historical Branch Authority Record: feature/governance-d-root-helper-final-closure`; `This transition receipt records the USER-approved fresh D-root helper-closure`; `record and Git/GitHub truth; this receipt must fold to historical/no-active`; `- Phase: `Historical Traceability``; `- Branch Authority Marker: `Historical transition receipt; external operational state owns active current posture.``
+- Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
+- Current-state markers found: `carrier. Active lifecycle facts remain in the matching external branch-state`; `record and Git/GitHub truth; this receipt must fold to historical/no-active`; `## Current Phase`; `## Phase Status`; `- Branch Authority Marker: `Historical transition receipt; external operational state owns active current posture.``
+- Package Trace / Slice Trace markers found: None found.
+- Branch/worktree/phase markers found: `- Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance-Final-Closure``; `## Current Phase`; `## Phase Status`; `## Assigned Worktree Confinement`; `- Assigned Worktree Confinement: `Required; active owner and progress are external-state facts.``
+- Release/PR/issue markers found: `- `USER approved one fresh D-root Governance closure carrier from current origin/main after PR #312 merge.``; `- Off-Worktree Work Routing: `Route product, FAM, Packages B-G, PR #309-#311, release, issue, and runtime work to owning lanes``
+- Validator rule needed: Branch governance validator checks active/historical authority, stale active wording, and phase/receipt markers where machine-checkable.
+- Reform action completed in this branch: Updated in this reform branch.
+- Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
+- USER review notes: _Add notes here._
+
+### 110. `Docs/branch_records/feature_governance_d_root_relocation_closure.md`
 
 - File path: `Docs/branch_records/feature_governance_d_root_relocation_closure.md`
 - Line count: 119
@@ -5093,7 +5130,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 110. `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
+### 111. `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
 
 - File path: `Docs/branch_records/feature_pr101_post_merge_closeout_canon_repair.md`
 - Line count: 150
@@ -5125,7 +5162,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 111. `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
+### 112. `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
 
 - File path: `Docs/branch_records/feature_pr102_post_merge_closeout_canon_repair.md`
 - Line count: 150
@@ -5157,7 +5194,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 112. `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
+### 113. `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 
 - File path: `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md`
 - Line count: 243
@@ -5189,7 +5226,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 113. `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
+### 114. `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
 
 - File path: `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md`
 - Line count: 165
@@ -5221,7 +5258,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 114. `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
+### 115. `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
 
 - File path: `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md`
 - Line count: 177
@@ -5253,7 +5290,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as historical receipt; remove stale active wording if reopened or edited.
 - USER review notes: _Add notes here._
 
-### 115. `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+### 116. `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 - File path: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 - Line count: 574
@@ -5285,7 +5322,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep current markers compact and avoid cycle-ledger closeout-only PRs.
 - USER review notes: _Add notes here._
 
-### 116. `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
+### 117. `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
 
 - File path: `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`
 - Line count: 498
@@ -5317,7 +5354,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass should organize the long historical ledger into current summary plus indexed receipt sections, and promote reusable detail to workstreams/family dossiers without losing traceability.
 - USER review notes: _Add notes here._
 
-### 117. `Docs/branch_records/feature_vision_update_decision_matrix.md`
+### 118. `Docs/branch_records/feature_vision_update_decision_matrix.md`
 
 - File path: `Docs/branch_records/feature_vision_update_decision_matrix.md`
 - Line count: 118
@@ -5349,12 +5386,12 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Move to historical/no-active posture or otherwise make merge-stable before PR green.
 - USER review notes: _Add notes here._
 
-### 118. `Docs/branch_records/index.md`
+### 119. `Docs/branch_records/index.md`
 
 - File path: `Docs/branch_records/index.md`
-- Line count: 261
+- Line count: 262
 - Current purpose: Branch Authority Records Index
-- Actual observed use: branch authority router with markers live=56, pr/release/issue=37, package/slice=8, branch/worktree/phase=264, validator/helper=86.
+- Actual observed use: branch authority router with markers live=56, pr/release/issue=37, package/slice=8, branch/worktree/phase=264, validator/helper=88.
 - Correct owner category: branch authority router
 - What gets recorded here: active/historical branch authority routing.
 - What should be recorded here: lists and rules for branch authority records.
@@ -5364,7 +5401,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=216`; `unclear-ownership-wording=101`; `soft-commitment-wording=35`; `state-ledger-wording=133`
+- Ambiguity signals: `volatile-current-wording=218`; `unclear-ownership-wording=101`; `soft-commitment-wording=35`; `state-ledger-wording=134`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5381,7 +5418,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 119. `Docs/closeout_guidance.md`
+### 120. `Docs/closeout_guidance.md`
 
 - File path: `Docs/closeout_guidance.md`
 - Line count: 108
@@ -5413,7 +5450,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 120. `Docs/closeout_index.md`
+### 121. `Docs/closeout_index.md`
 
 - File path: `Docs/closeout_index.md`
 - Line count: 71
@@ -5445,7 +5482,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 121. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md`
+### 122. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md`
 
 - File path: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md`
 - Line count: 80
@@ -5477,7 +5514,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 122. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.8-prebeta.md`
+### 123. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.8-prebeta.md`
 
 - File path: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.8-prebeta.md`
 - Line count: 84
@@ -5509,7 +5546,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 123. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.9-prebeta.md`
+### 124. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.9-prebeta.md`
 
 - File path: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.9-prebeta.md`
 - Line count: 89
@@ -5541,7 +5578,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 124. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.0-prebeta.md`
+### 125. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.0-prebeta.md`
 
 - File path: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.0-prebeta.md`
 - Line count: 101
@@ -5573,7 +5610,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 125. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md`
+### 126. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md`
 
 - File path: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.3.1-prebeta.md`
 - Line count: 116
@@ -5605,7 +5642,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 126. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
+### 127. `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 
 - File path: `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.4.0-prebeta.md`
 - Line count: 109
@@ -5637,7 +5674,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 127. `Docs/closeouts/v1.6.0_closeout.md`
+### 128. `Docs/closeouts/v1.6.0_closeout.md`
 
 - File path: `Docs/closeouts/v1.6.0_closeout.md`
 - Line count: 121
@@ -5669,7 +5706,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 128. `Docs/closeouts/v1.7.0_closeout.md`
+### 129. `Docs/closeouts/v1.7.0_closeout.md`
 
 - File path: `Docs/closeouts/v1.7.0_closeout.md`
 - Line count: 131
@@ -5701,7 +5738,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 129. `Docs/closeouts/v1.8.0_closeout.md`
+### 130. `Docs/closeouts/v1.8.0_closeout.md`
 
 - File path: `Docs/closeouts/v1.8.0_closeout.md`
 - Line count: 142
@@ -5733,7 +5770,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 130. `Docs/closeouts/v1.9.0_closeout.md`
+### 131. `Docs/closeouts/v1.9.0_closeout.md`
 
 - File path: `Docs/closeouts/v1.9.0_closeout.md`
 - Line count: 168
@@ -5765,7 +5802,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 131. `Docs/closeouts/v2.0_closeout.md`
+### 132. `Docs/closeouts/v2.0_closeout.md`
 
 - File path: `Docs/closeouts/v2.0_closeout.md`
 - Line count: 198
@@ -5797,7 +5834,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 132. `Docs/closeouts/v2.2.0_closeout.md`
+### 133. `Docs/closeouts/v2.2.0_closeout.md`
 
 - File path: `Docs/closeouts/v2.2.0_closeout.md`
 - Line count: 132
@@ -5829,7 +5866,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 133. `Docs/closeouts/v2.2.1_closeout.md`
+### 134. `Docs/closeouts/v2.2.1_closeout.md`
 
 - File path: `Docs/closeouts/v2.2.1_closeout.md`
 - Line count: 107
@@ -5861,7 +5898,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 134. `Docs/codex_modes.md`
+### 135. `Docs/codex_modes.md`
 
 - File path: `Docs/codex_modes.md`
 - Line count: 813
@@ -5893,7 +5930,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 135. `Docs/codex_user_guide.md`
+### 136. `Docs/codex_user_guide.md`
 
 - File path: `Docs/codex_user_guide.md`
 - Line count: 155
@@ -5925,7 +5962,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 136. `Docs/development_rules.md`
+### 137. `Docs/development_rules.md`
 
 - File path: `Docs/development_rules.md`
 - Line count: 1095
@@ -5957,7 +5994,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 137. `Docs/external_operational_state_store_reform_plan.md`
+### 138. `Docs/external_operational_state_store_reform_plan.md`
 
 - File path: `Docs/external_operational_state_store_reform_plan.md`
 - Line count: 1321
@@ -5989,7 +6026,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 138. `Docs/family_feature_visions/F2-FF01.md`
+### 139. `Docs/family_feature_visions/F2-FF01.md`
 
 - File path: `Docs/family_feature_visions/F2-FF01.md`
 - Line count: 36
@@ -6021,7 +6058,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 139. `Docs/family_feature_visions/F3-FF01.md`
+### 140. `Docs/family_feature_visions/F3-FF01.md`
 
 - File path: `Docs/family_feature_visions/F3-FF01.md`
 - Line count: 50
@@ -6053,7 +6090,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 140. `Docs/family_feature_visions/FAM-006_recording.md`
+### 141. `Docs/family_feature_visions/FAM-006_recording.md`
 
 - File path: `Docs/family_feature_visions/FAM-006_recording.md`
 - Line count: 727
@@ -6085,7 +6122,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 141. `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md`
+### 142. `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md`
 
 - File path: `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md`
 - Line count: 279
@@ -6117,7 +6154,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 142. `Docs/family_feature_visions/index.md`
+### 143. `Docs/family_feature_visions/index.md`
 
 - File path: `Docs/family_feature_visions/index.md`
 - Line count: 13
@@ -6149,7 +6186,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 143. `Docs/family_feature_visions/README.md`
+### 144. `Docs/family_feature_visions/README.md`
 
 - File path: `Docs/family_feature_visions/README.md`
 - Line count: 119
@@ -6181,7 +6218,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 144. `Docs/family_feature_visions/TEMPLATE.md`
+### 145. `Docs/family_feature_visions/TEMPLATE.md`
 
 - File path: `Docs/family_feature_visions/TEMPLATE.md`
 - Line count: 19
@@ -6213,7 +6250,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.
 - USER review notes: _Add notes here._
 
-### 145. `Docs/family_visions/FAM-001_boot_interface.md`
+### 146. `Docs/family_visions/FAM-001_boot_interface.md`
 
 - File path: `Docs/family_visions/FAM-001_boot_interface.md`
 - Line count: 36
@@ -6245,7 +6282,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 146. `Docs/family_visions/FAM-002_desktop_interface.md`
+### 147. `Docs/family_visions/FAM-002_desktop_interface.md`
 
 - File path: `Docs/family_visions/FAM-002_desktop_interface.md`
 - Line count: 120
@@ -6277,7 +6314,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 147. `Docs/family_visions/FAM-003_interaction_and_actions.md`
+### 148. `Docs/family_visions/FAM-003_interaction_and_actions.md`
 
 - File path: `Docs/family_visions/FAM-003_interaction_and_actions.md`
 - Line count: 50
@@ -6309,7 +6346,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 148. `Docs/family_visions/FAM-004_voice_and_audio.md`
+### 149. `Docs/family_visions/FAM-004_voice_and_audio.md`
 
 - File path: `Docs/family_visions/FAM-004_voice_and_audio.md`
 - Line count: 28
@@ -6341,7 +6378,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 149. `Docs/family_visions/FAM-005_external_integrations.md`
+### 150. `Docs/family_visions/FAM-005_external_integrations.md`
 
 - File path: `Docs/family_visions/FAM-005_external_integrations.md`
 - Line count: 32
@@ -6373,7 +6410,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 150. `Docs/family_visions/FAM-006_monitoring_and_hud.md`
+### 151. `Docs/family_visions/FAM-006_monitoring_and_hud.md`
 
 - File path: `Docs/family_visions/FAM-006_monitoring_and_hud.md`
 - Line count: 94
@@ -6405,7 +6442,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 151. `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
+### 152. `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 
 - File path: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - Line count: 944
@@ -6437,7 +6474,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 152. `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
+### 153. `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
 
 - File path: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
 - Line count: 53
@@ -6469,7 +6506,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 153. `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
+### 154. `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
 
 - File path: `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
 - Line count: 45
@@ -6501,7 +6538,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.
 - USER review notes: _Add notes here._
 
-### 154. `Docs/family_visions/FAM-009_workspace_and_data.md`
+### 155. `Docs/family_visions/FAM-009_workspace_and_data.md`
 
 - File path: `Docs/family_visions/FAM-009_workspace_and_data.md`
 - Line count: 39
@@ -6533,7 +6570,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Retain only until no-loss fold proof shows durable content is preserved in existing owners; not an active backlog identity.
 - USER review notes: _Add notes here._
 
-### 155. `Docs/family_visions/FAM-010_safety_and_privacy.md`
+### 156. `Docs/family_visions/FAM-010_safety_and_privacy.md`
 
 - File path: `Docs/family_visions/FAM-010_safety_and_privacy.md`
 - Line count: 44
@@ -6565,7 +6602,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Retain only until no-loss fold proof shows durable content is preserved in existing owners; not an active backlog identity.
 - USER review notes: _Add notes here._
 
-### 156. `Docs/family_visions/README.md`
+### 157. `Docs/family_visions/README.md`
 
 - File path: `Docs/family_visions/README.md`
 - Line count: 259
@@ -6597,7 +6634,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the compact index for family vision records and fold-down rules.
 - USER review notes: _Add notes here._
 
-### 157. `Docs/fb_027_overlay_bug_tracker.md`
+### 158. `Docs/fb_027_overlay_bug_tracker.md`
 
 - File path: `Docs/fb_027_overlay_bug_tracker.md`
 - Line count: 212
@@ -6629,7 +6666,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 158. `Docs/feature_backlog.md`
+### 159. `Docs/feature_backlog.md`
 
 - File path: `Docs/feature_backlog.md`
 - Line count: 381
@@ -6661,7 +6698,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep pointer-only; do not reintroduce live state or detailed trace tables.
 - USER review notes: _Add notes here._
 
-### 159. `Docs/governance_docs_full_inventory_reform_audit.md`
+### 160. `Docs/governance_docs_full_inventory_reform_audit.md`
 
 - File path: `Docs/governance_docs_full_inventory_reform_audit.md`
 - Line count: Generated self-reference
@@ -6689,11 +6726,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Branch/worktree/phase markers found: None found.
 - Release/PR/issue markers found: None found.
 - Validator rule needed: Covered by existing owner validator or future focused owner check.
-- Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
+- Reform action completed in this branch: Updated in this reform branch.
 - Remaining action needed after this branch: Self-reference is intentionally synthetic so regeneration does not change the dossier by re-scanning its previous generated output.
 - USER review notes: _Add notes here._
 
-### 160. `Docs/governance_docs_reform_user_review_index.md`
+### 161. `Docs/governance_docs_reform_user_review_index.md`
 
 - File path: `Docs/governance_docs_reform_user_review_index.md`
 - Line count: 253
@@ -6725,7 +6762,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 161. `Docs/governance_efficiency_operating_model.md`
+### 162. `Docs/governance_efficiency_operating_model.md`
 
 - File path: `Docs/governance_efficiency_operating_model.md`
 - Line count: 1111
@@ -6757,7 +6794,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 162. `Docs/governance_intake_triage_and_digest_profiles.md`
+### 163. `Docs/governance_intake_triage_and_digest_profiles.md`
 
 - File path: `Docs/governance_intake_triage_and_digest_profiles.md`
 - Line count: 173
@@ -6789,7 +6826,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 163. `Docs/governance_phase_lifecycle_reform_context_plan.md`
+### 164. `Docs/governance_phase_lifecycle_reform_context_plan.md`
 
 - File path: `Docs/governance_phase_lifecycle_reform_context_plan.md`
 - Line count: 171
@@ -6821,7 +6858,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 164. `Docs/governance_process_efficiency_reform_plan.md`
+### 165. `Docs/governance_process_efficiency_reform_plan.md`
 
 - File path: `Docs/governance_process_efficiency_reform_plan.md`
 - Line count: 1091
@@ -6853,7 +6890,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 165. `Docs/governance_reliability_and_repo_split_reform_candidates.md`
+### 166. `Docs/governance_reliability_and_repo_split_reform_candidates.md`
 
 - File path: `Docs/governance_reliability_and_repo_split_reform_candidates.md`
 - Line count: 2364
@@ -6885,7 +6922,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 166. `Docs/incident_patterns.md`
+### 167. `Docs/incident_patterns.md`
 
 - File path: `Docs/incident_patterns.md`
 - Line count: 906
@@ -6917,7 +6954,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 167. `Docs/Main.md`
+### 168. `Docs/Main.md`
 
 - File path: `Docs/Main.md`
 - Line count: 659
@@ -6949,7 +6986,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 168. `Docs/ncp_hardening_assessment.md`
+### 169. `Docs/ncp_hardening_assessment.md`
 
 - File path: `Docs/ncp_hardening_assessment.md`
 - Line count: 109
@@ -6981,7 +7018,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 169. `Docs/nexus_startup_contract.md`
+### 170. `Docs/nexus_startup_contract.md`
 
 - File path: `Docs/nexus_startup_contract.md`
 - Line count: 397
@@ -7013,7 +7050,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 170. `Docs/nexus_vision.md`
+### 171. `Docs/nexus_vision.md`
 
 - File path: `Docs/nexus_vision.md`
 - Line count: 418
@@ -7045,7 +7082,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as project-wide product vision contract; route family-specific durable direction to family vision records and active implementation detail to external branch plans.
 - USER review notes: _Add notes here._
 
-### 171. `Docs/nexus_workspace_roots.md`
+### 172. `Docs/nexus_workspace_roots.md`
 
 - File path: `Docs/nexus_workspace_roots.md`
 - Line count: 50
@@ -7073,11 +7110,11 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Branch/worktree/phase markers found: `| Active Git worktrees | `D:\Nexus Desktop AI Data\Worktrees` | Current FAM and Governance worktrees; Git worktree administration is authoritative. |`; `| External operational state | `D:\Nexus Desktop AI Data\Governance State` | Active branch, worktree, planning, lock, review, and migration state; repo docs remain durable law. |`; `| Codex-managed detached worktrees | `D:\Nexus Desktop AI Data\Codex Worktrees` | Detached Codex checkouts; they remain separate from active assigned lanes. |`; `2. A current active branch worktree must resolve below`; ``D:\Nexus Desktop AI Data\Worktrees` and must also be registered by Git`
 - Release/PR/issue markers found: None found.
 - Validator rule needed: Covered by existing owner validator or future focused owner check.
-- Reform action completed in this branch: Updated in this reform branch.
+- Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 172. `Docs/orchestration.md`
+### 173. `Docs/orchestration.md`
 
 - File path: `Docs/orchestration.md`
 - Line count: 127
@@ -7109,7 +7146,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 173. `Docs/orin_display_naming_guidance.md`
+### 174. `Docs/orin_display_naming_guidance.md`
 
 - File path: `Docs/orin_display_naming_guidance.md`
 - Line count: 125
@@ -7141,7 +7178,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 174. `Docs/orin_interaction_architecture.md`
+### 175. `Docs/orin_interaction_architecture.md`
 
 - File path: `Docs/orin_interaction_architecture.md`
 - Line count: 285
@@ -7173,7 +7210,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 175. `Docs/orin_task_template.md`
+### 176. `Docs/orin_task_template.md`
 
 - File path: `Docs/orin_task_template.md`
 - Line count: 1185
@@ -7205,7 +7242,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 176. `Docs/ownership_ip_plan.md`
+### 177. `Docs/ownership_ip_plan.md`
 
 - File path: `Docs/ownership_ip_plan.md`
 - Line count: 112
@@ -7237,7 +7274,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 177. `Docs/phase_governance.md`
+### 178. `Docs/phase_governance.md`
 
 - File path: `Docs/phase_governance.md`
 - Line count: 3864
@@ -7269,7 +7306,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 178. `Docs/pr_watcher_mode_contract.md`
+### 179. `Docs/pr_watcher_mode_contract.md`
 
 - File path: `Docs/pr_watcher_mode_contract.md`
 - Line count: 104
@@ -7301,7 +7338,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 179. `Docs/prebeta_roadmap.md`
+### 180. `Docs/prebeta_roadmap.md`
 
 - File path: `Docs/prebeta_roadmap.md`
 - Line count: 142
@@ -7333,7 +7370,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep pointer-only; do not reintroduce live state or detailed trace tables.
 - USER review notes: _Add notes here._
 
-### 180. `Docs/ui_reference_catalog/index.md`
+### 181. `Docs/ui_reference_catalog/index.md`
 
 - File path: `Docs/ui_reference_catalog/index.md`
 - Line count: 20
@@ -7365,7 +7402,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 181. `Docs/ui_reference_catalog/README.md`
+### 182. `Docs/ui_reference_catalog/README.md`
 
 - File path: `Docs/ui_reference_catalog/README.md`
 - Line count: 142
@@ -7397,7 +7434,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 182. `Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md`
+### 183. `Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md`
 - Line count: 33
@@ -7429,7 +7466,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 183. `Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md`
+### 184. `Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-002_window_control_cluster.md`
 - Line count: 33
@@ -7461,7 +7498,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 184. `Docs/ui_reference_catalog/UIREF-003_control_state_and_selector_grammar.md`
+### 185. `Docs/ui_reference_catalog/UIREF-003_control_state_and_selector_grammar.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-003_control_state_and_selector_grammar.md`
 - Line count: 33
@@ -7493,7 +7530,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 185. `Docs/ui_reference_catalog/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md`
+### 186. `Docs/ui_reference_catalog/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md`
 - Line count: 33
@@ -7525,7 +7562,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 186. `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md`
+### 187. `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md`
 - Line count: 35
@@ -7557,7 +7594,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 187. `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md`
+### 188. `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md`
 - Line count: 33
@@ -7589,7 +7626,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 188. `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
+### 189. `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
 
 - File path: `Docs/ui_reference_catalog/UIREF-007_window_geometry_resize_contract.md`
 - Line count: 136
@@ -7621,7 +7658,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.
 - USER review notes: _Add notes here._
 
-### 189. `Docs/user_test_summary_guidance.md`
+### 190. `Docs/user_test_summary_guidance.md`
 
 - File path: `Docs/user_test_summary_guidance.md`
 - Line count: 376
@@ -7653,7 +7690,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 190. `Docs/validation_helper_registry.md`
+### 191. `Docs/validation_helper_registry.md`
 
 - File path: `Docs/validation_helper_registry.md`
 - Line count: 603
@@ -7685,7 +7722,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 191. `Docs/workspace_layout_plan.md`
+### 192. `Docs/workspace_layout_plan.md`
 
 - File path: `Docs/workspace_layout_plan.md`
 - Line count: 168
@@ -7717,7 +7754,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 192. `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
+### 193. `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 
 - File path: `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md`
 - Line count: 741
@@ -7749,7 +7786,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 193. `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
+### 194. `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 
 - File path: `Docs/workstreams/FB-005_workspace_and_folder_organization.md`
 - Line count: 408
@@ -7781,7 +7818,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 194. `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
+### 195. `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 
 - File path: `Docs/workstreams/FB-015_boot_and_desktop_phase_boundary_model.md`
 - Line count: 741
@@ -7813,7 +7850,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 195. `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
+### 196. `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
 
 - File path: `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md`
 - Line count: 86
@@ -7845,7 +7882,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 196. `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
+### 197. `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 
 - File path: `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md`
 - Line count: 147
@@ -7877,7 +7914,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use as migration target for package/slice/detail that should leave backlog, roadmap, and branch diaries.
 - USER review notes: _Add notes here._
 
-### 197. `Docs/workstreams/FB-027_interaction_system_baseline.md`
+### 198. `Docs/workstreams/FB-027_interaction_system_baseline.md`
 
 - File path: `Docs/workstreams/FB-027_interaction_system_baseline.md`
 - Line count: 751
@@ -7909,7 +7946,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 198. `Docs/workstreams/FB-028_history_state_relocation.md`
+### 199. `Docs/workstreams/FB-028_history_state_relocation.md`
 
 - File path: `Docs/workstreams/FB-028_history_state_relocation.md`
 - Line count: 89
@@ -7941,7 +7978,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 199. `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
+### 200. `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 
 - File path: `Docs/workstreams/FB-029_orin_identity_licensing_hardening.md`
 - Line count: 528
@@ -7973,7 +8010,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 200. `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
+### 201. `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 
 - File path: `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md`
 - Line count: 1010
@@ -8005,7 +8042,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 201. `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
+### 202. `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 
 - File path: `Docs/workstreams/FB-031_nexus_desktop_ai_ui_ux_overhaul_planning.md`
 - Line count: 501
@@ -8037,7 +8074,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 202. `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
+### 203. `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 
 - File path: `Docs/workstreams/FB-032_nexus_era_vision_and_source_of_truth_migration.md`
 - Line count: 550
@@ -8069,7 +8106,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 203. `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
+### 204. `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 
 - File path: `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md`
 - Line count: 90
@@ -8101,7 +8138,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 204. `Docs/workstreams/FB-034_recoverable_diagnostics.md`
+### 205. `Docs/workstreams/FB-034_recoverable_diagnostics.md`
 
 - File path: `Docs/workstreams/FB-034_recoverable_diagnostics.md`
 - Line count: 97
@@ -8133,7 +8170,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 205. `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
+### 206. `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
 
 - File path: `Docs/workstreams/FB-035_release_context_fallback_hardening.md`
 - Line count: 100
@@ -8165,7 +8202,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 206. `Docs/workstreams/FB-036_saved_action_authoring.md`
+### 207. `Docs/workstreams/FB-036_saved_action_authoring.md`
 
 - File path: `Docs/workstreams/FB-036_saved_action_authoring.md`
 - Line count: 848
@@ -8197,7 +8234,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 207. `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
+### 208. `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
 
 - File path: `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md`
 - Line count: 424
@@ -8229,7 +8266,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 208. `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
+### 209. `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 
 - File path: `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md`
 - Line count: 925
@@ -8261,7 +8298,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 209. `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
+### 210. `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
 
 - File path: `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md`
 - Line count: 1889
@@ -8293,7 +8330,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 210. `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
+### 211. `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 
 - File path: `Docs/workstreams/FB-040_monitoring_thermals_performance_hud_surface.md`
 - Line count: 618
@@ -8325,7 +8362,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 211. `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
+### 212. `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
 
 - File path: `Docs/workstreams/FB-041_deterministic_callable_group_execution_layer.md`
 - Line count: 274
@@ -8357,7 +8394,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 212. `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
+### 213. `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
 
 - File path: `Docs/workstreams/FB-042_desktop_entrypoint_runtime_refinement.md`
 - Line count: 413
@@ -8389,7 +8426,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 213. `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
+### 214. `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 
 - File path: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 - Line count: 129
@@ -8421,7 +8458,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Use as migration target for package/slice/detail that should leave backlog, roadmap, and branch diaries.
 - USER review notes: _Add notes here._
 
-### 214. `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
+### 215. `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
 
 - File path: `Docs/workstreams/FB-043_top_level_entrypoint_handoff_refinement.md`
 - Line count: 479
@@ -8453,7 +8490,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 215. `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
+### 216. `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
 
 - File path: `Docs/workstreams/FB-044_boot_desktop_handoff_outcome_refinement.md`
 - Line count: 420
@@ -8485,7 +8522,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 216. `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
+### 217. `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
 
 - File path: `Docs/workstreams/FB-045_active_session_relaunch_outcome_refinement.md`
 - Line count: 444
@@ -8517,7 +8554,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 217. `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
+### 218. `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
 
 - File path: `Docs/workstreams/FB-046_active_session_relaunch_reacquisition.md`
 - Line count: 414
@@ -8549,7 +8586,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 218. `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
+### 219. `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 
 - File path: `Docs/workstreams/FB-047_active_session_relaunch_decline_preservation.md`
 - Line count: 420
@@ -8581,7 +8618,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 219. `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
+### 220. `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 
 - File path: `Docs/workstreams/FB-048_active_session_relaunch_signal_failure_and_wait_timeout_truth.md`
 - Line count: 493
@@ -8613,7 +8650,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: Future focused pass may label old live-state markers as historical without deleting proof.
 - USER review notes: _Add notes here._
 
-### 220. `Docs/workstreams/index.md`
+### 221. `Docs/workstreams/index.md`
 
 - File path: `Docs/workstreams/index.md`
 - Line count: 223
@@ -8645,7 +8682,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Remaining action needed after this branch: None unless USER edits this dossier or a future validator flags drift.
 - USER review notes: _Add notes here._
 
-### 221. `Docs/worktree_slots.md`
+### 222. `Docs/worktree_slots.md`
 
 - File path: `Docs/worktree_slots.md`
 - Line count: 205
