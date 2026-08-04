@@ -13,12 +13,11 @@ posture after merge.
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
-- Branch Authority Marker: `Historical transition receipt for the Active Branch`
-- Active Branch: `External operational state owns active current posture until merge fold-down`
+- Branch Authority Marker: `Historical transition receipt; external operational state owns active current posture.`
 
 ## Branch Class
 
@@ -55,11 +54,11 @@ posture after merge.
 
 ## Rollback Target
 
-- Rollback Target: `PR Readiness`
+- Rollback Target: `Historical Traceability`
 
 ## Next Legal Phase
 
-- Next Legal Phase: `PR Readiness`
+- Next Legal Phase: `Historical Traceability`
 
 ## Post-Merge State
 
