@@ -25,9 +25,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
+from nexus_paths import USER_HUB_ROOT
 
 REPO = Path(__file__).resolve().parents[1]
-USER_ROOT = Path(r"C:\Nexus USER")
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
 SCREENSHOT_ROOT = Path(r"C:\Users\anden\OneDrive\Pictures\Screenshots")
 BASELINE_HEAD = "4afb18905d961c492a701149133e122fabee301d"
@@ -707,7 +708,7 @@ def return_flow_findings(evidence: dict[str, object]) -> list[dict[str, str]]:
         {
             "finding": "J UTS stop-loss",
             "result": "PASS",
-            "evidence": r"C:\Nexus USER\UTS - FAM-006.txt",
+            "evidence": r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt",
             "notes": "UTS handoff remains withheld until USER separately approves Live Validation / UTS disposition; repair-return proof does not auto-accept UTS.",
         },
     ]
@@ -741,10 +742,10 @@ def source_truth_loaded_lines() -> tuple[list[str], list[str]]:
         else:
             missing.append(rel)
     external = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     external_state = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
     )
     for path in (external, external_state):
         if path.exists():
@@ -955,7 +956,7 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "C:\\Nexus USER\\UTS - FAM-006.txt",
             "UTS should be a USER returned-evidence handoff after Live Validation proof, not a substitute for deterministic pre-handoff validation of admitted surfaces.",
             "The handoff UTS lists active items for Recording visual inheritance, target mirroring, native log save/readback, issue #258 persistence, and card holder insets; USER then found failures in those active items.",
-            r"C:\Nexus USER\UTS - FAM-006.txt",
+            r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt",
             "Verified",
             "UTS handoff",
             "dev/orin_monitoring_hud_live_validation.ps1 refreshed the worktree-specific UTS after LV1 PASS; UTS result remained pending and should not be treated as acceptance.",
@@ -1045,7 +1046,7 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "Live Validation LV1 / UTS handoff",
             "Packet/tool reviewability and automated handoff are separate from USER acceptance or returned UTS results.",
             "External branch state correctly says USER-returned UTS results remain pending, but the process still produced a handoff that USER found not ready.",
-            r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md",
+            r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md",
             "Verified",
             "Live Validation / UTS",
             "No single product code line; process lineage in branch_plan LV1 receipt, UTS handoff, and live-validation helper.",
@@ -1157,7 +1158,7 @@ def supplemental_findings(summary: dict[str, object]) -> list[Finding]:
             "Prior findings packet",
             "A findings packet must answer the concrete USER issue questions with issue-specific evidence paths, normal-path limits, confidence labels, and no-retroactive-evidence labeling.",
             "The prior packet captured broad LV/UTS failure classes but did not explicitly prove/disprove the Recording Studio button click, Start/Stop placement, Log Viewer focus regression, or Studio/Log Viewer ownership boundary with A-D issue folders.",
-            r"C:\Nexus USER\FAM-006-20260609-112944.zip",
+            r"D:\Nexus Desktop AI Data\USER\FAM-006-20260609-112944.zip",
             "Verified",
             "Investigation packet generation",
             "dev/orin_fam006_live_validation_forensics.py now consumes supplemental runtime proof and writes issue-specific findings.",
@@ -1253,7 +1254,7 @@ def evidence_inventory_md(summary: dict[str, object]) -> str:
         ("Supplemental USER screenshot root", str(supplemental.get("user_screenshot_root", "")), str(supplemental.get("user_screenshot_root_exists", ""))),
         ("Supplemental USER element screenshot root", str(supplemental.get("user_element_root", "")), str(supplemental.get("user_element_root_exists", ""))),
         ("Supplemental issue folders", "supplemental_issue_evidence_manifest.issueFolders", str(len(summary.get("supplemental_issue_folders") or []))),
-        ("Worktree-specific UTS", r"C:\Nexus USER\UTS - FAM-006.txt", str(Path(r"C:\Nexus USER\UTS - FAM-006.txt").exists())),
+        ("Worktree-specific UTS", r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt", str(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt").exists())),
     ]
     return table(["Evidence", "Path / Field", "Result"], rows)
 
@@ -1485,7 +1486,7 @@ def timeline_md() -> str:
         ("2026-06-09", "Workstream", "Option C implementation committed at 8330af1b", "git log / branch plan", "Introduced Dashboard Recording, Studio, Log Viewer shell, output contract"),
         ("2026-06-09", "Hardening H1", "H1 green at a17012a6", "dev/orin_fam006_hardening_h1.py", "H1 did not own formal UTS result"),
         ("2026-06-09 09:09", "Live Validation", "LV1 focused helper PASS at 20260609_090906_117", "manifest.json", "Automated handoff green"),
-        ("2026-06-09 09:10", "UTS handoff", "UTS - FAM-006 refreshed as draft handoff", r"C:\Nexus USER\UTS - FAM-006.txt", "USER result pending"),
+        ("2026-06-09 09:10", "UTS handoff", "UTS - FAM-006 refreshed as draft handoff", r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt", "USER result pending"),
         ("2026-06-09", "USER review", "USER reports failures/regressions/UI/evidence gaps", "chat prompt and UTS context", "Contradicts readiness of automated handoff"),
         ("2026-06-09", "Rebaseline", "origin/main merged; baseline HEAD 4afb1890", "git log", "Baseline boundary for investigation"),
         ("2026-06-09 11:03", "Investigation", "Static forensics packet generated at ddeb90a4", "C:\\Nexus USER\\FAM-006-20260609-110335.zip", "Findings packet, not repair plan"),
@@ -2418,7 +2419,7 @@ def live_validator_first_checks() -> list[LiveValidatorCheck]:
             expected_current_result="FAIL",
             source_truth_expectation="UTS handoff is not acceptance and must not hide unresolved Live Validation blockers.",
             user_facing_action="USER receives UTS only after admitted Live Validation proof is green or blockers are clearly carried.",
-            evidence_path=r"C:\Nexus USER\UTS - FAM-006.txt",
+            evidence_path=r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt",
             screenshot_path="",
             log_event_path="UTS handoff text plus current expected-red validator output",
             confidence="Verified tool gap",
@@ -2708,10 +2709,10 @@ def generate_validator_first_packet() -> tuple[Path, Path, str]:
     for rel in SOURCE_TRUTH_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
-    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    copy_if_exists(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
     extracted = extract_zip_bytes(repair_plan_bytes, PACKET_ROOT / "Review Aids" / "Repair Planning Packet")
     repair_digest = repair_plan_packet_digest_md(repair_plan, extracted)
 
@@ -2919,10 +2920,10 @@ def generate_repair_implementation_approval_packet() -> tuple[Path, Path, str]:
     for rel in SOURCE_TRUTH_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
-    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    copy_if_exists(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
     extracted = extract_zip_bytes(validator_bytes, PACKET_ROOT / "Review Aids" / "Live Validator First Packet")
     validator_digest = validator_first_packet_digest_md(validator_packet, extracted)
 
@@ -3216,7 +3217,7 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
     for rel in SOURCE_TRUTH_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
 
@@ -3470,14 +3471,14 @@ def generate_live_validation_uts_disposition_packet() -> tuple[Path, Path, str]:
     for rel in SOURCE_TRUTH_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     external_state = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
     copy_if_exists(external_state, PACKET_ROOT / "Source Truth Context" / "external_branch_state.md")
-    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    copy_if_exists(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
 
     interaction_path = Path(str(evidence.get("interactionPath") or ""))
     restart_interaction_path = Path(str(evidence.get("restartInteractionPath") or ""))
@@ -3501,7 +3502,7 @@ def generate_live_validation_uts_disposition_packet() -> tuple[Path, Path, str]:
                     ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
                     ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
                     ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
-                    ["Worktree-specific UTS handoff", r"C:\Nexus USER\UTS - FAM-006.txt"],
+                    ["Worktree-specific UTS handoff", r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"],
                 ],
             ),
         ),
@@ -3560,7 +3561,7 @@ def generate_live_validation_uts_disposition_packet() -> tuple[Path, Path, str]:
                         ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
                         ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
                         ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
-                        ["Worktree-specific UTS handoff", r"C:\Nexus USER\UTS - FAM-006.txt"],
+                        ["Worktree-specific UTS handoff", r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"],
                     ],
                 ),
             ),
@@ -3711,10 +3712,10 @@ def generate_repair_plan_packet() -> tuple[Path, Path, str]:
     for rel in SOURCE_TRUTH_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
-    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    copy_if_exists(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
     extracted = extract_zip_bytes(accepted_bytes, PACKET_ROOT / "Review Aids" / "Accepted Findings Packet")
 
     loaded_md = "\n".join(f"- `{item}`" for item in loaded)
@@ -3872,10 +3873,10 @@ def generate_packet() -> tuple[Path, Path, str]:
     for rel in SOURCE_TRUTH_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
-    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    copy_if_exists(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
     if baseline and baseline.exists():
         for source in (baseline / "baseline_old_tools").glob("*.txt"):
             copy_if_exists(source, PACKET_ROOT / "Review Aids" / "Raw Evidence" / "baseline_old_tools" / source.name)
@@ -4381,14 +4382,14 @@ def generate_returned_uts_determinism_review_packet() -> tuple[Path, Path, str]:
     for rel in TOOL_FILES:
         copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
     external_plan = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
     )
     external_state = Path(
-        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
+        r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
     )
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
     copy_if_exists(external_state, PACKET_ROOT / "Source Truth Context" / "external_branch_state.md")
-    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    copy_if_exists(Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
     for source in (
         Path(str(evidence.get("manifestPath") or "")),
         Path(str(evidence.get("interactionPath") or "")),

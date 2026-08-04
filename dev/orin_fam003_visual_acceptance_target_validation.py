@@ -14,14 +14,13 @@ import sys
 import zipfile
 from pathlib import Path, PurePosixPath
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
 
 STANDARD_PACKET_LABEL = "FAM-003"
 RETIRED_PACKET_LABELS = ("FAM-003-Visual-Acceptance",)
 RENDER_MEDIA_PREFIX = "Source Truth Context/Proof Artifacts/Visual Target Render Media"
-DEFAULT_PACKET_DIR = Path(r"C:\Nexus USER\FAM-003")
-DEFAULT_STATE_ROOT = Path(
-    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
-)
+DEFAULT_PACKET_DIR = USER_HUB_ROOT / "FAM-003"
+DEFAULT_STATE_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_003_resident_access_quick_actions"
 REQUIRED_REVIEW_AIDS = (
     "VISUAL_IMPACT_CLASSIFICATION.md",
     "VISUAL_OPTIONS_PACKET.md",

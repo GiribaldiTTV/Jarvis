@@ -20,13 +20,16 @@ import sys
 import time
 from pathlib import Path
 
+from nexus_paths import EXTERNAL_STATE_ROOT
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-VISUAL_UDL_PATH = Path(
-    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
-    r"\unified_visual_defect_ledger_20260623.md"
+VISUAL_UDL_PATH = (
+    EXTERNAL_STATE_ROOT
+    / "branches"
+    / "feature_fam_003_resident_access_quick_actions"
+    / "unified_visual_defect_ledger_20260623.md"
 )
 VISUAL_UDL_IDS = tuple(f"UDL-VIS-{index:03d}" for index in range(1, 15))
 VISUAL_UDL_ALLOWED_STATUSES = {
@@ -63,11 +66,11 @@ VISUAL_UDL_REQUIRED_FIELDS = (
 )
 VISUAL_UDL_REJECTED_PACKET = "FAM-003-20260623-125842.zip"
 ACTIVE_UDL_PATH = Path(
-    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
+    r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_003_resident_access_quick_actions"
     r"\unified_defect_ledger_20260623_false_green.md"
 )
 SAME_DEFECT_RECURRENCE_LEDGER_PATH = Path(
-    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
+    r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_003_resident_access_quick_actions"
     r"\same_defect_recurrence_ledger_20260624.md"
 )
 ACTIVE_FALSE_RETEST_DEFECT_IDS = (

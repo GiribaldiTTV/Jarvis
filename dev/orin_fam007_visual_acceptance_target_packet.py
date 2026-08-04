@@ -27,15 +27,17 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKTREE_LABEL = "FAM-007"
 BRANCH_SLUG = "feature_fam_007_ai_control_center_readiness_diagnostics"
-EXTERNAL_BRANCH_ROOT = Path(r"C:\Nexus Governance State\branches") / BRANCH_SLUG
+EXTERNAL_BRANCH_ROOT = EXTERNAL_STATE_ROOT / "branches" / BRANCH_SLUG
 BRANCH_STATE = EXTERNAL_BRANCH_ROOT / "branch_state.md"
 BRANCH_PLAN = EXTERNAL_BRANCH_ROOT / "branch_plan.md"
 UDL_PATH = EXTERNAL_BRANCH_ROOT / "unified_defect_ledger.md"
-USER_ROOT = Path(r"C:\Nexus USER")
+USER_ROOT = USER_HUB_ROOT
 PACKET_DIR = USER_ROOT / WORKTREE_LABEL
 ACCEPTED_HISTORICAL_ZIP = USER_ROOT / "FAM-007-20260623-123429.zip"
 PRIMARY_REVIEW_FILE = "VISUAL_ACCEPTANCE_TARGET_REVIEW.md"
@@ -78,7 +80,7 @@ EXPECTED_RENDER_IMAGE_COUNT = len(OPTION_IDS) * 4
 EXPECTED_ANNOTATED_IMAGE_COUNT = len(OPTION_IDS) * 2
 DRAFT_TEMPLATE_ROOT = "Review Aids/Draft Window Templates"
 DRAFT_RENDER_AUTHORITY = "Real rendered draft-window/template using branch-local HTML/CSS and PySide6 QWebEngine screenshot capture"
-OPTION_F_SEED_PACKET_PATH = r"C:\Nexus USER\FAM-007-20260624-142922.zip"
+OPTION_F_SEED_PACKET_PATH = r"D:\Nexus Desktop AI Data\USER\FAM-007-20260624-142922.zip"
 OPTION_F_SEED_PACKET_SHA256 = "eb7a73ff42cbcc502fe093efc21aed2e789a39d4ac00323a1d9467e7bb672092"
 OPTION_F_FUTURE_OWNER_ROUTE = (
     "FAM-003 for Global Settings / parent-window customization controls; "
@@ -2710,7 +2712,7 @@ def _recovery_search_roots() -> list[Path]:
     return [
         USER_ROOT,
         Path(r"C:\$Recycle.Bin"),
-        Path(r"C:\Nexus Worktrees"),
+        Path(r"D:\Nexus Desktop AI Data\Worktrees"),
         Path(r"C:\Nexus Desktop AI"),
         Path(r"C:\Users\anden\OneDrive\Desktop"),
         Path(r"C:\Users\anden\OneDrive\Documents"),

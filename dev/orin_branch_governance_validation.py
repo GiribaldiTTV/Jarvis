@@ -3777,7 +3777,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Main-First Loader Chain",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Context docs may explain",
     ),
     Path("Docs/development_rules.md"): (
@@ -3803,7 +3803,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Docs/Main.md",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
     Path("Docs/orin_task_template.md"): (
         "Preserve the Main-first loader chain",
@@ -3825,7 +3825,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
     Path("Docs/family_visions/README.md"): (
         "Main-first loader chain",
         "Docs/nexus_vision.md",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
 }
 
@@ -4010,7 +4010,7 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "Branch Planning",
         "USER Branch Vision Review",
         "USER Branch Plan Review Gate",
-        "C:\\Nexus USER\\<label>",
+        "D:\\Nexus Desktop AI Data\\USER\\<label>",
         "BP3",
         "USER Review Packet Stale",
     ),
@@ -5146,7 +5146,7 @@ RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
 BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "Branch Runtime Engineering Plan",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
         "PR Readiness fold-down",
     ),
@@ -5161,7 +5161,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
         "local USER hub packet",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
@@ -5183,7 +5183,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
         "local USER hub packet",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
@@ -5201,14 +5201,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/workstreams/index.md"): (
         "Branch Runtime Engineering Plan",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "PR Readiness fold-down",
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
         "Branch Planning Review Packet",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
@@ -5218,7 +5218,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
 USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "USER Feedback Disposition",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "compact UFD pointers",
     ),
     Path("Docs/phase_governance.md"): (
@@ -10897,7 +10897,7 @@ def _validate_user_feedback_disposition(
         or _is_repo_branch_plan_path(normalized_ledger_owner),
         (
             f"{source_path}: UFD Ledger Owner must point to the active external "
-            "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md "
+            "D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md "
             "branch plan or a repo branch-plan historical receipt"
         ),
     )
@@ -11213,7 +11213,7 @@ def _validate_branch_runtime_engineering_plan_pointer(
         plan_path_valid,
         (
             f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} must point "
-            "to C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md "
+            "to D:\\Nexus Desktop AI Data\\Governance State\\branches\\<branch_slug>\\branch_plan.md "
             f"for active planning or under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md "
             "for repo historical receipts"
         ),
@@ -20490,7 +20490,7 @@ def _repo_active_rri_cycle_values(active_cycle_values: list[str]) -> list[str]:
 
 def _run_repo_active_rri_cycle_parser_fixtures(require) -> None:
     sample_values = [
-        "External operational state only - see C:\\Nexus Governance State\\branches\\feature_release_readiness_source_truth_intake\\branch_state.md",
+        "External operational state only - see D:\\Nexus Desktop AI Data\\Governance State\\branches\\feature_release_readiness_source_truth_intake\\branch_state.md",
         "RRI-20260629-001",
         "RRI-20260629-001 - release target repair",
         "`RRI-20260629-001`",
@@ -20598,7 +20598,7 @@ def _run_standing_governance_intake_gate(require) -> None:
         )
     require(
         "C:\\Nexus Desktop AI" in return_digest_identity_guard
-        and "C:\\Nexus Worktrees\\Governance" in return_digest_identity_guard,
+        and "D:\\Nexus Desktop AI Data\\Worktrees\\Governance" in return_digest_identity_guard,
         (
             f"{expected_record_path}: Return Digest Identity Guard must explicitly ban "
             "defaulting to the neutral/main folder or governance worktree"
@@ -21282,7 +21282,7 @@ def _run_release_readiness_health_gate(
                     f"exist while Phase is `{current_phase}`. Move the branch through PR "
                     "Readiness and prove post-merge source truth before PR creation/merge; "
                     "if this is discovered after merge, route the blocker digest to "
-                    f"`C:\\Nexus Worktrees\\Governance` / `{STANDING_GOVERNANCE_INTAKE_BRANCH}`."
+                    f"`D:\\Nexus Desktop AI Data\\Worktrees\\Governance` / `{STANDING_GOVERNANCE_INTAKE_BRANCH}`."
                 ),
             )
             return

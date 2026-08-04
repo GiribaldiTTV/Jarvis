@@ -26,15 +26,14 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT, WORKTREES_ROOT
 from orin_fam006_unified_defect_ledger import write_packet_artifacts
 
 
-WORKTREE = Path("C:/Nexus Worktrees/FAM-006")
-USER_ROOT = Path("C:/Nexus USER")
+WORKTREE = WORKTREES_ROOT / "FAM-006"
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
-EXTERNAL_BRANCH_ROOT = Path(
-    "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
-)
+EXTERNAL_BRANCH_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_006_dashboard_recording_start_stop_local_file"
 SCREENSHOT_ROOT = (
     Path("C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI")
     / "fam_006_runtime_ui_immersion_options"

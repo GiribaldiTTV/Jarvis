@@ -13,6 +13,7 @@ import argparse
 import subprocess
 from pathlib import Path
 
+from nexus_paths import EXTERNAL_STATE_ROOT
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "Docs"
@@ -461,7 +462,7 @@ def owner_for(rel: str) -> str:
 
 def owner_for_fact(fact: str) -> str:
     mapping = {
-        "active branch authority": "C:\\Nexus Governance State plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts",
+        "active branch authority": f"{EXTERNAL_STATE_ROOT} plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts",
         "current branch status": "Git/GitHub/helper-derived truth plus external operational branch state",
         "next legal phase": "phase packet or external operational branch state",
         "selected-next": "Branch/PR Readiness packet and owning branch record only when USER-approved",
@@ -476,7 +477,7 @@ def owner_for_fact(fact: str) -> str:
         "package trace": "Docs/workstreams or family dossiers",
         "slice trace": "Docs/workstreams or family dossiers",
         "issue posture": "GitHub issues plus structured historical receipt when needed",
-        "branch runtime plan": "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md while active; repo branch plans are transition/historical receipts",
+        "branch runtime plan": f"{EXTERNAL_STATE_ROOT}\\branches\\<branch_slug>\\branch_plan.md while active; repo branch plans are transition/historical receipts",
         "branch phase history": "Docs/branch_records/<branch>.md structured receipt",
         "branch receipt": "Docs/branch_records/<branch>.md",
         "workstream durable history": "Docs/workstreams/<id>.md or family dossier",

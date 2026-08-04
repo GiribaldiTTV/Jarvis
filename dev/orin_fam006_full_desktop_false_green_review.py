@@ -18,13 +18,13 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT, WORKTREES_ROOT
 
-WORKTREE = Path("C:/Nexus Worktrees/FAM-006")
-USER_ROOT = Path("C:/Nexus USER")
+
+WORKTREE = WORKTREES_ROOT / "FAM-006"
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
-EXTERNAL_ROOT = Path(
-    "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
-)
+EXTERNAL_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_006_dashboard_recording_start_stop_local_file"
 KNOWN_BAD_ROOT = EXTERNAL_ROOT / "false_accept_regression_corpus"
 REJECTED_PACKET = USER_ROOT / "FAM-006-20260624-121535.zip"
 REJECTED_SHA256 = "1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3"
@@ -1233,7 +1233,7 @@ def _write_post_zip_validation_outputs(packet: Path, zip_path: Path) -> list[dic
                 "python",
                 "dev/orin_external_state_validation.py",
                 "--root",
-                "C:/Nexus Governance State",
+                "D:/Nexus Desktop AI Data/Governance State",
                 "--repo",
                 str(WORKTREE),
                 "--require-root",
@@ -1297,7 +1297,7 @@ def _seed_post_zip_validation_placeholders(packet: Path, zip_path: Path) -> None
                 "python",
                 "dev/orin_external_state_validation.py",
                 "--root",
-                "C:/Nexus Governance State",
+                "D:/Nexus Desktop AI Data/Governance State",
                 "--repo",
                 str(WORKTREE),
                 "--require-root",

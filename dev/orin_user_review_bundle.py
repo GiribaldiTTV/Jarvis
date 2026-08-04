@@ -2,7 +2,7 @@
 """Create a USER-facing local review bundle from selected repo files.
 
 This helper copies review files to a stable worktree-labeled folder under
-``C:\\Nexus USER`` and creates a timestamped upload ZIP beside that folder so
+``D:\\Nexus Desktop AI Data\\USER`` and creates a timestamped upload ZIP beside that folder so
 each ChatGPT upload has a unique artifact name. Legacy same-name upload ZIPs
 and previous same-label timestamped upload ZIPs are removed during generation.
 It never edits repo files.
@@ -27,7 +27,7 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Mapping
 
-from nexus_paths import USER_HUB_ROOT
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1686,7 +1686,7 @@ def _current_branch_external_state_dir() -> Path | None:
     if not branch:
         return None
     branch_state_dir = re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_")
-    return Path(r"C:\Nexus Governance State\branches") / branch_state_dir
+    return EXTERNAL_STATE_ROOT / "branches" / branch_state_dir
 
 
 def _accepted_historical_context_posture_failures(
@@ -11866,7 +11866,7 @@ def build_bundle(
     if (custom_root or custom_label) and not allow_custom_review_path:
         raise ValueError(
             "Custom review paths are blocked by default. Use the stable "
-            r"C:\Nexus USER\<worktree-label> destination, or pass "
+            r"D:\Nexus Desktop AI Data\USER\<worktree-label> destination, or pass "
             "--allow-custom-review-path with --custom-review-path-reason."
         )
     if allow_custom_review_path and not custom_review_path_reason:
@@ -12340,7 +12340,7 @@ def main() -> int:
     parser.add_argument(
         "--review-root-name",
         default=DEFAULT_REVIEW_ROOT_NAME,
-        help="Optional subfolder under C:\\Nexus USER. Custom values require --allow-custom-review-path.",
+        help="Optional subfolder under D:\\Nexus Desktop AI Data\\USER. Custom values require --allow-custom-review-path.",
     )
     parser.add_argument(
         "--worktree-label",

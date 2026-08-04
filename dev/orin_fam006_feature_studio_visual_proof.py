@@ -1979,7 +1979,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 row["reuseLegalReason"] = "duplicate hash detected across incompatible comparator proof keys"
     comparator_ledger = {
         "status": "PASS" if not duplicate_groups and all(row["finalComparatorCropVerdict"] == "PERFECT_PASS" for row in comparator_ledger_rows) else "FAIL",
-        "knownBadLoopXRejectedPacket": "C:/Nexus USER/FAM-006-20260623-063715.zip",
+        "knownBadLoopXRejectedPacket": "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-063715.zip",
         "proofContract": "comparator evidence key must match focused crop content, overlay rectangle proof, source screenshot, proof scope, and unique media hash unless explicit reuse is legal",
         "duplicateHashGroups": duplicate_groups,
         "rows": comparator_ledger_rows,
@@ -2861,7 +2861,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     red_team = {
         "status": "INTERNAL_RED_TEAM_PASS_FOR_PRE_LV_PACKET",
         "knownBadRegressionRejected": True,
-        "knownBadPacket": "C:/Nexus USER/FAM-006-20260623-063715.zip",
+        "knownBadPacket": "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-063715.zip",
         "knownBadPacketSha256": "32BD9A6D2A0C9D70F62892E9A14E7E9FD43678785724381089CF4A118F97932D",
         "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, undeclared adjacent geometry, overlay/ledger contradictions, wrong target rectangles, missing comparator crop ledger, broad comparator media used as focused proof, duplicate comparator media reuse, or comparator media that does not match its evidence key.",
         "exactDesktopLauncherLiveValidationState": "required-after-pre-lv-packet-user-review",
@@ -2924,15 +2924,15 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         {
             "defectId": defect_id,
             "falseAcceptPacketOrEvidence": (
-                "C:/Nexus USER/FAM-006-20260623-063715.zip and preserved external regression corpus copy"
+                "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-063715.zip and preserved external regression corpus copy"
                 if int(defect_id.rsplit("-", 1)[1]) >= 46
                 else
-                "C:/Nexus USER/FAM-006-20260623-060525.zip and preserved external regression corpus copy"
+                "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-060525.zip and preserved external regression corpus copy"
                 if int(defect_id.rsplit("-", 1)[1]) >= 42
                 else
-                "C:/Nexus USER/FAM-006-20260623-050502.zip and preserved external regression corpus copy"
+                "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-050502.zip and preserved external regression corpus copy"
                 if int(defect_id.rsplit("-", 1)[1]) >= 38
-                else "C:/Nexus USER/FAM-006-20260622-194848.zip and preserved external regression corpus copy"
+                else "D:/Nexus Desktop AI Data/USER/FAM-006-20260622-194848.zip and preserved external regression corpus copy"
             ),
             "visibleDefectDescription": visible,
             "whyCodexMissedIt": "placeholder",
@@ -3032,7 +3032,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     )
     udl_links = {
         "schema": "fam006-udl-proof-links-v1",
-        "ledgerPath": "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file/unified_defect_ledger.json",
+        "ledgerPath": "D:/Nexus Desktop AI Data/Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file/unified_defect_ledger.json",
         "proofRoot": str(root),
         "links": [
             {

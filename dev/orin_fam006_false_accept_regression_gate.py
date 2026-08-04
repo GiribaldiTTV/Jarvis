@@ -20,6 +20,8 @@ from typing import Any
 
 from PIL import Image
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
+
 from orin_fam006_unified_defect_ledger import scan_packet_text_hygiene, validate_udl_state
 from orin_fam006_full_desktop_false_green_review import validate as validate_full_desktop_false_green_packet
 from orin_fam006_runtime_ui_immersion_options import (
@@ -29,12 +31,10 @@ from orin_fam006_runtime_ui_immersion_options import (
 from orin_fam006_visual_acceptance_target_packet import validate as validate_visual_acceptance_target_packet
 
 
-USER_ROOT = Path("C:/Nexus USER")
+USER_ROOT = USER_HUB_ROOT
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CURRENT_PACKET = USER_ROOT / "FAM-006"
-EXTERNAL_BRANCH_ROOT = Path(
-    "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
-)
+EXTERNAL_BRANCH_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_006_dashboard_recording_start_stop_local_file"
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260625-155723.zip",

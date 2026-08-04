@@ -13,12 +13,11 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
 
-USER_ROOT = Path("C:/Nexus USER")
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
-EXTERNAL_BRANCH_ROOT = Path(
-    "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
-)
+EXTERNAL_BRANCH_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_006_dashboard_recording_start_stop_local_file"
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 UDL_JSON = EXTERNAL_BRANCH_ROOT / "unified_defect_ledger.json"
 UDL_MD = EXTERNAL_BRANCH_ROOT / "UNIFIED_DEFECT_LEDGER.md"
@@ -262,7 +261,7 @@ def seed_defects() -> list[dict[str, Any]]:
             expected="USER packet contains actual evidence media, packet-relative manifests, and source-truth context.",
             actual="Earlier packet referenced proof by local path or included incomplete media.",
             evidence="Rejected packets FAM-006-20260622-141036.zip and FAM-006-20260622-145536.zip; external plan lines 1523-1538.",
-            surfaces="C:/Nexus USER/FAM-006 packet; dev/orin_fam006_false_accept_regression_gate.py",
+            surfaces="D:/Nexus Desktop AI Data/USER/FAM-006 packet; dev/orin_fam006_false_accept_regression_gate.py",
             root_cause="Packet validation accepted path references and artifact presence before checking self-contained packet evidence.",
             validator_gap="No packet-contained evidence file parity gate for every green proof row.",
             repair_target="Require packet-relative evidence map and packet-contained media.",
@@ -417,7 +416,7 @@ def seed_defects() -> list[dict[str, Any]]:
             expected="Persistent UDL exists in FAM-006 external state and packet before FAM-006 can report repaired/green.",
             actual="Before this task, defects existed across packet/helper outputs but no single branch-local UDL gate controlled packet generation.",
             evidence="This helper and external UDL files.",
-            surfaces="C:/Nexus Governance State/branches/.../unified_defect_ledger.json; dev/orin_fam006_unified_defect_ledger.py",
+            surfaces="D:/Nexus Desktop AI Data/Governance State/branches/.../unified_defect_ledger.json; dev/orin_fam006_unified_defect_ledger.py",
             root_cause="False-green repairs were stored as sequential receipts instead of a single carry-forward gate.",
             validator_gap="Existing FAM-006 gates did not require UDL status closure.",
             repair_target="Create UDL helper and wire FAM-006 packet gates to require it.",
@@ -452,7 +451,7 @@ def seed_defects() -> list[dict[str, Any]]:
             exact_user_wording="FAM-006-20260623-071500.zip was rejected for comparator crop content/scope defects that the UDL omitted.",
             expected="Latest USER/ChatGPT-rejected comparator crop content/scope recurrence must be represented as known-bad and tied to a UDL defect before closure.",
             actual="The first UDL implementation closed the comparator-crop class while omitting the 071500 recurrence.",
-            evidence="Reconstructed known-bad record FAM-006-20260623-071500.reconstructed-known-bad.json; branch plan Loop X receipt naming C:/Nexus USER/FAM-006-20260623-071500.zip and SHA 5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373.",
+            evidence="Reconstructed known-bad record FAM-006-20260623-071500.reconstructed-known-bad.json; branch plan Loop X receipt naming D:/Nexus Desktop AI Data/USER/FAM-006-20260623-071500.zip and SHA 5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373.",
             surfaces="focused_comparator_crops; comparator_crop_ledger.json; exhaustive_visual_conformance_ledger.json; USER packet evidence root 20260623_071352_feature_studio_visual_fail_repair",
             root_cause="UDL closure used Loop X broad/duplicate comparator proof but did not carry forward the later comparator content/scope rejection.",
             validator_gap="Expected known-bad corpus omitted reconstructed known-bad records and did not require latest recurrence closure proof.",
@@ -1413,7 +1412,7 @@ def _ledger_payload() -> dict[str, Any]:
         "External State Schema": EXTERNAL_STATE_SCHEMA,
         "schema": "fam006-unified-defect-ledger-v1",
         "branch": "feature/fam-006-dashboard-recording-start-stop-local-file",
-        "worktree": "C:/Nexus Worktrees/FAM-006",
+        "worktree": "D:/Nexus Desktop AI Data/Worktrees/FAM-006",
         "statusVocabulary": sorted(ALLOWED_STATUSES),
         "hardRule": "No FAM-006 REPAIRED/LV-green/UTS-ready/PR-ready claim is legal while a current-owned UDL defect remains in a blocking status.",
         "defects": defects,
@@ -1437,7 +1436,7 @@ def _write_reconstructed_known_bad_records() -> None:
         "schema": "fam006-reconstructed-known-bad-v1",
         "artifactName": "FAM-006-20260623-071500.zip",
         "reconstructedRecordName": "FAM-006-20260623-071500.reconstructed-known-bad.json",
-        "originalPacketPath": "C:/Nexus USER/FAM-006-20260623-071500.zip",
+        "originalPacketPath": "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-071500.zip",
         "originalPacketSha256": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
         "reconstructionReason": "Original ZIP was purged before this repair; external branch-plan receipt and USER/ChatGPT rejection text preserve enough evidence to admit it as known-bad.",
         "userOrChatGPTDisposition": "REPAIR",
@@ -1450,7 +1449,7 @@ def _write_reconstructed_known_bad_records() -> None:
         ],
         "linkedDefectIds": ["FAM006-UDL-012", "FAM006-UDL-007"],
         "linkedIncidentIds": ["FAM006-FGI-008"],
-        "branchPlanReceipt": "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file/branch_plan.md#FAM-006-Loop-X-Comparator-Media-Proof-Repair-Receipt---2026-06-23",
+        "branchPlanReceipt": "D:/Nexus Desktop AI Data/Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file/branch_plan.md#FAM-006-Loop-X-Comparator-Media-Proof-Repair-Receipt---2026-06-23",
         "reconstructedKnownBadStatus": "REJECTED_BY_CURRENT_GATE",
     }
     (KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-071500.reconstructed-known-bad.json").write_text(

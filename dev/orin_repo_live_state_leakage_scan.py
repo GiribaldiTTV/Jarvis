@@ -6,6 +6,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from nexus_paths import EXTERNAL_STATE_ROOT
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -90,11 +91,11 @@ BLOCKING_PATTERNS = (
 )
 
 TARGET_OWNER_BY_CATEGORY = {
-    "active-branch-state": "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_state.md",
-    "worktree-assignment": "C:\\Nexus Governance State\\worktrees\\<worktree_label>\\worktree_state.md",
+    "active-branch-state": f"{EXTERNAL_STATE_ROOT}\\branches\\<branch_slug>\\branch_state.md",
+    "worktree-assignment": f"{EXTERNAL_STATE_ROOT}\\worktrees\\<worktree_label>\\worktree_state.md",
     "pr-state": "Git/GitHub/helpers for live facts; external branch PR-readiness state for operational snapshots",
-    "release-window": "Git/GitHub/helpers for live release facts; C:\\Nexus Governance State\\release_windows\\<release_slug>\\release_window_state.md for assembly",
-    "selected-next": "C:\\Nexus Governance State\\central\\selected_next_state.md or branch/family planning state after migration",
+    "release-window": f"Git/GitHub/helpers for live release facts; {EXTERNAL_STATE_ROOT}\\release_windows\\<release_slug>\\release_window_state.md for assembly",
+    "selected-next": f"{EXTERNAL_STATE_ROOT}\\central\\selected_next_state.md or branch/family planning state after migration",
     "derived-git-truth": "Git/GitHub/helpers",
 }
 
@@ -333,11 +334,11 @@ def print_summary(findings: list[Finding]) -> None:
 
 def print_migration_map() -> None:
     print("Migration Map:")
-    print("- active branch state -> C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_state.md")
-    print("- active branch plans -> C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md")
-    print("- UFD / change-intent / element matrix while active -> C:\\Nexus Governance State\\branches\\<branch_slug>\\")
-    print("- current worktree assignment -> C:\\Nexus Governance State\\worktrees\\<worktree_label>\\worktree_state.md")
-    print("- release-window assembly -> C:\\Nexus Governance State\\release_windows\\<release_slug>\\release_window_state.md")
+    print(f"- active branch state -> {EXTERNAL_STATE_ROOT}\\branches\\<branch_slug>\\branch_state.md")
+    print(f"- active branch plans -> {EXTERNAL_STATE_ROOT}\\branches\\<branch_slug>\\branch_plan.md")
+    print(f"- UFD / change-intent / element matrix while active -> {EXTERNAL_STATE_ROOT}\\branches\\<branch_slug>\\")
+    print(f"- current worktree assignment -> {EXTERNAL_STATE_ROOT}\\worktrees\\<worktree_label>\\worktree_state.md")
+    print(f"- release-window assembly -> {EXTERNAL_STATE_ROOT}\\release_windows\\<release_slug>\\release_window_state.md")
     print("- live PR/review truth -> Git/GitHub/helpers; optional external operational snapshot under branch PR state")
     print("- selected-next operational posture -> external central or branch/family planning state after migration")
     print("- durable product/governance/release interpretation -> repo Docs historical receipts after USER-approved fold-down")

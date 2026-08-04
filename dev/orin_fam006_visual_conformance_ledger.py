@@ -14,11 +14,12 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from nexus_paths import USER_HUB_ROOT
 from orin_fam006_unified_defect_ledger import validate_udl_state
 
 
 ROOT = Path(__file__).resolve().parents[1]
-USER_ROOT = Path("C:/Nexus USER")
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
 RUNTIME_UI_OPTIONS_PRIMARY = "DUAL_RECORDING_CANDIDATE_LOG_VIEWER_RENAME_REVIEW.md"
 RUNTIME_UI_OPTIONS_STATUS = "fam006-dual-recording-candidate-log-viewer-rename"

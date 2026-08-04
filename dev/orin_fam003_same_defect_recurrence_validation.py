@@ -14,12 +14,11 @@ import re
 import sys
 from pathlib import Path
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
 
-BRANCH_ROOT = Path(
-    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
-)
-WORKTREE_STATE = Path(r"C:\Nexus Governance State\worktrees\FAM-003\worktree_state.md")
-UTS_PATH = Path(r"C:\Nexus USER\UTS - FAM-003.txt")
+BRANCH_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_003_resident_access_quick_actions"
+WORKTREE_STATE = EXTERNAL_STATE_ROOT / "worktrees" / "FAM-003" / "worktree_state.md"
+UTS_PATH = USER_HUB_ROOT / "UTS - FAM-003.txt"
 RECURRENCE_LEDGER = BRANCH_ROOT / "same_defect_recurrence_ledger_20260624.md"
 UDL = BRANCH_ROOT / "unified_defect_ledger_20260623_false_green.md"
 STATE_FILES = (

@@ -20,13 +20,13 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
+
 
 ROOT = Path(__file__).resolve().parents[1]
-STATE_ROOT = Path(
-    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
-)
-WORKTREE_STATE = Path(r"C:\Nexus Governance State\worktrees\FAM-003\worktree_state.md")
-USER_ROOT = Path(r"C:\Nexus USER")
+STATE_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_003_resident_access_quick_actions"
+WORKTREE_STATE = EXTERNAL_STATE_ROOT / "worktrees" / "FAM-003" / "worktree_state.md"
+USER_ROOT = USER_HUB_ROOT
 PACKET_LABEL = "FAM-003"
 PACKET_ROOT = USER_ROOT / PACKET_LABEL
 PACKET_RENDER_MEDIA_PREFIX = "Source Truth Context/Proof Artifacts/Visual Target Render Media"
@@ -1611,7 +1611,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         "Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch",
         "Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md",
         "Review Aids/VALIDATION_RESULTS.md",
-        r"C:\Nexus USER\UTS - FAM-003.txt",
+        r"D:\Nexus Desktop AI Data\USER\UTS - FAM-003.txt",
     )
 
     option_summary = "\n".join(
@@ -2095,7 +2095,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         ROOT / "Docs" / "ui_reference_catalog" / "UIREF-004_dialog_status_recovery_and_doorway_surfaces.md",
         ROOT / "Docs" / "ui_reference_catalog" / "UIREF-005_design_token_and_shared_rule_baseline.md",
         ROOT / "Docs" / "ui_reference_catalog" / "UIREF-006_negative_example_and_enforcement_contract.md",
-        Path(r"C:\Nexus USER\UTS - FAM-003.txt"),
+        Path(r"D:\Nexus Desktop AI Data\USER\UTS - FAM-003.txt"),
     ):
         copy_if_exists(src, context / "Source Snapshots" / src.name)
 

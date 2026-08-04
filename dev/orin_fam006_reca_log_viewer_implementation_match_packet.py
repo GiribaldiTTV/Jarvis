@@ -21,11 +21,12 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT, WORKTREES_ROOT
 from orin_fam006_unified_defect_ledger import write_packet_artifacts
 
 
-WORKTREE = Path("C:/Nexus Worktrees/FAM-006")
-USER_ROOT = Path("C:/Nexus USER")
+WORKTREE = WORKTREES_ROOT / "FAM-006"
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
 BRANCH = "feature/fam-006-dashboard-recording-start-stop-local-file"
 ACCEPTED_SELECTION_ZIP = USER_ROOT / "FAM-006-20260624-234432.zip"
@@ -43,9 +44,7 @@ SCREENSHOT_ROOT = (
     Path("C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI")
     / "fam_006_pre_live_visual_conformance"
 )
-EXTERNAL_BRANCH_ROOT = Path(
-    "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
-)
+EXTERNAL_BRANCH_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_006_dashboard_recording_start_stop_local_file"
 LATEST_POINTER = USER_ROOT / "FAM-006_latest_implementation_match_packet.json"
 STALE_TOP_LEVEL_PACKET_SIDECAR_GLOBS = (
     "FAM-006_false_accept_final_*.json",

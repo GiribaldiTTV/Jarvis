@@ -22,13 +22,13 @@ from typing import Iterable
 
 from PIL import Image, ImageDraw, ImageFont
 
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
+
 
 ROOT = Path(__file__).resolve().parents[1]
-USER_ROOT = Path("C:/Nexus USER")
+USER_ROOT = USER_HUB_ROOT
 PACKET_ROOT = USER_ROOT / "FAM-006"
-EXTERNAL_ROOT = Path(
-    "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file"
-)
+EXTERNAL_ROOT = EXTERNAL_STATE_ROOT / "branches" / "feature_fam_006_dashboard_recording_start_stop_local_file"
 EXTERNAL_PROCESS_MD = EXTERNAL_ROOT / "visual_acceptance_target_process.md"
 EXTERNAL_PROCESS_JSON = EXTERNAL_ROOT / "visual_acceptance_target_process.json"
 BRANCH_PLAN = EXTERNAL_ROOT / "branch_plan.md"
@@ -1596,7 +1596,7 @@ def _write_validation_outputs(stamp: str, zip_path: Path, packet_failures: list[
         ("release readiness health gate", [sys.executable, "dev/orin_branch_governance_validation.py", "--release-readiness-health-gate"]),
         ("branch readiness planning fixture validation", [sys.executable, "dev/orin_branch_readiness_planning_fixture_validation.py"]),
         ("source owner marker validation", [sys.executable, "dev/orin_source_owner_marker_validation.py"]),
-        ("external state validation", [sys.executable, "dev/orin_external_state_validation.py", "--root", "C:/Nexus Governance State", "--repo", str(ROOT), "--require-root"]),
+        ("external state validation", [sys.executable, "dev/orin_external_state_validation.py", "--root", "D:/Nexus Desktop AI Data/Governance State", "--repo", str(ROOT), "--require-root"]),
         ("release body validation", [sys.executable, "dev/orin_release_body_validation.py"]),
         ("ai provider state validation", [sys.executable, "dev/orin_ai_provider_state_validation.py"]),
         ("compileall", [sys.executable, "-m", "compileall", "-q", "dev", "desktop", "Audio", "main.py", "nexus_visual"]),
