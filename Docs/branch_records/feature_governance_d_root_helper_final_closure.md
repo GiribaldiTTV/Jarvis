@@ -80,6 +80,7 @@ posture after merge.
 - Release Execution Gate: `PASS - release, tag, and GitHub Release execution are not authorized.`
 - Watcher / Live PR State Projection: `PASS - live PR facts remain GitHub/operator evidence.`
 - Branch Cleanup Plan: `PASS - cleanup is limited to the separately guarded superseded C-root gate.`
+- Branch Cleanup Execution Gate: `DEFERRED - no destructive C-root deletion is performed by PR or merge; the final guarded cleanup helper requires a separate explicit confirmation after packet and relocation parity proof.`
 - FAM Overlap Routing: `PASS - no FAM or product files are in scope.`
 - Release Candidate Anchor Projection: `PASS - not applicable to this relocation-only carrier.`
 - Release Window Contributor Inventory: `PASS - no release contributors are carried.`

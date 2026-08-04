@@ -550,7 +550,12 @@ These reservations do not register files that do not yet exist. They record the 
 owns the post-relocation classification of legacy C-root strings. It scans
 current `dev/` helpers and routed `Docs/` owners, classifies explicitly
 historical receipt/fixture/rollback references as evidence, and fails current
-helper or source-truth routing that still targets `D:\Nexus Desktop AI Data\Worktrees`,
+helper or source-truth routing that still targets the superseded C roots
+(`C:\Nexus Worktrees`, `C:\Nexus USER`, or `C:\Nexus Governance State`). It
+also recognizes slash and escaped-literal spellings and reports the complete
+finding set, including historical evidence, so classification remains
+auditable. Canonical current targets use
+`D:\Nexus Desktop AI Data\Worktrees`,
 `D:\Nexus Desktop AI Data\USER`, or `D:\Nexus Desktop AI Data\Governance State`. Canonical current targets
 must resolve through `dev/nexus_paths.py` to the D data root; neutral main
 remains the explicit C path `C:\Nexus Desktop AI`. The validator is
@@ -571,6 +576,12 @@ the exact allowlisted C roots when `--confirm-cleanup` is explicitly passed.
 It must refuse neutral-main deletion, non-allowlisted targets, reparse-point
 targets, missing D roots, missing packet proof, stale or non-timestamped ZIPs,
 duplicate ZIP members, backslash ZIP members, and packet hash mismatch.
+Before destructive confirmation it also requires an in-packet
+`nexus-relocation-parity-v1` manifest whose aggregate source-file path/size/hash
+proof is recomputed against every superseded C root and its D destination.
+All three cleanup targets are preflighted before the first deletion, and
+unreadable packet ZIPs remain structured failures rather than escaping as
+uncaught hash exceptions.
 
 Before a branch reports PR Readiness green:
 

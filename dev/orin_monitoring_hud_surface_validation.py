@@ -15,6 +15,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from nexus_paths import USER_HUB_ROOT
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -3146,7 +3147,7 @@ def validate() -> list[str]:
         "monitoring_hud_desktop_after_launch.png",
         "beforeAfterDesktopComparisonReady",
         "PrepareLiveValidationUserTestSummary",
-        'UserTestSummary = "C:\\Nexus USER\\UTS - FAM-006.txt"',
+        f'UserTestSummary = "{USER_HUB_ROOT}\\UTS - FAM-006.txt"',
         "Worktree Label: FAM-006",
         "skipped User Test Summary export: UTS is Live Validation Stage 1 only",
         "Overlay/display release acceptance is deferred and non-gating",
@@ -3182,7 +3183,7 @@ def validate() -> list[str]:
     ):
         _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
     _require(
-        'UserTestSummary = "C:\\Nexus USER\\User Test Summary.txt"' not in live_validation,
+        f'UserTestSummary = "{USER_HUB_ROOT}\\User Test Summary.txt"' not in live_validation,
         "monitoring HUD live validation helper must not write active UTS results to template path",
         failures,
     )

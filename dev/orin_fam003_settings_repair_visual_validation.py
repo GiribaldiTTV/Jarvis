@@ -20,7 +20,7 @@ import sys
 import time
 from pathlib import Path
 
-from nexus_paths import EXTERNAL_STATE_ROOT
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
@@ -65,13 +65,17 @@ VISUAL_UDL_REQUIRED_FIELDS = (
     "Closure proof when closed",
 )
 VISUAL_UDL_REJECTED_PACKET = "FAM-003-20260623-125842.zip"
-ACTIVE_UDL_PATH = Path(
-    r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_003_resident_access_quick_actions"
-    r"\unified_defect_ledger_20260623_false_green.md"
+ACTIVE_UDL_PATH = (
+    EXTERNAL_STATE_ROOT
+    / "branches"
+    / "feature_fam_003_resident_access_quick_actions"
+    / "unified_defect_ledger_20260623_false_green.md"
 )
-SAME_DEFECT_RECURRENCE_LEDGER_PATH = Path(
-    r"D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_003_resident_access_quick_actions"
-    r"\same_defect_recurrence_ledger_20260624.md"
+SAME_DEFECT_RECURRENCE_LEDGER_PATH = (
+    EXTERNAL_STATE_ROOT
+    / "branches"
+    / "feature_fam_003_resident_access_quick_actions"
+    / "same_defect_recurrence_ledger_20260624.md"
 )
 ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-001",
@@ -223,7 +227,7 @@ def _visual_udl_status_rows() -> tuple[bool, str, bool, str]:
     text = VISUAL_UDL_PATH.read_text(encoding="utf-8")
     missing = [defect_id for defect_id in VISUAL_UDL_IDS if defect_id not in text]
     schema_failures = _visual_udl_schema_failures(text)
-    stale_current_packet = f"Current regenerated USER retest packet: `C:\\Nexus USER\\{VISUAL_UDL_REJECTED_PACKET}`" in text
+    stale_current_packet = f"Current regenerated USER retest packet: `{USER_HUB_ROOT}\\{VISUAL_UDL_REJECTED_PACKET}`" in text
     exists_ok = not missing
     closed_ok = (
         exists_ok

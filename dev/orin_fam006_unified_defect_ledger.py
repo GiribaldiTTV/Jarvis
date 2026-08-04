@@ -1436,7 +1436,7 @@ def _write_reconstructed_known_bad_records() -> None:
         "schema": "fam006-reconstructed-known-bad-v1",
         "artifactName": "FAM-006-20260623-071500.zip",
         "reconstructedRecordName": "FAM-006-20260623-071500.reconstructed-known-bad.json",
-        "originalPacketPath": "D:/Nexus Desktop AI Data/USER/FAM-006-20260623-071500.zip",
+        "originalPacketPath": "C:/Nexus USER/FAM-006-20260623-071500.zip",
         "originalPacketSha256": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
         "reconstructionReason": "Original ZIP was purged before this repair; external branch-plan receipt and USER/ChatGPT rejection text preserve enough evidence to admit it as known-bad.",
         "userOrChatGPTDisposition": "REPAIR",

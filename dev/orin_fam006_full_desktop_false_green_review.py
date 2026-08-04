@@ -968,7 +968,7 @@ Updated branch-local source truth records:
 - `Docs/family_feature_visions/FAM-006_recording.md`
 - `Docs/validation_helper_registry.md`
 - `Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md`
-- `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\branch_plan.md`
+- `{EXTERNAL_ROOT}\\branch_plan.md`
 
 Global Governance promotion remains a candidate only. This branch does not mutate
 the Governance worktree, FAM-007, neutral main, GitHub issues, release state, or

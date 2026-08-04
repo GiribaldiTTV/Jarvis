@@ -27,11 +27,13 @@ from datetime import datetime
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Mapping
 
-from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT
+from nexus_paths import EXTERNAL_STATE_ROOT, USER_HUB_ROOT, WORKTREES_ROOT
 
 
 ROOT = Path(__file__).resolve().parents[1]
 WINDOWS_USER_HUB_ROOT_TEXT = str(USER_HUB_ROOT)
+WINDOWS_EXTERNAL_STATE_ROOT_TEXT = str(EXTERNAL_STATE_ROOT)
+WINDOWS_WORKTREES_ROOT_TEXT = str(WORKTREES_ROOT)
 DEFAULT_USER_HUB_ROOT = USER_HUB_ROOT
 DEFAULT_REVIEW_ROOT_NAME = ""
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
@@ -6317,7 +6319,7 @@ def _write_user_branch_plan_review(
         ]
         surface_map = [
             "USER review packet: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, USER_BRANCH_PLAN_REVIEW.md, folder/file digest, governance scan, Workstream Entry digest, branch vision checklist, and ZIP export.",
-            "Active external branch plan: C:\\Nexus Governance State\\branches\\feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness\\branch_plan.md.",
+            f"Active external branch plan: {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness\\branch_plan.md.",
             "Branch record: Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md.",
             "Architecture owner: Docs/ai_runtime_and_trust_architecture.md.",
             "FAM-007 owners: Docs/family_visions/FAM-007_local_ai_and_capability_packs.md and Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md.",
@@ -6902,7 +6904,7 @@ def _write_user_branch_plan_review(
             "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
             "Docs/validation_helper_registry.md: helper and validator enforcement.",
             "Docs/branch_records/index.md and Governance branch record: branch routing law.",
-            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance-YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}\\Governance and {WINDOWS_USER_HUB_ROOT_TEXT}\\Governance-YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
         ]
         implementation_options = [
             "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
@@ -6919,7 +6921,7 @@ def _write_user_branch_plan_review(
         )
         current_scope = [
             "Governance Phase Lifecycle Reform source-truth and helper hardening.",
-            "Local USER hub packet refresh under C:\\Nexus USER.",
+            f"Local USER hub packet refresh under {WINDOWS_USER_HUB_ROOT_TEXT}.",
             "Technical proof metadata remains outside USER-facing review content.",
             "PR Readiness Stage 1 remains pending USER approval.",
         ]
@@ -7440,14 +7442,14 @@ def _write_user_branch_plan_review(
         likely_files_lines = [
             "This section is a compact index only; the concrete file/surface expectations are mapped per SLC and per seam below.",
             "Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md remains the durable route receipt if accepted BP2 outcomes later need fold-down context.",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_plan.md owns active BP2 posture, accepted BP1 trace, Slice/SLC plan, and next-gate routing.",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_state.md owns external branch posture and packet pointer.",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_plan.md owns active BP2 posture, accepted BP1 trace, Slice/SLC plan, and next-gate routing.",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_state.md owns external branch posture and packet pointer.",
             "dev/orin_user_review_bundle.py owns packet generation and stale-output validation when reusable packet behavior changes.",
             "Route-specific validators, fixtures, and source-truth files are named in the per-seam table so BP3 can verify exact surface coverage.",
         ]
         active_branch_files = [
-            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, Slice/SLC plan, external-state pointer, and next-gate routing.",
-            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
+            f"Active external branch plan exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, Slice/SLC plan, external-state pointer, and next-gate routing.",
+            f"Active external branch state exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
             "Durable repo branch record remains Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md; it is route receipt/context and not active operational state.",
         ]
         user_decisions_intro = (
@@ -8122,8 +8124,8 @@ def _write_user_branch_plan_review(
             "FAM-007 family vision files only if USER changes family-level edition, private/public, capability-pack, or lane identity direction.",
         ]
         active_branch_files = [
-            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates outside the USER-facing packet.",
-            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
+            f"Active external branch plan exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates outside the USER-facing packet.",
+            f"Active external branch state exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
             "Historical repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable receipt/context and not active authority or a mutable live-state ledger.",
         ]
         user_decisions_intro = (
@@ -8655,13 +8657,13 @@ def _write_user_branch_plan_review(
             "dev/orin_public_leak_prevention_validation.py",
             "dev/orin_user_review_bundle.py",
             "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
-            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}\\FAM-007 and matching timestamped ZIP",
         ]
         active_branch_files = [
-            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns Workstream Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
-            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, Workstream Green disposition, and Hardening H1 pending USER decision outside repo-tracked source truth.",
+            f"Active external branch plan exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns Workstream Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
+            f"Active external branch state exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, Workstream Green disposition, and Hardening H1 pending USER decision outside repo-tracked source truth.",
             "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md as durable receipt/context only; it is not active authority or a mutable live-state ledger.",
         ]
         implementation_constraints = [
@@ -8905,13 +8907,13 @@ def _write_user_branch_plan_review(
             "dev/orin_public_leak_prevention_validation.py",
             "dev/orin_user_review_bundle.py",
             "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
-            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}\\FAM-007 and matching timestamped ZIP",
         ]
         active_branch_files = [
-            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns H1 Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
-            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, H1 Green disposition, and Live Validation LV1 pending USER decision outside repo-tracked source truth.",
+            f"Active external branch plan exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns H1 Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
+            f"Active external branch state exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, H1 Green disposition, and Live Validation LV1 pending USER decision outside repo-tracked source truth.",
             "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md as durable receipt/context only; it is not active authority or a mutable live-state ledger.",
         ]
         implementation_constraints = [
@@ -9172,13 +9174,13 @@ def _write_user_branch_plan_review(
             "dev/orin_public_leak_prevention_validation.py",
             "dev/orin_user_review_bundle.py",
             "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
-            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
-            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            f"{WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}\\FAM-007 and matching timestamped ZIP",
         ]
         active_branch_files = [
-            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns LV1 Green posture, no-visible-runtime proof, UTS waiver evidence, and future gates outside repo-tracked source truth.",
-            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, LV1 Green disposition, and PR Readiness Stage 1 pending USER decision outside repo-tracked source truth.",
+            f"Active external branch plan exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns LV1 Green posture, no-visible-runtime proof, UTS waiver evidence, and future gates outside repo-tracked source truth.",
+            f"Active external branch state exists at {WINDOWS_EXTERNAL_STATE_ROOT_TEXT}\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, LV1 Green disposition, and PR Readiness Stage 1 pending USER decision outside repo-tracked source truth.",
             "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md as durable receipt/context only; it is not active authority or a mutable live-state ledger.",
         ]
         implementation_constraints = [
@@ -10882,7 +10884,7 @@ def _write_workstream_entry_packet_digests(
             "- `python dev\\orin_branch_governance_validation.py`\n"
             "- `python dev\\orin_branch_governance_validation.py --worktree-confinement-gate`\n"
             "- `python dev\\orin_branch_readiness_planning_fixture_validation.py`\n"
-            "- `python dev\\orin_external_state_validation.py --root C:\\Nexus Governance State --repo C:\\Nexus Worktrees\\FAM-007 --require-root --require-stage4-records`\n"
+            f"- `python dev\\orin_external_state_validation.py --root {WINDOWS_EXTERNAL_STATE_ROOT_TEXT} --repo {WINDOWS_WORKTREES_ROOT_TEXT}\\FAM-007 --require-root --require-stage4-records`\n"
             "- `python dev\\orin_ai_provider_state_validation.py`\n"
             "- `python dev\\orin_public_leak_prevention_validation.py`\n"
             "- `python dev\\orin_source_owner_marker_validation.py`\n"

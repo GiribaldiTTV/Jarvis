@@ -1474,7 +1474,7 @@ def _write_packet(stamp: str) -> Path:
         "This branch-local process records the accepted rendered visual target before any further visible UI/UX implementation repair for Recording Studio or Log Viewer Studio.\n\n"
         "Authority levels:\n\n"
         + "\n".join(f"- `{key}`: {value}" for key, value in AUTHORITY_LEVELS.items())
-        + "\n\nUSER packet: `C:\\Nexus USER\\FAM-006`.\n\nGlobal/Governance promotion remains candidate only.\n",
+        + f"\n\nUSER packet: `{USER_HUB_ROOT}\\FAM-006`.\n\nGlobal/Governance promotion remains candidate only.\n",
         encoding="utf-8",
     )
 
@@ -1486,7 +1486,7 @@ def _write_packet(stamp: str) -> Path:
             + "\n"
             + "Status: `USER_ACCEPTED / Pending separate implementation-match repair approval`.\n\n"
             + "USER accepted REC-C as the Recording Studio base with REC-A target/state separation and LOG-A as the Log Viewer Studio base. This accepted target is a pre-implementation visual guide contract, not implementation proof.\n\n"
-            + f"USER packet: `C:\\Nexus USER\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
+            + f"USER packet: `{USER_HUB_ROOT}\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
             + "Next legal phase: `USER decision on bounded implementation-match repair against the accepted Visual Acceptance Target`; renewed H1, Live Validation, UTS, and PR Readiness remain pending.\n"
         )
         if marker.strip() in text:
@@ -1505,7 +1505,7 @@ def _write_packet(stamp: str) -> Path:
             + "Accepted Recording Target: `REC-C base with REC-A target/state separation; compact controller; TARGET Default Overlay Profile; STATE Ready - 2 active monitors; START/STOP stateful primary action; OPEN LOG VIEWER STUDIO secondary route action; REC-B proof/debug/native-log-status/report-table patterns rejected`.\n\n"
             + "Accepted Log Viewer Target: `LOG-A base; compact doorway shell; NATIVE Recordings folder with OPEN NATIVE LOGS; EXPORT Exported Logs folder with OPEN EXPORTED LOGS; LOG-B path/debug and LOG-C full viewer workspace rejected/deferred`.\n\n"
             + "Lifecycle: `Visual Acceptance Target is accepted as pre-implementation guidance only. Runtime implementation match, H1, Live Validation, UTS, PR Readiness, issue closeout, merge, release, and cleanup remain pending.`\n\n"
-            + f"USER packet: `C:\\Nexus USER\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
+            + f"USER packet: `{USER_HUB_ROOT}\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
             + "Next Legal Phase: `USER decision on bounded implementation-match repair against the accepted Visual Acceptance Target`.\n"
         )
         if marker.strip() in text:

@@ -136,7 +136,7 @@ def _has_fresh_retest_pending(text: str) -> bool:
                 text,
             )
             or re.search(
-                r"USER-operated visual retest pending for (?:C:\\Nexus USER\\)?FAM-003-\d{8}-\d{6}\.zip",
+                rf"USER-operated visual retest pending for (?:{re.escape(str(USER_HUB_ROOT))}\\)?FAM-003-\d{8}-\d{6}\.zip",
                 text,
             )
             or "USER-operated visual retest pending for the current FAM-003 packet" in text

@@ -238,7 +238,7 @@ def _visual_exact_user_decision_text(zip_path: Path) -> str:
         "as the current USER review packet for visual target/process selection only. I "
         "accept that the visible current review surface is USER Review/"
         f"{PRIMARY_REVIEW_FILE}, that packet validation is not USER acceptance, and that "
-        "this is the only current FAM-007 USER packet ZIP retained under C:\\Nexus USER. "
+        f"this is the only current FAM-007 USER packet ZIP retained under {USER_HUB_ROOT}. "
         "This does not approve H1/LV acceptance, the later "
         "LV1 review gate, USER UTS acceptance, PR Readiness, PR creation, merge, release, "
         "cleanup, issue mutation, provider/model execution, prompt send, downloads, "
