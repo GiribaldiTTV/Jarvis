@@ -7,7 +7,7 @@
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-This file is an index/reference outline, not a release ledger or branch lifecycle ledger. It may document that a branch, receipt, family vision, or release reference exists for a breakpoint, but it must not maintain whether that item is active, complete, pending, open, selected-next, no-branch-created, or release-window current. Live release and branch facts are derived from Git, GitHub, approved helpers, and `C:\Nexus Governance State` at the time of Release Readiness or release execution.
+This file is an index/reference outline, not a release ledger or branch lifecycle ledger. It may document that a branch, receipt, family vision, or release reference exists for a breakpoint, but it must not maintain whether that item is active, complete, pending, open, selected-next, no-branch-created, or release-window current. Live release and branch facts are derived from Git, GitHub, approved helpers, and `D:\Nexus Desktop AI Data\Governance State` at the time of Release Readiness or release execution.
 
 ## Authority And Boundaries
 
@@ -43,7 +43,7 @@ Use these sources instead of manually updating live release facts here:
 | Release window PR inventory | GitHub PR search / compare range helper output |
 | PR state / merge commit / review state | `gh pr view` or GitHub GraphQL |
 | Worktree branch freshness | `git status`, `git merge-base`, and `dev/orin_worktree_rebaseline_audit.py` |
-| Active branch lifecycle / selected-next operational posture | `C:\Nexus Governance State` plus Git/GitHub/helper-derived truth |
+| Active branch lifecycle / selected-next operational posture | `D:\Nexus Desktop AI Data\Governance State` plus Git/GitHub/helper-derived truth |
 | Post-merge Release Readiness handoff before successor BR1 | Release Readiness Stage 1 digest, explicit USER release-readiness deferral, or Branch Readiness Stage 1 handoff report |
 
 Historical receipts may cite releases, PRs, and commits when the receipt is intentionally preserved as interpretation. Do not promote those receipts into live current-state ownership.
@@ -85,7 +85,7 @@ FAM-007 Future Planning Evidence: `FAM-007 Local AI and Capability Packs - Break
 FAM-007 Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
 Pointer State: Registry-only durable evidence.
 Minimal Scope: FAM-007 runtime action-gate planning slice for private Dev/Owner skeleton setup decision, private remote safety, and public/private boundary handoff, with provider/model/runtime/cache/memory execution still USER-gated.
-Operational State Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own branch creation, active/complete status, PR state, review state, watcher state, release-window posture, and worktree posture.
+Operational State Owner: `D:\Nexus Desktop AI Data\Governance State` plus Git/GitHub/helper live checks own branch creation, active/complete status, PR state, review state, watcher state, release-window posture, and worktree posture.
 Selection Truth Boundary: This roadmap may name durable family direction and branch evidence pointers, but it must not claim current branch lifecycle state such as active, complete, pending, no branch created, live PR, or release-window ownership.
 Release-Debt Handling Boundary: Release debt is derived during Release Readiness from Git/GitHub/helper truth, external operational state, and durable release receipts; this roadmap does not own live release debt.
 
@@ -100,7 +100,7 @@ Workspace/data and safety/privacy are not roadmap milestone families or independ
 
 ## Operational Selection Routing
 
-Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap. Use Git/GitHub/helpers and `C:\Nexus Governance State` for operational selection state, then route any future implementation carrier through Branch Readiness. Durable family direction remains in the family vision and canonical detail owner.
+Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap. Use Git/GitHub/helpers and `D:\Nexus Desktop AI Data\Governance State` for operational selection state, then route any future implementation carrier through Branch Readiness. Durable family direction remains in the family vision and canonical detail owner.
 
 ## Release Readiness Contract
 

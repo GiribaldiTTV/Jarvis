@@ -12,13 +12,13 @@ This file is a planning reference, not an active external-state migration, helpe
 3. PR #223 folded PR #222 into historical source truth, and PR #224 hardened PR body drift checks; both are included in `v1.7.25-prebeta`.
 4. Docs Split Stage 0 landed through PR #225 and recorded the migration plan, split inventory expectations, and transition drift gate while preserving repo docs as durable source truth.
 5. Docs Split Stage 1 landed through PR #226 and added report-only helper/bootstrap scaffolding.
-6. Stage 2 initialized `C:\Nexus Governance State` after separate USER approval; that local root initialization did not migrate active state or transition repo validators.
+6. Stage 2 initialized `D:\Nexus Desktop AI Data\Governance State` after separate USER approval; that local root initialization did not migrate active state or transition repo validators.
 7. Stage 3 recorded a no-mutation migration preview packet in external state after separate USER approval.
 8. Stage 4A landed through PR #227 and added the report-only repo live-state leakage scanner / migration-map helper.
 9. Stage 4B active-state migration planning packet landed through PR #228 and used the Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules.
 10. Stage 4C active-state migration execution planning packet landed through PR #229 and preserved the exact execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question.
 11. Stage 4 active-state migration execution completed externally after PR #229 at source repo HEAD `5abdd9c011c80f5b7b57d473b973654a2427d5a8`; it created only approved central external operational records, released locks, wrote audit logs, and did not move, delete, archive, or rewrite repo Docs.
-12. Stage 5 validator transition landed through PR #230. Local external-state validation is explicit for approved local workflows, while repo / CI / clean-clone validators remain independent from `C:\Nexus Governance State`.
+12. Stage 5 validator transition landed through PR #230. Local external-state validation is explicit for approved local workflows, while repo / CI / clean-clone validators remain independent from `D:\Nexus Desktop AI Data\Governance State`.
 13. Stage 6 repo cleanup planning landed through PR #231 and identified compact pointer surfaces as the first cleanup execution lane.
 14. Stage 6A compact pointer-surface cleanup landed through PR #232 and cleaned `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md`.
 15. Stage 6B branch-authority routing cleanup planning landed through PR #233 and defined the `Docs/branch_records/index.md` execution packet.
@@ -48,7 +48,7 @@ Permanent intent:
 Not approved by this planning file:
 
 - helper `--apply` operations
-- mandatory GitHub Actions / clean-clone dependency on `C:\Nexus Governance State`
+- mandatory GitHub Actions / clean-clone dependency on `D:\Nexus Desktop AI Data\Governance State`
 - worktree-local staging folder creation
 - file moves, deletion, archive execution, or broad repo cleanup execution
 - PR creation
@@ -65,10 +65,10 @@ Not approved by this planning file:
 
 Stage Status: `Active helper/bootstrap scaffolding only`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 1 Base: `origin/main@1acb308fead3c61600604dbfd2fdb36fca338262`
 
-This stage creates safe helper scaffolds and a validation plan without initializing `C:\Nexus Governance State`, migrating active state, moving repo Docs files, or changing clean-clone repo validation. The helpers are report-first and dry-run by default; any operation that creates external state requires a later explicit USER decision and an explicit `--apply` command.
+This stage creates safe helper scaffolds and a validation plan without initializing `D:\Nexus Desktop AI Data\Governance State`, migrating active state, moving repo Docs files, or changing clean-clone repo validation. The helpers are report-first and dry-run by default; any operation that creates external state requires a later explicit USER decision and an explicit `--apply` command.
 
 Stage 1 deliverables:
 
@@ -87,7 +87,7 @@ Stage 1 deliverables:
 Stage 1 review question:
 
 ```text
-Do you approve Stage 2 root initialization for C:\Nexus Governance State after reviewing the Stage 1 helper/bootstrap scaffold and smoke-validation proof?
+Do you approve Stage 2 root initialization for D:\Nexus Desktop AI Data\Governance State after reviewing the Stage 1 helper/bootstrap scaffold and smoke-validation proof?
 ```
 
 Stage 2 candidate after this repair merges:
@@ -99,7 +99,7 @@ External Operational State Root Initialization
 Stage 2 candidate scope:
 
 - run `dev/orin_external_state_init.py --apply` only after explicit USER approval
-- initialize `C:\Nexus Governance State` with manifest, generated index placeholder, schema folder, locks, central state folders, snapshot folder, and audit-log folder
+- initialize `D:\Nexus Desktop AI Data\Governance State` with manifest, generated index placeholder, schema folder, locks, central state folders, snapshot folder, and audit-log folder
 - keep repo validators clean-clone safe
 - keep active branch/worktree/release-window migration deferred until helper validation and USER review are green
 
@@ -116,7 +116,7 @@ Stage 2 non-includes unless separately approved:
 
 Stage Status: `Active report-only migration-map helper support`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 4A Base: `origin/main@7f17b97bac1f0ec7d9e424fdfa8792fe420eb885`
 
 This stage adds a report-only helper that scans repo Docs for live operational state, classifies findings, and prints a migration map. It does not edit repo docs, write central branch/worktree/release-window state, move files, delete files, archive files, transition validators, or treat external state as complete.
@@ -147,20 +147,20 @@ Stage 4A non-includes unless separately approved:
 
 Stage Status: `Active planning packet only`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 4B Base: `origin/main@6d71e4ee15721174c7fa216afa62e45768a0fe4e`
 
 This stage converts the Stage 4A scanner output into a USER-reviewable migration planning packet. It does not migrate active state, create central branch/worktree/release-window records, move repo docs, delete repo docs, archive repo docs, transition validators, or mutate FAM worktrees.
 
 Stage 4B evidence:
 
-- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "C:\Nexus Worktrees\Governance" --max-findings 50 --strict`
+- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "D:\Nexus Desktop AI Data\Worktrees\Governance" --max-findings 50 --strict`
 - Scanned Files: `136`
 - Findings: `5881`
 - Blocking Leakage Findings: `0`
 - Scan Result: `CLEAR / MIGRATION CANDIDATES ONLY`
 - Classification Summary: `Durable Historical Receipt: 5006`; `Durable Rule Reference: 368`; `Migration Candidate: 408`; `Review Candidate: 18`; `Transition-Legal Current Owner: 81`
-- External root report: `C:\Nexus Governance State` exists and passes canonical root check with schema `external-state-v1`; its recorded Source Repo HEAD is `7f17b97bac1f0ec7d9e424fdfa8792fe420eb885`, so any future migration execution must first snapshot and reconcile the external root against the then-current `origin/main`.
+- External root report: `D:\Nexus Desktop AI Data\Governance State` exists and passes canonical root check with schema `external-state-v1`; its recorded Source Repo HEAD is `7f17b97bac1f0ec7d9e424fdfa8792fe420eb885`, so any future migration execution must first snapshot and reconcile the external root against the then-current `origin/main`.
 
 Stage 4B deliverables:
 
@@ -173,18 +173,18 @@ Stage 4B migration planning matrix:
 
 | Source Surface / State Class | Current Legal Owner During Transition | Target Owner After Migration Approval | Durable Repo Preservation Rule | Execution Blocker Before Migration |
 | --- | --- | --- | --- | --- |
-| Active branch authority index entries | `Docs/branch_records/index.md` | `C:\Nexus Governance State\central\active_branch_authority_state.md` plus generated `state_index.md` | Keep repo index as durable routing law and historical receipt index only | `External State Migration Premature` / `USER Decision Required` |
-| Active branch record operational fields | `Docs/branch_records/<branch>.md` | `C:\Nexus Governance State\branches\<branch_slug>\branch_state.md` | Keep durable approvals, decisions, PR/release receipts, and final fold-down history in repo | `External State Promotion Missing` |
-| Active branch plans | Repo files must not own active branch-plan rows after transition | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` | Keep templates/rules in repo and preserve retired repo branch-plan receipts only when USER approves durable receipt retention | `External State Promotion Missing` |
-| Active UFD, Branch Change Intent, and Element-to-Phase proof ledgers | active branch plan | `C:\Nexus Governance State\branches\<branch_slug>\ufd_ledger.md`, `change_intent_ledger.md`, and `element_to_phase_matrix.md` | Keep compact folded outcomes in repo only after PR Readiness fold-down | `External State Promotion Missing` |
-| Worktree slot live assignment | `Docs/worktree_slots.md` while transition remains legal | `C:\Nexus Governance State\worktrees\<worktree_label>\worktree_state.md` | Keep stable slot definitions and durable assignment receipt schema in repo | `External State Promotion Missing` |
-| Selected-next operational posture | backlog/roadmap transition fields when still legal | `C:\Nexus Governance State\central\selected_next_state.md` or branch/family planning state | Keep durable product priority, family direction, and USER-approved future package references in repo | `External State Promotion Missing` |
-| Release-window assembly | Release Readiness packet plus repo historical receipts | `C:\Nexus Governance State\release_windows\<release_slug>\release_window_state.md` | Keep public release truth, released tags, and durable release interpretation in repo | `External State Lock Missing` |
+| Active branch authority index entries | `Docs/branch_records/index.md` | `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md` plus generated `state_index.md` | Keep repo index as durable routing law and historical receipt index only | `External State Migration Premature` / `USER Decision Required` |
+| Active branch record operational fields | `Docs/branch_records/<branch>.md` | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_state.md` | Keep durable approvals, decisions, PR/release receipts, and final fold-down history in repo | `External State Promotion Missing` |
+| Active branch plans | Repo files must not own active branch-plan rows after transition | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` | Keep templates/rules in repo and preserve retired repo branch-plan receipts only when USER approves durable receipt retention | `External State Promotion Missing` |
+| Active UFD, Branch Change Intent, and Element-to-Phase proof ledgers | active branch plan | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\ufd_ledger.md`, `change_intent_ledger.md`, and `element_to_phase_matrix.md` | Keep compact folded outcomes in repo only after PR Readiness fold-down | `External State Promotion Missing` |
+| Worktree slot live assignment | `Docs/worktree_slots.md` while transition remains legal | `D:\Nexus Desktop AI Data\Governance State\worktrees\<worktree_label>\worktree_state.md` | Keep stable slot definitions and durable assignment receipt schema in repo | `External State Promotion Missing` |
+| Selected-next operational posture | backlog/roadmap transition fields when still legal | `D:\Nexus Desktop AI Data\Governance State\central\selected_next_state.md` or branch/family planning state | Keep durable product priority, family direction, and USER-approved future package references in repo | `External State Promotion Missing` |
+| Release-window assembly | Release Readiness packet plus repo historical receipts | `D:\Nexus Desktop AI Data\Governance State\release_windows\<release_slug>\release_window_state.md` | Keep public release truth, released tags, and durable release interpretation in repo | `External State Lock Missing` |
 | Live PR / review / watcher state | Git/GitHub/helpers; repo records only as historical receipts | Git/GitHub/helpers plus optional `branches\<branch_slug>\pr_readiness_state.md` snapshots | Keep final PR receipts and bot-review closeout evidence only when durable | `External State Transition Drift` |
-| USER review bundle manifests | Desktop bundle helper output | `C:\Nexus Governance State\review_bundles\<worktree_label>\` after approval | Keep review-bundle rule in repo; do not commit local bundle outputs | `External State Promotion Missing` |
-| Rebaseline audit packets and temporary handoff digests | Codex packet / branch authority while active | `C:\Nexus Governance State\branches\<branch_slug>\` or `worktrees\<label>\` as operational evidence | Keep only durable decisions and final fold-down receipts in repo | `External State Promotion Missing` |
-| Cross-worktree lessons and governance candidates | Repo source truth only after USER-approved merge | `C:\Nexus Governance State\cross_worktree_lessons\` and `governance_candidates\` | Accepted governance returns to repo source truth by PR and merge | `Governance Candidate Not Promoted` |
-| Reference Standard candidate proposals and collision reports | Branch packets, Codex digest, helper output, or external evidence after workflow admission | `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\` plus generated `C:\Nexus Governance State\reference_standards\` reports | Promoted Reference Standards stay in repo source-truth catalogs; external candidates remain evidence until USER-approved promotion merges | `Reference Candidate Sync Missing` / `Reference Candidate Treated As Canon` |
+| USER review bundle manifests | Desktop bundle helper output | `D:\Nexus Desktop AI Data\Governance State\review_bundles\<worktree_label>\` after approval | Keep review-bundle rule in repo; do not commit local bundle outputs | `External State Promotion Missing` |
+| Rebaseline audit packets and temporary handoff digests | Codex packet / branch authority while active | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\` or `worktrees\<label>\` as operational evidence | Keep only durable decisions and final fold-down receipts in repo | `External State Promotion Missing` |
+| Cross-worktree lessons and governance candidates | Repo source truth only after USER-approved merge | `D:\Nexus Desktop AI Data\Governance State\cross_worktree_lessons\` and `governance_candidates\` | Accepted governance returns to repo source truth by PR and merge | `Governance Candidate Not Promoted` |
+| Reference Standard candidate proposals and collision reports | Branch packets, Codex digest, helper output, or external evidence after workflow admission | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\reference_candidates\` plus generated `D:\Nexus Desktop AI Data\Governance State\reference_standards\` reports | Promoted Reference Standards stay in repo source-truth catalogs; external candidates remain evidence until USER-approved promotion merges | `Reference Candidate Sync Missing` / `Reference Candidate Treated As Canon` |
 
 Stage 4B future execution wave plan:
 
@@ -215,25 +215,25 @@ Stage 4B non-includes unless separately approved:
 
 Stage Status: `Historical - execution planning packet landed through PR #229`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 4C Base: `origin/main@edd65eb363ffd23428f492b4a1de8613599fd85e`
 
 This stage converted the Stage 4B migration planning matrix into an exact USER-reviewable execution packet. It planned the active-state migration run and did not write central external records, update active external state, run helper `--apply` operations, create worktree-local staging, move repo docs, delete repo docs, archive repo docs, transition validators, or mutate FAM worktrees.
 
 Stage 4C evidence:
 
-- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "C:\Nexus Worktrees\Governance" --max-findings 50 --strict`
+- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "D:\Nexus Desktop AI Data\Worktrees\Governance" --max-findings 50 --strict`
 - Scanned Files: `136`
 - Findings: `5909`
 - Blocking Leakage Findings: `0`
 - Scan Result: `CLEAR / MIGRATION CANDIDATES ONLY`
 - Classification Summary: `Durable Historical Receipt: 5006`; `Durable Rule Reference: 396`; `Migration Candidate: 408`; `Review Candidate: 18`; `Transition-Legal Current Owner: 81`
-- External root report: `C:\Nexus Governance State` exists and passes canonical root check with schema `external-state-v1`; its recorded Source Repo HEAD is `7f17b97bac1f0ec7d9e424fdfa8792fe420eb885`, so any future migration execution must snapshot and reconcile the external root against the then-current `origin/main` before writing.
+- External root report: `D:\Nexus Desktop AI Data\Governance State` exists and passes canonical root check with schema `external-state-v1`; its recorded Source Repo HEAD is `7f17b97bac1f0ec7d9e424fdfa8792fe420eb885`, so any future migration execution must snapshot and reconcile the external root against the then-current `origin/main` before writing.
 
 Stage 4C execution preflight:
 
 1. Verify the Governance worktree is clean, on `feature/release-readiness-source-truth-intake`, and equal to fetched `origin/main`.
-2. Verify `C:\Nexus Governance State` exists, is outside every Git worktree, declares `External State Schema: external-state-v1`, and reports a clear canonical-root check.
+2. Verify `D:\Nexus Desktop AI Data\Governance State` exists, is outside every Git worktree, declares `External State Schema: external-state-v1`, and reports a clear canonical-root check.
 3. Verify external root Source Repo HEAD is reconciled to the current migration source commit or explicitly recorded as stale with a USER-approved migration preflight decision.
 4. Acquire the state-root lock before migration-wide inspection and the migration lock before any future execution write.
 5. Acquire narrower worktree, branch, release-window, review-bundle, fold-down, or governance-candidate locks before writing those partitions.
@@ -303,21 +303,21 @@ Stage 4C non-includes unless separately approved:
 
 Stage Status: `Complete - external operational records seeded`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 4 Source Repo HEAD: `5abdd9c011c80f5b7b57d473b973654a2427d5a8`
-External Root: `C:\Nexus Governance State`
+External Root: `D:\Nexus Desktop AI Data\Governance State`
 
-Stage 4 active-state migration execution ran after PR #229 merged and after separate USER approval. It updated only `C:\Nexus Governance State`; it did not move, delete, archive, or rewrite repo Docs, did not create worktree-local staging, did not mutate FAM-006 or FAM-007 worktrees, and did not execute release/runtime work.
+Stage 4 active-state migration execution ran after PR #229 merged and after separate USER approval. It updated only `D:\Nexus Desktop AI Data\Governance State`; it did not move, delete, archive, or rewrite repo Docs, did not create worktree-local staging, did not mutate FAM-006 or FAM-007 worktrees, and did not execute release/runtime work.
 
 Stage 4 execution proof:
 
-- Snapshot: `C:\Nexus Governance State\snapshots\snapshot-20260526T183300Z-37259320`
+- Snapshot: `D:\Nexus Desktop AI Data\Governance State\snapshots\snapshot-20260526T183300Z-37259320`
 - Manifest Source Repo HEAD: `5abdd9c011c80f5b7b57d473b973654a2427d5a8`
 - Target Records Promoted: `15`
 - Locks Acquired And Released: `8`
 - Audit Entries After Execution: `17`
-- Completion Audit: `C:\Nexus Governance State\audit_log\stage4_active_state_migration_completion_20260526T1838Z.json`
-- Validation: `python dev\orin_external_state_validation.py --root "C:\Nexus Governance State" --repo "C:\Nexus Worktrees\Governance" --require-root` returned PASS before Stage 5 work began.
+- Completion Audit: `D:\Nexus Desktop AI Data\Governance State\audit_log\stage4_active_state_migration_completion_20260526T1838Z.json`
+- Validation: `python dev\orin_external_state_validation.py --root "D:\Nexus Desktop AI Data\Governance State" --repo "D:\Nexus Desktop AI Data\Worktrees\Governance" --require-root` returned PASS before Stage 5 work began.
 
 Stage 4 target records now exist at:
 
@@ -341,10 +341,10 @@ Stage 4 target records now exist at:
 
 Stage Status: `Historical - validator transition landed through PR #230`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 5 Base: `origin/main@5abdd9c011c80f5b7b57d473b973654a2427d5a8`
 
-Stage 5 transitions validation posture after the approved Stage 4 external records exist. Repo validators remain clean-clone safe and must not require `C:\Nexus Governance State` in GitHub Actions or clean-clone validation. Local Governance workflows may require external operational validation only when the workflow explicitly depends on active local state, release-readiness analysis, worktree coordination, external-state migration, lock/snapshot/recovery, or user-review external-state evidence.
+Stage 5 transitions validation posture after the approved Stage 4 external records exist. Repo validators remain clean-clone safe and must not require `D:\Nexus Desktop AI Data\Governance State` in GitHub Actions or clean-clone validation. Local Governance workflows may require external operational validation only when the workflow explicitly depends on active local state, release-readiness analysis, worktree coordination, external-state migration, lock/snapshot/recovery, or user-review external-state evidence.
 
 Stage 5 deliverables:
 
@@ -357,7 +357,7 @@ Stage 5 deliverables:
 Stage 5 validation command:
 
 ```text
-python dev\orin_external_state_validation.py --root "C:\Nexus Governance State" --repo "C:\Nexus Worktrees\Governance" --require-root --require-stage4-records --expected-source-head 5abdd9c011c80f5b7b57d473b973654a2427d5a8
+python dev\orin_external_state_validation.py --root "D:\Nexus Desktop AI Data\Governance State" --repo "D:\Nexus Desktop AI Data\Worktrees\Governance" --require-root --require-stage4-records --expected-source-head 5abdd9c011c80f5b7b57d473b973654a2427d5a8
 ```
 
 Stage 5 non-includes unless separately approved:
@@ -371,20 +371,20 @@ Stage 5 non-includes unless separately approved:
 
 Stage Status: `Historical - repo cleanup planning landed through PR #231`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 6 Base: `origin/main@752d61c60a2b362a17d7c8c700c98bfe65835f08`
 
 Stage 6 is a USER-reviewable cleanup plan after Stage 4 external records exist and Stage 5 local validation is in place. It decides which repo Docs live-state fields should later become pointer-only, external-only, or durable historical receipts. It does not move, delete, archive, rename, collapse, or rewrite repo Docs.
 
 Stage 6 evidence:
 
-- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "C:\Nexus Worktrees\Governance" --max-findings 12 --strict`
+- Scanner command: `python dev\orin_repo_live_state_leakage_scan.py --repo "D:\Nexus Desktop AI Data\Worktrees\Governance" --max-findings 12 --strict`
 - Scanned Files: `136`
 - Findings: `5926`
 - Blocking Leakage Findings: `0`
 - Scan Result: `CLEAR / MIGRATION CANDIDATES ONLY`
 - Classification Summary: `Durable Historical Receipt: 5006`; `Durable Rule Reference: 410`; `Migration Candidate: 408`; `Review Candidate: 18`; `Transition-Legal Current Owner: 84`
-- External root report: `C:\Nexus Governance State` exists and passes canonical root check with schema `external-state-v1`; its manifest remains anchored to the Stage 4 migration source repo HEAD `5abdd9c011c80f5b7b57d473b973654a2427d5a8`.
+- External root report: `D:\Nexus Desktop AI Data\Governance State` exists and passes canonical root check with schema `external-state-v1`; its manifest remains anchored to the Stage 4 migration source repo HEAD `5abdd9c011c80f5b7b57d473b973654a2427d5a8`.
 
 Stage 6 cleanup planning rule:
 
@@ -405,7 +405,7 @@ Stage 6 cleanup lane matrix:
 
 | Cleanup Lane | Candidate Surfaces | Target Posture | Cleanup Planning Decision | Future Execution Approval Needed |
 | --- | --- | --- | --- | --- |
-| Compact pointer surfaces | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/worktree_slots.md` | Repo keeps durable family/stage/slot definitions and pointers; live selected-next, release-window, active branch, and worktree assignment state belongs to Git/GitHub/helpers or `C:\Nexus Governance State` | First recommended cleanup execution lane because it should reduce release-loop drift without deleting receipts | Required before any wording rewrite |
+| Compact pointer surfaces | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/worktree_slots.md` | Repo keeps durable family/stage/slot definitions and pointers; live selected-next, release-window, active branch, and worktree assignment state belongs to Git/GitHub/helpers or `D:\Nexus Desktop AI Data\Governance State` | First recommended cleanup execution lane because it should reduce release-loop drift without deleting receipts | Required before any wording rewrite |
 | Branch authority routing | `Docs/branch_records/index.md` | Repo keeps durable routing law, active standing Governance exception, historical receipt index, and pointer to external active operational state | Candidate for second cleanup lane after pointer surfaces | Required before active authority lists become pointer-only |
 | Historical branch records | `Docs/branch_records/*.md` | Repo keeps USER approvals, phase decisions, PR/merge/release receipts, validation proof, accepted vision, and final fold-down history; active operational state moves external | Planning says preserve first; do not bulk shrink or delete | Required per family/branch group before edits |
 | Branch plans | `Docs/branch_plans/*.md`, `Docs/branch_plans/retirement_index.md` | Active plans live external after transition; repo plans remain schema, transition evidence, durable receipts, or indexed historical references | Candidate for focused review after branch authority routing | Required before any retirement rewrite, archive, or deletion |
@@ -436,7 +436,7 @@ Stage 6 non-includes unless separately approved:
 
 Stage Status: `Historical - compact pointer cleanup landed through PR #232`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 6A Base: `origin/main@1cc2b6aa9b821471bf05323226de3e55253b8149`
 
 Stage 6A executes the first cleanup lane from Stage 6. It edits only the compact pointer surfaces that were named in the Stage 6 review packet:
@@ -449,16 +449,16 @@ Stage 6A cleanup intent:
 
 - Keep feature-family identity, broad package posture, family vision pointers, branch/detail owner pointers, stage-breakpoint meaning, and stable slot definitions.
 - Remove or compress selected-next, live branch, live PR, release-window, worktree assignment, and long branch-history narration from compact pointer surfaces.
-- Route current operational selection, worktree assignment, branch creation posture, and live release-window truth to Git/GitHub/helpers and `C:\Nexus Governance State`.
+- Route current operational selection, worktree assignment, branch creation posture, and live release-window truth to Git/GitHub/helpers and `D:\Nexus Desktop AI Data\Governance State`.
 - Preserve durable receipts by pointer instead of copying PR-by-PR and branch-by-branch history into compact surfaces.
 
 Stage 6A replacement owners:
 
 | Removed / Compressed Fact Class | Replacement Owner |
 | --- | --- |
-| Selected-next operational posture | `C:\Nexus Governance State\central\selected_next_state.md`, future Branch Readiness packet, and Git/GitHub/helper evidence |
+| Selected-next operational posture | `D:\Nexus Desktop AI Data\Governance State\central\selected_next_state.md`, future Branch Readiness packet, and Git/GitHub/helper evidence |
 | Live branch / PR / release-window truth | Git/GitHub/helpers; release-window external state when needed |
-| Current runtime worktree assignment | `C:\Nexus Governance State\worktrees\<worktree_label>\worktree_state.md` plus live worktree preflight |
+| Current runtime worktree assignment | `D:\Nexus Desktop AI Data\Governance State\worktrees\<worktree_label>\worktree_state.md` plus live worktree preflight |
 | Detailed branch history, fold-down proof, and release interpretation | canonical branch records, branch plans, family visions, workstream dossiers, and public release receipts |
 
 Stage 6A non-includes unless separately approved:
@@ -474,7 +474,7 @@ Stage 6A non-includes unless separately approved:
 
 Stage Status: `Active branch-authority routing cleanup planning`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 6B Base: `origin/main@0551e7e16832cbae426ac387d3260b0c7c302344`
 
 Stage 6B plans the second cleanup lane from Stage 6. It does not edit `Docs/branch_records/index.md` yet. It defines how that file can stop acting as a live active-branch operations list while preserving the standing Governance intake exception and durable historical routing.
@@ -482,7 +482,7 @@ Stage 6B plans the second cleanup lane from Stage 6. It does not edit `Docs/bran
 Stage 6B cleanup intent:
 
 - Keep `Docs/branch_records/index.md` as repo durable branch-record routing law, branch-record schema, historical receipt index, and standing Governance intake authority owner.
-- Move non-standing active runtime/workstream branch authority posture to `C:\Nexus Governance State\central\active_branch_authority_state.md` and branch-specific external records after execution.
+- Move non-standing active runtime/workstream branch authority posture to `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md` and branch-specific external records after execution.
 - Keep historical branch records in repo as durable receipts unless a later branch-record cleanup lane names an exact preservation, archive, or deletion decision.
 - Preserve the standing Governance branch as the only repo-tracked active authority exception until USER approves a different operating model.
 
@@ -490,7 +490,7 @@ Stage 6B proposed `Docs/branch_records/index.md` future execution:
 
 | Future Edit Area | Target Posture | Replacement Owner |
 | --- | --- | --- |
-| Active runtime/workstream branch list | Replace with a pointer to external active operational state and a rule that live active branch truth is derived | `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch external records, Git/GitHub/helpers |
+| Active runtime/workstream branch list | Replace with a pointer to external active operational state and a rule that live active branch truth is derived | `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md`, branch external records, Git/GitHub/helpers |
 | Standing Governance authority | Keep as explicit repo-tracked active exception | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` |
 | Historical branch record index | Keep durable historical receipt routing | `Docs/branch_records/*.md` and future generated index support if approved |
 | Branch authority rules and blockers | Keep durable governance law | `Docs/phase_governance.md`, `Docs/branch_records/index.md`, validators |
@@ -498,7 +498,7 @@ Stage 6B proposed `Docs/branch_records/index.md` future execution:
 Stage 6B future execution preflight:
 
 1. Rebaseline Governance and neutral main to current `origin/main`.
-2. Validate `C:\Nexus Governance State` and confirm the external active-branch authority record exists or is explicitly not required for planning-only posture.
+2. Validate `D:\Nexus Desktop AI Data\Governance State` and confirm the external active-branch authority record exists or is explicitly not required for planning-only posture.
 3. Run `python dev\orin_branch_governance_validation.py` and `python dev\orin_branch_governance_validation.py --standing-governance-intake-gate`.
 4. Run the repo live-state leakage scanner and capture current `Docs/branch_records/index.md` findings.
 5. Produce an exact before/after review bundle for `Docs/branch_records/index.md`.
@@ -519,7 +519,7 @@ Stage 6B non-includes unless separately approved:
 
 Stage Status: `Active branch-authority routing cleanup execution`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 6C Base: `origin/main@8d0301cd547380e35431ce7f211f2589ce1c8fb1`
 
 Stage 6C executes the `Docs/branch_records/index.md` cleanup planned in Stage 6B. It edits the index and stage-boundary source truth only; it does not edit branch detail records, branch plans, generated audits, or external state contents.
@@ -528,14 +528,14 @@ Stage 6C cleanup intent:
 
 - Keep `Docs/branch_records/index.md` as durable branch-record law, required branch-record schema, historical receipt routing, and the single standing Governance active-authority exception.
 - Stop treating the repo-tracked `Active Branch Authority Records` section as a general live operations ledger for non-standing active branches.
-- Route non-standing active runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, and worktree operational authority to `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
+- Route non-standing active runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, and worktree operational authority to `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
 - Preserve historical branch records in repo as durable receipt evidence until a later exact branch-record / branch-plan cleanup lane names the preservation, compaction, archive, or deletion decision.
 
 Stage 6C replacement owners:
 
 | Removed / Compressed Fact Class | Replacement Owner |
 | --- | --- |
-| Non-standing active branch authority list | `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks |
+| Non-standing active branch authority list | `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks |
 | Standing Governance active exception | `Docs/branch_records/index.md` and `Docs/branch_records/feature_release_readiness_source_truth_intake.md` |
 | Historical branch record routing | `Docs/branch_records/index.md` historical index until generated index support is separately approved |
 | Branch-record law, blocker names, and schema fields | `Docs/branch_records/index.md`, `Docs/phase_governance.md`, and durable repo validators |
@@ -553,7 +553,7 @@ Stage 6C non-includes unless separately approved:
 
 Stage Status: `Active branch-detail-record / branch-plan cleanup planning`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 6D Base: `origin/main@d74d07d2846044cdc8859e769ebe3410d3cf5b62`
 
 Stage 6D plans the next cleanup family. It does not edit branch detail records, branch plans, generated audits, or external state. It exists to prevent a broad lossy rewrite by defining exact batches, preservation rules, replacement owners, and validation preflight before any active operational fields are removed from branch records or branch plans.
@@ -579,12 +579,12 @@ Stage 6D replacement-owner map:
 
 | Active Operational Fact Class | External / Derived Owner |
 | --- | --- |
-| active branch state and phase posture while current | `C:\Nexus Governance State\branches\<branch_slug>\branch_state.md` plus Git/GitHub/helper live checks |
-| active branch plan while current | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` |
-| USER Feedback Disposition while active | `C:\Nexus Governance State\branches\<branch_slug>\ufd_ledger.md` |
-| Branch Change Intent Ledger while active | `C:\Nexus Governance State\branches\<branch_slug>\change_intent_ledger.md` |
-| Element-to-Phase matrix while active | `C:\Nexus Governance State\branches\<branch_slug>\element_to_phase_matrix.md` |
-| Workstream Entry / Hardening / Live Validation planning while active | `C:\Nexus Governance State\branches\<branch_slug>\workstream_entry_review.md`, `hardening_plan.md`, and `live_validation_plan.md` |
+| active branch state and phase posture while current | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_state.md` plus Git/GitHub/helper live checks |
+| active branch plan while current | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` |
+| USER Feedback Disposition while active | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\ufd_ledger.md` |
+| Branch Change Intent Ledger while active | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\change_intent_ledger.md` |
+| Element-to-Phase matrix while active | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\element_to_phase_matrix.md` |
+| Workstream Entry / Hardening / Live Validation planning while active | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\workstream_entry_review.md`, `hardening_plan.md`, and `live_validation_plan.md` |
 | PR readiness, watcher, and live PR operational state | Git/GitHub/helpers plus optional external PR-readiness snapshot |
 | durable folded receipt after USER approval | repo branch record, family vision, workstream dossier, release receipt, or branch-plan retirement index |
 
@@ -611,7 +611,7 @@ Stage 6D non-includes unless separately approved:
 
 Stage Status: `Active no-loss cleanup closure`
 Source Branch: `feature/release-readiness-source-truth-intake`
-Source Worktree: `C:\Nexus Worktrees\Governance`
+Source Worktree: `D:\Nexus Desktop AI Data\Worktrees\Governance`
 Stage 6E Base: `origin/main@9fa9f4300e3be9cd51319cc62ec384a61cf0b456`
 
 Stage 6E closes the branch-detail-record / branch-plan cleanup family without broad rewriting. Stage 6D planned cleanup batches, then validation evidence showed that branch records and branch plans are not producing blocking repo live-state leakage. The safe execution is therefore a no-loss closure: keep these files as durable receipts, schema surfaces, or historical transition evidence, and do not rewrite them just to reduce scanner counts.
@@ -633,13 +633,13 @@ Stage 6E completed owner split:
 
 | Fact Class | Final Owner After Stage 6E |
 | --- | --- |
-| active operational branch authority | `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks |
+| active operational branch authority | `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks |
 | compact backlog / roadmap / worktree-slot posture | repo pointer surfaces cleaned in Stage 6A; live state external or derived |
 | branch-record index active list | standing Governance exception only after Stage 6C |
 | branch detail records | durable receipts, transition owners, historical evidence, and future exact cleanup candidates only when blocking leakage appears |
 | branch plans | external active planning owners after transition; repo copies are schema, transition evidence, historical planning receipts, or retirement-index entries |
 | release debt | durable public release truth defects only; stale operational trackers classify as `Repo Live-State Leakage` or external operational state conflict |
-| local operational state | `C:\Nexus Governance State` with locks, schema, audit, snapshots, reports, and no-loss promotion posture |
+| local operational state | `D:\Nexus Desktop AI Data\Governance State` with locks, schema, audit, snapshots, reports, and no-loss promotion posture |
 
 Stage 6E remaining future work:
 
@@ -742,7 +742,7 @@ This matrix originated as the Stage 4B/Stage 4C review surface for preventing dr
 Canonical external operational state root:
 
 ```text
-C:\Nexus Governance State
+D:\Nexus Desktop AI Data\Governance State
 ```
 
 Optional worktree-local proposed staging:
@@ -763,25 +763,25 @@ Repo-root ignored folders may be staging, scratch, or defensive guard paths only
 ## Proposed External State Layout
 
 ```text
-C:\Nexus Governance State\README.md
-C:\Nexus Governance State\state_index.md
-C:\Nexus Governance State\state_manifest.json
-C:\Nexus Governance State\schemas\
-C:\Nexus Governance State\locks\
-C:\Nexus Governance State\central\
-C:\Nexus Governance State\worktrees\Governance\
-C:\Nexus Governance State\worktrees\FAM-006\
-C:\Nexus Governance State\worktrees\FAM-007\
-C:\Nexus Governance State\branches\<branch_slug>\
-C:\Nexus Governance State\release_windows\<release_slug>\
-C:\Nexus Governance State\review_bundles\<worktree_label>\
-C:\Nexus Governance State\cross_worktree_lessons\
-C:\Nexus Governance State\governance_candidates\
-C:\Nexus Governance State\reference_standards\
-C:\Nexus Governance State\promotion_packets\
-C:\Nexus Governance State\acknowledgements\
-C:\Nexus Governance State\snapshots\
-C:\Nexus Governance State\audit_log\
+D:\Nexus Desktop AI Data\Governance State\README.md
+D:\Nexus Desktop AI Data\Governance State\state_index.md
+D:\Nexus Desktop AI Data\Governance State\state_manifest.json
+D:\Nexus Desktop AI Data\Governance State\schemas\
+D:\Nexus Desktop AI Data\Governance State\locks\
+D:\Nexus Desktop AI Data\Governance State\central\
+D:\Nexus Desktop AI Data\Governance State\worktrees\Governance\
+D:\Nexus Desktop AI Data\Governance State\worktrees\FAM-006\
+D:\Nexus Desktop AI Data\Governance State\worktrees\FAM-007\
+D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\
+D:\Nexus Desktop AI Data\Governance State\release_windows\<release_slug>\
+D:\Nexus Desktop AI Data\Governance State\review_bundles\<worktree_label>\
+D:\Nexus Desktop AI Data\Governance State\cross_worktree_lessons\
+D:\Nexus Desktop AI Data\Governance State\governance_candidates\
+D:\Nexus Desktop AI Data\Governance State\reference_standards\
+D:\Nexus Desktop AI Data\Governance State\promotion_packets\
+D:\Nexus Desktop AI Data\Governance State\acknowledgements\
+D:\Nexus Desktop AI Data\Governance State\snapshots\
+D:\Nexus Desktop AI Data\Governance State\audit_log\
 ```
 
 Generated global indexes such as `state_index.md` are reports, not primary state. Primary state lives in branch, worktree, release-window, candidate, promotion, acknowledgement, and fold-down records.
@@ -901,7 +901,7 @@ Recommended near-term implementation posture:
 
 ## CI And Clean Clone Boundary
 
-Repo validators running in GitHub Actions or clean clones validate durable repo truth only. They must not require access to `C:\Nexus Governance State`.
+Repo validators running in GitHub Actions or clean clones validate durable repo truth only. They must not require access to `D:\Nexus Desktop AI Data\Governance State`.
 
 Local governance validators may require external state only for:
 
@@ -920,7 +920,7 @@ If external state is missing during active local workflow, Codex returns `Extern
 
 The bootstrap packet must include:
 
-- desired root: `C:\Nexus Governance State`
+- desired root: `D:\Nexus Desktop AI Data\Governance State`
 - worktree label
 - source repo path
 - branch
@@ -932,7 +932,7 @@ The bootstrap packet must include:
 Expected future helper command:
 
 ```powershell
-python dev\orin_external_state_init.py --root "C:\Nexus Governance State" --worktree "<label>" --repo "<repo_path>" --schema <schema_version>
+python dev\orin_external_state_init.py --root "D:\Nexus Desktop AI Data\Governance State" --worktree "<label>" --repo "<repo_path>" --schema <schema_version>
 ```
 
 Until USER approves initialization, active operational workflow waits. Analysis-only work may continue only with an explicit analysis-only waiver.
@@ -1046,7 +1046,7 @@ Stale lock recovery must not discard or overwrite state when ownership or versio
 Proposed path:
 
 ```text
-C:\Nexus Governance State\cross_worktree_lessons\
+D:\Nexus Desktop AI Data\Governance State\cross_worktree_lessons\
 ```
 
 Each lesson record includes:
@@ -1081,7 +1081,7 @@ Allowed dispositions:
 Proposed path:
 
 ```text
-C:\Nexus Governance State\governance_candidates\
+D:\Nexus Desktop AI Data\Governance State\governance_candidates\
 ```
 
 Each governance candidate includes:
@@ -1250,7 +1250,7 @@ Shadow governance:
 
 Clean clone breakage:
 
-- CI validates durable repo truth only and must not require `C:\Nexus Governance State`.
+- CI validates durable repo truth only and must not require `D:\Nexus Desktop AI Data\Governance State`.
 
 External state loss:
 

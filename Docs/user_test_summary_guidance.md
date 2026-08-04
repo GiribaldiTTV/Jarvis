@@ -111,16 +111,16 @@ A recap-style behavior summary is not sufficient when the user needs to run or v
 
 When a durable USER-facing copy is needed during Live Validation Stage 1, use a worktree-specific file in the local USER hub:
 
-- `C:\Nexus USER\UTS - <worktree-label>.txt`
+- `D:\Nexus Desktop AI Data\USER\UTS - <worktree-label>.txt`
 
 That worktree-specific local USER hub file is the required user-facing exported copy for relevant desktop Live Validation Stage 1 runs.
 It is not Workstream or Hardening evidence. It prevents multiple active worktrees from overwriting, stale-reading, or returning another worktree's UTS evidence.
 
 The global local USER hub file is template-only:
 
-- `C:\Nexus USER\User Test Summary.txt`
+- `D:\Nexus Desktop AI Data\USER\User Test Summary.txt`
 
-When present or generated, the global file must clearly state `TEMPLATE ONLY` and must not be used for active returned results. Active UTS handoff, USER return, and digestion must name the worktree-specific file, such as `C:\Nexus USER\UTS - FAM-006.txt`.
+When present or generated, the global file must clearly state `TEMPLATE ONLY` and must not be used for active returned results. Active UTS handoff, USER return, and digestion must name the worktree-specific file, such as `D:\Nexus Desktop AI Data\USER\UTS - FAM-006.txt`.
 
 Create or refresh the worktree-specific file by default when:
 
@@ -131,7 +131,7 @@ Create or refresh the worktree-specific file by default when:
 
 If the slice is not a relevant desktop manual-validation path, Codex may skip the local USER hub export only if it says so explicitly and explains why.
 
-Helpers and validators that generate or check active UTS handoffs must fail if the active export path equals `C:\Nexus USER\User Test Summary.txt`. Generated active UTS content must identify the worktree label, branch, and active FAM/workstream identity before it can be returned to USER.
+Helpers and validators that generate or check active UTS handoffs must fail if the active export path equals `D:\Nexus Desktop AI Data\USER\User Test Summary.txt`. Generated active UTS content must identify the worktree label, branch, and active FAM/workstream identity before it can be returned to USER.
 
 ## Required USER Hub File Sections
 

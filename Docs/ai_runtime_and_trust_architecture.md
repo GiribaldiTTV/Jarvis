@@ -64,7 +64,7 @@ If a future branch cannot tell whether a concept is binding law, product directi
 - `Docs/family_visions/FAM-008_packaging_and_install_experience.md` owns setup, install, cache-root UX, capability-pack installation, and user education direction.
 - Existing FAM visions own family-local workspace/data and safety/privacy implications when their implementation touches those surfaces.
 - Former workspace/data and safety/privacy backlog labels are not active backlog families. Their reusable AI-specific constraints are folded into this file and the relevant existing FAM visions.
-- Active external branch plans under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` own implementation-specific Branch Vision Contract Snapshots and proof plans.
+- Active external branch plans under `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` own implementation-specific Branch Vision Contract Snapshots and proof plans.
 
 ## Taxonomy Placement
 
@@ -264,7 +264,7 @@ AI Operational Cache Governance is an architecture, policy, and runtime concern.
 - FAM-008 owns setup/install UX for cache roots, clear-cache flow, and user education.
 - FAM-008 owns cache-root setup UX, storage-root selection, clear-cache education, and backup/export root guidance when packaging/setup work touches cache.
 - Relevant implementing FAM visions own family-local data-root, evidence-path, privacy, Local-Only, Privacy Lockdown, and Trust Journal implications when their own work touches those surfaces.
-- Active external branch plans under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` own implementation-specific cache behavior, proof, and rollback when cache work is admitted.
+- Active external branch plans under `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` own implementation-specific cache behavior, proof, and rollback when cache work is admitted.
 
 ### Cache Scope Classes
 

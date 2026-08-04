@@ -9,7 +9,7 @@ This plan is not an implementation branch by itself. It is a reform inventory fo
 ## Audit Snapshot
 
 - Audit date: 2026-05-19.
-- Audit carrier: `C:\Nexus Worktrees\Governance` on `feature/release-readiness-source-truth-intake`.
+- Audit carrier: `D:\Nexus Desktop AI Data\Worktrees\Governance` on `feature/release-readiness-source-truth-intake`.
 - Source-truth baseline: `origin/main` at `81701d4b351ae7bb4c146daf88a8d884f6bc7981`.
 - Validation baseline before recording this plan:
   - `python dev\orin_branch_governance_validation.py`: PASS, 5757 checks.
@@ -175,8 +175,8 @@ Covered surface classes:
 - `asset/media`
 
 Required active owner:
-- `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` owns active full-detail change intent while the branch is active.
-- Runtime branches use the Branch Runtime Engineering Plan shape. When a non-runtime branch has `Rebaseline Overlap Files:`, an active external Branch Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` must be admitted or updated as the active change-intent owner before rebaseline mutation can proceed, using the smallest source-truth-supported branch-plan variant.
+- `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` owns active full-detail change intent while the branch is active.
+- Runtime branches use the Branch Runtime Engineering Plan shape. When a non-runtime branch has `Rebaseline Overlap Files:`, an active external Branch Engineering Plan under `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` must be admitted or updated as the active change-intent owner before rebaseline mutation can proceed, using the smallest source-truth-supported branch-plan variant.
 - The branch authority record owns compact authority/receipt status and fold-down evidence after PR Readiness decides what should survive.
 - Workstreams and family dossiers own reusable or historical implementation lessons after fold-down.
 - Backlog, roadmap, worktree slots, and `Docs/Main.md` remain compact pointer/routing surfaces, not overlap ledgers.
@@ -772,7 +772,7 @@ Implemented and future-extension target files:
 - `dev/fixtures/branch_readiness_planning/<ufd_valid_or_invalid_fixture>.md`
 
 Recommended model:
-- Active full-detail feedback belongs in the active external Branch Runtime Engineering Plan at `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`.
+- Active full-detail feedback belongs in the active external Branch Runtime Engineering Plan at `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`.
 - The active external branch plan owns one UFD ledger with `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:` at section level.
 - Each meaningful feedback item lives in a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
 - Every meaningful USER feedback item should have one stable ID, one full-detail active owner, one disposition state, one USER decision state, one current/future branch impact classification, and one fold-down target.
@@ -959,7 +959,7 @@ File naming analysis:
 | --- | --- | --- | --- | --- | --- |
 | Top-level Docs files | `Docs/<clear_topic>.md`; noun phrase matching owner role. | `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`. | Ambiguous old one-off topic files only after reference scan. | Medium because many prompts reference exact paths. | Yes for deletion/rename. |
 | Branch records | `Docs/branch_records/<branch_slug>.md`. | Historical `codex_*` and `feature_*` records as receipts. | New active `codex/` naming; active repair-only naming by inertia. | High for historical links. | Yes for historical rewrites. |
-| Branch plans | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` for active plans; `Docs/branch_plans/<branch_slug>.md` for repo historical receipts. | External active plans plus historical repo receipts until fold-down review. | Permanent branch-specific plan sprawl after fold-down. | Medium. | Yes before deletion. |
+| Branch plans | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` for active plans; `Docs/branch_plans/<branch_slug>.md` for repo historical receipts. | External active plans plus historical repo receipts until fold-down review. | Permanent branch-specific plan sprawl after fold-down. | Medium. | Yes before deletion. |
 | Workstream docs | `Docs/workstreams/FB-XXX_slug.md` for historical/promoted records. | Existing FB historical trace names. | New live FB IDs. | High; legacy evidence paths. | Yes for rename. |
 | Family dossiers | `Docs/workstreams/FB-XXX_slug_family_dossier.md` until a future family-dossier directory is approved. | Existing family dossiers. | Mixing dossier and workstream meaning in text. | Medium. | Yes for directory split. |
 | Validators/helpers | `dev/orin_<domain>_<capability>_validation.py`, `_audit.py`, `_harness.py`, `_helper.py`. | Existing reusable helper names. | Seam-number helper names unless temporary with consolidation target. | Low/Medium. | No for new names, yes for bulk rename. |

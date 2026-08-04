@@ -31,6 +31,8 @@ Marker syntax: `NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=<OWNER>; ledge
 | `dev/orin_monitoring_hud_internal_sandbox_validation.py` | `FAM006-HUD` | `SRCOWN-FIRSTPASS-FAM006-HUD-008` | `fam006-hud-internal-sandbox-validator` | `shared` |
 | `dev/orin_monitoring_hud_human_client_validation.ps1` | `FAM006-HUD` | `SRCOWN-FIRSTPASS-FAM006-HUD-008` | `fam006-hud-human-client-validator` | `shared` |
 | `dev/orin_source_owner_marker_validation.py` | `VALIDATOR-HELPER` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `source-owner-marker-validator` | `canonical` |
+| `dev/orin_workspace_root_residue_validation.py` | `VALIDATOR-HELPER` | `SRCOWN-RELOCATION-CLOSURE-015` | `workspace-root-residue-validator` | `canonical` |
+| `dev/orin_guarded_c_root_cleanup.py` | `VALIDATOR-HELPER` | `SRCOWN-RELOCATION-CLOSURE-015` | `guarded-c-root-cleanup-gate` | `canonical` |
 | `dev/nexus_paths.py` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `workspace-root-paths` | `shared` |
 | `Docs/nexus_workspace_roots.md` | `GOV-SOURCE-TRUTH` | `SRCOWN-FIRSTPASS-VALIDATOR-010` | `workspace-root-routing` | `shared` |
 | `desktop/ai_provider_state.py` | `FAM007-AI` | `SRCOWN-FIRSTPASS-FAM007-AI-007` | `provider-state-contract` | `shared` |

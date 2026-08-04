@@ -33,10 +33,10 @@ already begun.
 
 - Project vision: `Docs/nexus_vision.md`
 - Family vision: `Docs/family_visions/FAM-006_monitoring_and_hud.md`
-- Planning review packet: `C:\Nexus USER\Planning\FAM-006-Planning-20260608-080430.zip`
-- External planning candidate: `C:\Nexus Governance State\governance_candidates\fam006_recording_branch_planning_depth_reform_plan.md`
+- Planning review packet: `D:\Nexus Desktop AI Data\USER\Planning\FAM-006-Planning-20260608-080430.zip`
+- External planning candidate: `D:\Nexus Desktop AI Data\Governance State\governance_candidates\fam006_recording_branch_planning_depth_reform_plan.md`
 - Branch receipt evidence: `Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md`
-- Branch planning evidence: `C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md`
+- Branch planning evidence: `D:\Nexus Desktop AI Data\Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md`
 - Issue evidence: GitHub issue `#258`, Dashboard HUD Overlay Profiles persistence after app restart
 
 These inputs are evidence. This file owns the durable Recording feature-category

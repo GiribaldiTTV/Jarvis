@@ -74,7 +74,7 @@ Mode: Governance repair
 Phase: Branch Readiness Stage 1 analysis
 Workstream: Standing Governance Intake Branch
 Branch: feature/release-readiness-source-truth-intake
-Worktree: C:\Nexus Worktrees\Governance
+Worktree: D:\Nexus Desktop AI Data\Worktrees\Governance
 Approved scope: analysis only
 Not approved: mutation, PR, merge, release, issue mutation, runtime work
 Validation expected: read-only identity and source-truth load verification

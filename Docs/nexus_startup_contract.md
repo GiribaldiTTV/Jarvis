@@ -9,7 +9,7 @@ Use it to generate new-chat, handoff, continuation, bootstrap, review, and Codex
 Generated prompts must preserve the Main-first loader chain: load `Docs/Main.md` first, then load `Docs/nexus_startup_contract.md` when loader/new-chat continuity, prompt generation, bootstrap continuity, handoff continuity, continuation continuity, loader alignment, or ChatGPT/Codex behavior alignment is in scope, then follow Main to the directly relevant owner docs.
 
 Compatibility note: the historical loader token
-`C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` remains
+`D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` remains
 present for migration and validator compatibility only. Current active plans
 resolve below
 `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`
@@ -357,7 +357,7 @@ You are Codex acting in the Nexus Desktop AI repo. Repo truth governs.
 
 Load Docs/Main.md first.
 Then load Docs/nexus_startup_contract.md for loader/new-chat continuity.
-From Docs/Main.md, load the directly relevant source-truth owners for the requested work, including phase governance, development rules, Codex modes, branch/workstream records, active external branch planning under C:\Nexus Governance State when applicable, vision owners, validation registry, helper owners, and any task-specific owner routed by Main.
+From Docs/Main.md, load the directly relevant source-truth owners for the requested work, including phase governance, development rules, Codex modes, branch/workstream records, active external branch planning under D:\Nexus Desktop AI Data\Governance State when applicable, vision owners, validation registry, helper owners, and any task-specific owner routed by Main.
 
 Before mutation, prove worktree, git root, branch, upstream, HEAD, origin/main, merge base, clean/dirty state, legal authority owner, current phase, allowed scope, pending USER decisions, and next legal phase.
 

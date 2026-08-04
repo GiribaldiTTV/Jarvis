@@ -115,4 +115,4 @@ When a Family Feature Vision creates or changes visible UI, BP2/BP3 and later pr
 
 Family Feature Vision files may preserve durable planning facts. They must not use durable vision sections to maintain active branch, current worktree, selected-next, PR, or release-window state.
 
-Active operational facts belong to Git, GitHub, approved helpers, USER decision packets, or `C:\Nexus Governance State` as routed by repo source truth.
+Active operational facts belong to Git, GitHub, approved helpers, USER decision packets, or `D:\Nexus Desktop AI Data\Governance State` as routed by repo source truth.

@@ -67,7 +67,7 @@ Pass Index Population State: `FB-036, FB-037, FB-038, and FB-041 historical pass
 | `F027-P04` | `Historical pass alias` | `Docs/workstreams/FB-037_built_in_actions_and_settings_expansion.md` | `Converted in Slice R5-S2` | `Released in v1.4.0-prebeta; preserves the first curated built-in catalog and settings expansion lane.` |
 | `F027-P05` | `Historical pass alias` | `Docs/workstreams/FB-038_taskbar_tray_quick_task_ux.md` | `Converted in Slice R5-S2` | `Released in v1.4.1-prebeta; preserves tray quick-task UX, tray-origin create flow, and window-initialization repair history.` |
 | `F027-P06` | `Aggregation evidence` | `Docs/workstreams/FB-027_interaction_system_baseline.md` | `Indexed by one-time backlog governance repair` | `PR #109 merged shutdown-hotkey confirmation runtime proof; Standalone Release Driver: No; aggregation target is a future USER-approved FB-027 family release or larger approved release aggregation.` |
-| `F027-P07` | `Release-window target receipt` | `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md`; active window owner `C:\Nexus Governance State\release_windows\current_release_window_state.md` | `Indexed by RRI-20260629-001 release-target repair` | `PR #286 merged the FAM-003 Resident Access and Quick Actions runtime/UI package. Durable interpretation: Release Target v1.7.37-prebeta; Release Floor patch prerelease. Active candidate anchor and target commit remain external/derived.` |
+| `F027-P07` | `Release-window target receipt` | `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md`; active window owner `D:\Nexus Desktop AI Data\Governance State\release_windows\current_release_window_state.md` | `Indexed by RRI-20260629-001 release-target repair` | `PR #286 merged the FAM-003 Resident Access and Quick Actions runtime/UI package. Durable interpretation: Release Target v1.7.37-prebeta; Release Floor patch prerelease. Active candidate anchor and target commit remain external/derived.` |
 
 ### Preserved Branch Trace Index
 
@@ -130,7 +130,7 @@ Artifact Index Population State: `No historical artifact entries migrated yet`
 
 Receipt Status: `Compact family-dossier pointer to the FAM-003 PR #286 release interpretation and the external active release-window owner.`
 Source Branch Record: `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md`
-Active Release Window Owner: `C:\Nexus Governance State\release_windows\current_release_window_state.md`
+Active Release Window Owner: `D:\Nexus Desktop AI Data\Governance State\release_windows\current_release_window_state.md`
 Completed By PR: `#286 - FAM-003 Resident Access and Quick Actions`
 Merge Commit: `298c2c17661f227ba9505f63b5f159fb8358a4cb`
 Previous Public Prerelease: `v1.7.36-prebeta`
@@ -139,8 +139,8 @@ Release Floor: `patch prerelease`
 Version Rationale: `The resident access and quick-actions package is a bounded user-facing FAM-003 runtime/UI increment inside the existing pre-Beta stage. It does not widen the release to a minor prerelease milestone or a new family.`
 Release Scope: `Resident access tray doorway, compact tray/menu routing, Global Settings / Tray / Quick Access configuration, quick-access slot and dirty-state behavior, resize/splitter behavior, and FAM-003 proof/validator support.`
 Release Artifacts: `Tag v1.7.37-prebeta; GitHub prerelease title Pre-Beta v1.7.37; user-facing release notes plus GitHub-generated What's Changed and Full Changelog sections.`
-Release Candidate Anchor: `External operational state - owned by C:\Nexus Governance State\release_windows\current_release_window_state.md and Git/GitHub live truth.`
+Release Candidate Anchor: `External operational state - owned by D:\Nexus Desktop AI Data\Governance State\release_windows\current_release_window_state.md and Git/GitHub live truth.`
 Target Commit: `External operational state - resolve at Release Readiness from Git/GitHub/helper live truth; do not pin an in-flight governance PR head inside this family dossier.`
 Candidate Includes Later Governance Repairs: `YES - active inclusion posture for the standing Governance repair is owned by external release-window state; this dossier keeps only the durable internal-traceability rule.`
-Release Window Contributor Inventory: `Durable contributor interpretation only - single runtime contributor: PR #286 / FAM-003 Resident Access and Quick Actions; active release-window assembly lives in C:\Nexus Governance State\release_windows\current_release_window_state.md.`
+Release Window Contributor Inventory: `Durable contributor interpretation only - single runtime contributor: PR #286 / FAM-003 Resident Access and Quick Actions; active release-window assembly lives in D:\Nexus Desktop AI Data\Governance State\release_windows\current_release_window_state.md.`
 Release Execution Gate: `Blocked pending separate USER approval for Release Readiness Stage 2`

@@ -349,7 +349,7 @@ Recommended local roots:
 
 | Edition | Suggested Local Source Root | Suggested Data Root |
 | --- | --- | --- |
-| Public | `C:\Nexus Desktop AI` and governed public worktrees under `C:\Nexus Worktrees\` | `%APPDATA%\Nexus Desktop AI` |
+| Public | `C:\Nexus Desktop AI` and governed public worktrees under `D:\Nexus Desktop AI Data\Worktrees\` | `%APPDATA%\Nexus Desktop AI` |
 | Dev | `D:\Nexus Private\Nexus Desktop AI Dev` or `D:\Nexus Dev ORIN\Nexus Desktop AI Dev` | `%APPDATA%\Nexus Desktop AI Dev` |
 | Owner | `D:\Nexus Private\Nexus Desktop AI Owner` or another owner-only private root | `%APPDATA%\Nexus Desktop AI Owner` |
 

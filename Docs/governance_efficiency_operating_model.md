@@ -52,7 +52,7 @@ Full normative policy belongs in the owner file. Mirrors should summarize the ru
 
 Repo Docs are durable index/context files. They may contain governance law, product vision, architecture contracts, source-truth routing, durable evidence pointers, compact historical receipts, and public-safe explanation needed from a clean clone.
 
-Repo Docs must not contain active operational ledger material for branch state, branch plans, UFD rows, Branch Change Intent rows, Element-to-Phase rows, worktree assignment state, PR watcher state, release-window assembly, selected-next posture, review-bundle manifests, rebaseline packets, or temporary Codex handoff state. Those ledgers belong in `C:\Nexus Governance State`, approved worktree-local staging, Git/GitHub/helper-derived truth, or later USER-approved external owners.
+Repo Docs must not contain active operational ledger material for branch state, branch plans, UFD rows, Branch Change Intent rows, Element-to-Phase rows, worktree assignment state, PR watcher state, release-window assembly, selected-next posture, review-bundle manifests, rebaseline packets, or temporary Codex handoff state. Those ledgers belong in `D:\Nexus Desktop AI Data\Governance State`, approved worktree-local staging, Git/GitHub/helper-derived truth, or later USER-approved external owners.
 
 Codex App local hook state is also operational state, not repo source truth. Repo docs may own durable policy for assigned-thread/worktree confinement and may name future reference-template expectations, but live `hooks.json` entries, installed hook scripts, thread lock records, waiver records, and hook audit logs belong under USER-local Codex state such as `C:\Users\anden\.codex` unless USER later approves a different external owner. These local records must not be copied into repo docs as current state or used to bypass the repo phase machine.
 
@@ -77,7 +77,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, detailed feature-category ledgers that belong in Family Feature Vision, or per-seam implementation checklists |
 | `Docs/family_feature_visions/` | USER-approved durable feature-category direction inside one FAM, compact FFV and element IDs, reusable surface/experience/proof direction, Deferred Feature Carryforward facts, and BP1 `Feature Vision Context` for selected feature-bearing branch routes that require this durable middle layer | backlog family identity, branch route identity, Slice/SLC identity, seam identity, selected-next truth, active branch state, current PR/release/worktree state, implementation approval, live operational ledgers, or per-seam execution checklists |
 | `Docs/ui_reference_catalog/` | USER-promoted durable UI reference contracts after explicit promotion approval, reference schema, catalog index, accepted reference applicability, known limitations, and adoption rules | candidate evidence, active proof ledgers, current screenshots/video inventories, PR state, issue state, live adoption status, helper green status, or inferred golden proof from branch work |
-| `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\` and `C:\Nexus Governance State\reference_standards\` | branch-owned Reference Standard candidate proposals, generated aggregate candidate reports, generated collision reviews, and cross-worktree visibility evidence after the current workflow admits external candidate tracking | promoted Reference Standards, source-truth catalogs, USER acceptance, live FAM adoption proof, issue mutation authority, template/shared-primitive promotion, or clean-clone validation requirements |
+| `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\reference_candidates\` and `D:\Nexus Desktop AI Data\Governance State\reference_standards\` | branch-owned Reference Standard candidate proposals, generated aggregate candidate reports, generated collision reviews, and cross-worktree visibility evidence after the current workflow admits external candidate tracking | promoted Reference Standards, source-truth catalogs, USER acceptance, live FAM adoption proof, issue mutation authority, template/shared-primitive promotion, or clean-clone validation requirements |
 | `Docs/branch_records/index.md` | durable branch-record law, standing Governance active-authority exception, historical receipt routing, and pointers to external active operational branch authority | detailed branch implementation checklists or general live active-branch operations lists |
 | `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | current phase, active branch authority, active next gate, active branch lifecycle ledger, volatile live state, live PR/open-review state, selected-next posture, worktree assignment, release-window state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
 | `Docs/branch_plans/<branch>.md` | Branch Runtime Engineering Plan shape, transition-approved plan receipts, retired/historical branch-plan evidence, and durable lookup paths | canonical live branch status, active/complete/pending lifecycle posture, permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger |
@@ -95,25 +95,25 @@ Use this table before recommending consolidation, retirement, archival, deletion
 
 | Surface | Purpose | Not For | Disposition Class | Active State Owner | Retirement / Deletion Preflight |
 | --- | --- | --- | --- | --- | --- |
-| `Docs/feature_backlog.md` | compact FAM registry, priority, and canonical pointers | detailed vision narrative, BP/LV/SLC/UTS state, branch lifecycle, PR/release-window state, active dependency queue | durable compact registry | Git/GitHub/helpers, active external branch plan, or `C:\Nexus Governance State` | prove replacement registry owner and pointer preservation before any move/delete |
+| `Docs/feature_backlog.md` | compact FAM registry, priority, and canonical pointers | detailed vision narrative, BP/LV/SLC/UTS state, branch lifecycle, PR/release-window state, active dependency queue | durable compact registry | Git/GitHub/helpers, active external branch plan, or `D:\Nexus Desktop AI Data\Governance State` | prove replacement registry owner and pointer preservation before any move/delete |
 | `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, broad family checkpoints, durable evidence pointers | release ledger, selected-next tracker, active branch diary, package/slice trace table | durable compact roadmap | Git/GitHub/helpers and external operational state | prove milestone routing replacement and release-readiness compatibility before any move/delete |
 | `Docs/nexus_vision.md` | project-wide product vision and durable product/UI/proof standards | family-specific implementation ledger or branch plan | durable canonical vision | not applicable; branch-local application lives in active planning | cannot retire while project vision exists; only amend through source-truth patch |
 | `Docs/family_visions/` | broad FAM vision contracts and family-level UI/proof specialization | active branch authority, package/slice execution diary, another FAM's implementation queue | durable family vision | active branch planning/external state when work is live | fold all durable FAM intent into approved replacement before rename/delete |
 | `Docs/family_feature_visions/index.md` | compact FFV / feature-category registry | active branch state, selected-next state, gate status, live dependency queue | durable compact registry | active external branch plan or Git/GitHub/helper truth | prove all FFV pointers and branch packets migrate before rename/delete |
 | `Docs/family_feature_visions/<id>.md` | detailed durable feature-category vision, FFV elements, deferred carryforward, proof expectations | Slice/SLC identity, branch route, seam checklist, live implementation ledger | durable feature-category contract | active external branch plan, BP2/BP3, workstream proof | replacement FFV and pointer migration proof required before rename/delete |
 | `Docs/ui_reference_catalog/` | promoted UI reference contracts and catalog schema after USER-approved promotion | candidate reference evidence, active visual proof inventories, current branch adoption status, helper/validator pass state | durable reference catalog | candidate evidence lives in USER review packets, helper output, branch proof, or external operational state until promotion | no reference may be added, renamed, removed, or treated as golden proof without promotion/retirement proof and USER decision |
-| `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\` | branch-owned proposed Reference Standard evidence while a branch is active | promoted reference canon, cross-branch aggregate truth, USER acceptance, or current phase approval by itself | external candidate evidence | active external branch plan and future reference-candidate sync helper | snapshot, lock, promotion packet, and USER approval required before any fold-down or schema migration |
-| `C:\Nexus Governance State\reference_standards\` | generated aggregate sync reports and collision review summaries from branch-owned candidates | primary hand-authored source truth, repo reference catalog, issue ledger, or required clean-clone validation input | external coordination evidence | branch candidate records plus generated helper output | report regeneration or promotion packet required before repo source-truth update |
+| `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\reference_candidates\` | branch-owned proposed Reference Standard evidence while a branch is active | promoted reference canon, cross-branch aggregate truth, USER acceptance, or current phase approval by itself | external candidate evidence | active external branch plan and future reference-candidate sync helper | snapshot, lock, promotion packet, and USER approval required before any fold-down or schema migration |
+| `D:\Nexus Desktop AI Data\Governance State\reference_standards\` | generated aggregate sync reports and collision review summaries from branch-owned candidates | primary hand-authored source truth, repo reference catalog, issue ledger, or required clean-clone validation input | external coordination evidence | branch candidate records plus generated helper output | report regeneration or promotion packet required before repo source-truth update |
 | `Docs/branch_records/index.md` | branch-record law, standing Governance exception, durable receipt routing | full active branch operations list | durable routing law | external active authority and Git/GitHub/helpers | governance migration plan and validation required before structural changes |
 | `Docs/branch_records/<branch>.md` | durable branch identity, approval receipts, historical traceability, compact fold-down | current non-standing active authority, live PR/review state, selected-next state, worktree assignment | durable receipt or transition owner | external branch state, Git/GitHub/helpers | exact replacement-owner proof, reference scan, and no-loss fold-down required |
-| `Docs/branch_plans/<branch>.md` | branch-plan schema, transition-approved planning receipt, retired/historical evidence | active external branch plan after fold-down, duplicate live ledger | durable receipt or transition owner | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` | retirement index, reference scan, durable receipt preservation, and USER approval required |
+| `Docs/branch_plans/<branch>.md` | branch-plan schema, transition-approved planning receipt, retired/historical evidence | active external branch plan after fold-down, duplicate live ledger | durable receipt or transition owner | `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` | retirement index, reference scan, durable receipt preservation, and USER approval required |
 | `Docs/workstreams/index.md` | workstream/dossier routing | per-branch live state | durable routing index | active external planning or Git/GitHub/helpers | prove no dossier routing loss before move/delete |
 | `Docs/workstreams/<id>.md` | durable package trace, slice trace, proof history, reusable continuity | live branch, PR, or release-window state | durable historical/proof record | active external planning or Git/GitHub/helpers | replacement family dossier or branch receipt proof required |
 | `Docs/closeout_index.md` and `Docs/closeouts/` | historical closeout lookup, release/epoch summaries, baseline interpretation | current phase state, release execution authority, live blocker diary | historical receipt | Git/GitHub/releases/helpers for current release truth | reference scan and durable summary replacement required; no deletion by age alone |
 | `Docs/closeout_guidance.md` | closeout policy and closeout-quality expectations | branch-specific closeout evidence ledger | durable governance guidance | active phase packets/helpers | update only through governance owner patch |
 | `Docs/incident_patterns.md` | generalized recurring failure patterns and prevention lessons | one-off branch diary, active blocker queue, detailed PR conversation mirror | reusable pattern library | current branch/external state for active blockers | fold reusable lesson into another owner or mark superseded before deletion |
 | generated governance audits | inventory, review queue, and audit evidence for USER inspection | primary hand-edited source truth, active-state ledger | generated evidence / review aid | source files plus helper output | regenerate or supersede through helper; broad movement/deletion needs USER approval |
-| USER review packets under `C:\Nexus USER` | local USER-facing review aids and upload ZIPs | repo source truth, active operational ledger, durable canon by themselves | local review evidence | repo owners, helpers, external state | refresh/purge per helper rules; do not commit as canon unless explicitly promoted |
+| USER review packets under `D:\Nexus Desktop AI Data\USER` | local USER-facing review aids and upload ZIPs | repo source truth, active operational ledger, durable canon by themselves | local review evidence | repo owners, helpers, external state | refresh/purge per helper rules; do not commit as canon unless explicitly promoted |
 
 ## Docs Source-Truth Reform Model
 
@@ -165,7 +165,7 @@ Repo docs own durable runtime-observability rules, source-truth owner boundaries
 Active or raw proof belongs in the appropriate non-canonical evidence owner:
 
 - exact launcher, photo/video, screenshot, interaction, and manifest evidence: helper output, Codex digest, local USER review hub, USER screenshots folder, or approved evidence root
-- active Live Validation / UTS posture: active external branch plan or `C:\Nexus Governance State`
+- active Live Validation / UTS posture: active external branch plan or `D:\Nexus Desktop AI Data\Governance State`
 - Git/GitHub/PR/release facts: Git, GitHub, or approved helper-derived truth
 - durable post-merge interpretation: repo branch receipts, workstream records, family vision fold-down, or release receipts after USER-approved fold-down
 
@@ -181,8 +181,8 @@ Repo docs may own durable RAR rules, field schemas, blocker names, source-owner 
 
 Active RAR evidence belongs in the active branch's external operational state, USER packet, helper output, Codex digest, Git/GitHub evidence, or screenshot/video evidence root according to fact class:
 
-- active adoption ledger: `C:\Nexus Governance State\branches\<branch_slug>\adoption_reconciliation.md` or the active external branch plan
-- USER-facing RAR packet: `C:\Nexus USER\<worktree-label>\` plus timestamped `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`
+- active adoption ledger: `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\adoption_reconciliation.md` or the active external branch plan
+- USER-facing RAR packet: `D:\Nexus Desktop AI Data\USER\<worktree-label>\` plus timestamped `D:\Nexus Desktop AI Data\USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`
 - raw visual proof: USER screenshots/video evidence roots or helper proof roots
 - RAR code-to-visual rows, UI element inventories, nonconformance ledgers, and issue-candidate tables: active external branch state, USER packets, or helper output until USER-approved fold-down
 - live issue state: GitHub / `gh` / connector evidence until USER approves issue mutation and a durable receipt is folded down
@@ -206,7 +206,7 @@ Required State:
 - Repo docs may own durable plugin/connector governance rules, phase placement, approval requirements, privacy boundaries, source-truth ownership, prompt/template scaffolds, blocker names, stable schemas, and compact historical receipts after evidence is digested.
 - Repo docs must not own current plugin availability, connector login/auth/session state, API key state, current PR reactions, current review-thread state, current connector health, current plugin run output, temporary screenshots, per-run logs, live setup status, or other volatile tool evidence.
 - Git, GitHub, official provider/tool surfaces, approved helpers, Codex digests, USER review packets, and local external operational state own live evidence according to fact class and phase.
-- `C:\Nexus Governance State` may own plugin/connector operational evidence only after an explicit USER-approved external-state schema or active workflow need admits that evidence. Until then, plugin/connector outputs stay in Codex digest, helper output, USER review packets, local artifacts, or the live tool surface.
+- `D:\Nexus Desktop AI Data\Governance State` may own plugin/connector operational evidence only after an explicit USER-approved external-state schema or active workflow need admits that evidence. Until then, plugin/connector outputs stay in Codex digest, helper output, USER review packets, local artifacts, or the live tool surface.
 - Product/runtime plugin integration for Nexus itself remains separate from Codex app plugin/connector evidence. Product plugin runtime work routes through the owning family/workstream and does not become authorized by this Codex evidence contract.
 
 Allowed Durable Repo Facts:
@@ -340,7 +340,7 @@ Applies To: active branch state, active branch plans, worktree assignment, relea
 Required State:
 
 - Repo docs own durable source truth.
-- `C:\Nexus Governance State` owns accepted operational state after the external-state system is USER-approved and initialized.
+- `D:\Nexus Desktop AI Data\Governance State` owns accepted operational state after the external-state system is USER-approved and initialized.
 - `<worktree>\.nexus_state_staging\` may hold proposed state only after USER approves worktree-local staging.
 - Git, GitHub, and approved helpers own derived live facts.
 - External governance candidates are not binding governance until folded into repo source truth through a USER-approved repo update and merge.
@@ -413,7 +413,7 @@ repo/external placement; `Docs/phase_governance.md` for phase gates; and
 requirements.
 
 Purpose: validate one explicitly selected external record without pretending
-that every record in `C:\Nexus Governance State` shares one branch head or one
+that every record in `D:\Nexus Desktop AI Data\Governance State` shares one branch head or one
 currentness boundary.
 
 Record classes:
@@ -500,9 +500,9 @@ Purpose: active worktrees may discover reusable standards before they are ready 
 
 Preferred external structure:
 
-- Branch candidate proposals: `C:\Nexus Governance State\branches\<branch_slug>\reference_candidates\...`
-- Optional generated aggregate report: `C:\Nexus Governance State\reference_standards\REFERENCE_CANDIDATE_SYNC_REPORT.md`
-- Optional generated collision report: `C:\Nexus Governance State\reference_standards\REFERENCE_COLLISION_REVIEW.md`
+- Branch candidate proposals: `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\reference_candidates\...`
+- Optional generated aggregate report: `D:\Nexus Desktop AI Data\Governance State\reference_standards\REFERENCE_CANDIDATE_SYNC_REPORT.md`
+- Optional generated collision report: `D:\Nexus Desktop AI Data\Governance State\reference_standards\REFERENCE_COLLISION_REVIEW.md`
 
 Required candidate fields:
 
@@ -560,7 +560,7 @@ Required State:
 - `Docs/external_operational_state_store_reform_plan.md` carries a current Docs Split Target Matrix and annotated future-work recommendations.
 - Stage 0 means docs/source-truth planning only; it does not approve helper code, validator code, folder creation, external state initialization, state migration, or file movement.
 - Stage 1 means helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but applied mutation remains blocked without later USER approval.
-- Stage 2 means USER-approved local root initialization only; it may initialize `C:\Nexus Governance State`, but it does not migrate active branch/worktree/release-window state, transition repo validators, or move repo docs.
+- Stage 2 means USER-approved local root initialization only; it may initialize `D:\Nexus Desktop AI Data\Governance State`, but it does not migrate active branch/worktree/release-window state, transition repo validators, or move repo docs.
 - Stage 3 means migration planning and external preview packets only; it may record no-mutation preview packets in external state, but it does not migrate active state.
 - Stage 4A means report-only repo live-state leakage scanning and migration-map helper support; it may inspect repo docs and print migration candidates, but it does not edit repo docs, migrate active state, create external branch/worktree/release-window records, or transition validators.
 - Stage 4B means active-state migration planning packet only; it may use Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules, but it does not create or update central external records, move/delete/archive repo docs, migrate active state, or transition validators.
@@ -568,9 +568,9 @@ Required State:
 - Stage 4 means USER-approved active-state migration execution; it may create or update only the approved central external operational records, locks, snapshots, and audit logs. It does not move, delete, archive, or rewrite repo Docs and does not transition validators unless separately approved.
 - Stage 5 means validator transition; local external-state validators may require the initialized external root and migrated records only for approved local workflows, while GitHub Actions and clean-clone repo validators remain external-root independent.
 - Stage 6 means repo cleanup planning; it may classify cleanup lanes, name candidate surfaces, and recommend future execution packets, but it does not edit, move, delete, archive, or rewrite repo Docs.
-- Stage 6A means compact pointer-surface cleanup execution; it may edit only `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md` to remove live operational posture and replace it with pointers to Git/GitHub/helpers, `C:\Nexus Governance State`, family visions, branch records, branch plans, workstream dossiers, and release receipts.
+- Stage 6A means compact pointer-surface cleanup execution; it may edit only `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md` to remove live operational posture and replace it with pointers to Git/GitHub/helpers, `D:\Nexus Desktop AI Data\Governance State`, family visions, branch records, branch plans, workstream dossiers, and release receipts.
 - Stage 6B means branch-authority routing cleanup planning; it may define how `Docs/branch_records/index.md` should become durable routing law plus external active-authority pointers, but it must not edit the index, branch records, branch plans, or generated audits.
-- Stage 6C means branch-authority routing cleanup execution; it may edit only `Docs/branch_records/index.md` plus stage-boundary source truth so the index keeps durable routing law, historical receipt routing, and the single standing Governance active exception while non-standing active operational branch authority routes to `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
+- Stage 6C means branch-authority routing cleanup execution; it may edit only `Docs/branch_records/index.md` plus stage-boundary source truth so the index keeps durable routing law, historical receipt routing, and the single standing Governance active exception while non-standing active operational branch authority routes to `D:\Nexus Desktop AI Data\Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
 - Stage 6D means branch-detail-record / branch-plan cleanup planning; it may define exact future cleanup batches, durable receipt preservation rules, external replacement owners, and validation preflight for branch records and branch plans, but it must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
 - Stage 6E means branch-detail-record / branch-plan no-loss cleanup closure; it may record the execution finding that broad branch-record and branch-plan rewrites are not required when report-only scanners show zero blocking leakage, branch plans are classified as durable historical receipts, and branch records are transition-legal or durable receipt surfaces. It must not edit branch detail records or branch plans except the standing Governance intake record or a later USER-approved exact live-state leakage fold-down repair for a named surface; it must not move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
 - Current repo branch records and branch plans remain durable transition owners or historical receipts until a USER-approved exact cleanup/fold-down stage changes them. That transition posture does not allow current phase, active authority, active next-gate, live PR, selected-next, worktree-assignment, release-window, or active branch-plan ledger fields to remain in a non-standing repo branch record after a validator names them as blocking leakage.
@@ -588,7 +588,7 @@ Allowed Values:
 Invalid Values:
 
 - claiming external migration is active during Stage 0
-- requiring `C:\Nexus Governance State` in GitHub Actions or clean-clone repo validation
+- requiring `D:\Nexus Desktop AI Data\Governance State` in GitHub Actions or clean-clone repo validation
 - treating Stage 5 local external-state validation as permission to move, delete, archive, or rewrite repo Docs
 - treating Stage 6 cleanup planning as permission to execute cleanup edits without a later exact-file USER decision
 - treating Stage 6A compact pointer cleanup as permission to edit branch records, branch plans, workstreams, family visions, generated audits, move/delete/archive files, or mutate external state
@@ -635,7 +635,7 @@ Planning and recommendation sections may use softer wording only when explicitly
 
 ## CI And Clean Clone Boundary
 
-Repo validators running in GitHub Actions or on clean clones validate durable repo truth only. They must not require access to `C:\Nexus Governance State`.
+Repo validators running in GitHub Actions or on clean clones validate durable repo truth only. They must not require access to `D:\Nexus Desktop AI Data\Governance State`.
 
 Local governance validators may require external state only for active local workflow, Release Readiness analysis, worktree coordination, external-state migration, external-state validation, lock/snapshot/recovery workflows, or another USER-approved local operational pass.
 
@@ -647,7 +647,7 @@ If external state is missing during active local workflow, Codex must return `Ex
 
 The bootstrap packet must include:
 
-- desired root: `C:\Nexus Governance State`
+- desired root: `D:\Nexus Desktop AI Data\Governance State`
 - worktree label
 - source repo path
 - branch
@@ -659,7 +659,7 @@ The bootstrap packet must include:
 Future helper command expectation:
 
 ```text
-python dev\orin_external_state_init.py --root "C:\Nexus Governance State" --worktree "<label>" --repo "<repo_path>" --schema <schema_version>
+python dev\orin_external_state_init.py --root "D:\Nexus Desktop AI Data\Governance State" --worktree "<label>" --repo "<repo_path>" --schema <schema_version>
 ```
 
 Until USER approves initialization, active operational workflow waits. Analysis-only work may continue only with an explicit analysis-only waiver.
@@ -670,7 +670,7 @@ Canonical external operational state must live outside every Git worktree.
 
 Valid canonical root:
 
-- `C:\Nexus Governance State`
+- `D:\Nexus Desktop AI Data\Governance State`
 
 Invalid as canonical state:
 
@@ -861,7 +861,7 @@ Runtime Branch Readiness should separate dense planning into:
 - `Implementation Sequence`
 - `Proof Plan`
 
-The user-facing packet should summarize each area and point to the active external Branch Runtime Engineering Plan for detail. The detailed active plan remains in `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`; repo branch-plan files are historical receipts after fold-down, and backlog and roadmap stay compact pointer/status surfaces.
+The user-facing packet should summarize each area and point to the active external Branch Runtime Engineering Plan for detail. The detailed active plan remains in `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`; repo branch-plan files are historical receipts after fold-down, and backlog and roadmap stay compact pointer/status surfaces.
 
 ## Branch Record / Plan / Workstream Fold-Down Model
 
@@ -921,7 +921,7 @@ Family vision records live under `Docs/family_visions/` and receive reusable vis
 
 Family Feature Vision records, when USER approves creating them under `Docs/family_feature_visions/`, are the durable middle vision layer between Family Vision and active Branch Vision. They hold detailed feature-category product direction inside one FAM without becoming a new backlog family, branch plan, Slice/SLC, seam, branch route, active status tracker, selected-next owner, or live dependency queue. Selected feature-bearing branch routes block BP1 on `Family Feature Vision Required For Selected Feature` until the required Family Feature Vision exists and passes `Feature Vision Sufficiency Check`, unless the branch planning packet records `Family Feature Vision Not Applicable` for a governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product route. The preferred durable naming model is compact: `Docs/family_feature_visions/index.md` for the registry and content files such as `Docs/family_feature_visions/F6-FF01.md` or `Docs/family_feature_visions/F7-FF01.md`, with human-readable titles inside the file and index. Existing long FFV filenames are transition aliases until the owning worktree receives USER-approved FFV rename/reframe and pointer migration.
 
-Deferred Feature Carryforward belongs in the relevant Family Feature Vision when it preserves durable planning facts such as deferred item title, origin planning event, feature surface, dependency trigger, grouping recommendation, proof expectation, and durable disposition. Active branch terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or release-window status remain invalid in Family Feature Vision carryforward rows because those facts belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper truth, or USER decision packets. If an FFV is renamed, compacted, or reframed, every in-scope repo pointer, active external-state pointer, branch plan pointer, branch record pointer, and USER packet context path must migrate with it or the owning branch stops on `Family Feature Vision Pointer Migration Missing`.
+Deferred Feature Carryforward belongs in the relevant Family Feature Vision when it preserves durable planning facts such as deferred item title, origin planning event, feature surface, dependency trigger, grouping recommendation, proof expectation, and durable disposition. Active branch terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or release-window status remain invalid in Family Feature Vision carryforward rows because those facts belong to BR2 output, active external branch planning, `D:\Nexus Desktop AI Data\Governance State`, Git/GitHub/helper truth, or USER decision packets. If an FFV is renamed, compacted, or reframed, every in-scope repo pointer, active external-state pointer, branch plan pointer, branch record pointer, and USER packet context path must migrate with it or the owning branch stops on `Family Feature Vision Pointer Migration Missing`.
 
 ## Vision-To-Plan Interaction Loop
 
@@ -1000,11 +1000,11 @@ The generated review dossier and index must expose these decisions through a USE
 
 When Codex asks USER to inspect repo files, review a generated dossier, approve a planning packet, or compare a source-truth reform surface, Codex must create or refresh the USER-facing stable local review folder for the active worktree.
 
-The active local USER hub is `C:\Nexus USER`.
+The active local USER hub is `D:\Nexus Desktop AI Data\USER`.
 
 The USER review packet must:
 
-- live under one stable local hub root, `C:\Nexus USER`
+- live under one stable local hub root, `D:\Nexus Desktop AI Data\USER`
 - use one child folder per active worktree label, derived from the current worktree root folder name when USER does not provide a label, such as `Governance`, `FAM-006`, or `FAM-007`
 - refresh the same worktree-labeled child folder instead of creating a new top-level folder for each review packet
 - use stable subfolders inside the worktree-labeled child folder: `USER Review` for exactly one primary USER-facing decision file for the current gate, `Review Aids` for generated supporting digests/checklists, and `Source Truth Context` for copied repo context files with traceable filenames when needed to avoid basename collisions
@@ -1021,7 +1021,7 @@ USER_BRANCH_VISION_REVIEW.md reinforcement: the review is the BP1 Branch Vision 
 
 USER_BRANCH_PLAN_REVIEW.md reinforcement: the review is the BP2 Branch Plan Contract, and the named checkpoint is the `USER Branch Plan Review Gate`. It must include Accepted Branch Vision Summary, Implementation Package Summary, Branch Scope Size Test, SLC/seam plan, Affected Surfaces, Likely Files, Validators/Helpers, Proof Requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, Rollback/Safety Plan, Open Engineering Risks, Future-Gated Boundaries, line-item USER plan review, USER response, Codex response digest, implementation constraints created by USER response, source-truth impact, Contract Change Log, Plan Acceptance Checklist, waiver path, and exact BP3 approval text. `Contract Status` must be `Complete` or `Waived by USER` before BP3 can approve implementation; `Draft`, `Pending USER Response`, `Pending Codex Digest`, and `Pending USER Confirmation` block implementation. If USER feedback changes branch direction, feature shape, UI behavior, workflow, scope, boundaries, or seam order, Codex must update source truth, refresh the local USER hub packet and ZIP, set Contract Status to Pending USER Confirmation, and wait for USER confirmation or explicit waiver.
 
-For governance review or PR-readiness review, the local USER hub helper should be self-checking while keeping USER-facing files readable. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation; the helper defaults to `C:\Nexus USER\<worktree-label>` and should not require USER to name a new folder for active worktrees. The helper must create a timestamped ZIP export at `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip` from the freshly refreshed worktree folder, remove any legacy same-name `C:\Nexus USER\<worktree-label>.zip` upload artifact and previous same-label timestamped upload ZIPs, and validate the timestamped filename plus folder/ZIP parity directly, where parity means ZIP-beside-folder placement, no duplicate ZIP entries, file-list equality, and content-hash equality. Before a packet can support PR Readiness, final packet proof must report clean folder regeneration, mandatory timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, folder/ZIP parity with ZIP-beside-folder placement, no duplicate ZIP entries, file-list equality, and content-hash equality, approved file-class layout, exactly one primary current-gate USER review file under `USER Review`, stale-stage / unresolved-placeholder scan, and the final `USER Review Packet Finding:`. USER-facing files must not center active branch status, current commit, current baseline, validation status, PR state, worktree status, ZIP SHA256, ZIP hash, packet hash, upload hash, or similar technical proof metadata. USER-uploadable review zips created outside this helper are stale-risk evidence and must be regenerated before review or PR Readiness, unless `dev/orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip>` proves the same folder/ZIP/layout/stale-output contract, including content-hash equality. `--review-root`, `--worktree-label`, or legacy one-off folder customizations require `--allow-custom-review-path` plus a recorded reason. If the local USER hub folder/zip cannot be created, stop with `USER Review Hub Missing`; if local packet proof fails, stop on `USER Review Packet Stale` and return the exact blocker plus the helper command USER can run.
+For governance review or PR-readiness review, the local USER hub helper should be self-checking while keeping USER-facing files readable. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation; the helper defaults to `D:\Nexus Desktop AI Data\USER\<worktree-label>` and should not require USER to name a new folder for active worktrees. The helper must create a timestamped ZIP export at `D:\Nexus Desktop AI Data\USER\<worktree-label>-YYYYMMDD-HHMMSS.zip` from the freshly refreshed worktree folder, remove any legacy same-name `D:\Nexus Desktop AI Data\USER\<worktree-label>.zip` upload artifact and previous same-label timestamped upload ZIPs, and validate the timestamped filename plus folder/ZIP parity directly, where parity means ZIP-beside-folder placement, no duplicate ZIP entries, file-list equality, and content-hash equality. Before a packet can support PR Readiness, final packet proof must report clean folder regeneration, mandatory timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, folder/ZIP parity with ZIP-beside-folder placement, no duplicate ZIP entries, file-list equality, and content-hash equality, approved file-class layout, exactly one primary current-gate USER review file under `USER Review`, stale-stage / unresolved-placeholder scan, and the final `USER Review Packet Finding:`. USER-facing files must not center active branch status, current commit, current baseline, validation status, PR state, worktree status, ZIP SHA256, ZIP hash, packet hash, upload hash, or similar technical proof metadata. USER-uploadable review zips created outside this helper are stale-risk evidence and must be regenerated before review or PR Readiness, unless `dev/orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip>` proves the same folder/ZIP/layout/stale-output contract, including content-hash equality. `--review-root`, `--worktree-label`, or legacy one-off folder customizations require `--allow-custom-review-path` plus a recorded reason. If the local USER hub folder/zip cannot be created, stop with `USER Review Hub Missing`; if local packet proof fails, stop on `USER Review Packet Stale` and return the exact blocker plus the helper command USER can run.
 
 ## Standing Governance Ledger Compaction
 
