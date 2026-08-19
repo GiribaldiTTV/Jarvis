@@ -3777,7 +3777,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Main-First Loader Chain",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Context docs may explain",
     ),
     Path("Docs/development_rules.md"): (
@@ -3803,7 +3803,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Docs/Main.md",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
     Path("Docs/orin_task_template.md"): (
         "Preserve the Main-first loader chain",
@@ -3825,7 +3825,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
     Path("Docs/family_visions/README.md"): (
         "Main-first loader chain",
         "Docs/nexus_vision.md",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
 }
 
@@ -5146,7 +5146,7 @@ RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
 BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "Branch Runtime Engineering Plan",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
         "PR Readiness fold-down",
     ),
@@ -5161,7 +5161,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
         "local USER hub packet",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
@@ -5183,7 +5183,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
         "local USER hub packet",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
@@ -5201,14 +5201,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/workstreams/index.md"): (
         "Branch Runtime Engineering Plan",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "PR Readiness fold-down",
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
         "Branch Planning Review Packet",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
@@ -5218,7 +5218,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
 USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "USER Feedback Disposition",
-        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "compact UFD pointers",
     ),
     Path("Docs/phase_governance.md"): (

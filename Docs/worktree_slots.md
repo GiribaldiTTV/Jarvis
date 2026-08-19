@@ -9,7 +9,7 @@ Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 It prevents temporary family names such as FAM-006 or FAM-007 from becoming permanent lane concepts. The stable concept is the slot role. The branch, family, and workstream assigned to that slot may change only through USER-approved assignment or retirement.
 
-This document records stable slot definitions and durable assignment receipt schema. Current root routing is owned by `Docs/nexus_workspace_roots.md`. Current worktree assignment, active thread ownership, and live branch/worktree state belong to Git/GitHub/helpers and `D:\Nexus Desktop AI Data\Governance State` after the approved single-root relocation. Older C paths below are historical receipt examples unless the root map explicitly says otherwise.
+This document records stable slot definitions and durable assignment receipt schema. Current root routing is owned by `Docs/nexus_workspace_roots.md`. Current worktree assignment, active thread ownership, and live branch/worktree state belong to Git/GitHub/helpers and `D:\Nexus Desktop AI\Governance State` after the approved single-root relocation. Older C paths below are historical receipt examples unless the root map explicitly says otherwise.
 
 ## Ownership Boundary
 
@@ -63,11 +63,11 @@ Use these slot IDs for current and future workspace planning:
 
 | Slot ID | Role | Expected Path |
 | --- | --- | --- |
-| `neutral-main` | neutral main / consolidator workspace | `C:\Nexus Desktop AI` |
-| `governance-standing` | standing governance intake lane | `D:\Nexus Desktop AI Data\Worktrees\Governance` |
-| `runtime-active-1` | reusable active runtime/workstream lane | `D:\Nexus Desktop AI Data\Worktrees\<USER-assigned label>` |
-| `runtime-active-2` | reusable active runtime/workstream lane | `D:\Nexus Desktop AI Data\Worktrees\<USER-assigned label>` |
-| `runtime-active-3` | optional USER-approved active runtime/workstream lane | `D:\Nexus Desktop AI Data\Worktrees\<USER-assigned label>` |
+| `neutral-main` | neutral main / consolidator workspace | `D:\Nexus Desktop AI\Product Repository` |
+| `governance-standing` | standing governance intake lane | `D:\Nexus Desktop AI\Worktrees\Governance` |
+| `runtime-active-1` | reusable active runtime/workstream lane | `D:\Nexus Desktop AI\Worktrees\<USER-assigned label>` |
+| `runtime-active-2` | reusable active runtime/workstream lane | `D:\Nexus Desktop AI\Worktrees\<USER-assigned label>` |
+| `runtime-active-3` | optional USER-approved active runtime/workstream lane | `D:\Nexus Desktop AI\Worktrees\<USER-assigned label>` |
 | `archived-historical` | historical or retired workspace trace | recorded in retirement receipt |
 
 Do not create permanent slot IDs named after a current feature family. A FAM, package, or branch can be assigned to a runtime slot, but the slot itself remains reusable.
@@ -78,7 +78,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 
 - Slot ID: `neutral-main`
 - Role: neutral main / consolidator workspace
-- Expected Path: `C:\Nexus Desktop AI`
+- Expected Path: `D:\Nexus Desktop AI\Product Repository`
 - Assignment Status: standing neutral slot
 - Assigned Branch: `main`
 - Assigned Family / Workstream: none
@@ -91,7 +91,7 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 
 - Slot ID: `governance-standing`
 - Role: standing governance intake lane
-- Expected Path: `D:\Nexus Desktop AI Data\Worktrees\Governance`
+- Expected Path: `D:\Nexus Desktop AI\Worktrees\Governance`
 - Assignment Status: standing assigned slot
 - Assigned Branch: `feature/release-readiness-source-truth-intake`
 - Assigned Family / Workstream: Standing Governance Intake Branch
@@ -104,9 +104,9 @@ Do not create permanent slot IDs named after a current feature family. A FAM, pa
 
 - Slot ID: `runtime-active-1`
 - Role: reusable active runtime/workstream lane
-- Expected Path: `C:\Nexus Worktrees\<USER-assigned label>`
+- Expected Path: `D:\Nexus Desktop AI\Worktrees\<USER-assigned label>`
 - Assignment Status: external operational state owns the current assignment; repo record keeps reusable slot definition only
-- Assigned Branch: see `D:\Nexus Desktop AI Data\Governance State\worktrees\<worktree_label>\worktree_state.md` and live Git/GitHub/helper truth
+- Assigned Branch: see `D:\Nexus Desktop AI\Governance State\worktrees\<worktree_label>\worktree_state.md` and live Git/GitHub/helper truth
 - Assigned Family / Workstream: see external operational state and the active branch authority record when a branch is admitted
 - Branch Authority Record: resolved by active branch authority or historical receipt, not this slot registry
 - Branch Runtime Engineering Plan: resolved by active branch authority or historical receipt, not this slot registry
@@ -151,7 +151,7 @@ When a runtime branch is assigned to a slot, the branch authority record or Bran
 - Assignment Status:
 - Operational Truth Source:
 
-Current runtime slot assignment truth should be resolved from `C:\Nexus Governance State`, the active branch authority record, and identity preflight. Do not add phase narratives, PR readiness narration, latest release references, commit hashes, selected-next posture, live ownership, or long branch histories to the slot registry.
+Current runtime slot assignment truth should be resolved from `D:\Nexus Desktop AI\Governance State`, the active branch authority record, and identity preflight. Do not add phase narratives, PR readiness narration, latest release references, commit hashes, selected-next posture, live ownership, or long branch histories to the slot registry.
 
 ## Active Thread Ownership And Collision Recovery
 
@@ -175,7 +175,7 @@ Shared-file overlap across worktrees is legal when each active branch has its ow
 
 Worktree-to-worktree mutation is different and remains blocked by default. A thread assigned to one worktree must not edit, stage, commit, rebase, merge, clean, launch owner-only validation from, or otherwise mutate another active worktree or branch unless USER grants a bounded waiver that names the source worktree, target worktree, branch, write set, expiration or stop condition, validation proof, and return path.
 
-This slot registry may define the durable boundary and reusable slot roles, but it must not track live changed-file state, current active assignment, current branch status, PR state, release-window posture, or mutable dependency queues. Those live facts belong to `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, active external branch plans, USER packets, or Codex digests as routed by source truth.
+This slot registry may define the durable boundary and reusable slot roles, but it must not track live changed-file state, current active assignment, current branch status, PR state, release-window posture, or mutable dependency queues. Those live facts belong to `D:\Nexus Desktop AI\Governance State`, Git/GitHub/helper-derived truth, active external branch plans, USER packets, or Codex digests as routed by source truth.
 
 ## Slot Retirement Receipt
 
@@ -197,7 +197,7 @@ Retirement is not branch deletion by default. Branch deletion, worktree removal,
 
 ## Branch Runtime Engineering Plan Relationship
 
-For runtime-focused branches, the slot points to the branch authority record, and the branch authority record points to the active Branch Runtime Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`. Repo branch-plan files under `Docs/branch_plans/` are historical receipts after fold-down, not active slot state.
+For runtime-focused branches, the slot points to the branch authority record, and the branch authority record points to the active Branch Runtime Engineering Plan under `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md`. Repo branch-plan files under `Docs/branch_plans/` are historical receipts after fold-down, not active slot state.
 
 The Branch Runtime Engineering Plan is canonical while the branch is active. PR Readiness must produce a fold-down or retirement packet deciding what durable content becomes structured branch receipt evidence, what is promoted to canonical workstream or family-dossier history, and when the plan is retired from active planning posture.
 

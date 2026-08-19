@@ -1,6 +1,6 @@
 # Branch Runtime Engineering Plans
 
-`Docs/branch_plans/<branch_slug>.md` defines the Branch Runtime Engineering Plan shape and preserves durable historical branch-plan receipts. After the External Operational State Store transition, active branch planning state lives in `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` until it folds down as durable repo evidence.
+`Docs/branch_plans/<branch_slug>.md` defines the Branch Runtime Engineering Plan shape and preserves durable historical branch-plan receipts. After the External Operational State Store transition, active branch planning state lives in `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md` until it folds down as durable repo evidence.
 
 Repo branch-plan files are not the long-term place to maintain active ledger rows. While active, detailed plan rows, UFD items, Branch Change Intent rows, Element-to-Phase rows, Workstream Entry review packets, Hardening plans, and Live Validation plans belong in the active external branch planning owner or in an explicitly USER-approved transition packet. Repo copies should reduce to plan shape, durable evidence pointers, fold-down receipts, and historical lookup paths.
 
@@ -542,7 +542,7 @@ Matrix markers:
 - Matrix Status: allowed values are `Required`, `Present`, `Accepted`, `Blocked`, `Folded`, `Historical`, or `Not Required with reason`
 - USER Review Status: allowed values are `Pending`, `Accepted`, `Revised`, `Waived`, or `Needs USER Decision`
 - Open Element Questions: allowed values are `None`, `Queued`, `Blocking`, or `Deferred With Waiver`
-- Element Coverage Owner: must name the active `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` owner before implementation, or a concrete folded source-truth owner after PR Readiness
+ - Element Coverage Owner: must name the active `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md` owner before implementation, or a concrete folded source-truth owner after PR Readiness
 - Element Validation Ledger Owner: must name the concrete Element Validation Ledger owner path or source-truth owner
 
 Required table shape:
@@ -959,7 +959,7 @@ Branch records carry compact UFD status and pointers only. Backlog carries futur
 
 `Branch Change Intent Ledger` is required when `Pre-Rebaseline Impact Audit` reports non-empty `Rebaseline Overlap Files:` for the active branch/worktree. It preserves why the branch touched an overlapping file before Codex accepts incoming `origin/main` changes.
 
-Runtime branches keep this ledger inside the active external Branch Runtime Engineering Plan. Non-runtime branches with overlap must admit or update the smallest source-truth-supported external Branch Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` before rebaseline mutation can proceed.
+ Runtime branches keep this ledger inside the active external Branch Runtime Engineering Plan. Non-runtime branches with overlap must admit or update the smallest source-truth-supported external Branch Engineering Plan under `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md` before rebaseline mutation can proceed.
 
 Each overlapping file uses a repeatable block:
 
@@ -997,7 +997,7 @@ When overlap evidence is missing, weak, stale, or conflicting, Codex must run `R
 
 Branch Readiness Stage 1 proposes the plan requirements and returns the USER planning-review decision needed.
 
-Branch Readiness Stage 2 creates or admits `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, links it from the branch authority record through `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, and keeps `Runtime Implementation Approval:` pending until a later USER decision admits runtime work. Stage 2 closeout must explicitly tell USER that the active external plan is now the object of the next review gate and that USER may accept, change, waive, or reject the plan before implementation.
+ Branch Readiness Stage 2 creates or admits `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md`, links it from the branch authority record through `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, and keeps `Runtime Implementation Approval:` pending until a later USER decision admits runtime work. Stage 2 closeout must explicitly tell USER that the active external plan is now the object of the next review gate and that USER may accept, change, waive, or reject the plan before implementation.
 
 Branch Readiness Stage 2 may also create or refresh a USER-reviewable local hub packet for the admitted branch under `C:\Nexus USER\<worktree-label>` with a matching timestamped upload ZIP at `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`. The packet uses the stable structured local USER hub format: `START_HERE.md` at the root, `USER Review` with exactly one primary decision file for the active gate, `Review Aids` for generated supporting digests/checklists, and `Source Truth Context` for copied repo context such as the active external branch plan or approved transition branch plan, branch authority evidence pointer, branch-record index, relevant family/Nexus vision or source-truth router files, and compact backlog/roadmap/validator/helper files needed for USER review before Workstream implementation approval. Stage 2 closeout must report the review folder path, copied files, validation summary, exact next USER decision requested, and pending USER decisions through helper output or Codex digest rather than making mutable branch status the focus of USER-facing files. Missing local USER hub packet proof, missing/shallow Branch Planning review files, stale packet, packet not loaded/digested, or missing USER response/digest/waiver blocks the handoff on `Branch Readiness Stage 2 Review Bundle Missing`, `BP1 Branch Vision Review Missing`, `BP2 Branch Plan Review Missing`, `USER Review Packet Stale`, or `USER Review Packet Not Digested`.
 

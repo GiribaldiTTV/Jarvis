@@ -163,7 +163,7 @@ Each deferred item must record:
 - durable disposition
 - fold-down receipt
 
-Deferred Feature Carryforward must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
+ Deferred Feature Carryforward must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `D:\Nexus Desktop AI\Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
 
 Deferred carryforward may preserve durable planning facts even when the implementation is future-gated. It must not become a live dependency ledger. BR2, BP1, BP2, BP3, Workstream, Hardening, and Live Validation dynamically select, map, prove, defer, or block the durable FFV elements; the FFV itself owns only the durable visioned inventory, deferred facts, proof expectations, and fold-down receipts.
 
@@ -213,7 +213,7 @@ Allowed durable dispositions:
 - `Rejected`
 - `Superseded`
 
-Dependency candidates must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
+ Dependency candidates must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `D:\Nexus Desktop AI\Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
 
 `Priority Carry-In, Not Scope Capture`: when a cross-FAM contract creates required work for an affected FAM, that work must be evaluated by the affected FAM's next BR1, but it does not automatically become the only branch objective. The affected FAM should group the carry-in into the relevant FFV or coherent package when practical, and split only when source truth proves the carry-in cannot safely share the branch package.
 
@@ -225,7 +225,7 @@ Dependency candidates must avoid active branch-state terms such as `active`, `cu
 - Family-level vision: `Docs/family_visions/FAM-XXX_<slug>.md`
 - Family Feature Vision index and compact aliases: `Docs/family_feature_visions/index.md` after USER-approved index creation
 - Family Feature Vision content: `Docs/family_feature_visions/F<family>-FF<two digits>.md` after USER-approved content-file creation
-- Active branch vision snapshot: `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`
+ - Active branch vision snapshot: `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md`
 - Durable implementation/proof history: `Docs/workstreams/` records or structured branch receipts
 - Compact family registry and pointers: `Docs/feature_backlog.md`
 
