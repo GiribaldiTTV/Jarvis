@@ -6,13 +6,19 @@ This document is the ChatGPT-facing loader prompt contract for Nexus Desktop AI 
 
 Use it to generate new-chat, handoff, continuation, bootstrap, review, and Codex-prompt requests without pasting the full governance stack into the prompt body. It is an interface and prompt-loader layer only.
 
-Generated prompts must preserve the Main-first loader chain: load `Docs/Main.md` first, then load `Docs/nexus_startup_contract.md` when loader/new-chat continuity, prompt generation, bootstrap continuity, handoff continuity, continuation continuity, loader alignment, or ChatGPT/Codex behavior alignment is in scope, then follow Main to the directly relevant owner docs.
+Generated prompts must preserve the Main-first loader chain: establish
+`D:\Nexus Desktop AI\Product Repository` as the canonical repository, load
+`D:\Nexus Desktop AI\Product Repository\Docs\Main.md` first, then load the
+canonical D `Docs/nexus_startup_contract.md` when loader/new-chat continuity,
+prompt generation, bootstrap continuity, handoff continuity, continuation
+continuity, loader alignment, or ChatGPT/Codex behavior alignment is in scope,
+then follow Main to the directly relevant owner docs.
 
 Compatibility note: the historical loader token
 `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` remains
 present for migration and validator compatibility only. Current active plans
 resolve below
-`D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`
+`D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md`
 through `Docs/nexus_workspace_roots.md`.
 
 `Docs/nexus_startup_contract.md` does not replace the owning canon documents and does not own Codex execution behavior, phase transitions, seam continuation, durability, validation, release rules, branch authority, or stop conditions. Codex execution authority comes from `Docs/Main.md` and the owning source-truth documents after they are loaded.
@@ -36,7 +42,7 @@ This loader owns prompt shape, loader continuity, and ChatGPT prompt-generation 
 - `Docs/governance_efficiency_operating_model.md` owns source-truth split, external operational state, USER review bundle model, and duplicate-governance prevention.
 - `Docs/validation_helper_registry.md` owns helper and validator status, reuse, interpretation boundaries, and evidence handling.
 - `Docs/nexus_vision.md`, `Docs/family_visions/`, and approved family-feature vision owners own project/family/product direction.
-- `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md` owns active external branch planning, USER feedback disposition, branch-local engineering detail, and active planning ledgers. Current root routing is owned by `Docs/nexus_workspace_roots.md`; older C paths in historical receipts are not current routing.
+- `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md` owns active external branch planning, USER feedback disposition, branch-local engineering detail, and active planning ledgers. Current root routing is owned by `Docs/nexus_workspace_roots.md`; older C and pre-cutover D paths in historical receipts are not current routing.
 - Branch records, workstream records, backlog, roadmap, and worktree-slot docs own only the durable record classes Main assigns to them.
 
 If this loader conflicts with Main or an owning canon file, Main and the owner win. Repair this loader through the legal carrier and phase rather than treating the conflict as an execution shortcut.
@@ -45,12 +51,12 @@ If this loader conflicts with Main or an owning canon file, Main and the owner w
 
 Every repo-affecting Codex prompt must say, in substance:
 
-1. Load `Docs/Main.md` first.
+1. Establish `D:\Nexus Desktop AI\Product Repository` as canonical and load `D:\Nexus Desktop AI\Product Repository\Docs\Main.md` first.
 2. Load `Docs/nexus_startup_contract.md` for loader/new-chat continuity when prompt generation, handoff, continuation, bootstrap, loader alignment, or ChatGPT/Codex behavior alignment is in scope.
 3. From Main, load the relevant execution, phase, branch, workstream, vision, validation, external-state, and artifact owners.
 4. Treat context docs and review packets as evidence unless Main routes them as source-truth owners.
 
-When vision context matters, route through `Docs/nexus_vision.md`, `Docs/family_visions/`, approved family-feature vision owners when applicable, and the active external branch plan at `D:\Nexus Desktop AI Data\Governance State\branches\<branch_slug>\branch_plan.md`.
+When vision context matters, route through `Docs/nexus_vision.md`, `Docs/family_visions/`, approved family-feature vision owners when applicable, and the active external branch plan at `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md`.
 
 Context docs may explain, summarize, or point to owner docs. They must not become alternate first loaders, duplicate detailed policy, or override Main.
 
@@ -355,9 +361,9 @@ Use this pattern when generating a new Nexus repo-affecting Codex prompt:
 ```text
 You are Codex acting in the Nexus Desktop AI repo. Repo truth governs.
 
-Load Docs/Main.md first.
+Establish `D:\Nexus Desktop AI\Product Repository` as canonical and load `D:\Nexus Desktop AI\Product Repository\Docs\Main.md` first.
 Then load Docs/nexus_startup_contract.md for loader/new-chat continuity.
-From Docs/Main.md, load the directly relevant source-truth owners for the requested work, including phase governance, development rules, Codex modes, branch/workstream records, active external branch planning under C:\Nexus Governance State when applicable, vision owners, validation registry, helper owners, and any task-specific owner routed by Main.
+From D Main, load the directly relevant source-truth owners for the requested work, including phase governance, development rules, Codex modes, branch/workstream records, active external branch planning under `D:\Nexus Desktop AI\Governance State` when applicable, vision owners, validation registry, helper owners, and any task-specific owner routed by Main.
 
 Before mutation, prove worktree, git root, branch, upstream, HEAD, origin/main, merge base, clean/dirty state, legal authority owner, current phase, allowed scope, pending USER decisions, and next legal phase.
 
@@ -370,7 +376,7 @@ Act only inside the approved scope. If source truth routes the work elsewhere or
 Use this pattern when asking Codex to review an artifact, packet, prompt, PR, or source-truth change:
 
 ```text
-Load Docs/Main.md first.
+Establish `D:\Nexus Desktop AI\Product Repository` as canonical and load `D:\Nexus Desktop AI\Product Repository\Docs\Main.md` first.
 Load Docs/nexus_startup_contract.md if the review concerns loader/new-chat continuity, prompt generation, handoff quality, ChatGPT/Codex behavior alignment, or startup-source-truth drift.
 From Main, load the current owner docs for phase, branch, workstream, vision, validation, external state, USER artifact rules, and PR/release behavior.
 

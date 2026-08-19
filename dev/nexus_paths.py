@@ -1,8 +1,9 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=workspace-root-paths; status=shared
 """Canonical current Nexus filesystem roots.
 
-The neutral main workspace intentionally remains on C:. All other substantive
-Nexus work and evidence uses the single approved D-drive data root.
+The canonical neutral-main repository is on D:. The former C workspace is
+retained only as rollback and historical evidence. All other substantive Nexus
+work and evidence uses the single approved D-drive data root.
 """
 
 from __future__ import annotations
