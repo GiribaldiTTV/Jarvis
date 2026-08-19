@@ -43,7 +43,7 @@ External operational state is a separate local coordination layer after USER-app
 
 ## Current Relocated Workspace Override
 
-`Docs/nexus_workspace_roots.md` supersedes old C-drive operational-root examples for current routing. Neutral main remains `C:\Nexus Desktop AI`; active worktrees are under `D:\Nexus Desktop AI Data\Worktrees`; external operational state is under `D:\Nexus Desktop AI Data\Governance State`; and current USER review hubs are under `D:\Nexus Desktop AI Data\USER`. C-drive occurrences retained in historical receipts, fixtures, and migration rollback evidence are provenance only and must not be copied into new live-state records.
+`Docs/nexus_workspace_roots.md` supersedes old C-drive operational-root examples for current routing. Neutral-main rollback predecessor remains `C:\Nexus Desktop AI`; the canonical product repository is `D:\Nexus Desktop AI\Product Repository`; active worktrees are under `D:\Nexus Desktop AI\Worktrees`; external operational state is under `D:\Nexus Desktop AI\Governance State`; and current USER review hubs are under `D:\Nexus Desktop AI\USER`. C-drive and pre-cutover D-drive occurrences retained in historical receipts, fixtures, and migration rollback evidence are provenance only and must not be copied into new live-state records.
 
 Standing-intake compatibility vocabulary remains explicit for older loader and
 validator mirrors: `Release Readiness digest`,
@@ -67,11 +67,11 @@ Slot assignment is not active branch authority by itself. Repo branch records ow
 
 Current local workspace roles:
 
-- `C:\Nexus Desktop AI` is the protected neutral main/consolidator workspace; tracked file edits on `main` remain blocked.
-- `D:\Nexus Desktop AI Data\Worktrees\` is the current governed local root for active branch worktrees.
-- `D:\Nexus Desktop AI Data\Worktrees\Governance` is the only current `Standing Governance Intake Branch` worktree; it uses `feature/release-readiness-source-truth-intake`, enforces `One Active Cycle`, and returns a post-merge `Return Digest` with exact originating identity.
+- `C:\Nexus Desktop AI` is the protected rollback predecessor; tracked file edits on `main` remain blocked.
+- `D:\Nexus Desktop AI\Worktrees\` is the current governed local root for active branch worktrees.
+- `D:\Nexus Desktop AI\Worktrees\Governance` is the only current `Standing Governance Intake Branch` worktree; it uses `feature/release-readiness-source-truth-intake`, enforces `One Active Cycle`, and returns a post-merge `Return Digest` with exact originating identity.
 - A USER-approved bounded governance/source-truth repair branch may use the D-root Governance worktree only when `Docs/branch_records/index.md` lists an active authority record for that exact branch.
-- `D:\Nexus Desktop AI Data\Repos`, `D:\Nexus Desktop AI Data\Dev ORIN`, and `D:\Nexus Desktop AI Data\Artifacts` are the current non-neutral roots described by `Docs/nexus_workspace_roots.md`; historical D fallback roots are not current without a new assignment.
+- `D:\Nexus Desktop AI\Repository Recovery`, `D:\Nexus Desktop AI\Project Support\Dev ORIN`, and `D:\Nexus Desktop AI\Project Support\Artifacts` are retained recovery/support roots described by `Docs/nexus_workspace_roots.md`; historical D fallback roots are not current without a new assignment.
 - other old `C:\` Nexus folders, including `C:\Nexus Desktop AI FAM-006`, are parked or fallback workspaces unless explicitly reactivated
 - `codex/ai-llm-lab` is historical AI Lab planning traceability only; after USER-approved consolidation into the current feature branch it has no active local/remote branch ref and must not be recreated or reused without USER-approved repo governance
 - active branch names must not use the `codex/` prefix; use `feature/` or another USER-approved non-`codex/` prefix, and treat historical `codex/` branch names as traceability only

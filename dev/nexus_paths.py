@@ -10,16 +10,16 @@ from __future__ import annotations
 from pathlib import Path
 
 
-NEUTRAL_MAIN_ROOT = Path(r"C:\Nexus Desktop AI")
-NEXUS_DATA_ROOT = Path(r"D:\Nexus Desktop AI Data")
+NEUTRAL_MAIN_ROOT = Path(r"D:\Nexus Desktop AI\Product Repository")
+NEXUS_DATA_ROOT = Path(r"D:\Nexus Desktop AI")
 WORKTREES_ROOT = NEXUS_DATA_ROOT / "Worktrees"
 EXTERNAL_STATE_ROOT = NEXUS_DATA_ROOT / "Governance State"
 USER_HUB_ROOT = NEXUS_DATA_ROOT / "USER"
-REPOS_ROOT = NEXUS_DATA_ROOT / "Repos"
-DEV_ORIN_ROOT = NEXUS_DATA_ROOT / "Dev ORIN"
-ARTIFACTS_ROOT = NEXUS_DATA_ROOT / "Artifacts"
+REPOS_ROOT = NEXUS_DATA_ROOT / "Repository Recovery"
+DEV_ORIN_ROOT = NEXUS_DATA_ROOT / "Project Support" / "Dev ORIN"
+ARTIFACTS_ROOT = NEXUS_DATA_ROOT / "Project Support" / "Artifacts"
 CODEX_WORKTREES_ROOT = NEXUS_DATA_ROOT / "Codex Worktrees"
-MIGRATION_EVIDENCE_ROOT = NEXUS_DATA_ROOT / "Migration Evidence"
+MIGRATION_EVIDENCE_ROOT = NEXUS_DATA_ROOT / "Migration"
 GOVERNANCE_WORKTREE = WORKTREES_ROOT / "Governance"
 
 

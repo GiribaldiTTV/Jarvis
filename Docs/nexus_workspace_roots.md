@@ -11,22 +11,22 @@ traceability; those receipts are not current routing authority.
 
 | Surface | Current canonical path | Authority boundary |
 | --- | --- | --- |
-| Neutral main / consolidator | `C:\Nexus Desktop AI` | Protected neutral `main`; it remains on C by explicit USER direction. |
-| Active Git worktrees | `D:\Nexus Desktop AI Data\Worktrees` | Current FAM and Governance worktrees; Git worktree administration is authoritative. |
-| External operational state | `D:\Nexus Desktop AI Data\Governance State` | Active branch, worktree, planning, lock, review, and migration state; repo docs remain durable law. |
-| USER review hub | `D:\Nexus Desktop AI Data\USER` | Current USER packet folders and timestamped upload ZIPs. |
-| Public repository clones | `D:\Nexus Desktop AI Data\Repos` | Non-neutral repository copies and migration-safe fallback clones. |
-| Private/dev ORIN root | `D:\Nexus Desktop AI Data\Dev ORIN` | Private/dev evidence only; no import or runtime activation is implied. |
-| Artifact root | `D:\Nexus Desktop AI Data\Artifacts` | Generated evidence, models, and evaluation artifacts. |
-| Codex-managed detached worktrees | `D:\Nexus Desktop AI Data\Codex Worktrees` | Detached Codex checkouts; they remain separate from active assigned lanes. |
-| Relocation and rollback evidence | `D:\Nexus Desktop AI Data\Migration Evidence` | Copy manifests, parity receipts, rollback proof, and migration diagnostics only. |
+| Neutral main / consolidator | `D:\Nexus Desktop AI\Product Repository` | Protected neutral `main`; physical successor of the former C workspace. |
+| Active Git worktrees | `D:\Nexus Desktop AI\Worktrees` | Current FAM and Governance worktrees; Git worktree administration is authoritative. |
+| External operational state | `D:\Nexus Desktop AI\Governance State` | Active branch, worktree, planning, lock, review, and migration state; repo docs remain durable law. |
+| USER review hub | `D:\Nexus Desktop AI\USER` | Current USER packet folders and timestamped upload ZIPs. |
+| Repository recovery | `D:\Nexus Desktop AI\Repository Recovery` | Transitional fallback clones only; never the canonical product repository. |
+| Private/dev ORIN root | `D:\Nexus Desktop AI\Project Support\Dev ORIN` | Private/dev evidence only; no import or runtime activation is implied. |
+| Artifact root | `D:\Nexus Desktop AI\Project Support\Artifacts` | Generated evidence, models, and evaluation artifacts. |
+| Codex-managed detached worktrees | `D:\Nexus Desktop AI\Codex Worktrees` | Detached Codex checkouts; they remain separate from active assigned lanes. |
+| Relocation and rollback evidence | `D:\Nexus Desktop AI\Migration` | Copy manifests, parity receipts, rollback proof, and migration diagnostics only. |
 
 ## Routing Rules
 
-1. The neutral main workspace remains `C:\Nexus Desktop AI`; no D copy may be
-   treated as neutral main.
+1. The neutral main workspace is now `D:\Nexus Desktop AI\Product Repository`; no other copy may be
+   treated as canonical main.
 2. A current active branch worktree must resolve below
-   `D:\Nexus Desktop AI Data\Worktrees` and must also be registered by Git
+   `D:\Nexus Desktop AI\Worktrees` and must also be registered by Git
    worktree administration and the external state owner.
 3. Current external state and USER packets must resolve below the D data root.
    A C-path occurrence in a historical receipt, fixture, or migration rollback
