@@ -258,3 +258,4 @@ This repo-tracked active list is intentionally narrow after External Operational
 - `Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md`
 - `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`
 - `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` - Companion element-validation ledger owned by `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`; preserved as released historical proof, not active branch authority.
+- `Docs/branch_records/feature_governance_final_d_root_source_truth.md`
