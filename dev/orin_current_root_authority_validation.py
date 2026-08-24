@@ -3,8 +3,8 @@
 This helper is deliberately declarative and diverse from the prose owners it
 checks.  It validates current-root ownership, preserves explicitly historical
 or rollback C references, checks the mutable external-state header, proves the
-carrier/overlay parity set, and runs negative fixtures for the known false
-green classes.
+role-aware carrier/overlay parity set, and runs negative fixtures for the known
+false-green classes.
 """
 
 from __future__ import annotations
@@ -42,6 +42,10 @@ ADMITTED_FILES = (
     "dev/nexus_paths.py",
     "dev/orin_current_root_authority_validation.py",
 )
+
+CARRIER_ONLY_PARITY_ROLES = {
+    "Docs/branch_records/index.md": "CARRIER_ONLY_DURABLE_INDEX_POINTER",
+}
 
 STRICT_D_DOCS = (
     "Docs/worktree_slots.md",
@@ -177,8 +181,13 @@ def parity_failures(carrier: Path, overlay: Path) -> tuple[list[str], dict[str, 
             continue
         carrier_hash = sha256(carrier_path)
         overlay_hash = sha256(overlay_path)
-        rows[relative] = {"carrierSha256": carrier_hash, "overlaySha256": overlay_hash}
-        if carrier_hash != overlay_hash:
+        parity_role = CARRIER_ONLY_PARITY_ROLES.get(relative, "CURRENT_SHARED_OWNER")
+        rows[relative] = {
+            "carrierSha256": carrier_hash,
+            "overlaySha256": overlay_hash,
+            "parityRole": parity_role,
+        }
+        if carrier_hash != overlay_hash and parity_role == "CURRENT_SHARED_OWNER":
             failures.append(f"carrier/overlay mismatch: {relative}")
     return failures, rows
 
@@ -250,9 +259,10 @@ def build_report(repo: Path, state: Path, carrier: Path, overlay: Path) -> dict[
         "duplicateCurrentRootAuthority": "none" if not failures else "review failures",
         "ownerDocsChecked": list(STRICT_D_DOCS) + ["Docs/Main.md"],
         "admittedParity": parity_rows,
+        "carrierOnlyParityRoles": CARRIER_ONLY_PARITY_ROLES,
         "negativeProof": negatives,
         "failures": failures,
-        "validatorScope": "current-root owners only; historical/rollback/fixture references are not current authority",
+        "validatorScope": "current-root owners only; historical/rollback/fixture references and exact carrier-only durable receipt pointers are not shared current-overlay authority",
     }
 
 
