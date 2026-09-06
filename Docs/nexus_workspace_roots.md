@@ -31,14 +31,21 @@ traceability; those receipts are not current routing authority.
 3. Current external state and USER packets must resolve below the D data root.
    A C-path occurrence in a historical receipt, fixture, or migration rollback
    record is evidence, not a current path.
-4. Helpers must use these constants for defaults and must accept explicit path
-   arguments for read-only replay, rollback, and clean-room validation.
+4. Current operational helpers obtain roots from the approved external owner and
+   accept explicit paths for authorized replay or clean-room validation. The
+   retained `dev/nexus_paths.py` exports are legacy import compatibility for
+   existing helpers and public test-support functions, not current routing
+   authority. Its historical defaults do not authorize live reads, writes,
+   fallback or relocation. Public product inspection and tests must not require
+   these machine-local operational directories.
 5. No helper may silently fall back from a missing D current root to a C
    historical root. It must report the missing current root and stop or use an
    explicit caller-supplied path.
-6. Folder and ZIP generation remains outside the repository. The USER root may
-   contain only current worktree-labeled packet folders and their timestamped
-   upload ZIPs, plus no migration scratch or stable un-timestamped ZIP.
+6. Operational packet and ZIP generation remains outside the repository. The
+   external USER publication owner defines the approved workstream collections
+   and the zero-or-one temporary selected review ZIP lifecycle. Workstream
+   collections are evidence folders, not worktrees. No migration scratch,
+   nested archives or stable un-timestamped ZIP belongs in the USER surface.
 
 ## Historical Path Handling
 

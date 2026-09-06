@@ -2,6 +2,14 @@
 
 NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOVERNANCE-D-ROOT-SOURCE-TRUTH; ledger=feature-governance-final-d-root-source-truth; surface=branch-record; status=canonical
 
+## Historical Admission Snapshot
+
+All status, count, scope and future-gate fields below record the pre-expansion
+admission event. They are immutable provenance, not current branch state or
+present execution requirements. Derive current identity from Git and current
+approval/readiness from the external operational owner; this receipt grants
+no live authority and is safe to retain after merge.
+
 ## Receipt Class
 
 Receipt Class: `BR1 durable carrier identity and Model-B admission receipt`
@@ -62,7 +70,7 @@ External Branch Plan Owner: `D:\Nexus Desktop AI\Governance State\branches\featu
 Later Repo Branch Record Pointer: `Docs/branch_records/feature_governance_final_d_root_source_truth.md`
 Authority Status: `Not created; later external records require a separate Stage 2 USER decision.`
 
-## Current Boundaries
+## Historical Admission Boundaries
 
 - Live Branch Authority: `Not admitted.`
 - Live Worktree Authority: `Not admitted.`
@@ -77,7 +85,7 @@ Authority Status: `Not created; later external records require a separate Stage 
 
 The later external branch-state record must include exact Branch and Worktree identity, `Repo Branch Record Pointer`, complete `Branch Identity`, complete `Assigned Worktree Confinement`, expected and actual roots, active owner, intended write set, same-worktree and same-branch collision proof, dirty-worktree collision and recovery proof, off-worktree routing, Governance routing barrier, new-worktree decision gate, no-cross-worktree proof, GitHub Desktop binding, and waiver fields. The later record must use the canonical slug above and must validate against the current D-owned confinement helper before any authority-dependent action.
 
-## Future-Gated Actions
+## Actions Gated At The Historical Admission
 
 - External branch-state creation: `Pending separate USER decision`
 - External branch-plan creation: `Pending separate USER decision`

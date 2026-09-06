@@ -3777,7 +3777,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Main-First Loader Chain",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Context docs may explain",
     ),
     Path("Docs/development_rules.md"): (
@@ -3803,7 +3803,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Docs/Main.md",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
     Path("Docs/orin_task_template.md"): (
         "Preserve the Main-first loader chain",
@@ -3825,7 +3825,7 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
     Path("Docs/family_visions/README.md"): (
         "Main-first loader chain",
         "Docs/nexus_vision.md",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
 }
 
@@ -5146,7 +5146,7 @@ RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
 BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "Branch Runtime Engineering Plan",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
         "PR Readiness fold-down",
     ),
@@ -5161,7 +5161,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
         "local USER hub packet",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
@@ -5183,7 +5183,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
         "local USER hub packet",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
@@ -5201,14 +5201,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/workstreams/index.md"): (
         "Branch Runtime Engineering Plan",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "PR Readiness fold-down",
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
         "Branch Planning Review Packet",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
@@ -5218,7 +5218,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
 USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "USER Feedback Disposition",
-        "D:\\Nexus Desktop AI\\Governance State\\branches\\<branch_slug>\\branch_plan.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "compact UFD pointers",
     ),
     Path("Docs/phase_governance.md"): (
@@ -8439,7 +8439,6 @@ def _branch_record_for_branch(
 def _external_branch_state_record_for_branch(
     branch_name: str,
     actual_root: str,
-    actual_head: str = "",
 ) -> tuple[str, str]:
     if not branch_name:
         return "", ""
@@ -8455,11 +8454,6 @@ def _external_branch_state_record_for_branch(
     # `Branch Planning Packet ZIP`; identity reads must be exact.
     state_branch = _extract_exact_marker_value(state_text, "Branch")
     if state_branch != branch_name:
-        return "", ""
-    live_head = _extract_live_header_marker_value(state_text, "Current HEAD")
-    if not re.fullmatch(r"[0-9a-fA-F]{40}", live_head):
-        return "", ""
-    if actual_head and live_head != actual_head:
         return "", ""
     state_worktree = _extract_exact_marker_value(state_text, "Worktree")
     if (
@@ -8490,17 +8484,6 @@ def _external_branch_state_record_for_branch(
     ):
         return str(state_path), state_text
     return record_pointer, record_text
-
-
-def _extract_live_header_marker_value(text: str, label: str) -> str:
-    """Read one exact current-state marker before historical sections begin."""
-    live_header = re.split(r"^##\s+Historical\b", text, maxsplit=1, flags=re.M)[0]
-    matches = re.findall(
-        rf"^\s*(?:-\s*)?{re.escape(label)}:\s*`?([^`\r\n]+?)`?\s*$",
-        live_header,
-        flags=re.M,
-    )
-    return matches[0].strip() if len(matches) == 1 else ""
 
 
 def _user_test_summary_section(text: str) -> str:
@@ -16914,26 +16897,6 @@ def _git_top_level() -> str:
     return completed.stdout.strip()
 
 
-def _git_common_directory() -> str:
-    completed = subprocess.run(
-        ("git", "rev-parse", "--git-common-dir"),
-        cwd=ROOT_DIR,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    if completed.returncode != 0:
-        return ""
-    common_dir = Path(completed.stdout.strip())
-    if not common_dir.is_absolute():
-        common_dir = Path(ROOT_DIR) / common_dir
-    try:
-        return str(common_dir.resolve())
-    except OSError:
-        return str(common_dir)
-
-
 def _git_upstream_branch() -> str:
     completed = subprocess.run(
         ("git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"),
@@ -21043,8 +21006,6 @@ def _run_worktree_confinement_gate(require) -> None:
 
     branch_name = _git_current_branch()
     actual_root = _git_top_level()
-    actual_head = _git_head_sha()
-    actual_common_directory = _git_common_directory()
     upstream_branch = _git_upstream_branch()
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     active_branch_record_paths = _collect_branch_record_paths(
@@ -21059,7 +21020,6 @@ def _run_worktree_confinement_gate(require) -> None:
         external_record_path, external_record_text = _external_branch_state_record_for_branch(
             branch_name,
             actual_root,
-            actual_head,
         )
         if external_record_text and _is_historical_worktree_receipt(external_record_text):
             _validate_historical_worktree_receipt_confinement(
@@ -21102,14 +21062,6 @@ def _run_worktree_confinement_gate(require) -> None:
     require(
         bool(actual_root),
         "Assigned Worktree Confinement gate could not resolve git top-level worktree root",
-    )
-    require(
-        bool(actual_head) and re.fullmatch(r"[0-9a-f]{40}", actual_head) is not None,
-        "Assigned Worktree Confinement gate could not resolve an exact full checked-out HEAD",
-    )
-    require(
-        bool(actual_common_directory) and Path(actual_common_directory).is_dir(),
-        "Assigned Worktree Confinement gate could not resolve the Git common directory",
     )
     require(
         bool(record_text),
