@@ -12,6 +12,14 @@ This model applies to governance/source-truth/process reform only.
 
 ## Current Workspace Root Contract
 
+The USER root contains exactly FAM-003, FAM-006, FAM-007 and Governance. These are
+durable workstream evidence collections, not publication pairs. Review status
+creates no new directory/worktree. An explicit CURRENT_REVIEW selection admits at
+most one temporary timestamped ZIP per workstream while review is pending; remove
+it after review completes. Package only selected relevant evidence, never the whole
+collection. Preserve still-needed evidence inside its collection before retiring an
+obsolete transport. The external Control Plane owns this lifecycle and its helpers.
+
 The current filesystem-root owner is `Docs/nexus_workspace_roots.md`. The
 approved relocation keeps neutral `main` at `D:\Nexus Desktop AI\Product Repository`
 and moves all other substantive Nexus work and evidence under `D:\Nexus Desktop AI`:
@@ -23,7 +31,7 @@ historical root.
 
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
-External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, active-state migration execution planning packets, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup execution, branch-authority routing planning, branch-authority routing cleanup execution, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, broader repo cleanup execution, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. Stage 4 active-state migration execution has seeded approved local external records, Stage 5 validator transition has made local external-state validation explicit, Stage 6 cleanup planning has classified future cleanup lanes, Stage 6A compact pointer cleanup has cleaned backlog/roadmap/worktree-slot compact surfaces, Stage 6B branch-authority routing planning has defined the `Docs/branch_records/index.md` execution packet, Stage 6C branch-authority routing cleanup has routed the index to external active-authority owners, and Stage 6D has planned branch-detail-record / branch-plan cleanup. Stage 6E no-loss cleanup closure may record that branch detail records and branch plans remain durable receipts or transition owners when scanners find zero blocking leakage; it must not bulk rewrite, move, delete, archive, or require external state in clean clones. If a later validator or review finds exact repo live-state leakage in a named branch detail record or branch-plan receipt, a bounded Governance repair may fold that exact surface down to historical/pointer posture without reopening broad cleanup or deleting evidence. Repo Docs movement and mandatory repo-validator enforcement remain separate stages. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
+Earlier Docs Split stages, approvals, and completion receipts are historical migration evidence. They do not form a mandatory prerequisite chain for current operations. The current explicit USER authorization admits the named source repair, sandbox work, local commits, activation, or other actions individually. Preserve USER changes, protected main, live-state boundaries, and retained history; do not infer remote actions or destructive historical cleanup.
 
 Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing, Docs Split Target Matrix, implementation annotations, and future-work design. Use it as the durable future-work reference, not as active migration authority.
 
@@ -54,7 +62,7 @@ Repo Docs are durable index/context files. They may contain governance law, prod
 
 Repo Docs must not contain active operational ledger material for branch state, branch plans, UFD rows, Branch Change Intent rows, Element-to-Phase rows, worktree assignment state, PR watcher state, release-window assembly, selected-next posture, review-bundle manifests, rebaseline packets, or temporary Codex handoff state. Those ledgers belong in `D:\Nexus Desktop AI\Governance State`, approved worktree-local staging, Git/GitHub/helper-derived truth, or later USER-approved external owners.
 
-Codex App local hook state is also operational state, not repo source truth. Repo docs may own durable policy for assigned-thread/worktree confinement and may name future reference-template expectations, but live `hooks.json` entries, installed hook scripts, thread lock records, waiver records, and hook audit logs belong under USER-local Codex state such as `C:\Users\anden\.codex` unless USER later approves a different external owner. These local records must not be copied into repo docs as current state or used to bypass the repo phase machine.
+The external Control Plane owns operational hook and assigned-thread confinement policy. Repository docs retain product-facing interfaces only. Installed hooks, lock records, waivers and audit logs remain external operational state under their approved root. None grants permission to bypass product approval boundaries or mutate another worktree.
 
 When a repo doc needs to reference operational work, it may record only a compact evidence pointer such as branch name, branch record path, external-state owner path, workstream/family owner, PR/release receipt, or historical interpretation. It must not record whether the operational item is currently active, complete, pending, blocked, open, mergeable, released, selected-next, or no-branch-created unless the line is clearly labeled as historical receipt evidence.
 
@@ -203,7 +211,7 @@ Applies To: Codex app plugins, Codex connectors, GitHub connector use, Browser /
 Required State:
 
 - Codex plugins and connectors are evidence tools inside the existing phase machine; they are not a new phase, source-truth layer, branch authority, live-state ledger, or waiver path.
-- Repo docs may own durable plugin/connector governance rules, phase placement, approval requirements, privacy boundaries, source-truth ownership, prompt/template scaffolds, blocker names, stable schemas, and compact historical receipts after evidence is digested.
+- Repository owners retain product/provider interfaces, product privacy requirements and compact historical receipts. Operational plugin/connector policy, schemas and agent workflow belong to the external Control Plane; volatile credentials and session state never belong in repository evidence.
 - Repo docs must not own current plugin availability, connector login/auth/session state, API key state, current PR reactions, current review-thread state, current connector health, current plugin run output, temporary screenshots, per-run logs, live setup status, or other volatile tool evidence.
 - Git, GitHub, official provider/tool surfaces, approved helpers, Codex digests, USER review packets, and local external operational state own live evidence according to fact class and phase.
 - `D:\Nexus Desktop AI\Governance State` may own plugin/connector operational evidence only after an explicit USER-approved external-state schema or active workflow need admits that evidence. Until then, plugin/connector outputs stay in Codex digest, helper output, USER review packets, local artifacts, or the live tool surface.
@@ -265,26 +273,18 @@ Final Disposition: plugin/connector evidence can support `Evidence Supports Gree
 
 ## Source Truth Authority Hierarchy
 
-When evidence conflicts, Codex must resolve authority by fact class instead of by recency, confidence, or validator color.
+`Docs/Main.md` remains the first repository router. Ownership is determined by the kind of fact:
 
-Durable governance and product rules use this order:
+- Repository owners define product vision, architecture, shipped behavior, product tests, release contracts, and stable repository interfaces.
+- The approved external package selected through `D:\Nexus Desktop AI\Governance Control Plane\current\manifest.json` owns operational Governance policy and executable implementation. Its existing `policy/POLICY.md` is the one normative operational policy owner.
+- `D:\Nexus Desktop AI\Governance State` owns mutable workflow state, transactions, current acceptance evidence, and explicitly retained history.
+- Git and GitHub own volatile repository and remote facts. Reports, manifests, packets, historical receipts, and chat analysis are evidence of their named inputs and never grant authority.
 
-1. repo durable source truth in the owning file
-2. USER-approved repo source-truth update and merge history
-3. USER-reviewed local artifacts only after Codex digests them into the owning source-truth surface
-4. validator/helper output as evidence
-5. Codex or ChatGPT response text as analysis
-6. Codex memory, chat history, or unstaged local notes as non-authority
+Operational Governance source changes belong to one approved, source-only external Governance Git carrier, separate from product and FAM repositories. A sandbox candidate is not an installed owner. It replaces the corresponding existing Control Plane source when activation is separately approved; it does not create a parallel operational layer. Repository router/interface changes may be delivered as base-hash-bound patches for later approved application without copying Governance executors into product PRs.
 
-Volatile operational facts use this order:
+The newest explicit USER source-change authorization defines the admitted reform and execution boundary. Commit-only authorization never implies push, PR, merge, release, publication, or live activation. Historical scope restrictions remain descriptions of their historical transactions and are not prerequisites for an unrelated current approved transaction.
 
-1. Git, GitHub, or approved helper-derived live truth
-2. accepted external operational state when initialized and applicable
-3. repo durable receipts only as historical interpretation
-4. validator/helper output as evidence
-5. Codex or ChatGPT response text as analysis
-
-Invalid states block on `Authority Hierarchy Ambiguous` or `Evidence Treated As Source Truth` when a packet, helper result, review artifact, chat digest, or memory claim overrides the owning repo source-truth file for durable law, or overrides Git/GitHub/helper-derived truth for volatile facts.
+Validate the material current inputs of the selected operation. Generated outputs and retained history do not join its active source identity merely because they exist. Preserve unchanged results when their declared inputs and material claim are unchanged. Resolve conflicting legacy operational defaults by updating their owners and mirrors; do not retain them as an alternative current policy.
 
 ## Governance Mirror Drift Control
 
@@ -325,7 +325,7 @@ Promotion and disclosure gates:
 - `Dev-to-Main Promotion Packet` is required before any Dev work becomes Main source truth.
 - `Owner Disclosure Gate` is required before Owner-private data becomes Main or Dev evidence.
 - `Private Reference Leak` blocks when private paths, remotes, memory, prompts, secrets, provider keys, model paths, owner logs, or private strategy leak into Main docs, PRs, releases, or review bundles without a public-safe sanitization receipt.
-- `Shadow Governance In Private Repo` blocks when private Dev/Owner state claims accepted governance authority that has not returned to Main by USER-approved repo update and merge.
+- `Shadow Governance In Private Repo` blocks when unapproved Dev/Owner experiments claim installed authority or disclose private data. Explicitly approved external Governance source and activation follow the Source Truth Authority Hierarchy, not a mandatory product-repository merge.
 
 FAM-007 owns later AI/provider/runtime/private-edition implementation planning when the work becomes concrete provider behavior, model behavior, capability-pack behavior, memory/cache behavior, private repo setup, private remotes, or private-to-public sanitization workflow. Governance owns only the public-safe repo/source-truth boundary unless USER admits a dedicated split execution carrier.
 
@@ -343,7 +343,7 @@ Required State:
 - `D:\Nexus Desktop AI\Governance State` owns accepted operational state after the external-state system is USER-approved and initialized.
 - `<worktree>\.nexus_state_staging\` may hold proposed state only after USER approves worktree-local staging.
 - Git, GitHub, and approved helpers own derived live facts.
-- External governance candidates are not binding governance until folded into repo source truth through a USER-approved repo update and merge.
+- External Governance candidates become the installed operational owner only after explicit approval and controlled activation of that external source version. Repository product/interface changes follow their own approved repository route.
 - Repo docs may keep durable branch/document evidence pointers and historical receipts, but they must not own active/complete/pending lifecycle posture for branches, PRs, worktrees, selected-next decisions, release windows, watcher state, review bundles, or temporary handoffs.
 
 Allowed Values:
@@ -364,7 +364,7 @@ Invalid Values:
 - branch-local candidate proposals silently overriding an applicable promoted reference
 - repo-root `.nexus_state`, `.nexus_local_state`, or `.nexus_state_staging` treated as accepted central state
 - worktree-local staging treated as accepted central state
-- external governance candidates treated as binding repo governance
+- an unapproved external candidate treated as installed operational authority or as a replacement for repository-owned product contracts
 - generated global indexes treated as primary hand-edited state
 - active branch, PR, worktree, watcher, release-window, selected-next, or temporary handoff state treated as durable repo source truth by inertia
 - backlog, roadmap, branch-record index, branch plans, worktree slots, or review surfaces using current-state words such as `active`, `complete`, `pending`, `no branch created`, `no live PR`, `PR creation pending`, `Stage 2 pending`, or release-window ownership as live operational truth instead of historical evidence or external/derived state
@@ -401,16 +401,16 @@ USER Decision Required: required before external root creation, staging folder c
 
 Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is local-workflow evidence after Stage 5 and must not be required by GitHub Actions or clean-clone repo validation.
 
-Final Disposition: external operational state may remain external-only, be folded into repo source truth as a durable receipt, be archived, expire, be rejected, or require USER decision. Governance law becomes binding only after USER-approved repo source-truth update and merge.
+Final Disposition: operational Governance source is activated externally under explicit USER approval; product/router interface changes follow their approved repository carrier. Retained operational history is evidence, not a mandatory product merge or active dependency.
 
 ## Target-Scoped External-State Currentness Contract
 
 Rule Name: `Target-Scoped External-State Currentness Contract`
 
-Owner: `Docs/governance_efficiency_operating_model.md` for record semantics and
-repo/external placement; `Docs/phase_governance.md` for phase gates; and
-`Docs/validation_helper_registry.md` for validator and fixture implementation
-requirements.
+Owner: current external `policy/POLICY.md` and its selected source package for
+operational record semantics and validation. This repository document retains
+placement/interface context; product phase and acceptance contracts remain with
+their repository owners.
 
 Purpose: validate one explicitly selected external record without pretending
 that every record in `D:\Nexus Desktop AI\Governance State` shares one branch head or one
@@ -1021,7 +1021,16 @@ USER_BRANCH_VISION_REVIEW.md reinforcement: the review is the BP1 Branch Vision 
 
 USER_BRANCH_PLAN_REVIEW.md reinforcement: the review is the BP2 Branch Plan Contract, and the named checkpoint is the `USER Branch Plan Review Gate`. It must include Accepted Branch Vision Summary, Implementation Package Summary, Branch Scope Size Test, SLC/seam plan, Affected Surfaces, Likely Files, Validators/Helpers, Proof Requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, Rollback/Safety Plan, Open Engineering Risks, Future-Gated Boundaries, line-item USER plan review, USER response, Codex response digest, implementation constraints created by USER response, source-truth impact, Contract Change Log, Plan Acceptance Checklist, waiver path, and exact BP3 approval text. `Contract Status` must be `Complete` or `Waived by USER` before BP3 can approve implementation; `Draft`, `Pending USER Response`, `Pending Codex Digest`, and `Pending USER Confirmation` block implementation. If USER feedback changes branch direction, feature shape, UI behavior, workflow, scope, boundaries, or seam order, Codex must update source truth, refresh the local USER hub packet and ZIP, set Contract Status to Pending USER Confirmation, and wait for USER confirmation or explicit waiver.
 
-For governance review or PR-readiness review, the local USER hub helper should be self-checking while keeping USER-facing files readable. Use `dev/orin_user_review_bundle.py` for repeatable local bundle creation; the helper defaults to `D:\Nexus Desktop AI\USER\<worktree-label>` and should not require USER to name a new folder for active worktrees. The helper must create a timestamped ZIP export at `D:\Nexus Desktop AI\USER\<worktree-label>-YYYYMMDD-HHMMSS.zip` from the freshly refreshed worktree folder, remove any legacy same-name `D:\Nexus Desktop AI\USER\<worktree-label>.zip` upload artifact and previous same-label timestamped upload ZIPs, and validate the timestamped filename plus folder/ZIP parity directly, where parity means ZIP-beside-folder placement, no duplicate ZIP entries, file-list equality, and content-hash equality. Before a packet can support PR Readiness, final packet proof must report clean folder regeneration, mandatory timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, folder/ZIP parity with ZIP-beside-folder placement, no duplicate ZIP entries, file-list equality, and content-hash equality, approved file-class layout, exactly one primary current-gate USER review file under `USER Review`, stale-stage / unresolved-placeholder scan, and the final `USER Review Packet Finding:`. USER-facing files must not center active branch status, current commit, current baseline, validation status, PR state, worktree status, ZIP SHA256, ZIP hash, packet hash, upload hash, or similar technical proof metadata. USER-uploadable review zips created outside this helper are stale-risk evidence and must be regenerated before review or PR Readiness, unless `dev/orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip>` proves the same folder/ZIP/layout/stale-output contract, including content-hash equality. `--review-root`, `--worktree-label`, or legacy one-off folder customizations require `--allow-custom-review-path` plus a recorded reason. If the local USER hub folder/zip cannot be created, stop with `USER Review Hub Missing`; if local packet proof fails, stop on `USER Review Packet Stale` and return the exact blocker plus the helper command USER can run.
+For governance and PR-readiness review, use the external selected-evidence lifecycle
+owner. CURRENT_REVIEW.json binds the exact pending candidate and selected source
+files; safe-path, duplicate, archive-safety and byte-parity checks apply to that
+selection, not every file retained in the workstream collection. At most one direct
+ZIP per workstream is allowed, only while USER review is pending. On completion,
+remove the ZIP; retain only materially needed evidence. The external owner permits
+one exact transient staging location before validated replacement and rejects
+unrecognized top-level USER directories. Legacy repository package helpers are not
+current executable owners, and no whole-folder regeneration or permanent predecessor
+ZIP rule is carried forward by this candidate.
 
 ## Standing Governance Ledger Compaction
 
@@ -1072,24 +1081,11 @@ Mapping fields:
 
 Internal governance names, branch names, helper names, and automation wording should appear in public release notes only when needed for transparency.
 
-## Validator Modularization Boundary
+## Validator Ownership And Validation Selection
 
-`dev/orin_branch_governance_validation.py` remains the stable CLI wrapper.
+Product tests and product validation helpers remain repository-owned. Operational Governance implementation and validation belong in the current external Control Plane source package. Legacy `dev/orin_branch_governance_validation.py` and Governance recommendation helpers are migration references, not mandatory execution wrappers for the external system.
 
-Future modularization may split internals into helper modules only if:
-
-- the command interface stays stable
-- existing validation output remains understandable
-- module ownership is registered in `Docs/validation_helper_registry.md`
-- the split is validated before any behavior-changing enforcement is added
-
-Do not mix broad validator modularization with runtime implementation.
-
-## Validation Runner And Registry Query Rule
-
-Use `dev/orin_validation_suite.py` when a branch needs a validation recommendation packet.
-
-That helper is report-only. It recommends commands with rationale and does not execute commands or mutate files.
+Select validation by the material risk and affected input graph. Reuse or consolidate an existing check before creating another. A new check requires a distinct material failure consequence; report formatting and historical receipt existence alone do not justify a new gate.
 
 ## Naming Drift Scan Rule
 

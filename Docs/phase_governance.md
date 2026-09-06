@@ -2,7 +2,7 @@
 
 ## Top Rule: Pre-PR Durability
 
-**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state. This includes `Branch Readiness`, `Workstream`, `Hardening`, and `Live Validation`; a prompt-level request not to commit is not enough to stop durability. The only exceptions are a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker; when that self-imposed blocker is lifted, Codex must automatically commit and push.**
+Follow `Docs/phase_governance.md#pre-pr-durability-rule`: local commit, push, PR, merge, release, publication, and live activation are separate explicitly authorized actions.
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 
@@ -335,7 +335,7 @@ It may be:
 - a blocked state when an admission gate or another required repair path is still open
 - a steady-state resting posture when no implementation lane is currently selected and no branch should open by inertia
 
-`Post-Release Canon Repair` is not a normal branch phase and is not a governance-only branch.
+`Post-Release Canon Repair` is not a normal product phase. Source repair follows the owner-specific carrier route below; it does not authorize direct-main writes.
 Codex must not use direct-main repair; `main` is protected and file-frozen for Codex work.
 
 ## Phase Alias UX Boundary
@@ -973,7 +973,7 @@ The `Element Validation Ledger` is the row-level proof ledger for product-signif
 The ledger is canonical only inside the existing authority owner:
 
 - Promoted workstream: canonical workstream doc.
-- Registry-only active branch: external branch state or the standing Governance intake exception while legally active.
+- Registry-only active branch: matching external branch state; repository receipts are durable or historical, not an active-authority exception.
 - Large active ledger: external branch state, optional companion file with canonical pointer from the owning workstream doc, or transition-approved branch authority receipt.
 - Family dossier: aggregate or historical trace only.
 - Feature backlog: identity and registry only.
@@ -1037,7 +1037,7 @@ Local ChatGPT custom instructions should stay compact, while the repo loader/sou
 Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and owning canon for execution authority, and use the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.
 Loader/source-truth continuity must preserve the FAM -> Package -> Slice -> Seam model, PR evidence-only rule, legacy global FB historical-only rule, single-slice package blocker, package-completion blocker, Element Coverage as non-identity, Branch Readiness Stage 1 / Stage 2, PR Readiness Stage 1 / Stage 2, next-branch hierarchy review, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, post-release canon closure through the next approved Branch Readiness Stage 2 carrier, runtime package carrier when runtime work is next, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and Windows-first, modular, GPU-aware project direction with optional heavy local AI capability packs and CPU fallback.
 
-Prompt text cannot override source-of-truth, restrict required continuation, define seam behavior, bypass phase rules, create durability exceptions, weaken validation, mutate `main`, mutate files during `Release Readiness`, or change branch authority.
+Agent-generated prompts and summaries do not create authority. An explicit USER decision may approve an in-scope source reform and change its validation plan; reconcile that decision in the owning candidate source. Withheld push, phase entry, live mutation, deletion, publication, and release actions remain withheld.
 If prompt text conflicts with owning canon, Codex must follow canon, report the conflict, and either continue inside the canon-legal boundary or stop on the canon blocker.
 
 ### Single Phase Authority Rule
@@ -1057,36 +1057,13 @@ If any of those are missing for active promoted work, the branch is blocked by `
 
 ### Branch Authority Record Rule
 
-When an approved branch does not yet map to a promoted backlog workstream, it must use a repo-owned branch authority record under `Docs/branch_records/`.
+Repository branch records preserve durable branch identity, product/interface intent, and historical receipts. Current phase, blockers, owner, write scope, locks, and next action belong to the matching external operational record. A historical repository receipt does not need a new live Stage-2 admission merely to serve as input to an explicitly authorized sandbox reform.
 
-That branch authority record becomes the single authoritative owner of:
+Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
-- `Current Phase`
-- `Phase Status`
-- `Branch Class`
-- `Blockers`
-- `Entry Basis`
-- `Exit Criteria`
-- `Rollback Target`
-- `Next Legal Phase`
+A repository-owned product or interface defect is repaired on a legally assigned repository carrier, preserving protected main and USER changes. An operational Governance defect is repaired on the approved external source carrier and reviewed before activation. A new carrier requires the current USER authorization and identity/collision checks, not a fabricated product implementation route.
 
-This path is for:
-
-- selected backlog items that remain `Registry-only` during `Branch Readiness`
-- explicitly approved non-backlog branch classes such as `release packaging`
-- active runtime-focused branches that must carry bounded governance/source-of-truth repairs before PR green
-- preserved historical repair records
-
-`docs/governance` branch records may exist as historical records, but new governance-only branches are not used in the normal Nexus flow.
-Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
-Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-The only standing exception is the `Standing Governance Intake Branch`, `feature/release-readiness-source-truth-intake`, at `D:\Nexus Desktop AI\Worktrees\Governance`, and it may accept a `Release Readiness digest`, USER-approved `automation/worktree governance intake`, or USER-approved `phase-gate governance intake` with an `RRI-YYYYMMDD-NNN` cycle ID, operational `One Active Cycle`, the pre-intake `Sync Rule`, originating-lane `Waiting For Governance Intake` / `Waiting For Updated Main` pause semantics, and a post-merge `Return Digest` with `Neutral Main Workspace Rebaseline:` proof. This standing branch is the only branch class exempt from a dedicated post-merge closeout PR solely to clear cycle-ledger wording; after merge, sync, and return digest, the next intake may overwrite the ledger.
-If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
-Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
-Tightly coupled governance and canon repair must ride on the active branch that owns the affected truth.
-It must not be used to avoid carrying supporting canon sync on an already-active implementation branch.
-If a stale-canon or governance-drift class is discovered, the same branch or next legal repair surface must patch the canon or validator rule that allowed it before the repair is considered complete.
-Escaped drift prevention proof is mandatory: every repair for a miss discovered after the phase that should have caught it must include source-truth, governance, validator, helper, or prompt-contract hardening that prevents the same class from passing again, or must record why the gap is not machine-checkable yet and what human review marker replaces it before green.
+A discovered gap requires a test or review only for the material failure it can cause. Do not mandate a new validator, helper, or prompt rule solely because an earlier gate missed a wording or historical-evidence defect.
 
 ### Protected Main Law
 
@@ -1110,55 +1087,27 @@ Forbidden on `main`:
 There is no emergency direct-main repair path for Codex.
 Any tracked file mutation while Codex is on `main` is a `Main Write Attempt` blocker.
 If drift is discovered before merge, return to the owning branch and repair it before PR green.
-If drift is discovered after merge, do not open or resurrect a standalone repair branch for that drift; block the next legitimate runtime-focused backlog branch's `Branch Readiness` and repair there before implementation.
+Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
-While the branch is active, that branch authority record is the branch-local phase owner.
-Before PR merge, merged truth must no longer treat that record as an active branch owner by inertia.
-The branch must either:
+Current phase, blockers, locks, and assigned write scope are owned by the matching external operational record. Repository branch records are durable product/interface receipts or explicitly historical evidence.
+Merge-stable pointer surfaces such as backlog and roadmap must not mirror transient task ownership. Retained historical records are not active branch authority merely because they remain present.
 
-- move the record into the historical branch-record list with merge-safe phase-status wording, or
-- remove the record entirely if no durable historical value remains
-- when post-merge truth will remain `No Active Branch`, merge-stable pointer surfaces such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in external operational state, Git/GitHub/helper-derived truth, or durable standing Governance routing pointers until merge
 
 ### Repo-Level Admission Gate
 
-Before any next implementation branch may enter `Branch Readiness`, all of the following must be true on updated `main`:
+Before product implementation starts, verify the assigned repository/worktree, current baseline, approved product scope, preservation of USER changes, and the material entry conditions of the product phase. An unresolved defect blocks only the operation whose safety, correctness, authorization, or acceptance it materially affects.
 
-- `main` is aligned with `origin/main`
-- merged canon is internally consistent
-- no emergency canon repair is outstanding
-- no unresolved governance-drift blocker exists
-- no unresolved release-debt blocker exists
-- no unresolved prior-branch release, branch-authority, or current-state canon cleanup exists
-- no PR Readiness scope miss is being deferred into a later phase
-- no current branch is being treated as executable if it is stale, merged, or identical to `main`
+Unrelated historical cleanup debt, old receipt wording, generated-report presence, and retired Governance checks do not block a new product carrier. Operational Governance repair remains external under the ownership contract; it is not added to the runtime branch to satisfy admission.
 
-If any of those fail:
-
-- repo state becomes `No Active Branch`
-- next implementation branch execution is blocked
-- the next safe move is blocker repair, not a later phase
-- if a next active branch has already been created, it must stay in `Branch Readiness` and repair the blocker before any implementation begins
-
-This gate controls next-lane implementation admission.
-It does not authorize a governance-only branch.
-Release packaging branches still satisfy their own admission rules below.
+Protected main remains read-only. Existing USER changes, branch commits, and stash contents remain protected. New branches, live authority, remote actions, and release execution require their own admitted scope.
 
 ### Pre-PR Durability Rule
 
-Before `PR Readiness`, when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth files and validation is green, Codex must commit and push those changes on the active branch instead of stopping at a copy-ready, staged-only, or uncommitted state.
+Commit validated changes on the current legal carrier when the USER has approved commits. Preserve each existing commit and USER change unless the current authorization explicitly admits changing it.
 
-A prompt-level request to stop before commit/push is not a durability exception. Only a documented `Durability Waiver`, failed validation, a legally file-frozen phase such as `Release Readiness`, or a named Codex self-imposed blocker may stop commit/push. If Codex names a self-imposed blocker, the authority record or response must say what lifts it; once lifted, Codex must automatically commit and push without requiring a second durability prompt.
+Local commit is not push authority. Push, PR creation or mutation, merge, release, USER publication, and live activation each require current explicit authorization. A source rule or generated continuation marker cannot override a USER instruction withholding those actions.
 
-This rule applies through:
-
-- `Branch Readiness`
-- `Workstream`
-- `Hardening`
-- `Live Validation`
-
-If validation fails, Codex must not commit and push; it must report the blocker and keep the branch in the current phase until the blocker is lifted.
-`PR Readiness` remains the later merge-target gate and must still prove clean durable branch truth before PR creation.
+Within an admitted workload, continue useful in-scope repair and validation without asking again for already granted authority. Handoff occurs at the approved review boundary or a genuine material blocker. Product phase protections and standard product tests remain applicable.
 
 ### Blocker Catalog
 
@@ -1384,18 +1333,15 @@ When Branch Readiness is scoped to a specific feature family or assigned lane, c
 
 - the full repo-level admission gate must pass before the branch may enter `Branch Readiness`
 - the active promoted workstream doc is the default authority record
-- docs-only governance or canon refinements may ride on the active implementation branch when they are directly required to keep that branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct
-- those refinements do not change the branch class; they must stay inside the current phase, remain explicit in scope, preserve validation and stop conditions, and avoid unrelated governance churn
+- repository product/interface refinements may ride their active product carrier only when explicitly in its approved scope; operational Governance source does not
 
 `docs/governance`
 
-- is preserved only for historical records and explicit legacy interpretation
-- must not be opened as a new governance-only branch in the normal Nexus flow
-- must not be used for between-branch canon repair
-- must not be used to carry PR Readiness work after the branch that owned that work has merged
-- if governance or canon work is directly required to keep the current branch truthful, executable, phase-correct, readiness-correct, validation-correct, closeout-correct, or release-correct, that work must ride on the active current branch inside its current phase and branch class
-- if a PR Readiness miss is discovered after merge, the next legitimate runtime-focused backlog branch's `Branch Readiness` must carry the repair before implementation begins
-- if no active branch exists and no next workstream can be selected, the repo remains `No Active Branch`; Codex must not repair directly on `main`
+- the old product-repository branch class is historical vocabulary, not a prohibition on an explicitly USER-approved external source-only Governance carrier
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
+- historical receipts grant no new branch creation, live authority, push, PR, merge, release, or cleanup authority
+- no active product branch means no product implementation by inertia; main remains read-only
+
 
 `release packaging`
 
@@ -1409,7 +1355,7 @@ When Branch Readiness is scoped to a specific feature family or assigned lane, c
 - does not authorize direct-main repair by Codex
 - does not authorize new temporary blocker-clearing branch surfaces for future Nexus work
 - it does not promote the associated workstream and does not satisfy or consume selected-next implementation-branch creation
-- if escaped canon drift exists, the default repair is the next legitimate runtime-focused backlog branch's `Branch Readiness`
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
 ### Merge-Target Canon Completeness Gate
 
@@ -1499,7 +1445,7 @@ Post-release closure is mandatory after release execution:
 - post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth
 - runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green
 - when release-dependent source truth cannot exist until after publication, backlog and roadmap may record bounded transitional drift using `Post-Release Canon Closure Drift: Recorded`, `Published Release Pending Canon Closure: <tag>`, `Closure Repair Surface: Next Branch Readiness Stage 2`, `Closure Drift Scope: release-dependent fields only`, and `Implementation Entry: Blocked until closure repair validates green`
-- if this closure is missed after merge or release, the next legitimate runtime-focused backlog branch's `Branch Readiness` is blocked until the closure is repaired and validator coverage is updated so the miss cannot recur; this is containment for an exception, not a normal cleanup/canon-sync branch path
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
 ### Successor Lane Lock Gate
 
@@ -1703,7 +1649,7 @@ Hard blockers:
   Multi-worktree automation must also prove its configured cwd, git root, worktree role, branch, `HEAD`, and `origin/main` posture before a report may influence active-lane truth. `Automation CWD Worktree Mismatch` is the blocker when a standing automation runs from a missing, stale, neutral-main, parked, or wrong-lane worktree for the prompt it is carrying. Lane-sensitive prompts that mention active branch, PR Readiness, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance cannot run from stale neutral main as if it were an assigned FAM or Governance lane. Automation memory is evidence only; stale `$CODEX_HOME/automations/*/memory.md`, Codex automation run/inbox summaries, or historical prompt assumptions must report `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, not mutate canon directly.
   Background-observability-only automations cannot clear phase gates, bot-review gates, PR merge verification, release readiness, or same-PR repair proof. A stale historical toolchain-path report is `REVIEW_INFO` unless a current source-truth owner still declares that exact path active; otherwise the repair is to update the automation contract, not to recreate old files by inertia.
 - `PR Readiness Scope Missed`:
-  PR Readiness cannot be green if branch-authority cleanup, merge-target canon, post-merge truth, next-workstream selection, next-branch deferral, or release-debt routing is incomplete or being deferred to Release Readiness, updated `main`, or a later governance-only branch
+  PR Readiness cannot be green while its product acceptance, branch identity, merge-target product contracts, or release obligations remain materially incomplete. Repair those on their legal repository carrier; operational Governance defects follow their external owner and do not become product diff by inertia.
 - `Release Window Audit Incomplete`:
   PR Readiness cannot be green inside an unreleased release window until the active branch has audited that window, listed the currently known blocker set, and either clears those blockers on the same branch or records an explicit split waiver with user approval. Do not merge one blocker-clearing PR while already knowing that another blocker-clearing PR is queued behind it in the same unreleased window by default.
 - `Release Readiness Health Pass Incomplete`:
@@ -1771,7 +1717,7 @@ The owning branch/workstream authority record must include:
 - `Governance Intake Routing:`
 - `Projected Post-Merge Validation:`
 
-Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, release-candidate anchor and release-window contributors are unambiguous, any post-merge source-truth blocker routing says `Governance Intake Routing: send this to D:\Nexus Desktop AI\Worktrees\Governance on feature/release-readiness-source-truth-intake`, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
+Passing posture means exact post-merge branch-authority projection is recorded, no stale active branch wording lands on `main`, no stale PR creation / PR Readiness Stage 2 pending wording lands on `main`, merged scope is recorded as merged-unreleased when release execution is not being performed, release execution/tag/GitHub Release/artifact work remains gated, watcher/live PR state stays out of merged-main source truth, branch cleanup plan is known, FAM overlap is either non-blocking or routed to the owning lane, release-candidate anchor and release-window contributors are unambiguous, any post-merge source-truth blocker routing says `Governance Intake Routing: use the explicitly approved external operational Governance source carrier`, selected-next or successor truth is not stale, release-window/release-floor posture is resolved, and projected post-merge main would pass validation without a later source-truth repair.
 
 Merge-Stable Source Truth Projection Gate:
 
@@ -1878,7 +1824,7 @@ After a PR merges, active branch authority is invalid for that merged branch eve
 
 `Pre-Rebaseline Impact Audit` is required before any same-branch current-main reconciliation operation actually mutates local branch state. `Origin/Main Freshness Check` identifies whether upstream advanced before PR Stage 2; `Pre-Rebaseline Impact Audit` is the operation-level proof that reports `Incoming Main Change Set:`, `Incoming Changed Files:`, `Current Worktree Changed Files:`, `Branch Changed Files:`, `Rebaseline Overlap Files:`, `Incoming Runtime / Source-Truth Risk:`, `Validation Before Rebaseline:`, `Recommendation Only:`, `Rebaseline Mutation Approval:`, and `Rebaseline Mutation Status:` before Codex may run a fast-forward, merge, rebase, conflict resolution, or branch switch. Any non-empty `Rebaseline Overlap Files:` value triggers the `Rebaseline Overlap Intent Gate` and must resolve or explicitly block on `Rebaseline Overlap Intent Missing` before mutation.
 
-`Current-Main Reconciliation Identity Guard` is required whenever a multi-worktree branch rebases, fast-forwards, or merges current `origin/main`. origin/main is context, not identity. The assigned worktree must preserve and reassert its own branch-local authority before validation, commit, push, PR readiness, release readiness, or handoff. The reconciliation digest must include `Assigned Worktree Branch Identity:`, `Branch-Local Authority Reassertion:`, `Incoming Main Active-Branch Blocks Accepted: NO`, and `Sibling Worktree Identity Preservation:`. Passing posture means the active worktree's expected branch, actual branch, authority record, current-state owner files, and GitHub Desktop-bound worktree are named explicitly; incoming `origin/main` branch/current-workstream/selected-next blocks are treated as context unless they are the assigned branch's own authority; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` reassert the active worktree's branch-local authority after conflict resolution; sibling worktrees such as FAM-006, FAM-007, Governance, or neutral `main` are not switched, deleted, or mutated; and no reconciliation commit lands with another worktree's active branch/current workstream identity copied into the assigned lane. If this guard fails during Branch Readiness, PR Readiness, or a same-branch rebaseline, stop on `Worktree Branch Identity Drift` and repair source truth inside the assigned worktree before committing. If Release Readiness discovers the failure after merge, the output digest must say `Governance Intake Routing: send this to D:\Nexus Desktop AI\Worktrees\Governance on feature/release-readiness-source-truth-intake`.
+`Current-Main Reconciliation Identity Guard` is required whenever a multi-worktree branch rebases, fast-forwards, or merges current `origin/main`. origin/main is context, not identity. The assigned worktree must preserve and reassert its own branch-local authority before validation, commit, push, PR readiness, release readiness, or handoff. The reconciliation digest must include `Assigned Worktree Branch Identity:`, `Branch-Local Authority Reassertion:`, `Incoming Main Active-Branch Blocks Accepted: NO`, and `Sibling Worktree Identity Preservation:`. Passing posture means the active worktree's expected branch, actual branch, authority record, current-state owner files, and GitHub Desktop-bound worktree are named explicitly; incoming `origin/main` branch/current-workstream/selected-next blocks are treated as context unless they are the assigned branch's own authority; `Docs/feature_backlog.md` and `Docs/prebeta_roadmap.md` reassert the active worktree's branch-local authority after conflict resolution; sibling worktrees such as FAM-006, FAM-007, Governance, or neutral `main` are not switched, deleted, or mutated; and no reconciliation commit lands with another worktree's active branch/current workstream identity copied into the assigned lane. If this guard fails during Branch Readiness, PR Readiness, or a same-branch rebaseline, stop on `Worktree Branch Identity Drift` and repair source truth inside the assigned worktree before committing. If Release Readiness discovers the failure after merge, the output digest must say `Governance Intake Routing: use the explicitly approved external operational Governance source carrier`.
 
 `Release Candidate Anchor Projection` is required during PR Readiness Stage 1 before Stage 2 can begin for any release-bearing or merged-unreleased branch. Stage 1 must name the default post-merge `Release Candidate Anchor:` as current fetched `origin/main` after merge unless USER explicitly selects a historical release target, must name `Target Commit:` projection or source, must state whether later governance/source-truth PRs are part of the candidate, and must keep historical PR endpoints as audit evidence only unless USER approves `Release Candidate Anchor Source: USER-selected historical commit`.
 
@@ -2323,14 +2269,14 @@ Post-release closure rule:
 - validation must derive the included release window from Git/GitHub/tag truth and first-parent PR/merge commits, resolving prerelease tags to explicit commit IDs or paginated GitHub compare truth before building the scan range so remote-only tag discovery cannot fall back to a tag-text-only check; when the previous prerelease commit is unavailable, validation must use paginated compare truth rather than widening to a full-history scan, then scan release-window branch records, branch plans, retirement rows, and compact pointers by release tag, PR number, merge commit, and branch identity
 - included scope must be folded to released/closed or explicitly labeled as historical pre-release snapshot evidence that is not current posture
 - Release Readiness must stop on `Post-Release Canon Closure Drift` when the selected candidate has already been published but source truth still describes an included contributor as merged-unreleased for that published tag
-- the standing Governance intake lane is the legal carrier for post-release source-truth/governance drift discovered after publication; Release Readiness remains file-frozen and must not patch the drift directly
+- post-publication source repair follows the owner-specific carrier route; Release Readiness remains file-frozen
 
 Scope routing:
 
 - if the selected release candidate is current `origin/main`, stale wording at an older PR endpoint is historical PR Readiness miss evidence, not a current Release Readiness blocker when later merged governance/source-truth repairs fixed the selected candidate
 - if the selected release candidate still lacks release target, release floor, release debt, merged-unreleased, contributor inventory, or issue-posture truth, Release Readiness stops and emits a blocker digest only
 - if the branch has not merged, the repair routes back to `PR Readiness`
-- if the branch has already merged, the repair routes to the next legitimate runtime-focused backlog branch's `Branch Readiness` or to the single standing governance intake lane when the blocker is a Release Readiness source-truth/governance drift digest
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
 The blocker for missing or ambiguous anchor data is `Release Candidate Anchor Missing`.
 
@@ -2338,7 +2284,7 @@ The blocker for missing or ambiguous anchor data is `Release Candidate Anchor Mi
 
 Release Readiness must not report green while any release target blocker remains unresolved.
 
-Release Readiness is an analysis-only file-freeze phase. Required release target, scope, artifact truth, and release-candidate anchor truth must already exist before entering Release Readiness, normally as PR-owned merge-target canon or a PR-ready response package. If Release Readiness analysis discovers that those fields are missing, ambiguous, stale, or require source-file changes, do not patch files inside Release Readiness. Return the active branch to `PR Readiness` if it has not merged; if the branch has already merged, defer the repair to the next legitimate runtime-focused backlog branch's `Branch Readiness` or the standing governance intake lane when the issue is Release Readiness source-truth/governance drift.
+Release Readiness is analysis-only and file-frozen. Required release target, scope, artifact, and candidate-anchor truth must be present. Missing or incorrect repository release contracts return to the owning pre-merge phase or a separately approved repository interface carrier; operational Governance defects route externally.
 
 Hard blocker:
 
@@ -2372,7 +2318,7 @@ It does not waive `Release Debt`, merge-target canon completeness, post-merge tr
 
 If release target markers are missing on a release-bearing branch, the branch is blocked by `Release Target Undefined`.
 If `Release Branch: No` appears outside a preserved historical record, the branch is blocked by `Phase Waiver Missing`.
-If any source, docs, canon, validator, helper, or release-note file is modified while the active phase remains `Release Readiness`, the branch is blocked by `Release Readiness File Mutation Attempt` and must return to `PR Readiness` or defer to the next legitimate runtime-focused backlog branch's `Branch Readiness` before the change can be made.
+If repository files are changed while their active phase remains `Release Readiness`, report `Release Readiness File Mutation Attempt`. Return to the owning legal repair phase before mutation; external Governance source work is a separately scoped operation, not a mutation inside product Release Readiness.
 
 ### Release Readiness Scope Boundary
 
@@ -2456,7 +2402,7 @@ The `## What's Changed` section and `**Full Changelog**:` compare link must be p
 
 If Release Readiness discovers missing PR-owned canon or docs work, stop immediately and classify the issue as `PR Readiness Scope Missed` and `Release Readiness Scope Drift`.
 If the branch has not merged, return to `PR Readiness` and repair the miss there before any Release Readiness output can be treated as green.
-If the branch has already merged, the next legitimate runtime-focused backlog branch's `Branch Readiness` or the standing governance intake lane must repair the miss before implementation begins and must update governance or validator coverage so the miss cannot recur.
+Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
 ### Release Window Audit
 
@@ -2626,44 +2572,13 @@ If they contain live-current claims, they must either:
 - be replaced with a durable pointer to the external/derived owner, or
 - be removed from repo ownership through a USER-approved cleanup or fold-down repair.
 
-### Governance Validator
+### Governance Validation Routing
 
-Repo-wide governance changes should be checked with the machine-readable governance validator:
+Operational Governance validation is owned by the current external `policy/POLICY.md` and the approved external source package. Legacy repository Governance validators are migration/history references, not prerequisites for executing or accepting their external replacement.
 
-- `python dev/orin_branch_governance_validation.py`
+Use the smallest adequate checks for the material risks of the selected operation. A check must prevent a distinct plausible failure, and its result is valid only for its declared inputs and claim. Reuse unaffected results, use targeted checks while source changes, and run one proportionate final integration validation when the candidate is stable.
 
-That validator should verify at minimum:
-
-- the exact phase enum only
-- active prompt scaffolds no longer teach deprecated phase names or stale prompt contracts
-- active promoted workstreams carry the required phase-state block
-- phase values and branch-class values are valid
-- backlog, roadmap, workstreams index, and active workstream docs agree on active or merged-unreleased posture
-- stale merge-era wording does not remain in active current-state owners
-- Governance Drift Audit output exists before `Release Readiness`
-- release-bearing branches carry `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers before Release Readiness can report green
-- release-target semantics match the latest public prerelease and declared release floor before PR Readiness or Release Readiness can report green
-- Release Readiness is analysis-only and cannot mutate files; dirty tracked files while the authority record says `Release Readiness` are a `Release Readiness File Mutation Attempt`
-- non-release waiver records use `Release Branch: No` only for preserved historical records
-- unresolved blockers prevent phase advancement
-- active-branch governance and canon updates remain the primary path when tightly coupled to the active branch's truth, phase, readiness, validation, closeout, or release state
-- governance-only branches are not used for new Nexus work, and between-branch canon repair attempts are blocked
-- Release Readiness cannot absorb PR Readiness docs sync or canon repair
-- prior-branch canon misses block the next legitimate runtime-focused backlog branch in Branch Readiness before implementation can begin
-- the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
-- prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
-- docs do not teach direct `Workstream` -> `PR Readiness` as the default path
-- PR Readiness prompt scaffolds require inclusion-only `## PR Creation Details` operator copy blocks before reporting PR green, and require the standardized `## Next Branch` block only when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase
-- Release Readiness prompt scaffolds require inclusion-only `## Release Package Details` operator copy blocks when release execution is green
-
-A governance or current-state canon branch is not complete until that validator is green.
-
-When branch authority records are active, the validator should also verify:
-
-- `Docs/branch_records/index.md` exists and routes to the active branch authority records
-- active branch authority records carry the required phase-state block
-- `No Active Branch` blocked-versus-steady-state handling stays consistent across the governance and operator docs
-- new governance-only branches remain blocked during `pre-Beta`; historical `docs/governance` records are allowed only as preserved history
+Repository product tests, build checks, release-contract checks, privacy/security checks, and user-facing acceptance remain in their product owners. Their existence does not require importing operational Governance code into the product repository.
 
 ### Phase Resolver Contract
 
@@ -2995,8 +2910,8 @@ Inside that continuous loop, Codex should:
 - identify the first real failing seam
 - classify it before changing product code
 - fix only that seam
-- rerun the full governed gate immediately
-- continue until the full gate is green or a hard stop is reached
+- rerun the checks whose material inputs or claims changed; preserve unrelated valid results
+- continue until the approved outcome is complete, then run the proportionate final integration check; route unrelated improvements as nonblocking observations
 
 ## Stop-Loss Rule
 
@@ -3008,7 +2923,7 @@ For governed recovery or another approved continuous validation pass:
 - stop immediately if proof ownership, gating rules, or the helper default profile must change before the next rerun
 - stop if `2` consecutive seam fixes fail to move the first-failing seam or otherwise fail to produce material end-to-end progress
 - stop if roughly `90 minutes` of validation work pass without material end-to-end progress toward green
-- when stop-loss is reached, continued execution is blocked until a decision memo or equivalent phase-state update is recorded
+- when stop-loss is reached, diagnose the dependency or scope defect; a new memo or resumed timer alone is not corrective progress
 
 ## Timeout Governance
 
@@ -3615,7 +3530,7 @@ Required evidence:
 - explicit `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` markers for release-bearing branches
 - or explicit `Release Branch: No` only for preserved historical records
 - release-context verification
-- clean tracked-file state; any required file update must be routed back to `PR Readiness` before merge or to the next legitimate runtime-focused backlog branch's `Branch Readiness` after merge
+- clean tracked-file state; source changes return to the owning pre-merge product phase or a separately approved repository interface carrier; operational Governance changes route externally
 - no unresolved blocker
 
 Exit:
@@ -3678,7 +3593,7 @@ Prompt-Ingress Lane Lock:
 - A prompt, attachment, packet title, or ChatGPT analysis that says "You are Codex operating in" another worktree is evidence of a requested lane, not authority to switch lanes. Switching, inspecting for execution, or mutating the other lane requires a current explicit USER lane-switch/worktree-escape decision that names the expected root, target root, branch, allowed command/file classes, read/write mode, expiration or stop condition, validation, and return path.
 - Read-only cross-worktree analysis remains allowed only after the mismatch is reported and only when the assigned-lane source truth or USER approval requests analysis of the sibling lane as context. It must not become branch-specific source loading, packet generation, helper execution, Git mutation, external-state mutation, or sibling-worktree repair by inertia.
 
-If the requested work belongs outside the assigned worktree, outside the active branch scope, or to another active lane, Codex must stop on `Governance Routing Barrier` and route the packet to `D:\Nexus Desktop AI\Worktrees\Governance` on `feature/release-readiness-source-truth-intake`. Governance decides whether the work belongs to the current owner, an existing worktree/thread, a new worktree/thread, or a USER waiver. New worktree/thread creation, activation, reassignment, and GitHub Desktop repo binding remain blocked on `New Worktree Decision Gate` until USER approves the exact path, branch, owner, and validation route.
+If the requested work belongs outside the assigned worktree, outside the active branch scope, or to another active lane, Codex must stop on `Governance Routing Barrier` and route the packet to the current external Governance owner. That owner decides whether the work belongs to the current owner, an existing worktree/thread, a new worktree/thread, or a USER waiver. New worktree/thread creation, activation, reassignment, and GitHub Desktop repo binding remain blocked on `New Worktree Decision Gate` until USER approves the exact path, branch, owner, and validation route.
 
 ### Assigned Worktree Confinement
 
@@ -3687,17 +3602,17 @@ Assigned Worktree Confinement is mandatory once a thread is assigned to a specif
 Codex App Thread Worktree Guard Rule:
 
 - Rule Name: `Codex App Thread Worktree Guard`
-- Owner: `Docs/phase_governance.md`; compact mirrors may live in `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/worktree_slots.md`, `Docs/governance_efficiency_operating_model.md`, and `Docs/validation_helper_registry.md`
+- Owner: current external `policy/POLICY.md`; repository mirrors preserve only product-facing confinement interfaces
 - Applies To: Codex App threads, local Codex hook policy, assigned worktree preflight, branch/worktree mutation, Git operations, packet generation, helper execution that writes files, external-state mutation, and GitHub Desktop handoff
 - Required State: a Codex App thread that is assigned to a worktree must bind mutation authority to the assigned Git root/worktree, not to the exact branch. The thread may switch or create branches inside that assigned worktree only when normal source truth and USER approvals allow it. The thread may inspect sibling worktrees read-only for audit, overlap, rebaseline, or routing analysis. It must not mutate a sibling worktree, parked worktree, neutral main, external operational state, or USER-local Codex state unless the current phase and USER approval explicitly admit that target.
 - Allowed Values: `Assigned Root Mutation Allowed`, `Read-Only Cross-Worktree Analysis`, `First Binding Requires USER Confirmation`, `Worktree Escape User Waiver Granted`, `External Hook State Only`, `Reference Hook Template Only`
 - Invalid Values: `Mutate Any Worktree From Current Thread`, `Governance Mutation From Non-Governance Worktree`, `Sibling Worktree Packet Generation`, `Sibling Worktree Git Operation`, `External Lock Ledger In Repo Docs`, `Hook Installed By Repo Patch`, `Branch-Specific Lock Only`
 - Blocking Condition: `Codex Thread Assigned Worktree Mismatch`, `Worktree Escape User Waiver Missing`, `Governance Worktree Mutation From Non-Governance Root`, `Codex Hook Live State In Repo`, or `Thread First Binding Unconfirmed` blocks mutation when the assigned root is missing, current root differs from assigned root, a non-Governance thread attempts Governance-owned mutation, live hook/lock/audit state is being committed as repo truth, or an existing thread has not reported its first binding before mutation.
-- Repair Owner: assigned thread for preflight/reporting; standing Governance intake for durable policy repair; USER for first-binding confirmation, worktree escape waiver, hook installation, live lock storage, or local Codex configuration mutation.
-- Repair Path: stop before mutation, report assigned root, actual root, target root, intended command class, read/write mode, waiver state, and safest routing path. Continue read-only analysis if useful. Mutation may resume only in the assigned worktree, through the standing Governance worktree when Governance owns the repair, or after USER grants a bounded waiver naming source root, target root, branch, command/file scope, expiration or stop condition, validation proof, and return path.
+- Repair Owner: assigned thread for preflight/reporting; the approved external source carrier for operational policy repair; USER for first-binding confirmation, worktree escape waiver, hook installation, live lock storage, or local Codex configuration mutation.
+- Repair Path: verify the exact assigned source root, target root, branch, and current approved write set. Continue useful read-only analysis while resolving a collision. Mutation resumes only on the USER-approved product or external source carrier, or after genuinely new cross-root authority is granted.
 - USER Decision Required: required before installing or modifying `C:\Users\anden\.codex\hooks.json`, local hook scripts, thread lock files, waiver files, audit logs, external operational state schemas, sibling worktree files, neutral main files, or any reference hook template/code in the repo.
-- Validation Owner: `dev/orin_branch_governance_validation.py --worktree-confinement-gate` owns marker-first source checks after helper updates are approved; any future local hook is USER-local operational enforcement and is not clean-clone repo validation.
-- Final Disposition: repo source truth owns durable policy and optional future reference-template guidance only. Installed hook state, per-thread lock records, waiver records, and audit logs are local Codex operational state outside the repo.
+- Validation Owner: current external operational policy and selected material confinement tests. Legacy marker-first repository checks are historical compatibility evidence, not activation gates for their replacement.
+- Final Disposition: the external Control Plane owns operational hook policy and source; installed hook, lock, waiver and audit records remain external operational state. Repository files retain product-facing interfaces only.
 
 Every assigned branch authority record must carry:
 
@@ -3737,7 +3652,7 @@ Stale parked branches, old worktrees, fallback folders, AI Lab context, deleted/
 
 ## Repo-Level State: No Active Branch
 
-`No Active Branch` is the repo-level state when no runtime, implementation, release packaging, or repair lane is currently selected for normal product work. It does not deactivate the single `Standing Governance Intake Branch`; `feature/release-readiness-source-truth-intake` may remain the only active authority record while merged-main product state is still `No Active Branch`.
+`No Active Branch` means no runtime, implementation, release-packaging or repair lane is selected for normal product work. External Governance work has separately approved operational authority; it does not require a standing product-repository branch exception. Retained standing-intake records are historical context, not active authority.
 
 Use it when:
 
@@ -3765,64 +3680,25 @@ When `No Active Branch` is steady-state:
 - do not start the next implementation branch by inertia
 - it is valid for `Next Safe Move` to say explicitly that no branch should open yet
 - a release packaging branch may still enter `Branch Readiness` if its branch-class admission rules pass
-- governance-only branches are not used; governance or canon repair must ride on the next legitimate runtime-focused backlog branch's `Branch Readiness`, except for the single `Standing Governance Intake Branch` defined below
-- `Docs/branch_records/index.md` must contain no active runtime, implementation, release packaging, or repair authority records; the only active-authority exception is `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
+- repository branch records remain durable or historical pointers, not current external authority; no active product selection is implied by a separately approved external sandbox
 
 ## Standing Governance Intake Branch
 
-Purpose:
+The former product-repository standing intake branch and its `RRI-*` receipts are historical migration and handoff evidence. They are not the default repair carrier or an active operational policy owner.
 
-- keep Release Readiness file-frozen while routing source-truth drift that Release Readiness discovers to one governed repair lane
+Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 
-Allowed:
+An external repair preserves the exact originating task/worktree identity and reports its material outcome without requiring a product PR merely to carry operational Governance changes. Installing an external candidate is a separate USER-approved activation; repository product/interface changes retain their own approved route.
 
-- one standing worktree: `D:\Nexus Desktop AI\Worktrees\Governance`
-- one standing branch: `feature/release-readiness-source-truth-intake`
-- one standing active authority record: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- one intake source: `Release Readiness digest` for release-blocker repair, plus USER-approved `automation/worktree governance intake` only when the issue is non-runtime, multi-worktree safety related, plus USER-approved `phase-gate governance intake` only when a live branch exposes a repeatable non-runtime phase-gate miss; every intake remains held to the same one-cycle, PR-gated contract
-- one cycle ID format: `RRI-YYYYMMDD-NNN`
-- `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
-- `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`
-- `Pre-Rebaseline Impact Audit`: before the standing branch or neutral main workspace fast-forwards to updated `origin/main`, report the incoming change set, incoming changed files, current worktree changed files, branch changed files, `Rebaseline Overlap Files:`, runtime/source-truth risk, validation before rebaseline, recommendation only posture, approval status, mutation status, and `Rebaseline Overlap Intent Gate` result when overlap exists
-- `Bootstrap Exception Limit`: the one-time setup exception authorizes only the initial branch/worktree bootstrap while `origin/main` still equals the recorded branch creation base; after setup PR merge or any `origin/main` movement, ahead-of-main work requires an active `RRI-*` cycle sourced from a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR bot-review repair on the standing governance PR. The active cycle value and PR/return-digest/release-window posture must be recorded in `D:\Nexus Desktop AI\Governance State` or derived from Git/GitHub/helpers; the repo branch record may only point to that owner.
-- source-truth/governance/validator drift repair named by the intake digest
-- a post-merge `Return Digest` to the originating worktree/thread with concrete originating branch/worktree identity copied from the accepted intake and `Neutral Main Workspace Rebaseline:` proof for `D:\Nexus Desktop AI\Product Repository`
-- Release Readiness blocker digests that discover stale active branch authority, stale phase wording, stale PR Readiness wording, selected-next ambiguity, release-window contributor ambiguity, or `No Active Branch` conflict must explicitly say `Governance Intake Routing: send this to D:\Nexus Desktop AI\Worktrees\Governance on feature/release-readiness-source-truth-intake`
-- automation observability repair only for configured cwd/worktree identity, stale neutral-main detection, lane-sensitive prompt drift, and automation memory/reporting mismatch; `Automation CWD Worktree Mismatch` must be reported before an automation finding becomes source-truth work
-- PR Readiness Stage 1 for this standing branch may report `Pre-PR Live State: No live PR` while the previous governance PR remains historical merge proof; the reusable branch name must not cause a closed historical PR to be treated as the current live PR. Standing governance PRs do not select runtime successor workstreams, create runtime branches, or admit packages.
-
-Forbidden:
-
-- runtime/provider/model/memory/voice/Core/shortcut/installer implementation
-- release execution, tags, GitHub Releases, release artifacts, or release-note publication
-- GitHub issue creation, AI Product Contract import, private Dev ORIN import, direct-main mutation, broad docs churn, or next runtime branch creation
-- accepting anything other than a Release Readiness digest, USER-approved automation/worktree governance intake, USER-approved phase-gate governance intake, or same-PR standing-governance bot-review repair after the one-time bootstrap setup
-- widening an automation/worktree governance intake into runtime, implementation, release-execution, stale-branch deletion, worktree cleanup, or FAM-006/FAM-007 mutation
-
-Originating-lane pause:
-
-- when a Release Readiness blocker is handed off, the originating thread/worktree enters `Waiting For Governance Intake` or `Waiting For Updated Main`
-- that lane must not mutate repository files until the governance PR merges, the standing branch syncs to `origin/main`, the `Return Digest` arrives, and the originating lane fetches/revalidates updated `origin/main`
-
-The `Return Digest` must include the originating branch/worktree, operating workspace, expected branch, `RRI-*` cycle ID, governance PR, merge commit, updated `origin/main` commit, `Neutral Main Workspace Rebaseline:`, `Pre-Rebaseline Impact Audit:`, files changed, blockers cleared/remaining, validations, rebaseline instructions, and `Next Legal Phase`. After any standing-governance PR merge, Codex must first run and report the `Pre-Rebaseline Impact Audit`, then either fast-forward `D:\Nexus Desktop AI\Product Repository` on `main` to the updated `origin/main` commit after approval and record the proof, or report the blocker that prevents that rebaseline before claiming the governance lane is idle.
-
-Return-digest identity guard:
-
-- the originating branch and originating worktree must be copied exactly from the accepted Release Readiness intake digest or recorded `RRI-*` cycle identity
-- the originating-lane prompt must name that exact worktree as the operating workspace and must name the expected branch
-- the governance lane must not infer the originating workspace from `D:\Nexus Desktop AI\Worktrees\Governance`, `D:\Nexus Desktop AI\Product Repository`, GitHub Desktop's selected repository, or the current shell CWD
-- `Return Digest Origin Identity Missing` blocks the handoff when the originating branch, originating worktree, operating workspace, or expected branch is absent, generic, contradictory, or inferred
-- `Thread / Worktree Identity Mismatch` blocks originating-lane continuation if the return digest points to a different branch/worktree than the accepted intake recorded
+Do not mutate historical intake receipts, retire their worktree, select a runtime successor, or infer push, PR, merge, release, live authority, or retained-storage deletion from this source-routing rule.
 
 ## Governance Intake Triage And Digest Profiles
 
-Broad governance/source-truth/process reform must use `Docs/governance_intake_triage_and_digest_profiles.md` before it mutates source truth, unless a Release Readiness intake digest already names exact blockers, carrier, files, and approval boundaries. The canonical packet name is `Governance Intake Triage Packet`.
+Use the current external policy owner for operational Governance intake and validation. A bounded source repair needs a concrete problem, approved scope, legal carrier, material tests, and an explicit activation boundary; it does not need a new intake framework.
 
-The required governance intake triage packet fields are `Problem Class:`, `Source-Truth Support:`, `Current Approval Coverage:`, `Recommended Carrier:`, `Smallest Safe Repair:`, `Files Likely Affected:`, `Validator / Helper Impact:`, `Runtime / Product Risk:`, `Active Branch / Worktree Interaction:`, `PR / Merge Need:`, `Deferred Items:`, `Stop / Report Conditions:`, `Recommended Digest Profile:`, and `Exact USER Decision Needed:`.
+Return the smallest complete decision packet containing outcome, exact scope and identity, material evidence, unresolved blockers, requested USER action when genuinely required, and next legal step. Preserve requested review detail; do not duplicate historical payloads, marker catalogs, or full transcripts as a completeness ritual.
 
-Codex must choose the smallest legal digest profile for the phase: `Decision Packet`, `Return Digest`, `Validation Digest`, `Full Audit Packet`, or `Delta Digest`. A `Full Audit Packet` is reserved for explicit broad audits, process reform, root-cause analysis, or repo-wide recommendations. Normal phase handoffs should not restate full governance when changed values, blockers, validation, and `Next Legal Phase` are enough.
-
-Digest non-compaction is mandatory. Choosing the smallest legal digest profile selects the packet shape only; it does not authorize Codex to compact, collapse, omit, or replace any required digest field, USER-requested review detail, blocker detail, validation proof, file list, decision matrix, changed-surface evidence, or exact next-decision wording. When USER asks for a full digest, review digest, complete breakdown, file-by-file packet, line-referenced packet, or any explicitly detailed output, Codex must return the complete digest and may not compact the digest ever.
 
 ## Exception Path: Post-Release Canon Repair
 
@@ -3835,17 +3711,16 @@ Allowed:
 
 - read-only drift analysis on `main`
 - blocker annotation when drift is discovered after merge
-- repair in the next legitimate runtime-focused backlog branch's `Branch Readiness` before implementation
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 - repair in the next approved Branch Readiness Stage 2 canon/governance carrier when release publication has completed and protected `main` prevents post-release canon closure from landing directly
 
 Forbidden:
 
-- treating post-release canon repair as a Release Readiness mutation phase or standalone cleanup lane instead of a standard PR Readiness / next Branch Readiness Stage 2 checkpoint
+- treating post-release analysis as permission to mutate repository files inside Release Readiness or on main
 - treating normal post-release external operational state carry-forward as durable repo canon drift or as a Release Readiness blocker when Git/GitHub/repo validation is green
 - using post-release repair instead of the merge-target canon completeness gate
 - turning the repair path into a new implementation lane by accident
-- opening a governance-only branch
-- opening a repair-only feature branch
+- opening an unapproved carrier or importing operational Governance source into a product/runtime carrier
 - treating a local-only post-release closure commit as completed source truth
 - using Release Readiness as a broad docs-sync phase
 - mutating `main`
@@ -3856,7 +3731,7 @@ Required evidence:
 - latest release truth
 - explicit canon drift
 - explicit reason the drift could not be prevented before merge or release
-- explicit legal repair surface: next legitimate runtime-focused backlog branch's `Branch Readiness`
+- Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
 - if protected-main release closure is the blocker, explicit legal repair surface: the next approved Branch Readiness Stage 2 canon/governance carrier that carries the closure into remote source truth
 
 Exit:

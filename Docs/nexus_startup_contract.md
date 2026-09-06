@@ -31,7 +31,7 @@ Nexus project direction remains Windows-first, modular, GPU-aware, privacy/local
 
 ## Authority Boundary
 
-Repo source truth governs. Chat memory, uploaded packets, helper output, validator output, plugin output, connector output, prior Codex summaries, and ChatGPT analysis are evidence only until reconciled against current repo source truth.
+D Main routes authoritative ownership by fact class. Product contracts remain repository-owned; operational Governance policy and source remain externally owned as defined by `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`. The current explicit USER decision controls approved changes and withheld actions. Reports, packets, memory, and analysis remain evidence.
 
 This loader owns prompt shape, loader continuity, and ChatGPT prompt-generation guardrails. It routes exact policy to the current owners:
 
@@ -181,167 +181,20 @@ This loader does not own Live Validation law; `Docs/phase_governance.md` owns th
 
 Prompts must not convert helper/direct-runtime/troubleshooting evidence into USER-path proof unless source truth records the exact launcher waiver or launcher parity proof path.
 
-## Machine-Check Routing Anchors
+## Owner Routing
 
-This section preserves validator marker phrases as routing anchors. It does not make this loader the owner of the detailed rules. Load and follow Main plus the current owner docs for the live policy.
+This loader routes to owners instead of retaining copied validator marker catalogs.
 
-Feature-branch repair anchors:
+- Product phases, product acceptance, and release boundaries: `Docs/phase_governance.md`.
+- Operational Governance source, validation, evidence, and carrier placement: `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy` and the current external `policy/POLICY.md`.
+- Product helper ownership and legacy Governance-helper disposition: `Docs/validation_helper_registry.md`.
+- Active task identity, approved write set, progress, and next action: the matching external operational record.
 
-- Standalone docs/governance, emergency canon repair, and repair-only feature branches are blocked for future Nexus work.
-- Governance, docs, source-of-truth, and validator repairs must ride inside the next legitimate runtime-focused backlog branch during `Branch Readiness` or `PR Readiness`.
-- If no runtime-focused branch is legally admitted yet, record the drift as a blocker and wait instead of creating a repair branch by inertia.
-- Historical repair-only branch records remain traceability only and do not authorize new repair-only branch creation.
-
-Planning-loop and thin-prompt anchors:
-
-- Branch Readiness owns planning, framing, affected-surface mapping, implementation delta classification, admitted-slice definition, and whole-backlog closure strategy before Workstream begins.
-- Branch Readiness must evaluate the whole backlog item, define the first admitted slice, record the same-branch continuation posture until `Completion Status` becomes green, and record any known future-dependent blockers before Workstream begins.
-- Workstream must execute admitted implementation slices one slice at a time, keep re-evaluating the backlog item after each seam and slice, and keep later slices on the same branch by default when scope, phase, risk, and validation authority remain green unless the USER explicitly approves a docs-only bypass or backlog split.
-- Docs-only Workstreams require explicit USER approval.
-- Planning-Loop Bypass User Approval: APPROVED
-- Planning-Loop Bypass Reason:
-- Release-bearing implementation work with no runtime/user-facing, backend/runtime, or developer-tooling delta is blocked unless the USER explicitly approves that release window.
-- `Workstream` may not advance to `Hardening` while remaining implementable work is still available on the current backlog item
-- Planning-loop prevention belongs in ChatGPT preflight analysis.
-- If planning-loop risk is detected, ChatGPT must block prompt generation and return analysis instead of an execution prompt.
-- Once prompt generation is allowed, the prompt stays thin and neutral.
-- Codex prompts should express admitted scope positively through project context, active seam, task, and return format.
-
-Package and Element Coverage anchors:
-
-- Single-Slice Package User Approval Missing
-- Package Completion Unproven
-- Admission State: Admitted
-- Element Coverage
-- user-facing surface
-- runtime/backend behavior
-- fail-safe/recovery
-- security/privacy
-- voice/audio
-- external integration
-- local AI/capability packs
-- packaging/install
-- monitoring/HUD
-- release impact
-- Element Coverage rows never count as `Admission State: Admitted`, slices, seams, packages, FAMs, selected-next truth, or release drivers
-
-Branch Planning and runtime-plan anchors:
-
-- Workstream Entry whole-package analysis
-- entry-seam implementation
-- Workstream Entry Whole-Package Analysis Missing
-- USER_BRANCH_VISION_REVIEW.md
-- USER_BRANCH_PLAN_REVIEW.md
-- USER Branch Plan Review Gate
-- Contract Status
-- USER Review Response
-- BP3 Orchestration Validation Missing
-- Branch Readiness Stage 1 - Analysis Gate
-- BR1 Candidate Viability / Grouping Matrix
-- BR1 Candidate Implementability Missing
-- BR1 Candidate Grouping Matrix Missing
-- BR1 Planning-Only Candidate Drift
-- BR1 Support-Only Candidate Drift
-- BR1 Readiness-Only Candidate Drift
-- BR1 Manifest-Only Candidate Drift
-- BR1 Tiny-Branch Sprawl
-- BR1 Feature Vision Context Missing
-- BR1 Candidate Split Reason Missing
-- Implementation-Bearing Route Unproven
-- Post-Merge Release Readiness Handoff
-- Post-Merge Release Readiness Decision Missing
-- Release Readiness Handoff Skipped
-- Branch Readiness Stage 2 - Execution Gate
-- Branch Readiness Execution User Approval Missing
-- no repository file mutation
-- Runtime Branch Engineering Contract
-- USER Engineering Planning Review:
-- Runtime Implementation Approval:
-- Current Runtime Baseline:
-- Planned Runtime Delta:
-- User-Facing Runtime Delta:
-- State / Config / Schema Delta:
-- Validator / Helper Delta:
-- Workstream Seam Map:
-- Proof Expectations:
-- Plan-To-Implementation Traceability:
-- Branch Runtime Engineering Plan
-- local USER hub packet
-- backlog and roadmap remain compact pointer/status surfaces
-
-Freshness and PR Readiness anchors:
-
-- Prompt-Entry Origin/Main Freshness Gate
-- Prompt-Entry Freshness Check:
-- Fetched origin/main:
-- Origin/Main Advanced Since Last Action:
-- Pre-Rebaseline Impact Audit Required:
-- Rebaseline/Reconciliation Status:
-- Prompt-Entry Origin/Main Freshness Missing
-- Origin/Main Advanced Rebaseline Required
-- validating locally is not enough
-- PR Readiness Stage 1 - Analysis Gate
-- PR Readiness Stage 2 - Execution Gate
-- PR Readiness Execution User Approval Missing
-- analysis-first blocker repair gate
-- PR Readiness Stage 1 Repair Pending
-- USER approval to enter Stage 2
-- analysis-first readiness-lock gate
-- Stage 1 Ready For Stage 2
-- PR Readiness Stage 1 Repair Required
-- Current-Branch Branch Readiness Re-entry Required
-- New Carrier Branch Required
-- Stage 1 USER Waiver Required
-- Stage 2 begins only after
-- Stage 2 sync plan
-- Branch Readiness fallback is real carrier branch/package analysis
-- PR Readiness does not require selected-next truth or a waiver by default
-- direct PR verification
-- recurring PR watcher automation
-- Direct PR2 Continuation Rule
-
-Release-window and post-merge anchors:
-
-- Release Window Audit
-- Release Window Audit Incomplete
-- Remaining Known Release Blockers: None
-- Another Pre-Release Repair PR Required: NO
-- Release Window Split Waiver: None
-- post-merge closeout proof must be in merged source truth
-- not only in a deleted branch, reflog, automation memory, or conversation transcript
-- next real runtime package carrier
-- release execution and post-release canon closure are separate
-- a local-only post-release closure commit is a blocker
-- protected-main branch rejection must route to the next approved Branch Readiness Stage 2 canon/governance repair carrier
-- post-release validation must compare published GitHub release/tag truth and release-body format against remote repo source truth
-- runtime implementation remains blocked until release publication exists, post-release canon drift is explicitly recorded or repaired through the approved Branch Readiness carrier, and owning validation reports green
-
-Governed output and continuation anchors:
-
-- Seam Status
-- Slice Status
-- Waiver Status
-- Continue Decision
-- Continuation Execution Latch
-- Stop Basis
-- Every phase digest must include `Next Legal Phase` as its own output field, even when `Continue Decision: Continue`; `Next Safe Move` may remain lawful-stop or route-specific and must not replace required continuation.
-- If `Completion Status` is `In Progress` and no named blocker or waiver stops work, the generated prompt must require continuation rather than `Await Next Instruction`.
-- Use these governed state markers as execution control, not just reporting.
-- If `Continue Decision` is `Continue`, the generated prompt must not let Codex end on a seam-complete final response, rollback path, or next-seam recommendation; it must require continued execution until a lawful `Stop` decision exists.
-- reporting Next Safe Move is not a substitute for execution
-- continue decision must be acted on immediately by starting the next seam needed inside the current slice
-- the prompt `Return:` block describes the lawful-stop report; it is not permission to stop while `Continue Decision` remains `Continue`
-- A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.
-- A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
-- Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
-- Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
-- If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
-- If `Completion Status` is `Red`, `Continuation Action` must report the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
-- Treat `Completion Status` as the exact `Phase: Workstream Status` gate after load.
+A USER-approved sandbox source reform is not product implementation, live activation, or Stage-2 admission. Continue its admitted repairs without requiring the paused legacy qualifier to green itself. Generated markers and historical receipts must not widen scope, grant authority, or turn an optional observation into a new blocking requirement.
 
 ## Output Expectations
 
-Formal next-phase, review, validation, PR, release, or handoff digests must not be compacted. They should preserve required fields, exact blockers, decisions, files, validation status, and next legal phase as routed by Main and the owner docs.
+Return the smallest complete decision packet: outcome, exact scope/identity, material evidence, remaining blockers, USER actions, and next legal gate. Do not expand the packet to reproduce historical ledgers, generated stdout, duplicate rule text, or validator marker catalogs.
 
 Generated prompts should ask Codex to report:
 
@@ -394,9 +247,9 @@ If this loader contains stale wording, a Main-first contradiction, duplicated de
 Keep the repair narrow:
 
 - convert duplicate policy into owner-routing language
-- preserve required validator marker phrases as routing anchors
+- update or retire stale validator marker requirements with their source owner rather than preserving contradictory defaults
 - avoid moving live operational state into repo docs
 - avoid changing phase law here unless Main routes the change to the owning canon and USER approval covers that broader repair
-- keep source-truth and governance fixes on real carriers, not standalone repair-only branches by default
+- route operational Governance changes to the approved external source carrier; route repository product/interface patches to their approved repository carrier
 
 When validation and source truth disagree, diagnose the validator against the owner docs before patching it. Validators and helpers are evidence, not authority.
