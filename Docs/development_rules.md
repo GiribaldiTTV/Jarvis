@@ -85,7 +85,7 @@ If the incoming change set touches runtime/provider/UI/source-truth/validator fi
 
 ## Multi-Worktree Automation Contract
 
-Standing automation is not lane truth by itself. `Automation Observability` must treat Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` as evidence inputs until `dev/automation_observability_report.py` classifies a finding as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`.
+Standing automation is not lane truth by itself. `Automation Observability` must treat Codex automation run/inbox rows and `$CODEX_HOME/automations/*/memory.md` as evidence inputs until the applicable external operational owner classifies a finding against directly verified identity/evidence as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`.
 
 Every active automation that can affect branch, PR, Release Readiness, post-merge, release-window, selected-next, toolchain, or branch governance truth must carry a configured cwd that resolves to a known worktree. The report must prove cwd, git root, worktree role, branch, `HEAD`, `origin/main`, and stale-neutral-main posture. `Automation CWD Worktree Mismatch` blocks the finding when the automation is pointed at stale `D:\Nexus Desktop AI\Product Repository`, a missing folder, a parked worktree, the wrong FAM lane, or a Governance worktree that is not the recorded lane. Operational Governance repair uses its explicitly approved external source carrier; product/interface repairs use their approved repository carrier. Historical RRI cycle, standing-intake and closeout exceptions do not select current authority.
 
@@ -355,20 +355,11 @@ Follow `Docs/phase_governance.md#pre-pr-durability-rule`: local commit, push, PR
 PR Readiness still checks the approved product branch's durable truth before PR creation.
 
 
-For active promoted work, the canonical workstream doc is the single authoritative owner of:
+For promoted, `Registry-only` and approved non-backlog work alike, the matching external operational record exclusively owns live `Current Phase`, `Phase Status`, current blockers, task/write owner, branch/worktree assignment, locks/leases and next operational action.
 
-- `Current Phase`
-- `Phase Status`
-- `Branch Class`
-- `Blockers`
-- `Entry Basis`
-- `Exit Criteria`
-- `Rollback Target`
-- `Next Legal Phase`
+Repository phase, workstream and branch owners retain canonical phase names, branch-class meaning, product entry/exit requirements, acceptance/proof contracts, `Entry Basis`, `Exit Criteria`, `Rollback Target` requirements and durable accepted milestone or historical/fold-down receipts. Named phase fields in those records are product contracts or explicitly identified historical/accepted snapshots, not a second live current value.
 
-Backlog, roadmap, and prompt text may reference phase state, but they must not override the workstream doc.
-
-For selected `Registry-only` backlog branches in `Branch Readiness`, and for approved non-backlog branches, the single authoritative owner is the branch authority record under `Docs/branch_records/`.
+Resolve current phase through `Docs/phase_governance.md#single-phase-authority-rule` and its phase resolver. Missing current authority blocks execution; do not manufacture a repository live-state record to fill the gap.
 
 ## Canon Freshness Rules
 
@@ -483,7 +474,7 @@ That means:
   - `PR Watcher Provisioning Unproven` and `PR Watcher Routing Unverified` become active only when the USER explicitly approves a watcher exception for that PR; otherwise direct PR verification owns live PR and merge/close proof
   - after live PR creation, live PR validation, merge-status green, and bot-review approval, `PR Merge Verification Pending` keeps PR Readiness blocked until direct GitHub/GitHub-connector verification proves that the live PR is `merged`
   - phase-critical automation cannot clear a gate merely because its card, config, or automation list says `ACTIVE`; `ACTIVE` is configuration state, not run proof, so keep `Automation Runtime Unproven` active until thread/inbox output, automation memory/log/state-file updates, scheduler last-run evidence, or another accepted run proof exists
-  - Automation Observability Review Pending is checked with `dev/automation_observability_report.py`; standing automation findings in Codex automation run/inbox rows or `$CODEX_HOME/automations/*/memory.md` are promoted into source-of-truth work only when classified as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, and any such finding needs a bounded repair seam before repo canon changes
+  - Automation Observability Review Pending is checked through the applicable external operational owner using directly verified identity/evidence; standing automation findings in Codex automation run/inbox rows or `$CODEX_HOME/automations/*/memory.md` are promoted into source-of-truth work only when classified as `BLOCKER_CANDIDATE` or `REVIEW_REQUIRED`, and any such finding needs a bounded repair seam before repo canon changes
   - background-observability-only automations are advisory only; stale historical toolchain-path reports are `REVIEW_INFO` unless current source truth still owns the referenced path, and they must not clear watcher-exception proof, bot-review repair proof, merge verification proof, or release-readiness proof
   - if the preferred Codex automation remains `ACTIVE` without run evidence, the owning phase stays blocked until run evidence exists or a bounded fallback is activated; any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs
 - no PR-ready with a PR Readiness scope miss:
@@ -504,7 +495,7 @@ That means:
   - a release-bearing branch must explicitly declare `Release Target:`, `Release Floor:`, `Version Rationale:`, `Release Scope:`, and `Release Artifacts:` before Release Readiness can report green
   - stale or semantically mismatched release target truth is still `Release Target Undefined`, even when all fields are present
   - Release Readiness is analysis-only for repository files; it may produce release package information in the response, but it must not edit, stage, commit, generate, or refresh source, docs, canon, validator, helper, release-note, or handoff files
-  - after Release Readiness Stage 2 publishes a release and post-publish release/tag/body/health validation is green, stale external operational records that still point to the just-released branch, PR, release window, selected-next state, or previous source commit are `Post-Release External State Carry-Forward`, not release debt, not durable repo canon drift, and not a Release Readiness blocker by themselves. Codex may reconcile only `D:\Nexus Desktop AI\Governance State` in the bounded RR2 post-release closeout without a new USER decision when Git/GitHub/repo validation is green and no repo source, branch/PR, merge, release, cleanup, FAM, runtime, private, provider, cache, or memory surface is mutated. If not reconciled in RR2, BR1 reports `Post-Release External State Carry-Forward:` and BR2 reconciles it before branch/worktree setup or implementation.
+  - after Release Readiness Stage 2 publishes a release and post-publish release/tag/body/health validation is green, stale external operational records that still point to the just-released branch, PR, release window, selected-next state, or previous source commit are `Post-Release External State Carry-Forward`, not release debt, not durable repo canon drift, and not a Release Readiness blocker by themselves. Any bounded RR2 reconciliation of `D:\Nexus Desktop AI\Governance State` must be selected by the installed external owner and covered by existing USER authorization for the exact effects, with live Git/GitHub/repo evidence and no repo source, branch/PR, merge, release, cleanup, FAM, runtime, private, provider, cache, or memory mutation. Otherwise return the missing decision. If not reconciled in RR2, BR1 reports `Post-Release External State Carry-Forward:` and routes any necessary BR2 reconciliation through that same owner and authorization boundary before dependent setup or implementation.
 - Route operational Governance source repairs to the approved external carrier under `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`; keep product changes and repository interface patches on their separately approved repository carrier.
   - if Release Readiness identifies stale/old branch or worktree cleanup, record `Branch Cleanup Plan:` and `Branch Cleanup Execution Gate:` only; cleanup waits for `Branch Readiness Stage 2 - Execution Gate` branch/worktree creation so no GitHub Desktop-bound worktree loses its valid branch target
   - tracked file changes while the authority record says `Release Readiness` are blocked as `Release Readiness File Mutation Attempt`
@@ -1057,12 +1048,10 @@ Codex may not:
 If Codex reaches the approval blocker, it must report `Backlog Addition User Approval Missing` and list every FAM that is still not closed plus every package or slice that is not complete.
 If no still-not-closed entries exist, report `Backlog Exhaustion User Decision Pending` and stop for USER direction.
 
-## Relationship To `Docs/orin_task_template.md`
+## Retired Task-Template Compatibility
 
-`Docs/orin_task_template.md` remains the per-task execution scaffold.
+`Docs/orin_task_template.md` is a retained forwarding stub for old links, not a per-task execution scaffold or an independent owner of prompt or phase law. Current prompt-generation and loader continuity belong to `Docs/nexus_startup_contract.md` after Main-first loading. The product and phase requirements in this document and `Docs/phase_governance.md` remain authoritative for their layers; current task identity and operational effects resolve through the matching external owner and explicit USER authorization.
 
-This document defines repo-wide rules.
-The task template defines the structure of a specific request.
 # Current Workspace Root Override
 
 Current root routing is owned by `Docs/nexus_workspace_roots.md`. Neutral main

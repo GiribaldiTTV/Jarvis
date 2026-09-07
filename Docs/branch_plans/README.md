@@ -397,7 +397,7 @@ Cloud-backed Desktop or OneDrive locations do not become current USER review own
 
 - Backlog entries remain compact registry, status, and pointer surfaces.
 - Roadmap entries remain compact stage-breakpoint schedule and milestone-checkpoint reference surfaces.
-- Branch authority records remain durable identity, approval, and historical receipt surfaces; non-standing active branch authority lives in external operational state or Git/GitHub/helper-derived truth.
+- Branch authority records remain durable identity, approval, and historical receipt surfaces; active branch authority lives in external operational state or Git/GitHub/helper-derived truth.
 - Branch Runtime Engineering Plans define detailed runtime execution planning. Their active operational copy belongs in external operational state after transition; repo copies are standards, transition evidence, retirement-index entries, or historical receipts.
 - Canonical workstream docs and family dossiers receive durable promoted lessons only after PR Readiness fold-down decides what should survive beyond the active branch.
 
@@ -409,7 +409,7 @@ Runtime-focused plans must include:
 - Owning Branch:
 - Worktree Path:
 - Branch Authority Record Pointer:
-- Current Phase:
+- Current Phase: pointer to the matching external current owner, or an explicitly identified derived/historical snapshot; never an independent live plan value
 - Branch Runtime Engineering Plan:
 - Engineering Plan Status:
 - Current Runtime Baseline:
@@ -986,7 +986,7 @@ Each overlapping file uses a repeatable block:
 
 `Regression / Gating Impact:` values are `None`, `Low`, `Medium`, `High`, or `Unknown`. For `fixture/test` overlap, `Medium`, `High`, or `Unknown` is `BLOCKED` because it can change validator truth, regression coverage, or release gating; `None` or `Low` may be WARN or PASS only when the ledger and fallback evidence support that classification.
 
-`Resolution Owner:` values are `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Standing Governance`, `USER Decision`, or `Future Branch`.
+`Resolution Owner:` values are `Current Branch`, `Incoming/Folded Owner`, `Originating Lane`, `Approved Source Owner/Carrier`, `USER Decision`, or `Future Branch`.
 
 When overlap evidence is missing, weak, stale, or conflicting, Codex must run `Rebaseline Overlap Failure Procedure` and return a packet with `Overall Overlap Gate Result:`, per-file `Per-File Result: PASS / WARN / BLOCKED`, `Recommended Resolution:`, `Validation Required:`, `USER Decision Needed:`, and `Rebaseline Mutation Status:`. Fallback evidence supports classification and USER decision-making only; after the effective point it cannot produce `PASS` without branch-owned change-intent evidence.
 

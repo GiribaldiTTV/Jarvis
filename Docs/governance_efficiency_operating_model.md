@@ -76,7 +76,8 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/phase_governance.md` | normative phase rules, phase enum, blockers, gates, proof hierarchy | branch-local implementation details |
 | `Docs/development_rules.md` | developer-facing execution rules and compact phase mirrors | duplicate full policy blocks already owned elsewhere |
 | `Docs/codex_modes.md` | Codex operating posture and mode behavior | branch-local truth or release receipts |
-| `Docs/orin_task_template.md` | reusable prompt skeleton fields | current live branch facts |
+| `Docs/orin_task_template.md` | compatibility forwarding for historical links | current prompt law, execution authority, phase rules or live task state |
+| `Docs/nexus_startup_contract.md` | current loader continuity and prompt-generation guardrails when applicable | product phase law, independent execution authority or live operational state |
 | `Docs/codex_user_guide.md` | human-readable operator guide | machine-enforced current-state authority |
 | `Docs/worktree_slots.md` | stable slot IDs and intended lane labels | active worktree assignment ledger, `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |
 | `Docs/feature_backlog.md` | compact feature-family registry and pointer layer | detailed active-branch execution planning, package/slice ledgers, or live lifecycle posture |
@@ -86,7 +87,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/family_feature_visions/` | USER-approved durable feature-category direction inside one FAM, compact FFV and element IDs, reusable surface/experience/proof direction, Deferred Feature Carryforward facts, and BP1 `Feature Vision Context` for selected feature-bearing branch routes that require this durable middle layer | backlog family identity, branch route identity, Slice/SLC identity, seam identity, selected-next truth, active branch state, current PR/release/worktree state, implementation approval, live operational ledgers, or per-seam execution checklists |
 | `Docs/ui_reference_catalog/` | USER-promoted durable UI reference contracts after explicit promotion approval, reference schema, catalog index, accepted reference applicability, known limitations, and adoption rules | candidate evidence, active proof ledgers, current screenshots/video inventories, PR state, issue state, live adoption status, helper green status, or inferred golden proof from branch work |
 | `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\reference_candidates\` and `D:\Nexus Desktop AI\Governance State\reference_standards\` | branch-owned Reference Standard candidate proposals, generated aggregate candidate reports, generated collision reviews, and cross-worktree visibility evidence after the current workflow admits external candidate tracking | promoted Reference Standards, source-truth catalogs, USER acceptance, live FAM adoption proof, issue mutation authority, template/shared-primitive promotion, or clean-clone validation requirements |
-| `Docs/branch_records/index.md` | durable branch-record law, standing Governance active-authority exception, historical receipt routing, and pointers to external active operational branch authority | detailed branch implementation checklists or general live active-branch operations lists |
+| `Docs/branch_records/index.md` | durable branch product/phase contracts, historical receipt routing and pointers to external operational authority | live phase/state ownership, standing exceptions or active branch operations lists |
 | `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | current phase, active branch authority, active next gate, active branch lifecycle ledger, volatile live state, live PR/open-review state, selected-next posture, worktree assignment, release-window state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
 | `Docs/branch_plans/<branch>.md` | Branch Runtime Engineering Plan shape, transition-approved plan receipts, retired/historical branch-plan evidence, and durable lookup paths | canonical live branch status, active/complete/pending lifecycle posture, permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger |
 | `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |
@@ -112,8 +113,8 @@ Use this table before recommending consolidation, retirement, archival, deletion
 | `Docs/ui_reference_catalog/` | promoted UI reference contracts and catalog schema after USER-approved promotion | candidate reference evidence, active visual proof inventories, current branch adoption status, helper/validator pass state | durable reference catalog | candidate evidence lives in USER review packets, helper output, branch proof, or external operational state until promotion | no reference may be added, renamed, removed, or treated as golden proof without promotion/retirement proof and USER decision |
 | `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\reference_candidates\` | branch-owned proposed Reference Standard evidence while a branch is active | promoted reference canon, cross-branch aggregate truth, USER acceptance, or current phase approval by itself | external candidate evidence | active external branch plan and future reference-candidate sync helper | snapshot, lock, promotion packet, and USER approval required before any fold-down or schema migration |
 | `D:\Nexus Desktop AI\Governance State\reference_standards\` | generated aggregate sync reports and collision review summaries from branch-owned candidates | primary hand-authored source truth, repo reference catalog, issue ledger, or required clean-clone validation input | external coordination evidence | branch candidate records plus generated helper output | report regeneration or promotion packet required before repo source-truth update |
-| `Docs/branch_records/index.md` | branch-record law, standing Governance exception, durable receipt routing | full active branch operations list | durable routing law | external active authority and Git/GitHub/helpers | governance migration plan and validation required before structural changes |
-| `Docs/branch_records/<branch>.md` | durable branch identity, approval receipts, historical traceability, compact fold-down | current non-standing active authority, live PR/review state, selected-next state, worktree assignment | durable receipt or transition owner | external branch state, Git/GitHub/helpers | exact replacement-owner proof, reference scan, and no-loss fold-down required |
+| `Docs/branch_records/index.md` | durable branch product/phase contracts and historical receipt routing | live phase/state ownership or active branch operations lists | durable routing law | matching external operational record and Git/GitHub facts | exact approved scope, replacement-owner proof and receipt preservation before structural changes |
+| `Docs/branch_records/<branch>.md` | durable branch identity, approval receipts, historical traceability, compact fold-down | current active authority, live PR/review state, selected-next state, worktree assignment | durable receipt or transition owner | external branch state, Git/GitHub/helpers | exact replacement-owner proof, reference scan, and no-loss fold-down required |
 | `Docs/branch_plans/<branch>.md` | branch-plan schema, transition-approved planning receipt, retired/historical evidence | active external branch plan after fold-down, duplicate live ledger | durable receipt or transition owner | `D:\Nexus Desktop AI\Governance State\branches\<branch_slug>\branch_plan.md` | retirement index, reference scan, durable receipt preservation, and USER approval required |
 | `Docs/workstreams/index.md` | workstream/dossier routing | per-branch live state | durable routing index | active external planning or Git/GitHub/helpers | prove no dossier routing loss before move/delete |
 | `Docs/workstreams/<id>.md` | durable package trace, slice trace, proof history, reusable continuity | live branch, PR, or release-window state | durable historical/proof record | active external planning or Git/GitHub/helpers | replacement family dossier or branch receipt proof required |
@@ -185,7 +186,7 @@ Rule Name: `Rebaseline Adoption & Reconciliation Evidence Placement Rule`
 Owner File: `Docs/governance_efficiency_operating_model.md`
 Compact Mirror: `Docs/phase_governance.md` owns the RAR phase gate; `Docs/branch_plans/README.md` owns packet fields; `Docs/validation_helper_registry.md` owns future helper/validator expectations.
 
-Repo docs may own durable RAR rules, field schemas, blocker names, source-owner placement, compact folded receipts, USER-packet requirements, code-to-visual schema, accepted-reference comparator schema, and issue-candidate boundary language. They must not own active per-branch adoption findings, current visual comparator ledgers, code-to-visual row inventories, current screenshot/video/contact-sheet inventories, issue creation status, selected repair decisions, or live RAR gate status for a non-standing branch.
+Repo docs may own durable RAR rules, field schemas, blocker names, source-owner placement, compact folded receipts, USER-packet requirements, code-to-visual schema, accepted-reference comparator schema, and issue-candidate boundary language. They must not own active per-branch adoption findings, current visual comparator ledgers, code-to-visual row inventories, current screenshot/video/contact-sheet inventories, issue creation status, selected repair decisions, or live RAR gate status for any branch.
 
 Active RAR evidence belongs in the active branch's external operational state, USER packet, helper output, Codex digest, Git/GitHub evidence, or screenshot/video evidence root according to fact class:
 
@@ -388,107 +389,32 @@ Blocking Condition:
 - `Release Debt Misclassified`: stale operational tracker state is treated as durable public release debt.
 - `External State Corrupt`: external state cannot be parsed, validated, or matched to its schema.
 - `Stale Lock Recovery Required`: a lock is expired/stale and the recovery risk is unclear.
-- `External State Transition Gate Missing`: an external-state reform branch reaches PR Readiness without reporting the transition gate fields from this model and `Docs/phase_governance.md`.
-- `External State Transition Drift`: Main, phase governance, this model, the external-state plan, or the helper registry disagree about current transition stage, approved scope, active-state owner, or next legal step.
-- `Docs Split Target Matrix Missing`: the external-state reform plan lacks a current target matrix for repo surfaces that stay durable, move external, split/mix, or derive from Git/GitHub/helpers.
-- `External State Migration Premature`: a branch treats external helper/bootstrap/root/migration work as approved, initialized, or required before USER has approved that stage.
+- Historical compatibility token `External State Transition Gate Missing`: part of the completed Docs Split transition; not a current blocker merely because its historical evidence remains.
+- Historical compatibility token `External State Transition Drift`: part of the completed Docs Split transition; not a current blocker merely because its historical evidence remains.
+- Historical compatibility token `Docs Split Target Matrix Missing`: part of the completed Docs Split transition; not a current blocker merely because its historical evidence remains.
+- Historical compatibility token `External State Migration Premature`: part of the completed Docs Split transition; not a current blocker merely because its historical evidence remains.
 
-Repair Owner: standing Governance intake or the current USER-approved legal carrier named by phase governance.
+Repair Owner: the explicitly USER-approved source owner/carrier selected by the Source Truth Authority Hierarchy; no fixed historical standing lane is selected.
 
 Repair Path: classify the item, decide whether it belongs in repo durable truth, central external state, worktree-local staging, Git/GitHub/helper-derived live truth, or historical receipt; then repair through the legal carrier. Additional active state migration, helper/validator implementation, and repo cleanup require separate USER approval.
 
 USER Decision Required: required before external root creation, staging folder creation, schema migration, state migration, shared-state promotion, release-window state mutation, selected-next posture mutation, branch authority mutation, fold-down, cloud backup, private repo creation, or any file move/delete/archive.
 
-Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is local-workflow evidence after Stage 5 and must not be required by GitHub Actions or clean-clone repo validation.
+Validation Owner: repo durable-truth validation remains owned by repo validators. Current external operational validation is selected by the installed external policy and its approved operation and must not be required by GitHub Actions or clean-clone repo validation.
 
 Final Disposition: operational Governance source is activated externally under explicit USER approval; product/router interface changes follow their approved repository carrier. Retained operational history is evidence, not a mandatory product merge or active dependency.
 
 ## Target-Scoped External-State Currentness Contract
 
-Rule Name: `Target-Scoped External-State Currentness Contract`
+Current operational record schemas, validation and writer selection belong to the installed external Control Plane policy and the applicable implementation selected by its current manifest. This repository document retains the product/operational interface; it does not prescribe a parallel live-state schema, fixed record-header format or global validator protocol.
 
-Owner: current external `policy/POLICY.md` and its selected source package for
-operational record semantics and validation. This repository document retains
-placement/interface context; product phase and acceptance contracts remain with
-their repository owners.
+Bind each operation to its explicitly selected targets, applicable identity and exact USER-approved effects. The external owner selects proportional validation for material confinement, foreign-change refusal, hash preconditions, atomic publication and rollback of exact own writes as applicable to that operation. Preserve historical receipts as immutable evidence. Unrelated state partitions do not share one source HEAD, and a selected result proves only its bound inputs and operation, never whole-root currentness or USER acceptance.
 
-Purpose: validate one explicitly selected external record without pretending
-that every record in `D:\Nexus Desktop AI\Governance State` shares one branch head or one
-currentness boundary.
+Repository `dev/orin_external_state_*` mutation entrypoints are historical migration references; their names, status labels and defaults admit no live write. Snapshot and review routes are operation-specific. Do not infer a generic lock/reconcile writer or replay a consumed transaction.
 
-Record classes:
+Historical coverage: the former `Live Worktree Projection`, `Live Branch Projection`, `Live Branch Plan`, `Live Central Authority Projection`, `Live Release-Window Projection`, `Live Review-Bundle Projection` and `Historical Receipt` catalogue, `Historical Receipt Boundary:`, `Record Class:`, `Record Role:`, `state_manifest.json` semantics, single-relative-target arguments, global structural/strict modes and `Target Currentness` blocker/proof catalogue describe earlier migration validation only. See `Docs/validation_helper_registry.md#historical-target-scoped-external-state-coverage` for retained forensic and isolated public-test roles. None is a current schema or mandatory execution gate.
 
-- `Live Worktree Projection`: current assignment and acknowledgement fields for one worktree.
-- `Live Branch Projection`: current active branch phase, blocker, and next legal phase fields.
-- `Live Branch Plan`: current active branch engineering plan fields.
-- `Live Central Authority Projection`: current central authority or selected-next projection.
-- `Live Release-Window Projection`: current release-window coordination fields.
-- `Live Review-Bundle Projection`: current active packet pointer and review state.
-- `Historical Receipt`: immutable historical evidence; it may not be selected as live state.
-
-Live projections may contain historical receipt sections. Those sections must
-be separated by `Historical Receipt Boundary:` and must not redefine the live
-header fields. A target validator must require `Record Class:` and `Record
-Role:` before accepting a projection.
-
-Manifest semantics: `state_manifest.json` is the external-root initialization
-and generated-index anchor. Its `Source Repo HEAD` is not a universal current
-head for unrelated worktrees. Target-scoped validation reports manifest
-posture separately and does not convert one root-manifest head into a
-root-wide currentness claim.
-
-Permitted live projection fields include the target's branch, source HEAD,
-origin/main, worktree path, slot ID, state version, and transition status.
-Historical narrative, receipt hashes, prior PR records, and migration history
-remain immutable evidence and are not rewritten merely to satisfy a newer
-target check.
-
-Writer and transition boundary: only `dev/orin_external_state_target_reconcile.py`
-or a later explicitly admitted record-specific equivalent may update a live
-projection. `dev/orin_external_state_lock_release.py` is the matching lock
-release path. Generic copy/promote/snapshot helpers are not proof of currentness
-and may not be treated as the writer contract. An applied transition requires
-the target's expected pre-write hash, the appropriate lock, a pre-write
-snapshot, atomic replacement, schema validation, an audit entry, a no-loss
-comparison, post-write target validation, and lock release. Manual editing is
-not a legal substitute unless the current phase explicitly admits it.
-
-Target-scoped validation contract:
-
-- exactly one explicit relative target is required;
-- absolute, off-root, traversal, alias, duplicate, reparse-point, and symlink-escape targets fail closed;
-- the target must exist, be a supported live record class, and be UTF-8 parseable;
-- expected branch, source HEAD, origin/main, worktree path, slot ID, and target SHA256 are required inputs;
-- target bytes are hashed before and after parsing to detect changes during validation;
-- Windows path comparisons are case-insensitive and slash-normalized;
-- a target PASS means only that selected target passed; it is never a root-wide PASS;
-- global structural and global strict validation remain separate modes;
-- missing target selection or missing identity expectations is a blocker;
-- a historical receipt, unsupported record, malformed record, stale hash, or mismatched identity is a blocker.
-
-Required proof families include valid live projections, wrong branch/head/baseline,
-wrong worktree/slot, stale target hash, missing target, duplicate/alias target,
-traversal, absolute/off-root path, reparse/symlink escape, malformed record,
-unsupported record class, historical receipt selected as live state, multiple
-valid targets with different source heads, stale root manifest, target change
-during validation, unchanged global behavior, and scoped PASS not represented
-as root-wide PASS.
-
-Blocking Conditions:
-
-- `Target Currentness Selection Missing`
-- `Target Currentness Expectation Missing`
-- `Target Currentness Path Security Failure`
-- `Target Currentness Record Class Unsupported`
-- `Target Currentness Historical Receipt Selected`
-- `Target Currentness Hash Precondition Failed`
-- `Target Currentness Changed During Validation`
-- `Target Currentness Identity Mismatch`
-- `Target Currentness Scoped PASS Misreported As Root PASS`
-
-This contract is additive. It does not make external state mandatory for
-clean-clone validation, does not rewrite the root manifest, and does not
-change the existing global validator's meaning.
+External state is not a dependency of clean-clone product validation or GitHub Actions. Applicable public product tests remain independently useful; a historical compatibility fixture does not admit a current operational write.
 
 ## Reference Candidate / Collision External Coordination Model
 
@@ -546,71 +472,74 @@ Required promotion/supersession table:
 
 Boundary: external candidates are coordination evidence only. They may warn an active branch, support a USER decision packet, or prepare a Governance promotion packet, but they do not become source truth, USER visual acceptance, issue mutation authority, branch scope approval, template/shared-primitive authority, or consuming-FAM adoption proof until source truth and USER approval say so.
 
-## External State Transition Drift Gate
+## External State Transition Drift Gate — Historical Migration Contract
 
-Rule Name: `External State Transition Drift Gate`
+The entire quoted contract below records the completed Docs Split Stage 0–6E migration, including its prior target matrix, blockers and standing-intake route. It is historical evidence, not current prerequisite law, repair assignment or an executable input dependency. Current changes follow the installed external policy, explicit USER authorization, the legal source carrier, material validation and separately approved activation. The historical reform plan and original execution receipts remain preserved.
 
-Owner: `Docs/governance_efficiency_operating_model.md`
-
-Applies To: any branch, PR Readiness packet, Release Readiness blocker repair, governance reform, helper/bootstrap pass, validator transition, review-bundle change, or repo-doc cleanup that changes the External Operational State Store contract, Docs split plan, live-state ownership, external-state schema, migration sequencing, repo live-state leakage policy, or worktree acknowledgement behavior.
-
-Required State:
-
-- `External State Transition Gate:` is reported before PR Readiness Stage 2 / PR creation for external-state reform branches.
-- `Docs/external_operational_state_store_reform_plan.md` carries a current Docs Split Target Matrix and annotated future-work recommendations.
-- Stage 0 means docs/source-truth planning only; it does not approve helper code, validator code, folder creation, external state initialization, state migration, or file movement.
-- Stage 1 means helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but applied mutation remains blocked without later USER approval.
-- Stage 2 means USER-approved local root initialization only; it may initialize `D:\Nexus Desktop AI\Governance State`, but it does not migrate active branch/worktree/release-window state, transition repo validators, or move repo docs.
-- Stage 3 means migration planning and external preview packets only; it may record no-mutation preview packets in external state, but it does not migrate active state.
-- Stage 4A means report-only repo live-state leakage scanning and migration-map helper support; it may inspect repo docs and print migration candidates, but it does not edit repo docs, migrate active state, create external branch/worktree/release-window records, or transition validators.
-- Stage 4B means active-state migration planning packet only; it may use Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules, but it does not create or update central external records, move/delete/archive repo docs, migrate active state, or transition validators.
-- Stage 4C means active-state migration execution planning packet only; it may convert the Stage 4B planning matrix into exact execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question, but it does not run helper `--apply` operations, create or update central external records, move/delete/archive repo docs, migrate active state, create worktree-local staging, or transition validators.
-- Stage 4 means USER-approved active-state migration execution; it may create or update only the approved central external operational records, locks, snapshots, and audit logs. It does not move, delete, archive, or rewrite repo Docs and does not transition validators unless separately approved.
-- Stage 5 means validator transition; local external-state validators may require the initialized external root and migrated records only for approved local workflows, while GitHub Actions and clean-clone repo validators remain external-root independent.
-- Stage 6 means repo cleanup planning; it may classify cleanup lanes, name candidate surfaces, and recommend future execution packets, but it does not edit, move, delete, archive, or rewrite repo Docs.
-- Stage 6A means compact pointer-surface cleanup execution; it may edit only `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md` to remove live operational posture and replace it with pointers to Git/GitHub/helpers, `D:\Nexus Desktop AI\Governance State`, family visions, branch records, branch plans, workstream dossiers, and release receipts.
-- Stage 6B means branch-authority routing cleanup planning; it may define how `Docs/branch_records/index.md` should become durable routing law plus external active-authority pointers, but it must not edit the index, branch records, branch plans, or generated audits.
-- Stage 6C means branch-authority routing cleanup execution; it may edit only `Docs/branch_records/index.md` plus stage-boundary source truth so the index keeps durable routing law, historical receipt routing, and the single standing Governance active exception while non-standing active operational branch authority routes to `D:\Nexus Desktop AI\Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
-- Stage 6D means branch-detail-record / branch-plan cleanup planning; it may define exact future cleanup batches, durable receipt preservation rules, external replacement owners, and validation preflight for branch records and branch plans, but it must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
-- Stage 6E means branch-detail-record / branch-plan no-loss cleanup closure; it may record the execution finding that broad branch-record and branch-plan rewrites are not required when report-only scanners show zero blocking leakage, branch plans are classified as durable historical receipts, and branch records are transition-legal or durable receipt surfaces. It must not edit branch detail records or branch plans except the standing Governance intake record or a later USER-approved exact live-state leakage fold-down repair for a named surface; it must not move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
-- Current repo branch records and branch plans remain durable transition owners or historical receipts until a USER-approved exact cleanup/fold-down stage changes them. That transition posture does not allow current phase, active authority, active next-gate, live PR, selected-next, worktree-assignment, release-window, or active branch-plan ledger fields to remain in a non-standing repo branch record after a validator names them as blocking leakage.
-- Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
-
-Allowed Values:
-
-- Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - Migration Preview`, `Stage 4A - Report-Only Migration Map Helper`, `Stage 4B - Active-State Migration Planning Packet`, `Stage 4C - Active-State Migration Execution Planning Packet`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Stage 6A - Compact Pointer Cleanup`, `Stage 6B - Branch Authority Routing Planning`, `Stage 6C - Branch Authority Routing Cleanup`, `Stage 6D - Branch Detail And Plan Cleanup Planning`, `Stage 6E - No-Loss Cleanup Closure`, `Complete`, `Blocked`, `USER Decision Required`
-- Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
-- Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `External Canonical With Repo Transition Receipts`, `Blocked`
-- External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
-- External Root Status: `Not Approved`, `Approved Not Initialized`, `Initialized`, `Unavailable`, `Invalid Location`
-- Drift Result: `Clear`, `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, `USER Decision Required`
-
-Invalid Values:
-
-- claiming external migration is active during Stage 0
-- requiring `D:\Nexus Desktop AI\Governance State` in GitHub Actions or clean-clone repo validation
-- treating Stage 5 local external-state validation as permission to move, delete, archive, or rewrite repo Docs
-- treating Stage 6 cleanup planning as permission to execute cleanup edits without a later exact-file USER decision
-- treating Stage 6A compact pointer cleanup as permission to edit branch records, branch plans, workstreams, family visions, generated audits, move/delete/archive files, or mutate external state
-- treating Stage 6B branch-authority routing planning as permission to edit `Docs/branch_records/index.md` or any branch record before the execution packet is approved
-- treating Stage 6C branch-authority routing cleanup as permission to edit branch detail records, branch plans, workstreams, family visions, generated audits, move/delete/archive files, create worktree-local staging, mutate FAM worktrees, or make external state mandatory for clean-clone repo validation
-- treating Stage 6D branch-detail-record / branch-plan cleanup planning as permission to edit the branch records or branch plans being planned, collapse durable receipts, move/delete/archive files, or rely on external state without no-loss preservation proof
-- treating Stage 6E no-loss cleanup closure as permission to skip future exact cleanup if a later validator reports blocking leakage, as permission to keep non-standing repo branch records in live operational posture, or as permission to delete/move/archive branch records and branch plans without explicit USER approval
-- moving, deleting, archiving, or rewriting repo docs before helper/bootstrap/migration approval
-- treating worktree-local staging as canonical central state
-- adding new repo live-state owners without either a transition reason, historical-receipt label, or approved migration path
-
-Blocking Condition: `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, or `USER Decision Required`.
-
-Repair Owner: standing Governance intake or another USER-approved governance/source-truth carrier named by phase governance.
-
-Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not initialize folders, migrate state, transition validators, move files, or clean repo Docs unless USER approval explicitly admits that stage; report-only helper scaffolds and migration-map helpers must stay no-mutation by default.
-
-USER Decision Required: required before each stage transition, applied external-state mutation, worktree-local staging creation, validator transition, active-state migration, repo cleanup, moving/deleting/archiving files, or treating external state as canonical for active branch/worktree/release-window records. Adding or running report-only helpers, planning packets, or execution-planning packets does not imply active migration approval.
-
-Validation Owner: marker-first repo validation may check the transition gate and source-truth agreement after the validator is updated; local external-state validation may check the initialized root, required migrated record set, source repo HEAD, schema consistency, and released-lock posture only when an approved local workflow supplies the external root. External operational validation must not become a clean-clone repo requirement.
-
-Final Disposition: the branch may proceed only when the gate is `Clear`, or when USER accepts a recorded waiver/decision for a specific stage. Any unresolved drift blocks PR Readiness green.
+> Rule Name: `External State Transition Drift Gate`
+>
+> Owner: `Docs/governance_efficiency_operating_model.md`
+>
+> Applies To: any branch, PR Readiness packet, Release Readiness blocker repair, governance reform, helper/bootstrap pass, validator transition, review-bundle change, or repo-doc cleanup that changes the External Operational State Store contract, Docs split plan, live-state ownership, external-state schema, migration sequencing, repo live-state leakage policy, or worktree acknowledgement behavior.
+>
+> Required State:
+>
+> - `External State Transition Gate:` is reported before PR Readiness Stage 2 / PR creation for external-state reform branches.
+> - `Docs/external_operational_state_store_reform_plan.md` carries a current Docs Split Target Matrix and annotated future-work recommendations.
+> - Stage 0 means docs/source-truth planning only; it does not approve helper code, validator code, folder creation, external state initialization, state migration, or file movement.
+> - Stage 1 means helper/bootstrap scaffolding and validation planning only; helpers may exist and run report/dry-run checks, but applied mutation remains blocked without later USER approval.
+> - Stage 2 means USER-approved local root initialization only; it may initialize `D:\Nexus Desktop AI\Governance State`, but it does not migrate active branch/worktree/release-window state, transition repo validators, or move repo docs.
+> - Stage 3 means migration planning and external preview packets only; it may record no-mutation preview packets in external state, but it does not migrate active state.
+> - Stage 4A means report-only repo live-state leakage scanning and migration-map helper support; it may inspect repo docs and print migration candidates, but it does not edit repo docs, migrate active state, create external branch/worktree/release-window records, or transition validators.
+> - Stage 4B means active-state migration planning packet only; it may use Stage 4A scanner output to name exact repo surfaces, target external records, lock/snapshot/version requirements, durable receipt preservation, and no-loss promotion rules, but it does not create or update central external records, move/delete/archive repo docs, migrate active state, or transition validators.
+> - Stage 4C means active-state migration execution planning packet only; it may convert the Stage 4B planning matrix into exact execution preflight, external target record list, durable receipt preservation plan, rollback/recovery plan, and USER review question, but it does not run helper `--apply` operations, create or update central external records, move/delete/archive repo docs, migrate active state, create worktree-local staging, or transition validators.
+> - Stage 4 means USER-approved active-state migration execution; it may create or update only the approved central external operational records, locks, snapshots, and audit logs. It does not move, delete, archive, or rewrite repo Docs and does not transition validators unless separately approved.
+> - Stage 5 means validator transition; local external-state validators may require the initialized external root and migrated records only for approved local workflows, while GitHub Actions and clean-clone repo validators remain external-root independent.
+> - Stage 6 means repo cleanup planning; it may classify cleanup lanes, name candidate surfaces, and recommend future execution packets, but it does not edit, move, delete, archive, or rewrite repo Docs.
+> - Stage 6A means compact pointer-surface cleanup execution; it may edit only `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and `Docs/worktree_slots.md` to remove live operational posture and replace it with pointers to Git/GitHub/helpers, `D:\Nexus Desktop AI\Governance State`, family visions, branch records, branch plans, workstream dossiers, and release receipts.
+> - Stage 6B means branch-authority routing cleanup planning; it may define how `Docs/branch_records/index.md` should become durable routing law plus external active-authority pointers, but it must not edit the index, branch records, branch plans, or generated audits.
+> - Stage 6C means branch-authority routing cleanup execution; it may edit only `Docs/branch_records/index.md` plus stage-boundary source truth so the index keeps durable routing law, historical receipt routing, and the single standing Governance active exception while non-standing active operational branch authority routes to `D:\Nexus Desktop AI\Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
+> - Stage 6D means branch-detail-record / branch-plan cleanup planning; it may define exact future cleanup batches, durable receipt preservation rules, external replacement owners, and validation preflight for branch records and branch plans, but it must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
+> - Stage 6E means branch-detail-record / branch-plan no-loss cleanup closure; it may record the execution finding that broad branch-record and branch-plan rewrites are not required when report-only scanners show zero blocking leakage, branch plans are classified as durable historical receipts, and branch records are transition-legal or durable receipt surfaces. It must not edit branch detail records or branch plans except the standing Governance intake record or a later USER-approved exact live-state leakage fold-down repair for a named surface; it must not move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
+> - Current repo branch records and branch plans remain durable transition owners or historical receipts until a USER-approved exact cleanup/fold-down stage changes them. That transition posture does not allow current phase, active authority, active next-gate, live PR, selected-next, worktree-assignment, release-window, or active branch-plan ledger fields to remain in a repo branch record after a validator names them as blocking leakage.
+> - Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
+>
+> Allowed Values:
+>
+> - Transition Stage: `Stage 0 - Docs Plan`, `Stage 1 - Helper Bootstrap Planning`, `Stage 2 - Root Initialization`, `Stage 3 - Migration Preview`, `Stage 4A - Report-Only Migration Map Helper`, `Stage 4B - Active-State Migration Planning Packet`, `Stage 4C - Active-State Migration Execution Planning Packet`, `Stage 4 - Active-State Migration`, `Stage 5 - Validator Transition`, `Stage 6 - Repo Cleanup`, `Stage 6A - Compact Pointer Cleanup`, `Stage 6B - Branch Authority Routing Planning`, `Stage 6C - Branch Authority Routing Cleanup`, `Stage 6D - Branch Detail And Plan Cleanup Planning`, `Stage 6E - No-Loss Cleanup Closure`, `Complete`, `Blocked`, `USER Decision Required`
+> - Docs Split Matrix Status: `Current`, `Missing`, `Stale`, `Needs USER Review`
+> - Active-State Owner Boundary: `Repo Current Owners`, `Hybrid Transition`, `External Canonical`, `External Canonical With Repo Transition Receipts`, `Blocked`
+> - External Root Approval: `Not Approved`, `Bootstrap Approved`, `Migration Waiver Approved`, `Revoked`, `USER Decision Required`
+> - External Root Status: `Not Approved`, `Approved Not Initialized`, `Initialized`, `Unavailable`, `Invalid Location`
+> - Drift Result: `Clear`, `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, `USER Decision Required`
+>
+> Invalid Values:
+>
+> - claiming external migration is active during Stage 0
+> - requiring `D:\Nexus Desktop AI\Governance State` in GitHub Actions or clean-clone repo validation
+> - treating Stage 5 local external-state validation as permission to move, delete, archive, or rewrite repo Docs
+> - treating Stage 6 cleanup planning as permission to execute cleanup edits without a later exact-file USER decision
+> - treating Stage 6A compact pointer cleanup as permission to edit branch records, branch plans, workstreams, family visions, generated audits, move/delete/archive files, or mutate external state
+> - treating Stage 6B branch-authority routing planning as permission to edit `Docs/branch_records/index.md` or any branch record before the execution packet is approved
+> - treating Stage 6C branch-authority routing cleanup as permission to edit branch detail records, branch plans, workstreams, family visions, generated audits, move/delete/archive files, create worktree-local staging, mutate FAM worktrees, or make external state mandatory for clean-clone repo validation
+> - treating Stage 6D branch-detail-record / branch-plan cleanup planning as permission to edit the branch records or branch plans being planned, collapse durable receipts, move/delete/archive files, or rely on external state without no-loss preservation proof
+> - treating Stage 6E no-loss cleanup closure as permission to skip future exact cleanup if a later validator reports blocking leakage, as permission to keep repo branch records in live operational posture, or as permission to delete/move/archive branch records and branch plans without explicit USER approval
+> - moving, deleting, archiving, or rewriting repo docs before helper/bootstrap/migration approval
+> - treating worktree-local staging as canonical central state
+> - adding new repo live-state owners without either a transition reason, historical-receipt label, or approved migration path
+>
+> Blocking Condition: `External State Transition Gate Missing`, `External State Transition Drift`, `Docs Split Target Matrix Missing`, `External State Migration Premature`, or `USER Decision Required`.
+>
+> Repair Owner: standing Governance intake or another USER-approved governance/source-truth carrier named by phase governance.
+>
+> Repair Path: update Main routing, this model, phase governance, external-state plan, helper registry, and the active branch authority record until they agree on the transition stage, active-state owner boundary, target matrix, validation posture, and next legal step. Do not initialize folders, migrate state, transition validators, move files, or clean repo Docs unless USER approval explicitly admits that stage; report-only helper scaffolds and migration-map helpers must stay no-mutation by default.
+>
+> USER Decision Required: required before each stage transition, applied external-state mutation, worktree-local staging creation, validator transition, active-state migration, repo cleanup, moving/deleting/archiving files, or treating external state as canonical for active branch/worktree/release-window records. Adding or running report-only helpers, planning packets, or execution-planning packets does not imply active migration approval.
+>
+> Validation Owner: marker-first repo validation may check the transition gate and source-truth agreement after the validator is updated; local external-state validation may check the initialized root, required migrated record set, source repo HEAD, schema consistency, and released-lock posture only when an approved local workflow supplies the external root. External operational validation must not become a clean-clone repo requirement.
+>
+> Final Disposition: the branch may proceed only when the gate is `Clear`, or when USER accepts a recorded waiver/decision for a specific stage. Any unresolved drift blocks PR Readiness green.
+>
 
 ## Deterministic Binding Language Contract
 
@@ -641,28 +570,11 @@ Local governance validators may require external state only for active local wor
 
 If external state is unavailable in CI, the result is not a repo failure unless repo docs contain `Repo Live-State Leakage`.
 
-## External State Bootstrap Rule
+## Missing External State Routing
 
-If external state is missing during active local workflow, Codex must return `External State Missing` and provide a bootstrap packet instead of inferring active branch, selected-next, worktree assignment, release-window state, or watcher state from stale repo docs.
+If a required current operational record is missing, report `External State Missing` with the exact target, owner and dependent operation. Resolve any initialization or recovery through the installed external policy and explicit USER authorization. Do not infer current phase, task, assignment or next action from stale repository receipts.
 
-The bootstrap packet must include:
-
-- desired root: `D:\Nexus Desktop AI\Governance State`
-- worktree label
-- source repo path
-- branch
-- source repo `HEAD`
-- schema version
-- initialization scope
-- exact USER decision needed
-
-Future helper command expectation:
-
-```text
-python dev\orin_external_state_init.py --root "D:\Nexus Desktop AI\Governance State" --worktree "<label>" --repo "<repo_path>" --schema <schema_version>
-```
-
-Until USER approves initialization, active operational workflow waits. Analysis-only work may continue only with an explicit analysis-only waiver.
+The former repository bootstrap helper and its command examples are historical migration references, not current initialization authority. Root creation, schema changes, recovery and live writes require their own approved external operation; an absent record does not authorize a guessed replacement command. Read-only analysis may continue within its authorized scope without claiming current operational acceptance.
 
 ## Canonical External State Root Rule
 
@@ -811,19 +723,11 @@ Prohibited duplication by default:
 
 If duplication is unavoidable for scanability, name the owner and make the mirror explicitly compact.
 
-## Current Summary And Historical Appendix Split
+## Durable Summary And Historical Appendix Split
 
-Large branch records should keep current machine-readable truth near the top and move long narrative to a historical appendix or folded receipt.
+Repository branch summaries retain durable identity, product contracts, accepted milestones, proof/receipt pointers and a named pointer to the matching external operational owner. Long execution narratives may remain in a clearly historical appendix or fold-down receipt.
 
-Preferred structure:
-
-- top current summary and required markers
-- current blockers and next legal phase
-- active plan pointers
-- validation and receipt summary
-- historical appendix or fold-down receipt
-
-Validators should prefer the current summary when checking phase posture. Historical appendices must not retain live active-branch, live PR, or pending watcher wording unless clearly labeled historical.
+Current phase/status, blockers, task/write owner, assignment, locks/leases and next operational action belong exclusively to that external record. Validators and phase resolution must read that exact current record; repository summaries and appendices provide product contracts and historical evidence, not a second current phase value.
 
 ## Phase Alias UX
 
@@ -846,7 +750,7 @@ Human-facing aliases may be used only as explanatory labels:
 - `PR Readiness Stage 1` -> `Merge Readiness Audit`
 - `PR Readiness Stage 2` -> `PR Execution / Watch`
 - `Release Readiness` -> `Release Validation`
-- `Standing Governance Intake` -> `Policy Repair Lane`
+- Historical alias only: `Standing Governance Intake` -> `Policy Repair Lane`; no current lane or assignment is selected
 
 Aliases must never replace canonical phase markers in source truth.
 
@@ -869,7 +773,7 @@ Branch records, branch plans, and workstreams are related but not interchangeabl
 
 Use this split:
 
-- branch records own durable branch identity, approval receipts, historical phase history, historical blocker evidence, merge/release interpretation, and structured branch traceability receipts. They do not own current non-standing active authority, current phase, active next legal phase, live PR state, selected-next posture, worktree assignment, release-window state, or active branch-plan ledger rows.
+- branch records own durable branch identity, approval receipts, historical phase history, historical blocker evidence, merge/release interpretation, and structured branch traceability receipts. They do not own current active authority, current phase, active next legal phase, live PR state, selected-next posture, worktree assignment, release-window state, or active branch-plan ledger rows.
 - branch plans own detailed active runtime planning, Element-to-Phase Proof Matrix planning, and current element proof-path mapping while the branch is active
 - workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity
 
@@ -1021,20 +925,11 @@ unrecognized top-level USER directories. Legacy repository package helpers are n
 current executable owners, and no whole-folder regeneration or permanent predecessor
 ZIP rule is carried forward by this candidate.
 
-## Standing Governance Ledger Compaction
+## Historical Standing Governance Ledger Compaction
 
-The standing Governance record may keep one compact current cycle summary plus a latest closed cycle pointer.
+The former standing-intake record used a compact RRI cycle summary and closed-cycle pointers. Its `Active RRI Cycle:`, `Latest Closed RRI Cycle:`, `Intake State:`, `Return Digest Status:`, `Sync Rule:` and `Next Legal Phase:` fields are historical compatibility vocabulary, not required current fields.
 
-Detailed historical RRI cycles should be folded into compact historical receipts, PR links, or appendices instead of forcing dedicated closeout PRs that only clear cycle wording.
-
-Required current fields:
-
-- `Active RRI Cycle:`
-- `Latest Closed RRI Cycle:`
-- `Intake State:`
-- `Return Digest Status:`
-- `Sync Rule:`
-- `Next Legal Phase:`
+Preserve the original cycle receipts without rewriting them for a new task. Current operational state and carrier selection belong to the matching external owner; no standing assignment or dedicated cleanup PR follows from these receipts.
 
 ## Release Ownership UX
 
@@ -1082,14 +977,8 @@ Product/persona naming cleanup requires a named governance or product-surface ca
 
 Historical GitHub tags, release titles, old branch records, and prior evidence may preserve old names as historical truth. Current public UI, release notes, branch plans, and new docs should avoid introducing retired/internal names unless the owning source truth explicitly allows historical context.
 
-## Reform Pass Completion Model
+## Historical Reform Pass Completion Model
 
-The consolidated governance reform PR may complete the policy, pointer, and validator scaffolding for all reform categories in `Docs/governance_process_efficiency_reform_plan.md`.
+The original consolidated reform and `RRI-20260521-001` directions describe their USER-approved historical carriers and staged commits. They do not select a current worktree, require another reform stage, authorize cleanup or provide present mutation authority. Their original planning and execution receipts remain historical evidence.
 
-For `RRI-20260521-001` and related USER-approved bounded governance/source-truth repair carriers, the USER direction is one single final PR with staged internal commits rather than revolving PRs. Analysis, model updates, and planning refinements may continue on the currently approved Governance worktree carrier until USER accepts the reform review surface; cleanup execution remains bounded by this model and PR Readiness stays held until USER approval.
-
-It must not perform broad historical migration, branch deletion, worktree cleanup, runtime mutation, release execution, or FAM lane mutation. Those remain separate USER decisions.
-
-## Next Legal Phase
-
-After this operating model merges, future governance efficiency work should use the owner matrix and helper validation instead of creating new duplicate current-state surfaces.
+Future changes follow the Source Truth Authority Hierarchy, installed external policy and explicit USER-approved scope. Product/interface changes stay on their legal repository carrier; operational source changes use the approved external carrier. Activation, release, branch/worktree retirement, storage deletion and relocation retain separate approval boundaries.

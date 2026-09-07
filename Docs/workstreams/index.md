@@ -10,7 +10,7 @@ Use this layer when a backlog item has been promoted and now needs:
 
 - a stable feature-state record
 - a branch-local validation/evidence record
-- an active seam or hardening trail when needed
+- an executed seam or hardening proof trail when needed, with current execution state owned externally
 - a closure record
 - a stable path before and after closure
 
@@ -20,7 +20,7 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 
 ## Workstream Record Rules
 
-- workstream docs are the canonical feature-state, branch-local validation/evidence, active-seam, artifact-history, branch-local reuse, and closure records for promoted work
+- workstream docs are the canonical durable feature-state, branch-local validation/evidence, executed-seam, artifact-history, branch-local reuse, and closure records for promoted work
 - a slice is a bounded admitted backlog-completion unit; SLC is the current branch-planning alias for a Slice-level line item or preserved historical slice ID; a seam is the current execution checkpoint inside or between slices
 - under the broad backlog model, a FAM is the long-lived product family, a package is the branch/release unit under one FAM, a slice is the deliverable area inside that package, SLC is branch-planning trace terminology for slice-level deliverables, and a seam is the execution/validation checkpoint
 - PR numbers are merge/review evidence only and must not be used as workstream, package, or backlog identities
@@ -41,9 +41,9 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - `Registry-only` backlog items do not require a canonical workstream execution record yet
 - when a new broad FAM package moves from `Registry-only` to `Promoted`, its canonical workstream doc should use a stable FAM/package-aware path; existing `Docs/workstreams/FB-XXX_slug.md` paths remain historical trace and must not be treated as live backlog IDs
 - once promoted, the canonical workstream doc becomes the durable execution and traceability record for that lane and must be updated throughout the active branch, not just at closeout
-- workstream docs and branch authority records are the default traceability surface for multi-slice continuation, blocker-clearing, and repair history inside one backlog identity
+- workstream docs and repository branch records retain durable multi-slice execution, blocker-clearing and repair history inside one backlog identity; current phase, active seam and blocker values resolve exclusively through the matching external operational record
 - Element Validation Ledger rows live in the owning traceability surface by default: promoted workstreams keep the active ledger inside the canonical workstream doc, and `Registry-only` active branches keep the active ledger inside the active branch authority record
-- a large active Element Validation Ledger may use a companion file only when the owning workstream doc or branch authority record contains the canonical pointer and remains the authority owner
+- a large Element Validation Ledger may use a companion file only when the owning workstream doc or branch record contains the canonical pointer and remains the product-proof owner; this does not make either record a live task/phase/blocker owner
 - Feature backlog, roadmap, family dossiers, validation helper registry, and Element Coverage must not become the active Element Validation Ledger owner by inertia
 - the Element Validation Ledger tracks created, touched, affected, deferred, future, dependency-only, and non-gating supporting product elements with proof expectations by phase
 - if later work continues the same user-facing feature family, preserve that continuation traceability here or in branch records instead of creating a near-duplicate backlog ID by default
@@ -64,16 +64,10 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 - when Codex creates or materially extends lane-specific validators, harnesses, runtime helpers, scripts, workers, report roots, exported manual-test artifacts, or other reusable support assets on an active workstream branch, the workstream doc should keep a durable artifact-history or artifact-reference section for them
 - when those assets live as durable root `dev/` helpers, the helper must also be registered in `Docs/validation_helper_registry.md` with the correct helper status and consolidation story
 - that artifact-history section should record the path, purpose, introduced-when or introduced-why note, classification such as `baseline`, `supporting`, `interactive-only`, or `temporary`, and how future work should reuse the artifact
-- active promoted workstreams must carry the modern phase-state block:
-  - `## Current Phase`
-  - `## Phase Status`
-  - `## Branch Class`
-  - `## Blockers`
-  - `## Entry Basis`
-  - `## Exit Criteria`
-  - `## Rollback Target`
-  - `## Next Legal Phase`
-- that phase-state block is mandatory for active promoted work and may be omitted from preserved closed historical workstreams unless they are reopened or needed for current-truth repair
+- active promoted workstreams must have a matching external operational record owning current phase/status, blockers, task/write owner, assignment, locks/leases and next operational action under `Docs/phase_governance.md#single-phase-authority-rule`
+- repository workstream records retain required product phase definitions, branch-class meaning, entry/exit and rollback requirements, proof contracts and accepted milestone/history receipts. Fields such as `Current Phase`, `Phase Status` or `Next Legal Phase` may appear only as explicitly historical/accepted snapshots or product contracts, not competing current values
+- missing current external authority blocks execution; preserving a closed historical workstream does not require populating it with live phase state
+
 - branch-local "what worked", reuse guidance, and future-branch carry-forward notes belong in the canonical workstream doc first
 - only generalized cross-branch lessons should be distilled into `Docs/incident_patterns.md`
 - closed workstream docs remain historical lane truth and must not be treated as active execution authority by inertia
@@ -114,7 +108,7 @@ The live backlog routes through broad FAM IDs. Legacy `FB-###` workstream filena
 | `FAM-001` | `PKG-001` | Boot Interface | `FB-042` family dossier plus `FB-043` through `FB-049` historical pass/evidence records |
 | `FAM-003` | `PKG-003` | Interaction and Actions | `FB-027` family dossier plus `FB-036`, `FB-037`, `FB-038`, `FB-041`, and PR #109 historical evidence |
 | `FAM-004` | `PKG-004` | Voice and Audio | `FB-030` promoted workstream record and PR #108 merge evidence |
-| `FAM-006` | `PKG-006` | Monitoring and HUD | `FB-040` historical architecture proof plus active Workstream authority in `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md` |
+| `FAM-006` | `PKG-006` | Monitoring and HUD | `FB-040` historical architecture proof plus durable product/admission receipt in `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`; current Workstream authority resolves through the matching external operational record |
 
 ## Minimum Durable Traceability Content
 
@@ -122,11 +116,11 @@ For an active or recently closed canonical workstream, keep these durable tracea
 
 - `ID` / title, `Record State`, and `Status`
 - purpose / why it matters
-- current branch truth or equivalent promoted-lane truth
+- durable branch/package identity and a pointer to the matching external current owner
 - scope and non-goals
 - executed slices or equivalent progress log
-- current phase, phase status, branch class, blockers, phase-specific validation, seam, timeout, or stop-loss state when phase-sensitive work is active
-- backlog completion status, remaining implementable work, and any future-dependent blockers when implementation work is active
+- product phase, branch-class, validation, timeout, rollback and stop-loss contracts with durable executed-seam/proof receipts; point to the external owner for current phase, phase status, blockers and active execution state
+- durable package-completion evidence and accepted deferred/future-dependency dispositions, with remaining active work and current blockers owned by the matching external operational record
 - durable validation or proof references that materially justify continuation or closeout
 - `## Element Validation Ledger` or a canonical pointer to a companion ledger file when the active lane creates, touches, affects, defers, or preserves proof-bearing product elements
 - artifact history or artifact references for lane-specific validators, harnesses, helpers, reports, or manual-test exports that future work should reuse
@@ -138,8 +132,7 @@ For an active or recently closed canonical workstream, keep these durable tracea
 
 ### Active
 
-Active here means the current promoted truth owner.
-That may be an executable branch owner or another explicitly promoted current-truth owner.
+Active in this index identifies maintained product contracts and durable proof records, not live operational authority. Current task, phase and executable branch assignment must resolve through the matching external record.
 
 None.
 
@@ -148,9 +141,9 @@ None.
 Merged / Release Debt Owners are promoted implementation workstreams whose implementation branch is merge-target complete but whose public release packaging has not yet cleared release debt.
 These records are not active implementation branch owners after merge.
 
-No promoted workstream record currently owns release debt.
+The retained index snapshot lists no promoted workstream release-debt record. Resolve current release-debt ownership and acceptance through the applicable release owner and live Git/GitHub evidence.
 
-Branch-authority release debt owner: `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` records PR #129 FAM-006 Dashboard render/layout hardening as merged-unreleased release debt after `v1.7.0-prebeta`.
+Historical branch release-debt receipt: `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` records PR #129 FAM-006 Dashboard render/layout hardening as merged-unreleased release debt after `v1.7.0-prebeta`.
 
 ### Closed
 
