@@ -13,6 +13,7 @@ traceability; those receipts are not current routing authority.
 | --- | --- | --- |
 | Neutral main / consolidator | `D:\Nexus Desktop AI\Product Repository` | Protected neutral `main`; physical successor of the former C workspace. |
 | Active Git worktrees | `D:\Nexus Desktop AI\Worktrees` | Current FAM and Governance worktrees; Git worktree administration is authoritative. |
+| Installed Governance Control Plane | `D:\Nexus Desktop AI\Governance Control Plane` | Operational policy and executable implementation selected by `current/manifest.json`; separate from mutable Governance State and temporary source carriers. |
 | External operational state | `D:\Nexus Desktop AI\Governance State` | Active branch, worktree, planning, lock, review, and migration state; repo docs remain durable law. |
 | USER review hub | `D:\Nexus Desktop AI\USER` | Current USER packet folders and timestamped upload ZIPs. |
 | Repository recovery | `D:\Nexus Desktop AI\Repository Recovery` | Transitional fallback clones only; never the canonical product repository. |
@@ -31,13 +32,16 @@ traceability; those receipts are not current routing authority.
 3. Current external state and USER packets must resolve below the D data root.
    A C-path occurrence in a historical receipt, fixture, or migration rollback
    record is evidence, not a current path.
-4. Current operational helpers obtain roots from the approved external owner and
-   accept explicit paths for authorized replay or clean-room validation. The
-   retained `dev/nexus_paths.py` exports are legacy import compatibility for
-   existing helpers and public test-support functions, not current routing
-   authority. Its historical defaults do not authorize live reads, writes,
-   fallback or relocation. Public product inspection and tests must not require
-   these machine-local operational directories.
+4. Current operational execution must use the external Control Plane selected
+   by its `current/manifest.json` and the explicit paths admitted by current
+   approval. Retained repository helpers and `dev/nexus_paths.py` still contain
+   their existing imports and historical C/old-Data defaults; this interface
+   contract does not rewrite that code or establish that those helpers migrated.
+   Their operational entrypoints are legacy references, not authorized entrypoints
+   for live Governance work. Use the current external owner's selected entrypoints.
+   Retained pure public test-support functions remain usable without machine-local
+   operational directories. Legacy-code retention or later disposition is separate
+   from the current external operational ownership.
 5. No helper may silently fall back from a missing D current root to a C
    historical root. It must report the missing current root and stop or use an
    explicit caller-supplied path.

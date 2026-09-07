@@ -43,14 +43,17 @@ Allowed `Issue Closeout Status:` values are `Not Applicable`, `Pending USER Appr
 
 Historical branch records may name issue numbers, PRs, release tags, closeout approval, and evidence pointers when they are receipt facts. Current live issue state remains owned by GitHub, Git/GitHub connectors, helpers, Codex digests, USER review packets, or external operational state according to phase rules.
 
-## Retained Standing-Intake Receipt
-
-The following pointer preserves the former standing-intake receipt as historical routing evidence only. It grants no current authority. Current branch/worktree state is external; no standing-intake exception remains in this index.
-
-- `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_release_readiness_source_truth_intake.md` is retained
+  historical evidence in its entirety. Its original `Current Phase`,
+  `Branch Authority Marker`, `Branch Authority State`,
+  `Standing Authority Exception: Allowed`, bootstrap and worktree-routing statements
+  describe the former standing-intake contract; they are not current authority or
+  execution prerequisites. Load this record only for materially relevant historical
+  context. Current operational authority and carrier selection follow
+  `Docs/governance_efficiency_operating_model.md#source-truth-authority-hierarchy`
+  and the matching external state.
 - `Docs/branch_records/feature_governance_d_root_relocation_closure.md`
 - `Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md`
 - `Docs/branch_records/feature_fam_006_dashboard_overlay_profile_persistence_repair.md`

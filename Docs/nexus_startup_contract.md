@@ -79,6 +79,8 @@ Prompt templates should keep exact live branch facts in the Codex digest or exte
 
 ChatGPT's role is repo-state analysis, drift detection, governance review, Codex prompt generation, and Codex-output review. Codex executes. Repo source truth governs. Codex output is evidence, not authority.
 
+Planning-loop prevention belongs in ChatGPT preflight analysis. If planning-loop risk is detected, ChatGPT must block prompt generation and return analysis instead of an execution prompt. Once prompt generation is allowed, the prompt stays thin and neutral; phase and execution rules remain with their routed owners.
+
 ChatGPT may add evidence checks, review questions, validation reminders, source-truth checks, and candidate blockers for Codex to reconcile against the loaded repository governance files.
 
 ChatGPT must not act as Codex's governing authority by removing, replacing, narrowing, reordering, or prohibiting Codex-planned steps through ChatGPT-authored limiting phrases, restriction lists, or replacement logic. If ChatGPT sees a flaw, stale assumption, unsafe scope, governance mismatch, validation gap, or approval gap, it should surface the issue as an analysis finding with the exact USER decision needed.
